@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>123done - your tasks, simplified</title>
+  <meta type="description" content="">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <link rel="stylesheet" href="styles.css" type="text/css">
+  <script src="https://browserid.org/include.js"></script>
+</head>
+<body>
+  <div id="container">
+  <header>
+    <h1>123done <span>your tasks - simplified</span></h1>
+    <nav><ul><!-- <li><a href="#todo">To do</a></li><li><a href="#done">Done</a></li> --><li id="browserid"></li></ul></nav>
+  </header>
+  <section id="todo">
+    <ul id="todolist"></ul>
+    <form action="#" method="post">
+      <div>
+        <label for="newitem">Add item</label>
+        <input type="text" name="newitem" id="newitem" 
+               placeholder="new item" required>
+        <input type="submit" value="Add">
+      </div>
+    </form>
+  </section>
+  <section id="info">
+    <header><h1>So what is all this then?</h1></header>
+    <p>123done.org is a very simple to-do list application. Simply enter your to-do list item above and add it to your tasks. Click the tasks to mark them as done. Clicking an already finished task will remove it from the list.</p>
+    <p>Your task list is stored on the computer for you to use. If you want to sync 123done across devices, log in with Mozilla Persona.</p>
+  </section>
+  <footer>
+    <p><strong>123done</strong> is a project to show the power of HTML5 and Persona. All code by Christian Heilmann and Lloyd Hilaiel.</p>
+  </footer>
+  </div>
+  <script src="123done.js"></script>
+</body>
+</html>
