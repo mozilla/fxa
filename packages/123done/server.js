@@ -33,4 +33,4 @@ app.post('/verify', function(req, res) {
 
 app.use(express.static(__dirname + "/static"));
 
-app.listen(process.env['PORT'] || 8080, '127.0.0.1');
+app.listen(process.env['PORT'] || 8080, '0.0.0.0');
