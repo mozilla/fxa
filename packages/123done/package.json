@@ -1,0 +1,12 @@
+{
+  "name": "123done",
+  "description": "A simple tasklist app that demonstrates Persona Sign-In",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "2.5.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
