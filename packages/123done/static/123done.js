@@ -39,17 +39,13 @@
 
 })();
 
-navigator.id.getData = function(assertion, validationservice, 
-                                success, failure) {
-  request = new XMLHttpRequest();
-  var parameters = 'assert=' + assertion;
-  request.open('POST', validationservice);
-  request.setRequestHeader('If-Modified-Since',
-                           'Wed, 05 Apr 2006 00:00:00 GMT');
-  request.setRequestHeader('Content-type',
+function verifyAssertion(assertion, success, failure)
+{
+  var request = new XMLHttpRequest();
+  var parameters = 'assertion=' + assertion;
+  request.open('POST', '/verify');
+  request.setRequestHeader('Content-Type',
                            'application/x-www-form-urlencoded');
-  request.setRequestHeader('Content-length', parameters.length);
-  request.setRequestHeader('Connection', 'close');
   request.send(encodeURI(parameters));
 
   request.onreadystatechange = function() {
@@ -67,33 +63,38 @@ navigator.id.getData = function(assertion, validationservice,
     }
   };
 }
-navigator.id.loginButton = function(o) {    
-  var elm = document.querySelector(o.element),
-            img = o.imageURL || 'https://browserid.org/i/sign_in_green.png',
-            alt = o.altText || 'Log in with browserID';
-  if(elm) {
-    var b = document.createElement('button');
-    b.innerHTML = '<img src="' + img + '" alt="'+ alt + '">';
-    b.onclick = function() {
-      navigator.id.getVerifiedEmail(function(assertion) {
-       if (assertion) {
-         navigator.id.getData(assertion, o.service, o.success, o.failure);
-       } else {
-         failure('I still don\'t know you...');
-       }
+(function() {
+  var loggedIn = document.querySelector("li.browserid#loggedin");
+  var loggedOut = document.querySelector("li.browserid#loggedout");
+
+  // verify an assertion upon login
+  navigator.id.addEventListener('login', function(event) {
+    verifyAssertion(event.assertion, function(r) {
+      var e = document.querySelector("#loggedin span");
+      e.innerHTML = r.email;
+      loggedOut.style.display = 'none';
+      loggedIn.style.display = 'block';
+    }, function(err) {
+      alert("failed to verify assertion: " + err);
+      loggedOut.style.display = 'block';
+      loggedIn.style.display = 'none';
     });
+  });
+
+  // display login button on logout
+  navigator.id.addEventListener('logout', function(event) {
+    loggedOut.style.display = 'block';
+    loggedIn.style.display = 'none';
+  });
+
+  // upon click of signin button call navigator.id.request()
+  var e = document.querySelector(".browserid#loggedout button");
+  e.onclick = function() { navigator.id.request() };
+
+  // upon click of logout link navigator.id.logout()
+  var e = document.querySelector(".browserid#loggedin a");
+  e.onclick = function() {
+    navigator.id.logout()
   };
-   elm.appendChild(b);
- }
-}
-navigator.id.loginButton({
- element: '#browserid',
- service: 'verify.php', 
- success: function(response) {
-   document.querySelector('#browserid').innerHTML = 'Hi ' +
-   response.email;
- },
- failure: function(response) {
-   alert('Couldn\'t log you in. Sad panda now!');
- }
-});
+
+})();
