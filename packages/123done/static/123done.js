@@ -75,7 +75,7 @@ function verifyAssertion(assertion, success, failure)
       loggedOut.style.display = 'none';
       loggedIn.style.display = 'block';
     }, function(err) {
-      alert("failed to verify assertion: " + err);
+      alert("failed to verify assertion: " + JSON.stringify(err));
       loggedOut.style.display = 'block';
       loggedIn.style.display = 'none';
     });
