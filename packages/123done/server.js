@@ -1,5 +1,5 @@
 var express = require('express'),
-    http = require('http');
+    https = require('https');
 
 var app = express.createServer();
 
@@ -8,12 +8,11 @@ app.use(express.bodyParser());
 app.post('/verify', function(req, res) {
   var body = JSON.stringify({
     assertion: req.body.assertion,
-    audience: "http://127.0.0.1:8080"
+    audience: "https://tripleplay.hacksign.in"
   });
 
-  var vreq = http.request({
-    host: '127.0.0.1',
-    port: '10002',
+  var vreq = https.request({
+    host: 'tripleplay.hacksign.in',
     path: '/verify',
     method: 'POST',
     headers: {

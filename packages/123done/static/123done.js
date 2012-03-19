@@ -96,5 +96,4 @@ function verifyAssertion(assertion, success, failure)
   e.onclick = function() {
     navigator.id.logout()
   };
-
 })();
