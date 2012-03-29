@@ -12,7 +12,7 @@ app.post('/verify', function(req, res) {
   });
 
   var vreq = https.request({
-    host: 'tripleplay.hacksign.in',
+    host: 'dev.browserid.org',
     path: '/verify',
     method: 'POST',
     headers: {
