@@ -8,7 +8,7 @@ app.use(express.bodyParser());
 app.post('/verify', function(req, res) {
   var body = JSON.stringify({
     assertion: req.body.assertion,
-    audience: "http://123done.org"
+    audience: process.env['PUBLIC_URL']
   });
 
   var vreq = https.request({
