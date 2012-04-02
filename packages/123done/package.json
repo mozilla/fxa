@@ -6,6 +6,9 @@
   "dependencies": {
     "express": "2.5.0"
   },
+  "devDependencies": {
+    "awsbox": "*"
+  },
   "scripts": {
     "start": "node server.js"
   }
