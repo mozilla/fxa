@@ -12,7 +12,7 @@ app.post('/verify', function(req, res) {
   });
 
   var vreq = https.request({
-    host: 'dev.browserid.org',
+    host: 'dev.diresworb.org',
     path: '/verify',
     method: 'POST',
     headers: {
