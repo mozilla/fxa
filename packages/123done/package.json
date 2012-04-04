@@ -7,7 +7,7 @@
     "express": "2.5.0"
   },
   "devDependencies": {
-    "awsbox": "0.0.2"
+    "awsbox": "0.0.6"
   },
   "scripts": {
     "start": "node server.js"
