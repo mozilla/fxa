@@ -1,9 +1,10 @@
 var express = require('express'),
     https = require('https');
 
-var app = express.createServer();
-
-app.use(express.bodyParser());
+var app = express.createServer(
+  express.logger(),
+  express.bodyParser()
+);
 
 app.post('/verify', function(req, res) {
   var body = JSON.stringify({
