@@ -1,6 +1,8 @@
 // enable experimental API features
-  if (!navigator.id.request) navigator.id.request = navigator.id.experimental.request;
-if (!navigator.id.watch) navigator.id.watch = navigator.id.experimental.watch;
+if (!navigator.id.request) {
+  navigator.id.request = navigator.id.experimental.request;
+  navigator.id.watch = navigator.id.experimental.watch;
+}
 
 (function(){
 
