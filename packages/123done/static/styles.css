@@ -97,10 +97,14 @@
 
  }
 
+ header ul.loginarea {
+   display: none;
+ }
+
  header li.browserid {
    display: none;
  }
- 
+
  header form {
    margin-left: 50px;
  }

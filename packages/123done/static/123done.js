@@ -1,9 +1,13 @@
+// enable experimental API features
+  if (!navigator.id.request) navigator.id.request = navigator.id.experimental.request;
+if (!navigator.id.watch) navigator.id.watch = navigator.id.experimental.watch;
+
 (function(){
 
   var todo = document.querySelector( '#todolist' ),
-      form = document.querySelector( 'form' ),
-      field = document.querySelector( '#newitem' );
-    
+  form = document.querySelector( 'form' ),
+  field = document.querySelector( '#newitem' );
+
   form.addEventListener( 'submit', function( ev ) {
     todo.innerHTML += '<li>' + field.value + '</li>';
     field.value = '';
@@ -17,7 +21,7 @@
     if ( t.tagName === 'LI' ) {
       if ( t.classList.contains( 'done' ) ) {
         t.parentNode.removeChild( t );
-      } else {  
+      } else {
         t.classList.add( 'done' );
       }
       storestate();
@@ -26,7 +30,7 @@
   }, false);
 
   document.addEventListener( 'DOMContentLoaded', retrievestate, false );
-  
+
   function storestate() {
     localStorage.todolist = todo.innerHTML;
   };
@@ -66,25 +70,29 @@ function verifyAssertion(assertion, success, failure)
 (function() {
   var loggedIn = document.querySelector("li.browserid#loggedin");
   var loggedOut = document.querySelector("li.browserid#loggedout");
+  var loginDisplay = document.querySelector("ul.loginarea");
 
   // verify an assertion upon login
-  navigator.id.addEventListener('login', function(event) {
-    verifyAssertion(event.assertion, function(r) {
-      var e = document.querySelector("#loggedin span");
-      e.innerHTML = r.email;
-      loggedOut.style.display = 'none';
-      loggedIn.style.display = 'block';
-    }, function(err) {
-      alert("failed to verify assertion: " + JSON.stringify(err));
+  navigator.id.watch({
+    onlogin: function(assertion) {
+      verifyAssertion(assertion, function(r) {
+        var e = document.querySelector("#loggedin span");
+        e.innerHTML = r.email;
+        loggedOut.style.display = 'none';
+        loggedIn.style.display = 'block';
+      }, function(err) {
+        alert("failed to verify assertion: " + JSON.stringify(err));
+        loggedOut.style.display = 'block';
+        loggedIn.style.display = 'none';
+      });
+    },
+    onlogout: function() {
       loggedOut.style.display = 'block';
       loggedIn.style.display = 'none';
-    });
-  });
-
-  // display login button on logout
-  navigator.id.addEventListener('logout', function(event) {
-    loggedOut.style.display = 'block';
-    loggedIn.style.display = 'none';
+    },
+    onready: function() {
+      loginDisplay.style.display = 'block';
+    }
   });
 
   // upon click of signin button call navigator.id.request()
