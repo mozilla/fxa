@@ -9,7 +9,7 @@ var app = express.createServer(
 app.post('/verify', function(req, res) {
   var body = JSON.stringify({
     assertion: req.body.assertion,
-    audience: process.env['PUBLIC_URL']
+    audience: process.env['PUBLIC_URL'] || 'http://127.0.0.1:8080'
   });
 
   var vreq = https.request({
