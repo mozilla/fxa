@@ -56,7 +56,7 @@ $(document).ready(function() {
   // see the '/verify' handler inside server.js for details
   function verifyAssertion(assertion, success, failure)
   {
-    $.post('/verify', {
+    $.post('/api/verify', {
       assertion: assertion
     }, function(data, status, xhr) {
       try {
@@ -72,6 +72,11 @@ $(document).ready(function() {
   var loggedIn = $("#loggedin");
   var loggedOut = $("#loggedout");
   var loginDisplay = $("ul.loginarea");
+
+  // now check with the server to get our current login state
+  $.get('/api/auth_status', function(data) {
+    alert(data);
+  });
 
   // verify an assertion upon login
   navigator.id.watch({
