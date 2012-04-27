@@ -15,6 +15,15 @@ var app = express.createServer(
   })
 );
 
+// a function to verify that the current user is authenticated
+function checkAuth(req, res, next) {
+  if (!req.session.user) {
+    res.send("authentication required\n", 401);
+  } else {
+    next();
+  }
+}
+
 app.post('/api/verify', function(req, res) {
   var body = JSON.stringify({
     assertion: req.body.assertion,
@@ -45,16 +54,32 @@ app.post('/api/verify', function(req, res) {
   vreq.end();
 });
 
+// auth status reports who the currently logged in user is on this
+// session
 app.get('/api/auth_status', function(req, res) {
   res.send(JSON.stringify({
     logged_in_email: req.session.user || null,
   }));
 });
 
-app.post('/api/logout', function(req, res) {
+// logout clears the current authenticated user
+app.post('/api/logout', checkAuth, function(req, res) {
   req.session.user = null;
   res.send(200);
 });
+
+// the 'todo/save' api saves a todo list
+app.post('/api/todos/save', checkAuth, function(req, res) {
+  
+
+});
+
+// the 'todo/get' api gets the current version of the todo list
+// from the server
+app.get('/api/todos/get', checkAuth, function(req, res) {
+
+});
+
 
 app.use(express.static(__dirname + "/static"));
 
