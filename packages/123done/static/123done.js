@@ -207,6 +207,10 @@ $(document).ready(function() {
         loggedInEmail = null;
         updateUI(loggedInEmail);
 
+        // clear items from the dom at logout
+        $("#todolist > li").remove();
+        storestate();
+
         // upon logout, make an api request to tear the user's session down
         $.post('/api/logout');
       },
