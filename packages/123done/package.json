@@ -4,10 +4,15 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "2.5.0"
+    "express": "2.5.0",
+    "client-sessions": "0.0.6",
+    "redis": "0.7.1"
+  },
+  "optionalDependencies": {
+    "hiredis": "0.1.14"
   },
   "devDependencies": {
-    "awsbox": "0.0.8"
+    "awsbox": "0.0.10"
   },
   "scripts": {
     "start": "node server.js"

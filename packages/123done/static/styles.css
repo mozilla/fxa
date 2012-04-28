@@ -1,166 +1,195 @@
-/* @override http://123done.org/styles.css */
+* {
+    margin: 0;
+    padding: 0;
+}
 
-* { 
-   margin: 0;
-   padding: 0;
- }
- 
- footer, section, header, aside, figure {
-   display: block;
- }
- html {
-   background: #f5f2e4;
-   background-image: url(background.png);
-   height:100% ;
-   
- }
- h1 { 
-   color: #030; 
-   font-weight: 200;
- }
- body {
-   font-size: 15px;
-   font-family: helvetica neue, verdana, sans-serif;
-   font-weight: 200;
- }
- section form {
-   
-   color: black;
-   border-radius: 2px;
-   padding: 8px 10px;
-   position: relative;
-   font-size:20px;
-   
- }
- #newitem {
-   width: 548px;
-   font-size: 20px;
-   border: 1px dotted #333;
-   margin-left: 6px;
-   padding: 1px 4px;
- }
- 
- #todolist {
-   margin: 10px 10px;
- }
- #todolist li {
-   font-size: 24px;
-   border-radius: 2px;
-   list-style: none;
-   background: #eee;
-   padding: 5px 10px;
-   margin-bottom: 5px;
-   position: relative;
- }
- #todolist li:nth-child(2n) {
-   background: #ccc;
- }
- #todolist li:hover:after,
- #todolist li.done:after {
-   content: '✔';
-   color: #060;
-   position: absolute;
-   right: 5px;    
- }
- #todolist li.done:hover:after {
-   content: 'x';
-   font-weight: bold;
-   color: #c00;
-   position: absolute;
-   right: 5px;    
- }
- h1 span {
-   font-size: 14px;
-   color: #030;
- }
- header { 
-   position: relative;
-   padding: 10px 5px;
-   margin-bottom: 60px;
- }
- header{
+footer, section, header, aside, figure {
+    display: block;
+}
 
+html {
+    background: #f5f2e4;
+    background-image: url(background.png);
+    height:100% ;
+    font-family: 'Josefin Sans', sans-serif;
+}
 
+h1 {
+    color: #030;
+    font-weight: 200;
+}
 
- }
+body {
+    font-size: 15px;
+    font-family: helvetica neue, verdana, sans-serif;
+    font-weight: 200;
+}
 
- header ul.loginarea {
-   display: none;
- }
+section form {
+    color: black;
+    border-radius: 2px;
+    padding: 8px 10px;
+    position: relative;
+    font-size:20px;
+    margin-top: 50px;
+}
 
- header li.browserid {
-   display: none;
- }
+#newitem {
+    width: 548px;
+    font-size: 20px;
+    border: 1px dotted #333;
+    margin-left: 6px;
+    padding: 1px 4px;
+    height: 25px;
+}
 
- header form {
-   margin-left: 50px;
- }
+#todolist {
+    margin: 10px 10px;
+}
 
- section form input[type="submit"]{
-   position: absolute;
-   color: white;
-   right: 10px;
-   top: 8px;
-   height: 27px;
-   padding: 3px 6px;
-   border: 1px dotted black;
-   text-transform: lowercase;
+#todolist li {
+    font-size: 40px;
+    border-radius: 2px;
+    list-style: none;
+    padding: 14px 0px 2px 45px;
+    margin-bottom: 5px;
+    position: relative;
+    font-family: "Dr Sugiyama", cursive;
+    line-height: .7em;
+    color: #152e81;
+}
 
- }
- 
- #container{
-   width: 100%;
-   margin: 0 auto;
- }
- #todo{
-   width: 700px;
-   margin: 0 auto;
- }
- header nav {
-   position: absolute;
-   right: 10px;
-   top :15px;
- }
- nav ul {
- }
- nav li {
-   float:left;
-   list-style:none;
-   text-align: center;
- }
- nav a {
-   color: #000;
-   text-transform: uppercase;
-   font-size: 20px;
-   text-decoration: none;
-   padding:0px 10px;
-   display:block;
+#todolist li.done {
+ 	color: #817f78;
+}
 
- }
- #info {
-   width: 400px;
-   margin: 0 auto;
-   padding: 30px;
-   
- }
- #info header {
-   background: none;
-   box-shadow: none;
-   margin: 0 0 10px 0;
- }
- #info h1 {
-   color: #000;
-   margin-top: 20px;
- }
- #info p {
-   font-size: 14px;
-   padding-bottom:10px;
- }
- footer {
-   text-align: center;
-   margin: 50px auto;
-   font-size: 12px;
-   width: 680px;
-   border-top: 1px dotted black;
-   padding-top: 10px;
- }
+#todolist li:hover:after,
+#todolist li.done:after {
+    content: '✔';
+    color: #;
+    position: absolute;
+    left: 5px;
+    top: 15px;
+}
+
+#todolist li.done:hover:after {
+    content: 'x';
+    font-weight: bold;
+    color: #c00;
+    position: absolute;
+    left: 5px;
+}
+
+h1 span {
+    font-size: 14px;
+    color: #030;
+}
+
+header {
+    position: relative;
+    padding: 10px 5px;
+    margin-bottom: 60px;
+}
+
+header ul.loginarea {
+    display: none;
+}
+
+header li.browserid {
+    display: none;
+}
+
+header form {
+    margin-left: 50px;
+}
+
+section form input[type="submit"] {
+    position: absolute;
+    color: white;
+    right: 10px;
+    top: 8px;
+    height: 29px;
+    padding: 3px 6px;
+    border: 1px dotted black;
+    text-transform: lowercase;
+    background-color: #817f78;
+
+}
+
+#container {
+    max-width: 700px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+#todo {
+    width: 700px;
+    margin: 0 auto;
+}
+
+header nav {
+    position: absolute;
+    right: 10px;
+    top :15px;
+}
+
+header nav > * {
+    margin-left: 1em;
+    float: right;
+}
+
+#dataState {
+    font-size: .7em;
+}
+
+nav ul {
+}
+
+nav li {
+    float:left;
+    list-style:none;
+    text-align: center;
+}
+
+nav a {
+    color: #000;
+    text-transform: uppercase;
+    font-size: 20px;
+    text-decoration: none;
+    padding:0px 10px;
+    display:block;
+
+}
+
+#info {
+    width: 400px;
+    margin: 0 auto;
+    padding: 30px;
+
+}
+
+#info header {
+    background: none;
+    box-shadow: none;
+    margin: 0 0 10px 0;
+}
+
+#info h1 {
+    color: #000;
+    margin-top: 20px;
+}
+
+#info p {
+    font-size: 14px;
+    padding-bottom:10px;
+}
+
+footer {
+    text-align: center;
+    margin: 30px auto;
+    font-size: 12px;
+    width: 680px;
+    border-top: 1px dotted black;
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
