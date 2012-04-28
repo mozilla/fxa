@@ -108,7 +108,7 @@ button {
     border: none;
 }
 
-button:hover {
+button:hover, #addtask {
     cursor: pointer;
 }
 
