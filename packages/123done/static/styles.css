@@ -63,6 +63,10 @@ section form {
  	color: #817f78;
 }
 
+#todolist li:hover {
+    cursor: pointer;
+}
+
 #todolist li:hover:after,
 #todolist li.done:after {
     content: '✔';
