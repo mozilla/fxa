@@ -99,6 +99,11 @@ header li.browserid {
     display: none;
 }
 
+button {
+    background: none;
+    border: none;
+}
+
 header form {
     margin-left: 50px;
 }
