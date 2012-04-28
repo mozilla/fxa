@@ -7,8 +7,8 @@ var express = require('express'),
 var db = redis.createClient();
 
 db.on("error", function (err) {
-  console.log("Redis Error " + err);
-  process.exit(1);
+  db = null;
+  console.log("redis error!  the server won't actually store anything!  this is just fine for local dev");
 });
 
 var app = express.createServer(
@@ -79,20 +79,25 @@ app.post('/api/logout', checkAuth, function(req, res) {
 
 // the 'todo/save' api saves a todo list
 app.post('/api/todos/save', checkAuth, function(req, res) {
-  db.set(req.session.user, JSON.stringify(req.body));
+  if (db) db.set(req.session.user, JSON.stringify(req.body));
   res.send(200);
 });
 
 // the 'todo/get' api gets the current version of the todo list
 // from the server
 app.get('/api/todos/get', checkAuth, function(req, res) {
-  db.get(req.session.user, function(err, reply) {
-    if (err) {
-      res.send(err.toString(), { 'Content-Type': 'text/plain' }, 500);
-    } else {
-      res.send(reply, { 'Content-Type': 'application/json' }, 200);
-    }
-  });
+  if (db) {
+    db.get(req.session.user, function(err, reply) {
+      if (err) {
+        res.send(err.toString(), { 'Content-Type': 'text/plain' }, 500);
+      } else {
+        res.send(reply, { 'Content-Type': 'application/json' }, 200);
+      }
+    });
+  } else {
+    res.send('[{"v": "Install redis locally for persistent storage, if I want to"}]',
+             { 'Content-Type': 'application/json' }, 200);
+  }
 });
 
 
