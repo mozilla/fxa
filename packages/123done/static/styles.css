@@ -108,6 +108,10 @@ button {
     border: none;
 }
 
+button:hover {
+    cursor: pointer;
+}
+
 header form {
     margin-left: 50px;
 }
