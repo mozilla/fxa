@@ -9,7 +9,7 @@ footer, section, header, aside, figure {
 
 html {
     background: #f5f2e4;
-    background-image: url(background.png);
+    background-image: url(/img/background.png);
     height:100% ;
     font-family: 'Josefin Sans', sans-serif;
 }
