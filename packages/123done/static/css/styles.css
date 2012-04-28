@@ -95,12 +95,13 @@ header {
     margin-bottom: 60px;
 }
 
-header ul.loginarea {
+ul.loginarea li {
     display: none;
 }
 
-header li.browserid {
-    display: none;
+.loginarea .loading {
+    display: block;
+    margin-right: 60px;
 }
 
 button {

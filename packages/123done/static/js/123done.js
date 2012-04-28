@@ -41,13 +41,12 @@ $(document).ready(function() {
     loggedInEmail = JSON.parse(data).logged_in_email;
 
     function updateUI(email) {
+      $("ul.loginarea li").css('display', 'none');
       if (email) {
         $("#loggedin span").text(email);
-        loggedOut.css('display', 'none');
-        loggedIn.css('display', 'block');
+        $("#loggedin").css('display', 'block');
       } else {
-        loggedOut.css('display', 'block');
-        loggedIn.css('display', 'none');
+        $("#loggedout").css('display', 'block');
       }
       $("button").removeAttr('disabled').css('opacity', '1');
     }
@@ -61,6 +60,10 @@ $(document).ready(function() {
       loggedInEmail: loggedInEmail,
       // onlogin will be called any time the user logs in
       onlogin: function(assertion) {
+        // display spinner
+        $("ul.loginarea li").css('display', 'none');
+        $(".loginarea .loading").css('display', 'block');
+        
         verifyAssertion(assertion, function(r) {
           loggedInEmail = r.email;
           updateUI(loggedInEmail);
@@ -87,7 +90,6 @@ $(document).ready(function() {
       // point we can display our login buttons.
       onready: function() {
         updateUI(loggedInEmail);
-        loginDisplay.css('display', 'block');
 
         // display current saved state
         State.load();
