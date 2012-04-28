@@ -233,6 +233,8 @@ $(document).ready(function() {
       // or if the user cancels the dialog.
       $("button").attr('disabled', 'disabled').css('opacity', '0.5');
       navigator.id.request({
+        tosURL: '/tos.txt',
+        privacyURL: '/pp.txt',
         oncancel: function() {
           // when the user cancels the persona dialog, let's re-enable the
           // sign-in button
