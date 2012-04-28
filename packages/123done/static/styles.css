@@ -133,6 +133,15 @@ header nav {
     top :15px;
 }
 
+header nav > * {
+    margin-left: 1em;
+    float: right;
+}
+
+#dataState {
+    font-size: .7em;
+}
+
 nav ul {
 }
 

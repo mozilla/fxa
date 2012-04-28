@@ -1,6 +1,15 @@
 var express = require('express'),
       https = require('https'),
-   sessions = require('client-sessions');
+   sessions = require('client-sessions'),
+      redis = require("redis");
+
+// create a connection to the redis datastore
+var db = redis.createClient();
+
+db.on("error", function (err) {
+  console.log("Redis Error " + err);
+  process.exit(1);
+});
 
 var app = express.createServer(
   express.logger(),
@@ -70,14 +79,20 @@ app.post('/api/logout', checkAuth, function(req, res) {
 
 // the 'todo/save' api saves a todo list
 app.post('/api/todos/save', checkAuth, function(req, res) {
-  
-
+  db.set(req.session.user, JSON.stringify(req.body));
+  res.send(200);
 });
 
 // the 'todo/get' api gets the current version of the todo list
 // from the server
 app.get('/api/todos/get', checkAuth, function(req, res) {
-
+  db.get(req.session.user, function(err, reply) {
+    if (err) {
+      res.send(err.toString(), { 'Content-Type': 'text/plain' }, 500);
+    } else {
+      res.send(reply, { 'Content-Type': 'application/json' }, 200);
+    }
+  });
 });
 
 

@@ -1,5 +1,7 @@
 // enable experimental API features
 $(document).ready(function() {
+  var loggedInEmail = null;
+
   if (!navigator.id.request) {
     navigator.id.request = navigator.id.experimental.request;
     navigator.id.watch = navigator.id.experimental.watch;
@@ -9,15 +11,15 @@ $(document).ready(function() {
       form = $('#todo form'),
      field = $("#newitem");
 
-  // display current saved state
-  retrievestate();
+  function setSyncStatus(status) {
+    $('#dataState').text(status);
+  }
 
   // upon form submission to add a new element, add it to the list
   form.on('submit', function(e) {
     e.preventDefault();
-    // create a new element, set a 'when' attribute which describes when the
-    // element was added (used for server sync), and set its value
-    todo.append($('<li>').attr('when', new Date().getTime()).text(field.val()));
+    // create a new element, set its value, and append it
+    todo.append($('<li>').text(field.val()));
     // clear and refocus the input field
     field.val('').focus();
     storestate();
@@ -38,14 +40,60 @@ $(document).ready(function() {
     ev.preventDefault();
   });
 
+  // state mangement:
+  // * when you are not signed in, we use local storage
+  // * when you sign in with added todo items, we merge them with your items on the server
+  // * when you sign out, we leave your todo items local
+  // * when you change items and you're signed in, we blast those items to the server
+  
   // store current todolist in localstorage
   function storestate() {
     localStorage.todolist = todo.html();
+    setSyncStatus('out of date');
+    if (loggedInEmail) {
+      setSyncStatus('syncing');
+
+      // let's extract the state from the dom
+      var l = [ ];
+      $("#todolist > li").each(function(e) {
+        var self = $(this);
+        l.push({
+          v: self.text(),
+          done: self.hasClass('done')
+        });
+      });
+    
+      // now store it to the server
+      $.ajax({
+        type: 'POST',
+        url: '/api/todos/save',
+        data: JSON.stringify(l),
+        contentType: 'application/json',
+        success: function() {
+          setSyncStatus('saved');
+        },
+        error: function() {
+          setSyncStatus('out of date');
+        }
+      });
+    }
   };
 
   // retrieve todolist from localstorage
   function retrievestate() {
-    if (localStorage.todolist) {
+    if (loggedInEmail) {
+      setSyncStatus('syncing');
+      $.get('/api/todos/get', function(data) {
+        data = JSON.parse(data);
+        for (var i = 0; i < data.length; i++) {
+          var li = $("<li/>").text(data[i].v);
+          if (data[i].done) li.addClass('done');
+          todo.append(li);
+        }
+        setSyncStatus('saved');
+      });
+    } else if (localStorage.todolist) {
+      setSyncStatus('out of date');
       todo.html(localStorage.todolist);
     }
   };
@@ -74,7 +122,7 @@ $(document).ready(function() {
 
   // now check with the server to get our current login state
   $.get('/api/auth_status', function(data) {
-    var loggedInEmail = JSON.parse(data).logged_in_email;
+    loggedInEmail = JSON.parse(data).logged_in_email;
 
     function updateUI(email) {
       if (email) {
@@ -118,6 +166,9 @@ $(document).ready(function() {
       onready: function() {
         updateUI(loggedInEmail);
         loginDisplay.css('display', 'block');
+
+        // display current saved state
+        retrievestate();
       }
     });
 
