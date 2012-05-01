@@ -19,7 +19,17 @@
         <li id="loggedin">Hi, <span></span> <a href="#">logout</a></li>
         <li class="loading"><img src="img/loading.gif"></li>
     </ul>
-      <div id="dataState"></div>
+      <div id="dataState">
+        <div class="saved">
+          <img src="img/sync_saved.png"
+               title="Your todolist is saved on the server, you can access it anywhere!"/></div>
+        <div class="outofdate">
+          <img src="img/sync_alert.png"
+               title="Your todo list isn't saved, sign in with persona to save it!"/></div>
+        <div class="inprogress">
+          <img src="img/sync_progress.png"
+               title="One sec, we're saving your todolist items to the server..."/></div>
+      </div>
     </nav>
   </header>
   <section id="todo">
@@ -27,7 +37,7 @@
     <form action="#" method="post">
       <div>
         <label for="newitem">Add item</label>
-        <input type="text" name="newitem" id="newitem" 
+        <input type="text" name="newitem" id="newitem"
                placeholder="new item" required>
         <input id="addtask" type="submit" value="Add">
       </div>

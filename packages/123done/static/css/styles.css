@@ -127,7 +127,6 @@ section form input[type="submit"] {
     border: 1px dotted black;
     text-transform: lowercase;
     background-color: #817f78;
-
 }
 
 #container {
@@ -153,10 +152,41 @@ header nav > * {
 }
 
 #dataState {
-    font-size: .7em;
+    margin-top: 3px;
 }
 
-nav ul {
+#dataState > div {
+    display: none;
+}
+
+/* rotate the sync progress icon with CSS where supported */
+@-webkit-keyframes rotate {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+}
+@-moz-keyframes rotate {
+    from { -moz-transform: rotate(0deg); }
+    to { -moz-transform: rotate(360deg); }
+}
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+#dataState .inprogress
+{
+    animation-name:                     rotate;
+    -moz-animation-name:                rotate;
+    -webkit-animation-name:             rotate;
+    animation-duration:                 2.5s;
+    -moz-animation-duration:            2.5s;
+    -webkit-animation-duration:         2.5s;
+    animation-iteration-count:          infinite;
+    -moz-animation-iteration-count:     infinite;
+    -webkit-animation-iteration-count:  infinite;
+    animation-timing-function:          linear;
+    -moz-animation-timing-function:     linear;
+    -webkit-animation-timing-function:  linear;
 }
 
 nav li {

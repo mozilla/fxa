@@ -27,7 +27,8 @@
   }
 
   function setSyncStatus(status) {
-    $('#dataState').text(status);
+    $('#dataState > div').css('display', 'none');
+    $('#dataState > div.' + status).css('display', 'block');
   }
 
   // upon form submission to add a new element, add it to the list
@@ -63,9 +64,9 @@
 
   function savestate() {
     localStorage.todolist = todo.html();
-    setSyncStatus('out of date');
+    setSyncStatus('outofdate');
     if (loggedInEmail) {
-      setSyncStatus('syncing');
+      setSyncStatus('inprogress');
 
       // let's extract the state from the dom
       var l = [ ];
@@ -76,7 +77,7 @@
           done: self.hasClass('done')
         });
       });
-      
+
       // now store it to the server
       $.ajax({
         type: 'POST',
@@ -88,7 +89,7 @@
           udpateLastSync();
         },
         error: function() {
-          setSyncStatus('out of date');
+          setSyncStatus('outofdate');
         }
       });
     }
@@ -101,18 +102,18 @@
       todo.append(li);
     }
   }
-  
+
   // retrieve todolist from localstorage
   function loadstate() {
     if (loggedInEmail) {
-      setSyncStatus('syncing');
+      setSyncStatus('inprogress');
       $.get('/api/todos/get', function(data) {
         data = JSON.parse(data);
         updateDomWithArray(data);
         setSyncStatus('saved');
       });
     } else if (localStorage.todolist) {
-      setSyncStatus('out of date');
+      setSyncStatus('outofdate');
       todo.html(localStorage.todolist);
     }
   };
@@ -122,7 +123,7 @@
     // this is only meaningful when we're connected
     if (!loggedInEmail) return;
 
-    setSyncStatus('syncing');
+    setSyncStatus('inprogress');
 
     var l = [ ];
 
