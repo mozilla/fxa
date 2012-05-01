@@ -50,7 +50,7 @@ $(document).ready(function() {
       }
       $("button").removeAttr('disabled').css('opacity', '1');
     }
-    
+
     // register callbacks with the persona API to be invoked when
     // the user logs in or out.
     navigator.id.watch({
@@ -63,7 +63,7 @@ $(document).ready(function() {
         // display spinner
         $("ul.loginarea li").css('display', 'none');
         $(".loginarea .loading").css('display', 'block');
-        
+
         verifyAssertion(assertion, function(r) {
           loggedInEmail = r.email;
           updateUI(loggedInEmail);
@@ -83,8 +83,13 @@ $(document).ready(function() {
         $("#todolist > li").remove();
         State.save();
 
+        // don't display the warning icon at logout time, but wait until the user
+        // makes a change to her tasks
+        $("#dataState > div").css('display', 'none');
+
         // upon logout, make an api request to tear the user's session down
         $.post('/api/logout');
+
       },
       // onready will be called as soon as persona has loaded, at this
       // point we can display our login buttons.
