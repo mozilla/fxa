@@ -202,7 +202,10 @@ nav a {
     text-decoration: none;
     padding:0px 10px;
     display:block;
+}
 
+nav a:hover, #addtask:hover {
+    opacity: .6;
 }
 
 #info {
