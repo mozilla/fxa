@@ -13,16 +13,25 @@ db.on("error", function (err) {
 
 var app = express.createServer(
   express.logger(),
-  express.bodyParser(),
-  sessions({
-    cookieName: '123done',
-    secret: process.env['COOKIE_SECRET'] || 'define a real secret, please',
-    cookie: {
-      path: '/api',
-      httpOnly: true
-    }
-  })
+  express.bodyParser()
 );
+
+app.use(function (req, res, next) {
+  if (/^\/api/.test(req.url)) {
+    res.setHeader('Cache-Control', 'no-cache, max-age=0');
+
+    return sessions({
+      cookieName: '123done',
+      secret: process.env['COOKIE_SECRET'] || 'define a real secret, please',
+      cookie: {
+        path: '/api',
+        httpOnly: true
+      }
+    })(req, res, next);
+  } else {
+    return next();
+  }
+});
 
 // a function to verify that the current user is authenticated
 function checkAuth(req, res, next) {
