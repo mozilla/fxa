@@ -40,7 +40,7 @@ app.post('/api/verify', function(req, res) {
   });
 
   var vreq = https.request({
-    host: 'diresworb.org',
+    host: 'browserid.org',
     path: '/verify',
     method: 'POST',
     headers: {

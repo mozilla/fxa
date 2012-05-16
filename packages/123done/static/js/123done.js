@@ -25,9 +25,10 @@ $(document).ready(function() {
       try {
         if (status !== 'success') throw data;
         data = JSON.parse(data);
+        if (data.status !== 'okay') throw data.reason;
         success(data);
       } catch(e) {
-        failure(e.toString());
+        failure(e ? e.toString() : e);
       }
     });
   }
@@ -69,7 +70,7 @@ $(document).ready(function() {
           updateUI(loggedInEmail);
           State.merge();
         }, function(err) {
-          alert("failed to verify assertion: " + JSON.stringify(err));
+          alert("failed to verify assertion: " + err);
           loggedInEmail = null;
           updateUI(loggedInEmail);
         });
@@ -102,7 +103,8 @@ $(document).ready(function() {
     });
 
     // upon click of signin button call navigator.id.request()
-    $('button').click(function() {
+    $('button').click(function(ev) {
+      ev.preventDefault();
 
       // disable the sign-in button when a user clicks it, it will be
       // re-enabled when the assertion passed into onlogin is verified,
