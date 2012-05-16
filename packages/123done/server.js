@@ -91,7 +91,7 @@ app.get('/api/todos/get', checkAuth, function(req, res) {
       if (err) {
         res.send(err.toString(), { 'Content-Type': 'text/plain' }, 500);
       } else {
-        res.send(reply, { 'Content-Type': 'application/json' }, 200);
+        res.send(reply ? reply : '[]', { 'Content-Type': 'application/json' }, 200);
       }
     });
   } else {

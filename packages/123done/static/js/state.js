@@ -108,6 +108,7 @@
     if (loggedInEmail) {
       setSyncStatus('inprogress');
       $.get('/api/todos/get', function(data) {
+        if (!data || !data.length) data = [];
         updateDomWithArray(data);
         setSyncStatus('saved');
       });
@@ -128,6 +129,7 @@
 
     // first let's get the list of todo items from the server
     $.get('/api/todos/get', function(data) {
+      if (!data || !data.length) data = [];
       for (var i = 0; i < data.length; i++) l.push(data[i]);
 
       // now let's that list with local items added since the last sync
