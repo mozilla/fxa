@@ -16,6 +16,8 @@ var app = express.createServer(
   express.bodyParser()
 );
 
+app.use(require('./retarget.js'));
+
 app.use(function (req, res, next) {
   if (/^\/api/.test(req.url)) {
     res.setHeader('Cache-Control', 'no-cache, max-age=0');
@@ -45,11 +47,11 @@ function checkAuth(req, res, next) {
 app.post('/api/verify', function(req, res) {
   var body = JSON.stringify({
     assertion: req.body.assertion,
-    audience: process.env['PUBLIC_URL'] || 'http://127.0.0.1:8080'
+    audience: 'http://' + req.headers.host
   });
 
   var vreq = https.request({
-    host: 'browserid.org',
+    host: req.verifier_host,
     path: '/verify',
     method: 'POST',
     headers: {
