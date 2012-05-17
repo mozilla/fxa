@@ -47,6 +47,7 @@ $(document).ready(function() {
         $("#loggedin span").text(email);
         $("#loggedin").css('display', 'block');
       } else {
+        $('#loggedin span').text('');
         $("#loggedout").css('display', 'block');
       }
       $("button").removeAttr('disabled').css('opacity', '1');
