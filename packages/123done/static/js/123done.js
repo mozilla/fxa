@@ -122,7 +122,8 @@ $(document).ready(function() {
     });
 
     // upon click of logout link navigator.id.logout()
-    $("#loggedin a").click(function() {
+    $("#loggedin a").click(function(ev) {
+      ev.preventDefault();
       navigator.id.logout()
     });
   });
