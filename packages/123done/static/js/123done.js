@@ -8,6 +8,8 @@
 $(document).ready(function() {
   window.loggedInEmail = null;
 
+  var loginAssertion = null;
+
   // enable experimental API features
   if (!navigator.id.request) {
     navigator.id.request = navigator.id.experimental.request;
@@ -62,17 +64,21 @@ $(document).ready(function() {
       loggedInEmail: loggedInEmail,
       // onlogin will be called any time the user logs in
       onlogin: function(assertion) {
+        loginAssertion = assertion;
+
         // display spinner
         $("ul.loginarea li").css('display', 'none');
         $(".loginarea .loading").css('display', 'block');
 
         verifyAssertion(assertion, function(r) {
           loggedInEmail = r.email;
+          loginAssertion = null;
           updateUI(loggedInEmail);
           State.merge();
         }, function(err) {
           alert("failed to verify assertion: " + err);
           loggedInEmail = null;
+          loginAssertion = null;
           updateUI(loggedInEmail);
         });
       },
@@ -96,8 +102,11 @@ $(document).ready(function() {
       // onready will be called as soon as persona has loaded, at this
       // point we can display our login buttons.
       onready: function() {
-        updateUI(loggedInEmail);
-
+        // Only update the UI if no assertion is being verified
+        if (null === loginAssertion) {
+          updateUI(loggedInEmail);
+        }
+        
         // display current saved state
         State.load();
       }
