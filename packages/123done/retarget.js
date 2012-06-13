@@ -21,7 +21,7 @@ module.exports = function(req, res, next) {
   if (host === 'beta.123done.org') req.persona_url = 'https://diresworb.org';
   else if (host === 'dev.123done.org') req.persona_url = 'https://dev.diresworb.org';
   else if (/\.123done\.org$/.test(host)) {
-    req.persona_url = 'https://' + host.substr(0, host.length - 12) + '.hacksign.in';
+    req.persona_url = 'https://' + host.substr(0, host.length - 12) + '.personatest.org';
   } else {
     req.persona_url = 'https://browserid.org';
   }
