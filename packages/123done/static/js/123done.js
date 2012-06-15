@@ -124,7 +124,8 @@ $(document).ready(function() {
         termsOfService: '/tos.txt',
         privacyPolicy: '/pp.txt',
         siteName: "123done",
-        siteLogo: "/img/logo100.png",
+// XXX: we need SSL to display a siteLogo in dialog.  Must get certificates.
+//        siteLogo: "/img/logo100.png",
         oncancel: function() {
           // when the user cancels the persona dialog, let's re-enable the
           // sign-in button
