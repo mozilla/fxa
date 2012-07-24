@@ -18,7 +18,8 @@ module.exports = function(req, res, next) {
   // determine the URL of the browserid deployment we'll use
   req.headers.host = req.headers.host || '123done.org';
   var host = req.headers.host.split(':')[0].toString();
-  if (host === 'beta.123done.org') req.persona_url = 'https://diresworb.org';
+  if (process.env['PERSONA_URL']) req.persona_url = process.env['PERSONA_URL'];
+  else if (host === 'beta.123done.org') req.persona_url = 'https://diresworb.org';
   else if (host === 'dev.123done.org') req.persona_url = 'https://dev.diresworb.org';
   else if (/\.123done\.org$/.test(host)) {
     req.persona_url = 'https://' + host.substr(0, host.length - 12) + '.personatest.org';
