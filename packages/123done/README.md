@@ -21,3 +21,28 @@ and node.js.
 
   [git]: http://git-scm.org
   [node]: http://nodejs.org
+
+## deploying to a hosted environment
+
+123done is all set up to deploy quickly and painlessly on amazon EC2 via 
+[awsbox][].
+
+  [awsbox]: https://github.com/lloyd/awsbox
+
+While full documentation for awsbox is contained within that project, Here is a sample
+command line that might work for you:
+
+    node_modules/.bin/awsbox create \
+        -u http://123done.org \
+        --ssl disable \
+        -n 123done \
+        -t m1.small \
+        --keydir $HOME/.persona_secrets/pubkeys/ 
+
+What do these arguments do?
+
+  * `-u` specifies the public URL of the instance
+  * `--ssl` set to `disable`  removes SSL support from the VM
+  * `-n 123done` sets *123done* as a human visible nickname for the VM
+  * `-t m1.small` specifies a cheap VM that has enough oomph to run the service under load (like from automated tests running)
+  * *(optional)* `--keydir` specifies a directory where all of the public keys of your colleages reside, so they can administer the VM while you're on vacation.
