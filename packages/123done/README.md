@@ -11,7 +11,7 @@ and node.js.
 
 ## running locally
 
-1. install [git] and [node]
+1. install [git], [node] and [redis]
 2. get a local copy of the repository: `git clone https://github.com/mozilla/123done`
 3. `cd 123done`
 4. install dependencies: `npm install`
@@ -21,6 +21,7 @@ and node.js.
 
   [git]: http://git-scm.org
   [node]: http://nodejs.org
+  [redis]: http://redis.io
 
 ## deploying to a hosted environment
 
