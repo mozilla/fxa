@@ -10,7 +10,7 @@ var url = require('url'),
  crypto = require('crypto');
 
 var pp = require('postprocess')(function(req, buf) {
-  var re = new RegExp('https://browserid.org', 'g');
+  var re = new RegExp('https://login.persona.org', 'g');
   return buf.replace(re, req.persona_url);
 });
 
@@ -19,12 +19,12 @@ module.exports = function(req, res, next) {
   req.headers.host = req.headers.host || '123done.org';
   var host = req.headers.host.split(':')[0].toString();
   if (process.env['PERSONA_URL']) req.persona_url = process.env['PERSONA_URL'];
-  else if (host === 'beta.123done.org') req.persona_url = 'https://diresworb.org';
-  else if (host === 'dev.123done.org') req.persona_url = 'https://dev.diresworb.org';
+  else if (host === 'beta.123done.org') req.persona_url = 'https://login.anosrep.org';
+  else if (host === 'dev.123done.org') req.persona_url = 'https://login.dev.anosrep.org';
   else if (/\.123done\.org$/.test(host)) {
     req.persona_url = 'https://' + host.substr(0, host.length - 12) + '.personatest.org';
   } else {
-    req.persona_url = 'https://browserid.org';
+    req.persona_url = 'https://login.persona.org';
   }
 
   // concoct a unique identifier for the (virtual) instance
