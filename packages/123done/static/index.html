@@ -8,7 +8,6 @@
   <link type="text/css" rel="stylesheet" href="http://fonts.googleapis.com/css?family=Dr+Sugiyama">
   <link rel="stylesheet" href="css/styles.css" type="text/css">
   <script src="modernizr.min.js"></script>
-  <script src="https://login.persona.org/include.js"></script>
 </head>
 <body>
   <a href="https://github.com/mozilla/123done"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork 123done on GitHub"></a>
@@ -55,8 +54,9 @@
     <p><strong>123done</strong> is a project to show the power of <a href="https://login.persona.org">Persona</a>. Written by the <a href="http://identity.mozilla.com/">identity folks</a> at Mozilla.</p>
   </footer>
   </div>
-  <script src="js/jquery.min.js"></script>
-  <script src="js/state.js"></script>
-  <script src="js/123done.js"></script>
+  <script src="js/jquery.min.js" defer></script>
+  <script src="https://login.persona.org/include.js" defer></script>
+  <script src="js/state.js" defer></script>
+  <script src="js/123done.js" defer></script>
 </body>
 </html>
