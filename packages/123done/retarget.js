@@ -19,6 +19,7 @@ module.exports = function(req, res, next) {
   req.headers.host = req.headers.host || '123done.org';
   var host = req.headers.host.split(':')[0].toString();
   if (process.env['PERSONA_URL']) req.persona_url = process.env['PERSONA_URL'];
+  else if (host === 'native-persona.123done.org') req.persona_url = 'https://native-persona.org';
   else if (host === 'beta.123done.org') req.persona_url = 'https://login.anosrep.org';
   else if (host === 'dev.123done.org') req.persona_url = 'https://login.dev.anosrep.org';
   else if (/\.123done\.org$/.test(host)) {
