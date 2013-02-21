@@ -28,7 +28,7 @@ and node.js.
 123done is all set up to deploy quickly and painlessly on amazon EC2 via 
 [awsbox][].
 
-  [awsbox]: https://github.com/lloyd/awsbox
+  [awsbox]: https://github.com/mozilla/awsbox
 
 While full documentation for awsbox is contained within that project, Here is a sample
 command line that might work for you:
