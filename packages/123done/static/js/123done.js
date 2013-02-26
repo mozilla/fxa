@@ -61,7 +61,7 @@ $(document).ready(function() {
       // pass the currently logged in email address from the server's
       // session.  This will cause onlogin/onlogout to not be invoked
       // when we're up to date.
-      loggedInEmail: loggedInEmail,
+      loggedInUser: loggedInEmail,
       // onlogin will be called any time the user logs in
       onlogin: function(assertion) {
         loginAssertion = assertion;
