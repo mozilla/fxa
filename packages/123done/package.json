@@ -7,7 +7,9 @@
     "express": "2.5.0",
     "client-sessions": "0.0.6",
     "redis": "0.7.1",
-    "postprocess": "0.2.4"
+    "postprocess": "0.2.4",
+    "connect-fonts": "0.0.9-alpha8",
+    "connect-fonts-drsugiyama": "0.0.1"
   },
   "optionalDependencies": {
     "hiredis": "0.1.14"
