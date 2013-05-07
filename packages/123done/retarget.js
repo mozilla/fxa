@@ -22,7 +22,8 @@ module.exports = function(req, res, next) {
   else if (host === 'www.123done.org') req.persona_url = 'https://login.persona.org';
   else if (host === 'beta.123done.org') req.persona_url = 'https://login.anosrep.org';
   else if (host === 'dev.123done.org') req.persona_url = 'https://login.dev.anosrep.org';
-  else if (host === 'native.123done.org') req.persona_url = 'https://login.native-persona.org';
+  else if (host === 'firefoxos.123done.org') req.persona_url = 'https://firefoxos.persona.org';
+  else if (host === 'ffxosproxy.123done.org') req.persona_url = 'https://ffxosproxy.persona.org';
   else if (/\.123done\.org$/.test(host)) {
     req.persona_url = 'https://' + host.substr(0, host.length - 12) + '.personatest.org';
   } else {
