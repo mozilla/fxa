@@ -1,0 +1,33 @@
+{
+  "name": "picl-idp",
+  "version": "0.0.0",
+  "description": "An identity provider for PiCL services",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "NODE_ENV=test ./node_modules/.bin/mocha -R spec --recursive --timeout 10000",
+    "start": "NODE_ENV=local node index.js"
+  },
+  "repository": "",
+  "license": "MPL 2.0",
+  "readmeFilename": "README.md",
+  "engines": {
+    "node": "0.10.x"
+  },
+  "dependencies": {
+    "hapi": "1.1.0",
+    "compute-cluster": "0.0.7",
+    "jwcrypto": "0.4.3",
+    "handlebars": "1.0.10",
+    "convict": "0.1.0",
+    "hoek": "0.8.5"
+  },
+  "devDependencies": {
+    "awsbox": "0.4.x",
+    "mocha": "1.9.x",
+    "request": "2.21.x",
+    "jshint": "0.9.1"
+  }
+}

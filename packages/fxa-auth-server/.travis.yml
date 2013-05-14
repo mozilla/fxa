@@ -1,0 +1,23 @@
+language: node_js
+
+node_js:
+ - 0.10
+
+notifications:
+  email:
+    - zcarter@mozilla.com
+    - dcoates@mozilla.com
+    - jbonacci@mozilla.com
+  irc:
+    channels:
+      - "irc.mozilla.org#picl"
+    use_notice: false
+    skip_join: false
+
+env:
+  - KVSTORE_BACKEND=mysql
+  - KVSTORE_BACKEND=memory
+
+before_script:
+  - "mysql -e 'DROP DATABASE IF EXISTS test;'"
+  - "mysql -e 'CREATE DATABASE test;'"

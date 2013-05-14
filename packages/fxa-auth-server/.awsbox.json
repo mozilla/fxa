@@ -1,0 +1,11 @@
+{
+  "processes": [
+    "index.js"
+  ],
+  "env": {
+    "CONFIG_FILES": "$HOME/config.json"
+  },
+  "remote_hooks": {
+    "postcreate": "scripts/aws/post_create.sh"
+  }
+}

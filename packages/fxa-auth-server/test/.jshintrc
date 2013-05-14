@@ -1,0 +1,23 @@
+{
+  "passfail": false,
+  "maxerr": 100,
+  "node": true,
+  "forin": false,
+  "noarg": true,
+  "undef": true,
+  "unused": true,
+  "eqeqeq": true,
+  "indent": 2,
+  "white": false,
+  "predef": [
+    "exports", 
+    "require",
+    "process",
+    "describe",
+    "it"
+  ],
+  "es5": true,
+  "esnext": true,
+  "shadow": false,
+  "strict": false
+}
