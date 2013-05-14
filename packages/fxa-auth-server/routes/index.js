@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const heartbeat = require('./heartbeat.js');
+const idp = require('./idp');
 
 var routes = [
   {
@@ -13,7 +14,8 @@ var routes = [
     }
   }
 ].concat(
-  heartbeat.routes
+  heartbeat.routes,
+  idp.routes
 );
 
 function index(request) {
