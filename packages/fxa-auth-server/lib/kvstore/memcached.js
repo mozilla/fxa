@@ -15,7 +15,7 @@ function MemcachedStore(options) {
 MemcachedStore.connect = function connect(options, callback) {
   options = Hapi.utils.merge(options, config.get('memcached'));
   callback(null, new MemcachedStore(options));
-}
+};
 
 MemcachedStore.prototype.get = function get(key, cb) {
   this.client.gets(key,
@@ -68,4 +68,4 @@ MemcachedStore.prototype.close = function close(cb) {
   if (cb) cb();
 };
 
-module.exports = MemcachedStore
+module.exports = MemcachedStore;
