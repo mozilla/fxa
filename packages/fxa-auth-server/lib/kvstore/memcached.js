@@ -12,6 +12,11 @@ function MemcachedStore(options) {
   this.lifetime = options.lifetime;
 }
 
+MemcachedStore.connect = function connect(options, callback) {
+  options = Hapi.utils.merge(options, config.get('memcached'));
+  callback(null, new MemcachedStore(options));
+}
+
 MemcachedStore.prototype.get = function get(key, cb) {
   this.client.gets(key,
     function (err, result) {
@@ -49,7 +54,7 @@ MemcachedStore.prototype.cas = function cas(key, value, casid, cb) {
   );
 };
 
-MemcachedStore.prototype.del = function del(key, cb) {
+MemcachedStore.prototype.delete = function del(key, cb) {
   this.client.del(
     key,
     function (err) {
@@ -63,9 +68,4 @@ MemcachedStore.prototype.close = function close(cb) {
   if (cb) cb();
 };
 
-module.exports = {
-  connect: function (options, callback) {
-    options = Hapi.utils.merge(options, config.get('memcached'));
-    callback(null, new MemcachedStore(options));
-  }
-};
+module.exports = MemcachedStore
