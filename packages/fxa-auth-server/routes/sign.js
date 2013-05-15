@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const jwcrypto = require('jwcrypto');
-const config = require('../lib/config')
+const config = require('../lib/config');
 
-require('jwcrypto/lib/algs/rs')
-require('jwcrypto/lib/algs/ds')
+require('jwcrypto/lib/algs/rs');
+require('jwcrypto/lib/algs/ds');
 
 process.on('message', function (message) {
-  var clientKey = jwcrypto.loadPublicKey(message.publicKey)
-	var now = Date.now()
+  var clientKey = jwcrypto.loadPublicKey(message.publicKey);
+  var now = Date.now();
 
   jwcrypto.cert.sign(
     {
@@ -26,7 +26,7 @@ process.on('message', function (message) {
     null,
     config.idpSecretKey,
     function (err, cert) {
-    	process.send({ err: err, cert: cert})
+      process.send({ err: err, cert: cert});
     }
-  )
-})
+  );
+});

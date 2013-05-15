@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Hapi = require('hapi');
-const CC = require('compute-cluster')
-const config = require('../lib/config')
+const CC = require('compute-cluster');
+const config = require('../lib/config');
 
-const hour = 1000 * 60 * 60
+const hour = 1000 * 60 * 60;
 
-var cc = new CC({ module: __dirname + '/sign.js' })
-var kv = require('../lib/kvstore').connect()
+var cc = new CC({ module: __dirname + '/sign.js' });
+var kv = require('../lib/kvstore').connect();
 
 var routes = [
   {
@@ -99,7 +99,7 @@ function wellKnown(request) {
     'public-key': config.idpPublicKey,
     'authentication': '/sign_in.html',
     'provisioning': '/provision.html'
-  })
+  });
 }
 
 function create(request) {
@@ -107,17 +107,17 @@ function create(request) {
     request.payload.email,
     function (err, record) {
       if (err) {
-        request.reply(Hapi.error.internal('Database errror', err))
+        request.reply(Hapi.error.internal('Database errror', err));
       }
       else if (record) {
-        request.reply('ok')
+        request.reply('ok');
       }
       else {
         //TODO do stuff
-        request.reply('ok')
+        request.reply('ok');
       }
     }
-  )
+  );
 }
 
 function sign(request) {
@@ -126,13 +126,13 @@ function sign(request) {
     request.payload,
     function (err, result) {
       if (err || result.err) {
-        request.reply(Hapi.error.internal('Unable to sign certificate', err || result.err))
+        request.reply(Hapi.error.internal('Unable to sign certificate', err || result.err));
       }
       else {
-        request.reply(result.cert)
+        request.reply(result.cert);
       }
     }
-  )
+  );
 }
 
 function beginLogin(request) {
@@ -140,31 +140,31 @@ function beginLogin(request) {
     request.payload.email,
     function (err, record) {
       if (err) {
-        request.reply(Hapi.error.internal('Unable to get email', err))
+        request.reply(Hapi.error.internal('Unable to get email', err));
       }
       else if (!record) {
-        request.reply(Hapi.error.notFound('Unknown email'))
+        request.reply(Hapi.error.notFound('Unknown email'));
       }
       else {
-        var token = 'TODO'
-        request.reply({ sessionId: token })
+        var token = 'TODO';
+        request.reply({ sessionId: token });
       }
     }
-  )
+  );
 }
 
 function finishLogin(request) {
   // TODO lookup sessionId, verify email/password
-  var accountToken = 'TODO'
-  var kA = 'TODO'
-  var kB = 'TODO'
+  var accountToken = 'TODO';
+  var kA = 'TODO';
+  var kB = 'TODO';
   request.reply({
     accountToken: accountToken,
     kA: kA,
     kB: kB
-  })
+  });
 }
 
 module.exports = {
   routes: routes
-}
+};
