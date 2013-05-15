@@ -56,7 +56,6 @@ function del(key, cb) {
   );
 }
 
-
 module.exports = {
   connect: function (options, callback) {
     if (!client) {
