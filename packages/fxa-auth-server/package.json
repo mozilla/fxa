@@ -17,6 +17,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
+    "memcached": "0.2.2",
     "hapi": "1.1.0",
     "compute-cluster": "0.0.7",
     "jwcrypto": "0.4.3",

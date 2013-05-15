@@ -30,5 +30,8 @@ server.ext(
 	}
 );
 
+//TODO throttle extension
+//TODO toobusy extension
+
 module.exports = server;
 
