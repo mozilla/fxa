@@ -7,11 +7,13 @@ const config = require('../config');
 const kvstore = require('../kvstore');
 const Memcached = require('memcached');
 
-var client;
-var lifetime = 0;
+function MemcachedStore(options) {
+  this.client = new Memcached(options.hosts, options);
+  this.lifetime = options.lifetime;
+}
 
-function get(key, cb) {
-  client.gets(key,
+MemcachedStore.prototype.get = function get(key, cb) {
+  this.client.gets(key,
     function (err, result) {
       if (err) { cb(err); }
       else if (!result) { cb(null, null); }
@@ -25,56 +27,45 @@ function get(key, cb) {
       }
     }
   );
-}
+};
 
-function set(key, value, cb) {
-  client.set(key, value, lifetime,
+MemcachedStore.prototype.set = function set(key, value, cb) {
+  this.client.set(key, value, this.lifetime,
     function (err, result) {
       if (err) { cb(err); }
       else if (!result) { cb('NOT SET'); }
       else { cb(null); }
     }
   );
-}
+};
 
-function cas(key, value, casid, cb) {
-  client.cas(key, value, casid, lifetime,
+MemcachedStore.prototype.cas = function cas(key, value, casid, cb) {
+  this.client.cas(key, value, casid, this.lifetime,
     function (err, result) {
       if (err) { cb(err); }
       else if (!result) { cb(kvstore.ERROR_CAS_MISMATCH); }
       else { cb(null); }
     }
   );
-}
+};
 
-function del(key, cb) {
-  client.del(
+MemcachedStore.prototype.del = function del(key, cb) {
+  this.client.del(
     key,
     function (err) {
       cb(err);
     }
   );
-}
+};
+
+MemcachedStore.prototype.close = function close(cb) {
+  this.client.end();
+  if (cb) cb();
+};
 
 module.exports = {
   connect: function (options, callback) {
-    if (!client) {
-      options = Hapi.utils.merge(options, config.get('memcached'));
-      client = new Memcached(options.hosts, options);
-      lifetime = options.lifetime;
-    }
-    var api = {
-      get: get,
-      set: set,
-      cas: cas,
-      delete: del
-    };
-    callback(null, api);
-  },
-  close: function (cb) {
-    if (client) {
-      client.end();
-    }
-    if (cb) { cb(); }
+    options = Hapi.utils.merge(options, config.get('memcached'));
+    callback(null, new MemcachedStore(options));
   }
 };
