@@ -31,6 +31,7 @@
     "jshint": "0.9.1"
   },
   "optionalDependencies": {
+    "memcached": "0.2.2",
     "mysql": "0.9.5"
   }
 }

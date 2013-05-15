@@ -6,7 +6,7 @@ const fs = require('fs');
 const url = require('url');
 const convict = require('convict');
 
-const AVAILABLE_BACKENDS = ["memory", "mysql"];
+const AVAILABLE_BACKENDS = ["memory", "mysql", "memcached"];
 
 
 var conf = module.exports = convict({
@@ -34,6 +34,14 @@ var conf = module.exports = convict({
     available_backends: {
       doc: "List of available key-value stores",
       default: AVAILABLE_BACKENDS
+    }
+  },
+  memcached: {
+    hosts: {
+      default: '127.0.0.1:11211'
+    },
+    lifetime: {
+      default: 1000 * 60 * 2
     }
   },
   mysql: {
