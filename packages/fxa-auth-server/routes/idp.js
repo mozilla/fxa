@@ -9,7 +9,8 @@ const config = require('../lib/config');
 const hour = 1000 * 60 * 60;
 
 var cc = new CC({ module: __dirname + '/sign.js' });
-var kv = require('../lib/kvstore').connect();
+
+var account = require('../lib/account');
 
 var routes = [
   {
@@ -46,7 +47,7 @@ var routes = [
         payload: {
           email: Hapi.types.String().email().required(),
           verifier: Hapi.types.String().required(),
-          params: Hapi.types.String(),
+          params: Hapi.types.Object(),
           kB: Hapi.types.String()
         }
       }
@@ -69,9 +70,9 @@ var routes = [
   },
   {
     method: 'POST',
-    path: '/beginLogin',
+    path: '/startLogin',
     config: {
-      handler: beginLogin,
+      handler: startLogin,
       validate: {
         payload: {
           email: Hapi.types.String().email().required()
@@ -103,11 +104,11 @@ function wellKnown(request) {
 }
 
 function create(request) {
-  kv.get(
-    request.payload.email,
+  account.create(
+    request.payload,
     function (err, record) {
       if (err) {
-        request.reply(Hapi.error.internal('Database errror', err));
+        request.reply(err);
       }
       else if (record) {
         request.reply('ok');
@@ -135,34 +136,37 @@ function sign(request) {
   );
 }
 
-function beginLogin(request) {
-  kv.get(
+function startLogin(request) {
+
+  account.startLogin(
     request.payload.email,
-    function (err, record) {
+    function (err, result) {
       if (err) {
-        request.reply(Hapi.error.internal('Unable to get email', err));
-      }
-      else if (!record) {
-        request.reply(Hapi.error.notFound('Unknown email'));
+        request.reply(err);
       }
       else {
-        var token = 'TODO';
-        request.reply({ sessionId: token });
+        request.reply(result);
       }
     }
   );
+
 }
 
 function finishLogin(request) {
-  // TODO lookup sessionId, verify email/password
-  var accountToken = 'TODO';
-  var kA = 'TODO';
-  var kB = 'TODO';
-  request.reply({
-    accountToken: accountToken,
-    kA: kA,
-    kB: kB
-  });
+
+  account.finishLogin(
+    request.payload.sessionId,
+    request.payload.password,
+    function (err, result) {
+      if (err) {
+        request.reply(err);
+      }
+      else {
+        request.reply(result);
+      }
+    }
+  );
+
 }
 
 module.exports = {

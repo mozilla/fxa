@@ -7,7 +7,7 @@
  *
  */
 
-const Hapi = require('hapi');
+const hoek = require('hoek');
 const kvstore = require('../kvstore');
 
 
@@ -15,7 +15,7 @@ const kvstore = require('../kvstore');
 // Wrap it so that other datatypes are returned unchanged.
 function clone(value) {
   if (typeof value !== 'object') return value;
-  return Hapi.Utils.clone(value);
+  return hoek.clone(value);
 }
 
 // This is the in-memory store for the data, shared across all connections.

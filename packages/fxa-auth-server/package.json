@@ -22,7 +22,9 @@
     "jwcrypto": "0.4.3",
     "handlebars": "1.0.10",
     "convict": "0.1.0",
-    "hoek": "0.8.5"
+    "hoek": "0.8.5",
+    "uuid": "1.4.1",
+    "async": "0.2.8"
   },
   "devDependencies": {
     "awsbox": "0.4.x",
