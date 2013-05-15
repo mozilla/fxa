@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 const Hapi = require('hapi');
 const CC = require('compute-cluster')
 const config = require('../lib/config')
@@ -5,7 +9,7 @@ const config = require('../lib/config')
 const hour = 1000 * 60 * 60
 
 var cc = new CC({ module: __dirname + '/sign.js' })
-var db = {} // TODO
+var kv = require('../lib/kvstore').connect()
 
 var routes = [
   {
@@ -35,6 +39,21 @@ var routes = [
   },
   {
     method: 'POST',
+    path: '/create',
+    config: {
+      handler: create,
+      validate: {
+        payload: {
+          email: Hapi.types.String().email().required(),
+          verifier: Hapi.types.String().required(),
+          params: Hapi.types.String(),
+          kB: Hapi.types.String()
+        }
+      }
+    }
+  },
+  {
+    method: 'POST',
     path: '/sign',
     config: {
       handler: sign,
@@ -50,13 +69,25 @@ var routes = [
   },
   {
     method: 'POST',
-    path: '/login',
+    path: '/beginLogin',
     config: {
-      handler: login,
+      handler: beginLogin,
       validate: {
         payload: {
-          email: Hapi.types.String().email().required(),
-          password: Hapi.types.String().required() // for testing only
+          email: Hapi.types.String().email().required()
+        }
+      }
+    }
+  },
+  {
+    method: 'POST',
+    path: '/finishLogin',
+    config: {
+      handler: finishLogin,
+      validate: {
+        payload: {
+          sessionId: Hapi.types.String().required(),
+          password: Hapi.types.String().required()
         }
       }
     }
@@ -69,6 +100,24 @@ function wellKnown(request) {
     'authentication': '/sign_in.html',
     'provisioning': '/provision.html'
   })
+}
+
+function create(request) {
+  kv.get(
+    request.payload.email,
+    function (err, record) {
+      if (err) {
+        request.reply(Hapi.error.internal('Database errror', err))
+      }
+      else if (record) {
+        request.reply('ok')
+      }
+      else {
+        //TODO do stuff
+        request.reply('ok')
+      }
+    }
+  )
 }
 
 function sign(request) {
@@ -86,8 +135,8 @@ function sign(request) {
   )
 }
 
-function login(request) {
-  db.get(
+function beginLogin(request) {
+  kv.get(
     request.payload.email,
     function (err, record) {
       if (err) {
@@ -98,10 +147,22 @@ function login(request) {
       }
       else {
         var token = 'TODO'
-        request.reply({ token: token })
+        request.reply({ sessionId: token })
       }
     }
   )
+}
+
+function finishLogin(request) {
+  // TODO lookup sessionId, verify email/password
+  var accountToken = 'TODO'
+  var kA = 'TODO'
+  var kB = 'TODO'
+  request.reply({
+    accountToken: accountToken,
+    kA: kA,
+    kB: kB
+  })
 }
 
 module.exports = {
