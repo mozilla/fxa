@@ -23,11 +23,15 @@ var server = Hapi.createServer(bind.host, bind.port, settings);
 server.addRoutes(routes);
 
 server.ext(
-	'onPreResponse',
-	function (request, next) {
-		request.response().header("Strict-Transport-Security", "max-age=10886400");
-		next();
-	}
+  'onPreResponse',
+  function (request, next) {
+    var res = request.response();
+    // error responses don't have `header`
+    if (res.header) {
+      res.header("Strict-Transport-Security", "max-age=10886400");
+    }
+    next();
+  }
 );
 
 module.exports = server;
