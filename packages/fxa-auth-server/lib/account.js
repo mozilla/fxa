@@ -13,15 +13,21 @@ var kv = kvstore.connect(config.get('kvstore'));
 
 /* user account model
  *
- * user should have account id
+ * <email>/uid = <userId>
  *
- * <email>/userid = <userId>
- *
- * <userId>/meta = {
+ * <userId>/user = {
  *  params: <user params>
- *  passwordVerifier: <password verifier>
+ *  verifier: <password verifier>
  *  kA: <kA key>
- *  kBWrapped: <wrapped kB key>
+ *  kB: <wrapped kB key>
+ * }
+ *
+ * <sessionId>/session = {
+ *  uid: <userId>
+ * }
+ *
+ * <accountToken>/account = {
+ *  uid: <userId>
  * }
  *
  * */
@@ -29,8 +35,7 @@ var kv = kvstore.connect(config.get('kvstore'));
 exports.create = function(data, cb) {
   // generate user id
   var userId = util.getUserId();
-  var metaKey = userId + '/user';
-  var kA;
+  var userKey = userId + '/user';
 
   async.waterfall([
     // ensure that an account doesn't already exist for the email
@@ -48,8 +53,7 @@ exports.create = function(data, cb) {
     util.getKA,
     // create user account
     function(key, cb) {
-      kA = key;
-      kv.set(metaKey, {
+      kv.set(userKey, {
         params: data.params,
         verifier: data.verifier,
         kA: key,
