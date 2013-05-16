@@ -30,6 +30,25 @@ describe('user', function() {
     });
   });
 
+  it('should fail to create a new account for an existing email', function(done) {
+    testClient.makeRequest('POST', '/create', {
+      payload: {
+        email: TEST_EMAIL,
+        verifier: TEST_PASSWORD,
+        params: { foo: 'bar' },
+        kB: TEST_KB
+      }
+    }, function(res) {
+      try {
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.message, 'AccountExistsForEmail');
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
 
   it('should fail to login with an unknown email', function(done) {
     testClient.makeRequest('POST', '/startLogin', {
@@ -105,6 +124,23 @@ describe('user', function() {
         assert.ok(res.result.accountToken);
         assert.ok(res.result.kA);
         assert.equal(res.result.kB, TEST_KB);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should fail to login with an old sessionId', function(done) {
+    testClient.makeRequest('POST', '/finishLogin', {
+      payload: {
+        sessionId: sessionId,
+        password: TEST_PASSWORD
+      }
+    }, function(res) {
+      try {
+        assert.equal(res.statusCode, 404);
+        assert.equal(res.result.message, 'UnknownSession');
       } catch (e) {
         return done(e);
       }
