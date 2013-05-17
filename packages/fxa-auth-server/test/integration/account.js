@@ -1,6 +1,10 @@
 var assert = require('assert');
 //var config = require('../../lib/config');
 var helpers = require('../helpers');
+var jwcrypto = require('jwcrypto');
+
+// algorithms
+require("jwcrypto/lib/algs/rs");
 
 var testClient = new helpers.TestClient();
 
@@ -9,7 +13,7 @@ var TEST_PASSWORD = 'foo';
 var TEST_KB = 'secret!';
 
 describe('user', function() {
-  var sessionId;
+  var sessionId, accountToken, pubkey, signToken;
 
   it('should create a new account', function(done) {
     testClient.makeRequest('POST', '/create', {
@@ -121,6 +125,8 @@ describe('user', function() {
       }
     }, function(res) {
       try {
+        accountToken = res.result.accountToken;
+
         assert.ok(res.result.accountToken);
         assert.ok(res.result.kA);
         assert.equal(res.result.kB, TEST_KB);
@@ -141,6 +147,49 @@ describe('user', function() {
       try {
         assert.equal(res.statusCode, 404);
         assert.equal(res.result.message, 'UnknownSession');
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should get signToken', function(done) {
+    testClient.makeRequest('POST', '/signToken', {
+      payload: {
+        accountToken: accountToken
+      }
+    }, function(res) {
+      try {
+        assert.equal(res.statusCode, 200);
+        signToken = res.result.signToken;
+        assert.ok(res.result.signToken);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should generate a pubkey', function(done) {
+    jwcrypto.generateKeypair({ algorithm: "RS", keysize: 64 }, function(err, keypair) {
+      pubkey = keypair.publicKey;
+      done(err);
+    });
+  });
+
+  it('should sign a pubkey', function(done) {
+    testClient.makeRequest('POST', '/sign', {
+      payload: {
+        token: signToken,
+        publicKey: pubkey.serialize(),
+        duration: 50000
+      }
+    }, function(res) {
+      try {
+        assert.equal(res.statusCode, 200);
+        // check for rough format of a cert
+        assert.equal(res.result.split(".").length, 3);
       } catch (e) {
         return done(e);
       }

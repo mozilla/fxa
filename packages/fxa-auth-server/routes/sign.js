@@ -2,11 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const fs = require('fs');
 const jwcrypto = require('jwcrypto');
 const config = require('../lib/config');
 
 require('jwcrypto/lib/algs/rs');
 require('jwcrypto/lib/algs/ds');
+
+const _privKey = jwcrypto.loadSecretKey(fs.readFileSync(config.get('secretKeyFile')));
 
 process.on('message', function (message) {
   var clientKey = jwcrypto.loadPublicKey(message.publicKey);
@@ -19,12 +22,12 @@ process.on('message', function (message) {
       //TODO: kA, etc
     },
     {
-      issuer: config.domain,
+      issuer: config.get('domain'),
       issuedAt: new Date(now),
       expiresAt: new Date(now + message.duration)
     },
     null,
-    config.idpSecretKey,
+    _privKey,
     function (err, cert) {
       process.send({ err: err, cert: cert});
     }

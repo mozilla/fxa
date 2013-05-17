@@ -137,6 +137,43 @@ exports.finishLogin = function(sessionId, verifier, cb) {
   ], cb);
 };
 
+// Takes an accountToken and creates a new signToken
+exports.getSignToken = function(accountToken, cb) {
+  var accountKey = accountToken + '/accountToken';
+  var uid, signToken;
+
+  async.waterfall([
+    // Check that the accountToken exists
+    // and get the associated user id
+    function(cb) {
+      kv.get(accountKey, function(err, account) {
+        if (err) return cb(err);
+        if (!account) return cb(notFound('UknownAccountToken'));
+        cb(null, account.value.uid);
+      });
+    },
+    // get new signToken
+    function(id, cb) {
+      uid = id;
+      util.getSignToken(cb);
+    },
+    function(token, cb) {
+      signToken = token;
+      kv.set(token + '/signer', {
+        uid: uid,
+        accessTime: Date.now()
+      }, cb);
+    },
+    // delete accountToken
+    function(cb) {
+      kv.delete(accountToken + '/accountToken', cb);
+    },
+    function(cb) {
+      cb(null, { signToken: signToken });
+    }
+  ], cb);
+};
+
 // This method returns the userId currently associated with an email address.
 exports.getId = function(email, cb) {
   kv.get(email + '/uid', function(err, result) {
@@ -155,3 +192,17 @@ exports.getUser = function(userId, cb) {
   });
 };
 
+// This account principle associated with a singing token
+// The principle is the userId combined with the IDP domain
+// e.g. 1234@lcip.org
+//
+exports.getPrinciple = function(token, cb) {
+  kv.get(token + '/signer', function(err, result) {
+    if (err) return cb(internalError(err));
+    if (!result) return cb(notFound('UnknownSignToken'));
+
+    var principle = result.value.uid + '@' + config.get('domain');
+
+    cb(null, principle);
+  });
+};

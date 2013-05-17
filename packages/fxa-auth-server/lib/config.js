@@ -23,7 +23,13 @@ var conf = module.exports = convict({
   },
   domain: {
     format: "url",
-    default: "http://127.0.0.1:9000"
+    default: "127.0.0.1:9000"
+  },
+  secretKeyFile: {
+    default: "./config/secret-key.json"
+  },
+  publicKeyFile: {
+    default: "./config/public-key.json"
   },
   kvstore: {
     backend: {
@@ -106,13 +112,19 @@ if (process.env.CONFIG_FILES) {
 }
 
 // set the public url as the issuer domain for assertions
-conf.set('domain', url.parse(conf.get('public_url')).hostname);
+conf.set('domain', url.parse(conf.get('public_url')).host);
 
 if (conf.get('env') === 'test') {
   if (conf.get('kvstore.backend') === 'mysql') {
     conf.set('mysql.database', 'test');
   }
 }
+
+const configDir = fs.realpathSync(__dirname + "/../config");
+const pubKeyFile = configDir + "/public-key.json";
+const secretKeyFile = configDir + "/secret-key.json";
+conf.set('secretKeyFile', secretKeyFile);
+conf.set('publicKeyFile', pubKeyFile);
 
 conf.validate();
 

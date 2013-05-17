@@ -19,6 +19,12 @@ function getAccountToken(cb) {
   });
 }
 
+function getSignToken(cb) {
+  return crypto.randomBytes(32, function(err, buf) {
+    cb(null, buf.toString('hex'));
+  });
+}
+
 function getUserId() {
   return uuid.v4();
 }
@@ -32,5 +38,6 @@ module.exports = {
   getDeviceId: getDeviceId,
   getUserId: getUserId,
   getSessionId: getSessionId,
-  getAccountToken: getAccountToken
+  getAccountToken: getAccountToken,
+  getSignToken: getSignToken
 };
