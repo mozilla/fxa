@@ -1,3 +1,4 @@
 /node_modules
-/config/*.json
+/config/public-key.json
+/config/secret-key.json
 *.swp
