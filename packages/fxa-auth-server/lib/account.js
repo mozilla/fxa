@@ -1,15 +1,14 @@
 const uuid = require('uuid');
 const async = require('async');
 const Hapi = require('hapi');
-const kvstore = require('./kvstore');
 const config = require('./config');
+const kv = require('./kv');
 const util = require('./util');
 
 var internalError = Hapi.Error.internal;
 var badRequest = Hapi.Error.badRequest;
 var notFound = Hapi.Error.notFound;
 
-var kv = kvstore.connect(config.get('kvstore'));
 
 /* user account model
  *
@@ -40,20 +39,20 @@ exports.create = function(data, cb) {
   async.waterfall([
     // ensure that an account doesn't already exist for the email
     function(cb) {
-      kv.get(data.email + '/uid', function (err, doc) {
+      kv.store.get(data.email + '/uid', function (err, doc) {
         if (doc) return cb(badRequest('AccountExistsForEmail'));
         cb(null);
       });
     },
     // link email to userid
     function(cb) {
-      kv.set(data.email + '/uid', userId, cb);
+      kv.store.set(data.email + '/uid', userId, cb);
     },
     // get new class A key
     util.getKA,
     // create user account
     function(key, cb) {
-      kv.set(userKey, {
+      kv.store.set(userKey, {
         params: data.params,
         verifier: data.verifier,
         kA: key,
@@ -75,7 +74,7 @@ exports.startLogin = function(email, cb) {
 
       // eventually will store SRP state
       // and expiration time
-      kv.set(sid + '/session', {
+      kv.store.set(sid + '/session', {
         uid: uid
       }, function (err) {
         // return sessionID
@@ -93,7 +92,7 @@ exports.finishLogin = function(sessionId, verifier, cb) {
   async.waterfall([
     // get session doc
     function(cb) {
-      kv.get(sessKey, function(err, session) {
+      kv.store.get(sessKey, function(err, session) {
         if (err) return cb(err);
         if (!session) return cb(notFound('UnknownSession'));
         cb(null, session.value);
@@ -120,11 +119,11 @@ exports.finishLogin = function(sessionId, verifier, cb) {
     // create temporary account token doc
     function(token, cb) {
       accountToken = token;
-      kv.set(token + '/accountToken', { uid: uid }, cb);
+      kv.store.set(token + '/accountToken', { uid: uid }, cb);
     },
     // delete session doc
     function(cb) {
-      kv.delete(sessKey, cb);
+      kv.store.delete(sessKey, cb);
     },
     // return info
     function(cb) {
@@ -139,7 +138,7 @@ exports.finishLogin = function(sessionId, verifier, cb) {
 
 // This method returns the userId currently associated with an email address.
 exports.getId = function(email, cb) {
-  kv.get(email + '/uid', function(err, result) {
+  kv.store.get(email + '/uid', function(err, result) {
     if (err) return cb(internalError(err));
     if (!result) return cb(notFound('UnknownUser'));
     cb(null, result.value);
@@ -148,7 +147,7 @@ exports.getId = function(email, cb) {
 
 // get meta data associated with a user
 exports.getUser = function(userId, cb) {
-  kv.get(userId + '/user', function(err, doc) {
+  kv.store.get(userId + '/user', function(err, doc) {
     if (err) return cb(internalError(err));
     if (!doc) return cb(notFound('UnknownUser'));
     cb(null, doc.value);

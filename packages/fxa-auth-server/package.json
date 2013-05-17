@@ -24,16 +24,13 @@
     "convict": "0.1.0",
     "hoek": "0.8.5",
     "uuid": "1.4.1",
-    "async": "0.2.8"
+    "async": "0.2.8",
+    "kvstore": "git://github.com/mozilla/node-kvstore.git#3533c23f095d"
   },
   "devDependencies": {
     "awsbox": "0.4.x",
     "mocha": "1.9.x",
     "request": "2.21.x",
     "jshint": "0.9.1"
-  },
-  "optionalDependencies": {
-    "memcached": "0.2.2",
-    "mysql": "0.9.5"
   }
 }

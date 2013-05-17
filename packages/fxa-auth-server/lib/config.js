@@ -26,6 +26,11 @@ var conf = module.exports = convict({
     default: "http://127.0.0.1:9000"
   },
   kvstore: {
+    cache: {
+      format: AVAILABLE_BACKENDS,
+      default: 'memory',
+      env: 'KVSTORE_CACHE'
+    },
     backend: {
       format: AVAILABLE_BACKENDS,
       default: "memory",
@@ -109,7 +114,7 @@ if (process.env.CONFIG_FILES) {
 conf.set('domain', url.parse(conf.get('public_url')).hostname);
 
 if (conf.get('env') === 'test') {
-  if (conf.get('kvstore.backend') === 'mysql') {
+  if (conf.get('kvstore.backend') === 'mysql' || conf.get('kvstore.cache') === 'mysql') {
     conf.set('mysql.database', 'test');
   }
 }
