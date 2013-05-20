@@ -145,7 +145,7 @@ exports.getSignToken = function(accountToken, cb) {
     // Check that the accountToken exists
     // and get the associated user id
     function(cb) {
-      kv.get(accountKey, function(err, account) {
+      kv.store.get(accountKey, function(err, account) {
         if (err) return cb(err);
         if (!account) return cb(notFound('UknownAccountToken'));
         cb(null, account.value.uid);
@@ -158,14 +158,14 @@ exports.getSignToken = function(accountToken, cb) {
     },
     function(token, cb) {
       signToken = token;
-      kv.set(token + '/signer', {
+      kv.store.set(token + '/signer', {
         uid: uid,
         accessTime: Date.now()
       }, cb);
     },
     // delete accountToken
     function(cb) {
-      kv.delete(accountToken + '/accountToken', cb);
+      kv.store.delete(accountToken + '/accountToken', cb);
     },
     function(cb) {
       cb(null, { signToken: signToken });
@@ -196,7 +196,7 @@ exports.getUser = function(userId, cb) {
 // e.g. 1234@lcip.org
 //
 exports.getPrinciple = function(token, cb) {
-  kv.get(token + '/signer', function(err, result) {
+  kv.store.get(token + '/signer', function(err, result) {
     if (err) return cb(internalError(err));
     if (!result) return cb(notFound('UnknownSignToken'));
 
