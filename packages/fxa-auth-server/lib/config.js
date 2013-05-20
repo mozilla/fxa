@@ -119,12 +119,6 @@ if (process.env.CONFIG_FILES) {
 // set the public url as the issuer domain for assertions
 conf.set('domain', url.parse(conf.get('public_url')).host);
 
-if (conf.get('env') === 'test') {
-  if (conf.get('kvstore.backend') === 'mysql' || conf.get('kvstore.cache') === 'mysql') {
-    conf.set('mysql.database', 'test');
-  }
-}
-
 conf.validate();
 
 console.log('configuration: ', conf.toString());
