@@ -9,9 +9,10 @@ You'll need node 0.10.x or higher and npm to run the server.
 
 Clone the git repository and install dependencies:
 
-    git://github.com/mozilla/picl-idp.git
+    git clone git://github.com/mozilla/picl-idp.git
     cd picl-idp
     npm install
+    node ./scripts/gen_keys.js
 
 To start the server, run:
 
