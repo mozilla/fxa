@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const kv = require('../lib/kv');
+const async = require('async');
+
 exports.routes = [
   {
     method: 'GET',
@@ -13,5 +16,17 @@ exports.routes = [
 ];
 
 function heartbeat(request) {
-  request.reply('ok');
+	async.each(
+		[kv.store, kv.cache],
+		function (db, done) {
+			db.ping(done);
+		},
+		function (err) {
+			var text = 'ok';
+			if (err) {
+				text = err.toString();
+			}
+			request.reply(text).type('text/plain');
+		}
+	);
 }
