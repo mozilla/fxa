@@ -1,0 +1,8 @@
+{
+	"env": "test",
+	"secretKeyFile": "./test/config/secret-key.json",
+	"publicKeyFile": "./test/config/public-key.json",
+  "kvstore": {
+    "backend": "memory"
+  }
+}

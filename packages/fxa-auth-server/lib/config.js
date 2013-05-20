@@ -125,12 +125,6 @@ if (conf.get('env') === 'test') {
   }
 }
 
-const configDir = fs.realpathSync(__dirname + "/../config");
-const pubKeyFile = configDir + "/public-key.json";
-const secretKeyFile = configDir + "/secret-key.json";
-conf.set('secretKeyFile', secretKeyFile);
-conf.set('publicKeyFile', pubKeyFile);
-
 conf.validate();
 
 console.log('configuration: ', conf.toString());
