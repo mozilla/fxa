@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha -R spec --recursive --timeout 10000",
+    "test": "CONFIG_FILES=./test/config/test.json ./node_modules/.bin/mocha -R spec --recursive --timeout 10000",
     "start": "NODE_ENV=local node index.js"
   },
   "repository": "",

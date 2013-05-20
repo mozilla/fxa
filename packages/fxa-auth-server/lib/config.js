@@ -119,18 +119,6 @@ if (process.env.CONFIG_FILES) {
 // set the public url as the issuer domain for assertions
 conf.set('domain', url.parse(conf.get('public_url')).host);
 
-if (conf.get('env') === 'test') {
-  if (conf.get('kvstore.backend') === 'mysql' || conf.get('kvstore.cache') === 'mysql') {
-    conf.set('mysql.database', 'test');
-  }
-}
-
-const configDir = fs.realpathSync(__dirname + "/../config");
-const pubKeyFile = configDir + "/public-key.json";
-const secretKeyFile = configDir + "/secret-key.json";
-conf.set('secretKeyFile', secretKeyFile);
-conf.set('publicKeyFile', pubKeyFile);
-
 conf.validate();
 
 console.log('configuration: ', conf.toString());
