@@ -28,7 +28,7 @@
     "kvstore": "git://github.com/mozilla/node-kvstore.git#4b8c2f6763"
   },
   "devDependencies": {
-    "awsbox": "0.4.x",
+    "awsbox": "git://github.com/dannycoates/awsbox.git",
     "mocha": "1.9.x",
     "request": "2.21.x",
     "jshint": "0.9.1"
