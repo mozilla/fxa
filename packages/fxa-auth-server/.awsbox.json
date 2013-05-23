@@ -1,4 +1,5 @@
 {
+  "ami": "ami-6f690106",
   "processes": [
     "index.js"
   ],

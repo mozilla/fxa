@@ -29,7 +29,7 @@
     "good": "0.5.7"
   },
   "devDependencies": {
-    "awsbox": "0.4.x",
+    "awsbox": "git://github.com/dannycoates/awsbox.git",
     "mocha": "1.9.x",
     "request": "2.21.x",
     "jshint": "0.9.1"
