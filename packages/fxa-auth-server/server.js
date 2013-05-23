@@ -34,6 +34,30 @@ server.ext(
   }
 );
 
+server.ext('onPreResponse', function (request, next) {
+    var response = request.response();
+    if (response.isBoom) {
+      server.log(['error'],
+        response.response.code + ' ' +
+        response.response.payload.error + ': ' +
+        response.message);
+      server.log(['info'], 'request payload: ' + JSON.stringify(request.payload));
+    }
+
+    next();
+});
+
+server.pack.require('good', {
+    subscribers: {
+      console: ['ops', 'request', 'log']
+    },
+    extendedRequests: true,
+    leakDetection: true
+  },
+  function(err) {
+    if (err) server.log(['error'], err);
+  });
+
 //TODO throttle extension
 //TODO toobusy extension
 
