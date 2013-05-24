@@ -10,10 +10,12 @@ var testClient = new helpers.TestClient();
 
 var TEST_EMAIL = 'foo@example.com';
 var TEST_PASSWORD = 'foo';
+var TEST_PASSWORD_NEW = 'I like pie.';
 var TEST_KB = 'secret!';
+var TEST_KB_NEW = 'super secret!';
 
 describe('user', function() {
-  var sessionId, accountToken, pubkey, signToken;
+  var sessionId, accountToken, pubkey, signToken, resetToken;
 
   it('should create a new account', function(done) {
     testClient.makeRequest('POST', '/create', {
@@ -190,6 +192,129 @@ describe('user', function() {
         assert.equal(res.statusCode, 200);
         // check for rough format of a cert
         assert.equal(res.result.split(".").length, 3);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should begin a new login', function(done) {
+    testClient.makeRequest('POST', '/startLogin', {
+      payload: { email: TEST_EMAIL }
+    }, function(res) {
+      sessionId = res.result.sessionId;
+
+      try {
+        assert.ok(res.result.sessionId);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should finish login and get a new accountToken', function(done) {
+    testClient.makeRequest('POST', '/finishLogin', {
+      payload: {
+        sessionId: sessionId,
+        password: TEST_PASSWORD
+      }
+    }, function(res) {
+      try {
+        accountToken = res.result.accountToken;
+
+        assert.ok(res.result.accountToken);
+        assert.ok(res.result.kA);
+        assert.equal(res.result.kB, TEST_KB);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should get resetToken', function(done) {
+    testClient.makeRequest('POST', '/resetToken', {
+      payload: {
+        accountToken: accountToken
+      }
+    }, function(res) {
+      try {
+        assert.equal(res.statusCode, 200);
+        resetToken = res.result.resetToken;
+        assert.ok(res.result.resetToken);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should reset the account', function(done) {
+    testClient.makeRequest('POST', '/resetPassword', {
+      payload: {
+        resetToken: resetToken,
+        verifier: TEST_PASSWORD_NEW,
+        params: { foo: 'bar2' },
+        kB: TEST_KB_NEW
+      }
+    }, function(res) {
+      try {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result, 'ok');
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should begin a login with resetted account', function(done) {
+    testClient.makeRequest('POST', '/startLogin', {
+      payload: { email: TEST_EMAIL }
+    }, function(res) {
+      sessionId = res.result.sessionId;
+
+      try {
+        assert.ok(res.result.sessionId);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should fail to login with old password', function(done) {
+    testClient.makeRequest('POST', '/finishLogin', {
+      payload: {
+        sessionId: sessionId,
+        password: TEST_PASSWORD
+      }
+    }, function(res) {
+      try {
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.message, 'IncorrectPassword');
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should finish login with new password', function(done) {
+    testClient.makeRequest('POST', '/finishLogin', {
+      payload: {
+        sessionId: sessionId,
+        password: TEST_PASSWORD_NEW
+      }
+    }, function(res) {
+      try {
+        accountToken = res.result.accountToken;
+
+        assert.ok(res.result.accountToken);
+        assert.ok(res.result.kA);
+        assert.equal(res.result.kB, TEST_KB_NEW);
       } catch (e) {
         return done(e);
       }

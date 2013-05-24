@@ -25,6 +25,12 @@ function getSignToken(cb) {
   });
 }
 
+function getResetToken(cb) {
+  return crypto.randomBytes(32, function(err, buf) {
+    cb(null, buf.toString('hex'));
+  });
+}
+
 function getUserId() {
   return uuid.v4();
 }
@@ -39,5 +45,6 @@ module.exports = {
   getUserId: getUserId,
   getSessionId: getSessionId,
   getAccountToken: getAccountToken,
-  getSignToken: getSignToken
+  getSignToken: getSignToken,
+  getResetToken: getResetToken
 };

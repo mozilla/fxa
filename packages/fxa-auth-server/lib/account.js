@@ -19,13 +19,24 @@ var notFound = Hapi.Error.notFound;
  *  verifier: <password verifier>
  *  kA: <kA key>
  *  kB: <wrapped kB key>
+ *  accountTokens: {}
+ *  resetTokens: {}
+ *  signTokens: {}
  * }
  *
  * <sessionId>/session = {
  *  uid: <userId>
  * }
  *
- * <accountToken>/account = {
+ * <accountToken>/accountToken = {
+ *  uid: <userId>
+ * }
+ *
+ * <resetToken>/resetToken = {
+ *  uid: <userId>
+ * }
+ *
+ * <signToken>/signer = {
  *  uid: <userId>
  * }
  *
@@ -56,7 +67,10 @@ exports.create = function(data, cb) {
         params: data.params,
         verifier: data.verifier,
         kA: key,
-        kB: data.kB
+        kB: data.kB,
+        accountTokens: {},
+        resetTokens: {},
+        signTokens: {}
       }, cb);
     }
   ], cb);
@@ -74,7 +88,7 @@ exports.startLogin = function(email, cb) {
 
       // eventually will store SRP state
       // and expiration time
-      kv.store.set(sid + '/session', {
+      kv.cache.set(sid + '/session', {
         uid: uid
       }, function (err) {
         // return sessionID
@@ -92,7 +106,7 @@ exports.finishLogin = function(sessionId, verifier, cb) {
   async.waterfall([
     // get session doc
     function(cb) {
-      kv.store.get(sessKey, function(err, session) {
+      kv.cache.get(sessKey, function(err, session) {
         if (err) return cb(err);
         if (!session) return cb(notFound('UnknownSession'));
         cb(null, session.value);
@@ -101,7 +115,7 @@ exports.finishLogin = function(sessionId, verifier, cb) {
     // get user info
     function(session, cb) {
       uid = session.uid;
-      exports.getUser(session.uid, cb);
+      getUser(session.uid, cb);
     },
 
     // check password
@@ -119,11 +133,11 @@ exports.finishLogin = function(sessionId, verifier, cb) {
     // create temporary account token doc
     function(token, cb) {
       accountToken = token;
-      kv.store.set(token + '/accountToken', { uid: uid }, cb);
+      addAccountToken(uid, token, cb);
     },
     // delete session doc
     function(cb) {
-      kv.store.delete(sessKey, cb);
+      kv.cache.delete(sessKey, cb);
     },
     // return info
     function(cb) {
@@ -145,7 +159,7 @@ exports.getSignToken = function(accountToken, cb) {
     // Check that the accountToken exists
     // and get the associated user id
     function(cb) {
-      kv.store.get(accountKey, function(err, account) {
+      kv.cache.get(accountKey, function(err, account) {
         if (err) return cb(err);
         if (!account) return cb(notFound('UknownAccountToken'));
         cb(null, account.value.uid);
@@ -158,20 +172,199 @@ exports.getSignToken = function(accountToken, cb) {
     },
     function(token, cb) {
       signToken = token;
-      kv.store.set(token + '/signer', {
-        uid: uid,
-        accessTime: Date.now()
+      addSignToken(uid, token, cb);
+    },
+    // delete account token from user's list
+    function(cb) {
+      updateUserData(uid, function(userDoc) {
+          delete userDoc.value.accountTokens[accountToken];
+          return userDoc;
       }, cb);
     },
-    // delete accountToken
+    // delete accountToken record
     function(cb) {
-      kv.store.delete(accountToken + '/accountToken', cb);
+      kv.cache.delete(accountToken + '/accountToken', cb);
     },
     function(cb) {
       cb(null, { signToken: signToken });
     }
   ], cb);
 };
+
+// Takes an accountToken and creates a new resetToken
+exports.getResetToken = function(accountToken, cb) {
+  var accountKey = accountToken + '/accountToken';
+  var uid, resetToken;
+
+  async.waterfall([
+    // Check that the accountToken exists
+    // and get the associated user id
+    function(cb) {
+      kv.cache.get(accountKey, function(err, account) {
+        if (err) return cb(err);
+        if (!account) return cb(notFound('UknownAccountToken'));
+        cb(null, account.value.uid);
+      });
+    },
+    // get new resetToken
+    function(id, cb) {
+      uid = id;
+      util.getResetToken(cb);
+    },
+    function(token, cb) {
+      resetToken = token;
+      addResetToken(uid, token, cb);
+    },
+    // delete account token from user's list
+    function(cb) {
+      updateUserData(uid, function(userDoc) {
+          delete userDoc.value.accountTokens[accountToken];
+          return userDoc;
+      }, cb);
+    },
+    // delete accountToken record
+    function(cb) {
+      kv.cache.delete(accountToken + '/accountToken', cb);
+    },
+    function(cb) {
+      cb(null, { resetToken: resetToken });
+    }
+  ], cb);
+};
+
+exports.resetPassword = function(resetToken, data, cb) {
+  var userId;
+
+  async.waterfall([
+    // Check that the resetToken exists
+    // and get the associated user id
+    function(cb) {
+      kv.cache.get(resetToken + '/resetToken', function(err, doc) {
+        if (err) return cb(err);
+        if (!doc) return cb(notFound('UknownResetToken'));
+        userId = doc.value.uid;
+        cb(null);
+      });
+    },
+    // delete all accountTokens, signTokens, and resetTokens
+    function(cb) {
+      deleteAllTokens(userId, cb);
+    },
+    // get new class A key
+    util.getKA,
+    // create user account
+    function(key, cb) {
+      kv.store.set(userId + '/user', {
+        params: data.params,
+        verifier: data.verifier,
+        kA: key,
+        kB: data.kB,
+        accountTokens: {},
+        resetTokens: {},
+        signTokens: {}
+      }, cb);
+    }
+  ], cb);
+};
+
+function deleteAllTokens(userId, cb) {
+  async.waterfall([
+    getUser.bind(null, userId),
+    function(user, cb) {
+      // map each token into a function that deletes that token's record
+      var funs = Object.keys(user.accountTokens).map(function(token) {
+          return function(cb) {
+            kv.cache.delete(token + '/accountToken', cb);
+          };
+        })
+        .concat(
+        Object.keys(user.signTokens).map(function(token) {
+          return function(cb) {
+            kv.store.delete(token + '/signer', cb);
+          };
+        }))
+        .concat(
+        Object.keys(user.resetTokens).map(function(token) {
+          return function(cb) {
+            kv.cache.delete(token + '/resetToken', cb);
+          };
+        }));
+      // run token deletions in parallel
+      async.parallel(funs, function(err) { cb(err); });
+    }
+  ], cb);
+}
+
+function addTokenFn(tokenType, fn) {
+  return function (userId, token, cb) {
+    async.waterfall([
+      // First, add the signToken to the user's list
+      function(cb) {
+        updateUserData(userId, function(userDoc) {
+          if (token in userDoc.value[tokenType]) {
+            userDoc.value[tokenType][token] = true;
+          }
+          return userDoc;
+        }, cb);
+      },
+      fn.bind(null, token, userId),
+    ], cb);
+  };
+}
+
+var addSignToken = addTokenFn('signTokens',
+      function(token, userId, cb) {
+        kv.store.set(token + '/signer', {
+          uid: userId,
+          accessTime: Date.now()
+        }, cb);
+      });
+
+var addAccountToken = addTokenFn('accountTokens',
+      function(token, userId, cb) {
+        kv.cache.set(token + '/accountToken', {
+          uid: userId
+        }, cb);
+      });
+
+var addResetToken = addTokenFn('resetTokens',
+      function(token, userId, cb) {
+        kv.cache.set(token + '/resetToken', {
+          uid: userId,
+          expirationTime: Date.now() + 60 * 60 * 24
+        }, cb);
+      });
+
+function updateUserData(userId, update, cb) {
+  retryLoop('cas mismatch', 5, function(cb) {
+    getUserDoc(userId, function(err, doc) {
+      try {
+        doc = update(doc);
+      } catch (e) {
+        return cb(e);
+      }
+      kv.store.cas(userId + '/user', doc.value, doc.casid, cb);
+    });
+  }, cb);
+}
+
+// Helper function to retry execution in case of errors.
+// 'fn' should be the function to execute, with its arguments bound
+// except for the callback.
+//
+function retryLoop(errType, maxAttempts, fn, cb) {
+  var numRetries = 0;
+  var attempt = function() {
+    fn(function(err) {
+      if (!err) return cb(null);
+      if (err !== errType) return cb(err);
+      if (numRetries > maxAttempts) return cb('too many conflicts');
+      numRetries++;
+      process.nextTick(attempt);
+    });
+  };
+  attempt();
+}
 
 // This method returns the userId currently associated with an email address.
 exports.getId = function(email, cb) {
@@ -183,10 +376,19 @@ exports.getId = function(email, cb) {
 };
 
 // get meta data associated with a user
-exports.getUser = function(userId, cb) {
+var getUserDoc = function(userId, cb) {
   kv.store.get(userId + '/user', function(err, doc) {
     if (err) return cb(internalError(err));
     if (!doc) return cb(notFound('UnknownUser'));
+    doc.id = userId;
+    cb(null, doc);
+  });
+};
+
+// get meta data associated with a user
+var getUser = exports.getUser = function(userId, cb) {
+  getUserDoc(userId, function(err, doc) {
+    if (err) return cb(err);
     cb(null, doc.value);
   });
 };
