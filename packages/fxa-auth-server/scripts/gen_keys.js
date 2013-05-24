@@ -32,7 +32,7 @@ require("jwcrypto/lib/algs/rs");
 try {
   assert(fs.existsSync(configDir), "Config dir" + configDir + " not found");
   assert(! fs.existsSync(pubKeyFile), "public key file: ["+pubKeyFile+"] already exists");
-  assert(! fs.existsSync(secretKeyFile), "public key file: ["+secretKeyFile+"] already exists");
+  assert(! fs.existsSync(secretKeyFile), "secret key file: ["+secretKeyFile+"] already exists");
 } catch(e) {
   console.error("Error: " + e.message);
   process.exit(1);
@@ -55,6 +55,6 @@ jwcrypto.generateKeypair(
     console.log("Public Key saved:", pubKeyFile);
 
     fs.writeFileSync(secretKeyFile, secretKey);
-    console.log("Secret Key saved:", pubKeyFile);
+    console.log("Secret Key saved:", secretKeyFile);
   }
 );
