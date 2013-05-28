@@ -11,8 +11,8 @@
 
    Will create these files
 
-       server/config/public-key.json
-       server/config/secret-key.json
+       ./config/public-key.json
+       ./config/secret-key.json
 
    If these files already exist, this script will show an error message
    and exit. You must remove both keys if you want to generate a new
@@ -22,15 +22,14 @@
 const jwcrypto = require("jwcrypto");
 const fs = require('fs');
 const assert = require("assert");
+const config = require('../lib/config');
 
-const configDir = fs.realpathSync(__dirname + "/../config");
-const pubKeyFile = configDir + "/public-key.json";
-const secretKeyFile = configDir + "/secret-key.json";
+const pubKeyFile = config.get('publicKeyFile');
+const secretKeyFile = config.get('secretKeyFile');
 
 require("jwcrypto/lib/algs/rs");
 
 try {
-  assert(fs.existsSync(configDir), "Config dir" + configDir + " not found");
   assert(! fs.existsSync(pubKeyFile), "public key file: ["+pubKeyFile+"] already exists");
   assert(! fs.existsSync(secretKeyFile), "secret key file: ["+secretKeyFile+"] already exists");
 } catch(e) {

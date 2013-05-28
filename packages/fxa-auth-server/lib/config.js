@@ -4,6 +4,7 @@
 
 const fs = require('fs');
 const url = require('url');
+const path = require('path');
 const convict = require('convict');
 
 const AVAILABLE_BACKENDS = ["memory", "mysql", "memcached"];
@@ -26,10 +27,10 @@ var conf = module.exports = convict({
     default: "127.0.0.1:9000"
   },
   secretKeyFile: {
-    default: "./config/secret-key.json"
+    default: path.resolve(__dirname, '../config/secret-key.json')
   },
   publicKeyFile: {
-    default: "./config/public-key.json"
+    default: path.resolve(__dirname, '../config/public-key.json')
   },
   kvstore: {
     cache: {
@@ -118,6 +119,12 @@ if (process.env.CONFIG_FILES) {
 
 // set the public url as the issuer domain for assertions
 conf.set('domain', url.parse(conf.get('public_url')).host);
+
+
+// generate keys if they don't exist
+if (!fs.existsSync(conf.get('publicKeyFile'))) {
+  require('../scripts/gen_keys');
+}
 
 conf.validate();
 
