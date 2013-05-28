@@ -112,7 +112,39 @@ var routes = [
         }
       }
     }
-  }
+  },
+  {
+    method: 'POST',
+    path: '/resetToken',
+    config: {
+      handler: getResetToken,
+      validate: {
+        payload: {
+          accountToken: Hapi.types.String().required()
+        },
+        response: {
+          schema: {
+            resetToken: Hapi.types.String().required()
+          }
+        }
+      }
+    }
+  },
+  {
+    method: 'POST',
+    path: '/resetPassword',
+    config: {
+      handler: resetPassword,
+      validate: {
+        payload: {
+          resetToken: Hapi.types.String().required(),
+          verifier: Hapi.types.String().required(),
+          params: Hapi.types.Object(),
+          kB: Hapi.types.String()
+        }
+      }
+    }
+  },
 ];
 
 function wellKnown(request) {
@@ -204,6 +236,36 @@ function getSignToken(request) {
       }
       else {
         request.reply(result);
+      }
+    }
+  );
+}
+
+function getResetToken(request) {
+
+  account.getResetToken(
+    request.payload.accountToken,
+    function (err, result) {
+      if (err) {
+        request.reply(err);
+      }
+      else {
+        request.reply(result);
+      }
+    }
+  );
+}
+
+function resetPassword(request) {
+  account.resetPassword(
+    request.payload.resetToken,
+    request.payload,
+    function (err) {
+      if (err) {
+        request.reply(err);
+      }
+      else {
+        request.reply('ok');
       }
     }
   );
