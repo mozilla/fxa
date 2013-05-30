@@ -17,7 +17,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "hapi": "1.2.0",
+    "hapi": "1.6.0",
     "compute-cluster": "0.0.7",
     "jwcrypto": "0.4.3",
     "handlebars": "1.0.10",
