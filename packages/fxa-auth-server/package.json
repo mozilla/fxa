@@ -26,12 +26,11 @@
     "uuid": "1.4.1",
     "async": "0.2.8",
     "kvstore": "git://github.com/mozilla/node-kvstore.git#4b8c2f6763",
-    "good": "0.5.7",
-    "heka": "git://github.com/dannycoates/heka-node.git#dc31a1c1f4",
-    "bytebuffer": "~1.3.6"
+    "good": "git://github.com/dannycoates/good.git#223e5d6db3",
+    "heka": "git://github.com/dannycoates/heka-node.git#dc31a1c1f4"
   },
   "devDependencies": {
-    "awsbox": "git://github.com/dannycoates/awsbox.git",
+    "awsbox": "0.4.5",
     "mocha": "1.9.x",
     "request": "2.21.x",
     "jshint": "0.9.1"

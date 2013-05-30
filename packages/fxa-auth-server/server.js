@@ -6,6 +6,7 @@ const Hapi = require('hapi');
 
 const config = require('./lib/config');
 const routes = require('./routes');
+const heka = require('./lib/heka');
 
 // server settings
 var settings = {
@@ -49,14 +50,19 @@ server.ext('onPreResponse', function (request, next) {
 
 server.pack.require('good', {
     subscribers: {
-      console: ['ops', 'request', 'log']
+      console: ['request', 'log'],
+      ops: {
+        events: ['ops'],
+        handler: heka.ops
+      }
     },
     extendedRequests: true,
     leakDetection: true
   },
   function(err) {
     if (err) server.log(['error'], err);
-  });
+  }
+);
 
 //TODO throttle extension
 //TODO toobusy extension
