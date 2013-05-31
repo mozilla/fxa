@@ -31,7 +31,7 @@ type = "SandboxFilter"
 message_matcher = "Type == 'ops'"
 ticker_interval = 60
 script_type = "lua"
-filename = "./sandbox/heka.lua"
+filename = "/home/app/code/heka/memory.lua"
 preserve_data = true
 memory_limit = 1048576
 instruction_limit = 100

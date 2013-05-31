@@ -5,7 +5,7 @@
   ],
   "env": {
     "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/config.json",
-    "HEKAD_CONFIG": "$HOME/code/config/hekad.toml"
+    "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml"
   },
   "remote_hooks": {
     "postcreate": "scripts/aws/post_create.sh",
