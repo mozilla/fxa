@@ -1,23 +1,14 @@
 [UdpInput]
 address = "127.0.0.1:4880"
 
+[StatsdInput]
+address = ":8125"
+
 [TCP:5565]
 type = "TcpInput"
 address = ":5565"
     [TCP:5565.signer.test_0]
     hmac_key = "4865ey9urgkidls xtb0[7lf9rzcivthkm"
-
-[CounterFilter]
-message_matcher = "Type != 'heka.counter-output'"
-
-[debug_output]
-type = "LogOutput"
-message_matcher = "TRUE"
-payload_only = false
-
-[DashboardOutput]
-ticker_interval = 15
-message_matcher = "Type == 'heka.all-report' || Type == 'heka.sandbox-terminated' || (Type == 'heka.sandbox-output' && Fields[payload_type] == 'cbuf')"
 
 [TestSandboxManager]
 type = "SandboxManagerFilter"
@@ -28,11 +19,20 @@ max_filters = 100
 
 [memory_counter]
 type = "SandboxFilter"
-message_matcher = "Type == 'ops'"
-ticker_interval = 60
+message_matcher = "Type == 'statmetric'"
+ticker_interval = 15
 script_type = "lua"
-filename = "/home/app/code/heka/memory.lua"
-preserve_data = true
+filename = "./heka/memory.lua"
+preserve_data = false
 memory_limit = 1048576
 instruction_limit = 100
 output_limit = 64512
+
+[debug_output]
+type = "LogOutput"
+message_matcher = "Type != 'heka.all-report' && Type != 'heka.sandbox-output'"
+payload_only = false
+
+[DashboardOutput]
+ticker_interval = 15
+message_matcher = "Type == 'heka.all-report' || Type == 'heka.sandbox-terminated' || (Type == 'heka.sandbox-output' && Fields[payload_type] == 'cbuf')"

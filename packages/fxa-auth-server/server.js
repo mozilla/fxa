@@ -6,7 +6,7 @@ const Hapi = require('hapi');
 
 const config = require('./lib/config');
 const routes = require('./routes');
-const heka = require('./lib/heka');
+const stats = require('./lib/stats');
 
 // server settings
 var settings = {
@@ -53,7 +53,7 @@ server.pack.require('good', {
       console: ['request', 'log'],
       ops: {
         events: ['ops'],
-        handler: heka.ops
+        handler: stats.ops
       }
     },
     extendedRequests: true,
