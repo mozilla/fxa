@@ -16,17 +16,17 @@ exports.routes = [
 ];
 
 function heartbeat(request) {
-	async.each(
-		[kv.store, kv.cache],
-		function (db, done) {
-			db.ping(done);
-		},
-		function (err) {
-			var text = 'ok';
-			if (err) {
-				text = err.toString();
-			}
-			request.reply(text).type('text/plain');
-		}
-	);
+  async.each(
+    [kv.store, kv.cache],
+    function (db, done) {
+      db.ping(done);
+    },
+    function (err) {
+      var text = 'ok';
+      if (err) {
+        text = err.toString();
+      }
+      request.reply(text).type('text/plain');
+    }
+  );
 }
