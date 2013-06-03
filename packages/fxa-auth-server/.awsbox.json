@@ -1,12 +1,17 @@
 {
-  "ami": "ami-6f690106",
+  "ami": "ami-91a2c8f8",
   "processes": [
     "index.js"
   ],
   "env": {
-    "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/config.json"
+    "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/config.json",
+    "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml"
   },
   "remote_hooks": {
-    "postcreate": "scripts/aws/post_create.sh"
-  }
+    "postcreate": "scripts/aws/post_create.sh",
+    "postdeploy": "scripts/aws/post_deploy.sh"
+  },
+  "packages": [
+    "mysql-server"
+  ]
 }

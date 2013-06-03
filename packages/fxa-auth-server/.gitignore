@@ -1,4 +1,6 @@
 /node_modules
+/sandbox
+/dashboard
 /config/public-key.json
 /config/secret-key.json
 *.swp
