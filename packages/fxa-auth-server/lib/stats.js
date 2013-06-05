@@ -36,7 +36,7 @@ module.exports = {
     // statsd.gauge('heapUsed', event.proc.mem.heapUsed);
 
     heka.heka(
-     'ops',
+     'mem',
      {
        timestamp: new Date(event.timestamp),
        severity: 6,
@@ -49,6 +49,25 @@ module.exports = {
        pid: PID,
        hostname: HOSTNAME
      }
+    );
+  },
+
+  request: function (event) {
+
+    heka.heka(
+      'request',
+      {
+        timestamp: new Date(event.timestamp),
+        severity: 6,
+        fields: {
+          method: event.method,
+          statusCode: event.statusCode,
+          path: event.path,
+          responseTime: event.responseTime
+        },
+        pid: PID,
+        hostname: HOSTNAME
+      }
     );
   }
 };
