@@ -60,7 +60,6 @@ module.exports = {
         timestamp: new Date(event.timestamp),
         severity: 6,
         fields: {
-          method: event.method,
           statusCode: event.statusCode,
           path: event.path,
           responseTime: event.responseTime
