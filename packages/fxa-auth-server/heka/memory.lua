@@ -1,20 +1,19 @@
 data = circular_buffer.new(240, 3, 15)
-local cols = {
-  rss = data:set_header(1, "RSS", "max"),
-  heapTotal = data:set_header(2, "HEAP_TOTAL", "max"),
-  heapUsed = data:set_header(3, "HEAP_USED", "max")
-}
+local RSS = data:set_header(1, "RSS", "max")
+local TOTAL = data:set_header(2, "Heap_Total", "max")
+local USED = data:set_header(3, "Heap_Used", "max")
+local SCALE = 1024 * 1024
 
 function process_message()
   local ts = read_message("Timestamp")
-  local payload = read_message("Payload")
-  if payload == nil then return 0 end
+  local rss = read_message("Fields[rss]")
+  local heapTotal = read_message("Fields[heapTotal]")
+  local heapUsed = read_message("Fields[heapUsed]")
+  if rss == nil then return 0 end
 
-  for k, v in string.gmatch(payload, "stats.(%w+) (%d+)") do
-    if cols[k] ~= nil then
-      data:set(ts, cols[k], v)
-    end
-  end
+  data:set(ts, RSS, (rss / SCALE))
+  data:set(ts, TOTAL, (heapTotal / SCALE))
+  data:set(ts, USED, (heapUsed / SCALE))
 
   return 0
 end

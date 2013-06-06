@@ -54,6 +54,10 @@ server.pack.require('good', {
       ops: {
         events: ['ops'],
         handler: stats.ops
+      },
+      request: {
+        events: ['request'],
+        handler: stats.request
       }
     },
     extendedRequests: true,

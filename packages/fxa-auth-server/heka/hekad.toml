@@ -17,9 +17,9 @@ message_matcher = "Type == 'heka.control.sandbox'"
 working_directory = "./sandbox"
 max_filters = 100
 
-[memory_counter]
+[memoryGauge]
 type = "SandboxFilter"
-message_matcher = "Type == 'statmetric'"
+message_matcher = "Type == 'mem'"
 ticker_interval = 15
 script_type = "lua"
 filename = "./heka/memory.lua"
@@ -28,9 +28,20 @@ memory_limit = 1048576
 instruction_limit = 100
 output_limit = 64512
 
-[debug_output]
+[requestCounter]
+type = "SandboxFilter"
+message_matcher = "Type == 'request'"
+ticker_interval = 60
+script_type = "lua"
+filename = "./heka/request.lua"
+preserve_data = false
+memory_limit = 1048576
+instruction_limit = 100
+output_limit = 64512
+
+[debugOutput]
 type = "LogOutput"
-message_matcher = "Type != 'heka.all-report' && Type != 'heka.sandbox-output'"
+message_matcher = "Type != 'heka.all-report' && Type != 'heka.sandbox-output' && Type != 'statmetric'"
 payload_only = false
 
 [DashboardOutput]
