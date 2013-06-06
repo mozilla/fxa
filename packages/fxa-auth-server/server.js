@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Hapi = require('hapi');
+const toobusy = require('toobusy');
 
 const config = require('./lib/config');
 const routes = require('./routes');
@@ -24,12 +25,23 @@ var server = Hapi.createServer(bind.host, bind.port, settings);
 server.addRoutes(routes);
 
 server.ext(
+  'onRequest',
+  function (request, next) {
+    var exit = false;
+    if (toobusy()) {
+      exit = Hapi.error.serverTimeout('Server too busy');
+    }
+    next(exit);
+  }
+);
+
+server.ext(
   'onPreResponse',
   function (request, next) {
     var res = request.response();
     // error responses don't have `header`
     if (res.header) {
-      res.header("Strict-Transport-Security", "max-age=10886400");
+      res.header('Strict-Transport-Security', 'max-age=10886400');
     }
     next();
   }
@@ -68,8 +80,19 @@ server.pack.require('good', {
   }
 );
 
+process.on(
+  'SIGINT',
+  function () {
+    console.log("shutting down");
+    server.stop(
+      function () {
+        toobusy.shutdown();
+      }
+    );
+  }
+);
+
 //TODO throttle extension
-//TODO toobusy extension
 
 module.exports = server;
 
