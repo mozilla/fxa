@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "express": "2.5.0",
-    "client-sessions": "0.0.6",
+    "client-sessions": "0.3.1",
     "redis": "0.7.1",
     "postprocess": "0.2.4",
     "connect-fonts": "0.0.9-alpha8",
