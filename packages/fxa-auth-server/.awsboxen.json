@@ -1,0 +1,159 @@
+{
+  "Boxen": {
+    "LogBox": {
+      "Type": "AWSBoxen::BuildScript",
+      "Properties": {
+        "BaseAMI": "ami-155c2a7c",
+        "BuildScript": "scripts/build_log_node.sh"
+      }
+    },
+
+    "IdpBox": {
+      "Type": "AWSBox",
+      "Properties": {
+        "ami": "ami-91a2c8f8",
+        "processes": [
+          "bin/idp.js"
+        ],
+        "env": {
+          "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/config.json",
+          "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml"
+        },
+        "hooks": {
+          "postdeploy": "scripts/aws/post_deploy.sh"
+        }
+      }
+    }
+
+  },
+  "Resources": {
+    "DNSRecords": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "Properties": {
+        "Comment": "awsboxen for picl-idp",
+        "HostedZoneName": "profileinthecloud.net.",
+        "RecordSets": [
+        {
+          "Name": "logs.profileinthecloud.net.",
+          "Type": "CNAME",
+          "TTL": "30",
+          "ResourceRecords": [{"Fn::GetAtt": ["LogServer", "PublicDnsName"]}]
+        },
+        {
+          "Name": "idp.profileinthecloud.net.",
+          "Type": "CNAME",
+          "TTL": "30",
+          "ResourceRecords": [{"Fn::GetAtt": ["IdpServer", "PublicDnsName"]}]
+        }]
+      }
+    },
+
+    "LogServer": {
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : "m1.small",
+        "ImageId": { "Ref": "LogBoxAMI" },
+        "KeyName": { "Ref": "AWSBoxDeployKey" },
+        "SecurityGroups": [ {"Ref": "DevServerSecurityGroup"} ]
+      }
+    },
+
+    "IdpServer": {
+      "Type" : "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType" : "m1.small",
+        "ImageId": { "Ref": "IdpBoxAMI" },
+        "KeyName": { "Ref": "AWSBoxDeployKey" },
+        "SecurityGroups": [ {"Ref": "DevServerSecurityGroup"} ],
+        "UserData": { "Fn::Base64": { "Fn::Join": [ "\n", [
+          "#!/bin/sh",
+          "set -e -x",
+          "cat << EOF > /home/app/code/config/aws.json",
+          "{",
+          "  \"kvstore\": {",
+          "    \"backend\": \"mysql\",",
+          "    \"cache\": \"memcached\"",
+          "  },",
+          "  \"secretKeyFile\": \"/home/app/var/secret-key.json\",",
+          "  \"publicKeyFile\": \"/home/app/var/public-key.json\",",
+          "  \"mysql\": {",
+          "    \"user\": \"picl\",",
+          "    \"password\": \"piclmesoftly\",",
+          "    \"host\":",
+          {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Database", "Endpoint.Address"]}, "\","]]},
+          "    \"port\":",
+          {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Database", "Endpoint.Port"]}, "\""]]},
+          "  },",
+          "  \"memcached\": {",
+          "    \"hosts\":",
+          {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]}, ":",  {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Port"]},"\""]]},
+          "  }",
+          "}",
+          "EOF",
+          ""
+        ]]}}
+      }
+    },
+
+    "DevServerSecurityGroup": {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable external HTTP(S) and SSH access and internal elasticsearch",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "8000", "ToPort": "12000", "SourceSecurityGroupName" : {"Ref" : "DevServerSecurityGroup"}}
+        ]
+      }
+    },
+
+    "Database": {
+      "Type" : "AWS::RDS::DBInstance",
+      "Properties" : {
+        "DBName": "picl",
+        "Engine": "MySQL",
+        "MasterUsername": "picl",
+        "MasterUserPassword": "piclmesoftly",
+        "DBInstanceClass": "db.m1.small",
+        "DBSecurityGroups": [ {"Ref": "DatabaseSecurityGroup"} ],
+        "AllocatedStorage": "5"
+      }
+    },
+
+    "DatabaseSecurityGroup": {
+      "Type": "AWS::RDS::DBSecurityGroup",
+      "Properties": {
+        "GroupDescription": "DB Access from IdpServer Instances",
+        "DBSecurityGroupIngress": {
+          "EC2SecurityGroupName": { "Ref": "DevServerSecurityGroup"}
+        }
+      }
+    },
+
+    "Cache": {
+      "Type": "AWS::ElastiCache::CacheCluster",
+      "Properties": {
+        "CacheNodeType": "cache.m1.small",
+        "NumCacheNodes": "1",
+        "Engine": "memcached",
+        "CacheSecurityGroupNames": [ {"Ref": "CacheSecurityGroup"} ]
+      }
+    },
+
+    "CacheSecurityGroup": {
+      "Type": "AWS::ElastiCache::SecurityGroup",
+      "Properties": {
+        "Description": "IDP server cache"
+      }
+    },
+
+    "CacheSecurityGroupIngress": {
+      "Type": "AWS::ElastiCache::SecurityGroupIngress",
+      "Properties": {
+        "CacheSecurityGroupName": { "Ref": "CacheSecurityGroup"},
+        "EC2SecurityGroupName": { "Ref": "DevServerSecurityGroup"}
+      }
+    }
+  }
+}
