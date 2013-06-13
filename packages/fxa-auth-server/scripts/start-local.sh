@@ -10,4 +10,4 @@ fi
 echo "starting heka"
 hekad -config=heka/hekad.toml &
 
-node index.js
+./bin/idp.js
