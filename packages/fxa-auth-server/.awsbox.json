@@ -1,7 +1,7 @@
 {
   "ami": "ami-91a2c8f8",
   "processes": [
-    "index.js"
+    "bin/idp.js"
   ],
   "env": {
     "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/config.json",
