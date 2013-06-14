@@ -11,7 +11,11 @@ const stats = require('./lib/stats');
 
 // server settings
 var settings = {
+  files: {
+    relativeTo: __dirname
+  },
   views: {
+    basePath: __dirname,
     path: 'templates',
     engines: {
       html: 'handlebars'
