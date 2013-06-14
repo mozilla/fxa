@@ -12,6 +12,7 @@
     "postdeploy": "scripts/aws/post_deploy.sh"
   },
   "packages": [
-    "mysql-server"
+    "mysql-server",
+    "memcached"
   ]
 }

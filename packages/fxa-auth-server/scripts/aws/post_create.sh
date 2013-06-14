@@ -9,7 +9,5 @@ echo "GRANT ALL ON picl.* TO 'picl'@'localhost';" | mysql -u root
 
 echo "Setting up memcached"
 
-yum --assumeyes install memcached
-
-/sbin/chkconfig memcached on
-/sbin/service memcached start
+sudo /sbin/chkconfig memcached on
+sudo /sbin/service memcached start
