@@ -11,3 +11,7 @@ echo "Setting up memcached"
 
 sudo /sbin/chkconfig memcached on
 sudo /sbin/service memcached start
+
+echo "Setting up logstash"
+
+wget https://logstash.objects.dreamhost.com/release/logstash-1.1.13-flatjar.jar

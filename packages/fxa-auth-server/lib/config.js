@@ -113,7 +113,8 @@ var conf = module.exports = convict({
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable
 if (process.env.CONFIG_FILES) {
-  var files = process.env.CONFIG_FILES.split(',');
+  var files = process.env.CONFIG_FILES.split(',').filter(fs.existsSync);
+
   conf.loadFile(files);
 }
 

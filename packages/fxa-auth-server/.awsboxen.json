@@ -16,8 +16,9 @@
           "bin/idp.js"
         ],
         "env": {
-          "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/config.json",
-          "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml"
+          "CONFIG_FILES": "$HOME/cloud_formation.json,$HOME/config.json",
+          "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml",
+          "LOGSTASH_CONFIG": "$HOME/code/config/logstash.conf"
         },
         "hooks": {
           "postdeploy": "scripts/aws/post_deploy.sh"
@@ -54,7 +55,7 @@
         "InstanceType" : "m1.small",
         "ImageId": { "Ref": "LogBoxAMI" },
         "KeyName": { "Ref": "AWSBoxDeployKey" },
-        "SecurityGroups": [ {"Ref": "DevServerSecurityGroup"} ]
+        "SecurityGroups": [ {"Ref": "LogServerSecurityGroup"} ]
       }
     },
 
@@ -64,11 +65,11 @@
         "InstanceType" : "m1.small",
         "ImageId": { "Ref": "IdpBoxAMI" },
         "KeyName": { "Ref": "AWSBoxDeployKey" },
-        "SecurityGroups": [ {"Ref": "DevServerSecurityGroup"} ],
+        "SecurityGroups": [ {"Ref": "IdpServerSecurityGroup"} ],
         "UserData": { "Fn::Base64": { "Fn::Join": [ "\n", [
           "#!/bin/sh",
           "set -e -x",
-          "cat << EOF > /home/app/code/config/aws.json",
+          "cat << EOF > /home/app/cloud_formation.json",
           "{",
           "  \"kvstore\": {",
           "    \"backend\": \"mysql\",",
@@ -95,7 +96,7 @@
       }
     },
 
-    "DevServerSecurityGroup": {
+    "LogServerSecurityGroup": {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "GroupDescription" : "Enable external HTTP(S) and SSH access and internal elasticsearch",
@@ -103,7 +104,19 @@
           {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
           {"IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0"},
           {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"},
-          {"IpProtocol" : "tcp", "FromPort" : "8000", "ToPort": "12000", "SourceSecurityGroupName" : {"Ref" : "DevServerSecurityGroup"}}
+          {"IpProtocol" : "tcp", "FromPort" : "8000", "ToPort": "12000", "SourceSecurityGroupName" : {"Ref" : "IdpServerSecurityGroup"}}
+        ]
+      }
+    },
+
+    "IdpServerSecurityGroup": {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable external HTTP(S) and SSH access and internal elasticsearch",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0"}
         ]
       }
     },
@@ -126,7 +139,7 @@
       "Properties": {
         "GroupDescription": "DB Access from IdpServer Instances",
         "DBSecurityGroupIngress": {
-          "EC2SecurityGroupName": { "Ref": "DevServerSecurityGroup"}
+          "EC2SecurityGroupName": { "Ref": "IdpServerSecurityGroup"}
         }
       }
     },
@@ -152,7 +165,7 @@
       "Type": "AWS::ElastiCache::SecurityGroupIngress",
       "Properties": {
         "CacheSecurityGroupName": { "Ref": "CacheSecurityGroup"},
-        "EC2SecurityGroupName": { "Ref": "DevServerSecurityGroup"}
+        "EC2SecurityGroupName": { "Ref": "IdpServerSecurityGroup"}
       }
     }
   }
