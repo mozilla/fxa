@@ -3,6 +3,8 @@ picl-idp
 
 An Identity Provider for Profile In the CLoud
 
+Protocol notes: https://id.etherpad.mozilla.org/picl-idp-protocol
+
 ## Install
 
 You'll need node 0.10.x or higher and npm to run the server.
