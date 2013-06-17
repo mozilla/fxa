@@ -149,7 +149,7 @@ var routes = [
 
 function wellKnown(request) {
   request.reply({
-    'public-key': fs.readFileSync(config.get('publicKeyFile')),
+    'public-key': fs.readFileSync(config.publicKeyFile),
     'authentication': '/sign_in.html',
     'provisioning': '/provision.html'
   });

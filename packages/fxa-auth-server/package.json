@@ -26,7 +26,7 @@
     "uuid": "1.4.1",
     "async": "0.2.8",
     "kvstore": "0.0.3",
-    "good": "git://github.com/dannycoates/good.git#223e5d6db3",
+    "bunyan": "0.21.3",
     "heka": "0.3.0",
     "node-statsd": "0.0.7",
     "toobusy": "0.2.3"

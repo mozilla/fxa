@@ -4,9 +4,56 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var server = require('../server.js');
+const bunyan = require('bunyan');
 
-// Start the server
+const config = require('../lib/config').root();
+const stats = require('../lib/stats');
+
+const memoryMonitor = new (require('../lib/memory_monitor'))();
+memoryMonitor.on('mem', stats.mem);
+memoryMonitor.start();
+
+const logStreams = [
+  {
+    type: 'rotating-file',
+    level: config.log.level,
+    path: config.log.path,
+    period: config.log.period,
+    count: config.log.count
+  },
+  {
+    type: 'raw',
+    level: 'trace',
+    stream: new bunyan.RingBuffer({ limit: 100 })
+  }
+];
+
+if (config.env !== 'production') {
+  logStreams.push({ stream: process.stderr, level: 'trace' });
+}
+
+const log = bunyan.createLogger(
+  {
+    name: 'picl-idp',
+    streams: logStreams
+  }
+);
+
+const routes = require('../routes');
+const server = require('../server.js')(config, routes, log);
+
 server.start(function() {
-  console.log('running on ' + server.info.uri);
+  log.info('running on ' + server.info.uri);
 });
+
+process.on(
+  'SIGINT',
+  function () {
+    log.info('shutting down');
+    server.stop(
+      function () {
+        process.exit();
+      }
+    );
+  }
+);

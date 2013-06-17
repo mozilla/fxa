@@ -29,22 +29,17 @@ var heka = Heka.clientFromJsonConfig(
 // );
 
 module.exports = {
-  ops: function (event) {
 
-    // statsd.gauge('rss', event.proc.mem.rss);
-    // statsd.gauge('heapTotal', event.proc.mem.heapTotal);
-    // statsd.gauge('heapUsed', event.proc.mem.heapUsed);
-
+  mem: function (usage) {
     heka.heka(
      'mem',
      {
-       timestamp: new Date(event.timestamp),
+       timestamp: new Date(),
        severity: 6,
        fields: {
-         rss: event.proc.mem.rss,
-         heapTotal: event.proc.mem.heapTotal,
-         heapUsed: event.proc.mem.heapUsed,
-         uptime: event.proc.uptime
+         rss: usage.rss,
+         heapTotal: usage.heapTotal,
+         heapUsed: usage.heapUsed
        },
        pid: PID,
        hostname: HOSTNAME
