@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-NODE_ENV="local"
-
 pid=`ps -aefw | grep "hekad" | grep -v " grep " | awk '{print $2}'`
 if [[ $pid ]] ; then
   echo "stopping heka"
@@ -10,4 +8,4 @@ fi
 echo "starting heka"
 hekad -config=heka/hekad.toml &
 
-./bin/idp.js
+NODE_ENV="local" ./bin/idp.js

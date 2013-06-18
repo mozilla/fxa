@@ -7,11 +7,6 @@
 const bunyan = require('bunyan');
 
 const config = require('../lib/config').root();
-const stats = require('../lib/stats');
-
-const memoryMonitor = new (require('../lib/memory_monitor'))();
-memoryMonitor.on('mem', stats.mem);
-memoryMonitor.start();
 
 const logStreams = [
   {
@@ -38,6 +33,17 @@ const log = bunyan.createLogger(
     streams: logStreams
   }
 );
+
+log.info(config, "starting config");
+
+var statsBackend = config.stats.backend;
+var statsConfig = config[statsBackend];
+
+const stats = require('../lib/stats')(log)(statsBackend, statsConfig);
+
+const memoryMonitor = new (require('../lib/memory_monitor'))();
+memoryMonitor.on('mem', stats.mem.bind(stats));
+memoryMonitor.start();
 
 const routes = require('../routes');
 const server = require('../server.js')(config, routes, log);
