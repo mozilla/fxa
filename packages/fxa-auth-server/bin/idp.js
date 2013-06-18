@@ -39,7 +39,7 @@ log.info(config, "starting config");
 var statsBackend = config.stats.backend;
 var statsConfig = config[statsBackend];
 
-const stats = require('../lib/stats')(log)(statsBackend, statsConfig);
+const stats = require('../lib/stats')(log, statsBackend, statsConfig);
 
 const memoryMonitor = new (require('../lib/memory_monitor'))();
 memoryMonitor.on('mem', stats.mem.bind(stats));

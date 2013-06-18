@@ -6,26 +6,7 @@
         "BaseAMI": "ami-155c2a7c",
         "BuildScript": "scripts/build_log_node.sh"
       }
-    },
-
-    "IdpBox": {
-      "Type": "AWSBox",
-      "Properties": {
-        "ami": "ami-91a2c8f8",
-        "processes": [
-          "bin/idp.js"
-        ],
-        "env": {
-          "CONFIG_FILES": "$HOME/cloud_formation.json,$HOME/config.json",
-          "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml",
-          "LOGSTASH_CONFIG": "$HOME/code/config/logstash.conf"
-        },
-        "hooks": {
-          "postdeploy": "scripts/aws/post_deploy.sh"
-        }
-      }
     }
-
   },
   "Resources": {
     "DNSRecords": {
@@ -63,7 +44,7 @@
       "Type" : "AWS::EC2::Instance",
       "Properties": {
         "InstanceType" : "m1.small",
-        "ImageId": { "Ref": "IdpBoxAMI" },
+        "ImageId": { "Ref": "AWSBoxAMI" },
         "KeyName": { "Ref": "AWSBoxDeployKey" },
         "SecurityGroups": [ {"Ref": "IdpServerSecurityGroup"} ],
         "UserData": { "Fn::Base64": { "Fn::Join": [ "\n", [
