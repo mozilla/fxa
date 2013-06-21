@@ -4,3 +4,4 @@
 /config/public-key.json
 /config/secret-key.json
 *.swp
+server.log

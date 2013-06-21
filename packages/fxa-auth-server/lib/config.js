@@ -8,6 +8,7 @@ const path = require('path');
 const convict = require('convict');
 
 const AVAILABLE_BACKENDS = ["memory", "mysql", "memcached"];
+const STATS_BACKENDS = ['none', 'heka', 'statsd'];
 
 
 var conf = module.exports = convict({
@@ -16,6 +17,20 @@ var conf = module.exports = convict({
     default: "production",
     format: [ "production", "local", "test" ],
     env: 'NODE_ENV'
+  },
+  log: {
+    level: {
+      default: 'info'
+    },
+    path: {
+      default: path.join(__dirname, '../server.log')
+    },
+    period: {
+      default: '1d'
+    },
+    count: {
+      default: 7
+    }
   },
   public_url: {
     format: "url",
@@ -106,6 +121,29 @@ var conf = module.exports = convict({
       format: 'port',
       env: 'PORT'
     }
+  },
+  stats: {
+    backend: {
+      format: STATS_BACKENDS,
+      default: 'none',
+      env: 'STATS_BACKEND'
+    }
+  },
+  heka: {
+    host: {
+      default: '127.0.0.1'
+    },
+    port: {
+      default: 4880
+    }
+  },
+  statsd: {
+    host: {
+      default: '127.0.0.1',
+    },
+    port: {
+      default: 8125
+    }
   }
 });
 
@@ -113,7 +151,8 @@ var conf = module.exports = convict({
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable
 if (process.env.CONFIG_FILES) {
-  var files = process.env.CONFIG_FILES.split(',');
+  var files = process.env.CONFIG_FILES.split(',').filter(fs.existsSync);
+
   conf.loadFile(files);
 }
 
@@ -127,5 +166,3 @@ if (!fs.existsSync(conf.get('publicKeyFile'))) {
 }
 
 conf.validate();
-
-console.log('configuration: ', conf.toString());

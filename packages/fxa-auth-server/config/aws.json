@@ -5,6 +5,9 @@
   "mysql": {
     "user": "picl"
   },
+  "stats": {
+    "backend": "heka"
+  },
   "secretKeyFile": "/home/app/var/secret-key.json",
   "publicKeyFile": "/home/app/var/public-key.json"
 }

@@ -5,7 +5,7 @@
 const Hapi = require('hapi');
 const fs = require('fs');
 const CC = require('compute-cluster');
-const config = require('../lib/config');
+const config = require('../lib/config').root();
 const prereqs = require('../lib/prereqs');
 
 const hour = 1000 * 60 * 60;
@@ -149,7 +149,7 @@ var routes = [
 
 function wellKnown(request) {
   request.reply({
-    'public-key': fs.readFileSync(config.get('publicKeyFile')),
+    'public-key': fs.readFileSync(config.publicKeyFile),
     'authentication': '/sign_in.html',
     'provisioning': '/provision.html'
   });

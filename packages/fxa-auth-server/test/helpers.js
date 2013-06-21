@@ -2,9 +2,21 @@ const request = require('request');
 const crypto = require('crypto');
 const Hapi = require('hapi');
 const hoek = require('hoek');
-const config = require('../lib/config');
+const config = require('../lib/config').root();
+const routes = require('../routes');
 
-exports.server = require('../server');
+const noop = function () {};
+const nullLog = {
+  trace: noop,
+  debug: noop,
+  info: noop,
+  log: noop,
+  warn: noop,
+  error: noop,
+  fatal: noop
+};
+
+exports.server = require('../server')(config, routes, nullLog);
 
 
 // Generate a unique, randomly-generated ID.
