@@ -17,6 +17,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
+    "bigint": "0.4.2",
     "hapi": "1.6.0",
     "compute-cluster": "0.0.7",
     "jwcrypto": "0.4.3",
