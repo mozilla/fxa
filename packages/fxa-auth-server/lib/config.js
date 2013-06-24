@@ -144,6 +144,26 @@ var conf = module.exports = convict({
     port: {
       default: 8125
     }
+  },
+  srp: {
+    alg_name: {
+      doc: "Name of secure hash algorithm to use",
+      default: 'sha256',
+      format: 'string',
+      env: 'SRP_HASH_ALGORITHM'
+    },
+    N_bits: {
+      doc: "Size of N",
+      default: 2048,
+      format: 'nat',
+      env: 'SRP_N_BITS'
+    },
+    s_bytes: {
+      doc: "Bytes in salt",
+      default: 32,
+      format: 'nat',
+      env: 'SRP_S_BYTES'
+    }
   }
 });
 
