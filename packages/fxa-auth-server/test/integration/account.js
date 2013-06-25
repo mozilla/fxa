@@ -10,6 +10,7 @@ var testClient = new helpers.TestClient();
 
 var TEST_EMAIL = 'foo@example.com';
 var TEST_PASSWORD = 'foo';
+var TEST_SALT = 'kosher';
 var TEST_PASSWORD_NEW = 'I like pie.';
 var TEST_KB = 'secret!';
 var TEST_KB_NEW = 'super secret!';
@@ -22,8 +23,9 @@ describe('user', function() {
       payload: {
         email: TEST_EMAIL,
         verifier: TEST_PASSWORD,
+        salt: TEST_SALT,
         params: { foo: 'bar' },
-        kB: TEST_KB
+        wrapKb: TEST_KB
       }
     }, function(res) {
       try {
@@ -41,8 +43,9 @@ describe('user', function() {
       payload: {
         email: TEST_EMAIL,
         verifier: TEST_PASSWORD,
+        salt: TEST_SALT,
         params: { foo: 'bar' },
-        kB: TEST_KB
+        wrapKb: TEST_KB
       }
     }, function(res) {
       try {
@@ -131,7 +134,7 @@ describe('user', function() {
 
         assert.ok(res.result.accountToken);
         assert.ok(res.result.kA);
-        assert.equal(res.result.kB, TEST_KB);
+        assert.equal(res.result.wrapKb, TEST_KB);
       } catch (e) {
         return done(e);
       }
@@ -226,7 +229,7 @@ describe('user', function() {
 
         assert.ok(res.result.accountToken);
         assert.ok(res.result.kA);
-        assert.equal(res.result.kB, TEST_KB);
+        assert.equal(res.result.wrapKb, TEST_KB);
       } catch (e) {
         return done(e);
       }
@@ -257,7 +260,7 @@ describe('user', function() {
         resetToken: resetToken,
         verifier: TEST_PASSWORD_NEW,
         params: { foo: 'bar2' },
-        kB: TEST_KB_NEW
+        wrapKb: TEST_KB_NEW
       }
     }, function(res) {
       try {
@@ -314,7 +317,7 @@ describe('user', function() {
 
         assert.ok(res.result.accountToken);
         assert.ok(res.result.kA);
-        assert.equal(res.result.kB, TEST_KB_NEW);
+        assert.equal(res.result.wrapKb, TEST_KB_NEW);
       } catch (e) {
         return done(e);
       }

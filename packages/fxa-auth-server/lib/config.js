@@ -184,6 +184,4 @@ if (!fs.existsSync(conf.get('publicKeyFile'))) {
   require('../scripts/gen_keys');
 }
 
-console.log(conf.toString());
-
 conf.validate();

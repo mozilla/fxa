@@ -49,8 +49,9 @@ var routes = [
         payload: {
           email: Hapi.types.String().email().required(),
           verifier: Hapi.types.String().required(),
-          params: Hapi.types.Object(),
-          kB: Hapi.types.String()
+          salt: Hapi.types.String().required(),
+          params: Hapi.types.Object(), // TODO: what are these?
+          wrapKb: Hapi.types.String() // TODO: required?
         }
       }
     }
@@ -91,7 +92,9 @@ var routes = [
       validate: {
         payload: {
           sessionId: Hapi.types.String().required(),
-          password: Hapi.types.String().required()
+          password: Hapi.types.String().without('A'),
+          A: Hapi.types.String().without('password').with('M'),
+          M: Hapi.types.String().with('A')
         }
       }
     }
@@ -140,7 +143,7 @@ var routes = [
           resetToken: Hapi.types.String().required(),
           verifier: Hapi.types.String().required(),
           params: Hapi.types.Object(),
-          kB: Hapi.types.String()
+          wrapKb: Hapi.types.String()
         }
       }
     }
@@ -163,7 +166,7 @@ function create(request) {
         request.reply(err);
       }
       else if (record) {
-        request.reply('ok');
+        request.reply({ status: 'ok' });
       }
       else {
         //TODO do stuff
@@ -211,19 +214,30 @@ function startLogin(request) {
 
 function finishLogin(request) {
 
-  account.finishLogin(
-    request.payload.sessionId,
-    request.payload.password,
-    function (err, result) {
-      if (err) {
-        request.reply(err);
-      }
-      else {
-        request.reply(result);
-      }
+  function respond(err, result) {
+    if (err) {
+      request.reply(err);
     }
-  );
+    else {
+      request.reply(result);
+    }
+  }
 
+  if (request.payload.password) {
+    account.finishLoginWithPassword(
+      request.payload.sessionId,
+      request.payload.password,
+      respond
+    );
+  }
+  else {
+    account.finishLoginWithSRP(
+      request.payload.sessionId,
+      request.payload.A,
+      request.payload.M,
+      respond
+    );
+  }
 }
 
 function getSignToken(request) {
