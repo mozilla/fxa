@@ -68,7 +68,7 @@ var getx = exports.getx = function getx(s, I, P, alg) {
  *
  * returns: bigint
  */
-var getv = exports.getv = function getv(s, I, P, N, g, alg) {
+exports.getv = function getv(s, I, P, N, g, alg) {
   alg = alg || ALG;
   return g.powm(getx(s, I, P, alg), N);
 };
@@ -102,7 +102,7 @@ var getk = exports.getk = function getk(N, g, alg) {
  *
  * returns: bigint
  */
-var genKey = exports.genKey = function genKey(bytes, callback) {
+exports.genKey = function genKey(bytes, callback) {
   // bytes is optional
   if (arguments.length < 2) {
     callback = bytes;
@@ -182,7 +182,7 @@ var getu = exports.getu = function getu(A, B, N, alg) {
  *
  * returns: bigint
  */
-var client_getS = exports.client_getS = function client_getS(s, I, P, N, g, a, B, alg) {
+exports.client_getS = function client_getS(s, I, P, N, g, a, B, alg) {
   var A = getA(g, a, N);
   var u = getu(A, B, N, alg);
   var k = getk(N, g, alg);
@@ -203,8 +203,8 @@ var client_getS = exports.client_getS = function client_getS(s, I, P, N, g, a, B
  *
  * returns: bigint
  */
-var server_getS = exports.server_getS = function server_getS(s, v, N, g, A, b, alg) {
-  var k = getk(N, g, alg);
+exports.server_getS = function server_getS(s, v, N, g, A, b, alg) {
+  //var k = getk(N, g, alg);
   var B = getB(v, g, b, N, alg);
   var u = getu(A, B, N, alg);
   return A.mul(v.powm(u, N)).powm(b, N).mod(N);
@@ -218,7 +218,7 @@ var server_getS = exports.server_getS = function server_getS(s, v, N, g, A, b, a
  *
  * returns: bigint
  */
-var getK = exports.getK = function getK(S, alg) {
+exports.getK = function getK(S, alg) {
   alg = alg || ALG;
   return bigint(
     crypto

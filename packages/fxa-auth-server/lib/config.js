@@ -149,7 +149,6 @@ var conf = module.exports = convict({
     alg_name: {
       doc: "Name of secure hash algorithm to use",
       default: 'sha256',
-      format: 'string',
       env: 'SRP_HASH_ALGORITHM'
     },
     N_bits: {
@@ -184,5 +183,7 @@ conf.set('domain', url.parse(conf.get('public_url')).host);
 if (!fs.existsSync(conf.get('publicKeyFile'))) {
   require('../scripts/gen_keys');
 }
+
+console.log(conf.toString());
 
 conf.validate();
