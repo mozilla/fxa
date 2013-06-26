@@ -1,4 +1,5 @@
 var assert = require('assert');
+var crypto = require('crypto');
 //var config = require('../../lib/config');
 var helpers = require('../helpers');
 var jwcrypto = require('jwcrypto');
@@ -14,6 +15,7 @@ var TEST_SALT = 'kosher';
 var TEST_PASSWORD_NEW = 'I like pie.';
 var TEST_KB = 'secret!';
 var TEST_KB_NEW = 'super secret!';
+var TEST_WRAPKB = crypto.randomBytes(32).toString('base64');
 
 describe('user', function() {
   var sessionId, accountToken, pubkey, signToken, resetToken;
@@ -31,6 +33,22 @@ describe('user', function() {
       try {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result, 'ok');
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should create an account with SPR verifier', function (done) {
+    testClient.createSRP('foo1' + TEST_EMAIL, TEST_PASSWORD, TEST_WRAPKB, done);
+  });
+
+  it('should login with SRP', function (done) {
+    testClient.loginSRP('foo1' + TEST_EMAIL, TEST_PASSWORD, function (err, keys) {
+      try {
+        assert(!err);
+        assert.equal(TEST_WRAPKB, keys.wrapKb);
       } catch (e) {
         return done(e);
       }
@@ -88,11 +106,49 @@ describe('user', function() {
     });
   });
 
+  it('should return SRP parameters on startlogin', function(done) {
+    testClient.makeRequest('POST', '/startLogin', {
+      payload: { email: TEST_EMAIL }
+    }, function(res) {
+      sessionId = res.result.sessionId;
+
+      try {
+        assert.ok(res.result.sessionId);
+        assert.ok(res.result.srp);
+        assert.ok(res.result.srp.B);
+        assert.ok(res.result.srp.s);
+        assert.ok(res.result.srp.N_bits);
+        assert.ok(res.result.srp.alg);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
   it('should fail to login with a bad password', function(done) {
     testClient.makeRequest('POST', '/finishLogin', {
       payload: {
         sessionId: sessionId,
         password: 'bad pass'
+      }
+    }, function(res) {
+      try {
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.message, 'IncorrectPassword');
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should fail to login with a bad SRP', function(done) {
+    testClient.makeRequest('POST', '/finishLogin', {
+      payload: {
+        sessionId: sessionId,
+        A: 'bad',
+        M: 'bad'
       }
     }, function(res) {
       try {
