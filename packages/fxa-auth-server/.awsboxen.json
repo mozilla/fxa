@@ -1,4 +1,5 @@
 {
+  "AWSBoxenVersion": ">0.3.0",
   "Boxen": {
     "AWSBox": null,
     "LogBox": {
@@ -37,6 +38,11 @@
       "Default": "",
       "Type": "String",
       "Description": "prefix for all dns names, to avoid conflicts"
+    },
+    "DBPassword": {
+      "Default": "piclmesoftly",
+      "Type": "String",
+      "Description": "password to use for database access"
     }
   },
 
@@ -89,7 +95,7 @@
             "publicKeyFile": "/home/app/var/public-key.json",
             "mysql": {
               "user": "picl",
-              "password": "piclmesoftly",
+              "password": {"Ref": "DBPassword"},
               "host": {"Fn::GetAtt": ["Database", "Endpoint.Address"]},
               "port": {"Fn::GetAtt": ["Database", "Endpoint.Port"]}
             },
@@ -132,7 +138,7 @@
         "DBName": "picl",
         "Engine": "MySQL",
         "MasterUsername": "picl",
-        "MasterUserPassword": "piclmesoftly",
+        "MasterUserPassword": {"Ref": "DBPassword"},
         "DBInstanceClass": "db.m1.small",
         "DBSecurityGroups": [ {"Ref": "DatabaseSecurityGroup"} ],
         "AllocatedStorage": "5"
