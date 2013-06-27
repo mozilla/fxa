@@ -1,5 +1,6 @@
 {
   "Boxen": {
+    "AWSBox": null,
     "LogBox": {
       "Type": "AWSBoxen::BuildScript",
       "Properties": {
@@ -30,6 +31,15 @@
       }
     }
   },
+
+  "Parameters": {
+    "DNSPrefix": {
+      "Default": "",
+      "Type": "String",
+      "Description": "prefix for all dns names, to avoid conflicts"
+    }
+  },
+
   "Resources": {
     "DNSRecords": {
       "Type": "AWS::Route53::RecordSetGroup",
@@ -38,13 +48,13 @@
         "HostedZoneName": "profileinthecloud.net.",
         "RecordSets": [
         {
-          "Name": "logs.profileinthecloud.net.",
+          "Name": {"Fn::Join": ["", [{"Ref": "DNSPrefix"}, "logs.profileinthecloud.net."]]},
           "Type": "CNAME",
           "TTL": "30",
           "ResourceRecords": [{"Fn::GetAtt": ["LogServer", "PublicDnsName"]}]
         },
         {
-          "Name": "idp.profileinthecloud.net.",
+          "Name": {"Fn::Join": ["", [{"Ref": "DNSPrefix"}, "idp.profileinthecloud.net."]]},
           "Type": "CNAME",
           "TTL": "30",
           "ResourceRecords": [{"Fn::GetAtt": ["IdpServer", "PublicDnsName"]}]
@@ -69,33 +79,25 @@
         "ImageId": { "Ref": "IdpBoxAMI" },
         "KeyName": { "Ref": "AWSBoxDeployKey" },
         "SecurityGroups": [ {"Ref": "IdpServerSecurityGroup"} ],
-        "UserData": { "Fn::Base64": { "Fn::Join": [ "\n", [
-          "#!/bin/sh",
-          "set -e -x",
-          "cat << EOF > /home/app/cloud_formation.json",
-          "{",
-          "  \"kvstore\": {",
-          "    \"backend\": \"mysql\",",
-          "    \"cache\": \"memcached\"",
-          "  },",
-          "  \"secretKeyFile\": \"/home/app/var/secret-key.json\",",
-          "  \"publicKeyFile\": \"/home/app/var/public-key.json\",",
-          "  \"mysql\": {",
-          "    \"user\": \"picl\",",
-          "    \"password\": \"piclmesoftly\",",
-          "    \"host\":",
-          {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Database", "Endpoint.Address"]}, "\","]]},
-          "    \"port\":",
-          {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Database", "Endpoint.Port"]}, "\""]]},
-          "  },",
-          "  \"memcached\": {",
-          "    \"hosts\":",
-          {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]}, ":",  {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Port"]},"\""]]},
-          "  }",
-          "}",
-          "EOF",
-          ""
-        ]]}}
+        "UserData": { "Fn::AWSBoxen::UserDataFiles": {
+          "/home/app/cloud_formation.json": {
+            "kvstore": {
+              "backend": "mysql",
+              "cache": "memcached"
+            },
+            "secretKeyFile": "/home/app/var/secret-key.json",
+            "publicKeyFile": "/home/app/var/public-key.json",
+            "mysql": {
+              "user": "picl",
+              "password": "piclmesoftly",
+              "host": {"Fn::GetAtt": ["Database", "Endpoint.Address"]},
+              "port": {"Fn::GetAtt": ["Database", "Endpoint.Port"]}
+            },
+            "memcached": {
+              "hosts": {"Fn::Join": ["", [{"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]}, ":",  {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Port"]}]]}
+            }
+          }
+        }}
       }
     },
 
