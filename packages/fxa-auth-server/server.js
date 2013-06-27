@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const path = require('path');
 const Hapi = require('hapi');
 const toobusy = require('toobusy');
 
@@ -77,6 +78,12 @@ module.exports = function (config, routes, log) {
       }
 
       next();
+  });
+
+  server.pack.require('lout', function(err){
+    if (err) {
+      console.log('Failed loading plugin: lout (doc generator)');
+    }
   });
 
   return server;
