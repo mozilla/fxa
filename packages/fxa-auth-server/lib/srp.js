@@ -42,7 +42,7 @@ var pad = exports.pad = function pad(n, N) {
  */
 var getx = exports.getx = function getx(s, I, P, alg) {
   alg = alg || ALG;
-  var hashIP = crypto.createHash(alg).update(I + ':' + P).digest('binary');
+  var hashIP = crypto.createHash(alg).update(I + ':' + P).digest();
   var hashX = crypto.createHash(alg).update(s).update(hashIP).digest('hex');
   return bigint(hashX, 16);
 };
@@ -223,6 +223,27 @@ exports.getK = function getK(S, alg) {
   return bigint(
     crypto
       .createHash(alg)
+      .update(S.toBuffer())
+      .digest('hex'), 16);
+};
+
+/*
+ * Compute the client match key
+ *
+ * params:
+ *         A (bigint)       public (A) value
+ *         B (bigint)       public (B) value
+ *         S (bigint)       Session key
+ *
+ * returns: bigint
+ */
+exports.getM = function getM1(A, B, S, alg) {
+  alg = alg || ALG;
+  return bigint(
+    crypto
+      .createHash(alg)
+      .update(A.toBuffer())
+      .update(B.toBuffer())
       .update(S.toBuffer())
       .digest('hex'), 16);
 };

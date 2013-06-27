@@ -1,13 +1,22 @@
 const uuid = require('uuid');
 const async = require('async');
+const bigint = require('bigint');
 const Hapi = require('hapi');
 const config = require('./config');
 const kv = require('./kv');
 const util = require('./util');
+const srp = require('./srp');
+const srpParams = require('./srp_group_params');
+
+const N_bits = config.get('srp.N_bits');
+const alg = config.get('srp.alg_name');
 
 var internalError = Hapi.Error.internal;
 var badRequest = Hapi.Error.badRequest;
 var notFound = Hapi.Error.notFound;
+
+var emptyKey = Buffer(32);
+emptyKey.fill(0);
 
 
 /* user account model
@@ -18,7 +27,7 @@ var notFound = Hapi.Error.notFound;
  *  params: <user params>
  *  verifier: <password verifier>
  *  kA: <kA key>
- *  kB: <wrapped kB key>
+ *  wrapKb: <wrapped wrapKb key>
  *  accountTokens: {}
  *  resetTokens: {}
  *  signTokens: {}
@@ -66,8 +75,9 @@ exports.create = function(data, cb) {
       kv.store.set(userKey, {
         params: data.params,
         verifier: data.verifier,
+        salt: data.salt,
         kA: key,
-        kB: data.kB,
+        wrapKb: data.wrapKb,
         accountTokens: {},
         resetTokens: {},
         signTokens: {}
@@ -76,30 +86,148 @@ exports.create = function(data, cb) {
   ], cb);
 };
 
+function generateSrpParams(doc, cb) {
+  srp.genKey(
+    function (err, b) {
+      var user = doc.value;
+      var p = {
+        sid: util.getSessionId(),
+        uid: doc.id,
+        N: srpParams[N_bits].N,
+        g: srpParams[N_bits].g,
+        s: user.salt,
+        v: bigint(user.verifier, 16),
+        b: b,
+        B: null
+      };
+      p.B = srp.getB(p.v, p.g, b, p.N, alg);
+      cb(null, p);
+    }
+  );
+}
+
+function createSession(p, cb) {
+  var B = p.B.toString(16);
+  kv.cache.set(
+    p.sid + '/session',
+    {
+      uid: p.uid,
+      srp: {
+        s: p.s,
+        v: p.v.toString(16),
+        b: p.b.toString(16),
+        B: B
+      }
+    },
+    function (err) {
+      cb(err, {
+        sessionId: p.sid,
+        stretch: {
+          salt: 'TODO'
+        },
+        srp: {
+          N_bits: N_bits,
+          alg: alg,
+          s: p.s,
+          B: B
+        }
+      });
+    }
+  );
+}
+
 // Initialize the SRP process
 exports.startLogin = function(email, cb) {
   async.waterfall([
-    // get uid
-    exports.getId.bind(null, email),
-    // create a temporary session document
-    function (uid, cb) {
-      // get sessionID
-      var sid = util.getSessionId();
-
-      // eventually will store SRP state
-      // and expiration time
-      kv.cache.set(sid + '/session', {
-        uid: uid
-      }, function (err) {
-        // return sessionID
-        cb(err, { sessionId: sid });
-      });
-    }
+    getId.bind(null, email),
+    getUserDoc,
+    generateSrpParams,
+    createSession
   ], cb);
 };
 
+function getSession(key, cb) {
+  kv.cache.get(key,
+    function(err, session) {
+      if (err) return cb(err);
+      if (!session) return cb(notFound('UnknownSession'));
+      cb(null, session.value);
+    }
+  );
+}
+
 // Finish the SRP process and return account info
-exports.finishLogin = function(sessionId, verifier, cb) {
+exports.finishLoginWithSRP = function (sessionId, A, M1, cb) {
+  var sessKey = sessionId + '/session';
+  var uid, user, signToken;
+  var K = null;
+  A = bigint(A, 16);
+
+  async.waterfall([
+    // get session doc
+    getSession.bind(null, sessKey),
+    // check match key
+    function (session, next) {
+      uid = session.uid;
+      var p = session.srp;
+      var S = srp.server_getS(
+        Buffer(p.s, 'hex'),
+        bigint(p.v, 16),
+        srpParams[N_bits].N,
+        srpParams[N_bits].g,
+        A,
+        bigint(p.b, 16),
+        alg
+      );
+      var M2 = srp.getM(A, bigint(p.B, 16), S);
+      if (M1 === M2.toString(16)) {
+        K = srp.getK(S, alg);
+        getUser(uid, next);
+      }
+      else {
+        // TODO: increment a bad guess counter
+        next(badRequest('IncorrectPassword'));
+      }
+    },
+    // store user
+    function (result, next) {
+      user = result;
+      next(null);
+    },
+    // create signToken
+    util.getSignToken,
+    // create temporary account token doc
+    function(token, next) {
+      signToken = token;
+      addSignToken(uid, token, next);
+    },
+    // delete session doc
+    function(next) {
+      kv.cache.delete(sessKey, next);
+    },
+    function(next) {
+      util.srpResponseKeys(K.toBuffer(), next);
+    },
+    function(keys, next) {
+      next(
+        null,
+        {
+          bundle: util.srpSignTokenBundle(
+            {
+              kA: Buffer(user.kA, 'base64'),
+              wrapKb: user.wrapKb ? Buffer(user.wrapKb, 'base64') : emptyKey,
+              signToken: Buffer(signToken, 'hex'),
+              hmacKey: keys.respHMACkey,
+              encKey: keys.respXORkey
+            }
+          ).toString('base64')
+        }
+      );
+    }
+    ], cb);
+};
+
+exports.finishLoginWithPassword = function(sessionId, verifier, cb) {
   var sessKey = sessionId + '/session';
   var uid, user, accountToken;
 
@@ -141,11 +269,14 @@ exports.finishLogin = function(sessionId, verifier, cb) {
     },
     // return info
     function(cb) {
-      cb({
-        accountToken: accountToken,
-        kA: user.kA,
-        kB: user.kB,
-      });
+      cb(
+        null,
+        {
+          accountToken: accountToken,
+          kA: user.kA,
+          wrapKb: user.wrapKb,
+        }
+      );
     }
   ], cb);
 };
@@ -258,7 +389,7 @@ exports.resetPassword = function(resetToken, data, cb) {
         params: data.params,
         verifier: data.verifier,
         kA: key,
-        kB: data.kB,
+        wrapKb: data.wrapKb,
         accountTokens: {},
         resetTokens: {},
         signTokens: {}
@@ -367,37 +498,39 @@ function retryLoop(errType, maxAttempts, fn, cb) {
 }
 
 // This method returns the userId currently associated with an email address.
-exports.getId = function(email, cb) {
+function getId(email, cb) {
   kv.store.get(email + '/uid', function(err, result) {
     if (err) return cb(internalError(err));
     if (!result) return cb(notFound('UnknownUser'));
     cb(null, result.value);
   });
-};
+}
+exports.getId = getId;
 
 // get meta data associated with a user
-var getUserDoc = function(userId, cb) {
+function getUserDoc(userId, cb) {
   kv.store.get(userId + '/user', function(err, doc) {
     if (err) return cb(internalError(err));
     if (!doc) return cb(notFound('UnknownUser'));
     doc.id = userId;
     cb(null, doc);
   });
-};
+}
 
 // get meta data associated with a user
-var getUser = exports.getUser = function(userId, cb) {
+function getUser(userId, cb) {
   getUserDoc(userId, function(err, doc) {
     if (err) return cb(err);
     cb(null, doc.value);
   });
-};
+}
+exports.getUser = getUser;
 
 // This account principle associated with a singing token
 // The principle is the userId combined with the IDP domain
 // e.g. 1234@lcip.org
 //
-exports.getPrinciple = function(token, cb) {
+function getPrinciple(token, cb) {
   kv.store.get(token + '/signer', function(err, result) {
     if (err) return cb(internalError(err));
     if (!result) return cb(notFound('UnknownSignToken'));
@@ -406,4 +539,5 @@ exports.getPrinciple = function(token, cb) {
 
     cb(null, principle);
   });
-};
+}
+exports.getPrinciple = getPrinciple;

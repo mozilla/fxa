@@ -1,9 +1,14 @@
 const request = require('request');
+const bigint = require('bigint');
 const crypto = require('crypto');
 const Hapi = require('hapi');
 const hoek = require('hoek');
 const config = require('../lib/config').root();
 const routes = require('../routes');
+const srp = require('../lib/srp');
+const srpParams = require('../lib/srp_group_params');
+const util = require('../lib/util');
+
 
 const noop = function () {};
 const nullLog = {
@@ -127,3 +132,100 @@ TestClient.prototype._makeRequestViaHTTP = function(method, path, opts, cb) {
   });
 };
 
+TestClient.prototype.createSRP = function (email, password, kB, cb) {
+  var alg = 'sha256';
+  var salt = crypto.randomBytes(32);
+  var verifier = srp.getv(salt, email, password, srpParams['2048'].N, srpParams['2048'].g, alg);
+  this.makeRequest(
+    'POST',
+    '/create',
+    {
+      payload: {
+        email: email,
+        verifier: verifier.toString(16),
+        salt: salt.toString('hex'),
+        wrapKb: kB,
+        params: {
+          alg: alg,
+          N_bits: config.N_bits
+        }
+      }
+    },
+    function (res) {
+      var err = null;
+      if (res.statusCode !== 200) { err = new Error(res.result.message); }
+      cb(err, res);
+    }
+  );
+};
+
+TestClient.prototype.loginSRP = function (email, password, cb) {
+  this.makeRequest(
+    'POST',
+    '/startLogin',
+    {
+      payload: {
+        email: email
+      }
+    },
+    function (res) {
+      var json = res.result;
+      var a = bigint.fromBuffer(crypto.randomBytes(32));
+      var g = srpParams[json.srp.N_bits].g;
+      var N = srpParams[json.srp.N_bits].N;
+      var A = srp.getA(g, a, N);
+      var B = bigint(json.srp.B, 16);
+      var S = srp.client_getS(
+        Buffer(json.srp.s, 'hex'),
+        email,
+        password,
+        N,
+        g,
+        a,
+        B,
+        json.srp.alg
+      );
+
+      var M = srp.getM(A, B, S);
+      var K = srp.getK(S, json.srp.alg).toBuffer();
+
+      this.makeRequest(
+        'POST',
+        '/finishLogin',
+        {
+          payload: {
+            sessionId: json.sessionId,
+            A: A.toString(16),
+            M: M.toString(16)
+          }
+        },
+        function (res) {
+          var json = res.result;
+          util.srpResponseKeys(
+            K,
+            function (err, keys) {
+              var blob = Buffer(json.bundle, 'base64');
+              var cyphertext = blob.slice(0, blob.length - 32);
+              var hmac = blob.slice(blob.length - 32, blob.length);
+
+              var check = crypto.createHmac('sha256', keys.respHMACkey);
+              check.update(cyphertext);
+              if (hmac.toString('hex') !== check.digest('hex')) {
+                return cb(new Error("Corrupted Message"));
+              }
+              var cleartext = bigint.fromBuffer(cyphertext)
+                .xor(bigint.fromBuffer(keys.respXORkey))
+                .toBuffer();
+              var result = {
+                kA: cleartext.slice(0, 32).toString('base64'),
+                wrapKb: cleartext.slice(32, 64).toString('base64'),
+                signToken: cleartext.slice(64).toString('hex')
+              };
+              cb(null, result);
+            }
+          );
+        }
+      );
+    }.bind(this)
+  );
+};

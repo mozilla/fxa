@@ -67,7 +67,7 @@ function getSessionId() {
 function srpResponseKeys(srpK, cb) {
   // hkdf with no salt and srpK as key material
   hkdf(srpK, 'getSignToken', null, 4 * 32, function(key) {
-    cb({
+    cb(null, {
       respHMACkey: key.slice(0, 32),
       respXORkey: key.slice(32, 128)
     });

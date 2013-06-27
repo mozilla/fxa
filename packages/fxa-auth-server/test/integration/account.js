@@ -1,4 +1,5 @@
 var assert = require('assert');
+var crypto = require('crypto');
 //var config = require('../../lib/config');
 var helpers = require('../helpers');
 var jwcrypto = require('jwcrypto');
@@ -10,9 +11,11 @@ var testClient = new helpers.TestClient();
 
 var TEST_EMAIL = 'foo@example.com';
 var TEST_PASSWORD = 'foo';
+var TEST_SALT = 'kosher';
 var TEST_PASSWORD_NEW = 'I like pie.';
 var TEST_KB = 'secret!';
 var TEST_KB_NEW = 'super secret!';
+var TEST_WRAPKB = crypto.randomBytes(32).toString('base64');
 
 describe('user', function() {
   var sessionId, accountToken, pubkey, signToken, resetToken;
@@ -22,8 +25,9 @@ describe('user', function() {
       payload: {
         email: TEST_EMAIL,
         verifier: TEST_PASSWORD,
+        salt: TEST_SALT,
         params: { foo: 'bar' },
-        kB: TEST_KB
+        wrapKb: TEST_KB
       }
     }, function(res) {
       try {
@@ -36,13 +40,30 @@ describe('user', function() {
     });
   });
 
+  it('should create an account with SPR verifier', function (done) {
+    testClient.createSRP('foo1' + TEST_EMAIL, TEST_PASSWORD, TEST_WRAPKB, done);
+  });
+
+  it('should login with SRP', function (done) {
+    testClient.loginSRP('foo1' + TEST_EMAIL, TEST_PASSWORD, function (err, keys) {
+      try {
+        assert(!err);
+        assert.equal(TEST_WRAPKB, keys.wrapKb);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
   it('should fail to create a new account for an existing email', function(done) {
     testClient.makeRequest('POST', '/create', {
       payload: {
         email: TEST_EMAIL,
         verifier: TEST_PASSWORD,
+        salt: TEST_SALT,
         params: { foo: 'bar' },
-        kB: TEST_KB
+        wrapKb: TEST_KB
       }
     }, function(res) {
       try {
@@ -85,11 +106,49 @@ describe('user', function() {
     });
   });
 
+  it('should return SRP parameters on startlogin', function(done) {
+    testClient.makeRequest('POST', '/startLogin', {
+      payload: { email: TEST_EMAIL }
+    }, function(res) {
+      sessionId = res.result.sessionId;
+
+      try {
+        assert.ok(res.result.sessionId);
+        assert.ok(res.result.srp);
+        assert.ok(res.result.srp.B);
+        assert.ok(res.result.srp.s);
+        assert.ok(res.result.srp.N_bits);
+        assert.ok(res.result.srp.alg);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
   it('should fail to login with a bad password', function(done) {
     testClient.makeRequest('POST', '/finishLogin', {
       payload: {
         sessionId: sessionId,
         password: 'bad pass'
+      }
+    }, function(res) {
+      try {
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.message, 'IncorrectPassword');
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should fail to login with a bad SRP', function(done) {
+    testClient.makeRequest('POST', '/finishLogin', {
+      payload: {
+        sessionId: sessionId,
+        A: 'bad',
+        M: 'bad'
       }
     }, function(res) {
       try {
@@ -131,7 +190,7 @@ describe('user', function() {
 
         assert.ok(res.result.accountToken);
         assert.ok(res.result.kA);
-        assert.equal(res.result.kB, TEST_KB);
+        assert.equal(res.result.wrapKb, TEST_KB);
       } catch (e) {
         return done(e);
       }
@@ -226,7 +285,7 @@ describe('user', function() {
 
         assert.ok(res.result.accountToken);
         assert.ok(res.result.kA);
-        assert.equal(res.result.kB, TEST_KB);
+        assert.equal(res.result.wrapKb, TEST_KB);
       } catch (e) {
         return done(e);
       }
@@ -257,7 +316,7 @@ describe('user', function() {
         resetToken: resetToken,
         verifier: TEST_PASSWORD_NEW,
         params: { foo: 'bar2' },
-        kB: TEST_KB_NEW
+        wrapKb: TEST_KB_NEW
       }
     }, function(res) {
       try {
@@ -314,7 +373,7 @@ describe('user', function() {
 
         assert.ok(res.result.accountToken);
         assert.ok(res.result.kA);
-        assert.equal(res.result.kB, TEST_KB_NEW);
+        assert.equal(res.result.wrapKb, TEST_KB_NEW);
       } catch (e) {
         return done(e);
       }
