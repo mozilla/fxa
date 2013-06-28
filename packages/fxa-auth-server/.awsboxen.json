@@ -1,5 +1,6 @@
 {
   "AWSBoxenVersion": ">=0.3.0",
+
   "Boxen": {
     "AWSBox": null,
     "LogBox": {
@@ -63,7 +64,7 @@
           "Name": {"Fn::Join": ["", [{"Ref": "DNSPrefix"}, "idp.profileinthecloud.net."]]},
           "Type": "CNAME",
           "TTL": "30",
-          "ResourceRecords": [{"Fn::GetAtt": ["IdpServer", "PublicDnsName"]}]
+          "ResourceRecords": [{"Fn::GetAtt": ["IdpLoadBalancer", "DNSName"]}]
         }]
       }
     },
@@ -78,8 +79,41 @@
       }
     },
 
-    "IdpServer": {
-      "Type" : "AWS::EC2::Instance",
+    "IdpLoadBalancer": {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs" : "" },
+        "Listeners" : [
+          {
+            "LoadBalancerPort" : "80",
+            "InstancePort" : "80",
+            "Protocol" : "HTTP"
+          }
+        ],
+        "HealthCheck" : {
+          "Target" : "HTTP:80/",
+          "HealthyThreshold" : "2",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "10",
+          "Timeout" : "5"
+        }
+      }
+    },
+
+    "IdpAutoScaleGroup": {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs": ""},
+        "LaunchConfigurationName": { "Ref": "IdpServerLaunchConfig" },
+        "DesiredCapacity": "2",
+        "MinSize": "2",
+        "MaxSize": "2",
+        "LoadBalancerNames": [ {"Ref": "IdpLoadBalancer" }]
+      }
+    },
+
+    "IdpServerLaunchConfig": {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "InstanceType" : "m1.small",
         "ImageId": { "Ref": "IdpBoxAMI" },
@@ -88,7 +122,7 @@
         "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
           "#!/bin/bash\n",
           "set -e -x\n",
-          "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackId" }, " -r IdpServer\n"
+          "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackId" }, " -r IdpServerLaunchConfig\n"
         ]]}}
       },
       "Metadata": {
