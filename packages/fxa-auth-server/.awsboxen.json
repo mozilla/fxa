@@ -1,5 +1,5 @@
 {
-  "AWSBoxenVersion": ">0.3.0",
+  "AWSBoxenVersion": ">=0.3.0",
   "Boxen": {
     "AWSBox": null,
     "LogBox": {
@@ -85,8 +85,15 @@
         "ImageId": { "Ref": "IdpBoxAMI" },
         "KeyName": { "Ref": "AWSBoxDeployKey" },
         "SecurityGroups": [ {"Ref": "IdpServerSecurityGroup"} ],
-        "UserData": { "Fn::AWSBoxen::UserDataFiles": {
-          "/home/app/cloud_formation.json": {
+        "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash\n",
+          "set -e -x\n",
+          "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackId" }, " -r IdpServer\n"
+        ]]}}
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Init": { "config": { "files": {
+          "/home/app/cloud_formation.json": { "content": {
             "kvstore": {
               "backend": "mysql",
               "cache": "memcached"
@@ -100,10 +107,14 @@
               "port": {"Fn::GetAtt": ["Database", "Endpoint.Port"]}
             },
             "memcached": {
-              "hosts": {"Fn::Join": ["", [{"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]}, ":",  {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Port"]}]]}
+              "hosts": {"Fn::Join": ["", [
+                 {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]},
+                 ":",
+                 {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Port"]}
+              ]]}
             }
-          }
-        }}
+          }}
+        }}}
       }
     },
 
