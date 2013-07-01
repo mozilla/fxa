@@ -1,5 +1,8 @@
 {
+  "AWSBoxenVersion": ">=0.4.0",
+
   "Boxen": {
+    "AWSBox": null,
     "LogBox": {
       "Type": "AWSBoxen::BuildScript",
       "Properties": {
@@ -30,6 +33,20 @@
       }
     }
   },
+
+  "Parameters": {
+    "DNSPrefix": {
+      "Default": "",
+      "Type": "String",
+      "Description": "prefix for all dns names, to avoid conflicts"
+    },
+    "DBPassword": {
+      "Default": "piclmesoftly",
+      "Type": "String",
+      "Description": "password to use for database access"
+    }
+  },
+
   "Resources": {
     "DNSRecords": {
       "Type": "AWS::Route53::RecordSetGroup",
@@ -38,16 +55,16 @@
         "HostedZoneName": "profileinthecloud.net.",
         "RecordSets": [
         {
-          "Name": "logs.profileinthecloud.net.",
+          "Name": {"Fn::Join": ["", [{"Ref": "DNSPrefix"}, "logs.profileinthecloud.net."]]},
           "Type": "CNAME",
           "TTL": "30",
           "ResourceRecords": [{"Fn::GetAtt": ["LogServer", "PublicDnsName"]}]
         },
         {
-          "Name": "idp.profileinthecloud.net.",
+          "Name": {"Fn::Join": ["", [{"Ref": "DNSPrefix"}, "idp.profileinthecloud.net."]]},
           "Type": "CNAME",
           "TTL": "30",
-          "ResourceRecords": [{"Fn::GetAtt": ["IdpServer", "PublicDnsName"]}]
+          "ResourceRecords": [{"Fn::GetAtt": ["IdpLoadBalancer", "DNSName"]}]
         }]
       }
     },
@@ -62,40 +79,76 @@
       }
     },
 
-    "IdpServer": {
-      "Type" : "AWS::EC2::Instance",
+    "IdpLoadBalancer": {
+      "Type" : "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs" : "" },
+        "Listeners" : [
+          {
+            "LoadBalancerPort" : "80",
+            "InstancePort" : "80",
+            "Protocol" : "HTTP"
+          }
+        ],
+        "HealthCheck" : {
+          "Target" : "HTTP:80/",
+          "HealthyThreshold" : "2",
+          "UnhealthyThreshold" : "5",
+          "Interval" : "10",
+          "Timeout" : "5"
+        }
+      }
+    },
+
+    "IdpAutoScaleGroup": {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "Properties" : {
+        "AvailabilityZones" : { "Fn::GetAZs": ""},
+        "LaunchConfigurationName": { "Ref": "IdpServerLaunchConfig" },
+        "DesiredCapacity": "2",
+        "MinSize": "2",
+        "MaxSize": "2",
+        "LoadBalancerNames": [ {"Ref": "IdpLoadBalancer" }]
+      }
+    },
+
+    "IdpServerLaunchConfig": {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
       "Properties": {
         "InstanceType" : "m1.small",
         "ImageId": { "Ref": "IdpBoxAMI" },
         "KeyName": { "Ref": "AWSBoxDeployKey" },
         "SecurityGroups": [ {"Ref": "IdpServerSecurityGroup"} ],
-        "UserData": { "Fn::Base64": { "Fn::Join": [ "\n", [
-          "#!/bin/sh",
-          "set -e -x",
-          "cat << EOF > /home/app/cloud_formation.json",
-          "{",
-          "  \"kvstore\": {",
-          "    \"backend\": \"mysql\",",
-          "    \"cache\": \"memcached\"",
-          "  },",
-          "  \"secretKeyFile\": \"/home/app/var/secret-key.json\",",
-          "  \"publicKeyFile\": \"/home/app/var/public-key.json\",",
-          "  \"mysql\": {",
-          "    \"user\": \"picl\",",
-          "    \"password\": \"piclmesoftly\",",
-          "    \"host\":",
-          {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Database", "Endpoint.Address"]}, "\","]]},
-          "    \"port\":",
-          {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Database", "Endpoint.Port"]}, "\""]]},
-          "  },",
-          "  \"memcached\": {",
-          "    \"hosts\":",
-          {"Fn::Join": ["", ["\"", {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]}, ":",  {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Port"]},"\""]]},
-          "  }",
-          "}",
-          "EOF",
-          ""
+        "UserData": { "Fn::Base64" : { "Fn::Join" : ["", [
+          "#!/bin/bash\n",
+          "set -e -x\n",
+          "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackId" }, " -r IdpServerLaunchConfig\n"
         ]]}}
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Init": { "config": { "files": {
+          "/home/app/cloud_formation.json": { "content": {
+            "kvstore": {
+              "backend": "mysql",
+              "cache": "memcached"
+            },
+            "secretKeyFile": "/home/app/var/secret-key.json",
+            "publicKeyFile": "/home/app/var/public-key.json",
+            "mysql": {
+              "user": "picl",
+              "password": {"Ref": "DBPassword"},
+              "host": {"Fn::GetAtt": ["Database", "Endpoint.Address"]},
+              "port": {"Fn::GetAtt": ["Database", "Endpoint.Port"]}
+            },
+            "memcached": {
+              "hosts": {"Fn::Join": ["", [
+                 {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]},
+                 ":",
+                 {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Port"]}
+              ]]}
+            }
+          }}
+        }}}
       }
     },
 
@@ -130,7 +183,7 @@
         "DBName": "picl",
         "Engine": "MySQL",
         "MasterUsername": "picl",
-        "MasterUserPassword": "piclmesoftly",
+        "MasterUserPassword": {"Ref": "DBPassword"},
         "DBInstanceClass": "db.m1.small",
         "DBSecurityGroups": [ {"Ref": "DatabaseSecurityGroup"} ],
         "AllocatedStorage": "5"
