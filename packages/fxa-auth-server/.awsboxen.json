@@ -1,5 +1,5 @@
 {
-  "AWSBoxenVersion": ">=0.3.0",
+  "AWSBoxenVersion": ">=0.4.0",
 
   "Boxen": {
     "AWSBox": null,
