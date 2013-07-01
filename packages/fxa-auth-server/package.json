@@ -31,7 +31,8 @@
     "bunyan": "0.21.3",
     "heka": "0.3.0",
     "node-statsd": "0.0.7",
-    "toobusy": "0.2.3"
+    "toobusy": "0.2.3",
+    "lout": "0.4.0"
   },
   "devDependencies": {
     "awsbox": "0.4.5",

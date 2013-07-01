@@ -44,6 +44,8 @@ var routes = [
     method: 'POST',
     path: '/create',
     config: {
+      description: "Creates an account associated with an email address," +
+        " passing along SRP information and a wrapped key (used for class B data storage).",
       handler: create,
       validate: {
         payload: {
