@@ -49,6 +49,7 @@ describe('user', function() {
       try {
         assert(!err);
         assert.equal(TEST_WRAPKB, keys.wrapKb);
+        signToken = keys.signToken;
       } catch (e) {
         return done(e);
       }
@@ -215,23 +216,6 @@ describe('user', function() {
     });
   });
 
-  it('should get signToken', function(done) {
-    testClient.makeRequest('POST', '/signToken', {
-      payload: {
-        accountToken: accountToken
-      }
-    }, function(res) {
-      try {
-        assert.equal(res.statusCode, 200);
-        signToken = res.result.signToken;
-        assert.ok(res.result.signToken);
-      } catch (e) {
-        return done(e);
-      }
-      done();
-    });
-  });
-
   it('should generate a pubkey', function(done) {
     jwcrypto.generateKeypair({ algorithm: "RS", keysize: 64 }, function(err, keypair) {
       pubkey = keypair.publicKey;
@@ -240,17 +224,11 @@ describe('user', function() {
   });
 
   it('should sign a pubkey', function(done) {
-    testClient.makeRequest('POST', '/sign', {
-      payload: {
-        token: signToken,
-        publicKey: pubkey.serialize(),
-        duration: 50000
-      }
-    }, function(res) {
+    testClient.sign(pubkey.serialize(), 50000, signToken, function (err, result) {
       try {
-        assert.equal(res.statusCode, 200);
+        assert.ok(result);
         // check for rough format of a cert
-        assert.equal(res.result.split(".").length, 3);
+        assert.equal(result.cert.split(".").length, 3);
       } catch (e) {
         return done(e);
       }

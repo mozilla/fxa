@@ -8,6 +8,7 @@ const routes = require('../routes');
 const srp = require('../lib/srp');
 const srpParams = require('../lib/srp_group_params');
 const util = require('../lib/util');
+const hawk = require('hawk');
 
 
 const noop = function () {};
@@ -224,6 +225,47 @@ TestClient.prototype.loginSRP = function (email, password, cb) {
               cb(null, result);
             }
           );
+        }
+      );
+    }.bind(this)
+  );
+};
+
+TestClient.prototype.sign = function (publicKey, duration, signToken, cb) {
+  util.signCertKeys(
+    Buffer(signToken, 'hex'),
+    function (err, keys) {
+      var credentials = {
+        id: keys.tokenId.toString('base64'),
+        key: keys.reqHMACkey.toString('base64'),
+        algorithm: 'sha256'
+      };
+      var payload = {
+        publicKey: publicKey,
+        duration: duration
+      };
+      var header = hawk.client.header(
+        'http://localhost/sign',
+        'POST',
+        {
+          credentials: credentials,
+          payload: JSON.stringify(payload),
+          contentType: 'application/json'
+        }
+      );
+      this.makeRequest(
+        'POST',
+        '/sign',
+        {
+          headers: {
+            Authorization: header.field,
+            Host: 'localhost',
+            'Content-Type': 'application/json'
+          },
+          payload: payload
+        },
+        function (res) {
+          cb(null, res.result);
         }
       );
     }.bind(this)

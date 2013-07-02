@@ -6,7 +6,6 @@ const Hapi = require('hapi');
 const fs = require('fs');
 const CC = require('compute-cluster');
 const config = require('../lib/config').root();
-const prereqs = require('../lib/prereqs');
 
 const hour = 1000 * 60 * 60;
 const T = Hapi.types;
@@ -67,14 +66,15 @@ var routes = [
     path: '/sign',
     config: {
       handler: sign,
-      pre: [ prereqs.principle ],
+      auth: {
+        strategy: 'hawk',
+        payload: 'required'
+      },
       tags: ["account"],
       validate: {
         payload: {
-          email: T.String().without('token'), // for testing only
-          publicKey: T.String().required(),
-          duration: T.Number().integer().min(0).max(24 * hour).required(),
-          token: T.String().without('email')
+          publicKey: Hapi.types.String().required(),
+          duration: Hapi.types.Number().integer().min(0).max(24 * hour).required()
         }
       }
     }
@@ -140,24 +140,6 @@ var routes = [
   },
   {
     method: 'POST',
-    path: '/signToken',
-    config: {
-      tags: ["account"],
-      handler: getSignToken,
-      validate: {
-        payload: {
-          accountToken: T.String().required()
-        },
-        response: {
-          schema: {
-            signToken: T.String().required()
-          }
-        }
-      }
-    }
-  },
-  {
-    method: 'POST',
     path: '/resetToken',
     config: {
       tags: ["account"],
@@ -216,21 +198,25 @@ function create(request) {
 }
 
 function sign(request) {
-  var principle = request.pre.principle;
-
-  cc.enqueue(
-    {
-      email: principle,
-      publicKey: request.payload.publicKey,
-      duration: request.payload.duration
-    },
-    function (err, result) {
-      if (err || result.err) {
-        request.reply(Hapi.error.internal('Unable to sign certificate', err || result.err));
-      }
-      else {
-        request.reply(result.cert);
-      }
+  account.getUser(
+    request.auth.credentials.uid,
+    function (err, user) {
+      if (err) { return request.reply(Hapi.error.internal('Unable to sign certificate', err)); }
+      cc.enqueue(
+        {
+          email: user.email,
+          publicKey: request.payload.publicKey,
+          duration: request.payload.duration
+        },
+        function (err, result) {
+          if (err || result.err) {
+            request.reply(Hapi.error.internal('Unable to sign certificate', err || result.err));
+          }
+          else {
+            request.reply(result);
+          }
+        }
+      );
     }
   );
 }
@@ -277,21 +263,6 @@ function finishLogin(request) {
       respond
     );
   }
-}
-
-function getSignToken(request) {
-
-  account.getSignToken(
-    request.payload.accountToken,
-    function (err, result) {
-      if (err) {
-        request.reply(err);
-      }
-      else {
-        request.reply(result);
-      }
-    }
-  );
 }
 
 function getResetToken(request) {
