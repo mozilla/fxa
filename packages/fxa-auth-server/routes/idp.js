@@ -9,6 +9,7 @@ const config = require('../lib/config').root();
 const prereqs = require('../lib/prereqs');
 
 const hour = 1000 * 60 * 60;
+const T = Hapi.types;
 
 var cc = new CC({ module: __dirname + '/sign.js' });
 
@@ -44,16 +45,19 @@ var routes = [
     method: 'POST',
     path: '/create',
     config: {
-      description: "Creates an account associated with an email address," +
-        " passing along SRP information and a wrapped key (used for class B data storage).",
+      description:
+        "Creates an account associated with an email address, " +
+        "passing along SRP information (salt and verifier) " +
+        "and a wrapped key (used for class B data storage).",
+      tags: ["srp", "account"],
       handler: create,
       validate: {
         payload: {
-          email: Hapi.types.String().email().required(),
-          verifier: Hapi.types.String().required(),
-          salt: Hapi.types.String().required(),
-          params: Hapi.types.Object(), // TODO: what are these?
-          wrapKb: Hapi.types.String() // TODO: required?
+          email: T.String().email().required(),
+          verifier: T.String().required(),
+          salt: T.String().required(),
+          params: T.Object(), // TODO: what are these?
+          wrapKb: T.String() // TODO: required?
         }
       }
     }
@@ -64,12 +68,13 @@ var routes = [
     config: {
       handler: sign,
       pre: [ prereqs.principle ],
+      tags: ["account"],
       validate: {
         payload: {
-          email: Hapi.types.String().without('token'), // for testing only
-          publicKey: Hapi.types.String().required(),
-          duration: Hapi.types.Number().integer().min(0).max(24 * hour).required(),
-          token: Hapi.types.String().without('email')
+          email: T.String().without('token'), // for testing only
+          publicKey: T.String().required(),
+          duration: T.Number().integer().min(0).max(24 * hour).required(),
+          token: T.String().without('email')
         }
       }
     }
@@ -78,10 +83,29 @@ var routes = [
     method: 'POST',
     path: '/startLogin',
     config: {
+      description:
+        "Begins an SRP login for the supplied email address, " +
+        "returning the temporary sessionId and parameters for " +
+        "key stretching and the SRP protocol for the client.",
+      tags: ["srp", "account"],
       handler: startLogin,
       validate: {
         payload: {
-          email: Hapi.types.String().email().required()
+          email: T.String().email().required()
+        },
+        response: {
+          schema: {
+            sessionId: T.String(),
+            stretch: T.Object({
+              salt: T.String()
+            }),
+            srp: T.Object({
+              N_bits: T.Number(), // number of bits for prime
+              alg: T.String(),    // hash algorithm (sha256)
+              s: T.String(),      // salt
+              B: T.String()       // server's public key value
+            })
+          }
         }
       }
     }
@@ -90,13 +114,26 @@ var routes = [
     method: 'POST',
     path: '/finishLogin',
     config: {
+      description:
+        "Finishes the SRP dance, with the client providing " +
+        "proof-of-knownledge of the password and receiving " +
+        "the bundle encrypted with the shared key.",
+      tags: ["srp", "account"],
       handler: finishLogin,
       validate: {
         payload: {
-          sessionId: Hapi.types.String().required(),
-          password: Hapi.types.String().without('A'),
-          A: Hapi.types.String().without('password').with('M'),
-          M: Hapi.types.String().with('A')
+          sessionId: T.String().required(),
+          password: T.String().without('A'),
+          A: T.String().without('password').with('M'),
+          M: T.String().with('A')
+        },
+        response: {
+          schema: {
+            bundle: T.String().without('kA').without('wrapKb'),
+            accountToken: T.String(),
+            kA: T.String().without('bundle'),
+            wrapKb: T.String().without('bundle')
+          }
         }
       }
     }
@@ -105,14 +142,15 @@ var routes = [
     method: 'POST',
     path: '/signToken',
     config: {
+      tags: ["account"],
       handler: getSignToken,
       validate: {
         payload: {
-          accountToken: Hapi.types.String().required()
+          accountToken: T.String().required()
         },
         response: {
           schema: {
-            signToken: Hapi.types.String().required()
+            signToken: T.String().required()
           }
         }
       }
@@ -122,14 +160,15 @@ var routes = [
     method: 'POST',
     path: '/resetToken',
     config: {
+      tags: ["account"],
       handler: getResetToken,
       validate: {
         payload: {
-          accountToken: Hapi.types.String().required()
+          accountToken: T.String().required()
         },
         response: {
           schema: {
-            resetToken: Hapi.types.String().required()
+            resetToken: T.String().required()
           }
         }
       }
@@ -139,13 +178,14 @@ var routes = [
     method: 'POST',
     path: '/resetPassword',
     config: {
+      tags: ["account"],
       handler: resetPassword,
       validate: {
         payload: {
-          resetToken: Hapi.types.String().required(),
-          verifier: Hapi.types.String().required(),
-          params: Hapi.types.Object(),
-          wrapKb: Hapi.types.String()
+          resetToken: T.String().required(),
+          verifier: T.String().required(),
+          params: T.Object(),
+          wrapKb: T.String()
         }
       }
     }
@@ -163,12 +203,9 @@ function wellKnown(request) {
 function create(request) {
   account.create(
     request.payload,
-    function (err, record) {
+    function (err) {
       if (err) {
         request.reply(err);
-      }
-      else if (record) {
-        request.reply({ status: 'ok' });
       }
       else {
         //TODO do stuff
