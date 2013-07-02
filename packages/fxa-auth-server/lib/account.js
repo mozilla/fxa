@@ -207,12 +207,12 @@ exports.finishLoginWithSRP = function (sessionId, A, M1, cb) {
     function(keys, next) {
       kv.cache.set(
         keys.tokenId.toString('base64') + '/hawk',
-        JSON.stringify({
+        {
           key: keys.reqHMACkey.toString('base64'),
           algorithm: 'sha256',
           uid: uid,
           signToken: signToken
-        }),
+        },
         next
       );
     },
@@ -544,7 +544,7 @@ exports.getUser = getUser;
 function getHawkCredentials(tokenId, cb) {
   kv.cache.get(tokenId + '/hawk', function (err, x) {
     // TODO: no error on not found, but others should be
-    cb(null, JSON.parse(x.value));
+    cb(null, x.value);
   });
 }
 exports.getHawkCredentials = getHawkCredentials;
