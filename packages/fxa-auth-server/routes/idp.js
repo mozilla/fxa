@@ -6,6 +6,7 @@ const Hapi = require('hapi');
 const fs = require('fs');
 const CC = require('compute-cluster');
 const config = require('../lib/config').root();
+const crypto = require('crypto');
 
 const hour = 1000 * 60 * 60;
 const T = Hapi.types;
@@ -38,6 +39,13 @@ var routes = [
       handler: {
         file: './provision.html'
       }
+    }
+  },
+  {
+    method: 'GET',
+    path: '/entropy',
+    config: {
+      handler: getEntropy
     }
   },
   {
@@ -293,6 +301,12 @@ function resetPassword(request) {
       }
     }
   );
+}
+
+function getEntropy(request) {
+  crypto.randomBytes(32, function(err, buf) {
+    request.reply(buf.toString('base64'));
+  });  
 }
 
 module.exports = {
