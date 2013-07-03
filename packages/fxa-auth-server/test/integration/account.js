@@ -18,7 +18,7 @@ var TEST_KB_NEW = 'super secret!';
 var TEST_WRAPKB = crypto.randomBytes(32).toString('base64');
 
 describe('user', function() {
-  var sessionId, accountToken, pubkey, signToken, resetToken;
+  var sessionId, accountToken, pubkey, signToken, resetToken, entropy;
 
   it('should create a new account', function(done) {
     testClient.makeRequest('POST', '/create', {
@@ -376,6 +376,19 @@ describe('user', function() {
         assert.ok(res.result.accountToken);
         assert.ok(res.result.kA);
         assert.equal(res.result.wrapKb, TEST_KB_NEW);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should generate 32 bytes of random crypto entropy', function(done) {
+    testClient.makeRequest('GET', '/entropy', function(res) {
+      try {
+        entropy = res.result;
+        assert.equal(res.statusCode, 200);
+        assert.equal(entropy.length, 44);
       } catch (e) {
         return done(e);
       }
