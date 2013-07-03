@@ -131,16 +131,12 @@ var routes = [
       validate: {
         payload: {
           sessionId: T.String().required(),
-          password: T.String().without('A'),
-          A: T.String().without('password').with('M'),
-          M: T.String().with('A')
+          A: T.String().required(),
+          M: T.String().required()
         },
         response: {
           schema: {
-            bundle: T.String().without('kA').without('wrapKb'),
-            accountToken: T.String(),
-            kA: T.String().without('bundle'),
-            wrapKb: T.String().without('bundle')
+            bundle: T.String().required()
           }
         }
       }
@@ -246,35 +242,22 @@ function startLogin(request) {
 }
 
 function finishLogin(request) {
-
-  function respond(err, result) {
-    if (err) {
-      request.reply(err);
+  account.finishLogin(
+    request.payload.sessionId,
+    request.payload.A,
+    request.payload.M,
+    function (err, result) {
+      if (err) {
+        request.reply(err);
+      }
+      else {
+        request.reply(result);
+      }
     }
-    else {
-      request.reply(result);
-    }
-  }
-
-  if (request.payload.password) {
-    account.finishLoginWithPassword(
-      request.payload.sessionId,
-      request.payload.password,
-      respond
-    );
-  }
-  else {
-    account.finishLoginWithSRP(
-      request.payload.sessionId,
-      request.payload.A,
-      request.payload.M,
-      respond
-    );
-  }
+  );
 }
 
 function getResetToken(request) {
-
   account.getResetToken(
     request.payload.accountToken,
     function (err, result) {
