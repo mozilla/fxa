@@ -161,6 +161,15 @@ TestClient.prototype.createSRP = function (email, password, kB, cb) {
 };
 
 TestClient.prototype.loginSRP = function (email, password, cb) {
+  this.startLogin(
+    email,
+    function (err, session) {
+      this.finishLogin(session, email, password, cb);
+    }.bind(this)
+  );
+};
+
+TestClient.prototype.startLogin = function (email, cb) {
   this.makeRequest(
     'POST',
     '/startLogin',
@@ -170,64 +179,67 @@ TestClient.prototype.loginSRP = function (email, password, cb) {
       }
     },
     function (res) {
+      cb(null, res.result);
+    }
+  );
+};
+
+TestClient.prototype.finishLogin = function (session, email, password, cb) {
+  var json = session;
+  var a = bigint.fromBuffer(crypto.randomBytes(32));
+  var g = srpParams[json.srp.N_bits].g;
+  var N = srpParams[json.srp.N_bits].N;
+  var A = srp.getA(g, a, N);
+  var B = bigint(json.srp.B, 16);
+  var S = srp.client_getS(
+    Buffer(json.srp.s, 'hex'),
+    email,
+    password,
+    N,
+    g,
+    a,
+    B,
+    json.srp.alg
+  );
+
+  var M = srp.getM(A, B, S);
+  var K = srp.getK(S, json.srp.alg).toBuffer();
+  this.makeRequest(
+    'POST',
+    '/finishLogin',
+    {
+      payload: {
+        sessionId: json.sessionId,
+        A: A.toString(16),
+        M: M.toString(16)
+      }
+    },
+    function (res) {
       var json = res.result;
-      var a = bigint.fromBuffer(crypto.randomBytes(32));
-      var g = srpParams[json.srp.N_bits].g;
-      var N = srpParams[json.srp.N_bits].N;
-      var A = srp.getA(g, a, N);
-      var B = bigint(json.srp.B, 16);
-      var S = srp.client_getS(
-        Buffer(json.srp.s, 'hex'),
-        email,
-        password,
-        N,
-        g,
-        a,
-        B,
-        json.srp.alg
-      );
+      util.srpResponseKeys(
+        K,
+        function (err, keys) {
+          var blob = Buffer(json.bundle, 'base64');
+          var cyphertext = blob.slice(0, blob.length - 32);
+          var hmac = blob.slice(blob.length - 32, blob.length);
 
-      var M = srp.getM(A, B, S);
-      var K = srp.getK(S, json.srp.alg).toBuffer();
-
-      this.makeRequest(
-        'POST',
-        '/finishLogin',
-        {
-          payload: {
-            sessionId: json.sessionId,
-            A: A.toString(16),
-            M: M.toString(16)
+          var check = crypto.createHmac('sha256', keys.respHMACkey);
+          check.update(cyphertext);
+          if (hmac.toString('hex') !== check.digest('hex')) {
+            return cb(new Error("Corrupted Message"));
           }
-        },
-        function (res) {
-          var json = res.result;
-          util.srpResponseKeys(
-            K,
-            function (err, keys) {
-              var blob = Buffer(json.bundle, 'base64');
-              var cyphertext = blob.slice(0, blob.length - 32);
-              var hmac = blob.slice(blob.length - 32, blob.length);
-
-              var check = crypto.createHmac('sha256', keys.respHMACkey);
-              check.update(cyphertext);
-              if (hmac.toString('hex') !== check.digest('hex')) {
-                return cb(new Error("Corrupted Message"));
-              }
-              var cleartext = bigint.fromBuffer(cyphertext)
-                .xor(bigint.fromBuffer(keys.respXORkey))
-                .toBuffer();
-              var result = {
-                kA: cleartext.slice(0, 32).toString('base64'),
-                wrapKb: cleartext.slice(32, 64).toString('base64'),
-                signToken: cleartext.slice(64).toString('hex')
-              };
-              cb(null, result);
-            }
-          );
+          var cleartext = bigint.fromBuffer(cyphertext)
+            .xor(bigint.fromBuffer(keys.respXORkey))
+            .toBuffer();
+          var result = {
+            kA: cleartext.slice(0, 32).toString('base64'),
+            wrapKb: cleartext.slice(32, 64).toString('base64'),
+            signToken: cleartext.slice(64).toString('hex')
+          };
+          cb(null, result);
         }
       );
-    }.bind(this)
+    }
   );
 };
 

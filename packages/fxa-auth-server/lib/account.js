@@ -24,20 +24,16 @@ emptyKey.fill(0);
  * <email>/uid = <userId>
  *
  * <userId>/user = {
+ *  email: <user email>
  *  params: <user params>
  *  verifier: <password verifier>
  *  kA: <kA key>
  *  wrapKb: <wrapped wrapKb key>
- *  accountTokens: {}
  *  resetTokens: {}
  *  signTokens: {}
  * }
  *
  * <sessionId>/session = {
- *  uid: <userId>
- * }
- *
- * <accountToken>/accountToken = {
  *  uid: <userId>
  * }
  *
@@ -47,6 +43,13 @@ emptyKey.fill(0);
  *
  * <signToken>/signer = {
  *  uid: <userId>
+ * }
+ *
+ * <tokenId>/hawk = {
+ *  key: <reqHMACkey>
+ *  algorithm: <'sha1' | 'sha256'>
+ *  uid: <userId>,
+ *  signToken: <signToken>
  * }
  *
  * */
@@ -79,7 +82,6 @@ exports.create = function(data, cb) {
         salt: data.salt,
         kA: key,
         wrapKb: data.wrapKb,
-        accountTokens: {},
         resetTokens: {},
         signTokens: {}
       }, cb);
@@ -151,14 +153,14 @@ function getSession(key, cb) {
   kv.cache.get(key,
     function(err, session) {
       if (err) return cb(err);
-      if (!session) return cb(notFound('UnknownSession'));
+      if (!session) return cb(badRequest('UnknownSession'));
       cb(null, session.value);
     }
   );
 }
 
 // Finish the SRP process and return account info
-exports.finishLoginWithSRP = function (sessionId, A, M1, cb) {
+exports.finishLogin = function (sessionId, A, M1, cb) {
   var sessKey = sessionId + '/session';
   var uid, user, signToken;
   var K = null;
@@ -242,101 +244,6 @@ exports.finishLoginWithSRP = function (sessionId, A, M1, cb) {
     ], cb);
 };
 
-exports.finishLoginWithPassword = function(sessionId, verifier, cb) {
-  var sessKey = sessionId + '/session';
-  var uid, user, accountToken;
-
-  async.waterfall([
-    // get session doc
-    function(cb) {
-      kv.cache.get(sessKey, function(err, session) {
-        if (err) return cb(err);
-        if (!session) return cb(notFound('UnknownSession'));
-        cb(null, session.value);
-      });
-    },
-    // get user info
-    function(session, cb) {
-      uid = session.uid;
-      getUser(session.uid, cb);
-    },
-
-    // check password
-    function(result, cb) {
-      user = result;
-      if (user.verifier !== verifier) {
-        return cb(badRequest('IncorrectPassword'));
-      }
-      cb(null);
-    },
-
-    // create accountToken
-    util.getAccountToken,
-
-    // create temporary account token doc
-    function(token, cb) {
-      accountToken = token;
-      addAccountToken(uid, token, cb);
-    },
-    // delete session doc
-    function(cb) {
-      kv.cache.delete(sessKey, cb);
-    },
-    // return info
-    function(cb) {
-      cb(
-        null,
-        {
-          accountToken: accountToken,
-          kA: user.kA,
-          wrapKb: user.wrapKb,
-        }
-      );
-    }
-  ], cb);
-};
-
-// Takes an accountToken and creates a new signToken
-exports.getSignToken = function(accountToken, cb) {
-  var accountKey = accountToken + '/accountToken';
-  var uid, signToken;
-
-  async.waterfall([
-    // Check that the accountToken exists
-    // and get the associated user id
-    function(cb) {
-      kv.cache.get(accountKey, function(err, account) {
-        if (err) return cb(err);
-        if (!account) return cb(notFound('UknownAccountToken'));
-        cb(null, account.value.uid);
-      });
-    },
-    // get new signToken
-    function(id, cb) {
-      uid = id;
-      util.getSignToken(cb);
-    },
-    function(token, cb) {
-      signToken = token;
-      addSignToken(uid, token, cb);
-    },
-    // delete account token from user's list
-    function(cb) {
-      updateUserData(uid, function(userDoc) {
-          delete userDoc.value.accountTokens[accountToken];
-          return userDoc;
-      }, cb);
-    },
-    // delete accountToken record
-    function(cb) {
-      kv.cache.delete(accountToken + '/accountToken', cb);
-    },
-    function(cb) {
-      cb(null, { signToken: signToken });
-    }
-  ], cb);
-};
-
 // Takes an accountToken and creates a new resetToken
 exports.getResetToken = function(accountToken, cb) {
   var accountKey = accountToken + '/accountToken';
@@ -405,7 +312,6 @@ exports.resetPassword = function(resetToken, data, cb) {
         verifier: data.verifier,
         kA: key,
         wrapKb: data.wrapKb,
-        accountTokens: {},
         resetTokens: {},
         signTokens: {}
       }, cb);
@@ -418,17 +324,11 @@ function deleteAllTokens(userId, cb) {
     getUser.bind(null, userId),
     function(user, cb) {
       // map each token into a function that deletes that token's record
-      var funs = Object.keys(user.accountTokens).map(function(token) {
-          return function(cb) {
-            kv.cache.delete(token + '/accountToken', cb);
-          };
-        })
-        .concat(
-        Object.keys(user.signTokens).map(function(token) {
+      var funs = Object.keys(user.signTokens).map(function(token) {
           return function(cb) {
             kv.store.delete(token + '/signer', cb);
           };
-        }))
+        })
         .concat(
         Object.keys(user.resetTokens).map(function(token) {
           return function(cb) {
@@ -463,13 +363,6 @@ var addSignToken = addTokenFn('signTokens',
         kv.store.set(token + '/signer', {
           uid: userId,
           accessTime: Date.now()
-        }, cb);
-      });
-
-var addAccountToken = addTokenFn('accountTokens',
-      function(token, userId, cb) {
-        kv.cache.set(token + '/accountToken', {
-          uid: userId
         }, cb);
       });
 
