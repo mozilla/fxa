@@ -231,7 +231,7 @@ TestClient.prototype.loginSRP = function (email, password, cb) {
   );
 };
 
-TestClient.prototype.sign = function (publicKey, duration, signToken, cb) {
+TestClient.prototype.sign = function (publicKey, duration, signToken, hashPayload, cb) {
   util.signCertKeys(
     Buffer(signToken, 'hex'),
     function (err, keys) {
@@ -244,15 +244,15 @@ TestClient.prototype.sign = function (publicKey, duration, signToken, cb) {
         publicKey: publicKey,
         duration: duration
       };
-      var header = hawk.client.header(
-        'http://localhost/sign',
-        'POST',
-        {
-          credentials: credentials,
-          payload: JSON.stringify(payload),
-          contentType: 'application/json'
-        }
-      );
+      var verify = {
+        credentials: credentials,
+        contentType: 'application/json'
+      };
+      if (hashPayload) {
+        verify.payload = JSON.stringify(payload);
+      }
+      var header = hawk.client.header('http://localhost/sign', 'POST', verify);
+
       this.makeRequest(
         'POST',
         '/sign',

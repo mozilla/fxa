@@ -543,8 +543,7 @@ exports.getUser = getUser;
 
 function getHawkCredentials(tokenId, cb) {
   kv.cache.get(tokenId + '/hawk', function (err, x) {
-    // TODO: no error on not found, but others should be
-    cb(null, x.value);
+    cb(err, x ? x.value : null);
   });
 }
 exports.getHawkCredentials = getHawkCredentials;

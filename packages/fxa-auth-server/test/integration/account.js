@@ -224,11 +224,35 @@ describe('user', function() {
   });
 
   it('should sign a pubkey', function(done) {
-    testClient.sign(pubkey.serialize(), 50000, signToken, function (err, result) {
+    testClient.sign(pubkey.serialize(), 50000, signToken, true, function (err, result) {
       try {
         assert.ok(result);
         // check for rough format of a cert
         assert.equal(result.cert.split(".").length, 3);
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should not sign with an invalid signToken', function(done) {
+    testClient.sign(pubkey.serialize(), 50000, Buffer(32), true, function (err, result) {
+      try {
+        assert.equal(result.code, 401);
+        assert.equal(result.message, 'Unknown credentials');
+      } catch (e) {
+        return done(e);
+      }
+      done();
+    });
+  });
+
+  it('should not sign without a hawk verified payload', function(done) {
+    testClient.sign(pubkey.serialize(), 50000, signToken, false, function (err, result) {
+      try {
+        assert.equal(result.code, 401);
+        assert.equal(result.message, 'Payload is invalid');
       } catch (e) {
         return done(e);
       }
