@@ -74,6 +74,16 @@ function srpResponseKeys(srpK, cb) {
   });
 }
 
+// Derive a tokenId and reqHMACkey from the signToken
+function signCertKeys(signToken, cb) {
+  hkdf(signToken, 'signCertificate', null, 2 * 32, function (key) {
+    cb(null, {
+      tokenId: key.slice(0, 32),
+      reqHMACkey: key.slice(32, 64)
+    });
+  });
+}
+
 // generates the encrypted bundle for getSignToken2
 // params should be Buffer instances
 //
@@ -111,5 +121,6 @@ module.exports = {
   getSignToken: getSignToken,
   getResetToken: getResetToken,
   srpResponseKeys: srpResponseKeys,
-  srpSignTokenBundle: srpSignTokenBundle
+  srpSignTokenBundle: srpSignTokenBundle,
+  signCertKeys: signCertKeys
 };

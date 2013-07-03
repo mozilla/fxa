@@ -5,6 +5,7 @@
 const path = require('path');
 const Hapi = require('hapi');
 const toobusy = require('toobusy');
+const account = require('./lib/account');
 
 module.exports = function (config, routes, log) {
 
@@ -24,6 +25,11 @@ module.exports = function (config, routes, log) {
       }
     }
   );
+
+  server.auth('hawk', {
+    scheme: 'hawk',
+    getCredentialsFunc: account.getHawkCredentials
+  });
 
   server.addRoutes(routes);
 

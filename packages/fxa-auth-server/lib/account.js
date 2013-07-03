@@ -73,6 +73,7 @@ exports.create = function(data, cb) {
     // create user account
     function(key, cb) {
       kv.store.set(userKey, {
+        email: data.email,
         params: data.params,
         verifier: data.verifier,
         salt: data.salt,
@@ -196,10 +197,24 @@ exports.finishLoginWithSRP = function (sessionId, A, M1, cb) {
     },
     // create signToken
     util.getSignToken,
-    // create temporary account token doc
     function(token, next) {
       signToken = token;
       addSignToken(uid, token, next);
+    },
+    function(next) {
+      util.signCertKeys(Buffer(signToken, 'hex'), next);
+    },
+    function(keys, next) {
+      kv.cache.set(
+        keys.tokenId.toString('base64') + '/hawk',
+        {
+          key: keys.reqHMACkey.toString('base64'),
+          algorithm: 'sha256',
+          uid: uid,
+          signToken: signToken
+        },
+        next
+      );
     },
     // delete session doc
     function(next) {
@@ -525,6 +540,13 @@ function getUser(userId, cb) {
   });
 }
 exports.getUser = getUser;
+
+function getHawkCredentials(tokenId, cb) {
+  kv.cache.get(tokenId + '/hawk', function (err, x) {
+    cb(err, x ? x.value : null);
+  });
+}
+exports.getHawkCredentials = getHawkCredentials;
 
 // This account principle associated with a singing token
 // The principle is the userId combined with the IDP domain
