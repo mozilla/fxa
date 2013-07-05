@@ -27,13 +27,7 @@ function hkdf(km, info, salt, len, cb) {
 
 function getKA(cb) {
   return crypto.randomBytes(32, function(err, buf) {
-    cb(null, buf.toString('base64'));
-  });
-}
-
-function getDeviceId(cb) {
-  return crypto.randomBytes(32, function(err, buf) {
-    cb(null, buf.toString('hex'));
+    cb(null, buf);
   });
 }
 
@@ -45,13 +39,13 @@ function getAccountToken(cb) {
 
 function getSignToken(cb) {
   return crypto.randomBytes(32, function(err, buf) {
-    cb(null, buf.toString('hex'));
+    cb(null, buf);
   });
 }
 
 function getResetToken(cb) {
   return crypto.randomBytes(32, function(err, buf) {
-    cb(null, buf.toString('hex'));
+    cb(null, buf);
   });
 }
 
@@ -114,7 +108,6 @@ function srpSignTokenBundle(params) {
 module.exports = {
   hkdf: hkdf,
   getKA: getKA,
-  getDeviceId: getDeviceId,
   getUserId: getUserId,
   getSessionId: getSessionId,
   getAccountToken: getAccountToken,

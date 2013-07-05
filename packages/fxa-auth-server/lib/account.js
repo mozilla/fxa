@@ -61,30 +61,30 @@ exports.create = function(data, cb) {
 
   async.waterfall([
     // ensure that an account doesn't already exist for the email
-    function(cb) {
+    function(next) {
       kv.store.get(data.email + '/uid', function (err, doc) {
-        if (doc) return cb(badRequest('AccountExistsForEmail'));
-        cb(null);
+        if (doc) return next(badRequest('AccountExistsForEmail'));
+        next(null);
       });
     },
     // link email to userid
-    function(cb) {
-      kv.store.set(data.email + '/uid', userId, cb);
+    function(next) {
+      kv.store.set(data.email + '/uid', userId, next);
     },
     // get new class A key
     util.getKA,
     // create user account
-    function(key, cb) {
+    function(key, next) {
       kv.store.set(userKey, {
         email: data.email,
         params: data.params,
         verifier: data.verifier,
         salt: data.salt,
-        kA: key,
+        kA: key.toString('base64'),
         wrapKb: data.wrapKb,
         resetTokens: {},
         signTokens: {}
-      }, cb);
+      }, next);
     }
   ], cb);
 };
@@ -204,7 +204,7 @@ exports.finishLogin = function (sessionId, A, M1, cb) {
       addSignToken(uid, token, next);
     },
     function(next) {
-      util.signCertKeys(Buffer(signToken, 'hex'), next);
+      util.signCertKeys(signToken, next);
     },
     function(keys, next) {
       kv.cache.set(
@@ -233,7 +233,7 @@ exports.finishLogin = function (sessionId, A, M1, cb) {
             {
               kA: Buffer(user.kA, 'base64'),
               wrapKb: user.wrapKb ? Buffer(user.wrapKb, 'base64') : emptyKey,
-              signToken: Buffer(signToken, 'hex'),
+              signToken: signToken,
               hmacKey: keys.respHMACkey,
               encKey: keys.respXORkey
             }
@@ -342,16 +342,17 @@ function deleteAllTokens(userId, cb) {
 }
 
 function addTokenFn(tokenType, fn) {
-  return function (userId, token, cb) {
+  return function (userId, tokenBuf, cb) {
+    var token = tokenBuf.toString('hex');
     async.waterfall([
       // First, add the signToken to the user's list
-      function(cb) {
+      function(next) {
         updateUserData(userId, function(userDoc) {
           if (token in userDoc.value[tokenType]) {
             userDoc.value[tokenType][token] = true;
           }
           return userDoc;
-        }, cb);
+        }, next);
       },
       fn.bind(null, token, userId),
     ], cb);
