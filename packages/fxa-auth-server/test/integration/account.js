@@ -12,9 +12,9 @@ var testClient = new helpers.TestClient();
 var TEST_EMAIL = 'foo@example.com';
 var TEST_PASSWORD = 'foo';
 var TEST_PASSWORD_NEW = 'I like pie.';
-var TEST_WRAPKB = crypto.randomBytes(32).toString('base64');
-var TEST_WRAPKB_NEW = crypto.randomBytes(32).toString('base64');
-var TEST_KA_NEW = crypto.randomBytes(32).toString('base64');
+var TEST_WRAPKB = crypto.randomBytes(32).toString('hex');
+var TEST_WRAPKB_NEW = crypto.randomBytes(32).toString('hex');
+var TEST_KA_NEW = crypto.randomBytes(32).toString('hex');
 
 describe('user', function() {
   var session, pubkey, signToken, resetToken;
@@ -362,7 +362,7 @@ describe('user', function() {
       try {
         entropy = res.result;
         assert.equal(res.statusCode, 200);
-        assert.equal(entropy.length, 44);
+        assert.equal(Buffer(entropy, 'hex').length, 32);
       } catch (e) {
         return done(e);
       }

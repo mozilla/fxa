@@ -260,7 +260,7 @@ TestClient.prototype.getToken2 = function (tokenType, session, email, password, 
         K,
         tokenTypes[tokenType].context,
         function (err, keys) {
-          var blob = Buffer(json.bundle, 'base64');
+          var blob = Buffer(json.bundle, 'hex');
           var cyphertext = blob.slice(0, blob.length - 32);
           var hmac = blob.slice(blob.length - 32, blob.length);
 
@@ -273,8 +273,8 @@ TestClient.prototype.getToken2 = function (tokenType, session, email, password, 
             .xor(bigint.fromBuffer(keys.respXORkey))
             .toBuffer();
           var result = {
-            kA: cleartext.slice(0, 32).toString('base64'),
-            wrapKb: cleartext.slice(32, 64).toString('base64'),
+            kA: cleartext.slice(0, 32).toString('hex'),
+            wrapKb: cleartext.slice(32, 64).toString('hex'),
             token: cleartext.slice(64).toString('hex')
           };
           cb(null, result);
@@ -289,8 +289,8 @@ TestClient.prototype.sign = function (publicKey, duration, signToken, hashPayloa
     Buffer(signToken, 'hex'),
     function (err, keys) {
       var credentials = {
-        id: keys.tokenId.toString('base64'),
-        key: keys.reqHMACkey.toString('base64'),
+        id: keys.tokenId.toString('hex'),
+        key: keys.reqHMACkey.toString('hex'),
         algorithm: 'sha256'
       };
       var payload = {
@@ -330,7 +330,7 @@ TestClient.prototype.resetAccount = function (resetToken, email, password, kA, k
   var salt = crypto.randomBytes(32);
   var verifier = srp.getv(salt, email, password, srpParams['2048'].N, srpParams['2048'].g, alg);
   console.log('ver??', verifier.toString(16));
-  var cleartext = Buffer.concat([Buffer(kA, 'base64'), Buffer(kB, 'base64'), verifier.toBuffer()]);
+  var cleartext = Buffer.concat([Buffer(kA, 'hex'), Buffer(kB, 'hex'), verifier.toBuffer()]);
 
   util.resetKeys(
     Buffer(resetToken, 'hex'),
@@ -343,12 +343,12 @@ TestClient.prototype.resetAccount = function (resetToken, email, password, kA, k
         .toBuffer();
 
       var credentials = {
-        id: keys.tokenId.toString('base64'),
-        key: keys.reqHMACkey.toString('base64'),
+        id: keys.tokenId.toString('hex'),
+        key: keys.reqHMACkey.toString('hex'),
         algorithm: 'sha256'
       };
       var payload = {
-        bundle: cyphertext.toString('base64')
+        bundle: cyphertext.toString('hex')
       };
       var verify = {
         credentials: credentials,

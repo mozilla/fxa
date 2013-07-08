@@ -80,7 +80,7 @@ exports.create = function(data, cb) {
         params: data.params,
         verifier: data.verifier,
         salt: data.salt,
-        kA: key.toString('base64'),
+        kA: key.toString('hex'),
         wrapKb: data.wrapKb,
         resetTokens: {},
         signTokens: {}
@@ -214,9 +214,9 @@ exports.getToken2 = function (sessionId, tokenType, A, M1, cb) {
     function(result, next) {
       token = result.token;
       kv.cache.set(
-        result.keys.tokenId.toString('base64') + '/hawk',
+        result.keys.tokenId.toString('hex') + '/hawk',
         {
-          key: result.keys.reqHMACkey.toString('base64'),
+          key: result.keys.reqHMACkey.toString('hex'),
           algorithm: 'sha256',
           uid: uid,
           token: result.token.toString('hex')
@@ -240,13 +240,13 @@ exports.getToken2 = function (sessionId, tokenType, A, M1, cb) {
         {
           bundle: util.srpSignTokenBundle(
             {
-              kA: Buffer(user.kA, 'base64'),
-              wrapKb: user.wrapKb ? Buffer(user.wrapKb, 'base64') : emptyKey,
+              kA: Buffer(user.kA, 'hex'),
+              wrapKb: user.wrapKb ? Buffer(user.wrapKb, 'hex') : emptyKey,
               token: token,
               hmacKey: keys.respHMACkey,
               encKey: keys.respXORkey
             }
-          ).toString('base64')
+          ).toString('hex')
         }
       );
     }
@@ -329,7 +329,7 @@ exports.getResetToken = function(accountToken, cb) {
 };
 
 exports.resetAccount = function(resetToken, bundle, cb) {
-  var cyphertext = Buffer(bundle, 'base64');
+  var cyphertext = Buffer(bundle, 'hex');
   var userId, user, data;
 
   console.log('cypher!!!', cyphertext.toString('hex'));
@@ -362,8 +362,8 @@ exports.resetAccount = function(resetToken, bundle, cb) {
       console.log('ver!!!', cleartext.slice(64).toString('hex'));
 
       data = {
-        kA: cleartext.slice(0, 32).toString('base64'),
-        wrapKb: cleartext.slice(32, 64).toString('base64'),
+        kA: cleartext.slice(0, 32).toString('hex'),
+        wrapKb: cleartext.slice(32, 64).toString('hex'),
         verifier: cleartext.slice(64).toString('hex')
       };
       console.log('data', data);
