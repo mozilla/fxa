@@ -285,7 +285,7 @@ function resetAccount(request) {
 
 function getEntropy(request) {
   crypto.randomBytes(32, function(err, buf) {
-    request.reply(buf.toString('base64'));
+    request.reply(buf.toString('hex'));
   });
 }
 
