@@ -14,7 +14,7 @@ describe('srp response keys', function() {
     var srpK = new Buffer('000102030405060708090a0b0c0d0e0f' +
                           '101112131415161718191a1b1c1d1e1f', 'hex');
 
-    util.srpResponseKeys(srpK, function(err, results) {
+    util.srpResponseKeys(srpK, 'getSignToken', function(err, results) {
       var respHMACkey = '9e8b9573280f1daf3c658ce6682605c8' +
                         'c1aca7ba76506781154ebe79202cd3c6';
 
@@ -57,7 +57,7 @@ describe('srp response keys', function() {
       var result = util.srpSignTokenBundle({
         kA: kA,
         wrapKb: wrapKb,
-        signToken: signToken,
+        token: signToken,
         hmacKey: respHMACkey,
         encKey: respXORkey
       });

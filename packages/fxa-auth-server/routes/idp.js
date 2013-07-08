@@ -90,93 +90,92 @@ var routes = [
   {
     method: 'POST',
     path: '/startLogin',
-    config: {
-      description:
-        "Begins an SRP login for the supplied email address, " +
-        "returning the temporary sessionId and parameters for " +
-        "key stretching and the SRP protocol for the client.",
-      tags: ["srp", "account"],
-      handler: startLogin,
-      validate: {
-        payload: {
-          email: T.String().email().required()
-        },
-        response: {
-          schema: {
-            sessionId: T.String(),
-            stretch: T.Object({
-              salt: T.String()
-            }),
-            srp: T.Object({
-              N_bits: T.Number(), // number of bits for prime
-              alg: T.String(),    // hash algorithm (sha256)
-              s: T.String(),      // salt
-              B: T.String()       // server's public key value
-            })
-          }
-        }
-      }
-    }
+    handler: startLogin,
+    config: getToken1Config
+  },
+  {
+    method: 'POST',
+    path: '/startResetToken',
+    handler: startResetToken,
+    config: getToken1Config
   },
   {
     method: 'POST',
     path: '/finishLogin',
-    config: {
-      description:
-        "Finishes the SRP dance, with the client providing " +
-        "proof-of-knownledge of the password and receiving " +
-        "the bundle encrypted with the shared key.",
-      tags: ["srp", "account"],
-      handler: finishLogin,
-      validate: {
-        payload: {
-          sessionId: T.String().required(),
-          A: T.String().required(),
-          M: T.String().required()
-        },
-        response: {
-          schema: {
-            bundle: T.String().required()
-          }
-        }
-      }
-    }
+    handler: finishLogin,
+    config: getToken2Config
   },
   {
     method: 'POST',
-    path: '/resetToken',
-    config: {
-      tags: ["account"],
-      handler: getResetToken,
-      validate: {
-        payload: {
-          accountToken: T.String().required()
-        },
-        response: {
-          schema: {
-            resetToken: T.String().required()
-          }
-        }
-      }
-    }
+    path: '/finishResetToken',
+    handler: finishResetToken,
+    config: getToken2Config
   },
   {
     method: 'POST',
-    path: '/resetPassword',
+    path: '/resetAccount',
     config: {
+      handler: resetAccount,
+      auth: {
+        strategy: 'hawk',
+        payload: 'required'
+      },
       tags: ["account"],
-      handler: resetPassword,
       validate: {
         payload: {
-          resetToken: T.String().required(),
-          verifier: T.String().required(),
-          params: T.Object(),
-          wrapKb: T.String()
+          bundle: Hapi.types.String().required()
         }
       }
     }
   },
 ];
+
+var getToken1Config = {
+  description:
+    "Begins an SRP login for the supplied email address, " +
+    "returning the temporary sessionId and parameters for " +
+    "key stretching and the SRP protocol for the client.",
+  tags: ["srp", "account"],
+  validate: {
+    payload: {
+      email: T.String().email().required()
+    },
+    response: {
+      schema: {
+        sessionId: T.String(),
+        stretch: T.Object({
+          salt: T.String()
+        }),
+        srp: T.Object({
+          N_bits: T.Number(), // number of bits for prime
+          alg: T.String(),    // hash algorithm (sha256)
+          s: T.String(),      // salt
+          B: T.String()       // server's public key value
+        })
+      }
+    }
+  }
+};
+
+var getToken2Config = {
+  description:
+    "Finishes the SRP dance, with the client providing " +
+    "proof-of-knownledge of the password and receiving " +
+    "the bundle encrypted with the shared key.",
+  tags: ["srp", "account"],
+  validate: {
+    payload: {
+      sessionId: T.String().required(),
+      A: T.String().required(),
+      M: T.String().required()
+    },
+    response: {
+      schema: {
+        bundle: T.String().required()
+      }
+    }
+  }
+};
 
 function wellKnown(request) {
   request.reply({
@@ -225,9 +224,10 @@ function sign(request) {
   );
 }
 
-function startLogin(request) {
 
-  account.startLogin(
+function getToken1(request) {
+
+  account.getToken1(
     request.payload.email,
     function (err, result) {
       if (err) {
@@ -241,9 +241,14 @@ function startLogin(request) {
 
 }
 
-function finishLogin(request) {
-  account.finishLogin(
+function startLogin(request) { return getToken1(request); }
+function startResetToken(request) { return getToken1(request); }
+
+
+function getToken2(type, request) {
+  account.getToken2(
     request.payload.sessionId,
+    type,
     request.payload.A,
     request.payload.M,
     function (err, result) {
@@ -257,24 +262,16 @@ function finishLogin(request) {
   );
 }
 
-function getResetToken(request) {
-  account.getResetToken(
-    request.payload.accountToken,
-    function (err, result) {
-      if (err) {
-        request.reply(err);
-      }
-      else {
-        request.reply(result);
-      }
-    }
-  );
-}
+function finishLogin(request) { return getToken2('sign', request); }
+function finishResetToken(request) { return getToken2('reset', request); }
 
-function resetPassword(request) {
-  account.resetPassword(
-    request.payload.resetToken,
-    request.payload,
+
+function resetAccount(request) {
+  console.log('??', request.auth);
+  console.log('??', request.payload);
+  account.resetAccount(
+    request.auth.credentials.token,
+    request.payload.bundle,
     function (err) {
       if (err) {
         request.reply(err);
@@ -289,7 +286,7 @@ function resetPassword(request) {
 function getEntropy(request) {
   crypto.randomBytes(32, function(err, buf) {
     request.reply(buf.toString('base64'));
-  });  
+  });
 }
 
 module.exports = {

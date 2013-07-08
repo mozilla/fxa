@@ -27,13 +27,7 @@ function hkdf(km, info, salt, len, cb) {
 
 function getKA(cb) {
   return crypto.randomBytes(32, function(err, buf) {
-    cb(null, buf.toString('base64'));
-  });
-}
-
-function getDeviceId(cb) {
-  return crypto.randomBytes(32, function(err, buf) {
-    cb(null, buf.toString('hex'));
+    cb(null, buf);
   });
 }
 
@@ -45,13 +39,13 @@ function getAccountToken(cb) {
 
 function getSignToken(cb) {
   return crypto.randomBytes(32, function(err, buf) {
-    cb(null, buf.toString('hex'));
+    cb(null, buf);
   });
 }
 
 function getResetToken(cb) {
   return crypto.randomBytes(32, function(err, buf) {
-    cb(null, buf.toString('hex'));
+    cb(null, buf);
   });
 }
 
@@ -64,9 +58,10 @@ function getSessionId() {
 }
 
 // Derive a respHMACkey and a respXORkey from an SRP session key,
-function srpResponseKeys(srpK, cb) {
+// conxtext type will be getSignToken or getResetToken
+function srpResponseKeys(srpK, type, cb) {
   // hkdf with no salt and srpK as key material
-  hkdf(srpK, 'getSignToken', null, 4 * 32, function(key) {
+  hkdf(srpK, type, null, 4 * 32, function(key) {
     cb(null, {
       respHMACkey: key.slice(0, 32),
       respXORkey: key.slice(32, 128)
@@ -84,19 +79,33 @@ function signCertKeys(signToken, cb) {
   });
 }
 
+// Derive a tokenId, a reqHMACkey, and a respXORkey from the resetToken
+function resetKeys(resetToken, payloadLength, cb) {
+  var length = 2 * 32 + payloadLength;
+  console.log('len????', length, payloadLength);
+
+  hkdf(resetToken, 'resetAccount', null, length, function (key) {
+    cb(null, {
+      tokenId: key.slice(0, 32),
+      reqHMACkey: key.slice(32, 64),
+      respXORkey: key.slice(64)
+    });
+  });
+}
+
 // generates the encrypted bundle for getSignToken2
 // params should be Buffer instances
 //
 // params: {
 //  kA: kA,
 //  wrapKb: wrapKb,
-//  signToken: signToken,
+//  token: token,
 //  hmacKey: respHMACkey,
 //  encKey: respXORkey
 // }
 function srpSignTokenBundle(params) {
 
-  var payload = Buffer.concat([params.kA, params.wrapKb, params.signToken]);
+  var payload = Buffer.concat([params.kA, params.wrapKb, params.token]);
 
   // xor the response with the encryption key
   var bundle = bigint.fromBuffer(payload).
@@ -114,7 +123,6 @@ function srpSignTokenBundle(params) {
 module.exports = {
   hkdf: hkdf,
   getKA: getKA,
-  getDeviceId: getDeviceId,
   getUserId: getUserId,
   getSessionId: getSessionId,
   getAccountToken: getAccountToken,
@@ -122,5 +130,6 @@ module.exports = {
   getResetToken: getResetToken,
   srpResponseKeys: srpResponseKeys,
   srpSignTokenBundle: srpSignTokenBundle,
-  signCertKeys: signCertKeys
+  signCertKeys: signCertKeys,
+  resetKeys: resetKeys
 };
