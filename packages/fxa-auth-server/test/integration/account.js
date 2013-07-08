@@ -11,12 +11,13 @@ var testClient = new helpers.TestClient();
 
 var TEST_EMAIL = 'foo@example.com';
 var TEST_PASSWORD = 'foo';
-//var TEST_PASSWORD_NEW = 'I like pie.';
-//var TEST_KB_NEW = 'super secret!';
+var TEST_PASSWORD_NEW = 'I like pie.';
 var TEST_WRAPKB = crypto.randomBytes(32).toString('base64');
+var TEST_WRAPKB_NEW = crypto.randomBytes(32).toString('base64');
+var TEST_KA_NEW = crypto.randomBytes(32).toString('base64');
 
 describe('user', function() {
-  var session, pubkey, signToken;
+  var session, pubkey, signToken, resetToken;
 
   it('should create an account with SPR verifier', function (done) {
     testClient.createSRP(TEST_EMAIL, TEST_PASSWORD, TEST_WRAPKB, done);
@@ -27,7 +28,7 @@ describe('user', function() {
       try {
         assert(!err);
         assert.equal(TEST_WRAPKB, keys.wrapKb);
-        signToken = keys.signToken;
+        signToken = keys.token;
       } catch (e) {
         return done(e);
       }
@@ -180,6 +181,7 @@ describe('user', function() {
     });
   });
 
+
   // it('should not sign without a hawk verified payload', function(done) {
   //   testClient.sign(pubkey.serialize(), 50000, signToken, false, function (err, result) {
   //     try {
@@ -192,110 +194,167 @@ describe('user', function() {
   //   });
   // });
 
-/*
-  it('should begin a new login', function(done) {
-    testClient.makeRequest('POST', '/startLogin', {
-      payload: { email: TEST_EMAIL }
-    }, function(res) {
-      sessionId = res.result.sessionId;
+  describe('account reset', function() {
 
-      try {
-        assert.ok(res.result.sessionId);
-      } catch (e) {
-        return done(e);
-      }
-      done();
+    it('should fail to get token with an unknown email', function(done) {
+      testClient.makeRequest('POST', '/startResetToken', {
+        payload: { email: 'bad@emai.l' }
+      }, function(res) {
+        try {
+          assert.equal(res.statusCode, 404);
+          assert.equal(res.result.message, 'UnknownUser');
+        } catch (e) {
+          return done(e);
+        }
+        done();
+      });
     });
-  });
 
-  it('should get resetToken', function(done) {
-    testClient.makeRequest('POST', '/resetToken', {
-      payload: {
-        accountToken: accountToken
-      }
-    }, function(res) {
-      try {
-        assert.equal(res.statusCode, 200);
-        resetToken = res.result.resetToken;
-        assert.ok(res.result.resetToken);
-      } catch (e) {
-        return done(e);
-      }
-      done();
+    it('should return SRP parameters on startResetToken', function(done) {
+      testClient.makeRequest('POST', '/startResetToken', {
+        payload: { email: TEST_EMAIL }
+      }, function(res) {
+        session = res.result;
+
+        try {
+          assert.ok(res.result.sessionId);
+          assert.ok(res.result.srp);
+          assert.ok(res.result.srp.B);
+          assert.ok(res.result.srp.s);
+          assert.ok(res.result.srp.N_bits);
+          assert.ok(res.result.srp.alg);
+        } catch (e) {
+          return done(e);
+        }
+        done();
+      });
     });
-  });
 
-  it('should reset the account', function(done) {
-    testClient.makeRequest('POST', '/resetPassword', {
-      payload: {
-        resetToken: resetToken,
-        verifier: TEST_PASSWORD_NEW,
-        params: { foo: 'bar2' },
-        wrapKb: TEST_KB_NEW
-      }
-    }, function(res) {
-      try {
-        assert.equal(res.statusCode, 200);
-        assert.equal(res.result, 'ok');
-      } catch (e) {
-        return done(e);
-      }
-      done();
+    it('should fail to get a reset token with a bad SRP', function(done) {
+      testClient.makeRequest('POST', '/finishResetToken', {
+        payload: {
+          sessionId: session.sessionId,
+          A: 'bad',
+          M: 'bad'
+        }
+      }, function(res) {
+        try {
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.message, 'IncorrectPassword');
+        } catch (e) {
+          return done(e);
+        }
+        done();
+      });
     });
-  });
 
-  it('should begin a login with resetted account', function(done) {
-    testClient.makeRequest('POST', '/startLogin', {
-      payload: { email: TEST_EMAIL }
-    }, function(res) {
-      sessionId = res.result.sessionId;
+    it('should finish reset token', function (done) {
+      testClient.finishResetToken(session, TEST_EMAIL, TEST_PASSWORD, function (err, b) {
+        try {
+          assert.ok(b.kA);
+        } catch (e) {
+          return done(e);
+        }
+        done();
 
-      try {
-        assert.ok(res.result.sessionId);
-      } catch (e) {
-        return done(e);
-      }
-      done();
+      });
     });
-  });
 
-  it('should fail to login with old password', function(done) {
-    testClient.makeRequest('POST', '/finishLogin', {
-      payload: {
-        sessionId: sessionId,
-        password: TEST_PASSWORD
-      }
-    }, function(res) {
-      try {
-        assert.equal(res.statusCode, 400);
-        assert.equal(res.result.message, 'IncorrectPassword');
-      } catch (e) {
-        return done(e);
-      }
-      done();
+    it('should fail to get reset tokoen with an old sessionId', function(done) {
+      testClient.makeRequest('POST', '/finishResetToken', {
+        payload: {
+          sessionId: session.sessionId,
+          A: 'bad',
+          M: 'bad'
+        }
+      }, function(res) {
+        try {
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.message, 'UnknownSession');
+        } catch (e) {
+          return done(e);
+        }
+        done();
+      });
     });
-  });
 
-  it('should finish login with new password', function(done) {
-    testClient.makeRequest('POST', '/finishLogin', {
-      payload: {
-        sessionId: sessionId,
-        password: TEST_PASSWORD_NEW
-      }
-    }, function(res) {
-      try {
-        accountToken = res.result.accountToken;
-
-        assert.ok(res.result.accountToken);
-        assert.ok(res.result.kA);
-        assert.equal(res.result.wrapKb, TEST_KB_NEW);
-      } catch (e) {
-        return done(e);
-      }
-      done();
+    it('should fail to get reset token with an unknown sessionId', function(done) {
+      testClient.makeRequest('POST', '/finishResetToken', {
+        payload: {
+          sessionId: 'bad sessionid',
+          A: 'bad',
+          M: 'bad'
+        }
+      }, function(res) {
+        try {
+          assert.equal(res.statusCode, 400);
+          assert.equal(res.result.message, 'UnknownSession');
+        } catch (e) {
+          return done(e);
+        }
+        done();
+      });
     });
+
+    it('should get reset token with SRP', function (done) {
+      testClient.resetTokenSRP(TEST_EMAIL, TEST_PASSWORD, function (err, keys) {
+        try {
+          assert(!err);
+          assert.equal(TEST_WRAPKB, keys.wrapKb);
+          resetToken = keys.token;
+        } catch (e) {
+          return done(e);
+        }
+        done();
+      });
+    });
+
+    it('should reset an account', function(done) {
+      testClient.resetAccount(
+        resetToken,
+        TEST_EMAIL,
+        TEST_PASSWORD_NEW,
+        TEST_KA_NEW,
+        TEST_WRAPKB_NEW,
+        function (err, result) {
+          try {
+            assert(!err);
+            assert.equal(result.statusCode, 200);
+          } catch (e) {
+            return done(e);
+          }
+          done();
+        });
+    });
+
+    it('should not login using SRP with old verifier', function (done) {
+      testClient.loginSRP(TEST_EMAIL, TEST_PASSWORD, function (err) {
+        try {
+          assert(err);
+          assert.equal(err.statusCode, 400);
+          assert.equal(err.result.message, 'IncorrectPassword');
+        } catch (e) {
+          return done(e);
+        }
+        done();
+      });
+    });
+
+    it('should login using SRP with new verifier', function (done) {
+      testClient.loginSRP(TEST_EMAIL, TEST_PASSWORD_NEW, function (err, keys) {
+        try {
+          console.log(err, keys);
+          assert(!err);
+          assert.equal(TEST_WRAPKB_NEW, keys.wrapKb);
+        } catch (e) {
+          return done(e);
+        }
+        done();
+      });
+    });
+
+
   });
-*/
 
   it('should generate 32 bytes of random crypto entropy', function(done) {
     testClient.makeRequest('GET', '/entropy', function(res) {

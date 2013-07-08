@@ -22,6 +22,19 @@ const nullLog = {
   fatal: noop
 };
 
+const tokenTypes = {
+  sign: {
+    startPath: '/startLogin',
+    finishPath: '/finishLogin',
+    context: 'getSignToken'
+  },
+  reset: {
+    startPath: '/startResetToken',
+    finishPath: '/finishResetToken',
+    context: 'getResetToken'
+  }
+};
+
 exports.server = require('../server')(config, routes, nullLog);
 
 
@@ -169,22 +182,48 @@ TestClient.prototype.loginSRP = function (email, password, cb) {
   );
 };
 
+TestClient.prototype.resetTokenSRP = function (email, password, cb) {
+  this.startResetToken(
+    email,
+    function (err, session) {
+      this.finishResetToken(session, email, password, cb);
+    }.bind(this)
+  );
+};
+
 TestClient.prototype.startLogin = function (email, cb) {
+  return this.getToken1('sign', email, cb);
+};
+
+TestClient.prototype.startResetToken = function (email, cb) {
+  return this.getToken1('reset', email, cb);
+};
+
+TestClient.prototype.getToken1 = function (tokenType, email, cb) {
   this.makeRequest(
     'POST',
-    '/startLogin',
+    tokenTypes[tokenType].startPath,
     {
       payload: {
         email: email
       }
     },
     function (res) {
+      if (res.result.error) return cb(res);
       cb(null, res.result);
     }
   );
 };
 
 TestClient.prototype.finishLogin = function (session, email, password, cb) {
+  return this.getToken2('sign', session, email, password, cb);
+};
+
+TestClient.prototype.finishResetToken = function (session, email, password, cb) {
+  return this.getToken2('reset', session, email, password, cb);
+};
+
+TestClient.prototype.getToken2 = function (tokenType, session, email, password, cb) {
   var json = session;
   var a = bigint.fromBuffer(crypto.randomBytes(32));
   var g = srpParams[json.srp.N_bits].g;
@@ -206,7 +245,7 @@ TestClient.prototype.finishLogin = function (session, email, password, cb) {
   var K = srp.getK(S, json.srp.alg).toBuffer();
   this.makeRequest(
     'POST',
-    '/finishLogin',
+    tokenTypes[tokenType].finishPath,
     {
       payload: {
         sessionId: json.sessionId,
@@ -215,9 +254,11 @@ TestClient.prototype.finishLogin = function (session, email, password, cb) {
       }
     },
     function (res) {
+      if (res.result.error) return cb(res);
       var json = res.result;
       util.srpResponseKeys(
         K,
+        tokenTypes[tokenType].context,
         function (err, keys) {
           var blob = Buffer(json.bundle, 'base64');
           var cyphertext = blob.slice(0, blob.length - 32);
@@ -234,7 +275,7 @@ TestClient.prototype.finishLogin = function (session, email, password, cb) {
           var result = {
             kA: cleartext.slice(0, 32).toString('base64'),
             wrapKb: cleartext.slice(32, 64).toString('base64'),
-            signToken: cleartext.slice(64).toString('hex')
+            token: cleartext.slice(64).toString('hex')
           };
           cb(null, result);
         }
@@ -278,6 +319,59 @@ TestClient.prototype.sign = function (publicKey, duration, signToken, hashPayloa
         },
         function (res) {
           cb(null, res.result);
+        }
+      );
+    }.bind(this)
+  );
+};
+
+TestClient.prototype.resetAccount = function (resetToken, email, password, kA, kB, cb) {
+  var alg = 'sha256';
+  var salt = crypto.randomBytes(32);
+  var verifier = srp.getv(salt, email, password, srpParams['2048'].N, srpParams['2048'].g, alg);
+  console.log('ver??', verifier.toString(16));
+  var cleartext = Buffer.concat([Buffer(kA, 'base64'), Buffer(kB, 'base64'), verifier.toBuffer()]);
+
+  util.resetKeys(
+    Buffer(resetToken, 'hex'),
+    cleartext.length,
+    function (err, keys) {
+
+      // encrypt payload to the server
+      var cyphertext = bigint.fromBuffer(cleartext)
+        .xor(bigint.fromBuffer(keys.respXORkey))
+        .toBuffer();
+
+      var credentials = {
+        id: keys.tokenId.toString('base64'),
+        key: keys.reqHMACkey.toString('base64'),
+        algorithm: 'sha256'
+      };
+      var payload = {
+        bundle: cyphertext.toString('base64')
+      };
+      var verify = {
+        credentials: credentials,
+        contentType: 'application/json',
+        payload: JSON.stringify(payload)
+      };
+      var header = hawk.client.header('http://localhost/resetAccount', 'POST', verify);
+
+      this.makeRequest(
+        'POST',
+        '/resetAccount',
+        {
+          headers: {
+            Authorization: header.field,
+            Host: 'localhost',
+            'Content-Type': 'application/json'
+          },
+          payload: payload
+        },
+        function (res) {
+          var err = null;
+          if (res.statusCode !== 200) { err = new Error(res.result.message); }
+          cb(err, res);
         }
       );
     }.bind(this)

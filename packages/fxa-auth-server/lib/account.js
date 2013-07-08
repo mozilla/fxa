@@ -140,7 +140,7 @@ function createSession(p, cb) {
 }
 
 // Initialize the SRP process
-exports.startLogin = function(email, cb) {
+exports.getToken1 = function(email, cb) {
   async.waterfall([
     getId.bind(null, email),
     getUserDoc,
@@ -160,9 +160,14 @@ function getSession(key, cb) {
 }
 
 // Finish the SRP process and return account info
-exports.finishLogin = function (sessionId, A, M1, cb) {
+exports.getToken2 = function (sessionId, tokenType, A, M1, cb) {
+
+  if (tokenType !== 'sign' && tokenType !== 'reset') {
+    return cb(internalError('UnknownTokenType'));
+  }
+
   var sessKey = sessionId + '/session';
-  var uid, user, signToken;
+  var uid, user, token;
   var K = null;
   A = bigint(A, 16);
 
@@ -197,23 +202,24 @@ exports.finishLogin = function (sessionId, A, M1, cb) {
       user = result;
       next(null);
     },
-    // create signToken
-    util.getSignToken,
-    function(token, next) {
-      signToken = token;
-      addSignToken(uid, token, next);
-    },
+    // create token
     function(next) {
-      util.signCertKeys(signToken, next);
+      if (tokenType === 'sign') {
+        getSignToken(uid, next);
+      }
+      else {
+        getResetToken(uid, 0, next);
+      }
     },
-    function(keys, next) {
+    function(result, next) {
+      token = result.token;
       kv.cache.set(
-        keys.tokenId.toString('base64') + '/hawk',
+        result.keys.tokenId.toString('base64') + '/hawk',
         {
-          key: keys.reqHMACkey.toString('base64'),
+          key: result.keys.reqHMACkey.toString('base64'),
           algorithm: 'sha256',
           uid: uid,
-          signToken: signToken
+          token: result.token.toString('hex')
         },
         next
       );
@@ -223,7 +229,10 @@ exports.finishLogin = function (sessionId, A, M1, cb) {
       kv.cache.delete(sessKey, next);
     },
     function(next) {
-      util.srpResponseKeys(K.toBuffer(), next);
+      var type = tokenType === 'sign' ?
+                  'getSignToken' :
+                  'getResetToken';
+      util.srpResponseKeys(K.toBuffer(), type, next);
     },
     function(keys, next) {
       next(
@@ -233,7 +242,7 @@ exports.finishLogin = function (sessionId, A, M1, cb) {
             {
               kA: Buffer(user.kA, 'base64'),
               wrapKb: user.wrapKb ? Buffer(user.wrapKb, 'base64') : emptyKey,
-              signToken: signToken,
+              token: token,
               hmacKey: keys.respHMACkey,
               encKey: keys.respXORkey
             }
@@ -243,6 +252,40 @@ exports.finishLogin = function (sessionId, A, M1, cb) {
     }
     ], cb);
 };
+
+function getSignToken(uid, cb) {
+  var token;
+  async.waterfall([
+    // create signToken
+    util.getSignToken,
+    function(tok, next) {
+      token = tok;
+      addSignToken(uid, tok, next);
+    },
+    function(next) {
+      util.signCertKeys(token, next);
+    }
+  ], function(err, result) {
+    return cb(err, { token: token, keys: result });
+  });
+}
+
+function getResetToken(uid, len, cb) {
+  var token;
+  async.waterfall([
+    // create resetToken
+    util.getResetToken,
+    function(tok, next) {
+      token = tok;
+      addResetToken(uid, token, next);
+    },
+    function(next) {
+      util.resetKeys(token, len, next);
+    }
+  ], function(err, result) {
+    return cb(err, { token: token, keys: result });
+  });
+}
 
 // Takes an accountToken and creates a new resetToken
 exports.getResetToken = function(accountToken, cb) {
@@ -285,36 +328,65 @@ exports.getResetToken = function(accountToken, cb) {
   ], cb);
 };
 
-exports.resetPassword = function(resetToken, data, cb) {
-  var userId;
+exports.resetAccount = function(resetToken, bundle, cb) {
+  var cyphertext = Buffer(bundle, 'base64');
+  var userId, user, data;
+
+  console.log('cypher!!!', cyphertext.toString('hex'));
 
   async.waterfall([
     // Check that the resetToken exists
     // and get the associated user id
-    function(cb) {
+    function(next) {
       kv.cache.get(resetToken + '/resetToken', function(err, doc) {
-        if (err) return cb(err);
-        if (!doc) return cb(notFound('UknownResetToken'));
+        if (err) return next(err);
+        if (!doc) return next(notFound('UknownResetToken'));
         userId = doc.value.uid;
-        cb(null);
+        next(null);
       });
     },
-    // delete all accountTokens, signTokens, and resetTokens
-    function(cb) {
-      deleteAllTokens(userId, cb);
+    function(next) {
+      getUser(userId, next);
     },
-    // get new class A key
-    util.getKA,
+    function(u, next) {
+      user = u;
+      // get decryption key
+      util.resetKeys(Buffer(resetToken, 'hex'), cyphertext.length, next);
+    },
+    function(keys, next) {
+      // decrypt bundle
+      var cleartext = bigint.fromBuffer(cyphertext)
+        .xor(bigint.fromBuffer(keys.respXORkey))
+        .toBuffer();
+
+      console.log('ver!!!', cleartext.slice(64).toString('hex'));
+
+      data = {
+        kA: cleartext.slice(0, 32).toString('base64'),
+        wrapKb: cleartext.slice(32, 64).toString('base64'),
+        verifier: cleartext.slice(64).toString('hex')
+      };
+      console.log('data', data);
+      next();
+    },
+    // delete all accountTokens, signTokens, and resetTokens
+    function(next) {
+      console.log('deleting!!');
+      deleteAllTokens(userId, next);
+    },
     // create user account
-    function(key, cb) {
+    function(next) {
+      console.log('creating new!!');
       kv.store.set(userId + '/user', {
-        params: data.params,
+        email: user.email, // shouldn't be needed once we reintroduce principles
+        params: user.params,
+        salt: user.salt,
         verifier: data.verifier,
-        kA: key,
+        kA: data.kA,
         wrapKb: data.wrapKb,
         resetTokens: {},
         signTokens: {}
-      }, cb);
+      }, next);
     }
   ], cb);
 };
