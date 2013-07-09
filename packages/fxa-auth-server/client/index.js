@@ -186,11 +186,11 @@ Client.prototype.sign = function (publicKey, duration, signToken, callback) {
   );
 };
 
-Client.prototype.resetAccount = function (resetToken, email, password, kA, kB, callback) {
+Client.prototype.resetAccount = function (resetToken, email, password, kB, callback) {
   var alg = 'sha256';
   var salt = crypto.randomBytes(32);
   var verifier = srp.getv(salt, email, password, srpParams['2048'].N, srpParams['2048'].g, alg);
-  var cleartext = Buffer.concat([Buffer(kA, 'hex'), Buffer(kB, 'hex'), salt, verifier.toBuffer()]);
+  var cleartext = Buffer.concat([Buffer(kB, 'hex'), salt, verifier.toBuffer()]);
 
   util.resetKeys(
     Buffer(resetToken, 'hex'),
