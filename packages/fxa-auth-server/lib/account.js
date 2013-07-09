@@ -29,8 +29,13 @@ emptyKey.fill(0);
  *  verifier: <password verifier>
  *  kA: <kA key>
  *  wrapKb: <wrapped wrapKb key>
- *  resetToken: <random token>
- *  signTokens: {}
+ *  resetToken: {
+ *    token: <random token>
+ *    tokenId: <associated hawk token id>
+ *  }
+ *  signTokens: {
+ *    <random token>: <associated hawk token id>
+ *  }
  * }
  *
  * <sessionId>/session = {
@@ -254,36 +259,38 @@ exports.getToken2 = function (sessionId, tokenType, A, M1, cb) {
 };
 
 function getSignToken(uid, cb) {
-  var token;
+  var token, keys;
   async.waterfall([
     // create signToken
     util.getSignToken,
     function(tok, next) {
       token = tok;
-      addSignToken(uid, tok, next);
-    },
-    function(next) {
       util.signCertKeys(token, next);
+    },
+    function(k, next) {
+      keys = k;
+      addSignToken(uid, token, keys.tokenId, next);
     }
-  ], function(err, result) {
-    return cb(err, { token: token, keys: result });
+  ], function(err) {
+    return cb(err, { token: token, keys: keys });
   });
 }
 
 function getResetToken(uid, len, cb) {
-  var token;
+  var token, keys;
   async.waterfall([
     // create resetToken
     util.getResetToken,
     function(tok, next) {
       token = tok;
-      addResetToken(token, uid, next);
-    },
-    function(next) {
       util.resetKeys(token, len, next);
+    },
+    function(k, next) {
+      keys = k;
+      addResetToken(token, uid, keys.tokenId, next);
     }
-  ], function(err, result) {
-    return cb(err, { token: token, keys: result });
+  ], function(err) {
+    return cb(err, { token: token, keys: keys });
   });
 }
 
@@ -350,16 +357,29 @@ function deleteAllTokens(userId, cb) {
     function(user, cb) {
       // map each token into a function that deletes that token's record
       var funs = Object.keys(user.signTokens).map(function(token) {
-          return function(cb) {
-            kv.store.delete(token + '/signer', cb);
-          };
+          return [
+            function(cb) {
+              kv.store.delete(token + '/signer', cb);
+            },
+            function(cb) {
+              kv.store.delete(user.signTokens[token]+ '/hawk', cb);
+            }
+          ];
         });
 
       if (user.resetToken) {
+        // delete resetToken doc
         funs.push(function(cb) {
-          kv.cache.delete(user.resetToken + '/resetToken', cb);
+          kv.cache.delete(user.resetToken.token + '/resetToken', cb);
+        });
+        // delete associated hawk id doc
+        funs.push(function(cb) {
+          kv.cache.delete(user.resetToken.tokenId + '/hawk', cb);
         });
       }
+
+      // flatten array
+      funs = [].concat.apply([], funs);
 
       // run token deletions in parallel
       async.parallel(funs, function(err) { cb(err); });
@@ -368,15 +388,13 @@ function deleteAllTokens(userId, cb) {
 }
 
 function addTokenFn(tokenType, fn) {
-  return function (userId, tokenBuf, cb) {
+  return function (userId, tokenBuf, tokenId, cb) {
     var token = tokenBuf.toString('hex');
     async.waterfall([
       // First, add the signToken to the user's list
       function(next) {
         updateUserData(userId, function(userDoc) {
-          if (token in userDoc.value[tokenType]) {
-            userDoc.value[tokenType][token] = true;
-          }
+          userDoc.value[tokenType][token] = tokenId.toString('hex');
           return userDoc;
         }, next);
       },
@@ -393,10 +411,13 @@ var addSignToken = addTokenFn('signTokens',
         }, cb);
       });
 
-function addResetToken(token, userId, cb) {
+function addResetToken(token, userId, tokenId, cb) {
   updateUserData(userId,
     function(userDoc) {
-      userDoc.value.resetToken = token.toString('hex');
+      userDoc.value.resetToken = {
+        token: token.toString('hex'),
+        tokenId: tokenId.toString('hex')
+      };
       return userDoc;
     },
     function(err) {
