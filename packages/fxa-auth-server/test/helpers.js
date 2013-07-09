@@ -157,7 +157,7 @@ TestClient.prototype.createSRP = function (email, password, kB, cb) {
     {
       payload: {
         email: email,
-        verifier: verifier.toString(16),
+        verifier: verifier.toBuffer().toString('hex'),
         salt: salt.toString('hex'),
         wrapKb: kB,
         params: {
@@ -250,8 +250,8 @@ TestClient.prototype.getToken2 = function (tokenType, session, email, password, 
     {
       payload: {
         sessionId: json.sessionId,
-        A: A.toString(16),
-        M: M.toString(16)
+        A: A.toBuffer().toString('hex'),
+        M: M.toBuffer().toString('hex')
       }
     },
     function (res) {
