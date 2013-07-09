@@ -29,7 +29,7 @@ emptyKey.fill(0);
  *  verifier: <password verifier>
  *  kA: <kA key>
  *  wrapKb: <wrapped wrapKb key>
- *  resetTokens: {}
+ *  resetToken: <random token>
  *  signTokens: {}
  * }
  *
@@ -82,7 +82,7 @@ exports.create = function(data, cb) {
         salt: data.salt,
         kA: key.toString('hex'),
         wrapKb: data.wrapKb,
-        resetTokens: {},
+        resetToken: null,
         signTokens: {}
       }, next);
     }
@@ -277,7 +277,7 @@ function getResetToken(uid, len, cb) {
     util.getResetToken,
     function(tok, next) {
       token = tok;
-      addResetToken(uid, token, next);
+      addResetToken(token, uid, next);
     },
     function(next) {
       util.resetKeys(token, len, next);
@@ -337,7 +337,7 @@ exports.resetAccount = function(resetToken, bundle, cb) {
         verifier: data.verifier,
         kA: data.kA,
         wrapKb: data.wrapKb,
-        resetTokens: {},
+        resetToken: null,
         signTokens: {}
       }, next);
     }
@@ -353,13 +353,14 @@ function deleteAllTokens(userId, cb) {
           return function(cb) {
             kv.store.delete(token + '/signer', cb);
           };
-        })
-        .concat(
-        Object.keys(user.resetTokens).map(function(token) {
-          return function(cb) {
-            kv.cache.delete(token + '/resetToken', cb);
-          };
-        }));
+        });
+
+      if (user.resetToken) {
+        funs.push(function(cb) {
+          kv.cache.delete(user.resetToken + '/resetToken', cb);
+        });
+      }
+
       // run token deletions in parallel
       async.parallel(funs, function(err) { cb(err); });
     }
@@ -392,13 +393,20 @@ var addSignToken = addTokenFn('signTokens',
         }, cb);
       });
 
-var addResetToken = addTokenFn('resetTokens',
-      function(token, userId, cb) {
-        kv.cache.set(token + '/resetToken', {
-          uid: userId,
-          expirationTime: Date.now() + 60 * 60 * 24
-        }, cb);
-      });
+function addResetToken(token, userId, cb) {
+  updateUserData(userId,
+    function(userDoc) {
+      userDoc.value.resetToken = token.toString('hex');
+      return userDoc;
+    },
+    function(err) {
+      if (err) return cb(err);
+      kv.cache.set(token.toString('hex') + '/resetToken', {
+        uid: userId,
+        expirationTime: Date.now() + 60 * 60 * 24
+      }, cb);
+    });
+}
 
 function updateUserData(userId, update, cb) {
   retryLoop('cas mismatch', 5, function(cb) {
