@@ -295,7 +295,7 @@ TestClient.prototype.sign = function (publicKey, duration, signToken, hashPayloa
         algorithm: 'sha256'
       };
       var payload = {
-        publicKey: publicKey,
+        publicKey: JSON.parse(publicKey),
         duration: duration
       };
       var verify = {

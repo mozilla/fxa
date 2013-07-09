@@ -156,7 +156,14 @@ Sign a public key
 
 ___Parameters___
 
-* publicKey - the key to sign
+* publicKey - the key to sign (run bin/generate-keypair from [jwcrypto](https://github.com/mozilla/jwcrypto))
+    * algorithm - "RS" or "DS"
+    * n - RS only
+    * e - RS only
+    * y - DS only
+    * p - DS only
+    * q - DS only
+    * g - DS only
 * duration - time interval from now when the certificate will expire in milliseconds
 
 ___Headers___
@@ -172,7 +179,11 @@ curl -v -k \
 -H 'Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 https://idp.profileinthecloud.net/sign \
 -d '{
-  "publicKey": "",
+  "publicKey": {
+    "algorithm":"RS",
+    "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
+    "e":"65537"
+  },
   "duration": 86400000
 }'
 ```

@@ -129,7 +129,15 @@ var routes = [
       tags: ["account"],
       validate: {
         payload: {
-          publicKey: Hapi.types.String().required(),
+          publicKey: T.Object({
+            algorithm: T.String().valid("RS", "DS").required(),
+            n: T.String().with('e').without('y','p','q','g'),
+            e: T.String().with('n').without('y','p','q','g'),
+            y: T.String().with('p','q','g').without('n','e'),
+            p: T.String().with('y','q','g').without('n','e'),
+            q: T.String().with('y','p','g').without('n','e'),
+            g: T.String().with('y','p','q').without('n','e')
+          }),
           duration: Hapi.types.Number().integer().min(0).max(24 * hour).required()
         }
       }
@@ -211,7 +219,7 @@ function sign(request) {
       cc.enqueue(
         {
           email: user.email,
-          publicKey: request.payload.publicKey,
+          publicKey: JSON.stringify(request.payload.publicKey),
           duration: request.payload.duration
         },
         function (err, result) {
