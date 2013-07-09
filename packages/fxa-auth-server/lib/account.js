@@ -29,8 +29,13 @@ emptyKey.fill(0);
  *  verifier: <password verifier>
  *  kA: <kA key>
  *  wrapKb: <wrapped wrapKb key>
- *  resetTokens: {}
- *  signTokens: {}
+ *  resetToken: {
+ *    token: <random token>
+ *    tokenId: <associated hawk token id>
+ *  }
+ *  signTokens: {
+ *    <random token>: <associated hawk token id>
+ *  }
  * }
  *
  * <sessionId>/session = {
@@ -82,7 +87,7 @@ exports.create = function(data, cb) {
         salt: data.salt,
         kA: key.toString('hex'),
         wrapKb: data.wrapKb,
-        resetTokens: {},
+        resetToken: null,
         signTokens: {}
       }, next);
     }
@@ -254,85 +259,44 @@ exports.getToken2 = function (sessionId, tokenType, A, M1, cb) {
 };
 
 function getSignToken(uid, cb) {
-  var token;
+  var token, keys;
   async.waterfall([
     // create signToken
     util.getSignToken,
     function(tok, next) {
       token = tok;
-      addSignToken(uid, tok, next);
-    },
-    function(next) {
       util.signCertKeys(token, next);
+    },
+    function(k, next) {
+      keys = k;
+      addSignToken(uid, token, keys.tokenId, next);
     }
-  ], function(err, result) {
-    return cb(err, { token: token, keys: result });
+  ], function(err) {
+    return cb(err, { token: token, keys: keys });
   });
 }
 
 function getResetToken(uid, len, cb) {
-  var token;
+  var token, keys;
   async.waterfall([
     // create resetToken
     util.getResetToken,
     function(tok, next) {
       token = tok;
-      addResetToken(uid, token, next);
-    },
-    function(next) {
       util.resetKeys(token, len, next);
+    },
+    function(k, next) {
+      keys = k;
+      addResetToken(token, uid, keys.tokenId, next);
     }
-  ], function(err, result) {
-    return cb(err, { token: token, keys: result });
+  ], function(err) {
+    return cb(err, { token: token, keys: keys });
   });
 }
-
-// Takes an accountToken and creates a new resetToken
-exports.getResetToken = function(accountToken, cb) {
-  var accountKey = accountToken + '/accountToken';
-  var uid, resetToken;
-
-  async.waterfall([
-    // Check that the accountToken exists
-    // and get the associated user id
-    function(cb) {
-      kv.cache.get(accountKey, function(err, account) {
-        if (err) return cb(err);
-        if (!account) return cb(notFound('UknownAccountToken'));
-        cb(null, account.value.uid);
-      });
-    },
-    // get new resetToken
-    function(id, cb) {
-      uid = id;
-      util.getResetToken(cb);
-    },
-    function(token, cb) {
-      resetToken = token;
-      addResetToken(uid, token, cb);
-    },
-    // delete account token from user's list
-    function(cb) {
-      updateUserData(uid, function(userDoc) {
-          delete userDoc.value.accountTokens[accountToken];
-          return userDoc;
-      }, cb);
-    },
-    // delete accountToken record
-    function(cb) {
-      kv.cache.delete(accountToken + '/accountToken', cb);
-    },
-    function(cb) {
-      cb(null, { resetToken: resetToken });
-    }
-  ], cb);
-};
 
 exports.resetAccount = function(resetToken, bundle, cb) {
   var cyphertext = Buffer(bundle, 'hex');
   var userId, user, data;
-
-  console.log('cypher!!!', cyphertext.toString('hex'));
 
   async.waterfall([
     // Check that the resetToken exists
@@ -359,32 +323,28 @@ exports.resetAccount = function(resetToken, bundle, cb) {
         .xor(bigint.fromBuffer(keys.respXORkey))
         .toBuffer();
 
-      console.log('ver!!!', cleartext.slice(64).toString('hex'));
-
       data = {
         kA: cleartext.slice(0, 32).toString('hex'),
         wrapKb: cleartext.slice(32, 64).toString('hex'),
-        verifier: cleartext.slice(64).toString('hex')
+        salt: cleartext.slice(64, 96).toString('hex'),
+        verifier: cleartext.slice(96).toString('hex')
       };
-      console.log('data', data);
       next();
     },
     // delete all accountTokens, signTokens, and resetTokens
     function(next) {
-      console.log('deleting!!');
       deleteAllTokens(userId, next);
     },
     // create user account
     function(next) {
-      console.log('creating new!!');
       kv.store.set(userId + '/user', {
         email: user.email, // shouldn't be needed once we reintroduce principles
         params: user.params,
-        salt: user.salt,
+        salt: data.salt,
         verifier: data.verifier,
         kA: data.kA,
         wrapKb: data.wrapKb,
-        resetTokens: {},
+        resetToken: null,
         signTokens: {}
       }, next);
     }
@@ -397,16 +357,30 @@ function deleteAllTokens(userId, cb) {
     function(user, cb) {
       // map each token into a function that deletes that token's record
       var funs = Object.keys(user.signTokens).map(function(token) {
-          return function(cb) {
-            kv.store.delete(token + '/signer', cb);
-          };
-        })
-        .concat(
-        Object.keys(user.resetTokens).map(function(token) {
-          return function(cb) {
-            kv.cache.delete(token + '/resetToken', cb);
-          };
-        }));
+          return [
+            function(cb) {
+              kv.store.delete(token + '/signer', cb);
+            },
+            function(cb) {
+              kv.store.delete(user.signTokens[token]+ '/hawk', cb);
+            }
+          ];
+        });
+
+      if (user.resetToken) {
+        // delete resetToken doc
+        funs.push(function(cb) {
+          kv.cache.delete(user.resetToken.token + '/resetToken', cb);
+        });
+        // delete associated hawk id doc
+        funs.push(function(cb) {
+          kv.cache.delete(user.resetToken.tokenId + '/hawk', cb);
+        });
+      }
+
+      // flatten array
+      funs = [].concat.apply([], funs);
+
       // run token deletions in parallel
       async.parallel(funs, function(err) { cb(err); });
     }
@@ -414,15 +388,13 @@ function deleteAllTokens(userId, cb) {
 }
 
 function addTokenFn(tokenType, fn) {
-  return function (userId, tokenBuf, cb) {
+  return function (userId, tokenBuf, tokenId, cb) {
     var token = tokenBuf.toString('hex');
     async.waterfall([
       // First, add the signToken to the user's list
       function(next) {
         updateUserData(userId, function(userDoc) {
-          if (token in userDoc.value[tokenType]) {
-            userDoc.value[tokenType][token] = true;
-          }
+          userDoc.value[tokenType][token] = tokenId.toString('hex');
           return userDoc;
         }, next);
       },
@@ -439,13 +411,23 @@ var addSignToken = addTokenFn('signTokens',
         }, cb);
       });
 
-var addResetToken = addTokenFn('resetTokens',
-      function(token, userId, cb) {
-        kv.cache.set(token + '/resetToken', {
-          uid: userId,
-          expirationTime: Date.now() + 60 * 60 * 24
-        }, cb);
-      });
+function addResetToken(token, userId, tokenId, cb) {
+  updateUserData(userId,
+    function(userDoc) {
+      userDoc.value.resetToken = {
+        token: token.toString('hex'),
+        tokenId: tokenId.toString('hex')
+      };
+      return userDoc;
+    },
+    function(err) {
+      if (err) return cb(err);
+      kv.cache.set(token.toString('hex') + '/resetToken', {
+        uid: userId,
+        expirationTime: Date.now() + 60 * 60 * 24
+      }, cb);
+    });
+}
 
 function updateUserData(userId, update, cb) {
   retryLoop('cas mismatch', 5, function(cb) {

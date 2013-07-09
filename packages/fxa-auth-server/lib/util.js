@@ -82,7 +82,6 @@ function signCertKeys(signToken, cb) {
 // Derive a tokenId, a reqHMACkey, and a respXORkey from the resetToken
 function resetKeys(resetToken, payloadLength, cb) {
   var length = 2 * 32 + payloadLength;
-  console.log('len????', length, payloadLength);
 
   hkdf(resetToken, 'resetAccount', null, length, function (key) {
     cb(null, {

@@ -267,8 +267,6 @@ function finishResetToken(request) { return getToken2('reset', request); }
 
 
 function resetAccount(request) {
-  console.log('??', request.auth);
-  console.log('??', request.payload);
   account.resetAccount(
     request.auth.credentials.token,
     request.payload.bundle,

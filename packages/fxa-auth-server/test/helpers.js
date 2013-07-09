@@ -150,6 +150,7 @@ TestClient.prototype.createSRP = function (email, password, kB, cb) {
   var alg = 'sha256';
   var salt = crypto.randomBytes(32);
   var verifier = srp.getv(salt, email, password, srpParams['2048'].N, srpParams['2048'].g, alg);
+
   this.makeRequest(
     'POST',
     '/create',
@@ -329,8 +330,7 @@ TestClient.prototype.resetAccount = function (resetToken, email, password, kA, k
   var alg = 'sha256';
   var salt = crypto.randomBytes(32);
   var verifier = srp.getv(salt, email, password, srpParams['2048'].N, srpParams['2048'].g, alg);
-  console.log('ver??', verifier.toString(16));
-  var cleartext = Buffer.concat([Buffer(kA, 'hex'), Buffer(kB, 'hex'), verifier.toBuffer()]);
+  var cleartext = Buffer.concat([Buffer(kA, 'hex'), Buffer(kB, 'hex'), salt, verifier.toBuffer()]);
 
   util.resetKeys(
     Buffer(resetToken, 'hex'),

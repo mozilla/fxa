@@ -249,9 +249,10 @@ describe('user', function() {
     });
 
     it('should finish reset token', function (done) {
-      testClient.finishResetToken(session, TEST_EMAIL, TEST_PASSWORD, function (err, b) {
+      testClient.finishResetToken(session, TEST_EMAIL, TEST_PASSWORD, function (err, keys) {
         try {
-          assert.ok(b.kA);
+          assert(!err);
+          assert.equal(TEST_WRAPKB, keys.wrapKb);
         } catch (e) {
           return done(e);
         }
@@ -343,7 +344,6 @@ describe('user', function() {
     it('should login using SRP with new verifier', function (done) {
       testClient.loginSRP(TEST_EMAIL, TEST_PASSWORD_NEW, function (err, keys) {
         try {
-          console.log(err, keys);
           assert(!err);
           assert.equal(TEST_WRAPKB_NEW, keys.wrapKb);
         } catch (e) {
