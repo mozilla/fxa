@@ -115,15 +115,15 @@ function generateSrpParams(doc, cb) {
 }
 
 function createSession(p, cb) {
-  var B = p.B.toString(16);
+  var B = p.B.toBuffer().toString('hex');
   kv.cache.set(
     p.sid + '/session',
     {
       uid: p.uid,
       srp: {
         s: p.s,
-        v: p.v.toString(16),
-        b: p.b.toString(16),
+        v: p.v.toBuffer().toString('hex'),
+        b: p.b.toBuffer().toString('hex'),
         B: B
       }
     },
@@ -193,7 +193,7 @@ exports.getToken2 = function (sessionId, tokenType, A, M1, cb) {
         alg
       );
       var M2 = srp.getM(A, bigint(p.B, 16), S);
-      if (M1 === M2.toString(16)) {
+      if (M1 === M2.toBuffer().toString('hex')) {
         K = srp.getK(S, alg);
         getUser(uid, next);
       }

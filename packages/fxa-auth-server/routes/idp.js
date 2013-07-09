@@ -10,10 +10,58 @@ const crypto = require('crypto');
 
 const hour = 1000 * 60 * 60;
 const T = Hapi.types;
+const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 
 var cc = new CC({ module: __dirname + '/sign.js' });
 
 var account = require('../lib/account');
+
+var getToken1Config = {
+  description:
+    "Begins an SRP login for the supplied email address, " +
+    "returning the temporary sessionId and parameters for " +
+    "key stretching and the SRP protocol for the client.",
+  tags: ["srp", "account"],
+  validate: {
+    payload: {
+      email: T.String().email().required()
+    },
+    response: {
+      schema: {
+        sessionId: T.String(),
+        stretch: T.Object({
+          salt: T.String()
+        }),
+        srp: T.Object({
+          N_bits: T.Number().valid(2048),  // number of bits for prime
+          alg: T.String().valid('sha256'), // hash algorithm (sha256)
+          s: T.String().regex(HEX_STRING), // salt
+          B: T.String().regex(HEX_STRING)  // server's public key value
+        })
+      }
+    }
+  }
+};
+
+var getToken2Config = {
+  description:
+    "Finishes the SRP dance, with the client providing " +
+    "proof-of-knownledge of the password and receiving " +
+    "the bundle encrypted with the shared key.",
+  tags: ["srp", "account"],
+  validate: {
+    payload: {
+      sessionId: T.String().required(),
+      A: T.String().regex(HEX_STRING).required(),
+      M: T.String().regex(HEX_STRING).required()
+    },
+    response: {
+      schema: {
+        bundle: T.String().regex(HEX_STRING).required()
+      }
+    }
+  }
+};
 
 var routes = [
   {
@@ -61,10 +109,10 @@ var routes = [
       validate: {
         payload: {
           email: T.String().email().required(),
-          verifier: T.String().required(),
-          salt: T.String().required(),
+          verifier: T.String().regex(HEX_STRING).required(),
+          salt: T.String().regex(HEX_STRING).required(),
           params: T.Object(), // TODO: what are these?
-          wrapKb: T.String() // TODO: required?
+          wrapKb: T.String().regex(HEX_STRING) // TODO: required?
         }
       }
     }
@@ -130,52 +178,7 @@ var routes = [
   },
 ];
 
-var getToken1Config = {
-  description:
-    "Begins an SRP login for the supplied email address, " +
-    "returning the temporary sessionId and parameters for " +
-    "key stretching and the SRP protocol for the client.",
-  tags: ["srp", "account"],
-  validate: {
-    payload: {
-      email: T.String().email().required()
-    },
-    response: {
-      schema: {
-        sessionId: T.String(),
-        stretch: T.Object({
-          salt: T.String()
-        }),
-        srp: T.Object({
-          N_bits: T.Number(), // number of bits for prime
-          alg: T.String(),    // hash algorithm (sha256)
-          s: T.String(),      // salt
-          B: T.String()       // server's public key value
-        })
-      }
-    }
-  }
-};
 
-var getToken2Config = {
-  description:
-    "Finishes the SRP dance, with the client providing " +
-    "proof-of-knownledge of the password and receiving " +
-    "the bundle encrypted with the shared key.",
-  tags: ["srp", "account"],
-  validate: {
-    payload: {
-      sessionId: T.String().required(),
-      A: T.String().required(),
-      M: T.String().required()
-    },
-    response: {
-      schema: {
-        bundle: T.String().required()
-      }
-    }
-  }
-};
 
 function wellKnown(request) {
   request.reply({

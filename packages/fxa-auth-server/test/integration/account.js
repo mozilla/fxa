@@ -87,8 +87,8 @@ describe('user', function() {
     testClient.makeRequest('POST', '/finishLogin', {
       payload: {
         sessionId: session.sessionId,
-        A: 'bad',
-        M: 'bad'
+        A: 'bad1',
+        M: 'bad1'
       }
     }, function(res) {
       try {
@@ -117,8 +117,8 @@ describe('user', function() {
     testClient.makeRequest('POST', '/finishLogin', {
       payload: {
         sessionId: session.sessionId,
-        A: 'bad',
-        M: 'bad'
+        A: 'bad1',
+        M: 'bad1'
       }
     }, function(res) {
       try {
@@ -135,8 +135,8 @@ describe('user', function() {
     testClient.makeRequest('POST', '/finishLogin', {
       payload: {
         sessionId: 'bad sessionid',
-        A: 'bad',
-        M: 'bad'
+        A: 'bad1',
+        M: 'bad1'
       }
     }, function(res) {
       try {
@@ -234,8 +234,8 @@ describe('user', function() {
       testClient.makeRequest('POST', '/finishResetToken', {
         payload: {
           sessionId: session.sessionId,
-          A: 'bad',
-          M: 'bad'
+          A: 'bad1',
+          M: 'bad1'
         }
       }, function(res) {
         try {
@@ -265,8 +265,8 @@ describe('user', function() {
       testClient.makeRequest('POST', '/finishResetToken', {
         payload: {
           sessionId: session.sessionId,
-          A: 'bad',
-          M: 'bad'
+          A: 'bad1',
+          M: 'bad1'
         }
       }, function(res) {
         try {
@@ -283,8 +283,8 @@ describe('user', function() {
       testClient.makeRequest('POST', '/finishResetToken', {
         payload: {
           sessionId: 'bad sessionid',
-          A: 'bad',
-          M: 'bad'
+          A: 'bad1',
+          M: 'bad1'
         }
       }, function(res) {
         try {
