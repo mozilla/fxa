@@ -362,7 +362,7 @@ describe('user', function() {
       try {
         entropy = res.result;
         assert.equal(res.statusCode, 200);
-        assert.equal(Buffer(entropy, 'hex').length, 32);
+        assert.equal(Buffer(entropy.data, 'hex').length, 32);
       } catch (e) {
         return done(e);
       }

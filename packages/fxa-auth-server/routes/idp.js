@@ -197,7 +197,7 @@ function create(request) {
       }
       else {
         //TODO do stuff
-        request.reply('ok');
+        request.reply({ created: true });
       }
     }
   );
@@ -286,7 +286,7 @@ function resetAccount(request) {
 
 function getEntropy(request) {
   crypto.randomBytes(32, function(err, buf) {
-    request.reply(buf.toString('hex'));
+    request.reply(err || { data: buf.toString('hex') });
   });
 }
 
