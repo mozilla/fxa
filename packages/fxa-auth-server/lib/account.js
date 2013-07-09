@@ -287,52 +287,9 @@ function getResetToken(uid, len, cb) {
   });
 }
 
-// Takes an accountToken and creates a new resetToken
-exports.getResetToken = function(accountToken, cb) {
-  var accountKey = accountToken + '/accountToken';
-  var uid, resetToken;
-
-  async.waterfall([
-    // Check that the accountToken exists
-    // and get the associated user id
-    function(cb) {
-      kv.cache.get(accountKey, function(err, account) {
-        if (err) return cb(err);
-        if (!account) return cb(notFound('UknownAccountToken'));
-        cb(null, account.value.uid);
-      });
-    },
-    // get new resetToken
-    function(id, cb) {
-      uid = id;
-      util.getResetToken(cb);
-    },
-    function(token, cb) {
-      resetToken = token;
-      addResetToken(uid, token, cb);
-    },
-    // delete account token from user's list
-    function(cb) {
-      updateUserData(uid, function(userDoc) {
-          delete userDoc.value.accountTokens[accountToken];
-          return userDoc;
-      }, cb);
-    },
-    // delete accountToken record
-    function(cb) {
-      kv.cache.delete(accountToken + '/accountToken', cb);
-    },
-    function(cb) {
-      cb(null, { resetToken: resetToken });
-    }
-  ], cb);
-};
-
 exports.resetAccount = function(resetToken, bundle, cb) {
   var cyphertext = Buffer(bundle, 'hex');
   var userId, user, data;
-
-  console.log('cypher!!!', cyphertext.toString('hex'));
 
   async.waterfall([
     // Check that the resetToken exists
@@ -359,28 +316,24 @@ exports.resetAccount = function(resetToken, bundle, cb) {
         .xor(bigint.fromBuffer(keys.respXORkey))
         .toBuffer();
 
-      console.log('ver!!!', cleartext.slice(64).toString('hex'));
-
       data = {
         kA: cleartext.slice(0, 32).toString('hex'),
         wrapKb: cleartext.slice(32, 64).toString('hex'),
-        verifier: cleartext.slice(64).toString('hex')
+        salt: cleartext.slice(64, 96).toString('hex'),
+        verifier: cleartext.slice(96).toString('hex')
       };
-      console.log('data', data);
       next();
     },
     // delete all accountTokens, signTokens, and resetTokens
     function(next) {
-      console.log('deleting!!');
       deleteAllTokens(userId, next);
     },
     // create user account
     function(next) {
-      console.log('creating new!!');
       kv.store.set(userId + '/user', {
         email: user.email, // shouldn't be needed once we reintroduce principles
         params: user.params,
-        salt: user.salt,
+        salt: data.salt,
         verifier: data.verifier,
         kA: data.kA,
         wrapKb: data.wrapKb,
