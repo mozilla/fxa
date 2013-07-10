@@ -324,10 +324,9 @@ exports.resetAccount = function(resetToken, bundle, cb) {
         .toBuffer();
 
       data = {
-        kA: cleartext.slice(0, 32).toString('hex'),
-        wrapKb: cleartext.slice(32, 64).toString('hex'),
-        salt: cleartext.slice(64, 96).toString('hex'),
-        verifier: cleartext.slice(96).toString('hex')
+        wrapKb: cleartext.slice(0, 32).toString('hex'),
+        salt: cleartext.slice(32, 64).toString('hex'),
+        verifier: cleartext.slice(64).toString('hex')
       };
       next();
     },
@@ -342,7 +341,7 @@ exports.resetAccount = function(resetToken, bundle, cb) {
         params: user.params,
         salt: data.salt,
         verifier: data.verifier,
-        kA: data.kA,
+        kA: user.kA,
         wrapKb: data.wrapKb,
         resetToken: null,
         signTokens: {}

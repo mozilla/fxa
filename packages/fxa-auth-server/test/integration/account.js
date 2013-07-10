@@ -14,7 +14,6 @@ var TEST_PASSWORD = 'foo';
 var TEST_PASSWORD_NEW = 'I like pie.';
 var TEST_WRAPKB = crypto.randomBytes(32).toString('hex');
 var TEST_WRAPKB_NEW = crypto.randomBytes(32).toString('hex');
-var TEST_KA_NEW = crypto.randomBytes(32).toString('hex');
 
 describe('user', function() {
   var session, pubkey, signToken, resetToken;
@@ -315,7 +314,6 @@ describe('user', function() {
         resetToken,
         TEST_EMAIL,
         TEST_PASSWORD_NEW,
-        TEST_KA_NEW,
         TEST_WRAPKB_NEW,
         function (err, result) {
           try {
