@@ -28,6 +28,17 @@ Run tests with:
 
     npm test
 
+## Server API
+
+[API reference](/docs/api.md)
+
+## Reference Client
+
+A node library that implements the client side of the protocol and an example
+script is located in the `/client` directory.
+
+[/client/index.js](/client/index.js)
+[/client/example.js](/client/example.js)
 
 ## License
 
