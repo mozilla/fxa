@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
-pid=`ps -aefw | grep "hekad" | grep -v " grep " | awk '{print $2}'`
+pid=`pgrep hekad`
 if [[ $pid ]] ; then
-  echo "stopping heka"
-  kill -s INT $pid
+	# restart heka to pick up new config changes
+	echo "stopping heka"
+	kill -s INT $pid
 fi
-echo "starting heka"
-hekad -config=heka/hekad.toml &
+
+# ignore hekad if its not installed on the $PATH
+app=`which hekad`
+if [[ $app ]] ; then
+	echo "starting heka"
+	hekad -config=heka/hekad.toml &
+fi
 
 NODE_ENV="local" ./bin/idp.js
