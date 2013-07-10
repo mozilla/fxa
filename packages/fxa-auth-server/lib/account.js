@@ -54,7 +54,7 @@ emptyKey.fill(0);
  *  key: <reqHMACkey>
  *  algorithm: <'sha1' | 'sha256'>
  *  uid: <userId>,
- *  signToken: <signToken>
+ *  token: <token>
  * }
  *
  * */
@@ -218,7 +218,7 @@ exports.getToken2 = function (sessionId, tokenType, A, M1, cb) {
     },
     function(result, next) {
       token = result.token;
-      kv.cache.set(
+      kv.store.set(
         result.keys.tokenId.toString('hex') + '/hawk',
         {
           key: result.keys.reqHMACkey.toString('hex'),
@@ -373,7 +373,7 @@ function deleteAllTokens(userId, cb) {
         });
         // delete associated hawk id doc
         funs.push(function(cb) {
-          kv.cache.delete(user.resetToken.tokenId + '/hawk', cb);
+          kv.store.delete(user.resetToken.tokenId + '/hawk', cb);
         });
       }
 
@@ -489,7 +489,7 @@ function getUser(userId, cb) {
 exports.getUser = getUser;
 
 function getHawkCredentials(tokenId, cb) {
-  kv.cache.get(tokenId + '/hawk', function (err, x) {
+  kv.store.get(tokenId + '/hawk', function (err, x) {
     cb(err, x ? x.value : null);
   });
 }
