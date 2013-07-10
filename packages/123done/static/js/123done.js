@@ -124,6 +124,7 @@ $(document).ready(function() {
         termsOfService: '/tos.txt',
         privacyPolicy: '/pp.txt',
         siteName: "123done",
+        backgroundColor: "#f5f2e4",
 // XXX: we need SSL to display a siteLogo in dialog.  Must get certificates.
 //        siteLogo: "/img/logo100.png",
         oncancel: function() {
