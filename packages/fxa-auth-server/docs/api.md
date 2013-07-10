@@ -46,6 +46,7 @@ ___Parameters___
 * email - the primary email for this account
 * verifier - the derived SRP verifier
 * wrapKb - the wrapped kB key
+* salt - SPR salt
 * params
     * srp
         * alg - hash function for SRP (sha256)
@@ -63,6 +64,7 @@ http://idp.profileinthecloud.net/create \
   "email": "me2@example.com",
   "verifier": "7597c55064c73bf1b2735878cb8711c289fc8f1cfb3d633a4593b36a8c51dbd68b27f649949de27d1dcccf7ece1e1a42c5c6bdc3d209cf13a3813d333bfcadd2641a9a3e2eb4289788ed8510cc8f2f1061789d58aef38b9d21b81831413f55473f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4e0bda74fcaa2347be4664f553d332df8166278c0e2f8663aa9238a2429631f7afd11622e193747b57975c51bbb69bb11f60c1a5ba449d3119e70d1ec580212151f79b26e73a57dba313376f0ba7a2afc232146a3b1d68b2d0afc35ebb8699cb10b3a3f8e0d51cefc7ac29212b238fb7a87f2f61edc9cbff103e386f778925fe",
   "wrapKb": "129e25a048cdc37353ebbfe6aca8f7e427f483fab73c01e91b23c4a77186c705",
+  "salt": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4",
   "params": {
     "srp": {
       "alg": "sha256",
