@@ -286,7 +286,7 @@ function resetAccount(request) {
         request.reply(err);
       }
       else {
-        request.reply('ok');
+        request.reply({ reset: true });
       }
     }
   );

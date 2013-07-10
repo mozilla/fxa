@@ -1,13 +1,14 @@
 # Key Server API
 
 For details of the client/server server protocol and how each parameter is derived see the
-[design](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Signing_Certificates).
+[design](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol).
 
 Our [SRP](http://en.wikipedia.org/wiki/Secure_Remote_Password_protocol#Protocol)
 protocol order is slightly different from the sample on wikipedia, but the variables
 are the same.
 
-[Hawk](https://github.com/hueniverse/hawk) is used to authenticate `/sign` requests.
+[Hawk](https://github.com/hueniverse/hawk) is used to authenticate `/sign` and
+`/resetAccount` requests.
 
 # Request Format
 
@@ -29,6 +30,13 @@ For example:
 
 # Endpoints
 
+A development server is available at http://idp.profileinthecloud.net for testing.
+All data stored there will be deleted periodically, and new code will be deployed
+regularly.
+
+***The API is accessible over HTTP on the development server only.***
+***Production servers will be HTTPS only***
+
 ## POST /create
 
 Creates a user account.
@@ -47,10 +55,10 @@ ___Parameters___
 
 ### Request
 ```sh
-curl -v -k \
+curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-https://idp.profileinthecloud.net/create \
+http://idp.profileinthecloud.net/create \
 -d '{
   "email": "me2@example.com",
   "verifier": "7597c55064c73bf1b2735878cb8711c289fc8f1cfb3d633a4593b36a8c51dbd68b27f649949de27d1dcccf7ece1e1a42c5c6bdc3d209cf13a3813d333bfcadd2641a9a3e2eb4289788ed8510cc8f2f1061789d58aef38b9d21b81831413f55473f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4e0bda74fcaa2347be4664f553d332df8166278c0e2f8663aa9238a2429631f7afd11622e193747b57975c51bbb69bb11f60c1a5ba449d3119e70d1ec580212151f79b26e73a57dba313376f0ba7a2afc232146a3b1d68b2d0afc35ebb8699cb10b3a3f8e0d51cefc7ac29212b238fb7a87f2f61edc9cbff103e386f778925fe",
@@ -85,10 +93,10 @@ ___Parameters___
 
 ### Request
 ```sh
-curl -v -k \
+curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-https://idp.profileinthecloud.net/startLogin \
+http://idp.profileinthecloud.net/startLogin \
 -d '{
   "email": "me@example.com"
 }'
@@ -118,7 +126,7 @@ How to derive the values for the next step are explained in the
 
 ## POST /finishLogin
 
-Complete the login process
+Get a signToken, kA, and wrapKb
 
 ___Parameters___
 
@@ -128,10 +136,10 @@ ___Parameters___
 
 ### Request
 ```sh
-curl -v -k \
+curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-https://idp.profileinthecloud.net/finishLogin \
+http://idp.profileinthecloud.net/finishLogin \
 -d '{
   "sessionId": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
   "A": "024ba1bb53d42918dc34131b41548843e1fa533bd5952be3ec8884fba4aa5c3542ac161fa0d5587d1e694248573be8a1b18f7b0c132f74ddde08ac2a230f4db4a1d831eb74ee772c83121ecba80e51b9293942681655dca4f98a766408fbaf5c13c09d21b9d6d3dabea8024fbb658ca67e20bc63cb349cb9bea54d7b1f4990cfe45fad7e492ca90a578d7b559143eb0987825b48aa6bfbb684b7973c75e6e98011ffc3ba724797ea575d440fa3c052be978590f828d3f850a4ccdecbe8e4d2c6d2b981e3c75ee26d5cf477cda9273a60000d6e942d4eb27e027a8ca16f668862260a4c9d3ab6cd3139decf4976633844684b8371a68a7419f6beffd2fc078327",
@@ -147,8 +155,8 @@ https://idp.profileinthecloud.net/finishLogin \
 }
 ```
 
-See [decrypting](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
-for info on how to retrieve kA/wrapKb/signToken from the bundle.
+See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
+for info on how to retrieve `kA|wrapKb|signToken` from the bundle.
 
 ## POST /sign
 
@@ -156,7 +164,7 @@ Sign a public key
 
 ___Parameters___
 
-* publicKey - the key to sign (run bin/generate-keypair from [jwcrypto](https://github.com/mozilla/jwcrypto))
+* publicKey - the key to sign (run `bin/generate-keypair` from [jwcrypto](https://github.com/mozilla/jwcrypto))
     * algorithm - "RS" or "DS"
     * n - RS only
     * e - RS only
@@ -172,12 +180,12 @@ The request must include a Hawk header that authenticates the request including 
 
 ### Request
 ```sh
-curl -v -k \
+curl -v \
 -X POST \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-https://idp.profileinthecloud.net/sign \
+http://idp.profileinthecloud.net/sign \
 -d '{
   "publicKey": {
     "algorithm":"RS",
@@ -203,7 +211,7 @@ Get 32 bytes of random data
 
 ### Request
 ```sh
-curl -v -k https://idp.profileinthecloud.net/entropy
+curl -v http://idp.profileinthecloud.net/entropy
 ```
 
 ### Response
@@ -216,6 +224,109 @@ curl -v -k https://idp.profileinthecloud.net/entropy
 
 ## POST /startResetToken
 
+Begin the reset process
+
+___Parameters___
+
+* email - user's email address
+
+### Request
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+http://idp.profileinthecloud.net/startResetToken \
+-d '{
+  "email": "me@example.com"
+}'
+```
+
+### Response
+
+```json
+{
+  "sessionId": "b223b00e-5a10-46a9-983c-1c346c0d1907",
+  "stretch": {
+    "rounds": 100000,
+    "salt": "9e1a5712b22ea7ec06eb74422be67040e030a9f041fe258d8ed633d027271704"
+  },
+  "srp":
+  {
+    "N_bits": 2048,
+    "alg": "sha256",
+    "s": "739e25a048cdc37353ebbfe6aca8f7e427f483fab73c01e91b23c4a77186c718",
+    "B": "3cd467e3afd4cc2d7abd913e322d76c245c667e9dffc6e28a1108ac02c5af9eee1148a0c735f52ed786c33add4936dd5534326794e03d1b48b77b347c728740288adf488a9f4f11d75bb60e9bb1e975cccd128e28115178de01702fd2e8715e7c33b02c142569669bb52cf167092fa79c3c03c81affc5c8d97fd3cb8d12605e5dd59f75e21376cfdc6536125650ff8559f1c5319a9bfbb5191238c1570d41dc43e880d213fa06ff9d2f6ca7f31e05aef6236ae3657450250c06145a346151c54f227996532bbdc6e1531456174975eded5404baae081b3ce7b42646b98baec1029082823a041aaace4ffa362d5ed42a4e5088c496dda8ba2a35e804e89597313"
+  }
+}
+```
+
 ## POST /finishResetToken
 
+Get a resetToken, kA, and wrapKb
+
+___Parameters___
+
+* sessionId - the sessionId received from `/startLogin`
+* A - the derived SRP "A" value
+* M - the derived SRP "M" value
+
+### Request
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+http://idp.profileinthecloud.net/finishResetToken \
+-d '{
+  "sessionId": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
+  "A": "024ba1bb53d42918dc34131b41548843e1fa533bd5952be3ec8884fba4aa5c3542ac161fa0d5587d1e694248573be8a1b18f7b0c132f74ddde08ac2a230f4db4a1d831eb74ee772c83121ecba80e51b9293942681655dca4f98a766408fbaf5c13c09d21b9d6d3dabea8024fbb658ca67e20bc63cb349cb9bea54d7b1f4990cfe45fad7e492ca90a578d7b559143eb0987825b48aa6bfbb684b7973c75e6e98011ffc3ba724797ea575d440fa3c052be978590f828d3f850a4ccdecbe8e4d2c6d2b981e3c75ee26d5cf477cda9273a60000d6e942d4eb27e027a8ca16f668862260a4c9d3ab6cd3139decf4976633844684b8371a68a7419f6beffd2fc078327",
+  "M": "396a46b1aa63cd69856a2ec81cbf19d5c8a60471cc62df9ee15c2bf07838efba"
+}'
+```
+
+### Response
+
+```json
+{
+  "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
+}
+```
+
 ## POST /resetAccount
+
+See [resetting the account](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Resetting_the_Account)
+
+### Request
+
+___Parameters___
+
+* bundle - a base16 string of encoded `kB|salt|verifier`
+
+___Headers___
+
+The request must include a Hawk header that authenticates the request including payload
+
+```sh
+curl -v \
+-X POST \
+-H "Host: idp.profileinthecloud.net" \
+-H "Content-Type: application/json" \
+-H 'Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+http://idp.profileinthecloud.net/resetAccount \
+-d '{
+  "bundle": "a586e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a98264bdc"
+}'
+```
+
+### Response
+
+```json
+{
+  "reset": true
+}
+```
+
+# Reference Client
+
+The [git repo](https://github.com/mozilla/picl-idp) contains a reference implementation
+of the client side of the protocol in [/client/index.js](/client/index.js) with
+sample usage in [/client/example.js](/client/example.js)
