@@ -212,25 +212,19 @@ function create(request) {
 }
 
 function sign(request) {
-  account.getUser(
-    request.auth.credentials.uid,
-    function (err, user) {
-      if (err) { return request.reply(Hapi.error.internal('Unable to sign certificate', err)); }
-      cc.enqueue(
-        {
-          email: user.email,
-          publicKey: JSON.stringify(request.payload.publicKey),
-          duration: request.payload.duration
-        },
-        function (err, result) {
-          if (err || result.err) {
-            request.reply(Hapi.error.internal('Unable to sign certificate', err || result.err));
-          }
-          else {
-            request.reply(result);
-          }
-        }
-      );
+  cc.enqueue(
+    {
+      email: account.principle(request.auth.credentials.uid),
+      publicKey: JSON.stringify(request.payload.publicKey),
+      duration: request.payload.duration
+    },
+    function (err, result) {
+      if (err || result.err) {
+        request.reply(Hapi.error.internal('Unable to sign certificate', err || result.err));
+      }
+      else {
+        request.reply(result);
+      }
     }
   );
 }

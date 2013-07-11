@@ -495,18 +495,6 @@ function getHawkCredentials(tokenId, cb) {
 }
 exports.getHawkCredentials = getHawkCredentials;
 
-// This account principle associated with a singing token
-// The principle is the userId combined with the IDP domain
-// e.g. 1234@lcip.org
-//
-function getPrinciple(token, cb) {
-  kv.store.get(token + '/signer', function(err, result) {
-    if (err) return cb(internalError(err));
-    if (!result) return cb(notFound('UnknownSignToken'));
-
-    var principle = result.value.uid + '@' + config.get('domain');
-
-    cb(null, principle);
-  });
-}
-exports.getPrinciple = getPrinciple;
+exports.principle = function(uid) {
+  return uid + '@' + config.get('domain');
+};
