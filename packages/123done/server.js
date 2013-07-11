@@ -1,7 +1,9 @@
-var express = require('express'),
-      https = require('https'),
-   sessions = require('client-sessions'),
-      redis = require("redis");
+var express       = require('express'),
+    https         = require('https'),
+    sessions      = require('client-sessions'),
+    redis         = require('redis'),
+    fonts         = require('connect-fonts'),
+    font_sugiyama = require('connect-fonts-drsugiyama');
 
 // create a connection to the redis datastore
 var db = redis.createClient();
@@ -18,6 +20,11 @@ var app = express.createServer(
 
 app.use(require('./retarget.js'));
 
+app.use(fonts.setup({
+  allow_origin: "123done.org",
+  fonts: [ font_sugiyama ]
+}));
+
 app.use(function (req, res, next) {
   if (/^\/api/.test(req.url)) {
     res.setHeader('Cache-Control', 'no-cache, max-age=0');
@@ -25,6 +32,7 @@ app.use(function (req, res, next) {
     return sessions({
       cookieName: '123done',
       secret: process.env['COOKIE_SECRET'] || 'define a real secret, please',
+      requestKey: 'session',
       cookie: {
         path: '/api',
         httpOnly: true
