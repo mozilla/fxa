@@ -60,7 +60,7 @@ section form {
 }
 
 #todolist li.done {
- 	color: #817f78;
+        color: #817f78;
 }
 
 #todolist li:hover {
@@ -245,4 +245,39 @@ footer a {
     text-decoration: none;
     color: #555;
     border-bottom: 1px dotted #555;
+}
+
+@media (max-width: 480px) {
+    header nav {
+        position: relative;
+        top: auto;
+        right: auto;
+    }
+    header nav > * {
+        float: none;
+    }
+    .loginarea button { margin-top: 1em; min-height: 60px}
+
+    section form input[type="submit"] {
+        margin-left: 10px;
+    }
+
+}
+
+@media (max-width: 750px) {
+
+    #newitem {
+        margin: 10px 10px 10px 0px;
+        display: block;
+        width: 90%;
+    }
+
+    section form input[type="submit"] {
+        position: relative;
+        font-size: 1.5em;
+        height: auto;
+    }
+
+    #todo, footer { width: 90%; }
+    #info { width: auto; }
 }
