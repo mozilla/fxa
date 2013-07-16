@@ -22,7 +22,8 @@ module.exports = function (config, routes, log) {
         engines: {
           html: 'handlebars'
         }
-      }
+      },
+      cors: true
     }
   );
 
