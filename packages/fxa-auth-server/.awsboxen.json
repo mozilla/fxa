@@ -88,6 +88,13 @@
             "LoadBalancerPort" : "80",
             "InstancePort" : "80",
             "Protocol" : "HTTP"
+          },
+          {
+            "LoadBalancerPort" : "443",
+            "InstancePort" : "80",
+            "Protocol" : "HTTPS",
+            "InstanceProtocol" : "HTTP",
+            "SSLCertificateId": "arn:aws:iam::142069644989:server-certificate/profileinthecloud.net"
           }
         ],
         "HealthCheck" : {
