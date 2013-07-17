@@ -11,11 +11,14 @@
     "connect-fonts": "0.0.9-alpha8",
     "connect-fonts-drsugiyama": "0.0.1"
   },
+  "engines": {
+    "node": ">=0.8.0"
+  },
   "optionalDependencies": {
     "hiredis": "0.1.14"
   },
   "devDependencies": {
-    "awsbox": "0.2.16"
+    "awsbox": "0.4.1"
   },
   "scripts": {
     "start": "node server.js"
