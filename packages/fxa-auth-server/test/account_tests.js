@@ -8,7 +8,6 @@ FakeToken.get = function () { return P(new FakeToken())}
 FakeToken.prototype.del = function () { return P(null) }
 
 function FakeRecoveryMethod() {}
-
 FakeRecoveryMethod.create = function () { return P(new FakeRecoveryMethod()) }
 FakeRecoveryMethod.get = function () { return P(new FakeRecoveryMethod()) }
 

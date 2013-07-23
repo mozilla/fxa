@@ -13,7 +13,11 @@ var db = require('../db')({
   }
 })
 
-var Account = require('../account')(null, null, null, db.store, 'example.com')
+function FakeRecoveryMethod() {}
+FakeRecoveryMethod.create = function () { return P(new FakeRecoveryMethod()) }
+FakeRecoveryMethod.get = function () { return P(new FakeRecoveryMethod()) }
+
+var Account = require('../account')(null, null, FakeRecoveryMethod, db.store, 'example.com')
 var SrpSession = require('../srp_session')(P, uuid, srp, bigint, db.cache, Account)
 
 var alice = {
@@ -36,7 +40,7 @@ alice.verifier = srp.getv(
 ).toBuffer().toString('hex')
 
 Account.create(alice)
-.then(
+.done(
   function (a) {
 
     test(

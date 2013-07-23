@@ -1,10 +1,6 @@
-module.exports = function (uuid, isA, error, Account, RecoveryMethod) {
+module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
-
-  function notImplemented(request) {
-    request.reply(error.internal('Not implemented yet'))
-  }
 
   var routes = [
     {
@@ -42,8 +38,8 @@ module.exports = function (uuid, isA, error, Account, RecoveryMethod) {
                 email: form.email,
                 verifier: form.verifier,
                 salt: form.salt,
-                kA: null, // TODO
-                wrapKb: null, // TODO
+                kA: crypto.randomBytes(32).toString('hex'),
+                wrapKb: crypto.randomBytes(32).toString('hex'),
                 params: form.params
               }
             )

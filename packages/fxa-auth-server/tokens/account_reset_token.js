@@ -93,7 +93,7 @@ module.exports = function (inherits, Token, crypto, db) {
     var wrapKb = plaintext.slice(0, 32).toString('hex')
     var verifier = plaintext.slice(32, 288).toString('hex')
     if (wrapKb === NULL) {
-      wrapKb = crypto.randomBytes(32).toString('hex') // TODO: async?
+      wrapKb = crypto.randomBytes(32).toString('hex')
     }
     return {
       wrapKb: wrapKb,

@@ -2,10 +2,6 @@ module.exports = function (srp, isA, error, Account) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function notImplemented(request) {
-    request.reply(error.internal('Not implemented yet'))
-  }
-
   var routes = [
     {
       method: 'POST',
