@@ -1,4 +1,4 @@
-module.exports = function (P, SessionToken, db, domain) {
+module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
 
   function Account() {
     // <strings>
@@ -13,6 +13,7 @@ module.exports = function (P, SessionToken, db, domain) {
     this.params = null
     this.resetTokenId = null
     this.sessionTokenIds = null
+    this.recoveryMethodIds = null
   }
 
   Account.hydrate = function (object) {
@@ -29,6 +30,7 @@ module.exports = function (P, SessionToken, db, domain) {
     a.params = object.params
     a.resetTokenId = object.resetTokenId
     a.sessionTokenIds = object.sessionTokenIds || {}
+    a.recoveryMethodIds = object.recoveryMethodIds || {}
     return a
   }
 
@@ -41,7 +43,18 @@ module.exports = function (P, SessionToken, db, domain) {
             throw new Error("AccountExists")
           }
           var account = Account.hydrate(options)
-          return account.save(true)
+          return RecoveryMethod
+            .create(account.email, true)
+            .then(
+              function (rm) {
+                account.recoveryMethodIds[rm.id] = true
+              }
+            )
+            .then(
+              function () {
+                return account.save(true)
+              }
+            )
         }
       )
   }
@@ -121,6 +134,20 @@ module.exports = function (P, SessionToken, db, domain) {
       tokens.push(SessionToken.get(ids[i]))
     }
     return P.all(tokens)
+  }
+
+  Account.prototype.addRecoveryMethod = function (rm) {
+    this.recoveryMethodIds[rm.id] = true
+    return this.save()
+  }
+
+  Account.prototype.recoveryMethods = function () {
+    var ids = Object.keys(this.recoveryMethodIds)
+    var methods = []
+    for (var i = 0; i < ids.length; i++) {
+      methods.push(RecoveryMethod.get(ids[i]))
+    }
+    return P.all(methods)
   }
 
   function _save(uid, value) {

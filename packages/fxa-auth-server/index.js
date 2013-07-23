@@ -30,7 +30,9 @@ var hkdf = require('./hkdf')
 
 var Bundle = require('./bundle')(crypto, bigint, P, hkdf)
 var tokens = require('./tokens')(Bundle, dbs)
-var Account = require('./account')(P, tokens.SessionToken, dbs.store, config.domain)
+
+var RecoveryMethod = require('./recovery_method')(crypto, P, dbs.store)
+var Account = require('./account')(P, tokens.SessionToken, RecoveryMethod, dbs.store, config.domain)
 var SrpSession = require('./srp_session')(P, uuid, srp, bigint, dbs.cache, Account)
 
 
@@ -52,6 +54,7 @@ var routes = require('./routes')(
   Account,
   AuthBundle,
   SrpSession,
+  RecoveryMethod,
   tokens
 )
 var Server = require('./server')

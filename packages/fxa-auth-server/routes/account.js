@@ -1,4 +1,4 @@
-module.exports = function (uuid, isA, error, Account) {
+module.exports = function (uuid, isA, error, Account, RecoveryMethod) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -66,7 +66,23 @@ module.exports = function (uuid, isA, error, Account) {
           strategy: 'sessionToken'
         },
         tags: ["account"],
-        handler: notImplemented,
+        handler: function (request) {
+          var sessionToken = request.auth.credentials
+          Account
+            .getById(sessionToken.uid)
+            .done(
+              function (account) {
+                request.reply(
+                  {
+                    devices: Object.keys(account.sessionTokenIds)
+                  }
+                )
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        },
         validate: {
           response: {
             schema: {
@@ -124,7 +140,36 @@ module.exports = function (uuid, isA, error, Account) {
           strategy: 'sessionToken'
         },
         tags: ["account", "recovery"],
-        handler: notImplemented,
+        handler: function (request) {
+          var sessionToken = request.auth.credentials
+          Account
+            .getById(sessionToken.uid)
+            .then(
+              function (account) {
+                return account.recoveryMethods()
+              }
+            )
+            .done(
+              function (rms) {
+                request.reply(
+                  {
+                    recoveryMethods: rms.map(
+                      function (rm) {
+                        return {
+                          email: rm.email,
+                          verified: rm.verified,
+                          primary: rm.primary
+                        }
+                      }
+                    )
+                  }
+                )
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        },
         validate: {
           response: {
             schema: {
@@ -146,7 +191,36 @@ module.exports = function (uuid, isA, error, Account) {
           payload: 'required'
         },
         tags: ["account", "recovery"],
-        handler: notImplemented,
+        handler: function (request) {
+          var sessionToken = request.auth.credentials
+          var email = request.payload.email
+          Account
+            .getById(sessionToken.id)
+            .then(
+              function (account) {
+                if (account.email === email) {
+                  RecoveryMethod
+                    .get(email)
+                    .then(
+                      function (rm) {
+                        return rm.sendCode()
+                      }
+                    )
+                    .done(
+                      function () {
+                        request.reply({})
+                      },
+                      function (err) {
+                        request.reply(err)
+                      }
+                    )
+                }
+                else {
+                  request.reply(new Error("secondary recovery not implemented yet"))
+                }
+              }
+            )
+        },
         validate: {
           payload: {
             email: isA.String().email().required()
@@ -166,7 +240,39 @@ module.exports = function (uuid, isA, error, Account) {
           payload: 'required'
         },
         tags: ["account", "recovery"],
-        handler: notImplemented,
+        handler: function (request) {
+          var sessionToken = request.auth.credentials
+          var code = request.payload.code
+          Account
+            .getById(sessionToken.uid)
+            .then(
+              function (account) {
+                //TODO short circuits
+                //TODO secondary recovery methods
+                return RecoveryMethod
+                  .get(account.email)
+                  .then(
+                    function (rm) {
+                      return rm.verify(code)
+                    }
+                  )
+                  .then(
+                    function (rm) {
+                      account.verified = rm.verified
+                      return account.save()
+                    }
+                  )
+              }
+            )
+            .done(
+              function () {
+                request.reply({})
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        },
         validate: {
           payload: {
             code: isA.String().required()

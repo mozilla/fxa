@@ -17,12 +17,13 @@ module.exports = function (
   signer,
   Account,
   AuthBundle,
+  RecoveryMethod,
   SrpSession) {
   var srp = require('./srp')(SrpSession, AuthBundle)
 
   var defaults = require('./defaults')(P, dbs)
   var idp = require('./idp')(crypto, error, isA, serverPublicKey)
-  var account = require('./account')(uuid, isA, error, Account)
+  var account = require('./account')(uuid, isA, error, Account, RecoveryMethod)
   var password = require('./password')(isA, error, srp, Account)
   var session = require('./session')(srp, isA, error, Account)
   var sign = require('./sign')(isA, error, signer, Account)

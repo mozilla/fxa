@@ -278,7 +278,7 @@ var tokens = {
   AccountResetToken: AccountResetToken,
   SessionToken: SessionToken
 }
-var Account = require('../account')(db.store, 'lcip.org')
+var Account = require('../account')(null, null, null, db.store, 'lcip.org')
 
 var Bundle = require('../bundle')(crypto, bigint, P, hkdf)
 var AuthBundle = require('../auth_bundle')(inherits, Bundle, Account, tokens)

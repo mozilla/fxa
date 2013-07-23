@@ -5,12 +5,6 @@ var P = require('p-promise')
 var uuid = require('uuid')
 var srp = require('../srp')
 
-function FakeToken() {}
-
-FakeToken.get = function () { return P(new FakeToken())}
-
-FakeToken.prototype.del = function () { return P(null) }
-
 var db = require('../db')({
   kvstore: {
     available_backends: ['memory'],
@@ -19,7 +13,7 @@ var db = require('../db')({
   }
 })
 
-var Account = require('../account')(P, FakeToken, db.store, 'example.com')
+var Account = require('../account')(null, null, null, db.store, 'example.com')
 var SrpSession = require('../srp_session')(P, uuid, srp, bigint, db.cache, Account)
 
 var alice = {

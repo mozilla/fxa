@@ -7,6 +7,11 @@ FakeToken.get = function () { return P(new FakeToken())}
 
 FakeToken.prototype.del = function () { return P(null) }
 
+function FakeRecoveryMethod() {}
+
+FakeRecoveryMethod.create = function () { return P(new FakeRecoveryMethod()) }
+FakeRecoveryMethod.get = function () { return P(new FakeRecoveryMethod()) }
+
 var db = require('../db')({
   kvstore: {
     available_backends: ['memory'],
@@ -15,7 +20,7 @@ var db = require('../db')({
   }
 })
 var DOMAIN = 'example.com'
-var Account = require('../account')(P, FakeToken, db.store, DOMAIN)
+var Account = require('../account')(P, FakeToken, FakeRecoveryMethod, db.store, DOMAIN)
 var a = {
   uid: 'xxx',
   email: 'somebody@example.com',
