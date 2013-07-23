@@ -106,7 +106,7 @@ $(document).ready(function() {
         if (null === loginAssertion) {
           updateUI(loggedInEmail);
         }
-        
+
         // display current saved state
         State.load();
       }
@@ -125,6 +125,7 @@ $(document).ready(function() {
         privacyPolicy: '/pp.txt',
         siteName: "123done",
         backgroundColor: "#f5f2e4",
+        allowRedirect: true,
 // XXX: we need SSL to display a siteLogo in dialog.  Must get certificates.
 //        siteLogo: "/img/logo100.png",
         oncancel: function() {
@@ -138,7 +139,7 @@ $(document).ready(function() {
     // upon click of logout link navigator.id.logout()
     $("#loggedin a").click(function(ev) {
       ev.preventDefault();
-      navigator.id.logout()
+      navigator.id.logout();
     });
   });
 });
