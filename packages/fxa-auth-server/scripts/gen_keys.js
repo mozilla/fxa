@@ -19,25 +19,25 @@
    keypair.
 */
 
-const jwcrypto = require("jwcrypto");
-const fs = require('fs');
-const assert = require("assert");
-const config = require('../lib/config');
+const jwcrypto = require("jwcrypto")
+const fs = require('fs')
+const assert = require("assert")
+const config = require('../config')
 
-const pubKeyFile = config.get('publicKeyFile');
-const secretKeyFile = config.get('secretKeyFile');
+const pubKeyFile = config.get('publicKeyFile')
+const secretKeyFile = config.get('secretKeyFile')
 
-require("jwcrypto/lib/algs/rs");
+require("jwcrypto/lib/algs/rs")
 
 try {
-  assert(! fs.existsSync(pubKeyFile), "public key file: ["+pubKeyFile+"] already exists");
-  assert(! fs.existsSync(secretKeyFile), "secret key file: ["+secretKeyFile+"] already exists");
+  assert(! fs.existsSync(pubKeyFile), "public key file: ["+pubKeyFile+"] already exists")
+  assert(! fs.existsSync(secretKeyFile), "secret key file: ["+secretKeyFile+"] already exists")
 } catch(e) {
-  console.error("Error: " + e.message);
-  process.exit(1);
+  console.error("Error: " + e.message)
+  process.exit(1)
 }
 
-console.log("Generating keypair. (install libgmp if this takes more than a second)");
+console.log("Generating keypair. (install libgmp if this takes more than a second)")
 
 // wondering about `keysize: 256`?
 // well, 257 = 2048bit key
@@ -46,14 +46,14 @@ jwcrypto.generateKeypair(
   { algorithm: 'RS', keysize: 256 },
   function(err, keypair) {
 
-    var pubKey = keypair.publicKey.serialize();
-    var secretKey = keypair.secretKey.serialize();
+    var pubKey = keypair.publicKey.serialize()
+    var secretKey = keypair.secretKey.serialize()
 
 
-    fs.writeFileSync(pubKeyFile, pubKey);
-    console.log("Public Key saved:", pubKeyFile);
+    fs.writeFileSync(pubKeyFile, pubKey)
+    console.log("Public Key saved:", pubKeyFile)
 
-    fs.writeFileSync(secretKeyFile, secretKey);
-    console.log("Secret Key saved:", secretKeyFile);
+    fs.writeFileSync(secretKeyFile, secretKey)
+    console.log("Secret Key saved:", secretKeyFile)
   }
-);
+)

@@ -2,12 +2,12 @@
   "name": "picl-idp",
   "version": "0.0.0",
   "description": "An identity provider for PiCL services",
-  "main": "server.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "CONFIG_FILES=./test/config/test.json ./node_modules/.bin/mocha -R spec --recursive --timeout 10000",
+    "test": "CONFIG_FILES=./test/config/test.json tap ./test",
     "start": "scripts/start-local.sh"
   },
   "repository": "",
@@ -18,28 +18,26 @@
   },
   "dependencies": {
     "bigint": "0.4.2",
-    "hapi": "1.6.0",
+    "uuid": "1.4.1",
+    "hapi": "1.8.3",
     "hawk": "1.0.0",
     "hkdf": "0.0.1",
     "compute-cluster": "0.0.7",
     "jwcrypto": "0.4.3",
     "handlebars": "1.0.10",
-    "convict": "0.1.1",
-    "hoek": "0.8.5",
-    "uuid": "1.4.1",
-    "async": "0.2.8",
+    "convict": "0.3.3",
+    "p-promise": "0.2.3",
     "kvstore": "0.0.3",
-    "bunyan": "0.21.3",
+    "bunyan": "0.21.4",
     "heka": "0.3.0",
     "node-statsd": "0.0.7",
     "toobusy": "0.2.3",
-    "lout": "0.4.0"
+    "lout": "0.4.1"
   },
   "devDependencies": {
     "awsbox": "0.4.5",
     "awsboxen": "0.4.x",
-    "mocha": "1.9.x",
     "request": "2.21.x",
-    "jshint": "0.9.1"
+    "tap": "0.4.3"
   }
 }
