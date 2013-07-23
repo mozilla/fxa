@@ -22,19 +22,17 @@ memoryMonitor.start()
 // storage
 var dbs = require('./db')(config)
 
-var Account = require('./account')(dbs.store, config.domain)
-
 var srp = require('./srp')
-
 var bigint = require('bigint')
 var P = require('p-promise')
 var uuid = require('uuid')
-var SrpSession = require('./srp_session')(P, uuid, srp, bigint, dbs.cache, Account)
-
-
 var hkdf = require('./hkdf')
+
 var Bundle = require('./bundle')(crypto, bigint, P, hkdf)
 var tokens = require('./tokens')(Bundle, dbs)
+var Account = require('./account')(P, tokens.SessionToken, dbs.store, config.domain)
+var SrpSession = require('./srp_session')(P, uuid, srp, bigint, dbs.cache, Account)
+
 
 var inherits = require('util').inherits
 var AuthBundle = require('./auth_bundle')(inherits, Bundle, Account, tokens)

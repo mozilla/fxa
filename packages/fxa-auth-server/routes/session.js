@@ -79,7 +79,10 @@ module.exports = function (srp, isA, error, Account) {
         auth: {
           strategy: 'sessionToken'
         },
-        handler: notImplemented
+        handler: function (request) {
+          // hapi will take care of the case where the token isn't valid
+          request.reply({})
+        }
       }
     },
     {
@@ -91,7 +94,29 @@ module.exports = function (srp, isA, error, Account) {
         auth: {
           strategy: 'sessionToken'
         },
-        handler: notImplemented
+        handler: function (request) {
+          var sessionToken = request.auth.credentials
+          sessionToken
+            .del()
+            .then(
+              function () {
+                return Account.getById(sessionToken.uid)
+              }
+            )
+            .then(
+              function (account) {
+                return account.deleteSessionToken(sessionToken.id)
+              }
+            )
+            .done(
+              function () {
+                request.reply({})
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        }
       }
     }
   ]

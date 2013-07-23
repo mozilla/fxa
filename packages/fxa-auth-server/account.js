@@ -1,4 +1,4 @@
-module.exports = function (db, domain) {
+module.exports = function (P, SessionToken, db, domain) {
 
   function Account() {
     // <strings>
@@ -28,7 +28,7 @@ module.exports = function (db, domain) {
     a.wrapKb = object.wrapKb
     a.params = object.params
     a.resetTokenId = object.resetTokenId
-    a.sessionTokenIds = object.sessionTokenIds
+    a.sessionTokenIds = object.sessionTokenIds || {}
     return a
   }
 
@@ -109,8 +109,18 @@ module.exports = function (db, domain) {
     return this.save()
   }
 
+  Account.prototype.deleteSessionToken = function (id) {
+    delete this.sessionTokenIds[id]
+    return this.save()
+  }
+
   Account.prototype.sessionTokens = function () {
-    // TODO promise
+    var ids = Object.keys(this.sessionTokenIds)
+    var tokens = []
+    for (var i = 0; i < ids.length; i++) {
+      tokens.push(SessionToken.get(ids[i]))
+    }
+    return P.all(tokens)
   }
 
   function _save(uid, value) {
@@ -129,13 +139,20 @@ module.exports = function (db, domain) {
   }
 
   Account.prototype.reset = function (form) {
+    var self = this
     //this.kA = null // TODO
     this.wrapKb = form.wrapKb
     this.verifier = form.verifier
     this.params = form.params
-    this.sessionTokenIds = {}
     this.resetTokenId = null
-    return this.save()
+    return this.sessionTokens()
+      .then(
+        function (tokens) {
+          self.sessionTokenIds = {}
+          return P.all(tokens.map(function (t) { return t.del() }))
+        }
+      )
+      .then(this.save.bind(this))
   }
 
   Account.prototype.del = function () {

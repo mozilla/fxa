@@ -12,16 +12,6 @@ var tokens = require('../tokens')(Bundle, {})
 
 var srp = require('../srp')
 
-srp.getM = function getM1(A, B, S) { // TODO move this to a suitable location
-  return bigint(
-    crypto
-      .createHash('sha256')
-      .update(A.toBuffer())
-      .update(B.toBuffer())
-      .update(S.toBuffer())
-      .digest('hex'), 16);
-}
-
 var tokenTypes = {
   sign: {
     startPath: '/session/auth/start',

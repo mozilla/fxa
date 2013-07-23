@@ -5,15 +5,11 @@ var P = require('p-promise')
 var uuid = require('uuid')
 var srp = require('../srp')
 
-srp.getM = function getM1(A, B, S) {
-  return bigint(
-    crypto
-      .createHash('sha256')
-      .update(A.toBuffer())
-      .update(B.toBuffer())
-      .update(S.toBuffer())
-      .digest('hex'), 16);
-}
+function FakeToken() {}
+
+FakeToken.get = function () { return P(new FakeToken())}
+
+FakeToken.prototype.del = function () { return P(null) }
 
 var db = require('../db')({
   kvstore: {
@@ -23,7 +19,7 @@ var db = require('../db')({
   }
 })
 
-var Account = require('../account')(db.store, 'example.com')
+var Account = require('../account')(P, FakeToken, db.store, 'example.com')
 var SrpSession = require('../srp_session')(P, uuid, srp, bigint, db.cache, Account)
 
 var alice = {

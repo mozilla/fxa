@@ -1,4 +1,12 @@
 var test = require('tap').test
+var P = require('p-promise')
+
+function FakeToken() {}
+
+FakeToken.get = function () { return P(new FakeToken())}
+
+FakeToken.prototype.del = function () { return P(null) }
+
 var db = require('../db')({
   kvstore: {
     available_backends: ['memory'],
@@ -7,7 +15,7 @@ var db = require('../db')({
   }
 })
 var DOMAIN = 'example.com'
-var Account = require('../account')(db.store, DOMAIN)
+var Account = require('../account')(P, FakeToken, db.store, DOMAIN)
 var a = {
   uid: 'xxx',
   email: 'somebody@example.com',
@@ -129,6 +137,36 @@ test(
       .done(
         function () { t.end() },
         function () { t.fail(); t.end() }
+      )
+  }
+)
+
+test(
+  'account.reset does something',
+  function (t) {
+    var form = {
+      wrapKb: 'DEADBEEF',
+      verifier: 'FEEDFACE',
+      params: {
+        stuff: true
+      }
+    }
+    Account.create(a)
+      .then(
+        function (account) {
+          return account.reset(form)
+        }
+      )
+      .done(
+        function (account) {
+          t.equal(account.wrapKb, form.wrapKb)
+          t.equal(account.verifier, form.verifier)
+          t.end()
+        },
+        function (err) {
+          t.fail(err)
+          t.end()
+        }
       )
   }
 )
