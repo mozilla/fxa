@@ -1,7 +1,7 @@
 {
   "ami": "ami-91a2c8f8",
   "processes": [
-    "bin/idp.js"
+    "bin/key_server.js"
   ],
   "env": {
     "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/cloud_formation.json,$HOME/config.json",
