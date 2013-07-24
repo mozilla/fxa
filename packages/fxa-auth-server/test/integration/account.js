@@ -9,7 +9,7 @@ require("jwcrypto/lib/algs/rs");
 
 var testClient = new helpers.TestClient();
 
-var TEST_EMAIL = 'foo@example.com';
+var TEST_EMAIL = crypto.randomBytes(16).toString('hex') + '@example.com';
 var TEST_PASSWORD = 'foo';
 var TEST_PASSWORD_NEW = 'I like pie.';
 var TEST_WRAPKB = crypto.randomBytes(32).toString('hex');
