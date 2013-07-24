@@ -29,7 +29,7 @@ module.exports = function (isA, error, signer, Account) {
         handler: function certificateSign(request) {
           var uid = request.auth.credentials.uid
           Account
-            .getById(uid)
+            .get(uid)
             .done(
               function (account) {
                 if (!account.verified) {

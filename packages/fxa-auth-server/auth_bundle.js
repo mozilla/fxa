@@ -29,7 +29,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
             .then(function (t) { b.keyFetchToken = t })
             .then(tokens.SessionToken.create.bind(null, uid))
             .then(function (t) { b.otherToken = t })
-            // .then(Account.getById.bind(null, uid))
+            // .then(Account.get.bind(null, uid))
             // .then(
             //  function (a) {
             //    return a.addSessionToken(b.otherToken)
@@ -55,7 +55,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
             .then(function (t) { b.keyFetchToken = t })
             .then(tokens.AccountResetToken.create.bind(null, uid))
             .then(function (t) { b.otherToken = t })
-            // .then(Account.getById.bind(null, uid))
+            // .then(Account.get.bind(null, uid))
             // .then(
             //  function (a) {
             //    return a.setResetToken(b.otherToken)

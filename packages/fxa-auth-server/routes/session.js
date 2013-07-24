@@ -96,7 +96,7 @@ module.exports = function (srp, isA, error, Account) {
             .del()
             .then(
               function () {
-                return Account.getById(sessionToken.uid)
+                return Account.get(sessionToken.uid)
               }
             )
             .then(

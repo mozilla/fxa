@@ -18,7 +18,7 @@ module.exports = function (isA, error, srp, Account) {
         tags: ["srp", "password"],
         handler: function (request) {
           Account
-            .getById(request.auth.credentials.uid)
+            .get(request.auth.credentials.uid)
             .done(
               function (account) {
                 return srp.start('passwordChange', account, request)

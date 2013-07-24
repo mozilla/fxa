@@ -41,7 +41,7 @@ test(
   'Account.create adds a new account',
   function (t) {
     Account.create(a)
-      .then(Account.getById.bind(null, a.uid))
+      .then(Account.get.bind(null, a.uid))
       .then(
         function (x) {
           t.equal(x.email, a.email)
@@ -113,7 +113,7 @@ test(
         }
       )
       .then(Account.del.bind(null, a.email))
-      .then(Account.getById.bind(null, a.uid))
+      .then(Account.get.bind(null, a.uid))
       .done(
         function (account) {
           t.equal(account, null)

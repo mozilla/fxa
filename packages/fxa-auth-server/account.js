@@ -99,10 +99,10 @@ module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
   }
 
   Account.getByEmail = function (email) {
-    return Account.getId(email).then(Account.getById)
+    return Account.getId(email).then(Account.get)
   }
 
-  Account.getById = function (uid) {
+  Account.get = function (uid) {
     return db
       .get(uid + '/user')
       .then(Account.hydrate)

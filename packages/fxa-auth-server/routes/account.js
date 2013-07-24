@@ -65,7 +65,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         handler: function (request) {
           var sessionToken = request.auth.credentials
           Account
-            .getById(sessionToken.uid)
+            .get(sessionToken.uid)
             .done(
               function (account) {
                 request.reply(
@@ -111,7 +111,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
 
           keyFetchToken
             .del()
-            .then(Account.getById.bind(null, keyFetchToken.uid))
+            .then(Account.get.bind(null, keyFetchToken.uid))
             .then(
               function (account) {
                 if (!account.verified) {
@@ -139,7 +139,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         handler: function (request) {
           var sessionToken = request.auth.credentials
           Account
-            .getById(sessionToken.uid)
+            .get(sessionToken.uid)
             .then(
               function (account) {
                 return account.recoveryMethods()
@@ -191,7 +191,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
           var sessionToken = request.auth.credentials
           var email = request.payload.email
           Account
-            .getById(sessionToken.id)
+            .get(sessionToken.id)
             .then(
               function (account) {
                 if (account.email === email) {
@@ -240,7 +240,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
           var sessionToken = request.auth.credentials
           var code = request.payload.code
           Account
-            .getById(sessionToken.uid)
+            .get(sessionToken.uid)
             .then(
               function (account) {
                 //TODO short circuits
@@ -310,7 +310,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
 
           accountResetToken
             .del()
-            .then(Account.getById.bind(null, accountResetToken.uid))
+            .then(Account.get.bind(null, accountResetToken.uid))
             .then(
               function (account) {
                 return account.reset(payload)
