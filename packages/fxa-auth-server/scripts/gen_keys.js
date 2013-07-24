@@ -42,18 +42,28 @@ console.log("Generating keypair. (install libgmp if this takes more than a secon
 // wondering about `keysize: 256`?
 // well, 257 = 2048bit key
 // still confused? see: https://github.com/mozilla/jwcrypto/blob/master/lib/algs/ds.js#L37-L57
-jwcrypto.generateKeypair(
-  { algorithm: 'RS', keysize: 256 },
-  function(err, keypair) {
 
-    var pubKey = keypair.publicKey.serialize()
-    var secretKey = keypair.secretKey.serialize()
+function main(cb) {
+  jwcrypto.generateKeypair(
+    { algorithm: 'RS', keysize: 256 },
+    function(err, keypair) {
+
+      var pubKey = keypair.publicKey.serialize()
+      var secretKey = keypair.secretKey.serialize()
 
 
-    fs.writeFileSync(pubKeyFile, pubKey)
-    console.log("Public Key saved:", pubKeyFile)
+      fs.writeFileSync(pubKeyFile, pubKey)
+      console.log("Public Key saved:", pubKeyFile)
 
-    fs.writeFileSync(secretKeyFile, secretKey)
-    console.log("Secret Key saved:", secretKeyFile)
-  }
-)
+      fs.writeFileSync(secretKeyFile, secretKey)
+      console.log("Secret Key saved:", secretKeyFile)
+      cb()
+    }
+  )
+}
+
+module.exports = main
+
+if (require.main === module) {
+  main(function () {})
+}
