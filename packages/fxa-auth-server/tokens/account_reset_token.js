@@ -88,8 +88,8 @@ module.exports = function (inherits, Token, crypto, db) {
     ).toString('hex')
   }
 
-  AccountResetToken.prototype.unbundle = function (bundle) {
-    var plaintext = this.xor(Buffer(bundle, 'hex'))
+  AccountResetToken.prototype.unbundle = function (hex) {
+    var plaintext = this.xor(Buffer(hex, 'hex'))
     var wrapKb = plaintext.slice(0, 32).toString('hex')
     var verifier = plaintext.slice(32, 288).toString('hex')
     if (wrapKb === NULL) {

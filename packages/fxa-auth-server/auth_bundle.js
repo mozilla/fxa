@@ -7,7 +7,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   }
   inherits(AuthBundle, Bundle)
 
-  function create(K, type) {
+  AuthBundle.create = function (K, type) {
     return Bundle
       .hkdf(K, type, null, 3 * 32)
       .then(
@@ -21,7 +21,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   }
 
   AuthBundle.login = function (K, uid) {
-    return create(K, 'session/auth')
+    return AuthBundle.create(K, 'session/auth')
       .then(
         function (b) {
           return tokens.KeyFetchToken
@@ -47,7 +47,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   }
 
   AuthBundle.passwordChange = function (K, uid) {
-    return create(K, 'password/change')
+    return AuthBundle.create(K, 'password/change')
       .then(
         function (b) {
           return tokens.KeyFetchToken
@@ -70,6 +70,20 @@ module.exports = function (inherits, Bundle, Account, tokens) {
             )
         }
       )
+  }
+
+  AuthBundle.prototype.unbundle = function (hex) {
+    var bundle = Buffer(hex, 'hex')
+    var ciphertext = bundle.slice(0, 64)
+    var hmac = bundle.slice(64, 96)
+    if (this.hmac(ciphertext).toString('hex') !== hmac.toString('hex')) {
+      throw new Error('Corrupt Message')
+    }
+    var plaintext = this.xor(ciphertext)
+    return {
+      keyFetchToken: plaintext.slice(0, 32).toString('hex'),
+      otherToken: plaintext.slice(32, 64).toString('hex')
+    }
   }
 
   AuthBundle.prototype.bundle = function () {

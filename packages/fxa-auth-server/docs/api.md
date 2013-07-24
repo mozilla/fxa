@@ -19,7 +19,7 @@ encoded body. All keys and binary data are base16 encoded strings.
 All error responses include a JSON body in addition to the HTTP status code.
 For example:
 
-```json
+```js
 {
   status: 400,  // matches the HTTP status code
   errors: [

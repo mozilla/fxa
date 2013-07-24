@@ -91,36 +91,22 @@ Client.prototype.getToken2 = function (tokenType, session, email, password, call
     function (err, res) {
       if (err) return callback(err)
       var json = res
-      hkdf(K, tokenTypes[tokenType].context, null, 3 * 32)
+      AuthBundle.create(K, tokenTypes[tokenType].context)
         .done(
-            function (key) {
-              var respHMACkey = key.slice(0, 32)
-              var respXORkey = key.slice(32, 96)
-              var blob = Buffer(json.bundle, 'hex')
-              var cyphertext = blob.slice(0, blob.length - 32)
-              var hmac = blob.slice(blob.length - 32, blob.length)
-
-              var check = crypto.createHmac('sha256', respHMACkey)
-              check.update(cyphertext)
-              if (hmac.toString('hex') !== check.digest('hex')) {
-                return callback(new Error("Corrupted Message"))
-              }
-              var cleartext = bigint.fromBuffer(cyphertext)
-                .xor(bigint.fromBuffer(respXORkey))
-                .toBuffer()
-              var result = {
-                keyFetchToken: cleartext.slice(0, 32).toString('hex')
-              }
-              if (tokenType === 'sign') {
-                result.sessionToken = cleartext.slice(32, 64).toString('hex')
-              }
-              else {
-                result.accountResetToken = cleartext.slice(32, 64).toString('hex')
-              }
-
-              callback(null, result)
+          function (b) {
+            var tokens = b.unbundle(json.bundle)
+            var result = {
+              keyFetchToken: tokens.keyFetchToken
             }
-          )
+            if (tokenType === 'sign') {
+              result.sessionToken = tokens.otherToken
+            }
+            else {
+              result.accountResetToken = otherToken
+            }
+            callback(null, result)
+          }
+        )
     }
   )
 }
@@ -170,7 +156,7 @@ Client.prototype.finishLogin = function (session, email, password, callback) {
 }
 
 Client.prototype.sign = function (publicKey, duration, sessionToken, callback) {
-  hkdf(Buffer(sessionToken, 'hex'), 'session', null, 2 * 32)
+  tokens.SessionToken.fromHex(sessionToken)
     .done(
       function (key) {
         var keys = {
