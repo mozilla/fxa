@@ -278,10 +278,24 @@ var tokens = {
   AccountResetToken: AccountResetToken,
   SessionToken: SessionToken
 }
-var Account = require('../account')(null, null, null, db.store, 'lcip.org')
+
+function FakeAccount() {
+  this.sessionTokenIds = {}
+  this.resetTokenId = null
+}
+var account = new FakeAccount()
+FakeAccount.get = function () { return P(account) }
+FakeAccount.prototype.addSessionToken = function (t) {
+  this.sessionTokenIds[t.id] = true
+  return P(null)
+}
+FakeAccount.prototype.setResetToken = function (t) {
+  this.resetTokenId = t.id
+  return P(null)
+}
 
 var Bundle = require('../bundle')(crypto, bigint, P, hkdf)
-var AuthBundle = require('../auth_bundle')(inherits, Bundle, Account, tokens)
+var AuthBundle = require('../auth_bundle')(inherits, Bundle, FakeAccount, tokens)
 
 test(
   'create / get',
@@ -336,6 +350,7 @@ test(
 test(
   '/session/auth/finish',
   function (t) {
+    account = new FakeAccount()
     AuthBundle.login(sessionAuth.K, 'xxx')
       .done(
         function (authBundle) {
@@ -354,11 +369,50 @@ test(
 test(
   '/password/change/auth/finish',
   function (t) {
+    account = new FakeAccount()
     AuthBundle.passwordChange(sessionAuth.K, 'xxx')
       .done(
         function (changePasswordBundle) {
           var b = changePasswordBundle.bundle
           t.equal(b, passwordChange.ciphertext + passwordChange.hmac)
+          t.end()
+        },
+        function (err) {
+          t.fail(err)
+          t.end()
+        }
+      )
+  }
+)
+
+test(
+  'login adds sessionToken to account',
+  function (t) {
+    account = new FakeAccount()
+    t.equal(Object.keys(account.sessionTokenIds).length, 0)
+    AuthBundle.login(sessionAuth.K, 'xxx')
+      .done(
+        function (b) {
+          t.equal(Object.keys(account.sessionTokenIds).length, 1)
+          t.end()
+        },
+        function (err) {
+          t.fail(err)
+          t.end()
+        }
+      )
+  }
+)
+
+test(
+  'changePassword sets resetToken on account',
+  function (t) {
+    account = new FakeAccount()
+    t.equal(!!account.resetTokenId, false)
+    AuthBundle.passwordChange(sessionAuth.K, 'xxx')
+      .done(
+        function (b) {
+          t.equal(!!account.resetTokenId, true)
           t.end()
         },
         function (err) {
