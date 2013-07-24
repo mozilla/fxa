@@ -44,14 +44,14 @@ module.exports = function (path, Hapi, toobusy) {
     server.on(
       'log',
       function (event) {
-        log.info({ hapiEvent: event })
+        log.trace({ hapiEvent: event })
       }
     )
 
     server.on(
       'request',
       function (request, event) {
-        log.info({ hapiEvent: event })
+        log.trace({ hapiEvent: event })
       }
     )
 

@@ -14,4 +14,4 @@ if [[ $app ]] ; then
   hekad -config=heka/hekad.toml &
 fi
 
-NODE_ENV="local" ./index.js
+NODE_ENV="local" ./bin/key_server.js

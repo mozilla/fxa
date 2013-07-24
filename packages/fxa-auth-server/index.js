@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var crypto = require('crypto')
 var fs = require('fs')
 
@@ -60,20 +58,4 @@ var routes = require('./routes')(
 var Server = require('./server')
 var server = Server.create(log, config, routes, tokens)
 
-server.start(
-  function () {
-    log.info('running on ' + server.info.uri)
-  }
-)
-
-process.on(
-  'SIGINT',
-  function () {
-    server.stop(
-      function () {
-        process.exit()
-      }
-    )
-  }
-)
-
+module.exports = server
