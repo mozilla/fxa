@@ -137,7 +137,8 @@ TestClient.prototype._makeRequestViaHTTP = function(method, path, opts, cb) {
     body: body
   }, function (err, res, body) {
     if (err) return cb({statusCode: 599, error: err});
-    if (body && res.headers['content-type'] === 'application/json') {
+    var contentType = res.headers['content-type'].split(';')[0];
+    if (body && contentType === 'application/json') {
       res.result = JSON.parse(body);
     } else {
       res.result = body;
