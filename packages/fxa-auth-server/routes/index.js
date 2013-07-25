@@ -17,8 +17,9 @@ module.exports = function (
   signer,
   Account,
   AuthBundle,
+  SrpSession,
   RecoveryMethod,
-  SrpSession) {
+  tokens) {
   var srp = require('./srp')(SrpSession, AuthBundle)
 
   var defaults = require('./defaults')(P, dbs)
