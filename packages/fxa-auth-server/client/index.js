@@ -1,24 +1,27 @@
 var crypto = require('crypto')
+var inherits = require('util').inherits
 
 var request = require('request')
 var bigint = require('bigint')
 var hawk = require('hawk')
+var P = require('p-promise')
 
 var hkdf = require('../hkdf')
 
-var Bundle = require('../bundle')(crypto, bigint, require('p-promise'), hkdf)
+var Bundle = require('../bundle')(crypto, bigint, P, hkdf)
 var tokens = require('../tokens')(Bundle, {})
+var AuthBundle = require('../auth_bundle')(inherits, Bundle, null, tokens)
 
 
 var srp = require('../srp')
 
 var tokenTypes = {
-  sign: {
+  login: {
     startPath: '/session/auth/start',
     finishPath: '/session/auth/finish',
     context: 'session/auth'
   },
-  reset: {
+  passwordChange: {
     startPath: '/password/change/auth/start',
     finishPath: '/password/change/auth/finish',
     context: 'password/change'
@@ -98,7 +101,7 @@ Client.prototype.getToken2 = function (tokenType, session, email, password, call
             var result = {
               keyFetchToken: tokens.keyFetchToken
             }
-            if (tokenType === 'sign') {
+            if (tokenType === 'login') {
               result.sessionToken = tokens.otherToken
             }
             else {
@@ -143,16 +146,53 @@ Client.prototype.create = function (email, password, callback) {
         }
       }
     },
-    callback
+    function (err, data) {
+      if (d) {
+        return err ? d.reject(err) : d.resolve(data)
+      }
+      callback(err, data)
+    }
   )
+  if (typeof(callback) !== 'function') {
+    var d = P.defer()
+    return d.promise
+  }
 }
 
 Client.prototype.startLogin = function (email, callback) {
-  return this.getToken1('sign', email, callback)
+  this.getToken1(
+    'login',
+    email,
+    function (err, data) {
+      if (d) {
+        return err ? d.reject(err) : d.resolve(data)
+      }
+      callback(err, data)
+    }
+  )
+  if (typeof(callback) !== 'function') {
+    var d = P.defer()
+    return d.promise
+  }
 }
 
-Client.prototype.finishLogin = function (session, email, password, callback) {
-  return this.getToken2('sign', session, email, password, callback)
+Client.prototype.finishLogin = function (email, password, session, callback) {
+  this.getToken2(
+    'login',
+    session,
+    email,
+    password,
+    function (err, data) {
+      if (d) {
+        return err ? d.reject(err) : d.resolve(data)
+      }
+      callback(err, data)
+    }
+  )
+  if (typeof(callback) !== 'function') {
+    var d = P.defer()
+    return d.promise
+  }
 }
 
 Client.prototype.sign = function (publicKey, duration, sessionToken, callback) {
@@ -189,10 +229,19 @@ Client.prototype.sign = function (publicKey, duration, sessionToken, callback) {
             },
             payload: payload
           },
-          callback
+          function (err, data) {
+            if (d) {
+              return err ? d.reject(err) : d.resolve(data)
+            }
+            callback(err, data)
+          }
         )
       }.bind(this)
     )
+  if (typeof(callback) !== 'function') {
+    var d = P.defer()
+    return d.promise
+  }
 }
 
 Client.prototype.passwordChangeStart = function (sessionToken, callback) {
@@ -221,15 +270,39 @@ Client.prototype.passwordChangeStart = function (sessionToken, callback) {
               'Content-Type': 'application/json'
             }
           },
-          callback
+          function (err, data) {
+            if (d) {
+              return err ? d.reject(err) : d.resolve(data)
+            }
+            callback(err, data)
+          }
         )
 
       }.bind(this)
     )
+  if (typeof(callback) !== 'function') {
+    var d = P.defer()
+    return d.promise
+  }
 }
 
 Client.prototype.passwordChangeFinish = function (session, email, password, callback) {
-  return this.getToken2('reset', session, email, password, callback)
+  this.getToken2(
+    'passwordChange',
+    session,
+    email,
+    password,
+    function (err, data) {
+      if (d) {
+        return err ? d.reject(err) : d.resolve(data)
+      }
+      callback(err, data)
+    }
+  )
+  if (typeof(callback) !== 'function') {
+    var d = P.defer()
+    return d.promise
+  }
 }
 
 Client.prototype.resetAccount = function (resetToken, email, password, salt, wrapKb, callback) {
@@ -283,10 +356,19 @@ Client.prototype.resetAccount = function (resetToken, email, password, salt, wra
             },
             payload: payload
           },
-          callback
+          function (err, data) {
+            if (d) {
+              return err ? d.reject(err) : d.resolve(data)
+            }
+            callback(err, data)
+          }
         )
       }.bind(this)
     )
+  if (typeof(callback) !== 'function') {
+    var d = P.defer()
+    return d.promise
+  }
 }
 
 module.exports = Client
