@@ -1,6 +1,6 @@
-module.exports = function (P, kvstore) {
+module.exports = function (P, kvstore, config) {
 
-  var KV = null
+  var KV = kvstore(config)
 
   function KVPromise(config) {
     this.kv = KV.connect(config)
@@ -46,13 +46,8 @@ module.exports = function (P, kvstore) {
     return d.promise
   }
 
-  function create(config) {
-    KV = kvstore(config)
-    return {
-      cache: new KVPromise({ backend: config.kvstore.cache }),
-      store: new KVPromise({ backend: config.kvstore.backend })
-    }
+  return {
+    cache: new KVPromise({ backend: config.kvstore.cache }),
+    store: new KVPromise({ backend: config.kvstore.backend })
   }
-
-  return create
 }

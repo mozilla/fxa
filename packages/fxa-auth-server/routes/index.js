@@ -12,22 +12,18 @@ var isA = Hapi.types
 
 module.exports = function (
   log,
-  dbs,
   serverPublicKey,
   signer,
-  Account,
-  AuthBundle,
-  SrpSession,
-  RecoveryMethod,
-  tokens) {
-  var srp = require('./srp')(SrpSession, AuthBundle)
+  models
+  ) {
+  var srp = require('./srp')(models.SrpSession, models.AuthBundle)
 
-  var defaults = require('./defaults')(P, dbs)
+  var defaults = require('./defaults')(P, models.dbs)
   var idp = require('./idp')(crypto, error, isA, serverPublicKey)
-  var account = require('./account')(crypto, uuid, isA, error, Account, RecoveryMethod)
-  var password = require('./password')(isA, error, srp, Account)
-  var session = require('./session')(srp, isA, error, Account)
-  var sign = require('./sign')(isA, error, signer, Account)
+  var account = require('./account')(crypto, uuid, isA, error, models.Account, models.RecoveryMethod)
+  var password = require('./password')(isA, error, srp, models.Account)
+  var session = require('./session')(srp, isA, error, models.Account)
+  var sign = require('./sign')(isA, error, signer, models.Account)
 
   var routes = defaults.concat(
     idp,

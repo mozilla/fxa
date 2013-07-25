@@ -6,12 +6,14 @@ var bigint = require('bigint')
 var hawk = require('hawk')
 var P = require('p-promise')
 
-var hkdf = require('../hkdf')
-
-var Bundle = require('../bundle')(crypto, bigint, P, hkdf)
-var tokens = require('../tokens')(Bundle, {})
-var AuthBundle = require('../auth_bundle')(inherits, Bundle, null, tokens)
-
+var Bundle = require('../bundle')
+var Token = require('../models/token')(inherits, Bundle)
+var tokens = {
+  AccountResetToken: require('../models/account_reset_token')(inherits, Token, crypto),
+  KeyFetchToken: require('../models/key_fetch_token')(inherits, Token),
+  SessionToken: require('../models/session_token')(inherits, Token)
+}
+var AuthBundle = require('../models/auth_bundle')(inherits, Bundle, null, tokens)
 
 var srp = require('../srp')
 
