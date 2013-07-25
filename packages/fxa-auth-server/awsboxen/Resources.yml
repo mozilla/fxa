@@ -1,0 +1,206 @@
+
+# DNS Records the the important entry-points in the stack. 
+# Each entry embeds the stack name, to allow multiple simultaneous deploys.
+#
+#    logs.<stack>.profileinthecloud.net:  the log collection server
+#    idp.<stack>.profileinthecloud.net:   the loadbalancer fronting webheads
+#
+
+DNSRecords:
+  Type: AWS::Route53::RecordSetGroup
+  Properties:
+    HostedZoneName: "profileinthecloud.net."
+    RecordSets:
+      - Name: {"Fn::Join": [".", ["logs", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["LogServer", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["idp", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["IdpLoadBalancer", "DNSName"]}
+
+
+# The log-collecting server, and associated infra.
+
+LogServer:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.small
+    ImageId: { "Ref": "LogBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LogServerSecurityGroup"}
+
+
+LogServerSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: "Enable external HTTP(S) and SSH access and internal elasticsearch"
+    SecurityGroupIngress:
+      - IpProtocol: "tcp"
+        FromPort: "80"
+        ToPort: "80"
+        CidrIp: "0.0.0.0/0"
+      - IpProtocol: "tcp"
+        FromPort: "443"
+        ToPort: "443"
+        CidrIp: "0.0.0.0/0"
+      - IpProtocol: "tcp"
+        FromPort: "8000"
+        ToPort: "12000"
+        SourceSecurityGroupName: {"Ref": "IdpServerSecurityGroup"}
+
+
+# The IDP webheads, and associated infra.
+# These machines are stateless, so we run an auto-scaling group of them
+
+
+IdpLoadBalancer:
+  Type: AWS::ElasticLoadBalancing::LoadBalancer
+  Properties:
+    AvailabilityZones: {"Fn::GetAZs": ""}
+    Listeners:
+      - LoadBalancerPort: "80"
+        InstancePort: "80"
+        Protocol: "HTTP"
+      - LoadBalancerPort: "443"
+        InstancePort: "80"
+        Protocol: "HTTPS"
+        InstanceProtocol: "HTTP"
+        SSLCertificateId: "arn:aws:iam::142069644989:server-certificate/profileinthecloud.net"
+    HealthCheck:
+      Target: "HTTP:80/"
+      HealthyThreshold: "2"
+      UnhealthyThreshold: "5"
+      Interval: "10"
+      Timeout: "5"
+
+
+IdpAutoScaleGroup:
+  Type: AWS::AutoScaling::AutoScalingGroup
+  Properties:
+    AvailabilityZones: { "Fn::GetAZs": ""}
+    LaunchConfigurationName: { "Ref": "IdpServerLaunchConfig" }
+    DesiredCapacity: "2"
+    MinSize: "2"
+    MaxSize: "2"
+    LoadBalancerNames:
+      - {"Ref": "IdpLoadBalancer"}
+
+
+IdpServerLaunchConfig:
+  Type: AWS::AutoScaling::LaunchConfiguration
+  Properties:
+    InstanceType: m1.small
+    ImageId: { "Ref": "IdpBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "IdpServerSecurityGroup"}
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      "/opt/aws/bin/cfn-init -s ", {"Ref": "AWS::StackId"}, " -r IdpServerLaunchConfig\n"
+       ]]}}
+  Metadata:
+    AWS::CloudFormation::Init:
+     config:
+       files:
+         /home/app/cloud_formation.json:
+           content:
+             secretKeyFile: "/home/app/var/secret-key.json"
+             publicKeyFile: "/home/app/var/public-key.json"
+             kvstore:
+               backend: "mysql"
+               cache: "memcached"
+             mysql:
+               user: "picl"
+               password: {"Ref": "DBPassword"}
+               host: {"Fn::GetAtt": ["Database", "Endpoint.Address"]}
+               port: {"Fn::GetAtt": ["Database", "Endpoint.Port"]}
+             memcached:
+               hosts: {"Fn::Join": ["", [
+                  {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]},
+                  ":",
+                  {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Port"]}
+                      ]]}
+
+
+IdpServerSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: "Enable external HTTP(S) and SSH access"
+    SecurityGroupIngress:
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+
+
+IdpSecurityGroupIngressForLoadBalancer:
+  # Allow port 80 ingress from the load balancer.
+  # This has to be a separate resources to avoid circular references
+  # between the LoadBalancer and the LaunchConfig.
+  Type: AWS::EC2::SecurityGroupIngress
+  Properties:
+    GroupName: {"Ref": "IdpServerSecurityGroup"}
+    IpProtocol: "tcp"
+    FromPort: "80"
+    ToPort: "80"
+    SourceSecurityGroupOwnerId: {"Fn::GetAtt": ["IdpLoadBalancer", "SourceSecurityGroup.OwnerAlias"]}
+    SourceSecurityGroupName: {"Fn::GetAtt": ["IdpLoadBalancer", "SourceSecurityGroup.GroupName"]}
+
+
+
+# The backend database, and supporting infra.
+# For now this is an RDS instance.
+# We're looking at moving it to a cassandra cluster.
+
+Database:
+  Type: AWS::RDS::DBInstance
+  Properties:
+    DBName: "picl"
+    Engine: "MySQL"
+    MasterUsername: "picl"
+    MasterUserPassword: {"Ref": "DBPassword"}
+    DBInstanceClass: "db.m1.small"
+    AllocatedStorage: "5"
+    DBSecurityGroups:
+      - {"Ref": "DatabaseSecurityGroup"}
+
+
+DatabaseSecurityGroup:
+  Type: AWS::RDS::DBSecurityGroup
+  Properties:
+    GroupDescription: "DB Access from IdpServer Instances"
+    DBSecurityGroupIngress:
+      EC2SecurityGroupName: { "Ref": "IdpServerSecurityGroup"}
+
+
+# The session-store cache, and supporting infra.
+# It's an elasticache store for now, but it might make sense
+# to put this on the webheads, or write it into cassandra.
+
+Cache:
+  Type: AWS::ElastiCache::CacheCluster
+  Properties:
+    CacheNodeType: cache.m1.small
+    NumCacheNodes: "1"
+    Engine: memcached
+    CacheSecurityGroupNames:
+      - {"Ref": "CacheSecurityGroup"}
+
+
+CacheSecurityGroup:
+  Type: AWS::ElastiCache::SecurityGroup
+  Properties:
+    Description: IDP server session-store cache
+
+
+CacheSecurityGroupIngress:
+  Type: AWS::ElastiCache::SecurityGroupIngress
+  Properties:
+    CacheSecurityGroupName: { "Ref": "CacheSecurityGroup"}
+    EC2SecurityGroupName: { "Ref": "IdpServerSecurityGroup"}

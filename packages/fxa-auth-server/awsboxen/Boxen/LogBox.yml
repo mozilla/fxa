@@ -1,0 +1,6 @@
+# An AMI for the log-collecting server.
+# The build of this is not actually scripted yet.
+Type: AWSBoxen::BuildScript
+Properties:
+  BaseAMI: ami-07cebf6e
+  BuildScript: awsboxen/scripts/build_log_node.sh

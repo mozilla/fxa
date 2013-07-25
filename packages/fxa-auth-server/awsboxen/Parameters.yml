@@ -1,0 +1,4 @@
+DBPassword:
+  Type: String
+  Description: password to use for database access
+  Default: piclmesoftly

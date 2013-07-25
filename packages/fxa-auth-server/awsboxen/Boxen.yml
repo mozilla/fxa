@@ -1,0 +1,2 @@
+# Disable auto-magical creation of an "AWSBox" resource from .awsbox.json
+AWSBox: null

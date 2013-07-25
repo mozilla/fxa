@@ -1,0 +1,17 @@
+# An AMI for the idp webheads
+# This is currently using awsbox to build out the node infra.
+Type: AWSBox
+Properties:
+  ami: ami-91a2c8f8
+  processes:
+    - bin/idp.js
+  env:
+    CONFIG_FILES: "$HOME/code/config/aws.json,$HOME/cloud_formation.json,$HOME/config.json"
+    HEKAD_CONFIG: "$HOME/code/heka/hekad.toml"
+    LOGSTASH_CONFIG: "$HOME/code/config/logstash.conf"
+  hooks:
+    postcreate: "scripts/aws/post_create.sh"
+    postdeploy: "scripts/aws/post_deploy.sh"
+  packages:
+    - mysql-server
+    - memcached
