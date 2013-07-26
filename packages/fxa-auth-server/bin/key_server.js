@@ -14,7 +14,7 @@ function main() {
   var Stats = require('../stats')
   // TODO: think about the stats structure
   var Backend = Stats.getBackend(statsBackend, log)
-  var stats = new Stats(new Backend(config[statsBackend])) // TODO logBackend constructor
+  var stats = new Stats(new Backend(config[statsBackend]))
 
   // memory monitor
   var MemoryMonitor = require('../memory_monitor')
@@ -32,24 +32,20 @@ function main() {
   var CC = require('compute-cluster')
   var signer = new CC({ module: __dirname + '/signer.js' })
 
-  var routes = require('../routes')(
-    log,
-    serverPublicKey,
-    signer,
-    models
-  )
+  var routes = require('../routes')(log, serverPublicKey, signer, models)
   var Server = require('../server')
   var server = Server.create(log, config, routes, models.tokens)
 
   server.start(
     function () {
-      server.app.log.info('running on ' + server.info.uri)
+      log.info('running on ' + server.info.uri)
     }
   )
 
   process.on(
     'SIGINT',
     function () {
+      memoryMonitor.stop()
       server.stop(
         function () {
           process.exit()

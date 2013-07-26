@@ -159,6 +159,50 @@ module.exports = function (fs, path, url, convict) {
         format: 'nat',
         env: 'SRP_S_BYTES'
       }
+    },
+    smtp: {
+      listen: {
+        host: {
+          doc: 'host for bin/mailer.js',
+          default: '127.0.0.1',
+          env: 'MAILER_HOST'
+        },
+        port: {
+          doc: 'port for bin/mailer.js',
+          default: 9999,
+          env: 'MAILER_PORT'
+        }
+      },
+      host: {
+        doc: 'SMTP host for sending email',
+        default: 'smtp.gmail.com',
+        env: 'SMTP_HOST'
+      },
+      port: {
+        doc: 'SMTP port',
+        default: 465,
+        env: 'SMTP_PORT'
+      },
+      secure: {
+        doc: 'Connect to SMTP host securely',
+        default: true,
+        env: 'SMTP_SECURE'
+      },
+      user: {
+        doc: 'SMTP username',
+        default: '',
+        env: 'SMTP_USER'
+      },
+      password: {
+        doc: 'SMTP password',
+        default: '',
+        env: 'SMTP_PASS'
+      },
+      sender: {
+        doc: 'email address of the sender',
+        default: '',
+        env: 'SMTP_SENDER'
+      }
     }
   })
 

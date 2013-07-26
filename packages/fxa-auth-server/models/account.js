@@ -48,7 +48,7 @@ module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
           }
           var account = Account.hydrate(options)
           return RecoveryMethod
-            .create(account.email, true)
+            .create(account.uid, account.email, true)
             .then(
               function (rm) {
                 account.recoveryMethodIds[rm.id] = true

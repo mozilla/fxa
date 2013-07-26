@@ -38,7 +38,7 @@ module.exports = function (path, Hapi, toobusy) {
       }
     )
 
-    server.addRoutes(routes)
+    server.route(routes)
 
     server.app.log = log
     server.on(

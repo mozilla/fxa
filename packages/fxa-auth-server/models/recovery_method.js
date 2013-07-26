@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (crypto, P, db) {
+module.exports = function (crypto, P, db, mailer) {
+
 
 	function RecoveryMethod() {
 		this.id = null
@@ -46,9 +47,7 @@ module.exports = function (crypto, P, db) {
 	}
 
 	RecoveryMethod.prototype.sendCode = function () {
-		//TODO
-		console.log(this.code)
-		return P(null)
+		return mailer.sendCode(this.id, this.code)
 	}
 
 	RecoveryMethod.prototype.verify = function (code) {

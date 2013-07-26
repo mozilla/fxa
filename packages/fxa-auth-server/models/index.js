@@ -14,6 +14,12 @@ var Bundle = require('../bundle')
 var srp = require('../srp')
 
 module.exports = function (config) {
+
+  config.smtp.subject = 'PiCL email verification'
+  config.smtp.sender = config.smtp.sender || config.smtp.user
+  var Mailer = require('../mailer')
+  var mailer = new Mailer(config.smtp)
+
 	var dbs = require('./kv')(P, kvstore, config)
 	var Token = require('./token')(inherits, Bundle)
 
@@ -42,7 +48,8 @@ module.exports = function (config) {
 	var RecoveryMethod = require('./recovery_method')(
 		crypto,
 		P,
-		dbs.store
+		dbs.store,
+		mailer
 	)
 	var Account = require('./account')(
 		P,
