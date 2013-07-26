@@ -113,13 +113,15 @@ IdpServerLaunchConfig:
              secretKeyFile: "/home/app/var/secret-key.json"
              publicKeyFile: "/home/app/var/public-key.json"
              kvstore:
-               backend: "mysql"
+               backend: "cassandra"
                cache: "memcached"
-             mysql:
-               user: "picl"
-               password: {"Ref": "DBPassword"}
-               host: {"Fn::GetAtt": ["Database", "Endpoint.Address"]}
-               port: {"Fn::GetAtt": ["Database", "Endpoint.Port"]}
+             cassandra:
+               hosts:
+                 - {"Fn::Join": [".", ["db1", {"Ref": "AWS::StackName"}, "profileinthecloud.net"]]}
+                 - {"Fn::Join": [".", ["db2", {"Ref": "AWS::StackName"}, "profileinthecloud.net"]]}
+                 - {"Fn::Join": [".", ["db3", {"Ref": "AWS::StackName"}, "profileinthecloud.net"]]}
+               keyspace: "picl"
+               create_schema: true
              memcached:
                hosts: {"Fn::Join": ["", [
                   {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]},
@@ -153,32 +155,6 @@ IdpSecurityGroupIngressForLoadBalancer:
     SourceSecurityGroupName: {"Fn::GetAtt": ["IdpLoadBalancer", "SourceSecurityGroup.GroupName"]}
 
 
-
-# The backend database, and supporting infra.
-# For now this is an RDS instance.
-# We're looking at moving it to a cassandra cluster.
-
-Database:
-  Type: AWS::RDS::DBInstance
-  Properties:
-    DBName: "picl"
-    Engine: "MySQL"
-    MasterUsername: "picl"
-    MasterUserPassword: {"Ref": "DBPassword"}
-    DBInstanceClass: "db.m1.small"
-    AllocatedStorage: "5"
-    DBSecurityGroups:
-      - {"Ref": "DatabaseSecurityGroup"}
-
-
-DatabaseSecurityGroup:
-  Type: AWS::RDS::DBSecurityGroup
-  Properties:
-    GroupDescription: "DB Access from IdpServer Instances"
-    DBSecurityGroupIngress:
-      EC2SecurityGroupName: { "Ref": "IdpServerSecurityGroup"}
-
-
 # The session-store cache, and supporting infra.
 # It's an elasticache store for now, but it might make sense
 # to put this on the webheads, or write it into cassandra.
@@ -204,3 +180,114 @@ CacheSecurityGroupIngress:
   Properties:
     CacheSecurityGroupName: { "Ref": "CacheSecurityGroup"}
     EC2SecurityGroupName: { "Ref": "IdpServerSecurityGroup"}
+
+
+# The backend database, and supporting infra.
+# This is a minimalistic cassandra cluster.  Lots of work to be done.
+# Things I want to do:
+#     - put a loadbalancer in front for clients to connect
+#     - make it an auto-bootstrapping autoscale group.
+
+
+DBServer1:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.small
+    ImageId: { "Ref": "DBBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "DBServerSecurityGroup"}
+    # Make this node use itself as seed node.
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      "ME=`curl http://169.254.169.254/latest/meta-data/local-ipv4`\n",
+      "perl -pi -e 's/seeds: \"127.0.0.1\"/seeds: \"'$ME'\"/g' ",
+          "/opt/cassandra/conf/cassandra.yaml\n"
+      ]]}}
+
+
+DBServer2:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.small
+    ImageId: { "Ref": "DBBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "DBServerSecurityGroup"}
+    # Make this node use DBServer1 as seed node.
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      "perl -pi -e 's/seeds: \"127.0.0.1\"/seeds: \"",
+          {"Fn::GetAtt": ["DBServer1", "PrivateIp"]},
+          "\"/g' /opt/cassandra/conf/cassandra.yaml\n"
+      ]]}}
+
+
+DBServer3:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.small
+    ImageId: { "Ref": "DBBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "DBServerSecurityGroup"}
+    # Make this node use DBServer1 as seed node.
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      "perl -pi -e 's/seeds: \"127.0.0.1\"/seeds: \"",
+          {"Fn::GetAtt": ["DBServer1", "PrivateIp"]},
+          "\"/g' /opt/cassandra/conf/cassandra.yaml\n"
+      ]]}}
+
+
+DBServerSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: "Enable Cassandra and SSH access"
+    SecurityGroupIngress:
+      # Allow ssh ingress from anywhere.
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+      # Allow client api access from anywhere
+      - IpProtocol: "tcp"
+        FromPort: "9160"
+        ToPort: "9160"
+        SourceSecurityGroupName: {"Ref": "IdpServerSecurityGroup"}
+
+
+DBSecurityGroupIngressForPeers:
+  # Allow peer access to all ports
+  Type: AWS::EC2::SecurityGroupIngress
+  Properties:
+    GroupName: {"Ref": "DBServerSecurityGroup"}
+    IpProtocol: "tcp"
+    FromPort: "0"
+    ToPort: "65535"
+    SourceSecurityGroupName: {"Ref": "DBServerSecurityGroup"}
+
+
+DNSRecordsForDB:
+  Type: AWS::Route53::RecordSetGroup
+  Properties:
+    HostedZoneName: "profileinthecloud.net."
+    RecordSets:
+      - Name: {"Fn::Join": [".", ["db1", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["DBServer1", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["db2", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["DBServer2", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["db3", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["DBServer3", "PublicDnsName"]}

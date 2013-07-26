@@ -1,0 +1,5 @@
+# A node in the Cassandra cluster
+Type: AWSBoxen::BuildScript
+Properties:
+    BaseAMI: ami-05355a6c
+    BuildScript: awsboxen/scripts/build_cassandra_node.sh
