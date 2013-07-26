@@ -1,11 +1,11 @@
 var test = require('tap').test
-var crypto = require('crypto')
-var bigint = require('bigint')
+var kvstore = require('kvstore')
 var P = require('p-promise')
 var uuid = require('uuid')
+var bigint = require('bigint')
 var srp = require('../srp')
 
-var db = require('../db')({
+var db = require('../models/kv')(P, kvstore, {
   kvstore: {
     available_backends: ['memory'],
     backend: 'memory',
@@ -17,8 +17,8 @@ function FakeRecoveryMethod() {}
 FakeRecoveryMethod.create = function () { return P(new FakeRecoveryMethod()) }
 FakeRecoveryMethod.get = function () { return P(new FakeRecoveryMethod()) }
 
-var Account = require('../account')(null, null, FakeRecoveryMethod, db.store, 'example.com')
-var SrpSession = require('../srp_session')(P, uuid, srp, bigint, db.cache, Account)
+var Account = require('../models/account')(P, null, FakeRecoveryMethod, db.store, 'example.com')
+var SrpSession = require('../models/srp_session')(P, uuid, srp, bigint, db.cache, Account)
 
 var alice = {
   uid: 'xxx',
