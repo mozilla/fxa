@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
+module.exports = function (P, tokens, RecoveryMethod, db, domain) {
+
+  var SessionToken = tokens.SessionToken
+  var AccountResetToken = tokens.AccountResetToken
 
   function Account() {
     // <strings>
@@ -15,6 +18,7 @@ module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
     this.wrapKb = null
     // </strings>
     this.params = null
+    // references
     this.resetTokenId = null
     this.sessionTokenIds = null
     this.recoveryMethodIds = null
@@ -71,11 +75,14 @@ module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
     return db.delete(uid + '/user')
   }
 
-  Account.del = function (email) {
+  Account.del = function (uid) {
     return Account
-      .getId(email)
-      .then(deleteRecord)
-      .then(deleteIndex.bind(null, email))
+      .get(uid)
+      .then(
+        function (account) {
+          return account ? account.del() : P(null)
+        }
+      )
   }
 
   Account.principal = function (uid) {
@@ -128,7 +135,8 @@ module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
 
   Account.prototype.deleteSessionToken = function (id) {
     delete this.sessionTokenIds[id]
-    return this.save()
+    return SessionToken.del(id)
+      .then(this.save.bind(this))
   }
 
   Account.prototype.sessionTokens = function () {
@@ -137,6 +145,18 @@ module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
     for (var i = 0; i < ids.length; i++) {
       tokens.push(SessionToken.get(ids[i]))
     }
+    return P.all(tokens)
+  }
+
+  Account.prototype.deleteAllTokens = function () {
+    var ids = Object.keys(this.sessionTokenIds)
+    var tokens = []
+    for (var i = 0; i < ids.length; i++) {
+      tokens.push(SessionToken.del(ids[i]))
+    }
+    tokens.push(AccountResetToken.del(this.resetTokenId))
+    this.resetTokenId = null
+    this.sessionTokenIds = {}
     return P.all(tokens)
   }
 
@@ -158,6 +178,16 @@ module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
     return db.set(uid + '/user', value).then(function () { return value })
   }
 
+  Account.prototype.deleteAllRecoveryMethods = function () {
+    var ids = Object.keys(this.recoveryMethodIds)
+    var methods = []
+    for (var i = 0; i < ids.length; i++) {
+      methods.push(RecoveryMethod.del(ids[i]))
+    }
+    this.recoveryMethodIds = {}
+    return P.all(methods)
+  }
+
   Account.prototype.save = function (isNew) {
     if (isNew) {
       return db
@@ -175,19 +205,15 @@ module.exports = function (P, SessionToken, RecoveryMethod, db, domain) {
     this.wrapKb = form.wrapKb
     this.verifier = form.verifier
     this.params = form.params
-    this.resetTokenId = null
-    return this.sessionTokens()
-      .then(
-        function (tokens) {
-          self.sessionTokenIds = {}
-          return P.all(tokens.map(function (t) { return t.del() }))
-        }
-      )
+    return this.deleteAllTokens()
       .then(this.save.bind(this))
   }
 
   Account.prototype.del = function () {
-    return Account.del(this.email)
+    return this.deleteAllTokens()
+      .then(this.deleteAllRecoveryMethods.bind(this))
+      .then(deleteRecord.bind(null, this.uid))
+      .then(deleteIndex.bind(null, this.email))
   }
 
   return Account

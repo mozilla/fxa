@@ -22,8 +22,17 @@ function main() {
   memoryMonitor.on('mem', stats.mem.bind(stats))
   memoryMonitor.start()
 
+  // databases
+  var dbs = require('../kv')(config)
+
+  // email sender
+  config.smtp.subject = 'PiCL email verification'
+  config.smtp.sender = config.smtp.sender || config.smtp.user
+  var Mailer = require('../mailer')
+  var mailer = new Mailer(config.smtp)
+
   // stored objects
-  var models = require('../models')(config)
+  var models = require('../models')(config.domain, dbs, mailer)
 
   // server public key
   var serverPublicKey = fs.readFileSync(config.publicKeyFile)

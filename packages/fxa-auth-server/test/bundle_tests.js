@@ -6,7 +6,7 @@ var kvstore = require('kvstore')
 var P = require('p-promise')
 var hkdf = require('../hkdf')
 
-var db = require('../models/kv')(P, kvstore, {
+var dbs = require('../kv')({
   kvstore: {
     available_backends: ['memory'],
     backend: 'memory',
@@ -271,9 +271,9 @@ var RBundle = require('../bundle/bundle')(
     bigint, P, hkdf)
 var RToken = require('../models/token')(inherits, RBundle)
 
-var KeyFetchToken = require('../models/key_fetch_token')(inherits, KToken, db.store)
-var AccountResetToken = require('../models/account_reset_token')(inherits, RToken, crypto, db.store)
-var SessionToken = require('../models/session_token')(inherits, SToken, db.store)
+var KeyFetchToken = require('../models/key_fetch_token')(inherits, KToken, dbs.store)
+var AccountResetToken = require('../models/account_reset_token')(inherits, RToken, crypto, dbs.store)
+var SessionToken = require('../models/session_token')(inherits, SToken, dbs.store)
 var tokens = {
   KeyFetchToken: KeyFetchToken,
   AccountResetToken: AccountResetToken,

@@ -41,9 +41,17 @@ module.exports = function (crypto, P, db, mailer) {
 			.then(RecoveryMethod.hydrate)
 	}
 
+	RecoveryMethod.del = function (id) {
+		return db.delete(id + '/recovery')
+	}
+
 	RecoveryMethod.prototype.save = function () {
 		var self = this
 		return db.set(this.id + '/recovery', this).then(function () { return self })
+	}
+
+	RecoveryMethod.prototype.del = function () {
+		return RecoveryMethod.del(this.id)
 	}
 
 	RecoveryMethod.prototype.sendCode = function () {

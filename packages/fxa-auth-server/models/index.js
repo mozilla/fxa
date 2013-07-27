@@ -6,21 +6,14 @@ var crypto = require('crypto')
 var inherits = require('util').inherits
 
 var bigint = require('bigint')
-var kvstore = require('kvstore')
 var P = require('p-promise')
 var uuid = require('uuid')
 
 var Bundle = require('../bundle')
 var srp = require('../srp')
 
-module.exports = function (config) {
+module.exports = function (domain, dbs, mailer) {
 
-  config.smtp.subject = 'PiCL email verification'
-  config.smtp.sender = config.smtp.sender || config.smtp.user
-  var Mailer = require('../mailer')
-  var mailer = new Mailer(config.smtp)
-
-	var dbs = require('./kv')(P, kvstore, config)
 	var Token = require('./token')(inherits, Bundle)
 
   var KeyFetchToken = require('./key_fetch_token')(
@@ -53,10 +46,10 @@ module.exports = function (config) {
 	)
 	var Account = require('./account')(
 		P,
-		SessionToken,
+		tokens,
 		RecoveryMethod,
 		dbs.store,
-		config.domain
+		domain
 	)
 	var SrpSession = require('./srp_session')(
 		P,
