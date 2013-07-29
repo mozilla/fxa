@@ -203,6 +203,13 @@ module.exports = function (fs, path, url, convict) {
         default: '',
         env: 'SMTP_SENDER'
       }
+    },
+    dev: {
+      verified: {
+        doc: 'new Accounts should start already verified',
+        default: false,
+        env: 'DEV_VERIFIED'
+      }
     }
   })
 

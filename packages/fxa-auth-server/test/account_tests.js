@@ -15,8 +15,11 @@ var mailer = {
   sendCode: function () { return P(null) }
 }
 
-var DOMAIN = 'example.com'
-var models = require('../models')(DOMAIN, dbs, mailer)
+var config = {
+  domain: 'example.com',
+  dev: {}
+}
+var models = require('../models')(config, dbs, mailer)
 var Account = models.Account
 var RecoveryMethod = models.RecoveryMethod
 var SessionToken = models.tokens.SessionToken
@@ -34,7 +37,7 @@ var a = {
 test(
   'Account.principal uses the given uid and adds the domain',
   function (t) {
-    t.equal(Account.principal('xyz'), 'xyz@' + DOMAIN)
+    t.equal(Account.principal('xyz'), 'xyz@' + config.domain)
     t.end()
   }
 )

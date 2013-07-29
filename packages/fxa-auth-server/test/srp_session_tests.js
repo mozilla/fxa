@@ -13,8 +13,11 @@ var dbs = require('../kv')({
 var mailer = {
   sendCode: function () { return P(null) }
 }
-
-var models = require('../models')('example.com', dbs, mailer)
+var config = {
+  domain: 'example.com',
+  dev: {}
+}
+var models = require('../models')(config, dbs, mailer)
 var Account = models.Account
 var SrpSession = models.SrpSession
 

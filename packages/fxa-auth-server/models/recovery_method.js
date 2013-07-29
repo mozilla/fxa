@@ -12,14 +12,19 @@ module.exports = function (crypto, P, db, mailer) {
     this.code = null
   }
 
-  RecoveryMethod.create = function (uid, email, primary) {
+  RecoveryMethod.create = function (uid, email, primary, verified) {
     var rm = new RecoveryMethod()
     rm.id = email
     rm.uid = uid
     rm.primary = !!primary
-    rm.verified = false
+    rm.verified = verified || false
     rm.code = crypto.randomBytes(32).toString('hex')
-    return rm.sendCode().then(function () { return rm.save() })
+    if (!rm.verified) {
+      return rm.sendCode().then(function () { return rm.save() })
+    }
+    else {
+      return rm.save()
+    }
   }
 
   RecoveryMethod.hydrate = function (object) {

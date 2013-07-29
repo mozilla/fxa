@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "CONFIG_FILES=./test/config/test.json tap ./test",
+    "test": "tap ./test",
     "start": "scripts/start-local.sh"
   },
   "repository": "",

@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (P, tokens, RecoveryMethod, db, domain) {
+module.exports = function (P, tokens, RecoveryMethod, db, config) {
 
+  var domain = config.domain
   var SessionToken = tokens.SessionToken
   var AccountResetToken = tokens.AccountResetToken
 
@@ -49,8 +50,11 @@ module.exports = function (P, tokens, RecoveryMethod, db, domain) {
             throw new Error("AccountExists")
           }
           var account = Account.hydrate(options)
+          if (config.dev.verified) {
+            account.verified = true
+          }
           return RecoveryMethod
-            .create(account.uid, account.email, true)
+            .create(account.uid, account.email, true, account.verified)
             .then(
               function (rm) {
                 account.recoveryMethodIds[rm.id] = true

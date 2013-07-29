@@ -19,8 +19,11 @@ var mailer = {
   sendCode: function () { sends++; return P(null) }
 }
 
-var DOMAIN = 'example.com'
-var models = require('../models')(DOMAIN, dbs, mailer)
+var config = {
+  domain: 'example.com',
+  dev: {}
+}
+var models = require('../models')(config, dbs, mailer)
 var RecoveryMethod = models.RecoveryMethod
 
 test(
