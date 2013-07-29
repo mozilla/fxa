@@ -12,7 +12,7 @@ var uuid = require('uuid')
 var Bundle = require('../bundle')
 var srp = require('../srp')
 
-module.exports = function (domain, dbs, mailer) {
+module.exports = function (config, dbs, mailer) {
 
   var Token = require('./token')(inherits, Bundle)
 
@@ -49,7 +49,7 @@ module.exports = function (domain, dbs, mailer) {
     tokens,
     RecoveryMethod,
     dbs.store,
-    domain
+    config
   )
   var SrpSession = require('./srp_session')(
     P,

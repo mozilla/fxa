@@ -34,7 +34,7 @@ function main() {
   var mailer = new Mailer(config.smtp)
 
   // stored objects
-  var models = require('../models')(config.domain, dbs, mailer)
+  var models = require('../models')(config, dbs, mailer)
 
   // server public key
   var serverPublicKey = fs.readFileSync(config.publicKeyFile)
