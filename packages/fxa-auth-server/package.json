@@ -19,7 +19,7 @@
   "dependencies": {
     "bigint": "0.4.2",
     "uuid": "1.4.1",
-    "hapi": "1.8.3",
+    "hapi": "1.9.0",
     "hawk": "1.0.0",
     "hkdf": "0.0.1",
     "compute-cluster": "0.0.7",
@@ -32,6 +32,7 @@
     "heka": "0.3.0",
     "node-statsd": "0.0.7",
     "toobusy": "0.2.3",
+    "nodemailer": "0.5.2",
     "lout": "0.4.1"
   },
   "devDependencies": {

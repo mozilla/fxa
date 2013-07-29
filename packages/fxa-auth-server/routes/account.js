@@ -233,35 +233,21 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
       path: '/account/recovery_methods/verify_code',
       config: {
         description:
-          "Sends a verification code to the specified recovery method. " +
-          "Providing this code will mark the recovery method as verified",
-        auth: {
-          strategy: 'sessionToken',
-          payload: 'required'
-        },
+          "Verify a recovery method with this code",
         tags: ["account", "recovery"],
         handler: function (request) {
-          var sessionToken = request.auth.credentials
+          var email = request.payload.email
           var code = request.payload.code
-          Account
-            .get(sessionToken.uid)
+          RecoveryMethod
+            .get(email)
             .then(
-              function (account) {
-                //TODO short circuits
-                //TODO secondary recovery methods
-                return RecoveryMethod
-                  .get(account.email)
-                  .then(
-                    function (rm) {
-                      return rm.verify(code)
-                    }
-                  )
-                  .then(
-                    function (rm) {
-                      account.verified = rm.verified
-                      return account.save()
-                    }
-                  )
+              function (rm) {
+                return rm.verify(code)
+              }
+            )
+            .then(
+              function (rm) {
+                return Account.verify(rm)
               }
             )
             .done(
@@ -275,6 +261,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         },
         validate: {
           payload: {
+            email: isA.String().email().required(),
             code: isA.String().required()
           }
         }

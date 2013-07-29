@@ -41,7 +41,7 @@ For example:
     * [/account/keys 🔒](#get-accountkeys-)
     * [/account/recovery_methods 🔒](#get-accountrecovery_methods-)
     * [/account/recovery_methods/send_code 🔒](#post-accountrecovery_methodssend_code-)
-    * [/account/recovery_methods/verify_code 🔒](#post-accountrecovery_methodsverify_code-)
+    * [/account/recovery_methods/verify_code](#post-accountrecovery_methodsverify_code)
     * [/account/reset 🔒](#post-accountreset-)
 
 * [/certificate/sign 🔒](#post-certificatesign-)
@@ -240,7 +240,7 @@ http://idp.profileinthecloud.net/account/recovery_methods/send_code \
 {}
 ```
 
-## POST /account/recovery_methods/verify_code 🔒
+## POST /account/recovery_methods/verify_code
 
 Verifies a verification code that was sent to a user's recovery method (e.g., email). Providing this code will mark the recovery method as "verified".
 
@@ -248,6 +248,7 @@ Verifies a verification code that was sent to a user's recovery method (e.g., em
 
 ___Parameters___
 
+* email - email address
 * code - a verification code
 
 ```sh
@@ -255,9 +256,9 @@ curl -v \
 -X POST \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.profileinthecloud.net/account/recovery_methods/verify_code \
 -d '{
+  "email": "me@example.com",
   "code": "e3c5b0e3f5391e134596c27519979b93a45e6d0da34c7509c5632ac35b28b48d"
 }'
 ```

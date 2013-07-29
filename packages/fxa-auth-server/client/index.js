@@ -111,7 +111,7 @@ Client.prototype.getToken2 = function (tokenType, session, email, password, call
               result.sessionToken = tokens.otherToken
             }
             else {
-              result.accountResetToken = otherToken
+              result.accountResetToken = tokens.otherToken
             }
             callback(null, result)
           }
