@@ -20,6 +20,7 @@ var models = require('../models')(DOMAIN, dbs, mailer)
 var Account = models.Account
 var RecoveryMethod = models.RecoveryMethod
 var SessionToken = models.tokens.SessionToken
+var AccountResetToken = models.tokens.AccountResetToken
 
 var a = {
   uid: 'xxx',
@@ -99,6 +100,19 @@ test(
 )
 
 test(
+  'Account.get of an invalid uid returns null',
+  function (t) {
+    Account.get('foobar')
+      .done(
+        function (x) {
+          t.equal(x, null)
+          t.end()
+        }
+      )
+  }
+)
+
+test(
   'Account.getId returns the uid given an email',
   function (t) {
     Account.create(a)
@@ -147,7 +161,7 @@ test(
 )
 
 test(
-  'Account.del deletes the account with the given email',
+  'Account.del deletes the account with the given uid',
   function (t) {
     Account.create(a)
       .then(Account.exists.bind(null, a.email))
@@ -167,6 +181,112 @@ test(
           t.fail(err)
           t.end()
         }
+      )
+  }
+)
+
+test(
+  'Account.del deletes all data related to the account',
+  function (t) {
+    var account = null
+    var session = null
+    var reset = null
+    t.equal(Object.keys(dbs.store.kv.data).length, 0)
+    Account.create(a)
+      .then(
+        function (a) {
+          account = a
+        }
+      )
+      .then(SessionToken.create.bind(null, a.uid))
+      .then(
+        function (t) {
+          session = t
+          return account.addSessionToken(session)
+        }
+      )
+      .then(AccountResetToken.create.bind(null, a.uid))
+      .then(
+        function (t) {
+          reset = t
+          return account.setResetToken(reset)
+        }
+      )
+      .then(
+        function () {
+          // 5: uid, user, recovery, reset, session
+          t.equal(Object.keys(dbs.store.kv.data).length, 5)
+        }
+      )
+      .then(Account.del.bind(null, a.uid))
+      .done(
+        function () {
+          t.equal(Object.keys(dbs.store.kv.data).length, 0)
+          t.end()
+        },
+        function (err) {
+          t.fail(err)
+          t.end()
+        }
+      )
+  }
+)
+
+test(
+  'Account.del of an invalid uid returns null',
+  function (t) {
+    Account.del('foobar')
+      .done(
+        function (x) {
+          t.equal(x, null)
+          t.end()
+        }
+      )
+  }
+)
+
+test(
+  'account.setResetToken deletes existing token',
+  function (t) {
+    var account = null
+    var token1 = null
+    var token2 = null
+    AccountResetToken.create(a.uid)
+      .then(
+        function (x) {
+          token1 = x
+        }
+      )
+      .then(Account.create.bind(null, a))
+      .then(
+        function (x) {
+          account = x
+          return account.setResetToken(token1)
+        }
+      )
+      .then(AccountResetToken.create.bind(null, a.uid))
+      .then(
+        function (x) {
+          t.equal(account.resetTokenId, token1.id)
+          token2 = x
+          return account.setResetToken(token2)
+        }
+      )
+      .then(
+        function () {
+          t.equal(account.resetTokenId, token2.id)
+          return AccountResetToken.get(token1.id)
+        }
+      )
+      .then(
+        function (x) {
+          t.equal(x, null)
+        }
+      )
+      .then(Account.del.bind(null, a.uid))
+      .done(
+        function () { t.end() },
+        function (err) { t.fail(err); t.end() }
       )
   }
 )
@@ -259,16 +379,82 @@ test(
           return account.reset(form)
         }
       )
-      .done(
+      .then(
         function (account) {
           t.equal(account.wrapKb, form.wrapKb)
           t.equal(account.verifier, form.verifier)
-          t.end()
-        },
-        function (err) {
-          t.fail(err)
-          t.end()
         }
+      )
+      .then(Account.del.bind(null, a.uid))
+      .done(
+        function () { t.end() },
+        function (err) { t.fail(err); t.end() }
+      )
+  }
+)
+
+test(
+  'account.reset deletes all tokens',
+  function (t) {
+    var account = null
+    var session = null
+    var reset = null
+    var form = {
+      wrapKb: 'DEADBEEF',
+      verifier: 'FEEDFACE',
+      params: {
+        stuff: true
+      }
+    }
+    Account.create(a)
+      .then(
+        function (a) {
+          account = a
+        }
+      )
+      .then(SessionToken.create.bind(null, a.uid))
+      .then(
+        function (x) {
+          session = x
+          return account.addSessionToken(session)
+        }
+      )
+      .then(AccountResetToken.create.bind(null, a.uid))
+      .then(
+        function (x) {
+          reset = x
+          return account.setResetToken(reset)
+        }
+      )
+      .then(
+        function () {
+          return account.reset(form)
+        }
+      )
+      .then(
+        function () {
+          return AccountResetToken.get(reset.id)
+        }
+      )
+      .then(
+        function (x) {
+          t.equal(x, null)
+        }
+      )
+      .then(
+        function () {
+          return SessionToken.get(session.id)
+        }
+      )
+      .then(
+        function (x) {
+          t.equal(x, null)
+        }
+      )
+      .then(Account.del.bind(null, a.uid))
+      .done(
+        function () { t.end() },
+        function (err) { t.fail(err); t.end() }
       )
   }
 )

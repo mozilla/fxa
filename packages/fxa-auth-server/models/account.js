@@ -119,6 +119,10 @@ module.exports = function (P, tokens, RecoveryMethod, db, domain) {
       .then(Account.hydrate)
   }
 
+  Account.save = function (uid, value) {
+    return db.set(uid + '/user', value).then(function () { return value })
+  }
+
   Account.prototype.principal = function () {
     return Account.principal(this.uid)
   }
@@ -129,8 +133,16 @@ module.exports = function (P, tokens, RecoveryMethod, db, domain) {
   }
 
   Account.prototype.setResetToken = function (token) {
-    this.resetTokenId = token.id
-    return this.save()
+    var set = function () {
+      this.resetTokenId = token.id
+      return this.save()
+    }.bind(this)
+    if (this.resetTokenId !== null) {
+      return AccountResetToken
+        .del(this.resetTokenId)
+        .then(set)
+    }
+    return set()
   }
 
   Account.prototype.deleteSessionToken = function (id) {
@@ -174,10 +186,6 @@ module.exports = function (P, tokens, RecoveryMethod, db, domain) {
     return P.all(methods)
   }
 
-  function _save(uid, value) {
-    return db.set(uid + '/user', value).then(function () { return value })
-  }
-
   Account.prototype.deleteAllRecoveryMethods = function () {
     var ids = Object.keys(this.recoveryMethodIds)
     var methods = []
@@ -192,10 +200,10 @@ module.exports = function (P, tokens, RecoveryMethod, db, domain) {
     if (isNew) {
       return db
         .set(this.email + '/uid', this.uid)
-        .then(_save.bind(null, this.uid, this))
+        .then(Account.save.bind(null, this.uid, this))
     }
     else {
-      return _save(this.uid, this)
+      return Account.save(this.uid, this)
     }
   }
 
