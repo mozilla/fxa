@@ -42,7 +42,7 @@ Account.create(alice)
   function (a) {
 
     test(
-      'create login session',
+      'create login session works',
       function (t) {
         SrpSession
           .create('login', a)
@@ -59,7 +59,7 @@ Account.create(alice)
     )
 
     test(
-      'finish login session',
+      'finish login session works',
       function (t) {
         var session = null
         var K = null

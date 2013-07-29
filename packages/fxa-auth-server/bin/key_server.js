@@ -28,6 +28,8 @@ function main() {
   // email sender
   config.smtp.subject = 'PiCL email verification'
   config.smtp.sender = config.smtp.sender || config.smtp.user
+  // TODO: send to the SMTP server directly. In the future this may change
+  // to another process that we send an http request to.
   var Mailer = require('../mailer')
   var mailer = new Mailer(config.smtp)
 

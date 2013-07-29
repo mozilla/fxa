@@ -246,6 +246,53 @@ test(
 )
 
 test(
+  'Account.verify sets verified to true when the recovery method is primary',
+  function (t) {
+    Account.create(a)
+      .then(RecoveryMethod.get.bind(null, a.email))
+      .then(
+        function (x) {
+          x.verified = true
+          return Account.verify(x)
+        }
+      )
+      .then(
+        function (account) {
+          t.equal(account.verified, true)
+        }
+      )
+      .then(Account.del.bind(null, a.uid))
+      .done(
+        function () { t.end() },
+        function (err) { t.fail(err); t.end() }
+      )
+  }
+)
+
+test(
+  'Account.verify does not set verified true if recovery method is not verified',
+  function (t) {
+    Account.create(a)
+      .then(RecoveryMethod.get.bind(null, a.email))
+      .then(
+        function (x) {
+          return Account.verify(x)
+        }
+      )
+      .then(
+        function (account) {
+          t.equal(account.verified, false)
+        }
+      )
+      .then(Account.del.bind(null, a.uid))
+      .done(
+        function () { t.end() },
+        function (err) { t.fail(err); t.end() }
+      )
+  }
+)
+
+test(
   'account.setResetToken deletes existing token',
   function (t) {
     var account = null

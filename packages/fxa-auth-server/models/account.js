@@ -8,15 +8,13 @@ module.exports = function (P, tokens, RecoveryMethod, db, domain) {
   var AccountResetToken = tokens.AccountResetToken
 
   function Account() {
-    // <strings>
     this.uid = null
     this.email = null
-    this.verified = null
+    this.verified = false
     this.verifier = null
     this.salt = null
     this.kA = null
     this.wrapKb = null
-    // </strings>
     this.params = null
     // references
     this.resetTokenId = null
@@ -30,7 +28,7 @@ module.exports = function (P, tokens, RecoveryMethod, db, domain) {
     var a = new Account()
     a.uid = object.uid
     a.email = object.email
-    a.verified = object.verified
+    a.verified = !!object.verified
     a.verifier = object.verifier
     a.salt = object.salt
     a.kA = object.kA
@@ -123,6 +121,26 @@ module.exports = function (P, tokens, RecoveryMethod, db, domain) {
     return db.set(uid + '/user', value).then(function () { return value })
   }
 
+  Account.verify = function (recoveryMethod) {
+    if (recoveryMethod.primary && recoveryMethod.verified) {
+      return Account.get(recoveryMethod.uid)
+        .then(
+          function (account) {
+            if (!account.verified && recoveryMethod.uid === account.uid) {
+              account.verified = true
+              return account.save()
+            }
+            else {
+              return P(account)
+            }
+          }
+        )
+    }
+    else {
+      return Account.get(recoveryMethod.uid)
+    }
+  }
+
   Account.prototype.principal = function () {
     return Account.principal(this.uid)
   }
@@ -208,7 +226,6 @@ module.exports = function (P, tokens, RecoveryMethod, db, domain) {
   }
 
   Account.prototype.reset = function (form) {
-    var self = this
     //this.kA = null // TODO
     this.wrapKb = form.wrapKb
     this.verifier = form.verifier

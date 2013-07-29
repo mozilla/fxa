@@ -2,7 +2,6 @@ var test = require('tap').test
 var inherits = require('util').inherits
 var crypto = require('crypto')
 var bigint = require('bigint')
-var kvstore = require('kvstore')
 var P = require('p-promise')
 var hkdf = require('../hkdf')
 
@@ -392,7 +391,7 @@ test(
     t.equal(Object.keys(account.sessionTokenIds).length, 0)
     AuthBundle.login(sessionAuth.K, 'xxx')
       .done(
-        function (b) {
+        function () {
           t.equal(Object.keys(account.sessionTokenIds).length, 1)
           t.end()
         },
@@ -411,7 +410,7 @@ test(
     t.equal(!!account.resetTokenId, false)
     AuthBundle.passwordChange(sessionAuth.K, 'xxx')
       .done(
-        function (b) {
+        function () {
           t.equal(!!account.resetTokenId, true)
           t.end()
         },

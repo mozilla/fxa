@@ -14,64 +14,64 @@ var srp = require('../srp')
 
 module.exports = function (domain, dbs, mailer) {
 
-	var Token = require('./token')(inherits, Bundle)
+  var Token = require('./token')(inherits, Bundle)
 
   var KeyFetchToken = require('./key_fetch_token')(
-  	inherits,
-  	Token,
-  	dbs.store
+    inherits,
+    Token,
+    dbs.store
   )
   var AccountResetToken = require('./account_reset_token')(
-  	inherits,
-  	Token,
-  	crypto,
-  	dbs.store
+    inherits,
+    Token,
+    crypto,
+    dbs.store
   )
   var SessionToken = require('./session_token')(
-  	inherits,
-  	Token,
-  	dbs.store
+    inherits,
+    Token,
+    dbs.store
   )
   var tokens = {
-		AccountResetToken: AccountResetToken,
-		KeyFetchToken: KeyFetchToken,
-		SessionToken: SessionToken
-	}
+    AccountResetToken: AccountResetToken,
+    KeyFetchToken: KeyFetchToken,
+    SessionToken: SessionToken
+  }
 
-	var RecoveryMethod = require('./recovery_method')(
-		crypto,
-		P,
-		dbs.store,
-		mailer
-	)
-	var Account = require('./account')(
-		P,
-		tokens,
-		RecoveryMethod,
-		dbs.store,
-		domain
-	)
-	var SrpSession = require('./srp_session')(
-		P,
-		uuid,
-		srp,
-		bigint,
-		dbs.cache,
-		Account
-	)
-	var AuthBundle = require('./auth_bundle')(
-		inherits,
-		Bundle,
-		Account,
-		tokens
-	)
+  var RecoveryMethod = require('./recovery_method')(
+    crypto,
+    P,
+    dbs.store,
+    mailer
+  )
+  var Account = require('./account')(
+    P,
+    tokens,
+    RecoveryMethod,
+    dbs.store,
+    domain
+  )
+  var SrpSession = require('./srp_session')(
+    P,
+    uuid,
+    srp,
+    bigint,
+    dbs.cache,
+    Account
+  )
+  var AuthBundle = require('./auth_bundle')(
+    inherits,
+    Bundle,
+    Account,
+    tokens
+  )
 
-	return {
-		dbs: dbs,
-		Account: Account,
-		AuthBundle: AuthBundle,
-		RecoveryMethod: RecoveryMethod,
-		SrpSession: SrpSession,
-		tokens: tokens
-	}
+  return {
+    dbs: dbs,
+    Account: Account,
+    AuthBundle: AuthBundle,
+    RecoveryMethod: RecoveryMethod,
+    SrpSession: SrpSession,
+    tokens: tokens
+  }
 }

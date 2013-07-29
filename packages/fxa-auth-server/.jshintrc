@@ -7,15 +7,15 @@
   "undef": true,
   "unused": true,
   "eqeqeq": true,
-  "indent": 2,
   "white": false,
   "predef": [
-    "exports", 
+    "exports",
     "require",
     "process"
   ],
   "es5": true,
   "esnext": true,
   "shadow": false,
-  "strict": false
+  "strict": false,
+  "asi": true
 }
