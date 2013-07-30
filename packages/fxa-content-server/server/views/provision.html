@@ -1,0 +1,17 @@
+<script src="https://login.persona.org/provisioning_api.js"></script>
+<script>
+navigator.id.beginProvisioning(function(email, certDuration) {
+  if (activeSessionFor(email)) {
+    navigator.id.genKeyPair(function(publicKey) {
+      generateServerSide(email, publicKey, certDuration, function (certificate) {
+        // generateServerSide something you would write.
+        // In this example, imagine it does an AJAX request to create a certificate,
+        // and then invokes a callback with that certificate.
+        navigator.id.registerCertificate(certificate);
+      });
+    });
+  } else {
+    navigator.id.raiseProvisioningFailure('user is not authenticated as target user');
+  }
+});
+</script>
