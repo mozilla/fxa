@@ -1,0 +1,28 @@
+{
+  "name": "firefox-account-bridge",
+  "version": "0.0.0",
+  "description": "Firefox Accounts Persona Bridge",
+  "scripts": {
+    "start": "server/bin/firefox_account_bridge.js",
+    "test": "nodeunit server/tests/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/firefox_account_bridge"
+  },
+  "author": "",
+  "license": "MPL 2.0",
+  "dependencies": {
+    "client-sessions": "0.3.1",
+    "connect-cachify": "0.0.15",
+    "express": "3.3.4",
+    "i18n-abide": "0.0.11",
+    "nunjucks": "0.1.9"
+  },
+  "devDependencies": {
+    "nodeunit": "0.8.1",
+    "awsbox": "0.4.5",
+    "jshint": "0.9.1"
+  },
+  "readmeFilename": "README.md"
+}
