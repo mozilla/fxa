@@ -92,7 +92,8 @@ test(
           t.fail('should not have created an account')
         },
         function (err) {
-          t.equal(err.message, "AccountExists")
+          t.equal(err.response.code, 400)
+          t.equal(err.message, 'Account already exists for ' + a.email)
         }
       )
       .then(Account.del.bind(null, a.uid))

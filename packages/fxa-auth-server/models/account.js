@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (P, tokens, RecoveryMethod, db, config) {
+module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
 
   var domain = config.domain
   var SessionToken = tokens.SessionToken
@@ -47,7 +47,7 @@ module.exports = function (P, tokens, RecoveryMethod, db, config) {
       .then(
         function (exists) {
           if (exists) {
-            throw new Error("AccountExists")
+            throw error.accountExists(options.email)
           }
           var account = Account.hydrate(options)
           if (config.dev.verified) {

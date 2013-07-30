@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (P, uuid, srp, bigint, db) {
+module.exports = function (P, uuid, srp, bigint, db, error) {
 
   var alg = 'sha256'
 
@@ -31,7 +31,7 @@ module.exports = function (P, uuid, srp, bigint, db) {
 
   SrpSession.create = function (type, account) {
     var session = null
-    if (!account) { throw new Error('Unknown User') }
+    if (!account) { throw error.unknownAccount() }
     return srpGenKey()
       .then(
         function (b) {
@@ -83,7 +83,7 @@ module.exports = function (P, uuid, srp, bigint, db) {
           if (M1 !== M2.toBuffer().toString('hex')) {
             // TODO: increment bad guess counter
             // TODO: delete session?
-            throw new Error('IncorrectPassword')
+            throw error.incorrectPassword()
           }
           session.K = srp.getK(S, N, alg).toBuffer()
           return session
