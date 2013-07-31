@@ -6,6 +6,12 @@ It consumes the REST API which PICL provides.
 
 ## Development
 
+### One Time Setup
+
+    server/config/local.json-dist server/config/local.json
+
+### Running the service
+
 Issuer determines the hostname and the environment`PORT` variable the port.
 
     PORT=3000 npm start
