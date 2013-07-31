@@ -120,7 +120,7 @@ if (! process.env.CONFIG_FILES &&
 // environment variable
 if (process.env.CONFIG_FILES) {
   var files = process.env.CONFIG_FILES.split(',');
-  conf.load(files);
+  conf.loadFile(files);
 }
 
 if (! process.env.NODE_ENV) {
