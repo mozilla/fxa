@@ -22,7 +22,7 @@ var server = cp.spawn(
   }
 )
 
-setTimeout(function () { // TODO: this is pretty ghetto
+function main() {
   test(
     'Create account flow',
     function (t) {
@@ -71,4 +71,16 @@ setTimeout(function () { // TODO: this is pretty ghetto
       t.end()
     }
   )
-}, 500)
+}
+
+function waitLoop() {
+  Client.Api.heartbeat(config.public_url)
+    .done(
+      main,
+      function (err) {
+        setTimeout(waitLoop, 100)
+      }
+    )
+}
+
+waitLoop()

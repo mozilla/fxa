@@ -285,4 +285,8 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
     )
 }
 
+ClientApi.heartbeat = function (origin) {
+  return doRequest('GET', origin + '/__heartbeat__')
+}
+
 module.exports = ClientApi
