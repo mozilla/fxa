@@ -37,31 +37,31 @@ For example:
 
 * Account
     * [POST /account/create](#post-accountcreate)
-    * [GET  /account/devices :lock:(sessionToken)](#get-accountdevices-)
-    * [GET  /account/keys :lock:(keyFetchToken)](#get-accountkeys-)
-    * [POST /account/reset :lock:(accountResetToken)](#post-accountreset-)
-    * [POST /account/delete :lock:(authToken)](#post-accountreset-)
+    * [GET  /account/devices :lock:(sessionToken)](#get-accountdevices)
+    * [GET  /account/keys :lock:(keyFetchToken)](#get-accountkeys)
+    * [POST /account/reset :lock:(accountResetToken)](#post-accountreset)
+    * [POST /account/delete :lock:(authToken)](#post-accountdelete)
 
 * Authentication
     * [POST /auth/start](#post-authstart)
     * [POST /auth/finish](#post-authfinsh)
 
 * Session
-    * [POST /session/create :lock:(authToken)](#post-sessionauthstart)
-    * [POST /session/destroy :lock:(sessionToken)](#post-sessiondestroy-)
+    * [POST /session/create :lock:(authToken)](#post-sessioncreate)
+    * [POST /session/destroy :lock:(sessionToken)](#post-sessiondestroy)
 
 * Recovery Email
-    * [GET  /recovery_email/status :lock:(sessionToken)](#get-recovery_emailstatus-)
-    * [POST /recovery_email/resend_code :lock:(sessionToken)](#post-recovery_emailresend_code-)
+    * [GET  /recovery_email/status :lock:(sessionToken)](#get-recovery_emailstatus)
+    * [POST /recovery_email/resend_code :lock:(sessionToken)](#post-recovery_emailresend_code)
     * [POST /recovery_email/verify_code](#post-recovery_emailverify_code)
 
 * Certificate Signing
-    * [POST /certificate/sign :lock:(sessionToken)](#post-certificatesign-)
+    * [POST /certificate/sign :lock:(sessionToken)](#post-certificatesign)
 
 * Password
-    * [POST /password/change :lock:(authToken)](#post-passwordchangeauthstart-)
+    * [POST /password/change :lock:(authToken)](#post-passwordchangestart)
     * [POST /password/forgot/send_code](#post-passwordforgotsend_code)
-    * [POST /password/forgot/resend_code :lock:(forgotPasswordToken)](#post-passwordforgotsend_code)
+    * [POST /password/forgot/resend_code :lock:(forgotPasswordToken)](#post-passwordforgotresend_code)
     * [POST /password/forgot/verify_code :lock:(forgotPasswordToken)](#post-passwordforgotverify_code)
 
 * Miscellaneous
