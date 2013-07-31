@@ -590,9 +590,11 @@ http://idp.profileinthecloud.net/certificate/sign \
 
 :lock: HAWK-authenticated with the authToken.
 
-Begin the "change password" process. This consumes a single-use `authToken`, which indicates that the user recently proved knowledge of the account password. It returns a single-use `accountResetToken`, which will be delivered to `/account/reset`. The indirect "`authToken` -> `accountResetToken` -> reset" sequence is used because it lines up with the similar "`/password/forgot/send_code` -> `/password/forgot/verify_code` -> `accountResetToken` -> reset" sequence.
+Begin the "change password" process. This consumes a single-use `authToken`, which indicates that the user recently proved knowledge of the account password. It returns a single-use `accountResetToken`, which will be delivered to `/account/reset`. It also returns a single-use `keyFetchToken`.
 
-This API returns an encrypted bundle, from which `accountResetToken` can be extracted.
+The indirect "`authToken` -> `accountResetToken` -> reset" sequence is used because it lines up with the similar "`/password/forgot/send_code` -> `/password/forgot/verify_code` -> `accountResetToken` -> reset" sequence.
+
+This API returns an encrypted bundle, from which `accountResetToken` and `keyFetchToken` can be extracted.
 
 
 ___Headers___
@@ -617,7 +619,7 @@ http://idp.profileinthecloud.net/password/change
 ```
 
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
-for info on how to retrieve `accountResetToken` from the bundle.
+for info on how to retrieve `accountResetToken` and `keyFetchToken` from the bundle.
 
 ## POST /password/forgot/send_code
 
@@ -782,6 +784,7 @@ curl -X POST -v http://idp.profileinthecloud.net/get_random_bytes
 * `POST /auth/start`
 * `POST /auth/finish`
 * `POST /password/change`
+* `GET /account/keys`
 * `POST /account/reset`
 * GOTO "Attach a new device"
 
