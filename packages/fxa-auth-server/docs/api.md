@@ -59,7 +59,7 @@ For example:
     * [POST /certificate/sign :lock:(sessionToken)](#post-certificatesign)
 
 * Password
-    * [POST /password/change :lock:(authToken)](#post-passwordchangestart)
+    * [POST /password/change/start :lock:(authToken)](#post-passwordchangestart)
     * [POST /password/forgot/send_code](#post-passwordforgotsend_code)
     * [POST /password/forgot/resend_code :lock:(forgotPasswordToken)](#post-passwordforgotresend_code)
     * [POST /password/forgot/verify_code :lock:(forgotPasswordToken)](#post-passwordforgotverify_code)
@@ -228,7 +228,7 @@ ___Parameters___
 
 ___Headers___
 
-The request must include a HAWK header that authenticates the request (including payload) using a key derived from the `accountResetToken`, which is returned by `/password/change` or `/password/forgot/verify_code`.
+The request must include a HAWK header that authenticates the request (including payload) using a key derived from the `accountResetToken`, which is returned by `/password/change/start` or `/password/forgot/verify_code`.
 
 ```sh
 curl -v \
@@ -586,7 +586,7 @@ http://idp.profileinthecloud.net/certificate/sign \
 }
 ```
 
-## POST /password/change
+## POST /password/change/start
 
 :lock: HAWK-authenticated with the authToken.
 
@@ -607,7 +607,7 @@ curl -v \
 -X POST \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/password/change
+http://idp.profileinthecloud.net/password/change/start
 ```
 
 ### Response
@@ -783,7 +783,7 @@ curl -X POST -v http://idp.profileinthecloud.net/get_random_bytes
 * start with active session (and keys)
 * `POST /auth/start`
 * `POST /auth/finish`
-* `POST /password/change`
+* `POST /password/change/start`
 * `GET /account/keys`
 * `POST /account/reset`
 * GOTO "Attach a new device"
