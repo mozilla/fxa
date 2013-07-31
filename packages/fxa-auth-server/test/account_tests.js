@@ -184,6 +184,10 @@ test(
     var account = null
     var session = null
     var reset = null
+    // This test is only valid for memory db
+    if (!dbs.store.kv.data) {
+      return t.end()
+    }
     t.equal(Object.keys(dbs.store.kv.data).length, 0)
     Account.create(a)
       .then(
