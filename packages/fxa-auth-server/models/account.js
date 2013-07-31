@@ -50,7 +50,7 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
             throw error.accountExists(options.email)
           }
           var account = Account.hydrate(options)
-          if (config.dev.verified) {
+          if (config.dev && config.dev.verified) {
             account.verified = true
           }
           return RecoveryMethod
