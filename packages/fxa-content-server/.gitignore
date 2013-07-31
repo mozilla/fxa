@@ -20,3 +20,4 @@ Thumbs.db
 /automation-tests/node_modules
 /automation-tests/results
 /automation-tests/*.jar
+local.json

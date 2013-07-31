@@ -15,9 +15,11 @@
   "dependencies": {
     "client-sessions": "0.3.1",
     "connect-cachify": "0.0.15",
+    "convict": "0.0.6",
     "express": "3.3.4",
     "i18n-abide": "0.0.11",
-    "nunjucks": "0.1.9"
+    "nunjucks": "0.1.9",
+    "urlparse": "0.0.1"
   },
   "devDependencies": {
     "nodeunit": "0.8.1",
