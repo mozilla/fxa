@@ -1,7 +1,8 @@
-<script src="https://login.persona.org/provisioning_api.js"></script>
+<!DOCTYPE html>
+<script src="{{browserid_server}}/provisioning_api.js"></script>
 <script>
 navigator.id.beginProvisioning(function(email, certDuration) {
-  if (activeSessionFor(email)) {
+  {% if provisioned %}
     navigator.id.genKeyPair(function(publicKey) {
       generateServerSide(email, publicKey, certDuration, function (certificate) {
         // generateServerSide something you would write.
@@ -10,8 +11,8 @@ navigator.id.beginProvisioning(function(email, certDuration) {
         navigator.id.registerCertificate(certificate);
       });
     });
-  } else {
+  {% else %}
     navigator.id.raiseProvisioningFailure('user is not authenticated as target user');
-  }
+  {% endif %}
 });
 </script>

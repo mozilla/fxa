@@ -12,8 +12,8 @@ const clientSessions = require('client-sessions'),
       config = require('../lib/configuration'),
       express = require('express'),
       nunjucks = require('nunjucks'),
-
-      urlparse = require('urlparse');
+      urlparse = require('urlparse'),
+      util = require('util');
 
 
 var app = express();
@@ -26,7 +26,7 @@ app.use(express.cookieParser());
 app.use(express.bodyParser());
 
 var isHttps = 'https' === urlparse(config.get('public_url')).scheme;
-console.log('public_url=', config.get('public_url'), urlparse(config.get('public_url')));
+
 // BigTent must be deployed behind SSL.
 // Tell client-sessions everything will be alright
 app.use(function(req, res, next) {
@@ -46,26 +46,44 @@ app.use(clientSessions({
   }
 }));
 
-console.log('Doing csrf');
 app.use(express.csrf());
 app.use(function(req, resp, next) {
   resp.locals({'csrf_token': req.session._csrf});
   next();
 });
-console.log('Setup routes');
+
 app.get('/.well-known/browserid', function(req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.render('browserid.html');
 });
 
 app.get('/provision', function(req, res) {
-  res.send('Yo');
+  res.render('provision.html', {
+    browserid_server: config.get('browserid_server'),
+    provisioned: false
+  });
 });
 
 app.get('/authentication', function(req, res) {
-  console.log('Doing authentication');
-  res.send('Yo');
+  res.render('authentication.html');
 });
 
-app.listen(3000);
-console.log('Firefox Account Bridge listening at http://localhost:3000');
+if (config.get('use_https')) {
+  // Development only... Ops runs this behind nginx
+  port = 443;
+  app.listen(443);
+  app.on('error', function(e) {
+    if ('EACCES' == e.code) {
+      console.error('Permission Denied, maybe you should run this with sudo?');
+    } else if ('EADDRINUSE' == e.code) {
+      console.error('Unable to listen for connections, this service might already be running?');
+    }
+    throw e;
+  });
+  lstnUrl = util.format('https://%s', config.get('issuer'));
+} else {
+  port = process.env.PORT || 3030;
+  app.listen(port, '0.0.0.0');
+  lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
+}
+console.log('Firefox Account Bridge listening at', lstnUrl);
