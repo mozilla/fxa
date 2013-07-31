@@ -11,66 +11,97 @@ path = require('path');
 require('./custom_logger');
 
 var conf = module.exports = convict({
-  browserid_server: 'string = "https://fxaccounts.org"',
+  port: {
+    format: "port",
+    default: 3030,
+    env: "PORT"
+  },
+  browserid_server: "https://fxaccounts.org",
   cachify_prefix: {
     doc: "The prefix for cachify hashes in URLs",
-    format: 'string = "v"'
+    default: "v"
   },
-  // Longest possible cert expiration in seconds
-  certificate_duration: 'integer = 300', // 5 minutes
-  certifier_host: 'string = "127.0.0.1"',
-  certifier_port: "integer{1,65535} = 8080",
+  certificate_duration: {
+    doc: "Longest possible cert expiration in seconds",
+    format: "duration",
+    default: "5 minutes"
+  },
+  certifier_host: "127.0.0.1",
+  certifier_port: {
+    format: "port",
+    default: 8080
+  },
   client_sessions: {
-    cookie_name: 'string = "session"',
-    secret: 'string = "YOU MUST CHANGE ME"',
-    duration: 'integer = '  + (24 * 60 * 60 * 1000) // 1 day
+    cookie_name: "session",
+    secret: "YOU MUST CHANGE ME",
+    duration: {
+      format: "duration",
+      default: "1 day"
+    }
   },
-  default_lang: 'string = "en-US"',
-  debug_lang: 'string = "it-CH"',
+  default_lang: "en-US",
+  debug_lang: "it-CH",
   disable_locale_check: {
     doc: "Skip checking for gettext .mo files for supported locales",
-    format: 'boolean = false'
+    default: false
   },
   env: {
     doc: "What environment are we running in?  Note: all hosted environments are 'production'.  ",
-    format: 'string ["production", "development"] = "production"',
+    format: ["production", "development"],
+    default: "production",
     env: 'NODE_ENV'
   },
   http_proxy: {
-    port: 'integer{1,65535}?',
-    host: 'string?'
+    port: {
+      format: "port",
+      default: undefined
+    },
+    host: {
+      format: String,
+      default: undefined
+    }
   },
-  issuer: 'string = "dev.fxaccounts.mozilla.org"',
+  issuer: "dev.fxaccounts.mozilla.org",
   public_url: {
     doc: "The publically visible URL of the deployment",
-    format: 'string = "https://fxaccounts.persona.org"',
+    default: "https://fxaccounts.persona.org",
     env: 'PUBLIC_URL'
   },
-  process_type: 'string',
+  process_type: 'ephemeral',
   statsd: {
     enabled: {
       doc: "enable UDP based statsd reporting",
-      format: 'boolean = true',
+      default: true,
       env: 'ENABLE_STATSD'
     },
-    host: 'string = "localhost"',
-    port: "integer{1,65535} = 8125"
+    host: "localhost",
+    port: {
+      format: "port",
+      default: 8125
+    }
   },
-  translation_directory: 'string = "static/i18n"',
+  translation_directory: "static/i18n",
   supported_languages: {
     doc: "List of languages this deployment should detect and display localized strings.",
-    format: 'array { string }* = [ "en-US" ]',
+    format: Array,
+    default: [ "en-US" ],
     env: 'SUPPORTED_LANGUAGES'
   },
-  express_log_format: 'string [ "default_bid", "dev_bid", "default", "dev", "short", "tiny" ] = "default"',
-  use_https: 'boolean = false',
+  express_log_format: {
+    format: [ "default_bid", "dev_bid", "default", "dev", "short", "tiny" ],
+    default: "default"
+  },
+  use_https: false,
   var_path: {
     doc: "The path where deployment specific resources will be sought (keys, etc), and logs will be kept.",
-    format: 'string?',
+    default: path.join(__dirname, "..", "var"),
     env: 'VAR_PATH'
   },
-  pub_key_ttl: "integer = " + (6 * 60 * 60), // 6 hours
-  pub_key_path: 'string = "var/key.publickey"'
+  pub_key_ttl: {
+    format: "duration",
+    default: "6 hours"
+  },
+  pub_key_path: "var/key.publickey"
 });
 
 // At the time this file is required, we'll determine the "process name" for this proc
@@ -89,15 +120,7 @@ if (! process.env.CONFIG_FILES &&
 // environment variable
 if (process.env.CONFIG_FILES) {
   var files = process.env.CONFIG_FILES.split(',');
-  files.forEach(function(file) {
-    var c = JSON.parse(fs.readFileSync(file, 'utf8'));
-    conf.load(c);
-  });
-}
-
-// if var path has not been set, let's default to var/
-if (!conf.has('var_path')) {
-  conf.set('var_path', path.join(__dirname, "..", "var"));
+  conf.load(files);
 }
 
 if (! process.env.NODE_ENV) {
