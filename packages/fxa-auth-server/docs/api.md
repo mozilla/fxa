@@ -75,13 +75,17 @@ ___Parameters___
 
 * email - the primary email for this account
 * verifier - the derived SRP verifier
-* salt - SPR salt
+* mainSalt - main salt
+* SRPSalt - SRP salt
 * params
-    * srp
-        * alg - hash function for SRP (sha256)
-        * N_bits - SPR group bits (2048)
+    * srp_parameters: 1, meaning SRP-6a, SHA256, with a specific 2048-bit group
     * stretch
-        * rounds - number of rounds of password stretching
+        * type: 1, meaning PBKDF2/scrypt/PBKDF2
+        * PBKDF2_rounds_1: 20000
+        * scrypt_N: 65536
+        * scrypt_r: 8
+        * scrypt_p: 1
+        * PBKDF2_rounds_2: 20000
 
 ### Request
 ```sh
@@ -92,15 +96,17 @@ http://idp.profileinthecloud.net/account/create \
 -d '{
   "email": "me2@example.com",
   "verifier": "7597c55064c73bf1b2735878cb8711c289fc8f1cfb3d633a4593b36a8c51dbd68b27f649949de27d1dcccf7ece1e1a42c5c6bdc3d209cf13a3813d333bfcadd2641a9a3e2eb4289788ed8510cc8f2f1061789d58aef38b9d21b81831413f55473f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4e0bda74fcaa2347be4664f553d332df8166278c0e2f8663aa9238a2429631f7afd11622e193747b57975c51bbb69bb11f60c1a5ba449d3119e70d1ec580212151f79b26e73a57dba313376f0ba7a2afc232146a3b1d68b2d0afc35ebb8699cb10b3a3f8e0d51cefc7ac29212b238fb7a87f2f61edc9cbff103e386f778925fe",
-  "salt": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4",
+  "srpSalt: "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4",
+  "mainSalt: "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab",
   "params": {
-    "srp": {
-      "alg": "sha256",
-      "N_bits": 2048
-    },
+    "srp_parameters": 1,
     "stretch": {
-      "salt": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab",
-      "rounds": 100000
+      "type": 1,
+      "PBKDF2_rounds_1": 20000,
+      "scrypt_N": 65536,
+      "scrypt_r": 8,
+      "scrypt_p": 1,
+      "PBKDF2_rounds_2": 20000
     }
   }
 }'
@@ -210,7 +216,7 @@ http://idp.profileinthecloud.net/account/recovery_methods \
 
 ## POST /account/recovery_methods/send_code :lock:
 
-Sends a verification code to the specified recovery method (e.g., email). Providing this code will mark the recovery method as "verified".
+Sends or re-sends a verification code to the specified recovery method (e.g., email). If this code is provided to /account/recovery_methods/verify_code (below), the email will be marked as "verified".
 
 ### Request
 
@@ -242,7 +248,7 @@ http://idp.profileinthecloud.net/account/recovery_methods/send_code \
 
 ## POST /account/recovery_methods/verify_code
 
-Verifies a verification code that was sent to a user's recovery method (e.g., email). Providing this code will mark the recovery method as "verified".
+Verifies a verification code that was sent to a user's recovery method (e.g., email). If correct, the recovery method will be marked as "verified".
 
 ### Request
 
@@ -278,6 +284,18 @@ See [resetting the account](https://wiki.mozilla.org/Identity/AttachedServices/K
 ___Parameters___
 
 * bundle - a base16 string of encrypted `wrapKb|verifier`
+* mainSalt - main salt
+* SRPSalt - SRP salt
+* params
+    * srp_parameters: 1, meaning SRP-6a, SHA256, with a specific 2048-bit group
+    * stretch
+        * type: 1, meaning PBKDF2/scrypt/PBKDF2
+        * PBKDF2_rounds_1: 20000
+        * scrypt_N: 65536
+        * scrypt_r: 8
+        * scrypt_p: 1
+        * PBKDF2_rounds_2: 20000
+
 
 ___Headers___
 
@@ -292,14 +310,17 @@ curl -v \
 http://idp.profileinthecloud.net/account/reset \
 -d '{
   "bundle": "a586e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a98264bdc",
+  "srpSalt: "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4",
+  "mainSalt: "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab",
   "params": {
-    "srp": {
-      "alg": "sha256",
-      "N_bits": 2048
-    },
+    "srp_parameters": 1,
     "stretch": {
-      "salt": "426bc6b1aa63cd69856a2ec81cbf19d5c8a60471cc62df9ee15c2bf07128ef00",
-      "rounds": 100000
+      "type": 1,
+      "PBKDF2_rounds_1": 20000,
+      "scrypt_N": 65536,
+      "scrypt_r": 8,
+      "scrypt_p": 1,
+      "PBKDF2_rounds_2": 20000
     }
   }
 }'
@@ -524,15 +545,19 @@ http://idp.profileinthecloud.net/session/auth/start \
 ```json
 {
   "srpToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
+  "mainSalt: "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab",
   "stretch": {
-    "rounds": 100000,
-    "salt": "9e1a5712b22ea7ec06eb74422be67040e030a9f041fe258d8ed633d027271704"
+    "type": 1,
+    "PBKDF2_rounds_1": 20000,
+    "scrypt_N": 65536,
+    "scrypt_r": 8,
+    "scrypt_p": 1,
+    "PBKDF2_rounds_2": 20000
   },
   "srp":
   {
-    "N_bits": 2048,
-    "alg": "sha256",
-    "s": "739e25a048cdc37353ebbfe6aca8f7e427f483fab73c01e91b23c4a77186c718",
+    "srp_parameters": 1,
+    "srpSalt: "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4",
     "B": "3cd467e3afd4cc2d7abd913e322d76c245c667e9dffc6e28a1108ac02c5af9eee1148a0c735f52ed786c33add4936dd5534326794e03d1b48b77b347c728740288adf488a9f4f11d75bb60e9bb1e975cccd128e28115178de01702fd2e8715e7c33b02c142569669bb52cf167092fa79c3c03c81affc5c8d97fd3cb8d12605e5dd59f75e21376cfdc6536125650ff8559f1c5319a9bfbb5191238c1570d41dc43e880d213fa06ff9d2f6ca7f31e05aef6236ae3657450250c06145a346151c54f227996532bbdc6e1531456174975eded5404baae081b3ce7b42646b98baec1029082823a041aaace4ffa362d5ed42a4e5088c496dda8ba2a35e804e89597313"
   }
 }
