@@ -85,7 +85,7 @@ if (config.get('use_https')) {
   });
   lstnUrl = util.format('https://%s', config.get('issuer'));
 } else {
-  port = process.env.PORT || 3030;
+  port = config.get('port');
   app.listen(port, '0.0.0.0');
   lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
 }
