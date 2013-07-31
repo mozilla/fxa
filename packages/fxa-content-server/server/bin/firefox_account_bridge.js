@@ -65,7 +65,10 @@ app.get('/provision', function(req, res) {
 });
 
 app.get('/authentication', function(req, res) {
-  res.render('authentication.html');
+  res.render('authentication.html', {
+    browserid_server: config.get('browserid_server'),
+    currentEmail: 'null'
+  });
 });
 
 if (config.get('use_https')) {
