@@ -1,25 +1,14 @@
 var test = require('tap').test
 var crypto = require('crypto')
 var P = require('p-promise')
+var config = require('../config').root()
 
-var dbs = require('../kv')(
-  {
-    kvstore: {
-      available_backends: ['memory'],
-      backend: 'memory',
-      cache: 'memory'
-    }
-  }
-)
+var dbs = require('../kv')(config)
 
 var mailer = {
   sendCode: function () { return P(null) }
 }
 
-var config = {
-  domain: 'example.com',
-  dev: {}
-}
 var models = require('../models')(config, dbs, mailer)
 var KeyFetchToken = models.tokens.KeyFetchToken
 

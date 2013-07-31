@@ -7,7 +7,7 @@ var crypto = require('crypto')
 var P = require('p-promise')
 var uuid = require('uuid')
 var Hapi = require('hapi')
-var error = Hapi.error
+var error = require('../error')
 var isA = Hapi.types
 
 module.exports = function (

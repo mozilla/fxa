@@ -3,8 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var Client = require('./')
-var client = new Client('http://localhost:9000')
-
 var email = 'me@example.com';
 var password = 'verySecurePassword';
 var publicKey = {
@@ -14,15 +12,31 @@ var publicKey = {
 };
 var duration = 1000 * 60 * 60 * 24;
 
-client
-  .create(email, password)
-  .then(client.startLogin.bind(client, email))
-  .then(client.finishLogin.bind(client, email, password))
-  .done(
-    function (tokens) {
-      console.log(tokens)
-    },
-    function (err) {
-      console.error(err)
+
+var client = null
+
+Client.create('http://localhost:9000', email, password)
+  .then(
+    function (x) {
+      client = x
+      return client.keys()
     }
   )
+  .then(
+    function (keys) {
+      console.log('my keys:', keys)
+    }
+  )
+  .then(
+    function () {
+      return client.sign(publicKey, duration)
+    }
+  )
+  .then(
+    function (cert) {
+      console.log('my cert:', cert)
+      return 'done'
+    }
+  )
+  .done(console.log, console.error)
+

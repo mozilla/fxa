@@ -10,6 +10,7 @@ var P = require('p-promise')
 var uuid = require('uuid')
 
 var Bundle = require('../bundle')
+var error = require('../error')
 var srp = require('../srp')
 
 module.exports = function (config, dbs, mailer) {
@@ -49,7 +50,8 @@ module.exports = function (config, dbs, mailer) {
     tokens,
     RecoveryMethod,
     dbs.store,
-    config
+    config,
+    error
   )
   var SrpSession = require('./srp_session')(
     P,
@@ -57,7 +59,7 @@ module.exports = function (config, dbs, mailer) {
     srp,
     bigint,
     dbs.cache,
-    Account
+    error
   )
   var AuthBundle = require('./auth_bundle')(
     inherits,

@@ -41,6 +41,27 @@ module.exports = function (inherits, Token, db) {
       )
   }
 
+  KeyFetchToken.fromHex = function (string) {
+    return Token.
+      tokenDataFromBytes(
+        'account/keys',
+        3 * 32 + 2 * 32,
+        Buffer(string, 'hex')
+      )
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new KeyFetchToken()
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t.key = key.slice(32, 64).toString('hex')
+          t.hmacKey = key.slice(64, 96).toString('hex')
+          t.xorKey = key.slice(96, 160).toString('hex')
+          return t
+        }
+      )
+  }
+
   KeyFetchToken.get = function (id) {
     return db
       .get(id + '/fetch')

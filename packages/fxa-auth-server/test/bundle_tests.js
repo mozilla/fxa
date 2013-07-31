@@ -4,14 +4,9 @@ var crypto = require('crypto')
 var bigint = require('bigint')
 var P = require('p-promise')
 var hkdf = require('../hkdf')
+var config = require('../config').root()
 
-var dbs = require('../kv')({
-  kvstore: {
-    available_backends: ['memory'],
-    backend: 'memory',
-    cache: 'memory'
-  }
-})
+var dbs = require('../kv')(config)
 
 function fakeCrypto(bytes) {
   return {

@@ -1,16 +1,9 @@
 var test = require('tap').test
 var crypto = require('crypto')
 var P = require('p-promise')
+var config = require('../config').root()
 
-var dbs = require('../kv')(
-  {
-    kvstore: {
-      available_backends: ['memory'],
-      backend: 'memory',
-      cache: 'memory'
-    }
-  }
-)
+var dbs = require('../kv')(config)
 
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -19,10 +12,6 @@ var mailer = {
   sendCode: function () { sends++; return P(null) }
 }
 
-var config = {
-  domain: 'example.com',
-  dev: {}
-}
 var models = require('../models')(config, dbs, mailer)
 var RecoveryMethod = models.RecoveryMethod
 

@@ -119,7 +119,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
             .then(
               function (account) {
                 if (!account.verified) {
-                  throw new Error('Unverified Account')
+                  throw error.unverifiedAccount()
                 }
                 return {
                   bundle: keyFetchToken.bundle(account.kA, account.wrapKb)
@@ -216,7 +216,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
                     )
                 }
                 else {
-                  request.reply(new Error("secondary recovery not implemented yet"))
+                  request.reply(error.notImplemented())
                 }
               }
             )

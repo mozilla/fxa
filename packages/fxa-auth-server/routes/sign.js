@@ -37,7 +37,7 @@ module.exports = function (isA, error, signer, Account) {
             .done(
               function (account) {
                 if (!account.verified) {
-                  return request.reply(new Error('Unverified Account'))
+                  return request.reply(error.unverifiedAccount())
                 }
                 signer.enqueue(
                   {
