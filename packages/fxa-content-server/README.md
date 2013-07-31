@@ -8,7 +8,7 @@ It consumes the REST API which PICL provides.
 
 ### One Time Setup
 
-    server/config/local.json-dist server/config/local.json
+    cp server/config/local.json-dist server/config/local.json
 
 ### Running the service
 
