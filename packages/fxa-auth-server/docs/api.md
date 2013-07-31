@@ -7,7 +7,7 @@ Our [SRP](http://en.wikipedia.org/wiki/Secure_Remote_Password_protocol#Protocol)
 protocol order is slightly different from the sample on wikipedia, but the variables
 are the same.
 
-[Hawk](https://github.com/hueniverse/hawk) is used to authenticate requests marked 🔒.
+[Hawk](https://github.com/hueniverse/hawk) is used to authenticate requests marked :lock:.
 
 # Request Format
 
@@ -37,19 +37,19 @@ For example:
 
 * Account
     * [/account/create](#post-accountcreate)
-    * [/account/devices 🔒](#get-accountdevices-)
-    * [/account/keys 🔒](#get-accountkeys-)
-    * [/account/recovery_methods 🔒](#get-accountrecovery_methods-)
-    * [/account/recovery_methods/send_code 🔒](#post-accountrecovery_methodssend_code-)
+    * [/account/devices :lock:](#get-accountdevices-)
+    * [/account/keys :lock:](#get-accountkeys-)
+    * [/account/recovery_methods :lock:](#get-accountrecovery_methods-)
+    * [/account/recovery_methods/send_code :lock:](#post-accountrecovery_methodssend_code-)
     * [/account/recovery_methods/verify_code](#post-accountrecovery_methodsverify_code)
-    * [/account/reset 🔒](#post-accountreset-)
+    * [/account/reset :lock:](#post-accountreset-)
 
-* [/certificate/sign 🔒](#post-certificatesign-)
+* [/certificate/sign :lock:](#post-certificatesign-)
 
 * [/get_random_bytes](#post-get_random_bytes)
 
 * Password
-    * [/password/change/auth/start 🔒](#post-passwordchangeauthstart-)
+    * [/password/change/auth/start :lock:](#post-passwordchangeauthstart-)
     * [/password/change/auth/finish](#post-passwordchangeauthfinish)
     * [/password/forgot/send_code](#post-passwordforgotsend_code)
     * [/password/forgot/verify_code](#post-passwordforgotverify_code)
@@ -57,8 +57,8 @@ For example:
 * Session
     * [/session/auth/start](#post-sessionauthstart)
     * [/session/auth/finish](#post-sessionauthfinish)
-    * [/session/status 🔒](#get-sessionstatus-)
-    * [/session/destroy 🔒](#post-sessiondestroy-)
+    * [/session/status :lock:](#get-sessionstatus-)
+    * [/session/destroy :lock:](#post-sessiondestroy-)
 
 A development server is available at http://idp.profileinthecloud.net for testing.
 All data stored there will be deleted periodically, and new code will be deployed
@@ -112,7 +112,7 @@ http://idp.profileinthecloud.net/account/create \
 {}
 ```
 
-## GET /account/devices 🔒
+## GET /account/devices :lock:
 
 Gets the collection of devices currently authenticated and syncing for the user.
 
@@ -145,7 +145,7 @@ http://idp.profileinthecloud.net/account/devices \
 }
 ```
 
-## GET /account/keys 🔒
+## GET /account/keys :lock:
 
 Get the base16 bundle of encrypted `kA|wrapKb`.
 
@@ -175,7 +175,7 @@ http://idp.profileinthecloud.net/account/keys \
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
 for info on how to retrieve `kA|wrapKb` from the bundle.
 
-## GET /account/recovery_methods 🔒
+## GET /account/recovery_methods :lock:
 
 Gets the set of methods for recovery the user's password for the account (e.g., a set of email addresses).
 
@@ -208,7 +208,7 @@ http://idp.profileinthecloud.net/account/recovery_methods \
 }
 ```
 
-## POST /account/recovery_methods/send_code 🔒
+## POST /account/recovery_methods/send_code :lock:
 
 Sends a verification code to the specified recovery method (e.g., email). Providing this code will mark the recovery method as "verified".
 
@@ -269,7 +269,7 @@ http://idp.profileinthecloud.net/account/recovery_methods/verify_code \
 {}
 ```
 
-## POST /account/reset 🔒
+## POST /account/reset :lock:
 
 See [resetting the account](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Resetting_the_Account)
 
@@ -311,7 +311,7 @@ http://idp.profileinthecloud.net/account/reset \
 {}
 ```
 
-## POST /certificate/sign 🔒
+## POST /certificate/sign :lock:
 
 Sign a public key
 
@@ -374,7 +374,7 @@ curl -X POST -v http://idp.profileinthecloud.net/get_random_bytes
 }
 ```
 
-## POST /password/change/auth/start 🔒
+## POST /password/change/auth/start :lock:
 
 Begin the "change password" process
 
@@ -575,7 +575,7 @@ http://idp.profileinthecloud.net/session/auth/finish \
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
 for info on how to retrieve `sessionToken|keyFetchToken` from the bundle.
 
-## GET /session/status 🔒
+## GET /session/status :lock:
 
 Check whether a session is still valid.
 
@@ -599,7 +599,7 @@ http://idp.profileinthecloud.net/session/status \
 {}
 ```
 
-## POST /session/destroy 🔒
+## POST /session/destroy :lock:
 
 Destroys this session.
 
