@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <script src="{{browserid_server}}/provisioning_api.js"></script>
+<script src="/js/vendor/jquery-1.7.1.min.js"></script>
 <script>
+var provisioned = {{ provisioned }};
+console.log(navigator.id.beginProvisioning);
 navigator.id.beginProvisioning(function(email, certDuration) {
-  {% if provisioned %}
+  if (provisioned.indexOf(email) !== -1) {
     navigator.id.genKeyPair(function(publicKey) {
-      generateServerSide(email, publicKey, certDuration, function (certificate) {
-        // generateServerSide something you would write.
-        // In this example, imagine it does an AJAX request to create a certificate,
-        // and then invokes a callback with that certificate.
+    $.post('/provision', {
+        email: email,
+        publicKey: publicKey,
+        duration: certDuration,
+        _csrf: "{{ csrf_token }}"        
+      }, function (data) {
+        var certificate = data.certificate;
         navigator.id.registerCertificate(certificate);
       });
     });
-  {% else %}
+  } else {
     navigator.id.raiseProvisioningFailure('user is not authenticated as target user');
-  {% endif %}
+  }
 });
 </script>
