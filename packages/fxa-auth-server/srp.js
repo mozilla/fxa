@@ -236,13 +236,13 @@ var getK = exports.getK = function getK(S, N, alg) {
       .digest('hex'), 16);
 };
 
-var getM = exports.getM = function getM(A, B, S) {
+var getM = exports.getM = function getM(A, B, S, N) {
   return bigint(
     crypto
       .createHash('sha256')
-      .update(A.toBuffer())
-      .update(B.toBuffer())
-      .update(S.toBuffer())
+      .update(pad(A, N))
+      .update(pad(B, N))
+      .update(pad(S, N))
       .digest('hex'), 16);
 }
 

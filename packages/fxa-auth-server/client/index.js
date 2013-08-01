@@ -45,7 +45,7 @@ function getAMK(srpSession, email, password) {
     srpSession.srp.alg
   )
 
-  var M = srp.getM(A, B, S)
+  var M = srp.getM(A, B, S, N)
   var K = srp.getK(S, N, srpSession.srp.alg)
 
   return {

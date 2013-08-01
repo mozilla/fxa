@@ -79,7 +79,7 @@ module.exports = function (P, uuid, srp, bigint, db, error) {
             bigint(session.b, 16),
             alg
           )
-          var M2 = srp.getM(A, bigint(session.B, 16), S)
+          var M2 = srp.getM(A, bigint(session.B, 16), S, N)
           if (M1 !== M2.toBuffer().toString('hex')) {
             // TODO: increment bad guess counter
             // TODO: delete session?
@@ -149,7 +149,7 @@ module.exports = function (P, uuid, srp, bigint, db, error) {
             session.srp.alg
           )
 
-          var M = srp.getM(A, B, S)
+          var M = srp.getM(A, B, S, N)
           var K = srp.getK(S, N, session.srp.alg)
           return {
             A: A.toBuffer().toString('hex'),
