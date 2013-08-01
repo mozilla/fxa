@@ -4,7 +4,7 @@
 <title>Sign in to Firefox Accounts</title>
 </head>
 <body>
-  <form>
+  <form action="/authentication" method="POST">
     <fieldset>
       <label for="email">Email</label>
       <input id="email" name="email" value="" />
@@ -16,13 +16,37 @@
     <button>Sign In</button>
   </form>
 <script src="{{browserid_server}}/authentication_api.js"></script>
+<script src="/js/vendor/jquery-1.7.1.min.js"></script>
 <script>
 navigator.id.beginAuthentication(function(email) {
-  console.log(email);
   if (email === {{ currentEmail }}) {
+
     navigator.id.completeAuthentication();
+  } else {
+    $('form').bind('submit', function(e) {
+      e.preventDefault();
+      if (validateForm(email)) {
+        checkAuth();
+      }
+    });
   }
 });
+
+function validateForm(browseridEmail) {
+  var email = $('#email').val().trim();
+  return email.toLowerCase() === browseridEmail.toLowerCase() &&
+         $('#password').val().trim() !== ''
+}
+
+function checkAuth() {
+  $.post($('form').attr('action'), {
+    email: $('#email').val(),
+    password: $('#password').val(),
+    _csrf: "{{ csrf_token }}"
+  }, function(data) {
+    navigator.id.completeAuthentication();
+  });
+};
 </script>
 </body>
 </html>

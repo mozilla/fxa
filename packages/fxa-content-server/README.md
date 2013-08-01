@@ -27,3 +27,5 @@ And then start up browserid:
     SHIMMED_PRIMARIES="dev.fxaccounts.mozilla.org|http://127.0.0.1:3030|/tmp/fxwellknown"  npm start
 
 Now you can type foo@dev.fxaccounts.mozilla.org in the test dialog at http://127.0.0.1:10001/. No DNS or `/etc/hosts` hacks are needed.
+
+Password is 'asdf'.

@@ -12,6 +12,7 @@ const clientSessions = require('client-sessions'),
       config = require('../lib/configuration'),
       express = require('express'),
       nunjucks = require('nunjucks'),
+      routes = require('../lib/routes'),
       urlparse = require('urlparse'),
       util = require('util');
 
@@ -52,24 +53,9 @@ app.use(function(req, resp, next) {
   next();
 });
 
-app.get('/.well-known/browserid', function(req, res) {
-  res.setHeader('Content-Type', 'application/json');
-  res.render('browserid.html');
-});
+routes(app);
 
-app.get('/provision', function(req, res) {
-  res.render('provision.html', {
-    browserid_server: config.get('browserid_server'),
-    provisioned: false
-  });
-});
-
-app.get('/authentication', function(req, res) {
-  res.render('authentication.html', {
-    browserid_server: config.get('browserid_server'),
-    currentEmail: 'null'
-  });
-});
+app.use(express.static(path.join(process.cwd(), '..', 'static')));
 
 if (config.get('use_https')) {
   // Development only... Ops runs this behind nginx
@@ -87,6 +73,7 @@ if (config.get('use_https')) {
 } else {
   port = config.get('port');
   app.listen(port, '0.0.0.0');
+  console.log('config.get("issuer")', config.get('issuer'));
   lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
 }
 console.log('Firefox Account Bridge listening at', lstnUrl);
