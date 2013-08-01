@@ -21,15 +21,10 @@ For example:
 
 ```js
 {
-  status: 400,  // matches the HTTP status code
-  errors: [
-    {
-      code: 1234,  // stable application level code
-      message: "The value of salt is not allowed to be undefined", // dev message
-      info: "https://dev.picl.org/errors/1234" // link to more info on the error
-      // additional error specific properties allowed
-    }
-  ]
+  "code": 400, // matches the HTTP status code
+  "error": 1234, // stable application level error type
+  "message": "the value of salt is not allowed to be undefined",
+  "info": "https://dev.picl.org/errors/1234" // link to more info on the error
 }
 ```
 
@@ -40,7 +35,7 @@ For example:
     * [GET  /account/devices :lock:(sessionToken)](#get-accountdevices)
     * [GET  /account/keys :lock:(keyFetchToken)](#get-accountkeys)
     * [POST /account/reset :lock:(accountResetToken)](#post-accountreset)
-    * [POST /account/delete :lock:(authToken)](#post-accountdelete)
+    * [POST /account/destroy :lock:(authToken)](#post-accountdestroy)
 
 * Authentication
     * [POST /auth/start](#post-authstart)
@@ -127,7 +122,7 @@ http://idp.profileinthecloud.net/account/create \
 {}
 ```
 
-## GET /account/devices :lock:
+## GET /account/devices
 
 :lock: HAWK-authenticated with sessionToken
 
@@ -200,7 +195,7 @@ http://idp.profileinthecloud.net/account/keys \
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
 for info on how to extract `kA|wrapKb` from the bundle.
 
-## POST /account/reset :lock:
+## POST /account/reset
 
 :lock: HAWK-authenticated with accountResetToken
 
@@ -261,7 +256,7 @@ http://idp.profileinthecloud.net/account/reset \
 {}
 ```
 
-## POST /account/delete
+## POST /account/destroy
 
 :lock: HAWK-authenticated with the authToken
 
@@ -285,7 +280,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/account/delete \
+http://idp.profileinthecloud.net/account/destroy \
 -d ''
 ```
 
@@ -328,8 +323,8 @@ ___Parameters___
 ```json
 {
   "srpToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
-  "srpTokenLifetime": 60, 
-  "mainKDFSalt: "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab",
+  "srpTokenLifetime": 60,
+  "mainKDFSalt": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab",
   "stretch": {
     "keyStretchingVersion": "1",
     "PBKDF2_rounds_1": 20000,
@@ -412,7 +407,7 @@ http://idp.profileinthecloud.net/session/create \
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#???)
 for info on how to retrieve `sessionToken` and `keyFetchToken` from the bundle.
 
-## POST /session/destroy :lock:
+## POST /session/destroy
 
 :lock: HAWK-authenticated with the sessionToken.
 
@@ -657,7 +652,7 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
   "forgotPasswordToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
   "forgotPasswordTokenLifetime": 900,
   "codeLength": 8,
-  "remainingAttempts: 3
+  "remainingAttempts": 3
 }
 ```
 
@@ -693,7 +688,7 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
   "forgotPasswordToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
   "forgotPasswordTokenLifetime": 550,
   "codeLength": 8,
-  "remainingAttempts: 2
+  "remainingAttempts": 2
 }
 ```
 
