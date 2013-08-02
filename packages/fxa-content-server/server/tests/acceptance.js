@@ -22,9 +22,10 @@ describe('can serve well_known', function() {
     request(app)
     .get('/.well-known/browserid')
     .expect('Content-Type', /json/)
+    .expect(/public-key/) // string or regex matching expected well-known json
     .end(function(err, res){
       if (err) throw err;
+      done();
     });
-    done();
   });
 });
