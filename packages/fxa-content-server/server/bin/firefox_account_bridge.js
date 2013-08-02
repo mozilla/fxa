@@ -63,7 +63,12 @@ function makeApp() {
   return app;
 }
 
-var app = makeApp();
+var app,
+    lstnUrl,
+    port;
+if (isMain) {
+  app = makeApp();
+}
 
 function listen(theApp) {
   app = theApp || app;
@@ -91,4 +96,6 @@ function listen(theApp) {
 
 if (isMain) {
   listen();
+} else {
+  module.exports = {listen: listen, makeApp: makeApp};
 }
