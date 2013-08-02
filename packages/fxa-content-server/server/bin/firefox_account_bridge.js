@@ -5,8 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const path = require('path');
-// ./server is our current working directory
-process.chdir(path.dirname(__dirname));
+
+// Best way to librar-ify this stuff?
+var isMain = process.argv[1] === __filename;
+if (isMain) {
+  // ./server is our current working directory
+  process.chdir(path.dirname(__dirname));
+}
 
 const clientSessions = require('client-sessions'),
       config = require('../lib/configuration'),
@@ -16,46 +21,49 @@ const clientSessions = require('client-sessions'),
       urlparse = require('urlparse'),
       util = require('util');
 
+function makeApp() {
+  var app = express();
+  var env = new nunjucks.Environment(
+      new nunjucks.FileSystemLoader(
+          path.join(__dirname, '..', 'views')));
 
-var app = express();
-var env = new nunjucks.Environment(
-  new nunjucks.FileSystemLoader(
-    path.join(__dirname, '..', 'views')));
+  env.express(app);
+  app.use(express.cookieParser());
+  app.use(express.bodyParser());
 
-env.express(app);
-app.use(express.cookieParser());
-app.use(express.bodyParser());
+  var isHttps = 'https' === urlparse(config.get('public_url')).scheme;
 
-var isHttps = 'https' === urlparse(config.get('public_url')).scheme;
+  // BigTent must be deployed behind SSL.
+  // Tell client-sessions everything will be alright
+  app.use(function(req, res, next) {
+      req.connection.proxySecure = isHttps;
+      next();
+  });
 
-// BigTent must be deployed behind SSL.
-// Tell client-sessions everything will be alright
-app.use(function(req, res, next) {
-  req.connection.proxySecure = isHttps;
-  next();
-});
+  var sess_config = config.get('client_sessions');
+  app.use(clientSessions({
+      cookieName: sess_config.cookie_name,
+      secret:     sess_config.secret,
+      duration:   sess_config.duration,
+      cookie: {
+        secure: isHttps,
+        httpOnly: true,
+        maxAge: sess_config.duration
+      }
+  }));
 
-var sess_config = config.get('client_sessions');
-app.use(clientSessions({
-  cookieName: sess_config.cookie_name,
-  secret:     sess_config.secret,
-  duration:   sess_config.duration,
-  cookie: {
-    secure: isHttps,
-    httpOnly: true,
-    maxAge: sess_config.duration
-  }
-}));
+  app.use(express.csrf());
+  app.use(function(req, resp, next) {
+      resp.locals({'csrf_token': req.session._csrf});
+      next();
+  });
 
-app.use(express.csrf());
-app.use(function(req, resp, next) {
-  resp.locals({'csrf_token': req.session._csrf});
-  next();
-});
+  routes(app);
+  app.use(express.static(path.join(process.cwd(), '..', 'static')));
+  return app;
+}
 
-routes(app);
-
-app.use(express.static(path.join(process.cwd(), '..', 'static')));
+var app = makeApp();
 
 if (config.get('use_https')) {
   // Development only... Ops runs this behind nginx
