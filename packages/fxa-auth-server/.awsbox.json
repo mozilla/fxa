@@ -4,13 +4,13 @@
     "bin/key_server.js"
   ],
   "env": {
-    "CONFIG_FILES": "$HOME/code/config/aws.json,$HOME/cloud_formation.json,$HOME/config.json",
+    "CONFIG_FILES": "$HOME/code/config/awsbox.json,$HOME/config.json",
     "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml",
     "LOGSTASH_CONFIG": "$HOME/code/config/logstash.conf"
   },
   "hooks": {
-    "postcreate": "scripts/aws/post_create.sh",
-    "postdeploy": "scripts/aws/post_deploy.sh"
+    "postcreate": "scripts/awsbox/post_create.sh",
+    "postdeploy": "scripts/awsbox/post_deploy.sh"
   },
   "packages": [
     "mysql-server",
