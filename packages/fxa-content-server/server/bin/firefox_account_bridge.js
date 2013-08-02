@@ -6,7 +6,7 @@
 
 const path = require('path');
 
-// Best way to librar-ify this stuff?
+// This can't possibly be best way to librar-ify this module.
 var isMain = process.argv[1] === __filename;
 if (isMain) {
   // ./server is our current working directory
@@ -65,23 +65,30 @@ function makeApp() {
 
 var app = makeApp();
 
-if (config.get('use_https')) {
-  // Development only... Ops runs this behind nginx
-  port = 443;
-  app.listen(443);
-  app.on('error', function(e) {
-    if ('EACCES' == e.code) {
-      console.error('Permission Denied, maybe you should run this with sudo?');
-    } else if ('EADDRINUSE' == e.code) {
-      console.error('Unable to listen for connections, this service might already be running?');
-    }
-    throw e;
-  });
-  lstnUrl = util.format('https://%s', config.get('issuer'));
-} else {
-  port = config.get('port');
-  app.listen(port, '0.0.0.0');
-  console.log('config.get("issuer")', config.get('issuer'));
-  lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
+function listen(theApp) {
+  app = theApp || app;
+  if (config.get('use_https')) {
+    // Development only... Ops runs this behind nginx
+    port = 443;
+    app.listen(443);
+    app.on('error', function(e) {
+      if ('EACCES' == e.code) {
+        console.error('Permission Denied, maybe you should run this with sudo?');
+      } else if ('EADDRINUSE' == e.code) {
+        console.error('Unable to listen for connections, this service might already be running?');
+      }
+      throw e;
+    });
+    lstnUrl = util.format('https://%s', config.get('issuer'));
+  } else {
+    port = config.get('port');
+    app.listen(port, '0.0.0.0');
+    console.log('config.get("issuer")', config.get('issuer'));
+    lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
+  }
+  console.log('Firefox Account Bridge listening at', lstnUrl);
 }
-console.log('Firefox Account Bridge listening at', lstnUrl);
+
+if (isMain) {
+  listen();
+}
