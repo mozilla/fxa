@@ -92,6 +92,7 @@ function listen(theApp) {
     lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
   }
   console.log('Firefox Account Bridge listening at', lstnUrl);
+  return true; // used by test
 }
 
 if (isMain) {

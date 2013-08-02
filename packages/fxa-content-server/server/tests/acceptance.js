@@ -5,19 +5,13 @@ process.env['PORT'] = '0'; // for testing bind ephemeral ports
 process.env['HOSTNAME'] = '127.0.0.1';
 
 var fab = require('../bin/firefox_account_bridge.js');
+var app;
 
 describe('can start', function() {
   it('should be true that', function(done) {
-
-    var fs = require('fs');
-    fs.exists('./server/bin/firefox_account_bridge.js', function( exists ) {
-      console.log( ( exists  ? "File is there" : "File is not there" ) );
-      //done();
-    });
-
-    var app = fab.makeApp();
-    fab.listen(app);
-    (!!app).should.be.true;
+    app = fab.makeApp();
+    var listening = fab.listen(app);
+    (listening).should.be.true;
     done();
    });
 });
