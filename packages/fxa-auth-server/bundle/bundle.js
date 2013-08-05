@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (crypto, bigint, P, hkdf) {
+module.exports = function (crypto, P, hkdf) {
 
   function Bundle() {
     this.hmacKey = null
@@ -33,10 +33,15 @@ module.exports = function (crypto, bigint, P, hkdf) {
   }
 
   Bundle.prototype.xor = function (buffer) {
-    return bigint
-      .fromBuffer(buffer)
-      .xor(bigint(this.xorKey, 16))
-      .toBuffer()
+    var xorBuffer = Buffer(this.xorKey, 'hex')
+    if (buffer.length !== xorBuffer.length) {
+      throw new Error('XOR buffers must be same length')
+    }
+    var result = Buffer(xorBuffer.length)
+    for (var i = 0; i < xorBuffer.length; i++) {
+      result[i] = buffer[i] ^ xorBuffer[i]
+    }
+    return result
   }
 
   function hexToBuffer(string) {

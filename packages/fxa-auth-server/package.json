@@ -17,7 +17,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "bigint": "0.4.2",
+    "srp": "git://github.com/dannycoates/node-srp.git#b95b9528ec",
     "uuid": "1.4.1",
     "hapi": "1.9.0",
     "hawk": "1.0.0",
