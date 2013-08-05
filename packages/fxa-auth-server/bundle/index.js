@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var crypto = require('crypto')
-var bigint = require('bigint')
 var P = require('p-promise')
 var hkdf = require('../hkdf')
 
-module.exports = require('./bundle')(crypto, bigint, P, hkdf)
+module.exports = require('./bundle')(crypto, P, hkdf)

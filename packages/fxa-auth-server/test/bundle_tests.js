@@ -1,7 +1,6 @@
 var test = require('tap').test
 var inherits = require('util').inherits
 var crypto = require('crypto')
-var bigint = require('bigint')
 var P = require('p-promise')
 var hkdf = require('../hkdf')
 var config = require('../config').root()
@@ -250,19 +249,13 @@ var accountReset = {
     '76590dba8d924713' + '78eb6e2197fed99f'
 }
 
-var KBundle = require('../bundle/bundle')(
-  fakeCrypto(accountKeys.keyFetchToken),
-  bigint, P, hkdf)
+var KBundle = require('../bundle/bundle')(fakeCrypto(accountKeys.keyFetchToken), P, hkdf)
 var KToken = require('../models/token')(inherits, KBundle)
 
-var SBundle = require('../bundle/bundle')(
-    fakeCrypto(useSession.sessionToken),
-    bigint, P, hkdf)
+var SBundle = require('../bundle/bundle')(fakeCrypto(useSession.sessionToken), P, hkdf)
 var SToken = require('../models/token')(inherits, SBundle)
 
-var RBundle = require('../bundle/bundle')(
-    fakeCrypto(accountReset.accountResetToken),
-    bigint, P, hkdf)
+var RBundle = require('../bundle/bundle')(fakeCrypto(accountReset.accountResetToken), P, hkdf)
 var RToken = require('../models/token')(inherits, RBundle)
 
 var KeyFetchToken = require('../models/key_fetch_token')(inherits, KToken, dbs.store)

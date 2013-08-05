@@ -5,13 +5,12 @@
 var crypto = require('crypto')
 var inherits = require('util').inherits
 
-var bigint = require('bigint')
 var P = require('p-promise')
+var srp = require('srp')
 var uuid = require('uuid')
 
 var Bundle = require('../bundle')
 var error = require('../error')
-var srp = require('../srp')
 
 module.exports = function (config, dbs, mailer) {
 
@@ -57,7 +56,6 @@ module.exports = function (config, dbs, mailer) {
     P,
     uuid,
     srp,
-    bigint,
     dbs.cache,
     error
   )

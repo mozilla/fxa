@@ -1,6 +1,6 @@
 var test = require('tap').test
 var P = require('p-promise')
-var srp = require('../srp')
+var srp = require('srp')
 var config = require('../config').root()
 
 var dbs = require('../kv')(config)
@@ -30,7 +30,7 @@ alice.verifier = srp.getv(
   srp.params[2048].N,
   srp.params[2048].g,
   'sha256'
-).toBuffer().toString('hex')
+).toString('hex')
 
 Account.create(alice)
 .done(

@@ -3,15 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var crypto = require('crypto')
-var bigint = require('bigint')
 var P = require('p-promise')
+var srp = require('srp')
 
 var ClientApi = require('./api')
 var models = require('../models')({},{},{})
 var tokens = models.tokens
 var AuthBundle = models.AuthBundle
-
-var srp = require('../srp')
 
 function Client(origin) {
   this.api = new ClientApi(origin)
@@ -29,11 +27,11 @@ function Client(origin) {
 Client.Api = ClientApi
 
 function getAMK(srpSession, email, password) {
-  var a = bigint.fromBuffer(crypto.randomBytes(32))
+  var a = crypto.randomBytes(32)
   var g = srp.params[srpSession.srp.N_bits].g
   var N = srp.params[srpSession.srp.N_bits].N
   var A = srp.getA(g, a, N)
-  var B = bigint(srpSession.srp.B, 16)
+  var B = Buffer(srpSession.srp.B, 'hex')
   var S = srp.client_getS(
     Buffer(srpSession.srp.s, 'hex'),
     Buffer(email),
@@ -50,9 +48,9 @@ function getAMK(srpSession, email, password) {
 
   return {
     srpToken: srpSession.srpToken,
-    A: A.toBuffer().toString('hex'),
-    M: M.toBuffer().toString('hex'),
-    K: K.toBuffer()
+    A: A.toString('hex'),
+    M: M.toString('hex'),
+    K: K
   }
 }
 
@@ -64,7 +62,7 @@ function verifier(salt, email, password, algorithm) {
     srp.params['2048'].N,
     srp.params['2048'].g,
     algorithm
-  ).toBuffer().toString('hex')
+  ).toString('hex')
 }
 
 Client.create = function (origin, email, password, callback) {
