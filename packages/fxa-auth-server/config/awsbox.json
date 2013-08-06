@@ -6,6 +6,9 @@
   "mysql": {
     "user": "picl"
   },
+  "smtp": {
+    "sender": "webmaster@lcip.org"
+  },
   "secretKeyFile": "/home/app/var/secret-key.json",
   "publicKeyFile": "/home/app/var/public-key.json"
 }
