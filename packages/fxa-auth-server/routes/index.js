@@ -20,7 +20,7 @@ module.exports = function (
   var defaults = require('./defaults')(P, models.dbs)
   var idp = require('./idp')(crypto, error, isA, serverPublicKey)
   var account = require('./account')(crypto, uuid, isA, error, models.Account, models.RecoveryEmail)
-  var password = require('./password')(isA, error, models.Account)
+  var password = require('./password')(isA, error, models.Account, models.tokens)
   var session = require('./session')(isA, error, models.Account, models.tokens)
   var sign = require('./sign')(isA, error, signer, models.Account)
 

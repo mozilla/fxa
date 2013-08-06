@@ -650,7 +650,7 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
 ```json
 {
   "forgotPasswordToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
-  "forgotPasswordTokenLifetime": 900,
+  "lifetime": 900,
   "codeLength": 8,
   "remainingAttempts": 3
 }
@@ -662,7 +662,7 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
 
 While the agent is waiting for the user to paste in the forgot-password code, if the user believes the email has been lost or accidentally deleted, the `/password/forgot/resend_code` API can be used to send a new copy of the same code.
 
-This API requires the `forgotPasswordToken` returned by the original `send_code` call (only the original browser which started the process may request a replacement message). It will return the same response as `send_code` did, except with a shorter `forgotPasswordTokenLifetime` indicating the remaining validity period. If `verify_code` has been called some number of times with the same token, then `remainingAttempts` will be smaller too.
+This API requires the `forgotPasswordToken` returned by the original `send_code` call (only the original browser which started the process may request a replacement message). It will return the same response as `send_code` did, except with a shorter `lifetime` indicating the remaining validity period. If `verify_code` has been called some number of times with the same token, then `remainingAttempts` will be smaller too.
 
 ___Parameters___
 
@@ -676,8 +676,7 @@ curl -v \
 -H "Content-Type: application/json" \
 http://idp.profileinthecloud.net/password/forgot/send_code \
 -d '{
-  "email": "me@example.com",
-  "forgotPasswordToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
+  "email": "me@example.com"
 }'
 ```
 
@@ -686,7 +685,7 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
 ```json
 {
   "forgotPasswordToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
-  "forgotPasswordTokenLifetime": 550,
+  "lifetime": 550,
   "codeLength": 8,
   "remainingAttempts": 2
 }
@@ -703,7 +702,6 @@ Once the code created by `/password/forgot/send_code` is emailed to the user, an
 ___Parameters___
 
 * code - the code sent to the user's recovery method
-* forgotPasswordToken - the `forgotPasswordToken` return by `/password/forgot/send_code`.
 
 ### Request
 ```sh
@@ -712,8 +710,7 @@ curl -v \
 -H "Content-Type: application/json" \
 http://idp.profileinthecloud.net/password/forgot/verify_code \
 -d '{
-  "code": "12345678",
-  "forgotPasswordToken": "b223b00e-5a10-46a9-983c-1c346c0d1907"
+  "code": "12345678"
 }'
 ```
 

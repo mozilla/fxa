@@ -107,6 +107,37 @@ ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
     )
 }
 
+ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, srp, passwordStretching) {
+  return tokens.AccountResetToken.fromHex(accountResetTokenHex)
+    .then(
+      function (token) {
+        return doRequest(
+          'GET',
+          this.origin + '/account/reset',
+          token,
+          {
+            bundle: bundle,
+            srp: srp,
+            passwordStretching: passwordStretching
+          }
+        )
+      }.bind(this)
+    )
+}
+
+ClientApi.prototype.accountDestroy = function (authTokenHex) {
+  return tokens.AuthToken.fromHex(authTokenHex)
+    .then(
+      function (token) {
+        return doRequest(
+          'POST',
+          this.origin + '/account/destroy',
+          token
+        )
+      }.bind(this)
+    )
+}
+
 ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
@@ -146,24 +177,6 @@ ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code) {
       code: code
     }
   )
-}
-
-ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, srp, passwordStretching) {
-  return tokens.AccountResetToken.fromHex(accountResetTokenHex)
-    .then(
-      function (token) {
-        return doRequest(
-          'GET',
-          this.origin + '/account/reset',
-          token,
-          {
-            bundle: bundle,
-            srp: srp,
-            passwordStretching: passwordStretching
-          }
-        )
-      }.bind(this)
-    )
 }
 
 ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration) {
@@ -214,14 +227,26 @@ ClientApi.prototype.passwordForgotSendCode = function (email) {
   )
 }
 
+ClientApi.prototype.passwordForgotResendCode = function (forgotPasswordTokenHex, email) {
+  //TODO forgotPasswordToken-fu
+  return doRequest(
+    'POST',
+    this.origin + '/password/forgot/resend_code',
+    null,
+    {
+      email: email
+    }
+  )
+}
+
 ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordToken, code) {
+  //TODO forgotPasswordToken-fu
   return doRequest(
     'POST',
     this.origin + '/password/forgot/verify_code',
     null,
     {
-      code: code,
-      forgotPasswordToken: forgotPasswordToken
+      code: code
     }
   )
 }
