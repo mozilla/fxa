@@ -107,26 +107,26 @@ ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
     )
 }
 
-ClientApi.prototype.accountRecoveryMethods = function (sessionTokenHex) {
+ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
         return doRequest(
           'GET',
-          this.origin + '/account/recovery_methods',
+          this.origin + '/recovery_email/status',
           token
         )
       }.bind(this)
     )
 }
 
-ClientApi.prototype.accountRecoveryMethodsSendCode = function (sessionTokenHex, email) {
+ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, email) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
         return doRequest(
           'POST',
-          this.origin + '/account/recovery_methods/send_code',
+          this.origin + '/recovery_email/resend_code',
           token,
           {
             email: email
@@ -136,13 +136,13 @@ ClientApi.prototype.accountRecoveryMethodsSendCode = function (sessionTokenHex, 
     )
 }
 
-ClientApi.prototype.accountRecoveryMethodsVerifyCode = function (email, code) {
+ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code) {
   return doRequest(
     'POST',
-    this.origin + '/account/recovery_methods/verify_code',
+    this.origin + '/recovery_email/verify_code',
     null,
     {
-      email: email,
+      uid: uid,
       code: code
     }
   )

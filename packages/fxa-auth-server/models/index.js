@@ -44,7 +44,7 @@ module.exports = function (config, dbs, mailer) {
     AuthToken: AuthToken
   }
 
-  var RecoveryMethod = require('./recovery_method')(
+  var RecoveryEmail = require('./recovery_email')(
     crypto,
     P,
     dbs.store,
@@ -53,7 +53,7 @@ module.exports = function (config, dbs, mailer) {
   var Account = require('./account')(
     P,
     tokens,
-    RecoveryMethod,
+    RecoveryEmail,
     dbs.store,
     config,
     error
@@ -76,7 +76,7 @@ module.exports = function (config, dbs, mailer) {
     dbs: dbs,
     Account: Account,
     AuthBundle: AuthBundle,
-    RecoveryMethod: RecoveryMethod,
+    RecoveryEmail: RecoveryEmail,
     SrpSession: SrpSession,
     tokens: tokens
   }

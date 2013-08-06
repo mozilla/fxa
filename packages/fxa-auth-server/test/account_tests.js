@@ -10,7 +10,7 @@ var mailer = {
 
 var models = require('../models')(config, dbs, mailer)
 var Account = models.Account
-var RecoveryMethod = models.RecoveryMethod
+var RecoveryEmail = models.RecoveryEmail
 var SessionToken = models.tokens.SessionToken
 var AccountResetToken = models.tokens.AccountResetToken
 
@@ -53,14 +53,20 @@ test(
 test(
   'Account.create adds a primary recovery method',
   function (t) {
+    var code = null
     Account.create(a)
       .then(Account.get.bind(null, a.uid))
       .then(
         function (account) {
-          t.equal(account.recoveryMethodIds[a.email], true)
+          code = Object.keys(account.recoveryEmailCodes)[0]
+          t.ok(code)
         }
       )
-      .then(RecoveryMethod.get.bind(null, a.email))
+      .then(
+        function () {
+          return RecoveryEmail.get(a.uid, code)
+        }
+      )
       .then(
         function (rm) {
           t.equal(rm.uid, a.uid)
@@ -248,7 +254,12 @@ test(
   'Account.verify sets verified to true when the recovery method is primary',
   function (t) {
     Account.create(a)
-      .then(RecoveryMethod.get.bind(null, a.email))
+      .then(
+        function (account) {
+          var code = Object.keys(account.recoveryEmailCodes)[0]
+          return RecoveryEmail.get(account.uid, code)
+        }
+      )
       .then(
         function (x) {
           x.verified = true
@@ -272,7 +283,12 @@ test(
   'Account.verify does not set verified true if recovery method is not verified',
   function (t) {
     Account.create(a)
-      .then(RecoveryMethod.get.bind(null, a.email))
+      .then(
+        function (account) {
+          var code = Object.keys(account.recoveryEmailCodes)[0]
+          return RecoveryEmail.get(account.uid, code)
+        }
+      )
       .then(
         function (x) {
           return Account.verify(x)
@@ -387,18 +403,18 @@ test(
 )
 
 test(
-  'account.recoveryMethods returns an array of RecoveryMethod objects',
+  'account.recoveryEmails returns an array of RecoveryEmail objects',
   function (t) {
     Account.create(a)
       .then(
         function (account) {
-          return account.recoveryMethods()
+          return account.recoveryEmails()
         }
       )
       .then(
         function (rms) {
           t.equal(rms.length, 1)
-          t.equal(rms[0] instanceof RecoveryMethod, true)
+          t.equal(rms[0] instanceof RecoveryEmail, true)
         }
       )
       .then(Account.del.bind(null, a.uid))

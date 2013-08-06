@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
+module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -130,10 +130,10 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
     },
     {
       method: 'GET',
-      path: '/account/recovery_methods',
+      path: '/recovery_email/status',
       config: {
         description:
-          "Gets the set of methods for recovery the account's password",
+          "Gets the 'verified' status for the account's recovery email address",
         auth: {
           strategy: 'sessionToken'
         },
@@ -142,24 +142,12 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
           var sessionToken = request.auth.credentials
           Account
             .get(sessionToken.uid)
-            .then(
-              function (account) {
-                return account.recoveryMethods()
-              }
-            )
             .done(
-              function (rms) {
+              function (account) {
                 request.reply(
                   {
-                    recoveryMethods: rms.map(
-                      function (rm) {
-                        return {
-                          email: rm.email,
-                          verified: rm.verified,
-                          primary: rm.primary
-                        }
-                      }
-                    )
+                    email: account.email,
+                    verified: account.verified
                   }
                 )
               },
@@ -171,7 +159,8 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         validate: {
           response: {
             schema: {
-              recoveryMethods: isA.Object()
+              email: isA.String().required(),
+              verified: isA.Boolean().required()
             }
           }
         }
@@ -179,65 +168,53 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
     },
     {
       method: 'POST',
-      path: '/account/recovery_methods/send_code',
+      path: '/recovery_email/resend_code',
       config: {
         description:
           "Sends a verification code to the specified recovery method. " +
           "Providing this code will mark the recovery method as verified",
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required'
+          strategy: 'sessionToken'
         },
         tags: ["account", "recovery"],
         handler: function (request) {
           var sessionToken = request.auth.credentials
-          var email = request.payload.email
           Account
             .get(sessionToken.id)
             .then(
               function (account) {
-                if (account.email === email) {
-                  RecoveryMethod
-                    .get(email)
-                    .then(
-                      function (rm) {
-                        return rm.sendCode()
-                      }
-                    )
-                    .done(
-                      function () {
-                        request.reply({})
-                      },
-                      function (err) {
-                        request.reply(err)
-                      }
-                    )
-                }
-                else {
-                  request.reply(error.notImplemented())
-                }
+                RecoveryEmail
+                  .get(account.email)
+                  .then(
+                    function (rm) {
+                      return rm.sendCode()
+                    }
+                  )
+                  .done(
+                    function () {
+                      request.reply({})
+                    },
+                    function (err) {
+                      request.reply(err)
+                    }
+                  )
               }
             )
-        },
-        validate: {
-          payload: {
-            email: isA.String().email().required()
-          }
         }
       }
     },
     {
       method: 'POST',
-      path: '/account/recovery_methods/verify_code',
+      path: '/recovery_email/verify_code',
       config: {
         description:
           "Verify a recovery method with this code",
         tags: ["account", "recovery"],
         handler: function (request) {
-          var email = request.payload.email
+          var uid = request.payload.uid
           var code = request.payload.code
-          RecoveryMethod
-            .get(email)
+          RecoveryEmail
+            .get(uid, code)
             .then(
               function (rm) {
                 return rm.verify(code)
@@ -259,7 +236,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         },
         validate: {
           payload: {
-            email: isA.String().email().required(),
+            uid: isA.String().required(),
             code: isA.String().required()
           }
         }
