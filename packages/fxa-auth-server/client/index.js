@@ -16,6 +16,7 @@ function Client(origin) {
   this.passwordSalt = null
   this.srp = null
   this.email = null
+  this.authToken = null
   this.sessionToken = null
   this.accountResetToken = null
   this.keyFetchToken = null
@@ -27,12 +28,12 @@ Client.Api = ClientApi
 
 function getAMK(srpSession, email, password) {
   var a = crypto.randomBytes(32)
-  var g = srp.params[srpSession.srp.N_bits].g
-  var N = srp.params[srpSession.srp.N_bits].N
+  var g = srp.params[2048].g
+  var N = srp.params[2048].N
   var A = srp.getA(g, a, N)
   var B = Buffer(srpSession.srp.B, 'hex')
   var S = srp.client_getS(
-    Buffer(srpSession.srp.s, 'hex'),
+    Buffer(srpSession.srp.salt, 'hex'),
     Buffer(email),
     Buffer(password),
     N,
@@ -134,32 +135,44 @@ Client.prototype.stringify = function () {
 
 Client.prototype.login = function (callback) {
   var K = null
-  var p = this.api.sessionAuthStart(this.email)
+  var p = this.api.authStart(this.email)
     .then(
       function (srpSession) {
         var x = getAMK(srpSession, this.email, this.password)
         K = x.K
-        return this.api.sessionAuthFinish(x.srpToken, x.A, x.M)
+        return this.api.authFinish(x.srpToken, x.A, x.M)
       }.bind(this)
     )
     .then(
       function (json) {
-        return AuthBundle.create(K, 'session/auth')
+        return AuthBundle.create(K, 'auth/finish')
           .then(
             function (b) {
-              var tokens = b.unbundle(json.bundle)
-              return {
-                keyFetchToken: tokens.keyFetchToken,
-                sessionToken: tokens.otherToken
-              }
+              return b.unbundle(json.bundle)
+            }
+          )
+      }.bind(this)
+    )
+    .then(
+      function (authToken) {
+        this.authToken = authToken
+        return this.api.sessionCreate(this.authToken)
+      }.bind(this)
+    )
+    .then (
+      function (json) {
+        return tokens.AuthToken.fromHex(this.authToken)
+          .then(
+            function (t) {
+              return t.unbundle(json.bundle)
             }
           )
       }.bind(this)
     )
     .then(
       function (tokens) {
-        this.sessionToken = tokens.sessionToken
         this.keyFetchToken = tokens.keyFetchToken
+        this.sessionToken = tokens.sessionToken
         return tokens
       }.bind(this)
     )

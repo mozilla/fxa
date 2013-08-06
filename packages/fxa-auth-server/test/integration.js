@@ -22,6 +22,9 @@ var server = cp.spawn(
   }
 )
 
+server.stdout.on('data', process.stdout.write.bind(process.stdout))
+server.stderr.on('data', process.stderr.write.bind(process.stderr))
+
 function main() {
   test(
     'Create account flow',
@@ -57,7 +60,7 @@ function main() {
           },
           function (err) {
             server.kill('SIGINT')
-            t.fail(err.message)
+            t.fail(err.message || err.error)
             t.end()
           }
         )
@@ -78,6 +81,7 @@ function waitLoop() {
     .done(
       main,
       function (err) {
+        console.log('waiting...')
         setTimeout(waitLoop, 100)
       }
     )

@@ -304,6 +304,28 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
             .done(reply, reply)
         },
       }
+    },
+    {
+      method: 'POST',
+      path: '/account/destroy',
+      config: {
+        auth: {
+          strategy: 'authToken'
+        },
+        tags: ["account"],
+        handler: function accountDestroy(request) {
+          var reply = request.reply.bind(request)
+          var authToken = request.auth.credentials
+
+          authToken.del()
+            .then(
+              function () {
+                return Account.del(authToken.uid)
+              }
+            )
+            .done(reply, reply)
+        }
+      }
     }
   ]
 

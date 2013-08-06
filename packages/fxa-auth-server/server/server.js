@@ -22,6 +22,10 @@ module.exports = function (path, Hapi, toobusy) {
           accountResetToken: {
             scheme: 'hawk',
             getCredentialsFunc: tokens.AccountResetToken.getCredentials
+          },
+          authToken: {
+            scheme: 'hawk',
+            getCredentialsFunc: tokens.AuthToken.getCredentials
           }
         },
         cors: true,

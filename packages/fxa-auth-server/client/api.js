@@ -190,30 +190,17 @@ ClientApi.prototype.getRandomBytes = function () {
   )
 }
 
-ClientApi.prototype.passwordChangeAuthStart = function (sessionTokenHex) {
-  return tokens.SessionToken.fromHex(sessionTokenHex)
+ClientApi.prototype.passwordChangeStart = function (authTokenHex) {
+  return tokens.AuthToken.fromHex(authTokenHex)
     .then(
       function (token) {
         return doRequest(
           'POST',
-          this.origin + '/password/change/auth/start',
+          this.origin + '/password/change/start',
           token
         )
       }.bind(this)
     )
-}
-
-ClientApi.prototype.passwordChangeAuthFinish = function (srpToken, A, M) {
-  return doRequest(
-    'POST',
-    this.origin + '/password/change/auth/finish',
-    null,
-    {
-      srpToken: srpToken,
-      A: A,
-      M: M
-    }
-  )
 }
 
 ClientApi.prototype.passwordForgotSendCode = function (email) {
@@ -239,10 +226,10 @@ ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordToken, co
   )
 }
 
-ClientApi.prototype.sessionAuthStart = function (email) {
+ClientApi.prototype.authStart = function (email) {
   return doRequest(
     'POST',
-    this.origin + '/session/auth/start',
+    this.origin + '/auth/start',
     null,
     {
       email: email
@@ -250,10 +237,10 @@ ClientApi.prototype.sessionAuthStart = function (email) {
   )
 }
 
-ClientApi.prototype.sessionAuthFinish = function (srpToken, A, M) {
+ClientApi.prototype.authFinish = function (srpToken, A, M) {
   return doRequest(
     'POST',
-    this.origin + '/session/auth/finish',
+    this.origin + '/auth/finish',
     null,
     {
       srpToken: srpToken,
@@ -263,13 +250,13 @@ ClientApi.prototype.sessionAuthFinish = function (srpToken, A, M) {
   )
 }
 
-ClientApi.prototype.sessionStatus = function (sessionTokenHex) {
-  return tokens.SessionToken.fromHex(sessionTokenHex)
+ClientApi.prototype.sessionCreate = function (authTokenHex) {
+  return tokens.AuthToken.fromHex(authTokenHex)
     .then(
       function (token) {
         return doRequest(
-          'GET',
-          this.origin + '/session/status',
+          'POST',
+          this.origin + '/session/create',
           token
         )
       }.bind(this)

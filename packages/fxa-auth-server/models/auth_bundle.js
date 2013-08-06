@@ -6,63 +6,34 @@ module.exports = function (inherits, Bundle, Account, tokens) {
 
   function AuthBundle() {
     Bundle.call(this)
-    this.keyFetchToken = null
+    this.authToken = null
     this.otherToken = null
   }
   inherits(AuthBundle, Bundle)
 
   AuthBundle.create = function (K, type) {
     return Bundle
-      .hkdf(K, type, null, 3 * 32)
+      .hkdf(K, type, null, 2 * 32)
       .then(
         function (key) {
           var b = new AuthBundle()
           b.hmacKey = key.slice(0, 32).toString('hex')
-          b.xorKey = key.slice(32, 96).toString('hex')
+          b.xorKey = key.slice(32, 64).toString('hex')
           return b
         }
       )
   }
 
   AuthBundle.login = function (K, uid) {
-    return AuthBundle.create(K, 'session/auth')
+    return AuthBundle.create(K, 'auth/finish')
       .then(
         function (b) {
-          return tokens.KeyFetchToken
-            .create(uid)
-            .then(function (t) { b.keyFetchToken = t })
-            .then(tokens.SessionToken.create.bind(null, uid))
-            .then(function (t) { b.otherToken = t })
+          return tokens.AuthToken.create(uid)
+            .then(function (t) { b.authToken = t })
             .then(Account.get.bind(null, uid))
             .then(
              function (a) {
-               return a.addSessionToken(b.otherToken)
-             }
-            )
-            .then(
-              function () {
-                return {
-                  bundle: b.bundle()
-                }
-              }
-            )
-        }
-      )
-  }
-
-  AuthBundle.passwordChange = function (K, uid) {
-    return AuthBundle.create(K, 'password/change')
-      .then(
-        function (b) {
-          return tokens.KeyFetchToken
-            .create(uid)
-            .then(function (t) { b.keyFetchToken = t })
-            .then(tokens.AccountResetToken.create.bind(null, uid))
-            .then(function (t) { b.otherToken = t })
-            .then(Account.get.bind(null, uid))
-            .then(
-             function (a) {
-               return a.setResetToken(b.otherToken)
+               return a.setAuthToken(b.authToken)
              }
             )
             .then(
@@ -78,20 +49,17 @@ module.exports = function (inherits, Bundle, Account, tokens) {
 
   AuthBundle.prototype.unbundle = function (hex) {
     var bundle = Buffer(hex, 'hex')
-    var ciphertext = bundle.slice(0, 64)
-    var hmac = bundle.slice(64, 96)
+    var ciphertext = bundle.slice(0, 32)
+    var hmac = bundle.slice(32, 64)
     if (this.hmac(ciphertext).toString('hex') !== hmac.toString('hex')) {
       throw new Error('Corrupt Message')
     }
     var plaintext = this.xor(ciphertext)
-    return {
-      keyFetchToken: plaintext.slice(0, 32).toString('hex'),
-      otherToken: plaintext.slice(32, 64).toString('hex')
-    }
+    return plaintext.slice(0, 32).toString('hex')
   }
 
   AuthBundle.prototype.bundle = function () {
-    return this.bundleHexStrings([this.keyFetchToken.data, this.otherToken.data])
+    return this.bundleHexStrings([this.authToken.data])
   }
 
   return AuthBundle

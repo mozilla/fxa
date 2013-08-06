@@ -7,6 +7,7 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
   var domain = config.domain
   var SessionToken = tokens.SessionToken
   var AccountResetToken = tokens.AccountResetToken
+  var AuthToken = tokens.AuthToken
 
   function Account() {
     this.uid = null
@@ -17,6 +18,7 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
     this.srp = null
     this.passwordStretching = null
     // references
+    this.authTokenId = null
     this.resetTokenId = null
     this.sessionTokenIds = null
     this.recoveryMethodIds = null
@@ -33,6 +35,7 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
     a.kA = object.kA
     a.wrapKb = object.wrapKb
     a.passwordStretching = object.passwordStretching
+    a.authTokenId = object.authTokenId
     a.resetTokenId = object.resetTokenId
     a.sessionTokenIds = object.sessionTokenIds || {}
     a.recoveryMethodIds = object.recoveryMethodIds || {}
@@ -165,6 +168,19 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
     return set()
   }
 
+  Account.prototype.setAuthToken = function (token) {
+    var set = function () {
+      this.authTokenId = token.id
+      return this.save()
+    }.bind(this)
+    if (this.authTokenId !== null) {
+      return AuthToken
+        .del(this.authTokenId)
+        .then(set)
+    }
+    return set()
+  }
+
   Account.prototype.deleteSessionToken = function (id) {
     delete this.sessionTokenIds[id]
     return SessionToken.del(id)
@@ -241,6 +257,7 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
       .then(this.deleteAllRecoveryMethods.bind(this))
       .then(deleteRecord.bind(null, this.uid))
       .then(deleteIndex.bind(null, this.email))
+      .then(function () { return {} })
   }
 
   return Account

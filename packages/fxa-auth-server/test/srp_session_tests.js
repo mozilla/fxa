@@ -41,14 +41,11 @@ Account.create(alice)
     test(
       'create login session works',
       function (t) {
-        SrpSession
-          .create('login', a)
+        SrpSession.create(a)
           .done(
             function (s) {
               t.equal(s.uid, a.uid)
               t.equal(s.s, a.srp.salt)
-              t.equal(s.type, 'login')
-
               t.end()
             }
           )
@@ -60,8 +57,7 @@ Account.create(alice)
       function (t) {
         var session = null
         var K = null
-        SrpSession
-          .create('login', a)
+        SrpSession.create(a)
           .then(
             function (s) {
               session = s

@@ -32,10 +32,16 @@ module.exports = function (config, dbs, mailer) {
     Token,
     dbs.store
   )
+  var AuthToken = require('./auth_token')(
+    inherits,
+    Token,
+    dbs.cache
+  )
   var tokens = {
     AccountResetToken: AccountResetToken,
     KeyFetchToken: KeyFetchToken,
-    SessionToken: SessionToken
+    SessionToken: SessionToken,
+    AuthToken: AuthToken
   }
 
   var RecoveryMethod = require('./recovery_method')(
