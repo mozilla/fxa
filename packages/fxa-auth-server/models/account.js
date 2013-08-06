@@ -12,11 +12,10 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
     this.uid = null
     this.email = null
     this.verified = false
-    this.verifier = null
-    this.salt = null
     this.kA = null
     this.wrapKb = null
-    this.params = null
+    this.srp = null
+    this.passwordStretching = null
     // references
     this.resetTokenId = null
     this.sessionTokenIds = null
@@ -30,11 +29,10 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
     a.uid = object.uid
     a.email = object.email
     a.verified = !!object.verified
-    a.verifier = object.verifier
-    a.salt = object.salt
+    a.srp = object.srp
     a.kA = object.kA
     a.wrapKb = object.wrapKb
-    a.params = object.params
+    a.passwordStretching = object.passwordStretching
     a.resetTokenId = object.resetTokenId
     a.sessionTokenIds = object.sessionTokenIds || {}
     a.recoveryMethodIds = object.recoveryMethodIds || {}
@@ -232,8 +230,8 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
   Account.prototype.reset = function (form) {
     //this.kA = null // TODO
     this.wrapKb = form.wrapKb
-    this.verifier = form.verifier
-    this.params = form.params
+    this.srp = form.srp
+    this.passwordStretching = form.passwordStretching
     return this.deleteAllTokens()
       .then(this.save.bind(this))
   }

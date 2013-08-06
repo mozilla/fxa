@@ -64,16 +64,19 @@ function doRequest(method, url, token, payload) {
  *   {}
  *
  */
-ClientApi.prototype.accountCreate = function (email, verifier, salt, params) {
+ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStretching) {
   return doRequest(
     'POST',
     this.origin + '/account/create',
     null,
     {
       email: email,
-      verifier: verifier,
-      salt: salt,
-      params: params
+      srp: {
+        type: 'SRP-6a/SHA256/2048/v1',
+        verifier: verifier,
+        salt: salt
+      },
+      passwordStretching: passwordStretching
     }
   )
 }

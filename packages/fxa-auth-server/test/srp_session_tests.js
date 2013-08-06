@@ -17,14 +17,16 @@ var alice = {
   uid: 'xxx',
   email: 'somebody@example.com',
   password: 'awesomeSauce',
-  verifier: null,
-  salt: 'BAD1',
+  srp: {
+    verifier: null,
+    salt: 'BAD1'
+  },
   kA: 'BAD3',
   wrapKb: 'BAD4'
 }
 
-alice.verifier = srp.getv(
-  Buffer(alice.salt, 'hex'),
+alice.srp.verifier = srp.getv(
+  Buffer(alice.srp.salt, 'hex'),
   Buffer(alice.email),
   Buffer(alice.password),
   srp.params[2048].N,
@@ -44,7 +46,7 @@ Account.create(alice)
           .done(
             function (s) {
               t.equal(s.uid, a.uid)
-              t.equal(s.s, a.salt)
+              t.equal(s.s, a.srp.salt)
               t.equal(s.type, 'login')
 
               t.end()

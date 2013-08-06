@@ -19,18 +19,17 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         validate: {
           payload: {
             email: isA.String().email().required(),
-            verifier: isA.String().regex(HEX_STRING).required(),
-            salt: isA.String().regex(HEX_STRING).required(),
-            params: isA.Object({
-              srp: isA.Object({
-                alg: isA.String().valid('sha256').required(),
-                N_bits: isA.Number().valid(2048).required()
-              }).required(),
-              stretch: isA.Object({
-                salt: isA.String().regex(HEX_STRING).required(),
-                rounds: isA.Number().required()
-              })
-            })
+            srp: isA.Object({
+              type: isA.String().required(), // TODO valid()
+              verifier: isA.String().regex(HEX_STRING).required(),
+              salt: isA.String().regex(HEX_STRING).required(),
+            }).required(),
+            passwordStretching: isA.Object(
+              // {
+              //   type: isA.String().required(),
+              //   salt: isA.String().regex(HEX_STRING).required()
+              // }
+            )
           }
         },
         handler: function accountCreate(request) {
@@ -40,11 +39,10 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
               {
                 uid: uuid.v4(),
                 email: form.email,
-                verifier: form.verifier,
-                salt: form.salt,
+                srp: form.srp,
                 kA: crypto.randomBytes(32).toString('hex'),
                 wrapKb: crypto.randomBytes(32).toString('hex'),
-                params: form.params
+                passwordStretching: form.passwordStretching
               }
             )
             .done(

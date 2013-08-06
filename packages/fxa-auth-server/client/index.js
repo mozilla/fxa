@@ -14,7 +14,8 @@ var AuthBundle = models.AuthBundle
 function Client(origin) {
   this.api = new ClientApi(origin)
   this.algorithm = 'sha256'
-  this.salt = null
+  this.srpSalt = null
+  this.passwordSalt = null
   this.email = null
   this.verifier = null
   this.sessionToken = null
@@ -67,10 +68,12 @@ function verifier(salt, email, password, algorithm) {
 
 Client.create = function (origin, email, password, callback) {
   var c = new Client(origin)
+  // TODO: password stretching
   c.email = email
   c.password = password
-  c.salt = crypto.randomBytes(32).toString('hex')
-  c.verifier = verifier(c.salt, c.email, c.password, c.algorithm)
+  c.srpSalt = crypto.randomBytes(32).toString('hex')
+  c.verifier = verifier(c.srpSalt, c.email, c.password, c.algorithm)
+  c.passwordSalt = crypto.randomBytes(32).toString('hex')
   var p = c.create()
   if (callback) {
     p.done(callback.bind(null, null), callback)
@@ -83,11 +86,11 @@ Client.create = function (origin, email, password, callback) {
 Client.parse = function (string) {
   var object = JSON.parse(string)
   var client = new Client(object.api.origin)
-  client.salt = object.salt
   client.email = object.email
   client.password = object.password
-  client.salt = object.salt
-  client.verifier = object.verifier
+  client.srp = object.srp
+  c.passwordSalt = object.passwordSalt
+  client.passwordStretching = object.passwordStretching
   client.sessionToken = object.sessionToken
   client.accountResetToken = object.accountResetToken
   client.keyFetchToken = object.keyFetchToken
@@ -101,16 +104,15 @@ Client.prototype.create = function (callback) {
   var p = this.api.accountCreate(
     this.email,
     this.verifier,
-    this.salt,
+    this.srpSalt,
     {
-      srp: {
-        alg: this.algorithm,
-        N_bits: 2048
-      },
-      stretch: {
-        salt: 'DEAD',
-        rounds: 0
-      }
+      type: 'PBKDF2/scrypt/PBKDF2/v1',
+      PBKDF2_rounds_1: 20000,
+      scrypt_N: 65536,
+      scrypt_r: 8,
+      scrypt_p: 1,
+      PBKDF2_rounds_2: 20000,
+      salt: this.passwordSalt
     }
   )
   .then(
@@ -232,9 +234,9 @@ Client.prototype.changePassword = function (newPassword, callback) {
   )
   .then(
     function (token) {
-      this.salt = crypto.randomBytes(32).toString('hex')
+      this.srpSalt = crypto.randomBytes(32).toString('hex')
       this.password = newPassword
-      this.verifier = verifier(this.salt, this.email, newPassword, this.algorithm)
+      this.verifier = verifier(this.srpSalt, this.email, newPassword, this.algorithm)
       var bundle = token.bundle(this.wrapKb, this.verifier)
       var params = this.params
       return this.api.accountReset(

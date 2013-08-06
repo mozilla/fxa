@@ -17,8 +17,10 @@ var AccountResetToken = models.tokens.AccountResetToken
 var a = {
   uid: 'xxx',
   email: 'somebody@example.com',
-  verifier: 'BAD1',
-  salt: 'BAD2',
+  srp: {
+    verifier: 'BAD1',
+    salt: 'BAD2'
+  },
   kA: 'BAD3',
   wrapKb: 'BAD4'
 }
@@ -412,8 +414,12 @@ test(
   function (t) {
     var form = {
       wrapKb: 'DEADBEEF',
-      verifier: 'FEEDFACE',
-      params: {
+      srp: {
+        type: 'SRP-6a/SHA256/2048/v1',
+        verifier: 'FEEDFACE',
+        salt: '12345678'
+      },
+      passwordStretching: {
         stuff: true
       }
     }
@@ -426,7 +432,7 @@ test(
       .then(
         function (account) {
           t.equal(account.wrapKb, form.wrapKb)
-          t.equal(account.verifier, form.verifier)
+          t.equal(account.srp.verifier, form.srp.verifier)
         }
       )
       .then(Account.del.bind(null, a.uid))
@@ -445,8 +451,12 @@ test(
     var reset = null
     var form = {
       wrapKb: 'DEADBEEF',
-      verifier: 'FEEDFACE',
-      params: {
+      srp: {
+        type: 'SRP-6a/SHA256/2048/v1',
+        verifier: 'FEEDFACE',
+        salt: '12345678'
+      },
+      passwordStretching: {
         stuff: true
       }
     }
