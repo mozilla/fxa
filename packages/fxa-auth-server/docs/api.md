@@ -89,6 +89,7 @@ ___Parameters___
     * scrypt_r: 8
     * scrypt_p: 1
     * PBKDF2_rounds_2: 20000
+    * salt: password stretching salt
 
 ### Request
 ```sh
@@ -101,7 +102,7 @@ http://idp.profileinthecloud.net/account/create \
   "srp": {
     "type": "SRP-6a/SHA256/2048/v1",
     "verifier": "7597c55064c73bf1b2735878cb8711c289fc8f1cfb3d633a4593b36a8c51dbd68b27f649949de27d1dcccf7ece1e1a42c5c6bdc3d209cf13a3813d333bfcadd2641a9a3e2eb4289788ed8510cc8f2f1061789d58aef38b9d21b81831413f55473f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4e0bda74fcaa2347be4664f553d332df8166278c0e2f8663aa9238a2429631f7afd11622e193747b57975c51bbb69bb11f60c1a5ba449d3119e70d1ec580212151f79b26e73a57dba313376f0ba7a2afc232146a3b1d68b2d0afc35ebb8699cb10b3a3f8e0d51cefc7ac29212b238fb7a87f2f61edc9cbff103e386f778925fe",
-    salt: "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4"
+    "salt": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4"
   },
   "passwordStretching": {
     "type": "PBKDF2/scrypt/PBKDF2/v1",
@@ -207,17 +208,17 @@ See [resetting the account](https://wiki.mozilla.org/Identity/AttachedServices/K
 ___Parameters___
 
 * bundle - a base16 string of encrypted (`wrapKb|verifier`)
-* mainKDFSalt - main salt
-* srpSalt - SRP salt
-* params
-    * srpParametersVersion: "1", meaning SRP-6a, SHA256, with a specific 2048-bit group
-    * stretch
-        * keyStretchingVersion: "1", meaning PBKDF2/scrypt/PBKDF2
-        * PBKDF2_rounds_1: 20000
-        * scrypt_N: 65536
-        * scrypt_r: 8
-        * scrypt_p: 1
-        * PBKDF2_rounds_2: 20000
+* srp
+    * type - "SRP-6a/SHA256/2048/v1"
+    * salt - SRP salt
+* passwordStretching
+    * type: "PBKDF2/scrypt/PBKDF2/v1"
+    * PBKDF2_rounds_1: 20000
+    * scrypt_N: 65536
+    * scrypt_r: 8
+    * scrypt_p: 1
+    * PBKDF2_rounds_2: 20000
+    * salt: password stretching salt
 
 
 ___Headers___
@@ -233,18 +234,18 @@ curl -v \
 http://idp.profileinthecloud.net/account/reset \
 -d '{
   "bundle": "a586e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a98264bdc",
-  "mainKDFSalt: "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab",
-  "srpSalt: "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4",
-  "params": {
-    "srpParametersVersion": "1",
-    "stretch": {
-      "keyStretchingVersion": "1",
-      "PBKDF2_rounds_1": 20000,
-      "scrypt_N": 65536,
-      "scrypt_r": 8,
-      "scrypt_p": 1,
-      "PBKDF2_rounds_2": 20000
-    }
+  "srp": {
+    "type": "SRP-6a/SHA256/2048/v1",
+    "salt": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4"
+  },
+  "passwordStretching": {
+    "type": "PBKDF2/scrypt/PBKDF2/v1",
+    "PBKDF2_rounds_1": 20000,
+    "scrypt_N": 65536,
+    "scrypt_r": 8,
+    "scrypt_p": 1,
+    "PBKDF2_rounds_2": 20000,
+    "salt": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
   }
 }'
 ```

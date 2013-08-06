@@ -13,11 +13,9 @@ var AuthBundle = models.AuthBundle
 
 function Client(origin) {
   this.api = new ClientApi(origin)
-  this.algorithm = 'sha256'
-  this.srpSalt = null
   this.passwordSalt = null
+  this.srp = null
   this.email = null
-  this.verifier = null
   this.sessionToken = null
   this.accountResetToken = null
   this.keyFetchToken = null
@@ -71,8 +69,10 @@ Client.create = function (origin, email, password, callback) {
   // TODO: password stretching
   c.email = email
   c.password = password
-  c.srpSalt = crypto.randomBytes(32).toString('hex')
-  c.verifier = verifier(c.srpSalt, c.email, c.password, c.algorithm)
+  c.srp = {}
+  c.srp.salt = crypto.randomBytes(32).toString('hex')
+  c.srp.algorithm = 'sha256'
+  c.srp.verifier = verifier(c.srp.salt, c.email, c.password, c.srp.algorithm)
   c.passwordSalt = crypto.randomBytes(32).toString('hex')
   var p = c.create()
   if (callback) {
@@ -103,8 +103,8 @@ Client.parse = function (string) {
 Client.prototype.create = function (callback) {
   var p = this.api.accountCreate(
     this.email,
-    this.verifier,
-    this.srpSalt,
+    this.srp.verifier,
+    this.srp.salt,
     {
       type: 'PBKDF2/scrypt/PBKDF2/v1',
       PBKDF2_rounds_1: 20000,
@@ -234,15 +234,15 @@ Client.prototype.changePassword = function (newPassword, callback) {
   )
   .then(
     function (token) {
-      this.srpSalt = crypto.randomBytes(32).toString('hex')
+      this.srp.salt = crypto.randomBytes(32).toString('hex')
       this.password = newPassword
-      this.verifier = verifier(this.srpSalt, this.email, newPassword, this.algorithm)
-      var bundle = token.bundle(this.wrapKb, this.verifier)
-      var params = this.params
+      this.srp.verifier = verifier(this.srp.salt, this.email, newPassword, this.srp.algorithm)
+      var bundle = token.bundle(this.wrapKb, this.srp.verifier)
       return this.api.accountReset(
         this.accountResetToken,
         bundle,
-        params
+        this.srp,
+        this.passwordStretching
       )
     }.bind(this)
   )

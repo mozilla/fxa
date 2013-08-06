@@ -148,7 +148,7 @@ ClientApi.prototype.accountRecoveryMethodsVerifyCode = function (email, code) {
   )
 }
 
-ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, params) {
+ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, srp, passwordStretching) {
   return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
       function (token) {
@@ -158,7 +158,8 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, param
           token,
           {
             bundle: bundle,
-            params: params
+            srp: srp,
+            passwordStretching: passwordStretching
           }
         )
       }.bind(this)

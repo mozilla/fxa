@@ -277,16 +277,11 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         validate: {
           payload: {
             bundle: isA.String().regex(HEX_STRING).required(),
-            params: isA.Object({
-              srp: isA.Object({
-                alg: isA.String().valid('sha256').required(),
-                N_bits: isA.Number().valid(2048).required()
-              }).required(),
-              stretch: isA.Object({
-                salt: isA.String().regex(HEX_STRING).required(),
-                rounds: isA.Number().required()
-              })
-            })
+            srp: isA.Object({
+              type: isA.String().required(),
+              salt: isA.String().required()
+            }).required(),
+            passwordStretching: isA.Object()
           }
         },
         handler: function accountReset(request) {
@@ -295,7 +290,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
           var payload = request.payload
           var unbundle = accountResetToken.unbundle(payload.bundle)
           payload.wrapKb = unbundle.wrapKb
-          payload.verifier = unbundle.verifier
+          payload.srp.verifier = unbundle.verifier
 
           accountResetToken
             .del()
