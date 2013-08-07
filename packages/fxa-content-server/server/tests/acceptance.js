@@ -59,7 +59,7 @@ describe('the server', function() {
                    certificate = JSON.parse(res.body.certificate);
                    (certificate.success).should.be.true;
                    // XXX replace with public key validation
-                   (certificate.certificate.length).should.equal(1152);
+                   (certificate.certificate.length > 500).should.be.true;
                    if (err) {
                      throw err;
                    }
