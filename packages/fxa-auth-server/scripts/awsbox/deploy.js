@@ -12,7 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 const child_process = require('child_process');
-const async = require('async');
+const P = require('p-promise');
 
 if (!process.env['AWS_ID'] || ! process.env['AWS_SECRET']) {
   console.log("You haven't defined AWS_ID and AWS_SECRET in the environment");
@@ -38,17 +38,22 @@ var deleteSecretsFile = false;
 
 process.umask(077);
 
-async.waterfall([
+// Some of the steps can be async, so use
+// a simple promise chain to manage them.
 
-  function findSecretsFile(cb) {
+var d = P.defer()
+d.resolve(null);
+d.promise.then(
+
+  function findSecretsFile() {
     if (!args.length || args[0] !== 'create') {
       // We don't need it if not creating a new deployment.
       secretsFile = null;
-      return cb(null);
+      return null;
     }
     if (fs.existsSync(secretsFile)) {
       // It exists in plaintext form, we're good to go.
-      return cb(null);
+      return null;
     };
     var encSecretsFile = secretsFile + '.gpg';
     if(!fs.existsSync(encSecretsFile)) {
@@ -58,57 +63,70 @@ async.waterfall([
     }
     console.log('Decrypting file', encSecretsFile)
     var f = fs.openSync(secretsFile, 'w', 0600);
+    deleteSecretsFile = true;
+    var d = P.defer()
     var p = child_process.spawn('gpg', ['--decrypt', encSecretsFile],
                                        { stdio: [0, f, 2] });
     p.on('error', function(err) {
       console.log('ERROR: Failed to decrypt awsbox-secrets.json!')
-      return cb(err);
+      return d.reject(err);
     });
     p.on('exit', function(code, signal) {
       fs.closeSync(f);
       if (code || signal) {
-          console.log('ERROR: Failed to decrypt awsbox-secrets.json!')
-          return cb(code || signal);
+        console.log('ERROR: Failed to decrypt awsbox-secrets.json!')
+        return d.reject(code || signal);
       }
-      deleteSecretsFile = true;
-      return cb(null);
+      return d.resolve(null);
     });
-  },
+    return d.promise;
+  }
 
-  function configureDNSAlias(cb) {
+).then(
+
+  function configureDNSAlias() {
     // TODO: Figure out how to set DNS aliases.
     // Probably we will just use the recent awsbox+route53 work from chilts.
-    return cb(null);
-  },
+    return null;
+  }
 
-  function runAWSBox(cb) {
+).then(
+
+  function runAWSBox() {
     if (secretsFile){
       args.splice(1, 0, '-x', secretsFile);
     }
     console.log("awsbox cmd: ", cmd, args.join(" "));
+    var d = P.defer();
     var p = child_process.spawn(cmd, args, { stdio: 'inherit'} );
     p.on('error', function(err) {
       console.log('ERROR: Failed to run awsbox')
-      return cb(err);
+      return d.reject(err);
     });
     p.on('exit', function(code, signal) {
       if (code || signal) {
-          console.log('ERROR: Failed while running awsbox')
-          return cb(code || signal)
+        console.log('ERROR: Failed while running awsbox')
+        return d.reject(code || signal)
       }
-      cb(null);
+      return d.resolve(null);
     });
   }
 
-], function done(err) {
-  if (err) {
+).then(
+
+  function onSuccess() {
+    if (deleteSecretsFile) {
+      fs.unlinkSync(secretsFile);
+    }
+    process.exit(0);
+  },
+
+  function onError(err) {
      console.log("ERROR: ", err);
-  }
-  if (deleteSecretsFile) {
-    fs.unlinkSync(secretsFile);
-  }
-  if (err) {
+     if (deleteSecretsFile) {
+       fs.unlinkSync(secretsFile);
+     }
      process.exit(err.code ? err.code : 1);
   }
-  process.exit(0);
-});
+
+);
