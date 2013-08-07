@@ -16,7 +16,7 @@ var AccountResetToken = models.tokens.AccountResetToken
 
 var a = {
   uid: 'xxx',
-  email: 'somebody@example.com',
+  email: Buffer('somebody@example.com').toString('hex'),
   srp: {
     verifier: 'BAD1',
     salt: 'BAD2'
@@ -133,7 +133,7 @@ test(
 test(
   'Account.exists returns false if the email is not in use',
   function (t) {
-    Account.exists('nobody@example.com').done(
+    Account.exists(Buffer('nobody@example.com').toString('hex')).done(
       function (exists) {
         t.equal(exists, false)
         t.end()

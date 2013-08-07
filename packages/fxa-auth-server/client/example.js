@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var Client = require('./')
-var email = 'me@example.com';
+var email = Buffer('më@example.com').toString('hex');
 var password = 'verySecurePassword';
 var publicKey = {
   "algorithm":"RS",

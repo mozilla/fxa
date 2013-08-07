@@ -15,11 +15,13 @@ var mailer = {
 var models = require('../models')(config, dbs, mailer)
 var RecoveryEmail = models.RecoveryEmail
 
+var email = Buffer('me@example.com').toString('hex')
+
 test(
 	'RecoveryEmail.create generates a random 32 byte code as a hex string',
 	function (t) {
 		function end() { t.end() }
-		RecoveryEmail.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(x.code.length, 64)
@@ -41,7 +43,7 @@ test(
 	function (t) {
 		sends = 0
 		function end() { t.end() }
-		RecoveryEmail.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(sends, 1)
@@ -57,7 +59,7 @@ test(
 	'recoveryEmail.verify sets verified to true if the codes match',
 	function (t) {
 		function end() { t.end() }
-		RecoveryEmail.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(x.verified, false)
@@ -79,7 +81,7 @@ test(
 	'recoveryEmail.verify does not set verified if codes do not match',
 	function (t) {
 		function end() { t.end() }
-		RecoveryEmail.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(x.verified, false)
@@ -101,7 +103,7 @@ test(
 	'recoveryEmail.verify will not unset the verified flag from true to false',
 	function (t) {
 		function end() { t.end() }
-		RecoveryEmail.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(x.verified, false)

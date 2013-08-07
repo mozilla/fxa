@@ -3,7 +3,7 @@ var cp = require('child_process')
 var Client = require('../client')
 var config = require('../config').root()
 
-var email = 'test@example.com'
+var email = Buffer('test@example.com').toString('hex')
 var password = 'allyourbasearebelongtous'
 var publicKey = {
   "algorithm":"RS",

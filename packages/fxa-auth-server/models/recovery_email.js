@@ -59,7 +59,7 @@ module.exports = function (crypto, P, db, mailer) {
   }
 
   RecoveryEmail.prototype.sendCode = function () {
-    return mailer.sendCode(this.email, this.code)
+    return mailer.sendCode(Buffer(this.email, 'hex').toString('utf8'), this.code)
   }
 
   RecoveryEmail.prototype.verify = function (code) {

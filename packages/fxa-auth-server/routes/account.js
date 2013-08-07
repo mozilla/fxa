@@ -18,7 +18,8 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         tags: ["srp", "account"],
         validate: {
           payload: {
-            email: isA.String().email().required(),
+            // TODO: still need to validate the utf8 string is a valid email
+            email: isA.String().regex(HEX_STRING).required(),
             srp: isA.Object({
               type: isA.String().required(), // TODO valid()
               verifier: isA.String().regex(HEX_STRING).required(),

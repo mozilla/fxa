@@ -15,7 +15,7 @@ var SrpSession = models.SrpSession
 
 var alice = {
   uid: 'xxx',
-  email: 'somebody@example.com',
+  email: Buffer('somebödy@example.com').toString('hex'),
   password: 'awesomeSauce',
   srp: {
     verifier: null,
