@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "Firefox Accounts Persona Bridge",
   "scripts": {
+    "postinstall": "node ./scripts/postinstall.js",
     "start": "server/bin/firefox_account_bridge.js",
     "test": "mocha server/tests/*.js"
   },

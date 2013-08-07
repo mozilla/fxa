@@ -1,35 +1,41 @@
-var should = require('should');
-var request = require('supertest');
-var jwcrypto = require('jwcrypto');
-// This require creates state inside jwcrypto that lets call to
-// generateKeypair({algorithm: "RS", ...}) work
-require("jwcrypto/lib/algs/rs");
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-process.env['NODE_ENV'] = 'development'; // set env to testing so we can skip logging, etc.
-process.env['PORT'] = '0'; // for testing bind ephemeral ports
-process.env['HOSTNAME'] = '127.0.0.1';
+const jwcrypto = require('jwcrypto'),
+      path = require('path'),
+      request = require('supertest'),
+      should = require('should'),
+      spawn = require('child_process').spawn;
 
-var fab = require('../bin/firefox_account_bridge.js');
-var app;
+var runLocallyPath = path.join(__dirname, '..', '..', 'scripts', 'run_locally.js');
+var runLocally;
 
 describe('the server', function() {
   it('should start up', function(done) {
-    app = fab.makeApp();
-    var listening = fab.listen(app);
-    (listening).should.be.true;
-    done();
-   });
+    runLocally = spawn('node', [runLocallyPath]);
+    runLocally.stdout.on('data', function(data) {
+      console.log(data.toString('utf8'));
+      if (data.toString('utf8').indexOf(
+	'FAB: Firefox Account Bridge listening at') !== -1) {
+	done();
+      }
+    });
+    runLocally.stderr.on('data', function(data) {
+      console.error(data.toString('utf8'));
+    });
+  });
 
   it('should respond', function(done) {
-    request(app)
-    .get('/.well-known/browserid')
-    .expect('Content-Type', /json/)
-    .expect(/public-key/) // string or regex matching expected well-known json
-    .end(function(err, res){
-      if (err) {
-        throw err;
-      }
-      done();
+    // TODO what does app mean here?
+    request.get('/.well-known/browserid')
+      .expect('Content-Type', /json/)
+      .expect(/public-key/) // string or regex matching expected well-known json
+      .end(function(err, res){
+        if (err) {
+          throw err;
+        }
+        done();
     });
   });
 
@@ -42,7 +48,7 @@ describe('the server', function() {
       publicKeyToCertify = keyPair.publicKey.serialize();
     });
 
-    var csfrResponse = request(app).get('/provision')
+    var csfrResponse = request.get('/provision')
           .end(function(err, res) {
             var cookieHeader = res.headers['set-cookie'][0];
 
@@ -52,13 +58,13 @@ describe('the server', function() {
             var csrf = res.text.substring(start + offset, end);
 
             // Moved in here... if afterwards, seems like this can run before this .end runs.
-            request(app).post('/provision')
+            request.post('/provision')
               .send({email: 'lloyd@example.com', publicKey: publicKeyToCertify, duration: 1000*1000, _csrf: csrf})
               .set('cookie', cookieHeader)
               .expect('Content-Type', /json/)
               .expect(/public-key/) // string or regex matching expected well-known json
               .end(function(err, res){
-                   console.log('RES: '+ res.text);
+                   console.log('RES: '+ res);
                    if (err) {
                      throw err;
                    }
