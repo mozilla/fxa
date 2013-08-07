@@ -35,7 +35,7 @@ alice.srp.verifier = srp.getv(
 ).toString('hex')
 
 Account.create(alice)
-.done(
+.then(
   function (a) {
 
     test(
@@ -76,6 +76,15 @@ Account.create(alice)
               t.end()
             }
           )
+      }
+    )
+
+    test(
+      'teardown',
+      function (t) {
+        dbs.cache.close()
+        dbs.store.close()
+        t.end()
       }
     )
   }

@@ -54,7 +54,7 @@ test(
 )
 
 test(
-	'recoveryMethod.verify sets verified to true if the codes match',
+	'recoveryEmail.verify sets verified to true if the codes match',
 	function (t) {
 		function end() { t.end() }
 		RecoveryEmail.create('xxx', 'me@example.com', true)
@@ -76,7 +76,7 @@ test(
 )
 
 test(
-	'recoveryMethod.verify does not set verified if codes do not match',
+	'recoveryEmail.verify does not set verified if codes do not match',
 	function (t) {
 		function end() { t.end() }
 		RecoveryEmail.create('xxx', 'me@example.com', true)
@@ -98,7 +98,7 @@ test(
 )
 
 test(
-	'recoveryMethod.verify will not unset the verified flag from true to false',
+	'recoveryEmail.verify will not unset the verified flag from true to false',
 	function (t) {
 		function end() { t.end() }
 		RecoveryEmail.create('xxx', 'me@example.com', true)
@@ -123,4 +123,13 @@ test(
 			)
 			.done(end, end)
 	}
+)
+
+test(
+  'teardown',
+  function (t) {
+    dbs.cache.close()
+    dbs.store.close()
+    t.end()
+  }
 )

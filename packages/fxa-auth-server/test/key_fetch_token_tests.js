@@ -36,3 +36,12 @@ test(
 			.done(end, end)
 	}
 )
+
+test(
+  'teardown',
+  function (t) {
+    dbs.cache.close()
+    dbs.store.close()
+    t.end()
+  }
+)
