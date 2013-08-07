@@ -169,7 +169,7 @@ http://idp.profileinthecloud.net/account/devices \
 
 Get the base16 bundle of encrypted `kA|wrapKb`. The return value must be decrypted with a key derived from keyFetchToken, and then `wrapKb` must be further decrypted with a key derived from the user's password.
 
-Since keyFetchToken is single-use, this can only be done once per session.
+Since keyFetchToken is single-use, this can only be done once per session. Note that the keyFetchToken is consumed regardless of whether the request succeeds or fails.
 
 ### Request
 
@@ -204,6 +204,8 @@ for info on how to extract `kA|wrapKb` from the bundle.
 This resets the account password (by replacing the SRP verifier), and optionally resets the encrypted "wrap(kB)" value, both of which are delivered in an encrypted request body. It also updates several non-secret values: the SRP parameters, the two salts, and the key-stretching parameters.
 
 See [resetting the account](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Resetting_the_Account) for details of how the request body is encrypted.
+
+The accountResetToken is single-use, and is consumed regardless of whether the request succeeds or fails.
 
 ### Request
 
@@ -264,7 +266,7 @@ http://idp.profileinthecloud.net/account/reset \
 
 This deletes the account completely. All stored data is erased. The client should seek user confirmation first. The client should also go to the storage servers and erase all stored data before deleting the account on the keyserver.
 
-This request must be authenticated with the single-use authToken, to confirm that the password has been correctly entered recently.
+This request must be authenticated with the single-use authToken, to confirm that the password has been correctly entered recently. The authToken is consumed regardless of whether the request succeeds or fails.
 
 ### Request
 
@@ -296,7 +298,7 @@ http://idp.profileinthecloud.net/account/destroy \
 
 Not HAWK authenticated.
 
-Begin the login process. This is the first of two calls used to prove knowledge of the user's password. The two calls are tied together with the `srpToken`, which is returned from `/auth/start` and passed back to `/auth/finish`. This token is valid for a limited time (60 seconds).
+Begin the login process. This is the first of two calls used to prove knowledge of the user's password. The two calls are tied together with the single-use `srpToken`, which is returned from `/auth/start` and passed back to `/auth/finish`. This token is valid for a limited time (60 seconds), and is consumed by `/auth/finish` regardless of whether it succeeds or fails.
 
 The `start` call returns the salts and stretching parameters stored for the account. It also returns the SRP "B" message, which the client uses to compute its "A" response (which is submitted in `/auth/finish`).
 
