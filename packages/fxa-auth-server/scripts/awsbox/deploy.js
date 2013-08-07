@@ -41,9 +41,7 @@ process.umask(077);
 // Some of the steps can be async, so use
 // a simple promise chain to manage them.
 
-var d = P.defer()
-d.resolve(null);
-d.promise.then(
+P().then(
 
   function findSecretsFile() {
     if (!args.length || args[0] !== 'create') {
@@ -110,6 +108,7 @@ d.promise.then(
       }
       return d.resolve(null);
     });
+    return d.promise;
   }
 
 ).then(
@@ -122,11 +121,11 @@ d.promise.then(
   },
 
   function onError(err) {
-     console.log("ERROR: ", err);
-     if (deleteSecretsFile) {
-       fs.unlinkSync(secretsFile);
-     }
-     process.exit(err.code ? err.code : 1);
+    console.log("ERROR: ", err);
+    if (deleteSecretsFile) {
+      fs.unlinkSync(secretsFile);
+    }
+    process.exit(err.code ? err.code : 1);
   }
 
-);
+).done();
