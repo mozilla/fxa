@@ -32,32 +32,32 @@ For example:
 
 * Account
     * [POST /account/create](#post-accountcreate)
-    * [GET  /account/devices :lock:(sessionToken)](#get-accountdevices)
-    * [GET  /account/keys :lock:(keyFetchToken)](#get-accountkeys)
-    * [POST /account/reset :lock:(accountResetToken)](#post-accountreset)
-    * [POST /account/destroy :lock:(authToken)](#post-accountdestroy)
+    * [GET  /account/devices (:lock: sessionToken)](#get-accountdevices)
+    * [GET  /account/keys (:lock: keyFetchToken) (verf-required)](#get-accountkeys)
+    * [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
+    * [POST /account/destroy (:lock: authToken)](#post-accountdestroy)
 
 * Authentication
     * [POST /auth/start](#post-authstart)
     * [POST /auth/finish](#post-authfinsh)
 
 * Session
-    * [POST /session/create :lock:(authToken)](#post-sessioncreate)
-    * [POST /session/destroy :lock:(sessionToken)](#post-sessiondestroy)
+    * [POST /session/create (:lock: authToken)](#post-sessioncreate)
+    * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
 
 * Recovery Email
-    * [GET  /recovery_email/status :lock:(sessionToken)](#get-recovery_emailstatus)
-    * [POST /recovery_email/resend_code :lock:(sessionToken)](#post-recovery_emailresend_code)
+    * [GET  /recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
+    * [POST /recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
     * [POST /recovery_email/verify_code](#post-recovery_emailverify_code)
 
 * Certificate Signing
-    * [POST /certificate/sign :lock:(sessionToken)](#post-certificatesign)
+    * [POST /certificate/sign (:lock: sessionToken) (verf-required)](#post-certificatesign)
 
 * Password
-    * [POST /password/change/start :lock:(authToken)](#post-passwordchangestart)
+    * [POST /password/change/start (:lock: authToken)](#post-passwordchangestart)
     * [POST /password/forgot/send_code](#post-passwordforgotsend_code)
-    * [POST /password/forgot/resend_code :lock:(forgotPasswordToken)](#post-passwordforgotresend_code)
-    * [POST /password/forgot/verify_code :lock:(forgotPasswordToken)](#post-passwordforgotverify_code)
+    * [POST /password/forgot/resend_code (:lock: forgotPasswordToken)](#post-passwordforgotresend_code)
+    * [POST /password/forgot/verify_code (:lock: forgotPasswordToken)](#post-passwordforgotverify_code)
 
 * Miscellaneous
     * [POST /get_random_bytes](#post-get_random_bytes)
@@ -170,6 +170,8 @@ http://idp.profileinthecloud.net/account/devices \
 Get the base16 bundle of encrypted `kA|wrapKb`. The return value must be decrypted with a key derived from keyFetchToken, and then `wrapKb` must be further decrypted with a key derived from the user's password.
 
 Since keyFetchToken is single-use, this can only be done once per session. Note that the keyFetchToken is consumed regardless of whether the request succeeds or fails.
+
+This request will fail unless the account's email address has been verified.
 
 ### Request
 
@@ -544,6 +546,8 @@ http://idp.profileinthecloud.net/recovery_email/verify_code \
 :lock: HAWK-authenticated with the sessionToken.
 
 Sign a BrowserID public key. The server is given a public key, and returns a signed certificate using the same JWT-like mechanism as a BrowserID primary IdP would (see the [browserid-certifier project](https://github.com/mozilla/browserid-certifier for details)). The signed certificate includes a `principal.email` property to indicate the PICL account's identifier (a uuid at a PICL-specific domain). The certificate is marked as being valid for a limited time period (TBD, but probably a few hours, maybe a day).
+
+This request will fail unless the account's email address has been verified.
 
 ___Parameters___
 
