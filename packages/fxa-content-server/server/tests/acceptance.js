@@ -41,9 +41,14 @@ describe('the server', function() {
       }
       publicKeyToCertify = keyPair.publicKey.serialize();
     });
+/*
+    var csfrResponse = request(app).get('/provision', function(err, res) {
+      console.log('CSF: '+res);
+      done();
+    });
+    return;*/
 
-    request(app)
-    .post('/provision', {email: 'lloyd@example.com', publicKey: publicKeyToCertify, duration: 1000*1000})
+    request(app).post('/provision', {email: 'lloyd@example.com', publicKey: publicKeyToCertify, duration: 1000*1000})
     .expect('Content-Type', /json/)
     .expect(/public-key/) // string or regex matching expected well-known json
     .end(function(err, res){
