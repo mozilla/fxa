@@ -75,9 +75,11 @@ Not HAWK authenticated.
 
 Creates a user account. The client provides the email address with which this account will be labeled, the two salts, all the stretching parameters, and the resulting SRP verifier. Of these values, only the salts and the stretching parameters will be returned to the client when they next log in using `/auth/start`.
 
+Because the account email is used for key-derivation by both client and server, it is important to deliver it accurately, byte-for-byte. To avoid transfer-encoding ambiguity (what does HTTP use, what does the JSON parser do, etc), the email should be transferred as a hex-encoded binary string, just like the salts, tokens, and SRP A/B values. For example, "me@example.com" is represented as "6d65406578616d706c652e636f6d", and "andré@example.org" is represented as "616e6472c3a9406578616d706c652e6f7267".
+
 ___Parameters___
 
-* email - the primary email for this account
+* email - the primary email for this account (UTF-8 encoded, as hex)
 * srp
     * type - "SRP-6a/SHA256/2048/v1"
     * verifer - the derived SRP verifier
@@ -98,7 +100,7 @@ curl -v \
 -H "Content-Type: application/json" \
 http://idp.profileinthecloud.net/account/create \
 -d '{
-  "email": "me2@example.com",
+  "email": "6d65406578616d706c652e636f6d",
   "srp": {
     "type": "SRP-6a/SHA256/2048/v1",
     "verifier": "7597c55064c73bf1b2735878cb8711c289fc8f1cfb3d633a4593b36a8c51dbd68b27f649949de27d1dcccf7ece1e1a42c5c6bdc3d209cf13a3813d333bfcadd2641a9a3e2eb4289788ed8510cc8f2f1061789d58aef38b9d21b81831413f55473f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4e0bda74fcaa2347be4664f553d332df8166278c0e2f8663aa9238a2429631f7afd11622e193747b57975c51bbb69bb11f60c1a5ba449d3119e70d1ec580212151f79b26e73a57dba313376f0ba7a2afc232146a3b1d68b2d0afc35ebb8699cb10b3a3f8e0d51cefc7ac29212b238fb7a87f2f61edc9cbff103e386f778925fe",
@@ -300,7 +302,7 @@ The `start` call returns the salts and stretching parameters stored for the acco
 
 ___Parameters___
 
-* email - user's email address
+* email - user's email address (UTF-8 encoded, as hex)
 
 ### Request
 ```sh
@@ -309,7 +311,7 @@ curl -v \
 -H "Content-Type: application/json" \
 http://idp.profileinthecloud.net/auth/start \
 -d '{
-  "email": "me@example.com"
+  "email": "6d65406578616d706c652e636f6d"
 }'
 ```
 
@@ -465,8 +467,10 @@ http://idp.profileinthecloud.net/recovery_email/status \
 
 The response is a JSON body (with no newlines) that lists the email address and its verification status. When Server-Sent Events are used, the response is a series of lines, each of which contains the same JSON body as with the one-time GET.
 
+Each email address is encoded as a hex string, just like in /auth/start and /account/create .
+
 ```json
-{ "email": "me@example.com", "verified": true }
+{ "email": "6d65406578616d706c652e636f6d", "verified": true }
 ```
 
 ## POST /recovery_email/resend_code
@@ -632,7 +636,7 @@ Each account can have at most one `forgotPasswordToken` valid at a time. Calling
 
 ___Parameters___
 
-* email - the recovery email for this account
+* email - the recovery email for this account (UTF-8, in hex)
 
 ### Request
 ```sh
@@ -641,7 +645,7 @@ curl -v \
 -H "Content-Type: application/json" \
 http://idp.profileinthecloud.net/password/forgot/send_code \
 -d '{
-  "email": "me@example.com"
+  "email": "6d65406578616d706c652e636f6d"
 }'
 ```
 
@@ -666,7 +670,7 @@ This API requires the `forgotPasswordToken` returned by the original `send_code`
 
 ___Parameters___
 
-* email - the recovery email for this account
+* email - the recovery email for this account (UTF-8, in hex)
 * forgotPasswordToken - the token originally returned by `/password/forgot/send_code`
 
 ### Request
@@ -676,7 +680,7 @@ curl -v \
 -H "Content-Type: application/json" \
 http://idp.profileinthecloud.net/password/forgot/send_code \
 -d '{
-  "email": "me@example.com"
+  "email": "6d65406578616d706c652e636f6d"
 }'
 ```
 
