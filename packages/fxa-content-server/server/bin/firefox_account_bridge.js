@@ -88,7 +88,7 @@ function listen(theApp) {
   } else {
     port = config.get('port');
     app.listen(port, '0.0.0.0');
-    console.log('config.get("issuer")', config.get('issuer'));
+    // console.log('config.get("issuer")', config.get('issuer'));
     lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
   }
   if (isMain) { // -> log
