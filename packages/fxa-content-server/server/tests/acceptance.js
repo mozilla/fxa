@@ -45,20 +45,21 @@ describe('the server', function() {
     var csfrResponse = request(app).get('/provision')
           .end(function(err, res) {
             var cookieHeader = res.headers['set-cookie'][0];
-
             var offset = '_csrf: "'.length;
             var start = res.text.indexOf('_csrf: "');
             var end = res.text.indexOf('"', start + offset);
             var csrf = res.text.substring(start + offset, end);
+            var certificate;
 
-            // Moved in here... if afterwards, seems like this can run before this .end runs.
             request(app).post('/provision')
               .send({email: 'lloyd@example.com', publicKey: publicKeyToCertify, duration: 1000*1000, _csrf: csrf})
               .set('cookie', cookieHeader)
               .expect('Content-Type', /json/)
-              .expect(/public-key/) // string or regex matching expected well-known json
               .end(function(err, res){
-                   console.log('RES: '+ res.text);
+                   certificate = JSON.parse(res.body.certificate);
+                   (certificate.success).should.be.true;
+                   // XXX replace with public key validation
+                   (certificate.certificate.length).should.equal(1152);
                    if (err) {
                      throw err;
                    }

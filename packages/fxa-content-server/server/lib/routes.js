@@ -27,9 +27,9 @@ module.exports = function(app) {
       if (err) {
         res.send(JSON.stringify({error: "Internal server error certifying"}), 500);
       } else {
-        res.send(JSON.stringify({
+        res.json({
           certificate: certificate
-        }));
+        });
       }
     });
   });
