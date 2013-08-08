@@ -14,4 +14,4 @@ if [[ $app ]] ; then
   hekad -config=heka/hekad.toml &
 fi
 
-NODE_ENV="local" ./bin/key_server.js
+NODE_ENV="local" DEV_VERIFIED="true" ./bin/key_server.js | ./node_modules/bunyan/bin/bunyan
