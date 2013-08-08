@@ -4,7 +4,7 @@
   "description": "Firefox Accounts Persona Bridge",
   "scripts": {
     "postinstall": "node ./scripts/postinstall.js",
-    "start": "server/bin/firefox_account_bridge.js",
+    "start": "node scripts/run_locally.js",
     "test": "mocha server/tests/*.js"
   },
   "repository": {
