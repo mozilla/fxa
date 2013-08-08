@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "description": "Firefox Accounts Persona Bridge",
   "scripts": {
+    "postinstall": "node ./scripts/postinstall.js",
     "start": "server/bin/firefox_account_bridge.js",
-    "test": "nodeunit server/tests/*.js"
+    "test": "mocha server/tests/*.js"
   },
   "repository": {
     "type": "git",
@@ -19,12 +20,16 @@
     "express": "3.3.4",
     "i18n-abide": "0.0.11",
     "nunjucks": "0.1.9",
-    "urlparse": "0.0.1"
+    "urlparse": "0.0.1",
+    "browserid-certifier": "0.0.1"
   },
   "devDependencies": {
-    "nodeunit": "0.8.1",
+    "mocha": "1.0.3",
+    "should": "0.6.3",
+    "supertest": "0.7.1",
     "awsbox": "0.4.5",
-    "jshint": "0.9.1"
+    "jshint": "0.9.1",
+    "jwcrypto": "0.4.3"
   },
   "readmeFilename": "README.md"
 }

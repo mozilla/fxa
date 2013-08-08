@@ -26,10 +26,15 @@ var conf = module.exports = convict({
     format: "duration",
     default: "5 minutes"
   },
-  certifier_host: "127.0.0.1",
+  certifier_host: {
+    format: String,
+    default: "127.0.0.1",
+    env: "CERTIFIER_HOST"
+  },
   certifier_port: {
     format: "port",
-    default: 8080
+    default: 8080,
+    env: "CERTIFIER_PORT"
   },
   client_sessions: {
     cookie_name: "session",

@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('../lib/configuration');
+const config = require('../lib/configuration'),
+      certifier = require('browserid-certifier').client;
 
 module.exports = function(app) {
   app.get('/.well-known/browserid', function(req, res) {
@@ -19,14 +20,18 @@ module.exports = function(app) {
   });
 
   app.post('/provision', function(req, res) {
-    res.setHeader('Content-Type', 'application/json');
     var email = req.body.email,
         publicKey = req.body.publicKey,
         duration = req.body.duration;
-    var certificate = 'TODO';
-    res.send(JSON.stringify({
-      certificate: certificate
-    }));
+    certifier(publicKey, email, duration, function(err, certificate) {
+      if (err) {
+        res.send(JSON.stringify({error: "Internal server error certifying"}), 500);
+      } else {
+        res.json({
+          certificate: certificate
+        });
+      }
+    });
   });
 
   app.get('/authentication', function(req, res) {
