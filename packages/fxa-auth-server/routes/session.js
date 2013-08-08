@@ -38,8 +38,13 @@ module.exports = function (isA, error, Account, tokens) {
             )
             .then(
               function () {
+                return authToken.bundleSession(keyFetchToken, sessionToken)
+              }
+            )
+            .then(
+              function (bundle) {
                 return {
-                  bundle: authToken.bundle(keyFetchToken, sessionToken)
+                  bundle: bundle
                 }
               }
             )
@@ -58,8 +63,7 @@ module.exports = function (isA, error, Account, tokens) {
         },
         handler: function (request) {
           var sessionToken = request.auth.credentials
-          sessionToken
-            .del()
+          sessionToken.del()
             .then(
               function () {
                 return Account.get(sessionToken.uid)

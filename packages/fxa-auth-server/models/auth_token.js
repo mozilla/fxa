@@ -6,16 +6,21 @@ module.exports = function (inherits, Token, db) {
 
   function AuthToken() {
     Token.call(this)
+    this.opKey = null
   }
   inherits(AuthToken, Token)
 
   AuthToken.hydrate = function (object) {
-    return Token.fill(new AuthToken(), object)
+    var t = Token.fill(new AuthToken(), object)
+    if (t) {
+      t.opKey = object.value ? object.value.opKey : object.opKey
+    }
+    return t
   }
 
   AuthToken.create = function (uid) {
     return Token
-      .randomTokenData('session/create', 5 * 32)
+      .randomTokenData('authToken', 3 * 32)
       .then(
         function (data) {
           var key = data[1]
@@ -24,8 +29,7 @@ module.exports = function (inherits, Token, db) {
           t.data = data[0].toString('hex')
           t.id = key.slice(0, 32).toString('hex')
           t.key = key.slice(32, 64).toString('hex')
-          t.hmacKey = key.slice(64, 96).toString('hex')
-          t.xorKey = key.slice(96, 160).toString('hex')
+          t.opKey = key.slice(64, 96).toString('hex')
           return t.save()
         }
       )
@@ -44,8 +48,8 @@ module.exports = function (inherits, Token, db) {
   AuthToken.fromHex = function (string) {
     return Token.
       tokenDataFromBytes(
-        'session/create',
-        5 * 32,
+        'authToken',
+        3 * 32,
         Buffer(string, 'hex')
       )
       .then(
@@ -55,8 +59,7 @@ module.exports = function (inherits, Token, db) {
           t.data = data[0].toString('hex')
           t.id = key.slice(0, 32).toString('hex')
           t.key = key.slice(32, 64).toString('hex')
-          t.hmacKey = key.slice(64, 96).toString('hex')
-          t.xorKey = key.slice(96, 160).toString('hex')
+          t.opKey = key.slice(64, 96).toString('hex')
           return t
         }
       )
@@ -81,23 +84,82 @@ module.exports = function (inherits, Token, db) {
     return AuthToken.del(this.id)
   }
 
-  AuthToken.prototype.bundle = function (keyFetchToken, sessionToken) {
-    return this.bundleHexStrings([keyFetchToken.data, sessionToken.data])
+  AuthToken.prototype.bundleKeys = function (type, keyFetchToken, otherToken) {
+    return Token.tokenDataFromBytes(
+      type,
+      3 * 32,
+      Buffer(this.opKey, 'hex')
+    )
+    .then(
+      function (data) {
+        var wrapper = new Token()
+        wrapper.hmacKey = data[1].slice(0, 32).toString('hex')
+        wrapper.xorKey = data[1].slice(32, 96).toString('hex')
+        return wrapper.bundleHexStrings([keyFetchToken.data, otherToken.data])
+      }
+    )
   }
 
-  AuthToken.prototype.unbundle = function (bundle) {
-    var buffer = Buffer(bundle, 'hex')
-    var ciphertext = buffer.slice(0, 64)
-    var hmac = buffer.slice(64, 96).toString('hex')
-    if(this.hmac(ciphertext).toString('hex') !== hmac) {
-      throw new Error('Unmatching HMAC')
-    }
-    var plaintext = this.xor(ciphertext)
-    return {
-      // TODO: maybe parse the tokens here
-      keyFetchToken: plaintext.slice(0, 32).toString('hex'),
-      sessionToken: plaintext.slice(32, 64).toString('hex')
-    }
+  AuthToken.prototype.bundleSession = function (keyFetchToken, sessionToken) {
+    return this.bundleKeys('session/create', keyFetchToken, sessionToken)
+  }
+
+  AuthToken.prototype.bundleAccountReset = function (keyFetchToken, accountResetToken) {
+    return this.bundleKeys('password/change', keyFetchToken, accountResetToken)
+  }
+
+  AuthToken.prototype.unbundleSession = function (bundle) {
+    return this.unbundle('session/create', bundle)
+      .then(
+        function (tokens) {
+          return {
+            keyFetchToken: tokens.keyFetchToken,
+            sessionToken: tokens.otherToken
+          }
+        }
+      )
+  }
+
+  AuthToken.prototype.unbundleAccountReset = function (bundle) {
+    return this.unbundle('password/change', bundle)
+      .then(
+        function (tokens) {
+          return {
+            keyFetchToken: tokens.keyFetchToken,
+            accountResetToken: tokens.otherToken
+          }
+        }
+      )
+  }
+
+  AuthToken.prototype.unbundle = function (type, bundle) {
+    return Token.tokenDataFromBytes(
+      type,
+      3 * 32,
+      Buffer(this.opKey, 'hex')
+    )
+    .then(
+      function (data) {
+        this.hmacKey = data[1].slice(0, 32).toString('hex')
+        this.xorKey = data[1].slice(32, 96).toString('hex')
+        return this
+      }.bind(this)
+    )
+    .then(
+      function (token) {
+        var buffer = Buffer(bundle, 'hex')
+        var ciphertext = buffer.slice(0, 64)
+        var hmac = buffer.slice(64, 96).toString('hex')
+        if(token.hmac(ciphertext).toString('hex') !== hmac) {
+          throw new Error('Unmatching HMAC')
+        }
+        var plaintext = token.xor(ciphertext)
+        return {
+          keyFetchToken: plaintext.slice(0, 32).toString('hex'),
+          otherToken: plaintext.slice(32, 64).toString('hex')
+        }
+      }
+    )
   }
 
   return AuthToken

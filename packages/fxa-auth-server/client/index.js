@@ -71,6 +71,7 @@ Client.create = function (origin, email, password, callback) {
   c.email = email
   c.password = password
   c.srp = {}
+  c.srp.type = 'SRP-6a/SHA256/2048/v1'
   c.srp.salt = crypto.randomBytes(32).toString('hex')
   c.srp.algorithm = 'sha256'
   c.srp.verifier = verifier(c.srp.salt, c.email, c.password, c.srp.algorithm)
@@ -133,7 +134,7 @@ Client.prototype.stringify = function () {
  return JSON.stringify(this)
 }
 
-Client.prototype.login = function (callback) {
+Client.prototype.auth = function (callback) {
   var K = null
   var p = this.api.authStart(this.email)
     .then(
@@ -156,6 +157,22 @@ Client.prototype.login = function (callback) {
     .then(
       function (authToken) {
         this.authToken = authToken
+        return authToken
+      }.bind(this)
+    )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.prototype.login = function (callback) {
+  var K = null
+  var p = this.auth()
+    .then(
+      function (authToken) {
         return this.api.sessionCreate(this.authToken)
       }.bind(this)
     )
@@ -164,7 +181,7 @@ Client.prototype.login = function (callback) {
         return tokens.AuthToken.fromHex(this.authToken)
           .then(
             function (t) {
-              return t.unbundle(json.bundle)
+              return t.unbundleSession(json.bundle)
             }
           )
       }.bind(this)
@@ -207,58 +224,56 @@ Client.prototype.sign = function (publicKey, duration, callback) {
 
 Client.prototype.changePassword = function (newPassword, callback) {
   var K = null
-  var o = this.sessionToken ? P(null) : this.login()
-  var p = o.then(
-    function () {
-      this.api.paswordChangeAuthStart(this.sessionToken)
-    }.bind(this)
-  )
-  .then(
-    function (srpSession) {
-      var x = getAMK(srpSession, this.email, this.password)
-      K = x.K
-      return this.api.passwordChangeAuthFinish(x.srpToken, x.A, x.M)
-    }
-  )
-  .then(
-    function (json) {
-      AuthBundle.create(K, 'password/change')
-        .then(
-          function (b) {
-            var tokens = b.unbundle(json.bundle)
-            return {
-              keyFetchToken: tokens.keyFetchToken,
-              accountResetToken: tokens.otherToken
+  var p = this.auth()
+    .then(
+      function () {
+        return this.api.passwordChangeStart(this.authToken)
+      }.bind(this)
+    )
+    .then (
+      function (json) {
+        return tokens.AuthToken.fromHex(this.authToken)
+          .then(
+            function (t) {
+              return t.unbundleAccountReset(json.bundle)
             }
-          }
+          )
+      }.bind(this)
+    )
+    .then(
+      function (tokens) {
+        this.keyFetchToken = tokens.keyFetchToken
+        this.accountResetToken = tokens.accountResetToken
+      }.bind(this)
+    )
+    .then(
+      function () {
+        return this.keys()
+      }.bind(this)
+    )
+    .then(
+      function () {
+        return tokens.AccountResetToken.fromHex(this.accountResetToken)
+      }.bind(this)
+    )
+    .then(
+      function (token) {
+        this.srp.salt = crypto.randomBytes(32).toString('hex')
+        this.password = newPassword
+        this.srp.verifier = verifier(this.srp.salt, this.email, newPassword, this.srp.algorithm)
+        var bundle = token.bundle(this.wrapKb, this.srp.verifier)
+        return this.api.accountReset(
+          this.accountResetToken,
+          bundle,
+          {
+            type: this.srp.type,
+            salt: this.srp.salt,
+            verifier: this.srp.verifier
+          },
+          this.passwordStretching
         )
-    }.bind(this)
-  )
-  .then(
-    function (tokens) {
-      this.keyFetchToken = tokens.keyFetchToken
-      this.accountResetToken = tokens.accountResetToken
-    }.bind(this)
-  )
-  .then(
-    function () {
-      return tokens.AccountResetToken.fromHex(this.accountResetToken)
-    }.bind(this)
-  )
-  .then(
-    function (token) {
-      this.srp.salt = crypto.randomBytes(32).toString('hex')
-      this.password = newPassword
-      this.srp.verifier = verifier(this.srp.salt, this.email, newPassword, this.srp.algorithm)
-      var bundle = token.bundle(this.wrapKb, this.srp.verifier)
-      return this.api.accountReset(
-        this.accountResetToken,
-        bundle,
-        this.srp,
-        this.passwordStretching
-      )
-    }.bind(this)
-  )
+      }.bind(this)
+    )
   if (callback) {
     p.done(callback.bind(null, null), callback)
   }

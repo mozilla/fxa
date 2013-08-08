@@ -112,7 +112,7 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, srp, 
     .then(
       function (token) {
         return doRequest(
-          'GET',
+          'POST',
           this.origin + '/account/reset',
           token,
           {

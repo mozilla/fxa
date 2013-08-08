@@ -42,8 +42,16 @@ module.exports = function (isA, error, Account, tokens) {
             )
             .then(
               function () {
+                return authToken.bundleAccountReset(
+                  keyFetchToken,
+                  accountResetToken
+                )
+              }
+            )
+            .then(
+              function (bundle) {
                 return {
-                  bundle: authToken.bundle(keyFetchToken, accountResetToken)
+                  bundle: bundle
                 }
               }
             )

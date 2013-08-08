@@ -257,7 +257,8 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
             bundle: isA.String().max((32 + 256) * 2).regex(HEX_STRING).required(),
             srp: isA.Object({
               type: isA.String().max(64).required(),
-              salt: isA.String().min(64).max(64).required()
+              salt: isA.String().min(64).max(64).regex(HEX_STRING).required(),
+              verifier: isA.String().regex(HEX_STRING).required()
             }).required(),
             passwordStretching: isA.Object()
           }

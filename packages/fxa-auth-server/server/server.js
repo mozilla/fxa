@@ -55,6 +55,7 @@ module.exports = function (path, Hapi, toobusy) {
         if (toobusy()) {
           exit = Hapi.error.serverTimeout('Server too busy')
         }
+        log.debug({ path: request.path })
         next(exit)
       }
     )

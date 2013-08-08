@@ -33,7 +33,6 @@ module.exports = function (inherits, Bundle) {
   Token.fill = function (token, raw) {
     if (!raw) return null
     if (raw.value) raw = raw.value
-    token.type = raw.type
     token.id = raw.id
     token.key = raw.key,
     token.uid = raw.uid
