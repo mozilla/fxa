@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const config = require('../lib/configuration'),
-      certifier = require('browserid-certifier').client;
+certifier = require('browserid-certifier')
+  .client(config.get('certifier_host'), config.get('certifier_port'));
 
 module.exports = function(app) {
   app.get('/.well-known/browserid', function(req, res) {
