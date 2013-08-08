@@ -123,9 +123,10 @@ if (! process.env.CONFIG_FILES &&
 // handle configuration files.  you can specify a CSV list of configuration
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable
-if (process.env.CONFIG_FILES) {
-  var files = process.env.CONFIG_FILES.split(',');
-  conf.loadFile(files);
+if (process.env.CONFIG_FILES &&
+    process.env.CONFIG_FILES != '') {
+      var files = process.env.CONFIG_FILES.split(',');
+      conf.loadFile(files);
 }
 
 if (! process.env.NODE_ENV) {
