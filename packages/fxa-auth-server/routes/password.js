@@ -61,7 +61,7 @@ module.exports = function (isA, error, Account, tokens) {
         handler: notImplemented,
         validate: {
           payload: {
-            email: isA.String().regex(HEX_STRING).required()
+            email: isA.String().max(1024).regex(HEX_STRING).required()
           },
           response: {
             schema: {
@@ -87,7 +87,7 @@ module.exports = function (isA, error, Account, tokens) {
         handler: notImplemented,
         validate: {
           payload: {
-            email: isA.String().required()
+            email: isA.String().max(1024).regex(HEX_STRING).required()
           },
           response: {
             schema: {

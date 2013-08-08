@@ -19,11 +19,11 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         validate: {
           payload: {
             // TODO: still need to validate the utf8 string is a valid email
-            email: isA.String().regex(HEX_STRING).required(),
+            email: isA.String().max(1024).regex(HEX_STRING).required(),
             srp: isA.Object({
-              type: isA.String().required(), // TODO valid()
-              verifier: isA.String().regex(HEX_STRING).required(),
-              salt: isA.String().regex(HEX_STRING).required(),
+              type: isA.String().max(64).required(), // TODO valid()
+              verifier: isA.String().min(512).max(512).regex(HEX_STRING).required(),
+              salt: isA.String().min(64).max(64).regex(HEX_STRING).required(),
             }).required(),
             passwordStretching: isA.Object(
               // {
@@ -237,8 +237,8 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         },
         validate: {
           payload: {
-            uid: isA.String().required(),
-            code: isA.String().required()
+            uid: isA.String().max(64).required(),
+            code: isA.String().max(16).required()
           }
         }
       }
@@ -254,10 +254,10 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         tags: ["account"],
         validate: {
           payload: {
-            bundle: isA.String().regex(HEX_STRING).required(),
+            bundle: isA.String().max((32 + 256) * 2).regex(HEX_STRING).required(),
             srp: isA.Object({
-              type: isA.String().required(),
-              salt: isA.String().required()
+              type: isA.String().max(64).required(),
+              salt: isA.String().min(64).max(64).required()
             }).required(),
             passwordStretching: isA.Object()
           }

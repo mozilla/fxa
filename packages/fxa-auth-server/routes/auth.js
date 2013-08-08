@@ -24,7 +24,7 @@ module.exports = function (isA, Account, SrpSession, AuthBundle) {
         },
         validate: {
           payload: {
-            email: isA.String().regex(HEX_STRING).required()
+            email: isA.String().max(1024).regex(HEX_STRING).required()
           },
           response: {
             schema: {
