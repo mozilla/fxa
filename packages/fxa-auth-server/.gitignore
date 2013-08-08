@@ -5,3 +5,4 @@
 /config/secret-key.json
 *.swp
 server.log
+/config/awsbox-secrets.json.gpg

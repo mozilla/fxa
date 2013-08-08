@@ -1,12 +1,13 @@
 {
   "kvstore": {
+    "cache": "memcached",
     "backend": "mysql"
   },
   "mysql": {
     "user": "picl"
   },
-  "stats": {
-    "backend": "heka"
+  "smtp": {
+    "sender": "webmaster@lcip.org"
   },
   "secretKeyFile": "/home/app/var/secret-key.json",
   "publicKeyFile": "/home/app/var/public-key.json"
