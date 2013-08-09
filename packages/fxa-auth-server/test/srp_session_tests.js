@@ -15,16 +15,18 @@ var SrpSession = models.SrpSession
 
 var alice = {
   uid: 'xxx',
-  email: 'somebody@example.com',
+  email: Buffer('somebödy@example.com').toString('hex'),
   password: 'awesomeSauce',
-  verifier: null,
-  salt: 'BAD1',
+  srp: {
+    verifier: null,
+    salt: 'BAD1'
+  },
   kA: 'BAD3',
   wrapKb: 'BAD4'
 }
 
-alice.verifier = srp.getv(
-  Buffer(alice.salt, 'hex'),
+alice.srp.verifier = srp.getv(
+  Buffer(alice.srp.salt, 'hex'),
   Buffer(alice.email),
   Buffer(alice.password),
   srp.params[2048].N,
@@ -33,20 +35,17 @@ alice.verifier = srp.getv(
 ).toString('hex')
 
 Account.create(alice)
-.done(
+.then(
   function (a) {
 
     test(
       'create login session works',
       function (t) {
-        SrpSession
-          .create('login', a)
+        SrpSession.create(a)
           .done(
             function (s) {
               t.equal(s.uid, a.uid)
-              t.equal(s.s, a.salt)
-              t.equal(s.type, 'login')
-
+              t.equal(s.s, a.srp.salt)
               t.end()
             }
           )
@@ -58,8 +57,7 @@ Account.create(alice)
       function (t) {
         var session = null
         var K = null
-        SrpSession
-          .create('login', a)
+        SrpSession.create(a)
           .then(
             function (s) {
               session = s
@@ -78,6 +76,15 @@ Account.create(alice)
               t.end()
             }
           )
+      }
+    )
+
+    test(
+      'teardown',
+      function (t) {
+        dbs.cache.close()
+        dbs.store.close()
+        t.end()
       }
     )
   }

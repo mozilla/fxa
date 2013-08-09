@@ -13,27 +13,28 @@ var AuthBundle = models.AuthBundle
 
 function Client(origin) {
   this.api = new ClientApi(origin)
-  this.algorithm = 'sha256'
-  this.salt = null
+  this.passwordSalt = null
+  this.srp = null
   this.email = null
-  this.verifier = null
+  this.authToken = null
   this.sessionToken = null
   this.accountResetToken = null
   this.keyFetchToken = null
   this.kA = null
   this.wrapKb = null
+  this._devices = null
 }
 
 Client.Api = ClientApi
 
 function getAMK(srpSession, email, password) {
   var a = crypto.randomBytes(32)
-  var g = srp.params[srpSession.srp.N_bits].g
-  var N = srp.params[srpSession.srp.N_bits].N
+  var g = srp.params[2048].g
+  var N = srp.params[2048].N
   var A = srp.getA(g, a, N)
   var B = Buffer(srpSession.srp.B, 'hex')
   var S = srp.client_getS(
-    Buffer(srpSession.srp.s, 'hex'),
+    Buffer(srpSession.srp.salt, 'hex'),
     Buffer(email),
     Buffer(password),
     N,
@@ -67,10 +68,15 @@ function verifier(salt, email, password, algorithm) {
 
 Client.create = function (origin, email, password, callback) {
   var c = new Client(origin)
+  // TODO: password stretching
   c.email = email
   c.password = password
-  c.salt = crypto.randomBytes(32).toString('hex')
-  c.verifier = verifier(c.salt, c.email, c.password, c.algorithm)
+  c.srp = {}
+  c.srp.type = 'SRP-6a/SHA256/2048/v1'
+  c.srp.salt = crypto.randomBytes(32).toString('hex')
+  c.srp.algorithm = 'sha256'
+  c.srp.verifier = verifier(c.srp.salt, c.email, c.password, c.srp.algorithm)
+  c.passwordSalt = crypto.randomBytes(32).toString('hex')
   var p = c.create()
   if (callback) {
     p.done(callback.bind(null, null), callback)
@@ -83,11 +89,11 @@ Client.create = function (origin, email, password, callback) {
 Client.parse = function (string) {
   var object = JSON.parse(string)
   var client = new Client(object.api.origin)
-  client.salt = object.salt
   client.email = object.email
   client.password = object.password
-  client.salt = object.salt
-  client.verifier = object.verifier
+  client.srp = object.srp
+  c.passwordSalt = object.passwordSalt
+  client.passwordStretching = object.passwordStretching
   client.sessionToken = object.sessionToken
   client.accountResetToken = object.accountResetToken
   client.keyFetchToken = object.keyFetchToken
@@ -100,17 +106,16 @@ Client.parse = function (string) {
 Client.prototype.create = function (callback) {
   var p = this.api.accountCreate(
     this.email,
-    this.verifier,
-    this.salt,
+    this.srp.verifier,
+    this.srp.salt,
     {
-      srp: {
-        alg: this.algorithm,
-        N_bits: 2048
-      },
-      stretch: {
-        salt: 'DEAD',
-        rounds: 0
-      }
+      type: 'PBKDF2/scrypt/PBKDF2/v1',
+      PBKDF2_rounds_1: 20000,
+      scrypt_N: 65536,
+      scrypt_r: 8,
+      scrypt_p: 1,
+      PBKDF2_rounds_2: 20000,
+      salt: this.passwordSalt
     }
   )
   .then(
@@ -126,38 +131,75 @@ Client.prototype.create = function (callback) {
   }
 }
 
+Client.prototype._clear = function () {
+  this.authToken = null
+  this.sessionToken = null
+  this.accountResetToken = null
+  this.keyFetchToken = null
+  this.kA = null
+  this.wrapKb = null
+  this._devices = null
+}
+
 Client.prototype.stringify = function () {
  return JSON.stringify(this)
 }
 
-Client.prototype.login = function (callback) {
+Client.prototype.auth = function (callback) {
   var K = null
-  var p = this.api.sessionAuthStart(this.email)
+  var p = this.api.authStart(this.email)
     .then(
       function (srpSession) {
         var x = getAMK(srpSession, this.email, this.password)
         K = x.K
-        return this.api.sessionAuthFinish(x.srpToken, x.A, x.M)
+        return this.api.authFinish(x.srpToken, x.A, x.M)
       }.bind(this)
     )
     .then(
       function (json) {
-        return AuthBundle.create(K, 'session/auth')
+        return AuthBundle.create(K, 'auth/finish')
           .then(
             function (b) {
-              var tokens = b.unbundle(json.bundle)
-              return {
-                keyFetchToken: tokens.keyFetchToken,
-                sessionToken: tokens.otherToken
-              }
+              return b.unbundle(json.bundle)
+            }
+          )
+      }.bind(this)
+    )
+    .then(
+      function (authToken) {
+        this.authToken = authToken
+        return authToken
+      }.bind(this)
+    )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.prototype.login = function (callback) {
+  var p = this.auth()
+    .then(
+      function (authToken) {
+        return this.api.sessionCreate(this.authToken)
+      }.bind(this)
+    )
+    .then (
+      function (json) {
+        return tokens.AuthToken.fromHex(this.authToken)
+          .then(
+            function (t) {
+              return t.unbundleSession(json.bundle)
             }
           )
       }.bind(this)
     )
     .then(
       function (tokens) {
-        this.sessionToken = tokens.sessionToken
         this.keyFetchToken = tokens.keyFetchToken
+        this.sessionToken = tokens.sessionToken
         return tokens
       }.bind(this)
     )
@@ -191,59 +233,53 @@ Client.prototype.sign = function (publicKey, duration, callback) {
 }
 
 Client.prototype.changePassword = function (newPassword, callback) {
-  var K = null
-  var o = this.sessionToken ? P(null) : this.login()
-  var p = o.then(
-    function () {
-      this.api.paswordChangeAuthStart(this.sessionToken)
-    }.bind(this)
-  )
-  .then(
-    function (srpSession) {
-      var x = getAMK(srpSession, this.email, this.password)
-      K = x.K
-      return this.api.passwordChangeAuthFinish(x.srpToken, x.A, x.M)
-    }
-  )
-  .then(
-    function (json) {
-      AuthBundle.create(K, 'password/change')
-        .then(
-          function (b) {
-            var tokens = b.unbundle(json.bundle)
-            return {
-              keyFetchToken: tokens.keyFetchToken,
-              accountResetToken: tokens.otherToken
+  var p = this.auth()
+    .then(
+      function () {
+        return this.api.passwordChangeStart(this.authToken)
+      }.bind(this)
+    )
+    .then (
+      function (json) {
+        return tokens.AuthToken.fromHex(this.authToken)
+          .then(
+            function (t) {
+              return t.unbundleAccountReset(json.bundle)
             }
-          }
+          )
+      }.bind(this)
+    )
+    .then(
+      function (tokens) {
+        this.keyFetchToken = tokens.keyFetchToken
+        this.accountResetToken = tokens.accountResetToken
+      }.bind(this)
+    )
+    .then(this.keys.bind(this))
+    .then(
+      function () {
+        return tokens.AccountResetToken.fromHex(this.accountResetToken)
+      }.bind(this)
+    )
+    .then(
+      function (token) {
+        this.srp.salt = crypto.randomBytes(32).toString('hex')
+        this.password = newPassword
+        this.srp.verifier = verifier(this.srp.salt, this.email, newPassword, this.srp.algorithm)
+        var bundle = token.bundle(this.wrapKb, this.srp.verifier)
+        return this.api.accountReset(
+          this.accountResetToken,
+          bundle,
+          {
+            type: this.srp.type,
+            salt: this.srp.salt,
+            verifier: this.srp.verifier
+          },
+          this.passwordStretching
         )
-    }.bind(this)
-  )
-  .then(
-    function (tokens) {
-      this.keyFetchToken = tokens.keyFetchToken
-      this.accountResetToken = tokens.accountResetToken
-    }.bind(this)
-  )
-  .then(
-    function () {
-      return tokens.AccountResetToken.fromHex(this.accountResetToken)
-    }.bind(this)
-  )
-  .then(
-    function (token) {
-      this.salt = crypto.randomBytes(32).toString('hex')
-      this.password = newPassword
-      this.verifier = verifier(this.salt, this.email, newPassword, this.algorithm)
-      var bundle = token.bundle(this.wrapKb, this.verifier)
-      var params = this.params
-      return this.api.accountReset(
-        this.accountResetToken,
-        bundle,
-        params
-      )
-    }.bind(this)
-  )
+      }.bind(this)
+    )
+    .then(this._clear.bind(this))
   if (callback) {
     p.done(callback.bind(null, null), callback)
   }
@@ -284,6 +320,43 @@ Client.prototype.keys = function (callback) {
   }
 }
 
-//TODO recovery methods, devices, forgot password, session status/destroy
+Client.prototype.devices = function (callback) {
+  var o = this.sessionToken ? P(null) : this.login()
+  var p = o.then(
+    function () {
+      return this.api.accountDevices(this.sessionToken)
+    }.bind(this)
+  )
+  .then(
+    function (json) {
+      this._devices = json.devices
+      return this._devices
+    }.bind(this)
+  )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.prototype.destroyAccount = function (callback) {
+  var p = this.auth()
+    .then(
+      function () {
+        return this.api.accountDestroy(this.authToken)
+      }.bind(this)
+    )
+    .then(this._clear.bind(this))
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+//TODO recovery methods, forgot password, session status/destroy
 
 module.exports = Client

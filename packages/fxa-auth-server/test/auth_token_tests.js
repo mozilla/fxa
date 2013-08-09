@@ -10,21 +10,21 @@ var mailer = {
 }
 
 var models = require('../models')(config, dbs, mailer)
-var KeyFetchToken = models.tokens.KeyFetchToken
+var AuthToken = models.tokens.AuthToken
 
 test(
 	'bundle / unbundle works',
 	function (t) {
 		function end() { t.end() }
-		KeyFetchToken.create('xxx')
+		AuthToken.create('xxx')
 			.then(
 				function (x) {
-					var kA = crypto.randomBytes(32).toString('hex')
-					var wrapKb = crypto.randomBytes(32).toString('hex')
-					var b = x.bundle(kA, wrapKb)
+					var keyFetchTokenHex = crypto.randomBytes(32).toString('hex')
+					var sessionTokenHex = crypto.randomBytes(32).toString('hex')
+					var b = x.bundle(keyFetchTokenHex, sessionTokenHex)
 					var ub = x.unbundle(b)
-					t.equal(ub.kA, kA)
-					t.equal(ub.wrapKb, wrapKb)
+					t.equal(ub.keyFetchTokenHex, keyFetchTokenHex)
+					t.equal(ub.sessionTokenHex, sessionTokenHex)
 					return x
 				}
 			)

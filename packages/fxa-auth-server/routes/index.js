@@ -16,16 +16,16 @@ module.exports = function (
   signer,
   models
   ) {
-  var srp = require('./srp')(models.SrpSession, models.AuthBundle)
-
+  var auth = require('./auth')(isA, models.Account, models.SrpSession, models.AuthBundle)
   var defaults = require('./defaults')(P, models.dbs)
   var idp = require('./idp')(crypto, error, isA, serverPublicKey)
-  var account = require('./account')(crypto, uuid, isA, error, models.Account, models.RecoveryMethod)
-  var password = require('./password')(isA, error, srp, models.Account)
-  var session = require('./session')(srp, isA, error, models.Account)
+  var account = require('./account')(crypto, uuid, isA, error, models.Account, models.RecoveryEmail)
+  var password = require('./password')(isA, error, models.Account, models.tokens)
+  var session = require('./session')(isA, error, models.Account, models.tokens)
   var sign = require('./sign')(isA, error, signer, models.Account)
 
   var routes = defaults.concat(
+    auth,
     idp,
     account,
     password,

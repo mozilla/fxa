@@ -22,12 +22,12 @@ server.route(
 			handler: function (request) {
 				var reply = request.reply.bind(request)
 				mailer
-					.sendCode(request.payload.email, request.payload.code)
+					.sendCode(Buffer(request.payload.email, 'hex').toString(), request.payload.code)
 					.done(reply, reply)
 			},
 			validate: {
 				payload: {
-					email: isA.String().email().required(),
+					email: isA.String().regex(HEX_STRING).required(),
 					code: isA.String().regex(HEX_STRING).required()
 				}
 			}

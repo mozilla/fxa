@@ -4,17 +4,17 @@
 
 module.exports = function (crypto, P, db, mailer) {
 
-  function RecoveryMethod() {
-    this.id = null
+  function RecoveryEmail() {
+    this.code = null
     this.uid = null
     this.verified = false
     this.primary = false
     this.code = null
   }
 
-  RecoveryMethod.create = function (uid, email, primary, verified) {
-    var rm = new RecoveryMethod()
-    rm.id = email
+  RecoveryEmail.create = function (uid, email, primary, verified) {
+    var rm = new RecoveryEmail()
+    rm.email = email
     rm.uid = uid
     rm.primary = !!primary
     rm.verified = verified || false
@@ -27,11 +27,11 @@ module.exports = function (crypto, P, db, mailer) {
     }
   }
 
-  RecoveryMethod.hydrate = function (object) {
+  RecoveryEmail.hydrate = function (object) {
     if (!object) return null
     if (object.value) object = object.value
-    var rm = new RecoveryMethod()
-    rm.id = object.id
+    var rm = new RecoveryEmail()
+    rm.code = object.code
     rm.uid = object.uid
     rm.verified = object.verified
     rm.primary = object.primary
@@ -39,30 +39,30 @@ module.exports = function (crypto, P, db, mailer) {
     return rm
   }
 
-  RecoveryMethod.get = function (id) {
+  RecoveryEmail.get = function (uid, code) {
     return db
-      .get(id + '/recovery')
-      .then(RecoveryMethod.hydrate)
+      .get(uid + code + '/recovery')
+      .then(RecoveryEmail.hydrate)
   }
 
-  RecoveryMethod.del = function (id) {
-    return db.delete(id + '/recovery')
+  RecoveryEmail.del = function (uid, code) {
+    return db.delete(uid + code + '/recovery')
   }
 
-  RecoveryMethod.prototype.save = function () {
+  RecoveryEmail.prototype.save = function () {
     var self = this
-    return db.set(this.id + '/recovery', this).then(function () { return self })
+    return db.set(this.uid + this.code + '/recovery', this).then(function () { return self })
   }
 
-  RecoveryMethod.prototype.del = function () {
-    return RecoveryMethod.del(this.id)
+  RecoveryEmail.prototype.del = function () {
+    return RecoveryEmail.del(this.uid, this.code)
   }
 
-  RecoveryMethod.prototype.sendCode = function () {
-    return mailer.sendCode(this.id, this.code)
+  RecoveryEmail.prototype.sendCode = function () {
+    return mailer.sendCode(Buffer(this.email, 'hex').toString('utf8'), this.code)
   }
 
-  RecoveryMethod.prototype.verify = function (code) {
+  RecoveryEmail.prototype.verify = function (code) {
     if (!this.verified && code === this.code) {
       this.verified = true
       return this.save()
@@ -70,5 +70,5 @@ module.exports = function (crypto, P, db, mailer) {
     return P(this)
   }
 
-  return RecoveryMethod
+  return RecoveryEmail
 }

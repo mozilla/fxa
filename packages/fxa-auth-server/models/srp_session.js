@@ -16,7 +16,7 @@ module.exports = function (P, uuid, srp, db, error) {
     this.b = null
     this.B = null
     this.K = null
-    this.type = null // 'login' | 'passwordChange'
+    this.passwordStretching = null
   }
 
   function srpGenKey() {
@@ -29,7 +29,7 @@ module.exports = function (P, uuid, srp, db, error) {
     return d.promise
   }
 
-  SrpSession.create = function (type, account) {
+  SrpSession.create = function (account) {
     var session = null
     if (!account) { throw error.unknownAccount() }
     return srpGenKey()
@@ -40,11 +40,11 @@ module.exports = function (P, uuid, srp, db, error) {
           session.uid = account.uid
           session.N = srp.params[2048].N
           session.g = srp.params[2048].g
-          session.s = account.salt
-          session.v = Buffer(account.verifier, 'hex')
+          session.s = account.srp.salt
+          session.v = Buffer(account.srp.verifier, 'hex')
           session.b = b
           session.B = srp.getB(session.v, session.g, b, session.N, alg)
-          session.type = type
+          session.passwordStretching = account.passwordStretching
           return session.save()
         }
       )
@@ -54,8 +54,8 @@ module.exports = function (P, uuid, srp, db, error) {
     return db.delete(id + '/srp')
   }
 
-  SrpSession.start = function (type, account) {
-    return SrpSession.create(type, account)
+  SrpSession.start = function (account) {
+    return SrpSession.create(account)
       .then(
         function (session) {
           return session.clientData()
@@ -105,7 +105,6 @@ module.exports = function (P, uuid, srp, db, error) {
     s.v = Buffer(object.v, 'hex')
     s.b = Buffer(object.b, 'hex')
     s.B = Buffer(object.B, 'hex')
-    s.type = object.type
     return s
   }
 
@@ -118,13 +117,10 @@ module.exports = function (P, uuid, srp, db, error) {
   SrpSession.prototype.clientData = function () {
     return {
       srpToken: this.id,
-      stretch: {
-        salt: 'FEED'
-      },
+      passwordStretching: this.passwordStretching,
       srp: {
-        N_bits: 2048,
-        alg: 'sha256',
-        s: this.s,
+        type: 'SRP-6a/SHA256/2048/v1',
+        salt: this.s,
         B: this.B.toString('hex')
       }
     }
@@ -139,7 +135,7 @@ module.exports = function (P, uuid, srp, db, error) {
           var A = srp.getA(g, a, N)
           var B = Buffer(session.srp.B, 'hex')
           var S = srp.client_getS(
-            Buffer(session.srp.s, 'hex'),
+            Buffer(session.srp.salt, 'hex'),
             Buffer(email),
             Buffer(password),
             N,
@@ -150,7 +146,7 @@ module.exports = function (P, uuid, srp, db, error) {
           )
 
           var M = srp.getM(A, B, S, N)
-          var K = srp.getK(S, N, session.srp.alg)
+          var K = srp.getK(S, N, 'sha256')
           return {
             A: A.toString('hex'),
             M: M.toString('hex'),
@@ -169,8 +165,7 @@ module.exports = function (P, uuid, srp, db, error) {
       s: this.s,
       v: this.v.toString('hex'),
       b: this.b.toString('hex'),
-      B: this.B.toString('hex'),
-      type: this.type
+      B: this.B.toString('hex')
     }).then(function () { return self })
   }
 

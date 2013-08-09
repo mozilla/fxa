@@ -2,25 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
+module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
 
   var domain = config.domain
   var SessionToken = tokens.SessionToken
   var AccountResetToken = tokens.AccountResetToken
+  var AuthToken = tokens.AuthToken
 
   function Account() {
     this.uid = null
     this.email = null
     this.verified = false
-    this.verifier = null
-    this.salt = null
     this.kA = null
     this.wrapKb = null
-    this.params = null
+    this.srp = null
+    this.passwordStretching = null
     // references
+    this.authTokenId = null
     this.resetTokenId = null
     this.sessionTokenIds = null
-    this.recoveryMethodIds = null
+    this.recoveryEmailCodes = null
   }
 
   Account.hydrate = function (object) {
@@ -30,14 +31,14 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
     a.uid = object.uid
     a.email = object.email
     a.verified = !!object.verified
-    a.verifier = object.verifier
-    a.salt = object.salt
+    a.srp = object.srp
     a.kA = object.kA
     a.wrapKb = object.wrapKb
-    a.params = object.params
+    a.passwordStretching = object.passwordStretching
+    a.authTokenId = object.authTokenId
     a.resetTokenId = object.resetTokenId
     a.sessionTokenIds = object.sessionTokenIds || {}
-    a.recoveryMethodIds = object.recoveryMethodIds || {}
+    a.recoveryEmailCodes = object.recoveryEmailCodes || {}
     return a
   }
 
@@ -53,11 +54,11 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
           if (config.dev && config.dev.verified) {
             account.verified = true
           }
-          return RecoveryMethod
+          return RecoveryEmail
             .create(account.uid, account.email, true, account.verified)
             .then(
               function (rm) {
-                account.recoveryMethodIds[rm.id] = true
+                account.recoveryEmailCodes[rm.code] = true
               }
             )
             .then(
@@ -125,12 +126,12 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
     return db.set(uid + '/user', value).then(function () { return value })
   }
 
-  Account.verify = function (recoveryMethod) {
-    if (recoveryMethod.primary && recoveryMethod.verified) {
-      return Account.get(recoveryMethod.uid)
+  Account.verify = function (recoveryEmail) {
+    if (recoveryEmail.primary && recoveryEmail.verified) {
+      return Account.get(recoveryEmail.uid)
         .then(
           function (account) {
-            if (!account.verified && recoveryMethod.uid === account.uid) {
+            if (!account.verified && recoveryEmail.uid === account.uid) {
               account.verified = true
               return account.save()
             }
@@ -141,7 +142,7 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
         )
     }
     else {
-      return Account.get(recoveryMethod.uid)
+      return Account.get(recoveryEmail.uid)
     }
   }
 
@@ -162,6 +163,19 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
     if (this.resetTokenId !== null) {
       return AccountResetToken
         .del(this.resetTokenId)
+        .then(set)
+    }
+    return set()
+  }
+
+  Account.prototype.setAuthToken = function (token) {
+    var set = function () {
+      this.authTokenId = token.id
+      return this.save()
+    }.bind(this)
+    if (this.authTokenId !== null) {
+      return AuthToken
+        .del(this.authTokenId)
         .then(set)
     }
     return set()
@@ -194,27 +208,27 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
     return P.all(tokens)
   }
 
-  Account.prototype.addRecoveryMethod = function (rm) {
-    this.recoveryMethodIds[rm.id] = true
+  Account.prototype.addRecoveryEmail = function (rm) {
+    this.recoveryEmailCodes[rm.code] = true
     return this.save()
   }
 
-  Account.prototype.recoveryMethods = function () {
-    var ids = Object.keys(this.recoveryMethodIds)
+  Account.prototype.recoveryEmails = function () {
+    var codes = Object.keys(this.recoveryEmailCodes)
     var methods = []
-    for (var i = 0; i < ids.length; i++) {
-      methods.push(RecoveryMethod.get(ids[i]))
+    for (var i = 0; i < codes.length; i++) {
+      methods.push(RecoveryEmail.get(this.uid, codes[i]))
     }
     return P.all(methods)
   }
 
-  Account.prototype.deleteAllRecoveryMethods = function () {
-    var ids = Object.keys(this.recoveryMethodIds)
+  Account.prototype.deleteAllRecoveryEmails = function () {
+    var codes = Object.keys(this.recoveryEmailCodes)
     var methods = []
-    for (var i = 0; i < ids.length; i++) {
-      methods.push(RecoveryMethod.del(ids[i]))
+    for (var i = 0; i < codes.length; i++) {
+      methods.push(RecoveryEmail.del(this.uid, codes[i]))
     }
-    this.recoveryMethodIds = {}
+    this.recoveryEmailCodes = {}
     return P.all(methods)
   }
 
@@ -232,17 +246,18 @@ module.exports = function (P, tokens, RecoveryMethod, db, config, error) {
   Account.prototype.reset = function (form) {
     //this.kA = null // TODO
     this.wrapKb = form.wrapKb
-    this.verifier = form.verifier
-    this.params = form.params
+    this.srp = form.srp
+    this.passwordStretching = form.passwordStretching
     return this.deleteAllTokens()
       .then(this.save.bind(this))
   }
 
   Account.prototype.del = function () {
     return this.deleteAllTokens()
-      .then(this.deleteAllRecoveryMethods.bind(this))
+      .then(this.deleteAllRecoveryEmails.bind(this))
       .then(deleteRecord.bind(null, this.uid))
       .then(deleteIndex.bind(null, this.email))
+      .then(function () { return {} })
   }
 
   return Account

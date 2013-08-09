@@ -10,15 +10,17 @@ var mailer = {
 
 var models = require('../models')(config, dbs, mailer)
 var Account = models.Account
-var RecoveryMethod = models.RecoveryMethod
+var RecoveryEmail = models.RecoveryEmail
 var SessionToken = models.tokens.SessionToken
 var AccountResetToken = models.tokens.AccountResetToken
 
 var a = {
   uid: 'xxx',
-  email: 'somebody@example.com',
-  verifier: 'BAD1',
-  salt: 'BAD2',
+  email: Buffer('somebody@example.com').toString('hex'),
+  srp: {
+    verifier: 'BAD1',
+    salt: 'BAD2'
+  },
   kA: 'BAD3',
   wrapKb: 'BAD4'
 }
@@ -51,14 +53,20 @@ test(
 test(
   'Account.create adds a primary recovery method',
   function (t) {
+    var code = null
     Account.create(a)
       .then(Account.get.bind(null, a.uid))
       .then(
         function (account) {
-          t.equal(account.recoveryMethodIds[a.email], true)
+          code = Object.keys(account.recoveryEmailCodes)[0]
+          t.ok(code)
         }
       )
-      .then(RecoveryMethod.get.bind(null, a.email))
+      .then(
+        function () {
+          return RecoveryEmail.get(a.uid, code)
+        }
+      )
       .then(
         function (rm) {
           t.equal(rm.uid, a.uid)
@@ -125,7 +133,7 @@ test(
 test(
   'Account.exists returns false if the email is not in use',
   function (t) {
-    Account.exists('nobody@example.com').done(
+    Account.exists(Buffer('nobody@example.com').toString('hex')).done(
       function (exists) {
         t.equal(exists, false)
         t.end()
@@ -246,7 +254,12 @@ test(
   'Account.verify sets verified to true when the recovery method is primary',
   function (t) {
     Account.create(a)
-      .then(RecoveryMethod.get.bind(null, a.email))
+      .then(
+        function (account) {
+          var code = Object.keys(account.recoveryEmailCodes)[0]
+          return RecoveryEmail.get(account.uid, code)
+        }
+      )
       .then(
         function (x) {
           x.verified = true
@@ -270,7 +283,12 @@ test(
   'Account.verify does not set verified true if recovery method is not verified',
   function (t) {
     Account.create(a)
-      .then(RecoveryMethod.get.bind(null, a.email))
+      .then(
+        function (account) {
+          var code = Object.keys(account.recoveryEmailCodes)[0]
+          return RecoveryEmail.get(account.uid, code)
+        }
+      )
       .then(
         function (x) {
           return Account.verify(x)
@@ -385,18 +403,18 @@ test(
 )
 
 test(
-  'account.recoveryMethods returns an array of RecoveryMethod objects',
+  'account.recoveryEmails returns an array of RecoveryEmail objects',
   function (t) {
     Account.create(a)
       .then(
         function (account) {
-          return account.recoveryMethods()
+          return account.recoveryEmails()
         }
       )
       .then(
         function (rms) {
           t.equal(rms.length, 1)
-          t.equal(rms[0] instanceof RecoveryMethod, true)
+          t.equal(rms[0] instanceof RecoveryEmail, true)
         }
       )
       .then(Account.del.bind(null, a.uid))
@@ -412,8 +430,12 @@ test(
   function (t) {
     var form = {
       wrapKb: 'DEADBEEF',
-      verifier: 'FEEDFACE',
-      params: {
+      srp: {
+        type: 'SRP-6a/SHA256/2048/v1',
+        verifier: 'FEEDFACE',
+        salt: '12345678'
+      },
+      passwordStretching: {
         stuff: true
       }
     }
@@ -426,7 +448,7 @@ test(
       .then(
         function (account) {
           t.equal(account.wrapKb, form.wrapKb)
-          t.equal(account.verifier, form.verifier)
+          t.equal(account.srp.verifier, form.srp.verifier)
         }
       )
       .then(Account.del.bind(null, a.uid))
@@ -445,8 +467,12 @@ test(
     var reset = null
     var form = {
       wrapKb: 'DEADBEEF',
-      verifier: 'FEEDFACE',
-      params: {
+      srp: {
+        type: 'SRP-6a/SHA256/2048/v1',
+        verifier: 'FEEDFACE',
+        salt: '12345678'
+      },
+      passwordStretching: {
         stuff: true
       }
     }
@@ -500,5 +526,14 @@ test(
         function () { t.end() },
         function (err) { t.fail(err); t.end() }
       )
+  }
+)
+
+test(
+  'teardown',
+  function (t) {
+    dbs.cache.close()
+    dbs.store.close()
+    t.end()
   }
 )

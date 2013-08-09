@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
+module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -18,19 +18,19 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         tags: ["srp", "account"],
         validate: {
           payload: {
-            email: isA.String().email().required(),
-            verifier: isA.String().regex(HEX_STRING).required(),
-            salt: isA.String().regex(HEX_STRING).required(),
-            params: isA.Object({
-              srp: isA.Object({
-                alg: isA.String().valid('sha256').required(),
-                N_bits: isA.Number().valid(2048).required()
-              }).required(),
-              stretch: isA.Object({
-                salt: isA.String().regex(HEX_STRING).required(),
-                rounds: isA.Number().required()
-              })
-            })
+            // TODO: still need to validate the utf8 string is a valid email
+            email: isA.String().max(1024).regex(HEX_STRING).required(),
+            srp: isA.Object({
+              type: isA.String().max(64).required(), // TODO valid()
+              verifier: isA.String().min(512).max(512).regex(HEX_STRING).required(),
+              salt: isA.String().min(64).max(64).regex(HEX_STRING).required(),
+            }).required(),
+            passwordStretching: isA.Object(
+              // {
+              //   type: isA.String().required(),
+              //   salt: isA.String().regex(HEX_STRING).required()
+              // }
+            )
           }
         },
         handler: function accountCreate(request) {
@@ -40,11 +40,10 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
               {
                 uid: uuid.v4(),
                 email: form.email,
-                verifier: form.verifier,
-                salt: form.salt,
+                srp: form.srp,
                 kA: crypto.randomBytes(32).toString('hex'),
                 wrapKb: crypto.randomBytes(32).toString('hex'),
-                params: form.params
+                passwordStretching: form.passwordStretching
               }
             )
             .done(
@@ -132,10 +131,10 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
     },
     {
       method: 'GET',
-      path: '/account/recovery_methods',
+      path: '/recovery_email/status',
       config: {
         description:
-          "Gets the set of methods for recovery the account's password",
+          "Gets the 'verified' status for the account's recovery email address",
         auth: {
           strategy: 'sessionToken'
         },
@@ -144,24 +143,12 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
           var sessionToken = request.auth.credentials
           Account
             .get(sessionToken.uid)
-            .then(
-              function (account) {
-                return account.recoveryMethods()
-              }
-            )
             .done(
-              function (rms) {
+              function (account) {
                 request.reply(
                   {
-                    recoveryMethods: rms.map(
-                      function (rm) {
-                        return {
-                          email: rm.email,
-                          verified: rm.verified,
-                          primary: rm.primary
-                        }
-                      }
-                    )
+                    email: account.email,
+                    verified: account.verified
                   }
                 )
               },
@@ -173,7 +160,8 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         validate: {
           response: {
             schema: {
-              recoveryMethods: isA.Object()
+              email: isA.String().required(),
+              verified: isA.Boolean().required()
             }
           }
         }
@@ -181,65 +169,53 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
     },
     {
       method: 'POST',
-      path: '/account/recovery_methods/send_code',
+      path: '/recovery_email/resend_code',
       config: {
         description:
           "Sends a verification code to the specified recovery method. " +
           "Providing this code will mark the recovery method as verified",
         auth: {
-          strategy: 'sessionToken',
-          payload: 'required'
+          strategy: 'sessionToken'
         },
         tags: ["account", "recovery"],
         handler: function (request) {
           var sessionToken = request.auth.credentials
-          var email = request.payload.email
           Account
             .get(sessionToken.id)
             .then(
               function (account) {
-                if (account.email === email) {
-                  RecoveryMethod
-                    .get(email)
-                    .then(
-                      function (rm) {
-                        return rm.sendCode()
-                      }
-                    )
-                    .done(
-                      function () {
-                        request.reply({})
-                      },
-                      function (err) {
-                        request.reply(err)
-                      }
-                    )
-                }
-                else {
-                  request.reply(error.notImplemented())
-                }
+                RecoveryEmail
+                  .get(account.email)
+                  .then(
+                    function (rm) {
+                      return rm.sendCode()
+                    }
+                  )
+                  .done(
+                    function () {
+                      request.reply({})
+                    },
+                    function (err) {
+                      request.reply(err)
+                    }
+                  )
               }
             )
-        },
-        validate: {
-          payload: {
-            email: isA.String().email().required()
-          }
         }
       }
     },
     {
       method: 'POST',
-      path: '/account/recovery_methods/verify_code',
+      path: '/recovery_email/verify_code',
       config: {
         description:
           "Verify a recovery method with this code",
         tags: ["account", "recovery"],
         handler: function (request) {
-          var email = request.payload.email
+          var uid = request.payload.uid
           var code = request.payload.code
-          RecoveryMethod
-            .get(email)
+          RecoveryEmail
+            .get(uid, code)
             .then(
               function (rm) {
                 return rm.verify(code)
@@ -261,8 +237,8 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         },
         validate: {
           payload: {
-            email: isA.String().email().required(),
-            code: isA.String().required()
+            uid: isA.String().max(64).required(),
+            code: isA.String().max(16).required()
           }
         }
       }
@@ -278,17 +254,13 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
         tags: ["account"],
         validate: {
           payload: {
-            bundle: isA.String().regex(HEX_STRING).required(),
-            params: isA.Object({
-              srp: isA.Object({
-                alg: isA.String().valid('sha256').required(),
-                N_bits: isA.Number().valid(2048).required()
-              }).required(),
-              stretch: isA.Object({
-                salt: isA.String().regex(HEX_STRING).required(),
-                rounds: isA.Number().required()
-              })
-            })
+            bundle: isA.String().max((32 + 256) * 2).regex(HEX_STRING).required(),
+            srp: isA.Object({
+              type: isA.String().max(64).required(),
+              salt: isA.String().min(64).max(64).regex(HEX_STRING).required(),
+              verifier: isA.String().regex(HEX_STRING).required()
+            }).required(),
+            passwordStretching: isA.Object()
           }
         },
         handler: function accountReset(request) {
@@ -297,7 +269,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
           var payload = request.payload
           var unbundle = accountResetToken.unbundle(payload.bundle)
           payload.wrapKb = unbundle.wrapKb
-          payload.verifier = unbundle.verifier
+          payload.srp.verifier = unbundle.verifier
 
           accountResetToken
             .del()
@@ -310,6 +282,28 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryMethod) {
             .then(function () { return {} })
             .done(reply, reply)
         },
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/destroy',
+      config: {
+        auth: {
+          strategy: 'authToken'
+        },
+        tags: ["account"],
+        handler: function accountDestroy(request) {
+          var reply = request.reply.bind(request)
+          var authToken = request.auth.credentials
+
+          authToken.del()
+            .then(
+              function () {
+                return Account.del(authToken.uid)
+              }
+            )
+            .done(reply, reply)
+        }
       }
     }
   ]

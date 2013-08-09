@@ -22,6 +22,10 @@ module.exports = function (path, Hapi, toobusy) {
           accountResetToken: {
             scheme: 'hawk',
             getCredentialsFunc: tokens.AccountResetToken.getCredentials
+          },
+          authToken: {
+            scheme: 'hawk',
+            getCredentialsFunc: tokens.AuthToken.getCredentials
           }
         },
         cors: true,
@@ -41,19 +45,6 @@ module.exports = function (path, Hapi, toobusy) {
     server.route(routes)
 
     server.app.log = log
-    server.on(
-      'log',
-      function (event) {
-        log.trace({ hapiEvent: event })
-      }
-    )
-
-    server.on(
-      'request',
-      function (request, event) {
-        log.trace({ hapiEvent: event })
-      }
-    )
 
     //TODO throttle extension
 
@@ -64,7 +55,23 @@ module.exports = function (path, Hapi, toobusy) {
         if (toobusy()) {
           exit = Hapi.error.serverTimeout('Server too busy')
         }
+        log.debug({ path: request.path })
         next(exit)
+      }
+    )
+
+    server.ext(
+      'onPreHandler',
+      function (r, next) {
+        log.debug(
+          {
+            path: r.path,
+            auth: r.auth.isAuthenticated,
+            uid: r.auth.credentials ? r.auth.credentials.uid : null,
+            payload: r.payload
+          }
+        )
+        next()
       }
     )
 
@@ -85,11 +92,21 @@ module.exports = function (path, Hapi, toobusy) {
       function (request, next) {
         var response = request.response()
         if (response.isBoom) {
-          log.error({
-            code: response.response.code,
-            error: response.response.payload.error,
-            msg: response.message,
-          })
+          log.error(
+            {
+              code: response.response.code,
+              error: response.response.payload.error,
+              message: response.response.payload.message,
+            }
+          )
+        }
+        else {
+          log.debug(
+            {
+              path: request.path,
+              response: response.raw
+            }
+          )
         }
 
         next()

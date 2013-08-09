@@ -261,7 +261,10 @@ var RToken = require('../models/token')(inherits, RBundle)
 var KeyFetchToken = require('../models/key_fetch_token')(inherits, KToken, dbs.store)
 var AccountResetToken = require('../models/account_reset_token')(inherits, RToken, crypto, dbs.store)
 var SessionToken = require('../models/session_token')(inherits, SToken, dbs.store)
+
+var AuthToken = require('../models/auth_token')(inherits, SToken, dbs.store)
 var tokens = {
+  AuthToken: AuthToken,
   KeyFetchToken: KeyFetchToken,
   AccountResetToken: AccountResetToken,
   SessionToken: SessionToken
@@ -277,8 +280,8 @@ FakeAccount.prototype.addSessionToken = function (t) {
   this.sessionTokenIds[t.id] = true
   return P(null)
 }
-FakeAccount.prototype.setResetToken = function (t) {
-  this.resetTokenId = t.id
+FakeAccount.prototype.setAuthToken = function (t) {
+  this.authTokenId = t.id
   return P(null)
 }
 
@@ -334,53 +337,53 @@ test(
   }
 )
 
-test(
-  '/session/auth/finish',
-  function (t) {
-    account = new FakeAccount()
-    AuthBundle.login(sessionAuth.K, 'xxx')
-      .done(
-        function (authBundle) {
-          var b = authBundle.bundle
-          t.equal(b, sessionAuth.ciphertext + sessionAuth.hmac)
-          t.end()
-        },
-        function (err) {
-          t.fail(err)
-          t.end()
-        }
-      )
-  }
-)
+// test(
+//   '/session/auth/finish',
+//   function (t) {
+//     account = new FakeAccount()
+//     AuthBundle.login(sessionAuth.K, 'xxx')
+//       .done(
+//         function (authBundle) {
+//           var b = authBundle.bundle
+//           t.equal(b, sessionAuth.ciphertext + sessionAuth.hmac)
+//           t.end()
+//         },
+//         function (err) {
+//           t.fail(err)
+//           t.end()
+//         }
+//       )
+//   }
+// )
+
+// test(
+//   '/password/change/auth/finish',
+//   function (t) {
+//     account = new FakeAccount()
+//     AuthBundle.passwordChange(sessionAuth.K, 'xxx')
+//       .done(
+//         function (changePasswordBundle) {
+//           var b = changePasswordBundle.bundle
+//           t.equal(b, passwordChange.ciphertext + passwordChange.hmac)
+//           t.end()
+//         },
+//         function (err) {
+//           t.fail(err)
+//           t.end()
+//         }
+//       )
+//   }
+// )
 
 test(
-  '/password/change/auth/finish',
+  'login sets authToken on account',
   function (t) {
     account = new FakeAccount()
-    AuthBundle.passwordChange(sessionAuth.K, 'xxx')
-      .done(
-        function (changePasswordBundle) {
-          var b = changePasswordBundle.bundle
-          t.equal(b, passwordChange.ciphertext + passwordChange.hmac)
-          t.end()
-        },
-        function (err) {
-          t.fail(err)
-          t.end()
-        }
-      )
-  }
-)
-
-test(
-  'login adds sessionToken to account',
-  function (t) {
-    account = new FakeAccount()
-    t.equal(Object.keys(account.sessionTokenIds).length, 0)
+    t.equal(!!account.authTokenId, false)
     AuthBundle.login(sessionAuth.K, 'xxx')
       .done(
         function () {
-          t.equal(Object.keys(account.sessionTokenIds).length, 1)
+          t.equal(!!account.authTokenId, true)
           t.end()
         },
         function (err) {
@@ -392,20 +395,10 @@ test(
 )
 
 test(
-  'changePassword sets resetToken on account',
+  'teardown',
   function (t) {
-    account = new FakeAccount()
-    t.equal(!!account.resetTokenId, false)
-    AuthBundle.passwordChange(sessionAuth.K, 'xxx')
-      .done(
-        function () {
-          t.equal(!!account.resetTokenId, true)
-          t.end()
-        },
-        function (err) {
-          t.fail(err)
-          t.end()
-        }
-      )
+    dbs.cache.close()
+    dbs.store.close()
+    t.end()
   }
 )

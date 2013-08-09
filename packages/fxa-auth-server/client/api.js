@@ -64,16 +64,19 @@ function doRequest(method, url, token, payload) {
  *   {}
  *
  */
-ClientApi.prototype.accountCreate = function (email, verifier, salt, params) {
+ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStretching) {
   return doRequest(
     'POST',
     this.origin + '/account/create',
     null,
     {
       email: email,
-      verifier: verifier,
-      salt: salt,
-      params: params
+      srp: {
+        type: 'SRP-6a/SHA256/2048/v1',
+        verifier: verifier,
+        salt: salt
+      },
+      passwordStretching: passwordStretching
     }
   )
 }
@@ -104,26 +107,57 @@ ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
     )
 }
 
-ClientApi.prototype.accountRecoveryMethods = function (sessionTokenHex) {
-  return tokens.SessionToken.fromHex(sessionTokenHex)
+ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, srp, passwordStretching) {
+  return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
       function (token) {
         return doRequest(
-          'GET',
-          this.origin + '/account/recovery_methods',
+          'POST',
+          this.origin + '/account/reset',
+          token,
+          {
+            bundle: bundle,
+            srp: srp,
+            passwordStretching: passwordStretching
+          }
+        )
+      }.bind(this)
+    )
+}
+
+ClientApi.prototype.accountDestroy = function (authTokenHex) {
+  return tokens.AuthToken.fromHex(authTokenHex)
+    .then(
+      function (token) {
+        return doRequest(
+          'POST',
+          this.origin + '/account/destroy',
           token
         )
       }.bind(this)
     )
 }
 
-ClientApi.prototype.accountRecoveryMethodsSendCode = function (sessionTokenHex, email) {
+ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
+  return tokens.SessionToken.fromHex(sessionTokenHex)
+    .then(
+      function (token) {
+        return doRequest(
+          'GET',
+          this.origin + '/recovery_email/status',
+          token
+        )
+      }.bind(this)
+    )
+}
+
+ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, email) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
         return doRequest(
           'POST',
-          this.origin + '/account/recovery_methods/send_code',
+          this.origin + '/recovery_email/resend_code',
           token,
           {
             email: email
@@ -133,33 +167,16 @@ ClientApi.prototype.accountRecoveryMethodsSendCode = function (sessionTokenHex, 
     )
 }
 
-ClientApi.prototype.accountRecoveryMethodsVerifyCode = function (email, code) {
+ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code) {
   return doRequest(
     'POST',
-    this.origin + '/account/recovery_methods/verify_code',
+    this.origin + '/recovery_email/verify_code',
     null,
     {
-      email: email,
+      uid: uid,
       code: code
     }
   )
-}
-
-ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, params) {
-  return tokens.AccountResetToken.fromHex(accountResetTokenHex)
-    .then(
-      function (token) {
-        return doRequest(
-          'GET',
-          this.origin + '/account/reset',
-          token,
-          {
-            bundle: bundle,
-            params: params
-          }
-        )
-      }.bind(this)
-    )
 }
 
 ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration) {
@@ -186,30 +203,17 @@ ClientApi.prototype.getRandomBytes = function () {
   )
 }
 
-ClientApi.prototype.passwordChangeAuthStart = function (sessionTokenHex) {
-  return tokens.SessionToken.fromHex(sessionTokenHex)
+ClientApi.prototype.passwordChangeStart = function (authTokenHex) {
+  return tokens.AuthToken.fromHex(authTokenHex)
     .then(
       function (token) {
         return doRequest(
           'POST',
-          this.origin + '/password/change/auth/start',
+          this.origin + '/password/change/start',
           token
         )
       }.bind(this)
     )
-}
-
-ClientApi.prototype.passwordChangeAuthFinish = function (srpToken, A, M) {
-  return doRequest(
-    'POST',
-    this.origin + '/password/change/auth/finish',
-    null,
-    {
-      srpToken: srpToken,
-      A: A,
-      M: M
-    }
-  )
 }
 
 ClientApi.prototype.passwordForgotSendCode = function (email) {
@@ -223,22 +227,11 @@ ClientApi.prototype.passwordForgotSendCode = function (email) {
   )
 }
 
-ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordToken, code) {
+ClientApi.prototype.passwordForgotResendCode = function (forgotPasswordTokenHex, email) {
+  //TODO forgotPasswordToken-fu
   return doRequest(
     'POST',
-    this.origin + '/password/forgot/verify_code',
-    null,
-    {
-      code: code,
-      forgotPasswordToken: forgotPasswordToken
-    }
-  )
-}
-
-ClientApi.prototype.sessionAuthStart = function (email) {
-  return doRequest(
-    'POST',
-    this.origin + '/session/auth/start',
+    this.origin + '/password/forgot/resend_code',
     null,
     {
       email: email
@@ -246,10 +239,33 @@ ClientApi.prototype.sessionAuthStart = function (email) {
   )
 }
 
-ClientApi.prototype.sessionAuthFinish = function (srpToken, A, M) {
+ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordToken, code) {
+  //TODO forgotPasswordToken-fu
   return doRequest(
     'POST',
-    this.origin + '/session/auth/finish',
+    this.origin + '/password/forgot/verify_code',
+    null,
+    {
+      code: code
+    }
+  )
+}
+
+ClientApi.prototype.authStart = function (email) {
+  return doRequest(
+    'POST',
+    this.origin + '/auth/start',
+    null,
+    {
+      email: email
+    }
+  )
+}
+
+ClientApi.prototype.authFinish = function (srpToken, A, M) {
+  return doRequest(
+    'POST',
+    this.origin + '/auth/finish',
     null,
     {
       srpToken: srpToken,
@@ -259,13 +275,13 @@ ClientApi.prototype.sessionAuthFinish = function (srpToken, A, M) {
   )
 }
 
-ClientApi.prototype.sessionStatus = function (sessionTokenHex) {
-  return tokens.SessionToken.fromHex(sessionTokenHex)
+ClientApi.prototype.sessionCreate = function (authTokenHex) {
+  return tokens.AuthToken.fromHex(authTokenHex)
     .then(
       function (token) {
         return doRequest(
-          'GET',
-          this.origin + '/session/status',
+          'POST',
+          this.origin + '/session/create',
           token
         )
       }.bind(this)

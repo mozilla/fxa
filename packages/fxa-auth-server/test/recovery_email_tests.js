@@ -13,13 +13,15 @@ var mailer = {
 }
 
 var models = require('../models')(config, dbs, mailer)
-var RecoveryMethod = models.RecoveryMethod
+var RecoveryEmail = models.RecoveryEmail
+
+var email = Buffer('me@example.com').toString('hex')
 
 test(
-	'RecoveryMethod.create generates a random 32 byte code as a hex string',
+	'RecoveryEmail.create generates a random 32 byte code as a hex string',
 	function (t) {
 		function end() { t.end() }
-		RecoveryMethod.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(x.code.length, 64)
@@ -37,11 +39,11 @@ test(
 )
 
 test(
-	'RecoveryMethod.create calls mailer.sendCode',
+	'RecoveryEmail.create calls mailer.sendCode',
 	function (t) {
 		sends = 0
 		function end() { t.end() }
-		RecoveryMethod.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(sends, 1)
@@ -54,10 +56,10 @@ test(
 )
 
 test(
-	'recoveryMethod.verify sets verified to true if the codes match',
+	'recoveryEmail.verify sets verified to true if the codes match',
 	function (t) {
 		function end() { t.end() }
-		RecoveryMethod.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(x.verified, false)
@@ -76,10 +78,10 @@ test(
 )
 
 test(
-	'recoveryMethod.verify does not set verified if codes do not match',
+	'recoveryEmail.verify does not set verified if codes do not match',
 	function (t) {
 		function end() { t.end() }
-		RecoveryMethod.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(x.verified, false)
@@ -98,10 +100,10 @@ test(
 )
 
 test(
-	'recoveryMethod.verify will not unset the verified flag from true to false',
+	'recoveryEmail.verify will not unset the verified flag from true to false',
 	function (t) {
 		function end() { t.end() }
-		RecoveryMethod.create('xxx', 'me@example.com', true)
+		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
 					t.equal(x.verified, false)
@@ -123,4 +125,13 @@ test(
 			)
 			.done(end, end)
 	}
+)
+
+test(
+  'teardown',
+  function (t) {
+    dbs.cache.close()
+    dbs.store.close()
+    t.end()
+  }
 )
