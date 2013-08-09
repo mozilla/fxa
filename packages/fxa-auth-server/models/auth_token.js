@@ -140,10 +140,11 @@ module.exports = function (inherits, Token, db) {
     )
     .then(
       function (data) {
-        this.hmacKey = data[1].slice(0, 32).toString('hex')
-        this.xorKey = data[1].slice(32, 96).toString('hex')
-        return this
-      }.bind(this)
+        var token = new Token()
+        token.hmacKey = data[1].slice(0, 32).toString('hex')
+        token.xorKey = data[1].slice(32, 96).toString('hex')
+        return token
+      }
     )
     .then(
       function (token) {

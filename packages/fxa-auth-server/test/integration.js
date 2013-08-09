@@ -38,8 +38,8 @@ function main() {
         )
         .then(
           function (keys) {
-            t.equal(typeof(keys.kA), 'string')
-            t.equal(typeof(keys.wrapKb), 'string')
+            t.equal(typeof(keys.kA), 'string', 'kA exists')
+            t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
           }
         )
         .then(
@@ -49,7 +49,7 @@ function main() {
         )
         .then(
           function (cert) {
-            t.equal(typeof(cert), 'string')
+            t.equal(typeof(cert), 'string', 'cert exists')
           }
         )
         .done(
@@ -70,26 +70,34 @@ function main() {
       var email = Buffer('test2@example.com').toString('hex')
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
+      var wrapKb = null
       var client = null
       Client.create(config.public_url, email, password)
         .then(
           function (x) {
             client = x
-            return client.changePassword(newPassword)
-          }
-        )
-        .then(
-          function () {
-            t.equal(client.password, newPassword)
-            // kill sessionToken to 'logout'
-            client.sessionToken = null
             return client.keys()
           }
         )
         .then(
           function (keys) {
-            t.equal(typeof(keys.kA), 'string')
-            t.equal(typeof(keys.wrapKb), 'string')
+            wrapKb = keys.wrapKb
+          }
+        )
+        .then(
+          function () {
+            return client.changePassword(newPassword)
+          }
+        )
+        .then(
+          function () {
+            t.equal(client.password, newPassword, 'password has changed')
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            t.equal(keys.wrapKb, wrapKb, 'wrapKb is preserved')
           }
         )
         .done(
@@ -98,6 +106,43 @@ function main() {
           },
           function (err) {
             t.fail(err.message || err.error)
+            t.end()
+          }
+        )
+    }
+  )
+
+  test(
+    'account destroy',
+    function (t) {
+      var email = Buffer('test3@example.com').toString('hex')
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      Client.create(config.public_url, email, password)
+        .then(
+          function (x) {
+            client = x
+            return client.devices()
+          }
+        )
+        .then(
+          function (devices) {
+            t.equal(devices.length, 1, 'we have an account')
+            return client.destroyAccount()
+          }
+        )
+        .then(
+          function () {
+            return client.keys()
+          }
+        )
+        .done(
+          function (keys) {
+            t.fail('account not destroyed')
+            t.end()
+          },
+          function (err) {
+            t.equal(err.message, 'Unknown account', 'account destroyed')
             t.end()
           }
         )

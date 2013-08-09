@@ -22,6 +22,7 @@ function Client(origin) {
   this.keyFetchToken = null
   this.kA = null
   this.wrapKb = null
+  this._devices = null
 }
 
 Client.Api = ClientApi
@@ -130,6 +131,16 @@ Client.prototype.create = function (callback) {
   }
 }
 
+Client.prototype._clear = function () {
+  this.authToken = null
+  this.sessionToken = null
+  this.accountResetToken = null
+  this.keyFetchToken = null
+  this.kA = null
+  this.wrapKb = null
+  this._devices = null
+}
+
 Client.prototype.stringify = function () {
  return JSON.stringify(this)
 }
@@ -169,7 +180,6 @@ Client.prototype.auth = function (callback) {
 }
 
 Client.prototype.login = function (callback) {
-  var K = null
   var p = this.auth()
     .then(
       function (authToken) {
@@ -223,7 +233,6 @@ Client.prototype.sign = function (publicKey, duration, callback) {
 }
 
 Client.prototype.changePassword = function (newPassword, callback) {
-  var K = null
   var p = this.auth()
     .then(
       function () {
@@ -246,11 +255,7 @@ Client.prototype.changePassword = function (newPassword, callback) {
         this.accountResetToken = tokens.accountResetToken
       }.bind(this)
     )
-    .then(
-      function () {
-        return this.keys()
-      }.bind(this)
-    )
+    .then(this.keys.bind(this))
     .then(
       function () {
         return tokens.AccountResetToken.fromHex(this.accountResetToken)
@@ -274,6 +279,7 @@ Client.prototype.changePassword = function (newPassword, callback) {
         )
       }.bind(this)
     )
+    .then(this._clear.bind(this))
   if (callback) {
     p.done(callback.bind(null, null), callback)
   }
@@ -314,6 +320,43 @@ Client.prototype.keys = function (callback) {
   }
 }
 
-//TODO recovery methods, devices, forgot password, session status/destroy
+Client.prototype.devices = function (callback) {
+  var o = this.sessionToken ? P(null) : this.login()
+  var p = o.then(
+    function () {
+      return this.api.accountDevices(this.sessionToken)
+    }.bind(this)
+  )
+  .then(
+    function (json) {
+      this._devices = json.devices
+      return this._devices
+    }.bind(this)
+  )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.prototype.destroyAccount = function (callback) {
+  var p = this.auth()
+    .then(
+      function () {
+        return this.api.accountDestroy(this.authToken)
+      }.bind(this)
+    )
+    .then(this._clear.bind(this))
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+//TODO recovery methods, forgot password, session status/destroy
 
 module.exports = Client
