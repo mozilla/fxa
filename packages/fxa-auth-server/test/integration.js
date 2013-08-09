@@ -20,7 +20,7 @@ function main() {
   test(
     'Create account flow',
     function (t) {
-      var email = Buffer('test@example.com').toString('hex')
+      var email = 'test@example.com'
       var password = 'allyourbasearebelongtous'
       var client = null
       var publicKey = {
@@ -67,7 +67,7 @@ function main() {
   test(
     'Change password flow',
     function (t) {
-      var email = Buffer('test2@example.com').toString('hex')
+      var email = 'test2@example.com'
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
       var wrapKb = null
@@ -115,7 +115,7 @@ function main() {
   test(
     'account destroy',
     function (t) {
-      var email = Buffer('test3@example.com').toString('hex')
+      var email = 'test3@example.com'
       var password = 'allyourbasearebelongtous'
       var client = null
       Client.create(config.public_url, email, password)

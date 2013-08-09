@@ -69,7 +69,7 @@ function verifier(salt, email, password, algorithm) {
 Client.create = function (origin, email, password, callback) {
   var c = new Client(origin)
   // TODO: password stretching
-  c.email = email
+  c.email = Buffer(email).toString('hex')
   c.password = password
   c.srp = {}
   c.srp.type = 'SRP-6a/SHA256/2048/v1'
