@@ -2,18 +2,18 @@ var nodemailer = require('nodemailer')
 var P = require('p-promise')
 
 function Mailer(config) {
-	this.mailer = nodemailer.createTransport(
-		'SMTP',
-		{
-			host: config.host,
-			secureConnection: config.secure,
-			port: config.port,
-			auth: {
-				user: config.user,
-				pass: config.password
-			}
+	var options = {
+		host: config.host,
+		secureConnection: config.secure,
+		port: config.port
+	}
+	if (config.user && config.password) {
+		options.auth = {
+			user: config.user,
+			pass: config.password
 		}
-	)
+	}
+	this.mailer = nodemailer.createTransport('SMTP', options)
 	this.sender = config.sender
 	this.subject = config.subject
 }
@@ -24,7 +24,10 @@ Mailer.prototype.sendCode = function (email, code) {
 		sender: this.sender,
 		to: email,
 		subject: this.subject,
-		text: code
+		text: code,
+		headers: {
+			'X-Verify-Code': code
+		}
 	}
 	this.mailer.sendMail(
 		mail,

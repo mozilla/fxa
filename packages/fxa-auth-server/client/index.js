@@ -12,6 +12,7 @@ var tokens = models.tokens
 var AuthBundle = models.AuthBundle
 
 function Client(origin) {
+  this.uid = null
   this.api = new ClientApi(origin)
   this.passwordSalt = null
   this.srp = null
@@ -89,6 +90,7 @@ Client.create = function (origin, email, password, callback) {
 Client.parse = function (string) {
   var object = JSON.parse(string)
   var client = new Client(object.api.origin)
+  client.uid = object.uid
   client.email = object.email
   client.password = object.password
   client.srp = object.srp
@@ -119,7 +121,8 @@ Client.prototype.create = function (callback) {
     }
   )
   .then(
-    function () {
+    function (a) {
+      this.uid = a.uid
       return this
     }.bind(this)
   )
@@ -212,6 +215,27 @@ Client.prototype.login = function (callback) {
   }
 }
 
+Client.prototype.verifyEmail = function (code, callback) {
+  var p = this.api.recoveryEmailVerifyCode(this.uid, code)
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.prototype.emailStatus = function (callback) {
+  var o = this.sessionToken ? P(null) : this.login()
+  var p = this.api.recoveryEmailStatus(this.sessionToken)
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
 Client.prototype.sign = function (publicKey, duration, callback) {
   var o = this.sessionToken ? P(null) : this.login()
   var p = o.then(
@@ -272,8 +296,7 @@ Client.prototype.changePassword = function (newPassword, callback) {
           bundle,
           {
             type: this.srp.type,
-            salt: this.srp.salt,
-            verifier: this.srp.verifier
+            salt: this.srp.salt
           },
           this.passwordStretching
         )
@@ -289,7 +312,7 @@ Client.prototype.changePassword = function (newPassword, callback) {
 }
 
 Client.prototype.keys = function (callback) {
-  var o = this.sessionToken ? P(null) : this.login()
+  var o = this.keyFetchToken ? P(null) : this.login()
   var p = o.then(
     function () {
       return this.api.accountKeys(this.keyFetchToken)
@@ -307,11 +330,17 @@ Client.prototype.keys = function (callback) {
   )
   .then(
     function (keys) {
+      this.keyFetchToken = null
       this.kA = keys.kA
       this.wrapKb = keys.wrapKb
       return keys
+    }.bind(this),
+    function (err) {
+      this.keyFetchToken = null
+      throw err
     }.bind(this)
   )
+
   if (callback) {
     p.done(callback.bind(null, null), callback)
   }

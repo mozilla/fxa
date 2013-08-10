@@ -1,9 +1,9 @@
 var test = require('tap').test
 var crypto = require('crypto')
 var P = require('p-promise')
-var config = require('../config').root()
+var config = require('../../config').root()
 
-var dbs = require('../kv')(config)
+var dbs = require('../../kv')(config)
 
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -12,7 +12,7 @@ var mailer = {
   sendCode: function () { sends++; return P(null) }
 }
 
-var models = require('../models')(config, dbs, mailer)
+var models = require('../../models')(config, dbs, mailer)
 var RecoveryEmail = models.RecoveryEmail
 
 var email = Buffer('me@example.com').toString('hex')
@@ -24,7 +24,7 @@ test(
 		RecoveryEmail.create('xxx', email, true)
 			.then(
 				function (x) {
-					t.equal(x.code.length, 64)
+					t.equal(x.code.length, 8)
 					t.equal(HEX_STRING.test(x.code), true)
 					return x
 				}

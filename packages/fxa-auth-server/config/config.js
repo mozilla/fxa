@@ -190,12 +190,12 @@ module.exports = function (fs, path, url, convict) {
       },
       user: {
         doc: 'SMTP username',
-        default: '',
+        default: null,
         env: 'SMTP_USER'
       },
       password: {
         doc: 'SMTP password',
-        default: '',
+        default: null,
         env: 'SMTP_PASS'
       },
       sender: {

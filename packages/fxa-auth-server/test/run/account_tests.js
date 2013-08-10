@@ -1,14 +1,14 @@
 var test = require('tap').test
 var P = require('p-promise')
-var config = require('../config').root()
+var config = require('../../config').root()
 
-var dbs = require('../kv')(config)
+var dbs = require('../../kv')(config)
 
 var mailer = {
   sendCode: function () { return P(null) }
 }
 
-var models = require('../models')(config, dbs, mailer)
+var models = require('../../models')(config, dbs, mailer)
 var Account = models.Account
 var RecoveryEmail = models.RecoveryEmail
 var SessionToken = models.tokens.SessionToken

@@ -1,20 +1,11 @@
 var test = require('tap').test
 var cp = require('child_process')
-var Client = require('../client')
-var config = require('../config').root()
+var Client = require('../../client')
+var config = require('../../config').root()
 
 process.env.DEV_VERIFIED = 'true'
 
-var server = cp.spawn(
-  'node',
-  ['../bin/key_server.js'],
-  {
-    cwd: __dirname
-  }
-)
-
-server.stdout.on('data', process.stdout.write.bind(process.stdout))
-server.stderr.on('data', process.stderr.write.bind(process.stderr))
+var server = null
 
 function main() {
   test(
@@ -152,10 +143,24 @@ function main() {
   test(
     'teardown',
     function (t) {
-      server.kill('SIGINT')
+      if (server) server.kill('SIGINT')
       t.end()
     }
   )
+}
+
+function startServer() {
+  var server = cp.spawn(
+    'node',
+    ['../../bin/key_server.js'],
+    {
+      cwd: __dirname
+    }
+  )
+
+  server.stdout.on('data', process.stdout.write.bind(process.stdout))
+  server.stderr.on('data', process.stderr.write.bind(process.stderr))
+  return server
 }
 
 function waitLoop() {
@@ -163,6 +168,9 @@ function waitLoop() {
     .done(
       main,
       function (err) {
+        if (!server) {
+          server = startServer()
+        }
         console.log('waiting...')
         setTimeout(waitLoop, 100)
       }

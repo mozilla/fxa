@@ -121,7 +121,9 @@ http://idp.profileinthecloud.net/account/create \
 ### Response
 
 ```json
-{}
+{
+  "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8"
+}
 ```
 
 ## GET /account/devices

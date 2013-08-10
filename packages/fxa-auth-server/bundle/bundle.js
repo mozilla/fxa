@@ -35,7 +35,11 @@ module.exports = function (crypto, P, hkdf) {
   Bundle.prototype.xor = function (buffer) {
     var xorBuffer = Buffer(this.xorKey, 'hex')
     if (buffer.length !== xorBuffer.length) {
-      throw new Error('XOR buffers must be same length')
+      throw new Error(
+        'XOR buffers must be same length %d != %d',
+        buffer.length,
+        xorBuffer.length
+      )
     }
     var result = Buffer(xorBuffer.length)
     for (var i = 0; i < xorBuffer.length; i++) {
