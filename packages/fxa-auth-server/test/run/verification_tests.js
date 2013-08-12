@@ -8,51 +8,6 @@ var config = require('../../config').root()
 process.env.CONFIG_FILES = path.join(__dirname, '../config/verification.json')
 process.env.NODE_ENV = 'local'
 
-var mail = cp.spawn(
-  'node',
-  ['../bin/local_mailer.js'],
-  {
-    cwd: __dirname
-  }
-)
-
-var verifyCode = null
-
-function setVerifyCode(code) {
-  verifyCode = code.toString().trim()
-}
-
-function verifyLoop(cb) {
-  if (verifyCode) {
-    return cb(verifyCode)
-  }
-  setTimeout(verifyLoop.bind(null, cb), 10)
-}
-
-function waitForCode() {
-  var d = P.defer()
-  verifyLoop(
-    function (code) {
-      d.resolve(code)
-    }
-  )
-  return d.promise
-}
-
-mail.stdout.on('data', setVerifyCode)
-mail.stderr.on('data', process.stderr.write.bind(process.stderr))
-
-var server = cp.spawn(
-  'node',
-  ['../../bin/key_server.js'],
-  {
-    cwd: __dirname
-  }
-)
-
-server.stdout.on('data', process.stdout.write.bind(process.stdout))
-server.stderr.on('data', process.stderr.write.bind(process.stderr))
-
 function main() {
 
   test(
@@ -126,12 +81,64 @@ function main() {
 	test(
 		'teardown',
 		function (t) {
-      mail.kill('SIGINT')
+      mail.stop()
 			server.kill('SIGINT')
 			t.end()
 		}
 	)
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+var Mail = require('lazysmtp').Mail
+var mail = new Mail('127.0.0.1')
+
+var codeMatch = /X-Verify-Code: (\w+)/
+var verifyCode = null
+
+mail.on(
+  'mail',
+  function (email) {
+    var match = codeMatch.exec(email)
+    if (match) {
+      var code = match[1]
+      verifyCode = code.toString().trim()
+    }
+    else {
+      console.error('No verify code match')
+      console.error(email)
+    }
+  }
+)
+mail.start(9999)
+
+function verifyLoop(cb) {
+  if (verifyCode) {
+    return cb(verifyCode)
+  }
+  setTimeout(verifyLoop.bind(null, cb), 10)
+}
+
+function waitForCode() {
+  var d = P.defer()
+  verifyLoop(
+    function (code) {
+      d.resolve(code)
+    }
+  )
+  return d.promise
+}
+
+var server = cp.spawn(
+  'node',
+  ['../../bin/key_server.js'],
+  {
+    cwd: __dirname
+  }
+)
+
+server.stdout.on('data', process.stdout.write.bind(process.stdout))
+server.stderr.on('data', process.stderr.write.bind(process.stderr))
 
 
 function waitLoop() {
