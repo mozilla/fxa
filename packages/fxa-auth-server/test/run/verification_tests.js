@@ -91,7 +91,7 @@ function main() {
 ///////////////////////////////////////////////////////////////////////////////
 
 var Mail = require('lazysmtp').Mail
-var mail = new Mail('127.0.0.1')
+var mail = new Mail('127.0.0.1', true)
 
 var codeMatch = /X-Verify-Code: (\w+)/
 var verifyCode = null
