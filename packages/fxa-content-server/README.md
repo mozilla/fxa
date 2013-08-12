@@ -14,7 +14,7 @@ It consumes the REST API which PICL provides.
 
 Issuer determines the hostname and the environment`PORT` variable the port.
 
-    PORT=3000 npm start
+    PORT=3030 npm start
 
 The easiest way to develop, is to run a local browserid instance and `SHIMMED_PRIMARIES`:
 
