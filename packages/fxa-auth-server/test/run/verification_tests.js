@@ -112,20 +112,15 @@ mail.on(
 )
 mail.start(9999)
 
-function verifyLoop(cb) {
-  if (verifyCode) {
-    return cb(verifyCode)
-  }
-  setTimeout(verifyLoop.bind(null, cb), 10)
-}
-
 function waitForCode() {
   var d = P.defer()
-  verifyLoop(
-    function (code) {
-      d.resolve(code)
+  function loop() {
+    if (verifyCode) {
+      return d.resolve(verifyCode)
     }
-  )
+    setTimeout(loop, 10)
+  }
+  loop()
   return d.promise
 }
 
