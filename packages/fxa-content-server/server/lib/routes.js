@@ -27,6 +27,7 @@ module.exports = function(app) {
     certifier(publicKey, email, duration, function(err, certificate) {
       if (err) {
         res.send(JSON.stringify({error: "Internal server error certifying"}), 500);
+        console.log(err);
       } else {
         res.json({
           certificate: certificate
@@ -44,7 +45,7 @@ module.exports = function(app) {
 
   app.post('/authentication', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
-    if ('asdf' === req.body.password &&
+    if ('asdfasdf' === req.body.password &&
         'foo@dev.fxaccounts.mozilla.org' === req.body.email) {
       if (! req.session.emails) {
         req.session.emails = [];
