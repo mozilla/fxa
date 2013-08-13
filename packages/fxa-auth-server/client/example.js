@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var Client = require('./')
-var email = Buffer('më@example.com').toString('hex');
-var password = 'verySecurePassword';
+var email = Buffer('më@example.com').toString('hex')
+var password = 'verySecurePassword'
 var publicKey = {
   "algorithm":"RS",
   "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
   "e":"65537"
-};
-var duration = 1000 * 60 * 60 * 24;
+}
+var duration = 1000 * 60 * 60 * 24
 
 
 var client = null
