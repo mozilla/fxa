@@ -1,30 +1,30 @@
 var test = require('tap').test
 var crypto = require('crypto')
 var P = require('p-promise')
-var config = require('../config').root()
+var config = require('../../config').root()
 
-var dbs = require('../kv')(config)
+var dbs = require('../../kv')(config)
 
 var mailer = {
   sendCode: function () { return P(null) }
 }
 
-var models = require('../models')(config, dbs, mailer)
-var AuthToken = models.tokens.AuthToken
+var models = require('../../models')(config, dbs, mailer)
+var KeyFetchToken = models.tokens.KeyFetchToken
 
 test(
 	'bundle / unbundle works',
 	function (t) {
 		function end() { t.end() }
-		AuthToken.create('xxx')
+		KeyFetchToken.create('xxx')
 			.then(
 				function (x) {
-					var keyFetchTokenHex = crypto.randomBytes(32).toString('hex')
-					var sessionTokenHex = crypto.randomBytes(32).toString('hex')
-					var b = x.bundle(keyFetchTokenHex, sessionTokenHex)
+					var kA = crypto.randomBytes(32).toString('hex')
+					var wrapKb = crypto.randomBytes(32).toString('hex')
+					var b = x.bundle(kA, wrapKb)
 					var ub = x.unbundle(b)
-					t.equal(ub.keyFetchTokenHex, keyFetchTokenHex)
-					t.equal(ub.sessionTokenHex, sessionTokenHex)
+					t.equal(ub.kA, kA)
+					t.equal(ub.wrapKb, wrapKb)
 					return x
 				}
 			)

@@ -18,7 +18,7 @@ module.exports = function (crypto, P, db, mailer) {
     rm.uid = uid
     rm.primary = !!primary
     rm.verified = verified || false
-    rm.code = crypto.randomBytes(32).toString('hex')
+    rm.code = crypto.randomBytes(4).toString('hex')
     if (!rm.verified) {
       return rm.sendCode().then(function () { return rm.save() })
     }

@@ -2,10 +2,10 @@ var test = require('tap').test
 var inherits = require('util').inherits
 var crypto = require('crypto')
 var P = require('p-promise')
-var hkdf = require('../hkdf')
-var config = require('../config').root()
+var hkdf = require('../../hkdf')
+var config = require('../../config').root()
 
-var dbs = require('../kv')(config)
+var dbs = require('../../kv')(config)
 
 function fakeCrypto(bytes) {
   return {
@@ -249,20 +249,20 @@ var accountReset = {
     '76590dba8d924713' + '78eb6e2197fed99f'
 }
 
-var KBundle = require('../bundle/bundle')(fakeCrypto(accountKeys.keyFetchToken), P, hkdf)
-var KToken = require('../models/token')(inherits, KBundle)
+var KBundle = require('../../bundle/bundle')(fakeCrypto(accountKeys.keyFetchToken), P, hkdf)
+var KToken = require('../../models/token')(inherits, KBundle)
 
-var SBundle = require('../bundle/bundle')(fakeCrypto(useSession.sessionToken), P, hkdf)
-var SToken = require('../models/token')(inherits, SBundle)
+var SBundle = require('../../bundle/bundle')(fakeCrypto(useSession.sessionToken), P, hkdf)
+var SToken = require('../../models/token')(inherits, SBundle)
 
-var RBundle = require('../bundle/bundle')(fakeCrypto(accountReset.accountResetToken), P, hkdf)
-var RToken = require('../models/token')(inherits, RBundle)
+var RBundle = require('../../bundle/bundle')(fakeCrypto(accountReset.accountResetToken), P, hkdf)
+var RToken = require('../../models/token')(inherits, RBundle)
 
-var KeyFetchToken = require('../models/key_fetch_token')(inherits, KToken, dbs.store)
-var AccountResetToken = require('../models/account_reset_token')(inherits, RToken, crypto, dbs.store)
-var SessionToken = require('../models/session_token')(inherits, SToken, dbs.store)
+var KeyFetchToken = require('../../models/key_fetch_token')(inherits, KToken, dbs.store)
+var AccountResetToken = require('../../models/account_reset_token')(inherits, RToken, crypto, dbs.store)
+var SessionToken = require('../../models/session_token')(inherits, SToken, dbs.store)
 
-var AuthToken = require('../models/auth_token')(inherits, SToken, dbs.store)
+var AuthToken = require('../../models/auth_token')(inherits, SToken, dbs.store)
 var tokens = {
   AuthToken: AuthToken,
   KeyFetchToken: KeyFetchToken,
@@ -285,7 +285,7 @@ FakeAccount.prototype.setAuthToken = function (t) {
   return P(null)
 }
 
-var AuthBundle = require('../models/auth_bundle')(inherits, require('../bundle'), FakeAccount, tokens)
+var AuthBundle = require('../../models/auth_bundle')(inherits, require('../../bundle'), FakeAccount, tokens)
 
 test(
   'create / get',

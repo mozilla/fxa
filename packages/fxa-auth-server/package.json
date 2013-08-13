@@ -7,10 +7,10 @@
     "test": "test"
   },
   "scripts": {
-    "test": "tap ./test",
+    "test": "tap ./test/run",
     "start": "scripts/start-local.sh"
   },
-  "repository": "",
+  "repository": "git://github.com/mozilla/picl-idp.git",
   "license": "MPL 2.0",
   "readmeFilename": "README.md",
   "engines": {
@@ -38,6 +38,7 @@
   "devDependencies": {
     "awsbox": "0.4.5",
     "awsboxen": "0.4.x",
+    "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#b15f4bf4e9",
     "request": "2.21.x",
     "tap": "0.4.3"
   }
