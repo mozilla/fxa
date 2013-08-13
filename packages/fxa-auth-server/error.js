@@ -20,4 +20,11 @@ Boom.notImplemented = function () {
 	return new Boom(501, 'Not implemented')
 }
 
+Boom.invalidCode = function (forgotPasswordToken) {
+	var b = new Boom(400, 'Invalid code')
+	b.tries = forgotPasswordToken.tries
+	b.ttl = forgotPasswordToken.ttl()
+	return b
+}
+
 module.exports = Boom

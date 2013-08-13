@@ -192,7 +192,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
                   .get(account.email)
                   .then(
                     function (rm) {
-                      return rm.sendCode()
+                      return rm.sendVerifyCode()
                     }
                   )
                   .done(

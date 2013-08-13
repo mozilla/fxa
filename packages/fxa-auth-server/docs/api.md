@@ -638,7 +638,7 @@ This code will be either 8 or 16 digits long, and the `send_code` response indic
 
 The `send_code` response includes a `forgotPasswordToken`, which must be submitted with the code to `/password/forgot/verify_code` later.
 
-The response also specifies the lifetime of this token, and a limit on the number of times `verify_code` can be called with this token. By limiting the number of submission attempts, we also limit an attacker's ability to guess the code. After the token expires, or the maximum number of submissions have happened, the agent must use `send_code` again to generate a new code and token.
+The response also specifies the ttl of this token, and a limit on the number of times `verify_code` can be called with this token. By limiting the number of submission attempts, we also limit an attacker's ability to guess the code. After the token expires, or the maximum number of submissions have happened, the agent must use `send_code` again to generate a new code and token.
 
 Each account can have at most one `forgotPasswordToken` valid at a time. Calling `send_code` causes any existing tokens to be cancelled and a new one created. Each token is associated with a specific code, so `send_code` also invalidates any existing codes.
 
@@ -661,10 +661,10 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
 
 ```json
 {
-  "forgotPasswordToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
-  "lifetime": 900,
+  "forgotPasswordToken": "10ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
+  "ttl": 900,
   "codeLength": 8,
-  "remainingAttempts": 3
+  "tries": 3
 }
 ```
 
@@ -674,7 +674,7 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
 
 While the agent is waiting for the user to paste in the forgot-password code, if the user believes the email has been lost or accidentally deleted, the `/password/forgot/resend_code` API can be used to send a new copy of the same code.
 
-This API requires the `forgotPasswordToken` returned by the original `send_code` call (only the original browser which started the process may request a replacement message). It will return the same response as `send_code` did, except with a shorter `lifetime` indicating the remaining validity period. If `verify_code` has been called some number of times with the same token, then `remainingAttempts` will be smaller too.
+This API requires the `forgotPasswordToken` returned by the original `send_code` call (only the original browser which started the process may request a replacement message). It will return the same response as `send_code` did, except with a shorter `ttl` indicating the remaining validity period. If `verify_code` has been called some number of times with the same token, then `tries` will be smaller too.
 
 ___Parameters___
 
@@ -696,10 +696,10 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
 
 ```json
 {
-  "forgotPasswordToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
-  "lifetime": 550,
+  "forgotPasswordToken": "10ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
+  "ttl": 550,
   "codeLength": 8,
-  "remainingAttempts": 2
+  "tries": 2
 }
 ```
 
@@ -730,7 +730,7 @@ http://idp.profileinthecloud.net/password/forgot/verify_code \
 
 ```json
 {
-  "accountResetToken": "cd24b20f-1b14-46a9-383c-0d344c0d1907"
+  "accountResetToken": "99ce20e3f5391e134596c2ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa349917519979b93a45e6d0da34c7509c5632ac35b2865d3"
 }
 ```
 

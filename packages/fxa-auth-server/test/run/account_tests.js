@@ -5,7 +5,7 @@ var config = require('../../config').root()
 var dbs = require('../../kv')(config)
 
 var mailer = {
-  sendCode: function () { return P(null) }
+  sendVerifyCode: function () { return P(null) }
 }
 
 var models = require('../../models')(config, dbs, mailer)

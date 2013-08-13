@@ -20,7 +20,7 @@ module.exports = function (crypto, P, db, mailer) {
     rm.verified = verified || false
     rm.code = crypto.randomBytes(4).toString('hex')
     if (!rm.verified) {
-      return rm.sendCode().then(function () { return rm.save() })
+      return rm.sendVerifyCode().then(function () { return rm.save() })
     }
     else {
       return rm.save()
@@ -58,8 +58,8 @@ module.exports = function (crypto, P, db, mailer) {
     return RecoveryEmail.del(this.uid, this.code)
   }
 
-  RecoveryEmail.prototype.sendCode = function () {
-    return mailer.sendCode(Buffer(this.email, 'hex').toString('utf8'), this.code)
+  RecoveryEmail.prototype.sendVerifyCode = function () {
+    return mailer.sendVerifyCode(Buffer(this.email, 'hex').toString('utf8'), this.code)
   }
 
   RecoveryEmail.prototype.verify = function (code) {
