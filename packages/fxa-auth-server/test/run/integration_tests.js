@@ -104,6 +104,54 @@ function main() {
   )
 
   test(
+    'Login flow',
+    function (t) {
+      var email = 'test2@example.com'
+      var password = 'foobar'
+      var wrapKb = null
+      var client = null
+      var publicKey = {
+        "algorithm":"RS",
+        "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
+        "e":"65537"
+      };
+      var duration = 1000 * 60 * 60 * 24
+      Client.login(config.public_url, email, password)
+        .then(
+          function (x) {
+            client = x
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            t.equal(typeof(keys.kA), 'string', 'kA exists')
+            t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
+          }
+        )
+        .then(
+          function () {
+            return client.sign(publicKey, duration)
+          }
+        )
+        .then(
+          function (cert) {
+            t.equal(typeof(cert), 'string', 'cert exists')
+          }
+        )
+        .done(
+          function () {
+            t.end()
+          },
+          function (err) {
+            t.fail(err.message || err.error)
+            t.end()
+          }
+        )
+    }
+  )
+
+  test(
     'account destroy',
     function (t) {
       var email = 'test3@example.com'
