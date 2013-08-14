@@ -67,8 +67,7 @@ function verifier(salt, email, password, algorithm) {
   ).toString('hex')
 }
 
-Client.create = function (origin, email, password, callback) {
-  var c = new Client(origin)
+function setupCredentials (c, email, password) {
   // TODO: password stretching
   c.email = Buffer(email).toString('hex')
   c.password = password
@@ -78,7 +77,31 @@ Client.create = function (origin, email, password, callback) {
   c.srp.algorithm = 'sha256'
   c.srp.verifier = verifier(c.srp.salt, c.email, c.password, c.srp.algorithm)
   c.passwordSalt = crypto.randomBytes(32).toString('hex')
+
+  return c;
+}
+
+Client.create = function (origin, email, password, callback) {
+  var c = new Client(origin)
+  setupCredentials(c, email, password)
   var p = c.create()
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.login = function (origin, email, password, callback) {
+  var c = new Client(origin)
+  setupCredentials(c, email, password)
+  var p = c.login()
+    .then(
+      function () {
+        return c
+      }
+    )
   if (callback) {
     p.done(callback.bind(null, null), callback)
   }
