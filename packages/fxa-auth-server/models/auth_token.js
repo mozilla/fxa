@@ -28,7 +28,7 @@ module.exports = function (inherits, Token, db) {
           t.uid = uid
           t.data = data[0].toString('hex')
           t.id = key.slice(0, 32).toString('hex')
-          t.key = key.slice(32, 64).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
           t.opKey = key.slice(64, 96).toString('hex')
           return t.save()
         }
@@ -58,7 +58,7 @@ module.exports = function (inherits, Token, db) {
           var t = new AuthToken()
           t.data = data[0].toString('hex')
           t.id = key.slice(0, 32).toString('hex')
-          t.key = key.slice(32, 64).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
           t.opKey = key.slice(64, 96).toString('hex')
           return t
         }

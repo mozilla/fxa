@@ -101,8 +101,7 @@ mail.on(
   function (email) {
     var match = codeMatch.exec(email)
     if (match) {
-      var code = match[1]
-      verifyCode = code.toString().trim()
+      verifyCode = match[1]
     }
     else {
       console.error('No verify code match')

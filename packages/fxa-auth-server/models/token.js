@@ -7,12 +7,21 @@ module.exports = function (inherits, Bundle) {
   function Token() {
     Bundle.call(this)
     this.id = null
-    this.key = null
+    this._key = null
     this.algorithm = 'sha256'
     this.uid = null
     this.data = null
   }
   inherits(Token, Bundle)
+
+  Object.defineProperty(
+    Token.prototype,
+    'key',
+    {
+      get: function () { return Buffer(this._key, 'hex') },
+      set: function (x) { this._key = x.toString('hex') }
+    }
+  )
 
   Token.randomTokenData = function (info, size) {
     return Bundle
@@ -34,7 +43,7 @@ module.exports = function (inherits, Bundle) {
     if (!raw) return null
     if (raw.value) raw = raw.value
     token.id = raw.id
-    token.key = raw.key,
+    token._key = raw._key,
     token.uid = raw.uid
     token.data = raw.data,
     token.hmacKey = raw.hmacKey

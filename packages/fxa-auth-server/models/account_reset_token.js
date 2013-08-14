@@ -25,7 +25,7 @@ module.exports = function (inherits, Token, crypto, db) {
           t.uid = uid
           t.data = data[0].toString('hex')
           t.id = key.slice(0, 32).toString('hex')
-          t.key = key.slice(32, 64).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
           t.xorKey = key.slice(64, 352).toString('hex')
           return t.save()
         }
@@ -45,7 +45,7 @@ module.exports = function (inherits, Token, crypto, db) {
           var t = new AccountResetToken()
           t.data = data[0].toString('hex')
           t.id = key.slice(0, 32).toString('hex')
-          t.key = key.slice(32, 64).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
           t.xorKey = key.slice(64, 352).toString('hex')
           return t
         }
