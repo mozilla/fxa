@@ -13,7 +13,7 @@ navigator.id.beginProvisioning(function(email, certDuration) {
         duration: certDuration,
         _csrf: "{{ csrf_token }}"        
       }, function (data) {
-        var certificate = data.certificate;
+        var certificate = JSON.parse(data.certificate).certificate;
         navigator.id.registerCertificate(certificate);
       });
     });
