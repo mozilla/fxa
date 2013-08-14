@@ -105,7 +105,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
 
   ForgotPasswordToken.prototype.ttl = function () {
     return Math.max(
-      Math.ceil(LIFETIME - (Date.now() - this.created) / 1000),
+      Math.ceil((LIFETIME - (Date.now() - this.created)) / 1000),
       0
     )
   }

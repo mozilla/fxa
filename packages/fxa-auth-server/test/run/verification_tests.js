@@ -123,23 +123,30 @@ function waitForCode() {
   return d.promise
 }
 
-var server = cp.spawn(
-  'node',
-  ['../../bin/key_server.js'],
-  {
-    cwd: __dirname
-  }
-)
+var server = null
 
-server.stdout.on('data', process.stdout.write.bind(process.stdout))
-server.stderr.on('data', process.stderr.write.bind(process.stderr))
+function startServer() {
+  var server = cp.spawn(
+    'node',
+    ['../../bin/key_server.js'],
+    {
+      cwd: __dirname
+    }
+  )
 
+  server.stdout.on('data', process.stdout.write.bind(process.stdout))
+  server.stderr.on('data', process.stderr.write.bind(process.stderr))
+  return server
+}
 
 function waitLoop() {
   Client.Api.heartbeat(config.public_url)
     .done(
       main,
       function (err) {
+        if (!server) {
+          server = startServer()
+        }
         console.log('waiting...')
         setTimeout(waitLoop, 100)
       }
