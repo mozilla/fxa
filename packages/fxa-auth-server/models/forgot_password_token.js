@@ -41,7 +41,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
           t.tries = 3
           t.data = data[0].toString('hex')
           t.id = key.slice(0, 32).toString('hex')
-          t.key = key.slice(32, 64).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
           return t.save()
         }
       )
@@ -60,7 +60,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
           var t = new ForgotPasswordToken()
           t.data = data[0].toString('hex')
           t.id = key.slice(0, 32).toString('hex')
-          t.key = key.slice(32, 64).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
           return t
         }
       )

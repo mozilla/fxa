@@ -68,7 +68,7 @@ module.exports = function (isA, error, Account, tokens) {
           Account.getByEmail(email)
             .then(
               function (account) {
-                return tokens.ForgotPasswordToken.create(account.uid)
+                return tokens.ForgotPasswordToken.create(account.uid, account.email)
                   .then(
                     function (token) {
                       forgotPasswordToken = token

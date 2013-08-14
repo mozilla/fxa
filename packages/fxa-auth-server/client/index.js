@@ -21,6 +21,7 @@ function Client(origin) {
   this.sessionToken = null
   this.accountResetToken = null
   this.keyFetchToken = null
+  this.forgotPasswordToken = null
   this.kA = null
   this.wrapKb = null
   this._devices = null
@@ -122,6 +123,7 @@ Client.parse = function (string) {
   client.sessionToken = object.sessionToken
   client.accountResetToken = object.accountResetToken
   client.keyFetchToken = object.keyFetchToken
+  client.forgotPasswordToken = object.forgotPasswordToken
   client.kA = object.kA
   client.wrapKb = object.wrapKb
 
@@ -162,6 +164,7 @@ Client.prototype._clear = function () {
   this.sessionToken = null
   this.accountResetToken = null
   this.keyFetchToken = null
+  this.forgotPasswordToken = null
   this.kA = null
   this.wrapKb = null
   this._devices = null
@@ -409,6 +412,54 @@ Client.prototype.destroyAccount = function (callback) {
   }
 }
 
-//TODO recovery methods, forgot password, session status/destroy
+Client.prototype.forgotPassword = function (callback) {
+  this._clear()
+  var p = this.api.passwordForgotSendCode(this.email)
+    .then(
+      function (x) {
+        this.forgotPasswordToken = x.forgotPasswordToken
+      }.bind(this)
+    )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.prototype.resetPassword = function (code, password, callback) {
+  // this will generate a new wrapKb on the server
+  var wrapKb = '0000000000000000000000000000000000000000000000000000000000000000'
+  setupCredentials(this, Buffer(this.email, 'hex').toString(), password)
+  var p = this.api.passwordForgotVerifyCode(this.forgotPasswordToken, code)
+    .then(
+      function (json) {
+        return tokens.AccountResetToken.fromHex(json.accountResetToken)
+      }
+    )
+    .then(
+      function (accountResetToken) {
+        var bundle = accountResetToken.bundle(wrapKb, this.srp.verifier)
+        return this.api.accountReset(
+          accountResetToken.data,
+          bundle,
+          {
+            type: this.srp.type,
+            salt: this.srp.salt
+          },
+          this.passwordStretching
+        )
+      }.bind(this)
+    )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+//TODO recovery methods, session status/destroy
 
 module.exports = Client
