@@ -2,14 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const config = require('../lib/configuration'),
-certifier = require('browserid-certifier')
-  .client(config.get('certifier_host'), config.get('certifier_port'));
+const config = require('./configuration'),
+      keys = require('./keys');
+
+var certifier = require('browserid-certifier')
+      .client(config.get('certifier_host'), config.get('certifier_port'));
 
 module.exports = function(app) {
   app.get('/.well-known/browserid', function(req, res) {
     res.setHeader('Content-Type', 'application/json');
-    res.render('browserid.html');
+    keys.publicKey(function(err, publicKey) {
+      if (err) throw new Error(err);
+      res.render('browserid.html', {
+        publicKey: publicKey
+      });
+    });
   });
 
   app.get('/provision', function(req, res) {
@@ -26,8 +33,8 @@ module.exports = function(app) {
         duration = req.body.duration;
     certifier(publicKey, email, duration, function(err, certificate) {
       if (err) {
-        res.send(JSON.stringify({error: "Internal server error certifying"}), 500);
         console.log(err);
+        res.send(JSON.stringify({error: "Internal server error certifying"}), 500);
       } else {
         res.json({
           certificate: certificate
