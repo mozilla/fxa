@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ lang }}" dir="{{ lang_dir }}">>
 <head>
-<title>Sign in to Firefox Accounts</title>
+<title>{{ gettext("Sign in to Firefox Accounts") }}</title>
 </head>
 <body>
   <form action="/authentication" method="POST">
     <fieldset>
-      <label for="email">Email</label>
+      <label for="email">{{ gettext("Email") }}</label>
       <input id="email" name="email" value="" />
     </fieldset>
     <fieldset>
-      <label for="password">Password</label>
+      <label for="password">{{ gettext("Password") }}</label>
       <input id="password" name="password" type="password" value="" />
     </fieldset>
-    <button>Sign In</button>
+    <button>{{ gettext("Sign In") }}</button>
   </form>
 <script src="{{browserid_server}}/authentication_api.js"></script>
 <script src="/js/vendor/jquery-1.7.1.min.js"></script>

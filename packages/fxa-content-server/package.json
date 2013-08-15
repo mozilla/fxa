@@ -18,7 +18,7 @@
     "connect-cachify": "0.0.15",
     "convict": "0.4.0",
     "express": "3.3.4",
-    "i18n-abide": "0.0.11",
+    "i18n-abide": "0.0.13",
     "nunjucks": "0.1.9",
     "urlparse": "0.0.1",
     "browserid-certifier": "0.0.1"

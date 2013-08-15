@@ -16,6 +16,7 @@ if (isMain) {
 const clientSessions = require('client-sessions'),
       config = require('../lib/configuration'),
       express = require('express'),
+      i18n = require('i18n-abide'),
       nunjucks = require('nunjucks'),
       routes = require('../lib/routes'),
       urlparse = require('urlparse'),
@@ -57,6 +58,13 @@ function makeApp() {
       resp.locals({'csrf_token': req.session._csrf});
       next();
   });
+
+  app.use(i18n.abide({
+    supported_languages: config.get('supported_languages'),
+    default_lang: config.get('default_lang'),
+    debug_lang: config.get('debug_lang'),
+    translation_directory: config.get('translation_directory')
+  }));
 
   routes(app);
   app.use(express.static(path.join(process.cwd(), '..', 'static')));
