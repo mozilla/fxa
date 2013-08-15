@@ -22,11 +22,16 @@ For example:
 ```js
 {
   "code": 400, // matches the HTTP status code
-  "error": 1234, // stable application level error type
+  "errno": 101, // stable application level error number
+  "error": "Bad Request", // string description of the error type
   "message": "the value of salt is not allowed to be undefined",
   "info": "https://dev.picl.org/errors/1234" // link to more info on the error
 }
 ```
+
+Individual `errno`s may include additional parameters
+
+---
 
 # Endpoints
 
