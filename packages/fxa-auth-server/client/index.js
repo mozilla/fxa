@@ -428,6 +428,16 @@ Client.prototype.forgotPassword = function (callback) {
   }
 }
 
+Client.prototype.reforgotPassword = function (callback) {
+  var p = this.api.passwordForgotResendCode(this.forgotPasswordToken, this.email)
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
 Client.prototype.resetPassword = function (code, password, callback) {
   // this will generate a new wrapKb on the server
   var wrapKb = '0000000000000000000000000000000000000000000000000000000000000000'

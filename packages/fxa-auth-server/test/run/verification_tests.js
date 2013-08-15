@@ -129,6 +129,93 @@ function main() {
     }
   )
 
+  test(
+    'forgot password limits verify attempts',
+    function (t) {
+      var code = null
+      var client = new Client(config.public_url)
+      client.email = Buffer('verification@example.com').toString('hex')
+      client.forgotPassword()
+        .then(waitForCode)
+        .then(
+          function (c) {
+            code = c
+          }
+        )
+        .then(client.reforgotPassword.bind(client))
+        .then(waitForCode)
+        .then(
+          function (c) {
+            t.equal(code, c, 'same code as before')
+          }
+        )
+        .then(
+          function () {
+            return client.resetPassword('wrongcode', 'password')
+          }
+        )
+        .then(
+          function () {
+            t.fail('reset password with bad code')
+          },
+          function (err) {
+            t.equal(err.tries, 2, 'used a try')
+            t.equal(err.message, 'Invalid code', 'bad attempt 1')
+          }
+        )
+        .then(
+          function () {
+            return client.resetPassword('wrongcode', 'password')
+          }
+        )
+        .then(
+          function () {
+            t.fail('reset password with bad code')
+          },
+          function (err) {
+            t.equal(err.tries, 1, 'used a try')
+            t.equal(err.message, 'Invalid code', 'bad attempt 2')
+          }
+        )
+        .then(
+          function () {
+            return client.resetPassword('wrongcode', 'password')
+          }
+        )
+        .then(
+          function () {
+            t.fail('reset password with bad code')
+          },
+          function (err) {
+            t.equal(err.tries, 0, 'used a try')
+            t.equal(err.message, 'Invalid code', 'bad attempt 3')
+          }
+        )
+        .then(
+          function () {
+            return client.resetPassword('wrongcode', 'password')
+          }
+        )
+        .then(
+          function () {
+            t.fail('reset password with invalid token')
+          },
+          function (err) {
+            t.equal(err.message, 'Unknown credentials', 'token is now invalid')
+          }
+        )
+        .done(
+          function () {
+            t.end()
+          },
+          function (err) {
+            t.fail(JSON.stringify(err))
+            t.end()
+          }
+        )
+    }
+  )
+
 	test(
 		'teardown',
 		function (t) {

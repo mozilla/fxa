@@ -90,7 +90,7 @@ test(
         },
         function (err) {
           t.equal(err.response.code, 400)
-          t.equal(err.message, 'Account already exists for ' + a.email)
+          t.equal(err.appError.message, 'Account already exists')
         }
       )
       .then(Account.del.bind(null, a.uid))
