@@ -25,7 +25,7 @@
     "compute-cluster": "0.0.7",
     "jwcrypto": "0.4.3",
     "handlebars": "1.0.10",
-    "convict": "0.3.3",
+    "convict": "0.4.0",
     "p-promise": "0.2.3",
     "kvstore": "0.0.4",
     "bunyan": "0.21.4",
