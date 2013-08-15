@@ -228,27 +228,35 @@ ClientApi.prototype.passwordForgotSendCode = function (email) {
 }
 
 ClientApi.prototype.passwordForgotResendCode = function (forgotPasswordTokenHex, email) {
-  //TODO forgotPasswordToken-fu
-  return doRequest(
-    'POST',
-    this.origin + '/password/forgot/resend_code',
-    null,
-    {
-      email: email
-    }
-  )
+  return tokens.ForgotPasswordToken.fromHex(forgotPasswordTokenHex)
+    .then(
+      function (token) {
+        return doRequest(
+          'POST',
+          this.origin + '/password/forgot/resend_code',
+          token,
+          {
+            email: email
+          }
+        )
+      }.bind(this)
+    )
 }
 
-ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordToken, code) {
-  //TODO forgotPasswordToken-fu
-  return doRequest(
-    'POST',
-    this.origin + '/password/forgot/verify_code',
-    null,
-    {
-      code: code
-    }
-  )
+ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordTokenHex, code) {
+    return tokens.ForgotPasswordToken.fromHex(forgotPasswordTokenHex)
+    .then(
+      function (token) {
+        return doRequest(
+          'POST',
+          this.origin + '/password/forgot/verify_code',
+          token,
+          {
+            code: code
+          }
+        )
+      }.bind(this)
+    )
 }
 
 ClientApi.prototype.authStart = function (email) {

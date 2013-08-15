@@ -37,11 +37,19 @@ module.exports = function (config, dbs, mailer) {
     Token,
     dbs.cache
   )
+  var ForgotPasswordToken = require('./forgot_password_token')(
+    inherits,
+    Token,
+    crypto,
+    dbs.cache,
+    mailer
+  )
   var tokens = {
     AccountResetToken: AccountResetToken,
     KeyFetchToken: KeyFetchToken,
     SessionToken: SessionToken,
-    AuthToken: AuthToken
+    AuthToken: AuthToken,
+    ForgotPasswordToken: ForgotPasswordToken
   }
 
   var RecoveryEmail = require('./recovery_email')(

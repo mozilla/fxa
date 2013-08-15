@@ -7,6 +7,7 @@ var config = require('../../config').root()
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/verification.json')
 process.env.NODE_ENV = 'local'
+var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
 function main() {
 
@@ -78,6 +79,143 @@ function main() {
     }
   )
 
+  test(
+    'forgot password',
+    function (t) {
+      var email = 'verification@example.com'
+      var password = 'allyourbasearebelongtous'
+      var newPassword = 'ez'
+      var wrapKb = null
+      var kA = null
+      var client = null
+      Client.login(config.public_url, email, password)
+        .then(
+          function (x) {
+            client = x
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            wrapKb = keys.wrapKb
+            kA = keys.kA
+            return client.forgotPassword()
+          }
+        )
+        .then(waitForCode)
+        .then(
+          function (code) {
+            return client.resetPassword(code, newPassword)
+          }
+        )
+        .then(
+          function () {
+            t.equal(client.password, newPassword)
+            return client.keys()
+          }
+        )
+        .done(
+          function (keys) {
+            t.ok(HEX_STRING.test(keys.wrapKb), 'yep, hex')
+            t.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            t.equal(kA, keys.kA, 'kA was not reset')
+            t.end()
+          },
+          function (err) {
+            t.fail(JSON.stringify(err))
+            t.end()
+          }
+        )
+    }
+  )
+
+  test(
+    'forgot password limits verify attempts',
+    function (t) {
+      var code = null
+      var client = new Client(config.public_url)
+      client.email = Buffer('verification@example.com').toString('hex')
+      client.forgotPassword()
+        .then(waitForCode)
+        .then(
+          function (c) {
+            code = c
+          }
+        )
+        .then(client.reforgotPassword.bind(client))
+        .then(waitForCode)
+        .then(
+          function (c) {
+            t.equal(code, c, 'same code as before')
+          }
+        )
+        .then(
+          function () {
+            return client.resetPassword('wrongcode', 'password')
+          }
+        )
+        .then(
+          function () {
+            t.fail('reset password with bad code')
+          },
+          function (err) {
+            t.equal(err.tries, 2, 'used a try')
+            t.equal(err.message, 'Invalid code', 'bad attempt 1')
+          }
+        )
+        .then(
+          function () {
+            return client.resetPassword('wrongcode', 'password')
+          }
+        )
+        .then(
+          function () {
+            t.fail('reset password with bad code')
+          },
+          function (err) {
+            t.equal(err.tries, 1, 'used a try')
+            t.equal(err.message, 'Invalid code', 'bad attempt 2')
+          }
+        )
+        .then(
+          function () {
+            return client.resetPassword('wrongcode', 'password')
+          }
+        )
+        .then(
+          function () {
+            t.fail('reset password with bad code')
+          },
+          function (err) {
+            t.equal(err.tries, 0, 'used a try')
+            t.equal(err.message, 'Invalid code', 'bad attempt 3')
+          }
+        )
+        .then(
+          function () {
+            return client.resetPassword('wrongcode', 'password')
+          }
+        )
+        .then(
+          function () {
+            t.fail('reset password with invalid token')
+          },
+          function (err) {
+            t.equal(err.message, 'Unknown credentials', 'token is now invalid')
+          }
+        )
+        .done(
+          function () {
+            t.end()
+          },
+          function (err) {
+            t.fail(JSON.stringify(err))
+            t.end()
+          }
+        )
+    }
+  )
+
 	test(
 		'teardown',
 		function (t) {
@@ -93,15 +231,15 @@ function main() {
 var Mail = require('lazysmtp').Mail
 var mail = new Mail('127.0.0.1', true)
 
-var codeMatch = /X-Verify-Code: (\w+)/
-var verifyCode = null
+var codeMatch = /X-\w+-Code: (\w+)/
+var emailCode = null
 
 mail.on(
   'mail',
   function (email) {
     var match = codeMatch.exec(email)
     if (match) {
-      verifyCode = match[1]
+      emailCode = match[1]
     }
     else {
       console.error('No verify code match')
@@ -114,32 +252,40 @@ mail.start(9999)
 function waitForCode() {
   var d = P.defer()
   function loop() {
-    if (verifyCode) {
-      return d.resolve(verifyCode)
+    if (!emailCode) {
+      return setTimeout(loop, 10)
     }
-    setTimeout(loop, 10)
+    d.resolve(emailCode)
+    emailCode = null
   }
   loop()
   return d.promise
 }
 
-var server = cp.spawn(
-  'node',
-  ['../../bin/key_server.js'],
-  {
-    cwd: __dirname
-  }
-)
+var server = null
 
-server.stdout.on('data', process.stdout.write.bind(process.stdout))
-server.stderr.on('data', process.stderr.write.bind(process.stderr))
+function startServer() {
+  var server = cp.spawn(
+    'node',
+    ['../../bin/key_server.js'],
+    {
+      cwd: __dirname
+    }
+  )
 
+  server.stdout.on('data', process.stdout.write.bind(process.stdout))
+  server.stderr.on('data', process.stderr.write.bind(process.stderr))
+  return server
+}
 
 function waitLoop() {
   Client.Api.heartbeat(config.public_url)
     .done(
       main,
       function (err) {
+        if (!server) {
+          server = startServer()
+        }
         console.log('waiting...')
         setTimeout(waitLoop, 100)
       }

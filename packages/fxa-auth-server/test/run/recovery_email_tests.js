@@ -9,7 +9,7 @@ const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
 var sends = 0
 var mailer = {
-  sendCode: function () { sends++; return P(null) }
+  sendVerifyCode: function () { sends++; return P(null) }
 }
 
 var models = require('../../models')(config, dbs, mailer)
@@ -39,7 +39,7 @@ test(
 )
 
 test(
-  'RecoveryEmail.create calls mailer.sendCode',
+  'RecoveryEmail.create calls mailer.sendVerifyCode',
   function (t) {
     sends = 0
     function end() { t.end() }

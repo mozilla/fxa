@@ -5,9 +5,7 @@ var config = require('../../config').root()
 
 var dbs = require('../../kv')(config)
 
-var mailer = {
-  sendCode: function () { return P(null) }
-}
+var mailer = {}
 
 var models = require('../../models')(config, dbs, mailer)
 var AccountResetToken = models.tokens.AccountResetToken

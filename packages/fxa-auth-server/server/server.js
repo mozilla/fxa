@@ -26,6 +26,10 @@ module.exports = function (path, Hapi, toobusy) {
           authToken: {
             scheme: 'hawk',
             getCredentialsFunc: tokens.AuthToken.getCredentials
+          },
+          forgotPasswordToken: {
+            scheme: 'hawk',
+            getCredentialsFunc: tokens.ForgotPasswordToken.getCredentials
           }
         },
         cors: true,
@@ -92,13 +96,10 @@ module.exports = function (path, Hapi, toobusy) {
       function (request, next) {
         var response = request.response()
         if (response.isBoom) {
-          log.error(
-            {
-              code: response.response.code,
-              error: response.response.payload.error,
-              message: response.response.payload.message,
-            }
-          )
+          if (response.appError) {
+            response.response.payload = response.appError
+          }
+          log.error(response.response.payload)
         }
         else {
           log.debug(
@@ -108,7 +109,6 @@ module.exports = function (path, Hapi, toobusy) {
             }
           )
         }
-
         next()
     })
 

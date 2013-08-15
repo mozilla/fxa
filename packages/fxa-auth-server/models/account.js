@@ -8,6 +8,7 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   var SessionToken = tokens.SessionToken
   var AccountResetToken = tokens.AccountResetToken
   var AuthToken = tokens.AuthToken
+  var ForgotPasswordToken = tokens.ForgotPasswordToken
 
   function Account() {
     this.uid = null
@@ -20,6 +21,7 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
     // references
     this.authTokenId = null
     this.resetTokenId = null
+    this.forgotPasswordTokenId = null
     this.sessionTokenIds = null
     this.recoveryEmailCodes = null
   }
@@ -176,6 +178,19 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
     if (this.authTokenId !== null) {
       return AuthToken
         .del(this.authTokenId)
+        .then(set)
+    }
+    return set()
+  }
+
+  Account.prototype.setForgotPasswordToken = function (token) {
+    var set = function () {
+      this.forgotPasswordTokenId = token.id
+      return this.save()
+    }.bind(this)
+    if (this.forgotPasswordTokenId !== null) {
+      return ForgotPasswordToken
+        .del(this.forgotPasswordTokenId)
         .then(set)
     }
     return set()

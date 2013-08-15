@@ -6,10 +6,6 @@ module.exports = function (isA, error, Account, tokens) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function notImplemented(request) {
-    request.reply(error.notImplemented())
-  }
-
   var routes = [
     {
       method: 'POST',
@@ -66,7 +62,42 @@ module.exports = function (isA, error, Account, tokens) {
         description:
           "Request a new 'reset password' code be sent to the recovery email",
         tags: ["password"],
-        handler: notImplemented,
+        handler: function (request) {
+          var email = request.payload.email
+          var forgotPasswordToken = null
+          Account.getByEmail(email)
+            .then(
+              function (account) {
+                return tokens.ForgotPasswordToken.create(account.uid, account.email)
+                  .then(
+                    function (token) {
+                      forgotPasswordToken = token
+                      return account.setForgotPasswordToken(token)
+                    }
+                  )
+                  .then(
+                    function () {
+                      return forgotPasswordToken.sendRecoveryCode()
+                    }
+                  )
+              }
+            )
+            .done(
+              function () {
+                request.reply(
+                  {
+                    forgotPasswordToken: forgotPasswordToken.data,
+                    ttl: forgotPasswordToken.ttl(),
+                    codeLength: 8,
+                    tries: forgotPasswordToken.tries
+                  }
+                )
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        },
         validate: {
           payload: {
             email: isA.String().max(1024).regex(HEX_STRING).required()
@@ -74,9 +105,9 @@ module.exports = function (isA, error, Account, tokens) {
           response: {
             schema: {
               forgotPasswordToken: isA.String(),
-              lifetime: isA.Number(),
+              ttl: isA.Number(),
               codeLength: isA.Number(),
-              remainingAttempts: isA.Number()
+              tries: isA.Number()
             }
           }
         }
@@ -89,10 +120,28 @@ module.exports = function (isA, error, Account, tokens) {
         description:
           "Request the previous 'reset password' code again",
         tags: ["password"],
-        // auth: {
-        //   strategy: 'forgotPasswordToken'
-        // },
-        handler: notImplemented,
+        auth: {
+          strategy: 'forgotPasswordToken'
+        },
+        handler: function (request) {
+          var forgotPasswordToken = request.auth.credentials
+          forgotPasswordToken.sendRecoveryCode()
+            .done(
+              function () {
+                request.reply(
+                  {
+                    forgotPasswordToken: forgotPasswordToken.data,
+                    ttl: forgotPasswordToken.ttl(),
+                    codeLength: 8,
+                    tries: forgotPasswordToken.tries
+                  }
+                )
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        },
         validate: {
           payload: {
             email: isA.String().max(1024).regex(HEX_STRING).required()
@@ -100,9 +149,9 @@ module.exports = function (isA, error, Account, tokens) {
           response: {
             schema: {
               forgotPasswordToken: isA.String(),
-              lifetime: isA.Number(),
+              ttl: isA.Number(),
               codeLength: isA.Number(),
-              remainingAttempts: isA.Number()
+              tries: isA.Number()
             }
           }
         }
@@ -115,10 +164,48 @@ module.exports = function (isA, error, Account, tokens) {
         description:
           "Verify a 'reset password' code",
         tags: ["password"],
-        // auth: {
-        //   strategy: 'forgotPasswordToken'
-        // },
-        handler: notImplemented,
+        auth: {
+          strategy: 'forgotPasswordToken'
+        },
+        handler: function (request) {
+          var forgotPasswordToken = request.auth.credentials
+          var code = +(request.payload.code)
+          var accountResetToken = null
+          if (forgotPasswordToken.code === code && forgotPasswordToken.ttl() > 0) {
+            forgotPasswordToken.del()
+              .then(tokens.AccountResetToken.create.bind(null, forgotPasswordToken.uid))
+              .then(function (t) { accountResetToken = t })
+              .then(Account.get.bind(null, forgotPasswordToken.uid))
+              .then(
+                function (account) {
+                  return account.setResetToken(accountResetToken)
+                }
+              )
+              .done(
+                function () {
+                  request.reply(
+                    {
+                      accountResetToken: accountResetToken.data
+                    }
+                  )
+                },
+                function (err) {
+                  request.reply(err)
+                }
+              )
+          }
+          else {
+            forgotPasswordToken.failAttempt()
+              .done(
+                function (t) {
+                  request.reply(error.invalidCode(forgotPasswordToken))
+                },
+                function (err) {
+                  request.reply(err)
+                }
+              )
+          }
+        },
         validate: {
           payload: {
             code: isA.String().required()
