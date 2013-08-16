@@ -1,3 +1,6 @@
+var EventEmitter = require('events').EventEmitter;
+var util = require('util');
+
 var hawk = require('hawk')
 var P = require('p-promise')
 var request = require('request')
@@ -5,7 +8,9 @@ var request = require('request')
 var models = require('../models')({}, {}, {})
 var tokens = models.tokens
 
+util.inherits(ClientApi, EventEmitter);
 function ClientApi(origin) {
+  EventEmitter.call(this);
   this.origin = origin
 }
 
@@ -20,28 +25,28 @@ function hawkHeader(token, method, url, payload) {
   return hawk.client.header(url, method, verify).field
 }
 
-function doRequest(method, url, token, payload) {
+ClientApi.prototype.doRequest = function (method, url, token, payload) {
   var d = P.defer()
   var headers = {}
   if (token) {
     headers.Authorization = hawkHeader(token, method, url, payload)
   }
-  request(
-    {
-      url: url,
-      method: method,
-      headers: headers,
-      json: payload || true
-    },
-    function (err, res, body) {
-      if (err || body.error) {
-        d.reject(err || body)
-      }
-      else {
-        d.resolve(body)
-      }
+  var options = {
+    url: url,
+    method: method,
+    headers: headers,
+    json: payload || true
+  };
+  this.emit('startRequest', options);
+  request(options, function (err, res, body) {
+    this.emit('endRequest', options, err, res);
+    if (err || body.error) {
+      d.reject(err || body)
     }
-  )
+    else {
+      d.resolve(body)
+    }
+  }.bind(this));
   return d.promise
 }
 
@@ -65,7 +70,7 @@ function doRequest(method, url, token, payload) {
  *
  */
 ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStretching) {
-  return doRequest(
+  return this.doRequest(
     'POST',
     this.origin + '/account/create',
     null,
@@ -85,7 +90,7 @@ ClientApi.prototype.accountDevices = function (sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'GET',
           this.origin + '/account/devices',
           token
@@ -98,7 +103,7 @@ ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
   return tokens.KeyFetchToken.fromHex(keyFetchTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'GET',
           this.origin + '/account/keys',
           token
@@ -111,7 +116,7 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, srp, 
   return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'POST',
           this.origin + '/account/reset',
           token,
@@ -129,7 +134,7 @@ ClientApi.prototype.accountDestroy = function (authTokenHex) {
   return tokens.AuthToken.fromHex(authTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'POST',
           this.origin + '/account/destroy',
           token
@@ -142,7 +147,7 @@ ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'GET',
           this.origin + '/recovery_email/status',
           token
@@ -155,7 +160,7 @@ ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, email) 
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'POST',
           this.origin + '/recovery_email/resend_code',
           token,
@@ -168,7 +173,7 @@ ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, email) 
 }
 
 ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code) {
-  return doRequest(
+  return this.doRequest(
     'POST',
     this.origin + '/recovery_email/verify_code',
     null,
@@ -183,7 +188,7 @@ ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, dura
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'POST',
           this.origin + '/certificate/sign',
           token,
@@ -197,7 +202,7 @@ ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, dura
 }
 
 ClientApi.prototype.getRandomBytes = function () {
-  return doRequest(
+  return this.doRequest(
     'POST',
     this.origin + '/get_random_bytes'
   )
@@ -207,7 +212,7 @@ ClientApi.prototype.passwordChangeStart = function (authTokenHex) {
   return tokens.AuthToken.fromHex(authTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'POST',
           this.origin + '/password/change/start',
           token
@@ -217,7 +222,7 @@ ClientApi.prototype.passwordChangeStart = function (authTokenHex) {
 }
 
 ClientApi.prototype.passwordForgotSendCode = function (email) {
-  return doRequest(
+  return this.doRequest(
     'POST',
     this.origin + '/password/forgot/send_code',
     null,
@@ -231,7 +236,7 @@ ClientApi.prototype.passwordForgotResendCode = function (forgotPasswordTokenHex,
   return tokens.ForgotPasswordToken.fromHex(forgotPasswordTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'POST',
           this.origin + '/password/forgot/resend_code',
           token,
@@ -247,7 +252,7 @@ ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordTokenHex,
     return tokens.ForgotPasswordToken.fromHex(forgotPasswordTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'POST',
           this.origin + '/password/forgot/verify_code',
           token,
@@ -260,7 +265,7 @@ ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordTokenHex,
 }
 
 ClientApi.prototype.authStart = function (email) {
-  return doRequest(
+  return this.doRequest(
     'POST',
     this.origin + '/auth/start',
     null,
@@ -271,7 +276,7 @@ ClientApi.prototype.authStart = function (email) {
 }
 
 ClientApi.prototype.authFinish = function (srpToken, A, M) {
-  return doRequest(
+  return this.doRequest(
     'POST',
     this.origin + '/auth/finish',
     null,
@@ -287,7 +292,7 @@ ClientApi.prototype.sessionCreate = function (authTokenHex) {
   return tokens.AuthToken.fromHex(authTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'POST',
           this.origin + '/session/create',
           token
@@ -300,7 +305,7 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
-        return doRequest(
+        return this.doRequest(
           'POST',
           this.origin + '/session/destroy',
           token
@@ -310,7 +315,7 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
 }
 
 ClientApi.heartbeat = function (origin) {
-  return doRequest('GET', origin + '/__heartbeat__')
+  return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__');
 }
 
 module.exports = ClientApi
