@@ -3,7 +3,9 @@ picl-idp
 
 An Identity Provider for Profile In the CLoud
 
-Protocol notes: https://id.etherpad.mozilla.org/picl-idp-protocol
+[API documentation](/docs/api.md)
+
+[API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol)
 
 ## Install
 
@@ -27,10 +29,6 @@ It doesn't do much of anything, yet.
 Run tests with:
 
     npm test
-
-## Server API
-
-[API reference](/docs/api.md)
 
 ## Reference Client
 
