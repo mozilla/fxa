@@ -253,7 +253,18 @@ Client.prototype.verifyEmail = function (code, callback) {
 
 Client.prototype.emailStatus = function (callback) {
   var o = this.sessionToken ? P(null) : this.login()
-  var p = this.api.recoveryEmailStatus(this.sessionToken)
+  var p = o.then(
+    function () {
+      return this.api.recoveryEmailStatus(this.sessionToken)
+    }.bind(this)
+  )
+  .then(
+    function (status) {
+      // decode email
+      status.email = Buffer(status.email, 'hex').toString()
+      return status
+    }
+  )
   if (callback) {
     p.done(callback.bind(null, null), callback)
   }
