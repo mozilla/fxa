@@ -96,8 +96,8 @@ module.exports = function (path, Hapi, toobusy) {
       function (request, next) {
         var response = request.response()
         if (response.isBoom) {
-          if (response.appError) {
-            response.response.payload = response.appError
+          if (!response.response.payload.errno) {
+            response.response.payload.errno = response.response.payload.code
           }
           log.error(response.response.payload)
         }
