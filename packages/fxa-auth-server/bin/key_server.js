@@ -25,9 +25,6 @@ function main() {
   // databases
   var dbs = require('../kv')(config)
 
-  // email sender
-  config.smtp.subject = 'PiCL email verification'
-  config.smtp.sender = config.smtp.sender || config.smtp.user
   // TODO: send to the SMTP server directly. In the future this may change
   // to another process that we send an http request to.
   var Mailer = require('../mailer')
@@ -43,7 +40,7 @@ function main() {
   var CC = require('compute-cluster')
   var signer = new CC({ module: __dirname + '/signer.js' })
 
-  var routes = require('../routes')(log, serverPublicKey, signer, models)
+  var routes = require('../routes')(log, serverPublicKey, signer, models, config)
   var Server = require('../server')
   var server = Server.create(log, config, routes, models.tokens)
 

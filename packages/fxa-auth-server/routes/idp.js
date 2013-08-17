@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (crypto, error, isA, serverPublicKey) {
+module.exports = function (crypto, error, isA, serverPublicKey, bridge) {
 
   var routes = [
     {
@@ -51,7 +51,22 @@ module.exports = function (crypto, error, isA, serverPublicKey) {
           )
         }
       }
-    }
+    },
+    {
+      method: 'GET',
+      path: '/verify_email',
+      config: {
+        handler: {
+          proxy: {
+            mapUri: function (request, next) {
+              return next(null, bridge.url + '/verify_email')
+            },
+            passThrough: true,
+            xforward: true
+          }
+        }
+      }
+    },
   ]
 
   return routes

@@ -14,11 +14,12 @@ module.exports = function (
   log,
   serverPublicKey,
   signer,
-  models
+  models,
+  config
   ) {
   var auth = require('./auth')(isA, models.Account, models.SrpSession, models.AuthBundle)
   var defaults = require('./defaults')(P, models.dbs)
-  var idp = require('./idp')(crypto, error, isA, serverPublicKey)
+  var idp = require('./idp')(crypto, error, isA, serverPublicKey, config.bridge)
   var account = require('./account')(crypto, uuid, isA, error, models.Account, models.RecoveryEmail)
   var password = require('./password')(isA, error, models.Account, models.tokens)
   var session = require('./session')(isA, error, models.Account, models.tokens)

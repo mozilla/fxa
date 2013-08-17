@@ -1,0 +1,7 @@
+Hi!
+
+Copy the following code in Firefox to reset your password:
+{{code}}
+
+Thank you,
+The Firefox Accounts Team
