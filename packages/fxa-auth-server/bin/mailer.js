@@ -5,10 +5,6 @@ var isA = Hapi.types
 
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-
-config.smtp.subject = 'PiCL email verification'
-config.smtp.sender = config.smtp.sender || config.smtp.user
-
 var mailer = new Mailer(config.smtp)
 
 var server = Hapi.createServer(config.smtp.listen.host, config.smtp.listen.port)
@@ -22,12 +18,13 @@ server.route(
       handler: function (request) {
         var reply = request.reply.bind(request)
         mailer
-          .sendVerifyCode(Buffer(request.payload.email, 'hex').toString(), request.payload.code)
+          .sendVerifyCode(Buffer(request.payload.email, 'hex').toString(), request.payload.code, request.payload.uid)
           .done(reply, reply)
       },
       validate: {
         payload: {
           email: isA.String().regex(HEX_STRING).required(),
+          uid: isA.String().max(64).required(),
           code: isA.String().required()
         }
       }

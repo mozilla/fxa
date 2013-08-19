@@ -4,6 +4,8 @@
 
 module.exports = function (crypto, error, isA, serverPublicKey, bridge) {
 
+  const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+
   var routes = [
     {
       method: 'GET',
@@ -59,14 +61,20 @@ module.exports = function (crypto, error, isA, serverPublicKey, bridge) {
         handler: {
           proxy: {
             mapUri: function (request, next) {
-              return next(null, bridge.url + '/verify_email')
+              return next(null, bridge.url + request.raw.req.url)
             },
             passThrough: true,
             xforward: true
           }
+        },
+        validate: {
+          query: {
+            code: isA.String().regex(HEX_STRING).required(),
+            uid: isA.String().max(64).required()
+          }
         }
       }
-    },
+    }
   ]
 
   return routes

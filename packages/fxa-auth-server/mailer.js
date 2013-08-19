@@ -60,9 +60,9 @@ Mailer.prototype.send = function (message) {
   return d.promise
 }
 
-Mailer.prototype.sendVerifyCode = function (email, code) {
+Mailer.prototype.sendVerifyCode = function (email, code, uid) {
   var template = templates.verify
-  var link = this.verification_url + '?code=' + code
+  var link = this.verification_url + '?uid=' + uid + '&code=' + code
   var reportLink = this.report_url
 
   var values = {
