@@ -241,6 +241,25 @@ Client.prototype.login = function (callback) {
   }
 }
 
+Client.prototype.destroySession = function (callback) {
+  var p = P(null)
+  if (this.sessionToken) {
+    p = this.api.sessionDestroy(this.sessionToken)
+      .then(
+        function () {
+          this.sessionToken = null
+          return {}
+        }.bind(this)
+      )
+  }
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
 Client.prototype.verifyEmail = function (code, callback) {
   var p = this.api.recoveryEmailVerifyCode(this.uid, code)
   if (callback) {
@@ -264,6 +283,21 @@ Client.prototype.emailStatus = function (callback) {
       status.email = Buffer(status.email, 'hex').toString()
       return status
     }
+  )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.prototype.requestVerifyEmail = function (callback) {
+  var o = this.sessionToken ? P(null) : this.login()
+  var p = o.then(
+    function () {
+      return this.api.recoveryEmailResendCode(this.sessionToken, this.email)
+    }.bind(this)
   )
   if (callback) {
     p.done(callback.bind(null, null), callback)

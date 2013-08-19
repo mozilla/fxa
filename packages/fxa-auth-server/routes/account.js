@@ -185,17 +185,16 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         handler: function (request) {
           var sessionToken = request.auth.credentials
           Account
-            .get(sessionToken.id)
-            .then(
+            .get(sessionToken.uid)
+            .done(
               function (account) {
-                RecoveryEmail
-                  .get(account.email)
+                return account.primaryRecoveryEmail()
                   .then(
                     function (rm) {
                       return rm.sendVerifyCode()
                     }
                   )
-                  .done(
+                  .then(
                     function () {
                       request.reply({})
                     },

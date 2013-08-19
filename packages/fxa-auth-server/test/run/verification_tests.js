@@ -17,6 +17,7 @@ function main() {
       var email = 'verification@example.com'
       var password = 'allyourbasearebelongtous'
       var client = null
+      var verifyCode = null
       Client.create(config.public_url, email, password)
         .then(
           function (x) {
@@ -49,7 +50,19 @@ function main() {
         .then(waitForCode)
         .then(
           function (code) {
-            return client.verifyEmail(code)
+            verifyCode = code
+            return client.requestVerifyEmail()
+          }
+        )
+        .then(waitForCode)
+        .then(
+          function (code) {
+            t.equal(code, verifyCode, 'verify codes are the same')
+          }
+        )
+        .then(
+          function () {
+            return client.verifyEmail(verifyCode)
           }
         )
         .then(

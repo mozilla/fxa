@@ -5,6 +5,7 @@
 module.exports = function (crypto, P, db, mailer) {
 
   function RecoveryEmail() {
+    this.email = null
     this.code = null
     this.uid = null
     this.verified = false
@@ -31,6 +32,7 @@ module.exports = function (crypto, P, db, mailer) {
     if (!object) return null
     if (object.value) object = object.value
     var rm = new RecoveryEmail()
+    rm.email = object.email
     rm.code = object.code
     rm.uid = object.uid
     rm.verified = object.verified
