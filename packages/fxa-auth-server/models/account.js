@@ -237,6 +237,23 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
     return P.all(methods)
   }
 
+  Account.prototype.primaryRecoveryEmail = function () {
+    // TODO: this is not ideal. consider refactoring how
+    // recovery emails are indexed
+    return this.recoveryEmails()
+      .then(
+        function (emails) {
+          for (var i = 0; emails.length; i++) {
+            var email = emails[i]
+            if (email.primary) {
+              return email
+            }
+          }
+          return null
+        }
+      )
+  }
+
   Account.prototype.deleteAllRecoveryEmails = function () {
     var codes = Object.keys(this.recoveryEmailCodes)
     var methods = []

@@ -189,6 +189,60 @@ function main() {
   )
 
   test(
+    'session destroy',
+    function (t) {
+      var email = 'test4@example.com'
+      var password = 'foobar'
+      var client = null
+      var sessionToken = null
+      Client.create(config.public_url, email, password)
+        .then(
+          function (x) {
+            client = x
+            return client.devices()
+          }
+        )
+        .then(
+          function () {
+            sessionToken = client.sessionToken
+            return client.destroySession()
+          }
+        )
+        .then(
+          function () {
+            t.equal(client.sessionToken, null, 'session token deleted')
+            client.sessionToken = sessionToken
+            return client.devices()
+          }
+        )
+        .done(
+          function (devices) {
+            t.fail('got devices with destroyed session')
+            t.end()
+          },
+          function (err) {
+            t.equal(err.errno, 401, 'session is invalid')
+            t.end()
+          }
+        )
+    }
+  )
+
+  test(
+    'random bytes',
+    function (t) {
+      var client = new Client(config.public_url)
+      client.api.getRandomBytes()
+        .done(
+          function (x) {
+            t.equal(x.data.length, 64)
+            t.end()
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       if (server) server.kill('SIGINT')
