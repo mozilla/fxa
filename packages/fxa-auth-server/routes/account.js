@@ -22,7 +22,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
             email: isA.String().max(1024).regex(HEX_STRING).required(),
             srp: isA.Object({
               type: isA.String().max(64).required(), // TODO valid()
-              verifier: isA.String().max(512).regex(HEX_STRING).required(),
+              verifier: isA.String().min(512).max(512).regex(HEX_STRING).required(),
               salt: isA.String().min(64).max(64).regex(HEX_STRING).required(),
             }).required(),
             passwordStretching: isA.Object(
@@ -35,6 +35,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         },
         handler: function accountCreate(request) {
           var form = request.payload
+
           Account
             .create(
               {
