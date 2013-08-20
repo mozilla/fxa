@@ -93,6 +93,63 @@ function main() {
   )
 
   test(
+    'create account verify with incorrect code',
+    function (t) {
+      var email = 'verification2@example.com'
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      Client.create(config.public_url, email, password)
+        .then(
+          function (x) {
+            client = x
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            t.equal(status.verified, false)
+          }
+        )
+        .then(
+          function () {
+            return client.verifyEmail('badcode')
+          }
+        )
+        .then(
+          function () {
+            t.fail('verified email with bad code')
+          },
+          function (err) {
+            t.equal(err.message.toString(), 'Incorrect verification code', 'bad attempt')
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            t.equal(status.verified, false)
+          }
+        )
+        .done(
+          function () {
+            t.end()
+          },
+          function (err) {
+            t.fail(err.message || err.error)
+            t.end()
+          }
+        )
+    }
+  )
+
+  test(
     'forgot password',
     function (t) {
       var email = 'verification@example.com'
