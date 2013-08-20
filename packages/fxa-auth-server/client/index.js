@@ -68,23 +68,22 @@ function verifier(salt, email, password, algorithm) {
   ).toString('hex')
 }
 
-function setupCredentials (c, email, password) {
+Client.prototype.setupCredentials = function (email, password) {
   // TODO: password stretching
-  c.email = Buffer(email).toString('hex')
-  c.password = password
-  c.srp = {}
-  c.srp.type = 'SRP-6a/SHA256/2048/v1'
-  c.srp.salt = crypto.randomBytes(32).toString('hex')
-  c.srp.algorithm = 'sha256'
-  c.srp.verifier = verifier(c.srp.salt, c.email, c.password, c.srp.algorithm)
-  c.passwordSalt = crypto.randomBytes(32).toString('hex')
-
-  return c;
+  this.email = Buffer(email).toString('hex')
+  this.password = password
+  this.srp = {}
+  this.srp.type = 'SRP-6a/SHA256/2048/v1'
+  this.srp.salt = crypto.randomBytes(32).toString('hex')
+  this.srp.algorithm = 'sha256'
+  this.srp.verifier = verifier(this.srp.salt, this.email, this.password,
+                               this.srp.algorithm);
+  this.passwordSalt = crypto.randomBytes(32).toString('hex')
 }
 
 Client.create = function (origin, email, password, callback) {
   var c = new Client(origin)
-  setupCredentials(c, email, password)
+  c.setupCredentials(email, password)
   var p = c.create()
   if (callback) {
     p.done(callback.bind(null, null), callback)
@@ -96,7 +95,7 @@ Client.create = function (origin, email, password, callback) {
 
 Client.login = function (origin, email, password, callback) {
   var c = new Client(origin)
-  setupCredentials(c, email, password)
+  c.setupCredentials(email, password)
   var p = c.login()
     .then(
       function () {
@@ -486,7 +485,7 @@ Client.prototype.reforgotPassword = function (callback) {
 Client.prototype.resetPassword = function (code, password, callback) {
   // this will generate a new wrapKb on the server
   var wrapKb = '0000000000000000000000000000000000000000000000000000000000000000'
-  setupCredentials(this, Buffer(this.email, 'hex').toString(), password)
+  this.setupCredentials(Buffer(this.email, 'hex').toString(), password)
   var p = this.api.passwordForgotVerifyCode(this.forgotPasswordToken, code)
     .then(
       function (json) {
