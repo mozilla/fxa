@@ -24,3 +24,9 @@ git checkout b63a19a153f631c949e7f6506ad4bf1f258dda69
 cat *.pub >> /home/ec2-user/.ssh/authorized_keys
 cd ..
 rm -rf identity-pubkeys
+
+echo "Establishing auto-update crontab"
+
+echo "*/5 * * * * /bin/bash -l /home/app/code/scripts/awsbox/auto_update.sh > /dev/null 2> /dev/null" | sudo crontab -u app -
+
+echo "post-create complete!"
