@@ -221,6 +221,13 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
             .get(uid, code)
             .then(
               function (rm) {
+                if (! rm) {
+                  throw error.invalidVerificationCode();
+                }
+              }
+            )
+            .then(
+              function (rm) {
                 return rm.verify(code)
               }
             )
