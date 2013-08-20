@@ -1,29 +1,35 @@
 
 # DNS Records the the important entry-points in the stack. 
-# Each entry embeds the stack name, to allow multiple simultaneous deploys.
+# Each entry embeds the shared DNSPrefix parameter, to allow multiple deploys.
 #
-#    logs.<stack>.profileinthecloud.net:  the log collection server
-#    idp.<stack>.profileinthecloud.net:   the loadbalancer fronting webheads
-#
+#    logs.<prefix>.lcip.org:  the log collection server
+#    idp.<prefix>.lcip.org:   the loadbalancer fronting webheads
+#    db.<prefix>.lcip.org:    the loadbalancer fronting the cassandra nodes
 
 DNSRecords:
   Type: AWS::Route53::RecordSetGroup
   Properties:
-    HostedZoneName: "profileinthecloud.net."
+    HostedZoneName: "lcip.org."
     RecordSets:
-      - Name: {"Fn::Join": [".", ["logs", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
+      - Name: {"Fn::Join": [".", ["logs", {"Ref": "DNSPrefix"}, "lcip.org."]]}
         Type: CNAME
         TTL: "30"
         ResourceRecords:
           - {"Fn::GetAtt": ["LogServer", "PublicDnsName"]}
-      - Name: {"Fn::Join": [".", ["idp", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
+      - Name: {"Fn::Join": [".", ["idp", {"Ref": "DNSPrefix"}, "lcip.org."]]}
         Type: CNAME
         TTL: "30"
         ResourceRecords:
-          - {"Fn::GetAtt": ["IdpLoadBalancer", "DNSName"]}
+          - {"Fn::GetAtt": ["WebLoadBalancer", "DNSName"]}
+      - Name: {"Fn::Join": [".", ["db", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["DBLoadBalancer", "DNSName"]}
 
 
 # The log-collecting server, and associated infra.
+# It's just a stand-alone box.
 
 LogServer:
   Type: AWS::EC2::Instance
@@ -38,8 +44,13 @@ LogServer:
 LogServerSecurityGroup:
   Type: AWS::EC2::SecurityGroup
   Properties:
-    GroupDescription: "Enable external HTTP(S) and SSH access and internal elasticsearch"
+    GroupDescription: "awsboxen security group for log-collecting server"
     SecurityGroupIngress:
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+      # Allow inbound web traffic from anywhere.
       - IpProtocol: "tcp"
         FromPort: "80"
         ToPort: "80"
@@ -48,17 +59,32 @@ LogServerSecurityGroup:
         FromPort: "443"
         ToPort: "443"
         CidrIp: "0.0.0.0/0"
+      # Allow ElasticSearch access, for the  kibana web interface.
       - IpProtocol: "tcp"
-        FromPort: "8000"
+        FromPort: "9200"
+        ToPort: "9200"
+        CidrIp: "0.0.0.0/0"
+      # Allow access to heka web dashboard.
+      - IpProtocol: "tcp"
+        FromPort: "4352"
+        ToPort: "4352"
+        CidrIp: "0.0.0.0/0"
+      # Allow inbound heka logs from the other resources in this stack.
+      # XXX TODO: lock down these ports a little more...
+      - IpProtocol: "tcp"
+        FromPort: "5000"
         ToPort: "12000"
-        SourceSecurityGroupName: {"Ref": "IdpServerSecurityGroup"}
+        SourceSecurityGroupName: {"Ref": "WebServerSecurityGroup"}
+      - IpProtocol: "tcp"
+        FromPort: "5000"
+        ToPort: "12000"
+        SourceSecurityGroupName: {"Ref": "DBServerSecurityGroup"}
 
 
-# The IDP webheads, and associated infra.
+# The picl-idp webheads, and associated infra.
 # These machines are stateless, so we run an auto-scaling group of them
 
-
-IdpLoadBalancer:
+WebLoadBalancer:
   Type: AWS::ElasticLoadBalancing::LoadBalancer
   Properties:
     AvailabilityZones: {"Fn::GetAZs": ""}
@@ -66,62 +92,69 @@ IdpLoadBalancer:
       - LoadBalancerPort: "80"
         InstancePort: "80"
         Protocol: "HTTP"
-      - LoadBalancerPort: "443"
-        InstancePort: "80"
-        Protocol: "HTTPS"
-        InstanceProtocol: "HTTP"
-        SSLCertificateId: "arn:aws:iam::142069644989:server-certificate/profileinthecloud.net"
+      # XXX TODO: ssl certificate for lcip.org domain?
+      #- LoadBalancerPort: "443"
+      #  InstancePort: "80"
+      #  Protocol: "HTTPS"
+      #  InstanceProtocol: "HTTP"
+      #  SSLCertificateId: "arn:aws:iam::142069644989:server-certificate/profileinthecloud.net"
     HealthCheck:
       Target: "HTTP:80/"
       HealthyThreshold: "2"
-      UnhealthyThreshold: "5"
+      UnhealthyThreshold: "2"
       Interval: "10"
       Timeout: "5"
 
 
-IdpAutoScaleGroup:
+WebAutoScaleGroup:
   Type: AWS::AutoScaling::AutoScalingGroup
   Properties:
     AvailabilityZones: { "Fn::GetAZs": ""}
-    LaunchConfigurationName: { "Ref": "IdpServerLaunchConfig" }
+    LaunchConfigurationName: { "Ref": "WebServerLaunchConfig" }
     DesiredCapacity: "2"
     MinSize: "2"
     MaxSize: "2"
     LoadBalancerNames:
-      - {"Ref": "IdpLoadBalancer"}
+      - {"Ref": "WebLoadBalancer"}
+  UpdatePolicy:
+    AutoScalingRollingUpdate:
+      MinInstancesInService: "1"
+      MaxBatchSize: "1"
 
 
-IdpServerLaunchConfig:
+WebServerLaunchConfig:
   Type: AWS::AutoScaling::LaunchConfiguration
   Properties:
     InstanceType: m1.small
-    ImageId: { "Ref": "IdpBoxAMI" }
+    ImageId: { "Ref": "WebHeadBoxAMI" }
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
-      - {"Ref": "IdpServerSecurityGroup"}
+      - {"Ref": "WebServerSecurityGroup"}
+    # Cause it to process cloud-init metadata on first run.
     UserData: {"Fn::Base64": {"Fn::Join": ["", [
       "#!/bin/bash\n",
       "set -e -x\n",
-      "/opt/aws/bin/cfn-init -s ", {"Ref": "AWS::StackId"}, " -r IdpServerLaunchConfig\n"
+      "/opt/aws/bin/cfn-init --region ", {"Ref": "AWS::Region"}, " --stack ", {"Ref": "AWS::StackId"}, " --resource WebServerLaunchConfig\n",
        ]]}}
   Metadata:
     AWS::CloudFormation::Init:
      config:
        files:
-         /home/app/cloud_formation.json:
+         # This is the .json config file in which the server will look
+         # for customizations.  We write it at deploy time because it
+         # needs to embed e.g. the public-facing URL, cache server URL, etc.
+         /home/mozsvc/picl-idp/config/cloud_formation.json:
            content:
-             secretKeyFile: "/home/app/var/secret-key.json"
-             publicKeyFile: "/home/app/var/public-key.json"
-             kvstore:
-               backend: "cassandra"
-               cache: "memcached"
+             # Public-facing URL, as configured in the DNSRecord.
+             public_url: {"Fn::Join": ["", ["http://", {"Fn::Join": [".", ["idp", {"Ref": "DNSPrefix"}, "lcip.org"]]}]]}
+             domain: {"Fn::Join": [".", ["idp", {"Ref": "DNSPrefix"}, "lcip.org"]]}
+             # Using the load-balanced cassandra cluster for storage,
              cassandra:
                hosts:
-                 - {"Fn::Join": [".", ["db1", {"Ref": "AWS::StackName"}, "profileinthecloud.net"]]}
-                 - {"Fn::Join": [".", ["db2", {"Ref": "AWS::StackName"}, "profileinthecloud.net"]]}
-                 - {"Fn::Join": [".", ["db3", {"Ref": "AWS::StackName"}, "profileinthecloud.net"]]}
+                 - {"Fn::Join": [".", ["db", {"Ref": "DNSPrefix"}, "lcip.org"]]}
                keyspace: "picl"
                create_schema: true
+             # Using the elasticache cluster for short-lived cache data.
              memcached:
                hosts: {"Fn::Join": ["", [
                   {"Fn::GetAtt": ["Cache", "ConfigurationEndpoint.Address"]},
@@ -130,29 +163,35 @@ IdpServerLaunchConfig:
                       ]]}
 
 
-IdpServerSecurityGroup:
+WebServerSecurityGroup:
   Type: AWS::EC2::SecurityGroup
   Properties:
-    GroupDescription: "Enable external HTTP(S) and SSH access"
+    GroupDescription: "awsboxen security group for picl-idp webheads"
     SecurityGroupIngress:
+      # Allow ssh from anywhere.
       - IpProtocol: "tcp"
         FromPort: "22"
         ToPort: "22"
         CidrIp: "0.0.0.0/0"
+      # Allow access to heka web dashboard.
+      - IpProtocol: "tcp"
+        FromPort: "4352"
+        ToPort: "4352"
+        CidrIp: "0.0.0.0/0"
 
 
-IdpSecurityGroupIngressForLoadBalancer:
+WebSecurityGroupIngressForLoadBalancer:
   # Allow port 80 ingress from the load balancer.
-  # This has to be a separate resources to avoid circular references
-  # between the LoadBalancer and the LaunchConfig.
+  # This has to be a separate resource to avoid circular references
+  # between WebLoadBalancer and WebServerLaunchConfig.
   Type: AWS::EC2::SecurityGroupIngress
   Properties:
-    GroupName: {"Ref": "IdpServerSecurityGroup"}
+    GroupName: {"Ref": "WebServerSecurityGroup"}
     IpProtocol: "tcp"
     FromPort: "80"
     ToPort: "80"
-    SourceSecurityGroupOwnerId: {"Fn::GetAtt": ["IdpLoadBalancer", "SourceSecurityGroup.OwnerAlias"]}
-    SourceSecurityGroupName: {"Fn::GetAtt": ["IdpLoadBalancer", "SourceSecurityGroup.GroupName"]}
+    SourceSecurityGroupOwnerId: {"Fn::GetAtt": ["WebLoadBalancer", "SourceSecurityGroup.OwnerAlias"]}
+    SourceSecurityGroupName: {"Fn::GetAtt": ["WebLoadBalancer", "SourceSecurityGroup.GroupName"]}
 
 
 # The session-store cache, and supporting infra.
@@ -172,28 +211,29 @@ Cache:
 CacheSecurityGroup:
   Type: AWS::ElastiCache::SecurityGroup
   Properties:
-    Description: IDP server session-store cache
+    Description: "picl-idp webhead session-store cache"
 
 
 CacheSecurityGroupIngress:
   Type: AWS::ElastiCache::SecurityGroupIngress
   Properties:
     CacheSecurityGroupName: { "Ref": "CacheSecurityGroup"}
-    EC2SecurityGroupName: { "Ref": "IdpServerSecurityGroup"}
+    EC2SecurityGroupName: { "Ref": "WebServerSecurityGroup"}
 
 
 # The backend database, and supporting infra.
 # This is a minimalistic cassandra cluster.  Lots of work to be done.
-# Things I want to do:
-#     - put a loadbalancer in front for clients to connect
-#     - make it an auto-bootstrapping autoscale group.
 
+# This is a stand-alone node that will act as a "seed", essentially a
+# rendezvous point for other nodes to contact to join the cluster.
+# Note that it doesn't join the loadbalancer and hence does not receive
+# client traffic.  XXX TODO: something more elegant than this.
 
-DBServer1:
+DBServerSeed:
   Type: AWS::EC2::Instance
   Properties:
-    InstanceType: m1.small
-    ImageId: { "Ref": "DBBoxAMI" }
+    InstanceType: m1.large
+    ImageId: { "Ref": "CassandraBoxAMI" }
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
       - {"Ref": "DBServerSecurityGroup"}
@@ -207,38 +247,65 @@ DBServer1:
       ]]}}
 
 
-DBServer2:
-  Type: AWS::EC2::Instance
+# The other members of the cluster can bootstrap themselves using the
+# seed, so we run them as an auto-scaling group behind a load-balancer.
+# XXX TODO: load balancer security!
+
+DBLoadBalancer:
+  Type: AWS::ElasticLoadBalancing::LoadBalancer
   Properties:
-    InstanceType: m1.small
-    ImageId: { "Ref": "DBBoxAMI" }
+    AvailabilityZones: {"Fn::GetAZs": ""}
+    Listeners:
+      # Web access to the individual cluster members.
+      # I plan to use this for some auto-magical cluster discovery...
+      - LoadBalancerPort: "80"
+        InstancePort: "80"
+        Protocol: "HTTP"
+      # Cassandra client API access to the individual cluster members.
+      - LoadBalancerPort: "9160"
+        InstancePort: "9160"
+        Protocol: "TCP"
+    HealthCheck:
+      Target: "TCP:9160"
+      HealthyThreshold: "2"
+      UnhealthyThreshold: "2"
+      Interval: "10"
+      Timeout: "5"
+
+
+DBAutoScaleGroup:
+  Type: AWS::AutoScaling::AutoScalingGroup
+  Properties:
+    AvailabilityZones: { "Fn::GetAZs": ""}
+    LaunchConfigurationName: { "Ref": "DBServerLaunchConfig" }
+    DesiredCapacity: "2"
+    MinSize: "2"
+    MaxSize: "2"
+    LoadBalancerNames:
+      - {"Ref": "DBLoadBalancer"}
+  # XXX TODO: how will we push out updated versions of these machines?
+  # Probably it makes more sense to update existing boxes than create new ones.
+  # This auto-replacement will do for dev, but throws away data!
+  UpdatePolicy:
+    AutoScalingRollingUpdate:
+      MinInstancesInService: "1"
+      MaxBatchSize: "1"
+
+
+DBServerLaunchConfig:
+  Type: AWS::AutoScaling::LaunchConfiguration
+  Properties:
+    InstanceType: m1.large
+    ImageId: { "Ref": "CassandraBoxAMI" }
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
       - {"Ref": "DBServerSecurityGroup"}
-    # Make this node use DBServer1 as seed node.
+    # Make this node use DBServerSeed as seed node.
     UserData: {"Fn::Base64": {"Fn::Join": ["", [
       "#!/bin/bash\n",
       "set -e -x\n",
       "perl -pi -e 's/seeds: \"127.0.0.1\"/seeds: \"",
-          {"Fn::GetAtt": ["DBServer1", "PrivateIp"]},
-          "\"/g' /opt/cassandra/conf/cassandra.yaml\n"
-      ]]}}
-
-
-DBServer3:
-  Type: AWS::EC2::Instance
-  Properties:
-    InstanceType: m1.small
-    ImageId: { "Ref": "DBBoxAMI" }
-    KeyName: { "Ref": "AWSBoxDeployKey" }
-    SecurityGroups:
-      - {"Ref": "DBServerSecurityGroup"}
-    # Make this node use DBServer1 as seed node.
-    UserData: {"Fn::Base64": {"Fn::Join": ["", [
-      "#!/bin/bash\n",
-      "set -e -x\n",
-      "perl -pi -e 's/seeds: \"127.0.0.1\"/seeds: \"",
-          {"Fn::GetAtt": ["DBServer1", "PrivateIp"]},
+          {"Fn::GetAtt": ["DBServerSeed", "PrivateIp"]},
           "\"/g' /opt/cassandra/conf/cassandra.yaml\n"
       ]]}}
 
@@ -246,22 +313,30 @@ DBServer3:
 DBServerSecurityGroup:
   Type: AWS::EC2::SecurityGroup
   Properties:
-    GroupDescription: "Enable Cassandra and SSH access"
+    GroupDescription: "awsboxen security group for picl-idp database nodes"
     SecurityGroupIngress:
       # Allow ssh ingress from anywhere.
       - IpProtocol: "tcp"
         FromPort: "22"
         ToPort: "22"
         CidrIp: "0.0.0.0/0"
-      # Allow client api access from anywhere
+      # Allow access to heka web dashboard.
+      - IpProtocol: "tcp"
+        FromPort: "4352"
+        ToPort: "4352"
+        CidrIp: "0.0.0.0/0"
+      # Allow cassandra client api access from the loadbalancer
       - IpProtocol: "tcp"
         FromPort: "9160"
         ToPort: "9160"
-        SourceSecurityGroupName: {"Ref": "IdpServerSecurityGroup"}
+        SourceSecurityGroupOwnerId: {"Fn::GetAtt": ["DBLoadBalancer", "SourceSecurityGroup.OwnerAlias"]}
+        SourceSecurityGroupName: {"Fn::GetAtt": ["DBLoadBalancer", "SourceSecurityGroup.GroupName"]}
 
 
 DBSecurityGroupIngressForPeers:
-  # Allow peer access to all ports
+  # Allow peer access to all ports.
+  # Cassandra needs quite a few for replication etc.
+  # We should lock this down a *little* more though...
   Type: AWS::EC2::SecurityGroupIngress
   Properties:
     GroupName: {"Ref": "DBServerSecurityGroup"}
@@ -269,25 +344,3 @@ DBSecurityGroupIngressForPeers:
     FromPort: "0"
     ToPort: "65535"
     SourceSecurityGroupName: {"Ref": "DBServerSecurityGroup"}
-
-
-DNSRecordsForDB:
-  Type: AWS::Route53::RecordSetGroup
-  Properties:
-    HostedZoneName: "profileinthecloud.net."
-    RecordSets:
-      - Name: {"Fn::Join": [".", ["db1", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
-        Type: CNAME
-        TTL: "30"
-        ResourceRecords:
-          - {"Fn::GetAtt": ["DBServer1", "PublicDnsName"]}
-      - Name: {"Fn::Join": [".", ["db2", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
-        Type: CNAME
-        TTL: "30"
-        ResourceRecords:
-          - {"Fn::GetAtt": ["DBServer2", "PublicDnsName"]}
-      - Name: {"Fn::Join": [".", ["db3", {"Ref": "AWS::StackName"}, "profileinthecloud.net."]]}
-        Type: CNAME
-        TTL: "30"
-        ResourceRecords:
-          - {"Fn::GetAtt": ["DBServer3", "PublicDnsName"]}
