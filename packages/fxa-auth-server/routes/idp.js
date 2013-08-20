@@ -58,14 +58,8 @@ module.exports = function (crypto, error, isA, serverPublicKey, bridge) {
       method: 'GET',
       path: '/verify_email',
       config: {
-        handler: {
-          proxy: {
-            mapUri: function (request, next) {
-              return next(null, bridge.url + request.raw.req.url)
-            },
-            passThrough: true,
-            xforward: true
-          }
+        handler: function (request, next) {
+          return request.reply.redirect(bridge.url + request.raw.req.url)
         },
         validate: {
           query: {
