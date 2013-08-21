@@ -57,14 +57,27 @@ function getAMK(srpSession, email, password) {
   }
 }
 
+function pad(n, length) {
+  var padding = length - n.length
+  console.assert(padding > -1, "Negative padding.  Very uncomfortable.")
+  if (padding === 0) { return n }
+  var result = new Buffer(length)
+  result.fill(0, 0, padding)
+  n.copy(result, padding)
+  return result
+}
+
 function verifier(salt, email, password, algorithm) {
-  return srp.getv(
-    Buffer(salt, 'hex'),
-    Buffer(email),
-    Buffer(password),
-    srp.params['2048'].N,
-    srp.params['2048'].g,
-    algorithm
+  return pad(
+    srp.getv(
+      Buffer(salt, 'hex'),
+      Buffer(email),
+      Buffer(password),
+      srp.params['2048'].N,
+      srp.params['2048'].g,
+      algorithm
+    ),
+    256
   ).toString('hex')
 }
 
@@ -117,7 +130,7 @@ Client.parse = function (string) {
   client.email = object.email
   client.password = object.password
   client.srp = object.srp
-  c.passwordSalt = object.passwordSalt
+  client.passwordSalt = object.passwordSalt
   client.passwordStretching = object.passwordStretching
   client.sessionToken = object.sessionToken
   client.accountResetToken = object.accountResetToken
