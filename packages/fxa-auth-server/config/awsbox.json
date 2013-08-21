@@ -10,5 +10,8 @@
     "sender": "webmaster@lcip.org"
   },
   "secretKeyFile": "/home/app/var/secret-key.json",
-  "publicKeyFile": "/home/app/var/public-key.json"
+  "publicKeyFile": "/home/app/var/public-key.json",
+  "bridge": {
+    "url": "http://accounts.dev.lcip.org"
+  }
 }
