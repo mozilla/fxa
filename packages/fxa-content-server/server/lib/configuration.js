@@ -106,7 +106,13 @@ var conf = module.exports = convict({
     format: "duration",
     default: "6 hours"
   },
-  pub_key_path: "var/key.publickey"
+  pub_key_path: "var/key.publickey",
+  fxaccount_url: {
+    doc: "The url of the Firefox Account server",
+    format: "url",
+    default: "http://localhost:9000",
+    env: "FXA_URL"
+  }
 });
 
 // At the time this file is required, we'll determine the "process name" for this proc
