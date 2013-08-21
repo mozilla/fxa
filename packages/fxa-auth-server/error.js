@@ -47,4 +47,12 @@ Boom.invalidCode = function (forgotPasswordToken) {
   return b
 }
 
+Boom.incorrectVerificationCode = function () {
+  var b = new Boom(400, 'Incorrect verification code')
+  var p = b.response.payload
+  p.errno = 106
+  p.info = 'http://errors.lcip.org/todo/106'
+  return b
+}
+
 module.exports = Boom
