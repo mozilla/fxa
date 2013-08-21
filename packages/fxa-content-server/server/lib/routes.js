@@ -63,4 +63,13 @@ module.exports = function(app) {
       res.send(JSON.stringify({error: "Wrong username or password"}), 403);
     }
   });
+
+
+  app.get('/verify_email', function(req, res) {
+    res.render('verify_email.html', {
+      fxa: config.get('fxaccount_url'),
+      code: req.query.code,
+      uid: req.query.uid
+    });
+  });
 };

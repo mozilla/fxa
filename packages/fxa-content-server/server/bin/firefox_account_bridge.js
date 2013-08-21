@@ -67,7 +67,7 @@ function makeApp() {
   }));
 
   routes(app);
-  app.use(express.static(path.join(process.cwd(), '..', 'static')));
+  app.use(express.static(path.join(__dirname, '..', '..', 'static')));
   return app;
 }
 
