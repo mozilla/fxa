@@ -38,7 +38,7 @@
   "devDependencies": {
     "awsbox": "0.4.5",
     "awsboxen": "0.4.x",
-    "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#b15f4bf4e9",
+    "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
     "request": "2.21.x",
     "tap": "0.4.3"
   }
