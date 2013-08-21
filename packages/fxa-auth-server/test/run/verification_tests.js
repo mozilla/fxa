@@ -3,10 +3,10 @@ var cp = require('child_process')
 var path = require('path')
 var P = require('p-promise')
 var Client = require('../../client')
-var config = require('../../config').root()
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/verification.json')
-process.env.NODE_ENV = 'local'
+var config = require('../../config').root()
+
 var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
 function main() {
@@ -286,14 +286,14 @@ function main() {
     }
   )
 
-	test(
-		'teardown',
-		function (t) {
+  test(
+    'teardown',
+    function (t) {
       mail.stop()
-			server.kill('SIGINT')
-			t.end()
-		}
-	)
+      server.kill('SIGINT')
+      t.end()
+    }
+  )
 }
 
 ///////////////////////////////////////////////////////////////////////////////

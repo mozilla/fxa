@@ -1,8 +1,8 @@
 {
-	"smtp": {
-		"host": "127.0.0.1",
-		"port": 9999,
-		"secure": false,
-		"sender": "no-reply@example.com"
-	}
+  "smtp": {
+    "host": "127.0.0.1",
+    "port": 9999,
+    "secure": false,
+    "sender": "no-reply@example.com"
+  }
 }

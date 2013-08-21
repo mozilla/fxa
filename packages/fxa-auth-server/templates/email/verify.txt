@@ -1,0 +1,9 @@
+Welcome!
+
+If you didn't sign up for a Firefox account, Report it: {{report_link}}
+
+Click the following link to verify your email
+{{link}}
+
+Thank you,
+The Firefox Accounts Team

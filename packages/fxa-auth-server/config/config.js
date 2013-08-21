@@ -118,6 +118,13 @@ module.exports = function (fs, path, url, convict) {
         env: 'PORT'
       }
     },
+    bridge: {
+      url: {
+        doc: "Thes url of the bridge server",
+        default: 'http://127.0.0.1:3030',
+        env: 'FAB_URL'
+      }
+    },
     stats: {
       backend: {
         format: STATS_BACKENDS,
@@ -202,8 +209,20 @@ module.exports = function (fs, path, url, convict) {
       },
       sender: {
         doc: 'email address of the sender',
-        default: '',
+        default: 'Firefox Accounts <no-reply@lcip.org>',
         env: 'SMTP_SENDER'
+      },
+      verification_url: {
+        doc: 'The landing page for verify emails',
+        format: String,
+        default: undefined,
+        env: 'VERIFY_URL',
+        arg: 'verify-url'
+      },
+      report_url: {
+        doc: 'A page where users can report suspicious activity',
+        format: String,
+        default: '#'
       }
     },
     dev: {
@@ -217,15 +236,19 @@ module.exports = function (fs, path, url, convict) {
 
   // handle configuration files.  you can specify a CSV list of configuration
   // files to process, which will be overlayed in order, in the CONFIG_FILES
-  // environment variable
-  if (process.env.CONFIG_FILES) {
-    var files = process.env.CONFIG_FILES.split(',').filter(fs.existsSync)
+  // environment variable. By default, the ./config/<env>.json file is loaded.
 
-    conf.loadFile(files)
-  }
+  var envConfig = path.join(__dirname, conf.get('env') + '.json')
+  var files = (envConfig + ',' + process.env.CONFIG_FILES)
+                .split(',').filter(fs.existsSync)
+  conf.loadFile(files)
 
   // set the public url as the issuer domain for assertions
   conf.set('domain', url.parse(conf.get('public_url')).host)
+
+  if (! conf.has('smtp.verification_url')) {
+    conf.set('smtp.verification_url', conf.get('public_url') + '/verify_email')
+  }
 
   conf.validate()
 
