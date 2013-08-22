@@ -63,10 +63,12 @@ function main() {
       var newPassword = 'foobar'
       var wrapKb = null
       var client = null
+      var firstSrpPw
       Client.create(config.public_url, email, password)
         .then(
           function (x) {
             client = x
+            firstSrpPw = x.srpPw
             return client.keys()
           }
         )
@@ -82,7 +84,7 @@ function main() {
         )
         .then(
           function () {
-            t.equal(client.password, newPassword, 'password has changed')
+            t.notEqual(client.srpPw, firstSrpPw, 'password has changed')
             return client.keys()
           }
         )

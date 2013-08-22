@@ -180,7 +180,6 @@ function main() {
         )
         .then(
           function () {
-            t.equal(client.password, newPassword)
             return client.keys()
           }
         )
@@ -196,6 +195,38 @@ function main() {
             t.end()
           }
         )
+    }
+  )
+
+  test(
+    'Login flow for a new password',
+    function (t) {
+      var email = 'verification@example.com'
+      var password = 'ez'
+      var wrapKb = null
+      var client = null
+      Client.login(config.public_url, email, password)
+        .then(
+          function (x) {
+            client = x
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            t.equal(typeof(keys.kA), 'string', 'kA exists, login after password reset')
+            t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists, login after password reset')
+          }
+        )
+        .done(
+          function () {
+            t.end()
+          },
+          function (err) {
+            t.fail(err.message || err.error)
+            t.end()
+          }
+      )
     }
   )
 
