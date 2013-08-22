@@ -4,48 +4,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const path = require('path'),
-      spawn = require('child_process').spawn;
-
-// Setup and run a browserid-certifer
-process.env['IP_ADDRESS'] = "127.0.0.1";
-process.env['ISSUER_HOSTNAME'] = "dev.fxaccounts.mozilla.org";
-process.env['PORT'] = 0;
-process.env['PUB_KEY_PATH'] = path.join(process.cwd(), 'server', 'var', 'key.publickey');
-process.env['PRIV_KEY_PATH'] = path.join(process.cwd(), 'server', 'var', 'key.secretkey');
-process.env['VAR_PATH'] = path.join(process.cwd(), 'server', 'var');
-
-var original_config_files = process.env['CONFIG_FILES'];
-if (! original_config_files) {
-  original_config_files = '';
-}
+      spawn = require('child_process').spawn,
+      config = require('../server/lib/configuration');
 
 // TODO what if priv or pub key don't exist?
 
 // Certifier can't be run in the same process,
 // convict's schema mapping wil get messed up.
 // So we must run as a process
-var certifierPath = path.join(__dirname, '..', 'node_modules',
-			      'browserid-certifier', 'bin',
-			      'certifier');
+var certifierPath = path.join(__dirname, '..', 'server', 'bin', 'browserid-certifier.js');
 var certifier = spawn('node', [certifierPath]);
-var certifierPort;
 certifier.stdout.on('data', function(data) {
   var msg = data.toString('utf8');
-  if (msg.indexOf('Certifier started, listening at') !== -1) {
-    var start = msg.indexOf(' on ');
-    certifierPort =
-      parseInt(msg.substring(start + (' on '.length)), 10);
-    startFAB(certifierPort);
+  if (msg.indexOf('Certifier started') !== -1) {
+    console.log(msg);
+    startFAB();
   }
 });
+
 certifier.stderr.on('data', function(data) {
   console.error('CERTIFIER ERR:', data.toString('utf8'));
 });
 
-function startFAB(certifierPort) {
+function startFAB() {
   process.chdir(path.dirname(__dirname));
-  process.env['CERTIFIER_PORT'] = certifierPort;
-  process.env['CONFIG_FILES'] = original_config_files;
   // We'll get PORT via config/local.json
   delete process.env['PORT'];
 
