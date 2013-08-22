@@ -1,0 +1,204 @@
+{% extends "accounts/layout.html" %}
+
+{% block content %}
+<div id="dialog"></div>
+
+<div id="sidechannel-container">
+  <center>Side Channel</center>
+  <div id="sidechannel"></div>
+</div>
+
+<div id="notes-container">
+  <center>Implementor Notes</center>
+  <div class="close"><a href="javascript: toggleAdmin();">x</a></div>
+  <div id="notes"></div>
+  <p>Current Accounts:</p>
+  <div id="all-accounts"></div>
+</div>
+
+<!-- templates -->
+<div id="templates" class="hidden">
+
+  <div class="t1-create-signin">
+
+    <x-tabbox>
+      <x-tabs>
+        <x-tab selected>Create Account</x-tab>
+        <x-tab>Sign In</x-tab>
+      </x-tabs>
+      <x-tabpanels>
+        <x-tabpanel selected="true" class="create-panel">
+          <p class="error"></p>
+          <form class="create">
+            <p style="line-height: 24px; padding: 10px;"><small>
+Firefox Sync stores your passwords, bookmarks, tabs and browsing history. Use it to share your Firefox experience between desktop and Android.
+              </small>
+            </p>
+            <input type="text" name="email" class="email focus" placeholder="Email" /><span></span>
+            <br/>
+            <input type="password" name="password" class="password"  placeholder="Password (min 8 chars)"/><span></span>
+            <br/>
+            <input type="password" name="password_confirm" class="confirm_password" placeholder="Confirm Password" /><span></span>
+            <p>By proceeding you agree with <a href="#">Terms of Service</a>
+              and <a href="#">Privacy Policy</a>
+            </p>
+
+            <input type="submit" class="go" value="Create Account" />
+          </form>
+        </x-tabpanel>
+
+        <x-tabpanel class="login-panel">
+          <p class="error"></p>
+          <form class="login">
+            <input type="text" name="email" class="email focus" placeholder="Email" /><span></span>
+            <br />
+            <input type="password" name="password" class="password"  placeholder="Password"/><span></span>
+            <p>
+              <a href="#" class="forgot" data-page="reset-password">Forgot Password</a>
+            </p>
+
+            <br/>
+            <input type="submit" class="go" value="Sign In" />
+          </form>
+        </x-tabpanel>
+      </x-tabpanels>
+    </x-tabbox>
+
+  </div>
+
+  <div class="notes-t1-get-email">
+  </div>
+
+  <div class="t2-signed-in-page">
+      <h2>Welcome!<br/> You are successfully signed in as:</h2>
+        <p class="user">test</p>
+
+        <ul class='devices'></ul>
+
+        <p id="progress-message">Syncing your data...</p>
+        <progress id="progress-meter"></progress>
+        <p>You may close this tab and keep browsing or go to <a href="#" class="prefs">Preferences</a> to manage your account.</p>
+  </div>
+
+  <div class="notes-t2-get-password">
+  </div>
+
+  <div class="verify">
+    <h3>Confirm email</h3>
+    <h2><strong>Please check your email at</strong>
+      <span class='verify-email'></span></h2>
+    <small>Didn't get it? <a href="#" class="resend">Resend Email</a>
+    </small>
+  </div>
+
+  <div class="badlink">
+    <h2>Could not confirm your email address</h2>
+    <p class="error">The link you followed has expired.</p>
+  </div>
+
+  <div class="verified">
+      <h3>Email verified!</h3>
+      <h3>Now go to Firefox and sign in!</h3>
+      <img src="/images/firefox.png" alt="firefox" />
+  </div>
+
+  <div class="reset-password">
+    <div class="progress"><span class="one active">1</span><span class="two">2</span><span class="three">3</span></div>
+    <p>
+      Reset your password
+    </p>
+    <p class="error"></p>
+    <form class="reset">
+      <label>Your Email:
+        <input type="text" name="email" class="email focus" />
+      </label>
+      <p>
+      <span class="right"><a href="#" class="cancel">Cancel</a> <input type="submit" class="go right" value="Next" /></span>
+    </form>
+  </div>
+
+  <div class="confirm-reset-code">
+    <div class="progress"><span class="one">1</span><span class="two active">2</span><span class="three">3</span></div>
+    <p>
+      <strong>We will send you an email to</strong> <span class="email"></span>
+    </p>
+    <p>
+      <small>Didn't get it? <a href="#" class="resend">Resend Email</a></small>
+    </p>
+    <p class="error"></p>
+    <form class="reset_code">
+      <label><b>Check your email and copy the code below:</b></label>
+        <input type="text" name="code" class="code focus" placeholder="XXXXXX" />
+      <p>
+      <input type="submit" class="go" value="Next" />
+    </form>
+  </div>
+
+  <div class="new-password">
+    <div class="progress"><span class="one">1</span><span class="two">2</span><span class="three active">3</span></div>
+    <p class="error"></p>
+    <form class="new_password">
+      <p>
+        Great, now create new password!
+      </p>
+      <input type="password" name="password" placeholder="create password (min 8 chars)" class="focus password" /><span></span> <br/>
+      <input type="password" name="confirm_password" placeholder="repeat password" class="confirm_password" /><span></span>
+      <p>
+      <span class="right"><input type="submit" class="go right" value="Reset" /></span>
+    </form>
+  </div>
+
+  <div class="reset-success">
+    <p>You reset your password successfully!
+    <p>Remember to sign in using your new password on your other devices so they can be all synced!
+
+    <ul class="devices">
+    </ul>
+  </div>
+
+  <div class="preferences">
+      <h2>Preferences</h2>
+
+      <div class="sync-prefs">
+        <h3>Account and Sync</h3>
+        <p>Signed in as: <span class="email"></span>
+        </p>
+
+        <button class="logout">Sign Out</button>
+
+        <h3>Data in account</h3>
+        <input type="checkbox" name="bookmarks" checked=true /> Bookmarks <br />
+        <input type="checkbox" checked=true /> History <br />
+        <input type="checkbox" checked=true /> Open Tabs <br />
+        <input type="checkbox" checked=true /> Password <br />
+
+        <h3>Devices</h3>
+        <fieldset>
+          <ul class="devices">
+          </ul>
+        </fieldset>
+      </div>
+  </div>
+
+  <div class="preferences-signed-out">
+      <h2>Preferences</h2>
+
+      <div class="sync-prefs">
+        <h3>Account and Sync</h3>
+        <p class="success">Successfully signed out</p>
+        <p>Signing in to Firefox stores your bookmarks, open tabs, history and passwords. Sign in to all your devices to take your Firefox data with you everywhere.</p>
+
+        <button class='signin'>Sign In</button>
+        <button class='create'>Create Account</button>
+      </div>
+  </div>
+
+  <div class="notes-preferences">
+  </div>
+
+</div>
+
+
+ <script type="text/javascript" src="/javascripts/one.js"></script>
+
+{% endblock %}

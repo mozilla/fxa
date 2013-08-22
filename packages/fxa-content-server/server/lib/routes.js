@@ -72,4 +72,25 @@ module.exports = function(app) {
       uid: req.query.uid
     });
   });
+
+  app.get('/flow/:page?',
+    function(req, res) {
+      res.render('accounts/desktop_flow.html', {
+        fxa: config.get('fxaccount_url'),
+        user: "null",
+        verified: 0,
+        page: JSON.stringify(req.params.page || ''),
+        desktop: true
+      });
+    });
+
+  app.get('/mobile/:page?',
+    function(req, res) {
+      res.render('accounts/flow.html', {
+        fxa: config.get('fxaccount_url'),
+        user: "null",
+        verified: 0,
+        page: JSON.stringify(req.params.page || '')
+      });
+    });
 };

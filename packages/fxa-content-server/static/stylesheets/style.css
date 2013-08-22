@@ -1,0 +1,403 @@
+body {
+  font-family: sans-serif;
+  font-size: 18px;
+}
+
+.hidden {
+  display: none;
+}
+
+div#dialog {
+  width: 600px;
+  /*background-color: #ccf;*/
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 5%;
+  margin: 0 auto;
+}
+
+#dialog x-tabpanels {
+  width: 600px;
+}
+
+div#sidechannel-container {
+  height: 200px;
+  width: 300px;
+  background-color: #fdd;
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  padding: 5px;
+}
+
+div#notes-container {
+  height: 200px;
+  width: 300px;
+  background-color: #ff8;
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  padding: 5px;
+  overflow: auto;
+}
+
+span.show-code {
+  font-family: fixed;
+  font-weight: bold;
+  font-size: 150%;
+}
+
+label {
+  padding: 8px 0px 0px;
+  display: block;
+}
+
+input, button, .go {
+  font-size: 18px;
+}
+
+.close {
+  background: white;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+
+
+/* TABBOX DEMO */
+
+  #dialog {
+    text-shadow: 0 1px 0 #fff;
+  }
+
+  #dialog x-tabs {
+    position: relative;
+    z-index: 1;
+  }
+
+    #dialog[tab-orient="bottom"] x-tabs {
+      margin-top: -1px;
+    }
+
+  #dialog x-tab {
+    padding: 5px 8px 1px;
+    border: 1px solid;
+    border-color: #cacaca #b0b0b0 #b0b0b0;
+    background: linear-gradient(top, #fafafa, #dadada);
+    background: -ms-linear-gradient(top, #fafafa, #dadada);
+    background: -moz-linear-gradient(top, #fafafa, #dadada);
+    background: -webkit-linear-gradient(top, #fafafa, #dadada);
+    color: #666;
+    border-radius: 3px 3px 0 0;
+    -ms-border-radius: 3px 3px 0 0;
+    -moz-border-radius: 3px 3px 0 0;
+    -webkit-border-radius: 3px 3px 0 0;
+    cursor: pointer;
+  }
+
+  #dialog x-tab[selected] {
+    padding-bottom: 2px;
+    color: #000;
+    border-bottom-width: 0;
+    background: linear-gradient(top, #fefefe, #E7EDF6);
+    background: -ms-linear-gradient(top, #fefefe, #E7EDF6);
+    background: -moz-linear-gradient(top, #fefefe, #E7EDF6);
+    background: -webkit-linear-gradient(top, #fefefe, #E7EDF6);
+    text-decoration: none;
+    cursor: default;
+    outline: 0;
+  }
+
+    #dialog[tab-orient="bottom"] x-tab {
+      border-top-color: #A0A0A0;
+      border-bottom-width: 1px !important;
+      background: linear-gradient(top, #dadada, #fafafa);
+      background: -ms-linear-gradient(top, #dadada, #fafafa);
+      background: -moz-linear-gradient(top, #dadada, #fafafa);
+      background: -webkit-linear-gradient(top, #dadada, #fafafa);
+      border-radius: 0 0 3px 3px !important;
+      -ms-border-radius: 0 0 3px 3px !important;
+      -moz-border-radius: 0 0 3px 3px !important;
+      -webkit-border-radius: 0 0 3px 3px !important;
+    }
+
+    #dialog[tab-orient="bottom"] x-tab[selected] {
+      background: #CFDBEC;
+      border-top-width: 0px !important;
+    }
+
+    #dialog[tab-orient="left"] x-tab {
+      border-right-width: 0px !important;
+      margin-bottom: 4px;
+      border-bottom-width: 1px !important;
+      border-radius: 3px 0px 0px 3px !important;
+      -ms-border-radius: 3px 0px 0px 3px !important;
+      -moz-border-radius: 3px 0px 0px 3px !important;
+      -webkit-border-radius: 3px 0px 0px 3px !important;
+    }
+
+    #dialog[tab-orient="right"] x-tab {
+      border-left-width: 0px !important;
+      margin-bottom: 4px;
+      border-bottom-width: 1px !important;
+      border-radius: 0px 3px 3px 0px !important;
+      -ms-border-radius: 0px 3px 3px 0px !important;
+      -moz-border-radius: 0px 3px 3px 0px !important;
+      -webkit-border-radius: 0px 3px 3px 0px !important;
+    }
+
+  #dialog x-tabpanels {
+    margin-top: -1px;
+    padding: 4px 6px;
+    border: 1px solid;
+    border-color: #b0b0b0 #b0b0b0 #a0a0a0;
+    background: linear-gradient(top, #E7EDF6, #CFDBEC);
+    background: -ms-linear-gradient(top, #E7EDF6, #CFDBEC);
+    background: -moz-linear-gradient(top, #E7EDF6, #CFDBEC);
+    background: -webkit-linear-gradient(top, #E7EDF6, #CFDBEC);
+    border-radius: 0 0 3px 3px;
+    -ms-border-radius: 0 0 3px 3px;
+    -moz-border-radius: 0 0 3px 3px;
+    -webkit-border-radius: 0 0 3px 3px;
+    box-shadow: 0 1px 4px -4px #000;
+    -ms-box-shadow: 0 1px 4px -4px #000;
+    -moz-box-shadow: 0 1px 4px -4px #000;
+    -webkit-box-shadow: 0 1px 7px -4px #000;
+  }
+
+    #dialog[tab-orient="bottom"] x-tabpanels {
+      border-radius: 3px 3px 0 0;
+      -ms-border-radius: 3px 3px 0 0;
+      -moz-border-radius: 3px 3px 0 0;
+      -webkit-border-radius: 3px 3px 0 0;
+    }
+
+  #dialog[tab-orient="left"] x-tabpanels, #dialog[tab-orient="right"] x-tabpanels {
+    margin-top: 0px;
+  }
+
+
+#progress-message {
+  padding-top: 30px;
+  color: #999;
+  font-size: 90%;
+}
+
+#progress-meter {
+  width: 300px;
+}
+
+.confirm-reset-code, .verify, .verified {
+  text-align: center;
+}
+
+.confirm-reset-code form {
+  background: #eee;
+  padding: 20px;
+}
+
+.confirm-reset-code input.code {
+  text-align: center;
+  font-size: 30px !important;
+  letter-spacing: 9px;
+  width: 400px;
+  padding: 10px !important;
+  margin: 10px 0 !important;
+}
+
+.reset, .new_password, .reset-success {
+  width: 500px;
+}
+
+.reset .email, .new_password input[type="password"] {
+  width: 400px;
+}
+
+form {
+  margin-top: 30px;
+}
+
+.right {
+  float: right;
+}
+
+.reset-success .devices li {
+  margin-top: 50px;
+}
+
+.devices {
+  list-style: none;
+  padding-left: 0px;
+}
+
+.devices li {
+  padding-left: 110px;
+  min-height: 60px;
+  padding-top: 5px;
+}
+
+.devices li.syncing:after {
+  display: block;
+  content: 'Syncing';
+  margin-top: 8px;
+  padding-left: 25px;
+  background: url(/images/syncing.png) no-repeat 0 50%;
+}
+.devices li.notsyncing:after {
+  display: block;
+  content: 'Not Syncing';
+  margin-top: 8px;
+  padding-left: 25px;
+  background: url(/images/notsyncing.png) no-repeat 0 50%;
+}
+
+.devices .desktop {
+  background: url(/images/desktop.png) no-repeat;
+}
+
+.devices .mobile, .devices .tablet {
+  background: url(/images/mobile.png) no-repeat;
+}
+
+.success {
+  color: black;
+  background: #cef;
+  display: block;
+  padding: 30px;
+  margin: 30px 0;
+  text-shadow: none;
+  text-align: center;
+}
+
+input::-moz-placeholder {
+  color: #ccc;
+}
+
+fieldset {
+  border-radius: 8px;
+}
+.error p.error {
+  color: black;
+  background: #fcc;
+  display: block;
+  padding: 20px;
+  margin: 30px 0;
+  text-shadow: none;
+  text-align: center;
+}
+
+input {
+  margin-bottom: 20px;
+}
+
+input.error {
+  background: #fcc;
+}
+
+input.oops + span {
+  position: relative;
+}
+
+input.oops.invalid.email + span:after {
+  content: 'Please use a valid email address.';
+}
+
+input.oops.invalid + span:after {
+  content: 'Password must be between 8 and 80 characters.';
+}
+
+input.oops.mismatch + span:after {
+  content: 'These passwords don\'t match.';
+}
+
+input.oops + span:after {
+  background: #fcc;
+  width: 200px;
+  /*height: 30px;*/
+  position: absolute;
+  display: inline-block;
+  /*line-height: 30px;*/
+  text-shadow: none;
+  right: -230px;
+  padding: 5px 10px;
+  font-size: 75%;
+  /*right: -200px;*/
+  /*right: 100%;*/
+}
+
+
+.progress {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.progress span {
+  position: relative;
+  display: inline-block;
+  width: 150px;
+  height: 40px;
+  background: #eee;
+  text-align: center;
+  font-weight: bold;
+  color: black;
+  /*padding-top: 10px;*/
+  line-height: 40px;
+}
+
+.progress span.active {
+  background: #aaa;
+  color: white;
+}
+.progress span.active:after {
+  border-left-color: #aaa;
+}
+.progress span.active:before {
+  border-color: #fff #aaa #aaa #fff;
+}
+
+span.one, span.two {
+  position: relative;
+  margin-right: 60px;
+}
+span.two:after,
+span.one:after {
+	left: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+span.one:after,
+span.two:after {
+	border-color: rgba(136, 183, 213, 0);
+	border-left-color: #eee;
+	border-width: 20px;
+	top: 50%;
+	margin-top: -20px;
+}
+
+span.two:before,
+span.three:before {
+	right: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+span.three:before,
+span.two:before {
+	border-color: rgba(136, 183, 213, 0);
+        /*border-right-color: #fff;*/
+        /*background-color: #f00;*/
+        border-color: #fff #eee #eee #fff;
+	border-width: 20px;
+	top: 50%;
+	margin-top: -20px;
+}
+

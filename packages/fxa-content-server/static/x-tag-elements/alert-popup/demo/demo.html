@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Alert Popup Demo - X-Tag</title>
+    <link rel="stylesheet" href="../alert-popup.css">
+    <script type="text/javascript" src="../../lib/x-tag/x-tag.js"></script>
+    <script type="text/javascript" src="../alert-popup.js"></script>
+  </head>
+
+  <body>
+
+    <button id="showPopup">Show Alert Popup</button>
+
+    <script>
+      document.addEventListener('DOMComponentsLoaded', function() {
+        document.getElementById('showPopup').addEventListener('click', function(e){
+          var alert = document.createElement('x-alert');
+          alert.innerHTML = '<h3>Delete all contacts?</h3>Contacts will be deleted forever!';
+          alert.setAttribute('fade-duration', 500);
+          alert.setAttribute('secondary-text', 'Cancel');
+          alert.setAttribute('active', null);
+          e.target.parentNode.appendChild(alert);
+        });       
+      });
+    </script>
+  </body>
+</html>

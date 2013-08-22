@@ -1,0 +1,38 @@
+
+x-tab {
+	padding: 2px 6px 5px;
+	font-family: Segoe UI;
+	color: #666;
+	text-shadow: 0 1px 0px rgba(255, 255, 255, 0.9);
+	border: 1px solid;
+	border-color: #e0e0e0 #d0d0d0 #c0c0c0;
+	background: linear-gradient(top, #F7F7F7, #e7e7e7);
+	background: -o-linear-gradient(top, #F7F7F7, #e7e7e7);
+	background: -ms-linear-gradient(top, #F7F7F7, #e7e7e7);
+	background: -moz-linear-gradient(top, #F7F7F7, #e7e7e7);
+	background: -webkit-linear-gradient(top, #F7F7F7, #e7e7e7);
+	border-radius: 3px;
+	-o-border-radius: 3px;
+	-ms-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	box-shadow: 0 1px 1px 0 rgba(255,255,255,0.9) inset, 0 -1px 3px -2px rgba(0,0,0,0.2) inset;
+	cursor: pointer;
+}
+
+x-tab:hover {
+	color: #333;
+}
+
+x-tab[selected] {
+	text-decoration: none;
+	color: #fff;
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
+	border-color: #6099C4 #5589B1 #2E5675;
+	background: linear-gradient(top, #70AFDD, #518ACD);
+	background: -o-linear-gradient(top, #70AFDD, #518ACD);
+	background: -ms-linear-gradient(top, #70AFDD, #518ACD);
+	background: -moz-linear-gradient(top, #70AFDD, #518ACD);
+	background: -webkit-linear-gradient(top, #70AFDD, #518ACD);
+	box-shadow: 0 1px 1px 0 rgba(255,255,255,0.2) inset, 0 -1px 1px 0 rgba(60, 90, 130, 0.3) inset;
+}

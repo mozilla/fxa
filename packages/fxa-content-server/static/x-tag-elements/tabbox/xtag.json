@@ -1,0 +1,30 @@
+{	
+	"name": "Tabbox",
+	"tagName": "x-tabbox",
+	"version": "0.0.4",	
+	"author": "Daniel Buchner",
+	"description": "A container used to display a set of tabbed pages of elements. ",
+	"images": [],
+	"demo": "demo/demo.html",
+	"categories": ["structural"],
+	"compatibility": {	
+		"firefox": 5,
+		"chrome": 4,
+		"ie": 9,
+		"opera": 12,
+		"android": 2.1,
+		"ios": 4
+	}, 
+	"documentation": {
+		"methods": {
+			"setSelectedIndex": "Sets the selected tab index.",
+			"getSelectedIndex": "Gets the selected tab index.",
+			"getSelectedTab": "Gets the selected tab element.",
+			"nextTab": "Moves to the next tab.",
+			"previousTab": "Moves to the previous tab.",
+		},
+		"events":{
+			"selected": "Is fired each time an element is selected."
+		}
+	}
+}
