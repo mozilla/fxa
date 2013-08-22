@@ -4,7 +4,7 @@ var nodemailer = require('nodemailer')
 var P = require('p-promise')
 var handlebars = require("handlebars")
 
-var TEMPLATE_PATH = path.join(__dirname, "templates", "email");
+var TEMPLATE_PATH = path.join(__dirname, "templates", "email")
 
 function loadTemplate (name) {
   return fs.readFileSync(path.join(TEMPLATE_PATH, name))

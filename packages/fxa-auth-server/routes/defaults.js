@@ -31,7 +31,7 @@ module.exports = function (P, kv) {
         }
       }
     }
-  ];
+  ]
 
   return routes
 }

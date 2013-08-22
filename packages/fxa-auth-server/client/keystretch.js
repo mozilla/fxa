@@ -56,8 +56,8 @@ function derive(email, password, saltHex) {
     .then(
       function (stretchedPw) {
         var input = new Buffer (stretchedPw, 'hex')
-        // if there's existingSalt use it
-        var lengthHkdf = 2 * 32;
+        var lengthHkdf = 2 * 32
+
         return hkdf(input, 'mainKDF', salt, lengthHkdf)
       }
     )

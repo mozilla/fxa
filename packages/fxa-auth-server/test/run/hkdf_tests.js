@@ -9,7 +9,7 @@ test(
     stretchedPw = new Buffer (stretchedPw,'hex')
     var info = 'mainKDF'
     var salt =  new Buffer ('00f000000000000000000000000000000000000000000000000000000000034d','hex')
-    var lengthHkdf = 2 * 32;
+    var lengthHkdf = 2 * 32
 
     function end() { t.end() }
 
@@ -38,7 +38,7 @@ test(
     stretchedPw = new Buffer (stretchedPw, 'hex')
     var info = 'mainKDF'
     var salt =  new Buffer ('00f000000000000000000000000000000000000000000000000000000000034d', 'hex')
-    var lengthHkdf = 2 * 32;
+    var lengthHkdf = 2 * 32
 
     function end() { t.end() }
 

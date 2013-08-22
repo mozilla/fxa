@@ -1,5 +1,5 @@
-var EventEmitter = require('events').EventEmitter;
-var util = require('util');
+var EventEmitter = require('events').EventEmitter
+var util = require('util')
 
 var hawk = require('hawk')
 var P = require('p-promise')
@@ -8,9 +8,9 @@ var request = require('request')
 var models = require('../models')({}, {}, {})
 var tokens = models.tokens
 
-util.inherits(ClientApi, EventEmitter);
+util.inherits(ClientApi, EventEmitter)
 function ClientApi(origin) {
-  EventEmitter.call(this);
+  EventEmitter.call(this)
   this.origin = origin
 }
 
@@ -36,17 +36,17 @@ ClientApi.prototype.doRequest = function (method, url, token, payload) {
     method: method,
     headers: headers,
     json: payload || true
-  };
-  this.emit('startRequest', options);
+  }
+  this.emit('startRequest', options)
   request(options, function (err, res, body) {
-    this.emit('endRequest', options, err, res);
+    this.emit('endRequest', options, err, res)
     if (err || body.error) {
       d.reject(err || body)
     }
     else {
       d.resolve(body)
     }
-  }.bind(this));
+  }.bind(this))
   return d.promise
 }
 
@@ -315,7 +315,7 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
 }
 
 ClientApi.heartbeat = function (origin) {
-  return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__');
+  return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
 }
 
 module.exports = ClientApi
