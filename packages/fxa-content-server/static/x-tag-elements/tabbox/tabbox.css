@@ -1,0 +1,10 @@
+
+
+x-tabpanels > x-tabpanel {
+	display: none;
+}
+
+x-tabpanels, x-tabpanels > *[selected] {
+	display: block;
+}
+

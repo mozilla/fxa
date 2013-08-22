@@ -1,0 +1,44 @@
+{	
+	"name": "Alert Popup",
+	"tagName": "x-alert",
+	"version": "0.0.4",
+	"author": "Karthik Viswanathan",
+	"description": "A small popup, with a message, action buttons, and optional title, that requires user input to dismiss.",
+	"images": [],	
+	"categories": ["behavioral"],
+	"demo": "demo/demo.html",
+	"compatibility": {
+		"firefox": 5,
+		"chrome": 4,
+		"ie": 9,
+		"opera": 12,
+		"android": 2.1,
+		"ios": 4
+	},
+	"documentation": {
+		"description": "",
+		"attributes": {
+			"primary-text": "Sets the primary button's text",
+			"secondary-text": "Sets the secondary button's text",
+			"location": "Sets the location (top, bottom, or center) of the alert"
+		},
+		"events": {
+			"show": "Triggered when the alert is shown.",
+			"hide": "Triggered when the alert is hidden. Event object contains a buttonType property that holds which button was pressed (primary or secondary)."
+		},
+		"methods": {
+			"show": "Shows this alert and waits for user input.",
+			"hide": "Hides this alert given what type of button (primary or secondary) was pressed."
+		}, 
+		"getters": {
+			"primaryText": "Gets the primary button's text",
+			"secondaryText": "Gets the secondary button's text",
+			"location": "Gets the location (top, bottom, or center) of the alert"
+		},
+		"setters": {
+			"primaryText": "Sets the primary button's text in the primary-text attribute",
+			"secondaryText": "Sets the secondary button's text in the secondary-text attribute",
+			"location": "Sets the location (top, bottom, or center) of the alert in the location attribute"
+		}
+	}
+}
