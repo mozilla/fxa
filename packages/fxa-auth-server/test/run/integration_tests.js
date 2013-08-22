@@ -31,6 +31,7 @@ function main() {
           function (keys) {
             t.equal(typeof(keys.kA), 'string', 'kA exists')
             t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
+            t.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
         .then(
@@ -91,6 +92,7 @@ function main() {
         .then(
           function (keys) {
             t.equal(keys.wrapKb, wrapKb, 'wrapKb is preserved')
+            t.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
         .done(
@@ -129,6 +131,7 @@ function main() {
           function (keys) {
             t.equal(typeof(keys.kA), 'string', 'kA exists')
             t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
+            t.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
         .then(

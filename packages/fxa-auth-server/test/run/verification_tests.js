@@ -188,6 +188,7 @@ function main() {
             t.ok(HEX_STRING.test(keys.wrapKb), 'yep, hex')
             t.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
             t.equal(kA, keys.kA, 'kA was not reset')
+            t.equal(client.kB.length, 64, 'kB exists, has the right length')
             t.end()
           },
           function (err) {
@@ -216,6 +217,7 @@ function main() {
           function (keys) {
             t.equal(typeof(keys.kA), 'string', 'kA exists, login after password reset')
             t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists, login after password reset')
+            t.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
         .done(
