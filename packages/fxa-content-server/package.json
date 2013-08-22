@@ -21,7 +21,7 @@
     "i18n-abide": "0.0.14",
     "nunjucks": "0.1.9",
     "urlparse": "0.0.1",
-    "browserid-certifier": "git://github.com/mozilla/browserid-certifier.git#e5dd6e"
+    "browserid-certifier": "git://github.com/mozilla/browserid-certifier.git#881257b"
   },
   "devDependencies": {
     "mocha": "1.0.3",

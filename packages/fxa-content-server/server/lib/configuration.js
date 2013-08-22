@@ -99,14 +99,15 @@ var conf = module.exports = convict({
   use_https: false,
   var_path: {
     doc: "The path where deployment specific resources will be sought (keys, etc), and logs will be kept.",
-    default: path.join(__dirname, "..", "var"),
+    default: path.resolve(__dirname, "..", "var"),
     env: 'VAR_PATH'
   },
   pub_key_ttl: {
     format: "duration",
     default: "6 hours"
   },
-  pub_key_path: "var/key.publickey",
+  pub_key_path: path.resolve(__dirname, "..", "var", "key.publickey"),
+  priv_key_path: path.resolve(__dirname, "..", "var", "key.secretkey"),
   fxaccount_url: {
     doc: "The url of the Firefox Account server",
     format: "url",
@@ -120,7 +121,7 @@ var conf = module.exports = convict({
 // on the path, we'll use that, otherwise we'll name it 'ephemeral'.
 conf.set('process_type', path.basename(process.argv[1], ".js"));
 
-var dev_config_path = path.join(process.cwd(), 'config', 'local.json');
+var dev_config_path = path.join(__dirname, '..', 'config', 'local.json');
 if (! process.env.CONFIG_FILES &&
     fs.existsSync(dev_config_path)) {
   process.env.CONFIG_FILES = dev_config_path;
