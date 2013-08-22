@@ -21,7 +21,7 @@ module.exports = function (config) {
   ]
 
   if (config.env !== 'production') {
-    logStreams.push({ stream: process.stdout, level: 'trace' });
+    logStreams.push({ stream: process.stdout, level: 'trace' })
   }
 
   var log = bunyan.createLogger(

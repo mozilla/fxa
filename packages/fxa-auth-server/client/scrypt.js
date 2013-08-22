@@ -15,7 +15,7 @@ var scrypt = require('node-scrypt-js')
  * @returns {Object} d.promise Deferred promise
  */
 function hash(input, salt, url) {
-  var p;
+  var p
   var payload = {
     salt: salt,
     N: 64 * 1024,
@@ -41,7 +41,7 @@ function hash(input, salt, url) {
 function localScrypt(payload) {
   var inputBinary = new Buffer(payload.input, "hex").toString("binary")
   var spass = scrypt.scrypt(inputBinary, payload.salt, payload.N, payload.r, payload.p, payload.buflen)
-  var result = new Buffer(spass, 'base64').toString('hex');
+  var result = new Buffer(spass, 'base64').toString('hex')
 
   return P(result)
 }
