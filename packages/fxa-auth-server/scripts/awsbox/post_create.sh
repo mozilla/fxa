@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+MYPWD=`pwd`
+
 echo "Setting up mysql"
 
 sudo /sbin/chkconfig mysqld on
@@ -12,9 +14,35 @@ echo "Setting up memcached"
 sudo /sbin/chkconfig memcached on
 sudo /sbin/service memcached start
 
-echo "Setting up logstash"
+echo "Setting up nginx"
 
-wget https://logstash.objects.dreamhost.com/release/logstash-1.1.13-flatjar.jar
+sudo /sbin/chkconfig nginx on
+sudo /sbin/service nginx start
+
+echo "Setting up elasticsearch"
+
+wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.90.3.tar.gz
+pushd /home/app
+sudo tar zxvf $MYPWD/elasticsearch-0.90.3.tar.gz
+sudo chown -R app:app elasticsearch-0.90.3
+popd
+
+echo "Setting up kibana"
+
+wget https://github.com/elasticsearch/kibana/archive/master.tar.gz
+mv master.tar.gz kibana-master.tar.gz
+pushd /usr/share/nginx/html
+sudo tar zxvf $MYPWD/kibana-master.tar.gz
+popd
+
+echo "Setting up heka"
+
+HEKAFILE=heka-0_4_0-picl-idp-amd64.tar.gz
+wget https://people.mozilla.com/~rmiller/heka/$HEKAFILE
+pushd /home/app
+sudo tar zxvf $MYPWD/$HEKAFILE
+sudo chown -R app:app heka-0_4_0-linux-amd64
+popd
 
 echo "Installing identity team public keys"
 

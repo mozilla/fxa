@@ -5,8 +5,8 @@
   ],
   "env": {
     "CONFIG_FILES": "$HOME/code/config/awsbox.json,$HOME/config.json",
-    "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml",
-    "LOGSTASH_CONFIG": "$HOME/code/config/logstash.conf"
+    "ES_HEAP_SIZE": "32m",
+    "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml"
   },
   "hooks": {
     "postcreate": "scripts/awsbox/post_create.sh",
@@ -14,6 +14,7 @@
   },
   "packages": [
     "mysql-server",
-    "memcached"
+    "memcached",
+    "nginx"
   ]
 }
