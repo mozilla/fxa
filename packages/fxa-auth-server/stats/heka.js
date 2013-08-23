@@ -17,7 +17,7 @@ module.exports = function (Heka) {
           severity: 5
         }
       )
-    );
+    )
   }
 
   HekaStats.prototype.mem = function (usage) {
@@ -34,8 +34,8 @@ module.exports = function (Heka) {
         pid: this.pid,
         hostname: this.hostname
       }
-    );
-  };
+    )
+  }
 
   HekaStats.prototype.request = function (event) {
     this.client.heka(
@@ -51,8 +51,8 @@ module.exports = function (Heka) {
         pid: this.pid,
         hostname: this.hostname
       }
-    );
-  };
+    )
+  }
 
-  return HekaStats;
-};
+  return HekaStats
+}

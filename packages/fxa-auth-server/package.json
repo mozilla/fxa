@@ -22,6 +22,7 @@
     "hapi": "1.9.0",
     "hawk": "1.0.0",
     "hkdf": "0.0.1",
+    "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#961316282a",
     "compute-cluster": "0.0.7",
     "jwcrypto": "0.4.3",
     "handlebars": "1.0.10",
@@ -33,7 +34,8 @@
     "node-statsd": "0.0.7",
     "toobusy": "0.2.3",
     "nodemailer": "0.5.2",
-    "lout": "0.4.1"
+    "lout": "0.4.1",
+    "node-scrypt-js": "git://github.com/vladikoff/node-scrypt-js.git#512f37884ff9"
   },
   "devDependencies": {
     "awsbox": "0.4.5",

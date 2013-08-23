@@ -1,0 +1,105 @@
+var test = require('tap').test
+var P = require('p-promise')
+var keystretch = require('../../client/keystretch')
+
+test(
+  'basic key stretching, test vectors',
+  function (t) {
+    var email = 'andré@example.org'
+    var password = 'pässwörd'
+    var salt = '00f000000000000000000000000000000000000000000000000000000000034d'
+    function end() { t.end() }
+
+    keystretch.derive(email, password, salt)
+      .then(
+        function (result) {
+          t.equal(result.srpPw, '00f9b71800ab5337d51177d8fbc682a3653fa6dae5b87628eeec43a18af59a9d')
+          t.equal(result.unwrapBKey, '6ea660be9c89ec355397f89afb282ea0bf21095760c8c5009bbcc894155bbe2a')
+        }
+      )
+      .done(end, end)
+  }
+)
+
+test(
+  'basic key stretching, longer credentials',
+  function (t) {
+    var salt = '00f000000000000000000000000000000000000000000000000000000000034d'
+    var email = 'ijqmkkafer3xsj5rzoq+msnxsacvkmqxabtsvxvj@some-test-domain-with-a-long-name-example.org'
+    var password = 'mSnxsacVkMQxAbtSVxVjCCoWArNUsFhiJqmkkafER3XSJ5rzoQ'
+    function end() { t.end() }
+
+    keystretch.derive(email, password, salt)
+      .then(
+        function (result) {
+          t.equal(result.srpPw, '261559a74f7b7199fef846c8138db08333bbcc7f5177194da5c965ba953a346b')
+          t.equal(result.unwrapBKey, 'cf48fbc1613a46c794d37c2fe5423c7813b70e5b6c525d5c4463056f267959ff')
+        }
+      )
+      .done(end, end)
+  }
+)
+
+test(
+  'false input both',
+  function (t) {
+    var email = ''
+    var password = ''
+    var salt = ''
+    function end() { t.end() }
+
+    keystretch.derive(email, password, salt)
+      .then(
+        function (stretchedPassword) {
+          t.fail('Got a stretchedPassword from false input')
+        },
+        function (err) {
+          t.equal(err, 'Bad password or email input')
+        }
+      )
+      .done(end, end)
+  }
+)
+
+test(
+  'false input email',
+  function (t) {
+    var email = 'me@example.org'
+    var password = ''
+    var salt = ''
+    function end() { t.end() }
+
+    keystretch.derive(email, password, salt)
+      .then(
+      function (stretchedPassword) {
+        t.fail('Got a stretchedPassword from false input')
+      },
+      function (err) {
+        t.equal(err, 'Bad password or email input')
+      }
+    )
+      .done(end, end)
+  }
+)
+
+
+test(
+  'false input password',
+  function (t) {
+    var email = ''
+    var password = 'password'
+    var salt = ''
+    function end() { t.end() }
+
+    keystretch.derive(email, password, salt)
+      .then(
+      function (stretchedPassword) {
+        t.fail('Got a stretchedPassword from false input')
+      },
+      function (err) {
+        t.equal(err, 'Bad password or email input')
+      }
+    )
+      .done(end, end)
+  }
+)

@@ -18,7 +18,7 @@ function main() {
         "algorithm":"RS",
         "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
         "e":"65537"
-      };
+      }
       var duration = 1000 * 60 * 60 * 24
       Client.create(config.public_url, email, password)
         .then(
@@ -63,10 +63,12 @@ function main() {
       var newPassword = 'foobar'
       var wrapKb = null
       var client = null
+      var firstSrpPw
       Client.create(config.public_url, email, password)
         .then(
           function (x) {
             client = x
+            firstSrpPw = x.srpPw
             return client.keys()
           }
         )
@@ -82,7 +84,7 @@ function main() {
         )
         .then(
           function () {
-            t.equal(client.password, newPassword, 'password has changed')
+            t.notEqual(client.srpPw, firstSrpPw, 'password has changed')
             return client.keys()
           }
         )
@@ -114,7 +116,7 @@ function main() {
         "algorithm":"RS",
         "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
         "e":"65537"
-      };
+      }
       var duration = 1000 * 60 * 60 * 24
       Client.login(config.public_url, email, password)
         .then(
