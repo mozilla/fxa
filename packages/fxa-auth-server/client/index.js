@@ -90,6 +90,7 @@ Client.prototype.setupCredentials = function (email, password, customSalt) {
       function (result) {
         this.email = Buffer(email).toString('hex')
         this.srpPw = result.srpPw
+        this.unwrapBKey = result.unwrapBKey
         this.srp = {}
         this.srp.type = 'SRP-6a/SHA256/2048/v1'
         this.srp.salt = crypto.randomBytes(32).toString('hex')
@@ -217,6 +218,7 @@ Client.prototype.auth = function (callback) {
             .then(
               function (result) {
                 this.srpPw = result.srpPw
+                this.unwrapBKey = result.unwrapBKey
                 this.passwordSalt = session.passwordStretching.salt
 
                 k.resolve(srpSession)
@@ -421,6 +423,7 @@ Client.prototype.changePassword = function (newPassword, callback) {
           .then(
             function (result) {
               this.srpPw = result.srpPw
+              this.unwrapBKey = result.unwrapBKey
               this.passwordSalt = salt
 
               return token
@@ -472,10 +475,10 @@ Client.prototype.keys = function (callback) {
       function (data) {
         return tokens.KeyFetchToken.fromHex(this.keyFetchToken)
           .then(
-          function (token) {
-            return token.unbundle(data.bundle)
-          }
-        )
+            function (token) {
+              return token.unbundle(data.bundle)
+            }
+          )
       }.bind(this)
     )
     .then(
@@ -483,6 +486,8 @@ Client.prototype.keys = function (callback) {
         this.keyFetchToken = null
         this.kA = keys.kA
         this.wrapKb = keys.wrapKb
+        this.kB = keyStretch.xor(this.wrapKb, this.unwrapBKey).toString('hex')
+
         return keys
       }.bind(this),
       function (err) {

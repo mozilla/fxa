@@ -76,6 +76,31 @@ function derive(email, password, saltHex) {
   return p.promise
 }
 
+/** XOR
+ *
+ * @param {Buffer|String} input1 first value of the buffer as a hex string or a buffer
+ * @param {Buffer|String} input2 second value of the buffer as hex string or a buffer
+ * @return {Buffer} xorResult Result XOR buffer
+ */
+function xor(input1, input2) {
+  var buf1 = Buffer.isBuffer(input1) ? input1 : Buffer(input1, 'hex')
+  var buf2 = Buffer.isBuffer(input2) ? input2 : Buffer(input2, 'hex')
+  var xorResult = Buffer(buf1.length)
+
+  if (buf1.length !== buf2.length) {
+    throw new Error(
+      'XOR buffers must be same length %d != %d',
+      buf1.length,
+      buf2.length
+    )
+  }
+  for (var i = 0; i < xorResult.length; i++) {
+    xorResult[i] = buf2[i] ^ buf1[i]
+  }
+
+  return xorResult
+}
+
 
 /** KWE
  *
@@ -97,3 +122,4 @@ function KW(name) {
 }
 
 module.exports.derive = derive
+module.exports.xor = xor
