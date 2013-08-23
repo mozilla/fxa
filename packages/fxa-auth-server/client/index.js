@@ -486,7 +486,7 @@ Client.prototype.keys = function (callback) {
         this.keyFetchToken = null
         this.kA = keys.kA
         this.wrapKb = keys.wrapKb
-        this.kB = keyStretch.xor(this.wrapKb, this.unwrapBKey).toString('hex')
+        this.kB = keys.kB = keyStretch.xor(this.wrapKb, this.unwrapBKey).toString('hex')
 
         return keys
       }.bind(this),

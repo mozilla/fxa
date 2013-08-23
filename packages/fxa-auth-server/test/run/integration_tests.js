@@ -31,6 +31,7 @@ function main() {
           function (keys) {
             t.equal(typeof(keys.kA), 'string', 'kA exists')
             t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
+            t.equal(typeof(keys.kB), 'string', 'kB exists')
             t.equal(client.kB.length, 64, 'kB exists, has the right length')
           }
         )
