@@ -1,8 +1,13 @@
+[hekad]
+base_dir = "/home/app/hekad"
+
 [UdpInput]
 address = "127.0.0.1:4880"
 
 [StatsdInput]
 address = ":8125"
+
+[StatAccumInput]
 
 [TCP:5565]
 type = "TcpInput"
@@ -10,11 +15,15 @@ address = ":5565"
     [TCP:5565.signer.test_0]
     hmac_key = "4865ey9urgkidls xtb0[7lf9rzcivthkm"
 
+[picl-idp-log]
+type = "LogfileInput"
+logfile = "/home/app/code/server.log"
+logger = "picl-idp"
+
 [TestSandboxManager]
 type = "SandboxManagerFilter"
 message_signer = "test"
 message_matcher = "Type == 'heka.control.sandbox'"
-working_directory = "./sandbox"
 max_filters = 100
 
 [memoryGauge]
@@ -22,7 +31,7 @@ type = "SandboxFilter"
 message_matcher = "Type == 'mem'"
 ticker_interval = 15
 script_type = "lua"
-filename = "./heka/memory.lua"
+filename = "lua/memory.lua"
 preserve_data = false
 memory_limit = 1048576
 instruction_limit = 100
@@ -33,7 +42,7 @@ type = "SandboxFilter"
 message_matcher = "Type == 'request'"
 ticker_interval = 60
 script_type = "lua"
-filename = "./heka/request.lua"
+filename = "lua/request.lua"
 preserve_data = false
 memory_limit = 1048576
 instruction_limit = 100
@@ -47,3 +56,11 @@ payload_only = false
 [DashboardOutput]
 ticker_interval = 15
 message_matcher = "Type == 'heka.all-report' || Type == 'heka.sandbox-terminated' || (Type == 'heka.sandbox-output' && Fields[payload_type] == 'cbuf')"
+
+[ElasticSearchOutput]
+message_matcher = "Type == 'logfile' && Logger == 'picl-idp'"
+index = "picl-idp-%{2006-01-02}"
+esindexfromtimestamp = true
+flush_interval = 500
+flush_count = 50
+format = "payload"

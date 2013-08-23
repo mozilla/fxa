@@ -9,7 +9,7 @@
 
 USER="app"
 
-DAEMON="/usr/local/bin/hekad"
+DAEMON="/usr/bin/hekad"
 ROOT_DIR="/home/app"
 
 CONFIG_FILE=$HEKAD_CONFIG

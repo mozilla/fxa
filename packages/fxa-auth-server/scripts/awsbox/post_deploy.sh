@@ -1,21 +1,22 @@
 #!/usr/bin/env bash
 
-echo "Restarting heka"
+echo "Restarting elasticsearch"
 
-pid=`pgrep hekad`
-if [[ $pid ]] ; then
-  kill -s INT $pid
-fi
-cd /home/app/code
-nohup hekad -config=$HEKAD_CONFIG > /dev/null 2>&1 &
-
-echo "Restarting logstash"
-
-pid=`pgrep -f logstash`
+pid=`pgrep -f elasticsearch`
 if [[ $pid ]] ; then
 	kill -s INT $pid
 fi
 
-nohup java -jar /home/ec2-user/logstash-1.1.13-flatjar.jar agent -f $LOGSTASH_CONFIG > /dev/null 2>&1 &
+nohup /home/app/elasticsearch-0.90.3/bin/elasticsearch
+
+echo "Restarting hekad"
+
+pid=`pgrep -f hekad`
+if [[ $pid ]] ; then
+	kill -s INT $pid
+fi
+mkdir -p /home/app/hekad/lua
+cp /home/app/code/heka/*.lua /home/app/hekad/lua/
+nohup /home/app/heka-0_4_0-linux-amd64/bin/hekad -config=$HEKAD_CONFIG > /home/app/hekad/hekad.log 2>&1 &
 
 echo "DONE"
