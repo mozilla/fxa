@@ -11,35 +11,35 @@ var crypto = require('crypto')
 
 // The namespace for the salt functions
 const NAMESPACE = 'identity.mozilla.com/picl/v1/'
+const SCRYPT_HELPER = 'http://scrypt.dev.lcip.org/'
 
 
 /** Derive a key from an email and password pair
  *
- * @param {String} email The email of the user
- * @param {String} password The password of the user
+ * @param {Buffer} email The email hex buffer of the user
+ * @param {Buffer} password The password of the user
  * @param {String} saltHex The salt to derive hkdf as a hex string
  * @return p.promise object - It will resolve with
- * {String} srpPw srp password
- * {String} unwrapBKey unwrapBKey
- * {String} salt salt used in this derivation
+ * {Buffer} srpPw srp password
+ * {Buffer} unwrapBKey unwrapBKey
  * or fail with {object} err
  */
 function derive(email, password, saltHex) {
   var p = P.defer()
-  var salt = Buffer(saltHex, 'hex')
 
-  if (password == 'undefined' || email == 'undefined' || password.length === 0 || email.length === 0) {
-    p.reject('Bad password or email input')
+  if (!password || !email || !saltHex) {
+    p.reject('Bad password, salt or email input')
     return p.promise
   }
 
+  var salt = Buffer(saltHex, 'hex')
   // derive the first key from pbkdf2
   pbkdf2
     .derive(password, KWE('first-PBKDF', email))
     .then(
       function(K1) {
         // request a hash from scrypt based on the first key
-        return scrypt.hash(K1, KW("scrypt"), 'http://scrypt.dev.lcip.org/')
+        return scrypt.hash(K1, KW("scrypt"), SCRYPT_HELPER)
       }
     )
     .then(
@@ -64,8 +64,9 @@ function derive(email, password, saltHex) {
     .done(
       function (hkdfResult) {
         var hkdfResultHex = hkdfResult.toString('hex')
-        var srpPw = hkdfResultHex.substring(0,64)
-        var unwrapBKey = hkdfResultHex.substring(64,128)
+        var srpPw = Buffer(hkdfResultHex.substring(0,64), 'hex')
+        var unwrapBKey = Buffer(hkdfResultHex.substring(64,128), 'hex')
+
         p.resolve({ srpPw: srpPw, unwrapBKey: unwrapBKey })
       },
       function (err) {
@@ -105,20 +106,20 @@ function xor(input1, input2) {
 /** KWE
  *
  * @param {String} name The name of the salt
- * @param {String} email The email of the user.
- * @return {string} the salt combination with the namespace
+ * @param {Buffer} email The email of the user.
+ * @return {Buffer} the salt combination with the namespace
  */
 function KWE(name, email) {
-  return NAMESPACE + name + ':' + email
+  return Buffer(NAMESPACE + name + ':' + email)
 }
 
 /** KW
  *
  * @param {String} name The name of the salt
- * @return {string} the salt combination with the namespace
+ * @return {Buffer} the salt combination with the namespace
  */
 function KW(name) {
-  return NAMESPACE + name
+  return Buffer(NAMESPACE + name)
 }
 
 module.exports.derive = derive

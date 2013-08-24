@@ -134,7 +134,7 @@ function main() {
         )
         .then(
           function (status) {
-            t.equal(status.verified, false)
+            t.equal(status.verified, false, 'account not verified')
           }
         )
         .done(
