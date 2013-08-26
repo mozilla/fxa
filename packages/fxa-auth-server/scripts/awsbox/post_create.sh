@@ -53,6 +53,38 @@ cat *.pub >> /home/ec2-user/.ssh/authorized_keys
 cd ..
 rm -rf identity-pubkeys
 
+echo "Setting up postfix as the mailserver"
+
+sudo alternatives --set mta /usr/sbin/sendmail.postfix
+
+sudo service sendmail stop
+sudo chkconfig sendmail off
+
+sudo tee --append /etc/postfix/main.cf << EOF
+# This basic configuration sends mail directly.
+# It's unlikely to work very well from within EC2.
+# You should get some SES credentials and use it as relay host:
+#
+#    https://gist.github.com/gene1wood/6323301
+#
+relayhost = 
+smtp_sasl_auth_enable = yes
+smtp_sasl_security_options = noanonymous
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+smtp_use_tls = yes
+smtp_tls_security_level = encrypt
+smtp_tls_note_starttls_offer = yes
+EOF
+
+# Create placeholder for the SES relay credentials.
+sudo tee --append /etc/postfix/sasl_passwd << EOF
+email-smtp.us-east-1.amazonaws.com:25 INSERTUSERNAME:INSERTPASSWORD
+EOF
+sudo /usr/sbin/postmap /etc/postfix/sasl_passwd
+ 
+sudo service postfix start
+sudo chkconfig postfix on
+
 echo "Establishing auto-update crontab"
 
 echo "*/5 * * * * /bin/bash -l /home/app/code/scripts/awsbox/auto_update.sh > /dev/null 2> /dev/null" | sudo crontab -u app -
