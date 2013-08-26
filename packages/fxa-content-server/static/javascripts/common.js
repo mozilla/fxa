@@ -262,7 +262,7 @@ function sendToBrowser(command, data) {
     }
   });
   try {
-    document.dispatchEvent(event);
+    window.dispatchEvent(event);
   } catch(e) {
     console.log(e);
   }
