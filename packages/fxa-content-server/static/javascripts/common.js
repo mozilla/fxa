@@ -258,7 +258,8 @@ function sendToBrowser(command, data) {
   var event = new CustomEvent("FirefoxAccountsCommand", {
     detail: {
       command: command,
-      data: data
+      data: data,
+      bubbles: true
     }
   });
   try {
