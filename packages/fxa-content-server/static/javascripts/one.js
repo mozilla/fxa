@@ -97,19 +97,25 @@ setupFunctions["t1-create-signin"] = function() {
         state.client = client
 
         console.log('got client', x);
-
         console.log('done logging in!');
         console.log('keys!!', client.sessionToken, client.keyFetchToken, email);
 
-        sendToBrowser('login', {
-          sessionToken: client.sessionToken,
-          keyFetchToken: client.keyFetchToken,
-          email: email
+        new AssertionRequest(client).init(function(err, assertion) {
+          var payload = {
+            assertion: assertion,
+            kB: client.kB,
+            kA: client.kA,
+            sessionToken: client.sessionToken,
+            email: email
+          };
+          console.log('sendToBrowser payload: ', payload);
+          sendToBrowser('create', payload);
+
+          switchTo("t2-signed-in-page");
+          leaveError();
+          makeNotBusy();
         });
 
-        switchTo("t2-signed-in-page");
-        leaveError();
-        makeNotBusy();
       },
       function (err) {
         console.error('Error?', err);
@@ -304,11 +310,16 @@ setupFunctions["verify"] = function() {
 
           switchTo('t2-signed-in-page');
 
-          sendToBrowser('verified', {
-            sessionToken: client.sessionToken,
-            keyFetchToken: client.keyFetchToken,
-            keys: keys,
-            email: email
+          new AssertionRequest(client).init(function(err, assertion) {
+            var payload = {
+              assertion: assertion,
+              kB: client.kB,
+              kA: client.kA,
+              sessionToken: client.sessionToken,
+              email: email
+            };
+            console.log('sendToBrowser payload: ', payload);
+            sendToBrowser('create', payload);
           });
         });
 
