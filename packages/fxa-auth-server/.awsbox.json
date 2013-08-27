@@ -15,6 +15,7 @@
   "packages": [
     "mysql-server",
     "memcached",
-    "nginx"
+    "nginx",
+    "postfix"
   ]
 }

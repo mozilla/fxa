@@ -45,26 +45,22 @@ There is a development server running the moz-svc-dev AWS environment, at the fo
 
     http://idp.dev.lcip.org/
 
-It is managed using [awsbox](http://awsbox.org/), and currently needs manual updating.  To push the latest changes, do:
+It is managed using [awsbox](http://awsbox.org/) and configured to automatically update itself to track the git master branch.  You can force-push a particular version of the code by doing:
 
     $> git remote add idp-dev-lcip-org app@idp.dev.lcip.org:git
     $> git push idp-dev-lcip-org HEAD:master
 
-You can stand up a similar single-server testing deployment using [awsbox](http://awsbox.org/), which we have wrapped in a simple helper script at [/scripts/awsbox/deploy.js](s/scripts/awsbox/deploy.js).  Invoke it like so:
 
-    $> ./scripts/awsbox/deploy.js create -n <unique-name>
-    $> git push <unique-name> HEAD:master
+The dev deployment is configured to send emails via Amazon SES.  If you need to re-create, or want to stand up a similar server, you will need to:
 
-To let the deployment send emails through Amazon SES, you will need to obtain
-the file 'awsbox-secrets.json' containing the necessary credentials.  Contact one
-of the developers for more details.
-
-SES in the development environment is in sandbox mode, so the server is only
-allowed to send emails to a restricted whitelist of addresses.  You have two
-options for testing the email flow:
-
-  * Use a [restmail](http://restmail.lcip.org/) address of the form <anything>@restmail.lcip.org.  Emails sent to such an address can then be viewed online at http://restmail.lcip.org/mail/<anything>.
-  * Individually verify your email address with SES, via the AWS management console.
+  1.  Obtain the SES SMTP credentials; ping @rfk or @zaach for details.
+  2.  Deploy the new machine using awsbox.
+  3.  Configure postfix to use the SES credentials:
+      1.  Edit /etc/postfix/sasl_passwd to insert the SES credentials.
+      2.  Run `/usr/sbin/postmap /etc/postfix/sasl_passwd` to compile them.
+      3.  Edit /etc/postfix/main.cf to change 'relayhost' to the SES SMTP host 
+          (typically "email-smtp.us-east-1.amazonaws.com:25").
+      4.  Run `service postfix restart` to restart postfix.
 
 
 ## License
