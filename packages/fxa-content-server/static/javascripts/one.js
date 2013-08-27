@@ -100,7 +100,7 @@ setupFunctions["t1-create-signin"] = function() {
         console.log('done logging in!');
         console.log('keys!!', client.sessionToken, client.keyFetchToken, email);
 
-        new AssertionRequest(client).init(function(err, assertion) {
+        new AssertionService(client).getAssertion(function(err, assertion) {
           var payload = {
             assertion: assertion,
             kB: client.kB,
@@ -109,7 +109,7 @@ setupFunctions["t1-create-signin"] = function() {
             email: email
           };
           console.log('sendToBrowser payload: ', payload);
-          sendToBrowser('create', payload);
+          sendToBrowser('login', payload);
 
           switchTo("t2-signed-in-page");
           leaveError();
@@ -310,7 +310,7 @@ setupFunctions["verify"] = function() {
 
           switchTo('t2-signed-in-page');
 
-          new AssertionRequest(client).init(function(err, assertion) {
+          new AssertionService(client).getAssertion(function(err, assertion) {
             var payload = {
               assertion: assertion,
               kB: client.kB,
@@ -319,7 +319,7 @@ setupFunctions["verify"] = function() {
               email: email
             };
             console.log('sendToBrowser payload: ', payload);
-            sendToBrowser('create', payload);
+            sendToBrowser('verified', payload);
           });
         });
 
