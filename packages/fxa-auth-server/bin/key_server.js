@@ -34,7 +34,7 @@ function main() {
   var models = require('../models')(config, dbs, mailer)
 
   // server public key
-  var serverPublicKey = fs.readFileSync(config.publicKeyFile)
+  var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
 
   //signer compute-cluster
   var CC = require('compute-cluster')
