@@ -224,6 +224,10 @@ module.exports = function (fs, path, url, convict) {
         doc: 'A page where users can report suspicious activity',
         format: String,
         default: '#'
+      },
+      template_path: {
+        doc: 'path to the email template directory',
+        default: path.resolve(__dirname, '../templates/email')
       }
     },
     dev: {

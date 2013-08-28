@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (isA, error, Account, tokens) {
+module.exports = function (log, isA, error, Account, tokens) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -17,6 +17,7 @@ module.exports = function (isA, error, Account, tokens) {
           strategy: 'authToken'
         },
         handler: function (request) {
+          log.begin('Password.changeStart', request)
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
           var keyFetchToken = null
@@ -63,6 +64,7 @@ module.exports = function (isA, error, Account, tokens) {
           "Request a new 'reset password' code be sent to the recovery email",
         tags: ["password"],
         handler: function (request) {
+          log.begin('Password.forgotSend', request)
           var email = request.payload.email
           var forgotPasswordToken = null
           Account.getByEmail(email)
@@ -124,6 +126,7 @@ module.exports = function (isA, error, Account, tokens) {
           strategy: 'forgotPasswordToken'
         },
         handler: function (request) {
+          log.begin('Password.forgotResend', request)
           var forgotPasswordToken = request.auth.credentials
           forgotPasswordToken.sendRecoveryCode()
             .done(
@@ -168,6 +171,7 @@ module.exports = function (isA, error, Account, tokens) {
           strategy: 'forgotPasswordToken'
         },
         handler: function (request) {
+          log.begin('Password.forgotVerify', request)
           var forgotPasswordToken = request.auth.credentials
           var code = +(request.payload.code)
           var accountResetToken = null

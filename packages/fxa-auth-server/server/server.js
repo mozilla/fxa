@@ -59,20 +59,22 @@ module.exports = function (path, Hapi, toobusy) {
         if (toobusy()) {
           exit = Hapi.error.serverTimeout('Server too busy')
         }
-        log.debug({ path: request.path })
+        log.info({ op: 'server.onRequest', rid: request.id, path: request.path })
         next(exit)
       }
     )
 
     server.ext(
       'onPreHandler',
-      function (r, next) {
-        log.debug(
+      function (request, next) {
+        log.trace(
           {
-            path: r.path,
-            auth: r.auth.isAuthenticated,
-            uid: r.auth.credentials ? r.auth.credentials.uid : null,
-            payload: r.payload
+            op: 'server.onPreHandler',
+            rid: request.id,
+            path: request.path,
+            auth: request.auth.isAuthenticated,
+            uid: request.auth.credentials ? request.auth.credentials.uid : null,
+            payload: request.payload
           }
         )
         next()
@@ -99,11 +101,23 @@ module.exports = function (path, Hapi, toobusy) {
           if (!response.response.payload.errno) {
             response.response.payload.errno = response.response.payload.code
           }
-          log.error(response.response.payload)
+          if (config.env !== 'production') {
+            response.response.payload.log = request.app.traced
+          }
+          log.error(
+            {
+              op: 'server.onPreResponse',
+              rid: request.id,
+              path: request.path,
+              err: response.response.payload
+            }
+          )
         }
         else {
-          log.debug(
+          log.trace(
             {
+              op: 'server.onPreResponse',
+              rid: request.id,
               path: request.path,
               response: response.raw
             }
@@ -112,11 +126,25 @@ module.exports = function (path, Hapi, toobusy) {
         next()
     })
 
-    server.pack.require('lout', function(err){
-      if (err) {
-        console.log('Failed loading plugin: lout (doc generator)')
+    server.on(
+      'response',
+      function (request) {
+        log.info(
+          {
+            op: 'server.response',
+            rid: request.id,
+            path: request.path,
+            t: Date.now() - request.info.received
+          }
+        )
       }
-    })
+    )
+
+    // server.pack.require('lout', function(err){
+    //   if (err) {
+    //     console.log('Failed loading plugin: lout (doc generator)')
+    //   }
+    // })
 
     return server
   }

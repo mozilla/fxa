@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (crypto, error, isA, serverPublicKey, bridge) {
+module.exports = function (log, crypto, error, isA, serverPublicKey, bridge) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -45,12 +45,7 @@ module.exports = function (crypto, error, isA, serverPublicKey, bridge) {
       path: '/get_random_bytes',
       config: {
         handler: function getRandomBytes(request) {
-          crypto.randomBytes(
-            32,
-            function(err, buf) {
-              request.reply(err || { data: buf.toString('hex') })
-            }
-          )
+          request.reply({ data: crypto.randomBytes(32).toString('hex') })
         }
       }
     },

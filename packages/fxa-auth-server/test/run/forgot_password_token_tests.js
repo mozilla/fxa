@@ -2,21 +2,23 @@ var test = require('tap').test
 var crypto = require('crypto')
 var P = require('p-promise')
 var config = require('../../config').root()
-
-var dbs = require('../../kv')(config)
+var log = { trace: function() {} }
+var dbs = require('../../kv')(config, log)
 
 var sends = 0
 var mailer = {
   sendRecoveryCode: function () { sends++; return P(null) }
 }
 
-var models = require('../../models')(config, dbs, mailer)
+var models = require('../../models')(log, config, dbs, mailer)
 var ForgotPasswordToken = models.tokens.ForgotPasswordToken
+
+var email = Buffer('test@example.com').toString('hex')
 
 test(
   'ttl "works"',
   function (t) {
-    ForgotPasswordToken.create('xxx', 'yyy')
+    ForgotPasswordToken.create('xxx', email)
       .done(
         function (x) {
           t.equal(x.ttl(), 900)
@@ -36,7 +38,7 @@ test(
 test(
   'sendRecoveryCode calls the mailer',
   function (t) {
-    ForgotPasswordToken.create('xxx', 'yyy')
+    ForgotPasswordToken.create('xxx', email)
       .then(
         function (x) {
           return x.sendRecoveryCode()
@@ -54,7 +56,7 @@ test(
 test(
   'failAttempt decrements `tries`',
   function (t) {
-    ForgotPasswordToken.create('xxx', 'yyy')
+    ForgotPasswordToken.create('xxx', email)
       .then(
         function (x) {
           t.equal(x.tries, 3)
@@ -74,7 +76,7 @@ test(
   'failAttempt deletes the token if out of tries',
   function (t) {
     var tokenId = null
-    ForgotPasswordToken.create('xxx', 'yyy')
+    ForgotPasswordToken.create('xxx', email)
       .then(
         function (x) {
           tokenId = x.id

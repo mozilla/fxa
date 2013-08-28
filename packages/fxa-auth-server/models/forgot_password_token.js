@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, crypto, db, mailer) {
+module.exports = function (log, inherits, Token, crypto, db, mailer) {
 
   var LIFETIME = 1000 * 60 * 15
 
@@ -28,6 +28,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.create = function (uid, email) {
+    log.trace({ op: 'ForgotPasswordToken.create', uid: uid, email: email })
     return Token
       .randomTokenData('password/forgot', 2 * 32)
       .then(
@@ -48,6 +49,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.fromHex = function (string) {
+    log.trace({ op: 'ForgotPasswordToken.fromHex' })
     return Token
       .tokenDataFromBytes(
         'password/forgot',
@@ -67,6 +69,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'ForgotPasswordToken.create', id: id })
     ForgotPasswordToken.get(id)
       .done(
         function (token) {
@@ -77,16 +80,19 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.get = function (id) {
+    log.trace({ op: 'ForgotPasswordToken.get', id: id })
     return db
       .get(id + '/forgot')
       .then(ForgotPasswordToken.hydrate)
   }
 
   ForgotPasswordToken.del = function (id) {
+    log.trace({ op: 'ForgotPasswordToken.del', id: id })
     return db.delete(id + '/forgot')
   }
 
   ForgotPasswordToken.prototype.save = function () {
+    log.trace({ op: 'forgotPasswordToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/forgot', this).then(function () { return self })
   }
@@ -96,6 +102,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.prototype.failAttempt = function () {
+    log.trace({ op: 'forgotPasswordToken.failAttempt', id: this.id })
     this.tries--
     if (this.tries < 1) {
       return this.del()
@@ -111,7 +118,8 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.prototype.sendRecoveryCode = function () {
-    return mailer.sendRecoveryCode(this.email, this.code)
+    log.trace({ op: 'forgotPasswordToken.sendRecoveryCode', id: this.id })
+    return mailer.sendRecoveryCode(Buffer(this.email, 'hex').toString(), this.code)
   }
 
   return ForgotPasswordToken

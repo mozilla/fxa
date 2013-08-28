@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Bundle) {
+module.exports = function (log, inherits, Bundle) {
 
   function Token() {
     Bundle.call(this)
@@ -14,6 +14,8 @@ module.exports = function (inherits, Bundle) {
   }
   inherits(Token, Bundle)
 
+  // `token.key` is used by Hawk, and should be a Buffer.
+  // We store the hex-string so a getter is convenient
   Object.defineProperty(
     Token.prototype,
     'key',

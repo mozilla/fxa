@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, db) {
+module.exports = function (log, inherits, Token, db) {
 
   function AuthToken() {
     Token.call(this)
@@ -19,6 +19,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.create = function (uid) {
+    log.trace({ op: 'AuthToken.create', uid: uid })
     return Token
       .randomTokenData('authToken', 3 * 32)
       .then(
@@ -36,6 +37,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'AuthToken.getCredentials', id: id })
     AuthToken.get(id)
       .done(
         function (token) {
@@ -46,6 +48,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.fromHex = function (string) {
+    log.trace({ op: 'AuthToken.fromHex' })
     return Token.
       tokenDataFromBytes(
         'authToken',
@@ -66,16 +69,19 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.get = function (id) {
+    log.trace({ op: 'AuthToken.get', id: id })
     return db
       .get(id + '/auth')
       .then(AuthToken.hydrate)
   }
 
   AuthToken.del = function (id) {
+    log.trace({ op: 'AuthToken.del', id: id })
     return db.delete(id + '/auth')
   }
 
   AuthToken.prototype.save = function () {
+    log.trace({ op: 'authToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/auth', this).then(function () { return self })
   }
@@ -85,6 +91,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.prototype.bundleKeys = function (type, keyFetchToken, otherToken) {
+    log.trace({ op: 'authToken.bundleKeys', id: this.id, type: type })
     return Token.tokenDataFromBytes(
       type,
       3 * 32,
@@ -109,6 +116,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.prototype.unbundleSession = function (bundle) {
+    log.trace({ op: 'authToken.unbundleSession', id: this.id })
     return this.unbundle('session/create', bundle)
       .then(
         function (tokens) {
@@ -121,6 +129,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.prototype.unbundleAccountReset = function (bundle) {
+    log.trace({ op: 'authToken.unbundleAccountReset', id: this.id })
     return this.unbundle('password/change', bundle)
       .then(
         function (tokens) {
@@ -133,6 +142,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.prototype.unbundle = function (type, bundle) {
+    log.trace({ op: 'authToken.unbundle', id: this.id, type: type })
     return Token.tokenDataFromBytes(
       type,
       3 * 32,

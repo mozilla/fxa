@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, db) {
+module.exports = function (log, inherits, Token, db) {
 
   function SessionToken() {
     Token.call(this)
@@ -14,6 +14,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   SessionToken.create = function (uid) {
+    log.trace({ op: 'SessionToken.create', uid: uid })
     return Token
       .randomTokenData('session', 2 * 32)
       .then(
@@ -30,6 +31,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   SessionToken.fromHex = function (string) {
+    log.trace({ op: 'SessionToken.fromHex' })
     return Token
       .tokenDataFromBytes(
         'session',
@@ -49,6 +51,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   SessionToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'SessionToken.getCredentials', id: id })
     SessionToken.get(id)
       .done(
         function (token) {
@@ -59,16 +62,19 @@ module.exports = function (inherits, Token, db) {
   }
 
   SessionToken.get = function (id) {
+    log.trace({ op: 'SessionToken.get', id: id })
     return db
       .get(id + '/session')
       .then(SessionToken.hydrate)
   }
 
   SessionToken.del = function (id) {
+    log.trace({ op: 'SessionToken.del', id: id })
     return db.delete(id + '/session')
   }
 
   SessionToken.prototype.save = function () {
+    log.trace({ op: 'sessionToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/session', this).then(function () { return self })
   }

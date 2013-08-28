@@ -11,10 +11,17 @@ module.exports = function (crypto, P, hkdf) {
 
   Bundle.random32Bytes = function () {
     var d = P.defer()
+    // capturing the domain here is a workaround for:
+    // https://github.com/joyent/node/issues/3965
+    // this will be fixed in node v0.12
+    var domain = process.domain
     crypto.randomBytes(
       32,
       function (err, bytes) {
-        return err ? d.reject(err) : d.resolve(bytes)
+        if (domain) domain.enter()
+        var x = err ? d.reject(err) : d.resolve(bytes)
+        if (domain) domain.exit()
+        return x
       }
     )
     return d.promise

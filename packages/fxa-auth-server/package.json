@@ -19,7 +19,7 @@
   "dependencies": {
     "srp": "git://github.com/dannycoates/node-srp.git#b95b9528ec",
     "uuid": "1.4.1",
-    "hapi": "1.9.0",
+    "hapi": "1.9.4",
     "hawk": "1.0.0",
     "hkdf": "0.0.1",
     "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#961316282a",
@@ -42,6 +42,6 @@
     "awsboxen": "0.4.x",
     "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
     "request": "2.21.x",
-    "tap": "0.4.3"
+    "tap": "0.4.4"
   }
 }

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, crypto, db) {
+module.exports = function (log, inherits, Token, crypto, db) {
 
   var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
 
@@ -16,6 +16,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.create = function (uid) {
+    log.trace({ op: 'AccountResetToken.create', uid: uid })
     return Token
       .randomTokenData('account/reset', 2 * 32 + 32 + 256)
       .then(
@@ -33,6 +34,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.fromHex = function (string) {
+    log.trace({ op: 'AccountResetToken.fromHex' })
     return Token
       .tokenDataFromBytes(
         'account/reset',
@@ -53,6 +55,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'AccountResetToken.getCredentials', id: id })
     AccountResetToken.get(id)
       .done(
         function (token) {
@@ -63,16 +66,19 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.get = function (id) {
+    log.trace({ op: 'AccountResetToken.get', id: id })
     return db
       .get(id + '/reset')
       .then(AccountResetToken.hydrate)
   }
 
   AccountResetToken.del = function (id) {
+    log.trace({ op: 'AccountResetToken.del', id: id })
     return db.delete(id + '/reset')
   }
 
   AccountResetToken.prototype.save = function () {
+    log.trace({ op: 'accountResetToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/reset', this).then(function () { return self })
   }
@@ -82,6 +88,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.prototype.bundle = function (wrapKb, verifier) {
+    log.trace({ op: 'accountResetToken.bundle', id: this.id })
     return this.xor(
       Buffer.concat(
         [
@@ -93,6 +100,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.prototype.unbundle = function (hex) {
+    log.trace({ op: 'accountResetToken.unbundle', id: this.id })
     var plaintext = this.xor(Buffer(hex, 'hex'))
     var wrapKb = plaintext.slice(0, 32).toString('hex')
     var verifier = plaintext.slice(32, 288).toString('hex')

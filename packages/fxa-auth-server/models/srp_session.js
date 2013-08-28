@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (P, uuid, srp, db, error) {
+var Domain = require('domain')
+var crypto = require('crypto')
+
+module.exports = function (log, P, uuid, srp, db, error) {
 
   var alg = 'sha256'
 
@@ -21,15 +24,22 @@ module.exports = function (P, uuid, srp, db, error) {
 
   function srpGenKey() {
     var d = P.defer()
-    srp.genKey(
-      function (err, b) {
-        return err ? d.reject(err) : d.resolve(b)
+    // capturing the domain here is a workaround for:
+    // https://github.com/joyent/node/issues/3965
+    var domain = process.domain
+    crypto.randomBytes(32,
+      function (err, bytes) {
+        if (domain) domain.enter()
+        var x = err ? d.reject(err) : d.resolve(bytes)
+        if (domain) domain.exit()
+        return x
       }
     )
     return d.promise
   }
 
   SrpSession.create = function (account) {
+    log.trace({ op: 'SrpSession.create', uid: account && account.uid })
     var session = null
     if (!account) { throw error.unknownAccount() }
     return srpGenKey()
@@ -51,10 +61,12 @@ module.exports = function (P, uuid, srp, db, error) {
   }
 
   SrpSession.del = function (id) {
+    log.trace({ op: 'SrpSession.del', id: id })
     return db.delete(id + '/srp')
   }
 
   SrpSession.start = function (account) {
+    log.trace({ op: 'SrpSession.start', uid: account && account.uid })
     return SrpSession.create(account)
       .then(
         function (session) {
@@ -64,6 +76,7 @@ module.exports = function (P, uuid, srp, db, error) {
   }
 
   SrpSession.finish = function (id, A, M1) {
+    log.trace({ op: 'SrpSession.finish', id: id })
     A = Buffer(A, 'hex')
     return SrpSession
       .get(id)
@@ -109,12 +122,14 @@ module.exports = function (P, uuid, srp, db, error) {
   }
 
   SrpSession.get = function (id) {
+    log.trace({ op: 'SrpSession.get', id: id })
     return db
       .get(id + '/srp')
       .then(SrpSession.hydrate)
   }
 
   SrpSession.prototype.clientData = function () {
+    log.trace({ op: 'srpSession.clientData', id: this.id })
     return {
       srpToken: this.id,
       passwordStretching: this.passwordStretching,
@@ -157,6 +172,7 @@ module.exports = function (P, uuid, srp, db, error) {
   }
 
   SrpSession.prototype.save = function () {
+    log.trace({ op: 'srpSession.save', id: this.id })
     var self = this
     return db.set(this.id + '/srp', {
       id: this.id,

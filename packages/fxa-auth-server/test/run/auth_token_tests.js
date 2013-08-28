@@ -2,14 +2,14 @@ var test = require('tap').test
 var crypto = require('crypto')
 var P = require('p-promise')
 var config = require('../../config').root()
-
-var dbs = require('../../kv')(config)
+var log = { trace: function() {} }
+var dbs = require('../../kv')(config, log)
 
 var mailer = {
   sendVerifyCode: function () { return P(null) }
 }
 
-var models = require('../../models')(config, dbs, mailer)
+var models = require('../../models')(log, config, dbs, mailer)
 var AuthToken = models.tokens.AuthToken
 
 test(

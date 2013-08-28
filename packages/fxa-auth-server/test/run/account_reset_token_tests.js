@@ -2,12 +2,13 @@ var test = require('tap').test
 var crypto = require('crypto')
 var P = require('p-promise')
 var config = require('../../config').root()
+var log = { trace: function() {} }
 
-var dbs = require('../../kv')(config)
+var dbs = require('../../kv')(config, log)
 
 var mailer = {}
 
-var models = require('../../models')(config, dbs, mailer)
+var models = require('../../models')(log, config, dbs, mailer)
 var AccountResetToken = models.tokens.AccountResetToken
 
 test(

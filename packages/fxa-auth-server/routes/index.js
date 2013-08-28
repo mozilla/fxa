@@ -17,13 +17,13 @@ module.exports = function (
   models,
   config
   ) {
-  var auth = require('./auth')(isA, models.Account, models.SrpSession, models.AuthBundle)
-  var defaults = require('./defaults')(P, models.dbs)
-  var idp = require('./idp')(crypto, error, isA, serverPublicKey, config.bridge)
-  var account = require('./account')(crypto, uuid, isA, error, models.Account, models.RecoveryEmail)
-  var password = require('./password')(isA, error, models.Account, models.tokens)
-  var session = require('./session')(isA, error, models.Account, models.tokens)
-  var sign = require('./sign')(isA, error, signer, models.Account)
+  var auth = require('./auth')(log, isA, models.Account, models.SrpSession, models.AuthBundle)
+  var defaults = require('./defaults')(log, P, models.dbs)
+  var idp = require('./idp')(log, crypto, error, isA, serverPublicKey, config.bridge)
+  var account = require('./account')(log, crypto, uuid, isA, error, models.Account, models.RecoveryEmail)
+  var password = require('./password')(log, isA, error, models.Account, models.tokens)
+  var session = require('./session')(log, isA, error, models.Account, models.tokens)
+  var sign = require('./sign')(log, isA, error, signer, models.Account)
 
   var routes = defaults.concat(
     auth,
