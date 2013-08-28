@@ -1,7 +1,7 @@
 (function () {
 
-  var CERT_DURATION = 86400000;
-  var SERVER = 'http://auth.oldsync.dev.lcip.org/';
+  var CERT_DURATION = 365*24*3600; // one year
+  var SERVER = 'http://auth.oldsync.dev.lcip.org/'; // Sync 2.0 token server
 
   var jwcrypto = require("./lib/jwcrypto");
   jwcrypto.addEntropy(crypto.getRandomValues(new Uint8Array(32)));
