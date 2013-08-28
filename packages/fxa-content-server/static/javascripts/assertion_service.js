@@ -53,7 +53,7 @@
     this.client.sign(this.pk.toSimpleObject(), CERT_DURATION, function (err, cert) {
       this.cert = cert;
       if (cb) cb();
-    })
+    }.bind(this))
   };
 
 
