@@ -35,10 +35,6 @@ $(document).ready(function() {
     });
   }
 
-//  var loggedIn = $("#loggedin");
-//  var loggedOut = $("#loggedout");
-//  var loginDisplay = $("ul.loginarea");
-
   // now check with the server to get our current login state
   $.get('/api/auth_status', function(data) {
     loggedInEmail = JSON.parse(data).logged_in_email;
@@ -62,7 +58,6 @@ $(document).ready(function() {
         $('#addform').css('display', 'block');
         $('#todolist').css('display', 'block');
       } else {
-//      	$('section.todo').css('display', 'block');
         $('#signinhere').css('display', 'block');
       }
     }

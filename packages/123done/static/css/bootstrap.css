@@ -6165,3 +6165,57 @@ a.badge:focus {
 .affix {
   position: fixed;
 }
+
+.modal {
+	position: relative;
+	left: 0;
+	margin-left: 0;
+	top: -5px;
+	width: 100%;
+}
+		
+.icon-persona {
+	background-image: url(../img/persona_watermark_light.png);
+	background-repeat: no-repeat;
+	background-position: 0 2px;
+	background-size: 14px;
+}
+		
+.icon-persona-large {
+	background-image: url(../img/persona_watermark_light.png);
+	background-repeat: no-repeat;
+	background-color: 57a4dc;
+	background-position: 0 0px;
+	margin-top: 1px !important;
+	width: 26px;
+	height: 26px;
+    background-size: 26px;
+}
+
+.btn-persona {
+	color: #FFFFFF;
+	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+	background-color: #3c81c1;
+	*background-color: #3c81c1;
+	background-image: linear-gradient(to bottom, #57a4dc, #3c81c1); 
+	background-image: -moz-linear-gradient(top, #57a4dc, #3c81c1);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#57a4dc), to(#3c81c1));
+	background-image: -webkit-linear-gradient(top, #57a4dc, #3c81c1);
+	background-image: -o-linear-gradient(top, #57a4dc, #3c81c1);
+	background-image: linear-gradient(to bottom, #57a4dc, #3c81c1);
+	background-repeat: repeat-x;
+	border-color: #3c81c1;
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#57a4dc', endColorstr='#3c81c1', GradientType=0);
+	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+}
+
+.btn-persona:hover,
+.btn-persona:active,
+.btn-persona.active,
+.btn-persona.disabled,
+.btn-persona[disabled] {
+	color: #FFFFFF;
+	background-color: #3c81c1;
+	*background-color: #003bb3;
+}
