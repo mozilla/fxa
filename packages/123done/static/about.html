@@ -77,7 +77,13 @@
     <h1><a href="/index.html" style="text-decoration: none; color: #000;">123done</a> <span>your tasks - simplified</span></h1>
     <nav>
       <ul class="loginarea" style="vertical-align: center">
+        <li id="loggedout">
+        	<button class="btn btn-small btn-persona" type="submit">
+			<i class="icon-persona"></i> &nbsp;Sign In
+			</button> 
+		</li>
         <li id="loggedin"><p>Hi, <span></span></p> <p><a href="#">logout</a></li></p>
+        <li class="loading"><img src="img/loading.gif"></li>
     </ul>
       <div id="dataState">
         <div class="saved">
@@ -92,23 +98,12 @@
       </div>
     </nav>
   </header>
-  <section class="todo">
-  	<ul class="loading" style="text-align: center"><img src="img/loading.gif"></ul>
-  	<ul id="signinhere" style="font-size: 15pt">
-  		<p>Sign in to get started making todo lists!</p>
-  		<button class="btn btn-large btn-info btn-persona" type="submit">
-			<i class="icon-persona-large"></i> &nbsp;Sign in with your email
-			</button>
-  	</ul>
-    <ul id="todolist"></ul>
-    <form class="form-inline" id="addform" action="#" method="post">
-      <div>
-        <input class="input-xxlarge" type="text" name="newitem" id="newitem"
-               placeholder="new item" required>
-        <input class="btn" id="addtask" type="submit" value="Add">
-      </div>
-    </form>
-  </section>
+  <section id="info">
+    <header><h1>So what is all this then?</h1></header>
+    <p>123done.org is a very simple to-do list application. Simply enter your to-do list item above and add it to your tasks. 
+    	    	Click the tasks to mark them as done. Clicking an already finished task will remove it from the list.</p>
+    <p>Your task list is stored on the computer for you to use. If you want to sync 123done across devices, log in with Mozilla Persona.</p>
+</section>
   <footer>
     <p><strong>123done</strong> is a simple todo list application! <a href="/about.html">Learn more!</a></p>
   </footer>
