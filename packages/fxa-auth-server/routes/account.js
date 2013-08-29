@@ -147,7 +147,7 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
         },
         tags: ["account", "recovery"],
         handler: function (request) {
-          log.begin('Account.REStatus', request)
+          log.begin('Account.RecoveryEmailStatus', request)
           var sessionToken = request.auth.credentials
           Account
             .get(sessionToken.uid)
@@ -187,7 +187,7 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
         },
         tags: ["account", "recovery"],
         handler: function (request) {
-          log.begin('Account.REResend', request)
+          log.begin('Account.RecoveryEmailResend', request)
           var sessionToken = request.auth.credentials
           Account
             .get(sessionToken.uid)
@@ -220,7 +220,7 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
           "Verify a recovery method with this code",
         tags: ["account", "recovery"],
         handler: function (request) {
-          log.begin('Account.REVerify', request)
+          log.begin('Account.RecoveryEmailVerify', request)
           var uid = request.payload.uid
           var code = request.payload.code
           RecoveryEmail
