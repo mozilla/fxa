@@ -16,7 +16,7 @@
 // enable experimental API features
 (function() {
   var todo = $('#todolist'),
-  form = $('#todo form'),
+  form = $('#addform'),
   field = $("#newitem");
 
   var lastSync = localStorage.lastSync ? parseInt(localStorage.lastSync, 10) : 0;

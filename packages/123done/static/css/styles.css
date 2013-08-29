@@ -8,10 +8,8 @@ footer, section, header, aside, figure {
 }
 
 html {
-    background: #f5f2e4;
-    background-image: url(/img/background.png);
-    height:100% ;
-    font-family: 'Josefin Sans', sans-serif;
+    background-image: linear-gradient(to bottom, #e9eef1, #bfc8ca);
+    min-height:100% ;
 }
 
 h1 {
@@ -19,15 +17,8 @@ h1 {
     font-weight: 200;
 }
 
-body {
-    font-size: 15px;
-    font-family: helvetica neue, verdana, sans-serif;
-    font-weight: 200;
-}
-
 section form {
     color: black;
-    border-radius: 2px;
     padding: 8px 10px;
     position: relative;
     font-size:20px;
@@ -35,9 +26,7 @@ section form {
 }
 
 #newitem {
-    width: 548px;
     font-size: 20px;
-    border: 1px dotted #333;
     margin-left: 6px;
     padding: 1px 4px;
     height: 25px;
@@ -48,14 +37,13 @@ section form {
 }
 
 #todolist li {
-    font-size: 40px;
+    font-size: 25px;
     border-radius: 2px;
     list-style: none;
-    padding: 14px 0px 2px 45px;
+/*    padding: 14px 0px 2px 45px;*/
     margin-bottom: 5px;
     position: relative;
-    font-family: "Dr Sugiyama", cursive;
-    line-height: .7em;
+    line-height: 1.2em;
     color: #152e81;
 }
 
@@ -69,19 +57,18 @@ section form {
 
 #todolist li:hover:after,
 #todolist li.done:after {
-    content: '✔';
+    content: '√';
     color: #;
     position: absolute;
-    left: 5px;
-    top: 15px;
+    left: -30px;
+/*    top: 10px;*/
 }
 
 #todolist li.done:hover:after {
     content: 'x';
-    font-weight: bold;
     color: #c00;
     position: absolute;
-    left: 5px;
+    left: -30px;
 }
 
 h1 span {
@@ -100,7 +87,7 @@ ul.loginarea li {
 }
 
 .loginarea .loading {
-    display: block;
+    display: inline-block;
     margin-right: 60px;
 }
 
@@ -118,15 +105,11 @@ header form {
 }
 
 section form input[type="submit"] {
-    position: absolute;
-    color: white;
     right: 10px;
     top: 8px;
     height: 29px;
     padding: 3px 6px;
-    border: 1px dotted black;
     text-transform: lowercase;
-    background-color: #817f78;
 }
 
 #container {
@@ -136,8 +119,9 @@ section form input[type="submit"] {
 }
 
 #todo {
-    width: 700px;
+    max-width: 700px;
     margin: 0 auto;
+    text-align: center;
 }
 
 header nav {
@@ -152,7 +136,7 @@ header nav > * {
 }
 
 #dataState {
-    margin-top: 3px;
+    margin-top: 5px;
 }
 
 #dataState > div {
@@ -201,7 +185,7 @@ nav a {
     font-size: 20px;
     text-decoration: none;
     padding:0px 10px;
-    display:block;
+    vertical-align: bottom;
 }
 
 nav a:hover, #addtask:hover {
@@ -231,11 +215,29 @@ nav a:hover, #addtask:hover {
     padding-bottom:10px;
 }
 
+
+#loginlinkouter	{height:100px; line-height:100px;}
+#loginlinkinner	{clear:both; height:240px; position:relative;}
+
+#loginlink {
+	display: inline;
+	position:absolute; 
+	top:0; 
+	bottom:0; 
+	left:0; 
+	right:0;
+	margin:auto; 
+	height:50px; 
+	width:99%;
+}
+
 footer {
+	position: relative;  
+	bottom: 0px;
     text-align: center;
     margin: 30px auto;
-    font-size: 12px;
-    width: 680px;
+    font-size: 12px;   
+    max-width: 680px;
     border-top: 1px dotted black;
     padding-top: 10px;
     padding-bottom: 20px;
@@ -245,6 +247,15 @@ footer a {
     text-decoration: none;
     color: #555;
     border-bottom: 1px dotted #555;
+}
+
+#signinhere {
+	display: none;
+	text-align: center;
+}
+
+section.todo form {
+	display: none;
 }
 
 @media (max-width: 480px) {

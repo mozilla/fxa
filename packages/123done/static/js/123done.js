@@ -1,9 +1,9 @@
 /*
- * This JavaScript file implements everything authentication
- * related in the 123done demo.  This includes interacting
- * with the Persona API, the 123done server, and updating
- * the UI to reflect sign-in state.
- */
+* This JavaScript file implements everything authentication
+* related in the 123done demo. This includes interacting
+* with the Persona API, the 123done server, and updating
+* the UI to reflect sign-in state.
+*/
 
 $(document).ready(function() {
   window.loggedInEmail = null;
@@ -35,10 +35,6 @@ $(document).ready(function() {
     });
   }
 
-  var loggedIn = $("#loggedin");
-  var loggedOut = $("#loggedout");
-  var loginDisplay = $("ul.loginarea");
-
   // now check with the server to get our current login state
   $.get('/api/auth_status', function(data) {
     loggedInEmail = JSON.parse(data).logged_in_email;
@@ -46,46 +42,63 @@ $(document).ready(function() {
     function updateUI(email) {
       $("ul.loginarea li").css('display', 'none');
       if (email) {
-        $("#loggedin span").text(email);
-        $("#loggedin").css('display', 'block');
+        $('#loggedin span').text(email);
+        $('#loggedin').css('display', 'block');
       } else {
         $('#loggedin span').text('');
-        $("#loggedout").css('display', 'block');
+        $('#loggedout').css('display', 'block');
       }
       $("button").removeAttr('disabled').css('opacity', '1');
+    }
+    
+    function updateListArea(email) {
+      $("section.todo ul").css('display', 'none');
+      $("section.todo form").css('display', 'none');
+      if (email) {
+        $('#addform').css('display', 'block');
+        $('#todolist').css('display', 'block');
+      } else {
+        $('#signinhere').css('display', 'block');
+      }
     }
 
     // register callbacks with the persona API to be invoked when
     // the user logs in or out.
     navigator.id.watch({
       // pass the currently logged in email address from the server's
-      // session.  This will cause onlogin/onlogout to not be invoked
+      // session. This will cause onlogin/onlogout to not be invoked
       // when we're up to date.
       loggedInUser: loggedInEmail,
       // onlogin will be called any time the user logs in
       onlogin: function(assertion) {
         loginAssertion = assertion;
 
-        // display spinner
+        // display spinner        
+        $("section.todo ul").css('display', 'none');
+        $("section.todo form").css('display', 'none');
         $("ul.loginarea li").css('display', 'none');
         $(".loginarea .loading").css('display', 'block');
+        $(".todo .loading").css('display', 'block');
 
         verifyAssertion(assertion, function(r) {
           loggedInEmail = r.email;
           loginAssertion = null;
           updateUI(loggedInEmail);
+          updateListArea(loggedInEmail);
           State.merge();
         }, function(err) {
           alert("failed to verify assertion: " + err);
           loggedInEmail = null;
           loginAssertion = null;
           updateUI(loggedInEmail);
+          updateListArea(loggedInEmail);
         });
       },
       // onlogout will be called any time the user logs out
       onlogout: function() {
         loggedInEmail = null;
         updateUI(loggedInEmail);
+        updateListArea(loggedInEmail);
 
         // clear items from the dom at logout
         $("#todolist > li").remove();
@@ -105,6 +118,7 @@ $(document).ready(function() {
         // Only update the UI if no assertion is being verified
         if (null === loginAssertion) {
           updateUI(loggedInEmail);
+          updateListArea(loggedInEmail);
         }
 
         // display current saved state
@@ -124,10 +138,10 @@ $(document).ready(function() {
         termsOfService: '/tos.txt',
         privacyPolicy: '/pp.txt',
         siteName: "123done",
-        backgroundColor: "#f5f2e4",
+        backgroundColor: "#cdd7d9",
         allowRedirect: true,
-// XXX: we need SSL to display a siteLogo in dialog.  Must get certificates.
-//        siteLogo: "/img/logo100.png",
+// XXX: we need SSL to display a siteLogo in dialog. Must get certificates.
+// siteLogo: "/img/logo100.png",
         oncancel: function() {
           // when the user cancels the persona dialog, let's re-enable the
           // sign-in button
