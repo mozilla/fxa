@@ -1,5 +1,6 @@
 var test = require('tap').test
 var cp = require('child_process')
+var crypto = require('crypto');
 var Client = require('../../client')
 var config = require('../../config').root()
 
@@ -7,11 +8,25 @@ process.env.DEV_VERIFIED = 'true'
 
 var server = null
 
+function uniqueID() {
+  return crypto.randomBytes(10).toString('hex');
+}
+
 function main() {
+
+  // Randomly-generated account names for testing.
+  // This makes it easy to run the tests against an existing server
+  // which may already have some accounts in its db.
+
+  var email1 = uniqueID() + "@example.com"
+  var email2 = uniqueID() + "@example.com"
+  var email3 = uniqueID() + "@example.com"
+  var email4 = uniqueID() + "@example.com"
+
   test(
     'Create account flow',
     function (t) {
-      var email = 'test@example.com'
+      var email = email1
       var password = 'allyourbasearebelongtous'
       var client = null
       var publicKey = {
@@ -60,7 +75,7 @@ function main() {
   test(
     'Change password flow',
     function (t) {
-      var email = 'test2@example.com'
+      var email = email2
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
       var wrapKb = null
@@ -111,7 +126,7 @@ function main() {
   test(
     'Login flow',
     function (t) {
-      var email = 'test2@example.com'
+      var email = email2
       var password = 'foobar'
       var wrapKb = null
       var client = null
@@ -160,7 +175,7 @@ function main() {
   test(
     'account destroy',
     function (t) {
-      var email = 'test3@example.com'
+      var email = email3
       var password = 'allyourbasearebelongtous'
       var client = null
       Client.create(config.public_url, email, password)
@@ -197,7 +212,7 @@ function main() {
   test(
     'session destroy',
     function (t) {
-      var email = 'test4@example.com'
+      var email = email4
       var password = 'foobar'
       var client = null
       var sessionToken = null
@@ -276,6 +291,11 @@ function waitLoop() {
     .done(
       main,
       function (err) {
+        if (err.errno !== 'ECONNREFUSED') {
+            console.log("ERROR: unexpected result from " + config.public_url);
+            console.log(err);
+            return err;
+        }
         if (!server) {
           server = startServer()
         }
