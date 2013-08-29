@@ -31,7 +31,8 @@ module.exports = function (fs, path, url, convict) {
     public_url: {
       format: "url",
       // the real url is set by awsbox
-      default: "http://127.0.0.1:9000"
+      default: "http://127.0.0.1:9000",
+      env: "PUBLIC_URL"
     },
     domain: {
       format: "url",
