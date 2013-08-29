@@ -23,15 +23,14 @@ function main() {
   memoryMonitor.start()
 
   // databases
-  var dbs = require('../kv')(config)
+  var dbs = require('../kv')(config, log)
 
   // TODO: send to the SMTP server directly. In the future this may change
   // to another process that we send an http request to.
-  var Mailer = require('../mailer')
-  var mailer = new Mailer(config.smtp)
+  var mailer = require('../mailer')(config.smtp, log)
 
   // stored objects
-  var models = require('../models')(config, dbs, mailer)
+  var models = require('../models')(log, config, dbs, mailer)
 
   // server public key
   var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))

@@ -7,7 +7,7 @@ var P = require('p-promise')
 var srp = require('srp')
 
 var ClientApi = require('./api')
-var models = require('../models')({},{},{})
+var models = require('../models')({ trace: function () {}},{},{})
 var keyStretch = require('./keystretch')
 var tokens = models.tokens
 var AuthBundle = models.AuthBundle

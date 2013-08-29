@@ -12,32 +12,37 @@ var uuid = require('uuid')
 var Bundle = require('../bundle')
 var error = require('../error')
 
-module.exports = function (config, dbs, mailer) {
+module.exports = function (log, config, dbs, mailer) {
 
-  var Token = require('./token')(inherits, Bundle)
+  var Token = require('./token')(log, inherits, Bundle)
 
   var KeyFetchToken = require('./key_fetch_token')(
+    log,
     inherits,
     Token,
     dbs.store
   )
   var AccountResetToken = require('./account_reset_token')(
+    log,
     inherits,
     Token,
     crypto,
     dbs.store
   )
   var SessionToken = require('./session_token')(
+    log,
     inherits,
     Token,
     dbs.store
   )
   var AuthToken = require('./auth_token')(
+    log,
     inherits,
     Token,
     dbs.cache
   )
   var ForgotPasswordToken = require('./forgot_password_token')(
+    log,
     inherits,
     Token,
     crypto,
@@ -53,12 +58,14 @@ module.exports = function (config, dbs, mailer) {
   }
 
   var RecoveryEmail = require('./recovery_email')(
+    log,
     crypto,
     P,
     dbs.store,
     mailer
   )
   var Account = require('./account')(
+    log,
     P,
     tokens,
     RecoveryEmail,
@@ -67,6 +74,7 @@ module.exports = function (config, dbs, mailer) {
     error
   )
   var SrpSession = require('./srp_session')(
+    log,
     P,
     uuid,
     srp,
@@ -74,6 +82,7 @@ module.exports = function (config, dbs, mailer) {
     error
   )
   var AuthBundle = require('./auth_bundle')(
+    log,
     inherits,
     Bundle,
     Account,

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Bundle, Account, tokens) {
+module.exports = function (log, inherits, Bundle, Account, tokens) {
 
   function AuthBundle() {
     Bundle.call(this)
@@ -12,6 +12,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   inherits(AuthBundle, Bundle)
 
   AuthBundle.create = function (K, type) {
+    log.trace({ op: 'AuthBundle.create', type: type })
     return Bundle
       .hkdf(K, type, null, 2 * 32)
       .then(
@@ -25,6 +26,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   }
 
   AuthBundle.login = function (K, uid) {
+    log.trace({ op: 'AuthBundle.login', uid: uid })
     return AuthBundle.create(K, 'auth/finish')
       .then(
         function (b) {
@@ -48,6 +50,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   }
 
   AuthBundle.prototype.unbundle = function (hex) {
+    log.trace({ op: 'authBundle.unbundle' })
     var bundle = Buffer(hex, 'hex')
     var ciphertext = bundle.slice(0, 32)
     var hmac = bundle.slice(32, 64)
@@ -59,6 +62,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   }
 
   AuthBundle.prototype.bundle = function () {
+    log.trace({ op: 'authBundle.bundle' })
     return this.bundleHexStrings([this.authToken.data])
   }
 

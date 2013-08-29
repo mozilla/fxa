@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (isA, error, signer, Account) {
+module.exports = function (log, isA, error, signer, Account) {
 
   const HOUR = 1000 * 60 * 60
 
@@ -31,6 +31,7 @@ module.exports = function (isA, error, signer, Account) {
           }
         },
         handler: function certificateSign(request) {
+          log.begin('Sign.cert', request)
           var uid = request.auth.credentials.uid
           Account
             .get(uid)

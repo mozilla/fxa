@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (isA, Account, SrpSession, AuthBundle) {
+module.exports = function (log, isA, Account, SrpSession, AuthBundle) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -17,6 +17,7 @@ module.exports = function (isA, Account, SrpSession, AuthBundle) {
           "key stretching and the SRP protocol for the client.",
         tags: ["srp", "account"],
         handler: function (request) {
+          log.begin('Auth.start', request)
           var reply = request.reply.bind(request)
           Account.getByEmail(request.payload.email)
             .then(SrpSession.start.bind(null))
@@ -50,6 +51,7 @@ module.exports = function (isA, Account, SrpSession, AuthBundle) {
           "the bundle encrypted with the authToken.",
         tags: ["srp", "session"],
         handler: function (request) {
+          log.begin('Auth.finish', request)
           var reply = request.reply.bind(request)
           SrpSession
             .finish(request.payload.srpToken, request.payload.A, request.payload.M)

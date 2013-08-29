@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
+module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -34,8 +34,8 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
           }
         },
         handler: function accountCreate(request) {
+          log.begin('Account.create', request)
           var form = request.payload
-
           Account
             .create(
               {
@@ -71,6 +71,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         },
         tags: ["account"],
         handler: function (request) {
+          log.begin('Account.devices', request)
           var sessionToken = request.auth.credentials
           Account
             .get(sessionToken.uid)
@@ -114,6 +115,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
           }
         },
         handler: function accountKeys(request) {
+          log.begin('Account.keys', request)
           var reply = request.reply.bind(request)
           var keyFetchToken = request.auth.credentials
 
@@ -145,6 +147,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         },
         tags: ["account", "recovery"],
         handler: function (request) {
+          log.begin('Account.RecoveryEmailStatus', request)
           var sessionToken = request.auth.credentials
           Account
             .get(sessionToken.uid)
@@ -184,6 +187,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         },
         tags: ["account", "recovery"],
         handler: function (request) {
+          log.begin('Account.RecoveryEmailResend', request)
           var sessionToken = request.auth.credentials
           Account
             .get(sessionToken.uid)
@@ -216,6 +220,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
           "Verify a recovery method with this code",
         tags: ["account", "recovery"],
         handler: function (request) {
+          log.begin('Account.RecoveryEmailVerify', request)
           var uid = request.payload.uid
           var code = request.payload.code
           RecoveryEmail
@@ -275,6 +280,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
           }
         },
         handler: function accountReset(request) {
+          log.begin('Account.reset', request)
           var reply = request.reply.bind(request)
           var accountResetToken = request.auth.credentials
           var payload = request.payload
@@ -304,6 +310,7 @@ module.exports = function (crypto, uuid, isA, error, Account, RecoveryEmail) {
         },
         tags: ["account"],
         handler: function accountDestroy(request) {
+          log.begin('Account.destroy', request)
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
 

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, db) {
+module.exports = function (log, inherits, Token, db) {
 
   function KeyFetchToken() {
     Token.call(this)
@@ -14,6 +14,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.create = function (uid) {
+    log.trace({ op: 'KeyFetchToken.create', uid: uid })
     return Token
       .randomTokenData('account/keys', 3 * 32 + 2 * 32)
       .then(
@@ -32,6 +33,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'KeyFetchToken.getCredentials', id: id })
     KeyFetchToken.get(id)
       .done(
         function (token) {
@@ -42,6 +44,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.fromHex = function (string) {
+    log.trace({ op: 'KeyFetchToken.fromHex' })
     return Token.
       tokenDataFromBytes(
         'account/keys',
@@ -63,16 +66,19 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.get = function (id) {
+    log.trace({ op: 'KeyFetchToken.get', id: id })
     return db
       .get(id + '/fetch')
       .then(KeyFetchToken.hydrate)
   }
 
   KeyFetchToken.del = function (id) {
+    log.trace({ op: 'KeyFetchToken.del', id: id })
     return db.delete(id + '/fetch')
   }
 
   KeyFetchToken.prototype.save = function () {
+    log.trace({ op: 'keyFetchToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/fetch', this).then(function () { return self })
   }
@@ -82,10 +88,12 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.prototype.bundle = function (kA, wrapKb) {
+    log.trace({ op: 'keyFetchToken.bundle', id: this.id })
     return this.bundleHexStrings([kA, wrapKb])
   }
 
   KeyFetchToken.prototype.unbundle = function (bundle) {
+    log.trace({ op: 'keyFetchToken.unbundle', id: this.id })
     var buffer = Buffer(bundle, 'hex')
     var ciphertext = buffer.slice(0, 64)
     var hmac = buffer.slice(64, 96).toString('hex')

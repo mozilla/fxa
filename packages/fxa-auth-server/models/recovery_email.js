@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (crypto, P, db, mailer) {
+module.exports = function (log, crypto, P, db, mailer) {
 
   function RecoveryEmail() {
     this.email = null
@@ -14,6 +14,7 @@ module.exports = function (crypto, P, db, mailer) {
   }
 
   RecoveryEmail.create = function (uid, email, primary, verified) {
+    log.trace({ op: 'RecoveryEmail.create', uid: uid, email: email })
     var rm = new RecoveryEmail()
     rm.email = email
     rm.uid = uid
@@ -42,16 +43,19 @@ module.exports = function (crypto, P, db, mailer) {
   }
 
   RecoveryEmail.get = function (uid, code) {
+    log.trace({ op: 'RecoveryEmail.get', uid: uid, code: code })
     return db
       .get(uid + code + '/recovery')
       .then(RecoveryEmail.hydrate)
   }
 
   RecoveryEmail.del = function (uid, code) {
+    log.trace({ op: 'RecoveryEmail.del', uid: uid, code: code })
     return db.delete(uid + code + '/recovery')
   }
 
   RecoveryEmail.prototype.save = function () {
+    log.trace({ op: 'recoveryEmail.save', uid: this.uid, code: this.code })
     var self = this
     return db.set(this.uid + this.code + '/recovery', this).then(function () { return self })
   }
@@ -61,10 +65,12 @@ module.exports = function (crypto, P, db, mailer) {
   }
 
   RecoveryEmail.prototype.sendVerifyCode = function () {
+    log.trace({ op: 'recoveryEmail.sendVerifyCode', uid: this.uid, email: this.email })
     return mailer.sendVerifyCode(Buffer(this.email, 'hex').toString('utf8'), this.code, this.uid)
   }
 
   RecoveryEmail.prototype.verify = function (code) {
+    log.trace({ op: 'recoveryEmail.verify', uid: this.uid, code: code })
     if (!this.verified && code === this.code) {
       this.verified = true
       return this.save()

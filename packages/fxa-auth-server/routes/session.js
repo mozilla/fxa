@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (isA, error, Account, tokens) {
+module.exports = function (log, isA, error, Account, tokens) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -17,6 +17,7 @@ module.exports = function (isA, error, Account, tokens) {
           strategy: 'authToken'
         },
         handler: function (request) {
+          log.begin('Session.create', request)
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
           var keyFetchToken = null
@@ -62,6 +63,7 @@ module.exports = function (isA, error, Account, tokens) {
           strategy: 'sessionToken'
         },
         handler: function (request) {
+          log.begin('Session.destroy', request)
           var sessionToken = request.auth.credentials
           sessionToken.del()
             .then(

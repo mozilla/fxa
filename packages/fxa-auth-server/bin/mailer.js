@@ -1,11 +1,11 @@
 var Hapi = require('hapi')
-var Mailer = require('../mailer')
 var config = require('../config').root()
+var log = require('../log')(config)
+var mailer = require('../mailer')(config.smtp, log)
 var isA = Hapi.types
 
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-var mailer = new Mailer(config.smtp)
 
 var server = Hapi.createServer(config.smtp.listen.host, config.smtp.listen.port)
 
