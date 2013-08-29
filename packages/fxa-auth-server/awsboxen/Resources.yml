@@ -2,9 +2,10 @@
 # DNS Records the the important entry-points in the stack. 
 # Each entry embeds the shared DNSPrefix parameter, to allow multiple deploys.
 #
-#    logs.<prefix>.lcip.org:  the log collection server
-#    idp.<prefix>.lcip.org:   the loadbalancer fronting webheads
-#    db.<prefix>.lcip.org:    the loadbalancer fronting the cassandra nodes
+#    logs.<prefix>.lcip.org:    the log collection server
+#    idp.<prefix>.lcip.org:     the loadbalancer fronting webheads
+#    db.<prefix>.lcip.org:      the loadbalancer fronting the cassandra nodes
+#    runnerX.<prefix>.lcip.org:  loads-runner client boxes
 
 DNSRecords:
   Type: AWS::Route53::RecordSetGroup
@@ -26,6 +27,21 @@ DNSRecords:
         TTL: "30"
         ResourceRecords:
           - {"Fn::GetAtt": ["DBLoadBalancer", "DNSName"]}
+      - Name: {"Fn::Join": [".", ["runner1", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["LoadsClientServer1", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["runner2", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["LoadsClientServer2", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["runner3", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["LoadsClientServer3", "PublicDnsName"]}
 
 
 # The log-collecting server, and associated infra.
@@ -99,7 +115,7 @@ WebLoadBalancer:
       #  InstanceProtocol: "HTTP"
       #  SSLCertificateId: "arn:aws:iam::142069644989:server-certificate/profileinthecloud.net"
     HealthCheck:
-      Target: "HTTP:80/"
+      Target: "HTTP:80/__heartbeat__"
       HealthyThreshold: "2"
       UnhealthyThreshold: "2"
       Interval: "10"
@@ -344,3 +360,52 @@ DBSecurityGroupIngressForPeers:
     FromPort: "0"
     ToPort: "65535"
     SourceSecurityGroupName: {"Ref": "DBServerSecurityGroup"}
+
+
+# A box from which to run loads-runner based loadtests.
+# It's just a stand-alone box for now.
+# It's also temporary, we'll eventually use dedicated services loads cluster.
+
+LoadsClientServer1:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.medium
+    ImageId: { "Ref": "LoadsClientBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LoadsServerSecurityGroup"}
+
+LoadsClientServer2:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.medium
+    ImageId: { "Ref": "LoadsClientBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LoadsServerSecurityGroup"}
+
+LoadsClientServer3:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.medium
+    ImageId: { "Ref": "LoadsClientBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LoadsServerSecurityGroup"}
+
+
+LoadsServerSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: "awsboxen security group for loads-runner machine"
+    SecurityGroupIngress:
+      # Allow ssh from anywhere.
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+      # Allow access to heka web dashboard.
+      - IpProtocol: "tcp"
+        FromPort: "4352"
+        ToPort: "4352"
+        CidrIp: "0.0.0.0/0"
