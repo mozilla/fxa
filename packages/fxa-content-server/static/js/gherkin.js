@@ -1,12 +1,13 @@
-(function(e){if("function"==typeof bootstrap)bootstrap("gherkin",e);else if("object"==typeof exports)module.exports=e();else if("function"==typeof define&&define.amd)define(e);else if("undefined"!=typeof ses){if(!ses.ok())return;ses.makeGherkin=e}else"undefined"!=typeof window?window.gherkin=e():global.gherkin=e()})(function(){var define,ses,bootstrap,module,exports;
-return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var gherkin = require('./gherkin');
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var gherkinLib = require('./gherkin');
 var codes = require('./lib/error_codes');
 
 module.exports = {
-  Client: gherkin,
+  Client: gherkinLib,
   errorCodes: codes
 };
+
+gherkin = module.exports
 
 },{"./gherkin":2,"./lib/error_codes":7}],2:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
@@ -2051,7 +2052,7 @@ module.exports = function (config, dbs, mailer) {
   }
 }
 
-},{"../bundle":6,"../error":33,"./account":10,"./account_reset_token":11,"./auth_bundle":12,"./auth_token":13,"./forgot_password_token":14,"./key_fetch_token":16,"./recovery_email":17,"./session_token":18,"./srp_session":19,"./token":20,"crypto":"l4eWKl","p-promise":79,"srp":81,"util":41,"uuid":88}],16:[function(require,module,exports){
+},{"../bundle":6,"../error":33,"./account":10,"./account_reset_token":11,"./auth_bundle":12,"./auth_token":13,"./forgot_password_token":14,"./key_fetch_token":16,"./recovery_email":17,"./session_token":18,"./srp_session":19,"./token":20,"crypto":"l4eWKl","p-promise":79,"srp":81,"util":41,"uuid":87}],16:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -12127,7 +12128,7 @@ module.exports = require('./lib/srp');
 
 module.exports.params = require('./lib/params');
 
-},{"./lib/params":82,"./lib/srp":86}],82:[function(require,module,exports){
+},{"./lib/params":82,"./lib/srp":83}],82:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/*
  * SRP Group Parameters
  * http://tools.ietf.org/html/rfc5054#appendix-A
@@ -12292,13 +12293,7 @@ module.exports = {
     g: Buffer('13', 'hex')}
 };
 
-},{"__browserify_Buffer":4}],"crypto":[function(require,module,exports){
-module.exports=require('l4eWKl');
-},{}],"buffer":[function(require,module,exports){
-module.exports=require('IZihkv');
-},{}],"bignum":[function(require,module,exports){
-module.exports=require('xttfNN');
-},{}],86:[function(require,module,exports){
+},{"__browserify_Buffer":4}],83:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;const crypto = require('crypto'),
       bignum = require('bignum'),
       assert = require('assert'),
@@ -12607,7 +12602,7 @@ module.exports = {
   getM: getM
 }
 
-},{"__browserify_Buffer":4,"assert":34,"bignum":"xttfNN","crypto":"l4eWKl"}],87:[function(require,module,exports){
+},{"__browserify_Buffer":4,"assert":34,"bignum":"xttfNN","crypto":"l4eWKl"}],84:[function(require,module,exports){
 var global=self;
 var rng;
 
@@ -12640,7 +12635,11 @@ if (!rng) {
 module.exports = rng;
 
 
-},{}],88:[function(require,module,exports){
+},{}],"crypto":[function(require,module,exports){
+module.exports=require('l4eWKl');
+},{}],"bignum":[function(require,module,exports){
+module.exports=require('xttfNN');
+},{}],87:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;//     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -12829,6 +12828,7 @@ uuid.BufferClass = BufferClass;
 
 module.exports = uuid;
 
-},{"./rng":87,"__browserify_Buffer":4}]},{},[1])(1)
-});
+},{"./rng":84,"__browserify_Buffer":4}],"buffer":[function(require,module,exports){
+module.exports=require('IZihkv');
+},{}]},{},[1])
 ;
