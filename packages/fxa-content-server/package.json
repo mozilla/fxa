@@ -5,7 +5,9 @@
   "scripts": {
     "postinstall": "node ./scripts/postinstall.js",
     "start": "node scripts/run_locally.js",
-    "test": "mocha server/tests/*.js"
+    "test": "node node_modules/intern/runner.js config=tests/intern suites=tests/tdd ",
+    "test-server": "mocha server/tests/*.js",
+    "test-functional": "node node_modules/intern/runner.js config=tests/intern suites=tests/functional"
   },
   "repository": {
     "type": "git",
@@ -30,7 +32,8 @@
     "should": "0.6.3",
     "supertest": "0.7.1",
     "awsbox": "0.4.5",
-    "jshint": "0.9.1"
+    "jshint": "0.9.1",
+    "intern": "1.2.1"
   },
   "readmeFilename": "README.md"
 }

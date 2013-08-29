@@ -1,5 +1,7 @@
 # Firefox Accounts Persona Bridge
 
+[![Build Status](https://travis-ci.org/mozilla/firefox-account-bridge.png)](https://travis-ci.org/mozilla/firefox-account-bridge)
+
 This is a Node.js server which implements the Persona identity provider (IdP) protocol.
 It allows users to sign in to Firefox Accounts (aka PICL).
 It consumes the REST API which PICL provides.

@@ -22,3 +22,4 @@ Thumbs.db
 /automation-tests/*.jar
 local.json
 /server/var
+sauce_connect.log*
