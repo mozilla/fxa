@@ -1,0 +1,3 @@
+define([
+  './functional/login'
+], function () {});
