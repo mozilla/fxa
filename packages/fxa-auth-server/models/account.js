@@ -19,7 +19,6 @@ module.exports = function (log, P, tokens, RecoveryEmail, db, config, error) {
     this.srp = null
     this.passwordStretching = null
     // references
-    this.authTokenId = null
     this.resetTokenId = null
     this.forgotPasswordTokenId = null
     this.sessionTokenIds = null
@@ -37,7 +36,6 @@ module.exports = function (log, P, tokens, RecoveryEmail, db, config, error) {
     a.kA = object.kA
     a.wrapKb = object.wrapKb
     a.passwordStretching = object.passwordStretching
-    a.authTokenId = object.authTokenId
     a.resetTokenId = object.resetTokenId
     a.sessionTokenIds = object.sessionTokenIds || {}
     a.recoveryEmailCodes = object.recoveryEmailCodes || {}
@@ -177,20 +175,6 @@ module.exports = function (log, P, tokens, RecoveryEmail, db, config, error) {
     if (this.resetTokenId !== null) {
       return AccountResetToken
         .del(this.resetTokenId)
-        .then(set)
-    }
-    return set()
-  }
-
-  Account.prototype.setAuthToken = function (token) {
-    log.trace({ op: 'account.setAuthToken', uid: this.uid, id: token && token.id })
-    var set = function () {
-      this.authTokenId = token.id
-      return this.save()
-    }.bind(this)
-    if (this.authTokenId !== null) {
-      return AuthToken
-        .del(this.authTokenId)
         .then(set)
     }
     return set()

@@ -31,15 +31,9 @@ module.exports = function (log, inherits, Bundle, Account, tokens) {
       .then(
         function (b) {
           return tokens.AuthToken.create(uid)
-            .then(function (t) { b.authToken = t })
-            .then(Account.get.bind(null, uid))
             .then(
-             function (a) {
-               return a.setAuthToken(b.authToken)
-             }
-            )
-            .then(
-              function () {
+              function (t) {
+                b.authToken = t
                 return {
                   bundle: b.bundle()
                 }
