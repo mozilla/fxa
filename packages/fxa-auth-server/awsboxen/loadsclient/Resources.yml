@@ -1,0 +1,70 @@
+
+DNSRecords:
+  Type: AWS::Route53::RecordSetGroup
+  Properties:
+    HostedZoneName: "lcip.org."
+    RecordSets:
+      - Name: {"Fn::Join": [".", ["runner1", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["LoadsClientServer1", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["runner2", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["LoadsClientServer2", "PublicDnsName"]}
+      - Name: {"Fn::Join": [".", ["runner3", {"Ref": "DNSPrefix"}, "lcip.org."]]}
+        Type: CNAME
+        TTL: "30"
+        ResourceRecords:
+          - {"Fn::GetAtt": ["LoadsClientServer3", "PublicDnsName"]}
+
+
+# A box from which to run loads-runner based loadtests.
+# It's just a stand-alone box for now.
+# It's also temporary, we'll eventually use dedicated services loads cluster.
+
+LoadsClientServer1:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.medium
+    ImageId: { "Ref": "LoadsClientBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LoadsServerSecurityGroup"}
+
+LoadsClientServer2:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.medium
+    ImageId: { "Ref": "LoadsClientBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LoadsServerSecurityGroup"}
+
+LoadsClientServer3:
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: m1.medium
+    ImageId: { "Ref": "LoadsClientBoxAMI" }
+    KeyName: { "Ref": "AWSBoxDeployKey" }
+    SecurityGroups:
+      - {"Ref": "LoadsServerSecurityGroup"}
+
+
+LoadsServerSecurityGroup:
+  Type: AWS::EC2::SecurityGroup
+  Properties:
+    GroupDescription: "awsboxen security group for loads-runner machine"
+    SecurityGroupIngress:
+      # Allow ssh from anywhere.
+      - IpProtocol: "tcp"
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: "0.0.0.0/0"
+      # Allow access to heka web dashboard.
+      - IpProtocol: "tcp"
+        FromPort: "4352"
+        ToPort: "4352"
+        CidrIp: "0.0.0.0/0"

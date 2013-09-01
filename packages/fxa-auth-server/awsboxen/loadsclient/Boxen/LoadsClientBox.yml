@@ -4,5 +4,4 @@ Properties:
   BaseAMI: {"Fn::FindInMap": ["RegionMap", {"Ref": "AWS::Region"}, "BaseAMI"]}
   BuildScripts:
     - awsboxen/scripts/common.sh
-    - awsboxen/scripts/common_loads.sh
-    - awsboxen/scripts/build_loads_agent_box.sh
+    - awsboxen/loadsclient/scripts/common_loads.sh
