@@ -27,6 +27,8 @@ UDO="sudo -u mozsvc"
 
 # Configure circus to run on startup, executing the mozsvc user's circus.ini.
 # Additional build steps may add to circus.ini to make their programs run.
+# Note that we depend on cloudinit to move /etc/rc.local.post-cloudinit
+# to /etc/rc.local after it has done whatever extra setup is required.
 
 python-pip install "psutil < 1.1"  # v1.1 doesn't build for some reason
 python-pip install circus
@@ -35,16 +37,12 @@ cd /home/mozsvc
 touch circus.ini
 chown mozsvc:mozsvc circus.ini
 
-cat > /etc/rc.local << EOF
-
-# Sleep briefly, to give cloud-init a chance to write its config files.
-sleep 1m
-
+cat > /etc/rc.local.post-cloudinit << EOF
 # Run the mozsvc-user-controlled service processes via circus.
 su -l mozsvc -c '/usr/bin/circusd --daemon /home/mozsvc/circus.ini'
-
 exit 0
 EOF
+chmod 755 /etc/rc.local.post-cloudinit
 
 
 # Install heka.

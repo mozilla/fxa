@@ -39,6 +39,12 @@ LogServer:
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:
       - {"Ref": "LogServerSecurityGroup"}
+    UserData: {"Fn::Base64": {"Fn::Join": ["", [
+      "#!/bin/bash\n",
+      "set -e -x\n",
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
+       ]]}}
 
 
 LogServerSecurityGroup:
@@ -135,6 +141,8 @@ WebServerLaunchConfig:
       "#!/bin/bash\n",
       "set -e -x\n",
       "/opt/aws/bin/cfn-init --region ", {"Ref": "AWS::Region"}, " --stack ", {"Ref": "AWS::StackId"}, " --resource WebServerLaunchConfig\n",
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
        ]]}}
   Metadata:
     AWS::CloudFormation::Init:
@@ -243,7 +251,9 @@ DBServerSeed:
       "set -e -x\n",
       "ME=`curl http://169.254.169.254/latest/meta-data/local-ipv4`\n",
       "perl -pi -e 's/seeds: \"127.0.0.1\"/seeds: \"'$ME'\"/g' ",
-          "/opt/cassandra/conf/cassandra.yaml\n"
+          "/opt/cassandra/conf/cassandra.yaml\n",
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
       ]]}}
 
 
@@ -306,7 +316,9 @@ DBServerLaunchConfig:
       "set -e -x\n",
       "perl -pi -e 's/seeds: \"127.0.0.1\"/seeds: \"",
           {"Fn::GetAtt": ["DBServerSeed", "PrivateIp"]},
-          "\"/g' /opt/cassandra/conf/cassandra.yaml\n"
+          "\"/g' /opt/cassandra/conf/cassandra.yaml\n",
+      "mv /etc/rc.local.post-cloudinit /etc/rc.local\n",
+      "exec /etc/rc.local\n",
       ]]}}
 
 
