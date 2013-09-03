@@ -34,7 +34,7 @@ DNSRecords:
 LogServer:
   Type: AWS::EC2::Instance
   Properties:
-    InstanceType: m1.small
+    InstanceType: m1.medium
     ImageId: { "Ref": "LogBoxAMI" }
     KeyName: { "Ref": "AWSBoxDeployKey" }
     SecurityGroups:

@@ -5,7 +5,7 @@ set -e
 YUM="yum --assumeyes --enablerepo=epel"
 UDO="sudo -u mozsvc"
 
-$YUM install nodejs npm gmp gmp-devel
+$YUM install nodejs npm gmp gmp-devel libevent-devel
 sudo python-pip install virtualenv
 
 # Install loads and loads.js and github master.
@@ -13,7 +13,6 @@ sudo python-pip install virtualenv
 cd /home/mozsvc
 $UDO git clone https://github.com/mozilla-services/loads/
 cd ./loads
-perl -pi -e "s/python2.7/python2.6/g" ./Makefile
 $UDO make build || true
 $UDO ./bin/pip install "psutil<1.1"
 $UDO make build
@@ -24,18 +23,12 @@ cd ./loads.js/loads.js
 $UDO npm install
 cd ../../
 
-perl -pi -e "s/process_timeout', 2/process_timeout', 60/g" ./loads/loads/runners/external.py
-
 
 # Grab and build the current picl-idp checkout, for access to loadtest script.
 
 $UDO git clone https://github.com/mozilla/picl-idp
-cd picl-idp
+cd /picl-idp
 $UDO git checkout {"Ref": "AWSBoxenCommit"}
 $UDO npm install
-
-cat > ./loadtest/run.sh << EOF
-#!/bin/sh
-# Six concurrent users, 4 minutes worth of load.
-/home/mozsvc/loads/bin/loads-runner --test-dir="/home/mozsvc/picl-idp" --test-runner="/home/mozsvc/loads.js/loads.js/runner.js {test}" "/home/mozsvc/picl-idp/loadtest/loadtests.js" --users=6 --duration=240
-EOF
+cd ./loadtest/
+make build

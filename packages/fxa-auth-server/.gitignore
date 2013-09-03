@@ -7,3 +7,6 @@
 server.log*
 secret*
 *.gpg
+/loadtest/bin
+/loadtest/lib
+/loadtest/include

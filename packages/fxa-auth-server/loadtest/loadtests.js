@@ -1,12 +1,23 @@
 const assert = require('assert');
 const crypto = require('crypto');
 const Client = require('../client/');
+const P = require('p-promise')
+
+
+const precomputed_credentials = require("./precomputed_credentials.js")
 
 SERVER_URL = "http://idp.loadtest.lcip.org";
+
 
 function uniqueID() {
   return crypto.randomBytes(10).toString('hex');
 }
+
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 
 module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
 
@@ -14,10 +25,13 @@ module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
 
   var client = new Client(SERVER_URL);
 
-  // Listen for request events, so we can send timing information.
+  // Monitor the requests performed by the Client api,
+  // and send performance information back to loads.
+
   client.api.on('startRequest', function(options) {
     options._loadsStartTime = +new Date();
   });
+
   client.api.on('endRequest', function(options, err, res) {
     if (!err) {
       var loadsEndTime = +new Date();
@@ -31,20 +45,57 @@ module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
     }
   });
 
-  // Do some simple account operations to test things out.
 
-  var userid = uniqueID() + "@restmail.lcip.org";
-  var password = uniqueID();
+  // Target ratio is 2 new-account signups per 10 old-account signups.
+  // use a restricted pool of old-account email addresses to simulate
+  // existing usings; they will be populated quickly during the loadtest.
+
+  var userid;
+  if (getRandomInt(1, 12) <= 2) {
+    userid = uniqueID();
+  } else {
+    userid = getRandomInt(1, 100);
+  }
+  userid = "loady" + userid + "@restmail.lcip.org"
+
+  // Use pre-computed SRP credentials where possible; doing keystretching for
+  // every single run of these tests makes a mockery of loadtest throughput.
+
+  var ready;
+  var creds = precomputed_credentials[userid];
+  if (!creds) {
+    ready = client.setupCredentials(userid, "loadtestpassword", "AAAAAA");
+  } else {
+    for (var k in creds) {
+      if (creds.hasOwnProperty(k)) {
+        client[k] = creds[k];
+      }
+    }
+    ready = P();
+  }
+
+  // Use a constant public-key to pass to cert-signing requests.
+  // We don't need it for anything else in the tests
+
   var publicKey = {
     "algorithm":"RS",
     "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
     "e":"65537"
   };
 
-  client.setupCredentials(userid, password).then(
-    // Create the new account.
+  ready.then(
+    // Try to create the new account.
     function () {
       return client.create();
+    }
+  ).fail(
+    // Likely it already exists, but that's ok.
+    // XXX TODO: better to pre-populate the database?
+    // XXX TODO: error codes as defined constants?
+    function (err) {
+      if (err.code != 400 || err.errno != 101) {
+          throw err;
+      }
     }
   ).then(
     // Fetch the key material.
