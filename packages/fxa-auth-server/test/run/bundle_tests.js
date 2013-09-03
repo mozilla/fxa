@@ -338,25 +338,6 @@ test(
 )
 
 test(
-  'login sets authToken on account',
-  function (t) {
-    account = new FakeAccount()
-    t.equal(!!account.authTokenId, false)
-    AuthBundle.login(sessionAuth.K, 'xxx')
-      .done(
-        function () {
-          t.equal(!!account.authTokenId, true)
-          t.end()
-        },
-        function (err) {
-          t.fail(err)
-          t.end()
-        }
-      )
-  }
-)
-
-test(
   'teardown',
   function (t) {
     dbs.cache.close()

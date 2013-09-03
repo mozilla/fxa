@@ -20,7 +20,7 @@ module.exports = function (log, config, dbs, mailer) {
     log,
     inherits,
     Token,
-    dbs.store
+    dbs.cache
   )
   var AccountResetToken = require('./account_reset_token')(
     log,
