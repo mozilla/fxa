@@ -125,6 +125,7 @@ module.exports = function (log, P, tokens, RecoveryEmail, db, config, error) {
 
   Account.get = function (uid) {
     log.trace({ op: 'Account.get', uid: uid })
+    if (!uid) { return P(null) }
     return db
       .get(uid + '/user')
       .then(Account.hydrate)
