@@ -10,15 +10,16 @@ const LENGTH = 32 * 8
 
 /** pbkdf2 string creator
  *
- * @param {bitArray|String} password The password.
- * @param {String} salt The salt.
- * @return {String} the derived key.
+ * @param  {Buffer}  input The password hex buffer.
+ * @param  {Buffer}  salt The salt string buffer.
+ * @return {Buffer}  the derived key hex buffer.
  */
-function derive(password, salt) {
-  var saltBits = sjcl.codec.utf8String.toBits(salt)
+function derive(input, salt) {
+  var password = Buffer.isBuffer(input) ? input.toString() : input
+  var saltBits = sjcl.codec.utf8String.toBits(salt.toString())
   var result = sjcl.misc.pbkdf2(password, saltBits, ITERATIONS, LENGTH, sjcl.misc.hmac)
 
-  return P(sjcl.codec.hex.fromBits(result))
+  return P(Buffer(sjcl.codec.hex.fromBits(result), 'hex'))
 }
 
 module.exports.derive = derive

@@ -83,21 +83,24 @@ function verifier(salt, email, password, algorithm) {
 }
 
 Client.prototype.setupCredentials = function (email, password, customSalt) {
-  var salt = customSalt ? customSalt : crypto.randomBytes(32).toString('hex')
+  if (!this.email) {
+    this.email = Buffer(email).toString('hex')
+  }
 
-  return keyStretch.derive(email, password, salt)
+  var saltHex = customSalt ? customSalt : crypto.randomBytes(32).toString('hex')
+
+  return keyStretch.derive(Buffer(this.email), Buffer(password), saltHex)
     .then(
       function (result) {
-        this.email = Buffer(email).toString('hex')
-        this.srpPw = result.srpPw
-        this.unwrapBKey = result.unwrapBKey
+        this.srpPw = result.srpPw.toString('hex')
+        this.unwrapBKey = result.unwrapBKey.toString('hex')
         this.srp = {}
         this.srp.type = 'SRP-6a/SHA256/2048/v1'
         this.srp.salt = crypto.randomBytes(32).toString('hex')
         this.srp.algorithm = 'sha256'
         this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw,
                                      this.srp.algorithm)
-        this.passwordSalt = salt
+        this.passwordSalt = saltHex
       }.bind(this)
     )
 }
@@ -212,13 +215,12 @@ Client.prototype.auth = function (callback) {
 
         if (!this.srpPw) {
           session = srpSession
-          var emailStr = Buffer(this.email, 'hex').toString()
 
-          keyStretch.derive(emailStr, this.password, session.passwordStretching.salt)
+          keyStretch.derive(Buffer(this.email), Buffer(this.password), session.passwordStretching.salt)
             .then(
               function (result) {
-                this.srpPw = result.srpPw
-                this.unwrapBKey = result.unwrapBKey
+                this.srpPw = result.srpPw.toString('hex')
+                this.unwrapBKey = result.unwrapBKey.toString('hex')
                 this.passwordSalt = session.passwordStretching.salt
 
                 k.resolve(srpSession)
@@ -417,13 +419,12 @@ Client.prototype.changePassword = function (newPassword, callback) {
     .then(
       function (token) {
         var salt = crypto.randomBytes(32).toString('hex')
-        var emailStr = Buffer(this.email, 'hex').toString()
 
-        return keyStretch.derive(emailStr, newPassword, salt)
+        return keyStretch.derive(Buffer(this.email), Buffer(newPassword), salt)
           .then(
             function (result) {
-              this.srpPw = result.srpPw
-              this.unwrapBKey = result.unwrapBKey
+              this.srpPw = result.srpPw.toString('hex')
+              this.unwrapBKey = result.unwrapBKey.toString('hex')
               this.passwordSalt = salt
 
               return token
@@ -570,8 +571,7 @@ Client.prototype.reforgotPassword = function (callback) {
 Client.prototype.resetPassword = function (code, password, callback) {
   // this will generate a new wrapKb on the server
   var wrapKb = '0000000000000000000000000000000000000000000000000000000000000000'
-  var emailStr = Buffer(this.email, 'hex').toString()
-  var p = this.setupCredentials(emailStr, password)
+  var p = this.setupCredentials(this.email, password)
     .then(
       function () {
         return this.api.passwordForgotVerifyCode(this.forgotPasswordToken, code)

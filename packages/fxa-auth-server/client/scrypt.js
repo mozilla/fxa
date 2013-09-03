@@ -9,20 +9,20 @@ var scrypt = require('node-scrypt-js')
 
 /**  hash Creates an scrypt hash
  *
- * @param {String} input The input for scrypt
- * @param {String} salt The salt for the hash
+ * @param {Buffer} input The input for scrypt
+ * @param {Buffer} salt The salt for the hash
  * @param {String} url scrypt helper server url
  * @returns {Object} d.promise Deferred promise
  */
 function hash(input, salt, url) {
   var p
   var payload = {
-    salt: salt,
+    salt: salt.toString(),
     N: 64 * 1024,
     r: 8,
     p: 1,
     buflen: 32,
-    input: input
+    input: input.toString('hex')
   }
 
   if (url) {
