@@ -124,6 +124,9 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
             .then(Account.get.bind(null, keyFetchToken.uid))
             .then(
               function (account) {
+                if (!account) {
+                  throw error.unknownAccount()
+                }
                 if (!account.verified) {
                   throw error.unverifiedAccount()
                 }
