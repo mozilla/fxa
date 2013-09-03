@@ -2,7 +2,7 @@ const assert = require('assert');
 const crypto = require('crypto');
 const Client = require('../client/');
 
-SERVER_URL = "http://idp.loadtest.lcip.org/";
+SERVER_URL = "http://idp.loadtest.lcip.org";
 
 function uniqueID() {
   return crypto.randomBytes(10).toString('hex');

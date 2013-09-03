@@ -13,7 +13,7 @@ sudo python-pip install virtualenv
 cd /home/mozsvc
 $UDO git clone https://github.com/mozilla-services/loads/
 cd ./loads
-$UDO git checkout -t origin/fix-external-runner-respawning
+perl -pi -e "s/python2.7/python2.6/g" ./Makefile
 $UDO make build || true
 $UDO ./bin/pip install "psutil<1.1"
 $UDO make build
@@ -36,5 +36,6 @@ $UDO npm install
 
 cat > ./loadtest/run.sh << EOF
 #!/bin/sh
-/home/mozsvc/loads/bin/loads-runner --test-dir="/home/mozsvc/picl-idp" --test-runner="/home/mozsvc/loads.js/loads.js/runner.js {test}" "/home/mozsvc/picl-idp/loadtest/loadtests.js" --users=3 --duration=60
+# Six concurrent users, 4 minutes worth of load.
+/home/mozsvc/loads/bin/loads-runner --test-dir="/home/mozsvc/picl-idp" --test-runner="/home/mozsvc/loads.js/loads.js/runner.js {test}" "/home/mozsvc/picl-idp/loadtest/loadtests.js" --users=6 --duration=240
 EOF
