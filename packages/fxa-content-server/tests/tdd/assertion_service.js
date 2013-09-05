@@ -21,7 +21,7 @@ define([
 
         var Client = gherkin.Client;
         //var email = 'some' + new Date().getTime() + '@example.com';
-        var email = 'pbnqm@tagyourself.com';
+        var email = 'fxab-test@restmail.net';
         var password = '12345678';
 
         Client
