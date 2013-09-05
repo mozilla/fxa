@@ -13,7 +13,7 @@ define([
       var client;
       var assertionService;
       //var serverUrl = 'http://localhost:9000';
-      var serverUrl = 'http://idp.dev.lcip.org';
+      var serverUrl = 'https://idp.dev.lcip.org';
 
       // before the suite starts
       before(function () {
