@@ -28,7 +28,7 @@
     "handlebars": "1.0.10",
     "convict": "0.4.0",
     "p-promise": "0.2.3",
-    "kvstore": "0.0.4",
+    "kvstore": "git://github.com/mozilla/node-kvstore.git#bfd1840710",
     "bunyan": "0.21.4",
     "heka": "0.3.0",
     "node-statsd": "0.0.7",

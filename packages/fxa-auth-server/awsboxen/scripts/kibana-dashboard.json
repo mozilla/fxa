@@ -1,0 +1,272 @@
+{
+  "index": {
+    "default": "_all",
+    "pattern": "[nginx-log-]YYYY-MM-DD",
+    "interval": "none"
+  },
+  "style": "light",
+  "rows": [
+    {
+      "panels": [
+        {
+          "load": {
+            "local": true,
+            "elasticsearch": true,
+            "gist": true
+          },
+          "span": 2,
+          "temp": true,
+          "ttl_enable": true,
+          "editable": true,
+          "hide_control": false,
+          "elasticsearch_size": 20,
+          "error": false,
+          "group": [
+            "default"
+          ],
+          "save": {
+            "default": true,
+            "local": true,
+            "elasticsearch": true,
+            "gist": false
+          },
+          "type": "dashcontrol",
+          "temp_ttl": "30d"
+        },
+        {
+          "span": 5,
+          "remember": 10,
+          "title": "query",
+          "editable": true,
+          "label": "Search",
+          "pinned": true,
+          "error": false,
+          "query": "*",
+          "type": "query",
+          "history": [
+            "Status:5*",
+            "Status:2*",
+            "Status:4*",
+            "Status:\"4*\"",
+            "Status:\"5*\"",
+            "Status:\"2*\"",
+            "*",
+            "-Status:\"200\"",
+            "Status:\"200\""
+          ]
+        },
+        {
+          "status": "Stable",
+          "span": 3,
+          "timespan": "5m",
+          "time_options": [
+            "5m",
+            "15m",
+            "1h",
+            "6h",
+            "12h",
+            "24h",
+            "2d",
+            "7d",
+            "30d"
+          ],
+          "filter_id": 0,
+          "title": "Time Picker",
+          "editable": true,
+          "refresh": {
+            "enable": true,
+            "min": 3,
+            "interval": 30
+          },
+          "timeformat": "",
+          "mode": "relative",
+          "error": "",
+          "timefield": "Timestamp",
+          "type": "timepicker"
+        }
+      ],
+      "collapse": false,
+      "title": "Options",
+      "editable": true,
+      "height": "50px",
+      "collapsable": true
+    },
+    {
+      "panels": [
+        {
+          "editable": true,
+          "type": "filtering",
+          "span": 3,
+          "group": [
+            "default"
+          ],
+          "error": false
+        }
+      ],
+      "collapse": true,
+      "title": "Filters",
+      "editable": true,
+      "height": "50px",
+      "collapsable": true
+    },
+    {
+      "panels": [
+        {
+          "bars": true,
+          "interval": "1s",
+          "zoomlinks": true,
+          "timezone": "browser",
+          "spyable": true,
+          "linewidth": 3,
+          "fill": 0,
+          "span": 10,
+          "stack": true,
+          "percentage": false,
+          "auto_int": true,
+          "type": "histogram",
+          "value_field": null,
+          "x-axis": true,
+          "editable": true,
+          "legend": true,
+          "time_field": "Timestamp",
+          "y-axis": true,
+          "lines": false,
+          "points": false,
+          "mode": "count",
+          "queries": {
+            "mode": "all",
+            "ids": [
+              1,
+              0,
+              2
+            ]
+          },
+          "resolution": 100,
+          "interactive": true
+        }
+      ],
+      "collapse": false,
+      "title": "Graph",
+      "editable": true,
+      "height": "250px",
+      "collapsable": true
+    },
+    {
+      "panels": [
+        {
+          "status": "Stable",
+          "header": true,
+          "trimFactor": 300,
+          "spyable": true,
+          "field_list": true,
+          "size": 30,
+          "style": {
+            "font-size": "9pt"
+          },
+          "span": 12,
+          "pages": 10,
+          "type": "table",
+          "sort": [
+            "Timestamp",
+            "desc"
+          ],
+          "queries": {
+            "mode": "all",
+            "ids": [
+              1,
+              0,
+              2
+            ]
+          },
+          "editable": true,
+          "offset": 0,
+          "group": [
+            "default"
+          ],
+          "overflow": "min-height",
+          "normTimes": true,
+          "sortable": true,
+          "fields": [
+            "Timestamp",
+            "Method",
+            "Url",
+            "Status",
+            "RequestTime",
+            "Hostname"
+          ],
+          "paging": true,
+          "error": false,
+          "highlight": []
+        }
+      ],
+      "collapse": false,
+      "title": "Events",
+      "editable": true,
+      "height": "650px",
+      "collapsable": true
+    }
+  ],
+  "title": "picl-idp web logs",
+  "failover": false,
+  "editable": true,
+  "services": {
+    "filter": {
+      "list": {
+        "0": {
+          "from": "2013-09-02T00:34:17.248Z",
+          "to": "2013-09-02T00:39:17.248Z",
+          "field": "Timestamp",
+          "type": "time",
+          "mandate": "must",
+          "active": true,
+          "alias": "",
+          "id": 0
+        }
+      },
+      "ids": [
+        0
+      ],
+      "idQueue": [
+        1,
+        2
+      ]
+    },
+    "query": {
+      "list": {
+        "0": {
+          "query": "Url:* AND Status:4*",
+          "alias": "",
+          "color": "#EAB839",
+          "pin": false,
+          "id": 0,
+          "type": "lucene"
+        },
+        "1": {
+          "pin": false,
+          "color": "#7EB26D",
+          "alias": "",
+          "query": "Url:* AND Status:2*",
+          "type": "lucene",
+          "id": 1
+        },
+        "2": {
+          "query": "Url:* AND Status:5*",
+          "alias": "",
+          "color": "#E24D42",
+          "pin": false,
+          "id": 2,
+          "type": "lucene"
+        }
+      },
+      "ids": [
+        1,
+        0,
+        2
+      ],
+      "idQueue": [
+        3,
+        4
+      ]
+    }
+  }
+}

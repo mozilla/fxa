@@ -1,0 +1,7 @@
+# An AMI for a simple loads client box.
+Type: AWSBoxen::BuildScript
+Properties:
+  BaseAMI: {"Fn::FindInMap": ["RegionMap", {"Ref": "AWS::Region"}, "BaseAMI"]}
+  BuildScripts:
+    - awsboxen/scripts/common.sh
+    - awsboxen/loadsclient/scripts/common_loads.sh

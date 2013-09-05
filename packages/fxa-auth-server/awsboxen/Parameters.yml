@@ -1,0 +1,16 @@
+DNSPrefix:
+  Default: "loadtest"
+  Type: "String"
+  Description: "prefix for dns names, to avoid conflicts"
+SMTPRelay:
+  Default: ""
+  Type: "String"
+  Description: "smtp relay host to use for sending email"
+SMTPUsername:
+  Default: "guest"
+  Type: "String"
+  Description: "username for connecting to smtp relay host"
+SMTPPassword:
+  Default: "guest"
+  Type: "String"
+  Description: "password for connecting to smtp relay host"

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (fs, path, url, convict) {
-  const AVAILABLE_BACKENDS = ["memory", "mysql", "memcached"]
+  const AVAILABLE_BACKENDS = ["memory", "mysql", "memcached", "cassandra"]
   const STATS_BACKENDS = ['none', 'heka', 'statsd']
 
 
