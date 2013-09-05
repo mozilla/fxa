@@ -110,6 +110,7 @@ setupFunctions["t1-create-signin"] = function() {
           };
           console.log('sendToBrowser payload: ', payload);
           sendToBrowser('login', payload);
+          console.log(JSON.stringify(assertion));
 
           switchTo("t2-signed-in-page");
           leaveError();
@@ -579,11 +580,7 @@ $(function() {
   console.log('state', state);
 
   if (page) {
-    send("accounts").then(function(accounts) {
-      console.log('accounts???', accounts);
-      state.accounts = accounts;
-      switchTo(page);
-    });
+    switchTo(page);
   } else if (user && verified) {
     switchTo("preferences");
   } else {
