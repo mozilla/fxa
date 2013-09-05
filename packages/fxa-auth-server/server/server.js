@@ -2,9 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (path, Hapi, toobusy) {
+module.exports = function (path, url, Hapi, toobusy) {
 
   function create(log, config, routes, tokens) {
+
+    // Hawk needs to calculate request signatures based on public URL,
+    // not the local URL to which it is bound.
+    var publicURL = url.parse(config.public_url);
+    var defaultPorts = {
+      "http:": 80,
+      "https:": 443,
+    }
+    var hawkOptions = {
+      host: publicURL.hostname,
+      port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol]
+    }
 
     var server = Hapi.createServer(
       config.bind_to.host,
@@ -13,22 +25,27 @@ module.exports = function (path, Hapi, toobusy) {
         auth: {
           sessionToken: {
             scheme: 'hawk',
+            hawk: hawkOptions,
             getCredentialsFunc: tokens.SessionToken.getCredentials
           },
           keyFetchToken: {
             scheme: 'hawk',
+            hawk: hawkOptions,
             getCredentialsFunc: tokens.KeyFetchToken.getCredentials
           },
           accountResetToken: {
             scheme: 'hawk',
+            hawk: hawkOptions,
             getCredentialsFunc: tokens.AccountResetToken.getCredentials
           },
           authToken: {
             scheme: 'hawk',
+            hawk: hawkOptions,
             getCredentialsFunc: tokens.AuthToken.getCredentials
           },
           forgotPasswordToken: {
             scheme: 'hawk',
+            hawk: hawkOptions,
             getCredentialsFunc: tokens.ForgotPasswordToken.getCredentials
           }
         },

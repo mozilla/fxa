@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var path = require('path')
+var url = require('url')
 var Hapi = require('hapi')
 var toobusy = require('toobusy')
 
-module.exports = require('./server')(path, Hapi, toobusy)
+module.exports = require('./server')(path, url, Hapi, toobusy)
