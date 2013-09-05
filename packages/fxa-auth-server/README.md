@@ -62,6 +62,14 @@ The dev deployment is configured to send emails via Amazon SES.  If you need to 
           (typically "email-smtp.us-east-1.amazonaws.com:25").
       4.  Run `service postfix restart` to restart postfix.
 
+### Configuration
+
+To set the url of the [account bridge](https://github.com/mozilla/firefox-account-bridge),
+edit `config.json` on your deployed instance and add:
+
+    "bridge": {
+      "url": "http://your.account.bridge.org"
+    }
 
 ## License
 
