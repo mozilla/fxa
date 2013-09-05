@@ -1107,7 +1107,7 @@ function derive(email, password, saltHex) {
     .then(
       function(K1) {
         // request a hash from scrypt based on the first key
-        return scrypt.hash(K1, KW("scrypt"), 'http://scrypt.dev.lcip.org/')
+        return scrypt.hash(K1, KW("scrypt"), 'https://scrypt.dev.lcip.org/')
       }
     )
     .then(
