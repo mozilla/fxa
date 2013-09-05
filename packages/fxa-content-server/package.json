@@ -7,7 +7,7 @@
     "start": "node scripts/run_locally.js",
     "test": "node node_modules/intern/runner.js config=tests/intern suites=tests/tdd ",
     "test-server": "mocha server/tests/*.js",
-    "test-functional": "node node_modules/intern/runner.js config=tests/intern suites=tests/functional"
+    "test-functional": "node node_modules/intern/runner.js config=tests/intern_functional"
   },
   "repository": {
     "type": "git",

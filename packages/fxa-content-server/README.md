@@ -6,7 +6,23 @@ This is a Node.js server which implements the Persona identity provider (IdP) pr
 It allows users to sign in to Firefox Accounts (aka PICL).
 It consumes the REST API which PICL provides.
 
-## Development
+## Development Setup
+
+```
+npm install
+npm start
+```
+
+## Testing
+
+  * Download: [Selenium Server Standalone 2.35.0](http://selenium.googlecode.com/files/selenium-server-standalone-2.35.0.jar)
+  * Run in the background: `java -jar selenium-server-standalone-2.35.0.jar`
+  * TDD: `npm test`
+  * Functional: `npm run-script test-functional`
+
+  * Server test: `npm run-script test-server` (Selenium server not required)
+
+## Persona Bridge Development Setup
 
 ### One Time Setup
 

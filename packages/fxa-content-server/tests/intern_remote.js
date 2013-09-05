@@ -8,6 +8,7 @@ define([
 
   // adjust the local Selenium port
   intern.webdriver.port = 4445;
+  intern.functionalSuites = [ 'tests/functional' ];
 
   intern.environments = [
     { browserName: 'firefox', version: '23', platform: [ 'Linux', 'Windows 7' ] }

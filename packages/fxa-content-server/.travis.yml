@@ -8,7 +8,15 @@ env:
     - SAUCE_USERNAME: intern-example-ci
     - SAUCE_ACCESS_KEY: 89ac3089-17b3-4e9b-aaf3-c475b27fa441
 install:
+  - git clone git://github.com/mozilla/picl-idp.git
+  - cd picl-idp
+  - npm install
+  - node ./scripts/gen_keys.js
+  - npm start &
+  - cd ..
+  - npm install --production
   - npm install intern
+  - npm start &
   - cd node_modules/intern
   - npm install --production
   - cd ../..
