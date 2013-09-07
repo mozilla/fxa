@@ -1,13 +1,12 @@
 var test = require('tap').test
 var P = require('p-promise')
-var sjcl = require('sjcl')
 var keyStretch = require('../../client/keystretch')
 
 test(
   'basic key stretching, test vectors',
   function (t) {
     var emailBuf = Buffer('andré@example.org')
-    var password = 'pässwörd'
+    var password = Buffer('pässwörd')
     var salt = '00f000000000000000000000000000000000000000000000000000000000034d'
     function end() { t.end() }
 
@@ -31,7 +30,7 @@ test(
     var salt = '00f000000000000000000000000000000000000000000000000000000000034d'
     var email = 'ijqmkkafer3xsj5rzoq+msnxsacvkmqxabtsvxvj@some-test-domain-with-a-long-name-example.org'
     var emailBuf = Buffer(email)
-    var password = 'mSnxsacVkMQxAbtSVxVjCCoWArNUsFhiJqmkkafER3XSJ5rzoQ'
+    var password = Buffer('mSnxsacVkMQxAbtSVxVjCCoWArNUsFhiJqmkkafER3XSJ5rzoQ')
     function end() { t.end() }
 
     keyStretch.derive(emailBuf, password, salt)

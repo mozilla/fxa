@@ -5,7 +5,6 @@
 var pbkdf2 = require('../../client/pbkdf2')
 var P = require('p-promise')
 var test = require('tap').test
-var sjcl = require('sjcl')
 
 test(
   'pbkdf2 derive',
@@ -32,7 +31,7 @@ test(
   function (t) {
     var email = Buffer('ijqmkkafer3xsj5rzoq+msnxsacvkmqxabtsvxvj@some-test-domain-with-a-long-name-example.org')
     var password = Buffer('mSnxsacVkMQxAbtSVxVjCCoWArNUsFhiJqmkkafER3XSJ5rzoQ')
-    var salt = 'identity.mozilla.com/picl/v1/first-PBKDF:' + email
+    var salt = Buffer('identity.mozilla.com/picl/v1/first-PBKDF:' + email)
     function end() { t.end() }
 
     pbkdf2.derive(password, salt)
@@ -54,10 +53,10 @@ test(
     var salt = Buffer('identity.mozilla.com/picl/v1/second-PBKDF:andré@example.org')
     var K2 = '5b82f146a64126923e4167a0350bb181feba61f63cb1714012b19cb0be0119c5'
     var passwordString = 'pässwörd'
-    var password = sjcl.bitArray.concat(
-      sjcl.codec.hex.toBits(K2),
-      sjcl.codec.utf8String.toBits(passwordString)
-    )
+    var password = Buffer.concat([
+      Buffer(K2, 'hex'),
+      Buffer(passwordString)
+    ])
 
     function end() { t.end() }
 
