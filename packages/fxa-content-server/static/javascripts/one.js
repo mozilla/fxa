@@ -311,13 +311,17 @@ setupFunctions["verify"] = function() {
 
           switchTo('t2-signed-in-page');
 
+
           new AssertionService(client).getAssertion(function(err, assertion) {
+            var fullAssertion = jwcrypto.cert.unbundle(assertion);
+            var cert = jwcrypto.extractComponents(fullAssertion.certs[0]);
             var payload = {
               assertion: assertion,
               kB: client.kB,
               kA: client.kA,
               sessionToken: client.sessionToken,
-              email: email
+              email: email,
+              uid: cert.payload.principal.email
             };
             console.log('sendToBrowser payload: ', payload);
             sendToBrowser('verified', payload);
