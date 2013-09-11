@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var sjcl = require('sjcl')
+sjcl.codec.bytes = require('sjcl-codec-bytes')
 var P = require('p-promise')
 
 const ITERATIONS = 20 * 1000
@@ -15,11 +16,11 @@ const LENGTH = 32 * 8
  * @return {Buffer}  the derived key hex buffer.
  */
 function derive(input, salt) {
-  var password = Buffer.isBuffer(input) ? input.toString() : input
-  var saltBits = sjcl.codec.utf8String.toBits(salt.toString())
+  var password = sjcl.codec.bytes.toBits(input)
+  var saltBits = sjcl.codec.bytes.toBits(salt)
   var result = sjcl.misc.pbkdf2(password, saltBits, ITERATIONS, LENGTH, sjcl.misc.hmac)
 
-  return P(Buffer(sjcl.codec.hex.fromBits(result), 'hex'))
+  return P(Buffer(sjcl.codec.bytes.fromBits(result)))
 }
 
 module.exports.derive = derive

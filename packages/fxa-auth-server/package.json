@@ -35,7 +35,8 @@
     "toobusy": "0.2.3",
     "nodemailer": "0.5.2",
     "lout": "0.4.1",
-    "node-scrypt-js": "git://github.com/vladikoff/node-scrypt-js.git#512f37884ff9"
+    "node-scrypt-js": "git://github.com/vladikoff/node-scrypt-js.git#512f37884ff9",
+    "sjcl-codec-bytes": "git://github.com/zaach/sjcl-codec-bytes.git#0ddc7744"
   },
   "devDependencies": {
     "awsbox": "0.4.5",

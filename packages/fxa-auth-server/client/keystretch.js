@@ -45,10 +45,10 @@ function derive(email, password, saltHex) {
     .then(
       function (K2) {
         // combine the K2 hex string and a password UTF8 into a bit array
-        var scryptPassword = sjcl.bitArray.concat(
-          sjcl.codec.hex.toBits(K2),
-          sjcl.codec.utf8String.toBits(password)
-        )
+        var scryptPassword = Buffer.concat([
+          Buffer(K2, 'hex'),
+          password
+        ])
         // derive the second key from pbkdf2
         return pbkdf2.derive(scryptPassword, KWE('second-PBKDF', email))
       }
