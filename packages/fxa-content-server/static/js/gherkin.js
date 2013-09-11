@@ -19,7 +19,7 @@ var P = require('p-promise')
 var srp = require('srp')
 
 var ClientApi = require('./lib/api')
-var models = require('./lib/models')({},{},{})
+var models = require('./lib/models')({ trace: function () {}},{},{})
 var keyStretch = require('./lib/keystretch')
 var tokens = models.tokens
 var AuthBundle = models.AuthBundle
@@ -95,21 +95,24 @@ function verifier(salt, email, password, algorithm) {
 }
 
 Client.prototype.setupCredentials = function (email, password, customSalt) {
-  var salt = customSalt ? customSalt : crypto.randomBytes(32).toString('hex')
+  if (!this.email) {
+    this.email = Buffer(email).toString('hex')
+  }
 
-  return keyStretch.derive(email, password, salt)
+  var saltHex = customSalt ? customSalt : crypto.randomBytes(32).toString('hex')
+
+  return keyStretch.derive(Buffer(this.email), Buffer(password), saltHex)
     .then(
       function (result) {
-        this.email = Buffer(email).toString('hex')
-        this.srpPw = result.srpPw
-        this.unwrapBKey = result.unwrapBKey
+        this.srpPw = result.srpPw.toString('hex')
+        this.unwrapBKey = result.unwrapBKey.toString('hex')
         this.srp = {}
         this.srp.type = 'SRP-6a/SHA256/2048/v1'
         this.srp.salt = crypto.randomBytes(32).toString('hex')
         this.srp.algorithm = 'sha256'
         this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw,
                                      this.srp.algorithm)
-        this.passwordSalt = salt
+        this.passwordSalt = saltHex
       }.bind(this)
     )
 }
@@ -224,13 +227,12 @@ Client.prototype.auth = function (callback) {
 
         if (!this.srpPw) {
           session = srpSession
-          var emailStr = Buffer(this.email, 'hex').toString()
 
-          keyStretch.derive(emailStr, this.password, session.passwordStretching.salt)
+          keyStretch.derive(Buffer(this.email), Buffer(this.password), session.passwordStretching.salt)
             .then(
               function (result) {
-                this.srpPw = result.srpPw
-                this.unwrapBKey = result.unwrapBKey
+                this.srpPw = result.srpPw.toString('hex')
+                this.unwrapBKey = result.unwrapBKey.toString('hex')
                 this.passwordSalt = session.passwordStretching.salt
 
                 k.resolve(srpSession)
@@ -429,13 +431,12 @@ Client.prototype.changePassword = function (newPassword, callback) {
     .then(
       function (token) {
         var salt = crypto.randomBytes(32).toString('hex')
-        var emailStr = Buffer(this.email, 'hex').toString()
 
-        return keyStretch.derive(emailStr, newPassword, salt)
+        return keyStretch.derive(Buffer(this.email), Buffer(newPassword), salt)
           .then(
             function (result) {
-              this.srpPw = result.srpPw
-              this.unwrapBKey = result.unwrapBKey
+              this.srpPw = result.srpPw.toString('hex')
+              this.unwrapBKey = result.unwrapBKey.toString('hex')
               this.passwordSalt = salt
 
               return token
@@ -582,8 +583,7 @@ Client.prototype.reforgotPassword = function (callback) {
 Client.prototype.resetPassword = function (code, password, callback) {
   // this will generate a new wrapKb on the server
   var wrapKb = '0000000000000000000000000000000000000000000000000000000000000000'
-  var emailStr = Buffer(this.email, 'hex').toString()
-  var p = this.setupCredentials(emailStr, password)
+  var p = this.setupCredentials(this.email, password)
     .then(
       function () {
         return this.api.passwordForgotVerifyCode(this.forgotPasswordToken, code)
@@ -628,7 +628,7 @@ Client.prototype.resetPassword = function (code, password, callback) {
 
 module.exports = Client
 
-},{"./lib/api":3,"./lib/keystretch":9,"./lib/models":15,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":79,"srp":81}],3:[function(require,module,exports){
+},{"./lib/api":3,"./lib/keystretch":9,"./lib/models":15,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":78,"srp":81}],3:[function(require,module,exports){
 var EventEmitter = require('events').EventEmitter
 var util = require('util')
 
@@ -636,7 +636,7 @@ var hawk = require('hawk')
 var P = require('p-promise')
 var request = require('request')
 
-var models = require('./models')({}, {}, {})
+var models = require('./models')({ trace: function() {}}, {}, {})
 var tokens = models.tokens
 
 util.inherits(ClientApi, EventEmitter)
@@ -951,11 +951,11 @@ ClientApi.heartbeat = function (origin) {
 
 module.exports = ClientApi
 
-},{"./models":15,"events":36,"hawk":62,"p-promise":79,"request":"hWH+d8","util":41}],4:[function(require,module,exports){
+},{"./models":15,"events":35,"hawk":61,"p-promise":78,"request":"hWH+d8","util":40}],4:[function(require,module,exports){
 module.exports = require('buffer');
 
 },{}],5:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
@@ -968,10 +968,17 @@ module.exports = function (crypto, P, hkdf) {
 
   Bundle.random32Bytes = function () {
     var d = P.defer()
+    // capturing the domain here is a workaround for:
+    // https://github.com/joyent/node/issues/3965
+    // this will be fixed in node v0.12
+    var domain = process.domain
     crypto.randomBytes(
       32,
       function (err, bytes) {
-        return err ? d.reject(err) : d.resolve(bytes)
+        if (domain) domain.enter()
+        var x = err ? d.reject(err) : d.resolve(bytes)
+        if (domain) domain.exit()
+        return x
       }
     )
     return d.promise
@@ -1017,7 +1024,7 @@ module.exports = function (crypto, P, hkdf) {
   return Bundle
 }
 
-},{"__browserify_Buffer":4}],6:[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":77}],6:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1028,7 +1035,7 @@ var hkdf = require('../hkdf')
 
 module.exports = require('./bundle')(crypto, P, hkdf)
 
-},{"../hkdf":8,"./bundle":5,"crypto":"l4eWKl","p-promise":79}],7:[function(require,module,exports){
+},{"../hkdf":8,"./bundle":5,"crypto":"l4eWKl","p-promise":78}],7:[function(require,module,exports){
 
 module.exports = {
   ACCOUNT_EXISTS: 101,
@@ -1065,7 +1072,7 @@ function hkdf(km, info, salt, len) {
 
 module.exports = hkdf
 
-},{"hkdf":76,"p-promise":79}],9:[function(require,module,exports){
+},{"hkdf":75,"p-promise":78}],9:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1079,44 +1086,44 @@ var crypto = require('crypto')
 
 // The namespace for the salt functions
 const NAMESPACE = 'identity.mozilla.com/picl/v1/'
+const SCRYPT_HELPER = 'https://scrypt.dev.lcip.org/'
 
 
 /** Derive a key from an email and password pair
  *
- * @param {String} email The email of the user
- * @param {String} password The password of the user
+ * @param {Buffer} email The email hex buffer of the user
+ * @param {Buffer} password The password of the user
  * @param {String} saltHex The salt to derive hkdf as a hex string
  * @return p.promise object - It will resolve with
- * {String} srpPw srp password
- * {String} unwrapBKey unwrapBKey
- * {String} salt salt used in this derivation
+ * {Buffer} srpPw srp password
+ * {Buffer} unwrapBKey unwrapBKey
  * or fail with {object} err
  */
 function derive(email, password, saltHex) {
   var p = P.defer()
-  var salt = Buffer(saltHex, 'hex')
 
-  if (password == 'undefined' || email == 'undefined' || password.length === 0 || email.length === 0) {
-    p.reject('Bad password or email input')
+  if (!password || !email || !saltHex) {
+    p.reject('Bad password, salt or email input')
     return p.promise
   }
 
+  var salt = Buffer(saltHex, 'hex')
   // derive the first key from pbkdf2
   pbkdf2
     .derive(password, KWE('first-PBKDF', email))
     .then(
       function(K1) {
         // request a hash from scrypt based on the first key
-        return scrypt.hash(K1, KW("scrypt"), 'https://scrypt.dev.lcip.org/')
+        return scrypt.hash(K1, KW("scrypt"), SCRYPT_HELPER)
       }
     )
     .then(
       function (K2) {
         // combine the K2 hex string and a password UTF8 into a bit array
-        var scryptPassword = sjcl.bitArray.concat(
-          sjcl.codec.hex.toBits(K2),
-          sjcl.codec.utf8String.toBits(password)
-        )
+        var scryptPassword = Buffer.concat([
+          Buffer(K2, 'hex'),
+          password
+        ])
         // derive the second key from pbkdf2
         return pbkdf2.derive(scryptPassword, KWE('second-PBKDF', email))
       }
@@ -1132,8 +1139,9 @@ function derive(email, password, saltHex) {
     .done(
       function (hkdfResult) {
         var hkdfResultHex = hkdfResult.toString('hex')
-        var srpPw = hkdfResultHex.substring(0,64)
-        var unwrapBKey = hkdfResultHex.substring(64,128)
+        var srpPw = Buffer(hkdfResultHex.substring(0,64), 'hex')
+        var unwrapBKey = Buffer(hkdfResultHex.substring(64,128), 'hex')
+
         p.resolve({ srpPw: srpPw, unwrapBKey: unwrapBKey })
       },
       function (err) {
@@ -1173,31 +1181,31 @@ function xor(input1, input2) {
 /** KWE
  *
  * @param {String} name The name of the salt
- * @param {String} email The email of the user.
- * @return {string} the salt combination with the namespace
+ * @param {Buffer} email The email of the user.
+ * @return {Buffer} the salt combination with the namespace
  */
 function KWE(name, email) {
-  return NAMESPACE + name + ':' + email
+  return Buffer(NAMESPACE + name + ':' + email)
 }
 
 /** KW
  *
  * @param {String} name The name of the salt
- * @return {string} the salt combination with the namespace
+ * @return {Buffer} the salt combination with the namespace
  */
 function KW(name) {
-  return NAMESPACE + name
+  return Buffer(NAMESPACE + name)
 }
 
 module.exports.derive = derive
 module.exports.xor = xor
 
-},{"./hkdf":8,"./pbkdf2":21,"./scrypt":22,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":79,"sjcl":80}],10:[function(require,module,exports){
+},{"./hkdf":8,"./pbkdf2":21,"./scrypt":22,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":78,"sjcl":80}],10:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
+module.exports = function (log, P, tokens, RecoveryEmail, db, config, error) {
 
   var domain = config.domain
   var SessionToken = tokens.SessionToken
@@ -1214,7 +1222,6 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
     this.srp = null
     this.passwordStretching = null
     // references
-    this.authTokenId = null
     this.resetTokenId = null
     this.forgotPasswordTokenId = null
     this.sessionTokenIds = null
@@ -1232,7 +1239,6 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
     a.kA = object.kA
     a.wrapKb = object.wrapKb
     a.passwordStretching = object.passwordStretching
-    a.authTokenId = object.authTokenId
     a.resetTokenId = object.resetTokenId
     a.sessionTokenIds = object.sessionTokenIds || {}
     a.recoveryEmailCodes = object.recoveryEmailCodes || {}
@@ -1240,6 +1246,7 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.create = function (options) {
+    log.trace({ op: 'Account.create', email: options.email })
     return Account
       .exists(options.email)
       .then(
@@ -1268,14 +1275,17 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   function deleteIndex(email) {
+    log.trace({ op: 'Account.deleteIndex', email: email })
     return db.delete(email + '/uid')
   }
 
   function deleteRecord(uid) {
+    log.trace({ op: 'Account.deleteRecord', uid: uid })
     return db.delete(uid + '/user')
   }
 
   Account.del = function (uid) {
+    log.trace({ op: 'Account.del', uid: uid })
     return Account
       .get(uid)
       .then(
@@ -1290,6 +1300,7 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.getId = function (email) {
+    log.trace({ op: 'Account.getId', email: email })
     return db
       .get(email + '/uid')
       .then(
@@ -1300,6 +1311,7 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.exists = function (email) {
+    log.trace({ op: 'Account.exists', email: email })
     return Account
       .getId(email)
       .then(
@@ -1310,20 +1322,25 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.getByEmail = function (email) {
+    log.trace({ op: 'Account.getByEmail', email: email })
     return Account.getId(email).then(Account.get)
   }
 
   Account.get = function (uid) {
+    log.trace({ op: 'Account.get', uid: uid })
+    if (!uid) { return P(null) }
     return db
       .get(uid + '/user')
       .then(Account.hydrate)
   }
 
   Account.save = function (uid, value) {
+    log.trace({ op: 'Account.save', uid: uid })
     return db.set(uid + '/user', value).then(function () { return value })
   }
 
   Account.verify = function (recoveryEmail) {
+    log.trace({ op: 'Account.verify', email: recoveryEmail && recoveryEmail.email })
     if (recoveryEmail.primary && recoveryEmail.verified) {
       return Account.get(recoveryEmail.uid)
         .then(
@@ -1348,11 +1365,13 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.prototype.addSessionToken = function (token) {
+    log.trace({ op: 'account.addSessionToken', uid: this.uid, id: token && token.id })
     this.sessionTokenIds[token.id] = true
     return this.save()
   }
 
   Account.prototype.setResetToken = function (token) {
+    log.trace({ op: 'account.setResetToken', uid: this.uid, id: token && token.id })
     var set = function () {
       this.resetTokenId = token.id
       return this.save()
@@ -1365,20 +1384,8 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
     return set()
   }
 
-  Account.prototype.setAuthToken = function (token) {
-    var set = function () {
-      this.authTokenId = token.id
-      return this.save()
-    }.bind(this)
-    if (this.authTokenId !== null) {
-      return AuthToken
-        .del(this.authTokenId)
-        .then(set)
-    }
-    return set()
-  }
-
   Account.prototype.setForgotPasswordToken = function (token) {
+    log.trace({ op: 'account.setForgotPasswordToken', uid: this.uid, id: token && token.id })
     var set = function () {
       this.forgotPasswordTokenId = token.id
       return this.save()
@@ -1392,12 +1399,14 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.prototype.deleteSessionToken = function (id) {
+    log.trace({ op: 'account.deleteSessionToken', uid: this.uid, id: id })
     delete this.sessionTokenIds[id]
     return SessionToken.del(id)
       .then(this.save.bind(this))
   }
 
   Account.prototype.sessionTokens = function () {
+    log.trace({ op: 'account.sessionTokens', uid: this.uid })
     var ids = Object.keys(this.sessionTokenIds)
     var tokens = []
     for (var i = 0; i < ids.length; i++) {
@@ -1407,6 +1416,7 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.prototype.deleteAllTokens = function () {
+    log.trace({ op: 'account.deleteAllTokens', uid: this.uid })
     var ids = Object.keys(this.sessionTokenIds)
     var tokens = []
     for (var i = 0; i < ids.length; i++) {
@@ -1419,11 +1429,13 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.prototype.addRecoveryEmail = function (rm) {
+    log.trace({ op: 'account.addRecoveryEmail', uid: this.uid, code: rm && rm.code })
     this.recoveryEmailCodes[rm.code] = true
     return this.save()
   }
 
   Account.prototype.recoveryEmails = function () {
+    log.trace({ op: 'account.recoveryEmails', uid: this.uid })
     var codes = Object.keys(this.recoveryEmailCodes)
     var methods = []
     for (var i = 0; i < codes.length; i++) {
@@ -1435,6 +1447,7 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   Account.prototype.primaryRecoveryEmail = function () {
     // TODO: this is not ideal. consider refactoring how
     // recovery emails are indexed
+    log.trace({ op: 'account.primaryRecoveryEmail', uid: this.uid })
     return this.recoveryEmails()
       .then(
         function (emails) {
@@ -1450,16 +1463,18 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.prototype.deleteAllRecoveryEmails = function () {
+    log.trace({ op: 'account.deleteAllRecoveryEmails', uid: this.uid })
     var codes = Object.keys(this.recoveryEmailCodes)
-    var methods = []
+    var emails = []
     for (var i = 0; i < codes.length; i++) {
-      methods.push(RecoveryEmail.del(this.uid, codes[i]))
+      emails.push(RecoveryEmail.del(this.uid, codes[i]))
     }
     this.recoveryEmailCodes = {}
-    return P.all(methods)
+    return P.all(emails)
   }
 
   Account.prototype.save = function (isNew) {
+    log.trace({ op: 'account.save', uid: this.uid, new: isNew })
     if (isNew) {
       return db
         .set(this.email + '/uid', this.uid)
@@ -1471,6 +1486,7 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.prototype.reset = function (form) {
+    log.trace({ op: 'account.reset', uid: this.uid })
     //this.kA = null // TODO
     this.wrapKb = form.wrapKb
     this.srp = form.srp
@@ -1480,6 +1496,7 @@ module.exports = function (P, tokens, RecoveryEmail, db, config, error) {
   }
 
   Account.prototype.del = function () {
+    log.trace({ op: 'account.del', uid: this.uid })
     return this.deleteAllTokens()
       .then(this.deleteAllRecoveryEmails.bind(this))
       .then(deleteRecord.bind(null, this.uid))
@@ -1496,7 +1513,7 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, crypto, db) {
+module.exports = function (log, inherits, Token, crypto, db) {
 
   var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
 
@@ -1510,6 +1527,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.create = function (uid) {
+    log.trace({ op: 'AccountResetToken.create', uid: uid })
     return Token
       .randomTokenData('account/reset', 2 * 32 + 32 + 256)
       .then(
@@ -1527,6 +1545,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.fromHex = function (string) {
+    log.trace({ op: 'AccountResetToken.fromHex' })
     return Token
       .tokenDataFromBytes(
         'account/reset',
@@ -1547,6 +1566,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'AccountResetToken.getCredentials', id: id })
     AccountResetToken.get(id)
       .done(
         function (token) {
@@ -1557,16 +1577,19 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.get = function (id) {
+    log.trace({ op: 'AccountResetToken.get', id: id })
     return db
       .get(id + '/reset')
       .then(AccountResetToken.hydrate)
   }
 
   AccountResetToken.del = function (id) {
+    log.trace({ op: 'AccountResetToken.del', id: id })
     return db.delete(id + '/reset')
   }
 
   AccountResetToken.prototype.save = function () {
+    log.trace({ op: 'accountResetToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/reset', this).then(function () { return self })
   }
@@ -1576,6 +1599,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.prototype.bundle = function (wrapKb, verifier) {
+    log.trace({ op: 'accountResetToken.bundle', id: this.id })
     return this.xor(
       Buffer.concat(
         [
@@ -1587,6 +1611,7 @@ module.exports = function (inherits, Token, crypto, db) {
   }
 
   AccountResetToken.prototype.unbundle = function (hex) {
+    log.trace({ op: 'accountResetToken.unbundle', id: this.id })
     var plaintext = this.xor(Buffer(hex, 'hex'))
     var wrapKb = plaintext.slice(0, 32).toString('hex')
     var verifier = plaintext.slice(32, 288).toString('hex')
@@ -1607,7 +1632,7 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Bundle, Account, tokens) {
+module.exports = function (log, inherits, Bundle, Account, tokens) {
 
   function AuthBundle() {
     Bundle.call(this)
@@ -1617,6 +1642,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   inherits(AuthBundle, Bundle)
 
   AuthBundle.create = function (K, type) {
+    log.trace({ op: 'AuthBundle.create', type: type })
     return Bundle
       .hkdf(K, type, null, 2 * 32)
       .then(
@@ -1630,19 +1656,14 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   }
 
   AuthBundle.login = function (K, uid) {
+    log.trace({ op: 'AuthBundle.login', uid: uid })
     return AuthBundle.create(K, 'auth/finish')
       .then(
         function (b) {
           return tokens.AuthToken.create(uid)
-            .then(function (t) { b.authToken = t })
-            .then(Account.get.bind(null, uid))
             .then(
-             function (a) {
-               return a.setAuthToken(b.authToken)
-             }
-            )
-            .then(
-              function () {
+              function (t) {
+                b.authToken = t
                 return {
                   bundle: b.bundle()
                 }
@@ -1653,6 +1674,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   }
 
   AuthBundle.prototype.unbundle = function (hex) {
+    log.trace({ op: 'authBundle.unbundle' })
     var bundle = Buffer(hex, 'hex')
     var ciphertext = bundle.slice(0, 32)
     var hmac = bundle.slice(32, 64)
@@ -1664,6 +1686,7 @@ module.exports = function (inherits, Bundle, Account, tokens) {
   }
 
   AuthBundle.prototype.bundle = function () {
+    log.trace({ op: 'authBundle.bundle' })
     return this.bundleHexStrings([this.authToken.data])
   }
 
@@ -1675,7 +1698,7 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, db) {
+module.exports = function (log, inherits, Token, db) {
 
   function AuthToken() {
     Token.call(this)
@@ -1692,6 +1715,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.create = function (uid) {
+    log.trace({ op: 'AuthToken.create', uid: uid })
     return Token
       .randomTokenData('authToken', 3 * 32)
       .then(
@@ -1709,6 +1733,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'AuthToken.getCredentials', id: id })
     AuthToken.get(id)
       .done(
         function (token) {
@@ -1719,6 +1744,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.fromHex = function (string) {
+    log.trace({ op: 'AuthToken.fromHex' })
     return Token.
       tokenDataFromBytes(
         'authToken',
@@ -1739,16 +1765,19 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.get = function (id) {
+    log.trace({ op: 'AuthToken.get', id: id })
     return db
       .get(id + '/auth')
       .then(AuthToken.hydrate)
   }
 
   AuthToken.del = function (id) {
+    log.trace({ op: 'AuthToken.del', id: id })
     return db.delete(id + '/auth')
   }
 
   AuthToken.prototype.save = function () {
+    log.trace({ op: 'authToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/auth', this).then(function () { return self })
   }
@@ -1758,6 +1787,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.prototype.bundleKeys = function (type, keyFetchToken, otherToken) {
+    log.trace({ op: 'authToken.bundleKeys', id: this.id, type: type })
     return Token.tokenDataFromBytes(
       type,
       3 * 32,
@@ -1782,6 +1812,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.prototype.unbundleSession = function (bundle) {
+    log.trace({ op: 'authToken.unbundleSession', id: this.id })
     return this.unbundle('session/create', bundle)
       .then(
         function (tokens) {
@@ -1794,6 +1825,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.prototype.unbundleAccountReset = function (bundle) {
+    log.trace({ op: 'authToken.unbundleAccountReset', id: this.id })
     return this.unbundle('password/change', bundle)
       .then(
         function (tokens) {
@@ -1806,6 +1838,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   AuthToken.prototype.unbundle = function (type, bundle) {
+    log.trace({ op: 'authToken.unbundle', id: this.id, type: type })
     return Token.tokenDataFromBytes(
       type,
       3 * 32,
@@ -1844,7 +1877,7 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, crypto, db, mailer) {
+module.exports = function (log, inherits, Token, crypto, db, mailer) {
 
   var LIFETIME = 1000 * 60 * 15
 
@@ -1870,6 +1903,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.create = function (uid, email) {
+    log.trace({ op: 'ForgotPasswordToken.create', uid: uid, email: email })
     return Token
       .randomTokenData('password/forgot', 2 * 32)
       .then(
@@ -1890,6 +1924,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.fromHex = function (string) {
+    log.trace({ op: 'ForgotPasswordToken.fromHex' })
     return Token
       .tokenDataFromBytes(
         'password/forgot',
@@ -1909,6 +1944,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'ForgotPasswordToken.create', id: id })
     ForgotPasswordToken.get(id)
       .done(
         function (token) {
@@ -1919,16 +1955,19 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.get = function (id) {
+    log.trace({ op: 'ForgotPasswordToken.get', id: id })
     return db
       .get(id + '/forgot')
       .then(ForgotPasswordToken.hydrate)
   }
 
   ForgotPasswordToken.del = function (id) {
+    log.trace({ op: 'ForgotPasswordToken.del', id: id })
     return db.delete(id + '/forgot')
   }
 
   ForgotPasswordToken.prototype.save = function () {
+    log.trace({ op: 'forgotPasswordToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/forgot', this).then(function () { return self })
   }
@@ -1938,6 +1977,7 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.prototype.failAttempt = function () {
+    log.trace({ op: 'forgotPasswordToken.failAttempt', id: this.id })
     this.tries--
     if (this.tries < 1) {
       return this.del()
@@ -1953,7 +1993,8 @@ module.exports = function (inherits, Token, crypto, db, mailer) {
   }
 
   ForgotPasswordToken.prototype.sendRecoveryCode = function () {
-    return mailer.sendRecoveryCode(this.email, this.code)
+    log.trace({ op: 'forgotPasswordToken.sendRecoveryCode', id: this.id })
+    return mailer.sendRecoveryCode(Buffer(this.email, 'hex').toString(), this.code)
   }
 
   return ForgotPasswordToken
@@ -1974,32 +2015,37 @@ var uuid = require('uuid')
 var Bundle = require('../bundle')
 var error = require('../error')
 
-module.exports = function (config, dbs, mailer) {
+module.exports = function (log, config, dbs, mailer) {
 
-  var Token = require('./token')(inherits, Bundle)
+  var Token = require('./token')(log, inherits, Bundle)
 
   var KeyFetchToken = require('./key_fetch_token')(
+    log,
     inherits,
     Token,
-    dbs.store
+    dbs.cache
   )
   var AccountResetToken = require('./account_reset_token')(
+    log,
     inherits,
     Token,
     crypto,
     dbs.store
   )
   var SessionToken = require('./session_token')(
+    log,
     inherits,
     Token,
     dbs.store
   )
   var AuthToken = require('./auth_token')(
+    log,
     inherits,
     Token,
     dbs.cache
   )
   var ForgotPasswordToken = require('./forgot_password_token')(
+    log,
     inherits,
     Token,
     crypto,
@@ -2015,12 +2061,14 @@ module.exports = function (config, dbs, mailer) {
   }
 
   var RecoveryEmail = require('./recovery_email')(
+    log,
     crypto,
     P,
     dbs.store,
     mailer
   )
   var Account = require('./account')(
+    log,
     P,
     tokens,
     RecoveryEmail,
@@ -2029,6 +2077,7 @@ module.exports = function (config, dbs, mailer) {
     error
   )
   var SrpSession = require('./srp_session')(
+    log,
     P,
     uuid,
     srp,
@@ -2036,6 +2085,7 @@ module.exports = function (config, dbs, mailer) {
     error
   )
   var AuthBundle = require('./auth_bundle')(
+    log,
     inherits,
     Bundle,
     Account,
@@ -2052,12 +2102,12 @@ module.exports = function (config, dbs, mailer) {
   }
 }
 
-},{"../bundle":6,"../error":33,"./account":10,"./account_reset_token":11,"./auth_bundle":12,"./auth_token":13,"./forgot_password_token":14,"./key_fetch_token":16,"./recovery_email":17,"./session_token":18,"./srp_session":19,"./token":20,"crypto":"l4eWKl","p-promise":79,"srp":81,"util":41,"uuid":87}],16:[function(require,module,exports){
+},{"../bundle":6,"../error":32,"./account":10,"./account_reset_token":11,"./auth_bundle":12,"./auth_token":13,"./forgot_password_token":14,"./key_fetch_token":16,"./recovery_email":17,"./session_token":18,"./srp_session":19,"./token":20,"crypto":"l4eWKl","p-promise":78,"srp":81,"util":40,"uuid":85}],16:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, db) {
+module.exports = function (log, inherits, Token, db) {
 
   function KeyFetchToken() {
     Token.call(this)
@@ -2069,6 +2119,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.create = function (uid) {
+    log.trace({ op: 'KeyFetchToken.create', uid: uid })
     return Token
       .randomTokenData('account/keys', 3 * 32 + 2 * 32)
       .then(
@@ -2087,6 +2138,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'KeyFetchToken.getCredentials', id: id })
     KeyFetchToken.get(id)
       .done(
         function (token) {
@@ -2097,6 +2149,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.fromHex = function (string) {
+    log.trace({ op: 'KeyFetchToken.fromHex' })
     return Token.
       tokenDataFromBytes(
         'account/keys',
@@ -2118,16 +2171,19 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.get = function (id) {
+    log.trace({ op: 'KeyFetchToken.get', id: id })
     return db
       .get(id + '/fetch')
       .then(KeyFetchToken.hydrate)
   }
 
   KeyFetchToken.del = function (id) {
+    log.trace({ op: 'KeyFetchToken.del', id: id })
     return db.delete(id + '/fetch')
   }
 
   KeyFetchToken.prototype.save = function () {
+    log.trace({ op: 'keyFetchToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/fetch', this).then(function () { return self })
   }
@@ -2137,10 +2193,12 @@ module.exports = function (inherits, Token, db) {
   }
 
   KeyFetchToken.prototype.bundle = function (kA, wrapKb) {
+    log.trace({ op: 'keyFetchToken.bundle', id: this.id })
     return this.bundleHexStrings([kA, wrapKb])
   }
 
   KeyFetchToken.prototype.unbundle = function (bundle) {
+    log.trace({ op: 'keyFetchToken.unbundle', id: this.id })
     var buffer = Buffer(bundle, 'hex')
     var ciphertext = buffer.slice(0, 64)
     var hmac = buffer.slice(64, 96).toString('hex')
@@ -2162,7 +2220,7 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (crypto, P, db, mailer) {
+module.exports = function (log, crypto, P, db, mailer) {
 
   function RecoveryEmail() {
     this.email = null
@@ -2174,6 +2232,7 @@ module.exports = function (crypto, P, db, mailer) {
   }
 
   RecoveryEmail.create = function (uid, email, primary, verified) {
+    log.trace({ op: 'RecoveryEmail.create', uid: uid, email: email })
     var rm = new RecoveryEmail()
     rm.email = email
     rm.uid = uid
@@ -2202,16 +2261,19 @@ module.exports = function (crypto, P, db, mailer) {
   }
 
   RecoveryEmail.get = function (uid, code) {
+    log.trace({ op: 'RecoveryEmail.get', uid: uid, code: code })
     return db
       .get(uid + code + '/recovery')
       .then(RecoveryEmail.hydrate)
   }
 
   RecoveryEmail.del = function (uid, code) {
+    log.trace({ op: 'RecoveryEmail.del', uid: uid, code: code })
     return db.delete(uid + code + '/recovery')
   }
 
   RecoveryEmail.prototype.save = function () {
+    log.trace({ op: 'recoveryEmail.save', uid: this.uid, code: this.code })
     var self = this
     return db.set(this.uid + this.code + '/recovery', this).then(function () { return self })
   }
@@ -2221,10 +2283,12 @@ module.exports = function (crypto, P, db, mailer) {
   }
 
   RecoveryEmail.prototype.sendVerifyCode = function () {
+    log.trace({ op: 'recoveryEmail.sendVerifyCode', uid: this.uid, email: this.email })
     return mailer.sendVerifyCode(Buffer(this.email, 'hex').toString('utf8'), this.code, this.uid)
   }
 
   RecoveryEmail.prototype.verify = function (code) {
+    log.trace({ op: 'recoveryEmail.verify', uid: this.uid, code: code })
     if (!this.verified && code === this.code) {
       this.verified = true
       return this.save()
@@ -2240,7 +2304,7 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Token, db) {
+module.exports = function (log, inherits, Token, db) {
 
   function SessionToken() {
     Token.call(this)
@@ -2252,6 +2316,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   SessionToken.create = function (uid) {
+    log.trace({ op: 'SessionToken.create', uid: uid })
     return Token
       .randomTokenData('session', 2 * 32)
       .then(
@@ -2268,6 +2333,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   SessionToken.fromHex = function (string) {
+    log.trace({ op: 'SessionToken.fromHex' })
     return Token
       .tokenDataFromBytes(
         'session',
@@ -2287,6 +2353,7 @@ module.exports = function (inherits, Token, db) {
   }
 
   SessionToken.getCredentials = function (id, cb) {
+    log.trace({ op: 'SessionToken.getCredentials', id: id })
     SessionToken.get(id)
       .done(
         function (token) {
@@ -2297,16 +2364,19 @@ module.exports = function (inherits, Token, db) {
   }
 
   SessionToken.get = function (id) {
+    log.trace({ op: 'SessionToken.get', id: id })
     return db
       .get(id + '/session')
       .then(SessionToken.hydrate)
   }
 
   SessionToken.del = function (id) {
+    log.trace({ op: 'SessionToken.del', id: id })
     return db.delete(id + '/session')
   }
 
   SessionToken.prototype.save = function () {
+    log.trace({ op: 'sessionToken.save', id: this.id })
     var self = this
     return db.set(this.id + '/session', this).then(function () { return self })
   }
@@ -2319,11 +2389,14 @@ module.exports = function (inherits, Token, db) {
 }
 
 },{"__browserify_Buffer":4}],19:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (P, uuid, srp, db, error) {
+var Domain = require('domain')
+var crypto = require('crypto')
+
+module.exports = function (log, P, uuid, srp, db, error) {
 
   var alg = 'sha256'
 
@@ -2342,15 +2415,22 @@ module.exports = function (P, uuid, srp, db, error) {
 
   function srpGenKey() {
     var d = P.defer()
-    srp.genKey(
-      function (err, b) {
-        return err ? d.reject(err) : d.resolve(b)
+    // capturing the domain here is a workaround for:
+    // https://github.com/joyent/node/issues/3965
+    var domain = process.domain
+    crypto.randomBytes(32,
+      function (err, bytes) {
+        if (domain) domain.enter()
+        var x = err ? d.reject(err) : d.resolve(bytes)
+        if (domain) domain.exit()
+        return x
       }
     )
     return d.promise
   }
 
   SrpSession.create = function (account) {
+    log.trace({ op: 'SrpSession.create', uid: account && account.uid })
     var session = null
     if (!account) { throw error.unknownAccount() }
     return srpGenKey()
@@ -2372,10 +2452,12 @@ module.exports = function (P, uuid, srp, db, error) {
   }
 
   SrpSession.del = function (id) {
+    log.trace({ op: 'SrpSession.del', id: id })
     return db.delete(id + '/srp')
   }
 
   SrpSession.start = function (account) {
+    log.trace({ op: 'SrpSession.start', uid: account && account.uid })
     return SrpSession.create(account)
       .then(
         function (session) {
@@ -2385,6 +2467,7 @@ module.exports = function (P, uuid, srp, db, error) {
   }
 
   SrpSession.finish = function (id, A, M1) {
+    log.trace({ op: 'SrpSession.finish', id: id })
     A = Buffer(A, 'hex')
     return SrpSession
       .get(id)
@@ -2430,12 +2513,14 @@ module.exports = function (P, uuid, srp, db, error) {
   }
 
   SrpSession.get = function (id) {
+    log.trace({ op: 'SrpSession.get', id: id })
     return db
       .get(id + '/srp')
       .then(SrpSession.hydrate)
   }
 
   SrpSession.prototype.clientData = function () {
+    log.trace({ op: 'srpSession.clientData', id: this.id })
     return {
       srpToken: this.id,
       passwordStretching: this.passwordStretching,
@@ -2478,6 +2563,7 @@ module.exports = function (P, uuid, srp, db, error) {
   }
 
   SrpSession.prototype.save = function () {
+    log.trace({ op: 'srpSession.save', id: this.id })
     var self = this
     return db.set(this.id + '/srp', {
       id: this.id,
@@ -2497,12 +2583,12 @@ module.exports = function (P, uuid, srp, db, error) {
   return SrpSession
 }
 
-},{"__browserify_Buffer":4}],20:[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":77,"crypto":"l4eWKl","domain":32}],20:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (inherits, Bundle) {
+module.exports = function (log, inherits, Bundle) {
 
   function Token() {
     Bundle.call(this)
@@ -2514,6 +2600,8 @@ module.exports = function (inherits, Bundle) {
   }
   inherits(Token, Bundle)
 
+  // `token.key` is used by Hawk, and should be a Buffer.
+  // We store the hex-string so a getter is convenient
   Object.defineProperty(
     Token.prototype,
     'key',
@@ -2555,11 +2643,12 @@ module.exports = function (inherits, Bundle) {
 }
 
 },{"__browserify_Buffer":4}],21:[function(require,module,exports){
-/* This Source Code Form is subject to the terms of the Mozilla Public
+var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var sjcl = require('sjcl')
+sjcl.codec.bytes = require('sjcl-codec-bytes')
 var P = require('p-promise')
 
 const ITERATIONS = 20 * 1000
@@ -2567,20 +2656,21 @@ const LENGTH = 32 * 8
 
 /** pbkdf2 string creator
  *
- * @param {bitArray|String} password The password.
- * @param {String} salt The salt.
- * @return {String} the derived key.
+ * @param  {Buffer}  input The password hex buffer.
+ * @param  {Buffer}  salt The salt string buffer.
+ * @return {Buffer}  the derived key hex buffer.
  */
-function derive(password, salt) {
-  var saltBits = sjcl.codec.utf8String.toBits(salt)
+function derive(input, salt) {
+  var password = sjcl.codec.bytes.toBits(input)
+  var saltBits = sjcl.codec.bytes.toBits(salt)
   var result = sjcl.misc.pbkdf2(password, saltBits, ITERATIONS, LENGTH, sjcl.misc.hmac)
 
-  return P(sjcl.codec.hex.fromBits(result))
+  return P(Buffer(sjcl.codec.bytes.fromBits(result)))
 }
 
 module.exports.derive = derive
 
-},{"p-promise":79,"sjcl":80}],22:[function(require,module,exports){
+},{"__browserify_Buffer":4,"p-promise":78,"sjcl":80,"sjcl-codec-bytes":79}],22:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -2592,20 +2682,20 @@ var scrypt = require('node-scrypt-js')
 
 /**  hash Creates an scrypt hash
  *
- * @param {String} input The input for scrypt
- * @param {String} salt The salt for the hash
+ * @param {Buffer} input The input for scrypt
+ * @param {Buffer} salt The salt for the hash
  * @param {String} url scrypt helper server url
  * @returns {Object} d.promise Deferred promise
  */
 function hash(input, salt, url) {
   var p
   var payload = {
-    salt: salt,
+    salt: salt.toString(),
     N: 64 * 1024,
     r: 8,
     p: 1,
     buflen: 32,
-    input: input
+    input: input.toString('hex')
   }
 
   if (url) {
@@ -2661,7 +2751,7 @@ function remoteScryptHelper(payload, url) {
 
 module.exports.hash = hash
 
-},{"__browserify_Buffer":4,"node-scrypt-js":33,"p-promise":79,"request":"hWH+d8"}],"xttfNN":[function(require,module,exports){
+},{"__browserify_Buffer":4,"node-scrypt-js":32,"p-promise":78,"request":"hWH+d8"}],"xttfNN":[function(require,module,exports){
 var jsbn = require('jsbn');
 var Buffer = require('buffer').Buffer;
 
@@ -5540,7 +5630,7 @@ Buffer.prototype.writeDoubleBE = function(value, offset, noAssert) {
   writeDouble(this, value, offset, true, noAssert);
 };
 
-},{"./buffer_ieee754":26,"assert":34,"base64-js":28}],28:[function(require,module,exports){
+},{"./buffer_ieee754":26,"assert":33,"base64-js":28}],28:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -5792,17 +5882,18 @@ each(['createCredentials'
 }())
 
 },{}],31:[function(require,module,exports){
-var sjcl = require('./sjcl');
+var sjcl = require('sjcl');
+var bytes = require('sjcl-codec-bytes');
 var Buffer = require('buffer').Buffer;
 
 var bits2hex = sjcl.codec.hex.fromBits;
 var bits2base64 = sjcl.codec.base64.fromBits;
-var bits2bytes = sjcl.codec.bytes.fromBits;
+var bits2bytes = bytes.fromBits;
 
 var str2bits = sjcl.codec.utf8String.toBits;
 var hex2bits = sjcl.codec.hex.toBits;
 var b642bits = sjcl.codec.base64.toBits;
-var bytes2bits = sjcl.codec.bytes.toBits;
+var bytes2bits = bytes.toBits;
 
 var Hash = sjcl.hash.sha256;
 
@@ -5873,96 +5964,9 @@ exports.hmac_base64 = hmac_base64;
 exports.hmac_buffer = hmac_buffer;
 exports.hmac_binary = hmac_binary;
 
-},{"./sjcl":32,"buffer":"IZihkv"}],32:[function(require,module,exports){
-"use strict";function q(a){throw a;}var t=void 0,u=!1;var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
-"undefined"!=typeof module&&module.exports&&(module.exports=sjcl);
-sjcl.cipher.aes=function(a){this.j[0][0][0]||this.D();var b,c,d,e,f=this.j[0][4],g=this.j[1];b=a.length;var h=1;4!==b&&(6!==b&&8!==b)&&q(new sjcl.exception.invalid("invalid aes key size"));this.a=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
-255]]};
-sjcl.cipher.aes.prototype={encrypt:function(a){return y(this,a,0)},decrypt:function(a){return y(this,a,1)},j:[[[],[],[],[],[]],[[],[],[],[],[]]],D:function(){var a=this.j[0],b=this.j[1],c=a[4],d=b[4],e,f,g,h=[],l=[],k,n,m,p;for(e=0;0x100>e;e++)l[(h[e]=e<<1^283*(e>>7))^e]=e;for(f=g=0;!c[f];f^=k||1,g=l[g]||1){m=g^g<<1^g<<2^g<<3^g<<4;m=m>>8^m&255^99;c[f]=m;d[m]=f;n=h[e=h[k=h[f]]];p=0x1010101*n^0x10001*e^0x101*k^0x1010100*f;n=0x101*h[m]^0x1010100*m;for(e=0;4>e;e++)a[e][f]=n=n<<24^n>>>8,b[e][m]=p=p<<24^p>>>8}for(e=
-0;5>e;e++)a[e]=a[e].slice(0),b[e]=b[e].slice(0)}};
-function y(a,b,c){4!==b.length&&q(new sjcl.exception.invalid("invalid aes block size"));var d=a.a[c],e=b[0]^d[0],f=b[c?3:1]^d[1],g=b[2]^d[2];b=b[c?1:3]^d[3];var h,l,k,n=d.length/4-2,m,p=4,s=[0,0,0,0];h=a.j[c];a=h[0];var r=h[1],v=h[2],w=h[3],x=h[4];for(m=0;m<n;m++)h=a[e>>>24]^r[f>>16&255]^v[g>>8&255]^w[b&255]^d[p],l=a[f>>>24]^r[g>>16&255]^v[b>>8&255]^w[e&255]^d[p+1],k=a[g>>>24]^r[b>>16&255]^v[e>>8&255]^w[f&255]^d[p+2],b=a[b>>>24]^r[e>>16&255]^v[f>>8&255]^w[g&255]^d[p+3],p+=4,e=h,f=l,g=k;for(m=0;4>
-m;m++)s[c?3&-m:m]=x[e>>>24]<<24^x[f>>16&255]<<16^x[g>>8&255]<<8^x[b&255]^d[p++],h=e,e=f,f=g,g=b,b=h;return s}
-sjcl.bitArray={bitSlice:function(a,b,c){a=sjcl.bitArray.O(a.slice(b/32),32-(b&31)).slice(1);return c===t?a:sjcl.bitArray.clamp(a,c-b)},extract:function(a,b,c){var d=Math.floor(-b-c&31);return((b+c-1^b)&-32?a[b/32|0]<<32-d^a[b/32+1|0]>>>d:a[b/32|0]>>>d)&(1<<c)-1},concat:function(a,b){if(0===a.length||0===b.length)return a.concat(b);var c=a[a.length-1],d=sjcl.bitArray.getPartial(c);return 32===d?a.concat(b):sjcl.bitArray.O(b,d,c|0,a.slice(0,a.length-1))},bitLength:function(a){var b=a.length;return 0===
-b?0:32*(b-1)+sjcl.bitArray.getPartial(a[b-1])},clamp:function(a,b){if(32*a.length<b)return a;a=a.slice(0,Math.ceil(b/32));var c=a.length;b&=31;0<c&&b&&(a[c-1]=sjcl.bitArray.partial(b,a[c-1]&2147483648>>b-1,1));return a},partial:function(a,b,c){return 32===a?b:(c?b|0:b<<32-a)+0x10000000000*a},getPartial:function(a){return Math.round(a/0x10000000000)||32},equal:function(a,b){if(sjcl.bitArray.bitLength(a)!==sjcl.bitArray.bitLength(b))return u;var c=0,d;for(d=0;d<a.length;d++)c|=a[d]^b[d];return 0===
-c},O:function(a,b,c,d){var e;e=0;for(d===t&&(d=[]);32<=b;b-=32)d.push(c),c=0;if(0===b)return d.concat(a);for(e=0;e<a.length;e++)d.push(c|a[e]>>>b),c=a[e]<<32-b;e=a.length?a[a.length-1]:0;a=sjcl.bitArray.getPartial(e);d.push(sjcl.bitArray.partial(b+a&31,32<b+a?c:d.pop(),1));return d},k:function(a,b){return[a[0]^b[0],a[1]^b[1],a[2]^b[2],a[3]^b[3]]}};
-sjcl.codec.utf8String={fromBits:function(a){var b="",c=sjcl.bitArray.bitLength(a),d,e;for(d=0;d<c/8;d++)0===(d&3)&&(e=a[d/4]),b+=String.fromCharCode(e>>>24),e<<=8;return decodeURIComponent(escape(b))},toBits:function(a){a=unescape(encodeURIComponent(a));var b=[],c,d=0;for(c=0;c<a.length;c++)d=d<<8|a.charCodeAt(c),3===(c&3)&&(b.push(d),d=0);c&3&&b.push(sjcl.bitArray.partial(8*(c&3),d));return b}};
-sjcl.codec.hex={fromBits:function(a){var b="",c;for(c=0;c<a.length;c++)b+=((a[c]|0)+0xf00000000000).toString(16).substr(4);return b.substr(0,sjcl.bitArray.bitLength(a)/4)},toBits:function(a){var b,c=[],d;a=a.replace(/\s|0x/g,"");d=a.length;a+="00000000";for(b=0;b<a.length;b+=8)c.push(parseInt(a.substr(b,8),16)^0);return sjcl.bitArray.clamp(c,4*d)}};
-sjcl.codec.base64={I:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/",fromBits:function(a,b,c){var d="",e=0,f=sjcl.codec.base64.I,g=0,h=sjcl.bitArray.bitLength(a);c&&(f=f.substr(0,62)+"-_");for(c=0;6*d.length<h;)d+=f.charAt((g^a[c]>>>e)>>>26),6>e?(g=a[c]<<6-e,e+=26,c++):(g<<=6,e-=6);for(;d.length&3&&!b;)d+="=";return d},toBits:function(a,b){a=a.replace(/\s|=/g,"");var c=[],d,e=0,f=sjcl.codec.base64.I,g=0,h;b&&(f=f.substr(0,62)+"-_");for(d=0;d<a.length;d++)h=f.indexOf(a.charAt(d)),
-0>h&&q(new sjcl.exception.invalid("this isn't base64!")),26<e?(e-=26,c.push(g^h>>>e),g=h<<32-e):(e+=6,g^=h<<32-e);e&56&&c.push(sjcl.bitArray.partial(e&56,g,1));return c}};sjcl.codec.base64url={fromBits:function(a){return sjcl.codec.base64.fromBits(a,1,1)},toBits:function(a){return sjcl.codec.base64.toBits(a,1)}};sjcl.hash.sha256=function(a){this.a[0]||this.D();a?(this.q=a.q.slice(0),this.m=a.m.slice(0),this.g=a.g):this.reset()};sjcl.hash.sha256.hash=function(a){return(new sjcl.hash.sha256).update(a).finalize()};
-sjcl.hash.sha256.prototype={blockSize:512,reset:function(){this.q=this.M.slice(0);this.m=[];this.g=0;return this},update:function(a){"string"===typeof a&&(a=sjcl.codec.utf8String.toBits(a));var b,c=this.m=sjcl.bitArray.concat(this.m,a);b=this.g;a=this.g=b+sjcl.bitArray.bitLength(a);for(b=512+b&-512;b<=a;b+=512)z(this,c.splice(0,16));return this},finalize:function(){var a,b=this.m,c=this.q,b=sjcl.bitArray.concat(b,[sjcl.bitArray.partial(1,1)]);for(a=b.length+2;a&15;a++)b.push(0);b.push(Math.floor(this.g/
-4294967296));for(b.push(this.g|0);b.length;)z(this,b.splice(0,16));this.reset();return c},M:[],a:[],D:function(){function a(a){return 0x100000000*(a-Math.floor(a))|0}var b=0,c=2,d;a:for(;64>b;c++){for(d=2;d*d<=c;d++)if(0===c%d)continue a;8>b&&(this.M[b]=a(Math.pow(c,0.5)));this.a[b]=a(Math.pow(c,1/3));b++}}};
-function z(a,b){var c,d,e,f=b.slice(0),g=a.q,h=a.a,l=g[0],k=g[1],n=g[2],m=g[3],p=g[4],s=g[5],r=g[6],v=g[7];for(c=0;64>c;c++)16>c?d=f[c]:(d=f[c+1&15],e=f[c+14&15],d=f[c&15]=(d>>>7^d>>>18^d>>>3^d<<25^d<<14)+(e>>>17^e>>>19^e>>>10^e<<15^e<<13)+f[c&15]+f[c+9&15]|0),d=d+v+(p>>>6^p>>>11^p>>>25^p<<26^p<<21^p<<7)+(r^p&(s^r))+h[c],v=r,r=s,s=p,p=m+d|0,m=n,n=k,k=l,l=d+(k&n^m&(k^n))+(k>>>2^k>>>13^k>>>22^k<<30^k<<19^k<<10)|0;g[0]=g[0]+l|0;g[1]=g[1]+k|0;g[2]=g[2]+n|0;g[3]=g[3]+m|0;g[4]=g[4]+p|0;g[5]=g[5]+s|0;g[6]=
-g[6]+r|0;g[7]=g[7]+v|0}
-sjcl.mode.ccm={name:"ccm",encrypt:function(a,b,c,d,e){var f,g=b.slice(0),h=sjcl.bitArray,l=h.bitLength(c)/8,k=h.bitLength(g)/8;e=e||64;d=d||[];7>l&&q(new sjcl.exception.invalid("ccm: iv must be at least 7 bytes"));for(f=2;4>f&&k>>>8*f;f++);f<15-l&&(f=15-l);c=h.clamp(c,8*(15-f));b=sjcl.mode.ccm.K(a,b,c,d,e,f);g=sjcl.mode.ccm.n(a,g,c,b,e,f);return h.concat(g.data,g.tag)},decrypt:function(a,b,c,d,e){e=e||64;d=d||[];var f=sjcl.bitArray,g=f.bitLength(c)/8,h=f.bitLength(b),l=f.clamp(b,h-e),k=f.bitSlice(b,
-h-e),h=(h-e)/8;7>g&&q(new sjcl.exception.invalid("ccm: iv must be at least 7 bytes"));for(b=2;4>b&&h>>>8*b;b++);b<15-g&&(b=15-g);c=f.clamp(c,8*(15-b));l=sjcl.mode.ccm.n(a,l,c,k,e,b);a=sjcl.mode.ccm.K(a,l.data,c,d,e,b);f.equal(l.tag,a)||q(new sjcl.exception.corrupt("ccm: tag doesn't match"));return l.data},K:function(a,b,c,d,e,f){var g=[],h=sjcl.bitArray,l=h.k;e/=8;(e%2||4>e||16<e)&&q(new sjcl.exception.invalid("ccm: invalid tag length"));(0xffffffff<d.length||0xffffffff<b.length)&&q(new sjcl.exception.bug("ccm: can't deal with 4GiB or more data"));
-f=[h.partial(8,(d.length?64:0)|e-2<<2|f-1)];f=h.concat(f,c);f[3]|=h.bitLength(b)/8;f=a.encrypt(f);if(d.length){c=h.bitLength(d)/8;65279>=c?g=[h.partial(16,c)]:0xffffffff>=c&&(g=h.concat([h.partial(16,65534)],[c]));g=h.concat(g,d);for(d=0;d<g.length;d+=4)f=a.encrypt(l(f,g.slice(d,d+4).concat([0,0,0])))}for(d=0;d<b.length;d+=4)f=a.encrypt(l(f,b.slice(d,d+4).concat([0,0,0])));return h.clamp(f,8*e)},n:function(a,b,c,d,e,f){var g,h=sjcl.bitArray;g=h.k;var l=b.length,k=h.bitLength(b);c=h.concat([h.partial(8,
-f-1)],c).concat([0,0,0]).slice(0,4);d=h.bitSlice(g(d,a.encrypt(c)),0,e);if(!l)return{tag:d,data:[]};for(g=0;g<l;g+=4)c[3]++,e=a.encrypt(c),b[g]^=e[0],b[g+1]^=e[1],b[g+2]^=e[2],b[g+3]^=e[3];return{tag:d,data:h.clamp(b,k)}}};
-sjcl.mode.ocb2={name:"ocb2",encrypt:function(a,b,c,d,e,f){128!==sjcl.bitArray.bitLength(c)&&q(new sjcl.exception.invalid("ocb iv must be 128 bits"));var g,h=sjcl.mode.ocb2.G,l=sjcl.bitArray,k=l.k,n=[0,0,0,0];c=h(a.encrypt(c));var m,p=[];d=d||[];e=e||64;for(g=0;g+4<b.length;g+=4)m=b.slice(g,g+4),n=k(n,m),p=p.concat(k(c,a.encrypt(k(c,m)))),c=h(c);m=b.slice(g);b=l.bitLength(m);g=a.encrypt(k(c,[0,0,0,b]));m=l.clamp(k(m.concat([0,0,0]),g),b);n=k(n,k(m.concat([0,0,0]),g));n=a.encrypt(k(n,k(c,h(c))));d.length&&
-(n=k(n,f?d:sjcl.mode.ocb2.pmac(a,d)));return p.concat(l.concat(m,l.clamp(n,e)))},decrypt:function(a,b,c,d,e,f){128!==sjcl.bitArray.bitLength(c)&&q(new sjcl.exception.invalid("ocb iv must be 128 bits"));e=e||64;var g=sjcl.mode.ocb2.G,h=sjcl.bitArray,l=h.k,k=[0,0,0,0],n=g(a.encrypt(c)),m,p,s=sjcl.bitArray.bitLength(b)-e,r=[];d=d||[];for(c=0;c+4<s/32;c+=4)m=l(n,a.decrypt(l(n,b.slice(c,c+4)))),k=l(k,m),r=r.concat(m),n=g(n);p=s-32*c;m=a.encrypt(l(n,[0,0,0,p]));m=l(m,h.clamp(b.slice(c),p).concat([0,0,0]));
-k=l(k,m);k=a.encrypt(l(k,l(n,g(n))));d.length&&(k=l(k,f?d:sjcl.mode.ocb2.pmac(a,d)));h.equal(h.clamp(k,e),h.bitSlice(b,s))||q(new sjcl.exception.corrupt("ocb: tag doesn't match"));return r.concat(h.clamp(m,p))},pmac:function(a,b){var c,d=sjcl.mode.ocb2.G,e=sjcl.bitArray,f=e.k,g=[0,0,0,0],h=a.encrypt([0,0,0,0]),h=f(h,d(d(h)));for(c=0;c+4<b.length;c+=4)h=d(h),g=f(g,a.encrypt(f(h,b.slice(c,c+4))));c=b.slice(c);128>e.bitLength(c)&&(h=f(h,d(h)),c=e.concat(c,[-2147483648,0,0,0]));g=f(g,c);return a.encrypt(f(d(f(h,
-d(h))),g))},G:function(a){return[a[0]<<1^a[1]>>>31,a[1]<<1^a[2]>>>31,a[2]<<1^a[3]>>>31,a[3]<<1^135*(a[0]>>>31)]}};
-sjcl.mode.gcm={name:"gcm",encrypt:function(a,b,c,d,e){var f=b.slice(0);b=sjcl.bitArray;d=d||[];a=sjcl.mode.gcm.n(!0,a,f,d,c,e||128);return b.concat(a.data,a.tag)},decrypt:function(a,b,c,d,e){var f=b.slice(0),g=sjcl.bitArray,h=g.bitLength(f);e=e||128;d=d||[];e<=h?(b=g.bitSlice(f,h-e),f=g.bitSlice(f,0,h-e)):(b=f,f=[]);a=sjcl.mode.gcm.n(u,a,f,d,c,e);g.equal(a.tag,b)||q(new sjcl.exception.corrupt("gcm: tag doesn't match"));return a.data},U:function(a,b){var c,d,e,f,g,h=sjcl.bitArray.k;e=[0,0,0,0];f=b.slice(0);
-for(c=0;128>c;c++){(d=0!==(a[Math.floor(c/32)]&1<<31-c%32))&&(e=h(e,f));g=0!==(f[3]&1);for(d=3;0<d;d--)f[d]=f[d]>>>1|(f[d-1]&1)<<31;f[0]>>>=1;g&&(f[0]^=-0x1f000000)}return e},f:function(a,b,c){var d,e=c.length;b=b.slice(0);for(d=0;d<e;d+=4)b[0]^=0xffffffff&c[d],b[1]^=0xffffffff&c[d+1],b[2]^=0xffffffff&c[d+2],b[3]^=0xffffffff&c[d+3],b=sjcl.mode.gcm.U(b,a);return b},n:function(a,b,c,d,e,f){var g,h,l,k,n,m,p,s,r=sjcl.bitArray;m=c.length;p=r.bitLength(c);s=r.bitLength(d);h=r.bitLength(e);g=b.encrypt([0,
-0,0,0]);96===h?(e=e.slice(0),e=r.concat(e,[1])):(e=sjcl.mode.gcm.f(g,[0,0,0,0],e),e=sjcl.mode.gcm.f(g,e,[0,0,Math.floor(h/0x100000000),h&0xffffffff]));h=sjcl.mode.gcm.f(g,[0,0,0,0],d);n=e.slice(0);d=h.slice(0);a||(d=sjcl.mode.gcm.f(g,h,c));for(k=0;k<m;k+=4)n[3]++,l=b.encrypt(n),c[k]^=l[0],c[k+1]^=l[1],c[k+2]^=l[2],c[k+3]^=l[3];c=r.clamp(c,p);a&&(d=sjcl.mode.gcm.f(g,h,c));a=[Math.floor(s/0x100000000),s&0xffffffff,Math.floor(p/0x100000000),p&0xffffffff];d=sjcl.mode.gcm.f(g,d,a);l=b.encrypt(e);d[0]^=l[0];
-d[1]^=l[1];d[2]^=l[2];d[3]^=l[3];return{tag:r.bitSlice(d,0,f),data:c}}};sjcl.misc.hmac=function(a,b){this.L=b=b||sjcl.hash.sha256;var c=[[],[]],d,e=b.prototype.blockSize/32;this.o=[new b,new b];a.length>e&&(a=b.hash(a));for(d=0;d<e;d++)c[0][d]=a[d]^909522486,c[1][d]=a[d]^1549556828;this.o[0].update(c[0]);this.o[1].update(c[1])};sjcl.misc.hmac.prototype.encrypt=sjcl.misc.hmac.prototype.mac=function(a){a=(new this.L(this.o[0])).update(a).finalize();return(new this.L(this.o[1])).update(a).finalize()};
-sjcl.misc.pbkdf2=function(a,b,c,d,e){c=c||1E3;(0>d||0>c)&&q(sjcl.exception.invalid("invalid params to pbkdf2"));"string"===typeof a&&(a=sjcl.codec.utf8String.toBits(a));e=e||sjcl.misc.hmac;a=new e(a);var f,g,h,l,k=[],n=sjcl.bitArray;for(l=1;32*k.length<(d||1);l++){e=f=a.encrypt(n.concat(b,[l]));for(g=1;g<c;g++){f=a.encrypt(f);for(h=0;h<f.length;h++)e[h]^=f[h]}k=k.concat(e)}d&&(k=n.clamp(k,d));return k};
-sjcl.prng=function(a){this.b=[new sjcl.hash.sha256];this.h=[0];this.F=0;this.t={};this.C=0;this.J={};this.N=this.c=this.i=this.T=0;this.a=[0,0,0,0,0,0,0,0];this.e=[0,0,0,0];this.A=t;this.B=a;this.p=u;this.z={progress:{},seeded:{}};this.l=this.S=0;this.u=1;this.w=2;this.Q=0x10000;this.H=[0,48,64,96,128,192,0x100,384,512,768,1024];this.R=3E4;this.P=80};
-sjcl.prng.prototype={randomWords:function(a,b){var c=[],d;d=this.isReady(b);var e;d===this.l&&q(new sjcl.exception.notReady("generator isn't seeded"));if(d&this.w){d=!(d&this.u);e=[];var f=0,g;this.N=e[0]=(new Date).valueOf()+this.R;for(g=0;16>g;g++)e.push(0x100000000*Math.random()|0);for(g=0;g<this.b.length&&!(e=e.concat(this.b[g].finalize()),f+=this.h[g],this.h[g]=0,!d&&this.F&1<<g);g++);this.F>=1<<this.b.length&&(this.b.push(new sjcl.hash.sha256),this.h.push(0));this.c-=f;f>this.i&&(this.i=f);this.F++;
-this.a=sjcl.hash.sha256.hash(this.a.concat(e));this.A=new sjcl.cipher.aes(this.a);for(d=0;4>d&&!(this.e[d]=this.e[d]+1|0,this.e[d]);d++);}for(d=0;d<a;d+=4)0===(d+1)%this.Q&&A(this),e=B(this),c.push(e[0],e[1],e[2],e[3]);A(this);return c.slice(0,a)},setDefaultParanoia:function(a){this.B=a},addEntropy:function(a,b,c){c=c||"user";var d,e,f=(new Date).valueOf(),g=this.t[c],h=this.isReady(),l=0;d=this.J[c];d===t&&(d=this.J[c]=this.T++);g===t&&(g=this.t[c]=0);this.t[c]=(this.t[c]+1)%this.b.length;switch(typeof a){case "number":b===
-t&&(b=1);this.b[g].update([d,this.C++,1,b,f,1,a|0]);break;case "object":c=Object.prototype.toString.call(a);if("[object Uint32Array]"===c){e=[];for(c=0;c<a.length;c++)e.push(a[c]);a=e}else{"[object Array]"!==c&&(l=1);for(c=0;c<a.length&&!l;c++)"number"!=typeof a[c]&&(l=1)}if(!l){if(b===t)for(c=b=0;c<a.length;c++)for(e=a[c];0<e;)b++,e>>>=1;this.b[g].update([d,this.C++,2,b,f,a.length].concat(a))}break;case "string":b===t&&(b=a.length);this.b[g].update([d,this.C++,3,b,f,a.length]);this.b[g].update(a);
-break;default:l=1}l&&q(new sjcl.exception.bug("random: addEntropy only supports number, array of numbers or string"));this.h[g]+=b;this.c+=b;h===this.l&&(this.isReady()!==this.l&&C("seeded",Math.max(this.i,this.c)),C("progress",this.getProgress()))},isReady:function(a){a=this.H[a!==t?a:this.B];return this.i&&this.i>=a?this.h[0]>this.P&&(new Date).valueOf()>this.N?this.w|this.u:this.u:this.c>=a?this.w|this.l:this.l},getProgress:function(a){a=this.H[a?a:this.B];return this.i>=a?1:this.c>a?1:this.c/
-a},startCollectors:function(){this.p||(window.addEventListener?(window.addEventListener("load",this.r,u),window.addEventListener("mousemove",this.s,u)):document.attachEvent?(document.attachEvent("onload",this.r),document.attachEvent("onmousemove",this.s)):q(new sjcl.exception.bug("can't attach event")),this.p=!0)},stopCollectors:function(){this.p&&(window.removeEventListener?(window.removeEventListener("load",this.r,u),window.removeEventListener("mousemove",this.s,u)):window.detachEvent&&(window.detachEvent("onload",
-this.r),window.detachEvent("onmousemove",this.s)),this.p=u)},addEventListener:function(a,b){this.z[a][this.S++]=b},removeEventListener:function(a,b){var c,d,e=this.z[a],f=[];for(d in e)e.hasOwnProperty(d)&&e[d]===b&&f.push(d);for(c=0;c<f.length;c++)d=f[c],delete e[d]},s:function(a){sjcl.random.addEntropy([a.x||a.clientX||a.offsetX||0,a.y||a.clientY||a.offsetY||0],2,"mouse")},r:function(){sjcl.random.addEntropy((new Date).valueOf(),2,"loadtime")}};
-function C(a,b){var c,d=sjcl.random.z[a],e=[];for(c in d)d.hasOwnProperty(c)&&e.push(d[c]);for(c=0;c<e.length;c++)e[c](b)}function A(a){a.a=B(a).concat(B(a));a.A=new sjcl.cipher.aes(a.a)}function B(a){for(var b=0;4>b&&!(a.e[b]=a.e[b]+1|0,a.e[b]);b++);return a.A.encrypt(a.e)}sjcl.random=new sjcl.prng(6);try{var D=new Uint32Array(32);crypto.getRandomValues(D);sjcl.random.addEntropy(D,1024,"crypto['getRandomValues']")}catch(E){}
-sjcl.json={defaults:{v:1,iter:1E3,ks:128,ts:64,mode:"ccm",adata:"",cipher:"aes"},encrypt:function(a,b,c,d){c=c||{};d=d||{};var e=sjcl.json,f=e.d({iv:sjcl.random.randomWords(4,0)},e.defaults),g;e.d(f,c);c=f.adata;"string"===typeof f.salt&&(f.salt=sjcl.codec.base64.toBits(f.salt));"string"===typeof f.iv&&(f.iv=sjcl.codec.base64.toBits(f.iv));(!sjcl.mode[f.mode]||!sjcl.cipher[f.cipher]||"string"===typeof a&&100>=f.iter||64!==f.ts&&96!==f.ts&&128!==f.ts||128!==f.ks&&192!==f.ks&&0x100!==f.ks||2>f.iv.length||
-4<f.iv.length)&&q(new sjcl.exception.invalid("json encrypt: invalid parameters"));"string"===typeof a?(g=sjcl.misc.cachedPbkdf2(a,f),a=g.key.slice(0,f.ks/32),f.salt=g.salt):sjcl.ecc&&a instanceof sjcl.ecc.elGamal.publicKey&&(g=a.kem(),f.kemtag=g.tag,a=g.key.slice(0,f.ks/32));"string"===typeof b&&(b=sjcl.codec.utf8String.toBits(b));"string"===typeof c&&(c=sjcl.codec.utf8String.toBits(c));g=new sjcl.cipher[f.cipher](a);e.d(d,f);d.key=a;f.ct=sjcl.mode[f.mode].encrypt(g,b,f.iv,c,f.ts);return e.encode(f)},
-decrypt:function(a,b,c,d){c=c||{};d=d||{};var e=sjcl.json;b=e.d(e.d(e.d({},e.defaults),e.decode(b)),c,!0);var f;c=b.adata;"string"===typeof b.salt&&(b.salt=sjcl.codec.base64.toBits(b.salt));"string"===typeof b.iv&&(b.iv=sjcl.codec.base64.toBits(b.iv));(!sjcl.mode[b.mode]||!sjcl.cipher[b.cipher]||"string"===typeof a&&100>=b.iter||64!==b.ts&&96!==b.ts&&128!==b.ts||128!==b.ks&&192!==b.ks&&0x100!==b.ks||!b.iv||2>b.iv.length||4<b.iv.length)&&q(new sjcl.exception.invalid("json decrypt: invalid parameters"));
-"string"===typeof a?(f=sjcl.misc.cachedPbkdf2(a,b),a=f.key.slice(0,b.ks/32),b.salt=f.salt):sjcl.ecc&&a instanceof sjcl.ecc.elGamal.secretKey&&(a=a.unkem(sjcl.codec.base64.toBits(b.kemtag)).slice(0,b.ks/32));"string"===typeof c&&(c=sjcl.codec.utf8String.toBits(c));f=new sjcl.cipher[b.cipher](a);c=sjcl.mode[b.mode].decrypt(f,b.ct,b.iv,c,b.ts);e.d(d,b);d.key=a;return sjcl.codec.utf8String.fromBits(c)},encode:function(a){var b,c="{",d="";for(b in a)if(a.hasOwnProperty(b))switch(b.match(/^[a-z0-9]+$/i)||
-q(new sjcl.exception.invalid("json encode: invalid property name")),c+=d+'"'+b+'":',d=",",typeof a[b]){case "number":case "boolean":c+=a[b];break;case "string":c+='"'+escape(a[b])+'"';break;case "object":c+='"'+sjcl.codec.base64.fromBits(a[b],0)+'"';break;default:q(new sjcl.exception.bug("json encode: unsupported type"))}return c+"}"},decode:function(a){a=a.replace(/\s/g,"");a.match(/^\{.*\}$/)||q(new sjcl.exception.invalid("json decode: this isn't json!"));a=a.replace(/^\{|\}$/g,"").split(/,/);var b=
-{},c,d;for(c=0;c<a.length;c++)(d=a[c].match(/^(?:(["']?)([a-z][a-z0-9]*)\1):(?:(\d+)|"([a-z0-9+\/%*_.@=\-]*)")$/i))||q(new sjcl.exception.invalid("json decode: this isn't json!")),b[d[2]]=d[3]?parseInt(d[3],10):d[2].match(/^(ct|salt|iv)$/)?sjcl.codec.base64.toBits(d[4]):unescape(d[4]);return b},d:function(a,b,c){a===t&&(a={});if(b===t)return a;for(var d in b)b.hasOwnProperty(d)&&(c&&(a[d]!==t&&a[d]!==b[d])&&q(new sjcl.exception.invalid("required parameter overridden")),a[d]=b[d]);return a},X:function(a,
-b){var c={},d;for(d in a)a.hasOwnProperty(d)&&a[d]!==b[d]&&(c[d]=a[d]);return c},W:function(a,b){var c={},d;for(d=0;d<b.length;d++)a[b[d]]!==t&&(c[b[d]]=a[b[d]]);return c}};sjcl.encrypt=sjcl.json.encrypt;sjcl.decrypt=sjcl.json.decrypt;sjcl.misc.V={};
-sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.V,d;b=b||{};d=b.iter||1E3;c=c[a]=c[a]||{};d=c[d]=c[d]||{firstSalt:b.salt&&b.salt.length?b.salt.slice(0):sjcl.random.randomWords(2,0)};c=b.salt===t?d.firstSalt:b.salt;d[c]=d[c]||sjcl.misc.pbkdf2(a,c,b.iter);return{key:d[c].slice(0),salt:c.slice(0)}};
-/** @fileOverview Bit array codec implementations.
- *
- * @author Emily Stark
- * @author Mike Hamburg
- * @author Dan Boneh
- */
-
-/** @namespace Arrays of bytes */
-sjcl.codec.bytes = {
-  /** Convert from a bitArray to an array of bytes. */
-  fromBits: function (arr) {
-    var out = [], bl = sjcl.bitArray.bitLength(arr), i, tmp;
-    for (i=0; i<bl/8; i++) {
-      if ((i&3) === 0) {
-        tmp = arr[i/4];
-      }
-      out.push(tmp >>> 24);
-      tmp <<= 8;
-    }
-    return out;
-  },
-  /** Convert from an array of bytes to a bitArray. */
-  toBits: function (bytes) {
-    var out = [], i, tmp=0;
-    for (i=0; i<bytes.length; i++) {
-      tmp = tmp << 8 | bytes[i];
-      if ((i&3) === 3) {
-        out.push(tmp);
-        tmp = 0;
-      }
-    }
-    if (i&3) {
-      out.push(sjcl.bitArray.partial(8*(i&3), tmp));
-    }
-    return out;
-  }
-};
+},{"buffer":"IZihkv","sjcl":80,"sjcl-codec-bytes":79}],32:[function(require,module,exports){
 
 },{}],33:[function(require,module,exports){
-
-},{}],34:[function(require,module,exports){
 // UTILITY
 var util = require('util');
 var Buffer = require("buffer").Buffer;
@@ -6276,9 +6280,9 @@ assert.doesNotThrow = function(block, /*optional*/error, /*optional*/message) {
 
 assert.ifError = function(err) { if (err) {throw err;}};
 
-},{"buffer":"IZihkv","util":41}],35:[function(require,module,exports){
+},{"buffer":"IZihkv","util":40}],34:[function(require,module,exports){
 
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -6474,10 +6478,10 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":78}],37:[function(require,module,exports){
+},{"__browserify_process":77}],36:[function(require,module,exports){
 // nothing to see here... no file methods for the browser
 
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 
 /**
  * Object#toString() ref for stringify().
@@ -6796,7 +6800,7 @@ function decode(str) {
   }
 }
 
-},{}],39:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var events = require('events');
 var util = require('util');
 
@@ -6917,7 +6921,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":36,"util":41}],40:[function(require,module,exports){
+},{"events":35,"util":40}],39:[function(require,module,exports){
 var punycode = { encode : function (s) { return s } };
 
 exports.parse = urlParse;
@@ -7523,7 +7527,7 @@ function parseHost(host) {
   return out;
 }
 
-},{"querystring":38}],41:[function(require,module,exports){
+},{"querystring":37}],40:[function(require,module,exports){
 var events = require('events');
 
 exports.isArray = isArray;
@@ -7870,7 +7874,7 @@ exports.format = function(f) {
   return str;
 };
 
-},{"events":36}],42:[function(require,module,exports){
+},{"events":35}],41:[function(require,module,exports){
 var http = module.exports;
 var EventEmitter = require('events').EventEmitter;
 var Request = require('./lib/request');
@@ -7932,7 +7936,7 @@ var xhrHttp = (function () {
     }
 })();
 
-},{"./lib/request":43,"events":36}],43:[function(require,module,exports){
+},{"./lib/request":42,"events":35}],42:[function(require,module,exports){
 var Stream = require('stream');
 var Response = require('./response');
 var concatStream = require('concat-stream');
@@ -8065,7 +8069,7 @@ var indexOf = function (xs, x) {
     return -1;
 };
 
-},{"./response":44,"Base64":45,"concat-stream":46,"stream":39}],44:[function(require,module,exports){
+},{"./response":43,"Base64":44,"concat-stream":45,"stream":38}],43:[function(require,module,exports){
 var Stream = require('stream');
 
 var Response = module.exports = function (res) {
@@ -8186,11 +8190,11 @@ var isArray = Array.isArray || function (xs) {
     return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{"stream":39}],45:[function(require,module,exports){
+},{"stream":38}],44:[function(require,module,exports){
 ;(function () {
 
   var
-    object = typeof window != 'undefined' ? window : exports,
+    object = typeof exports != 'undefined' ? exports : window,
     chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=',
     INVALID_CHARACTER_ERR = (function () {
       // fabricate a suitable error object
@@ -8243,7 +8247,7 @@ var isArray = Array.isArray || function (xs) {
 
 }());
 
-},{}],46:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var stream = require('stream')
 var bops = require('bops')
 var util = require('util')
@@ -8294,7 +8298,7 @@ module.exports = function(cb) {
 
 module.exports.ConcatStream = ConcatStream
 
-},{"bops":47,"stream":39,"util":41}],47:[function(require,module,exports){
+},{"bops":46,"stream":38,"util":40}],46:[function(require,module,exports){
 var proto = {}
 module.exports = proto
 
@@ -8315,7 +8319,7 @@ function mix(from, into) {
   }
 }
 
-},{"./copy.js":52,"./create.js":53,"./from.js":54,"./is.js":55,"./join.js":56,"./read.js":58,"./subarray.js":59,"./to.js":60,"./write.js":61}],48:[function(require,module,exports){
+},{"./copy.js":51,"./create.js":52,"./from.js":53,"./is.js":54,"./join.js":55,"./read.js":57,"./subarray.js":58,"./to.js":59,"./write.js":60}],47:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -8401,82 +8405,7 @@ function mix(from, into) {
 	module.exports.fromByteArray = uint8ToBase64;
 }());
 
-},{}],49:[function(require,module,exports){
-module.exports = to_utf8
-
-var out = []
-  , col = []
-  , fcc = String.fromCharCode
-  , mask = [0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01]
-  , unmask = [
-      0x00
-    , 0x01
-    , 0x02 | 0x01
-    , 0x04 | 0x02 | 0x01
-    , 0x08 | 0x04 | 0x02 | 0x01
-    , 0x10 | 0x08 | 0x04 | 0x02 | 0x01
-    , 0x20 | 0x10 | 0x08 | 0x04 | 0x02 | 0x01
-    , 0x40 | 0x20 | 0x10 | 0x08 | 0x04 | 0x02 | 0x01
-  ]
-
-function to_utf8(bytes, start, end) {
-  start = start === undefined ? 0 : start
-  end = end === undefined ? bytes.length : end
-
-  var idx = 0
-    , hi = 0x80
-    , collecting = 0
-    , pos
-    , by
-
-  col.length =
-  out.length = 0
-
-  while(idx < bytes.length) {
-    by = bytes[idx]
-    if(!collecting && by & hi) {
-      pos = find_pad_position(by)
-      collecting += pos
-      if(pos < 8) {
-        col[col.length] = by & unmask[6 - pos]
-      }
-    } else if(collecting) {
-      col[col.length] = by & unmask[6]
-      --collecting
-      if(!collecting && col.length) {
-        out[out.length] = fcc(reduced(col, pos))
-        col.length = 0
-      }
-    } else { 
-      out[out.length] = fcc(by)
-    }
-    ++idx
-  }
-  if(col.length && !collecting) {
-    out[out.length] = fcc(reduced(col, pos))
-    col.length = 0
-  }
-  return out.join('')
-}
-
-function find_pad_position(byt) {
-  for(var i = 0; i < 7; ++i) {
-    if(!(byt & mask[i])) {
-      break
-    }
-  }
-  return i
-}
-
-function reduced(list) {
-  var out = 0
-  for(var i = 0, len = list.length; i < len; ++i) {
-    out |= list[i] << ((len - i - 1) * 6)
-  }
-  return out
-}
-
-},{}],50:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 // Load modules
 
 var Http = require('http');
@@ -8685,9 +8614,84 @@ internals.Boom.passThrough = function (code, payload, contentType, headers) {
 
 
 
-},{"hoek":71,"http":42,"util":41}],"request":[function(require,module,exports){
+},{"hoek":70,"http":41,"util":40}],"request":[function(require,module,exports){
 module.exports=require('hWH+d8');
-},{}],52:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
+module.exports = to_utf8
+
+var out = []
+  , col = []
+  , fcc = String.fromCharCode
+  , mask = [0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01]
+  , unmask = [
+      0x00
+    , 0x01
+    , 0x02 | 0x01
+    , 0x04 | 0x02 | 0x01
+    , 0x08 | 0x04 | 0x02 | 0x01
+    , 0x10 | 0x08 | 0x04 | 0x02 | 0x01
+    , 0x20 | 0x10 | 0x08 | 0x04 | 0x02 | 0x01
+    , 0x40 | 0x20 | 0x10 | 0x08 | 0x04 | 0x02 | 0x01
+  ]
+
+function to_utf8(bytes, start, end) {
+  start = start === undefined ? 0 : start
+  end = end === undefined ? bytes.length : end
+
+  var idx = 0
+    , hi = 0x80
+    , collecting = 0
+    , pos
+    , by
+
+  col.length =
+  out.length = 0
+
+  while(idx < bytes.length) {
+    by = bytes[idx]
+    if(!collecting && by & hi) {
+      pos = find_pad_position(by)
+      collecting += pos
+      if(pos < 8) {
+        col[col.length] = by & unmask[6 - pos]
+      }
+    } else if(collecting) {
+      col[col.length] = by & unmask[6]
+      --collecting
+      if(!collecting && col.length) {
+        out[out.length] = fcc(reduced(col, pos))
+        col.length = 0
+      }
+    } else { 
+      out[out.length] = fcc(by)
+    }
+    ++idx
+  }
+  if(col.length && !collecting) {
+    out[out.length] = fcc(reduced(col, pos))
+    col.length = 0
+  }
+  return out.join('')
+}
+
+function find_pad_position(byt) {
+  for(var i = 0; i < 7; ++i) {
+    if(!(byt & mask[i])) {
+      break
+    }
+  }
+  return i
+}
+
+function reduced(list) {
+  var out = 0
+  for(var i = 0, len = list.length; i < len; ++i) {
+    out |= list[i] << ((len - i - 1) * 6)
+  }
+  return out
+}
+
+},{}],51:[function(require,module,exports){
 module.exports = copy
 
 var slice = [].slice
@@ -8741,12 +8745,12 @@ function slow_copy(from, to, j, i, jend) {
   }
 }
 
-},{}],53:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 module.exports = function(size) {
   return new Uint8Array(size)
 }
 
-},{}],54:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = from
 
 var base64 = require('base64-js')
@@ -8806,13 +8810,13 @@ function from_base64(str) {
   return new Uint8Array(base64.toByteArray(str)) 
 }
 
-},{"base64-js":48}],55:[function(require,module,exports){
+},{"base64-js":47}],54:[function(require,module,exports){
 
 module.exports = function(buffer) {
   return buffer instanceof Uint8Array;
 }
 
-},{}],56:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 module.exports = join
 
 function join(targets, hint) {
@@ -8850,7 +8854,7 @@ function get_length(targets) {
   return size
 }
 
-},{}],57:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var proto
   , map
 
@@ -8872,7 +8876,7 @@ function get(target) {
   return out
 }
 
-},{}],58:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 module.exports = {
     readUInt8:      read_uint8
   , readInt8:       read_int8
@@ -8961,14 +8965,14 @@ function read_double_be(target, at) {
   return dv.getFloat64(at + target.byteOffset, false)
 }
 
-},{"./mapped.js":57}],59:[function(require,module,exports){
+},{"./mapped.js":56}],58:[function(require,module,exports){
 module.exports = subarray
 
 function subarray(buf, from, to) {
   return buf.subarray(from || 0, to || buf.length)
 }
 
-},{}],60:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 module.exports = to
 
 var base64 = require('base64-js')
@@ -9006,7 +9010,7 @@ function to_base64(buf) {
 }
 
 
-},{"base64-js":48,"to-utf8":49}],61:[function(require,module,exports){
+},{"base64-js":47,"to-utf8":50}],60:[function(require,module,exports){
 module.exports = {
     writeUInt8:      write_uint8
   , writeInt8:       write_int8
@@ -9094,9 +9098,9 @@ function write_double_be(target, value, at) {
   return dv.setFloat64(at + target.byteOffset, value, false)
 }
 
-},{"./mapped.js":57}],62:[function(require,module,exports){
+},{"./mapped.js":56}],61:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":65}],63:[function(require,module,exports){
+},{"./lib":64}],62:[function(require,module,exports){
 // Load modules
 
 var Url = require('url');
@@ -9465,7 +9469,7 @@ exports.message = function (host, port, message, options) {
 
 
 
-},{"./crypto":64,"./utils":67,"cryptiles":69,"hoek":71,"url":40}],64:[function(require,module,exports){
+},{"./crypto":63,"./utils":66,"cryptiles":68,"hoek":70,"url":39}],63:[function(require,module,exports){
 // Load modules
 
 var Crypto = require('crypto');
@@ -9578,7 +9582,7 @@ exports.calculateTsMac = function (ts, credentials) {
 };
 
 
-},{"./utils":67,"crypto":"l4eWKl","url":40}],65:[function(require,module,exports){
+},{"./utils":66,"crypto":"l4eWKl","url":39}],64:[function(require,module,exports){
 // Export sub-modules
 
 exports.error = exports.Error = require('boom');
@@ -9595,7 +9599,7 @@ exports.uri = {
 
 
 
-},{"./client":63,"./crypto":64,"./server":66,"./utils":67,"boom":68,"sntp":74}],66:[function(require,module,exports){
+},{"./client":62,"./crypto":63,"./server":65,"./utils":66,"boom":67,"sntp":73}],65:[function(require,module,exports){
 // Load modules
 
 var Boom = require('boom');
@@ -10121,7 +10125,7 @@ exports.authenticateMessage = function (host, port, message, authorization, cred
     });
 };
 
-},{"./crypto":64,"./utils":67,"boom":68,"cryptiles":69,"hoek":71}],67:[function(require,module,exports){
+},{"./crypto":63,"./utils":66,"boom":67,"cryptiles":68,"hoek":70}],66:[function(require,module,exports){
 var __dirname="/node_modules/hawk/lib";// Load modules
 
 var Hoek = require('hoek');
@@ -10306,11 +10310,11 @@ exports.unauthorized = function (message) {
 };
 
 
-},{"boom":68,"hoek":71,"sntp":74}],68:[function(require,module,exports){
+},{"boom":67,"hoek":70,"sntp":73}],67:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":50}],69:[function(require,module,exports){
+},{"./lib":48}],68:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":70}],70:[function(require,module,exports){
+},{"./lib":69}],69:[function(require,module,exports){
 // Load modules
 
 var Crypto = require('crypto');
@@ -10380,9 +10384,9 @@ exports.fixedTimeComparison = function (a, b) {
 
 
 
-},{"boom":68,"crypto":"l4eWKl"}],71:[function(require,module,exports){
+},{"boom":67,"crypto":"l4eWKl"}],70:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":73}],72:[function(require,module,exports){
+},{"./lib":72}],71:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;// Declare internals
 
 var internals = {};
@@ -10515,7 +10519,7 @@ internals.safeCharCodes = (function () {
 
     return safe;
 }());
-},{"__browserify_Buffer":4}],73:[function(require,module,exports){
+},{"__browserify_Buffer":4}],72:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");// Load modules
 
 var Fs = require('fs');
@@ -11102,9 +11106,9 @@ exports.nextTick = function (callback) {
     };
 };
 
-},{"./escape":72,"__browserify_Buffer":4,"__browserify_process":78,"fs":37}],74:[function(require,module,exports){
+},{"./escape":71,"__browserify_Buffer":4,"__browserify_process":77,"fs":36}],73:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":75}],75:[function(require,module,exports){
+},{"./lib":74}],74:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");// Load modules
 
 var Dgram = require('dgram');
@@ -11515,9 +11519,9 @@ exports.now = function () {
 };
 
 
-},{"__browserify_Buffer":4,"__browserify_process":78,"dgram":35,"dns":33,"hoek":71}],76:[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":77,"dgram":34,"dns":32,"hoek":70}],75:[function(require,module,exports){
 module.exports = require("./lib/hkdf");
-},{"./lib/hkdf":77}],77:[function(require,module,exports){
+},{"./lib/hkdf":76}],76:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");//
 // a straightforward implementation of HKDF
 //
@@ -11578,7 +11582,7 @@ HKDF.prototype = {
 
 module.exports = HKDF;
 
-},{"__browserify_Buffer":4,"__browserify_process":78,"crypto":"l4eWKl"}],78:[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":77,"crypto":"l4eWKl"}],77:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -11632,7 +11636,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],79:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 var process=require("__browserify_process");/*!
  * Copyright 2013 Robert Katić
  * Released under the MIT license
@@ -12073,7 +12077,48 @@ var process=require("__browserify_process");/*!
 	return P;
 });
 
-},{"__browserify_process":78}],80:[function(require,module,exports){
+},{"__browserify_process":77}],79:[function(require,module,exports){
+/** @fileOverview Bit array codec implementations.
+ *
+ * @author Emily Stark
+ * @author Mike Hamburg
+ * @author Dan Boneh
+ */
+
+var sjcl = require('sjcl');
+
+/** @namespace Arrays of bytes */
+module.exports = {
+  /** Convert from a bitArray to an array of bytes. */
+  fromBits: function (arr) {
+    var out = [], bl = sjcl.bitArray.bitLength(arr), i, tmp;
+    for (i=0; i<bl/8; i++) {
+      if ((i&3) === 0) {
+        tmp = arr[i/4];
+      }
+      out.push(tmp >>> 24);
+      tmp <<= 8;
+    }
+    return out;
+  },
+  /** Convert from an array of bytes to a bitArray. */
+  toBits: function (bytes) {
+    var out = [], i, tmp=0;
+    for (i=0; i<bytes.length; i++) {
+      tmp = tmp << 8 | bytes[i];
+      if ((i&3) === 3) {
+        out.push(tmp);
+        tmp = 0;
+      }
+    }
+    if (i&3) {
+      out.push(sjcl.bitArray.partial(8*(i&3), tmp));
+    }
+    return out;
+  }
+};
+
+},{"sjcl":80}],80:[function(require,module,exports){
 "use strict";function q(a){throw a;}var t=void 0,u=!1;var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
 "undefined"!=typeof module&&module.exports&&(module.exports=sjcl);
 sjcl.cipher.aes=function(a){this.j[0][0][0]||this.D();var b,c,d,e,f=this.j[0][4],g=this.j[1];b=a.length;var h=1;4!==b&&(6!==b&&8!==b)&&q(new sjcl.exception.invalid("invalid aes key size"));this.a=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
@@ -12602,7 +12647,7 @@ module.exports = {
   getM: getM
 }
 
-},{"__browserify_Buffer":4,"assert":34,"bignum":"xttfNN","crypto":"l4eWKl"}],84:[function(require,module,exports){
+},{"__browserify_Buffer":4,"assert":33,"bignum":"xttfNN","crypto":"l4eWKl"}],84:[function(require,module,exports){
 var global=self;
 var rng;
 
@@ -12635,11 +12680,7 @@ if (!rng) {
 module.exports = rng;
 
 
-},{}],"crypto":[function(require,module,exports){
-module.exports=require('l4eWKl');
-},{}],"bignum":[function(require,module,exports){
-module.exports=require('xttfNN');
-},{}],87:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;//     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -12828,7 +12869,11 @@ uuid.BufferClass = BufferClass;
 
 module.exports = uuid;
 
-},{"./rng":84,"__browserify_Buffer":4}],"buffer":[function(require,module,exports){
+},{"./rng":84,"__browserify_Buffer":4}],"crypto":[function(require,module,exports){
+module.exports=require('l4eWKl');
+},{}],"bignum":[function(require,module,exports){
+module.exports=require('xttfNN');
+},{}],"buffer":[function(require,module,exports){
 module.exports=require('IZihkv');
 },{}]},{},[1])
 ;
