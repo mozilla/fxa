@@ -13,7 +13,7 @@ test(
 
     var K1 = Buffer('f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd', 'hex')
     var salt = Buffer('identity.mozilla.com/picl/v1/scrypt')
-    var helper = 'http://scrypt.dev.lcip.org/'
+    var helper = 'https://scrypt.dev.lcip.org/'
 
     scrypt.hash(K1, salt, helper)
       .then(
