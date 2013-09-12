@@ -2,6 +2,20 @@
   "name": "123done",
   "description": "A simple tasklist app that demonstrates Persona Sign-In",
   "version": "0.0.1",
+  "author": {
+    "name" : "Mozilla",
+    "url" : "https://mozilla.org/"
+  },
+  "licenses" : [{
+    "type": "MPL 2.0",
+    "url": "https://mozilla.org/MPL/2.0/"
+  }],
+  "homepage": "http://123done.org/",
+  "bugs": "https://github.com/mozilla/123done/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/123done"
+  },
   "private": true,
   "dependencies": {
     "express": "2.5.0",
