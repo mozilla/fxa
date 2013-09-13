@@ -7,6 +7,15 @@ An Identity Provider for Profile In the CLoud
 
 [API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol)
 
+## Prerequisites
+
+* node 0.10.x or higher
+* npm
+* pgrep available (This is usually available on Mac OS X 10.8+ and Linux. On older versions of Mac OS X, get pgrep by: `brew install proctools`)
+* libgmp
+  *  On Linux: install libgmp and libgmp-dev packages
+  *  On Mac OS X: `brew install gmp`
+
 ## Install
 
 You'll need node 0.10.x or higher and npm to run the server.
