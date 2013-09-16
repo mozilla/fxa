@@ -12,6 +12,9 @@ It consumes the REST API which PICL provides.
 * npm
 * Java
 * [Selenium Server Standalone 2.35.0](http://selenium.googlecode.com/files/selenium-server-standalone-2.35.0.jar)
+* libgmp
+  * On Linux: install libgmp and libgmp-dev packages
+  * On Mac OS X: brew install gmp
 
 ## Development Setup
 
