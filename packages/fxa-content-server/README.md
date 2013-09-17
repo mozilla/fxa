@@ -67,7 +67,7 @@ Password is 'asdf'.
 
 -->
 
-### Configuration
+## Configuration
 
 The default idp server is `http://idp.dev.lcip.org`.  To change this, edit
 `config.json` on your deployed instance.
