@@ -25,9 +25,15 @@ npm start
 
 ## Testing
 
-  * Run in the background: `java -jar selenium-server-standalone-2.35.0.jar`
-  * TDD: `npm test`
-  * Functional: `npm run-script test-functional`
+### Setup
+There is quite a bit of setup to do before you can test this service, which is non-optimal, but for now:
+  * Run Selenium Server: `java -jar selenium-server-standalone-2.35.0.jar` (see [Prerequisites](#prerequisites))
+  * Run the Firefox Account Bridge locally: `npm start`
+  * Run an instance of the [picl-idp](https://github.com/mozilla/picl-idp) at 127.0.0.1:9000.
+
+### Running the tests
+  * Integration tests between the FAB and picl-idp: `npm test`
+  * Functional tests: `npm run-script test-functional`
 
 <!-- The below test is relevant to using the FAB as a Persona bridge, which is put on the back burner for now -->
 <!--  * Server test: `npm run-script test-server` (Selenium server not required) -->
@@ -59,6 +65,8 @@ Now you can type foo@dev.fxaccounts.mozilla.org in the test dialog at http://127
 
 Password is 'asdf'.
 
+-->
+
 ### Configuration
 
 The default idp server is `http://idp.dev.lcip.org`.  To change this, edit
@@ -67,5 +75,3 @@ The default idp server is `http://idp.dev.lcip.org`.  To change this, edit
     {
       'fxaccount_url': 'http://your.idp.here.org'
     }
-
--->
