@@ -12,20 +12,19 @@ define([
     suite('assertion_service', function () {
       var client;
       var assertionService;
-      //var serverUrl = 'http://localhost:9000';
-      var serverUrl = 'https://idp.dev.lcip.org';
+      var serverUrl = 'http://127.0.0.1:9000';
+      //var serverUrl = 'https://idp.dev.lcip.org';
 
       // before the suite starts
       before(function () {
         var setupDfd = new Deferred();
 
         var Client = gherkin.Client;
-        //var email = 'some' + new Date().getTime() + '@example.com';
-        var email = 'fxab-test@restmail.net';
+        var email = 'some' + new Date().getTime() + '@example.com';
         var password = '12345678';
 
         Client
-          .login(serverUrl, email, password)
+          .create(serverUrl, email, password)
           .then(function (x) {
             client = x;
 
@@ -103,112 +102,112 @@ define([
               }
             })
             .then(
-              function (data) {
-                assert.ok(data, 'Received .well-known data');
+            function (data) {
+              assert.ok(data, 'Received .well-known data');
 
-                try {
-                  var rk = JSON.stringify(JSON.parse(data)['public-key']);
-                } catch (e) {
-                  console.log(e);
-                  dfd.reject(new assert.AssertionError({ message: 'Could not parse public key out of .well-known' }));
-                }
-
-                // jwcrypto verification can go wrong
-                try {
-                  var fxaRootKey = jwcrypto.loadPublicKeyFromObject(JSON.parse(rk));
-                  var fullAssertion = jwcrypto.cert.unbundle(assertion);
-                  var components = jwcrypto.extractComponents(fullAssertion.certs[0]);
-                  var assertionPublicKey = jwcrypto.loadPublicKey(JSON.stringify(components.payload['public-key']));
-
-                  var checkDate = new Date(components.payload.exp - 1);
-                } catch (e) {
-                  dfd.reject(new assert.AssertionError({ message: e }));
-                }
-
-                assert.ok(components.payload.iss, 'Issuer exists');
-                assert.ok(components.payload.iat, 'Issued date exists');
-                assert.ok(components.payload.exp, 'Expire date exists');
-
-                if (typeof components.payload.iat !== 'number')
-                  dfd.reject(new assert.AssertionError({ message: 'cert lacks an "issued at" (.iat) field' }));
-
-                if (typeof components.payload.exp !== 'number')
-                  dfd.reject(new assert.AssertionError({ message: 'cert lacks an "expires" (.exp) field' }));
-
-                if (components.payload.exp < components.payload.iat)
-                  dfd.reject(new assert.AssertionError({ message: 'assertion expires before cert is valid' }));
-
-                if (components.payload.exp > (components.payload.exp + 5000))
-                  dfd.reject(new assert.AssertionError({ message: 'assertion was likely issued after cert expired' }));
-
-
-                return {
-                  assertion: assertion,
-                  fxaRootKey: fxaRootKey,
-                  fullAssertion: fullAssertion,
-                  assertionPublicKey: assertionPublicKey,
-                  checkDate: checkDate
-                };
-
-              },
-              function (err) {
-                dfd.reject();
-                assert.fail(err, null, '.well-known request failed')
+              try {
+                var rk = JSON.stringify(JSON.parse(data)['public-key']);
+              } catch (e) {
+                console.log(e);
+                dfd.reject(new assert.AssertionError({ message: 'Could not parse public key out of .well-known' }));
               }
-            )
-            .then(
-              function(objs) {
-                var verifyDeferred = new Deferred();
 
-                jwcrypto.assertion.verify(
-                  objs.fullAssertion.signedAssertion, objs.assertionPublicKey, objs.checkDate,
-                  function (err, payload, assertionParams) {
-                    if (err) {
-                      verifyDeferred.reject(new assert.AssertionError({ message: 'assertion is NOT properly signed: ' + err }));
-                    } else {
-                      assert.isNull(err, 'Assertion is properly signed');
-                      verifyDeferred.resolve({
-                        fxaRootKey: objs.fxaRootKey,
-                        payload: payload,
-                        checkDate: objs.checkDate,
-                        assertion: assertion,
-                        assertionParams: assertionParams
-                      });
-                    }
+              // jwcrypto verification can go wrong
+              try {
+                var fxaRootKey = jwcrypto.loadPublicKeyFromObject(JSON.parse(rk));
+                var fullAssertion = jwcrypto.cert.unbundle(assertion);
+                var components = jwcrypto.extractComponents(fullAssertion.certs[0]);
+                var assertionPublicKey = jwcrypto.loadPublicKey(JSON.stringify(components.payload['public-key']));
+
+                var checkDate = new Date(components.payload.exp - 1);
+              } catch (e) {
+                dfd.reject(new assert.AssertionError({ message: e }));
+              }
+
+              assert.ok(components.payload.iss, 'Issuer exists');
+              assert.ok(components.payload.iat, 'Issued date exists');
+              assert.ok(components.payload.exp, 'Expire date exists');
+
+              if (typeof components.payload.iat !== 'number')
+                dfd.reject(new assert.AssertionError({ message: 'cert lacks an "issued at" (.iat) field' }));
+
+              if (typeof components.payload.exp !== 'number')
+                dfd.reject(new assert.AssertionError({ message: 'cert lacks an "expires" (.exp) field' }));
+
+              if (components.payload.exp < components.payload.iat)
+                dfd.reject(new assert.AssertionError({ message: 'assertion expires before cert is valid' }));
+
+              if (components.payload.exp > (components.payload.exp + 5000))
+                dfd.reject(new assert.AssertionError({ message: 'assertion was likely issued after cert expired' }));
+
+
+              return {
+                assertion: assertion,
+                fxaRootKey: fxaRootKey,
+                fullAssertion: fullAssertion,
+                assertionPublicKey: assertionPublicKey,
+                checkDate: checkDate
+              };
+
+            },
+            function (err) {
+              dfd.reject();
+              assert.fail(err, null, '.well-known request failed')
+            }
+          )
+            .then(
+            function(objs) {
+              var verifyDeferred = new Deferred();
+
+              jwcrypto.assertion.verify(
+                objs.fullAssertion.signedAssertion, objs.assertionPublicKey, objs.checkDate,
+                function (err, payload, assertionParams) {
+                  if (err) {
+                    verifyDeferred.reject(new assert.AssertionError({ message: 'assertion is NOT properly signed: ' + err }));
+                  } else {
+                    assert.isNull(err, 'Assertion is properly signed');
+                    verifyDeferred.resolve({
+                      fxaRootKey: objs.fxaRootKey,
+                      payload: payload,
+                      checkDate: objs.checkDate,
+                      assertion: assertion,
+                      assertionParams: assertionParams
+                    });
                   }
-                );
+                }
+              );
 
-                return verifyDeferred.promise
-              }
-            )
+              return verifyDeferred.promise
+            }
+          )
             .then(
-              function(objs){
-                var verifyBundleDeferred = new Deferred();
+            function(objs){
+              var verifyBundleDeferred = new Deferred();
 
-                jwcrypto.cert.verifyBundle(
-                  objs.assertion,
-                  objs.checkDate, function (issuer, next) {
-                    assert.ok(issuer, 'issuer is okay');
-                    assert.isString(issuer, 'Issuer is a string');
-                    next(null, objs.fxaRootKey);
-                  },
-                  function (err, certParamsArray, payload, assertionParams) {
-                    if (err) {
-                      dfd.reject(new assert.AssertionError({ message: 'verifyBundle failed.' }));
-                    } else {
-                      var principal = certParamsArray[certParamsArray.length - 1].certParams.principal;
+              jwcrypto.cert.verifyBundle(
+                objs.assertion,
+                objs.checkDate, function (issuer, next) {
+                  assert.ok(issuer, 'issuer is okay');
+                  assert.isString(issuer, 'Issuer is a string');
+                  next(null, objs.fxaRootKey);
+                },
+                function (err, certParamsArray, payload, assertionParams) {
+                  if (err) {
+                    dfd.reject(new assert.AssertionError({ message: 'verifyBundle failed.' }));
+                  } else {
+                    var principal = certParamsArray[certParamsArray.length - 1].certParams.principal;
 
-                      assert.isNull(err, 'bundle *seems* to verify ok');
-                      assert.ok(certParamsArray.length, 'bundle length ok');
-                      assert.ok(assertionParams.audience, 'bundle audience ok');
-                      assert.ok(principal.email.replace(/^.*@/, ''), 'bundle principle ok');
-                      dfd.resolve();
-                    }
-                  });
+                    assert.isNull(err, 'bundle *seems* to verify ok');
+                    assert.ok(certParamsArray.length, 'bundle length ok');
+                    assert.ok(assertionParams.audience, 'bundle audience ok');
+                    assert.ok(principal.email.replace(/^.*@/, ''), 'bundle principle ok');
+                    dfd.resolve();
+                  }
+                });
 
-                return verifyBundleDeferred.promise
-              }
-            ).otherwise(function (error) { dfd.reject(error); });
+              return verifyBundleDeferred.promise
+            }
+          ).otherwise(function (error) { dfd.reject(error); });
 
         });
 
