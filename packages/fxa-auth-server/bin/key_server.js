@@ -9,17 +9,23 @@ var config = require('../config').root()
 function main() {
   var log = require('../log')(config)
 
-  // stats
-  var statsBackend = config.stats.backend
-  var Stats = require('../stats')
-  // TODO: think about the stats structure
-  var Backend = Stats.getBackend(statsBackend, log)
-  var stats = new Stats(new Backend(config[statsBackend]))
-
   // memory monitor
   var MemoryMonitor = require('../memory_monitor')
   var memoryMonitor = new MemoryMonitor()
-  memoryMonitor.on('mem', stats.mem.bind(stats))
+  memoryMonitor.on(
+    'mem',
+    function (usage) {
+      log.trace(
+        {
+          op: 'stat',
+          stat: 'mem',
+          rss: usage.rss,
+          heapTotal: usage.heapTotal,
+          heapUsed: usage.heapUsed
+        }
+      )
+    }
+  )
   memoryMonitor.start()
 
   // databases
