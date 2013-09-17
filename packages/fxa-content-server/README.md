@@ -29,8 +29,10 @@ npm start
   * TDD: `npm test`
   * Functional: `npm run-script test-functional`
 
-  * Server test: `npm run-script test-server` (Selenium server not required)
+<!-- The below test is relevant to using the FAB as a Persona bridge, which is put on the back burner for now -->
+<!--  * Server test: `npm run-script test-server` (Selenium server not required) -->
 
+<!--
 ## Persona Bridge Setup
 
 ### One Time Setup
@@ -66,3 +68,4 @@ The default idp server is `http://idp.dev.lcip.org`.  To change this, edit
       'fxaccount_url': 'http://your.idp.here.org'
     }
 
+-->
