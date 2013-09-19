@@ -7,24 +7,31 @@ const path = require('path'),
       spawn = require('child_process').spawn,
       config = require('../server/lib/configuration');
 
+
+// CK: 09/17/13 The role of the FxA Bridge going forward is unclear. We're not using
+// the certifier right now so I'm disabling it, but leaving the code in that supports
+// it for now.
 // TODO what if priv or pub key don't exist?
 
 // Certifier can't be run in the same process,
 // convict's schema mapping wil get messed up.
 // So we must run as a process
-var certifierPath = path.join(__dirname, '..', 'server', 'bin', 'browserid-certifier.js');
-var certifier = spawn('node', [certifierPath]);
-certifier.stdout.on('data', function(data) {
-  var msg = data.toString('utf8');
-  if (msg.indexOf('Certifier started') !== -1) {
-    console.log(msg);
-    startFAB();
-  }
-});
+// var certifierPath = path.join(__dirname, '..', 'server', 'bin', 'browserid-certifier.js');
+// var certifier = spawn('node', [certifierPath]);
+// certifier.stdout.on('data', function(data) {
+//   var msg = data.toString('utf8');
+//   if (msg.indexOf('Certifier started') !== -1) {
+//     console.log(msg);
+//     startFAB();
+//   }
+// });
 
-certifier.stderr.on('data', function(data) {
-  console.error('CERTIFIER ERR:', data.toString('utf8'));
-});
+// certifier.stderr.on('data', function(data) {
+//   console.error('CERTIFIER ERR:', data.toString('utf8'));
+// });
+
+// No certifier so just start the FAB server directly
+startFAB();
 
 function startFAB() {
   process.chdir(path.dirname(__dirname));
