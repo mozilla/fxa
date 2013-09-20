@@ -39,8 +39,8 @@
     "sjcl-codec-bytes": "git://github.com/zaach/sjcl-codec-bytes.git#0ddc7744"
   },
   "devDependencies": {
-    "awsbox": "0.4.5",
-    "awsboxen": "0.4.x",
+    "awsbox": "0.6.x",
+    "awsboxen": "0.5.x",
     "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
     "request": "2.21.x",
     "tap": "0.4.4"

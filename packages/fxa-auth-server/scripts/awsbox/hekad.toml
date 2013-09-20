@@ -1,0 +1,43 @@
+[hekad]
+base_dir = "/home/app/hekad"
+
+[UdpInput]
+address = "127.0.0.1:4880"
+
+[StatsdInput]
+address = ":8125"
+
+[StatAccumInput]
+
+[picl-idp-log]
+type = "LogfileInput"
+logfile = "/home/app/code/server.log"
+logger = "picl-idp"
+
+[nginx-access-log]
+type = "LogfileInput"
+logfile = "/home/proxy/var/log/nginx/access.log"
+decoders = ["nginx-log-decoder"]
+
+[nginx-log-decoder]
+type = "PayloadRegexDecoder"
+timestamp_layout = "02/Jan/2006:15:04:05 -0700"
+match_regex = '^(?P<RemoteIP>\S+) \S+ \S+ \[(?P<Timestamp>[^\]]+)\] "(?P<Method>[A-Z\-]+) (?P<Url>[^\s]+)[^"]*" (?P<StatusCode>\d+) (?P<RequestSize>\d+) "(?P<Referer>[^"]*)" "(?P<Browser>[^"]*)"'
+
+[nginx-log-decoder.message_fields]
+Type = "logfile"
+Logger = "nginx"
+App = "picl-idp"
+Url|uri = "%Url%"
+Method = "%Method%"
+Status = "%StatusCode%"
+RequestSize|B = "%RequestSize%"
+Referer = "%Referer%"
+Browser = "%Browser%"
+
+[aggregator-output]
+type = "AMQPOutput"
+message_matcher = "TRUE"
+url = "amqp://heka:guest@logs.dev.lcip.org:5672/"
+exchange = "heka"
+exchangeType = "fanout"
