@@ -47,8 +47,11 @@ module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
 
 
   // Target ratio is 2 new-account signups per 10 old-account signups.
-  // use a restricted pool of old-account email addresses to simulate
-  // existing usings; they will be populated quickly during the loadtest.
+  // Use a restricted pool of old-account email addresses to simulate
+  // existing users; they will be populated quickly during the loadtest.
+  //
+  // XXX TODO: rework this to always use pre-computed credentials, the
+  // overhead of scrypt in the loadtest loop is just silly.
 
   var userid;
   if (getRandomInt(1, 12) <= 2) {
