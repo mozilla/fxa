@@ -205,33 +205,17 @@ function main() {
             return client.keys()
           }
         )
-        .done(
+        .then(
           function (keys) {
             t.ok(HEX_STRING.test(keys.wrapKb), 'yep, hex')
             t.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
             t.equal(kA, keys.kA, 'kA was not reset')
             t.equal(client.kB.length, 64, 'kB exists, has the right length')
-            t.end()
-          },
-          function (err) {
-            t.fail(JSON.stringify(err))
-            t.end()
           }
         )
-    }
-  )
-
-  test(
-    'Login flow for a new password',
-    function (t) {
-      var email = uniqueID() +'@example.com'
-      var password = 'ez'
-      var wrapKb = null
-      var client = null
-      createFreshAccount(email, password)
-        .then(
+        .then( // make sure we can still login after password reset
           function () {
-            return Client.login(config.public_url, email, password)
+            return Client.login(config.public_url, email, newPassword)
           }
         )
         .then(
@@ -255,7 +239,7 @@ function main() {
             t.fail(err.message || err.error)
             t.end()
           }
-      )
+        )
     }
   )
 
