@@ -132,7 +132,7 @@ function getRandomInt(min, max) {
 
 //  And finally, here is the actual loadtest!
 //
-module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
+function runLoadTest(loadsSocket) {
 
   // Target ratio is 2 new-account signups per 10 old-account signups.
   // We use a restricted pool of old-account email addresses to simulate
@@ -148,7 +148,7 @@ module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
     //  New user.
     //  Assume it doesnt exist and try to create; delete and retry if it does.
     email = "loady" + uniqueID() + " @restmail.lcip.org";
-    client = getClient(email, cb.socket);
+    client = getClient(email, loadsSocket);
     ready = client.create().fail(function(err) {
       if (err.code != 400 || err.errno != ERROR_ACCOUNT_EXISTS) {
         throw err;
@@ -163,7 +163,7 @@ module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
     //  Existing user.
     //  Assume it exists and try to authentiate; create only if not exists.
     email = "loady" + getRandomInt(1, 100) + " @restmail.lcip.org";
-    client = getClient(email, cb.socket);
+    client = getClient(email, loadsSocket);
     ready = client.login().fail(function(err) {
       if (err.code != 400 || err.errno != ERROR_UNKNOWN_ACCOUNT) {
         throw err;
@@ -179,7 +179,7 @@ module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
   // signing requests.  The cert-signing request is expected to be by
   // *far* the most frequent operation, so we do a lot of them.
 
-  ready.then(function() {
+  var done = ready.then(function() {
     // Fetch the key material.
     return client.keys();
   }).then(function(keys) {
@@ -192,7 +192,7 @@ module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
     // to de-synchronize concurrent runs of this test, spreading out the
     // other operations more evenly throughout the run.
     var p = P();
-    for (var i=0; i < getRandomInt(10, 20); i++) {
+    for (var i=0; i < getRandomInt(10, 100); i++) {
       p = p.then(function() {
         return client.sign(DUMMY_PUBLIC_KEY, 1000 * 60 * 60);
       }).then(function(cert) {
@@ -200,10 +200,35 @@ module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
       });
     }
     return p;
-  }).done(
+  });
+
+  return done
+}
+
+
+//  The current loads.js test runner spawns a new process for every run
+//  of the test, which can severely hamper throughput.  To work around this
+//  for now, we do several iterations of the test before reporting success
+//  back to the loads runner.
+//
+//  XXX TODO: fix this issue upstream in the loads.js runner
+//
+module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
+  var p = P();
+  // Try to detect whether we're in a "big" bench suite by looking at
+  // the LOADS_STATUS environment variable.  We don't want to loop
+  // forever if we're in a quick `make test` run.
+  var numLoadRuns = 1;
+  if (process.env.LOADS_STATUS && process.env.LOADS_STATUS !== "1,1,1,1") {
+    numLoadRuns = 100;
+  }
+  for (var i=0; i < numLoadRuns; i++) {
+    p = p.then(function() {
+      return runLoadTest(cb.socket);
+    });
+  }
+  p.done(
     function() { return cb(null); },
     function(err) { return cb(err); }
   );
-
 }
-
