@@ -1,12 +1,10 @@
 {
-  "ami": "ami-91a2c8f8",
   "processes": [
     "bin/key_server.js"
   ],
   "env": {
     "CONFIG_FILES": "$HOME/code/config/awsbox.json,$HOME/config.json",
-    "ES_HEAP_SIZE": "32m",
-    "HEKAD_CONFIG": "$HOME/code/heka/hekad.toml"
+    "HEKAD_CONFIG": "$HOME/code/scripts/awsbox/hekad.toml"
   },
   "hooks": {
     "postcreate": "scripts/awsbox/post_create.sh",
