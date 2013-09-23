@@ -3,18 +3,23 @@ var cp = require('child_process')
 var path = require('path')
 var P = require('p-promise')
 var Client = require('../../client')
+var crypto = require('crypto')
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/verification.json')
 var config = require('../../config').root()
 
 var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
+function uniqueID() {
+  return crypto.randomBytes(10).toString('hex');
+}
+
 function main() {
 
   test(
     'create account',
     function (t) {
-      var email = 'verification@example.com'
+      var email = uniqueID() +'@example.com'
       var password = 'allyourbasearebelongtous'
       var client = null
       var verifyCode = null
@@ -47,14 +52,22 @@ function main() {
             t.equal(status.verified, false)
           }
         )
-        .then(waitForCode)
+        .then(
+          function () {
+            return waitForCode(email)
+          }
+        )
         .then(
           function (code) {
             verifyCode = code
             return client.requestVerifyEmail()
           }
         )
-        .then(waitForCode)
+        .then(
+          function () {
+            return waitForCode(email)
+          }
+        )
         .then(
           function (code) {
             t.equal(code, verifyCode, 'verify codes are the same')
@@ -95,7 +108,7 @@ function main() {
   test(
     'create account verify with incorrect code',
     function (t) {
-      var email = 'verification2@example.com'
+      var email = uniqueID() +'@example.com'
       var password = 'allyourbasearebelongtous'
       var client = null
       Client.create(config.public_url, email, password)
@@ -152,13 +165,18 @@ function main() {
   test(
     'forgot password',
     function (t) {
-      var email = 'verification@example.com'
+      var email = uniqueID() +'@example.com'
       var password = 'allyourbasearebelongtous'
       var newPassword = 'ez'
       var wrapKb = null
       var kA = null
       var client = null
-      Client.login(config.public_url, email, password)
+      createFreshAccount(email, password)
+        .then(
+          function () {
+            return Client.login(config.public_url, email, password)
+          }
+        )
         .then(
           function (x) {
             client = x
@@ -172,7 +190,11 @@ function main() {
             return client.forgotPassword()
           }
         )
-        .then(waitForCode)
+        .then(
+          function () {
+            return waitForCode(email)
+          }
+        )
         .then(
           function (code) {
             return client.resetPassword(code, newPassword)
@@ -183,30 +205,19 @@ function main() {
             return client.keys()
           }
         )
-        .done(
+        .then(
           function (keys) {
             t.ok(HEX_STRING.test(keys.wrapKb), 'yep, hex')
             t.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
             t.equal(kA, keys.kA, 'kA was not reset')
             t.equal(client.kB.length, 64, 'kB exists, has the right length')
-            t.end()
-          },
-          function (err) {
-            t.fail(JSON.stringify(err))
-            t.end()
           }
         )
-    }
-  )
-
-  test(
-    'Login flow for a new password',
-    function (t) {
-      var email = 'verification@example.com'
-      var password = 'ez'
-      var wrapKb = null
-      var client = null
-      Client.login(config.public_url, email, password)
+        .then( // make sure we can still login after password reset
+          function () {
+            return Client.login(config.public_url, email, newPassword)
+          }
+        )
         .then(
           function (x) {
             client = x
@@ -228,7 +239,7 @@ function main() {
             t.fail(err.message || err.error)
             t.end()
           }
-      )
+        )
     }
   )
 
@@ -236,17 +247,37 @@ function main() {
     'forgot password limits verify attempts',
     function (t) {
       var code = null
-      var client = new Client(config.public_url)
-      client.email = Buffer('verification@example.com').toString('hex')
-      client.forgotPassword()
-        .then(waitForCode)
+      var email = uniqueID() +'@example.com'
+      var password = "hothamburger"
+      var client = null
+      createFreshAccount(email, password)
+        .then(
+          function () {
+            client = new Client(config.public_url)
+            client.email = Buffer(email).toString('hex')
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return waitForCode(email)
+          }
+        )
         .then(
           function (c) {
             code = c
           }
         )
-        .then(client.reforgotPassword.bind(client))
-        .then(waitForCode)
+        .then(
+          function () {
+            return client.reforgotPassword()
+          }
+        )
+        .then(
+          function (resp) {
+            return waitForCode(email)
+          }
+        )
         .then(
           function (c) {
             t.equal(code, c, 'same code as before')
@@ -335,14 +366,37 @@ var Mail = require('lazysmtp').Mail
 var mail = new Mail('127.0.0.1', true)
 
 var codeMatch = /X-\w+-Code: (\w+)/
-var emailCode = null
+var toMatch = /To: (\w+@\w+\.\w+)/
+var emailCodes = {}
+
+// This test helper creates fresh account for the given email and password.
+function createFreshAccount(email, password) {
+  var client = null
+  return Client.create(config.public_url, email, password)
+    .then(
+      function (x) {
+        client = x
+      }
+    )
+    .then(
+      function () {
+        return waitForCode(email)
+      }
+    )
+    .then(
+      function (code) {
+        return client.verifyEmail(code)
+      }
+    )
+}
 
 mail.on(
   'mail',
   function (email) {
-    var match = codeMatch.exec(email)
-    if (match) {
-      emailCode = match[1]
+    var matchCode = codeMatch.exec(email)
+    var matchEmail = toMatch.exec(email)
+    if (matchCode && matchEmail) {
+      emailCodes[matchEmail[1]] = matchCode[1]
     }
     else {
       console.error('No verify code match')
@@ -352,14 +406,16 @@ mail.on(
 )
 mail.start(9999)
 
-function waitForCode() {
+function waitForCode(email) {
   var d = P.defer()
   function loop() {
-    if (!emailCode) {
+    var code
+    if (!emailCodes[email]) {
       return setTimeout(loop, 10)
     }
-    d.resolve(emailCode)
-    emailCode = null
+    code = emailCodes[email]
+    emailCodes[email] = null
+    d.resolve(code)
   }
   loop()
   return d.promise
