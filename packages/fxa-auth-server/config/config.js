@@ -17,15 +17,6 @@ module.exports = function (fs, path, url, convict) {
     log: {
       level: {
         default: 'info'
-      },
-      path: {
-        default: path.join(__dirname, '../server.log')
-      },
-      period: {
-        default: '1d'
-      },
-      count: {
-        default: 7
       }
     },
     public_url: {

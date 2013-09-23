@@ -35,20 +35,8 @@ Overdrive.prototype.trace = function () {
 }
 
 module.exports = function (config) {
-  var logStreams = [
-    {
-      name: 'file',
-      type: 'rotating-file',
-      level: config.log.level,
-      path: config.log.path,
-      period: config.log.period,
-      count: config.log.count
-    }
-  ]
-
-  if (config.env !== 'production') {
-    logStreams.push({ name:'console', stream: process.stdout, level: 'trace' })
-  }
+  var level = config.env === 'production' ? config.log.level : 'trace'
+  var logStreams = [{ stream: process.stderr, level: level }]
 
   var log = new Overdrive(
     {
