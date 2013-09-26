@@ -92,11 +92,14 @@ setupFunctions["t1-create-signin"] = function() {
 
     var client;
     Client.login(serverUrl, email, password)
-      .done(function (x) {
+      .then(function (x) {
         client = x;
+        console.log('got client', client);
+        return client.keys()
+      })
+      .done(function (keys) {
         state.client = client
 
-        console.log('got client', x);
         console.log('done logging in!');
         console.log('keys!!', client.sessionToken, client.keyFetchToken, email);
 
