@@ -197,7 +197,8 @@ function main() {
         )
         .then(
           function (code) {
-            return client.resetPassword(code, newPassword)
+            t.throws(function() { client.resetPassword(newPassword); })
+            return resetPassword(client, code, newPassword)
           }
         )
         .then(
@@ -285,7 +286,7 @@ function main() {
         )
         .then(
           function () {
-            return client.resetPassword('wrongcode', 'password')
+            return resetPassword(client, 'wrongcode', 'password')
           }
         )
         .then(
@@ -299,7 +300,7 @@ function main() {
         )
         .then(
           function () {
-            return client.resetPassword('wrongcode', 'password')
+            return resetPassword(client, 'wrongcode', 'password')
           }
         )
         .then(
@@ -313,7 +314,7 @@ function main() {
         )
         .then(
           function () {
-            return client.resetPassword('wrongcode', 'password')
+            return resetPassword(client, 'wrongcode', 'password')
           }
         )
         .then(
@@ -327,7 +328,7 @@ function main() {
         )
         .then(
           function () {
-            return client.resetPassword('wrongcode', 'password')
+            return resetPassword(client, 'wrongcode', 'password')
           }
         )
         .then(
@@ -452,3 +453,11 @@ function waitLoop() {
 }
 
 waitLoop()
+
+
+function resetPassword(client, code, newPassword) {
+  return client.verifyPasswordResetCode(code)
+    .then(function() {
+      return client.resetPassword(newPassword)
+    })
+}

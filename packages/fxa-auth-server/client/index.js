@@ -568,19 +568,30 @@ Client.prototype.reforgotPassword = function (callback) {
   }
 }
 
-Client.prototype.resetPassword = function (code, password, callback) {
-  // this will generate a new wrapKb on the server
-  var wrapKb = '0000000000000000000000000000000000000000000000000000000000000000'
-  var p = this.setupCredentials(this.email, password)
+Client.prototype.verifyPasswordResetCode = function (code, callback) {
+  var p = this.api.passwordForgotVerifyCode(this.forgotPasswordToken, code)
     .then(
-      function () {
-        return this.api.passwordForgotVerifyCode(this.forgotPasswordToken, code)
+      function (result) {
+        this.accountResetToken = result.accountResetToken
       }.bind(this)
     )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.prototype.resetPassword = function (newPassword, callback) {
+  if (!this.accountResetToken) {
+    throw new Error("call verifyPasswordResetCode before calling resetPassword");
+  }
+  // this will generate a new wrapKb on the server
+  var wrapKb = '0000000000000000000000000000000000000000000000000000000000000000'
+  var p = this.setupCredentials(this.email, newPassword)
     .then(
-      function (json) {
-        return tokens.AccountResetToken.fromHex(json.accountResetToken)
-      }
+      tokens.AccountResetToken.fromHex.bind(null, this.accountResetToken)
     )
     .then(
       function (accountResetToken) {
