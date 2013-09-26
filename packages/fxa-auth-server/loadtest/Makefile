@@ -10,6 +10,7 @@ build:
 	tar -xzvf master.tar.gz
 	rm -rf ./lib/loads.js
 	mv loads.js-master/loads.js ./lib/
+	npm install ../
 	npm install zmq
 	npm install ./lib/loads.js/
 	rm -rf loads.js-master master.tar.gz
