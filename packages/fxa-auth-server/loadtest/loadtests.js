@@ -162,7 +162,7 @@ function runLoadTest(loadsSocket) {
   } else {
     //  Existing user.
     //  Assume it exists and try to authentiate; create only if not exists.
-    email = "loady" + getRandomInt(1, 100) + " @restmail.lcip.org";
+    email = "loady" + getRandomInt(1, 1000) + " @restmail.lcip.org";
     client = getClient(email, loadsSocket);
     ready = client.login().fail(function(err) {
       if (err.code != 400 || err.errno != ERROR_UNKNOWN_ACCOUNT) {
