@@ -9,6 +9,13 @@ BROKER=loads.loadtest.lcip.org
 # gets torn-down and replaced, and we're not sending any private info anyway.
 SSH="ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
+if $SSH ec2-user@$BROKER true; then
+  true
+else
+  echo "ERROR: could not ssh into $BROKER"
+  exit 1
+fi
+
 $SSH -N -L 7776:$BROKER:7776 -L 7780:$BROKER:7780 ec2-user@$BROKER &
 SSH_PID=$!
 
