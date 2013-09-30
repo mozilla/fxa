@@ -575,3 +575,8 @@ h5 {
         page-break-after: avoid;
     }
 }
+
+input.go[disabled] {
+  opacity: 0.5;
+}
+
