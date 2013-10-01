@@ -206,29 +206,8 @@ function runLoadTest(loadsSocket) {
 }
 
 
-//  The current loads.js test runner spawns a new process for every run
-//  of the test, which can severely hamper throughput.  To work around this
-//  for now, we do several iterations of the test before reporting success
-//  back to the loads runner.
-//
-//  XXX TODO: fix this issue upstream in the loads.js runner
+//  Export a single test function that just runs the loadtest.
 //
 module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
-  var p = P();
-  // Try to detect whether we're in a "big" bench suite by looking at
-  // the LOADS_STATUS environment variable.  We don't want to loop
-  // forever if we're in a quick `make test` run.
-  var numLoadRuns = 1;
-  if (process.env.LOADS_STATUS && process.env.LOADS_STATUS !== "1,1,1,1") {
-    numLoadRuns = 100;
-  }
-  for (var i=0; i < numLoadRuns; i++) {
-    p = p.then(function() {
-      return runLoadTest(cb.socket);
-    });
-  }
-  p.done(
-    function() { return cb(null); },
-    function(err) { return cb(err); }
-  );
+  runLoadTest(cb.socket).done(cb, cb);
 }
