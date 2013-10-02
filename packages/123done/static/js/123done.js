@@ -10,12 +10,6 @@ $(document).ready(function() {
 
   var loginAssertion = null;
 
-  // enable experimental API features
-  if (!navigator.id.request) {
-    navigator.id.request = navigator.id.experimental.request;
-    navigator.id.watch = navigator.id.experimental.watch;
-  }
-
   // verify the assertion on the server, which will use the
   // verification service provided by mozilla
   // see the '/verify' handler inside server.js for details
