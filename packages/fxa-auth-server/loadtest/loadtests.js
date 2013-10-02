@@ -60,9 +60,9 @@ function getDummySRPVerifier(email) {
  );
  if (res.length < 256) {
    var tmp = res;
-   var padding = res.length - 256;
+   var padding = 256 - res.length;
    var res = new Buffer(256);
-   res.full(0, 0, padding);
+   res.fill(0, 0, padding);
    tmp.copy(res, padding);
  }
  return res.toString('hex');
