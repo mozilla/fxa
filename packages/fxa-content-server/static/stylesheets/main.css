@@ -204,7 +204,7 @@ input[type="submit"], button,  a.x-alert-secondary {
 	
 }
 
-input[type="submit"]:active, button:active,  a.x-alert-secondary:active {
+input[type="submit"]:enabled:active, button:enabled:active,  a.x-alert-secondary::enabled:active {
   background: #9d9d9d;
 } 
 
@@ -575,3 +575,8 @@ h5 {
         page-break-after: avoid;
     }
 }
+
+input.go[disabled] {
+  opacity: 0.5;
+}
+
