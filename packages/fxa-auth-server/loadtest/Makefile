@@ -12,7 +12,7 @@ build:
 	mv loads.js-layout-refactor/ ./lib/loads.js
 	npm install ../
 	npm install zmq
-	npm install ./lib/loads.js/
+	(cd ./lib/loads.js/ && npm install)
 	rm -rf master.tar.gz
 	rm -rf ./local  # ubuntu, why you create this useless folder?
 
@@ -22,7 +22,7 @@ clean:
 
 # Run a single test from the local machine, for sanity-checking.
 test:
-	./bin/loads-runner --hits=1 --external-process-timeout=30 --test-runner="`pwd`/lib/loads.js/loadsjs/runner.js {test}" "`pwd`/loadtests.js"
+	./bin/loads-runner --hits=1 --users=1 --external-process-timeout=30 --test-runner="`pwd`/lib/loads.js/loadsjs/runner.js {test}" "`pwd`/loadtests.js"
 
 # Run a full bench, by submitting to broker in AWS.
 bench:
