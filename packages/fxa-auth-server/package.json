@@ -30,7 +30,7 @@
     "p-promise": "0.2.3",
     "kvstore": "git://github.com/mozilla/node-kvstore.git#bfd1840710",
     "bunyan": "0.21.4",
-    "toobusy": "0.2.3",
+    "toobusy": "0.2.4",
     "nodemailer": "0.5.2",
     "lout": "0.4.1",
     "node-scrypt-js": "git://github.com/vladikoff/node-scrypt-js.git#512f37884ff9",
