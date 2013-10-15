@@ -6,8 +6,8 @@ var serverUrl = fxaUrl || location.origin;
 var currentlyShowing = null;
 
 var state = {};
-
 var setupFunctions = {};
+var sessionReady = false;
 
 state.device = navigator.userAgent.match('Mobile') ? 'mobile' :
                navigator.userAgent.match('Tablet') ? 'tablet' :
@@ -17,6 +17,9 @@ state.os = navigator.userAgent.match('Mac') ? 'mac' :
            navigator.userAgent.match('Windows') ? 'win' :
            navigator.userAgent.match('Android') ? 'android' :
           'linux';
+
+state.pageToLoad = page;
+state.initialLoad = true;
 
 
 if ((state.device === 'mobile'
@@ -169,6 +172,8 @@ function refreshAccounts() {
 }
 
 function switchTo(which) {
+  if (currentlyShowing === which) return;
+
   console.log('switching to ', which);
 
   function done() {
@@ -246,12 +251,45 @@ function offsetToError() {
 }
 
 function receiveMessage(event) {
+  var type = event.data.type;
+  var result = event.data.content;
   switch (event.data.type) {
     case "message":
-      console.log("Received message from browser: ", event.data.content);
+      console.log("Received message from browser: ", result);
+      sentEvents[result.status]--;
+
+      if (result.status === 'session_status') {
+        // if we get session data back and the user wasn't previously signed in
+        // we'll transition to a signed in user state
+        if (result.data && !state.signedIn) {
+          state.email = result.data.email;
+          state.signedIn = true;
+          console.log('signed in!', result.data);
+          switchTo("signed-in-placeholder");
+        }
+        // else, if the user has been signed in and signs out, we'll transition to
+        // the sign in screen
+        else if (!result.data) {
+          console.log('signed out!');
+          state.signedIn = false;
+          delete state.email;
+          if (state.pageToLoad) {
+            followPage();
+          } else {
+            switchTo('t1-create-signin');
+          }
+        }
+      }
       break;
   }
 }
+
+function followPage() {
+  switchTo(state.pageToLoad);
+  delete state.pageToLoad;
+}
+
+var sentEvents = {};
 
 function sendToBrowser(command, data) {
   console.log('sending command to browser', command, data);
@@ -264,6 +302,14 @@ function sendToBrowser(command, data) {
   });
   try {
     window.dispatchEvent(event);
+    var count = sentEvents[command] = sentEvents[command] ? sentEvents[command] + 1 : 1;
+    // try again if the browser doesn't respond within a second
+    setTimeout(function () {
+      if (sentEvents[command] === count) {
+        sentEvents[command]--;
+        sendToBrowser(command, data);
+      }
+    }, 1000);
   } catch(e) {
     console.log(e);
   }
@@ -271,6 +317,15 @@ function sendToBrowser(command, data) {
 
 $(function() {
   window.addEventListener("message", receiveMessage, false);
+
+  if (page) {
+    switchTo(page);
+  //} else if (user && verified) {
+    //switchTo("signed-in-placeholder");
+  } else {
+    switchTo("t1-create-signin");
+  }
+
 });
 
 // konami code!
