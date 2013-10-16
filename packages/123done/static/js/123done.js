@@ -44,7 +44,7 @@ $(document).ready(function() {
       }
       $("button").removeAttr('disabled').css('opacity', '1');
     }
-    
+
     function updateListArea(email) {
       $("section.todo ul").css('display', 'none');
       $("section.todo form").css('display', 'none');
@@ -67,7 +67,7 @@ $(document).ready(function() {
       onlogin: function(assertion) {
         loginAssertion = assertion;
 
-        // display spinner        
+        // display spinner
         $("section.todo ul").css('display', 'none');
         $("section.todo form").css('display', 'none');
         $("ul.loginarea li").css('display', 'none');
