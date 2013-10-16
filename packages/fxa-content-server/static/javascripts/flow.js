@@ -44,7 +44,6 @@ setupFunctions["t1-create-signin"] = function() {
        $(this).addClass('oops').addClass('invalid');
        offsetToError();
        return;
-      
     }
     $(this).addClass('ok');
   });
@@ -212,12 +211,6 @@ setupFunctions["t1-create-signin"] = function() {
         console.log('done logging in!');
         console.log('keys!!', client.sessionToken, client.keyFetchToken, email);
 
-        sendToBrowser('create', {
-          sessionToken: client.sessionToken,
-          keyFetchToken: client.keyFetchToken,
-          email: email
-        });
-
         leaveError();
         makeNotBusy();
         switchTo("verify");
@@ -233,6 +226,19 @@ setupFunctions["t1-create-signin"] = function() {
   });
 };
 
+setupFunctions["signed-in-placeholder"] = function() {
+  console.log('state', state.email);
+
+  $('#dialog .user').html(state.email);
+
+
+  $("#dialog button.logout").on("click", function() {
+    sendToBrowser('sign_out');
+    switchTo("t1-create-signin");
+    console.log('signing out!!');
+  });
+};
+
 setupFunctions["t2-signed-in-page"] = function() {
   console.log('state', state.email);
 
@@ -241,27 +247,6 @@ setupFunctions["t2-signed-in-page"] = function() {
   $("#dialog a.prefs").on("click", function() {
     switchTo("preferences");
   });
-
-  // show devices
-
-  //send('accounts')
-  //.then(function (r) {
-    //var account = state.accounts[state.email];
-
-    //console.log('devices', account.devices);
-
-    //$('#dialog ul.devices').html('');
-    //Object.keys(account.devices).forEach(function(deviceId) {
-      //var device = account.devices[deviceId];
-      //$('#dialog ul.devices').append(
-        //$('<li>')
-          //.addClass(device.form)
-          //.html(device.name.bold())
-          //.addClass(device.syncing ? 'syncing' : 'notsyncing')
-      //);
-    //});
-
-  //});
 
   // show progress meter
   var progressMeter = $('#progress-meter')[0];
@@ -586,13 +571,16 @@ $(function() {
 
   console.log('state', state);
 
-  if (page) {
-    switchTo(page);
-  } else if (user && verified) {
-    switchTo("preferences");
-  } else {
-    switchTo("t1-create-signin");
-  }
+  //if (page) {
+    //switchTo(page);
+  ////} else if (user && verified) {
+    ////switchTo("signed-in-placeholder");
+  //} else {
+    //switchTo("t1-create-signin");
+  //}
+  //
+
+  sendToBrowser('session_status');
 
   //$("#notes-container").toggle();
 
