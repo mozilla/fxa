@@ -1,17 +1,23 @@
-picl-idp
-========
+Firefox Accounts Server
+=======================
 
-An Identity Provider for Profile In the CLoud
+This project implements the core server-side API for Firefox Accounts.  It
+provides account, device and encryption-key management for the Mozilla Cloud
+Services ecosystem.
 
-[API documentation](/docs/api.md)
+[Overview](/docs/overview.md)
 
-[API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol)
+[Detailed design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol)
+
+[Detailed API spec](/docs/api.md)
 
 ## Prerequisites
 
 * node 0.10.x or higher
 * npm
-* pgrep available (This is usually available on Mac OS X 10.8+ and Linux. On older versions of Mac OS X, get pgrep by: `brew install proctools`)
+* pgrep
+  *  Usually available by default on Mac OS X 10.8+ and Linux.
+  *  On older versions of Mac OS X, get it via: `brew install proctools`.
 * libgmp
   *  On Linux: install libgmp and libgmp-dev packages
   *  On Mac OS X: `brew install gmp`
@@ -31,7 +37,7 @@ To start the server, run:
 
     npm start
 
-It doesn't do much of anything, yet.
+It will listen on http://localhost:9000 by default.
 
 ## Testing
 

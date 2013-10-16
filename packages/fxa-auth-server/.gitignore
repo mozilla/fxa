@@ -10,3 +10,4 @@ secret*
 /loadtest/bin
 /loadtest/lib
 /loadtest/include
+*~
