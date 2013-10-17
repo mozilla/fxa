@@ -3,7 +3,8 @@ var express       = require('express'),
     sessions      = require('client-sessions'),
     redis         = require('redis'),
     fonts         = require('connect-fonts'),
-    font_sugiyama = require('connect-fonts-drsugiyama');
+    font_sugiyama = require('connect-fonts-drsugiyama'),
+    verifier      = require('browserid-verify');
 
 // create a connection to the redis datastore
 var db = redis.createClient();
@@ -58,28 +59,23 @@ app.post('/api/verify', function(req, res) {
     audience: 'http://' + req.headers.host
   });
 
-  var vreq = https.request({
-    host: req.verifier_host,
-    path: '/verify',
-    method: 'POST',
-    headers: {
-      'Content-Length': body.length,
-      'Content-Type': 'application/json'
-    }
-  }, function (vres) {
-    var body = "";
-    vres.on('data', function(chunk) { body += chunk; });
-    vres.on('end', function() {
-      try {
-        // if response is successful, indicate the user is logged in
-        req.session.user = JSON.parse(body).email;
-      } catch(e) {
-      }
-      res.send(body);
-    });
+  // 123done.org can be served from a wildcard subdomain, and we match
+  // that subdomain to *.personatest.org. So, our audience is dynamic,
+  // and the verifier could be as well.
+  // Ex: ex.123done.org -> ex.personatest.org
+  var audience = 'http://' + req.headers.host;
+  var verify = verifier({
+    url: 'https://' + req.verifier_host + '/verify'
   });
-  vreq.write(body);
-  vreq.end();
+
+  verify(req.body.assertion, audience, function(err, email, res) {
+    if (err) {
+      return res.status(400).json(res);
+    }
+
+    req.session.user = email;
+    res.json(res);
+  });
 });
 
 // auth status reports who the currently logged in user is on this
