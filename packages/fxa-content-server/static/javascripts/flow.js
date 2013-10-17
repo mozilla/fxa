@@ -208,6 +208,13 @@ setupFunctions["t1-create-signin"] = function() {
         return client.login();
       })
       .done(function () {
+        var payload = {
+          sessionToken: client.sessionToken,
+          keyFetchToken: client.keyFetchToken,
+          email: email,
+          uid: client.uid
+        };
+        sendToBrowser('login', payload);
         console.log('done logging in!');
         console.log('keys!!', client.sessionToken, client.keyFetchToken, email);
 
