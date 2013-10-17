@@ -68,13 +68,13 @@ app.post('/api/verify', function(req, res) {
     url: 'https://' + req.verifier_host + '/verify'
   });
 
-  verify(req.body.assertion, audience, function(err, email, res) {
+  verify(req.body.assertion, audience, function(err, email, data) {
     if (err) {
-      return res.status(400).json(res);
+      return res.status(400).json(data);
     }
 
     req.session.user = email;
-    res.json(res);
+    res.json(data);
   });
 });
 

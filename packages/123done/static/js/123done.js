@@ -20,7 +20,6 @@ $(document).ready(function() {
     }, function(data, status, xhr) {
       try {
         if (status !== 'success') throw data;
-        data = JSON.parse(data);
         if (data.status !== 'okay') throw data.reason;
         success(data);
       } catch(e) {
