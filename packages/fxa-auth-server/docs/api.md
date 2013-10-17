@@ -1,20 +1,41 @@
-# Key Server API
+# Firefox Accounts Server API
 
-For details of the client/server server protocol and how each parameter is derived see the
-[design](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol).
+For a prose description of the client/server protocol and details on how each parameter is derived see the
+[API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol).
 
-Our [SRP](http://en.wikipedia.org/wiki/Secure_Remote_Password_protocol#Protocol)
-protocol order is slightly different from the sample on wikipedia, but the variables
-are the same.
+---
 
-[Hawk](https://github.com/hueniverse/hawk) is used to authenticate requests marked :lock:.
+# Overview
 
-# Request Format
+## URL Structure
+
+All requests will be to URLs for the form:
+
+    https://<server-url>/v1/<api-endpoint>
+
+Note that:
+
+* All API access must be over a properly-validated HTTPS connection.
+* The URL embeds a version identifier "v1"; future revisions of this API may introduce new version numbers.
+* The base URL of the server may be configured on a per-client basis:
+  * There is a development server available at [https://idp.dev.lcip.org/](https://idp.dev.lcip.org);
+    data stored on this may be periodically purged.
+  * The canonical URL for Mozilla's hosted Firefox Accounts server is TODO-DEFINE-ME.
+
+## Request Format
 
 All POST requests require a content-type of `application/json` with a JSON
 encoded body. All keys and binary data are base16 encoded strings.
 
-### Error Responses
+All requests requiring authentication use [Hawk](https://github.com/hueniverse/hawk) signatures.
+Such requests are marked :lock: in the description below.
+
+## Response Format
+
+All successul requests will return a "200 OK" status response with content type of application/json.
+The only exception is /recovery_email/status when accessed in server-sent-events mode.
+
+Client-errors.
 
 All error responses include a JSON body in addition to the HTTP status code.
 For example:
@@ -31,50 +52,57 @@ For example:
 
 Individual `errno`s may include additional parameters
 
+Server-side errors.
+
+TODO backoff protocol goes here
+
+## Responses from Intermediary Servers
+
+Clients should be prepared to gracefully handle standard HTTP error responses that may be produced
+by proxies, load-balancers, etc.  Examples include:
+
+* 412
+* 502
+
 ---
 
-# Endpoints
+# API Endpoints
 
 * Account
-    * [POST /account/create](#post-accountcreate)
-    * [GET  /account/devices (:lock: sessionToken)](#get-accountdevices)
-    * [GET  /account/keys (:lock: keyFetchToken) (verf-required)](#get-accountkeys)
-    * [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
-    * [POST /account/destroy (:lock: authToken)](#post-accountdestroy)
+    * [POST /v1/account/create](#post-accountcreate)
+    * [GET  /v1/account/devices (:lock: sessionToken)](#get-accountdevices)
+    * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-accountkeys)
+    * [POST /v1/account/reset (:lock: accountResetToken)](#post-accountreset)
+    * [POST /v1/account/destroy (:lock: authToken)](#post-accountdestroy)
 
 * Authentication
-    * [POST /auth/start](#post-authstart)
-    * [POST /auth/finish](#post-authfinsh)
+    * [POST /v1/auth/start](#post-authstart)
+    * [POST /v1/auth/finish](#post-authfinsh)
 
 * Session
-    * [POST /session/create (:lock: authToken)](#post-sessioncreate)
-    * [POST /session/destroy (:lock: sessionToken)](#post-sessiondestroy)
+    * [POST /v1/session/create (:lock: authToken)](#post-sessioncreate)
+    * [POST /v1/session/destroy (:lock: sessionToken)](#post-sessiondestroy)
 
 * Recovery Email
-    * [GET  /recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
-    * [POST /recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
-    * [POST /recovery_email/verify_code](#post-recovery_emailverify_code)
+    * [GET  /v1/recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
+    * [POST /v1/recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
+    * [POST /v1/recovery_email/verify_code](#post-recovery_emailverify_code)
 
 * Certificate Signing
-    * [POST /certificate/sign (:lock: sessionToken) (verf-required)](#post-certificatesign)
+    * [POST /v1/certificate/sign (:lock: sessionToken) (verf-required)](#post-certificatesign)
 
 * Password
-    * [POST /password/change/start (:lock: authToken)](#post-passwordchangestart)
-    * [POST /password/forgot/send_code](#post-passwordforgotsend_code)
-    * [POST /password/forgot/resend_code (:lock: forgotPasswordToken)](#post-passwordforgotresend_code)
-    * [POST /password/forgot/verify_code (:lock: forgotPasswordToken)](#post-passwordforgotverify_code)
+    * [POST /v1/password/change/start (:lock: authToken)](#post-passwordchangestart)
+    * [POST /v1/password/forgot/send_code](#post-passwordforgotsend_code)
+    * [POST /v1/password/forgot/resend_code (:lock: forgotPasswordToken)](#post-passwordforgotresend_code)
+    * [POST /v1/password/forgot/verify_code (:lock: forgotPasswordToken)](#post-passwordforgotverify_code)
 
 * Miscellaneous
-    * [POST /get_random_bytes](#post-get_random_bytes)
+    * [POST /v1/get_random_bytes](#post-get_random_bytes)
 
-A development server is available at http://idp.profileinthecloud.net for testing.
-All data stored there will be deleted periodically, and new code will be deployed
-regularly.
 
-***The API is accessible over HTTP on the development server only.***
-***Production servers will be HTTPS only***
 
-## POST /account/create
+## POST /v1/account/create
 
 Not HAWK authenticated.
 
@@ -103,7 +131,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.profileinthecloud.net/account/create \
+http://idp.dev.lcip.org/v1/account/create \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "srp": {
@@ -131,7 +159,7 @@ http://idp.profileinthecloud.net/account/create \
 }
 ```
 
-## GET /account/devices
+## GET /v1/account/devices
 
 :lock: HAWK-authenticated with sessionToken
 
@@ -153,7 +181,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/account/devices \
+http://idp.dev.lcip.org/v1/account/devices \
 ```
 
 ### Response
@@ -170,7 +198,7 @@ http://idp.profileinthecloud.net/account/devices \
 }
 ```
 
-## GET /account/keys
+## GET /v1/account/keys
 
 :lock: HAWK-authenticated with keyFetchToken
 
@@ -192,7 +220,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/account/keys \
+http://idp.dev.lcip.org/v1/account/keys \
 ```
 
 ### Response
@@ -206,7 +234,7 @@ http://idp.profileinthecloud.net/account/keys \
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
 for info on how to extract `kA|wrapKb` from the bundle.
 
-## POST /account/reset
+## POST /v1/account/reset
 
 :lock: HAWK-authenticated with accountResetToken
 
@@ -244,7 +272,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/account/reset \
+http://idp.dev.lcip.org/v1/account/reset \
 -d '{
   "bundle": "a586e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a98264bdc",
   "srp": {
@@ -269,7 +297,7 @@ http://idp.profileinthecloud.net/account/reset \
 {}
 ```
 
-## POST /account/destroy
+## POST /v1/account/destroy
 
 :lock: HAWK-authenticated with the authToken
 
@@ -293,7 +321,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/account/destroy \
+http://idp.dev.lcip.org/v1/account/destroy \
 -d ''
 ```
 
@@ -303,7 +331,7 @@ http://idp.profileinthecloud.net/account/destroy \
 {}
 ```
 
-## POST /auth/start
+## POST /v1/auth/start
 
 Not HAWK authenticated.
 
@@ -320,7 +348,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.profileinthecloud.net/auth/start \
+http://idp.dev.lcip.org/v1/auth/start \
 -d '{
   "email": "6d65406578616d706c652e636f6d"
 }'
@@ -356,7 +384,7 @@ ___Parameters___
 How to derive the values for the next step are explained in the
 [SRP Client Calculation](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#SRP_Client_Calculation)
 
-## POST /auth/finish
+## POST /v1/auth/finish
 
 Not HAWK authenticated.
 
@@ -373,7 +401,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.profileinthecloud.net/auth/finish \
+http://idp.dev.lcip.org/v1/auth/finish \
 -d '{
   "srpToken": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
   "A": "024ba1bb53d42918dc34131b41548843e1fa533bd5952be3ec8884fba4aa5c3542ac161fa0d5587d1e694248573be8a1b18f7b0c132f74ddde08ac2a230f4db4a1d831eb74ee772c83121ecba80e51b9293942681655dca4f98a766408fbaf5c13c09d21b9d6d3dabea8024fbb658ca67e20bc63cb349cb9bea54d7b1f4990cfe45fad7e492ca90a578d7b559143eb0987825b48aa6bfbb684b7973c75e6e98011ffc3ba724797ea575d440fa3c052be978590f828d3f850a4ccdecbe8e4d2c6d2b981e3c75ee26d5cf477cda9273a60000d6e942d4eb27e027a8ca16f668862260a4c9d3ab6cd3139decf4976633844684b8371a68a7419f6beffd2fc078327",
@@ -393,7 +421,7 @@ See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/K
 for info on how to retrieve `authToken` from the bundle.
 
 
-## POST /session/create
+## POST /v1/session/create
 
 :lock: HAWK-authenticated with the authToken.
 
@@ -407,7 +435,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/session/create \
+http://idp.dev.lcip.org/v1/session/create \
 ```
 
 ### Response
@@ -421,7 +449,7 @@ http://idp.profileinthecloud.net/session/create \
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#???)
 for info on how to retrieve `sessionToken` and `keyFetchToken` from the bundle.
 
-## POST /session/destroy
+## POST /v1/session/destroy
 
 :lock: HAWK-authenticated with the sessionToken.
 
@@ -438,7 +466,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/session/destroy \
+http://idp.dev.lcip.org/v1/session/destroy \
 ```
 
 ### Response
@@ -448,7 +476,7 @@ http://idp.profileinthecloud.net/session/destroy \
 ```
 
 
-## GET /recovery_email/status
+## GET /v1/recovery_email/status
 
 :lock: HAWK-authenticated with the sessionToken.
 
@@ -472,7 +500,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/recovery_email/status \
+http://idp.dev.lcip.org/v1/recovery_email/status \
 ```
 
 ### Response
@@ -485,7 +513,7 @@ Each email address is encoded as a hex string, just like in /auth/start and /acc
 { "email": "6d65406578616d706c652e636f6d", "verified": true }
 ```
 
-## POST /recovery_email/resend_code
+## POST /v1/recovery_email/resend_code
 
 :lock: HAWK-authenticated with the sessionToken.
 
@@ -507,7 +535,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/recovery_email/resend_code
+http://idp.dev.lcip.org/v1/recovery_email/resend_code
 ```
 
 ### Response
@@ -516,7 +544,7 @@ http://idp.profileinthecloud.net/recovery_email/resend_code
 {}
 ```
 
-## POST /recovery_email/verify_code
+## POST /v1/recovery_email/verify_code
 
 Not HAWK-authenticated.
 
@@ -536,7 +564,7 @@ curl -v \
 -X POST \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
-http://idp.profileinthecloud.net/recovery_email/verify_code \
+http://idp.dev.lcip.org/v1/recovery_email/verify_code \
 -d '{
   "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
   "code": "e3c5b0e3f5391e134596c27519979b93a45e6d0da34c7509c5632ac35b28b48d"
@@ -549,7 +577,7 @@ http://idp.profileinthecloud.net/recovery_email/verify_code \
 {}
 ```
 
-## POST /certificate/sign
+## POST /v1/certificate/sign
 
 :lock: HAWK-authenticated with the sessionToken.
 
@@ -580,7 +608,7 @@ curl -v \
 -H "Host: idp.profileinthecloud.net" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/certificate/sign \
+http://idp.dev.lcip.org/v1/certificate/sign \
 -d '{
   "publicKey": {
     "algorithm":"RS",
@@ -599,7 +627,7 @@ http://idp.profileinthecloud.net/certificate/sign \
 }
 ```
 
-## POST /password/change/start
+## POST /v1/password/change/start
 
 :lock: HAWK-authenticated with the authToken.
 
@@ -620,7 +648,7 @@ curl -v \
 -X POST \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.profileinthecloud.net/password/change/start
+http://idp.dev.lcip.org/v1/password/change/start
 ```
 
 ### Response
@@ -634,7 +662,7 @@ http://idp.profileinthecloud.net/password/change/start
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
 for info on how to retrieve `accountResetToken` and `keyFetchToken` from the bundle.
 
-## POST /password/forgot/send_code
+## POST /v1/password/forgot/send_code
 
 Not HAWK-authenticated.
 
@@ -657,7 +685,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.profileinthecloud.net/password/forgot/send_code \
+http://idp.dev.lcip.org/v1/password/forgot/send_code \
 -d '{
   "email": "6d65406578616d706c652e636f6d"
 }'
@@ -674,7 +702,7 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
 }
 ```
 
-## POST /password/forgot/resend_code
+## POST /v1/password/forgot/resend_code
 
 :lock: HAWK-authenticated with the forgotPasswordToken.
 
@@ -692,7 +720,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.profileinthecloud.net/password/forgot/send_code \
+http://idp.dev.lcip.org/v1/password/forgot/send_code \
 -d '{
   "email": "6d65406578616d706c652e636f6d"
 }'
@@ -709,7 +737,7 @@ http://idp.profileinthecloud.net/password/forgot/send_code \
 }
 ```
 
-## POST /password/forgot/verify_code
+## POST /v1/password/forgot/verify_code
 
 :lock: HAWK-authenticated with the forgotPasswordToken.
 
@@ -726,7 +754,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.profileinthecloud.net/password/forgot/verify_code \
+http://idp.dev.lcip.org/v1/password/forgot/verify_code \
 -d '{
   "code": "12345678"
 }'
@@ -740,7 +768,7 @@ http://idp.profileinthecloud.net/password/forgot/verify_code \
 }
 ```
 
-## POST /get_random_bytes
+## POST /v1/get_random_bytes
 
 Not HAWK-authenticated.
 
@@ -748,7 +776,7 @@ Get 32 bytes of random data. Useful to merge into locally-sourced entropy for cr
 
 ### Request
 ```sh
-curl -X POST -v http://idp.profileinthecloud.net/get_random_bytes
+curl -X POST -v http://idp.dev.lcip.org/v1/get_random_bytes
 ```
 
 ### Response
