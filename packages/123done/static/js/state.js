@@ -18,6 +18,7 @@
   var todo = $('#todolist'),
   form = $('#addform'),
   field = $("#newitem");
+  var hasSomething = /\S/;
 
   var lastSync = localStorage.lastSync ? parseInt(localStorage.lastSync, 10) : 0;
 
@@ -34,6 +35,9 @@
   // upon form submission to add a new element, add it to the list
   form.on('submit', function(e) {
     e.preventDefault();
+    if ( !field.val().match(hasSomething) ) {
+      return field.val('').focus();
+    }
     // create a new element, set its value, and append it
     todo.append($('<li>').attr('when', new Date().getTime()).text(field.val()));
     // clear and refocus the input field
