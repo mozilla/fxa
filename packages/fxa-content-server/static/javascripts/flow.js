@@ -312,7 +312,7 @@ setupFunctions["verify"] = function() {
               uid: cert.payload.principal.email
             };
             console.log('sendToBrowser payload: ', payload);
-            sendToBrowser('verified', payload);
+            sendToBrowser('login', payload);
           });
         });
 
