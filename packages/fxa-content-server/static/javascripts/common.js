@@ -290,6 +290,8 @@ function followPage() {
 }
 
 var sentEvents = {};
+var MAX_TRIES = 3;
+var retries = {};
 
 function sendToBrowser(command, data) {
   console.log('sending command to browser', command, data);
@@ -303,13 +305,18 @@ function sendToBrowser(command, data) {
   try {
     window.dispatchEvent(event);
     var count = sentEvents[command] = sentEvents[command] ? sentEvents[command] + 1 : 1;
-    // try again if the browser doesn't respond within a second
-    setTimeout(function () {
-      if (sentEvents[command] === count) {
-        sentEvents[command]--;
-        sendToBrowser(command, data);
-      }
-    }, 1000);
+    if (!(command in retries)) retries[command] = 0;
+    if (retries[command] < MAX_TRIES) {
+      retries[command]++;
+      // try again if the browser doesn't respond within a second
+      setTimeout(function () {
+        if (sentEvents[command] === count) {
+          console.log('retrying command: ', command, data);
+          sentEvents[command]--;
+          sendToBrowser(command, data);
+        }
+      }, 1000);
+    }
   } catch(e) {
     console.log(e);
   }
