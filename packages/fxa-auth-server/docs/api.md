@@ -1,7 +1,6 @@
 # Firefox Accounts Server API
 
-For a prose description of the client/server protocol and details on how each parameter is derived see the
-[API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol).
+This document provides protocol-level details of the Firefox Accounts Server API.  For a prose description of the client/server protocol and details on how each parameter is derived see the [API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol).
 
 ---
 
@@ -22,23 +21,24 @@ Note that:
     data stored on this may be periodically purged.
   * The canonical URL for Mozilla's hosted Firefox Accounts server is TODO-DEFINE-ME.
 
+
 ## Request Format
 
-All POST requests require a content-type of `application/json` with a JSON
-encoded body. All keys and binary data are base16 encoded strings.
+Requests that require authentication use [Hawk](https://github.com/hueniverse/hawk) request signatures.
+These endpoints are marked :lock: in the description below.
 
-All requests requiring authentication use [Hawk](https://github.com/hueniverse/hawk) signatures.
-Such requests are marked :lock: in the description below.
+All POST requests must have a content-type of `application/json` with a utf8-encoded JSON body, and must specify the content-length header.  Keys and other binary data are included in the JSON as base16 encoded strings.
+
 
 ## Response Format
 
-All successul requests will return a "200 OK" status response with content type of application/json.
-The only exception is /recovery_email/status when accessed in server-sent-events mode.
+All successful requests will produce a response with HTTP status code of "200" and content-type of "application/json".  The structure of the response body will depend on the endpoint in question.
 
-Client-errors.
+An exception is `/v1/recovery_email/status` when accessed in server-sent-events mode, which will produce an event stream response with content-type "text/event-stream".
 
-All error responses include a JSON body in addition to the HTTP status code.
-For example:
+Failures due to invalid behavior from the client will produce a response with HTTP status code in the "4XX" range and content-type of "application/json".  Failures due to an unexpected situation on the server will produce a response with HTTP status code in the "5XX" range and content-type of "application/json".
+
+To simplify error handling for the client, the type of error is indicated both by a particular HTTP status code, and by an application-specific error code in the JSON response body.  For example:
 
 ```js
 {
@@ -46,23 +46,35 @@ For example:
   "errno": 101, // stable application level error number
   "error": "Bad Request", // string description of the error type
   "message": "the value of salt is not allowed to be undefined",
-  "info": "https://dev.picl.org/errors/1234" // link to more info on the error
+  "info": "https://docs.dev.lcip.og/errors/1234" // link to more info on the error
 }
 ```
 
-Individual `errno`s may include additional parameters
+Responses for particular types of error may include additional parameters.
 
-Server-side errors.
+The currently-defined error responses are:
 
-TODO backoff protocol goes here
+* status code 400, errno 101:  attempt to create an account that already exists
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 103:  incorrect password
+* status code 400, errno 104:  attempt to operate on an unverified account
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+* status code 429, errno 112:  client has sent too many requests (see backoff protocol)
+* status code 503, errno 201:  service temporarily unavailable to due high load (see backoff protocol)
+
 
 ## Responses from Intermediary Servers
 
-Clients should be prepared to gracefully handle standard HTTP error responses that may be produced
-by proxies, load-balancers, etc.  Examples include:
+Since this is a HTTP-based protocol, clients should be prepared to gracefully handle standard HTTP error responses that may be produced by proxies, load-balancers, or other intermediary servers.  Non-application responses can be identified by their lack of properly-formatted JSON response body.  Common examples would include:
 
-* 412
-* 502
+* "413 Request Entity Too Large" may be produced up an upstream proxy server.
+* "502 Gateway Timeout" may be produced by a load-balancer if it cannot contact the application servers.
 
 ---
 
@@ -106,9 +118,9 @@ by proxies, load-balancers, etc.  Examples include:
 
 Not HAWK authenticated.
 
-Creates a user account. The client provides the email address with which this account will be labeled, the two salts, all the stretching parameters, and the resulting SRP verifier. Of these values, only the salts and the stretching parameters will be returned to the client when they next log in using `/auth/start`.
+Creates a user account. The client provides the email address with which this account will be labeled, the two salts, all the stretching parameters, and the resulting SRP verifier. Of these values, only the salts and the stretching parameters will be returned to the client when they next log in using `/v1/auth/start`.
 
-Because the account email is used for key-derivation by both client and server, it is important to deliver it accurately, byte-for-byte. To avoid transfer-encoding ambiguity (what does HTTP use, what does the JSON parser do, etc), the email should be transferred as a hex-encoded binary string, just like the salts, tokens, and SRP A/B values. For example, "me@example.com" is represented as "6d65406578616d706c652e636f6d", and "andré@example.org" is represented as "616e6472c3a9406578616d706c652e6f7267".
+Because the account email is used for key-derivation by both client and server, it is important to deliver it accurately, byte-for-byte. To avoid transfer-encoding ambiguity (what does HTTP use? what does the JSON parser do? etc), the email should be transferred as a hex-encoded binary string, just like the salts, tokens, and SRP A/B values. For example, "me@example.com" is represented as "6d65406578616d706c652e636f6d", and "andré@example.org" is represented as "616e6472c3a9406578616d706c652e6f7267".
 
 ___Parameters___
 
@@ -153,11 +165,22 @@ http://idp.dev.lcip.org/v1/account/create \
 
 ### Response
 
+Successful requests will produce a "200 OK" response with the account's unique identifier in the JSON body:
+
 ```json
 {
   "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8"
 }
 ```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 101:  attempt to create an account that already exists
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
 
 ## GET /v1/account/devices
 
@@ -167,24 +190,26 @@ Gets the collection of devices currently authenticated and syncing for the user.
 
 This is intentionally vague for now, and will be figured out soon.
 
-Devices describe themselves to the server with arguments to `/session/create`, which returns a distinct sessionToken for each one. This status API is expected to use that information.
+Devices describe themselves to the server with arguments to `/v1/session/create`, which returns a distinct sessionToken for each one. This status API is expected to use that information.
 
 ___Headers___
 
-The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/session/create`.
+The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/session/create`.
 
 ### Request
 
 ```sh
 curl -v \
 -X GET \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/account/devices \
 ```
 
 ### Response
+
+Successful requests will produce a "200 OK" response with the device details provided in the JSON body:
 
 ```json
 {
@@ -197,6 +222,13 @@ http://idp.dev.lcip.org/v1/account/devices \
   ]
 }
 ```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+
 
 ## GET /v1/account/keys
 
@@ -217,13 +249,15 @@ The request must include a HAWK header that authenticates the request using a `k
 ```sh
 curl -v \
 -X GET \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/account/keys \
 ```
 
 ### Response
+
+Successful requests will produce a "200 OK" response with the key data provided in the JSON body as hex-encoded bytes:
 
 ```json
 {
@@ -233,6 +267,14 @@ http://idp.dev.lcip.org/v1/account/keys \
 
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
 for info on how to extract `kA|wrapKb` from the bundle.
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 104:  attempt to operate on an unverified account
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+
 
 ## POST /v1/account/reset
 
@@ -264,12 +306,12 @@ ___Parameters___
 
 ___Headers___
 
-The request must include a HAWK header that authenticates the request (including payload) using a key derived from the `accountResetToken`, which is returned by `/password/change/start` or `/password/forgot/verify_code`.
+The request must include a HAWK header that authenticates the request (including payload) using a key derived from the `accountResetToken`, which is returned by `/v1/password/change/start` or `/v1/password/forgot/verify_code`.
 
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/account/reset \
@@ -293,15 +335,29 @@ http://idp.dev.lcip.org/v1/account/reset \
 
 ### Response
 
+Successful requests will produce a "200 OK" response with empty JSON body:
+
 ```json
 {}
 ```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
 
 ## POST /v1/account/destroy
 
 :lock: HAWK-authenticated with the authToken
 
-This deletes the account completely. All stored data is erased. The client should seek user confirmation first. The client should also go to the storage servers and erase all stored data before deleting the account on the keyserver.
+This deletes the account completely. All stored data is erased. The client should seek user confirmation first. The client should erase data stored on any attached services before deleting the user's account data.
 
 This request must be authenticated with the single-use authToken, to confirm that the password has been correctly entered recently. The authToken is consumed regardless of whether the request succeeds or fails.
 
@@ -313,12 +369,12 @@ none
 
 ___Headers___
 
-The request must include a HAWK header that authenticates the request (including payload) using the `authToken`, which is returned by `/auth/finish`.
+The request must include a HAWK header that authenticates the request (including payload) using the `authToken`, which is returned by `/v1/auth/finish`.
 
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/account/destroy \
@@ -327,17 +383,29 @@ http://idp.dev.lcip.org/v1/account/destroy \
 
 ### Response
 
+Successful requests will produce a "200 OK" response with empty JSON body:
+
 ```json
 {}
 ```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
 
 ## POST /v1/auth/start
 
 Not HAWK authenticated.
 
-Begin the login process. This is the first of two calls used to prove knowledge of the user's password. The two calls are tied together with the single-use `srpToken`, which is returned from `/auth/start` and passed back to `/auth/finish`. This token is valid for a limited time (60 seconds), and is consumed by `/auth/finish` regardless of whether it succeeds or fails.
+Begin the login process. This is the first of two calls used to prove knowledge of the user's password. The two calls are tied together with the single-use `srpToken`, which is returned from `/v1/auth/start` and passed back to `/v1/auth/finish`. This token is valid for a limited time (60 seconds), and is consumed by `/v1/auth/finish` regardless of whether it succeeds or fails.
 
-The `start` call returns the salts and stretching parameters stored for the account. It also returns the SRP "B" message, which the client uses to compute its "A" response (which is submitted in `/auth/finish`).
+The `start` call returns the salts and stretching parameters stored for the account. It also returns the SRP "B" message, which the client uses to compute its "A" response (which is submitted in `/v1/auth/finish`).
 
 ___Parameters___
 
@@ -358,8 +426,9 @@ http://idp.dev.lcip.org/v1/auth/start \
 
 ___Parameters___
 
-* srpTokenLifetime: the srpToken will be valid for this many seconds
-* main
+XXX TODO: "srpTokenLifetime" field?
+
+Successful requests will produce a "200 OK" response with the "srpToken", "srp" and "passwordStretching" fields in the JSON body object:
 
 ```json
 {
@@ -384,19 +453,30 @@ ___Parameters___
 How to derive the values for the next step are explained in the
 [SRP Client Calculation](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#SRP_Client_Calculation)
 
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
+
 ## POST /v1/auth/finish
 
 Not HAWK authenticated.
 
-This completes the login process started in `/auth/start`. The client supplies its SRP "A" message and the SRP "M" verification message. If these are correct (indicating the user knew the account password), the server returns an encrypted bundle that will yield a single-use "authToken".
+This completes the login process started in `/v1/auth/start`. The client supplies its SRP "A" message and the SRP "M" verification message. If these are correct (indicating the user knew the account password), the server returns an encrypted bundle that will yield a single-use "authToken".
 
 ___Parameters___
 
-* srpToken - the srpToken received from `/auth/start`
+* srpToken - the srpToken received from `/v1/auth/start`
 * A - the derived SRP "A" value
 * M - the derived SRP "M" value
 
 ### Request
+
 ```sh
 curl -v \
 -X POST \
@@ -411,14 +491,26 @@ http://idp.dev.lcip.org/v1/auth/finish \
 
 ### Response
 
+Successful requests will produce a "200 OK" response with the encrypted authToken bundle in the JSON body object:
+
 ```json
 {
   "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
 }
 ```
 
-See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
+See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_.2Fauth.2Ffinish_Response)
 for info on how to retrieve `authToken` from the bundle.
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 103:  incorrect password
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
 
 
 ## POST /v1/session/create
@@ -432,7 +524,7 @@ This is used when adding a new device, or when creating a new account (and then 
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/session/create \
@@ -440,20 +532,32 @@ http://idp.dev.lcip.org/v1/session/create \
 
 ### Response
 
+Successful requests will produce a "200 OK" response with the encrypted sessionToken+keyFetchToken bundle in the JSON body object:
+
 ```json
 {
   "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
 }
 ```
 
-See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#???)
+See [creating a session](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Creating_a_Session)
 for info on how to retrieve `sessionToken` and `keyFetchToken` from the bundle.
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
 
 ## POST /v1/session/destroy
 
 :lock: HAWK-authenticated with the sessionToken.
 
-Destroys this session, by invalidating the sessionToken. This is used when a device "signs-out", detaching itself from the PICL account. After calling this, the device must re-perform the `/auth/start` sequence to obtain a new sessionToken.
+Destroys this session, by invalidating the sessionToken. This is used when a device "signs-out", detaching itself from the  account. After calling this, the device must re-perform the `/v1/auth/start` sequence to obtain a new sessionToken.
 
 ___Headers___
 
@@ -463,7 +567,7 @@ The request must include a Hawk header that authenticates the request using a `s
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/session/destroy \
@@ -471,9 +575,20 @@ http://idp.dev.lcip.org/v1/session/destroy \
 
 ### Response
 
+Successful requests will produce a "200 OK" response with an empty JSON body:
+
 ```json
 {}
 ```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
 
 
 ## GET /v1/recovery_email/status
@@ -482,9 +597,9 @@ http://idp.dev.lcip.org/v1/session/destroy \
 
 Returns the "verified" status for the account's recovery email address.
 
-Currently, each account is associated with exactly one email address. This address must be "verified" before the account can be used (specifically, /certificate/sign and /account/keys will return errors until the address is verified). In the future, this may be expanded to include multiple addresses, and/or alternate types of recovery methods (e.g., SMS). A new API will be provided for this extra functionality.
+Currently, each account is associated with exactly one email address. This address must be "verified" before the account can be used (specifically, `/v1/certificate/sign` and `/v1/account/keys` will return errors until the address is verified). In the future, this may be expanded to include multiple addresses, and/or alternate types of recovery methods (e.g., SMS). A new API will be provided for this extra functionality.
 
-This call is used to determine the current state (verified or unverified) of the recovery email address. During account creation, until the address is verified, the agent can poll this method to discover when it should proceed with /certificate/sign and /account/keys.
+This call is used to determine the current state (verified or unverified) of the recovery email address. During account creation, until the address is verified, the agent can poll this method to discover when it should proceed with `/v1/certificate/sign` and `/v1/account/keys`.
 
 Rather than repeatedly polling, agents should use Server-Sent Events to effectively subscribe to hear about changes in this state. To use this, the GET request should include an `Accept: text/event-stream` header, which will trigger the server to provide an ongoing event stream instead of just a one-time response.
 
@@ -492,32 +607,63 @@ Rather than repeatedly polling, agents should use Server-Sent Events to effectiv
 
 ___Headers___
 
-The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/auth/finish`.
+The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/session/create`.
 
 ```sh
 curl -v \
 -X GET \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/recovery_email/status \
 ```
 
+
+The request may include an `Accept` header to request a server-sent event feed to poll for successful verification.
+
+```sh
+curl -v \
+-X GET \
+-H "Host: idp.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H "Accept: text/event-stream" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+http://idp.dev.lcip.org/v1/recovery_email/status \
+
+
 ### Response
 
-The response is a JSON body (with no newlines) that lists the email address and its verification status. When Server-Sent Events are used, the response is a series of lines, each of which contains the same JSON body as with the one-time GET.
-
-Each email address is encoded as a hex string, just like in /auth/start and /account/create .
+When the `Accept` header is not specified, or is specified with a value of "application/json", successful requests will produce a "200 OK" response with the account email and verification status in the JSON body object:
 
 ```json
 { "email": "6d65406578616d706c652e636f6d", "verified": true }
 ```
 
+The email address is encoded as a hex string, just like in /auth/start and /account/create .
+
+When the `Accept` header is specified with a value of "text/event-stream", successful requests will produce a "200 OK" response with streaming body data.  Each entry on the stream will be a single "data:" message containing the email and verification status in a JSON object:
+
+```js
+data: { "email": "6d65406578616d706c652e636f6d", "verified": false }
+
+data: { "email": "6d65406578616d706c652e636f6d", "verified": false }
+
+data: { "email": "6d65406578616d706c652e636f6d", "verified": true }
+```
+
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+
+
 ## POST /v1/recovery_email/resend_code
 
 :lock: HAWK-authenticated with the sessionToken.
 
-Re-sends a verification code to the account's recovery email address. The code is first sent when the account is created, but if the user thinks the message was lost or accidentally deleted, they can request a new message to be sent with this endpoint. The new message will contain the same code as the original message. When this code is provided to `/recovery_email/verify_code` (below), the email will be marked as "verified".
+Re-sends a verification code to the account's recovery email address. The code is first sent when the account is created, but if the user thinks the message was lost or accidentally deleted, they can request a new message to be sent with this endpoint. The new message will contain the same code as the original message. When this code is provided to `/v1/recovery_email/verify_code` (below), the email will be marked as "verified".
 
 ### Request
 
@@ -527,12 +673,12 @@ none (an empty request body)
 
 ___Headers___
 
-The request must include a Hawk header that authenticates the request (including payload) using a `sessionToken` received from `/auth/finish`.
+The request must include a Hawk header that authenticates the request (including payload) using a `sessionToken` received from `/v1/session/create`.
 
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/recovery_email/resend_code
@@ -540,9 +686,21 @@ http://idp.dev.lcip.org/v1/recovery_email/resend_code
 
 ### Response
 
+Successful requests will produce a "200 OK" response with an empty JSON body:
+
 ```json
 {}
 ```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
 
 ## POST /v1/recovery_email/verify_code
 
@@ -550,7 +708,7 @@ Not HAWK-authenticated.
 
 Used to submit a verification code that was previously sent to a user's recovery email. If correct, the account's recovery email address will be marked as "verified".
 
-The verification code will be a full-sized random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/recovery_email/verify_code`. This endpoint should be CORS-enabled, to allow the linked page to be hosted on a different (static) domain. The link can be clicked from any browser, not just the one being attached to the PICL account.
+The verification code will be a full-sized (XXX TODO: wtf does "full-sized" mean?) random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/recovery_email/verify_code`. This endpoint should be CORS-enabled, to allow the linked page to be hosted on a different (static) domain. The link can be clicked from any browser, not just the one being attached to the PICL account.
 
 ### Request
 
@@ -562,7 +720,7 @@ ___Parameters___
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 http://idp.dev.lcip.org/v1/recovery_email/verify_code \
 -d '{
@@ -573,15 +731,27 @@ http://idp.dev.lcip.org/v1/recovery_email/verify_code \
 
 ### Response
 
+Successful requests will produce a "200 OK" response with an empty JSON body:
+
 ```json
 {}
 ```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
 
 ## POST /v1/certificate/sign
 
 :lock: HAWK-authenticated with the sessionToken.
 
-Sign a BrowserID public key. The server is given a public key, and returns a signed certificate using the same JWT-like mechanism as a BrowserID primary IdP would (see the [browserid-certifier project](https://github.com/mozilla/browserid-certifier for details)). The signed certificate includes a `principal.email` property to indicate the PICL account's identifier (a uuid at a PICL-specific domain). The certificate is marked as being valid for a limited time period (TBD, but probably a few hours, maybe a day).
+Sign a BrowserID public key. The server is given a public key, and returns a signed certificate using the same JWT-like mechanism as a BrowserID primary IdP would (see the [browserid-certifier project](https://github.com/mozilla/browserid-certifier for details)). The signed certificate includes a `principal.email` property to indicate the Firefox Account identifier (a uuid at the account server's primary domain). The certificate is marked as being valid for a limited time period (TBD, but probably a few hours, maybe a day).
 
 This request will fail unless the account's email address has been verified.
 
@@ -599,13 +769,13 @@ ___Parameters___
 
 ___Headers___
 
-The request must include a Hawk header that authenticates the request (including payload) using a `sessionToken` received from `/session/create`.
+The request must include a Hawk header that authenticates the request (including payload) using a `sessionToken` received from `/v1/session/create`.
 
 ### Request
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.profileinthecloud.net" \
+-H "Host: idp.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/certificate/sign \
@@ -621,28 +791,45 @@ http://idp.dev.lcip.org/v1/certificate/sign \
 
 ### Response
 
+
+Successful requests will produce a "200 OK" response with the signed identity certificate in the JSON body object:
+
 ```json
 {
   "cert": "eyJhbGciOiJEUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7ImFsZ29yaXRobSI6IlJTIiwibiI6IjU3NjE1NTUwOTM3NjU1NDk2MDk4MjAyMjM2MDYyOTA3Mzg5ODMyMzI0MjUyMDY2Mzc4OTA0ODUyNDgyMjUzODg1MTA3MzQzMTY5MzI2OTEyNDkxNjY5NjQxNTQ3NzQ1OTM3NzAxNzYzMTk1NzQ3NDI1NTEyNjU5NjM2MDgwMzYzNjE3MTc1MzMzNjY5MzEyNTA2OTk1MzMyNDMiLCJlIjoiNjU1MzcifSwicHJpbmNpcGFsIjp7ImVtYWlsIjoiZm9vQGV4YW1wbGUuY29tIn0sImlhdCI6MTM3MzM5MjE4OTA5MywiZXhwIjoxMzczMzkyMjM5MDkzLCJpc3MiOiIxMjcuMC4wLjE6OTAwMCJ9.l5I6WSjsDIwCKIz_9d3juwHGlzVcvI90T2lv2maDlr8bvtMglUKFFWlN_JEzNyPBcMDrvNmu5hnhyN7vtwLu3Q"
 }
 ```
 
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 104:  attempt to operate on an unverified account
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
+
 ## POST /v1/password/change/start
 
 :lock: HAWK-authenticated with the authToken.
 
-Begin the "change password" process. This consumes a single-use `authToken`, which indicates that the user recently proved knowledge of the account password. It returns a single-use `accountResetToken`, which will be delivered to `/account/reset`. It also returns a single-use `keyFetchToken`.
+Begin the "change password" process. This consumes a single-use `authToken`, which indicates that the user recently proved knowledge of the account password. It returns a single-use `accountResetToken`, which will be delivered to `/v1/account/reset`. It also returns a single-use `keyFetchToken`.
 
-The indirect "`authToken` -> `accountResetToken` -> reset" sequence is used because it lines up with the similar "`/password/forgot/send_code` -> `/password/forgot/verify_code` -> `accountResetToken` -> reset" sequence.
+The indirect "`authToken` -> `accountResetToken` -> reset" sequence is used because it lines up with the similar "`/v1/password/forgot/send_code` -> `/v1/password/forgot/verify_code` -> `accountResetToken` -> reset" sequence.
 
 This API returns an encrypted bundle, from which `accountResetToken` and `keyFetchToken` can be extracted.
 
 
 ___Headers___
 
-The request must include a HAWK header that authenticates the request using a `authToken` received from `/auth/finish`.
+The request must include a HAWK header that authenticates the request using a `authToken` received from `/v1/auth/finish`.
 
 ### Request
+
 ```sh
 curl -v \
 -X POST \
@@ -653,28 +840,40 @@ http://idp.dev.lcip.org/v1/password/change/start
 
 ### Response
 
+Successful requests will produce a "200 OK" response with the encrypted sessionToken+keyFetchToken bundle in the JSON body object:
+
 ```json
 {
   "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
 }
 ```
 
-See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_getToken2_Response)
-for info on how to retrieve `accountResetToken` and `keyFetchToken` from the bundle.
+See [changing the password](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Changing_the_Password)
+for info on how to extract `accountResetToken` and `keyFetchToken` from the bundle.
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
 
 ## POST /v1/password/forgot/send_code
 
 Not HAWK-authenticated.
 
-This requests a "reset password" code to be sent to the user's recovery email. The user should type this code into the agent, which will then submit it to `/password/forgot/verify_code` (described below). `verify_code` will then return a `passwordResetToken`, which can be used to reset the account password.
+This requests a "reset password" code to be sent to the user's recovery email. The user should type this code into the agent, which will then submit it to `/v1/password/forgot/verify_code` (described below). `verify_code` will then return a `passwordResetToken`, which can be used to reset the account password.
 
 This code will be either 8 or 16 digits long, and the `send_code` response indicates the code length (so the UI can display a suitable input form). The email will either contain the code itself, or will contain a link to a web page which will display the code.
 
-The `send_code` response includes a `forgotPasswordToken`, which must be submitted with the code to `/password/forgot/verify_code` later.
+The `send_code` response includes a `forgotPasswordToken`, which must be submitted with the code to `/v1/password/forgot/verify_code` later.
 
 The response also specifies the ttl of this token, and a limit on the number of times `verify_code` can be called with this token. By limiting the number of submission attempts, we also limit an attacker's ability to guess the code. After the token expires, or the maximum number of submissions have happened, the agent must use `send_code` again to generate a new code and token.
 
-Each account can have at most one `forgotPasswordToken` valid at a time. Calling `send_code` causes any existing tokens to be cancelled and a new one created. Each token is associated with a specific code, so `send_code` also invalidates any existing codes.
+Each account can have at most one `forgotPasswordToken` valid at a time. Calling `send_code` causes any existing tokens to be canceled and a new one created. Each token is associated with a specific code, so `send_code` also invalidates any existing codes.
 
 ___Parameters___
 
@@ -692,6 +891,8 @@ http://idp.dev.lcip.org/v1/password/forgot/send_code \
 ```
 
 ### Response
+
+Successful requests will produce a "200 OK" response with details of the reset code in the JSON body object:
 
 ```json
 {
@@ -702,31 +903,44 @@ http://idp.dev.lcip.org/v1/password/forgot/send_code \
 }
 ```
 
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
+
 ## POST /v1/password/forgot/resend_code
 
 :lock: HAWK-authenticated with the forgotPasswordToken.
 
-While the agent is waiting for the user to paste in the forgot-password code, if the user believes the email has been lost or accidentally deleted, the `/password/forgot/resend_code` API can be used to send a new copy of the same code.
+While the agent is waiting for the user to paste in the forgot-password code, if the user believes the email has been lost or accidentally deleted, the `/v1/password/forgot/resend_code` API can be used to send a new copy of the same code.
 
 This API requires the `forgotPasswordToken` returned by the original `send_code` call (only the original browser which started the process may request a replacement message). It will return the same response as `send_code` did, except with a shorter `ttl` indicating the remaining validity period. If `verify_code` has been called some number of times with the same token, then `tries` will be smaller too.
 
 ___Parameters___
 
 * email - the recovery email for this account (UTF-8, in hex)
-* forgotPasswordToken - the token originally returned by `/password/forgot/send_code`
 
 ### Request
+
 ```sh
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/password/forgot/send_code \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+http://idp.dev.lcip.org/v1/password/forgot/resend_code \
 -d '{
   "email": "6d65406578616d706c652e636f6d"
 }'
 ```
 
 ### Response
+
+Successful requests will produce a "200 OK" response with details of the reset code in the JSON body object:
 
 ```json
 {
@@ -737,23 +951,37 @@ http://idp.dev.lcip.org/v1/password/forgot/send_code \
 }
 ```
 
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
+
 ## POST /v1/password/forgot/verify_code
 
 :lock: HAWK-authenticated with the forgotPasswordToken.
 
-Once the code created by `/password/forgot/send_code` is emailed to the user, and they paste it into their browser, the browser agent should deliver it to this `/verify_code` endpoint (along with the `forgotPasswordToken`). This will cause the server to allocate and return an `accountResetToken`, which can be used to reset the account password (srpVerifier and wrap(kB)) with the `/account/reset` API (described above).
+Once the code created by `/v1/password/forgot/send_code` is emailed to the user, and they paste it into their browser, the browser agent should deliver it to this `verify_code` endpoint (along with the `forgotPasswordToken`). This will cause the server to allocate and return an `accountResetToken`, which can be used to reset the account password (srpVerifier and wrap(kB)) with the `/v1/account/reset` API (described above).
 
-(a future version of this API may replace `/verify_code` with a pair of SRP `start` and `finish` methods, just like `/auth/start` and `/auth/finish`)
+(a future version of this API may replace `verify_code` with a pair of SRP `start` and `finish` methods, just like `/v1/auth/start` and `/v1/auth/finish`)
 
 ___Parameters___
 
 * code - the code sent to the user's recovery method
 
 ### Request
+
 ```sh
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
 http://idp.dev.lcip.org/v1/password/forgot/verify_code \
 -d '{
   "code": "12345678"
@@ -762,30 +990,52 @@ http://idp.dev.lcip.org/v1/password/forgot/verify_code \
 
 ### Response
 
+Successful requests will produce a "200 OK" response with accountResetToken in the JSON body object:
+
+(XXX TODO: is this encrypted? should it be a "bundle"?)
+
 ```json
 {
   "accountResetToken": "99ce20e3f5391e134596c2ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa349917519979b93a45e6d0da34c7509c5632ac35b2865d3"
 }
 ```
 
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 401, errno 108:  invalid or malformed request signature
+* status code 401, errno 109:  authentication token has expired
+* status code 411, errno 110:  content-length header was not provided
+* status code 413, errno 111:  request body too large
+
+
 ## POST /v1/get_random_bytes
 
 Not HAWK-authenticated.
 
-Get 32 bytes of random data. Useful to merge into locally-sourced entropy for creating salts and SRP messages.
+Get 32 bytes of random data.  This should be combined with locally-sourced entropy when creating salts, SRP messages, etc.
 
 ### Request
+
 ```sh
 curl -X POST -v http://idp.dev.lcip.org/v1/get_random_bytes
 ```
 
 ### Response
 
+Successful requests will produce a "200 OK" response with the random bytes as hex-encoded data in the JSON body object:
+
 ```json
 {
   "data": "ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa34991"
 }
 ```
+
+There are no standard failure modes for this endpoint.
+
 
 # Example flows
 
@@ -825,6 +1075,10 @@ curl -X POST -v http://idp.dev.lcip.org/v1/get_random_bytes
 * `GET /account/keys`
 * `POST /account/reset`
 * GOTO "Attach a new device"
+
+
+# Client Backoff Protocol
+
 
 # Reference Client
 
