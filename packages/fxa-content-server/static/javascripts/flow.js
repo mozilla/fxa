@@ -212,6 +212,7 @@ setupFunctions["t1-create-signin"] = function() {
         var payload = {
           sessionToken: client.sessionToken,
           keyFetchToken: client.keyFetchToken,
+          unwrapBKey: client.unwrapBKey,
           email: email,
           uid: client.uid
         };
@@ -315,6 +316,7 @@ setupFunctions["verify"] = function() {
               assertion: assertion,
               kB: client.kB,
               kA: client.kA,
+              unwrapBKey: client.unwrapBKey,
               sessionToken: client.sessionToken,
               email: email,
               uid: cert.payload.principal.email
