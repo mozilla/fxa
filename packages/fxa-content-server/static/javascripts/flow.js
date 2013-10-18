@@ -107,6 +107,7 @@ setupFunctions["t1-create-signin"] = function() {
             assertion: assertion,
             kB: client.kB,
             kA: client.kA,
+            unwrapBKey: client.unwrapBKey,
             sessionToken: client.sessionToken,
             email: email
           };
