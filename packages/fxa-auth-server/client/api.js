@@ -12,6 +12,7 @@ util.inherits(ClientApi, EventEmitter)
 function ClientApi(origin) {
   EventEmitter.call(this)
   this.origin = origin
+  this.baseURL = origin + "/v1";
 }
 
 function hawkHeader(token, method, url, payload) {
@@ -72,7 +73,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload) {
 ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStretching) {
   return this.doRequest(
     'POST',
-    this.origin + '/account/create',
+    this.baseURL + '/account/create',
     null,
     {
       email: email,
@@ -92,7 +93,7 @@ ClientApi.prototype.accountDevices = function (sessionTokenHex) {
       function (token) {
         return this.doRequest(
           'GET',
-          this.origin + '/account/devices',
+          this.baseURL + '/account/devices',
           token
         )
       }.bind(this)
@@ -105,7 +106,7 @@ ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
       function (token) {
         return this.doRequest(
           'GET',
-          this.origin + '/account/keys',
+          this.baseURL + '/account/keys',
           token
         )
       }.bind(this)
@@ -118,7 +119,7 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, srp, 
       function (token) {
         return this.doRequest(
           'POST',
-          this.origin + '/account/reset',
+          this.baseURL + '/account/reset',
           token,
           {
             bundle: bundle,
@@ -136,7 +137,7 @@ ClientApi.prototype.accountDestroy = function (authTokenHex) {
       function (token) {
         return this.doRequest(
           'POST',
-          this.origin + '/account/destroy',
+          this.baseURL + '/account/destroy',
           token
         )
       }.bind(this)
@@ -149,7 +150,7 @@ ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
       function (token) {
         return this.doRequest(
           'GET',
-          this.origin + '/recovery_email/status',
+          this.baseURL + '/recovery_email/status',
           token
         )
       }.bind(this)
@@ -162,7 +163,7 @@ ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, email) 
       function (token) {
         return this.doRequest(
           'POST',
-          this.origin + '/recovery_email/resend_code',
+          this.baseURL + '/recovery_email/resend_code',
           token,
           {
             email: email
@@ -175,7 +176,7 @@ ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, email) 
 ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code) {
   return this.doRequest(
     'POST',
-    this.origin + '/recovery_email/verify_code',
+    this.baseURL + '/recovery_email/verify_code',
     null,
     {
       uid: uid,
@@ -190,7 +191,7 @@ ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, dura
       function (token) {
         return this.doRequest(
           'POST',
-          this.origin + '/certificate/sign',
+          this.baseURL + '/certificate/sign',
           token,
           {
             publicKey: publicKey,
@@ -204,7 +205,7 @@ ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, dura
 ClientApi.prototype.getRandomBytes = function () {
   return this.doRequest(
     'POST',
-    this.origin + '/get_random_bytes'
+    this.baseURL + '/get_random_bytes'
   )
 }
 
@@ -214,7 +215,7 @@ ClientApi.prototype.passwordChangeStart = function (authTokenHex) {
       function (token) {
         return this.doRequest(
           'POST',
-          this.origin + '/password/change/start',
+          this.baseURL + '/password/change/start',
           token
         )
       }.bind(this)
@@ -224,7 +225,7 @@ ClientApi.prototype.passwordChangeStart = function (authTokenHex) {
 ClientApi.prototype.passwordForgotSendCode = function (email) {
   return this.doRequest(
     'POST',
-    this.origin + '/password/forgot/send_code',
+    this.baseURL + '/password/forgot/send_code',
     null,
     {
       email: email
@@ -238,7 +239,7 @@ ClientApi.prototype.passwordForgotResendCode = function (forgotPasswordTokenHex,
       function (token) {
         return this.doRequest(
           'POST',
-          this.origin + '/password/forgot/resend_code',
+          this.baseURL + '/password/forgot/resend_code',
           token,
           {
             email: email
@@ -254,7 +255,7 @@ ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordTokenHex,
       function (token) {
         return this.doRequest(
           'POST',
-          this.origin + '/password/forgot/verify_code',
+          this.baseURL + '/password/forgot/verify_code',
           token,
           {
             code: code
@@ -267,7 +268,7 @@ ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordTokenHex,
 ClientApi.prototype.authStart = function (email) {
   return this.doRequest(
     'POST',
-    this.origin + '/auth/start',
+    this.baseURL + '/auth/start',
     null,
     {
       email: email
@@ -278,7 +279,7 @@ ClientApi.prototype.authStart = function (email) {
 ClientApi.prototype.authFinish = function (srpToken, A, M) {
   return this.doRequest(
     'POST',
-    this.origin + '/auth/finish',
+    this.baseURL + '/auth/finish',
     null,
     {
       srpToken: srpToken,
@@ -294,7 +295,7 @@ ClientApi.prototype.sessionCreate = function (authTokenHex) {
       function (token) {
         return this.doRequest(
           'POST',
-          this.origin + '/session/create',
+          this.baseURL + '/session/create',
           token
         )
       }.bind(this)
@@ -307,7 +308,7 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
       function (token) {
         return this.doRequest(
           'POST',
-          this.origin + '/session/destroy',
+          this.baseURL + '/session/destroy',
           token
         )
       }.bind(this)

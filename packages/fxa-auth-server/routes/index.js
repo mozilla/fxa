@@ -25,7 +25,7 @@ module.exports = function (
   var session = require('./session')(log, isA, error, models.Account, models.tokens)
   var sign = require('./sign')(log, isA, error, signer, models.Account)
 
-  var routes = defaults.concat(
+  var v1Routes = [].concat(
     auth,
     idp,
     account,
@@ -33,6 +33,11 @@ module.exports = function (
     session,
     sign
   )
+  v1Routes.forEach(function(route) {
+    route.path = "/v1" + route.path
+  })
+
+  var routes = defaults.concat(v1Routes)
 
   return routes
 }
