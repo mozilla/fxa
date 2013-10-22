@@ -61,11 +61,12 @@ The currently-defined error responses are:
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
-* status code 429, errno 112:  client has sent too many requests (see backoff protocol)
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
+* status code 429, errno 113:  client has sent too many requests (see backoff protocol)
 * status code 503, errno 201:  service temporarily unavailable to due high load (see backoff protocol)
 
 
@@ -139,6 +140,7 @@ ___Parameters___
     * salt: password stretching salt
 
 ### Request
+
 ```sh
 curl -v \
 -X POST \
@@ -175,12 +177,14 @@ Successful requests will produce a "200 OK" response with the account's unique i
 
 Failing requests may be due to the following errors:
 
+
 * status code 400, errno 101:  attempt to create an account that already exists
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
+
 
 ## GET /v1/account/devices
 
@@ -226,8 +230,9 @@ Successful requests will produce a "200 OK" response with the device details pro
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
 
 
 ## GET /v1/account/keys
@@ -272,8 +277,9 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 104:  attempt to operate on an unverified account
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
 
 
 ## POST /v1/account/reset
@@ -347,10 +353,11 @@ Failing requests may be due to the following errors:
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/account/destroy
@@ -393,11 +400,11 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 105:  request body was not valid json
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
-
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 ## POST /v1/auth/start
 
@@ -425,8 +432,6 @@ http://idp.dev.lcip.org/v1/auth/start \
 ### Response
 
 ___Parameters___
-
-XXX TODO: "srpTokenLifetime" field?
 
 Successful requests will produce a "200 OK" response with the "srpToken", "srp" and "passwordStretching" fields in the JSON body object:
 
@@ -459,8 +464,8 @@ Failing requests may be due to the following errors:
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/auth/finish
@@ -509,8 +514,8 @@ Failing requests may be due to the following errors:
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/session/create
@@ -547,10 +552,13 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 105:  request body was not valid json
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/session/destroy
@@ -585,10 +593,11 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 105:  request body was not valid json
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## GET /v1/recovery_email/status
@@ -655,8 +664,9 @@ data: { "email": "6d65406578616d706c652e636f6d", "verified": true }
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
 
 
 ## POST /v1/recovery_email/resend_code
@@ -696,10 +706,11 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 105:  request body was not valid json
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/recovery_email/verify_code
@@ -708,7 +719,7 @@ Not HAWK-authenticated.
 
 Used to submit a verification code that was previously sent to a user's recovery email. If correct, the account's recovery email address will be marked as "verified".
 
-The verification code will be a full-sized (XXX TODO: wtf does "full-sized" mean?) random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/recovery_email/verify_code`. This endpoint should be CORS-enabled, to allow the linked page to be hosted on a different (static) domain. The link can be clicked from any browser, not just the one being attached to the PICL account.
+The verification code will be a random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/recovery_email/verify_code`. This endpoint should be CORS-enabled, to allow the linked page to be hosted on a different (static) domain. The link can be clicked from any browser, not just the one being attached to the PICL account.
 
 ### Request
 
@@ -743,8 +754,8 @@ Failing requests may be due to the following errors:
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/certificate/sign
@@ -807,10 +818,11 @@ Failing requests may be due to the following errors:
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/password/change/start
@@ -855,10 +867,11 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 105:  request body was not valid json
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/password/forgot/send_code
@@ -909,8 +922,8 @@ Failing requests may be due to the following errors:
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/password/forgot/resend_code
@@ -957,10 +970,11 @@ Failing requests may be due to the following errors:
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/password/forgot/verify_code
@@ -990,9 +1004,7 @@ http://idp.dev.lcip.org/v1/password/forgot/verify_code \
 
 ### Response
 
-Successful requests will produce a "200 OK" response with accountResetToken in the JSON body object:
-
-(XXX TODO: is this encrypted? should it be a "bundle"?)
+Successful requests will produce a "200 OK" response with accountResetToken in the JSON body object, as *unencrypted* hex-encoded bytes:
 
 ```json
 {
@@ -1006,10 +1018,11 @@ Failing requests may be due to the following errors:
 * status code 400, errno 105:  request body was not valid json
 * status code 400, errno 106:  request body contains invalid parameters
 * status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid or malformed request signature
-* status code 401, errno 109:  authentication token has expired
-* status code 411, errno 110:  content-length header was not provided
-* status code 413, errno 111:  request body too large
+* status code 401, errno 108:  invalid request signature
+* status code 401, errno 109:  invalid authentication token
+* status code 401, errno 110:  invalid authentication timestamp
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
 
 
 ## POST /v1/get_random_bytes
