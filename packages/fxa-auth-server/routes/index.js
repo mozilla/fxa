@@ -8,6 +8,7 @@ var P = require('p-promise')
 var uuid = require('uuid')
 var Hapi = require('hapi')
 var error = require('../error')
+var Client = require('../client')
 var isA = Hapi.types
 
 module.exports = function (
@@ -17,7 +18,7 @@ module.exports = function (
   models,
   config
   ) {
-  var auth = require('./auth')(log, isA, models.Account, models.SrpSession, models.AuthBundle)
+  var auth = require('./auth')(log, isA, error, models.Account, models.SrpSession, models.AuthBundle, config, Client)
   var defaults = require('./defaults')(log, P, models.dbs)
   var idp = require('./idp')(log, crypto, error, isA, serverPublicKey, config.bridge)
   var account = require('./account')(log, crypto, uuid, isA, error, models.Account, models.RecoveryEmail)

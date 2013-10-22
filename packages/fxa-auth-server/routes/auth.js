@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, Account, SrpSession, AuthBundle) {
+module.exports = function (log, isA, error, Account, SrpSession, AuthBundle, config, Client) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -76,7 +76,41 @@ module.exports = function (log, isA, Account, SrpSession, AuthBundle) {
         }
       }
     },
-
+    {
+      method: 'POST',
+      path: '/auth/password',
+      config: {
+        description: 'Create a session from an email and password (low security)',
+        tags: ['session'],
+        handler: function (request) {
+          log.begin('Auth.password', request)
+          Client.login(
+            config.public_url,
+            Buffer(request.payload.email, 'hex').toString('utf8'),
+            request.payload.password
+          )
+          .done(
+            function (client) {
+              return request.reply({ sessionToken: client.sessionToken })
+            },
+            function (err) {
+              request.reply(error.wrap(err))
+            }
+          )
+        },
+        validate: {
+          payload: {
+            email: isA.String().max(1024).regex(HEX_STRING).required(),
+            password: isA.String().required()
+          },
+          response: {
+            schema: {
+              sessionToken: isA.String().regex(HEX_STRING).required()
+            }
+          }
+        }
+      }
+    }
   ]
 
   return routes

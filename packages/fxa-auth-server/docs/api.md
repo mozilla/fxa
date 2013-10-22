@@ -90,7 +90,8 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 
 * Authentication
     * [POST /v1/auth/start](#post-authstart)
-    * [POST /v1/auth/finish](#post-authfinsh)
+    * [POST /v1/auth/finish](#post-authfinish)
+    * [POST /v1/auth/password](#post-authpassword) **REDUCED SECURITY**
 
 * Session
     * [POST /v1/session/create (:lock: authToken)](#post-sessioncreate)
@@ -506,6 +507,52 @@ Successful requests will produce a "200 OK" response with the encrypted authToke
 
 See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_.2Fauth.2Ffinish_Response)
 for info on how to retrieve `authToken` from the bundle.
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 103:  incorrect password
+* status code 400, errno 105:  request body was not valid json
+* status code 400, errno 106:  request body contains invalid parameters
+* status code 400, errno 107:  request body missing required parameters
+* status code 411, errno 111:  content-length header was not provided
+* status code 413, errno 112:  request body too large
+
+
+## POST /v1/auth/password
+
+Not HAWK authenticated.
+
+This is a reduced security login method for resource constrained devices that sends the password to the server. The request and response are only protected by TLS encryption.
+
+___Parameters___
+
+* email - user's email address (UTF-8 encoded, as hex)
+* password - the user's plaintext password
+
+### Request
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+http://idp.dev.lcip.org/v1/auth/password \
+-d '{
+  "email": "6d65406578616d706c652e636f6d",
+  "password": "mySecurePassword"
+}'
+```
+
+### Response
+
+___Parameters___
+
+Successful requests will produce a "200 OK" response with the "sessionToken" field in the JSON body object:
+
+```json
+{
+  "sessionToken": "00ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a301"
+}
+```
 
 Failing requests may be due to the following errors:
 

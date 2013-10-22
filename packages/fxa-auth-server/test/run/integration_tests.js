@@ -3,6 +3,7 @@ var cp = require('child_process')
 var crypto = require('crypto');
 var Client = require('../../client')
 var config = require('../../config').root()
+var request = require('request')
 
 process.env.DEV_VERIFIED = 'true'
 
@@ -69,6 +70,66 @@ function main() {
             t.end()
           }
         )
+    }
+  )
+
+  test(
+    '(reduced security) Login with email and password',
+    function (t) {
+      request(
+        {
+          method: 'POST',
+          url: config.public_url + '/v1/auth/password',
+          json: {
+            email: Buffer(email1).toString('hex'),
+            password: 'allyourbasearebelongtous'
+          }
+        },
+        function (err, res, body) {
+          t.equal(typeof(body.sessionToken), 'string', 'sessionToken exists')
+          t.end()
+        }
+      )
+    }
+  )
+
+  test(
+    '(reduced security) Login with email and wrong password',
+    function (t) {
+      request(
+        {
+          method: 'POST',
+          url: config.public_url + '/v1/auth/password',
+          json: {
+            email: Buffer(email1).toString('hex'),
+            password: 'xxx'
+          }
+        },
+        function (err, res, body) {
+          t.equal(body.errno, 103)
+          t.end()
+        }
+      )
+    }
+  )
+
+  test(
+    '(reduced security) Login with unknown email',
+    function (t) {
+      request(
+        {
+          method: 'POST',
+          url: config.public_url + '/v1/auth/password',
+          json: {
+            email: Buffer('x@y.me').toString('hex'),
+            password: 'allyourbasearebelongtous'
+          }
+        },
+        function (err, res, body) {
+          t.equal(body.errno, 102)
+          t.end()
+        }
+      )
     }
   )
 

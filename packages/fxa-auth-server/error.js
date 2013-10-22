@@ -55,4 +55,12 @@ Boom.incorrectVerificationCode = function () {
   return b
 }
 
+Boom.wrap = function (object) {
+  var b = new Boom(object.code, object.message)
+  var p = b.response.payload
+  p.errno = object.errno
+  p.info = object.info
+  return b
+}
+
 module.exports = Boom
