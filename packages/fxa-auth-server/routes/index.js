@@ -24,20 +24,21 @@ module.exports = function (
   var password = require('./password')(log, isA, error, models.Account, models.tokens)
   var session = require('./session')(log, isA, error, models.Account, models.tokens)
   var sign = require('./sign')(log, isA, error, signer, models.Account)
+  var util = require('./util')(log, crypto, error, isA, serverPublicKey, config.bridge)
 
   var v1Routes = [].concat(
     auth,
-    idp,
     account,
     password,
     session,
-    sign
+    sign,
+    util
   )
   v1Routes.forEach(function(route) {
     route.path = "/v1" + route.path
   })
 
-  var routes = defaults.concat(v1Routes)
+  var routes = defaults.concat(idp, v1Routes)
 
   return routes
 }
