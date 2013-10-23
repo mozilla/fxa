@@ -126,6 +126,7 @@ setupFunctions["t1-create-signin"] = function() {
       .done(function() {
         sendToBrowser('login', payload);
         switchTo("t2-signed-in-page");
+        $("#progress").hide(); // hide the sync progress for now
         leaveError();
         makeNotBusy();
       }, function (err) {
@@ -224,6 +225,7 @@ setupFunctions["t1-create-signin"] = function() {
           console.log('sendToBrowser maor native payload: ', payload);
           sendToBrowser('login', payload);
           switchTo("t2-signed-in-page"); // TODO: what do we switch to here?
+          $("#progress").hide(); // hide the sync progress for now
           leaveError();
           makeNotBusy();
           return;
@@ -328,6 +330,7 @@ setupFunctions["verify"] = function() {
             console.log('sendToBrowser payload: ', payload);
             sendToBrowser('login', payload);
             switchTo('t2-signed-in-page');
+            $("#progress").hide(); // hide the sync progress for now
           });
         });
 

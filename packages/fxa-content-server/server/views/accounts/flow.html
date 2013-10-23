@@ -12,16 +12,16 @@
         <x-tab selected class="xt"><span class="xt_span">Create Account</span></x-tab>
         <x-tab class="xt"><span class="xt_span">Sign In</span></x-tab>
       </x-tabs>
-      <x-tabpanels class="full_width">	
-      	
+      <x-tabpanels class="full_width">
+
         <x-tabpanel selected="true" class="create-panel">
           <p class="error"></p>
           <p>Use Firefox Sync to store your passwords, tabs, bookmarks, and browsing history.</p>
           <form class="create">
             <input type="text" name="email" class="email focus" placeholder="Email" /><span></span>
-           
+
             <input type="password" name="password" class="password"  placeholder="Create Password"/><span></span>
-       
+
             <input type="password" name="password_confirm" class="confirm_password" placeholder="Confirm Password" /><span></span>
             <p class="small_text">By proceeding you agree with <a href="#">Terms of Service</a>
               and <a href="#">Privacy Policy</a>
@@ -48,21 +48,22 @@
 
  </div>
 
-   
-   
+
+
 	<div class="notes-t1-get-email full_width"></div>
-	
+
 	<div class="t2-signed-in-page">
 	  	<div class="gap"></div>
 	    <h2 class="banner full_width">Welcome!</h2><br>
 	    <h3 class="small_banner full_width">You are successfully signed in as:
-	     <br> <span class="user" style="font-weight:bold">test</span></h3>   
-       <ul class='devices full_width'></ul> 
+	     <br> <span class="user" style="font-weight:bold">test</span></h3>
+       <ul class='devices full_width'></ul>
 		<div class="bluebox">
 			<div class="full_width">
-
-				<p id="progress-message">Syncing your data...</p>
-				<progress style="width:100%" id="progress-meter"></progress>
+        <div id="progress">
+  			  <p id="progress-message">Syncing your data...</p>
+	 			  <progress style="width:100%" id="progress-meter"></progress>
+        </div>
 				<p class="small_text">You may close this tab and keep browsing or go to <a href="#" class="prefs">Preferences</a> to manage your account.</p>
 			</div>
 		</div>
@@ -74,7 +75,7 @@
 		<div class="gap"></div>
 		<h2 class="banner">Check your Email</h2><br>
     <h3 class="small_banner">Confirm your email address:
-		<br><span class='verify-email' style="font-weight:bold">abc</span>	
+		<br><span class='verify-email' style="font-weight:bold">abc</span>
 		</h3>
 		<p class="small_text">Didn't get it? <a href="#" class="resend">Resend Email</a></p>
 	</div>
@@ -88,8 +89,8 @@
 
 
 
-  
-  
+
+
 
 
 <!--###################DONE BELOW HERE################-->
@@ -125,7 +126,7 @@
       <p>
     </form>
   </div>
-  
+
 
   <div class="new-password full_width">
     <div class="progress"><span class="one">1</span><span class="two">2</span><span class="three active">3</span></div>
@@ -200,7 +201,7 @@
 
   <div class="notes-preferences full_width">
   </div>
- 
+
 
 </div>
 
