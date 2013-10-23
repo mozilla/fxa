@@ -21,6 +21,20 @@ state.os = navigator.userAgent.match('Mac') ? 'mac' :
 state.pageToLoad = page;
 state.initialLoad = true;
 
+function getQueryVariable(variable) {
+    var query = window.location.search.substring(1);
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+    return null;
+}
+
+state.maor_native = (getQueryVariable('maor_native') !== null);
+
 
 if ((state.device === 'mobile'
     || state.device === 'tablet')
