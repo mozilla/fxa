@@ -193,6 +193,7 @@ Client.prototype.create = function (callback) {
 Client.prototype._clear = function () {
   this.authToken = null
   this.sessionToken = null
+  this.srpSession = null
   this.accountResetToken = null
   this.keyFetchToken = null
   this.forgotPasswordToken = null
@@ -205,10 +206,38 @@ Client.prototype.stringify = function () {
   return JSON.stringify(this)
 }
 
+Client.prototype.accountExists = function (email, callback) {
+  if (email) {
+    this.email = Buffer(email).toString('hex')
+  }
+  var K = null
+  var p = this.api.authStart(this.email)
+    .then(
+      function (srpSession) {
+        this.srpSession = srpSession
+        return true
+      }.bind(this),
+      function (err) {
+        if (err.errno === 102) {
+          return false
+        } else {
+          throw err
+        }
+      }
+    )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+};
+
 Client.prototype.auth = function (callback) {
   var K = null
   var session
-  var p = this.api.authStart(this.email)
+  var sessionPromise = this.srpSession ? P(this.srpSession) : this.api.authStart(this.email)
+  var p = sessionPromise
     .then(
       function (srpSession) {
         var k = P.defer()
