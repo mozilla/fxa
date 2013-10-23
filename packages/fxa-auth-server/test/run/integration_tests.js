@@ -3,7 +3,6 @@ var cp = require('child_process')
 var crypto = require('crypto');
 var Client = require('../../client')
 var config = require('../../config').root()
-var request = require('request')
 
 process.env.DEV_VERIFIED = 'true'
 
