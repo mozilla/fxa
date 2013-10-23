@@ -3,7 +3,6 @@ var cp = require('child_process')
 var crypto = require('crypto');
 var Client = require('../../client')
 var config = require('../../config').root()
-var request = require('request')
 
 process.env.DEV_VERIFIED = 'true'
 
@@ -77,96 +76,87 @@ function main() {
   test(
     '(reduced security) Login with email and password',
     function (t) {
-      request(
-        {
-          method: 'POST',
-          url: config.public_url + '/v1/raw_password/session/create',
-          json: {
-            email: Buffer(email1).toString('hex'),
-            password: 'allyourbasearebelongtous'
+      var clientApi = new Client.Api(config.public_url)
+      var email =  Buffer(email1).toString('hex')
+      var password = 'allyourbasearebelongtous'
+      clientApi.rawPasswordSessionCreate(email, password)
+        .then(
+          function (result) {
+            t.equal(typeof(result.sessionToken), 'string', 'sessionToken exists')
+            t.end()
           }
-        },
-        function (err, res, body) {
-          t.equal(typeof(body.sessionToken), 'string', 'sessionToken exists')
-          t.end()
-        }
-      )
+        )
     }
   )
 
   test(
     '(reduced security) Login with email and wrong password',
     function (t) {
-      request(
-        {
-          method: 'POST',
-          url: config.public_url + '/v1/raw_password/session/create',
-          json: {
-            email: Buffer(email1).toString('hex'),
-            password: 'xxx'
+      var clientApi = new Client.Api(config.public_url)
+      var email =  Buffer(email1).toString('hex')
+      var password = 'xxx'
+      clientApi.rawPasswordSessionCreate(email, password)
+        .then(
+          function (result) {
+            t.fail('login succeeded')
+            t.end()
+          },
+          function (err) {
+            t.equal(err.errno, 103)
+            t.end()
           }
-        },
-        function (err, res, body) {
-          t.equal(body.errno, 103)
-          t.end()
-        }
-      )
+        )
     }
   )
 
   test(
     '(reduced security) Login with unknown email',
     function (t) {
-      request(
-        {
-          method: 'POST',
-          url: config.public_url + '/v1/raw_password/session/create',
-          json: {
-            email: Buffer('x@y.me').toString('hex'),
-            password: 'allyourbasearebelongtous'
+      var clientApi = new Client.Api(config.public_url)
+      var email =  Buffer('x@y.me').toString('hex')
+      var password = 'allyourbasearebelongtous'
+      clientApi.rawPasswordSessionCreate(email, password)
+        .done(
+          function (result) {
+            t.fail('login succeeded')
+            t.end()
+          },
+          function (err) {
+            t.equal(err.errno, 102)
+            t.end()
           }
-        },
-        function (err, res, body) {
-          t.equal(body.errno, 102)
-          t.end()
-        }
-      )
+        )
     }
   )
 
   test(
     '(reduced security) Create account',
     function (t) {
+      var clientApi = new Client.Api(config.public_url)
+      var email = Buffer(email5).toString('hex')
       var password = 'newPassword'
-      request(
-        {
-          method: 'POST',
-          url: config.public_url + '/v1/raw_password/account/create',
-          json: {
-            email: Buffer(email5).toString('hex'),
-            password: password
+      clientApi.rawPasswordAccountCreate(email, password)
+        .done(
+          function (result) {
+            var client = null
+            t.equal(typeof(result.uid), 'string')
+            Client.login(config.public_url, email5, password)
+              .then(
+                function (x) {
+                  client = x
+                  return client.keys()
+                }
+              )
+              .then(
+                function (keys) {
+                  t.equal(typeof(keys.kA), 'string', 'kA exists')
+                  t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
+                  t.equal(client.kB.length, 64, 'kB exists, has the right length')
+                  t.end()
+                }
+              )
           }
-        },
-        function (err, res, body) {
-          var client = null
-          t.equal(typeof(body.uid), 'string')
-          Client.login(config.public_url, email5, password)
-            .then(
-              function (x) {
-                client = x
-                return client.keys()
-              }
-            )
-            .then(
-              function (keys) {
-                t.equal(typeof(keys.kA), 'string', 'kA exists')
-                t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
-                t.equal(client.kB.length, 64, 'kB exists, has the right length')
-                t.end()
-              }
-            )
-        }
-      )
+        )
     }
   )
 
