@@ -64,13 +64,21 @@ module.exports = function(app) {
     }
   });
 
-
-  app.get('/verify_email', function(req, res) {
+  function routeToVerify(req, res) {
     res.render('verify_email.html', {
       fxa: config.get('fxaccount_url'),
       code: req.query.code,
       uid: req.query.uid
     });
+  }
+
+  // route both of these to 'verify_email'
+  app.get('/verify_email', function(req, res) {
+    routeToVerify(req, res);
+  });
+
+  app.get('/v1/verify_email', function(req, res) {
+    routeToVerify(req, res);
   });
 
   app.get('/flow/:page?',
