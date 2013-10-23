@@ -1,4 +1,0 @@
-# Disable auto-magical creation of an "AWSBox" resource from .awsbox.json.
-# I'm starting to think the silent awsbox -> awsboxen upgrade causes
-# more problems than it solves...
-AWSBox: null

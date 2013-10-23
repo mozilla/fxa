@@ -1,5 +1,0 @@
-RegionMap:
-  us-east-1:
-    BaseAMI:  ami-05355a6c
-  us-west-2:
-    BaseAMI:  ami-0358ce33

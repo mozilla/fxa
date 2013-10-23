@@ -1,4 +1,0 @@
-DNSPrefix:
-  Default: "loadtest"
-  Type: "String"
-  Description: "prefix for dns names, to avoid conflicts"
