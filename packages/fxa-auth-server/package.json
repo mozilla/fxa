@@ -34,13 +34,13 @@
     "nodemailer": "0.5.2",
     "lout": "0.4.1",
     "node-scrypt-js": "git://github.com/vladikoff/node-scrypt-js.git#512f37884ff9",
-    "sjcl-codec-bytes": "git://github.com/zaach/sjcl-codec-bytes.git#0ddc7744"
+    "sjcl-codec-bytes": "git://github.com/zaach/sjcl-codec-bytes.git#0ddc7744",
+    "request": "2.21.x"
   },
   "devDependencies": {
     "awsbox": "0.6.x",
     "awsboxen": "0.5.x",
     "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
-    "request": "2.21.x",
     "tap": "0.4.4"
   }
 }
