@@ -24,6 +24,8 @@ function main() {
   var email3 = uniqueID() + "@example.com"
   var email4 = uniqueID() + "@example.com"
   var email5 = uniqueID() + "@example.com"
+  var email6 = uniqueID() + "@example.com"
+  var email7 = uniqueID() + "@example.com"
 
   test(
     'Create account flow',
@@ -341,6 +343,47 @@ function main() {
           },
           function (err) {
             t.equal(err.errno, 401, 'session is invalid')
+            t.end()
+          }
+        )
+    }
+  )
+
+  test(
+    'Unknown account should not exist',
+    function (t) {
+      var email = email6
+      var client = new Client(config.public_url)
+      client.accountExists(email)
+        .then(
+          function (exists) {
+            t.equal(exists, false, "account shouldn't exist")
+            t.end()
+          }
+        )
+    }
+  )
+
+  test(
+    'Known account should exist',
+    function (t) {
+      var email = email7
+      var password = 'ilikepancakes'
+      var client
+      Client.create(config.public_url, email, password)
+        .then(
+          function (x) {
+            client = x
+            return client.accountExists()
+          }
+        ).then(
+          function (exists) {
+            t.equal(exists, true, "account should exist")
+            return client.login()
+          }
+        ).done(
+          function () {
+            t.ok(client.sessionToken, "client can login after accountExists")
             t.end()
           }
         )
