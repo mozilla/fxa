@@ -228,8 +228,7 @@ setupFunctions["t1-create-signin"] = function() {
           };
           console.log('sendToBrowser maor native payload: ', payload);
           sendToBrowser('login', payload);
-          switchTo("t2-signed-in-page"); // TODO: what do we switch to here?
-          $("#progress").hide(); // hide the sync progress for now
+          switchTo("verify");
           leaveError();
           makeNotBusy();
           return;
@@ -307,6 +306,10 @@ setupFunctions["verify"] = function() {
   $('#dialog .verify-email').html(state.email);
 
   console.log('state', state);
+  if (state.maor_native) {
+    return; // don't do any polling here, we'll let the browser drive the interaction
+  }
+
   var client = state.client;
 
   var intv = setInterval(function () {
