@@ -315,6 +315,30 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
     )
 }
 
+ClientApi.prototype.rawPasswordAccountCreate = function (email, password) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/raw_password/account/create',
+    null,
+    {
+      email: email,
+      password: password
+    }
+  )
+}
+
+ClientApi.prototype.rawPasswordSessionCreate = function (email, password) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/raw_password/session/create',
+    null,
+    {
+      email: email,
+      password: password
+    }
+  )
+}
+
 ClientApi.heartbeat = function (origin) {
   return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
 }
