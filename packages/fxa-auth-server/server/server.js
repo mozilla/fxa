@@ -69,6 +69,8 @@ module.exports = function (path, url, Hapi, toobusy) {
 
     //TODO throttle extension
 
+    // twice the default max lag of 70ms
+    toobusy.maxLag(140)
     server.ext(
       'onRequest',
       function (request, next) {
