@@ -23,6 +23,7 @@ function main() {
   var email2 = uniqueID() + "@example.com"
   var email3 = uniqueID() + "@example.com"
   var email4 = uniqueID() + "@example.com"
+  var email5 = uniqueID() + "@example.com"
 
   test(
     'Create account flow',
@@ -79,7 +80,7 @@ function main() {
       request(
         {
           method: 'POST',
-          url: config.public_url + '/v1/auth/password',
+          url: config.public_url + '/v1/raw_password/session/create',
           json: {
             email: Buffer(email1).toString('hex'),
             password: 'allyourbasearebelongtous'
@@ -99,7 +100,7 @@ function main() {
       request(
         {
           method: 'POST',
-          url: config.public_url + '/v1/auth/password',
+          url: config.public_url + '/v1/raw_password/session/create',
           json: {
             email: Buffer(email1).toString('hex'),
             password: 'xxx'
@@ -119,7 +120,7 @@ function main() {
       request(
         {
           method: 'POST',
-          url: config.public_url + '/v1/auth/password',
+          url: config.public_url + '/v1/raw_password/session/create',
           json: {
             email: Buffer('x@y.me').toString('hex'),
             password: 'allyourbasearebelongtous'
@@ -128,6 +129,42 @@ function main() {
         function (err, res, body) {
           t.equal(body.errno, 102)
           t.end()
+        }
+      )
+    }
+  )
+
+  test(
+    '(reduced security) Create account',
+    function (t) {
+      var password = 'newPassword'
+      request(
+        {
+          method: 'POST',
+          url: config.public_url + '/v1/raw_password/account/create',
+          json: {
+            email: Buffer(email5).toString('hex'),
+            password: password
+          }
+        },
+        function (err, res, body) {
+          var client = null
+          t.equal(typeof(body.uid), 'string')
+          Client.login(config.public_url, email5, password)
+            .then(
+              function (x) {
+                client = x
+                return client.keys()
+              }
+            )
+            .then(
+              function (keys) {
+                t.equal(typeof(keys.kA), 'string', 'kA exists')
+                t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
+                t.equal(client.kB.length, 64, 'kB exists, has the right length')
+                t.end()
+              }
+            )
         }
       )
     }

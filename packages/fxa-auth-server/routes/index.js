@@ -18,7 +18,7 @@ module.exports = function (
   models,
   config
   ) {
-  var auth = require('./auth')(log, isA, error, models.Account, models.SrpSession, models.AuthBundle, config, Client)
+  var auth = require('./auth')(log, isA, error, models.Account, models.SrpSession, models.AuthBundle)
   var defaults = require('./defaults')(log, P, models.dbs)
   var idp = require('./idp')(log, crypto, error, isA, serverPublicKey, config.bridge)
   var account = require('./account')(log, crypto, uuid, isA, error, models.Account, models.RecoveryEmail)
@@ -26,6 +26,7 @@ module.exports = function (
   var session = require('./session')(log, isA, error, models.Account, models.tokens)
   var sign = require('./sign')(log, isA, error, signer, models.Account)
   var util = require('./util')(log, crypto, error, isA, serverPublicKey, config.bridge)
+  var raw = require('./rawpassword')(log, isA, error, config, Client)
 
   var v1Routes = [].concat(
     auth,
@@ -33,7 +34,8 @@ module.exports = function (
     password,
     session,
     sign,
-    util
+    util,
+    raw
   )
   v1Routes.forEach(function(route) {
     route.path = "/v1" + route.path
