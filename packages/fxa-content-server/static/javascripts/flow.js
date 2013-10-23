@@ -89,44 +89,50 @@ setupFunctions["t1-create-signin"] = function() {
 
     makeBusy();
 
-    var client;
+    var client,
+        payload;
+
     Client.login(serverUrl, email, password)
       .then(function (x) {
-        client = x;
-        console.log('got client', client);
-        return client.keys()
-      })
-      .done(function (keys) {
-        state.client = client
-
-        console.log('done logging in!');
-        console.log('keys!!', client.sessionToken, client.keyFetchToken, email);
-
-        new AssertionService(client).getAssertion(function(err, assertion) {
-          var payload = {
-            assertion: assertion,
-            kB: client.kB,
-            kA: client.kA,
-            unwrapBKey: client.unwrapBKey,
+        client = state.client = x;
+        payload = {
             sessionToken: client.sessionToken,
             email: email
-          };
-          console.log('sendToBrowser payload: ', payload);
-          sendToBrowser('login', payload);
-          console.log(JSON.stringify(assertion));
-
-          switchTo("t2-signed-in-page");
-          leaveError();
-          makeNotBusy();
-        });
-
-      },
-      function (err) {
+        };
+        if (state.maor_native) {
+          // this uses more native natives for doing key fetch and assertion generation
+          // key fetch will happen in native, so send it over
+          payload.keyFetchToken = client.keyFetchToken;
+          payload.unwrapBKey = client.unwrapBKey;
+          console.log('sendToBrowser maor native payload: ', payload);
+          return;
+        }
+        else {
+          return client.keys()
+            .then(function () {
+              new AssertionService(client).getAssertion(function(err, assertion) {
+                var fullAssertion = jwcrypto.cert.unbundle(assertion);
+                var cert = jwcrypto.extractComponents(fullAssertion.certs[0]);
+                payload.uid = cert.payload.principal.email;
+                payload.assertion = assertion;
+                payload.kB = client.kB;
+                payload.kA = client.kA;
+                console.log('sendToBrowser payload: ', payload);
+                return;
+              });
+          });
+        }
+      })
+      .done(function() {
+        sendToBrowser('login', payload);
+        switchTo("t2-signed-in-page");
+        leaveError();
+        makeNotBusy();
+      }, function (err) {
         console.error('Error?', err);
         enterError('.login-panel', err.errno);
         makeNotBusy();
       });
-
     return false;
   });
 
@@ -202,27 +208,31 @@ setupFunctions["t1-create-signin"] = function() {
 
     Client.create(serverUrl, email, password)
       .then(function (x) {
-        client = x;
-        state.client = client;
-        console.log('got client', x);
-
+        client = state.client = x;
         return client.login();
       })
       .done(function () {
-        var payload = {
-          sessionToken: client.sessionToken,
-          keyFetchToken: client.keyFetchToken,
-          unwrapBKey: client.unwrapBKey,
-          email: email,
-          uid: client.uid
-        };
-        sendToBrowser('login', payload);
-        console.log('done logging in!');
-        console.log('keys!!', client.sessionToken, client.keyFetchToken, email);
-
-        leaveError();
-        makeNotBusy();
-        switchTo("verify");
+        if (state.maor_native) {
+          // this uses more native natives for doing key fetch and assertion generation
+          // key fetch will happen in native, so send it over
+          var payload = {
+            email: email,
+            sessionToken: client.sessionToken,
+            keyFetchToken: client.keyFetchToken,
+            unwrapBKey: client.unwrapBKey
+          };
+          console.log('sendToBrowser maor native payload: ', payload);
+          sendToBrowser('login', payload);
+          switchTo("t2-signed-in-page"); // TODO: what do we switch to here?
+          leaveError();
+          makeNotBusy();
+          return;
+        }
+        else {
+          leaveError();
+          makeNotBusy();
+          switchTo("verify");
+        }
       },
       function (err) {
         console.error('Error?', err);
@@ -304,11 +314,6 @@ setupFunctions["verify"] = function() {
 
         client.keys()
         .done(function (keys) {
-          console.log('ggot ckeys');
-
-          switchTo('t2-signed-in-page');
-
-
           new AssertionService(client).getAssertion(function(err, assertion) {
             var fullAssertion = jwcrypto.cert.unbundle(assertion);
             var cert = jwcrypto.extractComponents(fullAssertion.certs[0]);
@@ -316,13 +321,13 @@ setupFunctions["verify"] = function() {
               assertion: assertion,
               kB: client.kB,
               kA: client.kA,
-              unwrapBKey: client.unwrapBKey,
               sessionToken: client.sessionToken,
               email: email,
               uid: cert.payload.principal.email
             };
             console.log('sendToBrowser payload: ', payload);
             sendToBrowser('login', payload);
+            switchTo('t2-signed-in-page');
           });
         });
 
