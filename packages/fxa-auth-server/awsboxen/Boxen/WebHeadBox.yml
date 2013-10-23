@@ -1,8 +1,0 @@
-# An AMI for the webhead cluster boxes.
-Type: AWSBoxen::BuildScript
-Properties:
-  BaseAMI: {"Fn::FindInMap": ["RegionMap", {"Ref": "AWS::Region"}, "BaseAMI"]}
-  BuildScripts:
-    # Yeah, puppetizing this is starting to look like a good idea...
-    - awsboxen/scripts/common.sh
-    - awsboxen/scripts/build_webhead_box.sh

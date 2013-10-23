@@ -1,7 +1,0 @@
-# An AMI for the cassandra cluster members.
-Type: AWSBoxen::BuildScript
-Properties:
-  BaseAMI: {"Fn::FindInMap": ["RegionMap", {"Ref": "AWS::Region"}, "BaseAMI"]}
-  BuildScripts:
-    - awsboxen/scripts/common.sh
-    - awsboxen/scripts/build_cassandra_box.sh
