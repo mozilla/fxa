@@ -43,7 +43,7 @@ To simplify error handling for the client, the type of error is indicated both b
 ```js
 {
   "code": 400, // matches the HTTP status code
-  "errno": 101, // stable application level error number
+  "errno": 107, // stable application level error number
   "error": "Bad Request", // string description of the error type
   "message": "the value of salt is not allowed to be undefined",
   "info": "https://docs.dev.lcip.og/errors/1234" // link to more info on the error
@@ -58,16 +58,18 @@ The currently-defined error responses are:
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 103:  incorrect password
 * status code 400, errno 104:  attempt to operate on an unverified account
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
-* status code 429, errno 113:  client has sent too many requests (see backoff protocol)
+* status code 400, errno 105:  invalid verification code
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
+* status code 429, errno 114:  client has sent too many requests (see backoff protocol)
 * status code 503, errno 201:  service temporarily unavailable to due high load (see backoff protocol)
+* XXX TODO: invalid code, invalid verification code?
 
 
 ## Responses from Intermediary Servers
@@ -183,11 +185,11 @@ Failing requests may be due to the following errors:
 
 
 * status code 400, errno 101:  attempt to create an account that already exists
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## GET /v1/account/devices
@@ -234,9 +236,9 @@ Successful requests will produce a "200 OK" response with the device details pro
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
 
 
 ## GET /v1/account/keys
@@ -281,9 +283,9 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 104:  attempt to operate on an unverified account
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
 
 
 ## POST /v1/account/reset
@@ -354,14 +356,14 @@ Successful requests will produce a "200 OK" response with empty JSON body:
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/account/destroy
@@ -403,12 +405,12 @@ Successful requests will produce a "200 OK" response with empty JSON body:
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 ## POST /v1/auth/start
 
@@ -465,11 +467,11 @@ How to derive the values for the next step are explained in the
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/auth/finish
@@ -515,11 +517,11 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 103:  incorrect password
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/raw_password/account/create
@@ -560,11 +562,11 @@ Failing requests may be due to the following errors:
 
 
 * status code 400, errno 101:  attempt to create an account that already exists
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/raw_password/session/create
@@ -606,11 +608,11 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 103:  incorrect password
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/session/create
@@ -646,14 +648,14 @@ for info on how to retrieve `sessionToken` and `keyFetchToken` from the bundle.
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/session/destroy
@@ -687,12 +689,12 @@ Successful requests will produce a "200 OK" response with an empty JSON body:
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## GET /v1/recovery_email/status
@@ -759,9 +761,9 @@ data: { "email": "6d65406578616d706c652e636f6d", "verified": true }
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
 
 
 ## POST /v1/recovery_email/resend_code
@@ -800,12 +802,12 @@ Successful requests will produce a "200 OK" response with an empty JSON body:
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/recovery_email/verify_code
@@ -846,11 +848,12 @@ Successful requests will produce a "200 OK" response with an empty JSON body:
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 105:  invalid verification code
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/certificate/sign
@@ -910,14 +913,14 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 104:  attempt to operate on an unverified account
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/password/change/start
@@ -961,12 +964,12 @@ for info on how to extract `accountResetToken` and `keyFetchToken` from the bund
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/password/forgot/send_code
@@ -1014,11 +1017,11 @@ Successful requests will produce a "200 OK" response with details of the reset c
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/password/forgot/resend_code
@@ -1062,14 +1065,14 @@ Successful requests will produce a "200 OK" response with details of the reset c
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/password/forgot/verify_code
@@ -1110,14 +1113,15 @@ Successful requests will produce a "200 OK" response with accountResetToken in t
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 105:  request body was not valid json
-* status code 400, errno 106:  request body contains invalid parameters
-* status code 400, errno 107:  request body missing required parameters
-* status code 401, errno 108:  invalid request signature
-* status code 401, errno 109:  invalid authentication token
-* status code 401, errno 110:  invalid authentication timestamp
-* status code 411, errno 111:  content-length header was not provided
-* status code 413, errno 112:  request body too large
+* status code 400, errno 105:  invalid verification code
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## POST /v1/get_random_bytes

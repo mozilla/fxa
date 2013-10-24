@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, inherits, Bundle, Account, tokens) {
+module.exports = function (log, inherits, Bundle, Account, tokens, error) {
 
   function AuthBundle() {
     Bundle.call(this)
@@ -49,7 +49,7 @@ module.exports = function (log, inherits, Bundle, Account, tokens) {
     var ciphertext = bundle.slice(0, 32)
     var hmac = bundle.slice(32, 64)
     if (this.hmac(ciphertext).toString('hex') !== hmac.toString('hex')) {
-      throw new Error('Corrupt Message')
+      throw error.invalidSignature()
     }
     var plaintext = this.xor(ciphertext)
     return plaintext.slice(0, 32).toString('hex')

@@ -231,7 +231,7 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
             .then(
               function (rm) {
                 if (! rm) {
-                  throw error.incorrectVerificationCode()
+                  throw error.invalidVerificationCode()
                 }
                 return rm
               }
