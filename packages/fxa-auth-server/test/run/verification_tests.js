@@ -336,7 +336,7 @@ function main() {
             t.fail('reset password with invalid token')
           },
           function (err) {
-            t.equal(err.message, 'Unknown credentials', 'token is now invalid')
+            t.equal(err.message, 'Invalid authentication token in request signature', 'token is now invalid')
           }
         )
         .done(

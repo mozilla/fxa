@@ -6,6 +6,6 @@ var path = require('path')
 var url = require('url')
 var Hapi = require('hapi')
 var toobusy = require('toobusy')
-var error = require('./error')
+var error = require('../error')
 
 module.exports = require('./server')(path, url, Hapi, toobusy, error)

@@ -119,7 +119,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
         var response = request.response()
         if (response.isBoom) {
           if (!response.response.payload.errno) {
-            response.response.payload.errno = response.response.payload.code
+            response = error.wrap(response.response.payload);
           }
           if (config.env !== 'production') {
             response.response.payload.log = request.app.traced
@@ -143,7 +143,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
             }
           )
         }
-        next()
+        next(response)
     })
 
     server.on(
