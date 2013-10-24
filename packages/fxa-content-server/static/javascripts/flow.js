@@ -619,14 +619,13 @@ $(function() {
   $('#dialog').on('click', '.resend',
     function() {
       var el = $(this);
-      send('reverify', {
-        email: state.email
-      }).then(function(r) {
-        if (r.success) {
+      state.client.requestVerifyEmail()
+        .then(function () {
           el.html('Email sent!');
-        } else {
-        }
-      });
+        },
+        function (err) {
+          console.log("Error resending verification email", err);
+        });
     });
 
   $("#dialog").on("click", '.signin', function() {
