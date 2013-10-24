@@ -82,40 +82,40 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 # API Endpoints
 
 * Account
-    * [POST /v1/account/create](#post-accountcreate)
-    * [GET  /v1/account/devices (:lock: sessionToken)](#get-accountdevices)
-    * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-accountkeys)
-    * [POST /v1/account/reset (:lock: accountResetToken)](#post-accountreset)
-    * [POST /v1/account/destroy (:lock: authToken)](#post-accountdestroy)
+    * [POST /v1/account/create](#post-v1accountcreate)
+    * [GET  /v1/account/devices (:lock: sessionToken)](#get-v1accountdevices)
+    * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-v1accountkeys)
+    * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
+    * [POST /v1/account/destroy (:lock: authToken)](#post-v1accountdestroy)
 
 * Authentication
-    * [POST /v1/auth/start](#post-authstart)
-    * [POST /v1/auth/finish](#post-authfinish)
+    * [POST /v1/auth/start](#post-v1authstart)
+    * [POST /v1/auth/finish](#post-v1authfinish)
 
 * Session
-    * [POST /v1/session/create (:lock: authToken)](#post-sessioncreate)
-    * [POST /v1/session/destroy (:lock: sessionToken)](#post-sessiondestroy)
+    * [POST /v1/session/create (:lock: authToken)](#post-v1sessioncreate)
+    * [POST /v1/session/destroy (:lock: sessionToken)](#post-v1sessiondestroy)
 
 * RawPassword **REDUCED SECURITY**
     * [POST /v1/raw_password/account/create](#post-v1raw_passwordaccountcreate)
     * [POST /v1/raw_password/session/create](#post-v1raw_passwordsessioncreate)
 
 * Recovery Email
-    * [GET  /v1/recovery_email/status (:lock: sessionToken)](#get-recovery_emailstatus)
-    * [POST /v1/recovery_email/resend_code (:lock: sessionToken)](#post-recovery_emailresend_code)
-    * [POST /v1/recovery_email/verify_code](#post-recovery_emailverify_code)
+    * [GET  /v1/recovery_email/status (:lock: sessionToken)](#get-v1recovery_emailstatus)
+    * [POST /v1/recovery_email/resend_code (:lock: sessionToken)](#post-v1recovery_emailresend_code)
+    * [POST /v1/recovery_email/verify_code](#post-v1recovery_emailverify_code)
 
 * Certificate Signing
-    * [POST /v1/certificate/sign (:lock: sessionToken) (verf-required)](#post-certificatesign)
+    * [POST /v1/certificate/sign (:lock: sessionToken) (verf-required)](#post-v1certificatesign)
 
 * Password
-    * [POST /v1/password/change/start (:lock: authToken)](#post-passwordchangestart)
-    * [POST /v1/password/forgot/send_code](#post-passwordforgotsend_code)
-    * [POST /v1/password/forgot/resend_code (:lock: forgotPasswordToken)](#post-passwordforgotresend_code)
-    * [POST /v1/password/forgot/verify_code (:lock: forgotPasswordToken)](#post-passwordforgotverify_code)
+    * [POST /v1/password/change/start (:lock: authToken)](#post-v1passwordchangestart)
+    * [POST /v1/password/forgot/send_code](#post-v1passwordforgotsend_code)
+    * [POST /v1/password/forgot/resend_code (:lock: forgotPasswordToken)](#post-v1passwordforgotresend_code)
+    * [POST /v1/password/forgot/verify_code (:lock: forgotPasswordToken)](#post-v1passwordforgotverify_code)
 
 * Miscellaneous
-    * [POST /v1/get_random_bytes](#post-get_random_bytes)
+    * [POST /v1/get_random_bytes](#post-v1get_random_bytes)
 
 
 
