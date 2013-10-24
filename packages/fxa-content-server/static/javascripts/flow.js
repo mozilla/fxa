@@ -99,12 +99,12 @@ setupFunctions["t1-create-signin"] = function() {
             sessionToken: client.sessionToken,
             email: email
         };
-        if (state.maor_native) {
+        if (state.moar_native) {
           // this uses more native natives for doing key fetch and assertion generation
           // key fetch will happen in native, so send it over
           payload.keyFetchToken = client.keyFetchToken;
           payload.unwrapBKey = client.unwrapBKey;
-          console.log('sendToBrowser maor native payload: ', payload);
+          console.log('sendToBrowser moar native payload: ', payload);
           sendToBrowser('login', payload);
           switchTo("t2-signed-in-page");
           $("#progress").hide(); // hide the sync progress for now
@@ -217,7 +217,7 @@ setupFunctions["t1-create-signin"] = function() {
         return client.login();
       })
       .done(function () {
-        if (state.maor_native) {
+        if (state.moar_native) {
           // this uses more native natives for doing key fetch and assertion generation
           // key fetch will happen in native, so send it over
           var payload = {
@@ -226,7 +226,7 @@ setupFunctions["t1-create-signin"] = function() {
             keyFetchToken: client.keyFetchToken,
             unwrapBKey: client.unwrapBKey
           };
-          console.log('sendToBrowser maor native payload: ', payload);
+          console.log('sendToBrowser moar native payload: ', payload);
           sendToBrowser('login', payload);
           switchTo("verify");
           leaveError();
@@ -306,7 +306,7 @@ setupFunctions["verify"] = function() {
   $('#dialog .verify-email').html(state.email);
 
   console.log('state', state);
-  if (state.maor_native) {
+  if (state.moar_native) {
     return; // don't do any polling here, we'll let the browser drive the interaction
   }
 

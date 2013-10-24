@@ -33,7 +33,7 @@ function getQueryVariable(variable) {
     return null;
 }
 
-state.maor_native = (getQueryVariable('maor_native') !== null);
+state.moar_native = (getQueryVariable('moar_native') !== null);
 
 
 if ((state.device === 'mobile'
