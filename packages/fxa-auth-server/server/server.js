@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (path, url, Hapi, toobusy) {
+module.exports = function (path, url, Hapi, toobusy, error) {
 
   function create(log, config, routes, tokens) {
 
@@ -71,12 +71,13 @@ module.exports = function (path, url, Hapi, toobusy) {
 
     // twice the default max lag of 70ms
     toobusy.maxLag(140)
+
     server.ext(
       'onRequest',
       function (request, next) {
         var exit = false
         if (toobusy()) {
-          exit = Hapi.error.serverTimeout('Server too busy')
+          exit = error.serviceUnavailable()
         }
         log.info({ op: 'server.onRequest', rid: request.id, path: request.path })
         next(exit)
