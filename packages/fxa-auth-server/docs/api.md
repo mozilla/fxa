@@ -69,7 +69,7 @@ The currently-defined error responses are:
 * status code 413, errno 113:  request body too large
 * status code 429, errno 114:  client has sent too many requests (see backoff protocol)
 * status code 503, errno 201:  service temporarily unavailable to due high load (see backoff protocol)
-* XXX TODO: invalid code, invalid verification code?
+* any status code, errno 999:  unknown error
 
 
 ## Responses from Intermediary Servers

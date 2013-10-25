@@ -50,6 +50,12 @@ Boom.wrap = function (srcObject) {
     }
   }
 
+  // If we weren't able to identify a specific type of error,
+  // default to a generic "unspecified error" response.
+  if (typeof object.errno === 'undefined') {
+    object.errno = 999;
+  }
+
   // Now we can safely boomify it.
   var b = new Boom(object.code, object.message)
   Hoek.merge(b.response.payload, object);
