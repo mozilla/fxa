@@ -15,8 +15,8 @@ module.exports = function (log, crypto, error, isA, serverPublicKey, bridge) {
           request.reply(
             {
               'public-key': serverPublicKey,
-              'authentication': '/sign_in.html',
-              'provisioning': '/provision.html'
+              'authentication': '/.well-known/browserid/sign_in.html',
+              'provisioning': '/.well-known/browserid/provision.html'
             }
           )
         }
@@ -24,19 +24,19 @@ module.exports = function (log, crypto, error, isA, serverPublicKey, bridge) {
     },
     {
       method: 'GET',
-      path: '/sign_in.html',
+      path: '/.well-known/browserid/sign_in.html',
       config: {
         handler: {
-          file: './sign_in.html'
+          file: './routes/static/sign_in.html'
         }
       }
     },
     {
       method: 'GET',
-      path: '/provision.html',
+      path: '/.well-known/browserid/provision.html',
       config: {
         handler: {
-          file: './provision.html'
+          file: './routes/static/provision.html'
         }
       }
     }
