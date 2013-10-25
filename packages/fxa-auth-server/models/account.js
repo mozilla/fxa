@@ -102,7 +102,10 @@ module.exports = function (log, P, tokens, RecoveryEmail, db, config, error) {
       .get(email + '/uid')
       .then(
         function (uid) {
-          return uid ? uid.value : null
+          if (!uid) {
+            throw error.unknownAccount(email)
+          }
+          return uid.value;
         }
       )
   }
@@ -113,7 +116,12 @@ module.exports = function (log, P, tokens, RecoveryEmail, db, config, error) {
       .getId(email)
       .then(
         function (uid) {
-          return !!uid
+          return true;
+        }
+      )
+      .fail(
+        function(err) {
+          return false;
         }
       )
   }

@@ -49,7 +49,9 @@ module.exports = function (log, isA, error, signer, Account) {
                   function (err, result) {
                     if (err || result.err) {
                       request.reply(
-                        error.internal(
+                        // XXX TODO: differentiate backlog overflow (503)
+                        //           from a generic server-side failure (500)
+                        error.serviceUnavailable(
                           'Unable to sign certificate',
                           err || result.err
                         )

@@ -162,7 +162,7 @@ module.exports = function (log, inherits, Token, db) {
         var ciphertext = buffer.slice(0, 64)
         var hmac = buffer.slice(64, 96).toString('hex')
         if(token.hmac(ciphertext).toString('hex') !== hmac) {
-          throw new Error('Unmatching HMAC')
+          throw error.invalidSignature()
         }
         var plaintext = token.xor(ciphertext)
         return {

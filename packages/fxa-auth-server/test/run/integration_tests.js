@@ -332,7 +332,7 @@ function main() {
             t.end()
           },
           function (err) {
-            t.equal(err.errno, 401, 'session is invalid')
+            t.equal(err.errno, 110, 'session is invalid')
             t.end()
           }
         )

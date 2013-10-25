@@ -202,7 +202,12 @@ module.exports = function (log, isA, error, Account, tokens) {
             forgotPasswordToken.failAttempt()
               .done(
                 function (t) {
-                  request.reply(error.invalidCode(forgotPasswordToken))
+                  request.reply(
+                    error.invalidVerificationCode({
+                      tries: forgotPasswordToken.tries,
+                      ttl: forgotPasswordToken.ttl
+                    })
+                  )
                 },
                 function (err) {
                   request.reply(err)

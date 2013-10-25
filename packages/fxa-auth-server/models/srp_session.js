@@ -41,7 +41,6 @@ module.exports = function (log, P, uuid, srp, db, error) {
   SrpSession.create = function (account) {
     log.trace({ op: 'SrpSession.create', uid: account && account.uid })
     var session = null
-    if (!account) { throw error.unknownAccount() }
     return srpGenKey()
       .then(
         function (b) {

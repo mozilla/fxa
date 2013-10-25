@@ -10,7 +10,7 @@ var srp = require('srp')
 var uuid = require('uuid')
 
 var Bundle = require('../bundle')
-var error = require('../error')
+var error = require('./error')
 
 module.exports = function (log, config, dbs, mailer) {
 
@@ -20,7 +20,8 @@ module.exports = function (log, config, dbs, mailer) {
     log,
     inherits,
     Token,
-    dbs.cache
+    dbs.cache,
+    error
   )
   var AccountResetToken = require('./account_reset_token')(
     log,
@@ -39,7 +40,8 @@ module.exports = function (log, config, dbs, mailer) {
     log,
     inherits,
     Token,
-    dbs.cache
+    dbs.cache,
+    error
   )
   var ForgotPasswordToken = require('./forgot_password_token')(
     log,
@@ -86,7 +88,8 @@ module.exports = function (log, config, dbs, mailer) {
     inherits,
     Bundle,
     Account,
-    tokens
+    tokens,
+    error
   )
 
   return {

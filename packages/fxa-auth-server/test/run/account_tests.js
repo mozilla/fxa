@@ -90,7 +90,7 @@ test(
           t.fail('should not have created an account')
         },
         function (err) {
-          t.equal(err.response.code, 400)
+          t.equal(err.errno, 101)
           t.equal(err.message, 'Account already exists')
         }
       )

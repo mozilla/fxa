@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, inherits, Token, db) {
+module.exports = function (log, inherits, Token, db, error) {
 
   function KeyFetchToken() {
     Token.call(this)
@@ -98,7 +98,7 @@ module.exports = function (log, inherits, Token, db) {
     var ciphertext = buffer.slice(0, 64)
     var hmac = buffer.slice(64, 96).toString('hex')
     if(this.hmac(ciphertext).toString('hex') !== hmac) {
-      throw new Error('Unmatching HMAC')
+      throw error.invalidSignature()
     }
     var plaintext = this.xor(ciphertext)
     return {
