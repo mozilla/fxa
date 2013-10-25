@@ -10,7 +10,7 @@ var srp = require('srp')
 var uuid = require('uuid')
 
 var Bundle = require('../bundle')
-var error = require('../error')
+var error = require('./error')
 
 module.exports = function (log, config, dbs, mailer) {
 

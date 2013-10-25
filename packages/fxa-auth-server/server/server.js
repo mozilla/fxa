@@ -119,7 +119,13 @@ module.exports = function (path, url, Hapi, toobusy, error) {
         var response = request.response()
         if (response.isBoom) {
           if (!response.response.payload.errno) {
-            response = error.wrap(response.response.payload);
+            var details = response.response.payload
+            // Hapi will automatically boomifies application-level errors.
+            // Grab the original error back out so we can wrap it.
+            if (response.response.code === 500 && response.data) {
+              details = response.data
+            }
+            response = error.wrap(details)
           }
           if (config.env !== 'production') {
             response.response.payload.log = request.app.traced
