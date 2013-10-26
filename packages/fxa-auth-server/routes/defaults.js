@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, P, kv) {
+module.exports = function (log, P, db) {
 
   var routes = [
     {
@@ -21,7 +21,7 @@ module.exports = function (log, P, kv) {
       config: {
         handler: function heartbeat(request) {
           log.begin('Defaults.heartbeat', request)
-          P.all([kv.store.ping(), kv.cache.ping()])
+          db.ping()
             .then(
               function () {
                 request.reply({})

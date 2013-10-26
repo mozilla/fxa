@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, signer, Account) {
+module.exports = function (log, isA, error, signer, domain) {
 
   const HOUR = 1000 * 60 * 60
 
@@ -32,38 +32,32 @@ module.exports = function (log, isA, error, signer, Account) {
         },
         handler: function certificateSign(request) {
           log.begin('Sign.cert', request)
-          var uid = request.auth.credentials.uid
-          Account
-            .get(uid)
-            .done(
-              function (account) {
-                if (!account.verified) {
-                  return request.reply(error.unverifiedAccount())
-                }
-                signer.enqueue(
-                  {
-                    email: Account.principal(uid),
-                    publicKey: JSON.stringify(request.payload.publicKey),
-                    duration: request.payload.duration
-                  },
-                  function (err, result) {
-                    if (err || result.err) {
-                      request.reply(
-                        // XXX TODO: differentiate backlog overflow (503)
-                        //           from a generic server-side failure (500)
-                        error.serviceUnavailable(
-                          'Unable to sign certificate',
-                          err || result.err
-                        )
-                      )
-                    }
-                    else {
-                      request.reply(result)
-                    }
-                  }
+          var sessionToken = request.auth.credentials
+          if (!sessionToken.verified) {
+            return request.reply(error.unverifiedAccount())
+          }
+          signer.enqueue(
+            {
+              email: uid + '@' + domain,
+              publicKey: JSON.stringify(request.payload.publicKey),
+              duration: request.payload.duration
+            },
+            function (err, result) {
+              if (err || result.err) {
+                request.reply(
+                  // XXX TODO: differentiate backlog overflow (503)
+                  //           from a generic server-side failure (500)
+                  error.serviceUnavailable(
+                    'Unable to sign certificate',
+                    err || result.err
+                  )
                 )
               }
-            )
+              else {
+                request.reply(result)
+              }
+            }
+          )
         }
       }
     }

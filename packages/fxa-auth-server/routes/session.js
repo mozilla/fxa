@@ -2,9 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, Account, tokens) {
+module.exports = function (log, isA, error, db) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+
+  function bundleSession(authToken, keyFetchToken, sessionToken) {
+    // TODO
+  }
 
   var routes = [
     {
@@ -20,26 +24,14 @@ module.exports = function (log, isA, error, Account, tokens) {
           log.begin('Session.create', request)
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
-          var keyFetchToken = null
-          var sessionToken = null
-          authToken.del()
+          db.createSession(authToken)
             .then(
-              function () {
-                return tokens.KeyFetchToken.create(authToken.uid)
-              }
-            )
-            .then(function (t) { keyFetchToken = t })
-            .then(tokens.SessionToken.create.bind(null, authToken.uid))
-            .then(function (t) { sessionToken = t })
-            .then(Account.get.bind(null, authToken.uid))
-            .then(
-              function (account) {
-                return account.addSessionToken(sessionToken)
-              }
-            )
-            .then(
-              function () {
-                return authToken.bundleSession(keyFetchToken, sessionToken)
+              function (tokens) {
+                return bundleSession(
+                  authToken,
+                  tokens.keyFetchToken,
+                  tokens.sessionToken
+                )
               }
             )
             .then(
@@ -65,17 +57,7 @@ module.exports = function (log, isA, error, Account, tokens) {
         handler: function (request) {
           log.begin('Session.destroy', request)
           var sessionToken = request.auth.credentials
-          sessionToken.del()
-            .then(
-              function () {
-                return Account.get(sessionToken.uid)
-              }
-            )
-            .then(
-              function (account) {
-                return account.deleteSessionToken(sessionToken.id)
-              }
-            )
+          db.deleteSessionToken(sessionToken)
             .done(
               function () {
                 request.reply({})

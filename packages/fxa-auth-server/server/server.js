@@ -4,7 +4,7 @@
 
 module.exports = function (path, url, Hapi, toobusy, error) {
 
-  function create(log, config, routes, tokens) {
+  function create(log, config, routes, db) {
 
     // Hawk needs to calculate request signatures based on public URL,
     // not the local URL to which it is bound.
@@ -18,6 +18,17 @@ module.exports = function (path, url, Hapi, toobusy, error) {
       port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol]
     }
 
+    function makeCredentialFn(dbGetFn) {
+      return function (id, cb) {
+        log.trace({ op: 'db.' + dbGetFn.name, id: id })
+        dbGetFn(id)
+          .done(
+            cb.bind(null, null),
+            cb
+          )
+      }
+    }
+
     var server = Hapi.createServer(
       config.bind_to.host,
       config.bind_to.port,
@@ -26,27 +37,27 @@ module.exports = function (path, url, Hapi, toobusy, error) {
           sessionToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: tokens.SessionToken.getCredentials
+            getCredentialsFunc: makeCredentialFn(db.sessionToken)
           },
           keyFetchToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: tokens.KeyFetchToken.getCredentials
+            getCredentialsFunc: makeCredentialFn(db.keyFetchToken)
           },
           accountResetToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: tokens.AccountResetToken.getCredentials
+            getCredentialsFunc: makeCredentialFn(db.accountResetToken)
           },
           authToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: tokens.AuthToken.getCredentials
+            getCredentialsFunc: makeCredentialFn(db.authToken)
           },
           forgotPasswordToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: tokens.ForgotPasswordToken.getCredentials
+            getCredentialsFunc: makeCredentialFn(db.forgotPasswordToken)
           }
         },
         cors: true,
