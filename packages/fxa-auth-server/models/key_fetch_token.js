@@ -9,11 +9,8 @@ module.exports = function (log, inherits, Token, db, error) {
   }
   inherits(KeyFetchToken, Token)
 
-  KeyFetchToken.hydrate = function (object) {
-    return Token.fill(new KeyFetchToken(), object)
-  }
-
-  KeyFetchToken.create = function (uid) {
+  KeyFetchToken.create = function (authToken) {
+    var uid = authToken && authToken.uid
     log.trace({ op: 'KeyFetchToken.create', uid: uid })
     return Token
       .randomTokenData('account/keys', 3 * 32 + 2 * 32)
@@ -27,19 +24,8 @@ module.exports = function (log, inherits, Token, db, error) {
           t._key = key.slice(32, 64).toString('hex')
           t.hmacKey = key.slice(64, 96).toString('hex')
           t.xorKey = key.slice(96, 160).toString('hex')
-          return t.save()
+          return t
         }
-      )
-  }
-
-  KeyFetchToken.getCredentials = function (id, cb) {
-    log.trace({ op: 'KeyFetchToken.getCredentials', id: id })
-    KeyFetchToken.get(id)
-      .done(
-        function (token) {
-          cb(null, token)
-        },
-        cb
       )
   }
 
@@ -63,28 +49,6 @@ module.exports = function (log, inherits, Token, db, error) {
           return t
         }
       )
-  }
-
-  KeyFetchToken.get = function (id) {
-    log.trace({ op: 'KeyFetchToken.get', id: id })
-    return db
-      .get(id + '/fetch')
-      .then(KeyFetchToken.hydrate)
-  }
-
-  KeyFetchToken.del = function (id) {
-    log.trace({ op: 'KeyFetchToken.del', id: id })
-    return db.delete(id + '/fetch')
-  }
-
-  KeyFetchToken.prototype.save = function () {
-    log.trace({ op: 'keyFetchToken.save', id: this.id })
-    var self = this
-    return db.set(this.id + '/fetch', this).then(function () { return self })
-  }
-
-  KeyFetchToken.prototype.del = function () {
-    return KeyFetchToken.del(this.id)
   }
 
   KeyFetchToken.prototype.bundle = function (kA, wrapKb) {

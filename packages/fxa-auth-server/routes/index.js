@@ -15,16 +15,16 @@ module.exports = function (
   log,
   serverPublicKey,
   signer,
-  models,
+  db,
   config
   ) {
   var auth = require('./auth')(log, isA, error, models.Account, models.SrpSession, models.AuthBundle)
-  var defaults = require('./defaults')(log, P, models.dbs)
+  var defaults = require('./defaults')(log, P, db)
   var idp = require('./idp')(log, crypto, error, isA, serverPublicKey, config.bridge)
   var account = require('./account')(log, crypto, uuid, isA, error, models.Account, models.RecoveryEmail)
   var password = require('./password')(log, isA, error, models.Account, models.tokens)
   var session = require('./session')(log, isA, error, models.Account, models.tokens)
-  var sign = require('./sign')(log, isA, error, signer, models.Account)
+  var sign = require('./sign')(log, isA, error, signer, config.domain)
   var util = require('./util')(log, crypto, error, isA, serverPublicKey, config.bridge)
   var raw = require('./rawpassword')(log, isA, error, config, Client)
 

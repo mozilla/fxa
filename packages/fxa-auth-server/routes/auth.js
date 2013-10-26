@@ -6,6 +6,14 @@ module.exports = function (log, isA, error, Account, SrpSession, AuthBundle) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
+  function clientData(srpToken) {
+
+  }
+
+  function bundleAuth(k, authToken) {
+
+  }
+
   var routes = [
     {
       method: 'POST',
@@ -19,8 +27,17 @@ module.exports = function (log, isA, error, Account, SrpSession, AuthBundle) {
         handler: function (request) {
           log.begin('Auth.start', request)
           var reply = request.reply.bind(request)
-          Account.getByEmail(request.payload.email)
-            .then(SrpSession.start.bind(null))
+          db.emailRecord(request.payload.email)
+            .then(
+              function (emailRecord) {
+                return db.createSrpToken(emailRecord)
+              }
+            )
+            .then(
+              function (srpToken) {
+                return clientData(srpToken)
+              }
+            )
             .done(reply, reply)
         },
         validate: {
@@ -53,11 +70,21 @@ module.exports = function (log, isA, error, Account, SrpSession, AuthBundle) {
         handler: function (request) {
           log.begin('Auth.finish', request)
           var reply = request.reply.bind(request)
-          SrpSession
-            .finish(request.payload.srpToken, request.payload.A, request.payload.M)
+
+          db.srpToken(request.payload.srpToken)
             .then(
-              function (srpSession) {
-                return AuthBundle.login(srpSession.K, srpSession.uid)
+              function (srpToken) {
+                return srpFinish(srpToken, request.payload.A, request.payload.M)
+              }
+            )
+            .then(
+              function (srpToken) {
+                return db.authFinish(srpToken)
+                  .then(
+                    function (authToken) {
+                      return bundleAuth(srpToken.K, authToken)
+                    }
+                  )
               }
             )
             .done(reply, reply)
