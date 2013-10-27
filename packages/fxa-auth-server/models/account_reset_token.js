@@ -11,7 +11,8 @@ module.exports = function (log, inherits, Token, crypto, db) {
   }
   inherits(AccountResetToken, Token)
 
-  AccountResetToken.create = function (uid) {
+  AccountResetToken.create = function (token) {
+    var uid = token && token.uid
     log.trace({ op: 'AccountResetToken.create', uid: uid })
     return Token
       .randomTokenData('account/reset', 2 * 32 + 32 + 256)

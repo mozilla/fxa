@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, config, Client) {
+module.exports = function (log, isA, error, public_url, Client) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -16,7 +16,7 @@ module.exports = function (log, isA, error, config, Client) {
         handler: function (request) {
           log.begin('RawPassword.sessionCreate', request)
           Client.login(
-            config.public_url,
+            public_url,
             Buffer(request.payload.email, 'hex').toString('utf8'),
             request.payload.password
           )
@@ -59,7 +59,7 @@ module.exports = function (log, isA, error, config, Client) {
           log.begin('RawPassword.accountCreate', request)
           var form = request.payload
           Client.create(
-            config.public_url,
+            public_url,
             Buffer(form.email, 'hex').toString('utf8'),
             form.password
           )

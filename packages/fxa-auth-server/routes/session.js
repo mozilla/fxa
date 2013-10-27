@@ -7,7 +7,8 @@ module.exports = function (log, isA, error, db) {
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
   function bundleSession(authToken, keyFetchToken, sessionToken) {
-    // TODO
+    log.trace({ op: 'Session.bundleSession', uid: authToken && authToken.uid })
+    return authToken.bundleKeys('session/create', keyFetchToken, sessionToken)
   }
 
   var routes = [
