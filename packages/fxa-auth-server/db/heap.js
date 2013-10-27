@@ -105,7 +105,7 @@ module.exports = function (
 
 	Heap.prototype.createForgotPasswordToken = function (emailRecord) {
 		log.trace({ op: 'Heap.createForgotPasswordToken', uid: emailRecord && emailRecord.uid })
-		return ForgotPasswordToken.create(emailRecord.uid)
+		return ForgotPasswordToken.create(emailRecord.uid, emailRecord.email)
 			.then(
 				function (forgotPasswordToken) {
 					var account = this.accounts[forgotPasswordToken.uid]
@@ -183,7 +183,7 @@ module.exports = function (
 		log.trace({ op: 'Heap.forgotPasswordToken', id: id })
 		var forgotPasswordToken = this.forgotPasswordTokens[id]
 		if (!forgotPasswordToken) { return P.reject(error.invalidToken()) }
-		var account = this.accounts[sessionToken.uid]
+		var account = this.accounts[forgotPasswordToken.uid]
 		if (!account) { return P.reject(error.unknownAccount()) }
 		forgotPasswordToken.email = account.email
 		return P(forgotPasswordToken)
@@ -205,7 +205,7 @@ module.exports = function (
 
 	// UPDATE
 
-	Heap.prototype.udateForgotPasswordToken = function (forgotPasswordToken) {
+	Heap.prototype.updateForgotPasswordToken = function (forgotPasswordToken) {
 		log.trace({ op: 'Heap.udateForgotPasswordToken', uid: forgotPasswordToken && forgotPasswordToken.uid })
 		return P(true)
 	}
