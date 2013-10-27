@@ -8,8 +8,7 @@ var P = require('p-promise')
 var uuid = require('uuid')
 var Hapi = require('hapi')
 var error = require('../error')
-var Bundle = require('../bundle')
-//var Client = require('../client')
+var Client = require('../client')
 var isA = Hapi.types
 
 module.exports = function (
@@ -18,9 +17,10 @@ module.exports = function (
   signer,
   db,
   mailer,
+  Token,
   config
   ) {
-  var auth = require('./auth')(log, isA, error, db, Bundle)
+  var auth = require('./auth')(log, isA, error, db, Token)
   var defaults = require('./defaults')(log, P, db)
   var idp = require('./idp')(log, serverPublicKey)
   var account = require('./account')(log, crypto, uuid, isA, error, db, mailer, config)
@@ -28,7 +28,7 @@ module.exports = function (
   var session = require('./session')(log, isA, error, db)
   var sign = require('./sign')(log, isA, error, signer, config.domain)
   var util = require('./util')(log, crypto, isA, config.bridge)
-  //var raw = require('./rawpassword')(log, isA, error, config.public_url, Client)
+  var raw = require('./rawpassword')(log, isA, error, config.public_url, Client)
 
   var v1Routes = [].concat(
     auth,
@@ -36,8 +36,8 @@ module.exports = function (
     password,
     session,
     sign,
-    util//,
-    //raw
+    util,
+    raw
   )
   v1Routes.forEach(function(route) {
     route.path = "/v1" + route.path

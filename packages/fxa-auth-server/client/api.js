@@ -5,8 +5,7 @@ var hawk = require('hawk')
 var P = require('p-promise')
 var request = require('request')
 
-var models = require('../models')({ trace: function() {}}, {}, {})
-var tokens = models.tokens
+var tokens = require('../tokens')({ trace: function() {}})
 
 util.inherits(ClientApi, EventEmitter)
 function ClientApi(origin) {
