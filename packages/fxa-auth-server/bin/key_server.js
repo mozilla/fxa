@@ -28,8 +28,19 @@ function main() {
   )
   memoryMonitor.start()
 
+  var tokens = require('../tokens')(log)
+
   // databases
-  var DB = require('../db/heap')(log)
+  var DB = require('../db/heap')(
+    log,
+    tokens.error,
+    tokens.AuthToken,
+    tokens.SessionToken,
+    tokens.KeyFetchToken,
+    tokens.AccountResetToken,
+    tokens.SrpToken,
+    tokens.ForgotPasswordToken
+  )
   var db = new DB()
 
   // TODO: send to the SMTP server directly. In the future this may change
