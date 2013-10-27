@@ -141,7 +141,7 @@ module.exports = function (log) {
 	Heap.prototype.sessionToken = function (id) {
 		log.trace({ op: 'Heap.sessionToken', id: id })
 		var sessionToken = this.sessionTokens[id]
-		if (!sessionToken) { return P.reject('SessionToken not found') }
+		if (!sessionToken) { return P.reject(error.invalidToken()) }
 		var account = this.accounts[sessionToken.uid]
 		if (!account) { return P.reject(error.unknownAccount()) }
 		sessionToken.email = account.email
@@ -153,7 +153,7 @@ module.exports = function (log) {
 	Heap.prototype.keyFetchToken = function (id) {
 		log.trace({ op: 'Heap.keyFetchToken', id: id })
 		var keyFetchToken = this.keyFetchTokens[id]
-		if (!keyFetchToken) { return P.reject('KeyFetchToken not found') }
+		if (!keyFetchToken) { return P.reject(error.invalidToken()) }
 		var account = this.accounts[keyFetchToken.uid]
 		if (!account) { return P.reject(error.unknownAccount()) }
 		keyFetchToken.kA = account.kA
@@ -165,28 +165,28 @@ module.exports = function (log) {
 	Heap.prototype.accountResetToken = function (id) {
 		log.trace({ op: 'Heap.accountResetToken', id: id })
 		var accountResetToken = this.accountResetTokens[id]
-		if (!accountResetToken) { return P.reject('AccountResetToken not found') }
+		if (!accountResetToken) { return P.reject(error.invalidToken()) }
 		return P(accountResetToken)
 	}
 
 	Heap.prototype.authToken = function (id) {
 		log.trace({ op: 'Heap.authToken', id: id })
 		var authToken = this.authTokens[id]
-		if (!authToken) { return P.reject('AuthToken not found') }
+		if (!authToken) { return P.reject(error.invalidToken()) }
 		return P(authToken)
 	}
 
 	Heap.prototype.srpToken = function (id) {
 		log.trace({ op: 'Heap.srpToken', id: id })
 		var srpToken = this.srpTokens[id]
-		if (!srpToken) { return P.reject('SrpToken not found') }
+		if (!srpToken) { return P.reject(error.invalidToken()) }
 		return P(srpToken)
 	}
 
 	Heap.prototype.forgotPasswordToken = function (id) {
 		log.trace({ op: 'Heap.forgotPasswordToken', id: id })
 		var forgotPasswordToken = this.forgotPasswordTokens[id]
-		if (!forgotPasswordToken) { return P.reject('ForgotPasswordToken not found') }
+		if (!forgotPasswordToken) { return P.reject(error.invalidToken()) }
 		var account = this.accounts[sessionToken.uid]
 		if (!account) { return P.reject(error.unknownAccount()) }
 		forgotPasswordToken.email = account.email

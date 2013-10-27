@@ -39,10 +39,18 @@ function invalidSignature() {
   })
 }
 
+function invalidToken() {
+  return error({
+    errno: 110,
+    message: 'Invalid authentication token in request signature'
+  })
+}
+
 module.exports = {
   error: error,
   accountExists: accountExists,
   unknownAccount: unknownAccount,
   incorrectPassword: incorrectPassword,
-  invalidSignature: invalidSignature
+  invalidSignature: invalidSignature,
+  invalidToken: invalidToken
 }
