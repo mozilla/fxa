@@ -9,8 +9,7 @@ module.exports = function (log, inherits, Token) {
   }
   inherits(SessionToken, Token)
 
-  SessionToken.create = function (authToken) {
-    var uid = authToken && authToken.uid
+  SessionToken.create = function (uid) {
     log.trace({ op: 'SessionToken.create', uid: uid })
     return Token
       .randomTokenData('session', 2 * 32)

@@ -40,21 +40,21 @@ module.exports = function (log, P, uuid, srp, error) {
 
   SrpToken.create = function (account) {
     log.trace({ op: 'SrpToken.create', uid: account && account.uid })
-    var session = null
+    var t = null
     return srpGenKey()
       .then(
         function (b) {
-          session = new SrpToken()
-          session.id = uuid.v4()
-          session.uid = account.uid
-          session.N = srp.params[2048].N
-          session.g = srp.params[2048].g
-          session.s = account.srp.salt
-          session.v = Buffer(account.srp.verifier, 'hex')
-          session.b = b
-          session.B = srp.getB(session.v, session.g, b, session.N, alg)
-          session.passwordStretching = account.passwordStretching
-          return session
+          t = new SrpToken()
+          t.id = uuid.v4()
+          t.uid = account.uid
+          t.N = srp.params[2048].N
+          t.g = srp.params[2048].g
+          t.s = account.srp.salt
+          t.v = Buffer(account.srp.verifier, 'hex')
+          t.b = b
+          t.B = srp.getB(t.v, t.g, b, t.N, alg)
+          t.passwordStretching = account.passwordStretching
+          return t
         }
       )
   }
