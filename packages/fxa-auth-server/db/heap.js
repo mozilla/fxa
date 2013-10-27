@@ -60,7 +60,7 @@ module.exports = function (
 
 	Heap.prototype.createSessionToken = function (authToken) {
 		log.trace({ op: 'Heap.createSessionToken', uid: authToken && authToken.uid })
-		return SessionToken.create(authToken)
+		return SessionToken.create(authToken.uid)
 			.then(saveTo(this.sessionTokens))
 			.then(
 				function (sessionToken) {
@@ -73,13 +73,13 @@ module.exports = function (
 
 	Heap.prototype.createKeyFetchToken = function (authToken) {
 		log.trace({ op: 'Heap.createKeyFetchToken', uid: authToken && authToken.uid })
-		return KeyFetchToken.create(authToken)
+		return KeyFetchToken.create(authToken.uid)
 			.then(saveTo(this.keyFetchTokens))
 	}
 
 	Heap.prototype.createAccountResetToken = function (token /* authToken|forgotPasswordToken */) {
 		log.trace({ op: 'Heap.createAccountResetToken', uid: token && token.uid })
-		return AccountResetToken.create(token)
+		return AccountResetToken.create(token.uid)
 			.then(
 				function (accountResetToken) {
 					var account = this.accounts[accountResetToken.uid]
@@ -93,7 +93,7 @@ module.exports = function (
 
 	Heap.prototype.createAuthToken = function (srpToken) {
 		log.trace({ op: 'Heap.createAuthToken', uid: srpToken && srpToken.uid })
-		return AuthToken.create(srpToken)
+		return AuthToken.create(srpToken.uid)
 			.then(saveTo(this.authTokens))
 	}
 
@@ -105,7 +105,7 @@ module.exports = function (
 
 	Heap.prototype.createForgotPasswordToken = function (emailRecord) {
 		log.trace({ op: 'Heap.createForgotPasswordToken', uid: emailRecord && emailRecord.uid })
-		return ForgotPasswordToken.create(emailRecord)
+		return ForgotPasswordToken.create(emailRecord.uid)
 			.then(
 				function (forgotPasswordToken) {
 					var account = this.accounts[forgotPasswordToken.uid]

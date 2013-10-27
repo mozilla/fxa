@@ -10,8 +10,7 @@ module.exports = function (log, inherits, Token, error) {
   }
   inherits(AuthToken, Token)
 
-  AuthToken.create = function (srpToken) {
-    var uid = srpToken && srpToken.uid
+  AuthToken.create = function (uid) {
     log.trace({ op: 'AuthToken.create', uid: uid })
     return Token
       .randomTokenData('authToken', 3 * 32)

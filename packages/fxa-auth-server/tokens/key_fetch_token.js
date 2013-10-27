@@ -9,8 +9,7 @@ module.exports = function (log, inherits, Token, error) {
   }
   inherits(KeyFetchToken, Token)
 
-  KeyFetchToken.create = function (authToken) {
-    var uid = authToken && authToken.uid
+  KeyFetchToken.create = function (uid) {
     log.trace({ op: 'KeyFetchToken.create', uid: uid })
     return Token
       .randomTokenData('account/keys', 3 * 32 + 2 * 32)
