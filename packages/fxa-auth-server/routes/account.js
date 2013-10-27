@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, crypto, uuid, isA, error, db, mailer, config) {
+module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -78,16 +78,19 @@ module.exports = function (log, crypto, uuid, isA, error, db, mailer, config) {
                 }
               )
             )
-            // .then(
-            //   function (account) {
-            //     return sendVerifyCode(
-            //       account.email,
-            //       account.emailCode,
-            //       account.uid
-            //     )
-            //     .then(function () { return account })
-            //   }
-            // )
+            .then(
+              function (account) {
+                if (account.verified) {
+                  return P(account)
+                }
+                return sendVerifyCode(
+                  account.email,
+                  account.emailCode,
+                  account.uid
+                )
+                .then(function () { return account })
+              }
+            )
             .done(
               function (account) {
                 request.reply(
@@ -247,7 +250,7 @@ module.exports = function (log, crypto, uuid, isA, error, db, mailer, config) {
           db.account(uid)
             .then(
               function (account) {
-                if (code !== account.code) {
+                if (code !== account.emailCode) {
                   throw error.invalidVerificationCode()
                 }
                 return db.verifyEmail(account)

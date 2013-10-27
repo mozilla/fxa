@@ -56,5 +56,17 @@ module.exports = function (log, inherits, Token, crypto) {
       )
   }
 
+  ForgotPasswordToken.prototype.ttl = function () {
+    return Math.max(
+      Math.ceil((LIFETIME - (Date.now() - this.created)) / 1000),
+      0
+    )
+  }
+
+  ForgotPasswordToken.prototype.failAttempt = function () {
+    this.tries--
+    return this.tries < 1
+  }
+
   return ForgotPasswordToken
 }

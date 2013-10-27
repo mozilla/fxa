@@ -81,6 +81,18 @@ module.exports = function (log, P, uuid, srp, error) {
     return this
   }
 
+  SrpToken.prototype.clientData = function () {
+    return {
+      srpToken: this.id,
+      passwordStretching: this.passwordStretching,
+      srp: {
+        type: 'SRP-6a/SHA256/2048/v1',
+        salt: this.s,
+        B: this.B.toString('hex')
+      }
+    }
+  }
+
   SrpToken.client2 = function (session, email, password) {
     return srpGenKey()
       .then(

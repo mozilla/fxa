@@ -7,15 +7,7 @@ module.exports = function (log, isA, error, db, Token) {
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
   function clientData(srpToken) {
-    return {
-      srpToken: srpToken.id,
-      passwordStretching: srpToken.passwordStretching,
-      srp: {
-        type: 'SRP-6a/SHA256/2048/v1',
-        salt: srpToken.s,
-        B: srpToken.B.toString('hex')
-      }
-    }
+    return srpToken.clientData()
   }
 
   function bundleAuth(K, authToken) {

@@ -5,7 +5,6 @@
 module.exports = function (log, isA, error, db, mailer) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
-  const FPT_LIFETIME = 1000 * 60 * 15
 
   function bundleAccountReset(authToken, keyFetchToken, accountResetToken) {
     return authToken.bundleKeys('password/change', keyFetchToken, accountResetToken)
@@ -14,21 +13,18 @@ module.exports = function (log, isA, error, db, mailer) {
   function sendRecoveryCode(forgotPasswordToken) {
     log.trace({ op: 'sendRecoveryCode', id: forgotPasswordToken.id })
     return mailer.sendRecoveryCode(
-      Buffer(forgotPasswordToken.email, 'hex').toString(),
+      Buffer(forgotPasswordToken.email, 'hex').toString('utf8'),
       forgotPasswordToken.passcode
     )
+    .then(function () { return forgotPasswordToken })
   }
 
   function ttl(forgotPasswordToken) {
-    return Math.max(
-      Math.ceil((FPT_LIFETIME - (Date.now() - forgotPasswordToken.created)) / 1000),
-      0
-    )
+    return forgotPasswordToken.ttl()
   }
 
   function failVerifyAttempt(forgotPasswordToken) {
-    forgotPasswordToken.tries--
-    return (forgotPasswordToken.tries < 1) ?
+    return (forgotPasswordToken.failAttempt()) ?
       db.deleteForgotPasswordToken(forgotPasswordToken) :
       db.updateForgotPasswordToken(forgotPasswordToken)
   }
@@ -90,7 +86,7 @@ module.exports = function (log, isA, error, db, mailer) {
               }
             )
             .done(
-              function () {
+              function (forgotPasswordToken) {
                 request.reply(
                   {
                     forgotPasswordToken: forgotPasswordToken.data,
@@ -179,7 +175,7 @@ module.exports = function (log, isA, error, db, mailer) {
           log.begin('Password.forgotVerify', request)
           var forgotPasswordToken = request.auth.credentials
           var code = +(request.payload.code)
-          if (forgotPasswordToken.code === code && ttl(forgotPasswordToken) > 0) {
+          if (forgotPasswordToken.passcode === code && ttl(forgotPasswordToken) > 0) {
             db.forgotPasswordVerified(forgotPasswordToken)
               .done(
                 function (accountResetToken) {
