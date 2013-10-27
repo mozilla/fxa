@@ -28,18 +28,18 @@ function main() {
   )
   memoryMonitor.start()
 
-  var tokens = require('../tokens')(log)
+  var Token = require('../tokens')(log)
 
   // databases
   var DB = require('../db/heap')(
     log,
-    tokens.error,
-    tokens.AuthToken,
-    tokens.SessionToken,
-    tokens.KeyFetchToken,
-    tokens.AccountResetToken,
-    tokens.SrpToken,
-    tokens.ForgotPasswordToken
+    Token.error,
+    Token.AuthToken,
+    Token.SessionToken,
+    Token.KeyFetchToken,
+    Token.AccountResetToken,
+    Token.SrpToken,
+    Token.ForgotPasswordToken
   )
   var db = new DB()
 
@@ -54,7 +54,7 @@ function main() {
   var CC = require('compute-cluster')
   var signer = new CC({ module: __dirname + '/signer.js' })
 
-  var routes = require('../routes')(log, serverPublicKey, signer, db, mailer, config)
+  var routes = require('../routes')(log, serverPublicKey, signer, db, mailer, Token, config)
   var Server = require('../server')
   var server = Server.create(log, config, routes, db)
 

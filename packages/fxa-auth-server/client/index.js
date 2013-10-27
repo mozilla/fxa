@@ -7,10 +7,8 @@ var P = require('p-promise')
 var srp = require('srp')
 
 var ClientApi = require('./api')
-var models = require('../models')({ trace: function () {}},{},{})
 var keyStretch = require('./keystretch')
-var tokens = models.tokens
-var AuthBundle = models.AuthBundle
+var tokens = require('../tokens')({ trace: function () {}})
 
 function Client(origin) {
   this.uid = null
@@ -275,10 +273,10 @@ Client.prototype.auth = function (callback) {
     .then(
       function (json) {
 
-        return AuthBundle.create(K, 'auth/finish')
+        return tokens.createFromHKDF(K, 'auth/finish')
           .then(
-          function (b) {
-            return b.unbundle(json.bundle)
+          function (t) {
+            return t.unbundle(json.bundle)
           }
         )
       }.bind(this)

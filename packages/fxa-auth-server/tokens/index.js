@@ -8,13 +8,13 @@ var inherits = require('util').inherits
 var P = require('p-promise')
 var srp = require('srp')
 var uuid = require('uuid')
+var hkdf = require('../hkdf')
 
-var Bundle = require('../bundle')
 var error = require('./error')
 
 module.exports = function (log) {
 
-  var Token = require('./token')(log, inherits, Bundle)
+  var Token = require('./token')(log, crypto, P, hkdf, error)
 
   var KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, error)
   var AccountResetToken = require('./account_reset_token')(
@@ -39,13 +39,13 @@ module.exports = function (log) {
     error
   )
 
-  return {
-    error: error,
-    AccountResetToken: AccountResetToken,
-    KeyFetchToken: KeyFetchToken,
-    SessionToken: SessionToken,
-    AuthToken: AuthToken,
-    ForgotPasswordToken: ForgotPasswordToken,
-    SrpToken: SrpToken
-  }
+  Token.error = error
+  Token.AccountResetToken = AccountResetToken
+  Token.KeyFetchToken = KeyFetchToken
+  Token.SessionToken = SessionToken
+  Token.AuthToken = AuthToken
+  Token.ForgotPasswordToken = ForgotPasswordToken
+  Token.SrpToken = SrpToken
+
+  return Token
 }

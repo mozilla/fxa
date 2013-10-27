@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, db, Bundle) {
+module.exports = function (log, isA, error, db, Token) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -19,10 +19,10 @@ module.exports = function (log, isA, error, db, Bundle) {
   }
 
   function bundleAuth(K, authToken) {
-    return Bundle.hkdf(K, 'auth/finish', null, 2 * 32)
+    return Token.hkdf(K, 'auth/finish', null, 2 * 32)
       .then(
         function (key) {
-          var b = new Bundle()
+          var b = new Token()
           b.hmacKey = key.slice(0, 32).toString('hex')
           b.xorKey =  key.slice(32, 64).toString('hex')
           return {
