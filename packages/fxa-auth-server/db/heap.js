@@ -1,19 +1,15 @@
-var inherits = require('util').inherits
 var P = require('p-promise')
-var uuid = require('uuid')
-var srp = require('srp')
-var Bundle = require('../bundle')
-var error = require('../models/error')
 
-module.exports = function (log) {
-
-	var Token = require('../models/token')(log, inherits, Bundle)
-	var AuthToken = require('../models/auth_token')(log, inherits, Token)
-	var SessionToken = require('../models/session_token')(log, inherits, Token)
-	var KeyFetchToken = require('../models/key_fetch_token')(log, inherits, Token)
-	var AccountResetToken = require('../models/account_reset_token')(log, inherits, Token)
-	var SrpToken = require('../models/srp_session')(log, P, uuid, srp, error)
-	var ForgotPasswordToken = require('../models/forgot_password_token')(log, inherits, Token)
+module.exports = function (
+	log,
+	error,
+	AuthToken,
+	SessionToken,
+	KeyFetchToken,
+	AccountResetToken,
+	SrpToken,
+	ForgotPasswordToken
+	) {
 
 	function Heap() {
 		this.sessionTokens = {}

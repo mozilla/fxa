@@ -9,7 +9,7 @@ module.exports = function (log, P, uuid, srp, error) {
 
   var alg = 'sha256'
 
-  function SrpSession() {
+  function SrpToken() {
     this.id = null
     this.uid = null
     this.N = null
@@ -38,13 +38,13 @@ module.exports = function (log, P, uuid, srp, error) {
     return d.promise
   }
 
-  SrpSession.create = function (account) {
-    log.trace({ op: 'SrpSession.create', uid: account && account.uid })
+  SrpToken.create = function (account) {
+    log.trace({ op: 'SrpToken.create', uid: account && account.uid })
     var session = null
     return srpGenKey()
       .then(
         function (b) {
-          session = new SrpSession()
+          session = new SrpToken()
           session.id = uuid.v4()
           session.uid = account.uid
           session.N = srp.params[2048].N
@@ -59,7 +59,7 @@ module.exports = function (log, P, uuid, srp, error) {
       )
   }
 
-  SrpSession.prototype.finish = function (A, M1) {
+  SrpToken.prototype.finish = function (A, M1) {
     A = Buffer(A, 'hex')
     var N = srp.params[2048].N
     var S = srp.server_getS(
@@ -81,7 +81,7 @@ module.exports = function (log, P, uuid, srp, error) {
     return this
   }
 
-  SrpSession.client2 = function (session, email, password) {
+  SrpToken.client2 = function (session, email, password) {
     return srpGenKey()
       .then(
         function (a) {
@@ -111,5 +111,5 @@ module.exports = function (log, P, uuid, srp, error) {
       )
   }
 
-  return SrpSession
+  return SrpToken
 }
