@@ -2,20 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail) {
+module.exports = function (log, crypto, uuid, isA, error, db, mailer, config) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function sendVerifyCode(email, emailCode) {
-    //TODO
+  function sendVerifyCode(email, emailCode, uid) {
+    return mailer.sendVerifyCode(
+      Buffer(email, 'hex').toString('utf8'),
+      emailCode,
+      uid
+    )
   }
 
   function bundleKeys(keyFetchToken, kA, wrapKb) {
-
+    return keyFetchToken.bundle(kA, wrapKb)
   }
 
-  function unbundleReset(bundle) {
-
+  function unbundleReset(accountResetToken, bundle) {
+    return accountResetToken.unbundle(bundle)
   }
 
   var routes = [
@@ -63,7 +67,7 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
                   uid: uuid.v4(),
                   email: form.email,
                   emailCode: crypto.randomBytes(4).toString('hex'),
-                  verified: false,
+                  verified: false || config.dev.verified,
                   srp: form.srp,
                   kA: crypto.randomBytes(32).toString('hex'),
                   wrapKb: crypto.randomBytes(32).toString('hex'),
@@ -74,11 +78,16 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
                 }
               )
             )
-            .then(
-              function (account) {
-                return sendVerifyCode(account.email, account.emailCode)
-              }
-            )
+            // .then(
+            //   function (account) {
+            //     return sendVerifyCode(
+            //       account.email,
+            //       account.emailCode,
+            //       account.uid
+            //     )
+            //     .then(function () { return account })
+            //   }
+            // )
             .done(
               function (account) {
                 request.reply(
@@ -285,7 +294,7 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
           var reply = request.reply.bind(request)
           var accountResetToken = request.auth.credentials
           var payload = request.payload
-          var unbundle = unbundleReset(payload.bundle)
+          var unbundle = unbundleReset(accountResetToken, payload.bundle)
           payload.wrapKb = unbundle.wrapKb
           payload.srp.verifier = unbundle.verifier
 

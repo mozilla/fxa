@@ -29,15 +29,12 @@ function main() {
   memoryMonitor.start()
 
   // databases
-  //var dbs = require('../kv')(config, log)
-  var db = require('../db/heap')(log)
+  var DB = require('../db/heap')(log)
+  var db = new DB()
 
   // TODO: send to the SMTP server directly. In the future this may change
   // to another process that we send an http request to.
   var mailer = require('../mailer')(config.smtp, log)
-
-  // stored objects
-  //var models = require('../models')(log, config, dbs, mailer)
 
   // server public key
   var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
@@ -46,7 +43,7 @@ function main() {
   var CC = require('compute-cluster')
   var signer = new CC({ module: __dirname + '/signer.js' })
 
-  var routes = require('../routes')(log, serverPublicKey, signer, db, config)
+  var routes = require('../routes')(log, serverPublicKey, signer, db, mailer, config)
   var Server = require('../server')
   var server = Server.create(log, config, routes, db)
 

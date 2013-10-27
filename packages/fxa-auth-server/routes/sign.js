@@ -38,7 +38,7 @@ module.exports = function (log, isA, error, signer, domain) {
           }
           signer.enqueue(
             {
-              email: uid + '@' + domain,
+              email: sessionToken.uid + '@' + domain,
               publicKey: JSON.stringify(request.payload.publicKey),
               duration: request.payload.duration
             },

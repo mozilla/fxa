@@ -20,7 +20,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
 
     function makeCredentialFn(dbGetFn) {
       return function (id, cb) {
-        log.trace({ op: 'db.' + dbGetFn.name, id: id })
+        log.trace({ op: 'DB.getToken', id: id })
         dbGetFn(id)
           .done(
             cb.bind(null, null),
@@ -37,27 +37,27 @@ module.exports = function (path, url, Hapi, toobusy, error) {
           sessionToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.sessionToken)
+            getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db))
           },
           keyFetchToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.keyFetchToken)
+            getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db))
           },
           accountResetToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.accountResetToken)
+            getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db))
           },
           authToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.authToken)
+            getCredentialsFunc: makeCredentialFn(db.authToken.bind(db))
           },
           forgotPasswordToken: {
             scheme: 'hawk',
             hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.forgotPasswordToken)
+            getCredentialsFunc: makeCredentialFn(db.forgotPasswordToken.bind(db))
           }
         },
         cors: true,

@@ -2,24 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, db) {
+module.exports = function (log, isA, error, db, mailer) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+  const FPT_LIFETIME = 1000 * 60 * 15
 
   function bundleAccountReset(authToken, keyFetchToken, accountResetToken) {
-    //TODO
+    return authToken.bundleKeys('password/change', keyFetchToken, accountResetToken)
   }
 
   function sendRecoveryCode(forgotPasswordToken) {
-    //TODO
+    log.trace({ op: 'sendRecoveryCode', id: forgotPasswordToken.id })
+    return mailer.sendRecoveryCode(
+      Buffer(forgotPasswordToken.email, 'hex').toString(),
+      forgotPasswordToken.passcode
+    )
   }
 
   function ttl(forgotPasswordToken) {
-
+    return Math.max(
+      Math.ceil((FPT_LIFETIME - (Date.now() - forgotPasswordToken.created)) / 1000),
+      0
+    )
   }
 
-  function failAttempt(forgotPasswordToken) {
-
+  function failVerifyAttempt(forgotPasswordToken) {
+    forgotPasswordToken.tries--
+    return (forgotPasswordToken.tries < 1) ?
+      db.deleteForgotPasswordToken(forgotPasswordToken) :
+      db.updateForgotPasswordToken(forgotPasswordToken)
   }
 
   var routes = [
@@ -38,11 +49,11 @@ module.exports = function (log, isA, error, db) {
           var authToken = request.auth.credentials
           db.createPasswordChange(authToken)
             .then(
-              function () {
+              function (tokens) {
                 return bundleAccountReset(
                   authToken,
-                  keyFetchToken,
-                  accountResetToken
+                  tokens.keyFetchToken,
+                  tokens.accountResetToken
                 )
               }
             )
@@ -184,9 +195,9 @@ module.exports = function (log, isA, error, db) {
               )
           }
           else {
-            failAttempt(forgotPasswordToken)
+            failVerifyAttempt(forgotPasswordToken)
               .done(
-                function (t) {
+                function () {
                   request.reply(
                     error.invalidVerificationCode({
                       tries: forgotPasswordToken.tries,
