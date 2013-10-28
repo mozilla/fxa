@@ -221,6 +221,14 @@ module.exports = function (fs, path, url, convict) {
         default: path.resolve(__dirname, '../templates/email')
       }
     },
+    toobusy: {
+      max_lag: {
+        doc: "Max event-loop lag before toobusy reports failure",
+        default: 70,
+        format: 'nat',
+        env: 'TOOBUSY_MAX_LAG'
+      }
+    },
     dev: {
       verified: {
         doc: 'new Accounts should start already verified',
