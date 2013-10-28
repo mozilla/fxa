@@ -51,14 +51,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
         },
         cors: true,
         files: {
-          relativeTo: __dirname
-        },
-        views: {
-          basePath: __dirname,
-          path: 'templates',
-          engines: {
-            html: 'handlebars'
-          }
+          relativeTo: path.dirname(__dirname)
         }
       }
     )
