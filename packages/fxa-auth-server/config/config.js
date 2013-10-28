@@ -225,7 +225,6 @@ module.exports = function (fs, path, url, convict) {
       max_lag: {
         doc: "Max event-loop lag before toobusy reports failure",
         default: 70,
-        format: 'nat',
         env: 'TOOBUSY_MAX_LAG'
       }
     },
