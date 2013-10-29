@@ -10,8 +10,14 @@
     "test": "tap ./test/run",
     "start": "scripts/start-local.sh"
   },
-  "repository": "git://github.com/mozilla/picl-idp.git",
+  "repository": {
+    "type":"git",
+    "url": "git://github.com/mozilla/picl-idp.git"
+  },
+  "bugs": "https://github.com/mozilla/picl-idp/issues/",
+  "homepage": "https://github.com/mozilla/picl-idp/",
   "license": "MPL 2.0",
+  "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "engines": {
     "node": "0.10.x"
