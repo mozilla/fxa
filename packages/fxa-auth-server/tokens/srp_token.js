@@ -7,15 +7,11 @@ var crypto = require('crypto')
 
 module.exports = function (log, P, uuid, srp, error) {
 
-  var alg = 'sha256'
-
   function SrpToken() {
     this.id = null
     this.uid = null
-    this.N = null
-    this.g = null
-    this.s = null
     this.v = null
+    this.s = null
     this.b = null
     this.B = null
     this.K = null
@@ -44,15 +40,18 @@ module.exports = function (log, P, uuid, srp, error) {
     return srpGenKey()
       .then(
         function (b) {
+          var srpServer = new srp.Server(
+            srp.params[2048],
+            Buffer(account.srp.verifier, 'hex'),
+            b
+          )
           t = new SrpToken()
           t.id = uuid.v4()
           t.uid = account.uid
-          t.N = srp.params[2048].N
-          t.g = srp.params[2048].g
-          t.s = account.srp.salt
           t.v = Buffer(account.srp.verifier, 'hex')
           t.b = b
-          t.B = srp.getB(t.v, t.g, b, t.N, alg)
+          t.s = account.srp.salt
+          t.B = srpServer.computeB()
           t.passwordStretching = account.passwordStretching
           return t
         }
@@ -61,23 +60,19 @@ module.exports = function (log, P, uuid, srp, error) {
 
   SrpToken.prototype.finish = function (A, M1) {
     A = Buffer(A, 'hex')
-    var N = srp.params[2048].N
-    var S = srp.server_getS(
-      Buffer(this.s, 'hex'),
+    var srpServer = new srp.Server(
+      srp.params[2048],
       this.v,
-      N,
-      srp.params[2048].g,
-      A,
-      this.b,
-      alg
+      this.b
     )
-    var M2 = srp.getM(A, this.B, S, N)
-    if (M1 !== M2.toString('hex')) {
-      // TODO: increment bad guess counter
-      // TODO: delete this?
+    srpServer.setA(A)
+    try {
+      srpServer.checkM1(Buffer(M1, 'hex'))
+    }
+    catch (e) {
       throw error.incorrectPassword()
     }
-    this.K = srp.getK(S, N, alg)
+    this.K = srpServer.computeK()
     return this
   }
 
@@ -97,23 +92,19 @@ module.exports = function (log, P, uuid, srp, error) {
     return srpGenKey()
       .then(
         function (a) {
-          var N = srp.params[2048].N
-          var g = srp.params[2048].g
-          var A = srp.getA(g, a, N)
-          var B = Buffer(session.srp.B, 'hex')
-          var S = srp.client_getS(
+          var srpClient = new srp.Client(
+            srp.params[2048],
             Buffer(session.srp.salt, 'hex'),
             Buffer(email),
             Buffer(password),
-            N,
-            g,
-            a,
-            B,
-            session.srp.alg
+            a
           )
+          srpClient.setB(Buffer(session.srp.B, 'hex'))
 
-          var M = srp.getM(A, B, S, N)
-          var K = srp.getK(S, N, 'sha256')
+          var A = srpClient.computeA()
+          var M = srpClient.computeM1()
+          var K = srpClient.computeK()
+
           return {
             A: A.toString('hex'),
             M: M.toString('hex'),

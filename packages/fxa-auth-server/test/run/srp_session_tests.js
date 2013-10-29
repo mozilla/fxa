@@ -31,13 +31,11 @@ var alice = {
   wrapKb: 'BAD4'
 }
 
-alice.srp.verifier = srp.getv(
+alice.srp.verifier = srp.computeVerifier(
+  srp.params[2048],
   Buffer(alice.srp.salt, 'hex'),
   Buffer(alice.email),
-  Buffer(alice.password),
-  srp.params[2048].N,
-  srp.params[2048].g,
-  'sha256'
+  Buffer(alice.password)
 ).toString('hex')
 
 db.createAccount(alice)
