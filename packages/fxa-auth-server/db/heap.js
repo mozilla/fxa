@@ -39,6 +39,10 @@ module.exports = function (
 		}
 	}
 
+	Heap.connect = function () {
+		return P(new Heap())
+	}
+
 	Heap.prototype.ping = function () {
 		return P(true)
 	}

@@ -1,6 +1,5 @@
 {
-  "kvstore": {
-    "cache": "memcached",
+  "db": {
     "backend": "mysql"
   },
   "mysql": {

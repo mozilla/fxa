@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "srp": "git://github.com/dannycoates/node-srp.git#b95b9528ec",
+    "mysql": "0.9.6",
     "uuid": "1.4.1",
     "hapi": "1.14.0",
     "hawk": "1.1.2",

@@ -30,8 +30,22 @@ function main() {
 
   var Token = require('../tokens')(log)
 
+  //signer compute-cluster
+  var CC = require('compute-cluster')
+  var signer = new CC({ module: __dirname + '/signer.js' })
+
+  var Server = require('../server')
+  var server = null
+  // TODO: send to the SMTP server directly. In the future this may change
+  // to another process that we send an http request to.
+  var mailer = require('../mailer')(config.smtp, log)
+
+  // server public key
+  var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
+
   // databases
-  var DB = require('../db/heap')(
+  var DB = require('../db')(
+    config,
     log,
     Token.error,
     Token.AuthToken,
@@ -41,28 +55,23 @@ function main() {
     Token.SrpToken,
     Token.ForgotPasswordToken
   )
-  var db = new DB()
+  DB.connect()
+    .then(
+      function (db) {
+        var routes = require('../routes')(log, serverPublicKey, signer, db, mailer, Token, config)
+        server = Server.create(log, config, routes, db)
 
-  // TODO: send to the SMTP server directly. In the future this may change
-  // to another process that we send an http request to.
-  var mailer = require('../mailer')(config.smtp, log)
-
-  // server public key
-  var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
-
-  //signer compute-cluster
-  var CC = require('compute-cluster')
-  var signer = new CC({ module: __dirname + '/signer.js' })
-
-  var routes = require('../routes')(log, serverPublicKey, signer, db, mailer, Token, config)
-  var Server = require('../server')
-  var server = Server.create(log, config, routes, db)
-
-  server.start(
-    function () {
-      log.info('running on ' + server.info.uri)
-    }
-  )
+        server.start(
+          function () {
+            log.info('running on ' + server.info.uri)
+          }
+        )
+      },
+      function (err) {
+        log.error({ op: 'DB.connect', err: err.message })
+        process.exit(1)
+      }
+    )
 
   process.on(
     'SIGINT',

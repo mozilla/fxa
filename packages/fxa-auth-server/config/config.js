@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (fs, path, url, convict) {
-  const AVAILABLE_BACKENDS = ["memory", "mysql", "memcached", "cassandra"]
-  const STATS_BACKENDS = ['none', 'heka', 'statsd']
-
+  const AVAILABLE_BACKENDS = ["memory", "mysql"]
 
   var conf = convict({
     env: {
@@ -35,12 +33,7 @@ module.exports = function (fs, path, url, convict) {
     publicKeyFile: {
       default: path.resolve(__dirname, '../config/public-key.json')
     },
-    kvstore: {
-      cache: {
-        format: AVAILABLE_BACKENDS,
-        default: 'memory',
-        env: 'KVSTORE_CACHE'
-      },
+    db: {
       backend: {
         format: AVAILABLE_BACKENDS,
         default: "memory",
@@ -49,14 +42,6 @@ module.exports = function (fs, path, url, convict) {
       available_backends: {
         doc: "List of available key-value stores",
         default: AVAILABLE_BACKENDS
-      }
-    },
-    memcached: {
-      hosts: {
-        default: '127.0.0.1:11211'
-      },
-      lifetime: {
-        default: 1000 * 60 * 2
       }
     },
     mysql: {
@@ -115,29 +100,6 @@ module.exports = function (fs, path, url, convict) {
         doc: "Thes url of the bridge server",
         default: 'http://127.0.0.1:3030',
         env: 'FAB_URL'
-      }
-    },
-    stats: {
-      backend: {
-        format: STATS_BACKENDS,
-        default: 'none',
-        env: 'STATS_BACKEND'
-      }
-    },
-    heka: {
-      host: {
-        default: '127.0.0.1'
-      },
-      port: {
-        default: 4880
-      }
-    },
-    statsd: {
-      host: {
-        default: '127.0.0.1',
-      },
-      port: {
-        default: 8125
       }
     },
     srp: {
