@@ -124,13 +124,13 @@ module.exports = function (
   MySql.prototype.createSessionToken = function (authToken) {
     var d = P.defer()
     log.trace({ op: 'MySql.createSessionToken', uid: authToken && authToken.uid })
-    var sql = 'INSERT INTO sessionTokens (id, uid, data) VALUES (?, ?, ?)'
+    var sql = 'INSERT INTO sessionTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
     SessionToken.create(authToken.uid)
       .then(
         function (sessionToken) {
           this.client.query(
             sql,
-            [sessionToken.id, sessionToken.uid, sessionToken.data],
+            [sessionToken.id, sessionToken.data, sessionToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(sessionToken)
@@ -144,13 +144,13 @@ module.exports = function (
   MySql.prototype.createKeyFetchToken = function (authToken) {
     var d = P.defer()
     log.trace({ op: 'MySql.createKeyFetchToken', uid: authToken && authToken.uid })
-    var sql = 'INSERT INTO keyFetchTokens (id, uid, data) VALUES (?, ?, ?)'
+    var sql = 'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
     KeyFetchToken.create(authToken.uid)
       .then(
         function (keyFetchToken) {
           this.client.query(
             sql,
-            [keyFetchToken.id, keyFetchToken.uid, keyFetchToken.data],
+            [keyFetchToken.id, keyFetchToken.data, keyFetchToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(keyFetchToken)
@@ -164,19 +164,33 @@ module.exports = function (
   MySql.prototype.createAccountResetToken = function (token /* authToken|forgotPasswordToken */) {
     var d = P.defer()
     log.trace({ op: 'MySql.createAccountResetToken', uid: token && token.uid })
-    var sql = 'REPLACE INTO accountResetTokens (id, uid, data) VALUES (?, ?, ?)'
+    var sql = 'REPLACE INTO resetTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
+    AccountResetToken.create(token.uid)
+      .then(
+        function (accountResetToken) {
+          this.client.query(
+            sql,
+            [accountResetToken.id, accountResetToken.data, accountResetToken.uid],
+            function (err) {
+              if (err) return d.reject(err)
+              d.resolve(accountResetToken)
+            }
+          )
+        }.bind(this)
+      )
+    return d.promise
   }
 
   MySql.prototype.createAuthToken = function (srpToken) {
     var d = P.defer()
     log.trace({ op: 'MySql.createAuthToken', uid: srpToken && srpToken.uid })
-    var sql = 'INSERT INTO authTokens (id, uid, data) VALUES (?, ?, ?)'
+    var sql = 'INSERT INTO authTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
     AuthToken.create(srpToken.uid)
       .then(
         function (authToken) {
           this.client.query(
             sql,
-            [authToken.id, authToken.uid, authToken.data],
+            [authToken.id, authToken.data, authToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(authToken)
@@ -190,13 +204,13 @@ module.exports = function (
   MySql.prototype.createSrpToken = function (emailRecord) {
     var d = P.defer()
     log.trace({ op: 'MySql.createSrpToken', uid: emailRecord && emailRecord.uid })
-    var sql = 'INSERT INTO srpTokens (id, uid, s, v, b) VALUES (?, ?, ?, ?, ?)'
+    var sql = 'INSERT INTO srpTokens (tokenid, tokendata, uid, srpB) VALUES (?, ?, ?, ?)'
     SrpToken.create(emailRecord)
       .then(
         function (srpToken) {
           this.client.query(
             sql,
-            [srpToken.id, srpToken.uid, srpToken.s, srpToken.v, srpToken.b],
+            [srpToken.id, srpToken.b.toString("hex"), srpToken.uid, srpToken.B.toString("hex")],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(srpToken)
@@ -210,7 +224,7 @@ module.exports = function (
   MySql.prototype.createForgotPasswordToken = function (emailRecord) {
     var d = P.defer()
     log.trace({ op: 'MySql.createForgotPasswordToken', uid: emailRecord && emailRecord.uid })
-    var sql = 'REPLACE INTO forgotPasswordTokens (id, uid, data, email, passcode, created, tries) VALUES (?, ?, ?, ?, ?, ?, ?)'
+    var sql = 'REPLACE INTO forgotpwdTokens (tokenid, tokendata, uid, passcode, created, tries) VALUES (?, ?, ?, ?, ?, ?)'
     ForgotPasswordToken.create(emailRecord.uid, emailRecord.email)
       .then(
         function (forgotPasswordToken) {
@@ -218,9 +232,8 @@ module.exports = function (
             sql,
             [
               forgotPasswordToken.id,
-              forgotPasswordToken.uid,
               forgotPasswordToken.data,
-              forgotPasswordToken.email,
+              forgotPasswordToken.uid,
               forgotPasswordToken.passcode,
               forgotPasswordToken.created,
               forgotPasswordToken.tries
@@ -270,7 +283,8 @@ module.exports = function (
   MySql.prototype.sessionToken = function (id) {
     var d = P.defer()
     log.trace({ op: 'MySql.sessionToken', id: id })
-    var sql = 'SELECT t.data AS data, t.uid AS uid, a.verified AS verified, a.email AS email, a.emailcode AS emailcode FROM sessionTokens t, accounts a WHERE t.id = ? AND t.uid = a.uid'
+    var sql = 'SELECT t.tokendata, t.uid, a.verified, a.email, a.emailCode' +
+              '  FROM sessionTokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'
     this.client.query(
       sql,
       [id],
@@ -278,13 +292,13 @@ module.exports = function (
         if (err) return d.reject(err)
         if (!results.length) return d.reject(error.invalidToken())
         var result = results[0]
-        SessionToken.fromHex(result.data)
+        SessionToken.fromHex(result.tokendata)
           .done(
             function (sessionToken) {
               sessionToken.uid = result.uid
-              sessionToken.verified = result.verified
               sessionToken.email = result.email
-              sessionToken.emailCode = result.emailcode
+              sessionToken.emailCode = result.emailCode
+              sessionToken.verified = !!result.verified
               return d.resolve(sessionToken)
             }
           )
@@ -296,7 +310,8 @@ module.exports = function (
   MySql.prototype.keyFetchToken = function (id) {
     var d = P.defer()
     log.trace({ op: 'MySql.keyFetchToken', id: id })
-    var sql = 'SELECT t.data AS data, t.uid AS uid, a.verified AS verified, a.kA AS ka, a.wrapKb AS wrapkb FROM keyfetch_tokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'
+    var sql = 'SELECT t.tokendata, t.uid, a.verified, a.kA, a.wrapKb ' +
+              '  FROM keyfetchTokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'
     this.client.query(
       sql,
       [id],
@@ -304,13 +319,13 @@ module.exports = function (
         if (err) return d.reject(err)
         if (!results.length) return d.reject(error.invalidToken())
         var result = results[0]
-        KeyFetchToken.fromHex(result.data)
+        KeyFetchToken.fromHex(result.tokendata)
           .done(
             function (keyFetchToken) {
               keyFetchToken.uid = result.uid
-              keyFetchToken.kA = result.ka
-              keyFetchToken.wrapKb = result.wrapkb
-              keyFetchToken.verified = result.verified
+              keyFetchToken.kA = result.kA
+              keyFetchToken.wrapKb = result.wrapKb
+              keyFetchToken.verified = !!result.verified
               return d.resolve(keyFetchToken)
             }
           )
@@ -322,7 +337,7 @@ module.exports = function (
   MySql.prototype.accountResetToken = function (id) {
     var d = P.defer()
     log.trace({ op: 'MySql.accountResetToken', id: id })
-    var sql = 'SELECT uid, data FROM accountResetTokens WHERE id = ?'
+    var sql = 'SELECT uid, tokendata FROM resetTokens WHERE tokenid = ?'
     this.client.query(
       sql,
       [id],
@@ -330,7 +345,7 @@ module.exports = function (
         if (err) return d.reject(err)
         if (!results.length) return d.reject(error.invalidToken())
         var result = results[0]
-        AccountResetToken.fromHex(result.data)
+        AccountResetToken.fromHex(result.tokendata)
           .done(
             function (accountResetToken) {
               accountResetToken.uid = result.uid
@@ -345,7 +360,7 @@ module.exports = function (
   MySql.prototype.authToken = function (id) {
     var d = P.defer()
     log.trace({ op: 'MySql.authToken', id: id })
-    var sql = 'SELECT uid, data FROM authTokens WHERE id = ?'
+    var sql = 'SELECT uid, tokendata FROM authTokens WHERE tokenid = ?'
     this.client.query(
       sql,
       [id],
@@ -353,7 +368,7 @@ module.exports = function (
         if (err) return d.reject(err)
         if (!results.length) return d.reject(error.invalidToken())
         var result = results[0]
-        AuthToken.fromHex(result.data)
+        AuthToken.fromHex(result.tokendata)
           .done(
             function (authToken) {
               authToken.uid = result.uid
@@ -368,15 +383,9 @@ module.exports = function (
   MySql.prototype.srpToken = function (id) {
     var d = P.defer()
     log.trace({ op: 'MySql.srpToken', id: id })
-    var sql = 'SELECT uid, bits, s, v, b FROM srpTokens WHERE id = ?'
-    // TODO merge srp 0.2 first
-    return d.promise
-  }
-
-  MySql.prototype.forgotPasswordToken = function (id) {
-    var d = P.defer()
-    log.trace({ op: 'MySql.forgotPasswordToken', id: id })
-    var sql = 'SELECT uid, data, email, passcode, created, tries FROM forgotPasswordTokens WHERE id = ?'
+    var sql = 'SELECT t.tokendata, t.uid, t.srpB, a.srp ' +
+              '  FROM srpTokens t, accounts a ' +
+              '  WHERE t.tokenid = ? AND t.uid = a.uid'
     this.client.query(
       sql,
       [id],
@@ -384,7 +393,34 @@ module.exports = function (
         if (err) return d.reject(err)
         if (!results.length) return d.reject(error.invalidToken())
         var result = results[0]
-        ForgotPasswordToken.fromHex(result.data)
+        var token = new SrpToken()
+        // TODO revisit after merging srp 0.2 
+        var srpData = JSON.parse(result.srp)
+        token.id = id
+        token.uid = result.uid
+        token.v = new Buffer(srpData.verifier, 'hex')
+        token.s = srpData.salt
+        token.b = Buffer(result.tokendata, 'hex').toString()
+        token.B = Buffer(result.srpB, 'hex').toString()
+        return d.resolve(token)
+      }
+    )
+    return d.promise
+  }
+
+  MySql.prototype.forgotPasswordToken = function (id) {
+    var d = P.defer()
+    log.trace({ op: 'MySql.forgotPasswordToken', id: id })
+    var sql = 'SELECT t.tokendata, t.uid, a.email, t.passcode, t.created, t.tries  ' +
+              ' FROM forgotpwdTokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'
+    this.client.query(
+      sql,
+      [id],
+      function (err, results) {
+        if (err) return d.reject(err)
+        if (!results.length) return d.reject(error.invalidToken())
+        var result = results[0]
+        ForgotPasswordToken.fromHex(result.tokendata)
           .done(
             function (forgotPasswordToken) {
               forgotPasswordToken.uid = result.uid
@@ -403,7 +439,7 @@ module.exports = function (
   MySql.prototype.emailRecord = function (email) { // TODO authdata
     var d = P.defer()
     log.trace({ op: 'MySql.emailRecord', email: email })
-    var sql = 'SELECT uid, srp, passwordStretching FROM accounts WHERE email = ?'
+    var sql = 'SELECT uid, verified, srp, passwordStretching FROM accounts WHERE email = ?'
     this.client.query(
       sql,
       [email],
@@ -413,6 +449,8 @@ module.exports = function (
         var result = results[0]
         return d.resolve({
           uid: result.uid,
+          email: email,
+          verified: !!result.verified,
           srp: JSON.parse(result.srp),
           passwordStretching: JSON.parse(result.passwordStretching)
         })
@@ -424,7 +462,8 @@ module.exports = function (
   MySql.prototype.account = function (uid) {
     var d = P.defer()
     log.trace({ op: 'MySql.account', uid: uid })
-    var sql = 'SELECT email, emailCode, verified, srp, kA, wrapKb, passwordStretching FROM accounts WHERE uid = ?'
+    var sql = 'SELECT email, emailCode, verified, srp, kA, wrapKb, passwordStretching ' +
+              '  FROM accounts WHERE uid = ?'
     this.client.query(
       sql,
       [uid],
@@ -435,12 +474,12 @@ module.exports = function (
         return d.resolve({
           uid: uid,
           email: result.email,
-          emailCode: result.emailcode,
-          verified: result.verified,
-          kA: result.ka,
-          wrapKb: result.wrapkb,
+          emailCode: result.emailCode,
+          verified: !!result.verified,
+          kA: result.kA,
+          wrapKb: result.wrapKb,
           srp: JSON.parse(result.srp),
-          passwordStretching: JSON.parse(result.passwordstretching)
+          passwordStretching: JSON.parse(result.passwordStretching)
         })
       }
     )
@@ -452,10 +491,10 @@ module.exports = function (
   MySql.prototype.updateForgotPasswordToken = function (forgotPasswordToken) {
     var d = P.defer()
     log.trace({ op: 'MySql.udateForgotPasswordToken', uid: forgotPasswordToken && forgotPasswordToken.uid })
-    var sql = 'UPDATE forgotPasswordTokens SET tries = ? WHERE id = ?'
+    var sql = 'UPDATE forgotpwdTokens SET tries = ? WHERE tokenid = ?'
     this.client.query(
       sql,
-      [forgotPasswordToken.tries, id],
+      [forgotPasswordToken.tries, forgotPasswordToken.id],
       function (err) {
         if (err) return d.reject(err)
         d.resolve(true)
@@ -468,25 +507,29 @@ module.exports = function (
 
   MySql.prototype.deleteAccount = function (authToken) {
     var d = P.defer()
+    d.resolve(true)
+    d = d.promise
     log.trace({ op: 'MySql.deleteAccount', uid: authToken && authToken.uid })
-    var sql = 'BEGIN TRANSACTION\n' +
-      'DELETE FROM sessionTokens WHERE uid = ?\n' +
-      'DELETE FROM keyFetchTokens WHERE uid = ?\n' +
-      'DELETE FROM authTokens WHERE uid = ?\n' +
-      'DELETE FROM srpTokens WHERE uid = ?\n' +
-      'DELETE FROM accountResetTokens WHERE uid = ?\n' +
-      'DELETE FROM forgotPasswordTokens WHERE uid = ?\n' +
-      'DELETE FROM accounts WHERE uid = ?\n' +
-      'COMMIT'
-    this.client.query(
-      sql,
-      [authToken.uid], //TODO ??
-      function (err) {
-        if (err) return d.reject(err)
-        d.resolve(true)
-      }
-    )
-    return d.promise
+    // TODO: transactions not working with our mysql driver.
+    // For now we just delete in a safe, sensible order.
+    var tables = ['sessionTokens', 'keyfetchTokens', 'authTokens', 'srpTokens',
+                  'resetTokens', 'forgotpwdTokens', 'accounts']
+    tables.forEach(function(table) {
+      var sql = 'DELETE FROM ' + table + ' WHERE uid = ?'
+      d = d.then(function() {
+        var d2 = P.defer()
+        this.client.query(
+          sql,
+          [authToken.uid],
+          function (err) {
+            if (err) return d2.reject(err)
+            d2.resolve(true)
+          }
+        )
+        return d2.promise
+      }.bind(this))
+    }.bind(this))
+    return d
   }
 
   MySql.prototype.deleteSessionToken = function (sessionToken) {
@@ -498,7 +541,7 @@ module.exports = function (
         uid: sessionToken && sessionToken.uid
       }
     )
-    var sql = 'DELETE FROM sessionTokens WHERE id = ?'
+    var sql = 'DELETE FROM sessionTokens WHERE tokenid = ?'
     this.client.query(
       sql,
       [sessionToken.id],
@@ -519,7 +562,7 @@ module.exports = function (
         uid: keyFetchToken && keyFetchToken.uid
       }
     )
-    var sql = 'DELETE FROM keyFetchTokens WHERE id = ?'
+    var sql = 'DELETE FROM keyfetchTokens WHERE tokenid = ?'
     this.client.query(
       sql,
       [keyFetchToken.id],
@@ -540,7 +583,7 @@ module.exports = function (
         uid: accountResetToken && accountResetToken.uid
       }
     )
-    var sql = 'DELETE FROM accountResetTokens WHERE id = ?'
+    var sql = 'DELETE FROM resetTokens WHERE tokenid = ?'
     this.client.query(
       sql,
       [accountResetToken.id],
@@ -561,7 +604,7 @@ module.exports = function (
         uid: authToken && authToken.uid
       }
     )
-    var sql = 'DELETE FROM authTokens WHERE id = ?'
+    var sql = 'DELETE FROM authTokens WHERE tokenid = ?'
     this.client.query(
       sql,
       [authToken.id],
@@ -582,7 +625,7 @@ module.exports = function (
         uid: srpToken && srpToken.uid
       }
     )
-    var sql = 'DELETE FROM srpTokens WHERE id = ?'
+    var sql = 'DELETE FROM srpTokens WHERE tokenid = ?'
     this.client.query(
       sql,
       [srpToken.id],
@@ -603,7 +646,7 @@ module.exports = function (
         uid: forgotPasswordToken && forgotPasswordToken.uid
       }
     )
-    var sql = 'DELETE FROM forgotPasswordTokens WHERE id = ?'
+    var sql = 'DELETE FROM forgotpwdTokens WHERE tokenid = ?'
     this.client.query(
       sql,
       [forgotPasswordToken.id],
@@ -621,11 +664,11 @@ module.exports = function (
     var d = P.defer()
     log.trace({ op: 'MySql.resetAccount', uid: accountResetToken && accountResetToken.uid })
     // TODO if wrapKb not changed
-    var sql = 'BEGIN TRANSACTION\n' +
-      'UPDATE accounts SET srp = ?, wrapKb = ?, passwordStretching = ? WHERE uid = ?\n' +
-      'DELETE FROM sessionTokens WHERE uid = ?\n' +
+    var sql = 'BEGIN;\n' +
+      'UPDATE accounts SET srp = ?, wrapKb = ?, passwordStretching = ? WHERE uid = ?;\n' +
+      'DELETE FROM sessionTokens WHERE uid = ?;\n' +
       // ...
-      'COMMIT'
+      'COMMIT;'
     this.client.query(
       sql,
       [
@@ -645,20 +688,25 @@ module.exports = function (
   MySql.prototype.authFinish = function (srpToken) {
     var d = P.defer()
     log.trace({ op: 'MySql.authFinish', uid: srpToken && srpToken.uid })
-    var sql = 'BEGIN TRANSACTION\n' +
-      'DELETE FROM srpTokens WHERE id = ?\n' +
-      'INSERT INTO authTokens (id, uid, data) VALUES (?, ?, ?)\n' +
-      'COMMIT'
+    // TODO: transactions not working with our mysql driver.
+    // For now we just delete in a sensible order.
     AuthToken.create(srpToken.uid)
       .then(
         function (authToken) {
           this.client.query(
-            sql,
-            [srpToken.id, authToken.id, authToken.uid, authToken.data], // TODO
+            'DELETE FROM srpTokens WHERE tokenid = ?',
+            [srpToken.id],
             function (err) {
               if (err) return d.reject(err)
-              d.resolve(authToken)
-            }
+              this.client.query(
+                'INSERT INTO authTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
+                [authToken.id, authToken.data, authToken.uid],
+                function (err) {
+                  if (err) return d.reject(err)
+                  d.resolve(authToken)
+                }
+              )
+            }.bind(this)
           )
         }.bind(this)
       )
@@ -668,11 +716,8 @@ module.exports = function (
   MySql.prototype.createSession = function (authToken) {
     var d = P.defer()
     log.trace({ op: 'MySql.createSession', uid: authToken && authToken.uid })
-    var sql = 'BEGIN TRANSACTION\n' +
-      'DELETE FROM authTokens WHERE id = ?\n' +
-      'INSERT INTO keyFetchTokens (id, uid, data) VALUES (?, ?, ?)\n' +
-      'INSERT INTO sessionTokens (id, uid, data) VALUES (?, ?, ?)\n' +
-      'COMMIT'
+    // TODO: transactions not working with nodejs driver.
+    // For now, we just insert one after the other and hope for best. :-(
     P.all(
       [
         KeyFetchToken.create(authToken.uid),
@@ -685,23 +730,29 @@ module.exports = function (
         var sessionToken = tokens[1]
 
         this.client.query(
-          sql,
-          [
-            authToken.id,
-            keyFetchToken.id,
-            keyFetchToken.uid,
-            keyFetchToken.data,
-            sessionToken.id,
-            sessionToken.uid,
-            sessionToken.data
-          ], //TODO
+          'DELETE FROM authTokens WHERE tokenid = ?',
+          [authToken.id],
           function (err) {
             if (err) return d.reject(err)
-            d.resolve({
-              keyFetchToken: keyFetchToken,
-              sessionToken: sessionToken
-            })
-          }
+            this.client.query(
+              'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
+              [keyFetchToken.id, keyFetchToken.data, keyFetchToken.uid],
+              function(err) {
+                if (err) return d.reject(err)
+                this.client.query(
+                  'INSERT INTO sessionTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
+                  [sessionToken.id, sessionToken.data, sessionToken.uid],
+                  function(err) {
+                    if (err) return d.reject(err)
+                    d.resolve({
+                      keyFetchToken: keyFetchToken,
+                      sessionToken: sessionToken
+                    })
+                  }
+                )
+              }.bind(this)
+            )
+          }.bind(this)
         )
       }.bind(this)
     )
@@ -726,11 +777,11 @@ module.exports = function (
   MySql.prototype.createPasswordChange = function (authToken) {
     var d = P.defer()
     log.trace({ op: 'MySql.createPasswordChange', uid: authToken && authToken.uid })
-    var sql = 'BEGIN TRANSACTION\n' +
-      'DELETE FROM authTokens WHERE id = ?\n' +
-      'INSERT INTO keyFetchTokens (id, uid, data) VALUES (?, ?, ?)\n' +
-      'REPLACE INTO accountResetTokens (id, uid, data) VALUES (?, ?, ?)\n' +
-      'COMMIT'
+    var sql = 'BEGIN;\n' +
+      'DELETE FROM authTokens WHERE id = ?;\n' +
+      'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?);\n' +
+      'REPLACE INTO resetTokens (tokenid, tokendata, uid) VALUES (?, ?, ?);\n' +
+      'COMMIT;'
     P.all(
       [
         KeyFetchToken.create(authToken.uid),
@@ -747,12 +798,12 @@ module.exports = function (
           [
             authToken.id,
             keyFetchToken.id,
-            keyFetchToken.uid,
             keyFetchToken.data,
+            keyFetchToken.uid,
             accountResetToken.id,
-            accountResetToken.uid,
-            accountResetToken.data
-          ], //TODO
+            accountResetToken.data,
+            accountResetToken.uid
+          ],
           function (err) {
             if (err) return d.reject(err)
             d.resolve({
@@ -769,10 +820,10 @@ module.exports = function (
   MySql.prototype.forgotPasswordVerified = function (forgotPasswordToken) {
     var d = P.defer()
     log.trace({ op: 'MySql.forgotPasswordVerified', uid: forgotPasswordToken && forgotPasswordToken.uid })
-    var sql = 'BEGIN TRANSACTION\n' +
-      'DELETE FROM forgotPasswordTokens WHERE id = ?\n' +
-      'REPLACE INTO accountResetTokens (id, uid, data) VALUES (?, ?, ?)\n' +
-      'COMMIT'
+    var sql = 'BEGIN;\n' +
+      'DELETE FROM forgotpwdTokens WHERE tokenid = ?;\n' +
+      'REPLACE INTO resetTokens (tokenid, tokendata, uid) VALUES (?, ?, ?);\n' +
+      'COMMIT;'
     AccountResetToken.create(forgotPasswordToken.uid)
       .then(
         function (accountResetToken) {
@@ -781,8 +832,8 @@ module.exports = function (
           [
             forgotPasswordToken.id,
             accountResetToken.id,
-            accountResetToken.uid,
-            accountResetToken.data
+            accountResetToken.data,
+            accountResetToken.uid
           ],
           function (err) {
             if (err) return d.reject(err)
