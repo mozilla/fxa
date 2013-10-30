@@ -2,21 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, inherits, Token, db) {
+module.exports = function (log, inherits, Token, error) {
 
   function AuthToken() {
     Token.call(this)
     this.opKey = null
   }
   inherits(AuthToken, Token)
-
-  AuthToken.hydrate = function (object) {
-    var t = Token.fill(new AuthToken(), object)
-    if (t) {
-      t.opKey = object.value ? object.value.opKey : object.opKey
-    }
-    return t
-  }
 
   AuthToken.create = function (uid) {
     log.trace({ op: 'AuthToken.create', uid: uid })
@@ -31,19 +23,8 @@ module.exports = function (log, inherits, Token, db) {
           t.id = key.slice(0, 32).toString('hex')
           t._key = key.slice(32, 64).toString('hex')
           t.opKey = key.slice(64, 96).toString('hex')
-          return t.save()
+          return t
         }
-      )
-  }
-
-  AuthToken.getCredentials = function (id, cb) {
-    log.trace({ op: 'AuthToken.getCredentials', id: id })
-    AuthToken.get(id)
-      .done(
-        function (token) {
-          cb(null, token)
-        },
-        cb
       )
   }
 
@@ -68,28 +49,6 @@ module.exports = function (log, inherits, Token, db) {
       )
   }
 
-  AuthToken.get = function (id) {
-    log.trace({ op: 'AuthToken.get', id: id })
-    return db
-      .get(id + '/auth')
-      .then(AuthToken.hydrate)
-  }
-
-  AuthToken.del = function (id) {
-    log.trace({ op: 'AuthToken.del', id: id })
-    return db.delete(id + '/auth')
-  }
-
-  AuthToken.prototype.save = function () {
-    log.trace({ op: 'authToken.save', id: this.id })
-    var self = this
-    return db.set(this.id + '/auth', this).then(function () { return self })
-  }
-
-  AuthToken.prototype.del = function () {
-    return AuthToken.del(this.id)
-  }
-
   AuthToken.prototype.bundleKeys = function (type, keyFetchToken, otherToken) {
     log.trace({ op: 'authToken.bundleKeys', id: this.id, type: type })
     return Token.tokenDataFromBytes(
@@ -105,14 +64,6 @@ module.exports = function (log, inherits, Token, db) {
         return wrapper.bundleHexStrings([keyFetchToken.data, otherToken.data])
       }
     )
-  }
-
-  AuthToken.prototype.bundleSession = function (keyFetchToken, sessionToken) {
-    return this.bundleKeys('session/create', keyFetchToken, sessionToken)
-  }
-
-  AuthToken.prototype.bundleAccountReset = function (keyFetchToken, accountResetToken) {
-    return this.bundleKeys('password/change', keyFetchToken, accountResetToken)
   }
 
   AuthToken.prototype.unbundleSession = function (bundle) {

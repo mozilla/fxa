@@ -7,10 +7,8 @@ var P = require('p-promise')
 var srp = require('srp')
 
 var ClientApi = require('./api')
-var models = require('../models')({ trace: function () {}},{},{})
 var keyStretch = require('./keystretch')
-var tokens = models.tokens
-var AuthBundle = models.AuthBundle
+var tokens = require('../tokens')({ trace: function () {}})
 
 function Client(origin) {
   this.uid = null
@@ -32,23 +30,19 @@ Client.Api = ClientApi
 
 function getAMK(srpSession, email, password) {
   var a = crypto.randomBytes(32)
-  var g = srp.params[2048].g
-  var N = srp.params[2048].N
-  var A = srp.getA(g, a, N)
-  var B = Buffer(srpSession.srp.B, 'hex')
-  var S = srp.client_getS(
+  var srpClient = new srp.Client(
+    srp.params[2048],
     Buffer(srpSession.srp.salt, 'hex'),
     Buffer(email),
     Buffer(password),
-    N,
-    g,
-    a,
-    B,
-    srpSession.srp.alg
+    a
   )
+  var A = srpClient.computeA()
+  var B = Buffer(srpSession.srp.B, 'hex')
+  srpClient.setB(B)
 
-  var M = srp.getM(A, B, S, N)
-  var K = srp.getK(S, N, srpSession.srp.alg)
+  var M = srpClient.computeM1()
+  var K = srpClient.computeK()
 
   return {
     srpToken: srpSession.srpToken,
@@ -58,28 +52,13 @@ function getAMK(srpSession, email, password) {
   }
 }
 
-function pad(n, length) {
-  var padding = length - n.length
-  console.assert(padding > -1, "Negative padding.  Very uncomfortable.")
-  if (padding === 0) { return n }
-  var result = new Buffer(length)
-  result.fill(0, 0, padding)
-  n.copy(result, padding)
-  return result
-}
-
 function verifier(salt, email, password, algorithm) {
-  return pad(
-    srp.getv(
-      Buffer(salt, 'hex'),
-      Buffer(email),
-      Buffer(password),
-      srp.params['2048'].N,
-      srp.params['2048'].g,
-      algorithm
-    ),
-    256
-  ).toString('hex')
+  return srp.computeVerifier(
+    srp.params[2048],
+    Buffer(salt, 'hex'),
+    Buffer(email),
+    Buffer(password)
+    ).toString('hex')
 }
 
 Client.prototype.setupCredentials = function (email, password, customSalt) {
@@ -275,10 +254,10 @@ Client.prototype.auth = function (callback) {
     .then(
       function (json) {
 
-        return AuthBundle.create(K, 'auth/finish')
+        return tokens.createFromHKDF(K, 'auth/finish')
           .then(
-          function (b) {
-            return b.unbundle(json.bundle)
+          function (t) {
+            return t.unbundle(json.bundle)
           }
         )
       }.bind(this)

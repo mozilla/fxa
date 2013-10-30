@@ -2,9 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail) {
+module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+
+  function sendVerifyCode(email, emailCode, uid) {
+    return mailer.sendVerifyCode(
+      Buffer(email, 'hex').toString('utf8'),
+      emailCode,
+      uid
+    )
+  }
+
+  function bundleKeys(keyFetchToken, kA, wrapKb) {
+    return keyFetchToken.bundle(kA, wrapKb)
+  }
+
+  function unbundleReset(accountResetToken, bundle) {
+    return accountResetToken.unbundle(bundle)
+  }
 
   var routes = [
     {
@@ -36,15 +52,43 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
         handler: function accountCreate(request) {
           log.begin('Account.create', request)
           var form = request.payload
-          Account
-            .create(
-              {
-                uid: uuid.v4(),
-                email: form.email,
-                srp: form.srp,
-                kA: crypto.randomBytes(32).toString('hex'),
-                wrapKb: crypto.randomBytes(32).toString('hex'),
-                passwordStretching: form.passwordStretching
+          db.accountExists(form.email)
+            .then(
+              function (exists) {
+                if (exists) {
+                  throw error.accountExists(form.email)
+                }
+              }
+            )
+            .then(
+              db.createAccount.bind(
+                db,
+                {
+                  uid: uuid.v4(),
+                  email: form.email,
+                  emailCode: crypto.randomBytes(4).toString('hex'),
+                  verified: false || config.dev.verified,
+                  srp: form.srp,
+                  kA: crypto.randomBytes(32).toString('hex'),
+                  wrapKb: crypto.randomBytes(32).toString('hex'),
+                  passwordStretching: form.passwordStretching,
+                  devices: {},
+                  accountResetToken: null,
+                  forgotPasswordToken: null
+                }
+              )
+            )
+            .then(
+              function (account) {
+                if (account.verified) {
+                  return P(account)
+                }
+                return sendVerifyCode(
+                  account.email,
+                  account.emailCode,
+                  account.uid
+                )
+                .then(function () { return account })
               }
             )
             .done(
@@ -73,13 +117,12 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
         handler: function (request) {
           log.begin('Account.devices', request)
           var sessionToken = request.auth.credentials
-          Account
-            .get(sessionToken.uid)
+          db.accountDevices(sessionToken.uid)
             .done(
-              function (account) {
+              function (devices) {
                 request.reply(
                   {
-                    devices: Object.keys(account.sessionTokenIds)
+                    devices: Object.keys(devices)
                   }
                 )
               },
@@ -118,20 +161,18 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
           log.begin('Account.keys', request)
           var reply = request.reply.bind(request)
           var keyFetchToken = request.auth.credentials
-
-          keyFetchToken
-            .del()
-            .then(Account.get.bind(null, keyFetchToken.uid))
+          db.deleteKeyFetchToken(keyFetchToken)
             .then(
-              function (account) {
-                if (!account) {
-                  throw error.unknownAccount()
-                }
-                if (!account.verified) {
+              function () {
+                if (!keyFetchToken.verified) {
                   throw error.unverifiedAccount()
                 }
                 return {
-                  bundle: keyFetchToken.bundle(account.kA, account.wrapKb)
+                  bundle: bundleKeys(
+                    keyFetchToken,
+                    keyFetchToken.kA,
+                    keyFetchToken.wrapKb
+                  )
                 }
               }
             )
@@ -152,21 +193,12 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
         handler: function (request) {
           log.begin('Account.RecoveryEmailStatus', request)
           var sessionToken = request.auth.credentials
-          Account
-            .get(sessionToken.uid)
-            .done(
-              function (account) {
-                request.reply(
-                  {
-                    email: account.email,
-                    verified: account.verified
-                  }
-                )
-              },
-              function (err) {
-                request.reply(err)
-              }
-            )
+          request.reply(
+            {
+              email: sessionToken.email,
+              verified: sessionToken.verified
+            }
+          )
         },
         validate: {
           response: {
@@ -192,24 +224,13 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
         handler: function (request) {
           log.begin('Account.RecoveryEmailResend', request)
           var sessionToken = request.auth.credentials
-          Account
-            .get(sessionToken.uid)
+          sendVerifyCode(sessionToken.email, sessionToken.emailCode)
             .done(
-              function (account) {
-                return account.primaryRecoveryEmail()
-                  .then(
-                    function (rm) {
-                      return rm.sendVerifyCode()
-                    }
-                  )
-                  .then(
-                    function () {
-                      request.reply({})
-                    },
-                    function (err) {
-                      request.reply(err)
-                    }
-                  )
+              function () {
+                request.reply({})
+              },
+              function (err) {
+                request.reply(err)
               }
             )
         }
@@ -226,24 +247,13 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
           log.begin('Account.RecoveryEmailVerify', request)
           var uid = request.payload.uid
           var code = request.payload.code
-          RecoveryEmail
-            .get(uid, code)
+          db.account(uid)
             .then(
-              function (rm) {
-                if (! rm) {
+              function (account) {
+                if (code !== account.emailCode) {
                   throw error.invalidVerificationCode()
                 }
-                return rm
-              }
-            )
-            .then(
-              function (rm) {
-                return rm.verify(code)
-              }
-            )
-            .then(
-              function (rm) {
-                return Account.verify(rm)
+                return db.verifyEmail(account)
               }
             )
             .done(
@@ -287,18 +297,11 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
           var reply = request.reply.bind(request)
           var accountResetToken = request.auth.credentials
           var payload = request.payload
-          var unbundle = accountResetToken.unbundle(payload.bundle)
+          var unbundle = unbundleReset(accountResetToken, payload.bundle)
           payload.wrapKb = unbundle.wrapKb
           payload.srp.verifier = unbundle.verifier
 
-          accountResetToken
-            .del()
-            .then(Account.get.bind(null, accountResetToken.uid))
-            .then(
-              function (account) {
-                return account.reset(payload)
-              }
-            )
+          db.resetAccount(accountResetToken, payload)
             .then(function () { return {} })
             .done(reply, reply)
         },
@@ -316,13 +319,8 @@ module.exports = function (log, crypto, uuid, isA, error, Account, RecoveryEmail
           log.begin('Account.destroy', request)
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
-
-          authToken.del()
-            .then(
-              function () {
-                return Account.del(authToken.uid)
-              }
-            )
+          db.deleteAccount(authToken)
+            .then(function () { return {} })
             .done(reply, reply)
         }
       }

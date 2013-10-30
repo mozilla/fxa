@@ -2,9 +2,32 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, Account, tokens) {
+module.exports = function (log, isA, error, db, mailer) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+
+  function bundleAccountReset(authToken, keyFetchToken, accountResetToken) {
+    return authToken.bundleKeys('password/change', keyFetchToken, accountResetToken)
+  }
+
+  function sendRecoveryCode(forgotPasswordToken) {
+    log.trace({ op: 'sendRecoveryCode', id: forgotPasswordToken.id })
+    return mailer.sendRecoveryCode(
+      Buffer(forgotPasswordToken.email, 'hex').toString('utf8'),
+      forgotPasswordToken.passcode
+    )
+    .then(function () { return forgotPasswordToken })
+  }
+
+  function ttl(forgotPasswordToken) {
+    return forgotPasswordToken.ttl()
+  }
+
+  function failVerifyAttempt(forgotPasswordToken) {
+    return (forgotPasswordToken.failAttempt()) ?
+      db.deleteForgotPasswordToken(forgotPasswordToken) :
+      db.updateForgotPasswordToken(forgotPasswordToken)
+  }
 
   var routes = [
     {
@@ -20,28 +43,13 @@ module.exports = function (log, isA, error, Account, tokens) {
           log.begin('Password.changeStart', request)
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
-          var keyFetchToken = null
-          var accountResetToken = null
-          authToken.del()
+          db.createPasswordChange(authToken)
             .then(
-              function () {
-                return tokens.KeyFetchToken.create(authToken.uid)
-              }
-            )
-            .then(function (t) { keyFetchToken = t })
-            .then(tokens.AccountResetToken.create.bind(null, authToken.uid))
-            .then(function (t) { accountResetToken = t })
-            .then(Account.get.bind(null, authToken.uid))
-            .then(
-              function (account) {
-                return account.setResetToken(accountResetToken)
-              }
-            )
-            .then(
-              function () {
-                return authToken.bundleAccountReset(
-                  keyFetchToken,
-                  accountResetToken
+              function (tokens) {
+                return bundleAccountReset(
+                  authToken,
+                  tokens.keyFetchToken,
+                  tokens.accountResetToken
                 )
               }
             )
@@ -66,31 +74,24 @@ module.exports = function (log, isA, error, Account, tokens) {
         handler: function (request) {
           log.begin('Password.forgotSend', request)
           var email = request.payload.email
-          var forgotPasswordToken = null
-          Account.getByEmail(email)
+          db.emailRecord(email)
             .then(
-              function (account) {
-                return tokens.ForgotPasswordToken.create(account.uid, account.email)
-                  .then(
-                    function (token) {
-                      forgotPasswordToken = token
-                      return account.setForgotPasswordToken(token)
-                    }
-                  )
-                  .then(
-                    function () {
-                      return forgotPasswordToken.sendRecoveryCode()
-                    }
-                  )
+              function (emailRecord) {
+                return db.createForgotPasswordToken(emailRecord)
+              }
+            )
+            .then(
+              function (forgotPasswordToken) {
+                return sendRecoveryCode(forgotPasswordToken)
               }
             )
             .done(
-              function () {
+              function (forgotPasswordToken) {
                 request.reply(
                   {
                     forgotPasswordToken: forgotPasswordToken.data,
-                    ttl: forgotPasswordToken.ttl(),
-                    codeLength: 8,
+                    ttl: ttl(forgotPasswordToken),
+                    codeLength: forgotPasswordToken.passcode.length,
                     tries: forgotPasswordToken.tries
                   }
                 )
@@ -128,14 +129,14 @@ module.exports = function (log, isA, error, Account, tokens) {
         handler: function (request) {
           log.begin('Password.forgotResend', request)
           var forgotPasswordToken = request.auth.credentials
-          forgotPasswordToken.sendRecoveryCode()
+          sendRecoveryCode(forgotPasswordToken)
             .done(
               function () {
                 request.reply(
                   {
                     forgotPasswordToken: forgotPasswordToken.data,
-                    ttl: forgotPasswordToken.ttl(),
-                    codeLength: 8,
+                    ttl: forgotPasswordToken.ttl(forgotPasswordToken),
+                    codeLength: ttl(forgotPasswordToken),
                     tries: forgotPasswordToken.tries
                   }
                 )
@@ -174,19 +175,10 @@ module.exports = function (log, isA, error, Account, tokens) {
           log.begin('Password.forgotVerify', request)
           var forgotPasswordToken = request.auth.credentials
           var code = +(request.payload.code)
-          var accountResetToken = null
-          if (forgotPasswordToken.code === code && forgotPasswordToken.ttl() > 0) {
-            forgotPasswordToken.del()
-              .then(tokens.AccountResetToken.create.bind(null, forgotPasswordToken.uid))
-              .then(function (t) { accountResetToken = t })
-              .then(Account.get.bind(null, forgotPasswordToken.uid))
-              .then(
-                function (account) {
-                  return account.setResetToken(accountResetToken)
-                }
-              )
+          if (forgotPasswordToken.passcode === code && ttl(forgotPasswordToken) > 0) {
+            db.forgotPasswordVerified(forgotPasswordToken)
               .done(
-                function () {
+                function (accountResetToken) {
                   request.reply(
                     {
                       accountResetToken: accountResetToken.data
@@ -199,9 +191,9 @@ module.exports = function (log, isA, error, Account, tokens) {
               )
           }
           else {
-            forgotPasswordToken.failAttempt()
+            failVerifyAttempt(forgotPasswordToken)
               .done(
-                function (t) {
+                function () {
                   request.reply(
                     error.invalidVerificationCode({
                       tries: forgotPasswordToken.tries,

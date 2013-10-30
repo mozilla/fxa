@@ -2,9 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, Account, SrpSession, AuthBundle) {
+module.exports = function (log, isA, error, db, Token) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+
+  function clientData(srpToken) {
+    return srpToken.clientData()
+  }
+
+  function bundleAuth(K, authToken) {
+    return Token.hkdf(K, 'auth/finish', null, 2 * 32)
+      .then(
+        function (key) {
+          var b = new Token()
+          b.hmacKey = key.slice(0, 32).toString('hex')
+          b.xorKey =  key.slice(32, 64).toString('hex')
+          return {
+            bundle: b.bundleHexStrings([authToken.data])
+          }
+        }
+      )
+  }
+
+  function srpFinish(srpToken, A, M) {
+    return srpToken.finish(A, M)
+  }
 
   var routes = [
     {
@@ -19,8 +41,17 @@ module.exports = function (log, isA, error, Account, SrpSession, AuthBundle) {
         handler: function (request) {
           log.begin('Auth.start', request)
           var reply = request.reply.bind(request)
-          Account.getByEmail(request.payload.email)
-            .then(SrpSession.start.bind(null))
+          db.emailRecord(request.payload.email)
+            .then(
+              function (emailRecord) {
+                return db.createSrpToken(emailRecord)
+              }
+            )
+            .then(
+              function (srpToken) {
+                return clientData(srpToken)
+              }
+            )
             .done(reply, reply)
         },
         validate: {
@@ -53,11 +84,21 @@ module.exports = function (log, isA, error, Account, SrpSession, AuthBundle) {
         handler: function (request) {
           log.begin('Auth.finish', request)
           var reply = request.reply.bind(request)
-          SrpSession
-            .finish(request.payload.srpToken, request.payload.A, request.payload.M)
+
+          db.srpToken(request.payload.srpToken)
             .then(
-              function (srpSession) {
-                return AuthBundle.login(srpSession.K, srpSession.uid)
+              function (srpToken) {
+                return srpFinish(srpToken, request.payload.A, request.payload.M)
+              }
+            )
+            .then(
+              function (srpToken) {
+                return db.authFinish(srpToken)
+                  .then(
+                    function (authToken) {
+                      return bundleAuth(srpToken.K, authToken)
+                    }
+                  )
               }
             )
             .done(reply, reply)
