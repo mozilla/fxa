@@ -400,8 +400,8 @@ module.exports = function (
         token.uid = result.uid
         token.v = new Buffer(srpData.verifier, 'hex')
         token.s = srpData.salt
-        token.b = Buffer(result.tokendata, 'hex').toString()
-        token.B = Buffer(result.srpB, 'hex').toString()
+        token.b = Buffer(result.tokendata, 'hex')
+        token.B = Buffer(result.srpB, 'hex')
         return d.resolve(token)
       }
     )
@@ -445,7 +445,7 @@ module.exports = function (
       [email],
       function (err, results) {
         if (err) return d.reject(err)
-        if (!results.length) return d.reject(error.invalidToken())
+        if (!results.length) return d.reject(error.unknownAccount())
         var result = results[0]
         return d.resolve({
           uid: result.uid,
@@ -469,7 +469,7 @@ module.exports = function (
       [uid],
       function (err, results) {
         if (err) return d.reject(err)
-        if (!results.length) return d.reject(error.invalidToken())
+        if (!results.length) return d.reject(error.unknownAccount())
         var result = results[0]
         return d.resolve({
           uid: uid,

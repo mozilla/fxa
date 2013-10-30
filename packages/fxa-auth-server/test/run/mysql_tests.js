@@ -589,9 +589,11 @@ DB.connect()
 
       test(
         'teardown',
-        function () {
+        function (t) {
           db.close()
-            .then(process.exit)
+          .then(function (){
+            t.end()
+          })
         }
       )
     }

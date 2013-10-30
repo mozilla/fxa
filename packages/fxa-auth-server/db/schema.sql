@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS accounts (
   verified BOOLEAN NOT NULL DEFAULT FALSE,
   kA CHAR(64) NOT NULL,
   wrapKb CHAR(64) NOT NULL,
-  srp VARCHAR(255) NOT NULL,
-  passwordStretching VARCHAR(255) NOT NULL
+  srp TEXT NOT NULL,
+  passwordStretching TEXT NOT NULL
 ) ENGINE=InnoDB;
 
 
