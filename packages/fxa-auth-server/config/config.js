@@ -37,7 +37,7 @@ module.exports = function (fs, path, url, convict) {
       backend: {
         format: AVAILABLE_BACKENDS,
         default: "memory",
-        env: 'KVSTORE_BACKEND'
+        env: 'DB_BACKEND'
       },
       available_backends: {
         doc: "List of available key-value stores",

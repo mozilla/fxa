@@ -4,6 +4,7 @@
 
 var P = require('p-promise')
 var mysql = require('./mysql_wrapper')
+var schema = require('fs').readFileSync(__dirname + '/schema.sql', { encoding: 'utf8'})
 
 module.exports = function (
   config,
@@ -17,27 +18,8 @@ module.exports = function (
   ForgotPasswordToken
   ) {
 
-  var schema = ''
-
   function MySql(options) {
     this.client = mysql.createClient(options)
-  }
-
-  function saveTo(collection) {
-    return function (object) {
-      collection[object.id] = object
-      return object
-    }
-  }
-
-  // The lazy way
-  function deleteUid(uid, collection) {
-    var keys = Object.keys(collection)
-    for (var i = 0; i < keys.length; i++) {
-      if (collection[keys[i]].uid === uid) {
-        delete collection[keys[i]]
-      }
-    }
   }
 
   // Don't look at me
@@ -60,7 +42,9 @@ module.exports = function (
                 if (err) return d.reject(err)
                 client.end(
                   function (err) {
-                    log.error({ op: 'MySql.createSchemaEnd', err: err.message })
+                    if (err) {
+                      log.error({ op: 'MySql.createSchemaEnd', err: err.message })
+                    }
                   }
                 )
                 options.database = dbname
@@ -80,6 +64,18 @@ module.exports = function (
       return createSchema(options)
     }
     return P(new MySql(options))
+  }
+
+  MySql.prototype.close = function () {
+    var d = P.defer()
+    this.client.end(
+      function () {
+        // TODO no idea what this returns
+        log.trace({ op: 'MySql.end', args: arguments })
+        d.resolve(true)
+      }
+    )
+    return d.promise
   }
 
 
