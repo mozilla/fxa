@@ -6,26 +6,18 @@ var test = require('tap').test
 var uuid = require('uuid')
 var log = { trace: console.log }
 
-var tokens = require('../../tokens')(log)
-var DB = require('../../db/mysql')(
-{
-  database: 'picl',
-  user: 'root',
-  password: '',
-  host: '127.0.0.1',
-  port: 3306,
-  create_schema: true,
-  max_query_time_ms: 5000,
-  max_reconnect_attempts: 3
-},
+var config = require('../../config').root()
+var Token = require('../../tokens')(log)
+var DB = require('../../db')(
+config,
 log,
-tokens.error,
-tokens.AuthToken,
-tokens.SessionToken,
-tokens.KeyFetchToken,
-tokens.AccountResetToken,
-tokens.SrpToken,
-tokens.ForgotPasswordToken
+Token.error,
+Token.AuthToken,
+Token.SessionToken,
+Token.KeyFetchToken,
+Token.AccountResetToken,
+Token.SrpToken,
+Token.ForgotPasswordToken
 )
 
 
@@ -277,6 +269,7 @@ DB.connect()
         'forgotpwd token handling',
         function (t) {
           var token1;
+          var token1tries = 0
           db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createForgotPasswordToken(emailRecord)
@@ -284,6 +277,7 @@ DB.connect()
           .then(function(forgotPasswordToken) {
             t.equal(forgotPasswordToken.uid, ACCOUNT.uid)
             token1 = forgotPasswordToken
+            token1tries = token1.tries
           })
           .then(function() {
             return db.forgotPasswordToken(token1.id)
@@ -302,7 +296,7 @@ DB.connect()
           })
           .then(function(forgotPasswordToken) {
             t.equal(forgotPasswordToken.id, token1.id, 'token id matches')
-            t.equal(forgotPasswordToken.tries, token1.tries - 1)
+            t.equal(forgotPasswordToken.tries, token1tries - 1)
             return forgotPasswordToken
           })
           .then(function(forgotPasswordToken) {

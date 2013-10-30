@@ -47,6 +47,10 @@ module.exports = function (
     return P(new Heap())
   }
 
+  Heap.prototype.close = function () {
+    return P(true)
+  }
+
   Heap.prototype.ping = function () {
     return P(true)
   }
@@ -63,6 +67,7 @@ module.exports = function (
     )
     this.accounts[data.uid] = data
     this.emailRecords[data.email] = data.uid
+    data.devices = {}
     return P(data)
   }
 
@@ -137,7 +142,11 @@ module.exports = function (
     return this.account(uid)
       .then(
         function (account) {
-          return account.devices
+          return Object.keys(account.devices).map(
+            function (id) {
+              return account.devices[id]
+            }
+          )
         }
       )
   }
