@@ -391,12 +391,163 @@ DB.connect()
           })
           .then(function(keyFetchToken) {
             t.equal(keyFetchToken.uid, ACCOUNT.uid)
+            return db.deleteKeyFetchToken(tokens1.keyFetchToken)
           })
           .then(function() {
             return db.sessionToken(tokens1.sessionToken.id)
           })
           .then(function(sessionToken) {
             t.equal(sessionToken.uid, ACCOUNT.uid)
+            return db.deleteSessionToken(tokens1.sessionToken)
+          })
+          .done(
+            function () {
+              t.end()
+            },
+            function (err) {
+              t.fail(err)
+              t.end()
+            }
+          )
+        }
+      )
+
+      test(
+        'db.createPasswordChange',
+        function (t) {
+          var tokens1;
+          db.emailRecord(ACCOUNT.email)
+          .then(function(emailRecord) {
+            return db.createAuthToken(emailRecord)
+          })
+          .then(function(authToken) {
+            return db.createPasswordChange(authToken)
+          })
+          .then(function(tokens) {
+            t.equal(tokens.keyFetchToken.uid, ACCOUNT.uid)
+            t.equal(tokens.accountResetToken.uid, ACCOUNT.uid)
+            tokens1 = tokens
+          })
+          .then(function() {
+            return db.keyFetchToken(tokens1.keyFetchToken.id)
+          })
+          .then(function(keyFetchToken) {
+            t.equal(keyFetchToken.uid, ACCOUNT.uid)
+            return db.deleteKeyFetchToken(tokens1.keyFetchToken)
+          })
+          .then(function() {
+            return db.accountResetToken(tokens1.accountResetToken.id)
+          })
+          .then(function(accountResetToken) {
+            t.equal(accountResetToken.uid, ACCOUNT.uid)
+            return db.deleteAccountResetToken(tokens1.accountResetToken)
+          })
+          .done(
+            function () {
+              t.end()
+            },
+            function (err) {
+              t.fail(err)
+              t.end()
+            }
+          )
+        }
+      )
+
+      test(
+        'db.forgotPasswordVerified',
+        function (t) {
+          var token1;
+          db.emailRecord(ACCOUNT.email)
+          .then(function(emailRecord) {
+            return db.createForgotPasswordToken(emailRecord)
+          })
+          .then(function(forgotPasswordToken) {
+            return db.forgotPasswordVerified(forgotPasswordToken)
+          })
+          .then(function(accountResetToken) {
+            t.equal(accountResetToken.uid, ACCOUNT.uid)
+            token1 = accountResetToken
+          })
+          .then(function() {
+            return db.accountResetToken(token1.id)
+          })
+          .then(function(accountResetToken) {
+            t.equal(accountResetToken.uid, ACCOUNT.uid)
+            return db.deleteAccountResetToken(token1)
+          })
+          .done(
+            function () {
+              t.end()
+            },
+            function (err) {
+              t.fail(err)
+              t.end()
+            }
+          )
+        }
+      )
+
+      test(
+        'db.accountDevices',
+        function (t) {
+          db.emailRecord(ACCOUNT.email)
+          .then(function(emailRecord) {
+            return db.createSessionToken(emailRecord)
+          })
+          .then(function(sessionToken) {
+            return db.createSessionToken(sessionToken)
+          })
+          .then(function(sessionToken) {
+            return db.accountDevices(ACCOUNT.uid)
+          })
+          .then(function(devices) {
+            t.equal(devices.length, 2)
+            return devices[0]
+          })
+          .then(function(sessionToken) {
+            return db.deleteSessionToken(sessionToken)
+          })
+          .then(function(sessionToken) {
+            return db.accountDevices(ACCOUNT.uid)
+          })
+          .then(function(devices) {
+            t.equal(devices.length, 1)
+            return devices[0]
+          })
+          .then(function(sessionToken) {
+            return db.deleteSessionToken(sessionToken)
+          })
+          .done(
+            function () {
+              t.end()
+            },
+            function (err) {
+              t.fail(err)
+              t.end()
+            }
+          )
+        }
+      )
+
+      test(
+        'db.resetAccount',
+        function (t) {
+          db.emailRecord(ACCOUNT.email)
+          .then(function(emailRecord) {
+            return db.createSessionToken(emailRecord)
+          })
+          .then(function(sessionToken) {
+            return db.createAccountResetToken(sessionToken)
+          })
+          .then(function(accountResetToken) {
+            return db.resetAccount(accountResetToken, ACCOUNT)
+          })
+          .then(function(sessionToken) {
+            return db.accountDevices(ACCOUNT.uid)
+          })
+          .then(function(devices) {
+            t.equal(devices.length, 0)
           })
           .done(
             function () {
