@@ -1,0 +1,10 @@
+{
+  "name": "gherkin",
+  "devDependencies": {
+    "requirejs": "~2.1.6",
+    "requirejs-plugins": "~1.0.2",
+    "requirejs-handlebars": "~0.0.1",
+    "almond": "~0.2.5",
+    "cjs": "latest"
+  }
+}
