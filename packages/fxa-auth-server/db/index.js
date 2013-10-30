@@ -13,7 +13,7 @@ module.exports = function (
   SrpToken,
   ForgotPasswordToken) {
 
-  var backend = config.db.backend
+  var backend = config.kvstore.backend
   if (backend === 'mysql') {
     return require('./mysql')(
       config.mysql,
