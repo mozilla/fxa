@@ -10,6 +10,8 @@ var DEFAULTS = {
   info: 'https://github.com/mozilla/picl-idp/blob/master/docs/api.md#response-format'
 }
 
+var TOO_LARGE = /^Payload (?:content length|size) greater than maximum allowed/
+
 // Wrap an object into a Boom error response.
 //
 // If the object does not have an 'errno' attribute, this function
@@ -41,6 +43,11 @@ Boom.wrap = function (srcObject) {
         object = Boom.invalidTimestamp().response.payload
       } else {
         object = Boom.invalidSignature().response.payload
+      }
+    }
+    else if (object.code === 400) {
+      if (TOO_LARGE.test(object.message)) {
+        object = Boom.requestBodyTooLarge().response.payload
       }
     }
   }

@@ -399,6 +399,29 @@ function main() {
   )
 
   test(
+    'oversized payload',
+    function (t) {
+      var client = new Client(config.public_url)
+      client.api.doRequest(
+        'POST',
+        client.api.baseURL + '/get_random_bytes',
+        null,
+        { big: Buffer(1024 * 512).toString('hex')}
+      )
+      .then(
+        function () {
+          t.fail('request should have failed')
+          t.end()
+        },
+        function (err) {
+          t.equal(err.errno, 113, 'payload too large')
+          t.end()
+        }
+      )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       if (server) server.kill('SIGINT')

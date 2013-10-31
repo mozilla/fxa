@@ -27,7 +27,7 @@
     "mysql": "0.9.6",
     "srp": "0.2.0",
     "uuid": "1.4.1",
-    "hapi": "1.14.0",
+    "hapi": "1.15.0",
     "hawk": "1.1.2",
     "hkdf": "0.0.1",
     "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#961316282a",
