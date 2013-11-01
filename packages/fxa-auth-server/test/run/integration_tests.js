@@ -222,7 +222,6 @@ function main() {
     function (t) {
       var email = email2
       var password = 'foobar'
-      var wrapKb = null
       var client = null
       var publicKey = {
         "algorithm":"RS",

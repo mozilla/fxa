@@ -10,7 +10,7 @@ const P = require('p-promise')
 
 const precomputed_credentials = require("./precomputed_credentials.js")
 
-SERVER_URL = "http://idp.loadtest.lcip.org";
+const SERVER_URL = "http://idp.loadtest.lcip.org";
 
 
 function uniqueID() {
@@ -100,7 +100,7 @@ module.exports.picl_idp_loadtest = function picl_idp_loadtest(cb) {
     // XXX TODO: better to pre-populate the database?
     // XXX TODO: error codes as defined constants?
     function (err) {
-      if (err.code != 400 || err.errno != 101) {
+      if (err.code !== 400 || err.errno !== 101) {
           throw err;
       }
     }

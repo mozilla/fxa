@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
-var crypto = require('crypto')
 var log = { trace: function() {} }
-
-var sends = 0
 
 var tokens = require('../../tokens')(log)
 var ForgotPasswordToken = tokens.ForgotPasswordToken

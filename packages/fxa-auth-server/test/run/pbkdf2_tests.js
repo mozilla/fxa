@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var pbkdf2 = require('../../client/pbkdf2')
-var P = require('p-promise')
 var test = require('tap').test
 
 test(

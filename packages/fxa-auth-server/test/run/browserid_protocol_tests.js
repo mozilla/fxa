@@ -1,10 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+// jshint -W069
 
 var test = require('tap').test
 var cp = require('child_process')
-var P = require('p-promise')
 var Client = require('../../client')
 
 var config = require('../../config').root()
@@ -93,7 +93,7 @@ function waitLoop() {
   Client.Api.heartbeat(config.public_url)
     .done(
       main,
-      function (err) {
+      function () {
         if (!server) {
           server = startServer()
         }

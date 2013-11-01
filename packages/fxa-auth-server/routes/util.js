@@ -20,7 +20,7 @@ module.exports = function (log, crypto, isA, bridge) {
       method: 'GET',
       path: '/verify_email',
       config: {
-        handler: function (request, next) {
+        handler: function (request) {
           return request.reply.redirect(bridge.url + request.raw.req.url)
         },
         validate: {

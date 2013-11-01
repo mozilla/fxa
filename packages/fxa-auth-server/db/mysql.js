@@ -394,7 +394,6 @@ module.exports = function (
         if (!results.length) return d.reject(error.invalidToken())
         var result = results[0]
         var token = new SrpToken()
-        // TODO revisit after merging srp 0.2 
         var srpData = JSON.parse(result.srp)
         token.id = id
         token.uid = result.uid
@@ -856,7 +855,7 @@ module.exports = function (
               'REPLACE INTO resetTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
               [accountResetToken.id, accountResetToken.data, accountResetToken.uid],
               function (err) {
-	        if (err) return d.reject(err)
+              if (err) return d.reject(err)
                 d.resolve(accountResetToken)
               }
             )

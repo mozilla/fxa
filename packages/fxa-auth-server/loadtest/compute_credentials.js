@@ -8,8 +8,9 @@ const Client = require('../client/');
 
 var credentials = {}
 
-p = P();
+var p = P();
 for (var i=1; i<=100; i++) {
+  // jshint -W083
   p = p.then((function(i) { return function() {
     var userid = "loady" + i + "@restmail.lcip.org";
     var password = "loadtestpassword";

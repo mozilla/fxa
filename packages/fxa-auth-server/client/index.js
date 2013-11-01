@@ -52,7 +52,7 @@ function getAMK(srpSession, email, password) {
   }
 }
 
-function verifier(salt, email, password, algorithm) {
+function verifier(salt, email, password) {
   return srp.computeVerifier(
     srp.params[2048],
     Buffer(salt, 'hex'),
@@ -189,7 +189,6 @@ Client.prototype.accountExists = function (email, callback) {
   if (email) {
     this.email = Buffer(email).toString('hex')
   }
-  var K = null
   var p = this.api.authStart(this.email)
     .then(
       function (srpSession) {
@@ -279,7 +278,7 @@ Client.prototype.auth = function (callback) {
 Client.prototype.login = function (callback) {
   var p = this.auth()
     .then(
-      function (authToken) {
+      function () {
         return this.api.sessionCreate(this.authToken)
       }.bind(this)
     )

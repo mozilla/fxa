@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
-var P = require('p-promise')
 var keyStretch = require('../../client/keystretch')
 
 test(

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var scrypt = require('../../client/scrypt')
-var P = require('p-promise')
 var test = require('tap').test
 
 test(

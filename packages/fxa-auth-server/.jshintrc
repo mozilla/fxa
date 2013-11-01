@@ -5,7 +5,7 @@
   "forin": false,
   "noarg": true,
   "undef": true,
-  "unused": true,
+  "unused": "vars",
   "eqeqeq": true,
   "white": false,
   "predef": [
@@ -13,7 +13,6 @@
     "require",
     "process"
   ],
-  "es5": true,
   "esnext": true,
   "shadow": false,
   "strict": false,

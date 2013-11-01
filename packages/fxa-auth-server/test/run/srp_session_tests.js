@@ -3,9 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
-var P = require('p-promise')
 var srp = require('srp')
-var config = require('../../config').root()
 var log = { trace: function() {} }
 
 var Token = require('../../tokens')(log)

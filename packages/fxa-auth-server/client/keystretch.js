@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var P = require('p-promise')
-var sjcl = require('sjcl')
 var pbkdf2 = require('./pbkdf2')
 var scrypt = require('./scrypt')
 var hkdf = require('../hkdf')
-var crypto = require('crypto')
 
 // The namespace for the salt functions
 const NAMESPACE = 'identity.mozilla.com/picl/v1/'
