@@ -15,7 +15,6 @@ CREATE TABLE IF NOT EXISTS srpTokens (
   tokenid CHAR(64) PRIMARY KEY,
   tokendata CHAR(64) NOT NULL,
   uid CHAR(36) NOT NULL,
-  srpB CHAR(64) NOT NULL,
   INDEX srp_uid (uid)
 ) ENGINE=InnoDB;
 
