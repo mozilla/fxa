@@ -60,7 +60,7 @@ module.exports = function(grunt) {
       },
       app: {
         options: {jshintrc: 'gherkin/.jshintrc'},
-        src: ['gherkin/**/*.js']
+        src: ['gherkin/*.js', 'gherkin/lib/**/*']
       }
     },
     bytesize: {

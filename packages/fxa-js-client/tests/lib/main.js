@@ -15,6 +15,10 @@ define([
         assert.strictEqual(client.isAwesome(), true);
       });
 
+      test('#hawkModule', function () {
+        assert.strictEqual(client.hawkHeaderVersion, '1');
+      });
+
     });
   }
 });
