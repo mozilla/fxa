@@ -47,6 +47,9 @@
     "awsbox": "0.6.x",
     "awsboxen": "0.5.x",
     "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
-    "tap": "0.4.4"
+    "tap": "0.4.4",
+    "grunt-contrib-jshint": "~0.7.0",
+    "load-grunt-tasks": "~0.2.0",
+    "grunt": "~0.4.1"
   }
 }
