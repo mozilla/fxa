@@ -19,6 +19,10 @@ define([
         assert.strictEqual(client.hawkHeaderVersion, '1');
       });
 
+      test('#sjclModule', function () {
+        assert.strictEqual(client.sjcl.json.defaults.cipher, 'aes');
+      });
+
     });
   }
 });
