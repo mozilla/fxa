@@ -204,13 +204,13 @@ module.exports = function (
   MySql.prototype.createSrpToken = function (emailRecord) {
     var d = P.defer()
     log.trace({ op: 'MySql.createSrpToken', uid: emailRecord && emailRecord.uid })
-    var sql = 'INSERT INTO srpTokens (tokenid, tokendata, uid, srpB) VALUES (?, ?, ?, ?)'
+    var sql = 'INSERT INTO srpTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
     SrpToken.create(emailRecord)
       .then(
         function (srpToken) {
           this.client.query(
             sql,
-            [srpToken.id, srpToken.b.toString("hex"), srpToken.uid, srpToken.B.toString("hex")],
+            [srpToken.id, srpToken.b.toString("hex"), srpToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(srpToken)
@@ -383,7 +383,7 @@ module.exports = function (
   MySql.prototype.srpToken = function (id) {
     var d = P.defer()
     log.trace({ op: 'MySql.srpToken', id: id })
-    var sql = 'SELECT t.tokendata, t.uid, t.srpB, a.srp ' +
+    var sql = 'SELECT t.tokendata, t.uid, a.srp ' +
               '  FROM srpTokens t, accounts a ' +
               '  WHERE t.tokenid = ? AND t.uid = a.uid'
     this.client.query(
@@ -400,7 +400,6 @@ module.exports = function (
         token.v = new Buffer(srpData.verifier, 'hex')
         token.s = srpData.salt
         token.b = Buffer(result.tokendata, 'hex')
-        token.B = Buffer(result.srpB, 'hex')
         return d.resolve(token)
       }
     )
