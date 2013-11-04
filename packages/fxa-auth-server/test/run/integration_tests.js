@@ -421,6 +421,48 @@ function main() {
   )
 
   test(
+    'HAWK timestamp',
+    function (t) {
+      var email = email1
+      var password = 'allyourbasearebelongtous'
+      var url = null
+      Client.login(config.public_url, email, password)
+        .then(
+          function (c) {
+            url = c.api.baseURL + '/account/keys'
+            return c.api.Token.KeyFetchToken.fromHex(c.keyFetchToken)
+          }
+        )
+        .then(
+          function (token) {
+            var hawk = require('hawk')
+            var request = require('request')
+            var method = 'GET'
+            var verify = {
+              credentials: token,
+              timestamp: Math.floor(Date.now() / 1000) - 61
+            }
+            var headers = {
+              Authorization: hawk.client.header(url, method, verify).field
+            }
+            request(
+              {
+                method: method,
+                url: url,
+                headers: headers,
+                json: true
+              },
+              function (err, res, body) {
+                t.equal(body.errno, 111, 'invalid auth timestamp')
+                t.end()
+              }
+            )
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       if (server) server.kill('SIGINT')

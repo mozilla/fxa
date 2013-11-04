@@ -15,8 +15,10 @@ util.inherits(ClientApi, EventEmitter)
 function ClientApi(origin) {
   EventEmitter.call(this)
   this.origin = origin
-  this.baseURL = origin + "/v1";
+  this.baseURL = origin + "/v1"
 }
+
+ClientApi.prototype.Token = tokens
 
 function hawkHeader(token, method, url, payload) {
   var verify = {
