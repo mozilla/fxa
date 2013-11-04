@@ -29,7 +29,7 @@
     "hapi": "1.15.0",
     "hawk": "1.1.2",
     "hkdf": "0.0.1",
-    "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#961316282a",
+    "sjcl": "1.0.0",
     "compute-cluster": "0.0.7",
     "jwcrypto": "0.4.4",
     "handlebars": "1.0.10",
@@ -38,8 +38,6 @@
     "bunyan": "0.22.0",
     "toobusy": "0.2.4",
     "nodemailer": "0.5.3",
-    "node-scrypt-js": "git://github.com/vladikoff/node-scrypt-js.git#512f37884ff9",
-    "sjcl-codec-bytes": "git://github.com/zaach/sjcl-codec-bytes.git#0ddc7744",
     "request": "2.27.0"
   },
   "devDependencies": {
