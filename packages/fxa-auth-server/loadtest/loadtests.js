@@ -50,13 +50,11 @@ var DUMMY_CLIENT_CREDENTIALS = {
 // Build an SRP verifier to go with the dummy credentials defined above.
 //
 function getDummySRPVerifier(email) {
-  var res = srp.getv(
+  var res = srp.computeVerifier(
+    srp.params[2048],
     Buffer(DUMMY_CLIENT_CREDENTIALS.srp.salt, 'hex'),
     Buffer(email),
-    Buffer(DUMMY_CLIENT_CREDENTIALS.srpPw),
-    srp.params['2048'].N,
-    srp.params['2048'].g,
-    DUMMY_CLIENT_CREDENTIALS.srp.algorithm
+    Buffer(DUMMY_CLIENT_CREDENTIALS.srpPw)
  );
  if (res.length < 256) {
    var tmp = res;

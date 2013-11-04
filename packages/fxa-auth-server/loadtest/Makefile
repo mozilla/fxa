@@ -5,11 +5,11 @@ build:
 	virtualenv --no-site-packages .
 	./bin/pip install cython
 	CYTHON=`pwd`/bin/cython ./bin/pip install https://github.com/surfly/gevent/archive/1.0rc2.tar.gz
-	./bin/pip install https://github.com/mozilla-services/loads/archive/rfk/external-runner-refactor.zip
-	curl -L https://github.com/mozilla-services/loads.js/archive/layout-refactor.tar.gz > master.tar.gz
+	./bin/pip install https://github.com/mozilla-services/loads/archive/master.zip
+	curl -L https://github.com/mozilla-services/loads.js/archive/master.tar.gz > master.tar.gz
 	tar -xzvf master.tar.gz
 	rm -rf ./lib/loads.js
-	mv loads.js-layout-refactor/ ./lib/loads.js
+	mv loads.js-master ./lib/loads.js
 	npm install ../
 	npm install zmq
 	(cd ./lib/loads.js/ && npm install)
