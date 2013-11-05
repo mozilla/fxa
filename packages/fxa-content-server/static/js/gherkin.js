@@ -9,7 +9,7 @@ module.exports = {
 
 gherkin = module.exports
 
-},{"./gherkin":2,"./lib/error_codes":7}],2:[function(require,module,exports){
+},{"./gherkin":2,"./lib/error_codes":5}],2:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -19,10 +19,8 @@ var P = require('p-promise')
 var srp = require('srp')
 
 var ClientApi = require('./lib/api')
-var models = require('./lib/models')({ trace: function () {}},{},{})
 var keyStretch = require('./lib/keystretch')
-var tokens = models.tokens
-var AuthBundle = models.AuthBundle
+var tokens = require('./lib/tokens')({ trace: function () {}})
 
 function Client(origin) {
   this.uid = null
@@ -44,23 +42,19 @@ Client.Api = ClientApi
 
 function getAMK(srpSession, email, password) {
   var a = crypto.randomBytes(32)
-  var g = srp.params[2048].g
-  var N = srp.params[2048].N
-  var A = srp.getA(g, a, N)
-  var B = Buffer(srpSession.srp.B, 'hex')
-  var S = srp.client_getS(
+  var srpClient = new srp.Client(
+    srp.params[2048],
     Buffer(srpSession.srp.salt, 'hex'),
     Buffer(email),
     Buffer(password),
-    N,
-    g,
-    a,
-    B,
-    srpSession.srp.alg
+    a
   )
+  var A = srpClient.computeA()
+  var B = Buffer(srpSession.srp.B, 'hex')
+  srpClient.setB(B)
 
-  var M = srp.getM(A, B, S, N)
-  var K = srp.getK(S, N, srpSession.srp.alg)
+  var M = srpClient.computeM1()
+  var K = srpClient.computeK()
 
   return {
     srpToken: srpSession.srpToken,
@@ -70,28 +64,13 @@ function getAMK(srpSession, email, password) {
   }
 }
 
-function pad(n, length) {
-  var padding = length - n.length
-  console.assert(padding > -1, "Negative padding.  Very uncomfortable.")
-  if (padding === 0) { return n }
-  var result = new Buffer(length)
-  result.fill(0, 0, padding)
-  n.copy(result, padding)
-  return result
-}
-
-function verifier(salt, email, password, algorithm) {
-  return pad(
-    srp.getv(
-      Buffer(salt, 'hex'),
-      Buffer(email),
-      Buffer(password),
-      srp.params['2048'].N,
-      srp.params['2048'].g,
-      algorithm
-    ),
-    256
-  ).toString('hex')
+function verifier(salt, email, password) {
+  return srp.computeVerifier(
+    srp.params[2048],
+    Buffer(salt, 'hex'),
+    Buffer(email),
+    Buffer(password)
+    ).toString('hex')
 }
 
 Client.prototype.setupCredentials = function (email, password, customSalt) {
@@ -205,6 +184,7 @@ Client.prototype.create = function (callback) {
 Client.prototype._clear = function () {
   this.authToken = null
   this.sessionToken = null
+  this.srpSession = null
   this.accountResetToken = null
   this.keyFetchToken = null
   this.forgotPasswordToken = null
@@ -217,10 +197,37 @@ Client.prototype.stringify = function () {
   return JSON.stringify(this)
 }
 
+Client.prototype.accountExists = function (email, callback) {
+  if (email) {
+    this.email = Buffer(email).toString('hex')
+  }
+  var p = this.api.authStart(this.email)
+    .then(
+      function (srpSession) {
+        this.srpSession = srpSession
+        return true
+      }.bind(this),
+      function (err) {
+        if (err.errno === 102) {
+          return false
+        } else {
+          throw err
+        }
+      }
+    )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+};
+
 Client.prototype.auth = function (callback) {
   var K = null
   var session
-  var p = this.api.authStart(this.email)
+  var sessionPromise = this.srpSession ? P(this.srpSession) : this.api.authStart(this.email)
+  var p = sessionPromise
     .then(
       function (srpSession) {
         var k = P.defer()
@@ -258,10 +265,10 @@ Client.prototype.auth = function (callback) {
     .then(
       function (json) {
 
-        return AuthBundle.create(K, 'auth/finish')
+        return tokens.createFromHKDF(K, 'auth/finish')
           .then(
-          function (b) {
-            return b.unbundle(json.bundle)
+          function (t) {
+            return t.unbundle(json.bundle)
           }
         )
       }.bind(this)
@@ -283,7 +290,7 @@ Client.prototype.auth = function (callback) {
 Client.prototype.login = function (callback) {
   var p = this.auth()
     .then(
-      function (authToken) {
+      function () {
         return this.api.sessionCreate(this.authToken)
       }.bind(this)
     )
@@ -639,7 +646,11 @@ Client.prototype.resetPassword = function (newPassword, callback) {
 
 module.exports = Client
 
-},{"./lib/api":3,"./lib/keystretch":9,"./lib/models":15,"__browserify_Buffer":4,"crypto":"Tk74kK","p-promise":78,"srp":82}],3:[function(require,module,exports){
+},{"./lib/api":3,"./lib/keystretch":7,"./lib/tokens":14,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":75,"srp":78}],3:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 var EventEmitter = require('events').EventEmitter
 var util = require('util')
 
@@ -647,15 +658,16 @@ var hawk = require('hawk')
 var P = require('p-promise')
 var request = require('request')
 
-var models = require('./models')({ trace: function() {}}, {}, {})
-var tokens = models.tokens
+var tokens = require('./tokens')({ trace: function() {}})
 
 util.inherits(ClientApi, EventEmitter)
 function ClientApi(origin) {
   EventEmitter.call(this)
   this.origin = origin
-  this.baseURL = origin + "/v1";
+  this.baseURL = origin + "/v1"
 }
+
+ClientApi.prototype.Token = tokens
 
 function hawkHeader(token, method, url, payload) {
   var verify = {
@@ -957,97 +969,40 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
     )
 }
 
+ClientApi.prototype.rawPasswordAccountCreate = function (email, password) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/raw_password/account/create',
+    null,
+    {
+      email: email,
+      password: password
+    }
+  )
+}
+
+ClientApi.prototype.rawPasswordSessionCreate = function (email, password) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/raw_password/session/create',
+    null,
+    {
+      email: email,
+      password: password
+    }
+  )
+}
+
 ClientApi.heartbeat = function (origin) {
   return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
 }
 
 module.exports = ClientApi
 
-},{"./models":15,"events":29,"hawk":60,"p-promise":78,"request":"kR9y8j","util":34}],4:[function(require,module,exports){
+},{"./tokens":14,"events":25,"hawk":56,"p-promise":75,"request":"hWH+d8","util":31}],4:[function(require,module,exports){
 module.exports = require('buffer');
 
 },{}],5:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (crypto, P, hkdf) {
-
-  function Bundle() {
-    this.hmacKey = null
-    this.xorKey = null
-  }
-
-  Bundle.random32Bytes = function () {
-    var d = P.defer()
-    // capturing the domain here is a workaround for:
-    // https://github.com/joyent/node/issues/3965
-    // this will be fixed in node v0.12
-    var domain = process.domain
-    crypto.randomBytes(
-      32,
-      function (err, bytes) {
-        if (domain) domain.enter()
-        var x = err ? d.reject(err) : d.resolve(bytes)
-        if (domain) domain.exit()
-        return x
-      }
-    )
-    return d.promise
-  }
-
-  Bundle.hkdf = hkdf
-
-  Bundle.prototype.hmac = function (buffer) {
-    var hmac = crypto.createHmac('sha256', Buffer(this.hmacKey, 'hex'))
-    hmac.update(buffer)
-    return hmac.digest()
-  }
-
-  Bundle.prototype.appendHmac = function (buffer) {
-    return Buffer.concat([buffer, this.hmac(buffer)])
-  }
-
-  Bundle.prototype.xor = function (buffer) {
-    var xorBuffer = Buffer(this.xorKey, 'hex')
-    if (buffer.length !== xorBuffer.length) {
-      throw new Error(
-        'XOR buffers must be same length %d != %d',
-        buffer.length,
-        xorBuffer.length
-      )
-    }
-    var result = Buffer(xorBuffer.length)
-    for (var i = 0; i < xorBuffer.length; i++) {
-      result[i] = buffer[i] ^ xorBuffer[i]
-    }
-    return result
-  }
-
-  function hexToBuffer(string) {
-    return Buffer(string, 'hex')
-  }
-
-  Bundle.prototype.bundleHexStrings = function (hexStrings) {
-    var ciphertext = this.xor(Buffer.concat(hexStrings.map(hexToBuffer)))
-    return this.appendHmac(ciphertext).toString('hex')
-  }
-
-  return Bundle
-}
-
-},{"__browserify_Buffer":4,"__browserify_process":77}],6:[function(require,module,exports){
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-var crypto = require('crypto')
-var P = require('p-promise')
-var hkdf = require('../hkdf')
-
-module.exports = require('./bundle')(crypto, P, hkdf)
-
-},{"../hkdf":8,"./bundle":5,"crypto":"Tk74kK","p-promise":78}],7:[function(require,module,exports){
 
 module.exports = {
   ACCOUNT_EXISTS: 101,
@@ -1057,7 +1012,7 @@ module.exports = {
   INVALID_CODE: 105
 }
 
-},{}],8:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1084,13 +1039,12 @@ function hkdf(km, info, salt, len) {
 
 module.exports = hkdf
 
-},{"hkdf":75,"p-promise":78}],9:[function(require,module,exports){
+},{"hkdf":73,"p-promise":75}],7:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var P = require('p-promise')
-var sjcl = require('sjcl')
 var pbkdf2 = require('./pbkdf2')
 var scrypt = require('./scrypt')
 var hkdf = require('./hkdf')
@@ -1212,1449 +1166,7 @@ function KW(name) {
 module.exports.derive = derive
 module.exports.xor = xor
 
-},{"./hkdf":8,"./pbkdf2":21,"./scrypt":22,"__browserify_Buffer":4,"crypto":"Tk74kK","p-promise":78,"sjcl":81}],10:[function(require,module,exports){
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (log, P, tokens, RecoveryEmail, db, config, error) {
-
-  var domain = config.domain
-  var SessionToken = tokens.SessionToken
-  var AccountResetToken = tokens.AccountResetToken
-  var AuthToken = tokens.AuthToken
-  var ForgotPasswordToken = tokens.ForgotPasswordToken
-
-  function Account() {
-    this.uid = null
-    this.email = null
-    this.verified = false
-    this.kA = null
-    this.wrapKb = null
-    this.srp = null
-    this.passwordStretching = null
-    // references
-    this.resetTokenId = null
-    this.forgotPasswordTokenId = null
-    this.sessionTokenIds = null
-    this.recoveryEmailCodes = null
-  }
-
-  Account.hydrate = function (object) {
-    if (!object) return null
-    if (object.value) object = object.value
-    var a = new Account()
-    a.uid = object.uid
-    a.email = object.email
-    a.verified = !!object.verified
-    a.srp = object.srp
-    a.kA = object.kA
-    a.wrapKb = object.wrapKb
-    a.passwordStretching = object.passwordStretching
-    a.resetTokenId = object.resetTokenId
-    a.sessionTokenIds = object.sessionTokenIds || {}
-    a.recoveryEmailCodes = object.recoveryEmailCodes || {}
-    return a
-  }
-
-  Account.create = function (options) {
-    log.trace({ op: 'Account.create', email: options.email })
-    return Account
-      .exists(options.email)
-      .then(
-        function (exists) {
-          if (exists) {
-            throw error.accountExists(options.email)
-          }
-          var account = Account.hydrate(options)
-          if (config.dev && config.dev.verified) {
-            account.verified = true
-          }
-          return RecoveryEmail
-            .create(account.uid, account.email, true, account.verified)
-            .then(
-              function (rm) {
-                account.recoveryEmailCodes[rm.code] = true
-              }
-            )
-            .then(
-              function () {
-                return account.save(true)
-              }
-            )
-        }
-      )
-  }
-
-  function deleteIndex(email) {
-    log.trace({ op: 'Account.deleteIndex', email: email })
-    return db.delete(email + '/uid')
-  }
-
-  function deleteRecord(uid) {
-    log.trace({ op: 'Account.deleteRecord', uid: uid })
-    return db.delete(uid + '/user')
-  }
-
-  Account.del = function (uid) {
-    log.trace({ op: 'Account.del', uid: uid })
-    return Account
-      .get(uid)
-      .then(
-        function (account) {
-          return account ? account.del() : P(null)
-        }
-      )
-  }
-
-  Account.principal = function (uid) {
-    return uid + '@' + domain
-  }
-
-  Account.getId = function (email) {
-    log.trace({ op: 'Account.getId', email: email })
-    return db
-      .get(email + '/uid')
-      .then(
-        function (uid) {
-          return uid ? uid.value : null
-        }
-      )
-  }
-
-  Account.exists = function (email) {
-    log.trace({ op: 'Account.exists', email: email })
-    return Account
-      .getId(email)
-      .then(
-        function (uid) {
-          return !!uid
-        }
-      )
-  }
-
-  Account.getByEmail = function (email) {
-    log.trace({ op: 'Account.getByEmail', email: email })
-    return Account.getId(email).then(Account.get)
-  }
-
-  Account.get = function (uid) {
-    log.trace({ op: 'Account.get', uid: uid })
-    if (!uid) { return P(null) }
-    return db
-      .get(uid + '/user')
-      .then(Account.hydrate)
-  }
-
-  Account.save = function (uid, value) {
-    log.trace({ op: 'Account.save', uid: uid })
-    return db.set(uid + '/user', value).then(function () { return value })
-  }
-
-  Account.verify = function (recoveryEmail) {
-    log.trace({ op: 'Account.verify', email: recoveryEmail && recoveryEmail.email })
-    if (recoveryEmail.primary && recoveryEmail.verified) {
-      return Account.get(recoveryEmail.uid)
-        .then(
-          function (account) {
-            if (!account.verified && recoveryEmail.uid === account.uid) {
-              account.verified = true
-              return account.save()
-            }
-            else {
-              return P(account)
-            }
-          }
-        )
-    }
-    else {
-      return Account.get(recoveryEmail.uid)
-    }
-  }
-
-  Account.prototype.principal = function () {
-    return Account.principal(this.uid)
-  }
-
-  Account.prototype.addSessionToken = function (token) {
-    log.trace({ op: 'account.addSessionToken', uid: this.uid, id: token && token.id })
-    this.sessionTokenIds[token.id] = true
-    return this.save()
-  }
-
-  Account.prototype.setResetToken = function (token) {
-    log.trace({ op: 'account.setResetToken', uid: this.uid, id: token && token.id })
-    var set = function () {
-      this.resetTokenId = token.id
-      return this.save()
-    }.bind(this)
-    if (this.resetTokenId !== null) {
-      return AccountResetToken
-        .del(this.resetTokenId)
-        .then(set)
-    }
-    return set()
-  }
-
-  Account.prototype.setForgotPasswordToken = function (token) {
-    log.trace({ op: 'account.setForgotPasswordToken', uid: this.uid, id: token && token.id })
-    var set = function () {
-      this.forgotPasswordTokenId = token.id
-      return this.save()
-    }.bind(this)
-    if (this.forgotPasswordTokenId !== null) {
-      return ForgotPasswordToken
-        .del(this.forgotPasswordTokenId)
-        .then(set)
-    }
-    return set()
-  }
-
-  Account.prototype.deleteSessionToken = function (id) {
-    log.trace({ op: 'account.deleteSessionToken', uid: this.uid, id: id })
-    delete this.sessionTokenIds[id]
-    return SessionToken.del(id)
-      .then(this.save.bind(this))
-  }
-
-  Account.prototype.sessionTokens = function () {
-    log.trace({ op: 'account.sessionTokens', uid: this.uid })
-    var ids = Object.keys(this.sessionTokenIds)
-    var tokens = []
-    for (var i = 0; i < ids.length; i++) {
-      tokens.push(SessionToken.get(ids[i]))
-    }
-    return P.all(tokens)
-  }
-
-  Account.prototype.deleteAllTokens = function () {
-    log.trace({ op: 'account.deleteAllTokens', uid: this.uid })
-    var ids = Object.keys(this.sessionTokenIds)
-    var tokens = []
-    for (var i = 0; i < ids.length; i++) {
-      tokens.push(SessionToken.del(ids[i]))
-    }
-    tokens.push(AccountResetToken.del(this.resetTokenId))
-    this.resetTokenId = null
-    this.sessionTokenIds = {}
-    return P.all(tokens)
-  }
-
-  Account.prototype.addRecoveryEmail = function (rm) {
-    log.trace({ op: 'account.addRecoveryEmail', uid: this.uid, code: rm && rm.code })
-    this.recoveryEmailCodes[rm.code] = true
-    return this.save()
-  }
-
-  Account.prototype.recoveryEmails = function () {
-    log.trace({ op: 'account.recoveryEmails', uid: this.uid })
-    var codes = Object.keys(this.recoveryEmailCodes)
-    var methods = []
-    for (var i = 0; i < codes.length; i++) {
-      methods.push(RecoveryEmail.get(this.uid, codes[i]))
-    }
-    return P.all(methods)
-  }
-
-  Account.prototype.primaryRecoveryEmail = function () {
-    // TODO: this is not ideal. consider refactoring how
-    // recovery emails are indexed
-    log.trace({ op: 'account.primaryRecoveryEmail', uid: this.uid })
-    return this.recoveryEmails()
-      .then(
-        function (emails) {
-          for (var i = 0; emails.length; i++) {
-            var email = emails[i]
-            if (email.primary) {
-              return email
-            }
-          }
-          return null
-        }
-      )
-  }
-
-  Account.prototype.deleteAllRecoveryEmails = function () {
-    log.trace({ op: 'account.deleteAllRecoveryEmails', uid: this.uid })
-    var codes = Object.keys(this.recoveryEmailCodes)
-    var emails = []
-    for (var i = 0; i < codes.length; i++) {
-      emails.push(RecoveryEmail.del(this.uid, codes[i]))
-    }
-    this.recoveryEmailCodes = {}
-    return P.all(emails)
-  }
-
-  Account.prototype.save = function (isNew) {
-    log.trace({ op: 'account.save', uid: this.uid, new: isNew })
-    if (isNew) {
-      return db
-        .set(this.email + '/uid', this.uid)
-        .then(Account.save.bind(null, this.uid, this))
-    }
-    else {
-      return Account.save(this.uid, this)
-    }
-  }
-
-  Account.prototype.reset = function (form) {
-    log.trace({ op: 'account.reset', uid: this.uid })
-    //this.kA = null // TODO
-    this.wrapKb = form.wrapKb
-    this.srp = form.srp
-    this.passwordStretching = form.passwordStretching
-    return this.deleteAllTokens()
-      .then(this.save.bind(this))
-  }
-
-  Account.prototype.del = function () {
-    log.trace({ op: 'account.del', uid: this.uid })
-    return this.deleteAllTokens()
-      .then(this.deleteAllRecoveryEmails.bind(this))
-      .then(deleteRecord.bind(null, this.uid))
-      .then(deleteIndex.bind(null, this.email))
-      .then(function () { return {} })
-  }
-
-  return Account
-}
-
-
-},{}],11:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (log, inherits, Token, crypto, db) {
-
-  var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
-
-  function AccountResetToken() {
-    Token.call(this)
-  }
-  inherits(AccountResetToken, Token)
-
-  AccountResetToken.hydrate = function (object) {
-    return Token.fill(new AccountResetToken(), object)
-  }
-
-  AccountResetToken.create = function (uid) {
-    log.trace({ op: 'AccountResetToken.create', uid: uid })
-    return Token
-      .randomTokenData('account/reset', 2 * 32 + 32 + 256)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new AccountResetToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.xorKey = key.slice(64, 352).toString('hex')
-          return t.save()
-        }
-      )
-  }
-
-  AccountResetToken.fromHex = function (string) {
-    log.trace({ op: 'AccountResetToken.fromHex' })
-    return Token
-      .tokenDataFromBytes(
-        'account/reset',
-        2 * 32 + 32 + 256,
-        Buffer(string, 'hex')
-      )
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new AccountResetToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.xorKey = key.slice(64, 352).toString('hex')
-          return t
-        }
-      )
-  }
-
-  AccountResetToken.getCredentials = function (id, cb) {
-    log.trace({ op: 'AccountResetToken.getCredentials', id: id })
-    AccountResetToken.get(id)
-      .done(
-        function (token) {
-          cb(null, token)
-        },
-        cb
-      )
-  }
-
-  AccountResetToken.get = function (id) {
-    log.trace({ op: 'AccountResetToken.get', id: id })
-    return db
-      .get(id + '/reset')
-      .then(AccountResetToken.hydrate)
-  }
-
-  AccountResetToken.del = function (id) {
-    log.trace({ op: 'AccountResetToken.del', id: id })
-    return db.delete(id + '/reset')
-  }
-
-  AccountResetToken.prototype.save = function () {
-    log.trace({ op: 'accountResetToken.save', id: this.id })
-    var self = this
-    return db.set(this.id + '/reset', this).then(function () { return self })
-  }
-
-  AccountResetToken.prototype.del = function () {
-    return AccountResetToken.del(this.id)
-  }
-
-  AccountResetToken.prototype.bundle = function (wrapKb, verifier) {
-    log.trace({ op: 'accountResetToken.bundle', id: this.id })
-    return this.xor(
-      Buffer.concat(
-        [
-          Buffer(wrapKb, 'hex'),
-          Buffer(verifier, 'hex')
-        ]
-      )
-    ).toString('hex')
-  }
-
-  AccountResetToken.prototype.unbundle = function (hex) {
-    log.trace({ op: 'accountResetToken.unbundle', id: this.id })
-    var plaintext = this.xor(Buffer(hex, 'hex'))
-    var wrapKb = plaintext.slice(0, 32).toString('hex')
-    var verifier = plaintext.slice(32, 288).toString('hex')
-    if (wrapKb === NULL) {
-      wrapKb = crypto.randomBytes(32).toString('hex')
-    }
-    return {
-      wrapKb: wrapKb,
-      verifier: verifier
-    }
-  }
-
-  return AccountResetToken
-}
-
-},{"__browserify_Buffer":4}],12:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (log, inherits, Bundle, Account, tokens) {
-
-  function AuthBundle() {
-    Bundle.call(this)
-    this.authToken = null
-    this.otherToken = null
-  }
-  inherits(AuthBundle, Bundle)
-
-  AuthBundle.create = function (K, type) {
-    log.trace({ op: 'AuthBundle.create', type: type })
-    return Bundle
-      .hkdf(K, type, null, 2 * 32)
-      .then(
-        function (key) {
-          var b = new AuthBundle()
-          b.hmacKey = key.slice(0, 32).toString('hex')
-          b.xorKey = key.slice(32, 64).toString('hex')
-          return b
-        }
-      )
-  }
-
-  AuthBundle.login = function (K, uid) {
-    log.trace({ op: 'AuthBundle.login', uid: uid })
-    return AuthBundle.create(K, 'auth/finish')
-      .then(
-        function (b) {
-          return tokens.AuthToken.create(uid)
-            .then(
-              function (t) {
-                b.authToken = t
-                return {
-                  bundle: b.bundle()
-                }
-              }
-            )
-        }
-      )
-  }
-
-  AuthBundle.prototype.unbundle = function (hex) {
-    log.trace({ op: 'authBundle.unbundle' })
-    var bundle = Buffer(hex, 'hex')
-    var ciphertext = bundle.slice(0, 32)
-    var hmac = bundle.slice(32, 64)
-    if (this.hmac(ciphertext).toString('hex') !== hmac.toString('hex')) {
-      throw new Error('Corrupt Message')
-    }
-    var plaintext = this.xor(ciphertext)
-    return plaintext.slice(0, 32).toString('hex')
-  }
-
-  AuthBundle.prototype.bundle = function () {
-    log.trace({ op: 'authBundle.bundle' })
-    return this.bundleHexStrings([this.authToken.data])
-  }
-
-  return AuthBundle
-}
-
-},{"__browserify_Buffer":4}],13:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (log, inherits, Token, db) {
-
-  function AuthToken() {
-    Token.call(this)
-    this.opKey = null
-  }
-  inherits(AuthToken, Token)
-
-  AuthToken.hydrate = function (object) {
-    var t = Token.fill(new AuthToken(), object)
-    if (t) {
-      t.opKey = object.value ? object.value.opKey : object.opKey
-    }
-    return t
-  }
-
-  AuthToken.create = function (uid) {
-    log.trace({ op: 'AuthToken.create', uid: uid })
-    return Token
-      .randomTokenData('authToken', 3 * 32)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new AuthToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.opKey = key.slice(64, 96).toString('hex')
-          return t.save()
-        }
-      )
-  }
-
-  AuthToken.getCredentials = function (id, cb) {
-    log.trace({ op: 'AuthToken.getCredentials', id: id })
-    AuthToken.get(id)
-      .done(
-        function (token) {
-          cb(null, token)
-        },
-        cb
-      )
-  }
-
-  AuthToken.fromHex = function (string) {
-    log.trace({ op: 'AuthToken.fromHex' })
-    return Token.
-      tokenDataFromBytes(
-        'authToken',
-        3 * 32,
-        Buffer(string, 'hex')
-      )
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new AuthToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.opKey = key.slice(64, 96).toString('hex')
-          return t
-        }
-      )
-  }
-
-  AuthToken.get = function (id) {
-    log.trace({ op: 'AuthToken.get', id: id })
-    return db
-      .get(id + '/auth')
-      .then(AuthToken.hydrate)
-  }
-
-  AuthToken.del = function (id) {
-    log.trace({ op: 'AuthToken.del', id: id })
-    return db.delete(id + '/auth')
-  }
-
-  AuthToken.prototype.save = function () {
-    log.trace({ op: 'authToken.save', id: this.id })
-    var self = this
-    return db.set(this.id + '/auth', this).then(function () { return self })
-  }
-
-  AuthToken.prototype.del = function () {
-    return AuthToken.del(this.id)
-  }
-
-  AuthToken.prototype.bundleKeys = function (type, keyFetchToken, otherToken) {
-    log.trace({ op: 'authToken.bundleKeys', id: this.id, type: type })
-    return Token.tokenDataFromBytes(
-      type,
-      3 * 32,
-      Buffer(this.opKey, 'hex')
-    )
-    .then(
-      function (data) {
-        var wrapper = new Token()
-        wrapper.hmacKey = data[1].slice(0, 32).toString('hex')
-        wrapper.xorKey = data[1].slice(32, 96).toString('hex')
-        return wrapper.bundleHexStrings([keyFetchToken.data, otherToken.data])
-      }
-    )
-  }
-
-  AuthToken.prototype.bundleSession = function (keyFetchToken, sessionToken) {
-    return this.bundleKeys('session/create', keyFetchToken, sessionToken)
-  }
-
-  AuthToken.prototype.bundleAccountReset = function (keyFetchToken, accountResetToken) {
-    return this.bundleKeys('password/change', keyFetchToken, accountResetToken)
-  }
-
-  AuthToken.prototype.unbundleSession = function (bundle) {
-    log.trace({ op: 'authToken.unbundleSession', id: this.id })
-    return this.unbundle('session/create', bundle)
-      .then(
-        function (tokens) {
-          return {
-            keyFetchToken: tokens.keyFetchToken,
-            sessionToken: tokens.otherToken
-          }
-        }
-      )
-  }
-
-  AuthToken.prototype.unbundleAccountReset = function (bundle) {
-    log.trace({ op: 'authToken.unbundleAccountReset', id: this.id })
-    return this.unbundle('password/change', bundle)
-      .then(
-        function (tokens) {
-          return {
-            keyFetchToken: tokens.keyFetchToken,
-            accountResetToken: tokens.otherToken
-          }
-        }
-      )
-  }
-
-  AuthToken.prototype.unbundle = function (type, bundle) {
-    log.trace({ op: 'authToken.unbundle', id: this.id, type: type })
-    return Token.tokenDataFromBytes(
-      type,
-      3 * 32,
-      Buffer(this.opKey, 'hex')
-    )
-    .then(
-      function (data) {
-        var token = new Token()
-        token.hmacKey = data[1].slice(0, 32).toString('hex')
-        token.xorKey = data[1].slice(32, 96).toString('hex')
-        return token
-      }
-    )
-    .then(
-      function (token) {
-        var buffer = Buffer(bundle, 'hex')
-        var ciphertext = buffer.slice(0, 64)
-        var hmac = buffer.slice(64, 96).toString('hex')
-        if(token.hmac(ciphertext).toString('hex') !== hmac) {
-          throw new Error('Unmatching HMAC')
-        }
-        var plaintext = token.xor(ciphertext)
-        return {
-          keyFetchToken: plaintext.slice(0, 32).toString('hex'),
-          otherToken: plaintext.slice(32, 64).toString('hex')
-        }
-      }
-    )
-  }
-
-  return AuthToken
-}
-
-},{"__browserify_Buffer":4}],14:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (log, inherits, Token, crypto, db, mailer) {
-
-  var LIFETIME = 1000 * 60 * 15
-
-  function ForgotPasswordToken() {
-    Token.call(this)
-    this.email = null
-    this.created = null
-    this.code = null
-    this.tries = null
-  }
-  inherits(ForgotPasswordToken, Token)
-
-  ForgotPasswordToken.hydrate = function (object) {
-    var t = Token.fill(new ForgotPasswordToken(), object)
-    if (t) {
-      var o = object.value || object
-      t.email = o.email
-      t.code = o.code
-      t.tries = o.tries
-      t.created = o.created
-    }
-    return t
-  }
-
-  ForgotPasswordToken.create = function (uid, email) {
-    log.trace({ op: 'ForgotPasswordToken.create', uid: uid, email: email })
-    return Token
-      .randomTokenData('password/forgot', 2 * 32)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new ForgotPasswordToken()
-          t.uid = uid
-          t.email = email
-          t.code = crypto.randomBytes(4).readUInt32BE(0) % 100000000
-          t.created = Date.now()
-          t.tries = 3
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t.save()
-        }
-      )
-  }
-
-  ForgotPasswordToken.fromHex = function (string) {
-    log.trace({ op: 'ForgotPasswordToken.fromHex' })
-    return Token
-      .tokenDataFromBytes(
-        'password/forgot',
-        2 * 32,
-        Buffer(string, 'hex')
-      )
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new ForgotPasswordToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
-  }
-
-  ForgotPasswordToken.getCredentials = function (id, cb) {
-    log.trace({ op: 'ForgotPasswordToken.create', id: id })
-    ForgotPasswordToken.get(id)
-      .done(
-        function (token) {
-          cb(null, token)
-        },
-        cb
-      )
-  }
-
-  ForgotPasswordToken.get = function (id) {
-    log.trace({ op: 'ForgotPasswordToken.get', id: id })
-    return db
-      .get(id + '/forgot')
-      .then(ForgotPasswordToken.hydrate)
-  }
-
-  ForgotPasswordToken.del = function (id) {
-    log.trace({ op: 'ForgotPasswordToken.del', id: id })
-    return db.delete(id + '/forgot')
-  }
-
-  ForgotPasswordToken.prototype.save = function () {
-    log.trace({ op: 'forgotPasswordToken.save', id: this.id })
-    var self = this
-    return db.set(this.id + '/forgot', this).then(function () { return self })
-  }
-
-  ForgotPasswordToken.prototype.del = function () {
-    return ForgotPasswordToken.del(this.id)
-  }
-
-  ForgotPasswordToken.prototype.failAttempt = function () {
-    log.trace({ op: 'forgotPasswordToken.failAttempt', id: this.id })
-    this.tries--
-    if (this.tries < 1) {
-      return this.del()
-    }
-    return this.save()
-  }
-
-  ForgotPasswordToken.prototype.ttl = function () {
-    return Math.max(
-      Math.ceil((LIFETIME - (Date.now() - this.created)) / 1000),
-      0
-    )
-  }
-
-  ForgotPasswordToken.prototype.sendRecoveryCode = function () {
-    log.trace({ op: 'forgotPasswordToken.sendRecoveryCode', id: this.id })
-    return mailer.sendRecoveryCode(Buffer(this.email, 'hex').toString(), this.code)
-  }
-
-  return ForgotPasswordToken
-}
-
-},{"__browserify_Buffer":4}],15:[function(require,module,exports){
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-var crypto = require('crypto')
-var inherits = require('util').inherits
-
-var P = require('p-promise')
-var srp = require('srp')
-var uuid = require('uuid')
-
-var Bundle = require('../bundle')
-var error = require('../error')
-
-module.exports = function (log, config, dbs, mailer) {
-
-  var Token = require('./token')(log, inherits, Bundle)
-
-  var KeyFetchToken = require('./key_fetch_token')(
-    log,
-    inherits,
-    Token,
-    dbs.cache
-  )
-  var AccountResetToken = require('./account_reset_token')(
-    log,
-    inherits,
-    Token,
-    crypto,
-    dbs.store
-  )
-  var SessionToken = require('./session_token')(
-    log,
-    inherits,
-    Token,
-    dbs.store
-  )
-  var AuthToken = require('./auth_token')(
-    log,
-    inherits,
-    Token,
-    dbs.cache
-  )
-  var ForgotPasswordToken = require('./forgot_password_token')(
-    log,
-    inherits,
-    Token,
-    crypto,
-    dbs.cache,
-    mailer
-  )
-  var tokens = {
-    AccountResetToken: AccountResetToken,
-    KeyFetchToken: KeyFetchToken,
-    SessionToken: SessionToken,
-    AuthToken: AuthToken,
-    ForgotPasswordToken: ForgotPasswordToken
-  }
-
-  var RecoveryEmail = require('./recovery_email')(
-    log,
-    crypto,
-    P,
-    dbs.store,
-    mailer
-  )
-  var Account = require('./account')(
-    log,
-    P,
-    tokens,
-    RecoveryEmail,
-    dbs.store,
-    config,
-    error
-  )
-  var SrpSession = require('./srp_session')(
-    log,
-    P,
-    uuid,
-    srp,
-    dbs.cache,
-    error
-  )
-  var AuthBundle = require('./auth_bundle')(
-    log,
-    inherits,
-    Bundle,
-    Account,
-    tokens
-  )
-
-  return {
-    dbs: dbs,
-    Account: Account,
-    AuthBundle: AuthBundle,
-    RecoveryEmail: RecoveryEmail,
-    SrpSession: SrpSession,
-    tokens: tokens
-  }
-}
-
-},{"../bundle":6,"../error":26,"./account":10,"./account_reset_token":11,"./auth_bundle":12,"./auth_token":13,"./forgot_password_token":14,"./key_fetch_token":16,"./recovery_email":17,"./session_token":18,"./srp_session":19,"./token":20,"crypto":"Tk74kK","p-promise":78,"srp":82,"util":34,"uuid":86}],16:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (log, inherits, Token, db) {
-
-  function KeyFetchToken() {
-    Token.call(this)
-  }
-  inherits(KeyFetchToken, Token)
-
-  KeyFetchToken.hydrate = function (object) {
-    return Token.fill(new KeyFetchToken(), object)
-  }
-
-  KeyFetchToken.create = function (uid) {
-    log.trace({ op: 'KeyFetchToken.create', uid: uid })
-    return Token
-      .randomTokenData('account/keys', 3 * 32 + 2 * 32)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new KeyFetchToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.hmacKey = key.slice(64, 96).toString('hex')
-          t.xorKey = key.slice(96, 160).toString('hex')
-          return t.save()
-        }
-      )
-  }
-
-  KeyFetchToken.getCredentials = function (id, cb) {
-    log.trace({ op: 'KeyFetchToken.getCredentials', id: id })
-    KeyFetchToken.get(id)
-      .done(
-        function (token) {
-          cb(null, token)
-        },
-        cb
-      )
-  }
-
-  KeyFetchToken.fromHex = function (string) {
-    log.trace({ op: 'KeyFetchToken.fromHex' })
-    return Token.
-      tokenDataFromBytes(
-        'account/keys',
-        3 * 32 + 2 * 32,
-        Buffer(string, 'hex')
-      )
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new KeyFetchToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.hmacKey = key.slice(64, 96).toString('hex')
-          t.xorKey = key.slice(96, 160).toString('hex')
-          return t
-        }
-      )
-  }
-
-  KeyFetchToken.get = function (id) {
-    log.trace({ op: 'KeyFetchToken.get', id: id })
-    return db
-      .get(id + '/fetch')
-      .then(KeyFetchToken.hydrate)
-  }
-
-  KeyFetchToken.del = function (id) {
-    log.trace({ op: 'KeyFetchToken.del', id: id })
-    return db.delete(id + '/fetch')
-  }
-
-  KeyFetchToken.prototype.save = function () {
-    log.trace({ op: 'keyFetchToken.save', id: this.id })
-    var self = this
-    return db.set(this.id + '/fetch', this).then(function () { return self })
-  }
-
-  KeyFetchToken.prototype.del = function () {
-    return KeyFetchToken.del(this.id)
-  }
-
-  KeyFetchToken.prototype.bundle = function (kA, wrapKb) {
-    log.trace({ op: 'keyFetchToken.bundle', id: this.id })
-    return this.bundleHexStrings([kA, wrapKb])
-  }
-
-  KeyFetchToken.prototype.unbundle = function (bundle) {
-    log.trace({ op: 'keyFetchToken.unbundle', id: this.id })
-    var buffer = Buffer(bundle, 'hex')
-    var ciphertext = buffer.slice(0, 64)
-    var hmac = buffer.slice(64, 96).toString('hex')
-    if(this.hmac(ciphertext).toString('hex') !== hmac) {
-      throw new Error('Unmatching HMAC')
-    }
-    var plaintext = this.xor(ciphertext)
-    return {
-      kA: plaintext.slice(0, 32).toString('hex'),
-      wrapKb: plaintext.slice(32, 64).toString('hex')
-    }
-  }
-
-  return KeyFetchToken
-}
-
-},{"__browserify_Buffer":4}],17:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (log, crypto, P, db, mailer) {
-
-  function RecoveryEmail() {
-    this.email = null
-    this.code = null
-    this.uid = null
-    this.verified = false
-    this.primary = false
-    this.code = null
-  }
-
-  RecoveryEmail.create = function (uid, email, primary, verified) {
-    log.trace({ op: 'RecoveryEmail.create', uid: uid, email: email })
-    var rm = new RecoveryEmail()
-    rm.email = email
-    rm.uid = uid
-    rm.primary = !!primary
-    rm.verified = verified || false
-    rm.code = crypto.randomBytes(4).toString('hex')
-    if (!rm.verified) {
-      return rm.sendVerifyCode().then(function () { return rm.save() })
-    }
-    else {
-      return rm.save()
-    }
-  }
-
-  RecoveryEmail.hydrate = function (object) {
-    if (!object) return null
-    if (object.value) object = object.value
-    var rm = new RecoveryEmail()
-    rm.email = object.email
-    rm.code = object.code
-    rm.uid = object.uid
-    rm.verified = object.verified
-    rm.primary = object.primary
-    rm.code = object.code
-    return rm
-  }
-
-  RecoveryEmail.get = function (uid, code) {
-    log.trace({ op: 'RecoveryEmail.get', uid: uid, code: code })
-    return db
-      .get(uid + code + '/recovery')
-      .then(RecoveryEmail.hydrate)
-  }
-
-  RecoveryEmail.del = function (uid, code) {
-    log.trace({ op: 'RecoveryEmail.del', uid: uid, code: code })
-    return db.delete(uid + code + '/recovery')
-  }
-
-  RecoveryEmail.prototype.save = function () {
-    log.trace({ op: 'recoveryEmail.save', uid: this.uid, code: this.code })
-    var self = this
-    return db.set(this.uid + this.code + '/recovery', this).then(function () { return self })
-  }
-
-  RecoveryEmail.prototype.del = function () {
-    return RecoveryEmail.del(this.uid, this.code)
-  }
-
-  RecoveryEmail.prototype.sendVerifyCode = function () {
-    log.trace({ op: 'recoveryEmail.sendVerifyCode', uid: this.uid, email: this.email })
-    return mailer.sendVerifyCode(Buffer(this.email, 'hex').toString('utf8'), this.code, this.uid)
-  }
-
-  RecoveryEmail.prototype.verify = function (code) {
-    log.trace({ op: 'recoveryEmail.verify', uid: this.uid, code: code })
-    if (!this.verified && code === this.code) {
-      this.verified = true
-      return this.save()
-    }
-    return P(this)
-  }
-
-  return RecoveryEmail
-}
-
-},{"__browserify_Buffer":4}],18:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (log, inherits, Token, db) {
-
-  function SessionToken() {
-    Token.call(this)
-  }
-  inherits(SessionToken, Token)
-
-  SessionToken.hydrate = function (object) {
-    return Token.fill(new SessionToken(), object)
-  }
-
-  SessionToken.create = function (uid) {
-    log.trace({ op: 'SessionToken.create', uid: uid })
-    return Token
-      .randomTokenData('session', 2 * 32)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new SessionToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t.save()
-        }
-      )
-  }
-
-  SessionToken.fromHex = function (string) {
-    log.trace({ op: 'SessionToken.fromHex' })
-    return Token
-      .tokenDataFromBytes(
-        'session',
-        2 * 32,
-        Buffer(string, 'hex')
-      )
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new SessionToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
-  }
-
-  SessionToken.getCredentials = function (id, cb) {
-    log.trace({ op: 'SessionToken.getCredentials', id: id })
-    SessionToken.get(id)
-      .done(
-        function (token) {
-          cb(null, token)
-        },
-        cb
-      )
-  }
-
-  SessionToken.get = function (id) {
-    log.trace({ op: 'SessionToken.get', id: id })
-    return db
-      .get(id + '/session')
-      .then(SessionToken.hydrate)
-  }
-
-  SessionToken.del = function (id) {
-    log.trace({ op: 'SessionToken.del', id: id })
-    return db.delete(id + '/session')
-  }
-
-  SessionToken.prototype.save = function () {
-    log.trace({ op: 'sessionToken.save', id: this.id })
-    var self = this
-    return db.set(this.id + '/session', this).then(function () { return self })
-  }
-
-  SessionToken.prototype.del = function () {
-    return SessionToken.del(this.id)
-  }
-
-  return SessionToken
-}
-
-},{"__browserify_Buffer":4}],19:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-var Domain = require('domain')
-var crypto = require('crypto')
-
-module.exports = function (log, P, uuid, srp, db, error) {
-
-  var alg = 'sha256'
-
-  function SrpSession() {
-    this.id = null
-    this.uid = null
-    this.N = null
-    this.g = null
-    this.s = null
-    this.v = null
-    this.b = null
-    this.B = null
-    this.K = null
-    this.passwordStretching = null
-  }
-
-  function srpGenKey() {
-    var d = P.defer()
-    // capturing the domain here is a workaround for:
-    // https://github.com/joyent/node/issues/3965
-    var domain = process.domain
-    crypto.randomBytes(32,
-      function (err, bytes) {
-        if (domain) domain.enter()
-        var x = err ? d.reject(err) : d.resolve(bytes)
-        if (domain) domain.exit()
-        return x
-      }
-    )
-    return d.promise
-  }
-
-  SrpSession.create = function (account) {
-    log.trace({ op: 'SrpSession.create', uid: account && account.uid })
-    var session = null
-    if (!account) { throw error.unknownAccount() }
-    return srpGenKey()
-      .then(
-        function (b) {
-          session = new SrpSession()
-          session.id = uuid.v4()
-          session.uid = account.uid
-          session.N = srp.params[2048].N
-          session.g = srp.params[2048].g
-          session.s = account.srp.salt
-          session.v = Buffer(account.srp.verifier, 'hex')
-          session.b = b
-          session.B = srp.getB(session.v, session.g, b, session.N, alg)
-          session.passwordStretching = account.passwordStretching
-          return session.save()
-        }
-      )
-  }
-
-  SrpSession.del = function (id) {
-    log.trace({ op: 'SrpSession.del', id: id })
-    return db.delete(id + '/srp')
-  }
-
-  SrpSession.start = function (account) {
-    log.trace({ op: 'SrpSession.start', uid: account && account.uid })
-    return SrpSession.create(account)
-      .then(
-        function (session) {
-          return session.clientData()
-        }
-      )
-  }
-
-  SrpSession.finish = function (id, A, M1) {
-    log.trace({ op: 'SrpSession.finish', id: id })
-    A = Buffer(A, 'hex')
-    return SrpSession
-      .get(id)
-      .then(
-        function (session) {
-          var N = srp.params[2048].N
-          var S = srp.server_getS(
-            Buffer(session.s, 'hex'),
-            Buffer(session.v, 'hex'),
-            N,
-            srp.params[2048].g,
-            A,
-            Buffer(session.b, 'hex'),
-            alg
-          )
-          var M2 = srp.getM(A, Buffer(session.B, 'hex'), S, N)
-          if (M1 !== M2.toString('hex')) {
-            // TODO: increment bad guess counter
-            // TODO: delete session?
-            throw error.incorrectPassword()
-          }
-          session.K = srp.getK(S, N, alg)
-          return session
-            .del()
-            .then(function () { return session })
-        }
-      )
-  }
-
-  SrpSession.hydrate = function (object) {
-    if (!object) return null
-    if (object.value) object = object.value
-    var s = new SrpSession()
-    s.id = object.id
-    s.uid = object.uid
-    s.N = srp.params[object.N_bits].N
-    s.g = srp.params[object.N_bits].g
-    s.s = object.s
-    s.v = Buffer(object.v, 'hex')
-    s.b = Buffer(object.b, 'hex')
-    s.B = Buffer(object.B, 'hex')
-    return s
-  }
-
-  SrpSession.get = function (id) {
-    log.trace({ op: 'SrpSession.get', id: id })
-    return db
-      .get(id + '/srp')
-      .then(SrpSession.hydrate)
-  }
-
-  SrpSession.prototype.clientData = function () {
-    log.trace({ op: 'srpSession.clientData', id: this.id })
-    return {
-      srpToken: this.id,
-      passwordStretching: this.passwordStretching,
-      srp: {
-        type: 'SRP-6a/SHA256/2048/v1',
-        salt: this.s,
-        B: this.B.toString('hex')
-      }
-    }
-  }
-
-  SrpSession.client2 = function (session, email, password) {
-    return srpGenKey()
-      .then(
-        function (a) {
-          var N = srp.params[2048].N
-          var g = srp.params[2048].g
-          var A = srp.getA(g, a, N)
-          var B = Buffer(session.srp.B, 'hex')
-          var S = srp.client_getS(
-            Buffer(session.srp.salt, 'hex'),
-            Buffer(email),
-            Buffer(password),
-            N,
-            g,
-            a,
-            B,
-            session.srp.alg
-          )
-
-          var M = srp.getM(A, B, S, N)
-          var K = srp.getK(S, N, 'sha256')
-          return {
-            A: A.toString('hex'),
-            M: M.toString('hex'),
-            K: K.toString('hex')
-          }
-        }
-      )
-  }
-
-  SrpSession.prototype.save = function () {
-    log.trace({ op: 'srpSession.save', id: this.id })
-    var self = this
-    return db.set(this.id + '/srp', {
-      id: this.id,
-      uid: this.uid,
-      N_bits: 2048, // TODO
-      s: this.s,
-      v: this.v.toString('hex'),
-      b: this.b.toString('hex'),
-      B: this.B.toString('hex')
-    }).then(function () { return self })
-  }
-
-  SrpSession.prototype.del = function () {
-    return SrpSession.del(this.id)
-  }
-
-  return SrpSession
-}
-
-},{"__browserify_Buffer":4,"__browserify_process":77,"crypto":"Tk74kK","domain":26}],20:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-module.exports = function (log, inherits, Bundle) {
-
-  function Token() {
-    Bundle.call(this)
-    this.id = null
-    this._key = null
-    this.algorithm = 'sha256'
-    this.uid = null
-    this.data = null
-  }
-  inherits(Token, Bundle)
-
-  // `token.key` is used by Hawk, and should be a Buffer.
-  // We store the hex-string so a getter is convenient
-  Object.defineProperty(
-    Token.prototype,
-    'key',
-    {
-      get: function () { return Buffer(this._key, 'hex') },
-      set: function (x) { this._key = x.toString('hex') }
-    }
-  )
-
-  Token.randomTokenData = function (info, size) {
-    return Bundle
-      .random32Bytes()
-      .then(Token.tokenDataFromBytes.bind(null, info, size))
-  }
-
-  Token.tokenDataFromBytes = function (info, size, bytes) {
-    return Bundle
-      .hkdf(bytes, info, null, size)
-      .then(
-        function (key) {
-          return [bytes, key]
-        }
-      )
-  }
-
-  Token.fill = function (token, raw) {
-    if (!raw) return null
-    if (raw.value) raw = raw.value
-    token.id = raw.id
-    token._key = raw._key,
-    token.uid = raw.uid
-    token.data = raw.data,
-    token.hmacKey = raw.hmacKey
-    token.xorKey = raw.xorKey
-    return token
-  }
-
-  return Token
-}
-
-},{"__browserify_Buffer":4}],21:[function(require,module,exports){
+},{"./hkdf":6,"./pbkdf2":8,"./scrypt":9,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":75}],8:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -2682,7 +1194,7 @@ function derive(input, salt) {
 
 module.exports.derive = derive
 
-},{"__browserify_Buffer":4,"p-promise":78,"sjcl":81,"sjcl-codec-bytes":79}],22:[function(require,module,exports){
+},{"__browserify_Buffer":4,"p-promise":75,"sjcl":77,"sjcl-codec-bytes":76}],9:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -2763,7 +1275,778 @@ function remoteScryptHelper(payload, url) {
 
 module.exports.hash = hash
 
-},{"__browserify_Buffer":4,"node-scrypt-js":26,"p-promise":78,"request":"kR9y8j"}],"BPqxwV":[function(require,module,exports){
+},{"__browserify_Buffer":4,"node-scrypt-js":22,"p-promise":75,"request":"hWH+d8"}],10:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+module.exports = function (log, inherits, Token, crypto) {
+
+  var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
+
+  function AccountResetToken() {
+    Token.call(this)
+  }
+  inherits(AccountResetToken, Token)
+
+  AccountResetToken.create = function (uid) {
+    log.trace({ op: 'AccountResetToken.create', uid: uid })
+    return Token
+      .randomTokenData('account/reset', 2 * 32 + 32 + 256)
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new AccountResetToken()
+          t.uid = uid
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          t.xorKey = key.slice(64, 352).toString('hex')
+          return t
+        }
+      )
+  }
+
+  AccountResetToken.fromHex = function (string) {
+    log.trace({ op: 'AccountResetToken.fromHex' })
+    return Token
+      .tokenDataFromBytes(
+        'account/reset',
+        2 * 32 + 32 + 256,
+        Buffer(string, 'hex')
+      )
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new AccountResetToken()
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          t.xorKey = key.slice(64, 352).toString('hex')
+          return t
+        }
+      )
+  }
+
+  AccountResetToken.prototype.bundle = function (wrapKb, verifier) {
+    log.trace({ op: 'accountResetToken.bundle', id: this.id })
+    return this.xor(
+      Buffer.concat(
+        [
+          Buffer(wrapKb, 'hex'),
+          Buffer(verifier, 'hex')
+        ]
+      )
+    ).toString('hex')
+  }
+
+  AccountResetToken.prototype.unbundle = function (hex) {
+    log.trace({ op: 'accountResetToken.unbundle', id: this.id })
+    var plaintext = this.xor(Buffer(hex, 'hex'))
+    var wrapKb = plaintext.slice(0, 32).toString('hex')
+    var verifier = plaintext.slice(32, 288).toString('hex')
+    if (wrapKb === NULL) {
+      wrapKb = crypto.randomBytes(32).toString('hex')
+    }
+    return {
+      wrapKb: wrapKb,
+      verifier: verifier
+    }
+  }
+
+  return AccountResetToken
+}
+
+},{"__browserify_Buffer":4}],11:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+module.exports = function (log, inherits, Token, error) {
+
+  function AuthToken() {
+    Token.call(this)
+    this.opKey = null
+  }
+  inherits(AuthToken, Token)
+
+  AuthToken.create = function (uid) {
+    log.trace({ op: 'AuthToken.create', uid: uid })
+    return Token
+      .randomTokenData('authToken', 3 * 32)
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new AuthToken()
+          t.uid = uid
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          t.opKey = key.slice(64, 96).toString('hex')
+          return t
+        }
+      )
+  }
+
+  AuthToken.fromHex = function (string) {
+    log.trace({ op: 'AuthToken.fromHex' })
+    return Token.
+      tokenDataFromBytes(
+        'authToken',
+        3 * 32,
+        Buffer(string, 'hex')
+      )
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new AuthToken()
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          t.opKey = key.slice(64, 96).toString('hex')
+          return t
+        }
+      )
+  }
+
+  AuthToken.prototype.bundleKeys = function (type, keyFetchToken, otherToken) {
+    log.trace({ op: 'authToken.bundleKeys', id: this.id, type: type })
+    return Token.tokenDataFromBytes(
+      type,
+      3 * 32,
+      Buffer(this.opKey, 'hex')
+    )
+    .then(
+      function (data) {
+        var wrapper = new Token()
+        wrapper.hmacKey = data[1].slice(0, 32).toString('hex')
+        wrapper.xorKey = data[1].slice(32, 96).toString('hex')
+        return wrapper.bundleHexStrings([keyFetchToken.data, otherToken.data])
+      }
+    )
+  }
+
+  AuthToken.prototype.unbundleSession = function (bundle) {
+    log.trace({ op: 'authToken.unbundleSession', id: this.id })
+    return this.unbundle('session/create', bundle)
+      .then(
+        function (tokens) {
+          return {
+            keyFetchToken: tokens.keyFetchToken,
+            sessionToken: tokens.otherToken
+          }
+        }
+      )
+  }
+
+  AuthToken.prototype.unbundleAccountReset = function (bundle) {
+    log.trace({ op: 'authToken.unbundleAccountReset', id: this.id })
+    return this.unbundle('password/change', bundle)
+      .then(
+        function (tokens) {
+          return {
+            keyFetchToken: tokens.keyFetchToken,
+            accountResetToken: tokens.otherToken
+          }
+        }
+      )
+  }
+
+  AuthToken.prototype.unbundle = function (type, bundle) {
+    log.trace({ op: 'authToken.unbundle', id: this.id, type: type })
+    return Token.tokenDataFromBytes(
+      type,
+      3 * 32,
+      Buffer(this.opKey, 'hex')
+    )
+    .then(
+      function (data) {
+        var token = new Token()
+        token.hmacKey = data[1].slice(0, 32).toString('hex')
+        token.xorKey = data[1].slice(32, 96).toString('hex')
+        return token
+      }
+    )
+    .then(
+      function (token) {
+        var buffer = Buffer(bundle, 'hex')
+        var ciphertext = buffer.slice(0, 64)
+        var hmac = buffer.slice(64, 96).toString('hex')
+        if(token.hmac(ciphertext).toString('hex') !== hmac) {
+          throw error.invalidSignature()
+        }
+        var plaintext = token.xor(ciphertext)
+        return {
+          keyFetchToken: plaintext.slice(0, 32).toString('hex'),
+          otherToken: plaintext.slice(32, 64).toString('hex')
+        }
+      }
+    )
+  }
+
+  return AuthToken
+}
+
+},{"__browserify_Buffer":4}],12:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+function error(details) {
+  var err = new Error(details.message);
+  for (var k in details) {
+    if (details.hasOwnProperty(k)) {
+      err[k] = details[k];
+    }
+  }
+  return err;
+}
+
+function accountExists(email) {
+  return error({
+    errno: 101,
+    message: 'Account already exists',
+    email: email
+  })
+}
+
+function unknownAccount(email) {
+  return error({
+    errno: 102,
+    message: 'Unknown account',
+    email: email
+  })
+}
+
+function incorrectPassword() {
+  return error({
+    errno: 103,
+    message: 'Incorrect password'
+  })
+}
+
+function invalidSignature() {
+  return error({
+    errno: 109,
+    message: 'Invalid signature'
+  })
+}
+
+function invalidToken() {
+  return error({
+    errno: 110,
+    message: 'Invalid authentication token in request signature'
+  })
+}
+
+module.exports = {
+  error: error,
+  accountExists: accountExists,
+  unknownAccount: unknownAccount,
+  incorrectPassword: incorrectPassword,
+  invalidSignature: invalidSignature,
+  invalidToken: invalidToken
+}
+
+},{}],13:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+module.exports = function (log, inherits, Token, crypto) {
+
+  var LIFETIME = 1000 * 60 * 15
+
+  function ForgotPasswordToken() {
+    Token.call(this)
+    this.email = null
+    this.created = null
+    this.passcode = null
+    this.tries = null
+  }
+  inherits(ForgotPasswordToken, Token)
+
+  ForgotPasswordToken.create = function (uid, email) {
+    log.trace({ op: 'ForgotPasswordToken.create', uid: uid, email: email })
+    return Token
+      .randomTokenData('password/forgot', 2 * 32)
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new ForgotPasswordToken()
+          t.uid = uid
+          t.email = email
+          t.passcode = crypto.randomBytes(4).readUInt32BE(0) % 100000000
+          t.created = Date.now()
+          t.tries = 3
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          return t
+        }
+      )
+  }
+
+  ForgotPasswordToken.fromHex = function (string) {
+    log.trace({ op: 'ForgotPasswordToken.fromHex' })
+    return Token
+      .tokenDataFromBytes(
+        'password/forgot',
+        2 * 32,
+        Buffer(string, 'hex')
+      )
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new ForgotPasswordToken()
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          return t
+        }
+      )
+  }
+
+  ForgotPasswordToken.prototype.ttl = function () {
+    return Math.max(
+      Math.ceil((LIFETIME - (Date.now() - this.created)) / 1000),
+      0
+    )
+  }
+
+  ForgotPasswordToken.prototype.failAttempt = function () {
+    this.tries--
+    return this.tries < 1
+  }
+
+  return ForgotPasswordToken
+}
+
+},{"__browserify_Buffer":4}],14:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var crypto = require('crypto')
+var inherits = require('util').inherits
+
+var P = require('p-promise')
+var srp = require('srp')
+var uuid = require('uuid')
+var hkdf = require('../hkdf')
+
+var error = require('./error')
+
+module.exports = function (log) {
+
+  var Token = require('./token')(log, crypto, P, hkdf, error)
+
+  var KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, error)
+  var AccountResetToken = require('./account_reset_token')(
+    log,
+    inherits,
+    Token,
+    crypto
+  )
+  var SessionToken = require('./session_token')(log, inherits, Token)
+  var AuthToken = require('./auth_token')(log, inherits, Token, error)
+  var ForgotPasswordToken = require('./forgot_password_token')(
+    log,
+    inherits,
+    Token,
+    crypto
+  )
+  var SrpToken = require('./srp_token')(
+    log,
+    P,
+    uuid,
+    srp,
+    error
+  )
+
+  Token.error = error
+  Token.AccountResetToken = AccountResetToken
+  Token.KeyFetchToken = KeyFetchToken
+  Token.SessionToken = SessionToken
+  Token.AuthToken = AuthToken
+  Token.ForgotPasswordToken = ForgotPasswordToken
+  Token.SrpToken = SrpToken
+
+  return Token
+}
+
+},{"../hkdf":6,"./account_reset_token":10,"./auth_token":11,"./error":12,"./forgot_password_token":13,"./key_fetch_token":15,"./session_token":16,"./srp_token":17,"./token":18,"crypto":"l4eWKl","p-promise":75,"srp":78,"util":31,"uuid":85}],15:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+module.exports = function (log, inherits, Token, error) {
+
+  function KeyFetchToken() {
+    Token.call(this)
+  }
+  inherits(KeyFetchToken, Token)
+
+  KeyFetchToken.create = function (uid) {
+    log.trace({ op: 'KeyFetchToken.create', uid: uid })
+    return Token
+      .randomTokenData('account/keys', 3 * 32 + 2 * 32)
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new KeyFetchToken()
+          t.uid = uid
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          t.hmacKey = key.slice(64, 96).toString('hex')
+          t.xorKey = key.slice(96, 160).toString('hex')
+          return t
+        }
+      )
+  }
+
+  KeyFetchToken.fromHex = function (string) {
+    log.trace({ op: 'KeyFetchToken.fromHex' })
+    return Token.
+      tokenDataFromBytes(
+        'account/keys',
+        3 * 32 + 2 * 32,
+        Buffer(string, 'hex')
+      )
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new KeyFetchToken()
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          t.hmacKey = key.slice(64, 96).toString('hex')
+          t.xorKey = key.slice(96, 160).toString('hex')
+          return t
+        }
+      )
+  }
+
+  KeyFetchToken.prototype.bundle = function (kA, wrapKb) {
+    log.trace({ op: 'keyFetchToken.bundle', id: this.id })
+    return this.bundleHexStrings([kA, wrapKb])
+  }
+
+  KeyFetchToken.prototype.unbundle = function (bundle) {
+    log.trace({ op: 'keyFetchToken.unbundle', id: this.id })
+    var buffer = Buffer(bundle, 'hex')
+    var ciphertext = buffer.slice(0, 64)
+    var hmac = buffer.slice(64, 96).toString('hex')
+    if(this.hmac(ciphertext).toString('hex') !== hmac) {
+      throw error.invalidSignature()
+    }
+    var plaintext = this.xor(ciphertext)
+    return {
+      kA: plaintext.slice(0, 32).toString('hex'),
+      wrapKb: plaintext.slice(32, 64).toString('hex')
+    }
+  }
+
+  return KeyFetchToken
+}
+
+},{"__browserify_Buffer":4}],16:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+module.exports = function (log, inherits, Token) {
+
+  function SessionToken() {
+    Token.call(this)
+  }
+  inherits(SessionToken, Token)
+
+  SessionToken.create = function (uid) {
+    log.trace({ op: 'SessionToken.create', uid: uid })
+    return Token
+      .randomTokenData('session', 2 * 32)
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new SessionToken()
+          t.uid = uid
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          return t
+        }
+      )
+  }
+
+  SessionToken.fromHex = function (string) {
+    log.trace({ op: 'SessionToken.fromHex' })
+    return Token
+      .tokenDataFromBytes(
+        'session',
+        2 * 32,
+        Buffer(string, 'hex')
+      )
+      .then(
+        function (data) {
+          var key = data[1]
+          var t = new SessionToken()
+          t.data = data[0].toString('hex')
+          t.id = key.slice(0, 32).toString('hex')
+          t._key = key.slice(32, 64).toString('hex')
+          return t
+        }
+      )
+  }
+
+  return SessionToken
+}
+
+},{"__browserify_Buffer":4}],17:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+var crypto = require('crypto')
+
+module.exports = function (log, P, uuid, srp, error) {
+
+  function SrpToken() {
+    this.id = null
+    this.uid = null
+    this.v = null
+    this.s = null
+    this.b = null
+    this.B = null
+    this.K = null
+    this.passwordStretching = null
+  }
+
+  function srpGenKey() {
+    var d = P.defer()
+    // capturing the domain here is a workaround for:
+    // https://github.com/joyent/node/issues/3965
+    var domain = process.domain
+    crypto.randomBytes(32,
+      function (err, bytes) {
+        if (domain) domain.enter()
+        var x = err ? d.reject(err) : d.resolve(bytes)
+        if (domain) domain.exit()
+        return x
+      }
+    )
+    return d.promise
+  }
+
+  SrpToken.create = function (account) {
+    log.trace({ op: 'SrpToken.create', uid: account && account.uid })
+    var t = null
+    return srpGenKey()
+      .then(
+        function (b) {
+          var srpServer = new srp.Server(
+            srp.params[2048],
+            Buffer(account.srp.verifier, 'hex'),
+            b
+          )
+          t = new SrpToken()
+          t.id = uuid.v4()
+          t.uid = account.uid
+          t.v = Buffer(account.srp.verifier, 'hex')
+          t.b = b
+          t.s = account.srp.salt
+          t.B = srpServer.computeB()
+          t.passwordStretching = account.passwordStretching
+          return t
+        }
+      )
+  }
+
+  SrpToken.prototype.finish = function (A, M1) {
+    A = Buffer(A, 'hex')
+    var srpServer = new srp.Server(
+      srp.params[2048],
+      this.v,
+      this.b
+    )
+    srpServer.setA(A)
+    try {
+      srpServer.checkM1(Buffer(M1, 'hex'))
+    }
+    catch (e) {
+      throw error.incorrectPassword()
+    }
+    this.K = srpServer.computeK()
+    return this
+  }
+
+  SrpToken.prototype.clientData = function () {
+    return {
+      srpToken: this.id,
+      passwordStretching: this.passwordStretching,
+      srp: {
+        type: 'SRP-6a/SHA256/2048/v1',
+        salt: this.s,
+        B: this.B.toString('hex')
+      }
+    }
+  }
+
+  SrpToken.client2 = function (session, email, password) {
+    return srpGenKey()
+      .then(
+        function (a) {
+          var srpClient = new srp.Client(
+            srp.params[2048],
+            Buffer(session.srp.salt, 'hex'),
+            Buffer(email),
+            Buffer(password),
+            a
+          )
+          srpClient.setB(Buffer(session.srp.B, 'hex'))
+
+          var A = srpClient.computeA()
+          var M = srpClient.computeM1()
+          var K = srpClient.computeK()
+
+          return {
+            A: A.toString('hex'),
+            M: M.toString('hex'),
+            K: K.toString('hex')
+          }
+        }
+      )
+  }
+
+  return SrpToken
+}
+
+},{"__browserify_Buffer":4,"__browserify_process":74,"crypto":"l4eWKl"}],18:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+module.exports = function (log, crypto, P, hkdf, error) {
+
+  function Token() {
+    this.id = null
+    this.hmacKey = null
+    this.xorKey = null
+    this._key = null
+    this.algorithm = 'sha256'
+    this.uid = null
+    this.data = null
+  }
+
+  Token.hkdf = hkdf
+
+  Token.random32Bytes = function () {
+    var d = P.defer()
+    // capturing the domain here is a workaround for:
+    // https://github.com/joyent/node/issues/3965
+    // this will be fixed in node v0.12
+    var domain = process.domain
+    crypto.randomBytes(
+      32,
+      function (err, bytes) {
+        if (domain) domain.enter()
+        var x = err ? d.reject(err) : d.resolve(bytes)
+        if (domain) domain.exit()
+        return x
+      }
+    )
+    return d.promise
+  }
+
+  // `token.key` is used by Hawk, and should be a Buffer.
+  // We store the hex-string so a getter is convenient
+  Object.defineProperty(
+    Token.prototype,
+    'key',
+    {
+      get: function () { return Buffer(this._key, 'hex') },
+      set: function (x) { this._key = x.toString('hex') }
+    }
+  )
+
+  Token.randomTokenData = function (info, size) {
+    return Token.random32Bytes()
+      .then(Token.tokenDataFromBytes.bind(null, info, size))
+  }
+
+  Token.tokenDataFromBytes = function (info, size, bytes) {
+    return hkdf(bytes, info, null, size)
+      .then(
+        function (key) {
+          return [bytes, key]
+        }
+      )
+  }
+
+  Token.createFromHKDF = function (km, info) {
+    return hkdf(km, info, null, 2 * 32)
+      .then(
+        function (key) {
+          var t = new Token()
+          t.hmacKey = key.slice(0, 32).toString('hex')
+          t.xorKey = key.slice(32, 64).toString('hex')
+          return t
+        }
+      )
+  }
+
+  Token.prototype.unbundle = function (hex) {
+    log.trace({ op: 'Token.unbundle' })
+    var b = Buffer(hex, 'hex')
+    var ciphertext = b.slice(0, 32)
+    var hmac = b.slice(32, 64)
+    if (this.hmac(ciphertext).toString('hex') !== hmac.toString('hex')) {
+      throw error.invalidSignature()
+    }
+    var plaintext = this.xor(ciphertext)
+    return plaintext.slice(0, 32).toString('hex')
+  }
+
+  Token.prototype.hmac = function (buffer) {
+    var hmac = crypto.createHmac('sha256', Buffer(this.hmacKey, 'hex'))
+    hmac.update(buffer)
+    return hmac.digest()
+  }
+
+  Token.prototype.appendHmac = function (buffer) {
+    return Buffer.concat([buffer, this.hmac(buffer)])
+  }
+
+  Token.prototype.xor = function (buffer) {
+    var xorBuffer = Buffer(this.xorKey, 'hex')
+    if (buffer.length !== xorBuffer.length) {
+      throw new Error(
+        'XOR buffers must be same length %d != %d',
+        buffer.length,
+        xorBuffer.length
+      )
+    }
+    var result = Buffer(xorBuffer.length)
+    for (var i = 0; i < xorBuffer.length; i++) {
+      result[i] = buffer[i] ^ xorBuffer[i]
+    }
+    return result
+  }
+
+  function hexToBuffer(string) {
+    return Buffer(string, 'hex')
+  }
+
+  Token.prototype.bundleHexStrings = function (hexStrings) {
+    var ciphertext = this.xor(Buffer.concat(hexStrings.map(hexToBuffer)))
+    return this.appendHmac(ciphertext).toString('hex')
+  }
+
+  return Token
+}
+
+},{"__browserify_Buffer":4,"__browserify_process":74}],"xttfNN":[function(require,module,exports){
 var jsbn = require('jsbn');
 var Buffer = require('buffer').Buffer;
 
@@ -2855,7 +2138,7 @@ Object.keys(BigInt.prototype).forEach(function (name) {
     };
 });
 
-},{"buffer":"E8lnoA","jsbn":24}],24:[function(require,module,exports){
+},{"buffer":"IZihkv","jsbn":20}],20:[function(require,module,exports){
 (function(){
     
     // Copyright (c) 2005  Tom Wu
@@ -4082,7 +3365,7 @@ Object.keys(BigInt.prototype).forEach(function (name) {
     }
     
 }).call(this);
-},{}],"kR9y8j":[function(require,module,exports){
+},{}],"hWH+d8":[function(require,module,exports){
 // Browser Request
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -4468,9 +3751,9 @@ function b64_enc (data) {
     return enc;
 }
 
-},{}],26:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 
-},{}],27:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 // UTILITY
 var util = require('util');
 var Buffer = require("buffer").Buffer;
@@ -4784,9 +4067,9 @@ assert.doesNotThrow = function(block, /*optional*/error, /*optional*/message) {
 
 assert.ifError = function(err) { if (err) {throw err;}};
 
-},{"buffer":"E8lnoA","util":34}],28:[function(require,module,exports){
+},{"buffer":"IZihkv","util":31}],24:[function(require,module,exports){
 
-},{}],29:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -4982,10 +4265,189 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":77}],30:[function(require,module,exports){
+},{"__browserify_process":74}],26:[function(require,module,exports){
 // nothing to see here... no file methods for the browser
 
-},{}],31:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
+var process=require("__browserify_process");function filter (xs, fn) {
+    var res = [];
+    for (var i = 0; i < xs.length; i++) {
+        if (fn(xs[i], i, xs)) res.push(xs[i]);
+    }
+    return res;
+}
+
+// resolves . and .. elements in a path array with directory names there
+// must be no slashes, empty elements, or device names (c:\) in the array
+// (so also no leading and trailing slashes - it does not distinguish
+// relative and absolute paths)
+function normalizeArray(parts, allowAboveRoot) {
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = parts.length; i >= 0; i--) {
+    var last = parts[i];
+    if (last == '.') {
+      parts.splice(i, 1);
+    } else if (last === '..') {
+      parts.splice(i, 1);
+      up++;
+    } else if (up) {
+      parts.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (allowAboveRoot) {
+    for (; up--; up) {
+      parts.unshift('..');
+    }
+  }
+
+  return parts;
+}
+
+// Regex to split a filename into [*, dir, basename, ext]
+// posix version
+var splitPathRe = /^(.+\/(?!$)|\/)?((?:.+?)?(\.[^.]*)?)$/;
+
+// path.resolve([from ...], to)
+// posix version
+exports.resolve = function() {
+var resolvedPath = '',
+    resolvedAbsolute = false;
+
+for (var i = arguments.length; i >= -1 && !resolvedAbsolute; i--) {
+  var path = (i >= 0)
+      ? arguments[i]
+      : process.cwd();
+
+  // Skip empty and invalid entries
+  if (typeof path !== 'string' || !path) {
+    continue;
+  }
+
+  resolvedPath = path + '/' + resolvedPath;
+  resolvedAbsolute = path.charAt(0) === '/';
+}
+
+// At this point the path should be resolved to a full absolute path, but
+// handle relative paths to be safe (might happen when process.cwd() fails)
+
+// Normalize the path
+resolvedPath = normalizeArray(filter(resolvedPath.split('/'), function(p) {
+    return !!p;
+  }), !resolvedAbsolute).join('/');
+
+  return ((resolvedAbsolute ? '/' : '') + resolvedPath) || '.';
+};
+
+// path.normalize(path)
+// posix version
+exports.normalize = function(path) {
+var isAbsolute = path.charAt(0) === '/',
+    trailingSlash = path.slice(-1) === '/';
+
+// Normalize the path
+path = normalizeArray(filter(path.split('/'), function(p) {
+    return !!p;
+  }), !isAbsolute).join('/');
+
+  if (!path && !isAbsolute) {
+    path = '.';
+  }
+  if (path && trailingSlash) {
+    path += '/';
+  }
+  
+  return (isAbsolute ? '/' : '') + path;
+};
+
+
+// posix version
+exports.join = function() {
+  var paths = Array.prototype.slice.call(arguments, 0);
+  return exports.normalize(filter(paths, function(p, index) {
+    return p && typeof p === 'string';
+  }).join('/'));
+};
+
+
+exports.dirname = function(path) {
+  var dir = splitPathRe.exec(path)[1] || '';
+  var isWindows = false;
+  if (!dir) {
+    // No dirname
+    return '.';
+  } else if (dir.length === 1 ||
+      (isWindows && dir.length <= 3 && dir.charAt(1) === ':')) {
+    // It is just a slash or a drive letter with a slash
+    return dir;
+  } else {
+    // It is a full dirname, strip trailing slash
+    return dir.substring(0, dir.length - 1);
+  }
+};
+
+
+exports.basename = function(path, ext) {
+  var f = splitPathRe.exec(path)[2] || '';
+  // TODO: make this comparison case-insensitive on windows?
+  if (ext && f.substr(-1 * ext.length) === ext) {
+    f = f.substr(0, f.length - ext.length);
+  }
+  return f;
+};
+
+
+exports.extname = function(path) {
+  return splitPathRe.exec(path)[3] || '';
+};
+
+exports.relative = function(from, to) {
+  from = exports.resolve(from).substr(1);
+  to = exports.resolve(to).substr(1);
+
+  function trim(arr) {
+    var start = 0;
+    for (; start < arr.length; start++) {
+      if (arr[start] !== '') break;
+    }
+
+    var end = arr.length - 1;
+    for (; end >= 0; end--) {
+      if (arr[end] !== '') break;
+    }
+
+    if (start > end) return [];
+    return arr.slice(start, end - start + 1);
+  }
+
+  var fromParts = trim(from.split('/'));
+  var toParts = trim(to.split('/'));
+
+  var length = Math.min(fromParts.length, toParts.length);
+  var samePartsLength = length;
+  for (var i = 0; i < length; i++) {
+    if (fromParts[i] !== toParts[i]) {
+      samePartsLength = i;
+      break;
+    }
+  }
+
+  var outputParts = [];
+  for (var i = samePartsLength; i < fromParts.length; i++) {
+    outputParts.push('..');
+  }
+
+  outputParts = outputParts.concat(toParts.slice(samePartsLength));
+
+  return outputParts.join('/');
+};
+
+exports.sep = '/';
+
+},{"__browserify_process":74}],28:[function(require,module,exports){
 
 /**
  * Object#toString() ref for stringify().
@@ -5304,7 +4766,7 @@ function decode(str) {
   }
 }
 
-},{}],32:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 var events = require('events');
 var util = require('util');
 
@@ -5425,7 +4887,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":29,"util":34}],33:[function(require,module,exports){
+},{"events":25,"util":31}],30:[function(require,module,exports){
 var punycode = { encode : function (s) { return s } };
 
 exports.parse = urlParse;
@@ -6031,7 +5493,7 @@ function parseHost(host) {
   return out;
 }
 
-},{"querystring":31}],34:[function(require,module,exports){
+},{"querystring":28}],31:[function(require,module,exports){
 var events = require('events');
 
 exports.isArray = isArray;
@@ -6378,7 +5840,7 @@ exports.format = function(f) {
   return str;
 };
 
-},{"events":29}],35:[function(require,module,exports){
+},{"events":25}],32:[function(require,module,exports){
 var http = module.exports;
 var EventEmitter = require('events').EventEmitter;
 var Request = require('./lib/request');
@@ -6440,7 +5902,7 @@ var xhrHttp = (function () {
     }
 })();
 
-},{"./lib/request":36,"events":29}],36:[function(require,module,exports){
+},{"./lib/request":33,"events":25}],33:[function(require,module,exports){
 var Stream = require('stream');
 var Response = require('./response');
 var concatStream = require('concat-stream');
@@ -6574,7 +6036,7 @@ var indexOf = function (xs, x) {
     return -1;
 };
 
-},{"./response":37,"Base64":38,"concat-stream":39,"stream":32,"util":34}],37:[function(require,module,exports){
+},{"./response":34,"Base64":35,"concat-stream":36,"stream":29,"util":31}],34:[function(require,module,exports){
 var Stream = require('stream');
 var util = require('util');
 
@@ -6696,7 +6158,7 @@ var isArray = Array.isArray || function (xs) {
     return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{"stream":32,"util":34}],38:[function(require,module,exports){
+},{"stream":29,"util":31}],35:[function(require,module,exports){
 ;(function () {
 
   var
@@ -6753,7 +6215,7 @@ var isArray = Array.isArray || function (xs) {
 
 }());
 
-},{}],39:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var stream = require('stream')
 var bops = require('bops')
 var util = require('util')
@@ -6804,7 +6266,7 @@ module.exports = function(cb) {
 
 module.exports.ConcatStream = ConcatStream
 
-},{"bops":40,"stream":32,"util":34}],40:[function(require,module,exports){
+},{"bops":37,"stream":29,"util":31}],37:[function(require,module,exports){
 var proto = {}
 module.exports = proto
 
@@ -6825,7 +6287,7 @@ function mix(from, into) {
   }
 }
 
-},{"./copy.js":45,"./create.js":46,"./from.js":47,"./is.js":48,"./join.js":49,"./read.js":51,"./subarray.js":52,"./to.js":53,"./write.js":54}],41:[function(require,module,exports){
+},{"./copy.js":40,"./create.js":41,"./from.js":42,"./is.js":43,"./join.js":44,"./read.js":46,"./subarray.js":47,"./to.js":48,"./write.js":49}],38:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -6911,7 +6373,7 @@ function mix(from, into) {
 	module.exports.fromByteArray = uint8ToBase64;
 }());
 
-},{}],42:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 module.exports = to_utf8
 
 var out = []
@@ -6986,95 +6448,7 @@ function reduced(list) {
   return out
 }
 
-},{}],43:[function(require,module,exports){
-(function (exports) {
-	'use strict';
-
-	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-
-	function b64ToByteArray(b64) {
-		var i, j, l, tmp, placeHolders, arr;
-	
-		if (b64.length % 4 > 0) {
-			throw 'Invalid string. Length must be a multiple of 4';
-		}
-
-		// the number of equal signs (place holders)
-		// if there are two placeholders, than the two characters before it
-		// represent one byte
-		// if there is only one, then the three characters before it represent 2 bytes
-		// this is just a cheap hack to not do indexOf twice
-		placeHolders = b64.indexOf('=');
-		placeHolders = placeHolders > 0 ? b64.length - placeHolders : 0;
-
-		// base64 is 4/3 + up to two characters of the original data
-		arr = [];//new Uint8Array(b64.length * 3 / 4 - placeHolders);
-
-		// if there are placeholders, only get up to the last complete 4 chars
-		l = placeHolders > 0 ? b64.length - 4 : b64.length;
-
-		for (i = 0, j = 0; i < l; i += 4, j += 3) {
-			tmp = (lookup.indexOf(b64[i]) << 18) | (lookup.indexOf(b64[i + 1]) << 12) | (lookup.indexOf(b64[i + 2]) << 6) | lookup.indexOf(b64[i + 3]);
-			arr.push((tmp & 0xFF0000) >> 16);
-			arr.push((tmp & 0xFF00) >> 8);
-			arr.push(tmp & 0xFF);
-		}
-
-		if (placeHolders === 2) {
-			tmp = (lookup.indexOf(b64[i]) << 2) | (lookup.indexOf(b64[i + 1]) >> 4);
-			arr.push(tmp & 0xFF);
-		} else if (placeHolders === 1) {
-			tmp = (lookup.indexOf(b64[i]) << 10) | (lookup.indexOf(b64[i + 1]) << 4) | (lookup.indexOf(b64[i + 2]) >> 2);
-			arr.push((tmp >> 8) & 0xFF);
-			arr.push(tmp & 0xFF);
-		}
-
-		return arr;
-	}
-
-	function uint8ToBase64(uint8) {
-		var i,
-			extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
-			output = "",
-			temp, length;
-
-		function tripletToBase64 (num) {
-			return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F];
-		};
-
-		// go through the array every three bytes, we'll deal with trailing stuff later
-		for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
-			temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2]);
-			output += tripletToBase64(temp);
-		}
-
-		// pad the end with zeros, but make sure to not forget the extra bytes
-		switch (extraBytes) {
-			case 1:
-				temp = uint8[uint8.length - 1];
-				output += lookup[temp >> 2];
-				output += lookup[(temp << 4) & 0x3F];
-				output += '==';
-				break;
-			case 2:
-				temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1]);
-				output += lookup[temp >> 10];
-				output += lookup[(temp >> 4) & 0x3F];
-				output += lookup[(temp << 2) & 0x3F];
-				output += '=';
-				break;
-		}
-
-		return output;
-	}
-
-	module.exports.toByteArray = b64ToByteArray;
-	module.exports.fromByteArray = uint8ToBase64;
-}());
-
-},{}],"request":[function(require,module,exports){
-module.exports=require('kR9y8j');
-},{}],45:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 module.exports = copy
 
 var slice = [].slice
@@ -7128,12 +6502,12 @@ function slow_copy(from, to, j, i, jend) {
   }
 }
 
-},{}],46:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 module.exports = function(size) {
   return new Uint8Array(size)
 }
 
-},{}],47:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module.exports = from
 
 var base64 = require('base64-js')
@@ -7193,13 +6567,13 @@ function from_base64(str) {
   return new Uint8Array(base64.toByteArray(str)) 
 }
 
-},{"base64-js":41}],48:[function(require,module,exports){
+},{"base64-js":38}],43:[function(require,module,exports){
 
 module.exports = function(buffer) {
   return buffer instanceof Uint8Array;
 }
 
-},{}],49:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports = join
 
 function join(targets, hint) {
@@ -7237,7 +6611,7 @@ function get_length(targets) {
   return size
 }
 
-},{}],50:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var proto
   , map
 
@@ -7259,7 +6633,7 @@ function get(target) {
   return out
 }
 
-},{}],51:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module.exports = {
     readUInt8:      read_uint8
   , readInt8:       read_int8
@@ -7348,14 +6722,14 @@ function read_double_be(target, at) {
   return dv.getFloat64(at + target.byteOffset, false)
 }
 
-},{"./mapped.js":50}],52:[function(require,module,exports){
+},{"./mapped.js":45}],47:[function(require,module,exports){
 module.exports = subarray
 
 function subarray(buf, from, to) {
   return buf.subarray(from || 0, to || buf.length)
 }
 
-},{}],53:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = to
 
 var base64 = require('base64-js')
@@ -7393,7 +6767,7 @@ function to_base64(buf) {
 }
 
 
-},{"base64-js":41,"to-utf8":42}],54:[function(require,module,exports){
+},{"base64-js":38,"to-utf8":39}],49:[function(require,module,exports){
 module.exports = {
     writeUInt8:      write_uint8
   , writeInt8:       write_int8
@@ -7481,7 +6855,7 @@ function write_double_be(target, value, at) {
   return dv.setFloat64(at + target.byteOffset, value, false)
 }
 
-},{"./mapped.js":50}],55:[function(require,module,exports){
+},{"./mapped.js":45}],50:[function(require,module,exports){
 exports.readIEEE754 = function(buffer, offset, isBE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -7567,7 +6941,7 @@ exports.writeIEEE754 = function(buffer, value, offset, isBE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],"E8lnoA":[function(require,module,exports){
+},{}],"IZihkv":[function(require,module,exports){
 var assert;
 exports.Buffer = Buffer;
 exports.SlowBuffer = Buffer;
@@ -8655,7 +8029,93 @@ Buffer.prototype.writeDoubleBE = function(value, offset, noAssert) {
   writeDouble(this, value, offset, true, noAssert);
 };
 
-},{"./buffer_ieee754":55,"assert":27,"base64-js":43}],"Tk74kK":[function(require,module,exports){
+},{"./buffer_ieee754":50,"assert":23,"base64-js":52}],52:[function(require,module,exports){
+(function (exports) {
+	'use strict';
+
+	var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+	function b64ToByteArray(b64) {
+		var i, j, l, tmp, placeHolders, arr;
+	
+		if (b64.length % 4 > 0) {
+			throw 'Invalid string. Length must be a multiple of 4';
+		}
+
+		// the number of equal signs (place holders)
+		// if there are two placeholders, than the two characters before it
+		// represent one byte
+		// if there is only one, then the three characters before it represent 2 bytes
+		// this is just a cheap hack to not do indexOf twice
+		placeHolders = b64.indexOf('=');
+		placeHolders = placeHolders > 0 ? b64.length - placeHolders : 0;
+
+		// base64 is 4/3 + up to two characters of the original data
+		arr = [];//new Uint8Array(b64.length * 3 / 4 - placeHolders);
+
+		// if there are placeholders, only get up to the last complete 4 chars
+		l = placeHolders > 0 ? b64.length - 4 : b64.length;
+
+		for (i = 0, j = 0; i < l; i += 4, j += 3) {
+			tmp = (lookup.indexOf(b64[i]) << 18) | (lookup.indexOf(b64[i + 1]) << 12) | (lookup.indexOf(b64[i + 2]) << 6) | lookup.indexOf(b64[i + 3]);
+			arr.push((tmp & 0xFF0000) >> 16);
+			arr.push((tmp & 0xFF00) >> 8);
+			arr.push(tmp & 0xFF);
+		}
+
+		if (placeHolders === 2) {
+			tmp = (lookup.indexOf(b64[i]) << 2) | (lookup.indexOf(b64[i + 1]) >> 4);
+			arr.push(tmp & 0xFF);
+		} else if (placeHolders === 1) {
+			tmp = (lookup.indexOf(b64[i]) << 10) | (lookup.indexOf(b64[i + 1]) << 4) | (lookup.indexOf(b64[i + 2]) >> 2);
+			arr.push((tmp >> 8) & 0xFF);
+			arr.push(tmp & 0xFF);
+		}
+
+		return arr;
+	}
+
+	function uint8ToBase64(uint8) {
+		var i,
+			extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
+			output = "",
+			temp, length;
+
+		function tripletToBase64 (num) {
+			return lookup[num >> 18 & 0x3F] + lookup[num >> 12 & 0x3F] + lookup[num >> 6 & 0x3F] + lookup[num & 0x3F];
+		};
+
+		// go through the array every three bytes, we'll deal with trailing stuff later
+		for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
+			temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2]);
+			output += tripletToBase64(temp);
+		}
+
+		// pad the end with zeros, but make sure to not forget the extra bytes
+		switch (extraBytes) {
+			case 1:
+				temp = uint8[uint8.length - 1];
+				output += lookup[temp >> 2];
+				output += lookup[(temp << 4) & 0x3F];
+				output += '==';
+				break;
+			case 2:
+				temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1]);
+				output += lookup[temp >> 10];
+				output += lookup[(temp >> 4) & 0x3F];
+				output += lookup[(temp << 2) & 0x3F];
+				output += '=';
+				break;
+		}
+
+		return output;
+	}
+
+	module.exports.toByteArray = b64ToByteArray;
+	module.exports.fromByteArray = uint8ToBase64;
+}());
+
+},{}],"l4eWKl":[function(require,module,exports){
 var Buffer = require('buffer').Buffer
 var sha256 = require('./sha256')
 var rng = require('./rng')
@@ -8782,7 +8242,7 @@ each(['createCredentials'
   }
 })
 
-},{"./rng":58,"./sha256":59,"buffer":"E8lnoA"}],58:[function(require,module,exports){
+},{"./rng":54,"./sha256":55,"buffer":"IZihkv"}],54:[function(require,module,exports){
 // Original code adapted from Robert Kieffer.
 // details at https://github.com/broofa/node-uuid
 (function() {
@@ -8820,7 +8280,7 @@ each(['createCredentials'
 
 }())
 
-},{}],59:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var sjcl = require('sjcl');
 var bytes = require('sjcl-codec-bytes');
 var Buffer = require('buffer').Buffer;
@@ -8903,9 +8363,72 @@ exports.hmac_base64 = hmac_base64;
 exports.hmac_buffer = hmac_buffer;
 exports.hmac_binary = hmac_binary;
 
-},{"buffer":"E8lnoA","sjcl":81,"sjcl-codec-bytes":79}],60:[function(require,module,exports){
+},{"buffer":"IZihkv","sjcl":77,"sjcl-codec-bytes":76}],56:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":63}],61:[function(require,module,exports){
+},{"./lib":61}],57:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");//
+// a straightforward implementation of HKDF
+//
+// https://tools.ietf.org/html/rfc5869
+//
+
+var crypto = require("crypto");
+
+function zeros(length) {
+  var buf = new Buffer(length);
+
+  buf.fill(0);
+
+  return buf.toString();
+}
+// imk is initial keying material
+function HKDF(hashAlg, salt, ikm) {
+  this.hashAlg = hashAlg;
+
+  // create the hash alg to see if it exists and get its length
+  var hash = crypto.createHash(this.hashAlg);
+  this.hashLength = hash.digest().length;
+
+  this.salt = salt || zeros(this.hashLength);
+  this.ikm = ikm;
+
+  // now we compute the PRK
+  var hmac = crypto.createHmac(this.hashAlg, this.salt);
+  hmac.update(this.ikm);
+  this.prk = hmac.digest();
+}
+
+HKDF.prototype = {
+  derive: function(info, size, cb) {
+    var prev = new Buffer(0);
+    var output;
+    var buffers = [];
+    var num_blocks = Math.ceil(size / this.hashLength);
+    info = new Buffer(info);
+
+    for (var i=0; i<num_blocks; i++) {
+      var hmac = crypto.createHmac(this.hashAlg, this.prk);
+      // XXX is there a more optimal way to build up buffers?
+      var input = Buffer.concat([
+        prev,
+        info,
+        new Buffer(String.fromCharCode(i + 1))
+      ]);
+      hmac.update(input);
+      prev = hmac.digest();
+      buffers.push(prev);
+    }
+    output = Buffer.concat(buffers, size);
+
+    process.nextTick(function() {cb(output);});
+  }
+};
+
+module.exports = HKDF;
+
+},{"__browserify_Buffer":4,"__browserify_process":74,"crypto":"l4eWKl"}],"request":[function(require,module,exports){
+module.exports=require('hWH+d8');
+},{}],59:[function(require,module,exports){
 // Load modules
 
 var Url = require('url');
@@ -8962,6 +8485,7 @@ exports.header = function (uri, method, options) {
         !method || typeof method !== 'string' ||
         !options || typeof options !== 'object') {
 
+        result.err = 'Invalid argument type';
         return result;
     }
 
@@ -8977,11 +8501,12 @@ exports.header = function (uri, method, options) {
         !credentials.key ||
         !credentials.algorithm) {
 
-        // Invalid credential object
+        result.err = 'Invalid credential object';
         return result;
     }
 
     if (Crypto.algorithms.indexOf(credentials.algorithm) === -1) {
+        result.err = 'Unknown algorithm';
         return result;
     }
 
@@ -9063,6 +8588,8 @@ exports.authenticate = function (res, credentials, artifacts, options) {
         if (attributes instanceof Error) {
             return false;
         }
+
+        // Validate server timestamp (not used to update clock since it is done via the SNPT client)
 
         if (attributes.ts) {
             var tsm = Crypto.calculateTsMac(attributes.ts, credentials);
@@ -9274,7 +8801,7 @@ exports.message = function (host, port, message, options) {
 
 
 
-},{"./crypto":62,"./utils":65,"cryptiles":68,"hoek":70,"url":33}],62:[function(require,module,exports){
+},{"./crypto":60,"./utils":63,"cryptiles":66,"hoek":68,"url":30}],60:[function(require,module,exports){
 // Load modules
 
 var Crypto = require('crypto');
@@ -9387,11 +8914,19 @@ exports.calculateTsMac = function (ts, credentials) {
 };
 
 
-},{"./utils":65,"crypto":"Tk74kK","url":33}],63:[function(require,module,exports){
+exports.timestampMessage = function (credentials, localtimeOffsetMsec) {
+
+    var now = Math.floor((Utils.now() + (localtimeOffsetMsec || 0)) / 1000);
+    var tsm = exports.calculateTsMac(now, credentials);
+    return { ts: now, tsm: tsm };
+};
+
+},{"./utils":63,"crypto":"l4eWKl","url":30}],61:[function(require,module,exports){
 // Export sub-modules
 
 exports.error = exports.Error = require('boom');
 exports.sntp = require('sntp');
+
 exports.server = require('./server');
 exports.client = require('./client');
 exports.crypto = require('./crypto');
@@ -9403,8 +8938,7 @@ exports.uri = {
 };
 
 
-
-},{"./client":61,"./crypto":62,"./server":64,"./utils":65,"boom":66,"sntp":73}],64:[function(require,module,exports){
+},{"./client":59,"./crypto":60,"./server":62,"./utils":63,"boom":64,"sntp":71}],62:[function(require,module,exports){
 // Load modules
 
 var Boom = require('boom');
@@ -9598,9 +9132,8 @@ exports.authenticate = function (req, credentialsFunc, options, callback) {
             // Check timestamp staleness
 
             if (Math.abs((attributes.ts * 1000) - now) > (options.timestampSkewSec * 1000)) {
-                var fresh = Math.floor((Utils.now() + (options.localtimeOffsetMsec || 0)) / 1000);            // Get fresh now
-                var tsm = Crypto.calculateTsMac(fresh, credentials);
-                return callback(Boom.unauthorized('Stale timestamp', 'Hawk', { ts: fresh, tsm: tsm }), credentials, artifacts);
+                var tsm = Crypto.timestampMessage(credentials, options.localtimeOffsetMsec);
+                return callback(Boom.unauthorized('Stale timestamp', 'Hawk', tsm), credentials, artifacts);
             }
 
             // Successful authentication
@@ -9930,7 +9463,7 @@ exports.authenticateMessage = function (host, port, message, authorization, cred
     });
 };
 
-},{"./crypto":62,"./utils":65,"boom":66,"cryptiles":68,"hoek":70}],65:[function(require,module,exports){
+},{"./crypto":60,"./utils":63,"boom":64,"cryptiles":66,"hoek":68}],63:[function(require,module,exports){
 var __dirname="/node_modules/hawk/lib";// Load modules
 
 var Hoek = require('hoek');
@@ -10115,9 +9648,9 @@ exports.unauthorized = function (message) {
 };
 
 
-},{"boom":66,"hoek":70,"sntp":73}],66:[function(require,module,exports){
+},{"boom":64,"hoek":68,"sntp":71}],64:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":67}],67:[function(require,module,exports){
+},{"./lib":65}],65:[function(require,module,exports){
 // Load modules
 
 var Http = require('http');
@@ -10132,9 +9665,7 @@ var internals = {};
 
 exports = module.exports = internals.Boom = function (/* (new Error) or (code, message) */) {
 
-    var self = this;
-
-    Hoek.assert(this.constructor === internals.Boom, 'Error must be instantiated using new');
+    Hoek.assert(this instanceof internals.Boom, 'Error must be instantiated using new');
 
     Error.call(this);
     this.isBoom = true;
@@ -10159,7 +9690,6 @@ exports = module.exports = internals.Boom = function (/* (new Error) or (code, m
         }
     }
     else {
-
         // code, message
 
         var code = arguments[0];
@@ -10193,7 +9723,38 @@ internals.Boom.prototype.reformat = function () {
 };
 
 
-// Utilities
+// Return custom keys added to the error root or response.payload
+
+internals.Boom.prototype.decorations = function () {
+
+    var decoration = {};
+
+    var rootKeys = Object.keys(this);
+    for (var i = 0, il = rootKeys.length; i < il; ++i) {
+        var key = rootKeys[i];
+        if (typeof this[key] !== 'function' &&
+            key[0] !== '_' &&
+            ['isBoom', 'response', 'message'].indexOf(key) === -1) {
+
+            decoration[key] = this[key];
+        }
+    }
+
+    var responseKeys = Object.keys(this.response.payload);
+    for (i = 0, il = responseKeys.length; i < il; ++i) {
+        var key = responseKeys[i];
+        if (['code', 'error', 'message'].indexOf(key) === -1) {
+
+            decoration.response = decoration.response || {};
+            decoration.response[key] = this.response.payload[key];
+        }
+    }
+
+    return decoration;
+};
+
+
+// 4xx Client Errors
 
 internals.Boom.badRequest = function (message) {
 
@@ -10210,6 +9771,8 @@ internals.Boom.unauthorized = function (message, scheme, attributes) {          
     }
 
     var wwwAuthenticate = '';
+    var i = 0;
+    var il = 0;
 
     if (typeof scheme === 'string') {
 
@@ -10218,7 +9781,7 @@ internals.Boom.unauthorized = function (message, scheme, attributes) {          
         wwwAuthenticate = scheme;
         if (attributes) {
             var names = Object.keys(attributes);
-            for (var i = 0, il = names.length; i < il; ++i) {
+            for (i = 0, il = names.length; i < il; ++i) {
                 if (i) {
                     wwwAuthenticate += ',';
                 }
@@ -10248,7 +9811,7 @@ internals.Boom.unauthorized = function (message, scheme, attributes) {          
         // function (message, wwwAuthenticate[])
 
         var wwwArray = scheme;
-        for (var i = 0, il = wwwArray.length; i < il; ++i) {
+        for (i = 0, il = wwwArray.length; i < il; ++i) {
             if (i) {
                 wwwAuthenticate += ', ';
             }
@@ -10263,18 +9826,6 @@ internals.Boom.unauthorized = function (message, scheme, attributes) {          
 };
 
 
-internals.Boom.clientTimeout = function (message) {
-
-    return new internals.Boom(408, message);
-};
-
-
-internals.Boom.serverTimeout = function (message) {
-
-    return new internals.Boom(503, message);
-};
-
-
 internals.Boom.forbidden = function (message) {
 
     return new internals.Boom(403, message);
@@ -10286,6 +9837,86 @@ internals.Boom.notFound = function (message) {
     return new internals.Boom(404, message);
 };
 
+
+internals.Boom.methodNotAllowed = function (message) {
+
+    return new internals.Boom(405, message);
+};
+
+
+internals.Boom.notAcceptable = function (message) {
+
+    return new internals.Boom(406, message);
+};
+
+
+internals.Boom.proxyAuthRequired = function (message) {
+
+    return new internals.Boom(407, message);
+};
+
+
+internals.Boom.clientTimeout = function (message) {
+
+    return new internals.Boom(408, message);
+};
+
+
+internals.Boom.conflict = function (message) {
+
+    return new internals.Boom(409, message);
+};
+
+
+internals.Boom.resourceGone = function (message) {
+
+    return new internals.Boom(410, message);
+};
+
+
+internals.Boom.lengthRequired = function (message) {
+
+    return new internals.Boom(411, message);
+};
+
+
+internals.Boom.preconditionFailed = function (message) {
+
+    return new internals.Boom(412, message);
+};
+
+
+internals.Boom.entityTooLarge = function (message) {
+
+    return new internals.Boom(413, message);
+};
+
+
+internals.Boom.uriTooLong = function (message) {
+
+    return new internals.Boom(414, message);
+};
+
+
+internals.Boom.unsupportedMediaType = function (message) {
+
+    return new internals.Boom(415, message);
+};
+
+
+internals.Boom.rangeNotSatisfiable = function (message) {
+
+    return new internals.Boom(416, message);
+};
+
+
+internals.Boom.expectationFailed = function (message) {
+
+    return new internals.Boom(417, message);
+};
+
+
+// 5xx Server Errors
 
 internals.Boom.internal = function (message, data) {
 
@@ -10303,6 +9934,30 @@ internals.Boom.internal = function (message, data) {
     err.response.payload.message = 'An internal server error occurred';                     // Hide actual error from user
 
     return err;
+};
+
+
+internals.Boom.notImplemented = function (message) {
+
+    return new internals.Boom(501, message);
+};
+
+
+internals.Boom.badGateway = function (message) {
+
+    return new internals.Boom(502, message);
+};
+
+
+internals.Boom.serverTimeout = function (message) {
+
+    return new internals.Boom(503, message);
+};
+
+
+internals.Boom.gatewayTimeout = function (message) {
+
+    return new internals.Boom(504, message);
 };
 
 
@@ -10326,9 +9981,9 @@ internals.Boom.passThrough = function (code, payload, contentType, headers) {
 
 
 
-},{"hoek":70,"http":35,"util":34}],68:[function(require,module,exports){
+},{"hoek":68,"http":32,"util":31}],66:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":69}],69:[function(require,module,exports){
+},{"./lib":67}],67:[function(require,module,exports){
 // Load modules
 
 var Crypto = require('crypto');
@@ -10390,7 +10045,7 @@ exports.fixedTimeComparison = function (a, b) {
     for (var i = 0, il = a.length; i < il; ++i) {
         var ac = a.charCodeAt(i);
         var bc = b.charCodeAt(i);
-        mismatch += (ac === bc ? 0 : 1);
+        mismatch |= (ac ^ bc);
     }
 
     return (mismatch === 0);
@@ -10398,9 +10053,9 @@ exports.fixedTimeComparison = function (a, b) {
 
 
 
-},{"boom":66,"crypto":"Tk74kK"}],70:[function(require,module,exports){
+},{"boom":64,"crypto":"l4eWKl"}],68:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":72}],71:[function(require,module,exports){
+},{"./lib":70}],69:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;// Declare internals
 
 var internals = {};
@@ -10533,10 +10188,11 @@ internals.safeCharCodes = (function () {
 
     return safe;
 }());
-},{"__browserify_Buffer":4}],72:[function(require,module,exports){
+},{"__browserify_Buffer":4}],70:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");// Load modules
 
 var Fs = require('fs');
+var Path = require('path');
 var Escape = require('./escape');
 
 
@@ -10562,26 +10218,32 @@ exports.clone = function (obj, seen) {
         return seen.copy[lookup];
     }
 
-    var newObj = (obj instanceof Array) ? [] : {};
+    if (obj instanceof Buffer) {
+        return new Buffer(obj);
+    }
+    else if (obj instanceof Date) {
+        return new Date(obj.getTime());
+    }
+    else if (obj instanceof RegExp) {
+        var flags = '' + (obj.global ? 'g' : '') + (obj.ignoreCase ? 'i' : '') + (obj.multiline ? 'm' : '');
+        return new RegExp(obj.source, flags);
+    }
+
+    var create = function (obj) {
+
+        var o = {};
+        o.__proto__ = Object.getPrototypeOf(obj);
+        return o;
+    };
+
+    var newObj = (obj instanceof Array ? [] : create(obj));
 
     seen.orig.push(obj);
     seen.copy.push(newObj);
 
     for (var i in obj) {
         if (obj.hasOwnProperty(i)) {
-            if (obj[i] instanceof Buffer) {
-                newObj[i] = new Buffer(obj[i]);
-            }
-            else if (obj[i] instanceof Date) {
-                newObj[i] = new Date(obj[i].getTime());
-            }
-            else if (obj[i] instanceof RegExp) {
-                var flags = '' + (obj[i].global ? 'g' : '') + (obj[i].ignoreCase ? 'i' : '') + (obj[i].multiline ? 'm' : '');
-                newObj[i] = new RegExp(obj[i].source, flags);
-            }
-            else {
-                newObj[i] = exports.clone(obj[i], seen);
-            }
+            newObj[i] = exports.clone(obj[i], seen);
         }
     }
 
@@ -10621,7 +10283,10 @@ exports.merge = function (target, source, isNullOverride /* = true */, isMergeAr
             typeof value === 'object') {
 
             if (!target[key] ||
-                typeof target[key] !== 'object') {
+                typeof target[key] !== 'object' ||
+                value instanceof Date ||
+                value instanceof Buffer ||
+                value instanceof RegExp) {
 
                 target[key] = exports.clone(value);
             }
@@ -10779,9 +10444,9 @@ exports.removeKeys = function (object, keys) {
 
 // Convert an object key chain string ('a.b.c') to reference (object[a][b][c])
 
-exports.reach = function (obj, chain) {
+exports.reach = function (obj, chain, separator) {
 
-    var path = chain.split('.');
+    var path = chain.split(separator || '.');
     var ref = obj;
     for (var i = 0, il = path.length; i < il; ++i) {
         if (ref) {
@@ -10976,7 +10641,7 @@ exports.Timer.prototype.elapsed = function () {
 exports.loadPackage = function (dir) {
 
     var result = {};
-    var filepath = (dir || process.env.PWD) + '/package.json';
+    var filepath = Path.normalize((dir || process.env.PWD || process.cwd()) + '/package.json');
     if (Fs.existsSync(filepath)) {
         try {
             result = JSON.parse(Fs.readFileSync(filepath));
@@ -11016,24 +10681,26 @@ exports.toss = function (condition /*, [message], next */) {
 
 // Base64url (RFC 4648) encode
 
-exports.base64urlEncode = function (value) {
+exports.base64urlEncode = function (value, encoding) {
 
-    return (new Buffer(value, 'binary')).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/\=/g, '');
+    var buf = (value instanceof Buffer ? value : new Buffer(value, encoding || 'binary'));
+    return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/\=/g, '');
 };
 
 
 // Base64url (RFC 4648) decode
 
-exports.base64urlDecode = function (encoded) {
+exports.base64urlDecode = function (value, encoding) {
 
-    if (encoded &&
-        !encoded.match(/^[\w\-]*$/)) {
+    if (value &&
+        !value.match(/^[\w\-]*$/)) {
 
         return new Error('Invalid character');
     }
 
     try {
-        return (new Buffer(encoded.replace(/-/g, '+').replace(/:/g, '/'), 'base64')).toString('binary');
+        var buf = new Buffer(value.replace(/-/g, '+').replace(/:/g, '/'), 'base64');
+        return (encoding === 'buffer' ? buf : buf.toString(encoding || 'binary'));
     }
     catch (err) {
         return err;
@@ -11120,9 +10787,28 @@ exports.nextTick = function (callback) {
     };
 };
 
-},{"./escape":71,"__browserify_Buffer":4,"__browserify_process":77,"fs":30}],73:[function(require,module,exports){
+
+exports.readStream = function (stream, callback) {
+
+    var result = '';
+
+    stream.on('readable', function () {
+
+        var read = stream.read();
+        if (read) {
+            result += read.toString();
+        }
+    });
+
+    stream.once('end', function () {
+
+        callback(result);
+    });
+};
+
+},{"./escape":69,"__browserify_Buffer":4,"__browserify_process":74,"fs":26,"path":27}],71:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":74}],74:[function(require,module,exports){
+},{"./lib":72}],72:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");// Load modules
 
 var Dgram = require('dgram');
@@ -11165,6 +10851,7 @@ exports.time = function (options, callback) {
         if (!isFinished) {
             isFinished = true;
             socket.removeAllListeners();
+            socket.once('error', internals.ignore);
             socket.close();
             return callback(err, result);
         }
@@ -11533,70 +11220,13 @@ exports.now = function () {
 };
 
 
-},{"__browserify_Buffer":4,"__browserify_process":77,"dgram":28,"dns":26,"hoek":70}],75:[function(require,module,exports){
-module.exports = require("./lib/hkdf");
-},{"./lib/hkdf":76}],76:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");//
-// a straightforward implementation of HKDF
-//
-// https://tools.ietf.org/html/rfc5869
-//
+internals.ignore = function () {
 
-var crypto = require("crypto");
-
-function zeros(length) {
-  var buf = new Buffer(length);
-
-  buf.fill(0);
-
-  return buf.toString();
-}
-// imk is initial keying material
-function HKDF(hashAlg, salt, ikm) {
-  this.hashAlg = hashAlg;
-
-  // create the hash alg to see if it exists and get its length
-  var hash = crypto.createHash(this.hashAlg);
-  this.hashLength = hash.digest().length;
-
-  this.salt = salt || zeros(this.hashLength);
-  this.ikm = ikm;
-
-  // now we compute the PRK
-  var hmac = crypto.createHmac(this.hashAlg, this.salt);
-  hmac.update(this.ikm);
-  this.prk = hmac.digest();
-}
-
-HKDF.prototype = {
-  derive: function(info, size, cb) {
-    var prev = new Buffer(0);
-    var output;
-    var buffers = [];
-    var num_blocks = Math.ceil(size / this.hashLength);
-    info = new Buffer(info);
-
-    for (var i=0; i<num_blocks; i++) {
-      var hmac = crypto.createHmac(this.hashAlg, this.prk);
-      // XXX is there a more optimal way to build up buffers?
-      var input = Buffer.concat([
-        prev,
-        info,
-        new Buffer(String.fromCharCode(i + 1))
-      ]);
-      hmac.update(input);
-      prev = hmac.digest();
-      buffers.push(prev);
-    }
-    output = Buffer.concat(buffers, size);
-
-    process.nextTick(function() {cb(output);});
-  }
 };
 
-module.exports = HKDF;
-
-},{"__browserify_Buffer":4,"__browserify_process":77,"crypto":"Tk74kK"}],77:[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":74,"dgram":24,"dns":22,"hoek":68}],73:[function(require,module,exports){
+module.exports = require("./lib/hkdf");
+},{"./lib/hkdf":57}],74:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -11650,7 +11280,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],78:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 var process=require("__browserify_process");/*!
  * Copyright 2013 Robert Katić
  * Released under the MIT license
@@ -11707,14 +11337,10 @@ var process=require("__browserify_process");/*!
 		return type === "object" || type === "function";
 	}
 
-	function ft( type ) {
-		return type === "function";
-	}
-
 	if ( ot(typeof process) && process && process.nextTick ) {
 		requestTick = process.nextTick;
 
-	} else if ( ft(typeof setImmediate) ) {
+	} else if ( ot(typeof setImmediate) ) {
 		requestTick = wow ?
 			function( cb ) {
 				wow.setImmediate( cb );
@@ -11723,7 +11349,7 @@ var process=require("__browserify_process");/*!
 				setImmediate( cb );
 			};
 
-	} else if ( ft(typeof MessageChannel) ) {
+	} else if ( ot(typeof MessageChannel) ) {
 		channel = new MessageChannel();
 		channel.port1.onmessage = onTick;
 		requestTick = function() {
@@ -11841,7 +11467,7 @@ var process=require("__browserify_process");/*!
 
 		} else {
 			runLater(function() {
-				var r = resolverFor( p, x );
+				var r = resolverFor( p );
 
 				try {
 					var then = x.then;
@@ -11862,7 +11488,7 @@ var process=require("__browserify_process");/*!
 		return p;
 	}
 
-	function resolverFor( promise, x ) {
+	function resolverFor( promise ) {
 		var done = false;
 
 		return {
@@ -11871,13 +11497,7 @@ var process=require("__browserify_process");/*!
 			resolve: function( y ) {
 				if ( !done ) {
 					done = true;
-
-					if ( x && x === y ) {
-						Settle( promise, FULFILLED, y );
-
-					} else {
-						Resolve( promise, y );
-					}
+					Resolve( promise, y );
 				}
 			},
 
@@ -11893,6 +11513,11 @@ var process=require("__browserify_process");/*!
 	P.defer = defer;
 	function defer() {
 		return resolverFor( new Promise() );
+	}
+
+	P.reject = reject;
+	function reject( reason ) {
+		return Settle( new Promise(), REJECTED, reason );
 	}
 
 	function Promise() {
@@ -11982,12 +11607,15 @@ var process=require("__browserify_process");/*!
 	};
 
 	Promise.prototype.delay = function( ms ) {
-		var p = this;
-		var p2 = new Promise();
-		setTimeout(function() {
-			Resolve( p2, p );
-		}, ms);
-		return p2;
+		var d = defer();
+
+		this.then(function( value ) {
+			setTimeout(function() {
+				d.resolve( value );
+			}, ms);
+		}, d.reject);
+
+		return d.promise;
 	};
 
 	Promise.prototype.inspect = function() {
@@ -12091,7 +11719,7 @@ var process=require("__browserify_process");/*!
 	return P;
 });
 
-},{"__browserify_process":77}],79:[function(require,module,exports){
+},{"__browserify_process":74}],76:[function(require,module,exports){
 /** @fileOverview Bit array codec implementations.
  *
  * @author Emily Stark
@@ -12132,9 +11760,7 @@ module.exports = {
   }
 };
 
-},{"sjcl":81}],"crypto":[function(require,module,exports){
-module.exports=require('Tk74kK');
-},{}],81:[function(require,module,exports){
+},{"sjcl":77}],77:[function(require,module,exports){
 "use strict";function q(a){throw a;}var t=void 0,u=!1;var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
 "undefined"!=typeof module&&module.exports&&(module.exports=sjcl);
 sjcl.cipher.aes=function(a){this.j[0][0][0]||this.D();var b,c,d,e,f=this.j[0][4],g=this.j[1];b=a.length;var h=1;4!==b&&(6!==b&&8!==b)&&q(new sjcl.exception.invalid("invalid aes key size"));this.a=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
@@ -12184,13 +11810,13 @@ q(new sjcl.exception.invalid("json encode: invalid property name")),c+=d+'"'+b+'
 b){var c={},d;for(d in a)a.hasOwnProperty(d)&&a[d]!==b[d]&&(c[d]=a[d]);return c},W:function(a,b){var c={},d;for(d=0;d<b.length;d++)a[b[d]]!==t&&(c[b[d]]=a[b[d]]);return c}};sjcl.encrypt=sjcl.json.encrypt;sjcl.decrypt=sjcl.json.decrypt;sjcl.misc.V={};
 sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.V,d;b=b||{};d=b.iter||1E3;c=c[a]=c[a]||{};d=c[d]=c[d]||{firstSalt:b.salt&&b.salt.length?b.salt.slice(0):sjcl.random.randomWords(2,0)};c=b.salt===t?d.firstSalt:b.salt;d[c]=d[c]||sjcl.misc.pbkdf2(a,c,b.iter);return{key:d[c].slice(0),salt:c.slice(0)}};
 
-},{}],82:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 module.exports = require('./lib/srp');
 
 module.exports.params = require('./lib/params');
 
-},{"./lib/params":83,"./lib/srp":84}],83:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/*
+},{"./lib/params":79,"./lib/srp":80}],79:[function(require,module,exports){
+/*
  * SRP Group Parameters
  * http://tools.ietf.org/html/rfc5054#appendix-A
  *
@@ -12203,162 +11829,184 @@ var Buffer=require("__browserify_Buffer").Buffer;/*
  * The 1024-bit and 1536-bit groups MUST be supported.
  */
 
+// since these are meant to be used internally, all values are numbers. If
+// you want to add parameter sets, you'll need to convert them to bignums.
+
+const bignum = require('bignum');
+
+function hex(s) {
+    return bignum(s.split(/\s/).join(''), 16);
+}
+
 module.exports = {
 
   1024: {
-    N:Buffer(('EEAF0AB9 ADB38DD6 9C33F80A FA8FC5E8 60726187 75FF3C0B 9EA2314C'
-             +'9C256576 D674DF74 96EA81D3 383B4813 D692C6E0 E0D5D8E2 50B98BE4'
-             +'8E495C1D 6089DAD1 5DC7D7B4 6154D6B6 CE8EF4AD 69B15D49 82559B29'
-             +'7BCF1885 C529F566 660E57EC 68EDBC3C 05726CC0 2FD4CBF4 976EAA9A'
-             +'FD5138FE 8376435B 9FC61D2F C0EB06E3')
-            .split(/\s/).join(''), 'hex'),
-    g: Buffer('02', 'hex')},
+    N_length_bits: 1024,
+    N: hex(' EEAF0AB9 ADB38DD6 9C33F80A FA8FC5E8 60726187 75FF3C0B 9EA2314C'
+           +'9C256576 D674DF74 96EA81D3 383B4813 D692C6E0 E0D5D8E2 50B98BE4'
+           +'8E495C1D 6089DAD1 5DC7D7B4 6154D6B6 CE8EF4AD 69B15D49 82559B29'
+           +'7BCF1885 C529F566 660E57EC 68EDBC3C 05726CC0 2FD4CBF4 976EAA9A'
+           +'FD5138FE 8376435B 9FC61D2F C0EB06E3'),
+    g: hex('02'),
+    hash: 'sha1'},
 
   1536: {
-    N:Buffer(('9DEF3CAF B939277A B1F12A86 17A47BBB DBA51DF4 99AC4C80 BEEEA961'
-             +'4B19CC4D 5F4F5F55 6E27CBDE 51C6A94B E4607A29 1558903B A0D0F843'
-             +'80B655BB 9A22E8DC DF028A7C EC67F0D0 8134B1C8 B9798914 9B609E0B'
-             +'E3BAB63D 47548381 DBC5B1FC 764E3F4B 53DD9DA1 158BFD3E 2B9C8CF5'
-             +'6EDF0195 39349627 DB2FD53D 24B7C486 65772E43 7D6C7F8C E442734A'
-             +'F7CCB7AE 837C264A E3A9BEB8 7F8A2FE9 B8B5292E 5A021FFF 5E91479E'
-             +'8CE7A28C 2442C6F3 15180F93 499A234D CF76E3FE D135F9BB')
-            .split(/\s/).join(''), 'hex'),
-    g: Buffer('02', 'hex')},
+    N_length_bits: 1536,
+    N: hex(' 9DEF3CAF B939277A B1F12A86 17A47BBB DBA51DF4 99AC4C80 BEEEA961'
+           +'4B19CC4D 5F4F5F55 6E27CBDE 51C6A94B E4607A29 1558903B A0D0F843'
+           +'80B655BB 9A22E8DC DF028A7C EC67F0D0 8134B1C8 B9798914 9B609E0B'
+           +'E3BAB63D 47548381 DBC5B1FC 764E3F4B 53DD9DA1 158BFD3E 2B9C8CF5'
+           +'6EDF0195 39349627 DB2FD53D 24B7C486 65772E43 7D6C7F8C E442734A'
+           +'F7CCB7AE 837C264A E3A9BEB8 7F8A2FE9 B8B5292E 5A021FFF 5E91479E'
+           +'8CE7A28C 2442C6F3 15180F93 499A234D CF76E3FE D135F9BB'),
+    g: hex('02'),
+    hash: 'sha1'},
 
   2048: {
-    N:Buffer(('AC6BDB41 324A9A9B F166DE5E 1389582F AF72B665 1987EE07 FC319294'
-             +'3DB56050 A37329CB B4A099ED 8193E075 7767A13D D52312AB 4B03310D'
-             +'CD7F48A9 DA04FD50 E8083969 EDB767B0 CF609517 9A163AB3 661A05FB'
-             +'D5FAAAE8 2918A996 2F0B93B8 55F97993 EC975EEA A80D740A DBF4FF74'
-             +'7359D041 D5C33EA7 1D281E44 6B14773B CA97B43A 23FB8016 76BD207A'
-             +'436C6481 F1D2B907 8717461A 5B9D32E6 88F87748 544523B5 24B0D57D'
-             +'5EA77A27 75D2ECFA 032CFBDB F52FB378 61602790 04E57AE6 AF874E73'
-             +'03CE5329 9CCC041C 7BC308D8 2A5698F3 A8D0C382 71AE35F8 E9DBFBB6'
-             +'94B5C803 D89F7AE4 35DE236D 525F5475 9B65E372 FCD68EF2 0FA7111F'
-             +'9E4AFF73')
-            .split(/\s/).join(''), 'hex'),
-    g: Buffer('02', 'hex')},
+    N_length_bits: 2048,
+    N: hex(' AC6BDB41 324A9A9B F166DE5E 1389582F AF72B665 1987EE07 FC319294'
+           +'3DB56050 A37329CB B4A099ED 8193E075 7767A13D D52312AB 4B03310D'
+           +'CD7F48A9 DA04FD50 E8083969 EDB767B0 CF609517 9A163AB3 661A05FB'
+           +'D5FAAAE8 2918A996 2F0B93B8 55F97993 EC975EEA A80D740A DBF4FF74'
+           +'7359D041 D5C33EA7 1D281E44 6B14773B CA97B43A 23FB8016 76BD207A'
+           +'436C6481 F1D2B907 8717461A 5B9D32E6 88F87748 544523B5 24B0D57D'
+           +'5EA77A27 75D2ECFA 032CFBDB F52FB378 61602790 04E57AE6 AF874E73'
+           +'03CE5329 9CCC041C 7BC308D8 2A5698F3 A8D0C382 71AE35F8 E9DBFBB6'
+           +'94B5C803 D89F7AE4 35DE236D 525F5475 9B65E372 FCD68EF2 0FA7111F'
+           +'9E4AFF73'),
+    g: hex('02'),
+    hash: 'sha256'},
 
   3072: {
-    N:Buffer(('FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1 29024E08'
-             +'8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD EF9519B3 CD3A431B'
-             +'302B0A6D F25F1437 4FE1356D 6D51C245 E485B576 625E7EC6 F44C42E9'
-             +'A637ED6B 0BFF5CB6 F406B7ED EE386BFB 5A899FA5 AE9F2411 7C4B1FE6'
-             +'49286651 ECE45B3D C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8'
-             +'FD24CF5F 83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D'
-             +'670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B E39E772C'
-             +'180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9 DE2BCBF6 95581718'
-             +'3995497C EA956AE5 15D22618 98FA0510 15728E5A 8AAAC42D AD33170D'
-             +'04507A33 A85521AB DF1CBA64 ECFB8504 58DBEF0A 8AEA7157 5D060C7D'
-             +'B3970F85 A6E1E4C7 ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226'
-             +'1AD2EE6B F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C'
-             +'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31 43DB5BFC'
-             +'E0FD108E 4B82D120 A93AD2CA FFFFFFFF FFFFFFFF')
-            .split(/\s/).join(''), 'hex'),
-    g: Buffer('05', 'hex')},
+    N_length_bits: 3072,
+    N: hex(' FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1 29024E08'
+           +'8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD EF9519B3 CD3A431B'
+           +'302B0A6D F25F1437 4FE1356D 6D51C245 E485B576 625E7EC6 F44C42E9'
+           +'A637ED6B 0BFF5CB6 F406B7ED EE386BFB 5A899FA5 AE9F2411 7C4B1FE6'
+           +'49286651 ECE45B3D C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8'
+           +'FD24CF5F 83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D'
+           +'670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B E39E772C'
+           +'180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9 DE2BCBF6 95581718'
+           +'3995497C EA956AE5 15D22618 98FA0510 15728E5A 8AAAC42D AD33170D'
+           +'04507A33 A85521AB DF1CBA64 ECFB8504 58DBEF0A 8AEA7157 5D060C7D'
+           +'B3970F85 A6E1E4C7 ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226'
+           +'1AD2EE6B F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C'
+           +'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31 43DB5BFC'
+           +'E0FD108E 4B82D120 A93AD2CA FFFFFFFF FFFFFFFF'),
+    g: hex('05'),
+    hash: 'sha256'},
 
   4096: {
-    N:Buffer(('FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1 29024E08'
-             +'8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD EF9519B3 CD3A431B'
-             +'302B0A6D F25F1437 4FE1356D 6D51C245 E485B576 625E7EC6 F44C42E9'
-             +'A637ED6B 0BFF5CB6 F406B7ED EE386BFB 5A899FA5 AE9F2411 7C4B1FE6'
-             +'49286651 ECE45B3D C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8'
-             +'FD24CF5F 83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D'
-             +'670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B E39E772C'
-             +'180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9 DE2BCBF6 95581718'
-             +'3995497C EA956AE5 15D22618 98FA0510 15728E5A 8AAAC42D AD33170D'
-             +'04507A33 A85521AB DF1CBA64 ECFB8504 58DBEF0A 8AEA7157 5D060C7D'
-             +'B3970F85 A6E1E4C7 ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226'
-             +'1AD2EE6B F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C'
-             +'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31 43DB5BFC'
-             +'E0FD108E 4B82D120 A9210801 1A723C12 A787E6D7 88719A10 BDBA5B26'
-             +'99C32718 6AF4E23C 1A946834 B6150BDA 2583E9CA 2AD44CE8 DBBBC2DB'
-             +'04DE8EF9 2E8EFC14 1FBECAA6 287C5947 4E6BC05D 99B2964F A090C3A2'
-             +'233BA186 515BE7ED 1F612970 CEE2D7AF B81BDD76 2170481C D0069127'
-             +'D5B05AA9 93B4EA98 8D8FDDC1 86FFB7DC 90A6C08F 4DF435C9 34063199'
-             +'FFFFFFFF FFFFFFFF')
-            .split(/\s/).join(''), 'hex'),
-    g: Buffer('05', 'hex')},
+    N_length_bits: 4096,
+    N: hex(' FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1 29024E08'
+           +'8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD EF9519B3 CD3A431B'
+           +'302B0A6D F25F1437 4FE1356D 6D51C245 E485B576 625E7EC6 F44C42E9'
+           +'A637ED6B 0BFF5CB6 F406B7ED EE386BFB 5A899FA5 AE9F2411 7C4B1FE6'
+           +'49286651 ECE45B3D C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8'
+           +'FD24CF5F 83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D'
+           +'670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B E39E772C'
+           +'180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9 DE2BCBF6 95581718'
+           +'3995497C EA956AE5 15D22618 98FA0510 15728E5A 8AAAC42D AD33170D'
+           +'04507A33 A85521AB DF1CBA64 ECFB8504 58DBEF0A 8AEA7157 5D060C7D'
+           +'B3970F85 A6E1E4C7 ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226'
+           +'1AD2EE6B F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C'
+           +'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31 43DB5BFC'
+           +'E0FD108E 4B82D120 A9210801 1A723C12 A787E6D7 88719A10 BDBA5B26'
+           +'99C32718 6AF4E23C 1A946834 B6150BDA 2583E9CA 2AD44CE8 DBBBC2DB'
+           +'04DE8EF9 2E8EFC14 1FBECAA6 287C5947 4E6BC05D 99B2964F A090C3A2'
+           +'233BA186 515BE7ED 1F612970 CEE2D7AF B81BDD76 2170481C D0069127'
+           +'D5B05AA9 93B4EA98 8D8FDDC1 86FFB7DC 90A6C08F 4DF435C9 34063199'
+           +'FFFFFFFF FFFFFFFF'),
+    g: hex('05'),
+    hash: 'sha256'},
 
   6244: {
-    N:Buffer(('FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1 29024E08'
-             +'8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD EF9519B3 CD3A431B'
-             +'302B0A6D F25F1437 4FE1356D 6D51C245 E485B576 625E7EC6 F44C42E9'
-             +'A637ED6B 0BFF5CB6 F406B7ED EE386BFB 5A899FA5 AE9F2411 7C4B1FE6'
-             +'49286651 ECE45B3D C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8'
-             +'FD24CF5F 83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D'
-             +'670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B E39E772C'
-             +'180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9 DE2BCBF6 95581718'
-             +'3995497C EA956AE5 15D22618 98FA0510 15728E5A 8AAAC42D AD33170D'
-             +'04507A33 A85521AB DF1CBA64 ECFB8504 58DBEF0A 8AEA7157 5D060C7D'
-             +'B3970F85 A6E1E4C7 ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226'
-             +'1AD2EE6B F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C'
-             +'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31 43DB5BFC'
-             +'E0FD108E 4B82D120 A9210801 1A723C12 A787E6D7 88719A10 BDBA5B26'
-             +'99C32718 6AF4E23C 1A946834 B6150BDA 2583E9CA 2AD44CE8 DBBBC2DB'
-             +'04DE8EF9 2E8EFC14 1FBECAA6 287C5947 4E6BC05D 99B2964F A090C3A2'
-             +'233BA186 515BE7ED 1F612970 CEE2D7AF B81BDD76 2170481C D0069127'
-             +'D5B05AA9 93B4EA98 8D8FDDC1 86FFB7DC 90A6C08F 4DF435C9 34028492'
-             +'36C3FAB4 D27C7026 C1D4DCB2 602646DE C9751E76 3DBA37BD F8FF9406'
-             +'AD9E530E E5DB382F 413001AE B06A53ED 9027D831 179727B0 865A8918'
-             +'DA3EDBEB CF9B14ED 44CE6CBA CED4BB1B DB7F1447 E6CC254B 33205151'
-             +'2BD7AF42 6FB8F401 378CD2BF 5983CA01 C64B92EC F032EA15 D1721D03'
-             +'F482D7CE 6E74FEF6 D55E702F 46980C82 B5A84031 900B1C9E 59E7C97F'
-             +'BEC7E8F3 23A97A7E 36CC88BE 0F1D45B7 FF585AC5 4BD407B2 2B4154AA'
-             +'CC8F6D7E BF48E1D8 14CC5ED2 0F8037E0 A79715EE F29BE328 06A1D58B'
-             +'B7C5DA76 F550AA3D 8A1FBFF0 EB19CCB1 A313D55C DA56C9EC 2EF29632'
-             +'387FE8D7 6E3C0468 043E8F66 3F4860EE 12BF2D5B 0B7474D6 E694F91E'
-             +'6DCC4024 FFFFFFFF FFFFFFFF')
-            .split(/\s/).join(''), 'hex'),
-    g: Buffer('05', 'hex')},
+    N_length_bits: 6244,
+    N: hex(' FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1 29024E08'
+           +'8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD EF9519B3 CD3A431B'
+           +'302B0A6D F25F1437 4FE1356D 6D51C245 E485B576 625E7EC6 F44C42E9'
+           +'A637ED6B 0BFF5CB6 F406B7ED EE386BFB 5A899FA5 AE9F2411 7C4B1FE6'
+           +'49286651 ECE45B3D C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8'
+           +'FD24CF5F 83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D'
+           +'670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B E39E772C'
+           +'180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9 DE2BCBF6 95581718'
+           +'3995497C EA956AE5 15D22618 98FA0510 15728E5A 8AAAC42D AD33170D'
+           +'04507A33 A85521AB DF1CBA64 ECFB8504 58DBEF0A 8AEA7157 5D060C7D'
+           +'B3970F85 A6E1E4C7 ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226'
+           +'1AD2EE6B F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C'
+           +'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31 43DB5BFC'
+           +'E0FD108E 4B82D120 A9210801 1A723C12 A787E6D7 88719A10 BDBA5B26'
+           +'99C32718 6AF4E23C 1A946834 B6150BDA 2583E9CA 2AD44CE8 DBBBC2DB'
+           +'04DE8EF9 2E8EFC14 1FBECAA6 287C5947 4E6BC05D 99B2964F A090C3A2'
+           +'233BA186 515BE7ED 1F612970 CEE2D7AF B81BDD76 2170481C D0069127'
+           +'D5B05AA9 93B4EA98 8D8FDDC1 86FFB7DC 90A6C08F 4DF435C9 34028492'
+           +'36C3FAB4 D27C7026 C1D4DCB2 602646DE C9751E76 3DBA37BD F8FF9406'
+           +'AD9E530E E5DB382F 413001AE B06A53ED 9027D831 179727B0 865A8918'
+           +'DA3EDBEB CF9B14ED 44CE6CBA CED4BB1B DB7F1447 E6CC254B 33205151'
+           +'2BD7AF42 6FB8F401 378CD2BF 5983CA01 C64B92EC F032EA15 D1721D03'
+           +'F482D7CE 6E74FEF6 D55E702F 46980C82 B5A84031 900B1C9E 59E7C97F'
+           +'BEC7E8F3 23A97A7E 36CC88BE 0F1D45B7 FF585AC5 4BD407B2 2B4154AA'
+           +'CC8F6D7E BF48E1D8 14CC5ED2 0F8037E0 A79715EE F29BE328 06A1D58B'
+           +'B7C5DA76 F550AA3D 8A1FBFF0 EB19CCB1 A313D55C DA56C9EC 2EF29632'
+           +'387FE8D7 6E3C0468 043E8F66 3F4860EE 12BF2D5B 0B7474D6 E694F91E'
+           +'6DCC4024 FFFFFFFF FFFFFFFF'),
+    g: hex('05'),
+    hash: 'sha256'},
 
   8192: {
-    N:Buffer(('FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1 29024E08'
-             +'8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD EF9519B3 CD3A431B'
-             +'302B0A6D F25F1437 4FE1356D 6D51C245 E485B576 625E7EC6 F44C42E9'
-             +'A637ED6B 0BFF5CB6 F406B7ED EE386BFB 5A899FA5 AE9F2411 7C4B1FE6'
-             +'49286651 ECE45B3D C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8'
-             +'FD24CF5F 83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D'
-             +'670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B E39E772C'
-             +'180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9 DE2BCBF6 95581718'
-             +'3995497C EA956AE5 15D22618 98FA0510 15728E5A 8AAAC42D AD33170D'
-             +'04507A33 A85521AB DF1CBA64 ECFB8504 58DBEF0A 8AEA7157 5D060C7D'
-             +'B3970F85 A6E1E4C7 ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226'
-             +'1AD2EE6B F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C'
-             +'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31 43DB5BFC'
-             +'E0FD108E 4B82D120 A9210801 1A723C12 A787E6D7 88719A10 BDBA5B26'
-             +'99C32718 6AF4E23C 1A946834 B6150BDA 2583E9CA 2AD44CE8 DBBBC2DB'
-             +'04DE8EF9 2E8EFC14 1FBECAA6 287C5947 4E6BC05D 99B2964F A090C3A2'
-             +'233BA186 515BE7ED 1F612970 CEE2D7AF B81BDD76 2170481C D0069127'
-             +'D5B05AA9 93B4EA98 8D8FDDC1 86FFB7DC 90A6C08F 4DF435C9 34028492'
-             +'36C3FAB4 D27C7026 C1D4DCB2 602646DE C9751E76 3DBA37BD F8FF9406'
-             +'AD9E530E E5DB382F 413001AE B06A53ED 9027D831 179727B0 865A8918'
-             +'DA3EDBEB CF9B14ED 44CE6CBA CED4BB1B DB7F1447 E6CC254B 33205151'
-             +'2BD7AF42 6FB8F401 378CD2BF 5983CA01 C64B92EC F032EA15 D1721D03'
-             +'F482D7CE 6E74FEF6 D55E702F 46980C82 B5A84031 900B1C9E 59E7C97F'
-             +'BEC7E8F3 23A97A7E 36CC88BE 0F1D45B7 FF585AC5 4BD407B2 2B4154AA'
-             +'CC8F6D7E BF48E1D8 14CC5ED2 0F8037E0 A79715EE F29BE328 06A1D58B'
-             +'B7C5DA76 F550AA3D 8A1FBFF0 EB19CCB1 A313D55C DA56C9EC 2EF29632'
-             +'387FE8D7 6E3C0468 043E8F66 3F4860EE 12BF2D5B 0B7474D6 E694F91E'
-             +'6DBE1159 74A3926F 12FEE5E4 38777CB6 A932DF8C D8BEC4D0 73B931BA'
-             +'3BC832B6 8D9DD300 741FA7BF 8AFC47ED 2576F693 6BA42466 3AAB639C'
-             +'5AE4F568 3423B474 2BF1C978 238F16CB E39D652D E3FDB8BE FC848AD9'
-             +'22222E04 A4037C07 13EB57A8 1A23F0C7 3473FC64 6CEA306B 4BCBC886'
-             +'2F8385DD FA9D4B7F A2C087E8 79683303 ED5BDD3A 062B3CF5 B3A278A6'
-             +'6D2A13F8 3F44F82D DF310EE0 74AB6A36 4597E899 A0255DC1 64F31CC5'
-             +'0846851D F9AB4819 5DED7EA1 B1D510BD 7EE74D73 FAF36BC3 1ECFA268'
-             +'359046F4 EB879F92 4009438B 481C6CD7 889A002E D5EE382B C9190DA6'
-             +'FC026E47 9558E447 5677E9AA 9E3050E2 765694DF C81F56E8 80B96E71'
-             +'60C980DD 98EDD3DF FFFFFFFF FFFFFFFF')
-            .split(/\s/).join(''), 'hex'),
-    g: Buffer('13', 'hex')}
+    N_length_bits: 8192,
+    N: hex(' FFFFFFFF FFFFFFFF C90FDAA2 2168C234 C4C6628B 80DC1CD1 29024E08'
+           +'8A67CC74 020BBEA6 3B139B22 514A0879 8E3404DD EF9519B3 CD3A431B'
+           +'302B0A6D F25F1437 4FE1356D 6D51C245 E485B576 625E7EC6 F44C42E9'
+           +'A637ED6B 0BFF5CB6 F406B7ED EE386BFB 5A899FA5 AE9F2411 7C4B1FE6'
+           +'49286651 ECE45B3D C2007CB8 A163BF05 98DA4836 1C55D39A 69163FA8'
+           +'FD24CF5F 83655D23 DCA3AD96 1C62F356 208552BB 9ED52907 7096966D'
+           +'670C354E 4ABC9804 F1746C08 CA18217C 32905E46 2E36CE3B E39E772C'
+           +'180E8603 9B2783A2 EC07A28F B5C55DF0 6F4C52C9 DE2BCBF6 95581718'
+           +'3995497C EA956AE5 15D22618 98FA0510 15728E5A 8AAAC42D AD33170D'
+           +'04507A33 A85521AB DF1CBA64 ECFB8504 58DBEF0A 8AEA7157 5D060C7D'
+           +'B3970F85 A6E1E4C7 ABF5AE8C DB0933D7 1E8C94E0 4A25619D CEE3D226'
+           +'1AD2EE6B F12FFA06 D98A0864 D8760273 3EC86A64 521F2B18 177B200C'
+           +'BBE11757 7A615D6C 770988C0 BAD946E2 08E24FA0 74E5AB31 43DB5BFC'
+           +'E0FD108E 4B82D120 A9210801 1A723C12 A787E6D7 88719A10 BDBA5B26'
+           +'99C32718 6AF4E23C 1A946834 B6150BDA 2583E9CA 2AD44CE8 DBBBC2DB'
+           +'04DE8EF9 2E8EFC14 1FBECAA6 287C5947 4E6BC05D 99B2964F A090C3A2'
+           +'233BA186 515BE7ED 1F612970 CEE2D7AF B81BDD76 2170481C D0069127'
+           +'D5B05AA9 93B4EA98 8D8FDDC1 86FFB7DC 90A6C08F 4DF435C9 34028492'
+           +'36C3FAB4 D27C7026 C1D4DCB2 602646DE C9751E76 3DBA37BD F8FF9406'
+           +'AD9E530E E5DB382F 413001AE B06A53ED 9027D831 179727B0 865A8918'
+           +'DA3EDBEB CF9B14ED 44CE6CBA CED4BB1B DB7F1447 E6CC254B 33205151'
+           +'2BD7AF42 6FB8F401 378CD2BF 5983CA01 C64B92EC F032EA15 D1721D03'
+           +'F482D7CE 6E74FEF6 D55E702F 46980C82 B5A84031 900B1C9E 59E7C97F'
+           +'BEC7E8F3 23A97A7E 36CC88BE 0F1D45B7 FF585AC5 4BD407B2 2B4154AA'
+           +'CC8F6D7E BF48E1D8 14CC5ED2 0F8037E0 A79715EE F29BE328 06A1D58B'
+           +'B7C5DA76 F550AA3D 8A1FBFF0 EB19CCB1 A313D55C DA56C9EC 2EF29632'
+           +'387FE8D7 6E3C0468 043E8F66 3F4860EE 12BF2D5B 0B7474D6 E694F91E'
+           +'6DBE1159 74A3926F 12FEE5E4 38777CB6 A932DF8C D8BEC4D0 73B931BA'
+           +'3BC832B6 8D9DD300 741FA7BF 8AFC47ED 2576F693 6BA42466 3AAB639C'
+           +'5AE4F568 3423B474 2BF1C978 238F16CB E39D652D E3FDB8BE FC848AD9'
+           +'22222E04 A4037C07 13EB57A8 1A23F0C7 3473FC64 6CEA306B 4BCBC886'
+           +'2F8385DD FA9D4B7F A2C087E8 79683303 ED5BDD3A 062B3CF5 B3A278A6'
+           +'6D2A13F8 3F44F82D DF310EE0 74AB6A36 4597E899 A0255DC1 64F31CC5'
+           +'0846851D F9AB4819 5DED7EA1 B1D510BD 7EE74D73 FAF36BC3 1ECFA268'
+           +'359046F4 EB879F92 4009438B 481C6CD7 889A002E D5EE382B C9190DA6'
+           +'FC026E47 9558E447 5677E9AA 9E3050E2 765694DF C81F56E8 80B96E71'
+           +'60C980DD 98EDD3DF FFFFFFFF FFFFFFFF'),
+    g: hex('13'),
+    hash: 'sha256'}
 };
 
-},{"__browserify_Buffer":4}],84:[function(require,module,exports){
+},{"bignum":"xttfNN"}],80:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;const crypto = require('crypto'),
       bignum = require('bignum'),
-      assert = require('assert'),
-      ALG = 'sha256';
+      assert = require('assert');
+
+const zero = bignum(0);
+
+function assert_(val, msg) {
+  if (!val)
+    throw new Error(msg||"assertion");
+}
 
 /*
  * If a conversion is explicitly specified with the operator PAD(),
@@ -12368,18 +12016,56 @@ var Buffer=require("__browserify_Buffer").Buffer;const crypto = require('crypto'
  *
  * params:
  *         n (buffer)       Number to pad
- *         N (buffer)       N
+ *         len (int)        length of the resulting Buffer
  *
  * returns: buffer
  */
-function pad(n, N) {
-  var padding = N.length - n.length;
-  assert(padding > -1, "Negative padding.  Very uncomfortable.");
-  var result = new Buffer(N.length);
+function padTo(n, len) {
+  assertIsBuffer(n, "n");
+  var padding = len - n.length;
+  assert_(padding > -1, "Negative padding.  Very uncomfortable.");
+  var result = new Buffer(len);
   result.fill(0, 0, padding);
   n.copy(result, padding);
+  assert.equal(result.length, len);
   return result;
 };
+
+function padToN(number, params) {
+  assertIsBignum(number);
+  return padTo(number.toBuffer(), params.N_length_bits/8);
+}
+
+function padToH(number, params) {
+  assertIsBignum(number);
+  var hashlen_bits;
+  if (params.hash === "sha1")
+    hashlen_bits = 160;
+  else if (params.hash === "sha256")
+    hashlen_bits = 256;
+  else if (params.hash === "sha512")
+    hashlen_bits = 512;
+  else
+    throw Error("cannot determine length of hash '"+params.hash+"'");
+
+  return padTo(number.toBuffer(), hashlen_bits/8);
+}
+
+function assertIsBuffer(arg, argname) {
+  argname = argname || "arg";
+  assert_(Buffer.isBuffer(arg), "Type error: "+argname+" must be a buffer");
+}
+
+function assertIsNBuffer(arg, params, argname) {
+  argname = argname || "arg";
+  assert_(Buffer.isBuffer(arg), "Type error: "+argname+" must be a buffer");
+  if (arg.length != params.N_length_bits/8)
+    assert_(false, argname+" was "+arg.length+", expected "+(params.N_length_bits/8));
+}
+
+function assertIsBignum(arg) {
+  assert.equal(arg.constructor.name, "BigNum");
+}
 
 /*
  * compute the intermediate value x as a hash of three buffers:
@@ -12388,20 +12074,21 @@ function pad(n, N) {
  *      x = H(s | H(I | ":" | P))
  *
  * params:
- *         s (buffer)       salt
+ *         salt (buffer)    salt
  *         I (buffer)       user identity
  *         P (buffer)       user password
+ *
+ * returns: x (bignum)      user secret
  */
-function getx(s, I, P, alg) {
-  assert(Buffer.isBuffer(s), "Type error: salt (s) must be a buffer");
-  assert(Buffer.isBuffer(I), "Type error: identity (I) must be a buffer");
-  assert(Buffer.isBuffer(P), "Type error: password (P) must be a buffer");
-  alg = alg || ALG;
-  var hashIP = crypto.createHash(alg)
+function getx(params, salt, I, P) {
+  assertIsBuffer(salt, "salt (salt)");
+  assertIsBuffer(I, "identity (I)");
+  assertIsBuffer(P, "password (P)");
+  var hashIP = crypto.createHash(params.hash)
     .update(Buffer.concat([I, new Buffer(':'), P]))
     .digest();
-  var hashX = crypto.createHash(alg)
-    .update(s)
+  var hashX = crypto.createHash(params.hash)
+    .update(salt)
     .update(hashIP)
     .digest();
   return bignum.fromBuffer(hashX);
@@ -12418,41 +12105,36 @@ function getx(s, I, P, alg) {
  *         v = g^x % N
  *
  * params:
- *         s (buffer)       salt
+ *         params (obj)     group parameters, with .N, .g, .hash
+ *         salt (buffer)    salt
  *         I (buffer)       user identity
  *         P (buffer)       user password
- *         N (bignum)       group parameter N
- *         g (bignum)       generator
- *         alg (string)     default = ALG
  *
- * returns: bignum
+ * returns: buffer
  */
-function getv(s, I, P, N, g, alg) {
-  alg = alg || ALG;
-  return g.powm(getx(s, I, P, alg), N);
+function computeVerifier(params, salt, I, P) {
+  assertIsBuffer(salt, "salt (salt)");
+  assertIsBuffer(I, "identity (I)");
+  assertIsBuffer(P, "password (P)");
+  var v_num = params.g.powm(getx(params, salt, I, P), params.N);
+  return padToN(v_num, params);
 };
-
-function getkBuffer(N, g, alg) {
-  alg = alg || ALG;
-  return crypto
-    .createHash(alg)
-    .update(N)
-    .update(pad(g, N))
-    .digest();
-}
 
 /*
  * calculate the SRP-6 multiplier
  *
  * params:
- *         N (bignum)       group parameter N
- *         g (bignum)       generator
- *         alg (string)     default = ALG
+ *         params (obj)     group parameters, with .N, .g, .hash
  *
  * returns: bignum
  */
-function getk(N, g, alg) {
-  return bignum.fromBuffer(getkBuffer(N.toBuffer(), g.toBuffer(), alg));
+function getk(params) {
+  var k_buf = crypto
+    .createHash(params.hash)
+    .update(padToN(params.N, params))
+    .update(padToN(params.g, params))
+    .digest();
+  return bignum.fromBuffer(k_buf);
 };
 
 /*
@@ -12462,7 +12144,7 @@ function getk(N, g, alg) {
  *         bytes (int)      length of key (default=32)
  *         callback (func)  function to call with err,key
  *
- * returns: buffer
+ * returns: nothing, but runs callback with a Buffer
  */
 function genKey(bytes, callback) {
   // bytes is optional
@@ -12488,14 +12170,19 @@ function genKey(bytes, callback) {
  * Note: as the tests imply, the entire expression is mod N.
  *
  * params:
- *         v (bignum)       verifier
- *         g (bignum)       generator
+ *         params (obj)     group parameters, with .N, .g, .hash
+ *         v (bignum)       verifier (stored)
+ *         b (bignum)       server secret exponent
+ *
+ * returns: B (buffer)      the server public message
  */
-function getB(v, g, b, N, alg) {
-  alg = alg || ALG;
-  var k = getk(N, g, alg);
-  var r = k.mul(v).add(g.powm(b, N)).mod(N);
-  return r;
+function getB(params, k, v, b) {
+  assertIsBignum(v);
+  assertIsBignum(k);
+  assertIsBignum(b);
+  var N = params.N;
+  var r = k.mul(v).add(params.g.powm(b, N)).mod(N);
+  return padToN(r, params);
 };
 
 /*
@@ -12504,166 +12191,223 @@ function getB(v, g, b, N, alg) {
  * random number that SHOULD be at least 256 bits in length.
  *
  * Note: for this implementation, we take that to mean 256/8 bytes.
- */
-function getA(g, a, N) {
-  if (Math.ceil(a.bitLength() / 8) < 256/8) {
-    console.warn("getA: client key length", a.bitLength(), "is less than the recommended 256");
-  }
-  return g.powm(a, N);
-};
-
-function getuBuffer(A, B, N, alg) {
-  alg = alg || ALG;
-  return crypto
-    .createHash(alg)
-    .update(pad(A, N))
-    .update(pad(B, N))
-    .digest()
-}
-
-/*
- * Random scrambling parameter u
  *
  * params:
- *         A (bignum)       client ephemeral public key
- *         B (bignum)       server ephemeral public key
- *         N (bignum)       group parameter N
+ *         params (obj)     group parameters, with .N, .g, .hash
+ *         a (bignum)       client secret exponent
+ *
+ * returns A (bignum)       the client public message
  */
-function getu(A, B, N, alg) {
-  return bignum.fromBuffer(getuBuffer(A.toBuffer(), B.toBuffer(), N.toBuffer(), alg));
+function getA(params, a_num) {
+  assertIsBignum(a_num);
+  if (Math.ceil(a_num.bitLength() / 8) < 256/8) {
+    console.warn("getA: client key length", a_num.bitLength(), "is less than the recommended 256");
+  }
+  return padToN(params.g.powm(a_num, params.N), params);
+};
+
+/*
+ * getu() hashes the two public messages together, to obtain a scrambling
+ * parameter "u" which cannot be predicted by either party ahead of time.
+ * This makes it safe to use the message ordering defined in the SRP-6a
+ * paper, in which the server reveals their "B" value before the client
+ * commits to their "A" value.
+ *
+ * params:
+ *         params (obj)     group parameters, with .N, .g, .hash
+ *         A (Buffer)       client ephemeral public key
+ *         B (Buffer)       server ephemeral public key
+ *
+ * returns: u (bignum)      shared scrambling parameter
+ */
+function getu(params, A, B) {
+  assertIsNBuffer(A, params, "A");
+  assertIsNBuffer(B, params, "B");
+  var u_buf = crypto.createHash(params.hash)
+    .update(A).update(B)
+    .digest();
+  return bignum.fromBuffer(u_buf);
 };
 
 /*
  * The TLS premaster secret as calculated by the client
  *
  * params:
- *         s (buffer)       salt (read from server)
+ *         params (obj)     group parameters, with .N, .g, .hash
+ *         salt (buffer)    salt (read from server)
  *         I (buffer)       user identity (read from user)
  *         P (buffer)       user password (read from user)
- *         N (bignum)       group parameter N (known in advance)
- *         g (bignum)       generator for N (known in advance)
  *         a (bignum)       ephemeral private key (generated for session)
  *         B (bignum)       server ephemeral public key (read from server)
  *
- * returns: bignum
+ * returns: buffer
  */
-function client_getS(s, I, P, N, g, a, B, alg) {
-  var A = getA(g, a, N);
-  var u = getu(A, B, N, alg);
-  var k = getk(N, g, alg);
-  var x = getx(s, I, P, alg);
-  return B.sub(k.mul(g.powm(x, N))).powm(a.add(u.mul(x)), N).mod(N);
+
+function client_getS(params, k_num, x_num, a_num, B_num, u_num) {
+  assertIsBignum(k_num);
+  assertIsBignum(x_num);
+  assertIsBignum(a_num);
+  assertIsBignum(B_num);
+  assertIsBignum(u_num);
+  var g = params.g;
+  var N = params.N;
+  if (zero.ge(B_num) || N.le(B_num))
+    throw new Error("invalid server-supplied 'B', must be 1..N-1");
+  var S_num = B_num.sub(k_num.mul(g.powm(x_num, N))).powm(a_num.add(u_num.mul(x_num)), N).mod(N);
+  return padToN(S_num, params);
 };
 
 /*
  * The TLS premastersecret as calculated by the server
  *
  * params:
- *         s (bignum)       salt (stored on server)
+ *         params (obj)     group parameters, with .N, .g, .hash
  *         v (bignum)       verifier (stored on server)
- *         N (bignum)       group parameter N (known in advance)
- *         g (bignum)       generator for N (known in advance)
  *         A (bignum)       ephemeral client public key (read from client)
  *         b (bignum)       server ephemeral private key (generated for session)
  *
  * returns: bignum
  */
-function server_getS(s, v, N, g, A, b, alg) {
-  var k = getk(N, g, alg);
-  var B = getB(v, g, b, N, alg);
-  var u = getu(A, B, N, alg);
-  return A.mul(v.powm(u, N)).powm(b, N).mod(N);
+
+function server_getS(params, v_num, A_num, b_num, u_num) {
+  assertIsBignum(v_num);
+  assertIsBignum(A_num);
+  assertIsBignum(b_num);
+  assertIsBignum(u_num);
+  var N = params.N;
+  if (zero.ge(A_num) || N.le(A_num))
+    throw new Error("invalid client-supplied 'A', must be 1..N-1");
+  var S_num = A_num.mul(v_num.powm(u_num, N)).powm(b_num, N).mod(N);
+  return padToN(S_num, params);
 };
 
 /*
  * Compute the shared session key K from S
  *
  * params:
+ *         params (obj)     group parameters, with .N, .g, .hash
  *         S (buffer)       Session key
- *         N (buffer)       group parameter N
  *
  * returns: buffer
  */
-function getK(S, N, alg) {
-  alg = alg || ALG;
-  var S_pad = pad(S, N);
-  return crypto
-      .createHash(alg)
-      .update(S_pad)
+function getK(params, S_buf) {
+  assertIsNBuffer(S_buf, params, "S");
+  return crypto.createHash(params.hash)
+      .update(S_buf)
       .digest();
 };
 
-function getM(A, B, S, N, alg) {
-  alg = alg || ALG;
-  return crypto
-    .createHash(alg)
-    .update(pad(A, N))
-    .update(pad(B, N))
-    .update(pad(S, N))
-    .digest()
+function getM1(params, A_buf, B_buf, S_buf) {
+  assertIsNBuffer(A_buf, params, "A");
+  assertIsNBuffer(B_buf, params, "B");
+  assertIsNBuffer(S_buf, params, "S");
+  return crypto.createHash(params.hash)
+    .update(A_buf).update(B_buf).update(S_buf)
+    .digest();
 }
+
+function equal(buf1, buf2) {
+  // TODO: constant-time comparison. A drop in the ocean compared to our
+  // non-constant-time modexp operations, but still good practice.
+  return buf1.toString('hex') === buf2.toString('hex');
+}
+
+function Client(params, salt_buf, identity_buf, password_buf, secret1_buf) {
+  if (!(this instanceof Client)) {
+    return new Client(params, salt_buf, identity_buf, password_buf, secret1_buf);
+  }
+  assertIsBuffer(salt_buf, "salt (salt)");
+  assertIsBuffer(identity_buf, "identity (I)");
+  assertIsBuffer(password_buf, "password (P)");
+  assertIsBuffer(secret1_buf, "secret1");
+  this._private = { params: params,
+                    k_num: getk(params),
+                    x_num: getx(params, salt_buf, identity_buf, password_buf),
+                    a_num: bignum.fromBuffer(secret1_buf) };
+  this._private.A_buf = getA(params, this._private.a_num);
+}
+
+Client.prototype = {
+  computeA: function computeA() {
+    return this._private.A_buf;
+  },
+  setB: function setB(B_buf) {
+    var p = this._private;
+    var B_num = bignum.fromBuffer(B_buf);
+    var u_num = getu(p.params, p.A_buf, B_buf);
+    var S_buf = client_getS(p.params, p.k_num, p.x_num, p.a_num, B_num, u_num);
+    p.K_buf = getK(p.params, S_buf);
+    p.M1_buf = getM1(p.params, p.A_buf, B_buf, S_buf);
+    p.u_num = u_num; // only for tests
+    p.S_buf = S_buf; // only for tests
+  },
+  computeM1: function computeM1() {
+    if (this._private.M1_buf === undefined)
+      throw new Error("incomplete protocol");
+    return this._private.M1_buf;
+  },
+  /*checkM2: function checkM2(M2) {
+    CHECK();
+  },*/
+  computeK: function computeK() {
+    if (this._private.K_buf === undefined)
+      throw new Error("incomplete protocol");
+    return this._private.K_buf;
+  }
+};
+
+function Server(params, verifier_buf, secret2_buf) {
+  if (!(this instanceof Server))  {
+    return new Server(params, verifier_buf, secret2_buf);
+  }
+  assertIsBuffer(verifier_buf, "verifier");
+  assertIsBuffer(secret2_buf, "secret2");
+  this._private = { params: params,
+                    k_num: getk(params),
+                    b_num: bignum.fromBuffer(secret2_buf),
+                    v_num: bignum.fromBuffer(verifier_buf) };
+  this._private.B_buf = getB(params, this._private.k_num,
+                             this._private.v_num, this._private.b_num);
+}
+
+Server.prototype = {
+  computeB: function computeB() {
+    return this._private.B_buf;
+  },
+  setA: function setA(A_buf) {
+    var p = this._private;
+    var A_num = bignum.fromBuffer(A_buf);
+    var u_num = getu(p.params, A_buf, p.B_buf);
+    var S_buf = server_getS(p.params, p.v_num, A_num, p.b_num, u_num);
+    p.K_buf = getK(p.params, S_buf);
+    p.M1_buf = getM1(p.params, A_buf, p.B_buf, S_buf);
+    //p.M2_buf = XXX;
+    p.u_num = u_num; // only for tests
+    p.S_buf = S_buf; // only for tests
+  },
+  checkM1: function checkM1(clientM1_buf) {
+    if (this._private.M1_buf === undefined)
+      throw new Error("incomplete protocol");
+    if (!equal(this._private.M1_buf, clientM1_buf))
+      throw new Error("client did not use the same password");
+    //return this._private.M2;
+  },
+  computeK: function computeK() {
+    if (this._private.K_buf === undefined)
+      throw new Error("incomplete protocol");
+    return this._private.K_buf;
+  }
+};
 
 module.exports = {
-  getx: function (s, I, P, alg) {
-    return getx(s, I, P, alg).toBuffer()
-  },
-  getv: function (s, I, P, N, g, alg) {
-    return getv(
-      s,
-      I,
-      P,
-      bignum.fromBuffer(N),
-      bignum.fromBuffer(g),
-      alg
-    ).toBuffer()
-  },
+  params: require('./params'),
   genKey: genKey,
-  getB: function (v, g, b, N, alg) {
-    return getB(
-      bignum.fromBuffer(v),
-      bignum.fromBuffer(g),
-      bignum.fromBuffer(b),
-      bignum.fromBuffer(N),
-      alg
-    ).toBuffer()
-  },
-  getA: function (g, a, N) {
-    return getA(
-      bignum.fromBuffer(g),
-      bignum.fromBuffer(a),
-      bignum.fromBuffer(N)
-    ).toBuffer()
-  },
-  client_getS: function (s, I, P, N, g, a, B, alg) {
-    return client_getS(
-      s,
-      I,
-      P,
-      bignum.fromBuffer(N),
-      bignum.fromBuffer(g),
-      bignum.fromBuffer(a),
-      bignum.fromBuffer(B),
-      alg
-    ).toBuffer()
-  },
-  server_getS: function (s, v, N, g, A, b, alg) {
-    return server_getS(
-      bignum.fromBuffer(s),
-      bignum.fromBuffer(v),
-      bignum.fromBuffer(N),
-      bignum.fromBuffer(g),
-      bignum.fromBuffer(A),
-      bignum.fromBuffer(b),
-      alg
-    ).toBuffer()
-  },
-  getu: getuBuffer,
-  getk: getkBuffer,
-  getK: getK,
-  getM: getM
-}
+  computeVerifier: computeVerifier,
+  Client: Client,
+  Server: Server
+};
 
-},{"__browserify_Buffer":4,"assert":27,"bignum":"BPqxwV","crypto":"Tk74kK"}],85:[function(require,module,exports){
+},{"./params":79,"__browserify_Buffer":4,"assert":23,"bignum":"xttfNN","crypto":"l4eWKl"}],81:[function(require,module,exports){
 var global=self;
 var rng;
 
@@ -12696,7 +12440,13 @@ if (!rng) {
 module.exports = rng;
 
 
-},{}],86:[function(require,module,exports){
+},{}],"crypto":[function(require,module,exports){
+module.exports=require('l4eWKl');
+},{}],"bignum":[function(require,module,exports){
+module.exports=require('xttfNN');
+},{}],"buffer":[function(require,module,exports){
+module.exports=require('IZihkv');
+},{}],85:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;//     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -12885,9 +12635,5 @@ uuid.BufferClass = BufferClass;
 
 module.exports = uuid;
 
-},{"./rng":85,"__browserify_Buffer":4}],"buffer":[function(require,module,exports){
-module.exports=require('E8lnoA');
-},{}],"bignum":[function(require,module,exports){
-module.exports=require('BPqxwV');
-},{}]},{},[1])
+},{"./rng":81,"__browserify_Buffer":4}]},{},[1])
 ;
