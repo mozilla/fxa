@@ -75,6 +75,15 @@ module.exports = function(grunt) {
           reporters: ['console'],
           suites: ['tests/all']
         }
+      },
+      browser: {
+        options: {
+          runType: 'runner',
+          config: 'tests/intern_sauce',
+          suites: ['tests/all'],
+          sauceUsername: "gherkin-web",
+          sauceAccessKey: "de4982ac-cb05-4b9c-8059-385a83de8af4"
+        }
       }
     }
   });

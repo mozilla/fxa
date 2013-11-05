@@ -1,3 +1,20 @@
 language: node_js
+
+env:
+  global:
+    # Sauce Labs are OK with this and it is currently necessary to expose this information for testing pull requests;
+    # please get your own free key if you want to test yourself
+    - SAUCE_USERNAME: gherkin-web
+    - SAUCE_ACCESS_KEY: de4982ac-cb05-4b9c-8059-385a83de8af4
+
+notifications:
+  irc:
+    channels:
+      - "irc.mozilla.org#fxa"
+    use_notice: false
+    skip_join: false
+
 node_js:
   - "0.10"
+
+script: grunt intern
