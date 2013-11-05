@@ -2,21 +2,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, crypto, P, hkdf, error) {
+/*  Base class for handling various types of token.
+ * 
+ *  This module provides the basic functionality for handling authentication
+ *  tokens.  There are different types of token for use in different contexts
+ *  but they all operate in essentially the same way:
+ *
+ *    - Each token is created from an initial data seed of 32 random bytes.
+ *
+ *    - From the seed data we HKDF-derive three 32-byte values: a tokenid,
+ *      an authKey and a bundleKey.
+ *
+ *    - The tokenid/authKey pair can be used as part of a request-signing
+ *      authentication scheme.
+ *
+ *    - The bundleKey can be used to encrypt data as part of the request.
+ *
+ *    - The token may have additional metadata details such as uid or email,
+ *      which are specific to the type of token.
+ *
+ */
 
-  function Token() {
-    this.id = null
-    this.hmacKey = null
-    this.xorKey = null
-    this._key = null
+module.exports = function (log, crypto, P, hkdf, Bundle, error) {
+
+  // Token constructor.
+  // 
+  // This directly populates the token from its keys and metadata details.
+  // You probably want to call a helper rather than use this directly.
+  //
+  function Token(keys, details) {
+    this.data = keys.data
+    this.id = keys.id
+    this.authKey = keys.authKey
+    this.bundleKey = keys.bundleKey
     this.algorithm = 'sha256'
-    this.uid = null
-    this.data = null
+    this.uid = details.uid || null
   }
 
-  Token.hkdf = hkdf
-
-  Token.random32Bytes = function () {
+  // Create a new token of the given type.
+  // This uses randomly-generated seed data to derive the keys.
+  //
+  Token.createNewToken = function(TokenType, details) {
     var d = P.defer()
     // capturing the domain here is a workaround for:
     // https://github.com/joyent/node/issues/3965
@@ -26,13 +52,81 @@ module.exports = function (log, crypto, P, hkdf, error) {
       32,
       function (err, bytes) {
         if (domain) domain.enter()
-        var x = err ? d.reject(err) : d.resolve(bytes)
+        if (err) {
+          d.reject(err)
+        } else {
+          Token.deriveTokenKeys(TokenType, bytes)
+            .then(
+              function (keys) {
+                d.resolve(new TokenType(keys, details || {}))
+              }
+            )
+            .fail(
+              function (err) {
+                d.reject(err)
+              }
+            )
+        }
         if (domain) domain.exit()
-        return x
       }
     )
     return d.promise
   }
+
+
+  // Re-create an existing token of the given type.
+  // This uses known seed data to derive the keys.
+  //
+  Token.createTokenFromHexData = function(TokenType, hexData, details) {
+    var d = P.defer()
+    var data = Buffer(hexData, 'hex')
+    Token.deriveTokenKeys(TokenType, data)
+      .then(
+        function (keys) {
+          d.resolve(new TokenType(keys, details || {}))
+        }
+      )
+      .fail(
+        function (err) {
+          d.reject(err)
+        }
+      )
+    return d.promise
+  }
+
+
+  // Derive tokenid, authKey and bundleKey from token seed data.
+  //
+  Token.deriveTokenKeys = function (TokenType, data) {
+    return hkdf(data, TokenType.tokenTypeID, null, 3 * 32)
+      .then(
+        function (keyMaterial) {
+          return {
+            data: data.toString('hex'),
+            id: keyMaterial.slice(0, 32).toString('hex'),
+            authKey: keyMaterial.slice(32, 64).toString('hex'),
+            bundleKey: keyMaterial.slice(64, 96).toString('hex')
+          }
+        }
+      )
+  }
+
+
+  // Convenience method to bundle a payload using token bundleKey.
+  //
+  Token.prototype.bundle = function(keyInfo, payload) {
+    log.trace({ op: 'Token.bundle' })
+    return Bundle.bundle(Buffer(this.bundleKey, 'hex'), keyInfo, payload)
+  }
+
+
+  // Convenience method to unbundle a payload using token bundleKey.
+  //
+  Token.prototype.unbundle = function(keyInfo, payload) {
+    log.trace({ op: 'Token.unbundle' })
+    return Bundle.unbundle(Buffer(this.bundleKey, 'hex'), keyInfo, payload)
+  }
+
 
   // `token.key` is used by Hawk, and should be a Buffer.
   // We store the hex-string so a getter is convenient
@@ -40,83 +134,10 @@ module.exports = function (log, crypto, P, hkdf, error) {
     Token.prototype,
     'key',
     {
-      get: function () { return Buffer(this._key, 'hex') },
-      set: function (x) { this._key = x.toString('hex') }
+      get: function () { return Buffer(this.authKey, 'hex') },
+      set: function (x) { this.authKey = x.toString('hex') }
     }
   )
-
-  Token.randomTokenData = function (info, size) {
-    return Token.random32Bytes()
-      .then(Token.tokenDataFromBytes.bind(null, info, size))
-  }
-
-  Token.tokenDataFromBytes = function (info, size, bytes) {
-    return hkdf(bytes, info, null, size)
-      .then(
-        function (key) {
-          return [bytes, key]
-        }
-      )
-  }
-
-  Token.createFromHKDF = function (km, info) {
-    return hkdf(km, info, null, 2 * 32)
-      .then(
-        function (key) {
-          var t = new Token()
-          t.hmacKey = key.slice(0, 32).toString('hex')
-          t.xorKey = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
-  }
-
-  Token.prototype.unbundle = function (hex) {
-    log.trace({ op: 'Token.unbundle' })
-    var b = Buffer(hex, 'hex')
-    var ciphertext = b.slice(0, 32)
-    var hmac = b.slice(32, 64)
-    if (this.hmac(ciphertext).toString('hex') !== hmac.toString('hex')) {
-      throw error.invalidSignature()
-    }
-    var plaintext = this.xor(ciphertext)
-    return plaintext.slice(0, 32).toString('hex')
-  }
-
-  Token.prototype.hmac = function (buffer) {
-    var hmac = crypto.createHmac('sha256', Buffer(this.hmacKey, 'hex'))
-    hmac.update(buffer)
-    return hmac.digest()
-  }
-
-  Token.prototype.appendHmac = function (buffer) {
-    return Buffer.concat([buffer, this.hmac(buffer)])
-  }
-
-  Token.prototype.xor = function (buffer) {
-    var xorBuffer = Buffer(this.xorKey, 'hex')
-    if (buffer.length !== xorBuffer.length) {
-      throw new Error(
-        'XOR buffers must be same length %d != %d',
-        buffer.length,
-        xorBuffer.length
-      )
-    }
-    var result = Buffer(xorBuffer.length)
-    for (var i = 0; i < xorBuffer.length; i++) {
-      result[i] = buffer[i] ^ xorBuffer[i]
-    }
-    return result
-  }
-
-  function hexToBuffer(string) {
-    return Buffer(string, 'hex')
-  }
-
-  Token.prototype.bundleHexStrings = function (hexStrings) {
-    var ciphertext = this.xor(Buffer.concat(hexStrings.map(hexToBuffer)))
-    return this.appendHmac(ciphertext).toString('hex')
-  }
 
   return Token
 }

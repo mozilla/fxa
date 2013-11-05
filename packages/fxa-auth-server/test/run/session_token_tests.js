@@ -7,10 +7,14 @@ var crypto = require('crypto')
 var log = { trace: function() {} }
 
 var tokens = require('../../tokens')(log)
-var AccountResetToken = tokens.AccountResetToken
+var SessionToken = tokens.SessionToken
+
 
 var ACCOUNT = {
-  uid: 'xxx'
+  uid: 'xxx',
+  email: Buffer('test@example.com').toString('hex'),
+  emailCode: '123456',
+  verified: true
 }
 
 
@@ -18,7 +22,7 @@ test(
   're-creation from tokendata works',
   function (t) {
     var token = null;
-    AccountResetToken.create(ACCOUNT)
+    SessionToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -26,7 +30,7 @@ test(
       )
       .then(
         function () {
-          return AccountResetToken.fromHex(token.data, ACCOUNT)
+          return SessionToken.fromHex(token.data, ACCOUNT)
         }
       )
       .then(
@@ -36,43 +40,9 @@ test(
           t.equal(token.authKey, token2.authKey)
           t.equal(token.bundleKey, token2.bundleKey)
           t.equal(token.uid, token2.uid)
-        }
-      )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
-  }
-)
-
-
-test(
-  'bundle / unbundle of account data works',
-  function (t) {
-    var token = null;
-    var wrapKb = crypto.randomBytes(32).toString('hex')
-    var verifier = crypto.randomBytes(256).toString('hex')
-    AccountResetToken.create(ACCOUNT)
-      .then(
-        function (x) {
-          token = x
-          return token.bundleAccountData(wrapKb, verifier)
-        }
-      )
-      .then(
-        function (b) {
-          return token.unbundleAccountData(b)
-        }
-      )
-      .then(
-        function (ub) {
-          t.equal(ub.wrapKb, wrapKb)
-          t.equal(ub.verifier, verifier)
+          t.equal(token.email, token2.email)
+          t.equal(token.emailCode, token2.emailCode)
+          t.equal(token.verified, token2.verified)
         }
       )
       .done(

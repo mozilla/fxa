@@ -3,14 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
+var crypto = require('crypto')
 var log = { trace: function() {} }
 
 var tokens = require('../../tokens')(log)
-var ForgotPasswordToken = tokens.ForgotPasswordToken
+var KeyFetchToken = tokens.KeyFetchToken
 
 var ACCOUNT = {
   uid: 'xxx',
-  email: Buffer('test@example.com').toString('hex')
+  kA: '0000000000000000000000000000000000000000000000000000000000000000',
+  wrapKb: '0000000000000000000000000000000000000000000000000000000000000000',
+  verified: true
 }
 
 
@@ -18,7 +21,7 @@ test(
   're-creation from tokendata works',
   function (t) {
     var token = null;
-    ForgotPasswordToken.create(ACCOUNT)
+    KeyFetchToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -26,7 +29,7 @@ test(
       )
       .then(
         function () {
-          return ForgotPasswordToken.fromHex(token.data, ACCOUNT)
+          return KeyFetchToken.fromHex(token.data, ACCOUNT)
         }
       )
       .then(
@@ -36,7 +39,9 @@ test(
           t.equal(token.authKey, token2.authKey)
           t.equal(token.bundleKey, token2.bundleKey)
           t.equal(token.uid, token2.uid)
-          t.equal(token.email, token2.email)
+          t.equal(token.kA, token2.kA)
+          t.equal(token.wrapKb, token2.wrapKb)
+          t.equal(token.verified, token2.verified)
         }
       )
       .done(
@@ -53,46 +58,27 @@ test(
 
 
 test(
-  'ttl "works"',
+  'bundle / unbundle of keys works',
   function (t) {
-    ForgotPasswordToken.create(ACCOUNT)
-      .then(
-        function (token) {
-          token.now = function() { return token.created }
-          t.equal(token.ttl(), 900)
-          token.now = function() { return token.created + 500 }
-          t.equal(token.ttl(), 900)
-          token.now = function() { return token.created + 1000 }
-          t.equal(token.ttl(), 899)
-          token.now = function() { return token.created + 1500 }
-          t.equal(token.ttl(), 899)
-        }
-      )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
-  }
-)
-
-
-test(
-  'failAttempt decrements `tries`',
-  function (t) {
-    ForgotPasswordToken.create(ACCOUNT)
+    var token = null;
+    var kAHex = crypto.randomBytes(32).toString('hex')
+    var wrapKbHex = crypto.randomBytes(32).toString('hex')
+    KeyFetchToken.create(ACCOUNT)
       .then(
         function (x) {
-          t.equal(x.tries, 3)
-          t.equal(x.failAttempt(), false)
-          t.equal(x.tries, 2)
-          t.equal(x.failAttempt(), false)
-          t.equal(x.tries, 1)
-          t.equal(x.failAttempt(), true)
+          token = x
+          return x.bundleKeys(kAHex, wrapKbHex)
+        }
+      )
+      .then(
+        function (b) {
+          return token.unbundleKeys(b)
+        }
+      )
+      .then(
+        function (ub) {
+          t.equal(ub.kA, kAHex)
+          t.equal(ub.wrapKb, wrapKbHex)
         }
       )
       .done(

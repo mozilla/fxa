@@ -6,11 +6,6 @@ module.exports = function (log, isA, error, db) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function bundleSession(authToken, keyFetchToken, sessionToken) {
-    log.trace({ op: 'Session.bundleSession', uid: authToken && authToken.uid })
-    return authToken.bundleKeys('session/create', keyFetchToken, sessionToken)
-  }
-
   var routes = [
     {
       method: 'POST',
@@ -28,10 +23,9 @@ module.exports = function (log, isA, error, db) {
           db.createSession(authToken)
             .then(
               function (tokens) {
-                return bundleSession(
-                  authToken,
-                  tokens.keyFetchToken,
-                  tokens.sessionToken
+                return authToken.bundleSession(
+                  tokens.keyFetchToken.data,
+                  tokens.sessionToken.data
                 )
               }
             )

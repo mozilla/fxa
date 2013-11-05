@@ -4,46 +4,24 @@
 
 module.exports = function (log, inherits, Token) {
 
-  function SessionToken() {
-    Token.call(this)
+  function SessionToken(keys, details) {
+    Token.call(this, keys, details)
+    this.email = details.email || null
+    this.emailCode = details.emailCode || null
+    this.verified = !!details.verified
   }
   inherits(SessionToken, Token)
 
-  SessionToken.create = function (uid) {
-    log.trace({ op: 'SessionToken.create', uid: uid })
-    return Token
-      .randomTokenData('session', 2 * 32)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new SessionToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
+  SessionToken.tokenTypeID = 'session'
+
+  SessionToken.create = function (details) {
+    log.trace({ op: 'SessionToken.create', uid: details && details.uid })
+    return Token.createNewToken(SessionToken, details || {})
   }
 
-  SessionToken.fromHex = function (string) {
+  SessionToken.fromHex = function (string, details) {
     log.trace({ op: 'SessionToken.fromHex' })
-    return Token
-      .tokenDataFromBytes(
-        'session',
-        2 * 32,
-        Buffer(string, 'hex')
-      )
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new SessionToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
+    return Token.createTokenFromHexData(SessionToken, string, details || {})
   }
 
   return SessionToken

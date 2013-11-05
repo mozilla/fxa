@@ -6,74 +6,49 @@ module.exports = function (log, inherits, Token, crypto) {
 
   var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
 
-  function AccountResetToken() {
-    Token.call(this)
+  function AccountResetToken(keys, details) {
+    Token.call(this, keys, details)
   }
   inherits(AccountResetToken, Token)
 
-  AccountResetToken.create = function (uid) {
-    log.trace({ op: 'AccountResetToken.create', uid: uid })
-    return Token
-      .randomTokenData('account/reset', 2 * 32 + 32 + 256)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new AccountResetToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.xorKey = key.slice(64, 352).toString('hex')
-          return t
-        }
-      )
+  AccountResetToken.tokenTypeID = 'account/reset'
+
+  AccountResetToken.create = function (details) {
+    log.trace({ op: 'AccountResetToken.create', uid: details && details.uid })
+    return Token.createNewToken(AccountResetToken, details || {})
   }
 
-  AccountResetToken.fromHex = function (string) {
+  AccountResetToken.fromHex = function (string, details) {
     log.trace({ op: 'AccountResetToken.fromHex' })
-    return Token
-      .tokenDataFromBytes(
-        'account/reset',
-        2 * 32 + 32 + 256,
-        Buffer(string, 'hex')
-      )
+    details = details || {}
+    return Token.createTokenFromHexData(AccountResetToken, string, details)
+  }
+
+  AccountResetToken.prototype.bundleAccountData = function (wrapKb, verifier) {
+    log.trace({ op: 'accountResetToken.bundleAccountData', id: this.id })
+    var plaintext = Buffer.concat([
+      Buffer(wrapKb, 'hex'),
+      Buffer(verifier, 'hex')
+    ])
+    return this.bundle('account/reset', plaintext)
+  }
+
+  AccountResetToken.prototype.unbundleAccountData = function (hex) {
+    log.trace({ op: 'accountResetToken.unbundleAccountData', id: this.id })
+    return this.unbundle('account/reset', hex)
       .then(
-        function (data) {
-          var key = data[1]
-          var t = new AccountResetToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.xorKey = key.slice(64, 352).toString('hex')
-          return t
-        }
+        function (plaintext) {
+          var wrapKb = plaintext.slice(0, 32).toString('hex')
+          var verifier = plaintext.slice(32, 288).toString('hex')
+          if (wrapKb === NULL) {
+           wrapKb = crypto.randomBytes(32).toString('hex')
+          }
+          return {
+            wrapKb: wrapKb,
+            verifier: verifier
+          }
+        }.bind(this)
       )
-  }
-
-  AccountResetToken.prototype.bundle = function (wrapKb, verifier) {
-    log.trace({ op: 'accountResetToken.bundle', id: this.id })
-    return this.xor(
-      Buffer.concat(
-        [
-          Buffer(wrapKb, 'hex'),
-          Buffer(verifier, 'hex')
-        ]
-      )
-    ).toString('hex')
-  }
-
-  AccountResetToken.prototype.unbundle = function (hex) {
-    log.trace({ op: 'accountResetToken.unbundle', id: this.id })
-    var plaintext = this.xor(Buffer(hex, 'hex'))
-    var wrapKb = plaintext.slice(0, 32).toString('hex')
-    var verifier = plaintext.slice(32, 288).toString('hex')
-    if (wrapKb === NULL) {
-      wrapKb = crypto.randomBytes(32).toString('hex')
-    }
-    return {
-      wrapKb: wrapKb,
-      verifier: verifier
-    }
   }
 
   return AccountResetToken

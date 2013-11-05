@@ -11,17 +11,7 @@ module.exports = function (log, isA, error, db, Token) {
   }
 
   function bundleAuth(K, authToken) {
-    return Token.hkdf(K, 'auth/finish', null, 2 * 32)
-      .then(
-        function (key) {
-          var b = new Token()
-          b.hmacKey = key.slice(0, 32).toString('hex')
-          b.xorKey =  key.slice(32, 64).toString('hex')
-          return {
-            bundle: b.bundleHexStrings([authToken.data])
-          }
-        }
-      )
+    return Token.Bundle.bundle(K, 'auth/finish', Buffer(authToken.data, 'hex'))
   }
 
   function srpFinish(srpToken, A, M) {
@@ -97,6 +87,11 @@ module.exports = function (log, isA, error, db, Token) {
                   .then(
                     function (authToken) {
                       return bundleAuth(srpToken.K, authToken)
+                    }
+                  )
+                  .then(
+                    function (bundle) {
+                      return {bundle: bundle}
                     }
                   )
               }
