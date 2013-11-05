@@ -530,6 +530,10 @@ Not HAWK authenticated.
 
 Same as `/v1/account/create` except the plaintext password is sent for server-side stretching.
 
+This is a reduced security login method for resource constrained devices that sends the password to the server. The request and response are only protected by TLS encryption.
+
+See the below [discussion](#raw_password-discussion) on the motivation for the `/raw_password` API.
+
 ___Parameters___
 
 * email - the primary email for this account (UTF-8 encoded, as hex)
@@ -574,6 +578,8 @@ Failing requests may be due to the following errors:
 Not HAWK authenticated.
 
 This is a reduced security login method for resource constrained devices that sends the password to the server. The request and response are only protected by TLS encryption.
+
+See the below [discussion](#raw_password-discussion) on the motivation for the `/raw_password` API.
 
 ___Parameters___
 
@@ -1197,3 +1203,7 @@ There are no standard failure modes for this endpoint.
 The [git repo](https://github.com/mozilla/picl-idp) contains a reference implementation
 of the client side of the protocol in [/client/index.js](/client/index.js) with
 sample usage in [/client/example.js](/client/example.js)
+
+# /raw_password Discussion
+
+The motivation of this endpoint is to support near term, ambitious efforts to land Firefox Accounts on Firefox OS 1.3. Firefox OS devices are computationally, memory, and network constrained, and the development cycles are short and intense. It would be herculean effort to land FxA support by the feature complete deadline of 12/09/13, and this endpoint eliminates the near term need to land native SRP and key stretching functionality. It's not ideal, but users still get "first-class", key stretched, SRP enabled accounts, which doesn't preclude them from using the non-raw_password API in the future. Whether this API endpoint hits production remains to be seen. We'll know more by 12/09/13. 
