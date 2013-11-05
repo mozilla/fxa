@@ -4,8 +4,8 @@
 
 var request = require('request')
 var P = require('p-promise')
-var scrypt = require('node-scrypt-js')
-
+var Scrypt = require('./emscrypt')
+var scrypt = Scrypt(128 * 1024 * 1024)
 
 /**  hash Creates an scrypt hash
  *
@@ -17,12 +17,12 @@ var scrypt = require('node-scrypt-js')
 function hash(input, salt, url) {
   var p
   var payload = {
-    salt: salt.toString(),
+    salt: salt,
     N: 64 * 1024,
     r: 8,
     p: 1,
     buflen: 32,
-    input: input.toString('hex')
+    input: input
   }
 
   if (url) {
@@ -39,11 +39,18 @@ function hash(input, salt, url) {
  * @param {Object} payload the payload required to generate the hash
  */
 function localScrypt(payload) {
-  var inputBinary = new Buffer(payload.input, "hex").toString("binary")
-  var spass = scrypt.scrypt(inputBinary, payload.salt, payload.N, payload.r, payload.p, payload.buflen)
-  var result = new Buffer(spass, 'base64').toString('hex')
-
-  return P(result)
+  return P(
+    scrypt.to_hex(
+      scrypt.crypto_scrypt(
+        payload.input,
+        payload.salt,
+        payload.N,
+        payload.r,
+        payload.p,
+        payload.buflen
+      )
+    )
+  )
 }
 
 /** remoteScryptHelper generates the scrypt hash using a remote helper
@@ -55,7 +62,8 @@ function remoteScryptHelper(payload, url) {
   var d = P.defer()
   var method = 'POST'
   var headers = {}
-
+  payload.input = payload.input.toString('hex')
+  payload.salt = payload.salt.toString()
   request(
     {
       url: url,
