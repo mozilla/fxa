@@ -90,7 +90,6 @@ DB.connect()
             t.equal(srpToken.v.toString('hex'), ACCOUNT.srp.verifier)
             t.equal(srpToken.s, ACCOUNT.srp.salt)
             t.ok(srpToken.b)
-            t.ok(srpToken.B)
             return srpToken
           })
           .then(function(srpToken) {
@@ -101,7 +100,6 @@ DB.connect()
             t.equal(srpToken.v.toString('hex'), ACCOUNT.srp.verifier)
             t.equal(srpToken.s, ACCOUNT.srp.salt)
             t.ok(srpToken.b)
-            t.ok(srpToken.B)
             return srpToken
           })
           .then(function(srpToken) {
