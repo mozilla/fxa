@@ -162,17 +162,14 @@ ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
     )
 }
 
-ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, email) {
+ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
         return this.doRequest(
           'POST',
           this.baseURL + '/recovery_email/resend_code',
-          token,
-          {
-            email: email
-          }
+          token
         )
       }.bind(this)
     )
