@@ -210,7 +210,7 @@ module.exports = function (
         function (srpToken) {
           this.client.query(
             sql,
-            [srpToken.id, srpToken.b.toString("hex"), srpToken.uid],
+            [srpToken.id, srpToken.data, srpToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(srpToken)
@@ -373,7 +373,7 @@ module.exports = function (
   MySql.prototype.srpToken = function (id) {
     var d = P.defer()
     log.trace({ op: 'MySql.srpToken', id: id })
-    var sql = 'SELECT t.tokendata, t.uid, a.srp ' +
+    var sql = 'SELECT t.tokendata, t.uid, a.srp, a.passwordStretching ' +
               '  FROM srpTokens t, accounts a ' +
               '  WHERE t.tokenid = ? AND t.uid = a.uid'
     this.client.query(
@@ -383,15 +383,14 @@ module.exports = function (
         if (err) return d.reject(err)
         if (!results.length) return d.reject(error.invalidToken())
         var result = results[0]
-        // XXX TODO: revisit this wrt token refactoring
-        var token = new SrpToken()
-        var srpData = JSON.parse(result.srp)
-        token.id = id
-        token.uid = result.uid
-        token.v = new Buffer(srpData.verifier, 'hex')
-        token.s = srpData.salt
-        token.b = Buffer(result.tokendata, 'hex')
-        return d.resolve(token)
+        result.srp = JSON.parse(result.srp)
+        result.passwordStretching = JSON.parse(result.passwordStretching)
+        SrpToken.fromHex(result.tokendata, result)
+          .done(
+            function (srpToken) {
+              return d.resolve(srpToken)
+            }
+          )
       }
     )
     return d.promise

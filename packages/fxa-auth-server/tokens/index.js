@@ -35,9 +35,11 @@ module.exports = function (log) {
   )
   var SrpToken = require('./srp_token')(
     log,
+    inherits,
     P,
     uuid,
     srp,
+    Token,
     error
   )
 

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
+var crypto = require('crypto')
 var srp = require('srp')
 var log = { trace: function() {} }
 
@@ -40,6 +41,7 @@ alice.srp.verifier = srp.computeVerifier(
   Buffer(alice.password)
 ).toString('hex')
 
+
 db.createAccount(alice)
 .done(
   function (a) {
@@ -48,10 +50,18 @@ db.createAccount(alice)
       'create login session works',
       function (t) {
         SrpToken.create(a)
-          .done(
+          .then(
             function (s) {
               t.equal(s.uid, a.uid)
               t.equal(s.s, a.srp.salt)
+            }
+          )
+          .done(
+            function () {
+              t.end()
+            },
+            function (err) {
+              t.fail(err)
               t.end()
             }
           )
@@ -67,7 +77,21 @@ db.createAccount(alice)
           .then(
             function (s) {
               session = s
-              return SrpToken.client2(s.clientData(), alice.email, alice.password)
+              var a = crypto.randomBytes(32)
+              var clientData = s.clientData()
+              var srpClient = new srp.Client(
+                srp.params[2048],
+                Buffer(clientData.srp.salt, 'hex'),
+                Buffer(alice.email),
+                Buffer(alice.password),
+                a
+              )
+              srpClient.setB(Buffer(clientData.srp.B, 'hex'))
+              return {
+                A: srpClient.computeA().toString('hex'),
+                M: srpClient.computeM1().toString('hex'),
+                K: srpClient.computeK().toString('hex'),
+              }
             }
           )
           .then(
@@ -76,9 +100,17 @@ db.createAccount(alice)
               return session.finish(x.A, x.M)
             }
           )
-          .done(
+          .then(
             function (s) {
               t.equal(s.K.toString('hex'), K)
+            }
+          )
+          .done(
+            function () {
+              t.end()
+            },
+            function (err) {
+              t.fail(err)
               t.end()
             }
           )
