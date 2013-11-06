@@ -363,7 +363,7 @@ Client.prototype.requestVerifyEmail = function (callback) {
   var o = this.sessionToken ? P(null) : this.login()
   var p = o.then(
     function () {
-      return this.api.recoveryEmailResendCode(this.sessionToken, this.email)
+      return this.api.recoveryEmailResendCode(this.sessionToken)
     }.bind(this)
   )
   if (callback) {
