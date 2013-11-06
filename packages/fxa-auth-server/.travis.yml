@@ -10,7 +10,7 @@ notifications:
     - jbonacci@mozilla.com
   irc:
     channels:
-      - "irc.mozilla.org#picl"
+      - "irc.mozilla.org#fxa"
     use_notice: false
     skip_join: false
 
