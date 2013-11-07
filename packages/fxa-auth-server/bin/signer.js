@@ -5,6 +5,7 @@
 const fs = require('fs')
 const jwcrypto = require('jwcrypto')
 const config = require('../config')
+const DOMAIN = config.get('domain')
 
 require('jwcrypto/lib/algs/rs')
 require('jwcrypto/lib/algs/ds')
@@ -12,24 +13,33 @@ require('jwcrypto/lib/algs/ds')
 const _privKey = jwcrypto.loadSecretKey(fs.readFileSync(config.get('secretKeyFile')))
 
 process.on('message', function (message) {
-  var clientKey = jwcrypto.loadPublicKey(message.publicKey)
-  var now = Date.now()
-
-  jwcrypto.cert.sign(
-    {
-      publicKey: clientKey,
-      principal: { email: message.email },
-      //TODO: kA, etc
-    },
-    {
-      issuer: config.get('domain'),
-      issuedAt: new Date(now),
-      expiresAt: new Date(now + message.duration)
-    },
-    null,
-    _privKey,
-    function (err, cert) {
-      process.send({ err: err, cert: cert})
-    }
-  )
+  if (message.duration < 1 || typeof(message.duration) !== 'number') {
+    return process.send({ err: { message: 'bad duration' } })
+  }
+  if (!message.email || typeof(message.email) !== 'string') {
+    return process.send({ err: { message: 'bad email' } })
+  }
+  try {
+    var now = Date.now()
+    jwcrypto.cert.sign(
+      {
+        publicKey: jwcrypto.loadPublicKeyFromObject(message.publicKey),
+        principal: { email: message.email },
+        //TODO: kA, etc
+      },
+      {
+        issuer: DOMAIN,
+        issuedAt: new Date(now),
+        expiresAt: new Date(now + message.duration)
+      },
+      null,
+      _privKey,
+      function (err, cert) {
+        process.send({ err: err, cert: cert})
+      }
+    )
+  }
+  catch (e) {
+    return process.send({ err: e })
+  }
 })

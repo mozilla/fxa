@@ -138,6 +138,12 @@ module.exports = function (path, url, Hapi, toobusy, error) {
           if (config.env !== 'production') {
             response.response.payload.log = request.app.traced
           }
+          if (response.response.payload.domainThrown) {
+            // node adds the domain which may have cycles and then hapi JSON.stringifies, derp!
+            response.response.payload.domain = undefined
+            response.response.payload.domainEmitter = undefined
+            response.response.payload.domainBound = undefined
+          }
           log.error(
             {
               op: 'server.onPreResponse',
@@ -173,12 +179,6 @@ module.exports = function (path, url, Hapi, toobusy, error) {
         )
       }
     )
-
-    // server.pack.require('lout', function(err){
-    //   if (err) {
-    //     console.log('Failed loading plugin: lout (doc generator)')
-    //   }
-    // })
 
     return server
   }
