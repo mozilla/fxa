@@ -13,7 +13,7 @@ module.exports = function (log, inherits, P, uuid, srp, Token, error) {
     this.v = details.srp.verifier ? Buffer(details.srp.verifier, 'hex') : null
     this.s = details.srp.salt ? details.srp.salt : null
     this.passwordStretching = details.passwordStretching || null
-    this.B = (new srp.Server(srp.params[2048], this.v, this.b)).computeB()
+    this.srpServer = new srp.Server(srp.params[2048], this.v, this.b)
     this.K = null
   }
   inherits(SrpToken, Token)
@@ -39,7 +39,7 @@ module.exports = function (log, inherits, P, uuid, srp, Token, error) {
       srp: {
         type: 'SRP-6a/SHA256/2048/v1',
         salt: this.s,
-        B: this.B.toString('hex')
+        B: this.srpServer.computeB().toString('hex')
       }
     }
   }
@@ -49,19 +49,14 @@ module.exports = function (log, inherits, P, uuid, srp, Token, error) {
   //
   SrpToken.prototype.finish = function (A, M1) {
     A = Buffer(A, 'hex')
-    var srpServer = new srp.Server(
-      srp.params[2048],
-      this.v,
-      this.b
-    )
-    srpServer.setA(A)
+    this.srpServer.setA(A)
     try {
-      srpServer.checkM1(Buffer(M1, 'hex'))
+      this.srpServer.checkM1(Buffer(M1, 'hex'))
     }
     catch (e) {
       throw error.incorrectPassword()
     }
-    this.K = srpServer.computeK()
+    this.K = this.srpServer.computeK()
     return this
   }
 
