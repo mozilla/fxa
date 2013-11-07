@@ -18,7 +18,7 @@ module.exports = function (log, inherits, P, uuid, srp, Token, error) {
   }
   inherits(SrpToken, Token)
 
-  SrpToken.tokenTypeID = 'srp'
+  SrpToken.tokenTypeID = 'srpToken'
 
   SrpToken.create = function (details) {
     log.trace({ op: 'SrpToken.create', uid: details && details.uid })
