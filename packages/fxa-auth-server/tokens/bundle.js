@@ -30,9 +30,12 @@ module.exports = function (crypto, P, hkdf, error) {
   var HASH_ALGORITHM = 'sha256'
 
 
+  function Bundle() {}
+
+
   // Encrypt the given buffer into a hex ciphertext string.
   //
-  function bundle(key, keyInfo, payload) {
+  Bundle.bundle = function (key, keyInfo, payload) {
     return deriveBundleKeys(key, keyInfo, payload.length)
       .then(
         function (keys) {
@@ -47,7 +50,7 @@ module.exports = function (crypto, P, hkdf, error) {
 
   // Decrypt the given hex string into a buffer of plaintext data.
   //
-  function unbundle(key, keyInfo, payload) {
+  Bundle.unbundle = function (key, keyInfo, payload) {
     payload = Buffer(payload, 'hex')
     var ciphertext = payload.slice(0, -32)
     var expectedHmac = payload.slice(-32)
@@ -112,9 +115,5 @@ module.exports = function (crypto, P, hkdf, error) {
   }
 
 
-  return {
-    bundle: bundle,
-    unbundle: unbundle
-  }
-
+  return Bundle
 }
