@@ -6,6 +6,7 @@ build:
 	./bin/pip install cython
 	CYTHON=`pwd`/bin/cython ./bin/pip install https://github.com/surfly/gevent/archive/1.0rc2.tar.gz
 	./bin/pip install https://github.com/mozilla-services/loads/archive/master.zip
+	./bin/pip install 'pyzmq < 14.0'
 	curl -L https://github.com/mozilla-services/loads.js/archive/master.tar.gz > master.tar.gz
 	tar -xzvf master.tar.gz
 	rm -rf ./lib/loads.js
@@ -18,7 +19,7 @@ build:
 
 # Clean all the things installed by `make build`.
 clean:
-	rm -rf ./include ./bin ./lib
+	rm -rf ./include ./bin ./lib ./lib64
 
 # Run a single test from the local machine, for sanity-checking.
 test:
