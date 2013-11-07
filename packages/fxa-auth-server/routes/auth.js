@@ -6,28 +6,6 @@ module.exports = function (log, isA, error, db, Token) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function clientData(srpToken) {
-    return srpToken.clientData()
-  }
-
-  function bundleAuth(K, authToken) {
-    return Token.hkdf(K, 'auth/finish', null, 2 * 32)
-      .then(
-        function (key) {
-          var b = new Token()
-          b.hmacKey = key.slice(0, 32).toString('hex')
-          b.xorKey =  key.slice(32, 64).toString('hex')
-          return {
-            bundle: b.bundleHexStrings([authToken.data])
-          }
-        }
-      )
-  }
-
-  function srpFinish(srpToken, A, M) {
-    return srpToken.finish(A, M)
-  }
-
   var routes = [
     {
       method: 'POST',
@@ -49,7 +27,7 @@ module.exports = function (log, isA, error, db, Token) {
             )
             .then(
               function (srpToken) {
-                return clientData(srpToken)
+                return srpToken.clientData()
               }
             )
             .done(reply, reply)
@@ -88,7 +66,7 @@ module.exports = function (log, isA, error, db, Token) {
           db.srpToken(request.payload.srpToken)
             .then(
               function (srpToken) {
-                return srpFinish(srpToken, request.payload.A, request.payload.M)
+                return srpToken.finish(request.payload.A, request.payload.M)
               }
             )
             .then(
@@ -96,7 +74,12 @@ module.exports = function (log, isA, error, db, Token) {
                 return db.authFinish(srpToken)
                   .then(
                     function (authToken) {
-                      return bundleAuth(srpToken.K, authToken)
+                      return srpToken.bundleAuth(authToken.data)
+                    }
+                  )
+                  .then(
+                    function (bundle) {
+                      return {bundle: bundle}
                     }
                   )
               }

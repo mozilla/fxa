@@ -5,36 +5,94 @@
 var test = require('tap').test
 var log = { trace: function() {} }
 
-var tokens = require('../../tokens')(log)
-var ForgotPasswordToken = tokens.ForgotPasswordToken
+var timestamp = Date.now()
+// increment timestamp by 500ms each time now is called
+function now() { return (timestamp += 500) }
 
-var email = Buffer('test@example.com').toString('hex')
+var ForgotPasswordToken = require('../../tokens/forgot_password_token')(
+  log,
+  require('util').inherits,
+  now,
+  require('../../tokens')(log),
+  require('crypto')
+)
+
+
+var ACCOUNT = {
+  uid: 'xxx',
+  email: Buffer('test@example.com').toString('hex')
+}
+
 
 test(
-  'ttl "works"',
+  're-creation from tokendata works',
   function (t) {
-    ForgotPasswordToken.create('xxx', email)
-      .done(
+    var token = null;
+    ForgotPasswordToken.create(ACCOUNT)
+      .then(
         function (x) {
-          t.equal(x.ttl(), 900)
-          setTimeout(
-            function () {
-              var ttl = x.ttl()
-              t.ok(ttl < 900 && ttl > 898) // allow some wiggle room
-              t.end()
-            },
-            1000
-          )
+          token = x
+        }
+      )
+      .then(
+        function () {
+          return ForgotPasswordToken.fromHex(token.data, ACCOUNT)
+        }
+      )
+      .then(
+        function (token2) {
+          t.equal(token.data, token2.data)
+          t.equal(token.id, token2.id)
+          t.equal(token.authKey, token2.authKey)
+          t.equal(token.bundleKey, token2.bundleKey)
+          t.equal(token.uid, token2.uid)
+          t.equal(token.email, token2.email)
+        }
+      )
+      .done(
+        function () {
+          t.end()
+        },
+        function (err) {
+          t.fail(JSON.stringify(err))
+          t.end()
         }
       )
   }
 )
 
+
+test(
+  'ttl "works"',
+  function (t) {
+    ForgotPasswordToken.create(ACCOUNT)
+      .then(
+        function (token) {
+          token.created = timestamp
+          t.equal(token.ttl(), 900)
+          t.equal(token.ttl(), 899)
+          t.equal(token.ttl(), 899)
+          t.equal(token.ttl(), 898)
+        }
+      )
+      .done(
+        function () {
+          t.end()
+        },
+        function (err) {
+          t.fail(JSON.stringify(err))
+          t.end()
+        }
+      )
+  }
+)
+
+
 test(
   'failAttempt decrements `tries`',
   function (t) {
-    ForgotPasswordToken.create('xxx', email)
-      .done(
+    ForgotPasswordToken.create(ACCOUNT)
+      .then(
         function (x) {
           t.equal(x.tries, 3)
           t.equal(x.failAttempt(), false)
@@ -42,6 +100,14 @@ test(
           t.equal(x.failAttempt(), false)
           t.equal(x.tries, 1)
           t.equal(x.failAttempt(), true)
+        }
+      )
+      .done(
+        function () {
+          t.end()
+        },
+        function (err) {
+          t.fail(JSON.stringify(err))
           t.end()
         }
       )

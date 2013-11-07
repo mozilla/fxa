@@ -9,27 +9,118 @@ var log = { trace: function() {} }
 var tokens = require('../../tokens')(log)
 var AuthToken = tokens.AuthToken
 
+var ACCOUNT = {
+  uid: 'xxx'
+}
+
+
 test(
-  'bundle / unbundle works',
+  're-creation from tokendata works',
   function (t) {
-    function end() { t.end() }
-    AuthToken.create('xxx')
+    var token = null;
+    AuthToken.create(ACCOUNT)
       .then(
         function (x) {
-          var keyFetchTokenHex = crypto.randomBytes(32).toString('hex')
-          var sessionTokenHex = crypto.randomBytes(32).toString('hex')
-          var b = x.bundle(keyFetchTokenHex, sessionTokenHex)
-          var ub = x.unbundle(b)
-          t.equal(ub.keyFetchTokenHex, keyFetchTokenHex)
-          t.equal(ub.sessionTokenHex, sessionTokenHex)
-          return x
+          token = x
         }
       )
       .then(
-        function (x) {
-          return x.del()
+        function () {
+          return AuthToken.fromHex(token.data, ACCOUNT)
         }
       )
-      .done(end, end)
+      .then(
+        function (token2) {
+          t.equal(token.data, token2.data)
+          t.equal(token.id, token2.id)
+          t.equal(token.authKey, token2.authKey)
+          t.equal(token.bundleKey, token2.bundleKey)
+          t.equal(token.uid, token2.uid)
+        }
+      )
+      .done(
+        function () {
+          t.end()
+        },
+        function (err) {
+          t.fail(JSON.stringify(err))
+          t.end()
+        }
+      )
+  }
+)
+
+
+test(
+  'bundle / unbundle of session data works',
+  function (t) {
+    var token = null;
+    var keyFetchTokenHex = crypto.randomBytes(32).toString('hex')
+    var sessionTokenHex = crypto.randomBytes(32).toString('hex')
+    AuthToken.create(ACCOUNT)
+      .then(
+        function (x) {
+          token = x
+          return x.bundleSession(keyFetchTokenHex, sessionTokenHex)
+        }
+      )
+      .then(
+        function (b) {
+          return token.unbundleSession(b)
+        }
+      )
+      .then(
+        function (ub) {
+          t.equal(ub.keyFetchToken, keyFetchTokenHex)
+          t.equal(ub.sessionToken, sessionTokenHex)
+        }
+      )
+      .done(
+        function () {
+          t.end()
+        },
+        function (err) {
+          t.fail(JSON.stringify(err))
+          t.end()
+        }
+      )
+  }
+)
+
+
+test(
+  'bundle / unbundle of account reset data works',
+  function (t) {
+    var token = null;
+    var keyFetchTokenHex = crypto.randomBytes(32).toString('hex')
+    var resetTokenHex = crypto.randomBytes(32).toString('hex')
+    AuthToken.create(ACCOUNT)
+      .then(
+        function (x) {
+          token = x
+          return x.bundleAccountReset(keyFetchTokenHex, resetTokenHex)
+        }
+      )
+      .then(
+        function (b) {
+          return token.unbundleAccountReset(b)
+        }
+      )
+      .then(
+        function (ub) {
+          t.equal(ub.keyFetchToken, keyFetchTokenHex)
+          t.equal(ub.accountResetToken, resetTokenHex)
+        }
+      )
+      .done(
+        function () {
+          t.end()
+        },
+        function (err) {
+          console.log(err)
+          t.fail(JSON.stringify(err))
+          t.end()
+        }
+      )
   }
 )

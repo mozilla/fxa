@@ -14,7 +14,8 @@ var error = require('./error')
 
 module.exports = function (log) {
 
-  var Token = require('./token')(log, crypto, P, hkdf, error)
+  var Bundle = require('./bundle')(crypto, P, hkdf, error)
+  var Token = require('./token')(log, crypto, P, hkdf, Bundle, error)
 
   var KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, error)
   var AccountResetToken = require('./account_reset_token')(
@@ -28,18 +29,23 @@ module.exports = function (log) {
   var ForgotPasswordToken = require('./forgot_password_token')(
     log,
     inherits,
+    Date.now,
     Token,
     crypto
   )
   var SrpToken = require('./srp_token')(
     log,
+    inherits,
     P,
     uuid,
     srp,
+    Bundle,
+    Token,
     error
   )
 
   Token.error = error
+  Token.Bundle = Bundle
   Token.AccountResetToken = AccountResetToken
   Token.KeyFetchToken = KeyFetchToken
   Token.SessionToken = SessionToken

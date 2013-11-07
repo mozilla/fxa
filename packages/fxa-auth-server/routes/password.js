@@ -6,10 +6,6 @@ module.exports = function (log, isA, error, db, mailer) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function bundleAccountReset(authToken, keyFetchToken, accountResetToken) {
-    return authToken.bundleKeys('password/change', keyFetchToken, accountResetToken)
-  }
-
   function sendRecoveryCode(forgotPasswordToken) {
     log.trace({ op: 'sendRecoveryCode', id: forgotPasswordToken.id })
     return mailer.sendRecoveryCode(
@@ -17,10 +13,6 @@ module.exports = function (log, isA, error, db, mailer) {
       forgotPasswordToken.passcode
     )
     .then(function () { return forgotPasswordToken })
-  }
-
-  function ttl(forgotPasswordToken) {
-    return forgotPasswordToken.ttl()
   }
 
   function failVerifyAttempt(forgotPasswordToken) {
@@ -46,10 +38,9 @@ module.exports = function (log, isA, error, db, mailer) {
           db.createPasswordChange(authToken)
             .then(
               function (tokens) {
-                return bundleAccountReset(
-                  authToken,
-                  tokens.keyFetchToken,
-                  tokens.accountResetToken
+                return authToken.bundleAccountReset(
+                  tokens.keyFetchToken.data,
+                  tokens.accountResetToken.data
                 )
               }
             )
@@ -90,7 +81,7 @@ module.exports = function (log, isA, error, db, mailer) {
                 request.reply(
                   {
                     forgotPasswordToken: forgotPasswordToken.data,
-                    ttl: ttl(forgotPasswordToken),
+                    ttl: forgotPasswordToken.ttl(),
                     codeLength: forgotPasswordToken.passcode.length,
                     tries: forgotPasswordToken.tries
                   }
@@ -135,8 +126,8 @@ module.exports = function (log, isA, error, db, mailer) {
                 request.reply(
                   {
                     forgotPasswordToken: forgotPasswordToken.data,
-                    ttl: forgotPasswordToken.ttl(forgotPasswordToken),
-                    codeLength: ttl(forgotPasswordToken),
+                    ttl: forgotPasswordToken.ttl(),
+                    codeLength: forgotPasswordToken.passcode.length,
                     tries: forgotPasswordToken.tries
                   }
                 )
@@ -175,7 +166,7 @@ module.exports = function (log, isA, error, db, mailer) {
           log.begin('Password.forgotVerify', request)
           var forgotPasswordToken = request.auth.credentials
           var code = +(request.payload.code)
-          if (forgotPasswordToken.passcode === code && ttl(forgotPasswordToken) > 0) {
+          if (forgotPasswordToken.passcode === code && forgotPasswordToken.ttl() > 0) {
             db.forgotPasswordVerified(forgotPasswordToken)
               .done(
                 function (accountResetToken) {
@@ -197,7 +188,7 @@ module.exports = function (log, isA, error, db, mailer) {
                   request.reply(
                     error.invalidVerificationCode({
                       tries: forgotPasswordToken.tries,
-                      ttl: forgotPasswordToken.ttl
+                      ttl: forgotPasswordToken.ttl()
                     })
                   )
                 },

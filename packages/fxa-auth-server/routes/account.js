@@ -14,14 +14,6 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
     )
   }
 
-  function bundleKeys(keyFetchToken, kA, wrapKb) {
-    return keyFetchToken.bundle(kA, wrapKb)
-  }
-
-  function unbundleReset(accountResetToken, bundle) {
-    return accountResetToken.unbundle(bundle)
-  }
-
   var routes = [
     {
       method: 'POST',
@@ -167,12 +159,14 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
                 if (!keyFetchToken.verified) {
                   throw error.unverifiedAccount()
                 }
+                return keyFetchToken.bundleKeys(keyFetchToken.kA,
+                                                keyFetchToken.wrapKb)
+              }
+            )
+            .then(
+              function (bundle) {
                 return {
-                  bundle: bundleKeys(
-                    keyFetchToken,
-                    keyFetchToken.kA,
-                    keyFetchToken.wrapKb
-                  )
+                  bundle: bundle
                 }
               }
             )
@@ -284,7 +278,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
         tags: ["account"],
         validate: {
           payload: {
-            bundle: isA.String().max((32 + 256) * 2).regex(HEX_STRING).required(),
+            // The bundle is wrapKb + srpVerifier + HMAC, hex-encoded.
+            bundle: isA.String().max((32 + 256 + 32) * 2).regex(HEX_STRING).required(),
             srp: isA.Object({
               type: isA.String().max(64).required(),
               salt: isA.String().min(64).max(64).regex(HEX_STRING).required()
@@ -297,11 +292,14 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
           var reply = request.reply.bind(request)
           var accountResetToken = request.auth.credentials
           var payload = request.payload
-          var unbundle = unbundleReset(accountResetToken, payload.bundle)
-          payload.wrapKb = unbundle.wrapKb
-          payload.srp.verifier = unbundle.verifier
-
-          db.resetAccount(accountResetToken, payload)
+          accountResetToken.unbundleAccountData(payload.bundle)
+            .then(
+              function (unbundle) {
+                payload.wrapKb = unbundle.wrapKb
+                payload.srp.verifier = unbundle.verifier
+                return db.resetAccount(accountResetToken, payload)
+              }
+            )
             .then(function () { return {} })
             .done(reply, reply)
         },

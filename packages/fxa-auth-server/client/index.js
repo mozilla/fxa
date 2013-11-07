@@ -9,6 +9,7 @@ var srp = require('srp')
 var ClientApi = require('./api')
 var keyStretch = require('./keystretch')
 var tokens = require('../tokens')({ trace: function () {}})
+var Bundle = tokens.Bundle
 
 function Client(origin) {
   this.uid = null
@@ -252,18 +253,12 @@ Client.prototype.auth = function (callback) {
     )
     .then(
       function (json) {
-
-        return tokens.createFromHKDF(K, 'auth/finish')
-          .then(
-          function (t) {
-            return t.unbundle(json.bundle)
-          }
-        )
+        return Bundle.unbundle(K, 'auth/finish', json.bundle)
       }.bind(this)
     )
     .then(
       function (authToken) {
-        this.authToken = authToken
+        this.authToken = authToken.toString('hex')
         return authToken
       }.bind(this)
     )
@@ -443,7 +438,11 @@ Client.prototype.changePassword = function (newPassword, callback) {
       function (token) {
         this.srp.salt = crypto.randomBytes(32).toString('hex')
         this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw, this.srp.algorithm)
-        var bundle = token.bundle(this.wrapKb, this.srp.verifier)
+        return token.bundleAccountData(this.wrapKb, this.srp.verifier)
+      }.bind(this)
+    )
+    .then(
+      function (bundle) {
         return this.api.accountReset(
           this.accountResetToken,
           bundle,
@@ -484,7 +483,7 @@ Client.prototype.keys = function (callback) {
         return tokens.KeyFetchToken.fromHex(this.keyFetchToken)
           .then(
             function (token) {
-              return token.unbundle(data.bundle)
+              return token.unbundleKeys(data.bundle)
             }
           )
       }.bind(this)
@@ -602,9 +601,13 @@ Client.prototype.resetPassword = function (newPassword, callback) {
     )
     .then(
       function (accountResetToken) {
-        var bundle = accountResetToken.bundle(wrapKb, this.srp.verifier)
+        return accountResetToken.bundleAccountData(wrapKb, this.srp.verifier)
+      }.bind(this)
+    )
+    .then(
+      function (bundle) {
         return this.api.accountReset(
-          accountResetToken.data,
+          this.accountResetToken,
           bundle,
           {
             type: this.srp.type,

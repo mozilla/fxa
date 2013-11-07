@@ -7,10 +7,13 @@ var crypto = require('crypto')
 var log = { trace: function() {} }
 
 var tokens = require('../../tokens')(log)
-var AccountResetToken = tokens.AccountResetToken
+var KeyFetchToken = tokens.KeyFetchToken
 
 var ACCOUNT = {
-  uid: 'xxx'
+  uid: 'xxx',
+  kA: '0000000000000000000000000000000000000000000000000000000000000000',
+  wrapKb: '0000000000000000000000000000000000000000000000000000000000000000',
+  verified: true
 }
 
 
@@ -18,7 +21,7 @@ test(
   're-creation from tokendata works',
   function (t) {
     var token = null;
-    AccountResetToken.create(ACCOUNT)
+    KeyFetchToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -26,7 +29,7 @@ test(
       )
       .then(
         function () {
-          return AccountResetToken.fromHex(token.data, ACCOUNT)
+          return KeyFetchToken.fromHex(token.data, ACCOUNT)
         }
       )
       .then(
@@ -36,6 +39,9 @@ test(
           t.equal(token.authKey, token2.authKey)
           t.equal(token.bundleKey, token2.bundleKey)
           t.equal(token.uid, token2.uid)
+          t.equal(token.kA, token2.kA)
+          t.equal(token.wrapKb, token2.wrapKb)
+          t.equal(token.verified, token2.verified)
         }
       )
       .done(
@@ -52,27 +58,27 @@ test(
 
 
 test(
-  'bundle / unbundle of account data works',
+  'bundle / unbundle of keys works',
   function (t) {
     var token = null;
-    var wrapKb = crypto.randomBytes(32).toString('hex')
-    var verifier = crypto.randomBytes(256).toString('hex')
-    AccountResetToken.create(ACCOUNT)
+    var kAHex = crypto.randomBytes(32).toString('hex')
+    var wrapKbHex = crypto.randomBytes(32).toString('hex')
+    KeyFetchToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
-          return token.bundleAccountData(wrapKb, verifier)
+          return x.bundleKeys(kAHex, wrapKbHex)
         }
       )
       .then(
         function (b) {
-          return token.unbundleAccountData(b)
+          return token.unbundleKeys(b)
         }
       )
       .then(
         function (ub) {
-          t.equal(ub.wrapKb, wrapKb)
-          t.equal(ub.verifier, verifier)
+          t.equal(ub.kA, kAHex)
+          t.equal(ub.wrapKb, wrapKbHex)
         }
       )
       .done(
