@@ -5,8 +5,18 @@
 var test = require('tap').test
 var log = { trace: function() {} }
 
-var tokens = require('../../tokens')(log)
-var ForgotPasswordToken = tokens.ForgotPasswordToken
+var timestamp = Date.now()
+// increment timestamp by 500ms each time now is called
+function now() { return (timestamp += 500) }
+
+var ForgotPasswordToken = require('../../tokens/forgot_password_token')(
+  log,
+  require('util').inherits,
+  now,
+  require('../../tokens')(log),
+  require('crypto')
+)
+
 
 var ACCOUNT = {
   uid: 'xxx',
@@ -58,14 +68,11 @@ test(
     ForgotPasswordToken.create(ACCOUNT)
       .then(
         function (token) {
-          token.now = function() { return token.created }
+          token.created = timestamp
           t.equal(token.ttl(), 900)
-          token.now = function() { return token.created + 500 }
-          t.equal(token.ttl(), 900)
-          token.now = function() { return token.created + 1000 }
           t.equal(token.ttl(), 899)
-          token.now = function() { return token.created + 1500 }
           t.equal(token.ttl(), 899)
+          t.equal(token.ttl(), 898)
         }
       )
       .done(

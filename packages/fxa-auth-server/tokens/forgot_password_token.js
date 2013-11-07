@@ -16,7 +16,6 @@ module.exports = function (log, inherits, now, Token, crypto) {
   inherits(ForgotPasswordToken, Token)
 
   ForgotPasswordToken.tokenTypeID = 'password/forgot'
-  ForgotPasswordToken.prototype.now = now
 
   ForgotPasswordToken.create = function (details) {
     details = details || {}
@@ -26,7 +25,7 @@ module.exports = function (log, inherits, now, Token, crypto) {
       email: details.email
     })
     details.passcode = crypto.randomBytes(4).readUInt32BE(0) % 100000000
-    details.created = ForgotPasswordToken.prototype.now()
+    details.created = now()
     details.tries = 3
     return Token.createNewToken(ForgotPasswordToken, details)
   }
@@ -38,7 +37,7 @@ module.exports = function (log, inherits, now, Token, crypto) {
   }
 
   ForgotPasswordToken.prototype.ttl = function () {
-    var ttl = (LIFETIME - (this.now() - this.created)) / 1000
+    var ttl = (LIFETIME - (now() - this.created)) / 1000
     return Math.max(Math.ceil(ttl), 0)
   }
 
