@@ -1,26 +1,39 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'gherkin/FxAccountClient'
-], function (tdd, assert, FxAccountClient) {
+  'gherkin/FxAccountClient',
+  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest'
+], function (tdd, assert, FxAccountClient, xhr) {
   with (tdd) {
-    suite('demo', function () {
+    suite('fxa client', function () {
       var client;
+      var baseUri = 'http://127.0.0.1:9000/v1';
 
       before(function () {
-        client = new FxAccountClient();
+        // use an xhr shim in node.js
+        var xhrFactory = xhr ? (function () { return new xhr.XMLHttpRequest(); }) : undefined;
+        client = new FxAccountClient(baseUri, { xhr: xhrFactory });
       });
 
-      test('#isAwesome', function () {
-        assert.strictEqual(client.isAwesome(), true);
+      test('#create account (async)', function () {
+        var email = "test@restmail.net";
+        var password = "iliketurtles";
+        return client.proxiedSignUp(email, password)
+          .then(function (res) {
+            assert.ok(res.uid);
+          });
       });
 
-      test('#hawkModule', function () {
-        assert.strictEqual(client.hawkHeaderVersion, '1');
-      });
-
-      test('#sjclModule', function () {
-        assert.strictEqual(client.sjcl.json.defaults.cipher, 'aes');
+      test('#sign in (async)', function () {
+        var email = "test2@restmail.net";
+        var password = "iliketurtles";
+        return client.proxiedSignUp(email, password)
+          .then(function (res) {
+            return client.proxiedSignIn(email, password);
+          })
+          .then(function (res) {
+            assert.ok(res.sessionToken);
+          });
       });
 
     });

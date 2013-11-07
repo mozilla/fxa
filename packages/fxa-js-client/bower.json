@@ -6,5 +6,8 @@
     "requirejs-handlebars": "~0.0.1",
     "almond": "~0.2.5",
     "cjs": "latest"
+  },
+  "dependencies": {
+    "p": "https://github.com/rkatic/p.git"
   }
 }
