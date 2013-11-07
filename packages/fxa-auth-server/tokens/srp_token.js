@@ -4,7 +4,7 @@
 
 var crypto = require('crypto')
 
-module.exports = function (log, inherits, P, uuid, srp, Token, error) {
+module.exports = function (log, inherits, P, uuid, srp, Bundle, Token, error) {
 
   function SrpToken(keys, details) {
     if (!details.srp) { details.srp = {} }
@@ -66,7 +66,7 @@ module.exports = function (log, inherits, P, uuid, srp, Token, error) {
       return P.reject('Shared secret missing; SRP handshake was not completed')
     }
     var plaintext = Buffer(authToken, 'hex')
-    return Token.Bundle.bundle(this.K, 'auth/finish', plaintext)
+    return Bundle.bundle(this.K, 'auth/finish', plaintext)
   }
 
   SrpToken.prototype.unbundleAuth = function (bundle) {
@@ -74,7 +74,7 @@ module.exports = function (log, inherits, P, uuid, srp, Token, error) {
     if (!this.K) {
       return P.reject('Shared secret missing; SRP handshake was not completed')
     }
-    return Token.Bundle.unbundle(this.K, 'auth/finish', bundle)
+    return Bundle.unbundle(this.K, 'auth/finish', bundle)
       .then(
         function (plaintext) {
           return {

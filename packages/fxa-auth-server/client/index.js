@@ -9,6 +9,7 @@ var srp = require('srp')
 var ClientApi = require('./api')
 var keyStretch = require('./keystretch')
 var tokens = require('../tokens')({ trace: function () {}})
+var Bundle = tokens.Bundle
 
 function Client(origin) {
   this.uid = null
@@ -252,7 +253,7 @@ Client.prototype.auth = function (callback) {
     )
     .then(
       function (json) {
-        return tokens.Bundle.unbundle(K, 'auth/finish', json.bundle)
+        return Bundle.unbundle(K, 'auth/finish', json.bundle)
       }.bind(this)
     )
     .then(

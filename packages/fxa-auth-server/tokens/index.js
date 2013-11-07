@@ -39,6 +39,7 @@ module.exports = function (log) {
     P,
     uuid,
     srp,
+    Bundle,
     Token,
     error
   )
