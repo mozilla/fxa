@@ -172,7 +172,7 @@ test(
 test(
   'returns an error if the worker backlog is full',
   function (t) {
-    var count = 200
+    var count = signer._MAX_BACKLOG * 2
     var failed = 0
     var x = 0
     function done(err, result) {
