@@ -13,6 +13,7 @@ require('jwcrypto/lib/algs/ds')
 const _privKey = jwcrypto.loadSecretKey(fs.readFileSync(config.get('secretKeyFile')))
 
 process.on('message', function (message) {
+  if (message.crash === true) { throw new Error('FML') }
   if (message.duration < 1 || typeof(message.duration) !== 'number') {
     return process.send({ err: { message: 'bad duration' } })
   }
@@ -43,3 +44,10 @@ process.on('message', function (message) {
     return process.send({ err: e })
   }
 })
+
+process.on(
+  'uncaughtException',
+  function (err) {
+    process.exit(8)
+  }
+)

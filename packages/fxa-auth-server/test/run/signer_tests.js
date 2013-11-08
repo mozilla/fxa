@@ -2,6 +2,7 @@ var path = require('path')
 var test = require('tap').test
 var CC = require('compute-cluster')
 var signer = new CC({ module: path.join(__dirname, '../../bin/signer.js')})
+signer.on('error', function () {}) // don't die
 
 var validKey = {
   algorithm: 'RS',
@@ -144,6 +145,24 @@ test(
       },
       function (err, result) {
         t.ok(result.cert, 'got cert')
+        t.end()
+      }
+    )
+  }
+)
+
+test(
+  'crash',
+  function (t) {
+    signer.enqueue(
+      {
+        crash: true,
+        email: 'test@example.com',
+        publicKey: validKey,
+        duration: 100
+      },
+      function (err, result) {
+        t.ok(err, 'worker crashed')
         t.end()
       }
     )
