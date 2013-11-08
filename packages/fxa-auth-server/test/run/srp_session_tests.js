@@ -43,7 +43,7 @@ alice.srp.verifier = srp.computeVerifier(
 
 
 db.createAccount(alice)
-.done(
+.then(
   function (a) {
 
     test(
@@ -116,5 +116,49 @@ db.createAccount(alice)
           )
       }
     )
+  }
+)
+.then(
+  function () {
+
+    test(
+      'authToken encryption is test-vector compliant',
+      function (t) {
+        var srpK = 'e68fd0112bfa31dcffc8e9c96a1cbadb4c3145978ff35c73e5bf8d30bbc7499a'
+        var authToken = '606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f'
+        var bundle = '253957f10e861c7c0a12bb0193d384d9579db544666d50bd3252d6576c768a68' +
+                     'a98c87f5769ab4ccca3df863faeb217eb16ddc29d712b30112b446324ee806d6'
+        SrpToken.create(alice)
+          .then(
+            function (token) {
+              token.K = Buffer(srpK, 'hex')
+              return token.bundleAuth(authToken)
+            }
+          )
+          .then(
+            function (b) {
+              t.equal(b, bundle)
+            }
+          )
+          .done(
+            function () {
+              t.end()
+            },
+            function (err) {
+              t.fail(err)
+              t.end()
+            }
+          )
+      }
+    )
+  }
+)
+.done(
+  function () {
+    t.end()
+  },
+  function (err) {
+    t.fail(JSON.stringify(err))
+    t.end()
   }
 )
