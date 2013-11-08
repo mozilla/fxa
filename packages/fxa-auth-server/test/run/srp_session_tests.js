@@ -118,7 +118,7 @@ db.createAccount(alice)
     )
   }
 )
-.then(
+.done(
   function () {
 
     test(
@@ -151,14 +151,5 @@ db.createAccount(alice)
           )
       }
     )
-  }
-)
-.done(
-  function () {
-    t.end()
-  },
-  function (err) {
-    t.fail(JSON.stringify(err))
-    t.end()
   }
 )
