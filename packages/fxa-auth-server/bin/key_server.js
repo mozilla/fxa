@@ -33,6 +33,7 @@ function main() {
   //signer compute-cluster
   var CC = require('compute-cluster')
   var signer = new CC({ module: __dirname + '/signer.js' })
+  signer.on('error', function () {}) // don't die
 
   var Server = require('../server')
   var server = null

@@ -30,7 +30,7 @@
     "hawk": "1.1.2",
     "hkdf": "0.0.1",
     "sjcl": "1.0.0",
-    "compute-cluster": "0.0.7",
+    "compute-cluster": "git://github.com/dannycoates/node-compute-cluster.git#0222a742",
     "jwcrypto": "0.4.4",
     "handlebars": "1.0.10",
     "convict": "0.4.1",
