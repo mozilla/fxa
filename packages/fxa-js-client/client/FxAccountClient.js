@@ -66,5 +66,20 @@ define(['./lib/request', './vendor/sjcl', './lib/credentials'], function (Reques
       );
   };
 
+  /**
+   * @method verifyCode
+   * @param {String} uid Account ID
+   * @param {String} code Verification code
+   * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
+   */
+  FxAccountClient.prototype.verifyCode = function(uid, code) {
+    return this.request.send("/recovery_email/verify_code", "POST", null, {
+      uid: uid,
+      code: code
+    });
+  };
+
   return FxAccountClient;
 });
+
+
