@@ -12,7 +12,7 @@ module.exports = function (log, inherits, Token) {
   }
   inherits(SessionToken, Token)
 
-  SessionToken.tokenTypeID = 'session'
+  SessionToken.tokenTypeID = 'sessionToken'
 
   SessionToken.create = function (details) {
     log.trace({ op: 'SessionToken.create', uid: details && details.uid })

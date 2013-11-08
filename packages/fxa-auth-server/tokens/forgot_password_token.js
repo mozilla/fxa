@@ -15,7 +15,7 @@ module.exports = function (log, inherits, now, Token, crypto) {
   }
   inherits(ForgotPasswordToken, Token)
 
-  ForgotPasswordToken.tokenTypeID = 'password/forgot'
+  ForgotPasswordToken.tokenTypeID = 'forgotPasswordToken'
 
   ForgotPasswordToken.create = function (details) {
     details = details || {}

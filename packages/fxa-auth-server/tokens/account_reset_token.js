@@ -11,7 +11,7 @@ module.exports = function (log, inherits, Token, crypto) {
   }
   inherits(AccountResetToken, Token)
 
-  AccountResetToken.tokenTypeID = 'account/reset'
+  AccountResetToken.tokenTypeID = 'accountResetToken'
 
   AccountResetToken.create = function (details) {
     log.trace({ op: 'AccountResetToken.create', uid: details && details.uid })
