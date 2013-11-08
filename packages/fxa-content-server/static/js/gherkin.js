@@ -21,6 +21,7 @@ var srp = require('srp')
 var ClientApi = require('./lib/api')
 var keyStretch = require('./lib/keystretch')
 var tokens = require('./lib/tokens')({ trace: function () {}})
+var Bundle = tokens.Bundle
 
 function Client(origin) {
   this.uid = null
@@ -264,18 +265,12 @@ Client.prototype.auth = function (callback) {
     )
     .then(
       function (json) {
-
-        return tokens.createFromHKDF(K, 'auth/finish')
-          .then(
-          function (t) {
-            return t.unbundle(json.bundle)
-          }
-        )
+        return Bundle.unbundle(K, 'auth/finish', json.bundle)
       }.bind(this)
     )
     .then(
       function (authToken) {
-        this.authToken = authToken
+        this.authToken = authToken.toString('hex')
         return authToken
       }.bind(this)
     )
@@ -455,7 +450,11 @@ Client.prototype.changePassword = function (newPassword, callback) {
       function (token) {
         this.srp.salt = crypto.randomBytes(32).toString('hex')
         this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw, this.srp.algorithm)
-        var bundle = token.bundle(this.wrapKb, this.srp.verifier)
+        return token.bundleAccountData(this.wrapKb, this.srp.verifier)
+      }.bind(this)
+    )
+    .then(
+      function (bundle) {
         return this.api.accountReset(
           this.accountResetToken,
           bundle,
@@ -496,7 +495,7 @@ Client.prototype.keys = function (callback) {
         return tokens.KeyFetchToken.fromHex(this.keyFetchToken)
           .then(
             function (token) {
-              return token.unbundle(data.bundle)
+              return token.unbundleKeys(data.bundle)
             }
           )
       }.bind(this)
@@ -614,9 +613,13 @@ Client.prototype.resetPassword = function (newPassword, callback) {
     )
     .then(
       function (accountResetToken) {
-        var bundle = accountResetToken.bundle(wrapKb, this.srp.verifier)
+        return accountResetToken.bundleAccountData(wrapKb, this.srp.verifier)
+      }.bind(this)
+    )
+    .then(
+      function (bundle) {
         return this.api.accountReset(
-          accountResetToken.data,
+          this.accountResetToken,
           bundle,
           {
             type: this.srp.type,
@@ -646,7 +649,7 @@ Client.prototype.resetPassword = function (newPassword, callback) {
 
 module.exports = Client
 
-},{"./lib/api":3,"./lib/keystretch":8,"./lib/tokens":15,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":75,"srp":78}],3:[function(require,module,exports){
+},{"./lib/api":3,"./lib/keystretch":8,"./lib/tokens":16,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":77,"srp":83}],3:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -996,7 +999,7 @@ ClientApi.heartbeat = function (origin) {
 
 module.exports = ClientApi
 
-},{"./tokens":15,"events":26,"hawk":57,"p-promise":75,"request":"hWH+d8","util":32}],4:[function(require,module,exports){
+},{"./tokens":16,"events":27,"hawk":58,"p-promise":77,"request":"hWH+d8","util":33}],4:[function(require,module,exports){
 module.exports = require('buffer');
 
 },{}],5:[function(require,module,exports){
@@ -1040,7 +1043,7 @@ function hkdf(km, info, salt, len) {
 
 module.exports = hkdf
 
-},{"hkdf":72,"p-promise":75}],8:[function(require,module,exports){
+},{"hkdf":75,"p-promise":77}],8:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1167,7 +1170,7 @@ function KW(name) {
 module.exports.derive = derive
 module.exports.xor = xor
 
-},{"./hkdf":7,"./pbkdf2":9,"./scrypt":10,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":75}],9:[function(require,module,exports){
+},{"./hkdf":7,"./pbkdf2":9,"./scrypt":10,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":77}],9:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1194,7 +1197,7 @@ function derive(input, salt) {
 
 module.exports.derive = derive
 
-},{"__browserify_Buffer":4,"p-promise":75,"sjcl":77}],10:[function(require,module,exports){
+},{"__browserify_Buffer":4,"p-promise":77,"sjcl":79}],10:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1283,7 +1286,7 @@ function remoteScryptHelper(payload, url) {
 
 module.exports.hash = hash
 
-},{"./emscrypt":5,"p-promise":75,"request":"hWH+d8"}],11:[function(require,module,exports){
+},{"./emscrypt":5,"p-promise":77,"request":"hWH+d8"}],11:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1292,74 +1295,49 @@ module.exports = function (log, inherits, Token, crypto) {
 
   var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
 
-  function AccountResetToken() {
-    Token.call(this)
+  function AccountResetToken(keys, details) {
+    Token.call(this, keys, details)
   }
   inherits(AccountResetToken, Token)
 
-  AccountResetToken.create = function (uid) {
-    log.trace({ op: 'AccountResetToken.create', uid: uid })
-    return Token
-      .randomTokenData('account/reset', 2 * 32 + 32 + 256)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new AccountResetToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.xorKey = key.slice(64, 352).toString('hex')
-          return t
-        }
-      )
+  AccountResetToken.tokenTypeID = 'accountResetToken'
+
+  AccountResetToken.create = function (details) {
+    log.trace({ op: 'AccountResetToken.create', uid: details && details.uid })
+    return Token.createNewToken(AccountResetToken, details || {})
   }
 
-  AccountResetToken.fromHex = function (string) {
+  AccountResetToken.fromHex = function (string, details) {
     log.trace({ op: 'AccountResetToken.fromHex' })
-    return Token
-      .tokenDataFromBytes(
-        'account/reset',
-        2 * 32 + 32 + 256,
-        Buffer(string, 'hex')
-      )
+    details = details || {}
+    return Token.createTokenFromHexData(AccountResetToken, string, details)
+  }
+
+  AccountResetToken.prototype.bundleAccountData = function (wrapKb, verifier) {
+    log.trace({ op: 'accountResetToken.bundleAccountData', id: this.id })
+    var plaintext = Buffer.concat([
+      Buffer(wrapKb, 'hex'),
+      Buffer(verifier, 'hex')
+    ])
+    return this.bundle('account/reset', plaintext)
+  }
+
+  AccountResetToken.prototype.unbundleAccountData = function (hex) {
+    log.trace({ op: 'accountResetToken.unbundleAccountData', id: this.id })
+    return this.unbundle('account/reset', hex)
       .then(
-        function (data) {
-          var key = data[1]
-          var t = new AccountResetToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.xorKey = key.slice(64, 352).toString('hex')
-          return t
-        }
+        function (plaintext) {
+          var wrapKb = plaintext.slice(0, 32).toString('hex')
+          var verifier = plaintext.slice(32, 288).toString('hex')
+          if (wrapKb === NULL) {
+           wrapKb = crypto.randomBytes(32).toString('hex')
+          }
+          return {
+            wrapKb: wrapKb,
+            verifier: verifier
+          }
+        }.bind(this)
       )
-  }
-
-  AccountResetToken.prototype.bundle = function (wrapKb, verifier) {
-    log.trace({ op: 'accountResetToken.bundle', id: this.id })
-    return this.xor(
-      Buffer.concat(
-        [
-          Buffer(wrapKb, 'hex'),
-          Buffer(verifier, 'hex')
-        ]
-      )
-    ).toString('hex')
-  }
-
-  AccountResetToken.prototype.unbundle = function (hex) {
-    log.trace({ op: 'accountResetToken.unbundle', id: this.id })
-    var plaintext = this.xor(Buffer(hex, 'hex'))
-    var wrapKb = plaintext.slice(0, 32).toString('hex')
-    var verifier = plaintext.slice(32, 288).toString('hex')
-    if (wrapKb === NULL) {
-      wrapKb = crypto.randomBytes(32).toString('hex')
-    }
-    return {
-      wrapKb: wrapKb,
-      verifier: verifier
-    }
   }
 
   return AccountResetToken
@@ -1372,130 +1350,192 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
 
 module.exports = function (log, inherits, Token, error) {
 
-  function AuthToken() {
-    Token.call(this)
-    this.opKey = null
+  function AuthToken(keys, details) {
+    Token.call(this, keys, details)
   }
   inherits(AuthToken, Token)
 
-  AuthToken.create = function (uid) {
-    log.trace({ op: 'AuthToken.create', uid: uid })
-    return Token
-      .randomTokenData('authToken', 3 * 32)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new AuthToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.opKey = key.slice(64, 96).toString('hex')
-          return t
-        }
-      )
+  AuthToken.tokenTypeID = 'authToken'
+
+  AuthToken.create = function (details) {
+    log.trace({ op: 'AuthToken.create', uid: details && details.uid })
+    return Token.createNewToken(AuthToken, details || {})
   }
 
-  AuthToken.fromHex = function (string) {
+  AuthToken.fromHex = function (string, details) {
     log.trace({ op: 'AuthToken.fromHex' })
-    return Token.
-      tokenDataFromBytes(
-        'authToken',
-        3 * 32,
-        Buffer(string, 'hex')
-      )
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new AuthToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.opKey = key.slice(64, 96).toString('hex')
-          return t
-        }
-      )
+    return Token.createTokenFromHexData(AuthToken, string, details || {})
   }
 
-  AuthToken.prototype.bundleKeys = function (type, keyFetchToken, otherToken) {
-    log.trace({ op: 'authToken.bundleKeys', id: this.id, type: type })
-    return Token.tokenDataFromBytes(
-      type,
-      3 * 32,
-      Buffer(this.opKey, 'hex')
-    )
-    .then(
-      function (data) {
-        var wrapper = new Token()
-        wrapper.hmacKey = data[1].slice(0, 32).toString('hex')
-        wrapper.xorKey = data[1].slice(32, 96).toString('hex')
-        return wrapper.bundleHexStrings([keyFetchToken.data, otherToken.data])
-      }
-    )
+  AuthToken.prototype.bundleSession = function (keyFetchToken, sessionToken) {
+    log.trace({ op: 'authToken.bundleSession', id: this.id })
+    var plaintext = Buffer.concat([
+      Buffer(keyFetchToken, 'hex'),
+      Buffer(sessionToken, 'hex')
+    ])
+    return this.bundle('session/create', plaintext)
   }
 
   AuthToken.prototype.unbundleSession = function (bundle) {
     log.trace({ op: 'authToken.unbundleSession', id: this.id })
     return this.unbundle('session/create', bundle)
       .then(
-        function (tokens) {
+        function (plaintext) {
           return {
-            keyFetchToken: tokens.keyFetchToken,
-            sessionToken: tokens.otherToken
+            keyFetchToken: plaintext.slice(0, 32).toString('hex'),
+            sessionToken: plaintext.slice(32, 64).toString('hex')
           }
         }
       )
+  }
+
+  AuthToken.prototype.bundleAccountReset = function (keyFetchToken, resetToken) {
+    log.trace({ op: 'authToken.bundleAccountReset', id: this.id })
+    var plaintext = Buffer.concat([
+      Buffer(keyFetchToken, 'hex'),
+      Buffer(resetToken, 'hex')
+    ])
+    return this.bundle('password/change', plaintext)
   }
 
   AuthToken.prototype.unbundleAccountReset = function (bundle) {
     log.trace({ op: 'authToken.unbundleAccountReset', id: this.id })
     return this.unbundle('password/change', bundle)
       .then(
-        function (tokens) {
+        function (plaintext) {
           return {
-            keyFetchToken: tokens.keyFetchToken,
-            accountResetToken: tokens.otherToken
+            keyFetchToken: plaintext.slice(0, 32).toString('hex'),
+            accountResetToken: plaintext.slice(32, 64).toString('hex')
           }
         }
       )
-  }
-
-  AuthToken.prototype.unbundle = function (type, bundle) {
-    log.trace({ op: 'authToken.unbundle', id: this.id, type: type })
-    return Token.tokenDataFromBytes(
-      type,
-      3 * 32,
-      Buffer(this.opKey, 'hex')
-    )
-    .then(
-      function (data) {
-        var token = new Token()
-        token.hmacKey = data[1].slice(0, 32).toString('hex')
-        token.xorKey = data[1].slice(32, 96).toString('hex')
-        return token
-      }
-    )
-    .then(
-      function (token) {
-        var buffer = Buffer(bundle, 'hex')
-        var ciphertext = buffer.slice(0, 64)
-        var hmac = buffer.slice(64, 96).toString('hex')
-        if(token.hmac(ciphertext).toString('hex') !== hmac) {
-          throw error.invalidSignature()
-        }
-        var plaintext = token.xor(ciphertext)
-        return {
-          keyFetchToken: plaintext.slice(0, 32).toString('hex'),
-          otherToken: plaintext.slice(32, 64).toString('hex')
-        }
-      }
-    )
   }
 
   return AuthToken
 }
 
 },{"__browserify_Buffer":4}],13:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+
+/*  Utility functions for working with encrypted data bundles.
+ * 
+ *  This module provides 'bundle' and 'unbundle' functions that perform the
+ *  simple encryption operations required by the picl-idp API.  The encryption
+ *  works as follows:
+ * 
+ *    * Input is some master key material, a string identifying the context
+ *      of the data, and a payload to be encrypted.
+ *
+ *    * HKDF is used to derive a 32-byte HMAC key and an encryption key of
+ *      length equal to the payload.  The context string is used to ensure
+ *      that these keys are unique to this encryption context.
+ *
+ *    * The payload is XORed with the encryption key, then HMACed using the
+ *      HMAC key.
+ *
+ *    * Output is the hex-encoded concatenation of the ciphertext and HMAC.
+ *      
+ */
+
+
+module.exports = function (crypto, P, hkdf, error) {
+
+
+  var HASH_ALGORITHM = 'sha256'
+
+
+  function Bundle() {}
+
+
+  // Encrypt the given buffer into a hex ciphertext string.
+  //
+  Bundle.bundle = function (key, keyInfo, payload) {
+    return deriveBundleKeys(key, keyInfo, payload.length)
+      .then(
+        function (keys) {
+          var ciphertext = xorBuffers(payload, keys[1])
+          var hmac = crypto.createHmac(HASH_ALGORITHM, keys[0])
+          hmac.update(ciphertext)
+          return Buffer.concat([ciphertext, hmac.digest()]).toString('hex')
+        }
+      )
+  }
+
+
+  // Decrypt the given hex string into a buffer of plaintext data.
+  //
+  Bundle.unbundle = function (key, keyInfo, payload) {
+    payload = Buffer(payload, 'hex')
+    var ciphertext = payload.slice(0, -32)
+    var expectedHmac = payload.slice(-32)
+    return deriveBundleKeys(key, keyInfo, ciphertext.length)
+      .then(
+        function (keys) {
+          var hmac = crypto.createHmac(HASH_ALGORITHM, keys[0])
+          hmac.update(ciphertext)
+          if (!buffersAreEqual(hmac.digest(), expectedHmac)) {
+            throw error.invalidSignature()
+          }
+          return xorBuffers(ciphertext, keys[1])
+        }
+      )
+  }
+
+
+  // Derive the HMAC and XOR keys required to encrypt a given size of payload.
+  //
+  function deriveBundleKeys(key, keyInfo, payloadSize) {
+    return hkdf(key, keyInfo, null, 32 + payloadSize)
+      .then(
+        function (keyMaterial) {
+          var hmacKey = keyMaterial.slice(0, 32)
+          var xorKey = keyMaterial.slice(32)
+          return [hmacKey, xorKey]
+        }
+      )
+  }
+
+
+  // Xor the contents of two equal-sized buffers.
+  //
+  function xorBuffers(buffer1, buffer2) {
+    if (buffer1.length !== buffer2.length) {
+      throw new Error(
+        'XOR buffers must be same length (%d != %d)',
+        buffer1.length,
+        buffer2.length
+      )
+    }
+    var result = Buffer(buffer1.length)
+    for (var i = 0; i < buffer1.length; i++) {
+      result[i] = buffer1[i] ^ buffer2[i]
+    }
+    return result
+  }
+
+
+  //  Time-invariant buffer comparison.
+  //  For checking hmacs without timing attacks.
+  //
+  function buffersAreEqual(buffer1, buffer2) {
+    var mismatch = buffer1.length - buffer2.length
+    if (mismatch) {
+      return false
+    }
+    for (var i = 0; i < buffer1.length; i++) {
+      mismatch |= buffer1[i] ^ buffer2[i]
+    }
+    return mismatch === 0
+  }
+
+
+  return Bundle
+}
+
+},{"__browserify_Buffer":4}],14:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1556,70 +1596,48 @@ module.exports = {
   invalidToken: invalidToken
 }
 
-},{}],14:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+},{}],15:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, inherits, Token, crypto) {
+module.exports = function (log, inherits, now, Token, crypto) {
 
   var LIFETIME = 1000 * 60 * 15
 
-  function ForgotPasswordToken() {
-    Token.call(this)
-    this.email = null
-    this.created = null
-    this.passcode = null
-    this.tries = null
+  function ForgotPasswordToken(keys, details) {
+    Token.call(this, keys, details)
+    this.email = details.email || null
+    this.created = details.created || null
+    this.passcode = details.passcode || null
+    this.tries = details.tries || null
   }
   inherits(ForgotPasswordToken, Token)
 
-  ForgotPasswordToken.create = function (uid, email) {
-    log.trace({ op: 'ForgotPasswordToken.create', uid: uid, email: email })
-    return Token
-      .randomTokenData('password/forgot', 2 * 32)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new ForgotPasswordToken()
-          t.uid = uid
-          t.email = email
-          t.passcode = crypto.randomBytes(4).readUInt32BE(0) % 100000000
-          t.created = Date.now()
-          t.tries = 3
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
+  ForgotPasswordToken.tokenTypeID = 'forgotPasswordToken'
+
+  ForgotPasswordToken.create = function (details) {
+    details = details || {}
+    log.trace({
+      op: 'ForgotPasswordToken.create',
+      uid: details.uid,
+      email: details.email
+    })
+    details.passcode = crypto.randomBytes(4).readUInt32BE(0) % 100000000
+    details.created = now()
+    details.tries = 3
+    return Token.createNewToken(ForgotPasswordToken, details)
   }
 
-  ForgotPasswordToken.fromHex = function (string) {
+  ForgotPasswordToken.fromHex = function (string, details) {
     log.trace({ op: 'ForgotPasswordToken.fromHex' })
-    return Token
-      .tokenDataFromBytes(
-        'password/forgot',
-        2 * 32,
-        Buffer(string, 'hex')
-      )
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new ForgotPasswordToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
+    details = details || {}
+    return Token.createTokenFromHexData(ForgotPasswordToken, string, details)
   }
 
   ForgotPasswordToken.prototype.ttl = function () {
-    return Math.max(
-      Math.ceil((LIFETIME - (Date.now() - this.created)) / 1000),
-      0
-    )
+    var ttl = (LIFETIME - (now() - this.created)) / 1000
+    return Math.max(Math.ceil(ttl), 0)
   }
 
   ForgotPasswordToken.prototype.failAttempt = function () {
@@ -1630,7 +1648,7 @@ module.exports = function (log, inherits, Token, crypto) {
   return ForgotPasswordToken
 }
 
-},{"__browserify_Buffer":4}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1647,7 +1665,8 @@ var error = require('./error')
 
 module.exports = function (log) {
 
-  var Token = require('./token')(log, crypto, P, hkdf, error)
+  var Bundle = require('./bundle')(crypto, P, hkdf, error)
+  var Token = require('./token')(log, crypto, P, hkdf, Bundle, error)
 
   var KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, error)
   var AccountResetToken = require('./account_reset_token')(
@@ -1661,18 +1680,23 @@ module.exports = function (log) {
   var ForgotPasswordToken = require('./forgot_password_token')(
     log,
     inherits,
+    Date.now,
     Token,
     crypto
   )
   var SrpToken = require('./srp_token')(
     log,
+    inherits,
     P,
     uuid,
     srp,
+    Bundle,
+    Token,
     error
   )
 
   Token.error = error
+  Token.Bundle = Bundle
   Token.AccountResetToken = AccountResetToken
   Token.KeyFetchToken = KeyFetchToken
   Token.SessionToken = SessionToken
@@ -1683,212 +1707,123 @@ module.exports = function (log) {
   return Token
 }
 
-},{"../hkdf":7,"./account_reset_token":11,"./auth_token":12,"./error":13,"./forgot_password_token":14,"./key_fetch_token":16,"./session_token":17,"./srp_token":18,"./token":19,"crypto":"l4eWKl","p-promise":75,"srp":78,"util":32,"uuid":82}],16:[function(require,module,exports){
+},{"../hkdf":7,"./account_reset_token":11,"./auth_token":12,"./bundle":13,"./error":14,"./forgot_password_token":15,"./key_fetch_token":17,"./session_token":18,"./srp_token":19,"./token":20,"crypto":"l4eWKl","p-promise":77,"srp":83,"util":33,"uuid":87}],17:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (log, inherits, Token, error) {
 
-  function KeyFetchToken() {
-    Token.call(this)
+  function KeyFetchToken(keys, details) {
+    Token.call(this, keys, details)
+    this.kA = details.kA || null
+    this.wrapKb = details.wrapKb || null
+    this.verified = !!details.verified 
   }
   inherits(KeyFetchToken, Token)
 
-  KeyFetchToken.create = function (uid) {
-    log.trace({ op: 'KeyFetchToken.create', uid: uid })
-    return Token
-      .randomTokenData('account/keys', 3 * 32 + 2 * 32)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new KeyFetchToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.hmacKey = key.slice(64, 96).toString('hex')
-          t.xorKey = key.slice(96, 160).toString('hex')
-          return t
-        }
-      )
+  KeyFetchToken.tokenTypeID = 'keyFetchToken'
+
+  KeyFetchToken.create = function (details) {
+    log.trace({ op: 'KeyFetchToken.create', uid: details && details.uid })
+    return Token.createNewToken(KeyFetchToken, details || {})
   }
 
-  KeyFetchToken.fromHex = function (string) {
+  KeyFetchToken.fromHex = function (string, details) {
     log.trace({ op: 'KeyFetchToken.fromHex' })
-    return Token.
-      tokenDataFromBytes(
-        'account/keys',
-        3 * 32 + 2 * 32,
-        Buffer(string, 'hex')
-      )
+    return Token.createTokenFromHexData(KeyFetchToken, string, details || {})
+  }
+
+  KeyFetchToken.prototype.bundleKeys = function (kA, wrapKb) {
+    log.trace({ op: 'keyFetchToken.bundleKeys', id: this.id })
+    var plaintext = Buffer.concat([
+      Buffer(kA, 'hex'),
+      Buffer(wrapKb, 'hex')
+    ])
+    return this.bundle('account/keys', plaintext)
+  }
+
+  KeyFetchToken.prototype.unbundleKeys = function (bundle) {
+    log.trace({ op: 'keyFetchToken.unbundleKeys', id: this.id })
+    return this.unbundle('account/keys', bundle)
       .then(
-        function (data) {
-          var key = data[1]
-          var t = new KeyFetchToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          t.hmacKey = key.slice(64, 96).toString('hex')
-          t.xorKey = key.slice(96, 160).toString('hex')
-          return t
+        function (plaintext) {
+          return {
+            kA: plaintext.slice(0, 32).toString('hex'),
+            wrapKb: plaintext.slice(32, 64).toString('hex')
+          }
         }
       )
-  }
-
-  KeyFetchToken.prototype.bundle = function (kA, wrapKb) {
-    log.trace({ op: 'keyFetchToken.bundle', id: this.id })
-    return this.bundleHexStrings([kA, wrapKb])
-  }
-
-  KeyFetchToken.prototype.unbundle = function (bundle) {
-    log.trace({ op: 'keyFetchToken.unbundle', id: this.id })
-    var buffer = Buffer(bundle, 'hex')
-    var ciphertext = buffer.slice(0, 64)
-    var hmac = buffer.slice(64, 96).toString('hex')
-    if(this.hmac(ciphertext).toString('hex') !== hmac) {
-      throw error.invalidSignature()
-    }
-    var plaintext = this.xor(ciphertext)
-    return {
-      kA: plaintext.slice(0, 32).toString('hex'),
-      wrapKb: plaintext.slice(32, 64).toString('hex')
-    }
   }
 
   return KeyFetchToken
 }
 
-},{"__browserify_Buffer":4}],17:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
+},{"__browserify_Buffer":4}],18:[function(require,module,exports){
+/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (log, inherits, Token) {
 
-  function SessionToken() {
-    Token.call(this)
+  function SessionToken(keys, details) {
+    Token.call(this, keys, details)
+    this.email = details.email || null
+    this.emailCode = details.emailCode || null
+    this.verified = !!details.verified
   }
   inherits(SessionToken, Token)
 
-  SessionToken.create = function (uid) {
-    log.trace({ op: 'SessionToken.create', uid: uid })
-    return Token
-      .randomTokenData('session', 2 * 32)
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new SessionToken()
-          t.uid = uid
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
+  SessionToken.tokenTypeID = 'sessionToken'
+
+  SessionToken.create = function (details) {
+    log.trace({ op: 'SessionToken.create', uid: details && details.uid })
+    return Token.createNewToken(SessionToken, details || {})
   }
 
-  SessionToken.fromHex = function (string) {
+  SessionToken.fromHex = function (string, details) {
     log.trace({ op: 'SessionToken.fromHex' })
-    return Token
-      .tokenDataFromBytes(
-        'session',
-        2 * 32,
-        Buffer(string, 'hex')
-      )
-      .then(
-        function (data) {
-          var key = data[1]
-          var t = new SessionToken()
-          t.data = data[0].toString('hex')
-          t.id = key.slice(0, 32).toString('hex')
-          t._key = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
+    return Token.createTokenFromHexData(SessionToken, string, details || {})
   }
 
   return SessionToken
 }
 
-},{"__browserify_Buffer":4}],18:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");/* This Source Code Form is subject to the terms of the Mozilla Public
+},{}],19:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var crypto = require('crypto')
 
-module.exports = function (log, P, uuid, srp, error) {
+module.exports = function (log, inherits, P, uuid, srp, Bundle, Token, error) {
 
-  function SrpToken() {
-    this.id = null
-    this.uid = null
-    this.v = null
-    this.s = null
-    this.b = null
-    this.B = null
+  function SrpToken(keys, details) {
+    if (!details.srp) { details.srp = {} }
+    Token.call(this, keys, details)
+    this.b = Buffer(this.bundleKey, 'hex')
+    this.v = details.srp.verifier ? Buffer(details.srp.verifier, 'hex') : null
+    this.s = details.srp.salt ? details.srp.salt : null
+    this.passwordStretching = details.passwordStretching || null
+    this.srpServer = new srp.Server(srp.params[2048], this.v, this.b)
     this.K = null
-    this.passwordStretching = null
+  }
+  inherits(SrpToken, Token)
+
+  SrpToken.tokenTypeID = 'srpToken'
+
+  SrpToken.create = function (details) {
+    log.trace({ op: 'SrpToken.create', uid: details && details.uid })
+    return Token.createNewToken(SrpToken, details || {})
   }
 
-  function srpGenKey() {
-    var d = P.defer()
-    // capturing the domain here is a workaround for:
-    // https://github.com/joyent/node/issues/3965
-    var domain = process.domain
-    crypto.randomBytes(32,
-      function (err, bytes) {
-        if (domain) domain.enter()
-        var x = err ? d.reject(err) : d.resolve(bytes)
-        if (domain) domain.exit()
-        return x
-      }
-    )
-    return d.promise
+  SrpToken.fromHex = function (string, details) {
+    log.trace({ op: 'SrpToken.create', uid: details && details.uid })
+    return Token.createTokenFromHexData(SrpToken, string, details || {})
   }
 
-  SrpToken.create = function (account) {
-    log.trace({ op: 'SrpToken.create', uid: account && account.uid })
-    var t = null
-    return srpGenKey()
-      .then(
-        function (b) {
-          var srpServer = new srp.Server(
-            srp.params[2048],
-            Buffer(account.srp.verifier, 'hex'),
-            b
-          )
-          t = new SrpToken()
-          t.id = uuid.v4()
-          t.uid = account.uid
-          t.v = Buffer(account.srp.verifier, 'hex')
-          t.b = b
-          t.s = account.srp.salt
-          t.B = srpServer.computeB()
-          t.passwordStretching = account.passwordStretching
-          return t
-        }
-      )
-  }
-
-  SrpToken.prototype.finish = function (A, M1) {
-    A = Buffer(A, 'hex')
-    var srpServer = new srp.Server(
-      srp.params[2048],
-      this.v,
-      this.b
-    )
-    srpServer.setA(A)
-    try {
-      srpServer.checkM1(Buffer(M1, 'hex'))
-    }
-    catch (e) {
-      throw error.incorrectPassword()
-    }
-    this.K = srpServer.computeK()
-    return this
-  }
-
+  // Get the data to be sent back to the client in the first message.
+  //
   SrpToken.prototype.clientData = function () {
     return {
       srpToken: this.id,
@@ -1896,32 +1831,46 @@ module.exports = function (log, P, uuid, srp, error) {
       srp: {
         type: 'SRP-6a/SHA256/2048/v1',
         salt: this.s,
-        B: this.B.toString('hex')
+        B: this.srpServer.computeB().toString('hex')
       }
     }
   }
 
-  SrpToken.client2 = function (session, email, password) {
-    return srpGenKey()
+  // Complete the SRP dance, verifying the correct credentials and
+  // deriving the value of the shared secret.
+  //
+  SrpToken.prototype.finish = function (A, M1) {
+    A = Buffer(A, 'hex')
+    this.srpServer.setA(A)
+    try {
+      this.srpServer.checkM1(Buffer(M1, 'hex'))
+    }
+    catch (e) {
+      throw error.incorrectPassword()
+    }
+    this.K = this.srpServer.computeK()
+    return this
+  }
+
+  SrpToken.prototype.bundleAuth = function (authToken) {
+    log.trace({ op: 'srpToken.bundleAuth', id: this.id })
+    if (!this.K) {
+      return P.reject('Shared secret missing; SRP handshake was not completed')
+    }
+    var plaintext = Buffer(authToken, 'hex')
+    return Bundle.bundle(this.K, 'auth/finish', plaintext)
+  }
+
+  SrpToken.prototype.unbundleAuth = function (bundle) {
+    log.trace({ op: 'srpToken.unbundleAuth', id: this.id })
+    if (!this.K) {
+      return P.reject('Shared secret missing; SRP handshake was not completed')
+    }
+    return Bundle.unbundle(this.K, 'auth/finish', bundle)
       .then(
-        function (a) {
-          var srpClient = new srp.Client(
-            srp.params[2048],
-            Buffer(session.srp.salt, 'hex'),
-            Buffer(email),
-            Buffer(password),
-            a
-          )
-          srpClient.setB(Buffer(session.srp.B, 'hex'))
-
-          var A = srpClient.computeA()
-          var M = srpClient.computeM1()
-          var K = srpClient.computeK()
-
+        function (plaintext) {
           return {
-            A: A.toString('hex'),
-            M: M.toString('hex'),
-            K: K.toString('hex')
+            authToken: plaintext.toString('hex'),
           }
         }
       )
@@ -1930,26 +1879,52 @@ module.exports = function (log, P, uuid, srp, error) {
   return SrpToken
 }
 
-},{"__browserify_Buffer":4,"__browserify_process":74,"crypto":"l4eWKl"}],19:[function(require,module,exports){
+},{"__browserify_Buffer":4,"crypto":"l4eWKl"}],20:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, crypto, P, hkdf, error) {
+/*  Base class for handling various types of token.
+ * 
+ *  This module provides the basic functionality for handling authentication
+ *  tokens.  There are different types of token for use in different contexts
+ *  but they all operate in essentially the same way:
+ *
+ *    - Each token is created from an initial data seed of 32 random bytes.
+ *
+ *    - From the seed data we HKDF-derive three 32-byte values: a tokenid,
+ *      an authKey and a bundleKey.
+ *
+ *    - The tokenid/authKey pair can be used as part of a request-signing
+ *      authentication scheme.
+ *
+ *    - The bundleKey can be used to encrypt data as part of the request.
+ *
+ *    - The token may have additional metadata details such as uid or email,
+ *      which are specific to the type of token.
+ *
+ */
 
-  function Token() {
-    this.id = null
-    this.hmacKey = null
-    this.xorKey = null
-    this._key = null
+module.exports = function (log, crypto, P, hkdf, Bundle, error) {
+
+  // Token constructor.
+  // 
+  // This directly populates the token from its keys and metadata details.
+  // You probably want to call a helper rather than use this directly.
+  //
+  function Token(keys, details) {
+    this.data = keys.data
+    this.id = keys.id
+    this.authKey = keys.authKey
+    this.bundleKey = keys.bundleKey
     this.algorithm = 'sha256'
-    this.uid = null
-    this.data = null
+    this.uid = details.uid || null
   }
 
-  Token.hkdf = hkdf
-
-  Token.random32Bytes = function () {
+  // Create a new token of the given type.
+  // This uses randomly-generated seed data to derive the keys.
+  //
+  Token.createNewToken = function(TokenType, details) {
     var d = P.defer()
     // capturing the domain here is a workaround for:
     // https://github.com/joyent/node/issues/3965
@@ -1959,13 +1934,81 @@ module.exports = function (log, crypto, P, hkdf, error) {
       32,
       function (err, bytes) {
         if (domain) domain.enter()
-        var x = err ? d.reject(err) : d.resolve(bytes)
+        if (err) {
+          d.reject(err)
+        } else {
+          Token.deriveTokenKeys(TokenType, bytes)
+            .then(
+              function (keys) {
+                d.resolve(new TokenType(keys, details || {}))
+              }
+            )
+            .fail(
+              function (err) {
+                d.reject(err)
+              }
+            )
+        }
         if (domain) domain.exit()
-        return x
       }
     )
     return d.promise
   }
+
+
+  // Re-create an existing token of the given type.
+  // This uses known seed data to derive the keys.
+  //
+  Token.createTokenFromHexData = function(TokenType, hexData, details) {
+    var d = P.defer()
+    var data = Buffer(hexData, 'hex')
+    Token.deriveTokenKeys(TokenType, data)
+      .then(
+        function (keys) {
+          d.resolve(new TokenType(keys, details || {}))
+        }
+      )
+      .fail(
+        function (err) {
+          d.reject(err)
+        }
+      )
+    return d.promise
+  }
+
+
+  // Derive tokenid, authKey and bundleKey from token seed data.
+  //
+  Token.deriveTokenKeys = function (TokenType, data) {
+    return hkdf(data, TokenType.tokenTypeID, null, 3 * 32)
+      .then(
+        function (keyMaterial) {
+          return {
+            data: data.toString('hex'),
+            id: keyMaterial.slice(0, 32).toString('hex'),
+            authKey: keyMaterial.slice(32, 64).toString('hex'),
+            bundleKey: keyMaterial.slice(64, 96).toString('hex')
+          }
+        }
+      )
+  }
+
+
+  // Convenience method to bundle a payload using token bundleKey.
+  //
+  Token.prototype.bundle = function(keyInfo, payload) {
+    log.trace({ op: 'Token.bundle' })
+    return Bundle.bundle(Buffer(this.bundleKey, 'hex'), keyInfo, payload)
+  }
+
+
+  // Convenience method to unbundle a payload using token bundleKey.
+  //
+  Token.prototype.unbundle = function(keyInfo, payload) {
+    log.trace({ op: 'Token.unbundle' })
+    return Bundle.unbundle(Buffer(this.bundleKey, 'hex'), keyInfo, payload)
+  }
+
 
   // `token.key` is used by Hawk, and should be a Buffer.
   // We store the hex-string so a getter is convenient
@@ -1973,88 +2016,15 @@ module.exports = function (log, crypto, P, hkdf, error) {
     Token.prototype,
     'key',
     {
-      get: function () { return Buffer(this._key, 'hex') },
-      set: function (x) { this._key = x.toString('hex') }
+      get: function () { return Buffer(this.authKey, 'hex') },
+      set: function (x) { this.authKey = x.toString('hex') }
     }
   )
-
-  Token.randomTokenData = function (info, size) {
-    return Token.random32Bytes()
-      .then(Token.tokenDataFromBytes.bind(null, info, size))
-  }
-
-  Token.tokenDataFromBytes = function (info, size, bytes) {
-    return hkdf(bytes, info, null, size)
-      .then(
-        function (key) {
-          return [bytes, key]
-        }
-      )
-  }
-
-  Token.createFromHKDF = function (km, info) {
-    return hkdf(km, info, null, 2 * 32)
-      .then(
-        function (key) {
-          var t = new Token()
-          t.hmacKey = key.slice(0, 32).toString('hex')
-          t.xorKey = key.slice(32, 64).toString('hex')
-          return t
-        }
-      )
-  }
-
-  Token.prototype.unbundle = function (hex) {
-    log.trace({ op: 'Token.unbundle' })
-    var b = Buffer(hex, 'hex')
-    var ciphertext = b.slice(0, 32)
-    var hmac = b.slice(32, 64)
-    if (this.hmac(ciphertext).toString('hex') !== hmac.toString('hex')) {
-      throw error.invalidSignature()
-    }
-    var plaintext = this.xor(ciphertext)
-    return plaintext.slice(0, 32).toString('hex')
-  }
-
-  Token.prototype.hmac = function (buffer) {
-    var hmac = crypto.createHmac('sha256', Buffer(this.hmacKey, 'hex'))
-    hmac.update(buffer)
-    return hmac.digest()
-  }
-
-  Token.prototype.appendHmac = function (buffer) {
-    return Buffer.concat([buffer, this.hmac(buffer)])
-  }
-
-  Token.prototype.xor = function (buffer) {
-    var xorBuffer = Buffer(this.xorKey, 'hex')
-    if (buffer.length !== xorBuffer.length) {
-      throw new Error(
-        'XOR buffers must be same length %d != %d',
-        buffer.length,
-        xorBuffer.length
-      )
-    }
-    var result = Buffer(xorBuffer.length)
-    for (var i = 0; i < xorBuffer.length; i++) {
-      result[i] = buffer[i] ^ xorBuffer[i]
-    }
-    return result
-  }
-
-  function hexToBuffer(string) {
-    return Buffer(string, 'hex')
-  }
-
-  Token.prototype.bundleHexStrings = function (hexStrings) {
-    var ciphertext = this.xor(Buffer.concat(hexStrings.map(hexToBuffer)))
-    return this.appendHmac(ciphertext).toString('hex')
-  }
 
   return Token
 }
 
-},{"__browserify_Buffer":4,"__browserify_process":74}],"xttfNN":[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":76}],"xttfNN":[function(require,module,exports){
 var jsbn = require('jsbn');
 var Buffer = require('buffer').Buffer;
 
@@ -2151,7 +2121,7 @@ Object.keys(BigNum.prototype).forEach(function (name) {
     };
 });
 
-},{"buffer":"IZihkv","jsbn":21}],21:[function(require,module,exports){
+},{"buffer":"IZihkv","jsbn":22}],22:[function(require,module,exports){
 (function(){
     
     // Copyright (c) 2005  Tom Wu
@@ -3764,9 +3734,9 @@ function b64_enc (data) {
     return enc;
 }
 
-},{}],23:[function(require,module,exports){
-
 },{}],24:[function(require,module,exports){
+
+},{}],25:[function(require,module,exports){
 // UTILITY
 var util = require('util');
 var Buffer = require("buffer").Buffer;
@@ -4080,9 +4050,9 @@ assert.doesNotThrow = function(block, /*optional*/error, /*optional*/message) {
 
 assert.ifError = function(err) { if (err) {throw err;}};
 
-},{"buffer":"IZihkv","util":32}],25:[function(require,module,exports){
+},{"buffer":"IZihkv","util":33}],26:[function(require,module,exports){
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var process=require("__browserify_process");if (!process.EventEmitter) process.EventEmitter = function () {};
 
 var EventEmitter = exports.EventEmitter = process.EventEmitter;
@@ -4278,10 +4248,10 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":74}],27:[function(require,module,exports){
+},{"__browserify_process":76}],28:[function(require,module,exports){
 // nothing to see here... no file methods for the browser
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 var process=require("__browserify_process");function filter (xs, fn) {
     var res = [];
     for (var i = 0; i < xs.length; i++) {
@@ -4460,7 +4430,7 @@ exports.relative = function(from, to) {
 
 exports.sep = '/';
 
-},{"__browserify_process":74}],29:[function(require,module,exports){
+},{"__browserify_process":76}],30:[function(require,module,exports){
 
 /**
  * Object#toString() ref for stringify().
@@ -4779,7 +4749,7 @@ function decode(str) {
   }
 }
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 var events = require('events');
 var util = require('util');
 
@@ -4900,7 +4870,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":26,"util":32}],31:[function(require,module,exports){
+},{"events":27,"util":33}],32:[function(require,module,exports){
 var punycode = { encode : function (s) { return s } };
 
 exports.parse = urlParse;
@@ -5506,7 +5476,7 @@ function parseHost(host) {
   return out;
 }
 
-},{"querystring":29}],32:[function(require,module,exports){
+},{"querystring":30}],33:[function(require,module,exports){
 var events = require('events');
 
 exports.isArray = isArray;
@@ -5853,7 +5823,7 @@ exports.format = function(f) {
   return str;
 };
 
-},{"events":26}],33:[function(require,module,exports){
+},{"events":27}],34:[function(require,module,exports){
 var http = module.exports;
 var EventEmitter = require('events').EventEmitter;
 var Request = require('./lib/request');
@@ -5915,7 +5885,7 @@ var xhrHttp = (function () {
     }
 })();
 
-},{"./lib/request":34,"events":26}],34:[function(require,module,exports){
+},{"./lib/request":35,"events":27}],35:[function(require,module,exports){
 var Stream = require('stream');
 var Response = require('./response');
 var concatStream = require('concat-stream');
@@ -6049,7 +6019,7 @@ var indexOf = function (xs, x) {
     return -1;
 };
 
-},{"./response":35,"Base64":36,"concat-stream":37,"stream":30,"util":32}],35:[function(require,module,exports){
+},{"./response":36,"Base64":37,"concat-stream":38,"stream":31,"util":33}],36:[function(require,module,exports){
 var Stream = require('stream');
 var util = require('util');
 
@@ -6171,7 +6141,7 @@ var isArray = Array.isArray || function (xs) {
     return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{"stream":30,"util":32}],36:[function(require,module,exports){
+},{"stream":31,"util":33}],37:[function(require,module,exports){
 ;(function () {
 
   var
@@ -6228,7 +6198,7 @@ var isArray = Array.isArray || function (xs) {
 
 }());
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 var stream = require('stream')
 var bops = require('bops')
 var util = require('util')
@@ -6279,7 +6249,7 @@ module.exports = function(cb) {
 
 module.exports.ConcatStream = ConcatStream
 
-},{"bops":38,"stream":30,"util":32}],38:[function(require,module,exports){
+},{"bops":39,"stream":31,"util":33}],39:[function(require,module,exports){
 var proto = {}
 module.exports = proto
 
@@ -6300,7 +6270,7 @@ function mix(from, into) {
   }
 }
 
-},{"./copy.js":41,"./create.js":42,"./from.js":43,"./is.js":44,"./join.js":45,"./read.js":47,"./subarray.js":48,"./to.js":49,"./write.js":50}],39:[function(require,module,exports){
+},{"./copy.js":42,"./create.js":43,"./from.js":44,"./is.js":45,"./join.js":46,"./read.js":48,"./subarray.js":49,"./to.js":50,"./write.js":51}],40:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -6386,7 +6356,7 @@ function mix(from, into) {
 	module.exports.fromByteArray = uint8ToBase64;
 }());
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 module.exports = to_utf8
 
 var out = []
@@ -6461,7 +6431,7 @@ function reduced(list) {
   return out
 }
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module.exports = copy
 
 var slice = [].slice
@@ -6515,12 +6485,12 @@ function slow_copy(from, to, j, i, jend) {
   }
 }
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = function(size) {
   return new Uint8Array(size)
 }
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports = from
 
 var base64 = require('base64-js')
@@ -6580,13 +6550,13 @@ function from_base64(str) {
   return new Uint8Array(base64.toByteArray(str)) 
 }
 
-},{"base64-js":39}],44:[function(require,module,exports){
+},{"base64-js":40}],45:[function(require,module,exports){
 
 module.exports = function(buffer) {
   return buffer instanceof Uint8Array;
 }
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module.exports = join
 
 function join(targets, hint) {
@@ -6624,7 +6594,7 @@ function get_length(targets) {
   return size
 }
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var proto
   , map
 
@@ -6646,7 +6616,7 @@ function get(target) {
   return out
 }
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = {
     readUInt8:      read_uint8
   , readInt8:       read_int8
@@ -6735,14 +6705,14 @@ function read_double_be(target, at) {
   return dv.getFloat64(at + target.byteOffset, false)
 }
 
-},{"./mapped.js":46}],48:[function(require,module,exports){
+},{"./mapped.js":47}],49:[function(require,module,exports){
 module.exports = subarray
 
 function subarray(buf, from, to) {
   return buf.subarray(from || 0, to || buf.length)
 }
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 module.exports = to
 
 var base64 = require('base64-js')
@@ -6780,7 +6750,7 @@ function to_base64(buf) {
 }
 
 
-},{"base64-js":39,"to-utf8":40}],50:[function(require,module,exports){
+},{"base64-js":40,"to-utf8":41}],51:[function(require,module,exports){
 module.exports = {
     writeUInt8:      write_uint8
   , writeInt8:       write_int8
@@ -6868,7 +6838,7 @@ function write_double_be(target, value, at) {
   return dv.setFloat64(at + target.byteOffset, value, false)
 }
 
-},{"./mapped.js":46}],51:[function(require,module,exports){
+},{"./mapped.js":47}],52:[function(require,module,exports){
 exports.readIEEE754 = function(buffer, offset, isBE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -7252,14 +7222,28 @@ Buffer.prototype.write = function(string, offset, length, encoding) {
 
 // slice(start, end)
 Buffer.prototype.slice = function(start, end) {
-  if (end === undefined) end = this.length;
+  var len = this.length;
+  start = ~~start;
+  end = end === undefined ? len : ~~end;
 
-  if (end > this.length) {
-    throw new Error('oob');
+  if (start < 0) {
+    start += len;
+    if (start < 0)
+      start = 0;
+  } else if (start > len) {
+    start = len;
   }
-  if (start > end) {
-    throw new Error('oob');
+
+  if (end < 0) {
+    end += len;
+    if (end < 0)
+      end = 0;
+  } else if (end > len) {
+    end = len;
   }
+
+  if (end < start)
+    end = start;
 
   return new Buffer(this, end - start, +start);
 };
@@ -8042,7 +8026,7 @@ Buffer.prototype.writeDoubleBE = function(value, offset, noAssert) {
   writeDouble(this, value, offset, true, noAssert);
 };
 
-},{"./buffer_ieee754":51,"assert":24,"base64-js":53}],53:[function(require,module,exports){
+},{"./buffer_ieee754":52,"assert":25,"base64-js":54}],54:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -8255,7 +8239,7 @@ each(['createCredentials'
   }
 })
 
-},{"./rng":55,"./sha256":56,"buffer":"IZihkv"}],55:[function(require,module,exports){
+},{"./rng":56,"./sha256":57,"buffer":"IZihkv"}],56:[function(require,module,exports){
 // Original code adapted from Robert Kieffer.
 // details at https://github.com/broofa/node-uuid
 (function() {
@@ -8293,7 +8277,7 @@ each(['createCredentials'
 
 }())
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var sjcl = require('sjcl');
 var bytes = require('sjcl-codec-bytes');
 var Buffer = require('buffer').Buffer;
@@ -8376,9 +8360,72 @@ exports.hmac_base64 = hmac_base64;
 exports.hmac_buffer = hmac_buffer;
 exports.hmac_binary = hmac_binary;
 
-},{"buffer":"IZihkv","sjcl":77,"sjcl-codec-bytes":76}],57:[function(require,module,exports){
+},{"buffer":"IZihkv","sjcl":79,"sjcl-codec-bytes":78}],58:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":60}],58:[function(require,module,exports){
+},{"./lib":63}],59:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");//
+// a straightforward implementation of HKDF
+//
+// https://tools.ietf.org/html/rfc5869
+//
+
+var crypto = require("crypto");
+
+function zeros(length) {
+  var buf = new Buffer(length);
+
+  buf.fill(0);
+
+  return buf.toString();
+}
+// imk is initial keying material
+function HKDF(hashAlg, salt, ikm) {
+  this.hashAlg = hashAlg;
+
+  // create the hash alg to see if it exists and get its length
+  var hash = crypto.createHash(this.hashAlg);
+  this.hashLength = hash.digest().length;
+
+  this.salt = salt || zeros(this.hashLength);
+  this.ikm = ikm;
+
+  // now we compute the PRK
+  var hmac = crypto.createHmac(this.hashAlg, this.salt);
+  hmac.update(this.ikm);
+  this.prk = hmac.digest();
+}
+
+HKDF.prototype = {
+  derive: function(info, size, cb) {
+    var prev = new Buffer(0);
+    var output;
+    var buffers = [];
+    var num_blocks = Math.ceil(size / this.hashLength);
+    info = new Buffer(info);
+
+    for (var i=0; i<num_blocks; i++) {
+      var hmac = crypto.createHmac(this.hashAlg, this.prk);
+      // XXX is there a more optimal way to build up buffers?
+      var input = Buffer.concat([
+        prev,
+        info,
+        new Buffer(String.fromCharCode(i + 1))
+      ]);
+      hmac.update(input);
+      prev = hmac.digest();
+      buffers.push(prev);
+    }
+    output = Buffer.concat(buffers, size);
+
+    process.nextTick(function() {cb(output);});
+  }
+};
+
+module.exports = HKDF;
+
+},{"__browserify_Buffer":4,"__browserify_process":76,"crypto":"l4eWKl"}],"request":[function(require,module,exports){
+module.exports=require('hWH+d8');
+},{}],61:[function(require,module,exports){
 // Load modules
 
 var Url = require('url');
@@ -8751,7 +8798,7 @@ exports.message = function (host, port, message, options) {
 
 
 
-},{"./crypto":59,"./utils":62,"cryptiles":65,"hoek":67,"url":31}],59:[function(require,module,exports){
+},{"./crypto":62,"./utils":65,"cryptiles":68,"hoek":70,"url":32}],62:[function(require,module,exports){
 // Load modules
 
 var Crypto = require('crypto');
@@ -8871,7 +8918,7 @@ exports.timestampMessage = function (credentials, localtimeOffsetMsec) {
     return { ts: now, tsm: tsm };
 };
 
-},{"./utils":62,"crypto":"l4eWKl","url":31}],60:[function(require,module,exports){
+},{"./utils":65,"crypto":"l4eWKl","url":32}],63:[function(require,module,exports){
 // Export sub-modules
 
 exports.error = exports.Error = require('boom');
@@ -8888,7 +8935,7 @@ exports.uri = {
 };
 
 
-},{"./client":58,"./crypto":59,"./server":61,"./utils":62,"boom":63,"sntp":70}],61:[function(require,module,exports){
+},{"./client":61,"./crypto":62,"./server":64,"./utils":65,"boom":66,"sntp":73}],64:[function(require,module,exports){
 // Load modules
 
 var Boom = require('boom');
@@ -9413,7 +9460,7 @@ exports.authenticateMessage = function (host, port, message, authorization, cred
     });
 };
 
-},{"./crypto":59,"./utils":62,"boom":63,"cryptiles":65,"hoek":67}],62:[function(require,module,exports){
+},{"./crypto":62,"./utils":65,"boom":66,"cryptiles":68,"hoek":70}],65:[function(require,module,exports){
 var __dirname="/node_modules/hawk/lib";// Load modules
 
 var Hoek = require('hoek');
@@ -9598,9 +9645,9 @@ exports.unauthorized = function (message) {
 };
 
 
-},{"boom":63,"hoek":67,"sntp":70}],63:[function(require,module,exports){
+},{"boom":66,"hoek":70,"sntp":73}],66:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":64}],64:[function(require,module,exports){
+},{"./lib":67}],67:[function(require,module,exports){
 // Load modules
 
 var Http = require('http');
@@ -9931,9 +9978,9 @@ internals.Boom.passThrough = function (code, payload, contentType, headers) {
 
 
 
-},{"hoek":67,"http":33,"util":32}],65:[function(require,module,exports){
+},{"hoek":70,"http":34,"util":33}],68:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":66}],66:[function(require,module,exports){
+},{"./lib":69}],69:[function(require,module,exports){
 // Load modules
 
 var Crypto = require('crypto');
@@ -10003,9 +10050,9 @@ exports.fixedTimeComparison = function (a, b) {
 
 
 
-},{"boom":63,"crypto":"l4eWKl"}],67:[function(require,module,exports){
+},{"boom":66,"crypto":"l4eWKl"}],70:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":69}],68:[function(require,module,exports){
+},{"./lib":72}],71:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;// Declare internals
 
 var internals = {};
@@ -10138,7 +10185,7 @@ internals.safeCharCodes = (function () {
 
     return safe;
 }());
-},{"__browserify_Buffer":4}],69:[function(require,module,exports){
+},{"__browserify_Buffer":4}],72:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");// Load modules
 
 var Fs = require('fs');
@@ -10756,9 +10803,9 @@ exports.readStream = function (stream, callback) {
     });
 };
 
-},{"./escape":68,"__browserify_Buffer":4,"__browserify_process":74,"fs":27,"path":28}],70:[function(require,module,exports){
+},{"./escape":71,"__browserify_Buffer":4,"__browserify_process":76,"fs":28,"path":29}],73:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":71}],71:[function(require,module,exports){
+},{"./lib":74}],74:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");// Load modules
 
 var Dgram = require('dgram');
@@ -11174,70 +11221,9 @@ internals.ignore = function () {
 
 };
 
-},{"__browserify_Buffer":4,"__browserify_process":74,"dgram":25,"dns":23,"hoek":67}],72:[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":76,"dgram":26,"dns":24,"hoek":70}],75:[function(require,module,exports){
 module.exports = require("./lib/hkdf");
-},{"./lib/hkdf":73}],73:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");//
-// a straightforward implementation of HKDF
-//
-// https://tools.ietf.org/html/rfc5869
-//
-
-var crypto = require("crypto");
-
-function zeros(length) {
-  var buf = new Buffer(length);
-
-  buf.fill(0);
-
-  return buf.toString();
-}
-// imk is initial keying material
-function HKDF(hashAlg, salt, ikm) {
-  this.hashAlg = hashAlg;
-
-  // create the hash alg to see if it exists and get its length
-  var hash = crypto.createHash(this.hashAlg);
-  this.hashLength = hash.digest().length;
-
-  this.salt = salt || zeros(this.hashLength);
-  this.ikm = ikm;
-
-  // now we compute the PRK
-  var hmac = crypto.createHmac(this.hashAlg, this.salt);
-  hmac.update(this.ikm);
-  this.prk = hmac.digest();
-}
-
-HKDF.prototype = {
-  derive: function(info, size, cb) {
-    var prev = new Buffer(0);
-    var output;
-    var buffers = [];
-    var num_blocks = Math.ceil(size / this.hashLength);
-    info = new Buffer(info);
-
-    for (var i=0; i<num_blocks; i++) {
-      var hmac = crypto.createHmac(this.hashAlg, this.prk);
-      // XXX is there a more optimal way to build up buffers?
-      var input = Buffer.concat([
-        prev,
-        info,
-        new Buffer(String.fromCharCode(i + 1))
-      ]);
-      hmac.update(input);
-      prev = hmac.digest();
-      buffers.push(prev);
-    }
-    output = Buffer.concat(buffers, size);
-
-    process.nextTick(function() {cb(output);});
-  }
-};
-
-module.exports = HKDF;
-
-},{"__browserify_Buffer":4,"__browserify_process":74,"crypto":"l4eWKl"}],74:[function(require,module,exports){
+},{"./lib/hkdf":59}],76:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -11291,7 +11277,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],75:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 var process=require("__browserify_process");/*!
  * Copyright 2013 Robert Katić
  * Released under the MIT license
@@ -11730,7 +11716,7 @@ var process=require("__browserify_process");/*!
 	return P;
 });
 
-},{"__browserify_process":74}],76:[function(require,module,exports){
+},{"__browserify_process":76}],78:[function(require,module,exports){
 /** @fileOverview Bit array codec implementations.
  *
  * @author Emily Stark
@@ -11771,7 +11757,7 @@ module.exports = {
   }
 };
 
-},{"sjcl":77}],77:[function(require,module,exports){
+},{"sjcl":79}],79:[function(require,module,exports){
 "use strict";function q(a){throw a;}var t=void 0,u=!1;var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
 "undefined"!=typeof module&&module.exports&&(module.exports=sjcl);
 sjcl.cipher.aes=function(a){this.j[0][0][0]||this.D();var b,c,d,e,f=this.j[0][4],g=this.j[1];b=a.length;var h=1;4!==b&&(6!==b&&8!==b)&&q(new sjcl.exception.invalid("invalid aes key size"));this.a=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
@@ -11822,12 +11808,18 @@ q(new sjcl.exception.invalid("json encode: invalid property name")),c+=d+'"'+b+'
 b){var c={},d;for(d in a)a.hasOwnProperty(d)&&a[d]!==b[d]&&(c[d]=a[d]);return c},W:function(a,b){var c={},d;for(d=0;d<b.length;d++)a[b[d]]!==t&&(c[b[d]]=a[b[d]]);return c}};sjcl.encrypt=sjcl.json.encrypt;sjcl.decrypt=sjcl.json.decrypt;sjcl.misc.V={};
 sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.V,d;b=b||{};d=b.iter||1E3;c=c[a]=c[a]||{};d=c[d]=c[d]||{firstSalt:b.salt&&b.salt.length?b.salt.slice(0):sjcl.random.randomWords(2,0)};c=b.salt===t?d.firstSalt:b.salt;d[c]=d[c]||sjcl.misc.pbkdf2(a,c,b.iter);return{key:d[c].slice(0),salt:c.slice(0)}};
 
-},{"crypto":"l4eWKl"}],78:[function(require,module,exports){
+},{"crypto":"l4eWKl"}],"crypto":[function(require,module,exports){
+module.exports=require('l4eWKl');
+},{}],"bignum":[function(require,module,exports){
+module.exports=require('xttfNN');
+},{}],"buffer":[function(require,module,exports){
+module.exports=require('IZihkv');
+},{}],83:[function(require,module,exports){
 module.exports = require('./lib/srp');
 
 module.exports.params = require('./lib/params');
 
-},{"./lib/params":79,"./lib/srp":80}],79:[function(require,module,exports){
+},{"./lib/params":84,"./lib/srp":85}],84:[function(require,module,exports){
 /*
  * SRP Group Parameters
  * http://tools.ietf.org/html/rfc5054#appendix-A
@@ -12008,7 +12000,7 @@ module.exports = {
     hash: 'sha256'}
 };
 
-},{"bignum":"xttfNN"}],80:[function(require,module,exports){
+},{"bignum":"xttfNN"}],85:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;const crypto = require('crypto'),
       bignum = require('bignum'),
       assert = require('assert');
@@ -12419,7 +12411,7 @@ module.exports = {
   Server: Server
 };
 
-},{"./params":79,"__browserify_Buffer":4,"assert":24,"bignum":"xttfNN","crypto":"l4eWKl"}],81:[function(require,module,exports){
+},{"./params":84,"__browserify_Buffer":4,"assert":25,"bignum":"xttfNN","crypto":"l4eWKl"}],86:[function(require,module,exports){
 var global=self;
 var rng;
 
@@ -12452,7 +12444,7 @@ if (!rng) {
 module.exports = rng;
 
 
-},{}],82:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;//     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -12641,13 +12633,5 @@ uuid.BufferClass = BufferClass;
 
 module.exports = uuid;
 
-},{"./rng":81,"__browserify_Buffer":4}],"request":[function(require,module,exports){
-module.exports=require('hWH+d8');
-},{}],"crypto":[function(require,module,exports){
-module.exports=require('l4eWKl');
-},{}],"bignum":[function(require,module,exports){
-module.exports=require('xttfNN');
-},{}],"buffer":[function(require,module,exports){
-module.exports=require('IZihkv');
-},{}]},{},[1])
+},{"./rng":86,"__browserify_Buffer":4}]},{},[1])
 ;
