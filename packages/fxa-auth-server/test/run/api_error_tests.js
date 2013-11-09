@@ -1,15 +1,15 @@
 var test = require('tap').test
-var cp = require('child_process')
+var TestServer = require('../test_server')
 var crypto = require('crypto')
 var config = require('../../config').root()
 var Client = require('../../client')
 
 process.env.DEV_VERIFIED = 'true'
-var server = null
 
 function fail() { throw new Error() }
 
-function main() {
+TestServer.start(config.public_url)
+.then(function main(server) {
 
 	test(
 		'/certificate/sign inputs',
@@ -86,43 +86,8 @@ function main() {
  test(
     'teardown',
     function (t) {
-      if (server) server.kill('SIGINT')
+      server.stop()
       t.end()
     }
   )
-}
-
-function startServer() {
-  var server = cp.spawn(
-    'node',
-    ['../../bin/key_server.js'],
-    {
-      cwd: __dirname
-    }
-  )
-
-  server.stdout.on('data', process.stdout.write.bind(process.stdout))
-  server.stderr.on('data', process.stderr.write.bind(process.stderr))
-  return server
-}
-
-function waitLoop() {
-  Client.Api.heartbeat(config.public_url)
-    .done(
-      main,
-      function (err) {
-        if (err.errno !== 'ECONNREFUSED') {
-            console.log("ERROR: unexpected result from " + config.public_url);
-            console.log(err);
-            return err;
-        }
-        if (!server) {
-          server = startServer()
-        }
-        console.log('waiting...')
-        setTimeout(waitLoop, 100)
-      }
-    )
-}
-
-waitLoop()
+})
