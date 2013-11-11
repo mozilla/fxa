@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
-var cp = require('child_process')
+var TestServer = require('../test_server')
 var path = require('path')
 var P = require('p-promise')
 var Client = require('../../client')
@@ -18,7 +18,8 @@ function uniqueID() {
   return crypto.randomBytes(10).toString('hex');
 }
 
-function main() {
+TestServer.start(config.public_url)
+.done(function main(server) {
 
   test(
     'create account',
@@ -359,11 +360,11 @@ function main() {
     'teardown',
     function (t) {
       mail.stop()
-      server.kill('SIGINT')
+      server.stop()
       t.end()
     }
   )
-}
+})
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -425,39 +426,6 @@ function waitForCode(email) {
   loop()
   return d.promise
 }
-
-var server = null
-
-function startServer() {
-  var server = cp.spawn(
-    'node',
-    ['../../bin/key_server.js'],
-    {
-      cwd: __dirname
-    }
-  )
-
-  server.stdout.on('data', process.stdout.write.bind(process.stdout))
-  server.stderr.on('data', process.stderr.write.bind(process.stderr))
-  return server
-}
-
-function waitLoop() {
-  Client.Api.heartbeat(config.public_url)
-    .done(
-      main,
-      function (err) {
-        if (!server) {
-          server = startServer()
-        }
-        console.log('waiting...')
-        setTimeout(waitLoop, 100)
-      }
-    )
-}
-
-waitLoop()
-
 
 function resetPassword(client, code, newPassword) {
   return client.verifyPasswordResetCode(code)

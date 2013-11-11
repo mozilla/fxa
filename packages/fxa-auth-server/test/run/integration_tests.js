@@ -3,20 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
-var cp = require('child_process')
-var crypto = require('crypto');
+var crypto = require('crypto')
 var Client = require('../../client')
 var config = require('../../config').root()
+var TestServer = require('../test_server')
 
 process.env.DEV_VERIFIED = 'true'
-
-var server = null
 
 function uniqueID() {
   return crypto.randomBytes(10).toString('hex');
 }
 
-function main() {
+TestServer.start(config.public_url)
+.then(function main(server) {
 
   // Randomly-generated account names for testing.
   // This makes it easy to run the tests against an existing server
@@ -491,43 +490,8 @@ function main() {
   test(
     'teardown',
     function (t) {
-      if (server) server.kill('SIGINT')
+      server.stop()
       t.end()
     }
   )
-}
-
-function startServer() {
-  var server = cp.spawn(
-    'node',
-    ['../../bin/key_server.js'],
-    {
-      cwd: __dirname
-    }
-  )
-
-  server.stdout.on('data', process.stdout.write.bind(process.stdout))
-  server.stderr.on('data', process.stderr.write.bind(process.stderr))
-  return server
-}
-
-function waitLoop() {
-  Client.Api.heartbeat(config.public_url)
-    .done(
-      main,
-      function (err) {
-        if (err.errno !== 'ECONNREFUSED') {
-            console.log("ERROR: unexpected result from " + config.public_url);
-            console.log(err);
-            return err;
-        }
-        if (!server) {
-          server = startServer()
-        }
-        console.log('waiting...')
-        setTimeout(waitLoop, 100)
-      }
-    )
-}
-
-waitLoop()
+})
