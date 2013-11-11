@@ -11,3 +11,4 @@ secret*
 /loadtest/lib*
 /loadtest/include
 *~
+*.pyc

@@ -53,8 +53,8 @@ function getDummySRPVerifier(email) {
   var res = srp.computeVerifier(
     srp.params[2048],
     Buffer(DUMMY_CLIENT_CREDENTIALS.srp.salt, 'hex'),
-    Buffer(email),
-    Buffer(DUMMY_CLIENT_CREDENTIALS.srpPw)
+    Buffer(email, 'hex'),
+    Buffer(DUMMY_CLIENT_CREDENTIALS.srpPw, 'hex')
  );
  if (res.length < 256) {
    var tmp = res;
@@ -145,7 +145,7 @@ function runLoadTest(loadsSocket) {
   if (getRandomInt(1, 12) <= 2) {
     //  New user.
     //  Assume it doesnt exist and try to create; delete and retry if it does.
-    email = "loady" + uniqueID() + " @restmail.lcip.org";
+    email = "loadyR" + uniqueID() + " @restmail.lcip.org";
     client = getClient(email, loadsSocket);
     ready = client.create().fail(function(err) {
       if (err.code != 400 || err.errno != ERROR_ACCOUNT_EXISTS) {
@@ -160,7 +160,7 @@ function runLoadTest(loadsSocket) {
   } else {
     //  Existing user.
     //  Assume it exists and try to authentiate; create only if not exists.
-    email = "loady" + getRandomInt(1, 1000) + " @restmail.lcip.org";
+    email = "loadyF" + getRandomInt(1, 1000) + " @restmail.lcip.org";
     client = getClient(email, loadsSocket);
     ready = client.login().fail(function(err) {
       if (err.code != 400 || err.errno != ERROR_UNKNOWN_ACCOUNT) {

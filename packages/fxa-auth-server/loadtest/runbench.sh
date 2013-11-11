@@ -21,6 +21,11 @@ SSH_PID=$!
 
 # This depends on the agent boxes having picl-idp installed and built.
 # XXX TODO: better way to get the JS support code onto the agent boxes.
-./bin/loads-runner --users=20 --duration=300 --external-process-timeout=60 --broker=tcp://localhost:7780 --zmq-publisher=tcp://localhost:7776 --agents=5 --test-runner="/home/app/picl-idp/loadtest/lib/loads.js/loadsjs/runner.js {test}" "/home/app/picl-idp/loadtest/loadtests.js"
+
+# JavaScript runner:
+#./bin/loads-runner --users=20 --duration=300 --external-process-timeout=60 --broker=tcp://localhost:7780 --zmq-publisher=tcp://localhost:7776 --agents=5 --test-runner="/home/app/picl-idp/loadtest/lib/loads.js/loadsjs/runner.js {test}" "/home/app/picl-idp/loadtest/loadtests.js"
+
+# Python runner
+./bin/loads-runner --users=20 --duration=300 --broker=tcp://localhost:7780 --zmq-publisher=tcp://localhost:7776 --agents=5 loadtests.LoadTest.test_idp"
 
 kill $SSH_PID
