@@ -66,7 +66,8 @@ module.exports = function (log, isA, error, signer, domain) {
 
           signer.enqueue(
             {
-              email: sessionToken.uid + '@' + domain,
+              uid: sessionToken.uid,
+              email: sessionToken.email,
               publicKey: publicKey,
               duration: duration
             },
