@@ -606,6 +606,8 @@ Successful requests will produce a "200 OK" response with the "sessionToken" fie
 
 ```json
 {
+  "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
+  "verified": true,
   "sessionToken": "00ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a301"
 }
 ```
@@ -644,6 +646,8 @@ Successful requests will produce a "200 OK" response with the encrypted sessionT
 
 ```json
 {
+  "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
+  "verified": true,
   "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
 }
 ```
@@ -1206,4 +1210,4 @@ sample usage in [/client/example.js](/client/example.js)
 
 # /raw_password Discussion
 
-The motivation of this endpoint is to support near term, ambitious efforts to land Firefox Accounts on Firefox OS 1.3. Firefox OS devices are computationally, memory, and network constrained, and the development cycles are short and intense. It would be herculean effort to land FxA support by the feature complete deadline of 12/09/13, and this endpoint eliminates the near term need to land native SRP and key stretching functionality. It's not ideal, but users still get "first-class", key stretched, SRP enabled accounts, which doesn't preclude them from using the non-raw_password API in the future. Whether this API endpoint hits production remains to be seen. We'll know more by 12/09/13. 
+The motivation of this endpoint is to support near term, ambitious efforts to land Firefox Accounts on Firefox OS 1.3. Firefox OS devices are computationally, memory, and network constrained, and the development cycles are short and intense. It would be herculean effort to land FxA support by the feature complete deadline of 12/09/13, and this endpoint eliminates the near term need to land native SRP and key stretching functionality. It's not ideal, but users still get "first-class", key stretched, SRP enabled accounts, which doesn't preclude them from using the non-raw_password API in the future. Whether this API endpoint hits production remains to be seen. We'll know more by 12/09/13.

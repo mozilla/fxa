@@ -87,6 +87,8 @@ TestServer.start(config.public_url)
       clientApi.rawPasswordSessionCreate(email, password)
         .then(
           function (result) {
+            t.ok(result.uid, 'uid exists')
+            t.equal(result.verified, true, 'email verified')
             t.equal(typeof(result.sessionToken), 'string', 'sessionToken exists')
             t.end()
           }
@@ -232,6 +234,8 @@ TestServer.start(config.public_url)
         .then(
           function (x) {
             client = x
+            t.ok(client.uid, 'got a uid')
+            t.equal(client.verified, true, 'email is verified')
             return client.keys()
           }
         )

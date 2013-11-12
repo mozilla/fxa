@@ -6,6 +6,7 @@ module.exports = function (log, inherits, Token, error) {
 
   function AuthToken(keys, details) {
     Token.call(this, keys, details)
+    this.verified = !!details.verified
   }
   inherits(AuthToken, Token)
 

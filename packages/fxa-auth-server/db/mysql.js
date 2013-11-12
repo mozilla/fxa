@@ -351,7 +351,9 @@ module.exports = function (
   MySql.prototype.authToken = function (id) {
     var d = P.defer()
     log.trace({ op: 'MySql.authToken', id: id })
-    var sql = 'SELECT uid, tokendata FROM authTokens WHERE tokenid = ?'
+    var sql = 'SELECT t.uid, t.tokendata, a.verified' +
+              '  FROM authTokens t, accounts a' +
+              '  WHERE t.tokenid = ? AND t.uid = a.uid'
     this.client.query(
       sql,
       [id],

@@ -17,6 +17,7 @@ function Client(origin) {
   this.passwordSalt = null
   this.srp = null
   this.email = null
+  this.verified = false
   this.authToken = null
   this.sessionToken = null
   this.accountResetToken = null
@@ -128,6 +129,7 @@ Client.parse = function (string) {
   client.uid = object.uid
   client.email = object.email
   client.password = object.password
+  client.verified = !!object.verified
   client.srp = object.srp
   client.passwordSalt = object.passwordSalt
   client.passwordStretching = object.passwordStretching
@@ -279,6 +281,8 @@ Client.prototype.login = function (callback) {
     )
     .then (
       function (json) {
+        this.uid = json.uid
+        this.verified = json.verified
         return tokens.AuthToken.fromHex(this.authToken)
           .then(
           function (t) {

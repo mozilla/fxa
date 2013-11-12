@@ -32,6 +32,8 @@ module.exports = function (log, isA, error, db) {
             .then(
               function (bundle) {
                 return {
+                  uid: authToken.uid,
+                  verified: authToken.verified,
                   bundle: bundle
                 }
               }
