@@ -75,6 +75,8 @@ SRP_N = int('AC6BDB41 324A9A9B F166DE5E 1389582F AF72B665 1987EE07 FC319294' \
             '94B5C803 D89F7AE4 35DE236D 525F5475 9B65E372 FCD68EF2 0FA7111F'
             '9E4AFF73'.replace(' ', ''), 16)
 
+SRP_N_bitlength = 2048
+
 
 SRP_g = 2
 
@@ -312,7 +314,7 @@ class LoadTest(TestCase):
         while not A:
             a = bytes2int(os.urandom(32)) % SRP_N
             A = int2bytes(pow(SRP_g, a, SRP_N))
-        n = SRP_N.bit_length() / 8
+        n = SRP_N_bitlength / 8
         k = bytes2int(SRP_HASH(int2bytes(SRP_N, n) + int2bytes(SRP_g, n)))
         x = get_dummy_srp_x(binascii.unhexlify(self.credentials['email']))
         u = bytes2int(SRP_HASH(A + B))
