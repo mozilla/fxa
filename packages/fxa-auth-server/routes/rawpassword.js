@@ -22,7 +22,13 @@ module.exports = function (log, isA, error, public_url, Client) {
           )
           .done(
             function (client) {
-              return request.reply({ sessionToken: client.sessionToken })
+              return request.reply(
+                {
+                  uid: client.uid,
+                  verified: client.verified,
+                  sessionToken: client.sessionToken
+                }
+              )
             },
             function (err) {
               request.reply(error.wrap(err))
@@ -36,6 +42,8 @@ module.exports = function (log, isA, error, public_url, Client) {
           },
           response: {
             schema: {
+              uid: isA.String().required(),
+              verified: isA.Boolean().required(),
               sessionToken: isA.String().regex(HEX_STRING).required()
             }
           }

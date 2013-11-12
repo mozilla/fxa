@@ -186,6 +186,9 @@ module.exports = function (
     log.trace({ op: 'Heap.authToken', id: id })
     var authToken = this.authTokens[id]
     if (!authToken) { return P.reject(error.invalidToken()) }
+    var account = this.accounts[authToken.uid]
+    if (!account) { return P.reject(error.unknownAccount()) }
+    authToken.verified = account.verified
     return P(authToken)
   }
 
