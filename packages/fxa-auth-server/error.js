@@ -165,7 +165,7 @@ Boom.invalidTimestamp = function () {
     code: 401,
     errno: 111,
     message: 'Invalid timestamp in request signature',
-    serverTime: +new Date()
+    serverTime: +new Date() / 1000
   })
 }
 

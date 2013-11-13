@@ -73,7 +73,7 @@ The currently-defined error responses are:
 
 The follow error responses include additional parameters:
 
-* errno 111:  a `serverTime` parameter giving the current server time in milliseconds.
+* errno 111:  a `serverTime` parameter giving the current server time in seconds.
 
 
 ## Responses from Intermediary Servers
