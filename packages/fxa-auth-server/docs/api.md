@@ -71,6 +71,10 @@ The currently-defined error responses are:
 * status code 503, errno 201:  service temporarily unavailable to due high load (see backoff protocol)
 * any status code, errno 999:  unknown error
 
+The follow error responses include additional parameters:
+
+* errno 111:  a `serverTime` parameter giving the current server time in milliseconds.
+
 
 ## Responses from Intermediary Servers
 
