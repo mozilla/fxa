@@ -80,9 +80,7 @@ Client.prototype.setupCredentials = function (email, password, customSalt, custo
         this.srp = {}
         this.srp.type = 'SRP-6a/SHA256/2048/v1'
         this.srp.salt = customSrpSalt || crypto.randomBytes(32).toString('hex')
-        this.srp.algorithm = 'sha256'
-        this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw,
-                                     this.srp.algorithm)
+        this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw)
         this.passwordSalt = saltHex
       }.bind(this)
     )
@@ -125,12 +123,12 @@ Client.login = function (origin, email, password, callback) {
   }
 }
 
-Client.changePassword = function (origin, email, oldPassword, newPassword, resetWrapKb, callback) {
+Client.changePassword = function (origin, email, oldPassword, newPassword, callback) {
   var c = new Client(origin)
   c.email = Buffer(email).toString('hex')
   c.password = oldPassword
 
-  var p = c.changePassword(newPassword, resetWrapKb)
+  var p = c.changePassword(newPassword)
     .then(
       function () {
         return c
@@ -416,7 +414,7 @@ Client.prototype.sign = function (publicKey, duration, callback) {
   }
 }
 
-Client.prototype.changePassword = function (newPassword, resetWrapKb, callback) {
+Client.prototype.changePassword = function (newPassword, callback) {
   var p = this.auth()
     .then(
       function () {
@@ -465,8 +463,7 @@ Client.prototype.changePassword = function (newPassword, resetWrapKb, callback) 
       function (token) {
         this.srp.salt = crypto.randomBytes(32).toString('hex')
         this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw, this.srp.algorithm)
-        var wrapKb = resetWrapKb ? NULL : this.wrapKb
-        return token.bundleAccountData(wrapKb, this.srp.verifier)
+        return token.bundleAccountData(this.wrapKb, this.srp.verifier)
       }.bind(this)
     )
     .then(

@@ -28,7 +28,7 @@ module.exports = function (
   var session = require('./session')(log, isA, error, db)
   var sign = require('./sign')(log, isA, error, signer, config.domain)
   var util = require('./util')(log, crypto, isA, config.bridge)
-  var raw = require('./rawpassword')(log, isA, error, config.public_url, Client)
+  var raw = require('./rawpassword')(log, isA, error, config.public_url, Client, crypto)
 
   var v1Routes = [].concat(
     auth,

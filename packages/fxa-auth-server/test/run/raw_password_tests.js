@@ -121,7 +121,7 @@ TestServer.start(config.public_url)
       var email =  Buffer(email1).toString('hex')
       var password = 'allyourbasearebelongtous'
       var newPassword = 'wow'
-      clientApi.rawPasswordAccountReset(email, password, newPassword, false)
+      clientApi.rawPasswordPasswordChange(email, password, newPassword)
         .then(
           function (result) {
             t.equal(JSON.stringify(result), '{}', 'password changed')
