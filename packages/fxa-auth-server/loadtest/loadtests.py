@@ -1,5 +1,6 @@
 
 import os
+import copy
 import hmac
 import json
 import math
@@ -98,6 +99,7 @@ def get_dummy_srp_v(email):
     v = int2bytes(pow(SRP_g, x, SRP_N)).encode('hex')
     while len(v) < 512:
         v = "0" + v
+    assert len(v) == 512
     return v
 
 
@@ -109,6 +111,7 @@ def int2bytes(x, size=None):
     if size is not None:
         while len(hexbytes) < size * 2:
             hexbytes = "00" + hexbytes
+        assert len(hexbytes) == size * 2
     return binascii.unhexlify(hexbytes)
 
 
@@ -207,7 +210,7 @@ class LoadTest(TestCase):
 
     def setUp(self):
         super(LoadTest, self).setUp()
-        self.credentials = DUMMY_CREDENTIALS.copy()
+        self.credentials = copy.deepcopy(DUMMY_CREDENTIALS)
         self.tokens = {}
 
     def tearDown(self):
@@ -306,15 +309,14 @@ class LoadTest(TestCase):
         self.assertEqual(authdata['srp']['salt'],
                          self.credentials['srp']['salt'])
         # SRP mumbo-jumbo.  Should hand this off to a library...
-        B = binascii.unhexlify(authdata['srp']['B'])
-        self.assertTrue(bytes2int(B) > 0)
-        self.assertTrue(bytes2int(B) < SRP_N)
-        a = bytes2int(os.urandom(32)) % SRP_N
-        A = int2bytes(pow(SRP_g, a, SRP_N))
-        while not A:
-            a = bytes2int(os.urandom(32)) % SRP_N
-            A = int2bytes(pow(SRP_g, a, SRP_N))
         n = SRP_N_bitlength / 8
+        B = binascii.unhexlify(authdata['srp']['B'])
+        self.assertNotEqual(bytes2int(B) % SRP_N, 0)
+        a = bytes2int(os.urandom(32)) % SRP_N
+        A = int2bytes(pow(SRP_g, a, SRP_N), n)
+        while not bytes2int(A):
+            a = bytes2int(os.urandom(32)) % SRP_N
+            A = int2bytes(pow(SRP_g, a, SRP_N), n)
         k = bytes2int(SRP_HASH(int2bytes(SRP_N, n) + int2bytes(SRP_g, n)))
         x = get_dummy_srp_x(binascii.unhexlify(self.credentials['email']))
         u = bytes2int(SRP_HASH(A + B))
