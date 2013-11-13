@@ -341,6 +341,20 @@ ClientApi.prototype.rawPasswordSessionCreate = function (email, password) {
   )
 }
 
+ClientApi.prototype.rawPasswordAccountReset = function (email, oldPassword, newPassword, resetWrapKb) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/raw_password/account/reset',
+    null,
+    {
+      email: email,
+      oldPassword: oldPassword,
+      newPassword: newPassword,
+      resetWrapKb: resetWrapKb
+    }
+  )
+}
+
 ClientApi.heartbeat = function (origin) {
   return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
 }

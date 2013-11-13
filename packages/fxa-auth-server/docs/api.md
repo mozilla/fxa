@@ -100,6 +100,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 
 * RawPassword **REDUCED SECURITY**
     * [POST /v1/raw_password/account/create](#post-v1raw_passwordaccountcreate)
+    * [POST /v1/raw_password/account/reset](#post-v1raw_passwordaccountreset)
     * [POST /v1/raw_password/session/create](#post-v1raw_passwordsessioncreate)
 
 * Recovery Email
@@ -545,7 +546,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/account/create \
+http://idp.dev.lcip.org/v1/raw_password/account/create \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "password": "mySecurePassword"
@@ -573,6 +574,49 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 
 
+## POST /v1/raw_password/account/reset
+
+This resets the account password.
+
+___Parameters___
+
+* email - the primary email for this account (UTF-8 encoded, as hex)
+* oldPassword - the user's current plaintext password
+* newPassword - the user's new plaintext password
+
+### Request
+
+```sh
+curl -v \
+-X POST \
+-H "Host: idp.dev.lcip.org" \
+-H "Content-Type: application/json" \
+http://idp.dev.lcip.org/v1/raw_password/account/reset \
+-d '{
+  "email": "6d65406578616d706c652e636f6d",
+  "oldPassword": "123456",
+  "newPassword": "My_Old-Password-Got_Leaked!!1!"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with empty JSON body:
+
+```json
+{}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
+
+
 ## POST /v1/raw_password/session/create
 
 Not HAWK authenticated.
@@ -591,7 +635,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/rawPassword/auth \
+http://idp.dev.lcip.org/v1/rawPassword/session/create \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "password": "mySecurePassword"

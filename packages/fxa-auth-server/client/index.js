@@ -11,6 +11,8 @@ var keyStretch = require('./keystretch')
 var tokens = require('../tokens')({ trace: function () {}})
 var Bundle = tokens.Bundle
 
+var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
+
 function Client(origin) {
   this.uid = null
   this.api = new ClientApi(origin)
@@ -115,6 +117,25 @@ Client.login = function (origin, email, password, callback) {
       return c
     }
   )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
+Client.changePassword = function (origin, email, oldPassword, newPassword, resetWrapKb, callback) {
+  var c = new Client(origin)
+  c.email = Buffer(email).toString('hex')
+  c.password = oldPassword
+
+  var p = c.changePassword(newPassword, resetWrapKb)
+    .then(
+      function () {
+        return c
+      }
+    )
   if (callback) {
     p.done(callback.bind(null, null), callback)
   }
@@ -229,6 +250,8 @@ Client.prototype.auth = function (callback) {
           keyStretch.derive(Buffer(this.email, 'hex'), Buffer(this.password), session.passwordStretching.salt)
             .then(
               function (result) {
+                this.srp = {}
+                this.srp.type = 'SRP-6a/SHA256/2048/v1'
                 this.srpPw = result.srpPw.toString('hex')
                 this.unwrapBKey = result.unwrapBKey.toString('hex')
                 this.passwordSalt = session.passwordStretching.salt
@@ -393,7 +416,7 @@ Client.prototype.sign = function (publicKey, duration, callback) {
   }
 }
 
-Client.prototype.changePassword = function (newPassword, callback) {
+Client.prototype.changePassword = function (newPassword, resetWrapKb, callback) {
   var p = this.auth()
     .then(
       function () {
@@ -442,7 +465,8 @@ Client.prototype.changePassword = function (newPassword, callback) {
       function (token) {
         this.srp.salt = crypto.randomBytes(32).toString('hex')
         this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw, this.srp.algorithm)
-        return token.bundleAccountData(this.wrapKb, this.srp.verifier)
+        var wrapKb = resetWrapKb ? NULL : this.wrapKb
+        return token.bundleAccountData(wrapKb, this.srp.verifier)
       }.bind(this)
     )
     .then(
@@ -598,7 +622,7 @@ Client.prototype.resetPassword = function (newPassword, callback) {
     throw new Error("call verifyPasswordResetCode before calling resetPassword");
   }
   // this will generate a new wrapKb on the server
-  var wrapKb = '0000000000000000000000000000000000000000000000000000000000000000'
+  var wrapKb = NULL
   var p = this.setupCredentials(this.email, newPassword)
     .then(
       tokens.AccountResetToken.fromHex.bind(null, this.accountResetToken)

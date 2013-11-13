@@ -56,13 +56,6 @@ module.exports = function (log, isA, error, public_url, Client) {
       config: {
         description: 'Creates an account associated with an email address',
         tags: ['raw', 'account'],
-        validate: {
-          payload: {
-            // TODO: still need to validate the utf8 string is a valid email
-            email: isA.String().max(1024).regex(HEX_STRING).required(),
-            password: isA.String().required()
-          }
-        },
         handler: function accountCreate(request) {
           log.begin('RawPassword.accountCreate', request)
           var form = request.payload
@@ -79,6 +72,48 @@ module.exports = function (log, isA, error, public_url, Client) {
               request.reply(error.wrap(err))
             }
           )
+        },
+        validate: {
+          payload: {
+            // TODO: still need to validate the utf8 string is a valid email
+            email: isA.String().max(1024).regex(HEX_STRING).required(),
+            password: isA.String().required()
+          }
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/raw_password/account/reset',
+      config: {
+        description: 'Creates an account associated with an email address',
+        tags: ['raw', 'account'],
+        handler: function accountReset(request) {
+          log.begin('RawPassword.accountReset', request)
+          var form = request.payload
+          Client.changePassword(
+            public_url,
+            Buffer(form.email, 'hex').toString('utf8'),
+            form.oldPassword,
+            form.newPassword,
+            form.resetWrapKb
+          )
+          .done(
+            function (client) {
+              return request.reply({})
+            },
+            function (err) {
+              request.reply(error.wrap(err))
+            }
+          )
+        },
+        validate: {
+          payload: {
+            email: isA.String().max(1024).regex(HEX_STRING).required(),
+            oldPassword: isA.String().required(),
+            newPassword: isA.String().required(),
+            resetWrapKb: isA.Boolean()
+          }
         }
       }
     },
