@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var P = require('p-promise')
-var mysql = require('./mysql_wrapper')
+var mysql = require('mysql');
 var schema = require('fs').readFileSync(__dirname + '/schema.sql', { encoding: 'utf8'})
 
 module.exports = function (
@@ -19,7 +19,7 @@ module.exports = function (
   ) {
 
   function MySql(options) {
-    this.client = mysql.createClient(options)
+    this.client = mysql.createConnection(options)
   }
 
   // Don't look at me
@@ -27,13 +27,18 @@ module.exports = function (
     var d = P.defer()
     var dbname = options.database
     delete options.database
-    var client = mysql.createClient(options)
+    options.multipleStatements = true
+    var client = mysql.createConnection(options)
     client.query(
       'CREATE DATABASE IF NOT EXISTS ' + dbname,
       function (err) {
         if (err) return d.reject(err)
-        client.useDatabase(
-          dbname,
+        client.changeUser(
+          {
+            user     : options.user,
+            password : options.password,
+            database : dbname,
+          },
           function (err) {
             if (err) return d.reject(err)
             client.query(
@@ -48,7 +53,14 @@ module.exports = function (
                   }
                 )
                 options.database = dbname
-                return d.resolve(new MySql(options))
+                options.multipleStatements = false
+
+                // create the mysql class
+                var mysql = new MySql(options)
+                mysql.client.connect(function(err) {
+                  if (err) return d.reject(err)
+                  d.resolve(mysql)
+                })
               }
             )
           }
@@ -63,7 +75,14 @@ module.exports = function (
     if (options.create_schema) {
       return createSchema(options)
     }
-    return P(new MySql(options))
+
+    var d = P.defer()
+    var mysql = new MySql(options)
+    mysql.connect(function(err) {
+      if (err) return d.reject(err)
+      d.resolve(mysql)
+    })
+    return d.promise
   }
 
   MySql.prototype.close = function () {
