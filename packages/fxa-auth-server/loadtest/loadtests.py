@@ -321,7 +321,7 @@ class LoadTest(TestCase):
         x = get_dummy_srp_x(binascii.unhexlify(self.credentials['email']))
         u = bytes2int(SRP_HASH(A + B))
         s = bytes2int(B) - (k * pow(SRP_g, x, SRP_N))
-        S = int2bytes(pow(s, a + u * x, SRP_N))
+        S = int2bytes(pow(s, a + u * x, SRP_N), n)
         K = SRP_HASH(S)
         M = SRP_HASH(A + B + S)
         # Complete the srp handshake.
