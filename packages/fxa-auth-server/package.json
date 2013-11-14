@@ -23,7 +23,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "mysql": "0.9.6",
+    "mysql": "2.0.0-alpha9",
     "srp": "0.2.0",
     "uuid": "1.4.1",
     "hapi": "1.15.0",
