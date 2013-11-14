@@ -628,7 +628,7 @@ Failing requests may be due to the following errors:
 
 ## POST /v1/raw_password/password/change
 
-This changes the account password.
+This changes the account password. The encrypted "wrap(kB)" will remain unchanged. Use `/v1/raw_password/password/reset` to reset wrap(kB).
 
 ___Parameters___
 
