@@ -164,7 +164,8 @@ Boom.invalidTimestamp = function () {
   return Boom.wrap({
     code: 401,
     errno: 111,
-    message: 'Invalid timestamp in request signature'
+    message: 'Invalid timestamp in request signature',
+    serverTime: Math.floor(+new Date() / 1000)
   })
 }
 
