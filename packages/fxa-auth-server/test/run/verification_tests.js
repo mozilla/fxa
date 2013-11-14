@@ -250,6 +250,81 @@ TestServer.start(config.public_url)
   )
 
   test(
+    '/raw_password/password/reset forgot password',
+    function (t) {
+      var email = uniqueID() +'@example.com'
+      var password = 'allyourbasearebelongtous'
+      var newPassword = 'ez'
+      var wrapKb = null
+      var kA = null
+      var client = null
+      createFreshAccount(email, password)
+        .then(
+          function () {
+            return Client.login(config.public_url, email, password)
+          }
+        )
+        .then(
+          function (x) {
+            client = x
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            wrapKb = keys.wrapKb
+            kA = keys.kA
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            return client.verifyPasswordResetCode(code)
+          }
+        )
+        .then(
+          function () {
+            return client.api.rawPasswordPasswordReset(client.accountResetToken, newPassword)
+          }
+        )
+        .then( // make sure we can still login after password reset
+          function () {
+            return Client.login(config.public_url, email, newPassword)
+          }
+        )
+        .then(
+          function (x) {
+            client = x
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            t.equal(typeof(keys.kA), 'string', 'kA exists, login after password reset')
+            t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists, login after password reset')
+            t.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            t.equal(kA, keys.kA, 'kA was not reset')
+            t.equal(client.kB.length, 64, 'kB exists, has the right length')
+          }
+        )
+        .done(
+          function () {
+            t.end()
+          },
+          function (err) {
+            t.fail(err.message || err.error)
+            t.end()
+          }
+        )
+    }
+  )
+
+  test(
     'forgot password limits verify attempts',
     function (t) {
       var code = null

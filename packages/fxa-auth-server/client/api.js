@@ -363,7 +363,7 @@ ClientApi.prototype.rawPasswordPasswordReset = function (accountResetTokenHex, n
           this.baseURL + '/raw_password/password/reset',
           token,
           {
-            newPassword: bundle
+            newPassword: newPassword
           }
         )
       }.bind(this)

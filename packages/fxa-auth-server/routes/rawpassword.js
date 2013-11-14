@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, public_url, Client, crypto) {
+module.exports = function (log, isA, error, public_url, Client, crypto, db) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -137,7 +137,7 @@ module.exports = function (log, isA, error, public_url, Client, crypto) {
                 return client.setupCredentials(null, form.newPassword)
                   .then(
                     function () {
-                      var stretching = JSON.parse(account.passwordStretching)
+                      var stretching = account.passwordStretching
                       stretching.salt = client.passwordSalt
                       return {
                         srp: client.srp,
@@ -164,7 +164,6 @@ module.exports = function (log, isA, error, public_url, Client, crypto) {
         },
         validate: {
           payload: {
-            accountResetToken: isA.String().regex(HEX_STRING).required(),
             newPassword: isA.String().required()
           }
         }
