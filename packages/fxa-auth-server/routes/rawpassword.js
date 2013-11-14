@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, public_url, Client) {
+module.exports = function (log, isA, error, public_url, Client, crypto, db) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -56,13 +56,6 @@ module.exports = function (log, isA, error, public_url, Client) {
       config: {
         description: 'Creates an account associated with an email address',
         tags: ['raw', 'account'],
-        validate: {
-          payload: {
-            // TODO: still need to validate the utf8 string is a valid email
-            email: isA.String().max(1024).regex(HEX_STRING).required(),
-            password: isA.String().required()
-          }
-        },
         handler: function accountCreate(request) {
           log.begin('RawPassword.accountCreate', request)
           var form = request.payload
@@ -79,6 +72,100 @@ module.exports = function (log, isA, error, public_url, Client) {
               request.reply(error.wrap(err))
             }
           )
+        },
+        validate: {
+          payload: {
+            // TODO: still need to validate the utf8 string is a valid email
+            email: isA.String().max(1024).regex(HEX_STRING).required(),
+            password: isA.String().required()
+          }
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/raw_password/password/change',
+      config: {
+        description: 'Creates an account associated with an email address',
+        tags: ['raw', 'account'],
+        handler: function passwordChange(request) {
+          log.begin('RawPassword.passwordChange', request)
+          var form = request.payload
+          Client.changePassword(
+            public_url,
+            Buffer(form.email, 'hex').toString('utf8'),
+            form.oldPassword,
+            form.newPassword
+          )
+          .done(
+            function (client) {
+              return request.reply({})
+            },
+            function (err) {
+              request.reply(error.wrap(err))
+            }
+          )
+        },
+        validate: {
+          payload: {
+            email: isA.String().max(1024).regex(HEX_STRING).required(),
+            oldPassword: isA.String().required(),
+            newPassword: isA.String().required()
+          }
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/raw_password/password/reset',
+      config: {
+        description: 'Creates an account associated with an email address',
+        auth: {
+          strategy: 'accountResetToken'
+        },
+        tags: ['raw', 'account'],
+        handler: function passwordReset(request) {
+          log.begin('RawPassword.passwordReset', request)
+          var accountResetToken = request.auth.credentials
+          var form = request.payload
+
+          db.account(accountResetToken.uid)
+            .then(
+              function (account) {
+                var client = new Client()
+                client.email = account.email
+                return client.setupCredentials(null, form.newPassword)
+                  .then(
+                    function () {
+                      var stretching = account.passwordStretching
+                      stretching.salt = client.passwordSalt
+                      return {
+                        srp: client.srp,
+                        passwordStretching: stretching,
+                        wrapKb: crypto.randomBytes(32).toString('hex')
+                      }
+                    }
+                  )
+              }
+            )
+            .then(
+              function (payload) {
+                return db.resetAccount(accountResetToken, payload)
+              }
+            )
+            .done(
+              function () {
+                return request.reply({})
+              },
+              function (err) {
+                request.reply(error.wrap(err))
+              }
+            )
+        },
+        validate: {
+          payload: {
+            newPassword: isA.String().required()
+          }
         }
       }
     },

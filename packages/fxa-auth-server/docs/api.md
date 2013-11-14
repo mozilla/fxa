@@ -104,6 +104,8 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 
 * RawPassword **REDUCED SECURITY**
     * [POST /v1/raw_password/account/create](#post-v1raw_passwordaccountcreate)
+    * [POST /v1/raw_password/password/reset](#post-v1raw_passwordpasswordreset)
+    * [POST /v1/raw_password/password/change](#post-v1raw_passwordpasswordchange)
     * [POST /v1/raw_password/session/create](#post-v1raw_passwordsessioncreate)
 
 * Recovery Email
@@ -549,7 +551,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/account/create \
+http://idp.dev.lcip.org/v1/raw_password/account/create \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "password": "mySecurePassword"
@@ -577,6 +579,100 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 
 
+## POST /v1/raw_password/password/reset
+
+:lock: HAWK-authenticated with accountResetToken
+
+This resets the account password and resets the encrypted "wrap(kB)" to a new randomly-generated value.
+
+The accountResetToken is single-use, and is consumed regardless of whether the request succeeds or fails.
+
+### Request
+
+___Parameters___
+
+* newPassword - the user's new plaintext password
+
+___Headers___
+
+The request must include a HAWK header that authenticates the request (including payload) using a key derived from the `accountResetToken`, which is returned by `/v1/password/change/start` or `/v1/password/forgot/verify_code`.
+
+```sh
+curl -v \
+-X POST \
+-H "Host: idp.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+http://idp.dev.lcip.org/v1/raw_password/password/reset \
+-d '{
+  "newPassword": "OhMyGlob!"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with empty JSON body:
+
+```json
+{}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
+
+
+## POST /v1/raw_password/password/change
+
+This changes the account password. The encrypted "wrap(kB)" will remain unchanged. Use `/v1/raw_password/password/reset` to reset wrap(kB).
+
+___Parameters___
+
+* email - the primary email for this account (UTF-8 encoded, as hex)
+* oldPassword - the user's current plaintext password
+* newPassword - the user's new plaintext password
+
+### Request
+
+```sh
+curl -v \
+-X POST \
+-H "Host: idp.dev.lcip.org" \
+-H "Content-Type: application/json" \
+http://idp.dev.lcip.org/v1/raw_password/password/change \
+-d '{
+  "email": "6d65406578616d706c652e636f6d",
+  "oldPassword": "123456",
+  "newPassword": "My_Old-Password-Got_Leaked!!1!"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with empty JSON body:
+
+```json
+{}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
+
+
 ## POST /v1/raw_password/session/create
 
 Not HAWK authenticated.
@@ -595,7 +691,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/rawPassword/auth \
+http://idp.dev.lcip.org/v1/rawPassword/session/create \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "password": "mySecurePassword"

@@ -341,6 +341,35 @@ ClientApi.prototype.rawPasswordSessionCreate = function (email, password) {
   )
 }
 
+ClientApi.prototype.rawPasswordPasswordChange = function (email, oldPassword, newPassword) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/raw_password/password/change',
+    null,
+    {
+      email: email,
+      oldPassword: oldPassword,
+      newPassword: newPassword
+    }
+  )
+}
+
+ClientApi.prototype.rawPasswordPasswordReset = function (accountResetTokenHex, newPassword) {
+  return tokens.AccountResetToken.fromHex(accountResetTokenHex)
+    .then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/raw_password/password/reset',
+          token,
+          {
+            newPassword: newPassword
+          }
+        )
+      }.bind(this)
+    )
+}
+
 ClientApi.heartbeat = function (origin) {
   return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
 }
