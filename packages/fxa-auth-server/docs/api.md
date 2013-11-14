@@ -579,7 +579,7 @@ Failing requests may be due to the following errors:
 
 :lock: HAWK-authenticated with accountResetToken
 
-This resets the account password and resets the encrypted "wrap(kB)" value.
+This resets the account password and resets the encrypted "wrap(kB)" to a new randomly-generated value.
 
 The accountResetToken is single-use, and is consumed regardless of whether the request succeeds or fails.
 
