@@ -183,6 +183,24 @@ module.exports = function (fs, path, url, convict) {
         default: path.resolve(__dirname, '../templates/email')
       }
     },
+    redis: {
+      database: {
+        default: '',
+        env: 'REDIS_DATABASE'
+      },
+      password: {
+        default: '',
+        env: 'REDIS_PASSWORD'
+      },
+      host: {
+        default: '',
+        env: 'REDIS_HOST'
+      },
+      port: {
+        default: '6379',
+        env: 'REDIS_PORT'
+      }
+    },
     toobusy: {
       max_lag: {
         doc: "Max event-loop lag before toobusy reports failure",
