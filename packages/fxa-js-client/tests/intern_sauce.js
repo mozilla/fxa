@@ -1,6 +1,9 @@
 define([
   './intern'
 ], function (intern) {
+  intern.proxyPort = 9010;
+  intern.proxyUrl = 'http://localhost:9010/';
+
   intern.useSauceConnect = true;
   intern.maxConcurrency = 3;
 
