@@ -15,8 +15,8 @@ notifications:
     skip_join: false
 
 env:
-  - KVSTORE_BACKEND=mysql TOOBUSY_MAX_LAG=0
-  - KVSTORE_BACKEND=memory TOOBUSY_MAX_LAG=0
+  - NODE_ENV=local KVSTORE_BACKEND=mysql TOOBUSY_MAX_LAG=0
+  - NODE_ENV=local KVSTORE_BACKEND=memory TOOBUSY_MAX_LAG=0
 
 before_script:
   - "mysql -e 'DROP DATABASE IF EXISTS test;'"
