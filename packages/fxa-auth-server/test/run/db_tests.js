@@ -237,7 +237,7 @@ DB.connect()
             return db.createAccountResetToken(emailRecord)
           })
           .then(function(accountResetToken) {
-            t.equal(accountResetToken.uid, ACCOUNT.uid)
+            t.equal(accountResetToken.uid, ACCOUNT.uid, 'account reset token uid should be the same as the account.uid')
             tokenid = accountResetToken.id
           })
           .then(function() {
@@ -245,7 +245,7 @@ DB.connect()
           })
           .then(function(accountResetToken) {
             t.equal(accountResetToken.id, tokenid, 'token id matches')
-            t.equal(accountResetToken.uid, ACCOUNT.uid)
+            t.equal(accountResetToken.uid, ACCOUNT.uid, 'account reset token uid should still be the same as the account.uid')
             return accountResetToken
           })
           .then(function(accountResetToken) {
@@ -256,7 +256,7 @@ DB.connect()
               t.end()
             },
             function (err) {
-              t.fail(err)
+              t.fail(err, 'something went wrong in the reset token handling test')
               t.end()
             }
           )
@@ -374,22 +374,22 @@ DB.connect()
             return db.createSession(authToken)
           })
           .then(function(tokens) {
-            t.equal(tokens.keyFetchToken.uid, ACCOUNT.uid)
-            t.equal(tokens.sessionToken.uid, ACCOUNT.uid)
+            t.equal(tokens.keyFetchToken.uid, ACCOUNT.uid, 'keyFetchToken uid and account uid should be the same')
+            t.equal(tokens.sessionToken.uid, ACCOUNT.uid, 'sessionToken uid and account uid should be the same')
             tokens1 = tokens
           })
           .then(function() {
             return db.keyFetchToken(tokens1.keyFetchToken.id)
           })
           .then(function(keyFetchToken) {
-            t.equal(keyFetchToken.uid, ACCOUNT.uid)
+            t.equal(keyFetchToken.uid, ACCOUNT.uid, 'keyFetchToken uid and account uid should still be the same')
             return db.deleteKeyFetchToken(tokens1.keyFetchToken)
           })
           .then(function() {
             return db.sessionToken(tokens1.sessionToken.id)
           })
           .then(function(sessionToken) {
-            t.equal(sessionToken.uid, ACCOUNT.uid)
+            t.equal(sessionToken.uid, ACCOUNT.uid, 'sessionToken uid and account uid should still be the same')
             return db.deleteSessionToken(tokens1.sessionToken)
           })
           .done(
@@ -494,7 +494,7 @@ DB.connect()
             return db.accountDevices(ACCOUNT.uid)
           })
           .then(function(devices) {
-            t.equal(devices.length, 2)
+            t.equal(devices.length, 2, 'Account devices should be two')
             return devices[0]
           })
           .then(function(sessionToken) {
@@ -539,7 +539,7 @@ DB.connect()
             return db.accountDevices(ACCOUNT.uid)
           })
           .then(function(devices) {
-            t.equal(devices.length, 0)
+            t.equal(devices.length, 0, 'The devices length should be zero')
           })
           .done(
             function () {
@@ -558,11 +558,11 @@ DB.connect()
         function (t) {
           db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
-            t.equal(emailRecord.uid, ACCOUNT.uid)
+            t.equal(emailRecord.uid, ACCOUNT.uid, 'retrieving uid should be the same')
             return db.deleteAccount(emailRecord)
           })
           .then(function() {
-            return db.accountExists(ACCOUNT.email)
+            return db.accountExists(ACCOUNT.email, 'account should exist for this email address')
           })
           .then(function(exists) {
             t.notOk(exists, 'account should no longer exist')
@@ -572,7 +572,7 @@ DB.connect()
               t.end()
             },
             function (err) {
-              t.fail(err)
+              t.fail(err, 'something went wrong when doing account deletion')
               t.end()
             }
           )
