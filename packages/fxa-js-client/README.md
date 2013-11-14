@@ -1,7 +1,7 @@
 gherkin
 =======
 
-[![Build Status](https://travis-ci.org/mozilla/gherkin.png)](https://travis-ci.org/mozilla/gherkin)
+[![Build Status](https://travis-ci.org/mozilla/fxa-js-client.png)](https://travis-ci.org/mozilla/fxa-js-client)
 
 Web client that talks to the Firefox Accounts API server
 
