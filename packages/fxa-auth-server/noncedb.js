@@ -25,17 +25,58 @@ module.exports = function (config, log, now) {
   // Checks for re-use by just querying the key.
 
   function RedisNonceDB() {
-    throw 'RedisNonceDB is not implemented yet'
+    var options = {
+      host: config.redis.host,
+      port: config.redis.port
+    }
+    if (config.redis.password) {
+      options.database = config.redis.database
+    }
+    if (config.redis.password) {
+      options.password = config.redis.password
+    }
+    this.client = redis.createClient(options)
   }
 
   RedisNonceDB.connect = function () {
-    return P(new RedisNonceDB())
+    return (new RedisNonceDB()).connect()
+  }
+
+  RedisNonceDB.prototype.connect = function() {
+    log.trace({ op: 'RedisNonceDB.connect' })
+    return this.client.connect()
+      .then(
+        function (res) {
+          log.trace({ op: 'RedisNonceDB.connect.1' })
+          return this
+        }.bind(this)
+      )
   }
 
   RedisNonceDB.prototype.checkAndSetNonce = function(nonce, ttl) {
-    throw 'no really, RedisNonceDB is not implemented yet'
+    log.trace({ op: 'RedisNonceDB.checkAndSetNonce', nonce: nonce })
+    // The redis promises don't seem compatible with our own..?
+    var d = P.defer()
+    // Use a set-if-not-exists to check and set the key in a single call.
+    var key = "NONCEDB-" + nonce
+    this.client.set(key, '', 'EX', ttl, 'NX')
+      .then(
+        function(res) {
+          log.trace({
+            op: 'RedisNonceDB.checkAndSetNonce.1',
+            nonce: nonce,
+            res: res
+          })
+          if (res !== 'OK') {
+            d.reject('duplicate nonce')
+          } else {
+            d.resolve(true)
+          }
+        }
+      )
+    return d.promise
   }
-  
+
 
   // An in-memory NonceDB.
   //

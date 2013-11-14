@@ -184,21 +184,21 @@ module.exports = function (fs, path, url, convict) {
       }
     },
     redis: {
-      database: {
-        default: '',
-        env: 'REDIS_DATABASE'
-      },
-      password: {
-        default: '',
-        env: 'REDIS_PASSWORD'
-      },
       host: {
         default: '',
         env: 'REDIS_HOST'
       },
       port: {
-        default: '6379',
+        default: 6379,
         env: 'REDIS_PORT'
+      },
+      database: {
+        default: 0,
+        env: 'REDIS_DATABASE'
+      },
+      password: {
+        default: '',
+        env: 'REDIS_PASSWORD'
       }
     },
     toobusy: {

@@ -537,7 +537,6 @@ TestServer.start(config.public_url)
                 json: true
               },
               function (err, res, body) {
-                console.log("REJECTED REQUEST", body)
                 t.equal(res.statusCode, 401, 'duplicate nonce is rejected')
                 t.equal(body.errno, 115, 'duplicate nonce is rejected')
                 t.end()
