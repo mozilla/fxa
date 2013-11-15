@@ -1,5 +1,5 @@
 {
-  "name": "firefox-account-bridge",
+  "name": "fxa-content-server",
   "version": "0.0.0",
   "description": "Firefox Accounts Persona Bridge",
   "scripts": {
@@ -10,9 +10,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/firefox_account_bridge"
+    "url": "https://github.com/mozilla/fxa-content-server"
   },
-  "author": "",
+  "homepage": "https://github.com/mozilla/fxa-content-server",
+  "bugs": "https://github.com/mozilla/fxa-content-server/issues",
+  "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL 2.0",
   "dependencies": {
     "client-sessions": "0.3.1",
