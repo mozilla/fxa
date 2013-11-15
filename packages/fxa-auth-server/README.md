@@ -28,8 +28,8 @@ You'll need node 0.10.x or higher and npm to run the server.
 
 Clone the git repository and install dependencies:
 
-    git clone git://github.com/mozilla/picl-idp.git
-    cd picl-idp
+    git clone git://github.com/mozilla/fxa-auth-server.git
+    cd fxa-auth-server
     npm install
     node ./scripts/gen_keys.js
 

@@ -1,5 +1,5 @@
 {
-  "name": "picl-idp",
+  "name": "fxa-auth-server",
   "version": "0.0.0",
   "description": "An identity provider for PiCL services",
   "main": "index.js",
@@ -12,10 +12,10 @@
   },
   "repository": {
     "type":"git",
-    "url": "git://github.com/mozilla/picl-idp.git"
+    "url": "git://github.com/mozilla/fxa-auth-server.git"
   },
-  "bugs": "https://github.com/mozilla/picl-idp/issues/",
-  "homepage": "https://github.com/mozilla/picl-idp/",
+  "bugs": "https://github.com/mozilla/fxa-auth-server/issues/",
+  "homepage": "https://github.com/mozilla/fxa-auth-server/",
   "license": "MPL 2.0",
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",

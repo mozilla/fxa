@@ -4,11 +4,11 @@
 
 
 /*  Utility functions for working with encrypted data bundles.
- * 
+ *
  *  This module provides 'bundle' and 'unbundle' functions that perform the
- *  simple encryption operations required by the picl-idp API.  The encryption
- *  works as follows:
- * 
+ *  simple encryption operations required by the fxa-auth-server API.  The
+ *  encryption works as follows:
+ *
  *    * Input is some master key material, a string identifying the context
  *      of the data, and a payload to be encrypted.
  *
@@ -20,7 +20,7 @@
  *      HMAC key.
  *
  *    * Output is the hex-encoded concatenation of the ciphertext and HMAC.
- *      
+ *
  */
 
 
