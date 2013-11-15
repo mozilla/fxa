@@ -11,7 +11,7 @@
 set -e
 
 CURCOMMIT="git log --pretty=%h -1"
-ORIGIN="https://github.com/mozilla/firefox-account-bridge.git"
+ORIGIN="https://github.com/mozilla/fxa-content-server.git"
 
 cd /home/app/git
 git remote add origin $ORIGIN || true
