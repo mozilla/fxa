@@ -1,10 +1,8 @@
-# Firefox Accounts Persona Bridge
+# Firefox Accounts Content Server
 
 [![Build Status](https://travis-ci.org/mozilla/fxa-content-server.png)](https://travis-ci.org/mozilla/fxa-content-server)
 
-This is a Node.js server which implements the Persona identity provider (IdP) protocol.
-It allows users to sign in to Firefox Accounts (aka PICL).
-It consumes the REST API which PICL provides.
+Static server that hosts Firefox Account sign up, sign in, email verification, etc. flows.
 
 ## Prerequisites
 
