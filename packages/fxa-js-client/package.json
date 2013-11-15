@@ -11,16 +11,16 @@
     "postinstall": "bower install"
   },
   "readmeFilename": "README.md",
-  "homepage": "https://github.com/mozilla/gherkin",
+  "homepage": "https://github.com/mozilla/fxa-js-client",
   "engines": {
     "node": "0.10.x"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mozilla/gherkin.git"
+    "url": "https://github.com/mozilla/fxa-js-client.git"
   },
   "bugs": {
-    "url": "https://github.com/mozilla/gherkin/issues"
+    "url": "https://github.com/mozilla/fxa-js-client/issues"
   },
   "dependencies": {},
   "devDependencies": {
