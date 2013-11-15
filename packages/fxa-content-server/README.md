@@ -1,6 +1,6 @@
 # Firefox Accounts Persona Bridge
 
-[![Build Status](https://travis-ci.org/mozilla/firefox-account-bridge.png)](https://travis-ci.org/mozilla/firefox-account-bridge)
+[![Build Status](https://travis-ci.org/mozilla/fxa-content-server.png)](https://travis-ci.org/mozilla/fxa-content-server)
 
 This is a Node.js server which implements the Persona identity provider (IdP) protocol.
 It allows users to sign in to Firefox Accounts (aka PICL).
@@ -29,10 +29,10 @@ npm start
 There is quite a bit of setup to do before you can test this service, which is non-optimal, but for now:
   * Run Selenium Server: `java -jar selenium-server-standalone-2.35.0.jar` (see [Prerequisites](#prerequisites))
   * Run the Firefox Account Bridge locally: `npm start`
-  * Run an instance of the [picl-idp](https://github.com/mozilla/picl-idp) at 127.0.0.1:9000.
+  * Run an instance of the [fxa-auth-server](https://github.com/mozilla/fxa-auth-server) at 127.0.0.1:9000.
 
 ### Running the tests
-  * Integration tests between the FAB and picl-idp: `npm test`
+  * Integration tests between the FAB and fxa-auth-server: `npm test`
   * Functional tests: `npm run-script test-functional`
 
 <!-- The below test is relevant to using the FAB as a Persona bridge, which is put on the back burner for now -->
