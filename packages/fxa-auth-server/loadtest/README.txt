@@ -4,7 +4,13 @@ the "loads" framework:
     https://github.com/mozilla/loads
 
 
-To run them, do the following:
+To run them, you will need the following dependencies:
+
+  * Python development files (e.g. python-dev or python-devel package)
+  * Virtualenv (e.g. python-virtualenv package)
+  * ZeroMQ development files (e.g. libzmq-dev package)
+
+Then do the following:
 
   $> make build     # installs local environment with all dependencies
   $> make test      # runs a single test, to check that everything's working
