@@ -19,7 +19,7 @@ module.exports = function(grunt) {
       },
       prod: {
         options: {
-          out: 'build/gherkin.min.js',
+          out: 'build/fxa-client.min.js',
           optimize: 'uglify2',
           generateSourceMaps: true,
           preserveLicenseComments: false
@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       },
       debug: {
         options: {
-          out: 'build/gherkin.js',
+          out: 'build/fxa-client.js',
           optimize: 'none',
           preserveLicenseComments: true
         }
@@ -65,7 +65,7 @@ module.exports = function(grunt) {
     },
     bytesize: {
       all: {
-        src: ['build/gherkin.js', 'build/gherkin.min.js']
+        src: ['build/fxa-client.js', 'build/fxa-client.min.js']
       }
     },
     intern: {
@@ -98,6 +98,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default',
     ['build']);
+
   grunt.registerTask('dev',
     ['watch']);
 };
