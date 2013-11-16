@@ -1,8 +1,8 @@
 define([
   './intern'
 ], function (intern) {
-  intern.proxyPort = 9010;
-  intern.proxyUrl = 'http://localhost:9010/';
+  intern.proxyPort = 9090;
+  intern.proxyUrl = 'http://localhost:9090/';
 
   intern.useSauceConnect = true;
   intern.maxConcurrency = 3;
@@ -18,7 +18,7 @@ define([
 
   intern.environments = [
     { browserName: 'firefox', version: '24' , platform: [ 'Windows 7', 'Linux' ] },
-    { browserName: 'internet explorer', version: '10', platform: [ 'Windows 8', 'Windows 7' ] }
+    { browserName: 'internet explorer', version: '10', platform: [ 'Windows 7' ] }
   ];
 
   return intern;

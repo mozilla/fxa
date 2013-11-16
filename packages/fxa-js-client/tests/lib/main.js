@@ -16,7 +16,7 @@ define([
       });
 
       test('#create account (async)', function () {
-        var email = "test@restmail.net";
+        var email = "test" + Date.now() + "@restmail.net";
         var password = "iliketurtles";
         return client.proxiedSignUp(email, password)
           .then(function (res) {
@@ -25,7 +25,7 @@ define([
       });
 
       test('#sign in (async)', function () {
-        var email = "test2@restmail.net";
+        var email = "test" + Date.now() + "@restmail.net";
         var password = "iliketurtles";
         return client.proxiedSignUp(email, password)
           .then(function (res) {
