@@ -1,8 +1,8 @@
 define(['./hawk', '../../components/p/p'], function (hawk, p) {
   'use strict';
-  /* global XmlHttpRequest */
+  /* global XMLHttpRequest */
 
-  function defaultXhrFactory () { return new XmlHttpRequest(); }
+  function defaultXhrFactory () { return new XMLHttpRequest(); }
 
   function Request (baseUri, xhrFactory) {
     this.baseUri = baseUri;
