@@ -19,7 +19,7 @@ fi
 $SSH -N -L 7776:$BROKER:7776 -L 7780:$BROKER:7780 ec2-user@$BROKER &
 SSH_PID=$!
 
-# This depends on the agent boxes having picl-idp installed and built.
+# This depends on the agent boxes having fxa-auth-server installed and built.
 # XXX TODO: better way to get the JS support code onto the agent boxes.
 
 # JavaScript runner:

@@ -7,7 +7,7 @@ var Boom = require('hapi').error
 
 var DEFAULTS = {
   message: 'Unspecified error',
-  info: 'https://github.com/mozilla/picl-idp/blob/master/docs/api.md#response-format'
+  info: 'https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format'
 }
 
 var TOO_LARGE = /^Payload (?:content length|size) greater than maximum allowed/

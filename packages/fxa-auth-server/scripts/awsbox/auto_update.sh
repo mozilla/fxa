@@ -8,7 +8,7 @@
 set -e
 
 CURCOMMIT="git log --pretty=%h -1"
-ORIGIN="https://github.com/mozilla/picl-idp.git"
+ORIGIN="https://github.com/mozilla/fxa-auth-server.git"
 
 cd /home/app/git
 git remote add origin $ORIGIN || true
