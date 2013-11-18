@@ -1347,7 +1347,22 @@ Content-Type: application/json
 
 The `Retry-After` value is included in both the headers and body so that clients can choose to handle it at the most appropriate level of abstraction for their environment.
 
-If an individual client is found to be issuing too many requests in quick succession, the server may return a `429 Too Many Requests` response.  This is similar to the `503 Service Unavailable` response but indicates that the problem originates from the client's behavior, rather than the server.  The response will include `Retry-After` header giving the number of seconds that the client should wait before issuing any further requests.  It will also include a [JSON error response](#response-format) with `errno` of 114, and with a `retryAfter` field that matches the value in the `Retry-After` header.
+If an individual client is found to be issuing too many requests in quick succession, the server may return a `429 Too Many Requests` response.  This is similar to the `503 Service Unavailable` response but indicates that the problem originates from the client's behavior, rather than the server.  The response will include `Retry-After` header giving the number of seconds that the client should wait before issuing any further requests.  It will also include a [JSON error response](#response-format) with `errno` of 114, and with a `retryAfter` field that matches the value in the `Retry-After` header.  For example:
+
+```
+HTTP/1.1 429 Too Many Requests
+Retry-After: 30
+Content-Type: application/json
+
+{
+ "code": 429,
+ "errno": 114,
+ "error": "Too Many Requests",
+ "message": "This client has sent too many requests",
+ "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
+ "retryAfter": 30
+}
+```
 
 
 # Reference Client
