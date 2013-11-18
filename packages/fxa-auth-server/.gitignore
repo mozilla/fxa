@@ -8,6 +8,7 @@ server.log*
 secret*
 *.gpg
 /loadtest/bin
-/loadtest/lib
+/loadtest/lib*
 /loadtest/include
 *~
+*.pyc
