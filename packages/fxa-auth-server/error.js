@@ -41,6 +41,8 @@ Boom.wrap = function (srcObject) {
         object = Boom.invalidToken().response.payload
       } else if (object.message === 'Stale timestamp') {
         object = Boom.invalidTimestamp().response.payload
+      } else if (object.message === 'Invalid nonce') {
+        object = Boom.invalidNonce().response.payload
       } else {
         object = Boom.invalidSignature().response.payload
       }
@@ -166,6 +168,14 @@ Boom.invalidTimestamp = function () {
     errno: 111,
     message: 'Invalid timestamp in request signature',
     serverTime: Math.floor(+new Date() / 1000)
+  })
+}
+
+Boom.invalidNonce = function () {
+  return Boom.wrap({
+    code: 401,
+    errno: 115,
+    message: 'Invalid nonce in request signature'
   })
 }
 

@@ -3,10 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
+var path = require('path')
 var crypto = require('crypto')
 var Client = require('../../client')
-var config = require('../../config').root()
 var TestServer = require('../test_server')
+var P = require('p-promise')
+
+process.env.CONFIG_FILES = path.join(__dirname, '../config/integration.json')
+var config = require('../../config').root()
 
 process.env.DEV_VERIFIED = 'true'
 
@@ -371,6 +375,81 @@ TestServer.start(config.public_url)
                 now = +new Date() / 1000
                 t.ok(body.serverTime > now - 5, 'includes current time')
                 t.ok(body.serverTime < now + 5, 'includes current time')
+                t.end()
+              }
+            )
+          }
+        )
+    }
+  )
+
+  test(
+    'HAWK nonce re-use',
+    function (t) {
+      var email = email1
+      var password = 'allyourbasearebelongtous'
+      var url = null
+      Client.login(config.public_url, email, password)
+        .then(
+          function (c) {
+            url = c.api.baseURL + '/account/devices'
+            return c.api.Token.SessionToken.fromHex(c.sessionToken)
+          }
+        )
+        .then(
+          function (token) {
+            var d = P.defer()
+            var hawk = require('hawk')
+            var request = require('request')
+            var method = 'GET'
+            var verify = {
+              credentials: token,
+              nonce: 'abcdef'
+            }
+            var headers = {
+              Authorization: hawk.client.header(url, method, verify).field
+            }
+            request(
+              {
+                method: method,
+                url: url,
+                headers: headers,
+                json: true
+              },
+              function (err, res, body) {
+                if (err) {
+                  d.reject(err)
+                } else {
+                  t.equal(res.statusCode, 200, 'fresh nonce is accepted')
+                  d.resolve(token)
+                }
+              }
+            )
+            return d.promise
+          }
+        )
+        .then(
+          function (token) {
+            var hawk = require('hawk')
+            var request = require('request')
+            var method = 'GET'
+            var verify = {
+              credentials: token,
+              nonce: 'abcdef'
+            }
+            var headers = {
+              Authorization: hawk.client.header(url, method, verify).field
+            }
+            request(
+              {
+                method: method,
+                url: url,
+                headers: headers,
+                json: true
+              },
+              function (err, res, body) {
+                t.equal(res.statusCode, 401, 'duplicate nonce is rejected')
+                t.equal(body.errno, 115, 'duplicate nonce is rejected')
                 t.end()
               }
             )

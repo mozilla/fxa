@@ -56,11 +56,27 @@ function main() {
     Token.SrpToken,
     Token.ForgotPasswordToken
   )
+  var noncedb = require('../noncedb')(
+    config,
+    log
+  )
   DB.connect()
     .then(
       function (db) {
+        return noncedb.connect()
+                      .then(function(ndb) { return [db, ndb] })
+      },
+      function (err) {
+        log.error({ op: 'noncedb.connect', err: err })
+        process.exit(1)
+      }
+    )
+    .then(
+      function (backends) {
+        var db = backends[0]
+        var noncedb = backends[1]
         var routes = require('../routes')(log, serverPublicKey, signer, db, mailer, Token, config)
-        server = Server.create(log, config, routes, db)
+        server = Server.create(log, config, routes, db, noncedb)
 
         server.start(
           function () {

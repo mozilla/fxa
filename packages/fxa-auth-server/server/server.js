@@ -4,7 +4,7 @@
 
 module.exports = function (path, url, Hapi, toobusy, error) {
 
-  function create(log, config, routes, db) {
+  function create(log, config, routes, db, noncedb) {
 
     // Hawk needs to calculate request signatures based on public URL,
     // not the local URL to which it is bound.
@@ -15,7 +15,24 @@ module.exports = function (path, url, Hapi, toobusy, error) {
     }
     var hawkOptions = {
       host: publicURL.hostname,
-      port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol]
+      port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol],
+      timestampSkewSec: 60,
+      nonceFunc: function nonceCheck(nonce, ts, cb) {
+        var maxValidTime = ts + hawkOptions.timestampSkewSec
+        var ttl = Math.ceil(maxValidTime - (Date.now() / 1000))
+        if (ttl <= 0) {
+          return cb('stale timestamp')
+        }
+        noncedb.checkAndSetNonce(nonce, ttl)
+               .done(
+                 function() {
+                   cb();
+                 },
+                 function(err) {
+                   cb(err);
+                 }
+               )
+      }
     }
 
     function makeCredentialFn(dbGetFn) {
