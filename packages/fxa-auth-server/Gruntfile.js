@@ -10,7 +10,8 @@ module.exports = function (grunt) {
     copyright: {
       files: [
         "**/*.js",
-        "!**/node_modules/**"
+        "!node_modules/**",
+        "!client/emscrypt.js"
       ],
       options: {
         pattern: "This Source Code Form is subject to the terms of the Mozilla Public"
