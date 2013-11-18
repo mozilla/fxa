@@ -43,7 +43,7 @@ To simplify error handling for the client, the type of error is indicated both b
 ```js
 {
   "code": 400, // matches the HTTP status code
-  "errno": 107, // stable application level error number
+  "errno": 107, // stable application-level error number
   "error": "Bad Request", // string description of the error type
   "message": "the value of salt is not allowed to be undefined",
   "info": "https://docs.dev.lcip.og/errors/1234" // link to more info on the error
@@ -68,13 +68,15 @@ The currently-defined error responses are:
 * status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
-* status code 429, errno 114:  client has sent too many requests (see backoff protocol)
-* status code 503, errno 201:  service temporarily unavailable to due high load (see backoff protocol)
+* status code 429, errno 114:  client has sent too many requests (see [backoff protocol](#backoff-protocol))
+* status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * any status code, errno 999:  unknown error
 
 The follow error responses include additional parameters:
 
 * errno 111:  a `serverTime` parameter giving the current server time in seconds.
+* errno 114:  a `retryAfter` parameter indicating how long the client should wait before re-trying.
+* errno 201:  a `retryAfter` parameter indicating how long the client should wait before re-trying.
 
 
 ## Responses from Intermediary Servers
@@ -1312,7 +1314,40 @@ There are no standard failure modes for this endpoint.
 * GOTO "Attach a new device"
 
 
-# Client Backoff Protocol
+# Backoff Protocol
+
+During periods of heavy load, the auth server may request that clients enter a "backoff" state in which they avoid making further requests.
+
+If the server is under heavy load but is still able to satisfy the client's request, it will include a `Backoff` header in the HTTP response.  The value is an integer number of seconds that the client should wait before issuing any further requests.  For example, the following response would indicate that the server has successfully processed the request, but that the client should avoid sending additional requests for 20 seconds:
+
+```
+HTTP/1.1 200 OK
+Backoff: 20
+Content-Type: application/json
+
+{}
+```
+
+If the server is under too much load to handle the client's request, it will return a `503 Service Unavailable` HTTP response.  The response will include `Retry-After` header giving the number of seconds that the client should wait before issuing any further requests.  It will also include a [JSON error response](#response-format) with `errno` of 201, and with a `retryAfter` field that matches the value in the `Retry-After` header.  For example, the following response would indicate that the server could not process the request and the client should avoid sending additional requests for 30 seconds:
+
+```
+HTTP/1.1 503 Service Unavailable
+Retry-After: 30
+Content-Type: application/json
+
+{
+ "code": 503,
+ "errno": 201,
+ "error": "Service Unavailable",
+ "message": "The server is experiencing heavy load, please try again shortly",
+ "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
+ "retryAfter": 30
+}
+```
+
+The `Retry-After` value is included in both the headers and body so that clients can choose to handle it at the most appropriate level of abstraction for their environment.
+
+If an individual client is found to be issuing too many requests in quick succession, the server may return a `429 Too Many Requests` response.  This is similar to the `503 Service Unavailable` response but indicates that the problem originates from the client's behavior, rather than the server.  The response will include `Retry-After` header giving the number of seconds that the client should wait before issuing any further requests.  It will also include a [JSON error response](#response-format) with `errno` of 114, and with a `retryAfter` field that matches the value in the `Retry-After` header.
 
 
 # Reference Client
