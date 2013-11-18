@@ -23,7 +23,7 @@ SSH_PID=$!
 # XXX TODO: better way to get the JS support code onto the agent boxes.
 
 # JavaScript runner:
-./bin/loads-runner --users=20 --duration=300 --external-process-timeout=60 --broker=tcp://localhost:7780 --zmq-publisher=tcp://localhost:7776 --agents=5 --test-runner="/home/app/picl-idp/loadtest/lib/loads.js/loadsjs/runner.js {test}" "/home/app/picl-idp/loadtest/loadtests.js"
+./bin/loads-runner --users=20 --duration=300 --external-process-timeout=60 --broker=tcp://localhost:7780 --zmq-publisher=tcp://localhost:7776 --agents=5 --test-runner="/home/app/fxa-auth-server/loadtest/lib/loads.js/loadsjs/runner.js {test}" "/home/app/fxa-auth-server/loadtest/loadtests.js"
 
 # Python runner
 #./bin/loads-runner --users=20 --duration=300 --broker=tcp://localhost:7780 --zmq-publisher=tcp://localhost:7776 --agents=5 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_idp

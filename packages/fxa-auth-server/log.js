@@ -40,7 +40,7 @@ module.exports = function (config) {
 
   var log = new Overdrive(
     {
-      name: 'picl-idp',
+      name: 'fxa-auth-server',
       streams: logStreams
     }
   )
