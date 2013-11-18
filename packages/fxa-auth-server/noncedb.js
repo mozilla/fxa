@@ -58,7 +58,7 @@ module.exports = function (config, log, now) {
     // The redis promises don't seem compatible with our own..?
     var d = P.defer()
     // Use a set-if-not-exists to check and set the key in a single call.
-    var key = "NONCEDB-" + nonce
+    var key = "NONCEDB:" + nonce
     this.client.set(key, '', 'EX', ttl, 'NX')
       .then(
         function(res) {
@@ -67,10 +67,10 @@ module.exports = function (config, log, now) {
             nonce: nonce,
             res: res
           })
-          if (res !== 'OK') {
-            d.reject('duplicate nonce')
+          if (res === 'OK') {
+            d.resolve()
           } else {
-            d.resolve(true)
+            d.reject('duplicate nonce')
           }
         }
       )
@@ -118,7 +118,7 @@ module.exports = function (config, log, now) {
       }
       this.nonces_by_exp.splice(pos, 0, item)
       this.nonces[nonce] = expTime
-      d.resolve(true)
+      d.resolve()
     }
     return d.promise
   }
