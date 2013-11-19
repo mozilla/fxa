@@ -199,7 +199,8 @@ Boom.tooManyRequests = function () {
   return Boom.wrap({
     code: 429,
     errno: 114,
-    message: 'Client has sent too many requests'
+    message: 'Client has sent too many requests',
+    retryAfter: 30
   })
 }
 
@@ -207,7 +208,8 @@ Boom.serviceUnavailable = function () {
   return Boom.wrap({
     code: 503,
     errno: 201,
-    message: 'Service unavailable'
+    message: 'Service unavailable',
+    retryAfter: 30
   })
 }
 
