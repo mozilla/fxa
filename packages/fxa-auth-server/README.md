@@ -58,7 +58,7 @@ script is located in the `/client` directory.
 
 There is a development server running the moz-svc-dev AWS environment, at the following address:
 
-    http://api-accounts.dev.lcip.org/
+    https://api-accounts.dev.lcip.org/
 
 It is managed using [awsbox](http://awsbox.org/).  You can force-push a particular version of the code by doing:
 
@@ -76,6 +76,15 @@ The dev deployment is configured to send emails via Amazon SES.  If you need to 
       3.  Edit /etc/postfix/main.cf to change 'relayhost' to the SES SMTP host
           (typically "email-smtp.us-east-1.amazonaws.com:25").
       4.  Run `service postfix restart` to restart postfix.
+
+
+There is also a "bleeding edge" development server that is configured to
+auto-update itself from the latest github master.  It may be useful for testing
+out new protocol changes, but should be considered unstable for general
+development use:
+
+    https://api-accounts-latest.dev.lcip.org/
+
 
 ### Configuration
 
