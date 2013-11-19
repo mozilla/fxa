@@ -8,8 +8,8 @@ module.exports = function (fs, path, url, convict) {
   var conf = convict({
     env: {
       doc: "The current node.js environment",
-      default: "production",
-      format: [ "production", "local", "test" ],
+      default: "dev",
+      format: [ "dev", "test", "stage", "production" ],
       env: 'NODE_ENV'
     },
     log: {
