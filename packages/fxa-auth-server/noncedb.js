@@ -130,9 +130,8 @@ module.exports = function (config, log, now) {
     return RedisNonceDB
   } else {
     if (config.env === 'production') {
-        throw 'in-memory nonce db is not suitable for production use'
+      log.warn('using in-memory nonce db; this is likely not suitable for production')
     }
-    log.warn('using in-memory nonce db')
     return MemoryNonceDB
   }
 }
