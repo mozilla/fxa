@@ -54,7 +54,7 @@ module.exports = function (fs, path, url, convict) {
         env: 'MYSQL_PASSWORD'
       },
       database: {
-        default: 'picl',
+        default: 'fxa',
         env: 'MYSQL_DATABASE'
       },
       host: {
@@ -95,11 +95,11 @@ module.exports = function (fs, path, url, convict) {
         env: 'PORT'
       }
     },
-    bridge: {
+    contentServer: {
       url: {
-        doc: "Thes url of the bridge server",
+        doc: "Thes url of the correspoding fxa-content-server instance",
         default: 'http://127.0.0.1:3030',
-        env: 'FAB_URL'
+        env: 'CONTENT_SERVER_URL'
       }
     },
     srp: {

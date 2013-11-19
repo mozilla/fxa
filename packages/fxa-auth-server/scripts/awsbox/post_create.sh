@@ -5,9 +5,9 @@ echo "Setting up mysql"
 
 sudo /sbin/chkconfig mysqld on
 sudo /sbin/service mysqld start
-echo "CREATE USER 'picl'@'localhost';" | mysql -u root
-echo "CREATE DATABASE picl;" | mysql -u root
-echo "GRANT ALL ON picl.* TO 'picl'@'localhost';" | mysql -u root
+echo "CREATE USER 'fxa'@'localhost';" | mysql -u root
+echo "CREATE DATABASE fxa;" | mysql -u root
+echo "GRANT ALL ON fxa* TO 'fxa'@'localhost';" | mysql -u root
 
 echo "Setting up memcached"
 
@@ -68,10 +68,6 @@ sudo /usr/sbin/postmap /etc/postfix/sasl_passwd
  
 sudo service postfix start
 sudo chkconfig postfix on
-
-echo "Establishing auto-update crontab"
-
-echo "*/5 * * * * /bin/bash -l /home/app/code/scripts/awsbox/auto_update.sh > /dev/null 2> /dev/null" | sudo crontab -u app -
 
 echo "Cleaning up old logfiles"
 

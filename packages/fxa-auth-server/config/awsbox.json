@@ -3,7 +3,7 @@
     "backend": "mysql"
   },
   "mysql": {
-    "user": "picl"
+    "user": "fxa"
   },
   "smtp": {
     "host": "localhost",
@@ -12,7 +12,7 @@
   },
   "secretKeyFile": "/home/app/var/secret-key.json",
   "publicKeyFile": "/home/app/var/public-key.json",
-  "bridge": {
+  "contentServer": {
     "url": "https://accounts.dev.lcip.org"
   }
 }

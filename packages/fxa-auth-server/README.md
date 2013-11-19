@@ -58,12 +58,12 @@ script is located in the `/client` directory.
 
 There is a development server running the moz-svc-dev AWS environment, at the following address:
 
-    http://idp.dev.lcip.org/
+    http://api-accounts.dev.lcip.org/
 
-It is managed using [awsbox](http://awsbox.org/) and configured to automatically update itself to track the git master branch.  You can force-push a particular version of the code by doing:
+It is managed using [awsbox](http://awsbox.org/).  You can force-push a particular version of the code by doing:
 
-    $> git remote add idp-dev-lcip-org app@idp.dev.lcip.org:git
-    $> git push idp-dev-lcip-org HEAD:master
+    $> git remote add api-dev-lcip-org app@api-accounts.dev.lcip.org:git
+    $> git push api-dev-lcip-org HEAD:master
 
 
 The dev deployment is configured to send emails via Amazon SES.  If you need to re-create, or want to stand up a similar server, you will need to:
@@ -79,11 +79,10 @@ The dev deployment is configured to send emails via Amazon SES.  If you need to 
 
 ### Configuration
 
-To set the url of the [account bridge](https://github.com/mozilla/firefox-account-bridge),
-edit `config.json` on your deployed instance and add:
+To set the url of the [content server](https://github.com/mozilla/fxa-content-server), edit `config.json` on your deployed instance and add:
 
-    "bridge": {
-      "url": "http://your.account.bridge.org"
+    "contentServer": {
+      "url": "http://your.content.server.org"
     }
 
 ## MySQL setup
@@ -117,9 +116,11 @@ Or run the local server
 
 ### Cleanup
 
-You may want to clear the data from the database periodically. I just drop the database.
+You may want to clear the data from the database periodically. I just drop the database:
 
-    mysql -uroot -e"DROP DATABASE picl"
+    mysql -uroot -e"DROP DATABASE fxa"
+
+The server will automatically re-create it on next use.
 
 ## License
 

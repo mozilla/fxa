@@ -17,7 +17,7 @@ Note that:
 * All API access must be over a properly-validated HTTPS connection.
 * The URL embeds a version identifier "v1"; future revisions of this API may introduce new version numbers.
 * The base URL of the server may be configured on a per-client basis:
-  * There is a development server available at [https://idp.dev.lcip.org/](https://idp.dev.lcip.org);
+  * There is a development server available at [https://api-accounts.dev.lcip.org/](https://api-accounts.dev.lcip.org);
     data stored on this may be periodically purged.
   * The canonical URL for Mozilla's hosted Firefox Accounts server is TODO-DEFINE-ME.
 
@@ -160,7 +160,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/account/create \
+http://api-accounts.dev.lcip.org/v1/account/create \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "srp": {
@@ -220,10 +220,10 @@ The request must include a Hawk header that authenticates the request using a `s
 ```sh
 curl -v \
 -X GET \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/account/devices \
+http://api-accounts.dev.lcip.org/v1/account/devices \
 ```
 
 ### Response
@@ -270,10 +270,10 @@ The request must include a HAWK header that authenticates the request using a `k
 ```sh
 curl -v \
 -X GET \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/account/keys \
+http://api-accounts.dev.lcip.org/v1/account/keys \
 ```
 
 ### Response
@@ -334,10 +334,10 @@ The request must include a HAWK header that authenticates the request (including
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/account/reset \
+http://api-accounts.dev.lcip.org/v1/account/reset \
 -d '{
   "bundle": "a586e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a98264bdc",
   "srp": {
@@ -399,10 +399,10 @@ The request must include a HAWK header that authenticates the request (including
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/account/destroy \
+http://api-accounts.dev.lcip.org/v1/account/destroy \
 -d ''
 ```
 
@@ -442,7 +442,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/auth/start \
+http://api-accounts.dev.lcip.org/v1/auth/start \
 -d '{
   "email": "6d65406578616d706c652e636f6d"
 }'
@@ -505,7 +505,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/auth/finish \
+http://api-accounts.dev.lcip.org/v1/auth/finish \
 -d '{
   "srpToken": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
   "A": "024ba1bb53d42918dc34131b41548843e1fa533bd5952be3ec8884fba4aa5c3542ac161fa0d5587d1e694248573be8a1b18f7b0c132f74ddde08ac2a230f4db4a1d831eb74ee772c83121ecba80e51b9293942681655dca4f98a766408fbaf5c13c09d21b9d6d3dabea8024fbb658ca67e20bc63cb349cb9bea54d7b1f4990cfe45fad7e492ca90a578d7b559143eb0987825b48aa6bfbb684b7973c75e6e98011ffc3ba724797ea575d440fa3c052be978590f828d3f850a4ccdecbe8e4d2c6d2b981e3c75ee26d5cf477cda9273a60000d6e942d4eb27e027a8ca16f668862260a4c9d3ab6cd3139decf4976633844684b8371a68a7419f6beffd2fc078327",
@@ -558,7 +558,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/raw_password/account/create \
+http://api-accounts.dev.lcip.org/v1/raw_password/account/create \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "password": "mySecurePassword"
@@ -607,10 +607,10 @@ The request must include a HAWK header that authenticates the request (including
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/raw_password/password/reset \
+http://api-accounts.dev.lcip.org/v1/raw_password/password/reset \
 -d '{
   "newPassword": "OhMyGlob!"
 }'
@@ -652,9 +652,9 @@ ___Parameters___
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/raw_password/password/change \
+http://api-accounts.dev.lcip.org/v1/raw_password/password/change \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "oldPassword": "123456",
@@ -698,7 +698,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/rawPassword/session/create \
+http://api-accounts.dev.lcip.org/v1/rawPassword/session/create \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "password": "mySecurePassword"
@@ -741,10 +741,10 @@ This is used when adding a new device, or when creating a new account (and then 
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/session/create \
+http://api-accounts.dev.lcip.org/v1/session/create \
 ```
 
 ### Response
@@ -790,10 +790,10 @@ The request must include a Hawk header that authenticates the request using a `s
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/session/destroy \
+http://api-accounts.dev.lcip.org/v1/session/destroy \
 ```
 
 ### Response
@@ -837,10 +837,10 @@ The request must include a Hawk header that authenticates the request using a `s
 ```sh
 curl -v \
 -X GET \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/recovery_email/status \
+http://api-accounts.dev.lcip.org/v1/recovery_email/status \
 ```
 
 
@@ -849,11 +849,11 @@ The request may include an `Accept` header to request a server-sent event feed t
 ```sh
 curl -v \
 -X GET \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H "Accept: text/event-stream" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/recovery_email/status \
+http://api-accounts.dev.lcip.org/v1/recovery_email/status \
 
 
 ### Response
@@ -905,10 +905,10 @@ The request must include a Hawk header that authenticates the request (including
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/recovery_email/resend_code
+http://api-accounts.dev.lcip.org/v1/recovery_email/resend_code
 ```
 
 ### Response
@@ -949,9 +949,9 @@ ___Parameters___
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/recovery_email/verify_code \
+http://api-accounts.dev.lcip.org/v1/recovery_email/verify_code \
 -d '{
   "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
   "code": "e3c5b0e3f5391e134596c27519979b93a45e6d0da34c7509c5632ac35b28b48d"
@@ -1005,10 +1005,10 @@ The request must include a Hawk header that authenticates the request (including
 ```sh
 curl -v \
 -X POST \
--H "Host: idp.dev.lcip.org" \
+-H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/certificate/sign \
+http://api-accounts.dev.lcip.org/v1/certificate/sign \
 -d '{
   "publicKey": {
     "algorithm":"RS",
@@ -1067,7 +1067,7 @@ curl -v \
 -X POST \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/password/change/start
+http://api-accounts.dev.lcip.org/v1/password/change/start
 ```
 
 ### Response
@@ -1118,7 +1118,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://idp.dev.lcip.org/v1/password/forgot/send_code \
+http://api-accounts.dev.lcip.org/v1/password/forgot/send_code \
 -d '{
   "email": "6d65406578616d706c652e636f6d"
 }'
@@ -1166,7 +1166,7 @@ curl -v \
 -X POST \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/password/forgot/resend_code \
+http://api-accounts.dev.lcip.org/v1/password/forgot/resend_code \
 -d '{
   "email": "6d65406578616d706c652e636f6d"
 }'
@@ -1218,7 +1218,7 @@ curl -v \
 -X POST \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://idp.dev.lcip.org/v1/password/forgot/verify_code \
+http://api-accounts.dev.lcip.org/v1/password/forgot/verify_code \
 -d '{
   "code": "12345678"
 }'
@@ -1258,7 +1258,7 @@ Get 32 bytes of random data.  This should be combined with locally-sourced entro
 ### Request
 
 ```sh
-curl -X POST -v http://idp.dev.lcip.org/v1/get_random_bytes
+curl -X POST -v http://api-accounts.dev.lcip.org/v1/get_random_bytes
 ```
 
 ### Response

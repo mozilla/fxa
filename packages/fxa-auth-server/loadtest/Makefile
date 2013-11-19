@@ -16,7 +16,7 @@ clean:
 
 # Run a single test from the local machine, for sanity-checking.
 test:
-	./bin/loads-runner --hits=1 --users=1 loadtests.LoadTest.test_idp
+	./bin/loads-runner --hits=1 --users=1 loadtests.LoadTest.test_auth_server
 
 # Run a full bench, by submitting to broker in AWS.
 bench:
