@@ -8,8 +8,6 @@ var crypto = require('crypto')
 var Client = require('../../client')
 var TestServer = require('../test_server')
 var P = require('p-promise')
-
-process.env.CONFIG_FILES = path.join(__dirname, '../config/integration.json')
 var config = require('../../config').root()
 
 process.env.DEV_VERIFIED = 'true'
