@@ -67,9 +67,9 @@ Password is 'asdf'.
 
 ## Configuration
 
-The default idp server is `http://idp.dev.lcip.org`.  To change this, edit
-`config.json` on your deployed instance.
+The default auth server is `http://api-accounts.dev.lcip.org`.  To change this,
+edit `config.json` on your deployed instance.
 
     {
-      'fxaccount_url': 'http://your.idp.here.org'
+      'fxaccount_url': 'http://your.auth.server.here.org'
     }
