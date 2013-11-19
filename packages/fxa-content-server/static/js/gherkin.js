@@ -23,12 +23,15 @@ var keyStretch = require('./lib/keystretch')
 var tokens = require('./lib/tokens')({ trace: function () {}})
 var Bundle = tokens.Bundle
 
+var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
+
 function Client(origin) {
   this.uid = null
   this.api = new ClientApi(origin)
   this.passwordSalt = null
   this.srp = null
   this.email = null
+  this.verified = false
   this.authToken = null
   this.sessionToken = null
   this.accountResetToken = null
@@ -89,9 +92,7 @@ Client.prototype.setupCredentials = function (email, password, customSalt, custo
         this.srp = {}
         this.srp.type = 'SRP-6a/SHA256/2048/v1'
         this.srp.salt = customSrpSalt || crypto.randomBytes(32).toString('hex')
-        this.srp.algorithm = 'sha256'
-        this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw,
-                                     this.srp.algorithm)
+        this.srp.verifier = verifier(this.srp.salt, this.email, this.srpPw)
         this.passwordSalt = saltHex
       }.bind(this)
     )
@@ -134,12 +135,32 @@ Client.login = function (origin, email, password, callback) {
   }
 }
 
+Client.changePassword = function (origin, email, oldPassword, newPassword, callback) {
+  var c = new Client(origin)
+  c.email = Buffer(email).toString('hex')
+  c.password = oldPassword
+
+  var p = c.changePassword(newPassword)
+    .then(
+      function () {
+        return c
+      }
+    )
+  if (callback) {
+    p.done(callback.bind(null, null), callback)
+  }
+  else {
+    return p
+  }
+}
+
 Client.parse = function (string) {
   var object = JSON.parse(string)
   var client = new Client(object.api.origin)
   client.uid = object.uid
   client.email = object.email
   client.password = object.password
+  client.verified = !!object.verified
   client.srp = object.srp
   client.passwordSalt = object.passwordSalt
   client.passwordStretching = object.passwordStretching
@@ -239,6 +260,8 @@ Client.prototype.auth = function (callback) {
           keyStretch.derive(Buffer(this.email, 'hex'), Buffer(this.password), session.passwordStretching.salt)
             .then(
               function (result) {
+                this.srp = {}
+                this.srp.type = 'SRP-6a/SHA256/2048/v1'
                 this.srpPw = result.srpPw.toString('hex')
                 this.unwrapBKey = result.unwrapBKey.toString('hex')
                 this.passwordSalt = session.passwordStretching.salt
@@ -291,6 +314,8 @@ Client.prototype.login = function (callback) {
     )
     .then (
       function (json) {
+        this.uid = json.uid
+        this.verified = json.verified
         return tokens.AuthToken.fromHex(this.authToken)
           .then(
           function (t) {
@@ -606,7 +631,7 @@ Client.prototype.resetPassword = function (newPassword, callback) {
     throw new Error("call verifyPasswordResetCode before calling resetPassword");
   }
   // this will generate a new wrapKb on the server
-  var wrapKb = '0000000000000000000000000000000000000000000000000000000000000000'
+  var wrapKb = NULL
   var p = this.setupCredentials(this.email, newPassword)
     .then(
       tokens.AccountResetToken.fromHex.bind(null, this.accountResetToken)
@@ -649,7 +674,7 @@ Client.prototype.resetPassword = function (newPassword, callback) {
 
 module.exports = Client
 
-},{"./lib/api":3,"./lib/keystretch":8,"./lib/tokens":16,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":77,"srp":83}],3:[function(require,module,exports){
+},{"./lib/api":3,"./lib/keystretch":8,"./lib/tokens":16,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":78,"srp":84}],3:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -993,13 +1018,42 @@ ClientApi.prototype.rawPasswordSessionCreate = function (email, password) {
   )
 }
 
+ClientApi.prototype.rawPasswordPasswordChange = function (email, oldPassword, newPassword) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/raw_password/password/change',
+    null,
+    {
+      email: email,
+      oldPassword: oldPassword,
+      newPassword: newPassword
+    }
+  )
+}
+
+ClientApi.prototype.rawPasswordPasswordReset = function (accountResetTokenHex, newPassword) {
+  return tokens.AccountResetToken.fromHex(accountResetTokenHex)
+    .then(
+      function (token) {
+        return this.doRequest(
+          'POST',
+          this.baseURL + '/raw_password/password/reset',
+          token,
+          {
+            newPassword: newPassword
+          }
+        )
+      }.bind(this)
+    )
+}
+
 ClientApi.heartbeat = function (origin) {
   return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
 }
 
 module.exports = ClientApi
 
-},{"./tokens":16,"events":27,"hawk":58,"p-promise":77,"request":"hWH+d8","util":33}],4:[function(require,module,exports){
+},{"./tokens":16,"events":27,"hawk":58,"p-promise":78,"request":"hWH+d8","util":33}],4:[function(require,module,exports){
 module.exports = require('buffer');
 
 },{}],5:[function(require,module,exports){
@@ -1043,7 +1097,7 @@ function hkdf(km, info, salt, len) {
 
 module.exports = hkdf
 
-},{"hkdf":75,"p-promise":77}],8:[function(require,module,exports){
+},{"hkdf":75,"p-promise":78}],8:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1056,7 +1110,7 @@ var crypto = require('crypto')
 
 // The namespace for the salt functions
 const NAMESPACE = 'identity.mozilla.com/picl/v1/'
-const SCRYPT_HELPER = 'https://scrypt.dev.lcip.org/'
+const SCRYPT_HELPER = 'https://scrypt-accounts.dev.lcip.org/'
 
 
 /** Derive a key from an email and password pair
@@ -1170,7 +1224,7 @@ function KW(name) {
 module.exports.derive = derive
 module.exports.xor = xor
 
-},{"./hkdf":7,"./pbkdf2":9,"./scrypt":10,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":77}],9:[function(require,module,exports){
+},{"./hkdf":7,"./pbkdf2":9,"./scrypt":10,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":78}],9:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1197,7 +1251,7 @@ function derive(input, salt) {
 
 module.exports.derive = derive
 
-},{"__browserify_Buffer":4,"p-promise":77,"sjcl":79}],10:[function(require,module,exports){
+},{"__browserify_Buffer":4,"p-promise":78,"sjcl":83}],10:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1286,7 +1340,7 @@ function remoteScryptHelper(payload, url) {
 
 module.exports.hash = hash
 
-},{"./emscrypt":5,"p-promise":77,"request":"hWH+d8"}],11:[function(require,module,exports){
+},{"./emscrypt":5,"p-promise":78,"request":"hWH+d8"}],11:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1352,6 +1406,7 @@ module.exports = function (log, inherits, Token, error) {
 
   function AuthToken(keys, details) {
     Token.call(this, keys, details)
+    this.verified = !!details.verified
   }
   inherits(AuthToken, Token)
 
@@ -1421,11 +1476,11 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
 
 
 /*  Utility functions for working with encrypted data bundles.
- * 
+ *
  *  This module provides 'bundle' and 'unbundle' functions that perform the
- *  simple encryption operations required by the picl-idp API.  The encryption
- *  works as follows:
- * 
+ *  simple encryption operations required by the fxa-auth-server API.  The
+ *  encryption works as follows:
+ *
  *    * Input is some master key material, a string identifying the context
  *      of the data, and a payload to be encrypted.
  *
@@ -1437,7 +1492,7 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
  *      HMAC key.
  *
  *    * Output is the hex-encoded concatenation of the ciphertext and HMAC.
- *      
+ *
  */
 
 
@@ -1707,7 +1762,7 @@ module.exports = function (log) {
   return Token
 }
 
-},{"../hkdf":7,"./account_reset_token":11,"./auth_token":12,"./bundle":13,"./error":14,"./forgot_password_token":15,"./key_fetch_token":17,"./session_token":18,"./srp_token":19,"./token":20,"crypto":"l4eWKl","p-promise":77,"srp":83,"util":33,"uuid":87}],17:[function(require,module,exports){
+},{"../hkdf":7,"./account_reset_token":11,"./auth_token":12,"./bundle":13,"./error":14,"./forgot_password_token":15,"./key_fetch_token":17,"./session_token":18,"./srp_token":19,"./token":20,"crypto":"l4eWKl","p-promise":78,"srp":84,"util":33,"uuid":87}],17:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -2024,7 +2079,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
   return Token
 }
 
-},{"__browserify_Buffer":4,"__browserify_process":76}],"xttfNN":[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":77}],"xttfNN":[function(require,module,exports){
 var jsbn = require('jsbn');
 var Buffer = require('buffer').Buffer;
 
@@ -4248,7 +4303,7 @@ EventEmitter.listenerCount = function(emitter, type) {
   return ret;
 };
 
-},{"__browserify_process":76}],28:[function(require,module,exports){
+},{"__browserify_process":77}],28:[function(require,module,exports){
 // nothing to see here... no file methods for the browser
 
 },{}],29:[function(require,module,exports){
@@ -4430,7 +4485,7 @@ exports.relative = function(from, to) {
 
 exports.sep = '/';
 
-},{"__browserify_process":76}],30:[function(require,module,exports){
+},{"__browserify_process":77}],30:[function(require,module,exports){
 
 /**
  * Object#toString() ref for stringify().
@@ -8360,70 +8415,42 @@ exports.hmac_base64 = hmac_base64;
 exports.hmac_buffer = hmac_buffer;
 exports.hmac_binary = hmac_binary;
 
-},{"buffer":"IZihkv","sjcl":79,"sjcl-codec-bytes":78}],58:[function(require,module,exports){
+},{"buffer":"IZihkv","sjcl":83,"sjcl-codec-bytes":79}],58:[function(require,module,exports){
 module.exports = require('./lib');
 },{"./lib":63}],59:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");//
-// a straightforward implementation of HKDF
-//
-// https://tools.ietf.org/html/rfc5869
-//
+var global=self;
+var rng;
 
-var crypto = require("crypto");
-
-function zeros(length) {
-  var buf = new Buffer(length);
-
-  buf.fill(0);
-
-  return buf.toString();
-}
-// imk is initial keying material
-function HKDF(hashAlg, salt, ikm) {
-  this.hashAlg = hashAlg;
-
-  // create the hash alg to see if it exists and get its length
-  var hash = crypto.createHash(this.hashAlg);
-  this.hashLength = hash.digest().length;
-
-  this.salt = salt || zeros(this.hashLength);
-  this.ikm = ikm;
-
-  // now we compute the PRK
-  var hmac = crypto.createHmac(this.hashAlg, this.salt);
-  hmac.update(this.ikm);
-  this.prk = hmac.digest();
+if (global.crypto && crypto.getRandomValues) {
+  // WHATWG crypto-based RNG - http://wiki.whatwg.org/wiki/Crypto
+  // Moderately fast, high quality
+  var _rnds8 = new Uint8Array(16);
+  rng = function whatwgRNG() {
+    crypto.getRandomValues(_rnds8);
+    return _rnds8;
+  };
 }
 
-HKDF.prototype = {
-  derive: function(info, size, cb) {
-    var prev = new Buffer(0);
-    var output;
-    var buffers = [];
-    var num_blocks = Math.ceil(size / this.hashLength);
-    info = new Buffer(info);
-
-    for (var i=0; i<num_blocks; i++) {
-      var hmac = crypto.createHmac(this.hashAlg, this.prk);
-      // XXX is there a more optimal way to build up buffers?
-      var input = Buffer.concat([
-        prev,
-        info,
-        new Buffer(String.fromCharCode(i + 1))
-      ]);
-      hmac.update(input);
-      prev = hmac.digest();
-      buffers.push(prev);
+if (!rng) {
+  // Math.random()-based (RNG)
+  //
+  // If all else fails, use Math.random().  It's fast, but is of unspecified
+  // quality.
+  var  _rnds = new Array(16);
+  rng = function() {
+    for (var i = 0, r; i < 16; i++) {
+      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+      _rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
     }
-    output = Buffer.concat(buffers, size);
 
-    process.nextTick(function() {cb(output);});
-  }
-};
+    return _rnds;
+  };
+}
 
-module.exports = HKDF;
+module.exports = rng;
 
-},{"__browserify_Buffer":4,"__browserify_process":76,"crypto":"l4eWKl"}],"request":[function(require,module,exports){
+
+},{}],"request":[function(require,module,exports){
 module.exports=require('hWH+d8');
 },{}],61:[function(require,module,exports){
 // Load modules
@@ -10803,7 +10830,7 @@ exports.readStream = function (stream, callback) {
     });
 };
 
-},{"./escape":71,"__browserify_Buffer":4,"__browserify_process":76,"fs":28,"path":29}],73:[function(require,module,exports){
+},{"./escape":71,"__browserify_Buffer":4,"__browserify_process":77,"fs":28,"path":29}],73:[function(require,module,exports){
 module.exports = require('./lib');
 },{"./lib":74}],74:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");// Load modules
@@ -11221,9 +11248,70 @@ internals.ignore = function () {
 
 };
 
-},{"__browserify_Buffer":4,"__browserify_process":76,"dgram":26,"dns":24,"hoek":70}],75:[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":77,"dgram":26,"dns":24,"hoek":70}],75:[function(require,module,exports){
 module.exports = require("./lib/hkdf");
-},{"./lib/hkdf":59}],76:[function(require,module,exports){
+},{"./lib/hkdf":76}],76:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");//
+// a straightforward implementation of HKDF
+//
+// https://tools.ietf.org/html/rfc5869
+//
+
+var crypto = require("crypto");
+
+function zeros(length) {
+  var buf = new Buffer(length);
+
+  buf.fill(0);
+
+  return buf.toString();
+}
+// imk is initial keying material
+function HKDF(hashAlg, salt, ikm) {
+  this.hashAlg = hashAlg;
+
+  // create the hash alg to see if it exists and get its length
+  var hash = crypto.createHash(this.hashAlg);
+  this.hashLength = hash.digest().length;
+
+  this.salt = salt || zeros(this.hashLength);
+  this.ikm = ikm;
+
+  // now we compute the PRK
+  var hmac = crypto.createHmac(this.hashAlg, this.salt);
+  hmac.update(this.ikm);
+  this.prk = hmac.digest();
+}
+
+HKDF.prototype = {
+  derive: function(info, size, cb) {
+    var prev = new Buffer(0);
+    var output;
+    var buffers = [];
+    var num_blocks = Math.ceil(size / this.hashLength);
+    info = new Buffer(info);
+
+    for (var i=0; i<num_blocks; i++) {
+      var hmac = crypto.createHmac(this.hashAlg, this.prk);
+      // XXX is there a more optimal way to build up buffers?
+      var input = Buffer.concat([
+        prev,
+        info,
+        new Buffer(String.fromCharCode(i + 1))
+      ]);
+      hmac.update(input);
+      prev = hmac.digest();
+      buffers.push(prev);
+    }
+    output = Buffer.concat(buffers, size);
+
+    process.nextTick(function() {cb(output);});
+  }
+};
+
+module.exports = HKDF;
+
+},{"__browserify_Buffer":4,"__browserify_process":77,"crypto":"l4eWKl"}],77:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -11277,7 +11365,7 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 var process=require("__browserify_process");/*!
  * Copyright 2013 Robert Katić
  * Released under the MIT license
@@ -11716,7 +11804,7 @@ var process=require("__browserify_process");/*!
 	return P;
 });
 
-},{"__browserify_process":76}],78:[function(require,module,exports){
+},{"__browserify_process":77}],79:[function(require,module,exports){
 /** @fileOverview Bit array codec implementations.
  *
  * @author Emily Stark
@@ -11757,7 +11845,13 @@ module.exports = {
   }
 };
 
-},{"sjcl":79}],79:[function(require,module,exports){
+},{"sjcl":83}],"crypto":[function(require,module,exports){
+module.exports=require('l4eWKl');
+},{}],"buffer":[function(require,module,exports){
+module.exports=require('IZihkv');
+},{}],"bignum":[function(require,module,exports){
+module.exports=require('xttfNN');
+},{}],83:[function(require,module,exports){
 "use strict";function q(a){throw a;}var t=void 0,u=!1;var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
 "undefined"!=typeof module&&module.exports&&(module.exports=sjcl);
 sjcl.cipher.aes=function(a){this.j[0][0][0]||this.D();var b,c,d,e,f=this.j[0][4],g=this.j[1];b=a.length;var h=1;4!==b&&(6!==b&&8!==b)&&q(new sjcl.exception.invalid("invalid aes key size"));this.a=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
@@ -11808,18 +11902,12 @@ q(new sjcl.exception.invalid("json encode: invalid property name")),c+=d+'"'+b+'
 b){var c={},d;for(d in a)a.hasOwnProperty(d)&&a[d]!==b[d]&&(c[d]=a[d]);return c},W:function(a,b){var c={},d;for(d=0;d<b.length;d++)a[b[d]]!==t&&(c[b[d]]=a[b[d]]);return c}};sjcl.encrypt=sjcl.json.encrypt;sjcl.decrypt=sjcl.json.decrypt;sjcl.misc.V={};
 sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.V,d;b=b||{};d=b.iter||1E3;c=c[a]=c[a]||{};d=c[d]=c[d]||{firstSalt:b.salt&&b.salt.length?b.salt.slice(0):sjcl.random.randomWords(2,0)};c=b.salt===t?d.firstSalt:b.salt;d[c]=d[c]||sjcl.misc.pbkdf2(a,c,b.iter);return{key:d[c].slice(0),salt:c.slice(0)}};
 
-},{"crypto":"l4eWKl"}],"crypto":[function(require,module,exports){
-module.exports=require('l4eWKl');
-},{}],"bignum":[function(require,module,exports){
-module.exports=require('xttfNN');
-},{}],"buffer":[function(require,module,exports){
-module.exports=require('IZihkv');
-},{}],83:[function(require,module,exports){
+},{"crypto":"l4eWKl"}],84:[function(require,module,exports){
 module.exports = require('./lib/srp');
 
 module.exports.params = require('./lib/params');
 
-},{"./lib/params":84,"./lib/srp":85}],84:[function(require,module,exports){
+},{"./lib/params":85,"./lib/srp":86}],85:[function(require,module,exports){
 /*
  * SRP Group Parameters
  * http://tools.ietf.org/html/rfc5054#appendix-A
@@ -12000,7 +12088,7 @@ module.exports = {
     hash: 'sha256'}
 };
 
-},{"bignum":"xttfNN"}],85:[function(require,module,exports){
+},{"bignum":"xttfNN"}],86:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;const crypto = require('crypto'),
       bignum = require('bignum'),
       assert = require('assert');
@@ -12411,40 +12499,7 @@ module.exports = {
   Server: Server
 };
 
-},{"./params":84,"__browserify_Buffer":4,"assert":25,"bignum":"xttfNN","crypto":"l4eWKl"}],86:[function(require,module,exports){
-var global=self;
-var rng;
-
-if (global.crypto && crypto.getRandomValues) {
-  // WHATWG crypto-based RNG - http://wiki.whatwg.org/wiki/Crypto
-  // Moderately fast, high quality
-  var _rnds8 = new Uint8Array(16);
-  rng = function whatwgRNG() {
-    crypto.getRandomValues(_rnds8);
-    return _rnds8;
-  };
-}
-
-if (!rng) {
-  // Math.random()-based (RNG)
-  //
-  // If all else fails, use Math.random().  It's fast, but is of unspecified
-  // quality.
-  var  _rnds = new Array(16);
-  rng = function() {
-    for (var i = 0, r; i < 16; i++) {
-      if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-      _rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
-    }
-
-    return _rnds;
-  };
-}
-
-module.exports = rng;
-
-
-},{}],87:[function(require,module,exports){
+},{"./params":85,"__browserify_Buffer":4,"assert":25,"bignum":"xttfNN","crypto":"l4eWKl"}],87:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;//     uuid.js
 //
 //     Copyright (c) 2010-2012 Robert Kieffer
@@ -12633,5 +12688,5 @@ uuid.BufferClass = BufferClass;
 
 module.exports = uuid;
 
-},{"./rng":86,"__browserify_Buffer":4}]},{},[1])
+},{"./rng":59,"__browserify_Buffer":4}]},{},[1])
 ;
