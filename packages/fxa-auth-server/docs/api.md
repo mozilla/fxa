@@ -1318,16 +1318,6 @@ There are no standard failure modes for this endpoint.
 
 During periods of heavy load, the auth server may request that clients enter a "backoff" state in which they avoid making further requests.
 
-If the server is under heavy load but is still able to satisfy the client's request, it will include a `Backoff` header in the HTTP response.  The value is an integer number of seconds that the client should wait before issuing any further requests.  For example, the following response would indicate that the server has successfully processed the request, but that the client should avoid sending additional requests for 20 seconds:
-
-```
-HTTP/1.1 200 OK
-Backoff: 20
-Content-Type: application/json
-
-{}
-```
-
 If the server is under too much load to handle the client's request, it will return a `503 Service Unavailable` HTTP response.  The response will include `Retry-After` header giving the number of seconds that the client should wait before issuing any further requests.  It will also include a [JSON error response](#response-format) with `errno` of 201, and with a `retryAfter` field that matches the value in the `Retry-After` header.  For example, the following response would indicate that the server could not process the request and the client should avoid sending additional requests for 30 seconds:
 
 ```
