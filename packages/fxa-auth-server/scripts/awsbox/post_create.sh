@@ -32,7 +32,7 @@ echo "Installing identity team public keys"
 
 git clone https://github.com/mozilla/identity-pubkeys
 cd identity-pubkeys
-git checkout b63a19a153f631c949e7f6506ad4bf1f258dda69
+git checkout 9e009e6f15f28debfb59d3d7787dfc20c50e230f
 cat *.pub >> /home/ec2-user/.ssh/authorized_keys
 cd ..
 rm -rf identity-pubkeys
