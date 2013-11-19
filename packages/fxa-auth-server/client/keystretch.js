@@ -9,7 +9,7 @@ var hkdf = require('../hkdf')
 
 // The namespace for the salt functions
 const NAMESPACE = 'identity.mozilla.com/picl/v1/'
-const SCRYPT_HELPER = 'https://scrypt.dev.lcip.org/'
+const SCRYPT_HELPER = 'https://scrypt-accounts.dev.lcip.org/'
 
 
 /** Derive a key from an email and password pair
