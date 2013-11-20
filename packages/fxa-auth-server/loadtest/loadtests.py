@@ -228,7 +228,6 @@ class LoadTest(TestCase):
 
     def _pick_user_and_authenticate(self):
         email = self._pick_user()
-        print "\nUSING EMAIL", email
         if "new" in email:
             self._authenticate_as_new_user()
         else:
