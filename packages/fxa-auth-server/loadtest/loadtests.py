@@ -16,7 +16,7 @@ from requests.auth import AuthBase
 from loads import TestCase
 
 
-# Error constants used by the picl-idp API.
+# Error constants used by the fxa-auth-server API.
 
 ERROR_ACCOUNT_EXISTS = 101
 ERROR_UNKNOWN_ACCOUNT = 102
@@ -199,7 +199,7 @@ class HawkAuth(AuthBase):
 
 class LoadTest(TestCase):
 
-    server_url = 'http://idp.loadtest.lcip.org'
+    server_url = 'http://api-accounts.loadtest.lcip.org'
     #server_url = 'http://127.0.0.1:9000/'
 
     def makeurl(self, path):
@@ -218,7 +218,7 @@ class LoadTest(TestCase):
         self.credentials = None
         super(LoadTest, self).tearDown()
 
-    def test_idp(self):
+    def test_auth_server(self):
         self._pick_user_and_authenticate()
         if 'keyfetch' in self.tokens:
             self._fetch_keys()

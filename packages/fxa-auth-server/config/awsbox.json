@@ -3,16 +3,17 @@
     "backend": "mysql"
   },
   "mysql": {
-    "user": "picl"
+    "user": "fxa"
   },
   "smtp": {
     "host": "localhost",
     "port": 25,
-    "secure": false
+    "secure": false,
+    "sender": "Firefox Accounts <rfkelly@mozilla.com>"
   },
   "secretKeyFile": "/home/app/var/secret-key.json",
   "publicKeyFile": "/home/app/var/public-key.json",
-  "bridge": {
+  "contentServer": {
     "url": "https://accounts.dev.lcip.org"
   }
 }
