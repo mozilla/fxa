@@ -220,31 +220,60 @@ class LoadTest(TestCase):
 
     def test_idp(self):
         self._pick_user_and_authenticate()
-        self._start_session()
-        self._fetch_keys()
+        if 'keyfetch' in self.tokens:
+            self._fetch_keys()
+        self._fetch_random_bytes()
         for i in xrange(random.randint(10, 100)):
             self._sign_public_key()
 
     def _pick_user_and_authenticate(self):
-        # Target ratio is 2 new-account signups per 10 old-account signups.
-        if random.randint(1, 12) <= 2:
+        email = self._pick_user()
+        if "new" in email:
             self._authenticate_as_new_user()
         else:
             self._authenticate_as_existing_user()
+
+    def _pick_user(self):
+        # User emails look like this:
+        #
+        #    loads-<id>-(raw|srp)-(old|new)@restmail.lcip.org
+        #
+        # The components mean:
+        #    * id:   randomly-generated id
+        #    * raw:  uses /raw_password auth endpoints
+        #    * srp:  uses srp-protocol auth endpoints
+        #    * old:  we expect this account to already exist
+        #    * new:  we expect this account to not exist
+        #
+        # Note that we can't mix 'raw' and 'srp' operations on the one account
+        # because then we'd have to do keystretching in the loadtest client.
+        #
+        # We want the following ratios:
+        #   * 2 new-user signup per 10 existing-account logins
+        #   * 50/50 split between raw and srp authentication methods
+        #
+        auth = random.choice(['raw', 'srp'])
+        status = random.choice((['new'] * 2) + (['old'] * 10))
+        if status == 'old':
+            id = str(random.randint(1, 999))
+        else:
+            id =  uniq()
+        email = "loads-%s-%s-%s@restmail.lcip.org" % (id, auth, status)
+        self.credentials['email'] = email.encode('hex')
+        return email
 
     def _authenticate_as_new_user(self):
         # Authenticate as a brand-new user account.
         # Assume it doesn't exist, try to create the account.
         # But it's not big deal if it happens to already exist.
-        email = 'loadyR%s@restmail.lcip.org' % (uniq(),)
-        self.credentials['email'] = email.encode('hex')
+        email = self.credentials['email'].decode('hex')
         self.credentials['srp']['verifier'] = get_dummy_srp_v(email)
-        res = self._req_create_account()
+        res = self._create_account()
         if res.status_code != 200:
             self.assertEqual(res.status_code, 400)
             err = res.json()
             self.assertEqual(err['errno'], ERROR_ACCOUNT_EXISTS)
-        res = self._req_login()
+        res = self._start_session()
         self.assertEqual(res.status_code, 200)
         return res
 
@@ -253,44 +282,31 @@ class LoadTest(TestCase):
         # We select from a small pool of known accounts, creating it
         # if it does not exist.  This should mean that all the accounts
         # are created quickly at the start of the loadtest run.
-        email = 'loadyF%d@restmail.lcip.org' % (random.randint(1, 999),)
-        self.credentials['email'] = email.encode('hex')
+        email = self.credentials['email'].decode('hex')
         self.credentials['srp']['verifier'] = get_dummy_srp_v(email)
-        res = self._req_login()
+        res = self._start_session()
         if res.status_code != 200:
             self.assertEqual(res.status_code, 400)
             err = res.json()
             self.assertEqual(err['errno'], ERROR_UNKNOWN_ACCOUNT)
-            res = self._req_create_account()
+            res = self._create_account()
             # Account creation might fail in turn, due to a race condition.
             if res.status_code != 200:
                 self.assertEqual(res.status_code, 400)
                 err = res.json()
                 self.assertEqual(err['errno'], ERROR_ACCOUNT_EXISTS)
-            res = self._req_login()
+            res = self._start_session()
             self.assertEqual(res.status_code, 200)
         return res
 
-    def _start_session(self):
-        auth = self.makehawkauth(self.tokens.pop('auth'), 'authToken')
-        res = self._req_create_session(auth)
-        self.assertEqual(res.status_code, 200)
+    def _create_account(self):
+        email = self.credentials['email'].decode('hex')
+        if "srp" in email:
+            return self._create_account_srp()
+        else:
+            return self._create_account_raw()
 
-    def _fetch_keys(self):
-        auth = self.makehawkauth(self.tokens.pop('keyfetch'), 'keyFetchToken')
-        res = self._req_fetch_keys(auth)
-        self.assertEqual(res.status_code, 200)
-
-    def _sign_public_key(self):
-        auth = self.makehawkauth(self.tokens['session'], 'sessionToken')
-        res = self._req_sign_cert(auth)
-        self.assertEqual(res.status_code, 200)
-
-    # Low-level protocol request methods.
-    # These methods perform one or more closely-related requests
-    # and return the raw result object.
-
-    def _req_create_account(self):
+    def _create_account_srp(self):
         res = self._req_POST('/v1/account/create', {
           'email': self.credentials['email'],
           'srp': self.credentials['srp'],
@@ -298,7 +314,21 @@ class LoadTest(TestCase):
         })
         return res
 
-    def _req_login(self):
+    def _create_account_raw(self):
+        res = self._req_POST('/v1/raw_password/account/create', {
+          'email': self.credentials['email'],
+          'password': 'password',
+        })
+        return res
+
+    def _start_session(self):
+        email = self.credentials['email'].decode('hex')
+        if "srp" in email:
+            return self._start_session_srp()
+        else:
+            return self._start_session_raw()
+
+    def _start_session_srp(self):
         # Grab the srp session token.
         res = self._req_POST('/v1/auth/start', {
           'email': self.credentials['email'],
@@ -330,29 +360,53 @@ class LoadTest(TestCase):
           'A': A.encode('hex'),
           'M': M.encode('hex'),
         })
-        if res.status_code == 200:
-            authbundle = binascii.unhexlify(res.json()['bundle'])
-            self.tokens['auth'] = unbundle(K, 'auth/finish', authbundle)
-        return res
-
-    def _req_create_session(self, auth):
+        if res.status_code != 200:
+            return res
+        authbundle = binascii.unhexlify(res.json()['bundle'])
+        authtoken = unbundle(K, 'auth/finish', authbundle)
+        # Trade authtoken for a sessiontoken.
+        auth = self.makehawkauth(authtoken, 'authToken')
         res = self._req_POST('/v1/session/create', {}, auth=auth)
-        if res.status_code == 200:
-            bundle = binascii.unhexlify(res.json()['bundle'])
-            tokenData = unbundle(auth.bundleKey, 'session/create', bundle)
-            self.tokens['keyfetch'] = tokenData[:32]
-            self.tokens['session'] = tokenData[32:]
+        if res.status_code != 200:
+            return res
+        bundle = binascii.unhexlify(res.json()['bundle'])
+        tokenData = unbundle(auth.bundleKey, 'session/create', bundle)
+        self.tokens['keyfetch'] = tokenData[:32]
+        self.tokens['session'] = tokenData[32:]
         return res
 
-    def _req_fetch_keys(self, auth):
-        return self._req_GET('/v1/account/keys', auth=auth)
+    def _start_session_raw(self):
+        res = self._req_POST('/v1/raw_password/session/create', {
+          'email': self.credentials['email'],
+          'password': 'password',
+        })
+        if res.status_code != 200:
+            return res
+        sessionToken = res.json()['sessionToken']
+        self.tokens['session'] = sessionToken.decode('hex')
+        return res
 
-    def _req_sign_cert(self, auth):
+    def _fetch_keys(self):
+        auth = self.makehawkauth(self.tokens.pop('keyfetch'), 'keyFetchToken')
+        res = self._req_GET('/v1/account/keys', auth=auth)
+        self.assertEqual(res.status_code, 200)
+        return res
+
+    def _fetch_random_bytes(self):
+        res = self._req_POST('/v1/get_random_bytes', {})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.json()['data']), 64)
+        return res
+
+    def _sign_public_key(self):
+        auth = self.makehawkauth(self.tokens['session'], 'sessionToken')
         payload = {
             'publicKey': DUMMY_PUBLIC_KEY,
             'duration': 1000,
         }
-        return self._req_POST('/v1/certificate/sign', payload, auth=auth)
+        res = self._req_POST('/v1/certificate/sign', payload, auth=auth)
+        self.assertEqual(res.status_code, 200)
+        return res
 
     # Raw request-making methods.
     # These are just skinny helpers over the methods on self.session.

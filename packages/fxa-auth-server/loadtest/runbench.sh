@@ -19,13 +19,6 @@ fi
 $SSH -N -L 7776:$BROKER:7776 -L 7780:$BROKER:7780 ec2-user@$BROKER &
 SSH_PID=$!
 
-# This depends on the agent boxes having fxa-auth-server installed and built.
-# XXX TODO: better way to get the JS support code onto the agent boxes.
-
-# JavaScript runner:
-./bin/loads-runner --users=20 --duration=300 --external-process-timeout=60 --broker=tcp://localhost:7780 --zmq-publisher=tcp://localhost:7776 --agents=5 --test-runner="/home/app/fxa-auth-server/loadtest/lib/loads.js/loadsjs/runner.js {test}" "/home/app/fxa-auth-server/loadtest/loadtests.js"
-
-# Python runner
-#./bin/loads-runner --users=20 --duration=300 --broker=tcp://localhost:7780 --zmq-publisher=tcp://localhost:7776 --agents=5 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_idp
+./bin/loads-runner --users=20 --duration=300 --broker=tcp://localhost:7780 --zmq-publisher=tcp://localhost:7776 --agents=5 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_idp
 
 kill $SSH_PID
