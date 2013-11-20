@@ -7,7 +7,7 @@ sudo /sbin/chkconfig mysqld on
 sudo /sbin/service mysqld start
 echo "CREATE USER 'fxa'@'localhost';" | mysql -u root
 echo "CREATE DATABASE fxa;" | mysql -u root
-echo "GRANT ALL ON fxa* TO 'fxa'@'localhost';" | mysql -u root
+echo "GRANT ALL ON fxa.* TO 'fxa'@'localhost';" | mysql -u root
 
 echo "Setting up memcached"
 
