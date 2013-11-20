@@ -222,6 +222,7 @@ class LoadTest(TestCase):
         self._pick_user_and_authenticate()
         if 'keyfetch' in self.tokens:
             self._fetch_keys()
+        self._fetch_random_bytes()
         for i in xrange(random.randint(10, 100)):
             self._sign_public_key()
 
@@ -390,6 +391,12 @@ class LoadTest(TestCase):
         auth = self.makehawkauth(self.tokens.pop('keyfetch'), 'keyFetchToken')
         res = self._req_GET('/v1/account/keys', auth=auth)
         self.assertEqual(res.status_code, 200)
+        return res
+
+    def _fetch_random_bytes(self):
+        res = self._req_POST('/v1/get_random_bytes', {})
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(res.json()['data']), 64)
         return res
 
     def _sign_public_key(self):
