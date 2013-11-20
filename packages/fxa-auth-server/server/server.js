@@ -110,6 +110,24 @@ module.exports = function (path, url, Hapi, toobusy, error) {
     )
 
     server.ext(
+      'onPreAuth',
+      function (request, next) {
+        if (request.headers.authorization) {
+          log.trace(
+            {
+              op: 'server.onPreAuth',
+              rid: request.id,
+              path: request.path,
+              auth: request.headers.authorization,
+              type: request.headers['content-type'] || ''
+            }
+          )
+        }
+        next()
+      }
+    )
+
+    server.ext(
       'onPreHandler',
       function (request, next) {
         log.trace(

@@ -44,7 +44,7 @@ Boom.wrap = function (srcObject) {
       } else if (object.message === 'Invalid nonce') {
         object = Boom.invalidNonce().response.payload
       } else {
-        object = Boom.invalidSignature().response.payload
+        object = Boom.invalidSignature(object.message).response.payload
       }
     }
     else if (object.code === 400) {
@@ -146,11 +146,11 @@ Boom.missingRequestParameter = function (param) {
   })
 }
 
-Boom.invalidSignature = function () {
+Boom.invalidSignature = function (message) {
   return Boom.wrap({
     code: 401,
     errno: 109,
-    message: 'Invalid request signature'
+    message: message || 'Invalid request signature'
   })
 }
 
