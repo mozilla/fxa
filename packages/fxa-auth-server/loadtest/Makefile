@@ -25,9 +25,9 @@ clean:
 # Run a single test from the local machine, for sanity-checking.
 test:
 	# JavaScript runner:
-	./bin/loads-runner --hits=1 --users=1 --external-process-timeout=30 --test-runner="`pwd`/lib/loads.js/loadsjs/runner.js {test}" "`pwd`/loadtests.js"
+	#./bin/loads-runner --hits=1 --users=1 --external-process-timeout=30 --test-runner="`pwd`/lib/loads.js/loadsjs/runner.js {test}" "`pwd`/loadtests.js"
 	# Python runner:
-	#./bin/loads-runner --hits=1 --users=1 loadtests.LoadTest.test_idp
+	./bin/loads-runner --hits=1 --users=1 loadtests.LoadTest.test_idp
 
 # Run a full bench, by submitting to broker in AWS.
 bench:
