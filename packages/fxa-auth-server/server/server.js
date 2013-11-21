@@ -80,6 +80,11 @@ module.exports = function (path, url, Hapi, toobusy, error) {
         cors: true,
         files: {
           relativeTo: path.dirname(__dirname)
+        },
+        state: {
+          cookies: {
+            parse: false
+          }
         }
       }
     )
