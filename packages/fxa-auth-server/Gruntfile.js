@@ -22,6 +22,7 @@ module.exports = function (grunt) {
         "**/*.js",
         "**/*.json",
         "!node_modules/**",
+        "!client/emscrypt.js",
         "!web/**"
       ],
       options: {

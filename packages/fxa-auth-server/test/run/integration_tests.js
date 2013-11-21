@@ -375,7 +375,7 @@ TestServer.start(config.public_url)
               },
               function (err, res, body) {
                 t.equal(body.errno, 111, 'invalid auth timestamp')
-                now = +new Date() / 1000
+                var now = +new Date() / 1000
                 t.ok(body.serverTime > now - 5, 'includes current time')
                 t.ok(body.serverTime < now + 5, 'includes current time')
                 t.end()
