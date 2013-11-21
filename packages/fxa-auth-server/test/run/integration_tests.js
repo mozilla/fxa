@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('tap').test
-var path = require('path')
 var crypto = require('crypto')
 var Client = require('../../client')
 var TestServer = require('../test_server')
@@ -27,7 +26,7 @@ TestServer.start(config.public_url)
   var email2 = uniqueID() + "@example.com"
   var email3 = uniqueID() + "@example.com"
   var email4 = uniqueID() + "@example.com"
-  var email5 = uniqueID() + "@example.com"
+  // var email5 = uniqueID() + "@example.com"
   var email6 = uniqueID() + "@example.com"
   var email7 = uniqueID() + "@example.com"
 

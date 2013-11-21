@@ -22,8 +22,8 @@ TestServer.start(config.public_url)
   // which may already have some accounts in its db.
 
   var email1 = uniqueID() + "@example.com"
-  var email2 = uniqueID() + "@example.com"
-  var email3 = uniqueID() + "@example.com"
+  // var email2 = uniqueID() + "@example.com"
+  // var email3 = uniqueID() + "@example.com"
 
   test(
     '(reduced security) Create account',
