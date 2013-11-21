@@ -81,10 +81,13 @@ module.exports = function (config, i18n, log) {
     return d.promise
   }
 
-  Mailer.prototype.sendVerifyCode = function (account, code, preferredLang) {
+  Mailer.prototype.sendVerifyCode = function (account, code, service, preferredLang) {
     log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
     var template = templates.verify
     var link = this.verificationUrl + '?uid=' + account.uid.toString('hex')
+    if (service) {
+      link += '&service=' + service
+    }
     link += '&code=' + code
     var reportLink = this.reportUrl
 
@@ -102,6 +105,7 @@ module.exports = function (config, i18n, log) {
       headers: {
         'X-Uid': account.uid.toString('hex'),
         'X-Verify-Code': code,
+        'X-Service-ID': service,
         'X-Link': link
       }
     }

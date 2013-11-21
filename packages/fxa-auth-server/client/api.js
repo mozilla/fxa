@@ -100,6 +100,7 @@ ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStr
         salt: salt
       },
       passwordStretching: passwordStretching,
+      service: options.service || undefined,
       preVerified: options.preVerified
     },
     {
@@ -178,14 +179,19 @@ ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
     )
 }
 
-ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex) {
+ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, service) {
+  var payload = {}
+  if (service) {
+    payload.service = service
+  }
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
         return this.doRequest(
           'POST',
           this.baseURL + '/recovery_email/resend_code',
-          token
+          token,
+          payload
         )
       }.bind(this)
     )

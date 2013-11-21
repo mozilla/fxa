@@ -36,6 +36,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 salt: isA.String().min(64).max(64).regex(HEX_STRING).required()
               }
             ).required(),
+            service: isA.String().max(16).alphanum().optional(),
             preVerified: isA.Boolean()
           }
         },
@@ -77,6 +78,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 return mailer.sendVerifyCode(
                   account,
                   account.emailCode,
+                  form.service,
                   request.app.preferredLang
                 )
                 .then(function () { return account })
@@ -213,6 +215,11 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         auth: {
           strategy: 'sessionToken'
         },
+        validate: {
+          payload: {
+            service: isA.String().max(16).alphanum().optional()
+          }
+        },
         tags: ["account", "recovery"],
         handler: function (request) {
           log.begin('Account.RecoveryEmailResend', request)
@@ -220,6 +227,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
           mailer.sendVerifyCode(
             sessionToken,
             sessionToken.emailCode,
+            request.payload.service,
             request.app.preferredLang
           ).done(
             function () {
