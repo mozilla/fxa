@@ -1,6 +1,8 @@
 Firefox Accounts Server
 =======================
 
+[![Build Status](https://travis-ci.org/mozilla/fxa-auth-server.png)](https://travis-ci.org/mozilla/fxa-auth-server)
+
 This project implements the core server-side API for Firefox Accounts.  It
 provides account, device and encryption-key management for the Mozilla Cloud
 Services ecosystem.
@@ -50,8 +52,8 @@ Run tests with:
 A node library that implements the client side of the protocol and an example
 script is located in the `/client` directory.
 
-[/client/index.js](/client/index.js)
-[/client/example.js](/client/example.js)
+* [/client/index.js](/client/index.js)
+* [/client/example.js](/client/example.js)
 
 
 ## Dev Deployment
