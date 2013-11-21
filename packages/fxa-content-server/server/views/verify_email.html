@@ -19,6 +19,10 @@ var code = "{{ code }}";
 var uid = "{{ uid }}";
 var fxaUrl = "{{ fxa }}";
 
+if (!code && window.location.hash) {
+  code = /code=(\w+)/.exec(window.location.hash)[1]
+}
+
 var Client = gherkin.Client;
 var client = new Client(fxaUrl);
 client.uid = uid;
