@@ -64,11 +64,6 @@ TestServer.start(config.public_url)
         .then(
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
-            var certData = Buffer(cert.split('.')[1], 'base64').toString()
-            cert = JSON.parse(certData)
-            t.equal(cert.principal.uid, client.uid, 'cert has correct uid')
-            t.equal(cert.principal.email, email, 'cert has correct email')
-            t.deepEqual(cert['public-key'], publicKey, 'cert has correct key')
           }
         )
         .done(
