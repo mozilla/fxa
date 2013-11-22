@@ -107,7 +107,7 @@ test(
         function () {
           var wrapKb = '404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f'
           var newSRPv = '1'
-          while (newSRPv.length != 512) {
+          while (newSRPv.length !== 512) {
             newSRPv += newSRPv
           }
           return token.bundleAccountData(wrapKb, newSRPv)
