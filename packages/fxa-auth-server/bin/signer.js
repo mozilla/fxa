@@ -20,15 +20,12 @@ process.on('message', function (message) {
   if (!message.email || typeof(message.email) !== 'string') {
     return process.send({ err: { message: 'bad email' } })
   }
-  if (!message.uid || typeof(message.uid) !== 'string') {
-    return process.send({ err: { message: 'bad uid' } })
-  }
   try {
     var now = Date.now()
     jwcrypto.cert.sign(
       {
         publicKey: jwcrypto.loadPublicKeyFromObject(message.publicKey),
-        principal: { email: message.email, uid: message.uid },
+        principal: { email: message.email },
         //TODO: kA, etc
       },
       {

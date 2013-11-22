@@ -1,17 +1,6 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-var fs = require('fs')
 var path = require('path')
 var test = require('tap').test
 var CC = require('compute-cluster')
-var jwcrypto = require('jwcrypto')
-require('jwcrypto/lib/algs/rs')
-
-var config = require('../../config')
-var publicKey = jwcrypto.loadPublicKey(fs.readFileSync(config.get('publicKeyFile')))
-
 var signer = new CC({ module: path.join(__dirname, '../../bin/signer.js')})
 signer.on('error', function () {}) // don't die
 
@@ -27,7 +16,6 @@ test(
     signer.enqueue(
       {
         email: 'test@example.com',
-        uid: 'xxx',
         duration: 100
       },
       function (err, result) {
@@ -44,7 +32,6 @@ test(
     signer.enqueue(
       {
         email: 'test@example.com',
-        uid: 'xxx',
         publicKey: {},
         duration: 100
       },
@@ -62,7 +49,6 @@ test(
     signer.enqueue(
       {
         email: 'test@example.com',
-        uid: 'xxx',
         publicKey: {
           algorithm: 'RS',
           n: '1234'
@@ -83,7 +69,6 @@ test(
     signer.enqueue(
       {
         email: 'test@example.com',
-        uid: 'xxx',
         publicKey: {
           algorithm: 'RS',
           n: '7',
@@ -105,7 +90,6 @@ test(
     signer.enqueue(
       {
         email: 'test@example.com',
-        uid: 'xxx',
         publicKey: validKey,
         duration: -1
       },
@@ -123,7 +107,6 @@ test(
     signer.enqueue(
       {
         email: 'test@example.com',
-        uid: 'xxx',
         publicKey: validKey,
         duration: '2'
       },
@@ -140,7 +123,6 @@ test(
   function (t) {
     signer.enqueue(
       {
-        uid: 'xxx',
         publicKey: validKey,
         duration: 100
       },
@@ -157,22 +139,13 @@ test(
   function (t) {
     signer.enqueue(
       {
-        uid: 'xxx',
         email: 'test@example.com',
         publicKey: validKey,
         duration: 100
       },
       function (err, result) {
         t.ok(result.cert, 'got cert')
-        jwcrypto.verify(
-          result.cert,
-          publicKey,
-          function (err, payload) {
-            t.equal(payload.principal.email, 'test@example.com', 'emails match')
-            t.equal(payload.principal.uid, 'xxx', 'uids match')
-            t.end()
-          }
-        )
+        t.end()
       }
     )
   }
@@ -184,7 +157,6 @@ test(
     signer.enqueue(
       {
         crash: true,
-        uid: 'xxx',
         email: 'test@example.com',
         publicKey: validKey,
         duration: 100
@@ -218,7 +190,6 @@ test(
     for (var i = 0; i < count; i++) {
       signer.enqueue(
         {
-          uid: 'xxx',
           email: 'test@example.com',
           publicKey: validKey,
           duration: 100
