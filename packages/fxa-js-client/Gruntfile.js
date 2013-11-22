@@ -9,8 +9,8 @@ module.exports = function(grunt) {
     requirejs: {
       options: {
         baseUrl: '.',
-        include: ['gherkin/FxAccountClient'],
-        insertRequire: ['gherkin/FxAccountClient'],
+        include: ['client/FxAccountClient'],
+        insertRequire: ['client/FxAccountClient'],
         name: 'components/almond/almond',
         wrap: {
           startFile: 'config/start.frag',
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
         options: {
           atBegin: true
         },
-        files: ['gherkin/**/*.js', 'tests/**/*.js'],
+        files: ['client/**/*.js', 'tests/**/*.js'],
         tasks: ['build', 'intern:node']
       },
       config: {
@@ -55,8 +55,8 @@ module.exports = function(grunt) {
         src: ['Gruntfile.js', 'config/**/*.js']
       },
       app: {
-        options: {jshintrc: 'gherkin/.jshintrc'},
-        src: ['gherkin/*.js', 'gherkin/lib/**/*']
+        options: {jshintrc: 'client/.jshintrc'},
+        src: ['client/*.js', 'client/lib/**/*']
       }
     },
     bytesize: {
@@ -85,7 +85,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build',
-    'Build gherkin',
+    'Build client',
     ['clean', 'jshint', 'requirejs', 'bytesize']);
 
   grunt.registerTask('test',

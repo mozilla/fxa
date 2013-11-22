@@ -5,7 +5,7 @@ define({
 
   loader: {
     // Packages that should be registered with the loader in each testing environment
-    packages: [ { name: 'gherkin', location: 'gherkin' } ]
+    packages: [ { name: 'fxa-js-client', location: 'client' } ]
   },
 
   suites: [ 'tests/all' ],

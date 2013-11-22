@@ -1,7 +1,7 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'gherkin/FxAccountClient',
+  'client/FxAccountClient',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest'
 ], function (tdd, assert, FxAccountClient, xhr) {
   with (tdd) {

@@ -1,8 +1,8 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'gherkin/vendor/sjcl',
-  'gherkin/lib/hkdf'
+  'client/vendor/sjcl',
+  'client/lib/hkdf'
 ], function (tdd, assert, sjcl, hkdf) {
   with (tdd) {
 

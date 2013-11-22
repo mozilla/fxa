@@ -1,5 +1,5 @@
 {
-  "name": "gherkin",
+  "name": "fxa-js-client",
   "devDependencies": {
     "requirejs": "~2.1.6",
     "requirejs-plugins": "~1.0.2",
