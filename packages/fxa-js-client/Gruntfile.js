@@ -34,16 +34,12 @@ module.exports = function(grunt) {
       }
     },
     watch: {
-      lib: {
+      dev: {
         options: {
           atBegin: true
         },
-        files: ['gherkin/**/*.js'],
-        tasks: ['build']
-      },
-      tests: {
-        files: ['tests/**/*.js'],
-        tasks: ['test']
+        files: ['gherkin/**/*.js', 'tests/**/*.js'],
+        tasks: ['build', 'intern:node']
       },
       config: {
         files: ['Gruntfile.js', 'config/*'],
@@ -93,8 +89,8 @@ module.exports = function(grunt) {
     ['clean', 'jshint', 'requirejs', 'bytesize']);
 
   grunt.registerTask('test',
-    'Run gherkin tests',
-    ['build', 'intern:node']);
+    'Run tests via node',
+    ['intern:node']);
 
   grunt.registerTask('default',
     ['build']);
