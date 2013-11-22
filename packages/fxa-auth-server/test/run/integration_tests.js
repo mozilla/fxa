@@ -26,9 +26,8 @@ TestServer.start(config.public_url)
   var email2 = uniqueID() + "@example.com"
   var email3 = uniqueID() + "@example.com"
   var email4 = uniqueID() + "@example.com"
-  // var email5 = uniqueID() + "@example.com"
+  var email5 = uniqueID() + "@example.com"
   var email6 = uniqueID() + "@example.com"
-  var email7 = uniqueID() + "@example.com"
 
   test(
     'Create account flow',
@@ -265,7 +264,7 @@ TestServer.start(config.public_url)
   test(
     'Unknown account should not exist',
     function (t) {
-      var email = email6
+      var email = email5
       var client = new Client(config.public_url)
       client.accountExists(email)
         .then(
@@ -280,7 +279,7 @@ TestServer.start(config.public_url)
   test(
     'Known account should exist',
     function (t) {
-      var email = email7
+      var email = email6
       var password = 'ilikepancakes'
       var client
       Client.create(config.public_url, email, password)
