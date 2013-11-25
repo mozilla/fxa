@@ -3,7 +3,7 @@ define([
   'intern/chai!assert',
   'client/lib/request',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest'
-], function (tdd, assert, Request, xhr) {
+], function (tdd, assert, Request, XHR) {
   with (tdd) {
     suite('request module', function () {
       var client;
@@ -11,8 +11,8 @@ define([
 
       before(function () {
         // use an xhr shim in node.js
-        var xhrFactory = xhr ? (function () { return new xhr.XMLHttpRequest(); }) : undefined;
-        client = new Request(baseUri, xhrFactory);
+        var xhr = XHR ? XHR.XMLHttpRequest : undefined;
+        client = new Request(baseUri, xhr);
       });
 
       test('#heartbeat (async)', function () {

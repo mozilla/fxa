@@ -13,14 +13,14 @@ define(['./lib/request', './vendor/sjcl', '../components/p/p'], function (Reques
     this.request = new Request(uri, config.xhr);
   }
 
-  FxAccountClient.prototype.proxiedSignUp = function(email, password) {
+  FxAccountClient.prototype.signUp = function(email, password) {
     return this.request.send("/raw_password/account/create", "POST", null, {
       email: str2hex(email),
       password: password
     });
   };
 
-  FxAccountClient.prototype.proxiedSignIn = function(email, password) {
+  FxAccountClient.prototype.signIn = function(email, password) {
     return this.request.send("/raw_password/session/create", "POST", null, {
       email: str2hex(email),
       password: password

@@ -2,16 +2,14 @@ define(['./hawk', '../../components/p/p'], function (hawk, p) {
   'use strict';
   /* global XMLHttpRequest */
 
-  function defaultXhrFactory () { return new XMLHttpRequest(); }
-
-  function Request (baseUri, xhrFactory) {
+  function Request (baseUri, xhr) {
     this.baseUri = baseUri;
-    this.xhr = xhrFactory || defaultXhrFactory;
+    this.xhr = xhr || XMLHttpRequest;
   }
 
   Request.prototype.send = function request(path, method, credentials, jsonPayload) {
     var deferred = p.defer();
-    var xhr = this.xhr();
+    var xhr = new this.xhr();
     var uri = this.baseUri + path;
     var payload;
 
