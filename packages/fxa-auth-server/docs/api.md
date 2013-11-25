@@ -34,8 +34,6 @@ All POST requests must have a content-type of `application/json` with a utf8-enc
 
 All successful requests will produce a response with HTTP status code of "200" and content-type of "application/json".  The structure of the response body will depend on the endpoint in question.
 
-An exception is `/v1/recovery_email/status` when accessed in server-sent-events mode, which will produce an event stream response with content-type "text/event-stream".
-
 Failures due to invalid behavior from the client will produce a response with HTTP status code in the "4XX" range and content-type of "application/json".  Failures due to an unexpected situation on the server will produce a response with HTTP status code in the "5XX" range and content-type of "application/json".
 
 To simplify error handling for the client, the type of error is indicated both by a particular HTTP status code, and by an application-specific error code in the JSON response body.  For example:
@@ -826,7 +824,6 @@ Currently, each account is associated with exactly one email address. This addre
 
 This call is used to determine the current state (verified or unverified) of the recovery email address. During account creation, until the address is verified, the agent can poll this method to discover when it should proceed with `/v1/certificate/sign` and `/v1/account/keys`.
 
-Rather than repeatedly polling, agents should use Server-Sent Events to effectively subscribe to hear about changes in this state. To use this, the GET request should include an `Accept: text/event-stream` header, which will trigger the server to provide an ongoing event stream instead of just a one-time response.
 
 ### Request
 
@@ -844,38 +841,15 @@ http://api-accounts.dev.lcip.org/v1/recovery_email/status \
 ```
 
 
-The request may include an `Accept` header to request a server-sent event feed to poll for successful verification.
-
-```sh
-curl -v \
--X GET \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H "Accept: text/event-stream" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/recovery_email/status \
-
-
 ### Response
 
-When the `Accept` header is not specified, or is specified with a value of "application/json", successful requests will produce a "200 OK" response with the account email and verification status in the JSON body object:
+Successful requests will produce a "200 OK" response with the account email and verification status in the JSON body object:
 
 ```json
 { "email": "6d65406578616d706c652e636f6d", "verified": true }
 ```
 
 The email address is encoded as a hex string, just like in /auth/start and /account/create .
-
-When the `Accept` header is specified with a value of "text/event-stream", successful requests will produce a "200 OK" response with streaming body data.  Each entry on the stream will be a single "data:" message containing the email and verification status in a JSON object:
-
-```js
-data: { "email": "6d65406578616d706c652e636f6d", "verified": false }
-
-data: { "email": "6d65406578616d706c652e636f6d", "verified": false }
-
-data: { "email": "6d65406578616d706c652e636f6d", "verified": true }
-```
-
 
 Failing requests may be due to the following errors:
 
