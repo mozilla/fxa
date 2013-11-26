@@ -11,7 +11,7 @@
     "node": ">=0.8.0"
   },
   "dependencies": {
-    "browserid-local-verify": "0.0.2",
+    "browserid-local-verify": "0.0.2"
   },
   "devDependencies": {
     "mocha": "1.14.0",
