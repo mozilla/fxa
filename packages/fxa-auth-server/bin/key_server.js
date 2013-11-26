@@ -7,7 +7,12 @@ var fs = require('fs')
 var config = require('../config').root()
 
 function main() {
-  var log = require('../log')(config)
+  var isProduction = config.env === 'production'
+  var log = require('../log')(isProduction ? config.log.level : 'trace')
+
+  if (!isProduction) {
+    log.info(config, "starting config")
+  }
 
   // memory monitor
   var MemoryMonitor = require('../memory_monitor')
