@@ -23,9 +23,6 @@
   },
   "scripts": {
     "test": "mocha -R spec tests/*.js",
-    "cover": "rm -rf lib-cov && node_modules/.bin/jscoverage lib lib-cov && BROWSERID_LOCAL_VERIFY_COV=true mocha -R html-cov tests/*.js > coverage.html "
-  },
-  "bin": {
-    "browserid-lookup": "./bin/browserid-lookup.js"
+    "cover": "rm -rf lib-cov && node_modules/.bin/jscoverage lib lib-cov && BROWSERID_VERIFIER_COV=true mocha -R html-cov tests/*.js > coverage.html "
   }
 }
