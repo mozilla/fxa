@@ -6,6 +6,16 @@ var P = require('p-promise')
 var mysql = require('mysql');
 var schema = require('fs').readFileSync(__dirname + '/schema.sql', { encoding: 'utf8'})
 
+function uuidToBuffer(uuid) {
+  return new Buffer(uuid.replace(/-/g, ''), 'hex');
+}
+
+function bufferToUuid(buf) {
+  var str = buf.toString('hex');
+  var uuid = str.slice(0, 8) + '-' + str.slice(8, 12) + '-' + str.slice(12, 16) + '-' + str.slice(16, 20) + '-' + str.slice(20, 32);
+  return uuid;
+}
+
 module.exports = function (
   config,
   log,
@@ -123,7 +133,7 @@ module.exports = function (
     this.client.query(
       sql,
       [
-        data.uid,
+        uuidToBuffer(data.uid),
         data.email,
         data.emailCode,
         data.verified,
@@ -149,7 +159,7 @@ module.exports = function (
         function (sessionToken) {
           this.client.query(
             sql,
-            [sessionToken.id, sessionToken.data, sessionToken.uid],
+            [sessionToken.id, sessionToken.data, uuidToBuffer(sessionToken.uid)],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(sessionToken)
@@ -169,7 +179,7 @@ module.exports = function (
         function (keyFetchToken) {
           this.client.query(
             sql,
-            [keyFetchToken.id, keyFetchToken.data, keyFetchToken.uid],
+            [keyFetchToken.id, keyFetchToken.data, uuidToBuffer(keyFetchToken.uid)],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(keyFetchToken)
@@ -189,7 +199,7 @@ module.exports = function (
         function (accountResetToken) {
           this.client.query(
             sql,
-            [accountResetToken.id, accountResetToken.data, accountResetToken.uid],
+            [accountResetToken.id, accountResetToken.data, uuidToBuffer(accountResetToken.uid)],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(accountResetToken)
@@ -209,7 +219,7 @@ module.exports = function (
         function (authToken) {
           this.client.query(
             sql,
-            [authToken.id, authToken.data, authToken.uid],
+            [authToken.id, authToken.data, uuidToBuffer(authToken.uid)],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(authToken)
@@ -229,7 +239,7 @@ module.exports = function (
         function (srpToken) {
           this.client.query(
             sql,
-            [srpToken.id, srpToken.data, srpToken.uid],
+            [srpToken.id, srpToken.data, uuidToBuffer(srpToken.uid)],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(srpToken)
@@ -252,7 +262,7 @@ module.exports = function (
             [
               forgotPasswordToken.id,
               forgotPasswordToken.data,
-              forgotPasswordToken.uid,
+              uuidToBuffer(forgotPasswordToken.uid),
               forgotPasswordToken.passcode,
               forgotPasswordToken.created,
               forgotPasswordToken.tries
@@ -290,7 +300,7 @@ module.exports = function (
     var sql = 'SELECT tokenid AS id FROM sessionTokens WHERE uid = ?'
     this.client.query(
       sql,
-      [uid],
+      [uuidToBuffer(uid)],
       function (err, results) {
         if (err) return d.reject(err)
         d.resolve(results)
@@ -314,6 +324,7 @@ module.exports = function (
         SessionToken.fromHex(result.tokendata, result)
           .done(
             function (sessionToken) {
+              sessionToken.uid = bufferToUuid(sessionToken.uid)
               return d.resolve(sessionToken)
             }
           )
@@ -337,6 +348,7 @@ module.exports = function (
         KeyFetchToken.fromHex(result.tokendata, result)
           .done(
             function (keyFetchToken) {
+              keyFetchToken.uid = bufferToUuid(keyFetchToken.uid)
               return d.resolve(keyFetchToken)
             }
           )
@@ -359,6 +371,7 @@ module.exports = function (
         AccountResetToken.fromHex(result.tokendata, result)
           .done(
             function (accountResetToken) {
+              accountResetToken.uid = bufferToUuid(accountResetToken.uid)
               return d.resolve(accountResetToken)
             }
           )
@@ -383,6 +396,7 @@ module.exports = function (
         AuthToken.fromHex(result.tokendata, result)
           .done(
             function (authToken) {
+              authToken.uid = bufferToUuid(authToken.uid)
               return d.resolve(authToken)
             }
           )
@@ -409,6 +423,7 @@ module.exports = function (
         SrpToken.fromHex(result.tokendata, result)
           .done(
             function (srpToken) {
+              srpToken.uid = bufferToUuid(srpToken.uid)
               return d.resolve(srpToken)
             }
           )
@@ -432,6 +447,7 @@ module.exports = function (
         ForgotPasswordToken.fromHex(result.tokendata, result)
           .done(
             function (forgotPasswordToken) {
+              forgotPasswordToken.uid = bufferToUuid(forgotPasswordToken.uid)
               return d.resolve(forgotPasswordToken)
             }
           )
@@ -452,7 +468,7 @@ module.exports = function (
         if (!results.length) return d.reject(error.unknownAccount())
         var result = results[0]
         return d.resolve({
-          uid: result.uid,
+          uid: bufferToUuid(result.uid),
           email: email,
           verified: !!result.verified,
           srp: JSON.parse(result.srp),
@@ -470,7 +486,7 @@ module.exports = function (
               '  FROM accounts WHERE uid = ?'
     this.client.query(
       sql,
-      [uid],
+      [uuidToBuffer(uid)],
       function (err, results) {
         if (err) return d.reject(err)
         if (!results.length) return d.reject(error.unknownAccount())
@@ -524,7 +540,7 @@ module.exports = function (
         var d2 = P.defer()
         this.client.query(
           sql,
-          [authToken.uid],
+          [uuidToBuffer(authToken.uid)],
           function (err) {
             if (err) return d2.reject(err)
             d2.resolve(true)
@@ -680,7 +696,7 @@ module.exports = function (
         var d2 = P.defer()
         this.client.query(
           sql,
-          [accountResetToken.uid],
+          [uuidToBuffer(accountResetToken.uid)],
           function (err) {
             if (err) return d2.reject(err)
             d2.resolve(true)
@@ -700,7 +716,7 @@ module.exports = function (
           JSON.stringify(data.srp),
           data.wrapKb,
           JSON.stringify(data.passwordStretching),
-          accountResetToken.uid,
+          uuidToBuffer(accountResetToken.uid),
         ],
         function (err) {
           if (err) return d2.reject(err)
@@ -727,7 +743,7 @@ module.exports = function (
               if (err) return d.reject(err)
               this.client.query(
                 'INSERT INTO authTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-                [authToken.id, authToken.data, authToken.uid],
+                [authToken.id, authToken.data, uuidToBuffer(authToken.uid)],
                 function (err) {
                   if (err) return d.reject(err)
                   d.resolve(authToken)
@@ -763,12 +779,12 @@ module.exports = function (
             if (err) return d.reject(err)
             this.client.query(
               'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-              [keyFetchToken.id, keyFetchToken.data, keyFetchToken.uid],
+              [keyFetchToken.id, keyFetchToken.data, uuidToBuffer(keyFetchToken.uid)],
               function(err) {
                 if (err) return d.reject(err)
                 this.client.query(
                   'INSERT INTO sessionTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-                  [sessionToken.id, sessionToken.data, sessionToken.uid],
+                  [sessionToken.id, sessionToken.data, uuidToBuffer(sessionToken.uid)],
                   function(err) {
                     if (err) return d.reject(err)
                     d.resolve({
@@ -792,7 +808,7 @@ module.exports = function (
     var sql = 'UPDATE accounts SET verified = true WHERE uid = ?'
     this.client.query(
       sql,
-      [account.uid],
+      [uuidToBuffer(account.uid)],
       function (err) {
         if (err) return d.reject(err)
         d.resolve(true)
@@ -822,12 +838,12 @@ module.exports = function (
             if (err) return d.reject(err)
             this.client.query(
               'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-              [keyFetchToken.id, keyFetchToken.data, keyFetchToken.uid],
+              [keyFetchToken.id, keyFetchToken.data, uuidToBuffer(keyFetchToken.uid)],
               function(err) {
                 if (err) return d.reject(err)
                 this.client.query(
                   'REPLACE INTO resetTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-                  [accountResetToken.id, accountResetToken.data, accountResetToken.uid],
+                  [accountResetToken.id, accountResetToken.data, uuidToBuffer(accountResetToken.uid)],
                   function(err) {
                     if (err) return d.reject(err)
                     d.resolve({
@@ -858,7 +874,7 @@ module.exports = function (
             if (err) return d.reject(err)
             this.client.query(
               'REPLACE INTO resetTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-              [accountResetToken.id, accountResetToken.data, accountResetToken.uid],
+              [accountResetToken.id, accountResetToken.data, uuidToBuffer(accountResetToken.uid)],
               function (err) {
               if (err) return d.reject(err)
                 d.resolve(accountResetToken)
