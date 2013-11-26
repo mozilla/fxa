@@ -11,8 +11,8 @@ var KeyFetchToken = tokens.KeyFetchToken
 
 var ACCOUNT = {
   uid: 'xxx',
-  kA: '0000000000000000000000000000000000000000000000000000000000000000',
-  wrapKb: '0000000000000000000000000000000000000000000000000000000000000000',
+  kA: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
+  wrapKb: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
   verified: true
 }
 
@@ -39,8 +39,8 @@ test(
           t.equal(token.authKey, token2.authKey)
           t.equal(token.bundleKey, token2.bundleKey)
           t.equal(token.uid, token2.uid)
-          t.equal(token.kA, token2.kA)
-          t.equal(token.wrapKb, token2.wrapKb)
+          t.deepEqual(token.kA, token2.kA)
+          t.deepEqual(token.wrapKb, token2.wrapKb)
           t.equal(token.verified, token2.verified)
         }
       )
@@ -61,13 +61,13 @@ test(
   'bundle / unbundle of keys works',
   function (t) {
     var token = null;
-    var kAHex = crypto.randomBytes(32).toString('hex')
-    var wrapKbHex = crypto.randomBytes(32).toString('hex')
+    var kA = crypto.randomBytes(32)
+    var wrapKb = crypto.randomBytes(32)
     KeyFetchToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
-          return x.bundleKeys(kAHex, wrapKbHex)
+          return x.bundleKeys(kA, wrapKb)
         }
       )
       .then(
@@ -77,8 +77,8 @@ test(
       )
       .then(
         function (ub) {
-          t.equal(ub.kA, kAHex)
-          t.equal(ub.wrapKb, wrapKbHex)
+          t.deepEqual(ub.kA, kA)
+          t.deepEqual(ub.wrapKb, wrapKb)
         }
       )
       .done(
@@ -111,8 +111,8 @@ test(
       )
       .then(
         function () {
-          var kA = '202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f'
-          var wrapKb = '404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f'
+          var kA = Buffer('202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f', 'hex')
+          var wrapKb = Buffer('404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f', 'hex')
           return token.bundleKeys(kA, wrapKb)
         }
       )

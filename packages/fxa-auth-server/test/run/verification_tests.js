@@ -213,10 +213,10 @@ TestServer.start(config.public_url)
         )
         .then(
           function (keys) {
-            t.ok(HEX_STRING.test(keys.wrapKb), 'yep, hex')
-            t.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-            t.equal(kA, keys.kA, 'kA was not reset')
-            t.equal(client.kB.length, 64, 'kB exists, has the right length')
+            t.ok(Buffer.isBuffer(keys.wrapKb), 'yep, wrapKb')
+            t.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            t.deepEqual(kA, keys.kA, 'kA was not reset')
+            t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
         .then( // make sure we can still login after password reset
@@ -232,9 +232,9 @@ TestServer.start(config.public_url)
         )
         .then(
           function (keys) {
-            t.equal(typeof(keys.kA), 'string', 'kA exists, login after password reset')
-            t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists, login after password reset')
-            t.equal(client.kB.length, 64, 'kB exists, has the right length')
+            t.ok(Buffer.isBuffer(keys.kA), 'kA exists, login after password reset')
+            t.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists, login after password reset')
+            t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
         .done(
@@ -305,11 +305,11 @@ TestServer.start(config.public_url)
         )
         .then(
           function (keys) {
-            t.equal(typeof(keys.kA), 'string', 'kA exists, login after password reset')
-            t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists, login after password reset')
-            t.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
-            t.equal(kA, keys.kA, 'kA was not reset')
-            t.equal(client.kB.length, 64, 'kB exists, has the right length')
+            t.ok(Buffer.isBuffer(keys.kA), 'kA exists, login after password reset')
+            t.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists, login after password reset')
+            t.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
+            t.deepEqual(kA, keys.kA, 'kA was not reset')
+            t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
         .done(

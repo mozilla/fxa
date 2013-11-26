@@ -11,7 +11,7 @@ var keyStretch = require('./keystretch')
 var tokens = require('../tokens')({ trace: function () {}})
 var Bundle = tokens.Bundle
 
-var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
+var NULL = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 
 function Client(origin) {
   this.uid = null
@@ -518,7 +518,7 @@ Client.prototype.keys = function (callback) {
         this.keyFetchToken = null
         this.kA = keys.kA
         this.wrapKb = keys.wrapKb
-        this.kB = keys.kB = keyStretch.xor(this.wrapKb, this.unwrapBKey).toString('hex')
+        this.kB = keys.kB = keyStretch.xor(this.wrapKb, this.unwrapBKey)
 
         return keys
       }.bind(this),

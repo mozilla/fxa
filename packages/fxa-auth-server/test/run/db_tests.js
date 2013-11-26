@@ -30,8 +30,8 @@ var ACCOUNT = {
     verifier: '0000000000000000000000000000000000000000000000000000000000000000',
     salt: '0000000000000000000000000000000000000000000000000000000000000000'
   },
-  kA: '0000000000000000000000000000000000000000000000000000000000000000',
-  wrapKb: '0000000000000000000000000000000000000000000000000000000000000000',
+  kA: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
+  wrapKb: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
   passwordStretching: { blah: false }
 }
 
@@ -61,8 +61,8 @@ DB.connect()
             t.equal(account.email, ACCOUNT.email)
             t.equal(account.emailCode, ACCOUNT.emailCode)
             t.equal(account.verified, ACCOUNT.verified)
-            t.equal(account.kA, ACCOUNT.kA)
-            t.equal(account.wrapKb, ACCOUNT.wrapKb)
+            t.deepEqual(account.kA, ACCOUNT.kA)
+            t.deepEqual(account.wrapKb, ACCOUNT.wrapKb)
             t.deepEqual(account.srp, ACCOUNT.srp)
             t.deepEqual(account.passwordStretching, ACCOUNT.passwordStretching)
           })
@@ -209,8 +209,8 @@ DB.connect()
             t.equal(keyFetchToken.id, tokenid, 'token id matches')
             t.deepEqual(keyFetchToken.uid, ACCOUNT.uid)
             t.equal(keyFetchToken.verified, ACCOUNT.verified)
-            t.equal(keyFetchToken.kA, ACCOUNT.kA)
-            t.equal(keyFetchToken.wrapKb, ACCOUNT.wrapKb)
+            t.deepEqual(keyFetchToken.kA, ACCOUNT.kA)
+            t.deepEqual(keyFetchToken.wrapKb, ACCOUNT.wrapKb)
             return keyFetchToken
           })
           .then(function(keyFetchToken) {

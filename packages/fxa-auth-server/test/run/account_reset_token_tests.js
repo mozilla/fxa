@@ -55,7 +55,7 @@ test(
   'bundle / unbundle of account data works',
   function (t) {
     var token = null;
-    var wrapKb = crypto.randomBytes(32).toString('hex')
+    var wrapKb = crypto.randomBytes(32)
     var verifier = crypto.randomBytes(256).toString('hex')
     AccountResetToken.create(ACCOUNT)
       .then(
@@ -71,7 +71,7 @@ test(
       )
       .then(
         function (ub) {
-          t.equal(ub.wrapKb, wrapKb)
+          t.deepEqual(ub.wrapKb, wrapKb)
           t.equal(ub.verifier, verifier)
         }
       )
@@ -105,7 +105,7 @@ test(
       )
       .then(
         function () {
-          var wrapKb = '404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f'
+          var wrapKb = Buffer('404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f', 'hex')
           var newSRPv = '1'
           while (newSRPv.length !== 512) {
             newSRPv += newSRPv
