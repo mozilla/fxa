@@ -1,0 +1,31 @@
+{
+  "author": "Lloyd <lloyd@hilaiel.com> (http://lloyd.io)",
+  "name": "browserid-verifier",
+  "description": "A node.js verification server for BrowserID assertions.",
+  "version": "0.0.1",
+  "repository": {
+    "url": "https://github.com/mozilla/browserid-verifier"
+  },
+  "main": "server.js",
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "dependencies": {
+    "browserid-local-verify": "0.0.2",
+  },
+  "devDependencies": {
+    "mocha": "1.14.0",
+    "should": "2.1.0",
+    "jshint": "2.3.0",
+    "walk": "2.2.1",
+    "temp": "0.5.1",
+    "jscoverage": "0.3.8"
+  },
+  "scripts": {
+    "test": "mocha -R spec tests/*.js",
+    "cover": "rm -rf lib-cov && node_modules/.bin/jscoverage lib lib-cov && BROWSERID_LOCAL_VERIFY_COV=true mocha -R html-cov tests/*.js > coverage.html "
+  },
+  "bin": {
+    "browserid-lookup": "./bin/browserid-lookup.js"
+  }
+}
