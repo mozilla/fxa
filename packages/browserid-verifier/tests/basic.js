@@ -4,12 +4,28 @@
 
 /* global describe,it,require */
 
-// load testing tools from the browserid-local-verify library
-var testing = require('browserid-local-verify/testing');
+var
+IdP = require('browserid-local-verify/testing').IdP,
+Verifier = require('./lib/verifier.js');
 
 describe('basic verifier test', function() {
-  it('testing tools should be defined', function(done) {
-    console.log(testing);
-    done(null);
+  var idp = new IdP();
+  var verifier = new Verifier();
+
+  it('test servers should start', function(done) {
+    idp.start(function(e) {
+      verifier.setFallback(idp);
+      verifier.start(function(e1) {
+        done(e || e1);
+      });
+    });
+  });
+
+  it('test servers should stop', function(done) {
+    idp.stop(function(e) {
+      verifier.stop(function(e1) {
+        done(e || e1);
+      });
+    });
   });
 });
