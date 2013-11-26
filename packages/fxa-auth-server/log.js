@@ -34,8 +34,7 @@ Overdrive.prototype.trace = function () {
   return Logger.prototype.trace.apply(this, arguments)
 }
 
-module.exports = function (config) {
-  var level = config.env === 'production' ? config.log.level : 'trace'
+module.exports = function (level) {
   var logStreams = [{ stream: process.stderr, level: level }]
 
   var log = new Overdrive(
@@ -44,8 +43,6 @@ module.exports = function (config) {
       streams: logStreams
     }
   )
-
-  log.info(config, "starting config")
 
   return log
 }
