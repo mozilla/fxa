@@ -184,7 +184,7 @@ Successful requests will produce a "200 OK" response with the account's unique i
 
 ```json
 {
-  "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8"
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8"
 }
 ```
 
@@ -569,7 +569,7 @@ Successful requests will produce a "200 OK" response with the account's unique i
 
 ```json
 {
-  "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8"
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8"
 }
 ```
 
@@ -696,7 +696,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://api-accounts.dev.lcip.org/v1/rawPassword/session/create \
+http://api-accounts.dev.lcip.org/v1/raw_password/session/create \
 -d '{
   "email": "6d65406578616d706c652e636f6d",
   "password": "mySecurePassword"
@@ -711,7 +711,7 @@ Successful requests will produce a "200 OK" response with the "sessionToken" fie
 
 ```json
 {
-  "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
   "verified": true,
   "sessionToken": "00ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a301"
 }
@@ -751,7 +751,7 @@ Successful requests will produce a "200 OK" response with the encrypted sessionT
 
 ```json
 {
-  "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
   "verified": true,
   "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
 }
@@ -927,7 +927,7 @@ curl -v \
 -H "Content-Type: application/json" \
 http://api-accounts.dev.lcip.org/v1/recovery_email/verify_code \
 -d '{
-  "uid": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
   "code": "e3c5b0e3f5391e134596c27519979b93a45e6d0da34c7509c5632ac35b28b48d"
 }'
 ```
