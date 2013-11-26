@@ -136,17 +136,17 @@ module.exports = function (fs, path, url, convict) {
       },
       host: {
         doc: 'SMTP host for sending email',
-        default: 'smtp.gmail.com',
+        default: 'localhost',
         env: 'SMTP_HOST'
       },
       port: {
         doc: 'SMTP port',
-        default: 465,
+        default: 25,
         env: 'SMTP_PORT'
       },
       secure: {
         doc: 'Connect to SMTP host securely',
-        default: true,
+        default: false,
         env: 'SMTP_SECURE'
       },
       user: {
