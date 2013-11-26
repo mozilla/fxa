@@ -24,11 +24,7 @@ module.exports = function (log, inherits, Token, error) {
 
   AuthToken.prototype.bundleSession = function (keyFetchToken, sessionToken) {
     log.trace({ op: 'authToken.bundleSession', id: this.id })
-    var plaintext = Buffer.concat([
-      Buffer(keyFetchToken, 'hex'),
-      Buffer(sessionToken, 'hex')
-    ])
-    return this.bundle('session/create', plaintext)
+    return this.bundle('session/create', Buffer.concat([keyFetchToken, sessionToken]))
   }
 
   AuthToken.prototype.unbundleSession = function (bundle) {
@@ -37,8 +33,8 @@ module.exports = function (log, inherits, Token, error) {
       .then(
         function (plaintext) {
           return {
-            keyFetchToken: plaintext.slice(0, 32).toString('hex'),
-            sessionToken: plaintext.slice(32, 64).toString('hex')
+            keyFetchToken: plaintext.slice(0, 32),
+            sessionToken: plaintext.slice(32, 64)
           }
         }
       )
@@ -46,11 +42,7 @@ module.exports = function (log, inherits, Token, error) {
 
   AuthToken.prototype.bundleAccountReset = function (keyFetchToken, resetToken) {
     log.trace({ op: 'authToken.bundleAccountReset', id: this.id })
-    var plaintext = Buffer.concat([
-      Buffer(keyFetchToken, 'hex'),
-      Buffer(resetToken, 'hex')
-    ])
-    return this.bundle('password/change', plaintext)
+    return this.bundle('password/change', Buffer.concat([keyFetchToken, resetToken]))
   }
 
   AuthToken.prototype.unbundleAccountReset = function (bundle) {
@@ -59,8 +51,8 @@ module.exports = function (log, inherits, Token, error) {
       .then(
         function (plaintext) {
           return {
-            keyFetchToken: plaintext.slice(0, 32).toString('hex'),
-            accountResetToken: plaintext.slice(32, 64).toString('hex')
+            keyFetchToken: plaintext.slice(0, 32),
+            accountResetToken: plaintext.slice(32, 64)
           }
         }
       )

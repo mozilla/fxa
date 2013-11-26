@@ -149,7 +149,7 @@ module.exports = function (
         function (sessionToken) {
           this.client.query(
             sql,
-            [sessionToken.id, sessionToken.data, sessionToken.uid],
+            [sessionToken.tokenid, sessionToken.data, sessionToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(sessionToken)
@@ -169,7 +169,7 @@ module.exports = function (
         function (keyFetchToken) {
           this.client.query(
             sql,
-            [keyFetchToken.id, keyFetchToken.data, keyFetchToken.uid],
+            [keyFetchToken.tokenid, keyFetchToken.data, keyFetchToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(keyFetchToken)
@@ -189,7 +189,7 @@ module.exports = function (
         function (accountResetToken) {
           this.client.query(
             sql,
-            [accountResetToken.id, accountResetToken.data, accountResetToken.uid],
+            [accountResetToken.tokenid, accountResetToken.data, accountResetToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(accountResetToken)
@@ -209,7 +209,7 @@ module.exports = function (
         function (authToken) {
           this.client.query(
             sql,
-            [authToken.id, authToken.data, authToken.uid],
+            [authToken.tokenid, authToken.data, authToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(authToken)
@@ -229,7 +229,7 @@ module.exports = function (
         function (srpToken) {
           this.client.query(
             sql,
-            [srpToken.id, srpToken.data, srpToken.uid],
+            [srpToken.tokenid, srpToken.data, srpToken.uid],
             function (err) {
               if (err) return d.reject(err)
               d.resolve(srpToken)
@@ -250,7 +250,7 @@ module.exports = function (
           this.client.query(
             sql,
             [
-              forgotPasswordToken.id,
+              forgotPasswordToken.tokenid,
               forgotPasswordToken.data,
               forgotPasswordToken.uid,
               forgotPasswordToken.passcode,
@@ -287,7 +287,7 @@ module.exports = function (
   MySql.prototype.accountDevices = function (uid) {
     var d = P.defer()
     log.trace({ op: 'MySql.accountDevices', uid: uid })
-    var sql = 'SELECT tokenid AS id FROM sessionTokens WHERE uid = ?'
+    var sql = 'SELECT tokenid FROM sessionTokens WHERE uid = ?'
     this.client.query(
       sql,
       [uid],
@@ -504,7 +504,7 @@ module.exports = function (
     var sql = 'UPDATE forgotpwdTokens SET tries = ? WHERE tokenid = ?'
     this.client.query(
       sql,
-      [forgotPasswordToken.tries, forgotPasswordToken.id],
+      [forgotPasswordToken.tries, forgotPasswordToken.tokenid],
       function (err) {
         if (err) return d.reject(err)
         d.resolve(true)
@@ -547,14 +547,14 @@ module.exports = function (
     log.trace(
       {
         op: 'MySql.deleteSessionToken',
-        id: sessionToken && sessionToken.id,
+        id: sessionToken && sessionToken.tokenid,
         uid: sessionToken && sessionToken.uid
       }
     )
     var sql = 'DELETE FROM sessionTokens WHERE tokenid = ?'
     this.client.query(
       sql,
-      [sessionToken.id],
+      [sessionToken.tokenid],
       function (err) {
         if (err) return d.reject(err)
         d.resolve(true)
@@ -568,14 +568,14 @@ module.exports = function (
     log.trace(
       {
         op: 'MySql.deleteKeyFetchToken',
-        id: keyFetchToken && keyFetchToken.id,
+        id: keyFetchToken && keyFetchToken.tokenid,
         uid: keyFetchToken && keyFetchToken.uid
       }
     )
     var sql = 'DELETE FROM keyfetchTokens WHERE tokenid = ?'
     this.client.query(
       sql,
-      [keyFetchToken.id],
+      [keyFetchToken.tokenid],
       function (err) {
         if (err) return d.reject(err)
         d.resolve(true)
@@ -589,14 +589,14 @@ module.exports = function (
     log.trace(
       {
         op: 'MySql.deleteAccountResetToken',
-        id: accountResetToken && accountResetToken.id,
+        id: accountResetToken && accountResetToken.tokenid,
         uid: accountResetToken && accountResetToken.uid
       }
     )
     var sql = 'DELETE FROM resetTokens WHERE tokenid = ?'
     this.client.query(
       sql,
-      [accountResetToken.id],
+      [accountResetToken.tokenid],
       function (err) {
         if (err) return d.reject(err)
         d.resolve(true)
@@ -610,14 +610,14 @@ module.exports = function (
     log.trace(
       {
         op: 'MySql.deleteAuthToken',
-        id: authToken && authToken.id,
+        id: authToken && authToken.tokenid,
         uid: authToken && authToken.uid
       }
     )
     var sql = 'DELETE FROM authTokens WHERE tokenid = ?'
     this.client.query(
       sql,
-      [authToken.id],
+      [authToken.tokenid],
       function (err) {
         if (err) return d.reject(err)
         d.resolve(true)
@@ -631,14 +631,14 @@ module.exports = function (
     log.trace(
       {
         op: 'MySql.deleteSrpToken',
-        id: srpToken && srpToken.id,
+        id: srpToken && srpToken.tokenid,
         uid: srpToken && srpToken.uid
       }
     )
     var sql = 'DELETE FROM srpTokens WHERE tokenid = ?'
     this.client.query(
       sql,
-      [srpToken.id],
+      [srpToken.tokenid],
       function (err) {
         if (err) return d.reject(err)
         d.resolve(true)
@@ -652,14 +652,14 @@ module.exports = function (
     log.trace(
       {
         op: 'MySql.deleteForgotPasswordToken',
-        id: forgotPasswordToken && forgotPasswordToken.id,
+        id: forgotPasswordToken && forgotPasswordToken.tokenid,
         uid: forgotPasswordToken && forgotPasswordToken.uid
       }
     )
     var sql = 'DELETE FROM forgotpwdTokens WHERE tokenid = ?'
     this.client.query(
       sql,
-      [forgotPasswordToken.id],
+      [forgotPasswordToken.tokenid],
       function (err) {
         if (err) return d.reject(err)
         d.resolve(true)
@@ -728,12 +728,12 @@ module.exports = function (
         function (authToken) {
           this.client.query(
             'DELETE FROM srpTokens WHERE tokenid = ?',
-            [srpToken.id],
+            [srpToken.tokenid],
             function (err) {
               if (err) return d.reject(err)
               this.client.query(
                 'INSERT INTO authTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-                [authToken.id, authToken.data, authToken.uid],
+                [authToken.tokenid, authToken.data, authToken.uid],
                 function (err) {
                   if (err) return d.reject(err)
                   d.resolve(authToken)
@@ -764,17 +764,17 @@ module.exports = function (
 
         this.client.query(
           'DELETE FROM authTokens WHERE tokenid = ?',
-          [authToken.id],
+          [authToken.tokenid],
           function (err) {
             if (err) return d.reject(err)
             this.client.query(
               'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-              [keyFetchToken.id, keyFetchToken.data, keyFetchToken.uid],
+              [keyFetchToken.tokenid, keyFetchToken.data, keyFetchToken.uid],
               function(err) {
                 if (err) return d.reject(err)
                 this.client.query(
                   'INSERT INTO sessionTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-                  [sessionToken.id, sessionToken.data, sessionToken.uid],
+                  [sessionToken.tokenid, sessionToken.data, sessionToken.uid],
                   function(err) {
                     if (err) return d.reject(err)
                     d.resolve({
@@ -823,17 +823,17 @@ module.exports = function (
 
         this.client.query(
           'DELETE FROM authTokens WHERE tokenid = ?',
-          [authToken.id],
+          [authToken.tokenid],
           function (err) {
             if (err) return d.reject(err)
             this.client.query(
               'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-              [keyFetchToken.id, keyFetchToken.data, keyFetchToken.uid],
+              [keyFetchToken.tokenid, keyFetchToken.data, keyFetchToken.uid],
               function(err) {
                 if (err) return d.reject(err)
                 this.client.query(
                   'REPLACE INTO resetTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-                  [accountResetToken.id, accountResetToken.data, accountResetToken.uid],
+                  [accountResetToken.tokenid, accountResetToken.data, accountResetToken.uid],
                   function(err) {
                     if (err) return d.reject(err)
                     d.resolve({
@@ -859,12 +859,12 @@ module.exports = function (
         function (accountResetToken) {
           this.client.query(
           'DELETE FROM forgotpwdTokens WHERE tokenid = ?',
-          [forgotPasswordToken.id],
+          [forgotPasswordToken.tokenid],
           function (err) {
             if (err) return d.reject(err)
             this.client.query(
               'REPLACE INTO resetTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-              [accountResetToken.id, accountResetToken.data, accountResetToken.uid],
+              [accountResetToken.tokenid, accountResetToken.data, accountResetToken.uid],
               function (err) {
               if (err) return d.reject(err)
                 d.resolve(accountResetToken)

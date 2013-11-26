@@ -4,6 +4,8 @@
 
 module.exports = function (path, url, Hapi, toobusy, error) {
 
+  const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+
   function create(log, config, routes, db, noncedb) {
 
     // Hawk needs to calculate request signatures based on public URL,
@@ -38,7 +40,10 @@ module.exports = function (path, url, Hapi, toobusy, error) {
     function makeCredentialFn(dbGetFn) {
       return function (id, cb) {
         log.trace({ op: 'DB.getToken', id: id })
-        dbGetFn(id)
+        if (!HEX_STRING.test(id)) {
+          return process.nextTick(cb.bind(null, null, null)) // not found
+        }
+        dbGetFn(Buffer(id, 'hex'))
           .done(
             cb.bind(null, null),
             cb

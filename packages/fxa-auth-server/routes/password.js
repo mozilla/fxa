@@ -80,7 +80,7 @@ module.exports = function (log, isA, error, db, mailer) {
               function (forgotPasswordToken) {
                 request.reply(
                   {
-                    forgotPasswordToken: forgotPasswordToken.data,
+                    forgotPasswordToken: forgotPasswordToken.data.toString('hex'),
                     ttl: forgotPasswordToken.ttl(),
                     codeLength: forgotPasswordToken.passcode.length,
                     tries: forgotPasswordToken.tries
@@ -125,7 +125,7 @@ module.exports = function (log, isA, error, db, mailer) {
               function () {
                 request.reply(
                   {
-                    forgotPasswordToken: forgotPasswordToken.data,
+                    forgotPasswordToken: forgotPasswordToken.data.toString('hex'),
                     ttl: forgotPasswordToken.ttl(),
                     codeLength: forgotPasswordToken.passcode.length,
                     tries: forgotPasswordToken.tries
@@ -172,7 +172,7 @@ module.exports = function (log, isA, error, db, mailer) {
                 function (accountResetToken) {
                   request.reply(
                     {
-                      accountResetToken: accountResetToken.data
+                      accountResetToken: accountResetToken.data.toString('hex')
                     }
                   )
                 },

@@ -24,8 +24,7 @@ module.exports = function (log, inherits, Token, crypto) {
 
   AccountResetToken.prototype.bundleAccountData = function (wrapKb, verifier) {
     log.trace({ op: 'accountResetToken.bundleAccountData', id: this.id })
-    var plaintext = Buffer.concat([wrapKb, Buffer(verifier, 'hex')])
-    return this.bundle('account/reset', plaintext)
+    return this.bundle('account/reset', Buffer.concat([wrapKb, Buffer(verifier, 'hex')]))
   }
 
   AccountResetToken.prototype.unbundleAccountData = function (hex) {

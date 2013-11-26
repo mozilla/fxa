@@ -218,7 +218,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
         handler: function (request) {
           log.begin('Account.RecoveryEmailResend', request)
           var sessionToken = request.auth.credentials
-          sendVerifyCode(sessionToken.email, sessionToken.emailCode)
+          sendVerifyCode(sessionToken.email, sessionToken.emailCode, sessionToken.uid)
             .done(
               function () {
                 request.reply({})

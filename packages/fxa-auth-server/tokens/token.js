@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*  Base class for handling various types of token.
- * 
+ *
  *  This module provides the basic functionality for handling authentication
  *  tokens.  There are different types of token for use in different contexts
  *  but they all operate in essentially the same way:
@@ -26,13 +26,13 @@
 module.exports = function (log, crypto, P, hkdf, Bundle, error) {
 
   // Token constructor.
-  // 
+  //
   // This directly populates the token from its keys and metadata details.
   // You probably want to call a helper rather than use this directly.
   //
   function Token(keys, details) {
     this.data = keys.data
-    this.id = keys.id
+    this.tokenid = keys.tokenid
     this.authKey = keys.authKey
     this.bundleKey = keys.bundleKey
     this.algorithm = 'sha256'
@@ -102,10 +102,10 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
       .then(
         function (keyMaterial) {
           return {
-            data: data.toString('hex'),
-            id: keyMaterial.slice(0, 32).toString('hex'),
-            authKey: keyMaterial.slice(32, 64).toString('hex'),
-            bundleKey: keyMaterial.slice(64, 96).toString('hex')
+            data: data,
+            tokenid: keyMaterial.slice(0, 32),
+            authKey: keyMaterial.slice(32, 64),
+            bundleKey: keyMaterial.slice(64, 96)
           }
         }
       )
@@ -116,7 +116,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
   //
   Token.prototype.bundle = function(keyInfo, payload) {
     log.trace({ op: 'Token.bundle' })
-    return Bundle.bundle(Buffer(this.bundleKey, 'hex'), keyInfo, payload)
+    return Bundle.bundle(this.bundleKey, keyInfo, payload)
   }
 
 
@@ -124,18 +124,20 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
   //
   Token.prototype.unbundle = function(keyInfo, payload) {
     log.trace({ op: 'Token.unbundle' })
-    return Bundle.unbundle(Buffer(this.bundleKey, 'hex'), keyInfo, payload)
+    return Bundle.unbundle(this.bundleKey, keyInfo, payload)
   }
 
 
-  // `token.key` is used by Hawk, and should be a Buffer.
-  // We store the hex-string so a getter is convenient
-  Object.defineProperty(
+  // Properties defined for HAWK
+  Object.defineProperties(
     Token.prototype,
-    'key',
     {
-      get: function () { return Buffer(this.authKey, 'hex') },
-      set: function (x) { this.authKey = x.toString('hex') }
+      id: {
+        get: function () { return this.tokenid.toString('hex') }
+      },
+      key: {
+        get: function () { return this.authKey }
+      }
     }
   )
 

@@ -26,8 +26,7 @@ module.exports = function (log, inherits, Token, error) {
 
   KeyFetchToken.prototype.bundleKeys = function (kA, wrapKb) {
     log.trace({ op: 'keyFetchToken.bundleKeys', id: this.id })
-    var plaintext = Buffer.concat([kA, wrapKb])
-    return this.bundle('account/keys', plaintext)
+    return this.bundle('account/keys', Buffer.concat([kA, wrapKb]))
   }
 
   KeyFetchToken.prototype.unbundleKeys = function (bundle) {

@@ -37,7 +37,7 @@ module.exports = function (
   function deleteUid(uid, collection) {
     var keys = Object.keys(collection)
     for (var i = 0; i < keys.length; i++) {
-      if (collection[keys[i]].uid === uid) {
+      if (collection[keys[i]].uid.toString('hex') === uid.toString('hex')) {
         delete collection[keys[i]]
       }
     }
@@ -65,8 +65,8 @@ module.exports = function (
         email: data && data.email
       }
     )
-    this.accounts[data.uid] = data
-    this.emailRecords[data.email] = data.uid
+    this.accounts[data.uid.toString('hex')] = data
+    this.emailRecords[data.email] = data.uid.toString('hex')
     data.devices = {}
     return P(data)
   }
@@ -77,7 +77,7 @@ module.exports = function (
       .then(saveTo(this.sessionTokens))
       .then(
         function (sessionToken) {
-          var account = this.accounts[sessionToken.uid]
+          var account = this.accounts[sessionToken.uid.toString('hex')]
           account.devices[sessionToken.id] = sessionToken
           return sessionToken
         }.bind(this)
@@ -95,7 +95,7 @@ module.exports = function (
     return AccountResetToken.create(token)
       .then(
         function (accountResetToken) {
-          var account = this.accounts[accountResetToken.uid]
+          var account = this.accounts[accountResetToken.uid.toString('hex')]
           if (!account) { return P.reject(error.unknownAccount()) }
           account.accountResetToken = accountResetToken.id
           return accountResetToken
@@ -121,7 +121,7 @@ module.exports = function (
     return ForgotPasswordToken.create(emailRecord)
       .then(
         function (forgotPasswordToken) {
-          var account = this.accounts[forgotPasswordToken.uid]
+          var account = this.accounts[forgotPasswordToken.uid.toString('hex')]
           if (!account) { return P.reject(error.unknownAccount()) }
           account.forgotPasswordToken = forgotPasswordToken.id
           return forgotPasswordToken
@@ -153,9 +153,9 @@ module.exports = function (
 
   Heap.prototype.sessionToken = function (id) {
     log.trace({ op: 'Heap.sessionToken', id: id })
-    var sessionToken = this.sessionTokens[id]
+    var sessionToken = this.sessionTokens[id.toString('hex')]
     if (!sessionToken) { return P.reject(error.invalidToken()) }
-    var account = this.accounts[sessionToken.uid]
+    var account = this.accounts[sessionToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     sessionToken.email = account.email
     sessionToken.emailCode = account.emailCode
@@ -165,9 +165,9 @@ module.exports = function (
 
   Heap.prototype.keyFetchToken = function (id) {
     log.trace({ op: 'Heap.keyFetchToken', id: id })
-    var keyFetchToken = this.keyFetchTokens[id]
+    var keyFetchToken = this.keyFetchTokens[id.toString('hex')]
     if (!keyFetchToken) { return P.reject(error.invalidToken()) }
-    var account = this.accounts[keyFetchToken.uid]
+    var account = this.accounts[keyFetchToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     keyFetchToken.kA = account.kA
     keyFetchToken.wrapKb = account.wrapKb
@@ -177,16 +177,16 @@ module.exports = function (
 
   Heap.prototype.accountResetToken = function (id) {
     log.trace({ op: 'Heap.accountResetToken', id: id })
-    var accountResetToken = this.accountResetTokens[id]
+    var accountResetToken = this.accountResetTokens[id.toString('hex')]
     if (!accountResetToken) { return P.reject(error.invalidToken()) }
     return P(accountResetToken)
   }
 
   Heap.prototype.authToken = function (id) {
     log.trace({ op: 'Heap.authToken', id: id })
-    var authToken = this.authTokens[id]
+    var authToken = this.authTokens[id.toString('hex')]
     if (!authToken) { return P.reject(error.invalidToken()) }
-    var account = this.accounts[authToken.uid]
+    var account = this.accounts[authToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     authToken.verified = account.verified
     return P(authToken)
@@ -194,16 +194,16 @@ module.exports = function (
 
   Heap.prototype.srpToken = function (id) {
     log.trace({ op: 'Heap.srpToken', id: id })
-    var srpToken = this.srpTokens[id]
+    var srpToken = this.srpTokens[id.toString('hex')]
     if (!srpToken) { return P.reject(error.invalidToken()) }
     return P(srpToken)
   }
 
   Heap.prototype.forgotPasswordToken = function (id) {
     log.trace({ op: 'Heap.forgotPasswordToken', id: id })
-    var forgotPasswordToken = this.forgotPasswordTokens[id]
+    var forgotPasswordToken = this.forgotPasswordTokens[id.toString('hex')]
     if (!forgotPasswordToken) { return P.reject(error.invalidToken()) }
-    var account = this.accounts[forgotPasswordToken.uid]
+    var account = this.accounts[forgotPasswordToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     forgotPasswordToken.email = account.email
     return P(forgotPasswordToken)
@@ -218,7 +218,7 @@ module.exports = function (
 
   Heap.prototype.account = function (uid) {
     log.trace({ op: 'Heap.account', uid: uid })
-    var account = this.accounts[uid]
+    var account = this.accounts[uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     return P(account)
   }
@@ -234,7 +234,7 @@ module.exports = function (
 
   Heap.prototype.deleteAccount = function (authToken) {
     log.trace({ op: 'Heap.deleteAccount', uid: authToken && authToken.uid })
-    var account = this.accounts[authToken.uid]
+    var account = this.accounts[authToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     deleteUid(account.uid, this.sessionTokens)
     deleteUid(account.uid, this.keyFetchTokens)
@@ -243,7 +243,7 @@ module.exports = function (
     deleteUid(account.uid, this.accountResetTokens)
     deleteUid(account.uid, this.forgotPasswordTokens)
     delete this.emailRecords[account.email]
-    delete this.accounts[account.uid]
+    delete this.accounts[account.uid.toString('hex')]
     return P(true)
   }
 
@@ -255,7 +255,7 @@ module.exports = function (
         uid: sessionToken && sessionToken.uid
       }
     )
-    var account = this.accounts[sessionToken.uid]
+    var account = this.accounts[sessionToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     delete account.devices[sessionToken.id]
     delete this.sessionTokens[sessionToken.id]
@@ -326,7 +326,7 @@ module.exports = function (
 
   Heap.prototype.resetAccount = function (accountResetToken, data) {
     log.trace({ op: 'Heap.resetAccount', uid: accountResetToken && accountResetToken.uid })
-    var account = this.accounts[accountResetToken.uid]
+    var account = this.accounts[accountResetToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     account.srp = data.srp
     account.wrapKb = data.wrapKb

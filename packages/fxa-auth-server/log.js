@@ -26,6 +26,13 @@ Overdrive.prototype.trace = function () {
     if (typeof(arg0) === 'object') {
       var request = Domain.active.members[0]
       arg0.rid = arg0.rid || (request && request.id)
+      var keys = Object.keys(arg0)
+      for (var i = 0; i < keys.length; i++) {
+        var x = arg0[keys[i]]
+        if (Buffer.isBuffer(x)) {
+          arg0[keys[i]] = x.toString('hex')
+        }
+      }
       if (request) {
         request.app.traced.push(arg0)
       }

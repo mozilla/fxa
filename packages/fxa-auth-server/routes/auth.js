@@ -62,8 +62,8 @@ module.exports = function (log, isA, error, db, Token) {
         handler: function (request) {
           log.begin('Auth.finish', request)
           var reply = request.reply.bind(request)
-
-          db.srpToken(request.payload.srpToken)
+          var srpTokenId = Buffer(request.payload.srpToken, 'hex')
+          db.srpToken(srpTokenId)
             .then(
               function (srpToken) {
                 return srpToken.finish(request.payload.A, request.payload.M)
@@ -88,7 +88,7 @@ module.exports = function (log, isA, error, db, Token) {
         },
         validate: {
           payload: {
-            srpToken: isA.String().required(),
+            srpToken: isA.String().regex(HEX_STRING).required(),
             A: isA.String().regex(HEX_STRING).required(),
             M: isA.String().regex(HEX_STRING).required()
           },
