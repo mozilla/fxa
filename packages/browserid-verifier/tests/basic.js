@@ -38,7 +38,6 @@ describe('basic verifier test', function() {
           audience: "http://example.com"
         }
       }, function(err, r) {
-        console.log(r.body);
         should.not.exist(err);
         (r.body.email).should.equal(client.email());
         (r.body.issuer).should.equal(idp.domain());
