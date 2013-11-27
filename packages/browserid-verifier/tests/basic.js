@@ -6,7 +6,10 @@
 
 var
 IdP = require('browserid-local-verify/testing').IdP,
-Verifier = require('./lib/verifier.js');
+Client = require('browserid-local-verify/testing').Client,
+Verifier = require('./lib/verifier.js'),
+should = require('should'),
+request = require('request');
 
 describe('basic verifier test', function() {
   var idp = new IdP();
@@ -17,6 +20,28 @@ describe('basic verifier test', function() {
       verifier.setFallback(idp);
       verifier.start(function(e1) {
         done(e || e1);
+      });
+    });
+  });
+
+  it('should verify an assertion', function(done) {
+    var client = new Client({ idp: idp });
+
+    client.assertion({ audience: 'http://example.com' }, function(err, assertion) {
+      should.not.exist(err);
+      request({
+        method: 'post',
+        url: verifier.url(),
+        json: true,
+        body: {
+          assertion: assertion,
+          audience: "http://example.com"
+        }
+      }, function(err, r) {
+        should.not.exist(err);
+        (client.email()).should.equal(r.body.email);
+        (r.statusCode).should.equal(200);
+        done();
       });
     });
   });

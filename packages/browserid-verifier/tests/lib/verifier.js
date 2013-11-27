@@ -25,6 +25,13 @@ Verifier.prototype.setFallback = function(idp) {
   this.config.fallback = idp.domain();
 };
 
+Verifier.prototype.url = function() {
+  if (!this._url) {
+    throw new Error("verifier not running");
+  }
+  return this._url;
+};
+
 Verifier.prototype.start = function(cb) {
   var self = this;
 
@@ -43,18 +50,17 @@ Verifier.prototype.start = function(cb) {
     var m;
     // figure out the bound port
     if ((m = /^INFO: running on (http:\/\/.*)$/m.exec(line))) {
-      console.log("bound:", m[1]);
       self._url = m[1];
       if (cb) {
         cb(null, m[1]);
       }
       cb = null;
     }
-    console.log('stdout', line.toString());
+//    console.log('stdout', line.toString());
   });
 
-  this.process.stderr.on('data', function(line) {
-    console.log('stderr', line.toString());
+  this.process.stderr.on('data', function() {
+//    console.log('stderr', line.toString());
   });
 
   this.process.on('exit', function(code) {

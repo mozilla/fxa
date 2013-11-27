@@ -16,7 +16,7 @@
     "express": "3.4.4",
     "toobusy": "0.2.4",
     "intel": "0.3.1",
-    "convict": "~0.4.1"
+    "convict": "0.4.1"
   },
   "devDependencies": {
     "mocha": "1.14.0",
@@ -24,7 +24,8 @@
     "jshint": "2.3.0",
     "walk": "2.2.1",
     "temp": "0.5.1",
-    "jscoverage": "0.3.8"
+    "jscoverage": "0.3.8",
+    "request": "2.27.0"
   },
   "scripts": {
     "test": "mocha -R spec tests/*.js",

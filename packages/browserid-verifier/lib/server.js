@@ -29,7 +29,7 @@ process.on('SIGINT', function() {
 toobusy.maxLag(70 /* XXX: config */);
 app.use(function(req, res, next) {
   if (toobusy()) {
-    res.send("server is too busy", {"Content-Type": "text/plain"}, 503);
+    res.send(503, "server is too busy");
   } else {
     next();
   }
@@ -41,7 +41,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ limit: "10kb" }));
 
 function verify(req, res) {
-  res.send("not implemented", {"Content-Type": "text/plain"}, 500);
+  res.send(500, "not implemented");
 }
 
 app.post('/verify', verify);
