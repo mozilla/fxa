@@ -1,9 +1,6 @@
 [hekad]
 base_dir = "/home/app/hekad"
 
-[UdpInput]
-address = "127.0.0.1:4880"
-
 [StatsdInput]
 address = ":8125"
 
@@ -11,13 +8,13 @@ address = ":8125"
 
 [fxa-auth-server-log]
 type = "LogfileInput"
-logfile = "/home/app/code/server.log"
+logfile = "/home/app/code/var/log/key_server.js.log"
 logger = "fxa-auth-server-log"
 
 [nginx-access-log]
 type = "LogfileInput"
 logfile = "/home/proxy/var/log/nginx/access.log"
-decoders = ["nginx-log-decoder"]
+decoder = "nginx-log-decoder"
 
 [nginx-log-decoder]
 type = "PayloadRegexDecoder"
