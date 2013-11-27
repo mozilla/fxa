@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* jshint curly:false */
+
 const
 cp = require('child_process'),
 path = require('path');
@@ -24,6 +26,8 @@ Verifier.prototype.setFallback = function(idp) {
 };
 
 Verifier.prototype.start = function(cb) {
+  var self = this;
+
   var repoBaseDir = path.join(__dirname, '..', '..');
 
   if (this.process) {
@@ -36,6 +40,16 @@ Verifier.prototype.start = function(cb) {
     { cwd: repoBaseDir, silent: true, stdio: 'pipe' });
 
   this.process.stdout.on('data', function(line) {
+    var m;
+    // figure out the bound port
+    if ((m = /^INFO: running on (http:\/\/.*)$/m.exec(line))) {
+      console.log("bound:", m[1]);
+      self._url = m[1];
+      if (cb) {
+        cb(null, m[1]);
+      }
+      cb = null;
+    }
     console.log('stdout', line.toString());
   });
 
@@ -43,11 +57,24 @@ Verifier.prototype.start = function(cb) {
     console.log('stderr', line.toString());
   });
 
-  return later(cb, null);
+  this.process.on('exit', function(code) {
+    if (cb) {
+      cb("exited with code " + code);
+    }
+    cb = null;
+    self._url = null;
+    self.process = null;
+  });
 };
 
 Verifier.prototype.stop = function(cb) {
-  cb('not implemented');
+  if (!this.process || !this._url) {
+    throw new Error("verifier not running");
+  }
+  this.process.kill('SIGINT');
+  this.process.on('exit', function(code) {
+    cb(code === 0 ? null : "non-zero exit code: " + code);
+  });
 };
 
 module.exports = Verifier;
