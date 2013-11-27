@@ -38,8 +38,12 @@ describe('basic verifier test', function() {
           audience: "http://example.com"
         }
       }, function(err, r) {
+        console.log(r.body);
         should.not.exist(err);
-        (client.email()).should.equal(r.body.email);
+        (r.body.email).should.equal(client.email());
+        (r.body.issuer).should.equal(idp.domain());
+        (r.body.status).should.equal('okay');
+        (r.body.audience).should.equal('http://example.com');
         (r.statusCode).should.equal(200);
         done();
       });

@@ -44,7 +44,14 @@ Verifier.prototype.start = function(cb) {
   this.process = cp.spawn(
     path.join(repoBaseDir, 'server.js'),
     null,
-    { cwd: repoBaseDir, silent: true, stdio: 'pipe' });
+    {
+      cwd: repoBaseDir,
+      silent: true,
+      stdio: 'pipe',
+      env: {
+        INSECURE_SSL: true,
+      }
+    });
 
   this.process.stdout.on('data', function(line) {
     var m;
@@ -56,17 +63,23 @@ Verifier.prototype.start = function(cb) {
       }
       cb = null;
     }
-//    console.log('stdout', line.toString());
+    if (process.env.VERBOSE) {
+      console.log(line.toString());
+    }
   });
 
-  this.process.stderr.on('data', function() {
-//    console.log('stderr', line.toString());
+  this.errBuf = "";
+  this.process.stderr.on('data', function(d) {
+    self.errBuf += d.toString();
   });
 
   this.process.on('exit', function(code) {
-    if (cb) {
-      cb("exited with code " + code);
+    var msg = "exited";
+    if (code !== 0) {
+      msg += " with code " + code + " (" + self.errBuf + ")";
+      console.error(msg);
     }
+    if (cb) cb(msg);
     cb = null;
     self._url = null;
     self.process = null;

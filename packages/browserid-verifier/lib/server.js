@@ -10,7 +10,8 @@ express = require('express'),
 http = require('http'),
 toobusy = require('toobusy'),
 log = require('./log'),
-config = require('./config');
+config = require('./config'),
+verify = require('./verify');
 
 log.debug("verifier server starting up");
 
@@ -29,7 +30,7 @@ process.on('SIGINT', function() {
 toobusy.maxLag(70 /* XXX: config */);
 app.use(function(req, res, next) {
   if (toobusy()) {
-    res.send(503, "server is too busy");
+    res.json({ status: "failure", reason: "too busy"}, 503);
   } else {
     next();
   }
@@ -39,10 +40,6 @@ app.use(function(req, res, next) {
 
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ limit: "10kb" }));
-
-function verify(req, res) {
-  res.send(500, "not implemented");
-}
 
 app.post('/verify', verify);
 

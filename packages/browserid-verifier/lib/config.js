@@ -16,7 +16,19 @@ var conf = convict({
     format: "port",
     default: 0,
     env: "PORT"
-  }
+  },
+  httpTimeout: {
+    doc: "(s) how long to spend attempting to fetch support documents",
+    format: Number,
+    default: 8.0,
+    env: "HTTP_TIMEOUT"
+  },
+  insecureSSL: {
+    doc: "(testing only) Ignore invalid SSL certificates",
+    format: Boolean,
+    default: false,
+    env: "INSECURE_SSL"
+  },
 });
 
 // load environment dependent configuration
