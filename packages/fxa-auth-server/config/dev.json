@@ -1,5 +1,8 @@
 {
   "dev": {
     "verified": true
+  },
+  "toobusy": {
+    "max_lag": 0
   }
 }
