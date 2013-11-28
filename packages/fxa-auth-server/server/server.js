@@ -167,7 +167,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
         var res = request.response()
         // error responses don't have `header`
         if (res.header) {
-          res.header('Timestamp', ''+Math.floor(Date.now() / 1000, 0))
+          res.header('Timestamp', ''+Math.floor(Date.now() / 1000))
         }
         next()
       }
