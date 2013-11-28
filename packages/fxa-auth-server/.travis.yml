@@ -18,8 +18,8 @@ notifications:
     skip_join: false
 
 env:
-  - KVSTORE_BACKEND=memory TOOBUSY_MAX_LAG=0
-  - KVSTORE_BACKEND=mysql REDIS_HOST=localhost TOOBUSY_MAX_LAG=0
+  - KVSTORE_BACKEND=memory
+  - KVSTORE_BACKEND=mysql REDIS_HOST=localhost
 
 before_script:
   - "mysql -e 'DROP DATABASE IF EXISTS test;'"
