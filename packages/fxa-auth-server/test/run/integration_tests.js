@@ -455,6 +455,50 @@ TestServer.start(config.public_url)
   )
 
   test(
+    'timestamp header',
+    function (t) {
+      var email = email1
+      var password = 'allyourbasearebelongtous'
+      var url = null
+      Client.login(config.public_url, email, password)
+        .then(
+          function (c) {
+            url = c.api.baseURL + '/account/keys'
+            return c.api.Token.KeyFetchToken.fromHex(c.keyFetchToken)
+          }
+        )
+        .then(
+          function (token) {
+            var hawk = require('hawk')
+            var request = require('request')
+            var method = 'GET'
+            var verify = {
+              credentials: token,
+              timestamp: Math.floor(Date.now() / 1000)
+            }
+            var headers = {
+              Authorization: hawk.client.header(url, method, verify).field
+            }
+            request(
+              {
+                method: method,
+                url: url,
+                headers: headers,
+                json: true
+              },
+              function (err, res, body) {
+                var now = +new Date() / 1000
+                t.ok(res.headers.timestamp > now - 5, 'has timestamp header')
+                t.ok(res.headers.timestamp < now + 5, 'has timestamp header')
+                t.end()
+              }
+            )
+          }
+        )
+    }
+  )
+
+  test(
     'credentials are set up correctly with keystretching and srp',
     function (t) {
       var salt = '00f000000000000000000000000000000000000000000000000000000000034d'
