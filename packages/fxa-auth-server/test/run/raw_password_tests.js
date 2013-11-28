@@ -7,6 +7,7 @@ var crypto = require('crypto')
 var Client = require('../../client')
 var config = require('../../config').root()
 var TestServer = require('../test_server')
+var helpers = require('../helpers')
 
 process.env.DEV_VERIFIED = 'true'
 
@@ -30,11 +31,11 @@ TestServer.start(config.public_url)
       var email = Buffer(email1).toString('hex')
       var password = 'allyourbasearebelongtous'
       clientApi.rawPasswordAccountCreate(email, password)
-        .done(
+        .then(
           function (result) {
             var client = null
             t.equal(typeof(result.uid), 'string')
-            Client.login(config.public_url, email1, password)
+            return Client.login(config.public_url, email1, password)
               .then(
                 function (x) {
                   client = x
@@ -51,7 +52,7 @@ TestServer.start(config.public_url)
                 }
               )
           }
-        )
+        ).done(helpers.succeed(t), helpers.fail(t))
     }
   )
 
@@ -67,9 +68,8 @@ TestServer.start(config.public_url)
             t.ok(result.uid, 'uid exists')
             t.equal(result.verified, true, 'email verified')
             t.equal(typeof(result.sessionToken), 'string', 'sessionToken exists')
-            t.end()
           }
-        )
+        ).done(helpers.succeed(t), helpers.fail(t))
     }
   )
 
@@ -83,13 +83,11 @@ TestServer.start(config.public_url)
         .then(
           function (result) {
             t.fail('login succeeded')
-            t.end()
           },
           function (err) {
             t.equal(err.errno, 103)
-            t.end()
           }
-        )
+        ).done(helpers.succeed(t), helpers.fail(t))
     }
   )
 
@@ -100,16 +98,14 @@ TestServer.start(config.public_url)
       var email =  Buffer('x@y.me').toString('hex')
       var password = 'allyourbasearebelongtous'
       clientApi.rawPasswordSessionCreate(email, password)
-        .done(
+        .then(
           function (result) {
             t.fail('login succeeded')
-            t.end()
           },
           function (err) {
             t.equal(err.errno, 102)
-            t.end()
           }
-        )
+        ).done(helpers.succeed(t), helpers.fail(t))
     }
   )
 
@@ -132,9 +128,8 @@ TestServer.start(config.public_url)
             t.ok(result.uid, 'uid exists')
             t.equal(result.verified, true, 'email verified')
             t.equal(typeof(result.sessionToken), 'string', 'sessionToken exists')
-            t.end()
           }
-        )
+        ).done(helpers.succeed(t), helpers.fail(t))
     }
   )
 
