@@ -32,7 +32,7 @@ module.exports = function (log, isA, error, db) {
             .then(
               function (bundle) {
                 return {
-                  uid: authToken.uid,
+                  uid: authToken.uid.toString('hex'),
                   verified: authToken.verified,
                   bundle: bundle
                 }

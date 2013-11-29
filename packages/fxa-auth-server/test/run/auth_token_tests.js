@@ -31,11 +31,11 @@ test(
       )
       .then(
         function (token2) {
-          t.equal(token.data, token2.data)
-          t.equal(token.id, token2.id)
-          t.equal(token.authKey, token2.authKey)
-          t.equal(token.bundleKey, token2.bundleKey)
-          t.equal(token.uid, token2.uid)
+          t.deepEqual(token.data, token2.data)
+          t.deepEqual(token.id, token2.id)
+          t.deepEqual(token.authKey, token2.authKey)
+          t.deepEqual(token.bundleKey, token2.bundleKey)
+          t.deepEqual(token.uid, token2.uid)
         }
       )
       .done(
@@ -55,13 +55,13 @@ test(
   'bundle / unbundle of session data works',
   function (t) {
     var token = null;
-    var keyFetchTokenHex = crypto.randomBytes(32).toString('hex')
-    var sessionTokenHex = crypto.randomBytes(32).toString('hex')
+    var keyFetchToken = crypto.randomBytes(32)
+    var sessionToken = crypto.randomBytes(32)
     AuthToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
-          return x.bundleSession(keyFetchTokenHex, sessionTokenHex)
+          return x.bundleSession(keyFetchToken, sessionToken)
         }
       )
       .then(
@@ -71,8 +71,8 @@ test(
       )
       .then(
         function (ub) {
-          t.equal(ub.keyFetchToken, keyFetchTokenHex)
-          t.equal(ub.sessionToken, sessionTokenHex)
+          t.deepEqual(ub.keyFetchToken, keyFetchToken)
+          t.deepEqual(ub.sessionToken, sessionToken)
         }
       )
       .done(
@@ -92,13 +92,13 @@ test(
   'bundle / unbundle of account reset data works',
   function (t) {
     var token = null;
-    var keyFetchTokenHex = crypto.randomBytes(32).toString('hex')
-    var resetTokenHex = crypto.randomBytes(32).toString('hex')
+    var keyFetchToken = crypto.randomBytes(32)
+    var resetToken = crypto.randomBytes(32)
     AuthToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
-          return x.bundleAccountReset(keyFetchTokenHex, resetTokenHex)
+          return x.bundleAccountReset(keyFetchToken, resetToken)
         }
       )
       .then(
@@ -108,8 +108,8 @@ test(
       )
       .then(
         function (ub) {
-          t.equal(ub.keyFetchToken, keyFetchTokenHex)
-          t.equal(ub.accountResetToken, resetTokenHex)
+          t.deepEqual(ub.keyFetchToken, keyFetchToken)
+          t.deepEqual(ub.accountResetToken, resetToken)
         }
       )
       .done(
@@ -134,16 +134,16 @@ test(
       .then(
         function (x) {
           token = x
-          t.equal(token.data, tokendata)
-          t.equal(token.id, '9a39818e3bbe613238c9d7ff013a18411ed2c66c3565c3c4de03feefecb7d212')
-          t.equal(token.authKey, '4a17cbdd54ee17db426fcd7baddff587231d7eadb408c091ce19ca915b715985')
-          t.equal(token.bundleKey, '9d93978e662bfc6e8cc203fa4628ef5a7bf1ddfd7ee54e97ec5c033257b4fca9')
+          t.equal(token.data.toString('hex'), tokendata)
+          t.equal(token.id.toString('hex'), '9a39818e3bbe613238c9d7ff013a18411ed2c66c3565c3c4de03feefecb7d212')
+          t.equal(token.authKey.toString('hex'), '4a17cbdd54ee17db426fcd7baddff587231d7eadb408c091ce19ca915b715985')
+          t.equal(token.bundleKey.toString('hex'), '9d93978e662bfc6e8cc203fa4628ef5a7bf1ddfd7ee54e97ec5c033257b4fca9')
         }
       )
       .then(
         function () {
-          var keyFetchToken = '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f'
-          var sessionToken = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf'
+          var keyFetchToken = Buffer('808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f', 'hex')
+          var sessionToken = Buffer('a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf', 'hex')
           return token.bundleSession(keyFetchToken, sessionToken)
         }
       )
@@ -158,8 +158,8 @@ test(
       )
       .then(
         function () {
-          var keyFetchToken = '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f'
-          var accountResetToken = 'c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf'
+          var keyFetchToken = Buffer('808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f', 'hex')
+          var accountResetToken = Buffer('c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf', 'hex')
           return token.bundleAccountReset(keyFetchToken, accountResetToken)
         }
       )

@@ -50,10 +50,10 @@ TestServer.start(config.public_url)
         )
         .then(
           function (keys) {
-            t.equal(typeof(keys.kA), 'string', 'kA exists')
-            t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
-            t.equal(typeof(keys.kB), 'string', 'kB exists')
-            t.equal(client.kB.length, 64, 'kB exists, has the right length')
+            t.ok(Buffer.isBuffer(keys.kA), 'kA exists')
+            t.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists')
+            t.ok(Buffer.isBuffer(keys.kB), 'kB exists')
+            t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
         .then(
@@ -113,8 +113,8 @@ TestServer.start(config.public_url)
         )
         .then(
           function (keys) {
-            t.equal(keys.wrapKb, wrapKb, 'wrapKb is preserved')
-            t.equal(client.kB.length, 64, 'kB exists, has the right length')
+            t.deepEqual(keys.wrapKb, wrapKb, 'wrapKb is preserved')
+            t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
         .done(
@@ -152,9 +152,10 @@ TestServer.start(config.public_url)
         )
         .then(
           function (keys) {
-            t.equal(typeof(keys.kA), 'string', 'kA exists')
-            t.equal(typeof(keys.wrapKb), 'string', 'wrapKb exists')
-            t.equal(client.kB.length, 64, 'kB exists, has the right length')
+            t.ok(Buffer.isBuffer(keys.kA), 'kA exists')
+            t.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists')
+            t.ok(Buffer.isBuffer(keys.kB), 'kB exists')
+            t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
         .then(

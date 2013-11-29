@@ -7,7 +7,7 @@ module.exports = function (log, inherits, P, uuid, srp, Bundle, Token, error) {
   function SrpToken(keys, details) {
     if (!details.srp) { details.srp = {} }
     Token.call(this, keys, details)
-    this.b = Buffer(this.bundleKey, 'hex')
+    this.b = this.bundleKey
     this.v = details.srp.verifier ? Buffer(details.srp.verifier, 'hex') : null
     this.s = details.srp.salt ? details.srp.salt : null
     this.passwordStretching = details.passwordStretching || null
@@ -32,7 +32,7 @@ module.exports = function (log, inherits, P, uuid, srp, Bundle, Token, error) {
   //
   SrpToken.prototype.clientData = function () {
     return {
-      srpToken: this.id,
+      srpToken: this.id.toString('hex'),
       passwordStretching: this.passwordStretching,
       srp: {
         type: 'SRP-6a/SHA256/2048/v1',
@@ -59,12 +59,11 @@ module.exports = function (log, inherits, P, uuid, srp, Bundle, Token, error) {
   }
 
   SrpToken.prototype.bundleAuth = function (authToken) {
-    log.trace({ op: 'srpToken.bundleAuth', id: this.id })
+    log.trace({ op: 'srpToken.bundleAuth', id: this.id, auth: authToken })
     if (!this.K) {
       return P.reject('Shared secret missing; SRP handshake was not completed')
     }
-    var plaintext = Buffer(authToken, 'hex')
-    return Bundle.bundle(this.K, 'auth/finish', plaintext)
+    return Bundle.bundle(this.K, 'auth/finish', authToken)
   }
 
   SrpToken.prototype.unbundleAuth = function (bundle) {
@@ -76,7 +75,7 @@ module.exports = function (log, inherits, P, uuid, srp, Bundle, Token, error) {
       .then(
         function (plaintext) {
           return {
-            authToken: plaintext.toString('hex'),
+            authToken: plaintext,
           }
         }
       )

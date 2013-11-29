@@ -8,7 +8,7 @@ module.exports = function (log, inherits, Token, error) {
     Token.call(this, keys, details)
     this.kA = details.kA || null
     this.wrapKb = details.wrapKb || null
-    this.verified = !!details.verified 
+    this.verified = !!details.verified
   }
   inherits(KeyFetchToken, Token)
 
@@ -26,11 +26,7 @@ module.exports = function (log, inherits, Token, error) {
 
   KeyFetchToken.prototype.bundleKeys = function (kA, wrapKb) {
     log.trace({ op: 'keyFetchToken.bundleKeys', id: this.id })
-    var plaintext = Buffer.concat([
-      Buffer(kA, 'hex'),
-      Buffer(wrapKb, 'hex')
-    ])
-    return this.bundle('account/keys', plaintext)
+    return this.bundle('account/keys', Buffer.concat([kA, wrapKb]))
   }
 
   KeyFetchToken.prototype.unbundleKeys = function (bundle) {
@@ -39,8 +35,8 @@ module.exports = function (log, inherits, Token, error) {
       .then(
         function (plaintext) {
           return {
-            kA: plaintext.slice(0, 32).toString('hex'),
-            wrapKb: plaintext.slice(32, 64).toString('hex')
+            kA: plaintext.slice(0, 32),
+            wrapKb: plaintext.slice(32, 64)
           }
         }
       )

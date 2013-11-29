@@ -56,13 +56,13 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
               db.createAccount.bind(
                 db,
                 {
-                  uid: uuid.v4(),
+                  uid: uuid.v4('binary'),
                   email: form.email,
                   emailCode: crypto.randomBytes(4).toString('hex'),
                   verified: false || config.dev.verified,
                   srp: form.srp,
-                  kA: crypto.randomBytes(32).toString('hex'),
-                  wrapKb: crypto.randomBytes(32).toString('hex'),
+                  kA: crypto.randomBytes(32),
+                  wrapKb: crypto.randomBytes(32),
                   passwordStretching: form.passwordStretching,
                   devices: {},
                   accountResetToken: null,
@@ -87,7 +87,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
               function (account) {
                 request.reply(
                   {
-                    uid: account.uid
+                    uid: account.uid.toString('hex')
                   }
                 )
               },
@@ -218,7 +218,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
         handler: function (request) {
           log.begin('Account.RecoveryEmailResend', request)
           var sessionToken = request.auth.credentials
-          sendVerifyCode(sessionToken.email, sessionToken.emailCode)
+          sendVerifyCode(sessionToken.email, sessionToken.emailCode, sessionToken.uid)
             .done(
               function () {
                 request.reply({})
@@ -241,7 +241,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
           log.begin('Account.RecoveryEmailVerify', request)
           var uid = request.payload.uid
           var code = request.payload.code
-          db.account(uid)
+          db.account(Buffer(uid, 'hex'))
             .then(
               function (account) {
                 if (code !== account.emailCode) {
@@ -261,7 +261,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
         },
         validate: {
           payload: {
-            uid: isA.String().max(64).required(),
+            uid: isA.String().max(32).regex(HEX_STRING).required(),
             code: isA.String().max(16).required()
           }
         }

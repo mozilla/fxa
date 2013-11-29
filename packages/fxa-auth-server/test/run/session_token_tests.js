@@ -34,11 +34,11 @@ test(
       )
       .then(
         function (token2) {
-          t.equal(token.data, token2.data)
-          t.equal(token.id, token2.id)
-          t.equal(token.authKey, token2.authKey)
-          t.equal(token.bundleKey, token2.bundleKey)
-          t.equal(token.uid, token2.uid)
+          t.deepEqual(token.data, token2.data)
+          t.deepEqual(token.id, token2.id)
+          t.deepEqual(token.authKey, token2.authKey)
+          t.deepEqual(token.bundleKey, token2.bundleKey)
+          t.deepEqual(token.uid, token2.uid)
           t.equal(token.email, token2.email)
           t.equal(token.emailCode, token2.emailCode)
           t.equal(token.verified, token2.verified)
@@ -66,9 +66,9 @@ test(
       .then(
         function (x) {
           token = x
-          t.equal(token.data, tokendata)
-          t.equal(token.id, 'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab')
-          t.equal(token.authKey, '9d8f22998ee7f5798b887042466b72d53e56ab0c094388bf65831f702d2febc0')
+          t.equal(token.data.toString('hex'), tokendata)
+          t.equal(token.id.toString('hex'), 'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab')
+          t.equal(token.authKey.toString('hex'), '9d8f22998ee7f5798b887042466b72d53e56ab0c094388bf65831f702d2febc0')
         }
       )
       .done(

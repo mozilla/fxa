@@ -26,7 +26,7 @@ module.exports = function (log, isA, error, public_url, Client, crypto, db) {
                 {
                   uid: client.uid,
                   verified: client.verified,
-                  sessionToken: client.sessionToken
+                  sessionToken: client.sessionToken.toString('hex')
                 }
               )
             },
@@ -142,7 +142,7 @@ module.exports = function (log, isA, error, public_url, Client, crypto, db) {
                       return {
                         srp: client.srp,
                         passwordStretching: stretching,
-                        wrapKb: crypto.randomBytes(32).toString('hex')
+                        wrapKb: crypto.randomBytes(32)
                       }
                     }
                   )

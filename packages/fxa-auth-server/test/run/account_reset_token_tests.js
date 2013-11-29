@@ -31,11 +31,11 @@ test(
       )
       .then(
         function (token2) {
-          t.equal(token.data, token2.data)
-          t.equal(token.id, token2.id)
-          t.equal(token.authKey, token2.authKey)
-          t.equal(token.bundleKey, token2.bundleKey)
-          t.equal(token.uid, token2.uid)
+          t.deepEqual(token.data, token2.data)
+          t.deepEqual(token.id, token2.id)
+          t.deepEqual(token.authKey, token2.authKey)
+          t.deepEqual(token.bundleKey, token2.bundleKey)
+          t.deepEqual(token.uid, token2.uid)
         }
       )
       .done(
@@ -55,7 +55,7 @@ test(
   'bundle / unbundle of account data works',
   function (t) {
     var token = null;
-    var wrapKb = crypto.randomBytes(32).toString('hex')
+    var wrapKb = crypto.randomBytes(32)
     var verifier = crypto.randomBytes(256).toString('hex')
     AccountResetToken.create(ACCOUNT)
       .then(
@@ -71,7 +71,7 @@ test(
       )
       .then(
         function (ub) {
-          t.equal(ub.wrapKb, wrapKb)
+          t.deepEqual(ub.wrapKb, wrapKb)
           t.equal(ub.verifier, verifier)
         }
       )
@@ -97,15 +97,15 @@ test(
       .then(
         function (x) {
           token = x
-          t.equal(token.data, tokendata)
-          t.equal(token.id, '46ec557e56e531a058620e9344ca9c75afac0d0bcbdd6f8c3c2f36055d9540cf')
-          t.equal(token.authKey, '716ebc28f5122ef48670a48209190a1605263c3188dfe45256265929d1c45e48')
-          t.equal(token.bundleKey, 'aa5906d2318c6e54ecebfa52f10df4c036165c230cc78ee859f546c66ea3c126')
+          t.equal(token.data.toString('hex'), tokendata)
+          t.equal(token.id.toString('hex'), '46ec557e56e531a058620e9344ca9c75afac0d0bcbdd6f8c3c2f36055d9540cf')
+          t.equal(token.authKey.toString('hex'), '716ebc28f5122ef48670a48209190a1605263c3188dfe45256265929d1c45e48')
+          t.equal(token.bundleKey.toString('hex'), 'aa5906d2318c6e54ecebfa52f10df4c036165c230cc78ee859f546c66ea3c126')
         }
       )
       .then(
         function () {
-          var wrapKb = '404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f'
+          var wrapKb = Buffer('404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f', 'hex')
           var newSRPv = '1'
           while (newSRPv.length !== 512) {
             newSRPv += newSRPv

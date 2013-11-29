@@ -4,8 +4,6 @@
 
 module.exports = function (log, inherits, Token, crypto) {
 
-  var NULL = '0000000000000000000000000000000000000000000000000000000000000000'
-
   function AccountResetToken(keys, details) {
     Token.call(this, keys, details)
   }
@@ -26,11 +24,7 @@ module.exports = function (log, inherits, Token, crypto) {
 
   AccountResetToken.prototype.bundleAccountData = function (wrapKb, verifier) {
     log.trace({ op: 'accountResetToken.bundleAccountData', id: this.id })
-    var plaintext = Buffer.concat([
-      Buffer(wrapKb, 'hex'),
-      Buffer(verifier, 'hex')
-    ])
-    return this.bundle('account/reset', plaintext)
+    return this.bundle('account/reset', Buffer.concat([wrapKb, Buffer(verifier, 'hex')]))
   }
 
   AccountResetToken.prototype.unbundleAccountData = function (hex) {
@@ -38,10 +32,10 @@ module.exports = function (log, inherits, Token, crypto) {
     return this.unbundle('account/reset', hex)
       .then(
         function (plaintext) {
-          var wrapKb = plaintext.slice(0, 32).toString('hex')
+          var wrapKb = plaintext.slice(0, 32)
           var verifier = plaintext.slice(32, 288).toString('hex')
-          if (wrapKb === NULL) {
-           wrapKb = crypto.randomBytes(32).toString('hex')
+          if (bufferIsNull(wrapKb)) {
+           wrapKb = crypto.randomBytes(32)
           }
           return {
             wrapKb: wrapKb,
@@ -49,6 +43,13 @@ module.exports = function (log, inherits, Token, crypto) {
           }
         }.bind(this)
       )
+  }
+
+  function bufferIsNull(buffer) {
+    for (var i = 0; i < buffer.length; i++) {
+      if (buffer[i] !== 0) return false
+    }
+    return true
   }
 
   return AccountResetToken
