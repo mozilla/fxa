@@ -30,7 +30,15 @@ function shutdown(signal) {
 });
 
 
-// XXX: heartbeat
+// health check - registered before all other middleware.
+app.use(function(req, res, next) {
+  if (req.url === '/status') {
+    res.setHeader('Content-Type', 'text/plain');
+    res.send("OK");
+  } else {
+    next();
+  }
+});
 
 // return 503 when the server is too busy
 toobusy.maxLag(70 /* XXX: config */);
