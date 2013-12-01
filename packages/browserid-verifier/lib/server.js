@@ -63,6 +63,16 @@ app.use(express.logger({
   }
 }));
 
+// header manipulation
+app.use(function(req, res, next) {
+  // no caching allowed, this is an API server.
+  res.setHeader('Cache-Control', 'no-cache, max-age=0');
+  // shave some needless bytes
+  res.removeHeader('X-Powered-By');
+  res.setHeader('Connection', "close");
+  next();
+});
+
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ limit: "10kb" }));
 
