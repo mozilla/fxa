@@ -42,16 +42,16 @@ Verifier.prototype.start = function(cb) {
   }
 
   this.process = cp.spawn(
-    process.env.NODE,
+    process.env._,
     [
-      path.join(repoBaseDir, 'server.js'),
+      path.join(repoBaseDir, 'server.js')
     ],
     {
       cwd: repoBaseDir,
-      silent: true,
       stdio: 'pipe',
       env: {
         INSECURE_SSL: true,
+        REPORT_COVERAGE_DIR: process.env.REPORT_COVERAGE_DIR
       }
     });
 

@@ -25,11 +25,11 @@
     "jshint": "2.3.0",
     "walk": "2.2.1",
     "temp": "0.5.1",
-    "jscoverage": "0.3.8",
-    "request": "2.27.0"
+    "request": "2.27.0",
+    "temp": "0.6.0",
+    "blanket": "1.1.5"
   },
   "scripts": {
-    "test": "mocha -R spec tests/*.js",
-    "cover": "rm -rf lib-cov && node_modules/.bin/jscoverage lib lib-cov && BROWSERID_VERIFIER_COV=true mocha -R html-cov tests/*.js > coverage.html "
+    "test": "node scripts/run-tests.js"
   }
 }

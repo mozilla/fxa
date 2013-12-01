@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -45,7 +43,6 @@ app.post('/verify', verify);
 
 app.post('/', verify);
 
-// XXX: shutdown nicely on signals
 server.listen(config.get('port'), config.get('ip'), function() {
   log.info("running on http://" +
            server.address().address + ":" + server.address().port);
