@@ -17,8 +17,7 @@ function later(cb /* args */) {
 
 function Verifier(args) {
   if (!args) args = {};
-  this.args = args;
-  this.config = {};
+  this.config = args;
 }
 
 Verifier.prototype.setFallback = function(idp) {
@@ -28,6 +27,14 @@ Verifier.prototype.setFallback = function(idp) {
 
 Verifier.prototype.setHTTPTimeout = function(timeo) {
   this.config.httpTimeout = timeo;
+};
+
+Verifier.prototype.buffer = function(b) {
+  if (b !== undefined) {
+    if (!b) delete this._outBuf;
+    else if (!this._outBuf) this._outBuf = "";
+  }
+  return this._outBuf;
 };
 
 Verifier.prototype.url = function() {
@@ -48,12 +55,19 @@ Verifier.prototype.start = function(cb) {
 
   var e = {
     INSECURE_SSL: true,
-    FALLBACK_DOMAIN: this.config.fallback,
     HTTP_TIMEOUT: this.config.httpTimeout || 8.0
   };
 
+  if (this.config.fallback) {
+    e.FALLBACK_DOMAIN = this.config.fallback;
+  }
+
   if (process.env.REPORT_COVERAGE_DIR) {
     e.REPORT_COVERAGE_DIR = process.env.REPORT_COVERAGE_DIR;
+  }
+
+  if (this.config.files) {
+    e.CONFIG_FILES = this.config.files;
   }
 
   this.process = cp.spawn(
@@ -68,6 +82,10 @@ Verifier.prototype.start = function(cb) {
     });
 
   this.process.stdout.on('data', function(line) {
+    if (typeof self._outBuf === 'string') {
+      self._outBuf += line;
+    }
+
     var m;
     // figure out the bound port
     if ((m = /^INFO: running on (http:\/\/.*)$/m.exec(line))) {
