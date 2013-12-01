@@ -46,6 +46,16 @@ Verifier.prototype.start = function(cb) {
     return later(cb, null);
   }
 
+  var e = {
+    INSECURE_SSL: true,
+    FALLBACK_DOMAIN: this.config.fallback,
+    HTTP_TIMEOUT: this.config.httpTimeout || 8.0
+  };
+
+  if (process.env.REPORT_COVERAGE_DIR) {
+    e.REPORT_COVERAGE_DIR = process.env.REPORT_COVERAGE_DIR;
+  }
+
   this.process = cp.spawn(
     process.execPath,
     [
@@ -54,12 +64,7 @@ Verifier.prototype.start = function(cb) {
     {
       cwd: repoBaseDir,
       stdio: 'pipe',
-      env: {
-        INSECURE_SSL: true,
-        REPORT_COVERAGE_DIR: process.env.REPORT_COVERAGE_DIR,
-        FALLBACK_DOMAIN: this.config.fallback,
-        HTTP_TIMEOUT: this.config.httpTimeout || 8.0
-      }
+      env: e
     });
 
   this.process.stdout.on('data', function(line) {
