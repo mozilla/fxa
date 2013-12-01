@@ -40,7 +40,8 @@ function verify(req, res) {
         throw new Error("wrong content type");
       }
     } catch (e) {
-      reason = "Content-Type expected to be one of: " + want_ct.join(", ");
+      reason = util.format("Unsupported Content-Type: %s (expected " +
+                           want_ct.join(" or ") + ")", ct);
       log.info('verify', {
         result: 'failure',
         reason: reason,
