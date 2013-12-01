@@ -34,7 +34,18 @@ app.use(function(req, res, next) {
   }
 });
 
-// XXX: log requests
+// log HTTP requests
+app.use(express.logger({
+  stream: {
+    write: function(message){
+      // trim newlines as our logger inserts them for us.
+      if (typeof message === 'string') {
+        message = message.trim();
+      }
+      log.info(message);
+    }
+  }
+}));
 
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ limit: "10kb" }));
