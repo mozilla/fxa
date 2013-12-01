@@ -16,11 +16,19 @@ log.debug("verifier server starting up");
 var app = express();
 var server = http.createServer(app);
 
-// XXX: handle shutdown
-process.on('SIGINT', function() {
-  toobusy.shutdown();
-  server.close();
+// handle shutdown
+function shutdown(signal) {
+  return function() {
+    log.info("recieved signal", signal +", shutting down...");
+    toobusy.shutdown();
+    server.close();
+  };
+}
+
+['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach(function(signal) {
+  process.on(signal, shutdown(signal.substr(3)));
 });
+
 
 // XXX: heartbeat
 
