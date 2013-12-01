@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var fs = require('fs'),
-  path = require('path');
+  path = require('path'),
+should = require('should');
 
 function mergeCovData(data) {
   if (!global) global = {};
