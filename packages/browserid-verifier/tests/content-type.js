@@ -5,15 +5,33 @@
 /* global describe,it,require */
 
 var
+IdP = require('browserid-local-verify/testing').IdP,
+Client = require('browserid-local-verify/testing').Client,
 Verifier = require('./lib/verifier.js'),
 should = require('should'),
 request = require('request');
 
-describe('wrong content type test', function() {
+describe('content-type tests', function() {
   var verifier = new Verifier();
+  var idp = new IdP();
+  var client;
 
   it('test servers should start', function(done) {
-    verifier.start(done);
+    idp.start(function(e) {
+      verifier.start(function(e1) {
+        client = new Client({ idp: idp });
+        done(e || e1);
+      });
+    });
+  });
+
+  var assertion;
+
+  it('test assertion should be created', function(done) {
+    client.assertion({ audience: 'http://example.com' }, function(err, ass) {
+      assertion = ass;
+      done(err);
+    });
   });
 
   it('should fail to verify when content-type is unsupported', function(done) {
@@ -22,10 +40,7 @@ describe('wrong content type test', function() {
       url: verifier.url(),
       headers: {
         "Content-Type": "text/plain"
-      },
-      body: JSON.stringify({
-        audience: "http://example.com"
-      })
+      }
     }, function(err, r) {
       should.not.exist(err);
       (r.statusCode).should.equal(415);
@@ -34,6 +49,27 @@ describe('wrong content type test', function() {
       }).should.not.throw();
       (r.body.status).should.equal('failure');
       (r.body.reason).should.startWith('Unsupported Content-Type: text/plain');
+      done();
+    });
+  });
+
+  it('shouldn\'t get confused when extended content-types are used', function(done) {
+    request({
+      method: 'post',
+      url: verifier.url(),
+      headers: {
+        "Content-Type": "application/json; charset: utf-8",
+      },
+      body: JSON.stringify({
+        assertion: assertion
+      })
+    }, function(err, r) {
+      should.not.exist(err);
+      (r.statusCode).should.equal(400);
+      (function() {
+        r.body = JSON.parse(r.body);
+      }).should.not.throw();
+      (r.body.status).should.equal('failure');
       done();
     });
   });
