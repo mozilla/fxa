@@ -6,7 +6,8 @@ const
 log = require('./log'),
 Verifier = require('browserid-local-verify'),
 config = require('./config'),
-_ = require('underscore');
+_ = require('underscore'),
+util = require('util');
 
 var verifier = new Verifier({
   httpTimeout: config.get('httpTimeout'),
@@ -47,7 +48,7 @@ function verify(req, res) {
       });
       return res.json({ status: "failure", reason: reason}, 415);
     }
-    reason = "need assertion and audience";
+    reason = util.format("missing %s parameter", assertion ? "audience" : "assertion");
     log.info('verify', {
       result: 'failure',
       reason: reason,
