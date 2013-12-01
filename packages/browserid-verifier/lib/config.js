@@ -17,6 +17,12 @@ var conf = convict({
     default: 0,
     env: "PORT"
   },
+  fallback: {
+    doc: "The domain of the fallback server, authoritative when lookup fails.",
+    format: String,
+    default: "",
+    env: "FALLBACK_DOMAIN"
+  },
   httpTimeout: {
     doc: "(s) how long to spend attempting to fetch support documents",
     format: Number,

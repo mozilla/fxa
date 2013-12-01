@@ -22,7 +22,8 @@ function Verifier(args) {
 }
 
 Verifier.prototype.setFallback = function(idp) {
-  this.config.fallback = idp.domain();
+  if (idp === null) delete this.config.fallback;
+  else this.config.fallback = idp.domain();
 };
 
 Verifier.prototype.url = function() {
@@ -51,7 +52,8 @@ Verifier.prototype.start = function(cb) {
       stdio: 'pipe',
       env: {
         INSECURE_SSL: true,
-        REPORT_COVERAGE_DIR: process.env.REPORT_COVERAGE_DIR
+        REPORT_COVERAGE_DIR: process.env.REPORT_COVERAGE_DIR,
+        FALLBACK_DOMAIN: this.config.fallback
       }
     });
 

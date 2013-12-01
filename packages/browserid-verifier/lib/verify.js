@@ -65,14 +65,11 @@ function verify(req, res) {
   verifier.verify({
     assertion: assertion,
     audience: audience,
-    trustedIssuers: trustedIssuers
+    trustedIssuers: trustedIssuers,
+    fallback: config.get('fallback')
   }, function (err, r) {
     var reqTime = new Date() - startTime;
     log.info('assertion_verification_time', reqTime);
-
-    if (!r) {
-      res.json({status:"failure", reason: "no response from verification library"}, 500);
-    }
 
     if (err) {
       log.info("assertion_failure");
