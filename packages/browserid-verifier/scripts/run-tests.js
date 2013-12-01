@@ -47,7 +47,8 @@ temp.mkdir("verifier-coverage-data", function(err, dn) {
       fs.writeFileSync('coverage.html', html);
       // extract %age
       var m = /<div\s*class="percentage">(\d+%)<\/div>/.exec(html);
-      console.log(m[1], 'code coverage (see coverage.html)');
+      console.log((m.length > 1) ? m[1] : "unknown",
+                  'code coverage (see coverage.html)');
     });
   });
 });
