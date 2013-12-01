@@ -24,10 +24,10 @@
     "should": "2.1.0",
     "jshint": "2.3.0",
     "walk": "2.2.1",
-    "temp": "0.5.1",
-    "request": "2.27.0",
     "temp": "0.6.0",
-    "blanket": "1.1.5"
+    "request": "2.27.0",
+    "blanket": "1.1.5",
+    "awsbox": "~0.6.2"
   },
   "scripts": {
     "test": "node scripts/run-tests.js"
