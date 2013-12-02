@@ -34,6 +34,11 @@ All POST requests must have a content-type of `application/json` with a utf8-enc
 
 All successful requests will produce a response with HTTP status code of "200" and content-type of "application/json".  The structure of the response body will depend on the endpoint in question.
 
+Successful responses will also include the following headers, which may be useful for the client:
+
+* `Timestamp`:  the current POSIX timestamp as seen by the server, in integer seconds.
+
+
 Failures due to invalid behavior from the client will produce a response with HTTP status code in the "4XX" range and content-type of "application/json".  Failures due to an unexpected situation on the server will produce a response with HTTP status code in the "5XX" range and content-type of "application/json".
 
 To simplify error handling for the client, the type of error is indicated both by a particular HTTP status code, and by an application-specific error code in the JSON response body.  For example:

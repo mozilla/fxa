@@ -169,6 +169,18 @@ module.exports = function (path, url, Hapi, toobusy, error) {
     server.ext(
       'onPreResponse',
       function (request, next) {
+        var res = request.response()
+        // error responses don't have `header`
+        if (res.header) {
+          res.header('Timestamp', ''+Math.floor(Date.now() / 1000))
+        }
+        next()
+      }
+    )
+
+    server.ext(
+      'onPreResponse',
+      function (request, next) {
         var response = request.response()
         if (response.isBoom) {
           if (!response.response.payload.errno) {
