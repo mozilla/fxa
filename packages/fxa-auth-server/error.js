@@ -54,13 +54,16 @@ Boom.wrap = function (srcObject) {
     }
   }
 
-  // Intuit a status code for the error, if it doesn't have one.
+  // Intuit a status code for the error if it doesn't have one,
+  // or if it has some other garbage in its 'code' attribute.
   if (typeof object.code === 'undefined') {
     if ([109, 110, 111].indexOf(object.errno) !== -1) {
       object.code = 401
     } else {
       object.code = 400
     }
+  } else if (typeof object.code !== 'number') {
+    object.code = 500
   }
 
   // If we weren't able to identify a specific type of error,
