@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var crypto = require('crypto')
 var srp = require('srp')
 var log = { trace: function() {} }
@@ -49,20 +49,11 @@ db.createAccount(alice)
     test(
       'create login session works',
       function (t) {
-        SrpToken.create(a)
+        return SrpToken.create(a)
           .then(
             function (s) {
               t.equal(s.uid, a.uid)
               t.equal(s.s, a.srp.salt)
-            }
-          )
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
             }
           )
       }
@@ -73,7 +64,7 @@ db.createAccount(alice)
       function (t) {
         var session = null
         var K = null
-        SrpToken.create(a)
+        return SrpToken.create(a)
           .then(
             function (s) {
               session = s
@@ -105,15 +96,6 @@ db.createAccount(alice)
               t.equal(s.K.toString('hex'), K)
             }
           )
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
       }
     )
   }
@@ -128,7 +110,7 @@ db.createAccount(alice)
         var authToken = Buffer('606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f', 'hex')
         var bundle = '253957f10e861c7c0a12bb0193d384d9579db544666d50bd3252d6576c768a68' +
                      'a98c87f5769ab4ccca3df863faeb217eb16ddc29d712b30112b446324ee806d6'
-        SrpToken.create(alice)
+        return SrpToken.create(alice)
           .then(
             function (token) {
               token.K = Buffer(srpK, 'hex')
@@ -138,15 +120,6 @@ db.createAccount(alice)
           .then(
             function (b) {
               t.equal(b, bundle)
-            }
-          )
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
             }
           )
       }

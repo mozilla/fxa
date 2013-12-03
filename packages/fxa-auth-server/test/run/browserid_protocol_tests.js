@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 // jshint -W069
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var cp = require('child_process')
 var Client = require('../../client')
 
@@ -18,7 +18,7 @@ function main() {
       function fetch(url) {
         return client.api.doRequest('GET', config.public_url + url)
       }
-      fetch('/.well-known/browserid')
+      return fetch('/.well-known/browserid')
       .then(
         function (doc) {
           t.ok(doc.hasOwnProperty('public-key'), 'doc has public key')
@@ -47,15 +47,6 @@ function main() {
               return doc
             }
           )
-        }
-      )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(err.message || err.error)
-          t.end()
         }
       )
     }

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var crypto = require('crypto')
 var log = { trace: function() {} }
 
@@ -18,7 +18,7 @@ test(
   're-creation from tokendata works',
   function (t) {
     var token = null;
-    AccountResetToken.create(ACCOUNT)
+    return AccountResetToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -38,15 +38,6 @@ test(
           t.deepEqual(token.uid, token2.uid)
         }
       )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
   }
 )
 
@@ -57,7 +48,7 @@ test(
     var token = null;
     var wrapKb = crypto.randomBytes(32)
     var verifier = crypto.randomBytes(256).toString('hex')
-    AccountResetToken.create(ACCOUNT)
+    return AccountResetToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -75,15 +66,6 @@ test(
           t.equal(ub.verifier, verifier)
         }
       )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
   }
 )
 
@@ -93,7 +75,7 @@ test(
   function (t) {
     var token = null;
     var tokendata = 'c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf'
-    AccountResetToken.fromHex(tokendata, ACCOUNT)
+    return AccountResetToken.fromHex(tokendata, ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -126,15 +108,6 @@ test(
                   'be135d82ded68f8576ab61a2167d31dd050bb345ee048a342034b215550dfde2' +
                   '5ed0954df87ff48930ecf92dc35f23185c215566aeb3d9fcce327f403471785f' +
                   '1d3572fe0b4bdf66f2b2657cb2ee56fc80f7a82708cafd821952e1f01761cb29')
-        }
-      )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
         }
       )
   }

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var crypto = require('crypto')
 var log = { trace: function() {} }
 
@@ -21,7 +21,7 @@ test(
   're-creation from tokendata works',
   function (t) {
     var token = null;
-    KeyFetchToken.create(ACCOUNT)
+    return KeyFetchToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -44,15 +44,6 @@ test(
           t.equal(token.verified, token2.verified)
         }
       )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
   }
 )
 
@@ -63,7 +54,7 @@ test(
     var token = null;
     var kA = crypto.randomBytes(32)
     var wrapKb = crypto.randomBytes(32)
-    KeyFetchToken.create(ACCOUNT)
+    return KeyFetchToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -81,15 +72,6 @@ test(
           t.deepEqual(ub.wrapKb, wrapKb)
         }
       )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
   }
 )
 
@@ -99,7 +81,7 @@ test(
   function (t) {
     var token = null;
     var tokendata = '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f'
-    KeyFetchToken.fromHex(tokendata, ACCOUNT)
+    return KeyFetchToken.fromHex(tokendata, ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -123,15 +105,6 @@ test(
                   'd66b222613364636c2c0f8cfbb7c630472c0bd88451342c6' +
                   'c05b14ce342c5ad46ad89e84464c993c3927d30230157d08' +
                   '17a077eef4b20d976f7a97363faf3f064c003ada7d01aa70')
-        }
-      )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
         }
       )
   }

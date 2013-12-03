@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var scrypt = require('../../client/scrypt')
-var test = require('tap').test
+var test = require('../ptaptest')
 
 test(
   'scrypt basic with a remote helper',
@@ -12,15 +12,10 @@ test(
     var salt = Buffer('identity.mozilla.com/picl/v1/scrypt')
     var helper = 'https://scrypt-accounts.dev.lcip.org/'
 
-    scrypt.hash(K1, salt, helper)
-      .done(
+    return scrypt.hash(K1, salt, helper)
+      .then(
         function (K2) {
           t.equal(K2, '5b82f146a64126923e4167a0350bb181feba61f63cb1714012b19cb0be0119c5')
-          t.end();
-        },
-        function (e) {
-          t.fail(e);
-          t.end();
         }
       )
   }
@@ -32,15 +27,10 @@ test(
     var K1 = Buffer('f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd', 'hex')
     var salt = Buffer('identity.mozilla.com/picl/v1/scrypt')
 
-    scrypt.hash(K1, salt)
-      .done(
+    return scrypt.hash(K1, salt)
+      .then(
         function (K2) {
           t.equal(K2, '5b82f146a64126923e4167a0350bb181feba61f63cb1714012b19cb0be0119c5')
-          t.end();
-        },
-        function (e) {
-          t.fail(e);
-          t.end();
         }
       )
   }

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var crypto = require('crypto')
 var config = require('../../config').root()
@@ -21,7 +21,7 @@ TestServer.start(config.public_url)
       var email = crypto.randomBytes(10).toString('hex') + '@example.com'
       var password = '123456'
       var client = null
-      Client.create('http://127.0.0.1:9000', email, password)
+      return Client.create('http://127.0.0.1:9000', email, password)
         .then(
           function (c) {
             client = c
@@ -73,15 +73,6 @@ TestServer.start(config.public_url)
           fail,
           function (err) {
             t.equal(err.code, 400, 'invalid algorithm')
-          }
-        )
-        .done(
-          function () {
-            t.end()
-          },
-          function (err) {
-            t.fail('sign should fail')
-            t.end()
           }
         )
     }

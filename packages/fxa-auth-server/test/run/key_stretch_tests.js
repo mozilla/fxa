@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var keyStretch = require('../../client/keystretch')
 
 test(
@@ -11,19 +11,13 @@ test(
     var emailBuf = Buffer('andré@example.org')
     var password = Buffer('pässwörd')
     var salt = '00f000000000000000000000000000000000000000000000000000000000034d'
-    function end() { t.end() }
-
-    keyStretch.derive(emailBuf, password, salt)
+    return keyStretch.derive(emailBuf, password, salt)
       .then(
         function (result) {
           t.equal(result.srpPw.toString('hex'), '00f9b71800ab5337d51177d8fbc682a3653fa6dae5b87628eeec43a18af59a9d')
           t.equal(result.unwrapBKey.toString('hex'), '6ea660be9c89ec355397f89afb282ea0bf21095760c8c5009bbcc894155bbe2a')
-        },
-        function (err) {
-          t.fail(err)
         }
       )
-      .done(end, end)
   }
 )
 
@@ -34,28 +28,20 @@ test(
     var email = 'ijqmkkafer3xsj5rzoq+msnxsacvkmqxabtsvxvj@some-test-domain-with-a-long-name-example.org'
     var emailBuf = Buffer(email)
     var password = Buffer('mSnxsacVkMQxAbtSVxVjCCoWArNUsFhiJqmkkafER3XSJ5rzoQ')
-    function end() { t.end() }
-
-    keyStretch.derive(emailBuf, password, salt)
+    return keyStretch.derive(emailBuf, password, salt)
       .then(
         function (result) {
           t.equal(result.srpPw.toString('hex'), '261559a74f7b7199fef846c8138db08333bbcc7f5177194da5c965ba953a346b')
           t.equal(result.unwrapBKey.toString('hex'), 'cf48fbc1613a46c794d37c2fe5423c7813b70e5b6c525d5c4463056f267959ff')
-        },
-        function (err) {
-          t.fail(err)
         }
       )
-      .done(end, end)
   }
 )
 
 test(
   'false input both',
   function (t) {
-    function end() { t.end() }
-
-    keyStretch.derive('', '', '')
+    return keyStretch.derive('', '', '')
       .then(
         function (stretchedPassword) {
           t.fail('Got a stretchedPassword from false input')
@@ -64,7 +50,6 @@ test(
           t.equal(err, 'Bad password, salt or email input')
         }
       )
-      .done(end, end)
   }
 )
 
@@ -72,10 +57,7 @@ test(
   'false input email',
   function (t) {
     var email = 'me@example.org'
-
-    function end() { t.end() }
-
-    keyStretch.derive(email, '', '')
+    return keyStretch.derive(email, '', '')
       .then(
       function (stretchedPassword) {
         t.fail('Got a stretchedPassword from false input')
@@ -84,7 +66,6 @@ test(
         t.equal(err, 'Bad password, salt or email input')
       }
     )
-      .done(end, end)
   }
 )
 
@@ -94,9 +75,7 @@ test(
     var email = ''
     var password = 'password'
     var salt = ''
-    function end() { t.end() }
-
-    keyStretch.derive(email, password, salt)
+    return keyStretch.derive(email, password, salt)
       .then(
       function (stretchedPassword) {
         t.fail('Got a stretchedPassword from false input')
@@ -105,7 +84,6 @@ test(
         t.equal(err, 'Bad password, salt or email input')
       }
     )
-      .done(end, end)
   }
 )
 
@@ -115,9 +93,7 @@ test(
     var email
     var password
     var salt
-    function end() { t.end() }
-
-    keyStretch.derive(email, password, salt)
+    return keyStretch.derive(email, password, salt)
       .then(
       function (stretchedPassword) {
         t.fail('Got a stretchedPassword from false input')
@@ -126,16 +102,13 @@ test(
         t.equal(err, 'Bad password, salt or email input')
       }
     )
-      .done(end, end)
   }
 )
 
 test(
   'not enough arguments',
   function (t) {
-    function end() { t.end() }
-
-    keyStretch.derive()
+    return keyStretch.derive()
       .then(
       function (stretchedPassword) {
         t.fail('Got a stretchedPassword from false input')
@@ -144,16 +117,13 @@ test(
         t.equal(err, 'Bad password, salt or email input')
       }
     )
-      .done(end, end)
   }
 )
 
 test(
   'one argument',
   function (t) {
-    function end() { t.end() }
-
-    keyStretch.derive(Buffer('andré@example.org'))
+    return keyStretch.derive(Buffer('andré@example.org'))
       .then(
       function (stretchedPassword) {
         t.fail('Got a stretchedPassword from false input')
@@ -162,16 +132,13 @@ test(
         t.equal(err, 'Bad password, salt or email input')
       }
     )
-      .done(end, end)
   }
 )
 
 test(
   'null input',
   function (t) {
-    function end() { t.end() }
-
-    keyStretch.derive(null, null, null)
+    return keyStretch.derive(null, null, null)
       .then(
       function (stretchedPassword) {
         t.fail('Got a stretchedPassword from false input')
@@ -180,7 +147,6 @@ test(
         t.equal(err, 'Bad password, salt or email input')
       }
     )
-      .done(end, end)
   }
 )
 

@@ -2,22 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var uuid = require('uuid')
 var log = { trace: console.log }
 
 var config = require('../../config').root()
 var Token = require('../../tokens')(log)
 var DB = require('../../db')(
-config,
-log,
-Token.error,
-Token.AuthToken,
-Token.SessionToken,
-Token.KeyFetchToken,
-Token.AccountResetToken,
-Token.SrpToken,
-Token.ForgotPasswordToken
+  config,
+  log,
+  Token.error,
+  Token.AuthToken,
+  Token.SessionToken,
+  Token.KeyFetchToken,
+  Token.AccountResetToken,
+  Token.SrpToken,
+  Token.ForgotPasswordToken
 )
 
 
@@ -43,7 +43,7 @@ DB.connect()
       test(
         'account creation',
         function (t) {
-          db.createAccount(ACCOUNT)
+          return db.createAccount(ACCOUNT)
           .then(function(account) {
             t.deepEqual(account.uid, ACCOUNT.uid)
           })
@@ -66,22 +66,13 @@ DB.connect()
             t.deepEqual(account.srp, ACCOUNT.srp)
             t.deepEqual(account.passwordStretching, ACCOUNT.passwordStretching)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
       test(
         'srp token handling',
         function (t) {
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createSrpToken(emailRecord)
           })
@@ -105,15 +96,6 @@ DB.connect()
           .then(function(srpToken) {
             return db.deleteSrpToken(srpToken.tokenid)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
@@ -121,7 +103,7 @@ DB.connect()
         'auth token handling',
         function (t) {
           var tokenid;
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createAuthToken({ uid: emailRecord.uid })
           })
@@ -140,15 +122,6 @@ DB.connect()
           .then(function(authToken) {
             return db.deleteAuthToken(authToken)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
@@ -156,7 +129,7 @@ DB.connect()
         'session token handling',
         function (t) {
           var tokenid;
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createSessionToken(emailRecord)
           })
@@ -178,15 +151,6 @@ DB.connect()
           .then(function(sessionToken) {
             return db.deleteSessionToken(sessionToken)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
@@ -194,7 +158,7 @@ DB.connect()
         'keyfetch token handling',
         function (t) {
           var tokenid;
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createKeyFetchToken(emailRecord)
           })
@@ -216,15 +180,6 @@ DB.connect()
           .then(function(keyFetchToken) {
             return db.deleteKeyFetchToken(keyFetchToken)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
@@ -232,7 +187,7 @@ DB.connect()
         'reset token handling',
         function (t) {
           var tokenid;
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createAccountResetToken(emailRecord)
           })
@@ -251,15 +206,6 @@ DB.connect()
           .then(function(accountResetToken) {
             return db.deleteAccountResetToken(accountResetToken)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err, 'something went wrong in the reset token handling test')
-              t.end()
-            }
-          )
         }
       )
 
@@ -268,7 +214,7 @@ DB.connect()
         function (t) {
           var token1;
           var token1tries = 0
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createForgotPasswordToken(emailRecord)
           })
@@ -300,22 +246,13 @@ DB.connect()
           .then(function(forgotPasswordToken) {
             return db.deleteForgotPasswordToken(forgotPasswordToken)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
       test(
         'email verification',
         function (t) {
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.verifyEmail(emailRecord)
           })
@@ -325,22 +262,13 @@ DB.connect()
           .then(function(account) {
             t.ok(account.verified, 'account should now be verified')
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
       test(
         'db.authFinish',
         function (t) {
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createSrpToken(emailRecord)
           })
@@ -350,15 +278,6 @@ DB.connect()
           .then(function(authToken) {
             t.deepEqual(authToken.uid, ACCOUNT.uid)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
@@ -366,7 +285,7 @@ DB.connect()
         'db.createSession',
         function (t) {
           var tokens1;
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createAuthToken(emailRecord)
           })
@@ -392,15 +311,6 @@ DB.connect()
             t.deepEqual(sessionToken.uid, ACCOUNT.uid, 'sessionToken uid and account uid should still be the same')
             return db.deleteSessionToken(tokens1.sessionToken)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
@@ -408,7 +318,7 @@ DB.connect()
         'db.createPasswordChange',
         function (t) {
           var tokens1;
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createAuthToken(emailRecord)
           })
@@ -434,15 +344,6 @@ DB.connect()
             t.deepEqual(accountResetToken.uid, ACCOUNT.uid)
             return db.deleteAccountResetToken(tokens1.accountResetToken)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
@@ -450,7 +351,7 @@ DB.connect()
         'db.forgotPasswordVerified',
         function (t) {
           var token1;
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createForgotPasswordToken(emailRecord)
           })
@@ -468,22 +369,13 @@ DB.connect()
             t.deepEqual(accountResetToken.uid, ACCOUNT.uid)
             return db.deleteAccountResetToken(token1)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
       test(
         'db.accountDevices',
         function (t) {
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createSessionToken(emailRecord)
           })
@@ -510,22 +402,13 @@ DB.connect()
           .then(function(sessionToken) {
             return db.deleteSessionToken(sessionToken)
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
       test(
         'db.resetAccount',
         function (t) {
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createSessionToken(emailRecord)
           })
@@ -541,22 +424,13 @@ DB.connect()
           .then(function(devices) {
             t.equal(devices.length, 0, 'The devices length should be zero')
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err)
-              t.end()
-            }
-          )
         }
       )
 
       test(
         'account deletion',
         function (t) {
-          db.emailRecord(ACCOUNT.email)
+          return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             t.deepEqual(emailRecord.uid, ACCOUNT.uid, 'retrieving uid should be the same')
             return db.deleteAccount(emailRecord)
@@ -567,25 +441,13 @@ DB.connect()
           .then(function(exists) {
             t.notOk(exists, 'account should no longer exist')
           })
-          .done(
-            function () {
-              t.end()
-            },
-            function (err) {
-              t.fail(err, 'something went wrong when doing account deletion')
-              t.end()
-            }
-          )
         }
       )
 
       test(
         'teardown',
         function (t) {
-          db.close()
-          .then(function (){
-            t.end()
-          })
+          return db.close()
         }
       )
     }
