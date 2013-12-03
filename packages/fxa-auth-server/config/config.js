@@ -219,6 +219,30 @@ module.exports = function (fs, path, url, convict) {
         default: 70,
         env: 'TOOBUSY_MAX_LAG'
       }
+    },
+    i18n: {
+      default_lang: {
+        format: String,
+        default: "en"
+      },
+      supported_languages: {
+        doc: "List of languages this deployment should detect and display localized strings.",
+        format: Array,
+        default: ['en', 'en-AU'],
+        env: 'I18N_SUPPORTED_LANGUAGES'
+      },
+      translation_directory: {
+        doc: "The directory where per-locale .json files containing translations reside",
+        format: String,
+        default: "resources/i18n/",
+        env: "I18N_TRANSLATION_DIR"
+      },
+      translation_type: {
+        doc: "The file format used for the translations",
+        format: String,
+        default: "key-value-json",
+        env: "I18N_TRANSLATION_TYPE"
+      }
     }
   })
 

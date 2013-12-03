@@ -19,7 +19,7 @@ TestServer.start(config.public_url)
       var email = crypto.randomBytes(10).toString('hex') + '@example.com'
       var password = '123456'
       var client = null
-      return Client.create('http://127.0.0.1:9000', email, password, true)
+      return Client.create('http://127.0.0.1:9000', email, password, {preVerified: true})
         .then(
           function (c) {
             client = c

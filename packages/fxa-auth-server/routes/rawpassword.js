@@ -70,7 +70,10 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
               action: 'account/create',
               email: Buffer(request.payload.email, 'hex').toString('utf8'),
               password: request.payload.password,
-              preVerified: request.payload.preVerified || false
+              options: {
+                preVerified: request.payload.preVerified || false,
+                lang: request.preferredLang
+              }
             },
             function (err, result) {
               if (err) {
@@ -126,7 +129,7 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
       method: 'POST',
       path: '/raw_password/password/reset',
       config: {
-        description: 'Creates an account associated with an email address',
+        description: 'Resets the password associated with an account',
         auth: {
           strategy: 'accountResetToken'
         },

@@ -6,7 +6,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function create(log, config, routes, db, noncedb) {
+  function create(log, config, routes, db, noncedb, i18n) {
 
     // Hawk needs to calculate request signatures based on public URL,
     // not the local URL to which it is bound.
@@ -119,6 +119,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
       }
     )
 
+    // Log some helpful details for debugging authentication problems.
     server.ext(
       'onPreAuth',
       function (request, next) {
@@ -137,6 +138,20 @@ module.exports = function (path, url, Hapi, toobusy, error) {
       }
     )
 
+    // Select user's preferred language via the accept-language header.
+    server.ext(
+      'onPreHandler',
+      function (request, next) {
+        var acceptLanguage = request.headers['accept-language']
+        if (acceptLanguage) {
+          var accepted = i18n.parseAcceptLanguage(acceptLanguage)
+          request.preferredLang = i18n.bestLanguage(accepted)
+        }
+        next()
+      }
+    )
+
+    // Log a trace to mark that we're entering the handler.
     server.ext(
       'onPreHandler',
       function (request, next) {
@@ -154,6 +169,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
       }
     )
 
+    // Ensure that we have a Strict-Transport-Security header.
     server.ext(
       'onPreResponse',
       function (request, next) {
@@ -166,6 +182,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
       }
     )
 
+    // Ensure that errors are reported in our custom error format.
     server.ext(
       'onPreResponse',
       function (request, next) {
@@ -223,6 +240,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
         next(response)
     })
 
+    // Log a trace at the end of the response.
     server.on(
       'response',
       function (request) {

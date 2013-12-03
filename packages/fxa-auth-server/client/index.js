@@ -28,6 +28,7 @@ function Client(origin) {
   this.kA = null
   this.wrapKb = null
   this._devices = null
+  this.lang = null
 }
 
 Client.Api = ClientApi
@@ -86,13 +87,18 @@ Client.prototype.setupCredentials = function (email, password, customSalt, custo
     )
 }
 
-Client.create = function (origin, email, password, preVerified, callback) {
+Client.create = function (origin, email, password, options, callback) {
   var c = new Client(origin)
-  if (typeof(preVerified) === 'function') {
-    callback = preVerified
-    preVerified = false
+  options = options || {}
+  if (typeof(options) === 'function') {
+    callback = options
+    options = {}
   }
-  c.preVerified = preVerified
+  c.preVerified = options.preVerified || false
+  if (options.lang) {
+    c.lang = options.lang
+  }
+
   var p = c.setupCredentials(email, password)
     .then(
       function() {
@@ -180,7 +186,10 @@ Client.prototype.create = function (callback) {
       PBKDF2_rounds_2: 20000,
       salt: this.passwordSalt
     },
-    this.preVerified
+    {
+      preVerified: this.preVerified,
+      lang: this.lang
+    }
   )
     .then(
       function (a) {

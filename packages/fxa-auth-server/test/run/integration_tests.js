@@ -39,7 +39,7 @@ TestServer.start(config.public_url)
         "e":"65537"
       }
       var duration = 1000 * 60 * 60 * 24
-      return Client.create(config.public_url, email, password, true)
+      return Client.create(config.public_url, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
@@ -76,7 +76,7 @@ TestServer.start(config.public_url)
       var wrapKb = null
       var client = null
       var firstSrpPw
-      return Client.create(config.public_url, email, password, true)
+      return Client.create(config.public_url, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
@@ -157,7 +157,7 @@ TestServer.start(config.public_url)
       var email = email3
       var password = 'allyourbasearebelongtous'
       var client = null
-      return Client.create(config.public_url, email, password, true)
+      return Client.create(config.public_url, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
@@ -193,7 +193,7 @@ TestServer.start(config.public_url)
       var password = 'foobar'
       var client = null
       var sessionToken = null
-      return Client.create(config.public_url, email, password, true)
+      return Client.create(config.public_url, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
@@ -244,7 +244,7 @@ TestServer.start(config.public_url)
       var email = email6
       var password = 'ilikepancakes'
       var client
-      return Client.create(config.public_url, email, password, true)
+      return Client.create(config.public_url, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x

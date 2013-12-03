@@ -6,15 +6,6 @@ module.exports = function (log, isA, error, db, mailer) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function sendRecoveryCode(forgotPasswordToken) {
-    log.trace({ op: 'sendRecoveryCode', id: forgotPasswordToken.id })
-    return mailer.sendRecoveryCode(
-      Buffer(forgotPasswordToken.email, 'hex').toString('utf8'),
-      forgotPasswordToken.passcode
-    )
-    .then(function () { return forgotPasswordToken })
-  }
-
   function failVerifyAttempt(forgotPasswordToken) {
     return (forgotPasswordToken.failAttempt()) ?
       db.deleteForgotPasswordToken(forgotPasswordToken) :
@@ -73,7 +64,15 @@ module.exports = function (log, isA, error, db, mailer) {
             )
             .then(
               function (forgotPasswordToken) {
-                return sendRecoveryCode(forgotPasswordToken)
+                return mailer.sendRecoveryCode(
+                  forgotPasswordToken,
+                  forgotPasswordToken.passcode,
+                  request.preferredLang
+                ).then(
+                  function() {
+                    return forgotPasswordToken
+                  }
+                )
               }
             )
             .done(
@@ -120,22 +119,25 @@ module.exports = function (log, isA, error, db, mailer) {
         handler: function (request) {
           log.begin('Password.forgotResend', request)
           var forgotPasswordToken = request.auth.credentials
-          sendRecoveryCode(forgotPasswordToken)
-            .done(
-              function () {
-                request.reply(
-                  {
-                    forgotPasswordToken: forgotPasswordToken.data.toString('hex'),
-                    ttl: forgotPasswordToken.ttl(),
-                    codeLength: forgotPasswordToken.passcode.length,
-                    tries: forgotPasswordToken.tries
-                  }
-                )
-              },
-              function (err) {
-                request.reply(err)
-              }
-            )
+          mailer.sendRecoveryCode(
+            forgotPasswordToken,
+            forgotPasswordToken.passcode,
+            request.preferredLang
+          ).done(
+            function () {
+              request.reply(
+                {
+                  forgotPasswordToken: forgotPasswordToken.data.toString('hex'),
+                  ttl: forgotPasswordToken.ttl(),
+                  codeLength: forgotPasswordToken.passcode.length,
+                  tries: forgotPasswordToken.tries
+                }
+              )
+            },
+            function (err) {
+              request.reply(err)
+            }
+          )
         },
         validate: {
           payload: {

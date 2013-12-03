@@ -8,11 +8,19 @@ var nodemailer = require('nodemailer')
 var P = require('p-promise')
 var handlebars = require("handlebars")
 
-module.exports = function (config, log) {
+module.exports = function (config, i18n, log) {
 
   function loadTemplate (name) {
     return fs.readFileSync(path.join(config.template_path, name))
   }
+
+  // Make the 'gettext' function available in the templates.
+  handlebars.registerHelper('gettext', function(string) {
+    if (this.l10n) {
+      return this.l10n.gettext(string)
+    }
+    return string
+  })
 
   // a map of all the different emails we send
   var templates = {
@@ -73,24 +81,28 @@ module.exports = function (config, log) {
     return d.promise
   }
 
-  Mailer.prototype.sendVerifyCode = function (email, code, uid) {
-    log.trace({ op: 'mailer.sendVerifyCode', email: email, uid: uid })
+  Mailer.prototype.sendVerifyCode = function (account, code, preferredLang) {
+    var email = Buffer(account.email, 'hex').toString()
+    log.trace({ op: 'mailer.sendVerifyCode', email: email, uid: account.uid })
     var template = templates.verify
-    var link = this.verification_url + '?uid=' + uid.toString('hex') + '#code=' + code
+    var link = this.verification_url + '?uid=' + account.uid.toString('hex')
+    link += '#code=' + code
     var reportLink = this.report_url
 
     var values = {
+      account: account,
+      l10n: i18n.localizationContext(preferredLang),
       link: link,
       reportLink: reportLink
     }
     var message = {
       sender: this.sender,
       to: email,
-      subject: template.subject,
+      subject: values.l10n.gettext(template.subject),
       text: template.text(values),
       html: template.html(values),
       headers: {
-        'X-Uid': uid.toString('hex'),
+        'X-Uid': account.uid.toString('hex'),
         'X-Verify-Code': code,
         'X-Link': link
       }
@@ -98,16 +110,19 @@ module.exports = function (config, log) {
     return this.send(message)
   }
 
-  Mailer.prototype.sendRecoveryCode = function (email, code) {
+  Mailer.prototype.sendRecoveryCode = function (account, code, preferredLang) {
+    var email = Buffer(account.email, 'hex').toString()
     log.trace({ op: 'mailer.sendRecoveryCode', email: email })
     var template = templates.reset
     var values = {
+      account: account,
+      l10n: i18n.localizationContext(preferredLang),
       code: code
     }
     var message = {
       sender: this.sender,
       to: email,
-      subject: template.subject,
+      subject: values.l10n.gettext(template.subject),
       text: template.text(values),
       html: template.html(values),
       headers: {

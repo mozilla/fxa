@@ -6,14 +6,6 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function sendVerifyCode(email, emailCode, uid) {
-    return mailer.sendVerifyCode(
-      Buffer(email, 'hex').toString('utf8'),
-      emailCode,
-      uid
-    )
-  }
-
   var routes = [
     {
       method: 'POST',
@@ -76,10 +68,10 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 if (account.verified) {
                   return P(account)
                 }
-                return sendVerifyCode(
-                  account.email,
+                return mailer.sendVerifyCode(
+                  account,
                   account.emailCode,
-                  account.uid
+                  request.preferredLang
                 )
                 .then(function () { return account })
               }
@@ -219,15 +211,18 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         handler: function (request) {
           log.begin('Account.RecoveryEmailResend', request)
           var sessionToken = request.auth.credentials
-          sendVerifyCode(sessionToken.email, sessionToken.emailCode, sessionToken.uid)
-            .done(
-              function () {
-                request.reply({})
-              },
-              function (err) {
-                request.reply(err)
-              }
-            )
+          mailer.sendVerifyCode(
+            sessionToken,
+            sessionToken.emailCode,
+            request.preferredLang
+          ).done(
+            function () {
+              request.reply({})
+            },
+            function (err) {
+              request.reply(err)
+            }
+          )
         }
       }
     },
