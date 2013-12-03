@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var log = { trace: function() {} }
 
 var tokens = require('../../tokens')(log)
@@ -21,7 +21,7 @@ test(
   're-creation from tokendata works',
   function (t) {
     var token = null;
-    SessionToken.create(ACCOUNT)
+    return SessionToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -44,15 +44,6 @@ test(
           t.equal(token.verified, token2.verified)
         }
       )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
   }
 )
 
@@ -62,22 +53,13 @@ test(
   function (t) {
     var token = null;
     var tokendata = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf'
-    SessionToken.fromHex(tokendata, ACCOUNT)
+    return SessionToken.fromHex(tokendata, ACCOUNT)
       .then(
         function (x) {
           token = x
           t.equal(token.data.toString('hex'), tokendata)
           t.equal(token.id.toString('hex'), 'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab')
           t.equal(token.authKey.toString('hex'), '9d8f22998ee7f5798b887042466b72d53e56ab0c094388bf65831f702d2febc0')
-        }
-      )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
         }
       )
   }

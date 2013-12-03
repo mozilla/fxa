@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var crypto = require('crypto')
 var log = { trace: function() {} }
 
@@ -18,7 +18,7 @@ test(
   're-creation from tokendata works',
   function (t) {
     var token = null;
-    AuthToken.create(ACCOUNT)
+    return AuthToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -38,15 +38,6 @@ test(
           t.deepEqual(token.uid, token2.uid)
         }
       )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
   }
 )
 
@@ -57,7 +48,7 @@ test(
     var token = null;
     var keyFetchToken = crypto.randomBytes(32)
     var sessionToken = crypto.randomBytes(32)
-    AuthToken.create(ACCOUNT)
+    return AuthToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -75,15 +66,6 @@ test(
           t.deepEqual(ub.sessionToken, sessionToken)
         }
       )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
   }
 )
 
@@ -94,7 +76,7 @@ test(
     var token = null;
     var keyFetchToken = crypto.randomBytes(32)
     var resetToken = crypto.randomBytes(32)
-    AuthToken.create(ACCOUNT)
+    return AuthToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -112,16 +94,6 @@ test(
           t.deepEqual(ub.accountResetToken, resetToken)
         }
       )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          console.log(err)
-          t.fail(JSON.stringify(err))
-          t.end()
-        }
-      )
   }
 )
 
@@ -130,7 +102,7 @@ test(
   function (t) {
     var token = null;
     var tokendata = '606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f'
-    AuthToken.fromHex(tokendata, ACCOUNT)
+    return AuthToken.fromHex(tokendata, ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -170,15 +142,6 @@ test(
                   '438f12d2c66270f820be421ad000d69800a4a03980862f7e' +
                   '3fbd4eb5c0f77a94c0c2e7f2be97d21d804fc4bc30923cc0' +
                   'd6c07ffea954848e0076b94f7deee71fa34db5c106d91980')
-        }
-      )
-      .done(
-        function () {
-          t.end()
-        },
-        function (err) {
-          t.fail(JSON.stringify(err))
-          t.end()
         }
       )
   }

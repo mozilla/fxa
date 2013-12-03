@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var test = require('tap').test
+var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var path = require('path')
 var P = require('p-promise')
@@ -28,7 +28,7 @@ TestServer.start(config.public_url)
       var password = 'allyourbasearebelongtous'
       var client = null
       var verifyCode = null
-      Client.create(config.public_url, email, password)
+      return Client.create(config.public_url, email, password)
         .then(
           function (x) {
             client = x
@@ -98,15 +98,6 @@ TestServer.start(config.public_url)
             return client.keys()
           }
         )
-        .done(
-          function () {
-            t.end()
-          },
-          function (err) {
-            t.fail(err.message || err.error)
-            t.end()
-          }
-        )
     }
   )
 
@@ -116,7 +107,7 @@ TestServer.start(config.public_url)
       var email = uniqueID() +'@example.com'
       var password = 'allyourbasearebelongtous'
       var client = null
-      Client.create(config.public_url, email, password)
+      return Client.create(config.public_url, email, password)
         .then(
           function (x) {
             client = x
@@ -155,15 +146,6 @@ TestServer.start(config.public_url)
             t.equal(status.verified, false, 'account not verified')
           }
         )
-        .done(
-          function () {
-            t.end()
-          },
-          function (err) {
-            t.fail(err.message || err.error)
-            t.end()
-          }
-        )
     }
   )
 
@@ -176,7 +158,7 @@ TestServer.start(config.public_url)
       var wrapKb = null
       var kA = null
       var client = null
-      createFreshAccount(email, password)
+      return createFreshAccount(email, password)
         .then(
           function () {
             return Client.login(config.public_url, email, password)
@@ -237,15 +219,6 @@ TestServer.start(config.public_url)
             t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
-        .done(
-          function () {
-            t.end()
-          },
-          function (err) {
-            t.fail(err.message || err.error)
-            t.end()
-          }
-        )
     }
   )
 
@@ -258,7 +231,7 @@ TestServer.start(config.public_url)
       var wrapKb = null
       var kA = null
       var client = null
-      createFreshAccount(email, password)
+      return createFreshAccount(email, password)
         .then(
           function () {
             return Client.login(config.public_url, email, password)
@@ -312,15 +285,6 @@ TestServer.start(config.public_url)
             t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
-        .done(
-          function () {
-            t.end()
-          },
-          function (err) {
-            t.fail(err.message || err.error)
-            t.end()
-          }
-        )
     }
   )
 
@@ -331,7 +295,7 @@ TestServer.start(config.public_url)
       var email = uniqueID() +'@example.com'
       var password = "hothamburger"
       var client = null
-      createFreshAccount(email, password)
+      return createFreshAccount(email, password)
         .then(
           function () {
             client = new Client(config.public_url)
@@ -418,15 +382,6 @@ TestServer.start(config.public_url)
           },
           function (err) {
             t.equal(err.message, 'Invalid authentication token in request signature', 'token is now invalid')
-          }
-        )
-        .done(
-          function () {
-            t.end()
-          },
-          function (err) {
-            t.fail(JSON.stringify(err))
-            t.end()
           }
         )
     }
