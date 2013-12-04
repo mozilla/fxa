@@ -12,8 +12,6 @@ var crypto = require('crypto')
 process.env.CONFIG_FILES = path.join(__dirname, '../config/verification.json')
 var config = require('../../config').root()
 
-var HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
-
 function uniqueID() {
   return crypto.randomBytes(10).toString('hex');
 }
