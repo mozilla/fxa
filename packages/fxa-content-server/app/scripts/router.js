@@ -1,19 +1,19 @@
-"use strict";
+'use strict';
 
 define(
   [
-    "jquery",
-    "backbone",
-    "views/intro"
+    'jquery',
+    'backbone',
+    'views/intro'
   ],
   function($, Backbone, IntroView) {
     var Router = Backbone.Router.extend({
       routes: {
-        "": "showIntro"
+        '': 'showIntro'
       },
 
       initialize: function() {
-        this.$stage = $("#stage");
+        this.$stage = $('#stage');
       },
 
       showIntro: function() {

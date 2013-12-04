@@ -6,7 +6,8 @@ define([
   ],
   function(BaseView, IntroTemplate){
     var IntroView = BaseView.extend({
-      template: IntroTemplate
+      template: IntroTemplate,
+      className: 'intro'
     });
 
     return IntroView;
