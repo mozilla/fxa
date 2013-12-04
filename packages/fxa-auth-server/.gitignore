@@ -12,3 +12,4 @@ secret*
 /loadtest/include
 *~
 *.pyc
+/.vagrant
