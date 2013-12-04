@@ -75,7 +75,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload) {
  *   {}
  *
  */
-ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStretching) {
+ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStretching, preVerified) {
   return this.doRequest(
     'POST',
     this.baseURL + '/account/create',
@@ -87,7 +87,8 @@ ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStr
         verifier: verifier,
         salt: salt
       },
-      passwordStretching: passwordStretching
+      passwordStretching: passwordStretching,
+      preVerified: preVerified
     }
   )
 }
@@ -317,14 +318,15 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
     )
 }
 
-ClientApi.prototype.rawPasswordAccountCreate = function (email, password) {
+ClientApi.prototype.rawPasswordAccountCreate = function (email, password, preVerified) {
   return this.doRequest(
     'POST',
     this.baseURL + '/raw_password/account/create',
     null,
     {
       email: email,
-      password: password
+      password: password,
+      preVerified: preVerified
     }
   )
 }

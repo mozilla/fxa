@@ -207,13 +207,6 @@ module.exports = function (fs, path, url, convict) {
         default: 70,
         env: 'TOOBUSY_MAX_LAG'
       }
-    },
-    dev: {
-      verified: {
-        doc: 'new Accounts should start already verified',
-        default: false,
-        env: 'DEV_VERIFIED'
-      }
     }
   })
 

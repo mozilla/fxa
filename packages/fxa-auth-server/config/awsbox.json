@@ -15,8 +15,5 @@
   "publicKeyFile": "/home/app/var/public-key.json",
   "contentServer": {
     "url": "https://accounts.dev.lcip.org"
-  },
-  "dev": {
-    "verified": false
   }
 }
