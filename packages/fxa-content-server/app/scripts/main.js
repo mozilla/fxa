@@ -1,29 +1,33 @@
-/*global require*/
 'use strict';
 
 require.config({
-    shim: {
-        underscore: {
-            exports: '_'
-        },
-        backbone: {
-            deps: [
-                'underscore',
-                'jquery'
-            ],
-            exports: 'Backbone'
-        }
+  paths: {
+    jquery: '../bower_components/jquery/jquery',
+    backbone: '../bower_components/backbone/backbone',
+    underscore: '../bower_components/underscore/underscore',
+    hgn: '../bower_components/requirejs-hogan-plugin/hgn',
+    text: '../bower_components/requirejs-hogan-plugin/text',
+    hogan: '../bower_components/requirejs-hogan-plugin/hogan'
+  },
+  shim: {
+    underscore: {
+      exports: '_'
     },
-    paths: {
-        jquery: '../bower_components/jquery/jquery',
-        backbone: '../bower_components/backbone/backbone',
-        underscore: '../bower_components/underscore/underscore'
+    backbone: {
+      deps: [
+        'underscore',
+        'jquery'
+      ],
+      exports: 'Backbone'
     }
+  },
 });
 
 require([
-    'backbone'
-], function (Backbone) {
+  'backbone',
+  'router'
+  ],
+  function (Backbone, Router) {
     Backbone.history.start();
-    console.log('Hello from Backbone!');
-});
+  }
+);
