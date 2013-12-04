@@ -336,7 +336,6 @@ TestServer.start(config.public_url)
             t.fail('reset password with bad code')
           },
           function (err) {
-            console.error(err)
             t.equal(err.tries, 2, 'used a try')
             t.equal(err.message, 'Invalid verification code', 'bad attempt 1')
           }
@@ -388,9 +387,15 @@ TestServer.start(config.public_url)
   test(
     'teardown',
     function (t) {
+      t.end()
       mail.stop()
       server.stop()
-      t.end()
+      /*/
+      So, server keeps a persistent connection open to mail. If server
+      was started seperately, it's not easy to disconnect that connection.
+      Therefore bludgeon it to death
+      /*/
+      process.nextTick(process.exit)
     }
   )
 })

@@ -86,9 +86,13 @@ Client.prototype.setupCredentials = function (email, password, customSalt, custo
     )
 }
 
-Client.create = function (origin, email, password, callback) {
+Client.create = function (origin, email, password, preVerified, callback) {
   var c = new Client(origin)
-
+  if (typeof(preVerified) === 'function') {
+    callback = preVerified
+    preVerified = false
+  }
+  c.preVerified = preVerified
   var p = c.setupCredentials(email, password)
     .then(
       function() {
@@ -175,7 +179,8 @@ Client.prototype.create = function (callback) {
       scrypt_p: 1,
       PBKDF2_rounds_2: 20000,
       salt: this.passwordSalt
-    }
+    },
+    this.preVerified
   )
     .then(
       function (a) {

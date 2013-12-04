@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config) {
+module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -38,7 +38,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
               //   type: isA.String().required(),
               //   salt: isA.String().regex(HEX_STRING).required()
               // }
-            )
+            ),
+            preVerified: isProduction ? undefined : isA.Boolean()
           }
         },
         handler: function accountCreate(request) {
@@ -59,7 +60,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, config)
                   uid: uuid.v4('binary'),
                   email: form.email,
                   emailCode: crypto.randomBytes(4).toString('hex'),
-                  verified: false || config.dev.verified,
+                  verified: form.preVerified || false,
                   srp: form.srp,
                   kA: crypto.randomBytes(32),
                   wrapKb: crypto.randomBytes(32),

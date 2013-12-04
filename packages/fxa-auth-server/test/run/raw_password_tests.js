@@ -8,8 +8,6 @@ var Client = require('../../client')
 var config = require('../../config').root()
 var TestServer = require('../test_server')
 
-process.env.DEV_VERIFIED = 'true'
-
 function uniqueID() {
   return crypto.randomBytes(10).toString('hex');
 }
@@ -29,7 +27,7 @@ TestServer.start(config.public_url)
       var clientApi = new Client.Api(config.public_url)
       var email = Buffer(email1).toString('hex')
       var password = 'allyourbasearebelongtous'
-      return clientApi.rawPasswordAccountCreate(email, password)
+      return clientApi.rawPasswordAccountCreate(email, password, true)
         .then(
           function (result) {
             var client = null

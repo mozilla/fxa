@@ -8,8 +8,6 @@ var crypto = require('crypto')
 var config = require('../../config').root()
 var Client = require('../../client')
 
-process.env.DEV_VERIFIED = 'true'
-
 function fail() { throw new Error() }
 
 TestServer.start(config.public_url)
@@ -21,7 +19,7 @@ TestServer.start(config.public_url)
       var email = crypto.randomBytes(10).toString('hex') + '@example.com'
       var password = '123456'
       var client = null
-      return Client.create('http://127.0.0.1:9000', email, password)
+      return Client.create('http://127.0.0.1:9000', email, password, true)
         .then(
           function (c) {
             client = c
