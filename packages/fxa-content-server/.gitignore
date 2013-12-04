@@ -1,25 +1,42 @@
+# Created by http://gitignore.io
+
+### Node ###
+lib-cov
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+
+pids
+logs
+results
+
+npm-debug.log
+node_modules
+
+### Bower ###
+app/bower_components
+
+
+### Linux ###
+.*
+!.gitignore
+!.git*
+!.editorconfig
+!.jshintrc
+!.npmignore
+!.travis.yml
 *~
-*.pyc
-\#*\#
-.\#*
-*.swp
-/node_modules
-/var
-/rpmbuild
-/npm-debug.log
-/resources/static/build
-/resources/static/production
-/resources/static/i18n
-/resources/static/common/js/lib/bidbundle.js
-/resources/static/common/js/lib/gobbledygook.js
-/resources/static/dialog/views/site
-.DS_Store
-Thumbs.db
-/locale
-/resources/email_templates/email-test.html
-/automation-tests/node_modules
-/automation-tests/results
-/automation-tests/*.jar
-local.json
-/server/var
-sauce_connect.log*
+
+
+### SASS ###
+### SASS Ignores - "Sassy CSS" http://sass-lang.com/
+*.sass-cache
+
+
+### Yeoman ###
+dist
+test/temp

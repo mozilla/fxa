@@ -1,0 +1,13 @@
+{
+  "name": "fxa-content-server",
+  "version": "0.0.0",
+  "dependencies": {
+    "jquery": "~1.10.2",
+    "requirejs": "~2.1.9",
+    "requirejs-text": "~2.0.10",
+    "underscore": "~1.5.2",
+    "backbone": "~1.1.0",
+    "modernizr": "~2.6.2"
+  },
+  "devDependencies": {}
+}
