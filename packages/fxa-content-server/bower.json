@@ -7,7 +7,8 @@
     "underscore": "~1.5.2",
     "backbone": "~1.1.0",
     "modernizr": "~2.6.2",
-    "requirejs-hogan-plugin": "~0.3.1"
+    "requirejs-hogan-plugin": "~0.3.1",
+    "fxa-js-client-old": "https://github.com/mozilla/fxa-js-client-old.git"
   },
   "devDependencies": {}
 }
