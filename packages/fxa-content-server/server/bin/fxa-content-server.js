@@ -72,7 +72,6 @@ function makeApp() {
 }
 
 var app,
-    lstnUrl,
     port;
 if (isMain) {
   app = makeApp();
@@ -92,17 +91,14 @@ function listen(theApp) {
       }
       throw e;
     });
-    lstnUrl = util.format('https://%s', config.get('issuer'));
   } else {
     port = config.get('port');
     app.listen(port, '0.0.0.0');
-    // console.log('config.get("issuer")', config.get('issuer'));
-    lstnUrl = util.format('http://%s:%s', config.get('issuer'), port);
   }
-  if (isMain) { // -> log
-    console.log('Firefox Account Bridge listening on port', port);
+  if (isMain) {
+    console.log('Firefox Account Content server listening on port', port);
   }
-  return true; // used by test
+  return true;
 }
 
 if (isMain) {

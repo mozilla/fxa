@@ -8,7 +8,7 @@ address = ":8125"
 
 [fxa-content-server-log]
 type = "LogfileInput"
-logfile = "/home/app/var/log/firefox_account_bridge.js.log"
+logfile = "/home/app/var/log/fxa-content-server.js.log"
 logger = "fxa-content-server"
 
 [nginx-access-log]

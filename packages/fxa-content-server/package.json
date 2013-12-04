@@ -1,9 +1,8 @@
 {
   "name": "fxa-content-server",
-  "version": "0.0.0",
-  "description": "Firefox Accounts Persona Bridge",
+  "version": "0.0.1",
+  "description": "Firefox Accounts Content Server",
   "scripts": {
-    "postinstall": "node ./scripts/postinstall.js",
     "start": "node scripts/run_locally.js",
     "test": "node node_modules/intern/runner.js config=tests/intern suites=tests/tdd ",
     "test-functional": "node node_modules/intern/runner.js config=tests/intern_functional"
@@ -24,7 +23,6 @@
     "i18n-abide": "0.0.14",
     "nunjucks": "0.1.9",
     "urlparse": "0.0.1",
-    "browserid-certifier": "git://github.com/mozilla/browserid-certifier.git#881257b",
     "jwcrypto": "0.4.3"
   },
   "devDependencies": {
