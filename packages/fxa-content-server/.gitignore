@@ -25,10 +25,12 @@ app/bower_components
 .*
 !.gitignore
 !.git*
+!.bowerrc
 !.editorconfig
 !.jshintrc
 !.npmignore
 !.travis.yml
+!.awsbox.json
 *~
 
 
