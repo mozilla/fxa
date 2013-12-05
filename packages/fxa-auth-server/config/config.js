@@ -79,7 +79,19 @@ module.exports = function (fs, path, url, convict) {
         doc: "The maximum number of times we'll attempt to reconnect to the database before failing all outstanding queries",
         default: 3,
         format: 'nat'
-      }
+      },
+      connectionLimit: {
+        doc: "The maximum number of connections to create at once.",
+        default: 100,
+        format: 'nat',
+        env: 'CONNECTION_LIMIT',
+      },
+      waitForConnections: {
+        doc: "Determines the pool's action when no connections are available and the limit has been reached.",
+        default: true,
+        format: Boolean,
+        env: 'WAIT_FOR_CONNECTIONS',
+      },
     },
     bind_to: {
       host: {
