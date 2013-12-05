@@ -1,54 +1,58 @@
 'use strict';
 
-define(
-  [
-    'jquery',
-    'backbone',
-    'views/intro',
-    'views/sign_in',
-    'views/sign_up',
-    'views/confirm'
-  ],
-  function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView) {
-    var Router = Backbone.Router.extend({
-      routes: {
-        '': 'showIntro',
-        'signin': 'showSignIn',
-        'signup': 'showSignUp',
-        'confirm': 'showConfirm'
-      },
+define([
+  'jquery',
+  'backbone',
+  'views/intro',
+  'views/sign_in',
+  'views/sign_up',
+  'views/confirm',
+  'views/settings'
+],
+function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView) {
+  var Router = Backbone.Router.extend({
+    routes: {
+      '': 'showIntro',
+      'signin': 'showSignIn',
+      'signup': 'showSignUp',
+      'confirm': 'showConfirm',
+      'settings': 'showSettings'
+    },
 
-      initialize: function() {
-        this.$stage = $('#stage');
-      },
+    initialize: function() {
+      this.$stage = $('#stage');
+    },
 
-      showIntro: function() {
-        this.switch(new IntroView());
-      },
+    showIntro: function() {
+      this.switch(new IntroView());
+    },
 
-      showSignIn: function() {
-        this.switch(new SignInView());
-      },
+    showSignIn: function() {
+      this.switch(new SignInView());
+    },
 
-      showSignUp: function() {
-        this.switch(new SignUpView());
-      },
+    showSignUp: function() {
+      this.switch(new SignUpView());
+    },
 
-      showConfirm: function() {
-        this.switch(new ConfirmView());
-      },
+    showConfirm: function() {
+      this.switch(new ConfirmView());
+    },
 
-      switch: function(view) {
-        if (this.currentView) {
-          this.currentView.destroy();
-        }
+    showSettings: function() {
+      this.switch(new SettingsView());
+    },
 
-        this.currentView = view;
-
-        this.$stage.hide().html(this.currentView.render().el).fadeIn();
+    switch: function(view) {
+      if (this.currentView) {
+        this.currentView.destroy();
       }
-    });
 
-    return Router;
-  }
-);
+      this.currentView = view;
+
+      this.$stage.hide().html(this.currentView.render().el).fadeIn();
+    }
+  });
+
+  return Router;
+});

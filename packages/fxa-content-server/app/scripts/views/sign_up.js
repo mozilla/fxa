@@ -5,48 +5,49 @@ define([
   'hgn!templates/sign_up',
   'gherkin',
   'lib/session'
-  ],
-  function(BaseView, SignUpTemplate, gherkin, Session){
-    var SignUpView = BaseView.extend({
-      template: SignUpTemplate,
-      className: 'sign-up',
+],
+function(BaseView, SignUpTemplate, gherkin, Session) {
+  var SignUpView = BaseView.extend({
+    template: SignUpTemplate,
+    className: 'sign-up',
 
-      events: {
-        'submit form': 'signUp'
-      },
+    events: {
+      'submit form': 'signUp'
+    },
 
-      signUp: function(event) {
-        var email = this.$('.email').val();
-        var password = this.$('.password').val();
+    signUp: function(event) {
+      event.preventDefault();
 
-        var client;
+      var email = this.$('.email').val();
+      var password = this.$('.password').val();
 
-        gherkin.Client.create("http://127.0.0.1:9000", email, password)
-          .then(function (x) {
-            client = x;
+      var client;
 
-            return client.login();
-          })
-          .done(function () {
-            Session.email = email;
-            Session.token = client.sessionToken;
+      gherkin.Client.create('http://127.0.0.1:9000', email, password)
+        .then(function (x) {
+          client = x;
 
-            router.navigate('confirm', { trigger: true });
+          return client.login();
+        })
+        .done(function () {
+          Session.email = email;
+          Session.token = client.sessionToken;
 
-            // email: email,
-            // sessionToken: client.sessionToken,
-            // keyFetchToken: client.keyFetchToken,
-            // unwrapBKey: client.unwrapBKey
+          router.navigate('confirm', { trigger: true });
 
-          },
-          function (err) {
-            this.$('.error').html(err.message);
+          // email: email,
+          // sessionToken: client.sessionToken,
+          // keyFetchToken: client.keyFetchToken,
+          // unwrapBKey: client.unwrapBKey
 
-            console.error('Error?', err);
-          }.bind(this));
-      }
-    });
+        },
+        function (err) {
+          this.$('.error').html(err.message);
 
-    return SignUpView;
-  }
-);
+          console.error('Error?', err);
+        }.bind(this));
+    }
+  });
+
+  return SignUpView;
+});

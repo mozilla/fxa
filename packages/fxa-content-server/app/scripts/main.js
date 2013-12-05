@@ -10,6 +10,7 @@ require.config({
     hogan: '../bower_components/requirejs-hogan-plugin/hogan',
     gherkin: '../bower_components/fxa-js-client-old/web/bundle'
   },
+
   shim: {
     underscore: {
       exports: '_'
@@ -30,12 +31,11 @@ require.config({
 require([
   'backbone',
   'router'
-  ],
-  function (Backbone, Router) {
-    // This is kind of weak but solves circular dependency issues
-    window.router = new Router();
+],
+function (Backbone, Router) {
+  // This is kind of weak but solves circular dependency issues
+  window.router = new Router();
 
-    // Get the party started
-    Backbone.history.start();
-  }
-);
+  // Get the party started
+  Backbone.history.start();
+});
