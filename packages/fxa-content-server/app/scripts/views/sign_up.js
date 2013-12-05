@@ -4,10 +4,9 @@ define([
   'views/base',
   'hgn!templates/sign_up',
   'gherkin',
-  'lib/session',
-  'router'
+  'lib/session'
   ],
-  function(BaseView, SignUpTemplate, gherkin, Session, Router){
+  function(BaseView, SignUpTemplate, gherkin, Session){
     var SignUpView = BaseView.extend({
       template: SignUpTemplate,
       className: 'sign-up',
@@ -20,14 +19,19 @@ define([
         var email = this.$('.email').val();
         var password = this.$('.password').val();
 
+        var client;
+
         gherkin.Client.create("http://127.0.0.1:9000", email, password)
-          .then(function (client) {
+          .then(function (x) {
+            client = x;
+
             return client.login();
           })
           .done(function () {
             Session.email = email;
+            Session.token = client.sessionToken;
 
-            window.location = '#confirm';
+            router.navigate('confirm', { trigger: true });
 
             // email: email,
             // sessionToken: client.sessionToken,

@@ -32,6 +32,10 @@ require([
   'router'
   ],
   function (Backbone, Router) {
+    // This is kind of weak but solves circular dependency issues
+    window.router = new Router();
+
+    // Get the party started
     Backbone.history.start();
   }
 );

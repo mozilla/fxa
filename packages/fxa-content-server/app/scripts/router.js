@@ -45,11 +45,10 @@ define(
 
         this.currentView = view;
 
-        this.$stage.html(this.currentView.render().el);
+        this.$stage.hide().html(this.currentView.render().el).fadeIn();
       }
     });
 
-    // Singleton
-    return new Router();
+    return Router;
   }
 );
