@@ -54,7 +54,7 @@ module.exports = function (config) {
     var callWasSynchronous = false;
     abideObj(fakeReq, fakeResp, function() { callWasSynchronous = true })
     if (!callWasSynchronous) {
-      throw 'uh-oh, the call to i18n-abide was not synchronous!'
+      throw new Error('uh-oh, the call to i18n-abide was not synchronous!')
     }
     var l10n = {}
     l10n.lang = fakeReq.lang
