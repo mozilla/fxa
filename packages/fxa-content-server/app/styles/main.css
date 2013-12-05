@@ -32,7 +32,7 @@ body {
   text-transform: uppercase;
 }
 
-a.button {
+a.button, button {
   background: #f8f8f8;
   border: 1px solid #ddd;
   color: #333;
@@ -41,8 +41,19 @@ a.button {
   padding: 10px;
   text-align: center;
   text-decoration: none;
+  width: 100%;
 }
 
-a.button:hover {
+a.button:hover, button:hover {
   background: #eee;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+}
+
+.error:empty {
+  display: none;
 }

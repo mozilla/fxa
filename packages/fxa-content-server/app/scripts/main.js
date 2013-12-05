@@ -7,7 +7,8 @@ require.config({
     underscore: '../bower_components/underscore/underscore',
     hgn: '../bower_components/requirejs-hogan-plugin/hgn',
     text: '../bower_components/requirejs-hogan-plugin/text',
-    hogan: '../bower_components/requirejs-hogan-plugin/hogan'
+    hogan: '../bower_components/requirejs-hogan-plugin/hogan',
+    gherkin: '../bower_components/fxa-js-client-old/web/bundle'
   },
   shim: {
     underscore: {
@@ -19,6 +20,9 @@ require.config({
         'jquery'
       ],
       exports: 'Backbone'
+    },
+    gherkin: {
+      exports: 'gherkin'
     }
   },
 });
