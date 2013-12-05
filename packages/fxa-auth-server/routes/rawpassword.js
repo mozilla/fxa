@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, rawpwhelper, crypto, db, isProduction) {
+module.exports = function (log, isA, error, clientHelper, crypto, db, isProduction) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
   function enqueueWithHelper(message, cb) {
-    rawpwhelper.enqueue(message, function(err, result) {
+    clientHelper.enqueue(message, function(err, result) {
       if (err) {
-        log.error({ op: 'rawpwhelper.enqueue', err: err, result: result })
+        log.error({ op: 'clientHelper.enqueue', err: err, result: result })
         return cb(error.serviceUnavailable())
       }
       if (result && result.err) {
