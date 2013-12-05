@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, rawpwhelper, db, isProduction) {
+module.exports = function (log, isA, error, rawpwhelper, crypto, db, isProduction) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
@@ -150,6 +150,7 @@ module.exports = function (log, isA, error, rawpwhelper, db, isProduction) {
                     if (err) {
                       return request.reply(error.wrap(err))
                     }
+                    result.wrapKb = crypto.randomBytes(32)
                     db.resetAccount(accountResetToken, result)
                       .done(
                         function () {

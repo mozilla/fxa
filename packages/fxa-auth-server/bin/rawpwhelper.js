@@ -4,7 +4,6 @@
 
 const config = require('../config').root()
 const Client = require('../client')
-const crypto = require('crypto')
 
 
 process.on('message', function (message) {
@@ -76,8 +75,7 @@ process.on('message', function (message) {
         stretching.salt = client.passwordSalt
         process.send({
           srp: client.srp,
-          passwordStretching: stretching,
-          wrapKb: crypto.randomBytes(32)
+          passwordStretching: stretching
         })
       },
       function (err) {
