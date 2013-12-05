@@ -56,7 +56,7 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
     },
 
     watchAnchors: function() {
-      $(document).on('click', "a[href^='/']", function(event) {
+      $(document).on('click', 'a[href^="/"]', function(event) {
         if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
           event.preventDefault();
 

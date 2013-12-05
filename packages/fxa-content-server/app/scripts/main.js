@@ -30,12 +30,17 @@ require.config({
 
 require([
   'backbone',
-  'router'
+  'router',
+  'lib/translator'
 ],
-function (Backbone, Router) {
-  // This is kind of weak but solves circular dependency issues
+function (Backbone, Router, Translator) {
+  // A few globals
   window.router = new Router();
+  window.translator = new Translator(window.navigator.language);
 
-  // Get the party started
-  Backbone.history.start({ pushState: true });
+  // Don't start backbone until we have our translations
+  translator.fetch(function() {
+    // Get the party started
+    Backbone.history.start({ pushState: true });
+  });
 });

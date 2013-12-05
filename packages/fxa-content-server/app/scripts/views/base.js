@@ -17,11 +17,25 @@ function(_, Backbone) {
 
       this.destroySubviews();
 
-      this.$el.html(this.template(this.context()));
+      this.$el.html(this.template(this.getContext()));
 
       this.afterRender();
 
       return this;
+    },
+
+    getContext: function () {
+      var ctx = this.context() || {};
+
+      ctx.t = this.translate;
+
+      return ctx;
+    },
+
+    translate: function() {
+      return function(text) {
+        return translator.get(text);
+      };
     },
 
     context: function() {

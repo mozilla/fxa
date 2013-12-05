@@ -23,6 +23,7 @@
     "require": true,
     "console": true,
     "define": true,
-    "router": true
+    "router": true,
+    "translator": true
   }
 }
