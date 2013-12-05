@@ -20,4 +20,8 @@ test:
 
 # Run a full bench, by submitting to broker in AWS.
 bench:
-	./runbench.sh
+	./loadsrunner.sh --users=20 --duration=1800 --agents=5 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_auth_server
+
+# Purge any currently-running loadtest runs.
+purge:
+	./loadsrunner.sh --purge-broker
