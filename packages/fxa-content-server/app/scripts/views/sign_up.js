@@ -20,11 +20,8 @@ define([
         var email = this.$('.email').val();
         var password = this.$('.password').val();
 
-        var client;
-
         gherkin.Client.create("http://127.0.0.1:9000", email, password)
-          .then(function (x) {
-            client = x;
+          .then(function (client) {
             return client.login();
           })
           .done(function () {

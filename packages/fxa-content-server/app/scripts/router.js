@@ -5,13 +5,15 @@ define(
     'jquery',
     'backbone',
     'views/intro',
+    'views/sign_in',
     'views/sign_up',
     'views/confirm'
   ],
-  function($, Backbone, IntroView, SignUpView, ConfirmView) {
+  function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView) {
     var Router = Backbone.Router.extend({
       routes: {
         '': 'showIntro',
+        'signin': 'showSignIn',
         'signup': 'showSignUp',
         'confirm': 'showConfirm'
       },
@@ -22,6 +24,10 @@ define(
 
       showIntro: function() {
         this.switch(new IntroView());
+      },
+
+      showSignIn: function() {
+        this.switch(new SignInView());
       },
 
       showSignUp: function() {
