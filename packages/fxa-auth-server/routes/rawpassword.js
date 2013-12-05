@@ -2,9 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, public_url, Client, crypto, db, isProduction) {
+module.exports = function (log, isA, error, rawpwhelper, db, isProduction) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+
+  function enqueueWithHelper(message, cb) {
+    rawpwhelper.enqueue(message, function(err, result) {
+      if (err) {
+        log.error({ op: 'rawpwhelper.enqueue', err: err, result: result })
+        return cb(error.serviceUnavailable())
+      }
+      if (result && result.err) {
+        return cb(result.err)
+      }
+      return cb(null, result)
+    })
+  }
 
   var routes = [
     {
@@ -15,23 +28,17 @@ module.exports = function (log, isA, error, public_url, Client, crypto, db, isPr
         tags: ['raw', 'session'],
         handler: function (request) {
           log.begin('RawPassword.sessionCreate', request)
-          Client.login(
-            public_url,
-            Buffer(request.payload.email, 'hex').toString('utf8'),
-            request.payload.password
-          )
-          .done(
-            function (client) {
-              return request.reply(
-                {
-                  uid: client.uid,
-                  verified: client.verified,
-                  sessionToken: client.sessionToken.toString('hex')
-                }
-              )
+          enqueueWithHelper(
+            {
+              action: 'session/create',
+              email: Buffer(request.payload.email, 'hex').toString('utf8'),
+              password: request.payload.password
             },
-            function (err) {
-              request.reply(error.wrap(err))
+            function (err, result) {
+              if (err) {
+                return request.reply(error.wrap(err))
+              }
+              return request.reply(result)
             }
           )
         },
@@ -58,19 +65,18 @@ module.exports = function (log, isA, error, public_url, Client, crypto, db, isPr
         tags: ['raw', 'account'],
         handler: function accountCreate(request) {
           log.begin('RawPassword.accountCreate', request)
-          var form = request.payload
-          Client.create(
-            public_url,
-            Buffer(form.email, 'hex').toString('utf8'),
-            form.password,
-            form.preVerified || false
-          )
-          .done(
-            function (client) {
-              request.reply({ uid: client.uid })
+          enqueueWithHelper(
+            {
+              action: 'account/create',
+              email: Buffer(request.payload.email, 'hex').toString('utf8'),
+              password: request.payload.password,
+              preVerified: request.payload.preVerified || false
             },
-            function (err) {
-              request.reply(error.wrap(err))
+            function (err, result) {
+              if (err) {
+                return request.reply(error.wrap(err))
+              }
+              return request.reply(result)
             }
           )
         },
@@ -92,19 +98,18 @@ module.exports = function (log, isA, error, public_url, Client, crypto, db, isPr
         tags: ['raw', 'account'],
         handler: function passwordChange(request) {
           log.begin('RawPassword.passwordChange', request)
-          var form = request.payload
-          Client.changePassword(
-            public_url,
-            Buffer(form.email, 'hex').toString('utf8'),
-            form.oldPassword,
-            form.newPassword
-          )
-          .done(
-            function (client) {
-              return request.reply({})
+          enqueueWithHelper(
+            {
+              action: 'password/change',
+              email: Buffer(request.payload.email, 'hex').toString('utf8'),
+              oldPassword: request.payload.oldPassword,
+              newPassword: request.payload.newPassword
             },
-            function (err) {
-              request.reply(error.wrap(err))
+            function (err, result) {
+              if (err) {
+                return request.reply(error.wrap(err))
+              }
+              return request.reply(result)
             }
           )
         },
@@ -134,33 +139,28 @@ module.exports = function (log, isA, error, public_url, Client, crypto, db, isPr
           db.account(accountResetToken.uid)
             .then(
               function (account) {
-                var client = new Client()
-                client.email = account.email
-                return client.setupCredentials(null, form.newPassword)
-                  .then(
-                    function () {
-                      var stretching = account.passwordStretching
-                      stretching.salt = client.passwordSalt
-                      return {
-                        srp: client.srp,
-                        passwordStretching: stretching,
-                        wrapKb: crypto.randomBytes(32)
-                      }
+                enqueueWithHelper(
+                  {
+                    action: 'password/reset',
+                    email: account.email,
+                    newPassword: form.newPassword,
+                    passwordStretching: account.passwordStretching
+                  },
+                  function (err, result) {
+                    if (err) {
+                      return request.reply(error.wrap(err))
                     }
-                  )
-              }
-            )
-            .then(
-              function (payload) {
-                return db.resetAccount(accountResetToken, payload)
-              }
-            )
-            .done(
-              function () {
-                return request.reply({})
-              },
-              function (err) {
-                request.reply(error.wrap(err))
+                    db.resetAccount(accountResetToken, result)
+                      .done(
+                        function () {
+                          return request.reply({})
+                        },
+                        function (err) {
+                          return request.reply(error.wrap(err))
+                        }
+                      )
+                  }
+                )
               }
             )
         },

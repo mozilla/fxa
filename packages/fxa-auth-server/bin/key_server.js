@@ -35,10 +35,14 @@ function main() {
 
   var Token = require('../tokens')(log)
 
-  //signer compute-cluster
+  // signer compute-cluster
   var CC = require('compute-cluster')
   var signer = new CC({ module: __dirname + '/signer.js' })
   signer.on('error', function () {}) // don't die
+
+  // rawpwhelper compute-cluster
+  var rawpwhelper = new CC({ module: __dirname + '/rawpwhelper.js' })
+  rawpwhelper.on('error', function () {}) // don't die
 
   var Server = require('../server')
   var server = null
@@ -80,7 +84,7 @@ function main() {
       function (backends) {
         var db = backends[0]
         var noncedb = backends[1]
-        var routes = require('../routes')(log, serverPublicKey, signer, db, mailer, Token, config)
+        var routes = require('../routes')(log, serverPublicKey, signer, rawpwhelper, db, mailer, Token, config)
         server = Server.create(log, config, routes, db, noncedb)
 
         server.start(
