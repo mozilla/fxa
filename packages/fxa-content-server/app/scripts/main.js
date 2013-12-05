@@ -37,5 +37,5 @@ function (Backbone, Router) {
   window.router = new Router();
 
   // Get the party started
-  Backbone.history.start();
+  Backbone.history.start({ pushState: true });
 });

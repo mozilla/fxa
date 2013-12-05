@@ -21,6 +21,8 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
 
     initialize: function() {
       this.$stage = $('#stage');
+
+      this.watchAnchors();
     },
 
     showIntro: function() {
@@ -51,6 +53,21 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
       this.currentView = view;
 
       this.$stage.hide().html(this.currentView.render().el).fadeIn();
+    },
+
+    watchAnchors: function() {
+      $(document).on('click', "a[href^='/']", function(event) {
+        if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+          event.preventDefault();
+
+          // Remove leading slashes
+          var url = $(event.target).attr('href').replace(/^\//,'');
+
+          // Instruct Backbone to trigger routing events
+          this.navigate(url, { trigger: true });
+        }
+
+      }.bind(this));
     }
   });
 
