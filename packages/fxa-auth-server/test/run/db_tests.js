@@ -45,13 +45,13 @@ DB.connect()
         function (t) {
           return db.createAccount(ACCOUNT)
           .then(function(account) {
-            t.deepEqual(account.uid, ACCOUNT.uid)
+            t.deepEqual(account.uid, ACCOUNT.uid, 'account.uid is the same as the input ACCOUNT.uid')
           })
           .then(function() {
             return db.accountExists(ACCOUNT.email)
           })
           .then(function(exists) {
-            t.ok(exists)
+            t.ok(exists, 'account exists for this email address')
           })
           .then(function() {
             return db.account(ACCOUNT.uid)
@@ -77,10 +77,10 @@ DB.connect()
             return db.createSrpToken(emailRecord)
           })
           .then(function(srpToken) {
-            t.deepEqual(srpToken.uid, ACCOUNT.uid)
+            t.deepEqual(srpToken.uid, ACCOUNT.uid, 'srpToken.uid is the same as the ACCOUNT.uid')
             t.equal(srpToken.v.toString('hex'), ACCOUNT.srp.verifier)
-            t.equal(srpToken.s, ACCOUNT.srp.salt)
-            t.ok(srpToken.b)
+            t.equal(srpToken.s, ACCOUNT.srp.salt, 'srpToken.s == ACCOUNT.srp.salt')
+            t.ok(srpToken.b, 'srpToken.b is true')
             return srpToken
           })
           .then(function(srpToken) {
@@ -219,7 +219,7 @@ DB.connect()
             return db.createForgotPasswordToken(emailRecord)
           })
           .then(function(forgotPasswordToken) {
-            t.deepEqual(forgotPasswordToken.uid, ACCOUNT.uid)
+            t.deepEqual(forgotPasswordToken.uid, ACCOUNT.uid, 'forgotPasswordToken uid same as ACCOUNT.uid')
             token1 = forgotPasswordToken
             token1tries = token1.tries
           })
@@ -239,8 +239,8 @@ DB.connect()
             return db.forgotPasswordToken(token1.tokenid)
           })
           .then(function(forgotPasswordToken) {
-            t.deepEqual(forgotPasswordToken.tokenid, token1.tokenid, 'token id matches')
-            t.equal(forgotPasswordToken.tries, token1tries - 1)
+            t.deepEqual(forgotPasswordToken.tokenid, token1.tokenid, 'token id matches again')
+            t.equal(forgotPasswordToken.tries, token1tries - 1, '')
             return forgotPasswordToken
           })
           .then(function(forgotPasswordToken) {
@@ -326,8 +326,8 @@ DB.connect()
             return db.createPasswordChange(authToken)
           })
           .then(function(tokens) {
-            t.deepEqual(tokens.keyFetchToken.uid, ACCOUNT.uid)
-            t.deepEqual(tokens.accountResetToken.uid, ACCOUNT.uid)
+            t.deepEqual(tokens.keyFetchToken.uid, ACCOUNT.uid, 'keyFetchToken.uid is the same as the original ACCOUNT.uid')
+            t.deepEqual(tokens.accountResetToken.uid, ACCOUNT.uid, 'accountResetToken.uid is the same as the original ACCOUNT.uid')
             tokens1 = tokens
           })
           .then(function() {
@@ -359,7 +359,7 @@ DB.connect()
             return db.forgotPasswordVerified(forgotPasswordToken)
           })
           .then(function(accountResetToken) {
-            t.deepEqual(accountResetToken.uid, ACCOUNT.uid)
+            t.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'uid is the same as ACCOUNT.uid')
             token1 = accountResetToken
           })
           .then(function() {
@@ -450,5 +450,6 @@ DB.connect()
           return db.close()
         }
       )
+
     }
   )
