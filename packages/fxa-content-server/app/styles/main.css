@@ -11,6 +11,10 @@ body {
   font-size: 16px;
 }
 
+p.center {
+  text-align: center;
+}
+
 #stage {
   background: #fff;
   margin: 20px auto;
@@ -23,13 +27,20 @@ body {
   text-align: center;
 }
 
-.visual-element {
+.placeholder {
   border: 1px dashed #ccc;
   color: #bbb;
   font-weight: bold;
   padding: 50px 0;
   text-align: center;
   text-transform: uppercase;
+}
+
+.placeholder.email-placeholder {
+  padding: 10px 0;
+  float: left;
+  margin-right: 10px;
+  width: 75px;
 }
 
 a.button, button {
@@ -56,4 +67,13 @@ a.button:hover, button:hover {
 
 .error:empty {
   display: none;
+}
+
+.form-row {
+  margin-bottom: 10px;
+}
+
+.form-row input {
+  padding: 5px;
+  width: 100%;
 }

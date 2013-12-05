@@ -40,6 +40,7 @@ define([
           },
           function (err) {
             this.$('.error').html(err.message);
+
             console.error('Error?', err);
           }.bind(this));
       }
