@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const config = require('./configuration');
+const path = require('path');
 
 module.exports = function(app) {
   function routeToVerify(req, res) {
@@ -42,4 +43,9 @@ module.exports = function(app) {
         page: JSON.stringify(req.params.page || '')
       });
     });
+
+  app.get(/\/[^.]*$/, function(req, res) {
+    res.sendfile(path.join(__dirname, '..', '..', 'app', 'index.html'));
+  });
+
 };
