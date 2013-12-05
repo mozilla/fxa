@@ -18,8 +18,9 @@ p.center {
 #stage {
   background: #fff;
   margin: 20px auto;
+  max-width: 400px;
   padding: 20px;
-  width: 400px;
+  width: 100%;
 }
 
 #stage h1 {
