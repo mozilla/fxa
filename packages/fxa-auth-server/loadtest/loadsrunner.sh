@@ -5,7 +5,7 @@
 # This gives us a bit of security while making it easy to control the
 # loadtest from from a local box.
 
-BROKER=loads.loadtest.lcip.org
+BROKER=broker.loads.lcip.org
 
 # Host key checking is deliberately disabled because the server regularly
 # gets torn-down and replaced, and we're not sending any private info anyway.
