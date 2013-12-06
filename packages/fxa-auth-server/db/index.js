@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (
-  config,
+  backend,
   log,
   error,
   AuthToken,
@@ -13,10 +13,8 @@ module.exports = function (
   SrpToken,
   ForgotPasswordToken) {
 
-  var backend = config.kvstore.backend
   if (backend === 'mysql') {
     return require('./mysql')(
-      config.mysql,
       log,
       error,
       AuthToken,

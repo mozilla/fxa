@@ -55,7 +55,7 @@ function main() {
 
   // databases
   var DB = require('../db')(
-    config,
+    config.kvstore.backend,
     log,
     Token.error,
     Token.AuthToken,
@@ -65,11 +65,12 @@ function main() {
     Token.SrpToken,
     Token.ForgotPasswordToken
   )
+
   var noncedb = require('../noncedb')(
     config,
     log
   )
-  DB.connect()
+  DB.connect(config[config.kvstore.backend])
     .then(
       function (db) {
         return noncedb.connect()
