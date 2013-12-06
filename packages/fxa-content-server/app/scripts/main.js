@@ -8,7 +8,8 @@ require.config({
     hgn: '../bower_components/requirejs-hogan-plugin/hgn',
     text: '../bower_components/requirejs-hogan-plugin/text',
     hogan: '../bower_components/requirejs-hogan-plugin/hogan',
-    gherkin: '../bower_components/fxa-js-client-old/web/bundle'
+    gherkin: '../bower_components/fxa-js-client-old/web/bundle',
+    transit: '../bower_components/jquery.transit/jquery.transit'
   },
 
   shim: {
@@ -24,6 +25,12 @@ require.config({
     },
     gherkin: {
       exports: 'gherkin'
+    },
+    transit: {
+      deps: [
+        'jquery'
+      ],
+      exports: 'jQuery.fn.transition'
     }
   },
 });

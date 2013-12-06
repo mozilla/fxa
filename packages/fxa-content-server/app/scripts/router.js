@@ -7,7 +7,8 @@ define([
   'views/sign_in',
   'views/sign_up',
   'views/confirm',
-  'views/settings'
+  'views/settings',
+  'transit'
 ],
 function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView) {
   var Router = Backbone.Router.extend({
@@ -27,6 +28,8 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
 
     showIntro: function() {
       this.switch(new IntroView());
+
+      this.$stage.css({ scale: 0.6, opacity: 0 }).transition({ scale: 1, opacity: 1 }, 1500);
     },
 
     showSignIn: function() {
@@ -52,7 +55,7 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
 
       this.currentView = view;
 
-      this.$stage.hide().html(this.currentView.render().el).fadeIn();
+      this.$stage.html(this.currentView.render().el);
     },
 
     watchAnchors: function() {
