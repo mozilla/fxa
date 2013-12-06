@@ -92,13 +92,6 @@ module.exports = function (
     return d.promise
   }
 
-  MySql.create = function() {
-    log.trace( { op: 'MySql.create' } )
-    var options = config
-    var mysql = new MySql()
-    return mysql.connect()
-  }
-
   // this will be called from outside this file
   MySql.connect = function(options) {
     if (options.create_schema) {
@@ -883,8 +876,6 @@ module.exports = function (
 
   MySql.prototype.createSession = function (authToken) {
     log.trace({ op: 'MySql.createSession', uid: authToken && authToken.uid })
-    // TODO: transactions not working with nodejs driver.
-    // For now, we just insert one after the other and hope for best. :-(
     var con
     return P.all(
       [
