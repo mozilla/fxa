@@ -134,15 +134,15 @@ module.exports = function (fs, path, url, convict) {
       }
     },
     smtp: {
-      listen: {
+      api: {
         host: {
-          doc: 'host for bin/mailer.js',
+          doc: 'host for bin/mail_helper.js',
           default: '127.0.0.1',
           env: 'MAILER_HOST'
         },
         port: {
-          doc: 'port for bin/mailer.js',
-          default: 9999,
+          doc: 'port for bin/mail_helper.js',
+          default: 9001,
           env: 'MAILER_PORT'
         }
       },

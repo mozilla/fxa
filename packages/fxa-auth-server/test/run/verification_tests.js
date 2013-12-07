@@ -388,26 +388,14 @@ TestServer.start(config.public_url)
     'teardown',
     function (t) {
       t.end()
-      mail.stop()
       server.stop()
-      /*/
-      So, server keeps a persistent connection open to mail. If server
-      was started seperately, it's not easy to disconnect that connection.
-      Therefore bludgeon it to death
-      /*/
-      process.nextTick(process.exit)
     }
   )
 })
 
 ///////////////////////////////////////////////////////////////////////////////
 
-var Mail = require('lazysmtp').Mail
-var mail = new Mail('127.0.0.1', true)
-
-var codeMatch = /X-\w+-Code: (\w+)/
-var toMatch = /To: (\w+@\w+\.\w+)/
-var emailCodes = {}
+var request = require('request')
 
 // This test helper creates fresh account for the given email and password.
 function createFreshAccount(email, password) {
@@ -430,34 +418,18 @@ function createFreshAccount(email, password) {
     )
 }
 
-mail.on(
-  'mail',
-  function (email) {
-    var matchCode = codeMatch.exec(email)
-    var matchEmail = toMatch.exec(email)
-    if (matchCode && matchEmail) {
-      emailCodes[matchEmail[1]] = matchCode[1]
-    }
-    else {
-      console.error('No verify code match')
-      console.error(email)
-    }
-  }
-)
-mail.start(9999)
-
 function waitForCode(email) {
   var d = P.defer()
-  function loop() {
-    var code
-    if (!emailCodes[email]) {
-      return setTimeout(loop, 10)
+  request(
+    {
+      url: 'http://' + config.smtp.api.host + ':' + config.smtp.api.port + '/pop',
+      method: 'POST',
+      json: { email: email }
+    },
+    function (err, res, body) {
+      return err ? d.reject(err) : d.resolve(body)
     }
-    code = emailCodes[email]
-    emailCodes[email] = null
-    d.resolve(code)
-  }
-  loop()
+  )
   return d.promise
 }
 
