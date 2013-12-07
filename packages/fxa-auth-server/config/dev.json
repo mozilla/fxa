@@ -7,8 +7,5 @@
   },
   "toobusy": {
     "max_lag": 0
-  },
-  "kvstore": {
-    "backend": "mysql"
   }
 }
