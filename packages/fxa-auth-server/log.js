@@ -20,19 +20,23 @@ Overdrive.prototype.begin = function (op, request) {
   this.trace({ op: op })
 }
 
+function unbuffer(object) {
+  var keys = Object.keys(object)
+  for (var i = 0; i < keys.length; i++) {
+    var x = object[keys[i]]
+    if (Buffer.isBuffer(x)) {
+      object[keys[i]] = x.toString('hex')
+    }
+  }
+}
+
 Overdrive.prototype.trace = function () {
-  if (this._level <= Logger.TRACE && Domain.active) {
+  if (this._level <= Logger.TRACE) {
     var arg0 = arguments[0]
     if (typeof(arg0) === 'object') {
-      var request = Domain.active.members[0]
+      unbuffer(arg0)
+      var request = Domain.active && Domain.active.members[0]
       arg0.rid = arg0.rid || (request && request.id)
-      var keys = Object.keys(arg0)
-      for (var i = 0; i < keys.length; i++) {
-        var x = arg0[keys[i]]
-        if (Buffer.isBuffer(x)) {
-          arg0[keys[i]] = x.toString('hex')
-        }
-      }
       if (request) {
         request.app.traced.push(arg0)
       }
