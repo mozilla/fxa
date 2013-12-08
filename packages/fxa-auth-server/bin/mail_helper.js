@@ -38,6 +38,9 @@ mail.on(
           )
         )
       }
+      else if (matchCode[1] === 'Recovery') {
+        console.log('recovery: %s email: %s', matchCode[2], matchEmail[1])
+      }
     }
     else {
       console.error('No verify code match')
