@@ -37,11 +37,12 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         handler: function accountCreate(request) {
           log.begin('Account.create', request)
           var form = request.payload
-          db.accountExists(form.email)
+          var email = Buffer(form.email, 'hex').toString()
+          db.accountExists(email)
             .then(
               function (exists) {
                 if (exists) {
-                  throw error.accountExists(form.email)
+                  throw error.accountExists(email)
                 }
               }
             )
@@ -50,7 +51,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 db,
                 {
                   uid: uuid.v4('binary'),
-                  email: form.email,
+                  email: email,
                   emailCode: crypto.randomBytes(4).toString('hex'),
                   verified: form.preVerified || false,
                   srp: form.srp,
