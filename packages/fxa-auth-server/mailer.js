@@ -90,7 +90,6 @@ module.exports = function (config, i18n, log) {
     var reportLink = this.report_url
 
     var values = {
-      account: account,
       l10n: i18n.localizationContext(preferredLang),
       link: link,
       reportLink: reportLink
@@ -115,7 +114,6 @@ module.exports = function (config, i18n, log) {
     log.trace({ op: 'mailer.sendRecoveryCode', email: email })
     var template = templates.reset
     var values = {
-      account: account,
       l10n: i18n.localizationContext(preferredLang),
       code: code
     }
