@@ -1,5 +1,5 @@
 {
-  "public_url": "http://127.0.0.1:8888",
+  "public_url": "http://127.0.0.1:3030",
   "client_sessions": {
     "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
@@ -7,7 +7,6 @@
   },
   "env": "development",
   "use_https": false,
-  "pub_key_ttl": 120,
-  "pub_key_path": "var/key.publickey",
-  "supported_languages": ["en-US"]
+  "supported_languages": ["en-US"],
+  "route_log_format": "dev_fxa"
 }
