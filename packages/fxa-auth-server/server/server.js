@@ -10,7 +10,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
 
     // Hawk needs to calculate request signatures based on public URL,
     // not the local URL to which it is bound.
-    var publicURL = url.parse(config.public_url);
+    var publicURL = url.parse(config.publicUrl);
     var defaultPorts = {
       "http:": 80,
       "https:": 443,
@@ -52,8 +52,8 @@ module.exports = function (path, url, Hapi, toobusy, error) {
     }
 
     var server = Hapi.createServer(
-      config.bind_to.host,
-      config.bind_to.port,
+      config.listen.host,
+      config.listen.port,
       {
         auth: {
           sessionToken: {
@@ -101,8 +101,8 @@ module.exports = function (path, url, Hapi, toobusy, error) {
     //TODO throttle extension
 
     // Enable toobusy, unless it has been preffed off in the config.
-    if (config.toobusy.max_lag > 0) {
-      toobusy.maxLag(config.toobusy.max_lag)
+    if (config.toobusy.maxLag > 0) {
+      toobusy.maxLag(config.toobusy.maxLag)
     } else {
       toobusy = function() { return false; }
     }

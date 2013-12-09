@@ -16,7 +16,7 @@ function uniqueID() {
   return crypto.randomBytes(10).toString('hex');
 }
 
-TestServer.start(config.public_url)
+TestServer.start(config.publicUrl)
 .done(function main(server) {
 
   test(
@@ -26,7 +26,7 @@ TestServer.start(config.public_url)
       var password = 'allyourbasearebelongtous'
       var client = null
       var verifyCode = null
-      return Client.create(config.public_url, email, password)
+      return Client.create(config.publicUrl, email, password)
         .then(
           function (x) {
             client = x
@@ -105,7 +105,7 @@ TestServer.start(config.public_url)
       var email = uniqueID() +'@example.com'
       var password = 'allyourbasearebelongtous'
       var client = null
-      return Client.create(config.public_url, email, password)
+      return Client.create(config.publicUrl, email, password)
         .then(
           function (x) {
             client = x
@@ -159,7 +159,7 @@ TestServer.start(config.public_url)
       return createFreshAccount(email, password)
         .then(
           function () {
-            return Client.login(config.public_url, email, password)
+            return Client.login(config.publicUrl, email, password)
           }
         )
         .then(
@@ -201,7 +201,7 @@ TestServer.start(config.public_url)
         )
         .then( // make sure we can still login after password reset
           function () {
-            return Client.login(config.public_url, email, newPassword)
+            return Client.login(config.publicUrl, email, newPassword)
           }
         )
         .then(
@@ -232,7 +232,7 @@ TestServer.start(config.public_url)
       return createFreshAccount(email, password)
         .then(
           function () {
-            return Client.login(config.public_url, email, password)
+            return Client.login(config.publicUrl, email, password)
           }
         )
         .then(
@@ -265,7 +265,7 @@ TestServer.start(config.public_url)
         )
         .then( // make sure we can still login after password reset
           function () {
-            return Client.login(config.public_url, email, newPassword)
+            return Client.login(config.publicUrl, email, newPassword)
           }
         )
         .then(
@@ -296,7 +296,7 @@ TestServer.start(config.public_url)
       return createFreshAccount(email, password)
         .then(
           function () {
-            client = new Client(config.public_url)
+            client = new Client(config.publicUrl)
             client.email = Buffer(email).toString('hex')
             return client.forgotPassword()
           }
@@ -383,14 +383,14 @@ TestServer.start(config.public_url)
         )
     }
   )
- 
+
   test(
     'create account allows localization of emails',
     function (t) {
       var email = uniqueID() +'@example.com'
       var password = 'allyourbasearebelongtous'
       var client = null
-      return Client.create(config.public_url, email, password)
+      return Client.create(config.publicUrl, email, password)
         .then(
           function (x) {
             client = x
@@ -410,7 +410,7 @@ TestServer.start(config.public_url)
         )
         .then(
           function () {
-            return Client.create(config.public_url, email, password, { lang: 'en-AU' })
+            return Client.create(config.publicUrl, email, password, { lang: 'en-AU' })
           }
         )
         .then(
@@ -449,7 +449,7 @@ var request = require('request')
 // This test helper creates fresh account for the given email and password.
 function createFreshAccount(email, password) {
   var client = null
-  return Client.create(config.public_url, email, password)
+  return Client.create(config.publicUrl, email, password)
     .then(
       function (x) {
         client = x

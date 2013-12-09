@@ -11,7 +11,7 @@ var handlebars = require("handlebars")
 module.exports = function (config, i18n, log) {
 
   function loadTemplate (name) {
-    return fs.readFileSync(path.join(config.template_path, name))
+    return fs.readFileSync(path.join(config.templatePath, name))
   }
 
   // Make the 'gettext' function available in the templates.
@@ -57,8 +57,8 @@ module.exports = function (config, i18n, log) {
     }
     this.mailer = nodemailer.createTransport('SMTP', options)
     this.sender = config.sender
-    this.verification_url = config.verification_url
-    this.report_url = config.report_url
+    this.verificationUrl = config.verificationUrl
+    this.reportUrl = config.reportUrl
   }
 
   Mailer.prototype.send = function (message) {
@@ -84,9 +84,9 @@ module.exports = function (config, i18n, log) {
   Mailer.prototype.sendVerifyCode = function (account, code, preferredLang) {
     log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
     var template = templates.verify
-    var link = this.verification_url + '?uid=' + account.uid.toString('hex')
+    var link = this.verificationUrl + '?uid=' + account.uid.toString('hex')
     link += '#code=' + code
-    var reportLink = this.report_url
+    var reportLink = this.reportUrl
 
     var values = {
       l10n: i18n.localizationContext(preferredLang),

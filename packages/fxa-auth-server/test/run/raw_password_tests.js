@@ -12,7 +12,7 @@ function uniqueID() {
   return crypto.randomBytes(10).toString('hex');
 }
 
-TestServer.start(config.public_url)
+TestServer.start(config.publicUrl)
 .then(function main(server) {
 
   // Randomly-generated account names for testing.
@@ -24,7 +24,7 @@ TestServer.start(config.public_url)
   test(
     '(reduced security) Create account',
     function (t) {
-      var clientApi = new Client.Api(config.public_url)
+      var clientApi = new Client.Api(config.publicUrl)
       var email = Buffer(email1).toString('hex')
       var password = 'allyourbasearebelongtous'
       return clientApi.rawPasswordAccountCreate(email, password, {preVerified: true})
@@ -32,7 +32,7 @@ TestServer.start(config.public_url)
           function (result) {
             var client = null
             t.equal(typeof(result.uid), 'string')
-            return Client.login(config.public_url, email1, password)
+            return Client.login(config.publicUrl, email1, password)
               .then(
                 function (x) {
                   client = x
@@ -55,7 +55,7 @@ TestServer.start(config.public_url)
   test(
     '(reduced security) Login with email and password',
     function (t) {
-      var clientApi = new Client.Api(config.public_url)
+      var clientApi = new Client.Api(config.publicUrl)
       var email =  Buffer(email1).toString('hex')
       var password = 'allyourbasearebelongtous'
       return clientApi.rawPasswordSessionCreate(email, password)
@@ -72,7 +72,7 @@ TestServer.start(config.public_url)
   test(
     '(reduced security) Login with email and wrong password',
     function (t) {
-      var clientApi = new Client.Api(config.public_url)
+      var clientApi = new Client.Api(config.publicUrl)
       var email =  Buffer(email1).toString('hex')
       var password = 'xxx'
       return clientApi.rawPasswordSessionCreate(email, password)
@@ -90,7 +90,7 @@ TestServer.start(config.public_url)
   test(
     '(reduced security) Login with unknown email',
     function (t) {
-      var clientApi = new Client.Api(config.public_url)
+      var clientApi = new Client.Api(config.publicUrl)
       var email =  Buffer('x@y.me').toString('hex')
       var password = 'allyourbasearebelongtous'
       return clientApi.rawPasswordSessionCreate(email, password)
@@ -108,7 +108,7 @@ TestServer.start(config.public_url)
   test(
     '(reduced security) Change password',
     function (t) {
-      var clientApi = new Client.Api(config.public_url)
+      var clientApi = new Client.Api(config.publicUrl)
       var email =  Buffer(email1).toString('hex')
       var password = 'allyourbasearebelongtous'
       var newPassword = 'wow'

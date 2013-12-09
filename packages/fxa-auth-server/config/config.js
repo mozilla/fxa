@@ -17,15 +17,11 @@ module.exports = function (fs, path, url, convict) {
         default: 'info'
       }
     },
-    public_url: {
+    publicUrl: {
       format: "url",
       // the real url is set by awsbox
       default: "http://127.0.0.1:9000",
       env: "PUBLIC_URL"
-    },
-    domain: {
-      format: "url",
-      default: "127.0.0.1:9000"
     },
     secretKeyFile: {
       default: path.resolve(__dirname, '../config/secret-key.json')
@@ -65,20 +61,9 @@ module.exports = function (fs, path, url, convict) {
         default: '3306',
         env: 'MYSQL_PORT'
       },
-      create_schema: {
+      createSchema: {
         default: true,
         env: 'CREATE_MYSQL_SCHEMA'
-      },
-      max_query_time_ms: {
-        doc: "The maximum amount of time we'll allow a query to run before considering the database to be sick",
-        default: 5000,
-        format: 'duration',
-        env: 'MAX_QUERY_TIME_MS'
-      },
-      max_reconnect_attempts: {
-        doc: "The maximum number of times we'll attempt to reconnect to the database before failing all outstanding queries",
-        default: 3,
-        format: 'nat'
       },
       connectionLimit: {
         doc: "The maximum number of connections to create at once.",
@@ -93,7 +78,7 @@ module.exports = function (fs, path, url, convict) {
         env: 'WAIT_FOR_CONNECTIONS',
       },
     },
-    bind_to: {
+    listen: {
       host: {
         doc: "The ip address the server should bind",
         default: '127.0.0.1',
@@ -112,25 +97,6 @@ module.exports = function (fs, path, url, convict) {
         doc: "Thes url of the correspoding fxa-content-server instance",
         default: 'http://127.0.0.1:3030',
         env: 'CONTENT_SERVER_URL'
-      }
-    },
-    srp: {
-      alg_name: {
-        doc: "Name of secure hash algorithm to use",
-        default: 'sha256',
-        env: 'SRP_HASH_ALGORITHM'
-      },
-      N_bits: {
-        doc: "Size of N",
-        default: 2048,
-        format: 'nat',
-        env: 'SRP_N_BITS'
-      },
-      s_bytes: {
-        doc: "Bytes in salt",
-        default: 32,
-        format: 'nat',
-        env: 'SRP_S_BYTES'
       }
     },
     smtp: {
@@ -178,19 +144,19 @@ module.exports = function (fs, path, url, convict) {
         default: 'Firefox Accounts <no-reply@lcip.org>',
         env: 'SMTP_SENDER'
       },
-      verification_url: {
+      verificationUrl: {
         doc: 'The landing page for verify emails',
         format: String,
         default: undefined,
         env: 'VERIFY_URL',
         arg: 'verify-url'
       },
-      report_url: {
+      reportUrl: {
         doc: 'A page where users can report suspicious activity',
         format: String,
         default: '#'
       },
-      template_path: {
+      templatePath: {
         doc: 'path to the email template directory',
         default: path.resolve(__dirname, '../templates/email')
       }
@@ -214,30 +180,30 @@ module.exports = function (fs, path, url, convict) {
       }
     },
     toobusy: {
-      max_lag: {
+      maxLag: {
         doc: "Max event-loop lag before toobusy reports failure",
         default: 70,
         env: 'TOOBUSY_MAX_LAG'
       }
     },
     i18n: {
-      default_lang: {
+      defaultLang: {
         format: String,
         default: "en"
       },
-      supported_languages: {
+      supportedLanguages: {
         doc: "List of languages this deployment should detect and display localized strings.",
         format: Array,
         default: ['en', 'en-AU'],
         env: 'I18N_SUPPORTED_LANGUAGES'
       },
-      translation_directory: {
+      translationDirectory: {
         doc: "The directory where per-locale .json files containing translations reside",
         format: String,
         default: "resources/i18n/",
         env: "I18N_TRANSLATION_DIR"
       },
-      translation_type: {
+      translationType: {
         doc: "The file format used for the translations",
         format: String,
         default: "key-value-json",
@@ -256,10 +222,10 @@ module.exports = function (fs, path, url, convict) {
   conf.loadFile(files)
 
   // set the public url as the issuer domain for assertions
-  conf.set('domain', url.parse(conf.get('public_url')).host)
+  conf.set('domain', url.parse(conf.get('publicUrl')).host)
 
-  if (! conf.has('smtp.verification_url')) {
-    conf.set('smtp.verification_url', conf.get('public_url') + '/v1/verify_email')
+  if (! conf.has('smtp.verificationUrl')) {
+    conf.set('smtp.verificationUrl', conf.get('publicUrl') + '/v1/verify_email')
   }
 
   conf.validate()

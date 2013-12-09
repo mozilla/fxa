@@ -10,7 +10,7 @@ var Client = require('../../client')
 
 function fail() { throw new Error() }
 
-TestServer.start(config.public_url)
+TestServer.start(config.publicUrl)
 .then(function main(server) {
 
   test(
