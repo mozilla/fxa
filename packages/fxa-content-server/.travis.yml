@@ -14,10 +14,12 @@ install:
   - node ./scripts/gen_keys.js
   - npm start &
   - cd ..
+  - npm install bower
   - npm install --production
-  - npm install intern
+  - npm install intern-geezer
+  - npm install git://github.com/mozilla/fxa-js-client-old.git
   - npm start &
-  - cd node_modules/intern
+  - cd node_modules/intern-geezer
   - npm install --production
   - cd ../..
-script: node node_modules/intern/runner.js config=tests/intern_remote
+script: npm run-script test-remote
