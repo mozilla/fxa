@@ -18,6 +18,8 @@ function(BaseView, SignInTemplate, gherkin, Session) {
     signIn: function(event) {
       event.preventDefault();
 
+      if (! (this._validateEmail() && this._validatePassword())) return;
+
       var email = this.$('.email').val();
       var password = this.$('.password').val();
 
@@ -33,8 +35,23 @@ function(BaseView, SignInTemplate, gherkin, Session) {
 
           console.error('Error?', err);
         }.bind(this));
+    },
+
+    _validateEmail: function() {
+      return this._isElementValid('.email');
+    },
+
+    _validatePassword: function() {
+      return this._isElementValid('.password');
+    },
+
+    _isElementValid: function(selector) {
+      var el = this.$(selector);
+      var value = el.val();
+      return value && el[0].validity.valid;
     }
   });
 
   return SignInView;
 });
+
