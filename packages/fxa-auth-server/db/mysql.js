@@ -114,6 +114,7 @@ module.exports = function (
       .then(function(con) {
         var d = P.defer()
         con.ping(function (err) {
+          con.release()
           return err ? d.reject(err) : d.resolve()
         })
         return d.promise
