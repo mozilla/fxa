@@ -6,6 +6,6 @@
     "sender": "no-reply@example.com"
   },
   "toobusy": {
-    "max_lag": 0
+    "maxLag": 0
   }
 }

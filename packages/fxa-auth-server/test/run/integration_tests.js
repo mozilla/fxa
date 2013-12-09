@@ -13,7 +13,7 @@ function uniqueID() {
   return crypto.randomBytes(10).toString('hex');
 }
 
-TestServer.start(config.public_url)
+TestServer.start(config.publicUrl)
 .then(function main(server) {
 
   // Randomly-generated account names for testing.
@@ -39,7 +39,7 @@ TestServer.start(config.public_url)
         "e":"65537"
       }
       var duration = 1000 * 60 * 60 * 24
-      return Client.create(config.public_url, email, password, { preVerified: true })
+      return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
@@ -76,7 +76,7 @@ TestServer.start(config.public_url)
       var wrapKb = null
       var client = null
       var firstSrpPw
-      return Client.create(config.public_url, email, password, { preVerified: true })
+      return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
@@ -121,7 +121,7 @@ TestServer.start(config.public_url)
         "e":"65537"
       }
       var duration = 1000 * 60 * 60 * 24
-      return Client.login(config.public_url, email, password)
+      return Client.login(config.publicUrl, email, password)
         .then(
           function (x) {
             client = x
@@ -157,7 +157,7 @@ TestServer.start(config.public_url)
       var email = email3
       var password = 'allyourbasearebelongtous'
       var client = null
-      return Client.create(config.public_url, email, password, { preVerified: true })
+      return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
@@ -193,7 +193,7 @@ TestServer.start(config.public_url)
       var password = 'foobar'
       var client = null
       var sessionToken = null
-      return Client.create(config.public_url, email, password, { preVerified: true })
+      return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
@@ -228,7 +228,7 @@ TestServer.start(config.public_url)
     'Unknown account should not exist',
     function (t) {
       var email = email5
-      var client = new Client(config.public_url)
+      var client = new Client(config.publicUrl)
       return client.accountExists(email)
         .then(
           function (exists) {
@@ -244,7 +244,7 @@ TestServer.start(config.public_url)
       var email = email6
       var password = 'ilikepancakes'
       var client
-      return Client.create(config.public_url, email, password, { preVerified: true })
+      return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
@@ -266,7 +266,7 @@ TestServer.start(config.public_url)
   test(
     'random bytes',
     function (t) {
-      var client = new Client(config.public_url)
+      var client = new Client(config.publicUrl)
       return client.api.getRandomBytes()
         .then(
           function (x) {
@@ -279,7 +279,7 @@ TestServer.start(config.public_url)
   test(
     'oversized payload',
     function (t) {
-      var client = new Client(config.public_url)
+      var client = new Client(config.publicUrl)
       return client.api.doRequest(
         'POST',
         client.api.baseURL + '/get_random_bytes',
@@ -303,7 +303,7 @@ TestServer.start(config.public_url)
       var email = email1
       var password = 'allyourbasearebelongtous'
       var url = null
-      return Client.login(config.public_url, email, password)
+      return Client.login(config.publicUrl, email, password)
         .then(
           function (c) {
             url = c.api.baseURL + '/account/keys'
@@ -354,7 +354,7 @@ TestServer.start(config.public_url)
       var email = email1
       var password = 'allyourbasearebelongtous'
       var url = null
-      return Client.login(config.public_url, email, password)
+      return Client.login(config.publicUrl, email, password)
         .then(
           function (c) {
             url = c.api.baseURL + '/account/devices'
@@ -435,7 +435,7 @@ TestServer.start(config.public_url)
       var email = email1
       var password = 'allyourbasearebelongtous'
       var url = null
-      return Client.login(config.public_url, email, password)
+      return Client.login(config.publicUrl, email, password)
         .then(
           function (c) {
             url = c.api.baseURL + '/account/keys'
@@ -486,7 +486,7 @@ TestServer.start(config.public_url)
       var srpSalt = '00f1000000000000000000000000000000000000000000000000000000000179';
       var email = 'andré@example.org'
       var password = Buffer('pässwörd')
-      var client = new Client(config.public_url)
+      var client = new Client(config.publicUrl)
       return client.setupCredentials(
           email, password, salt, srpSalt
         )

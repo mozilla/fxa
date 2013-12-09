@@ -25,7 +25,14 @@ module.exports = function (config) {
   // bundled into a function; we're going to hide that fact with a
   // bit of a wrapper API, returning the function as if it were a
   // stateful object with helper methods.
-  var abideObj = abide.abide(config)
+  var abideObj = abide.abide(
+    {
+      default_lang: config.defaultLang,
+      supported_languages: config.supportedLanguages,
+      translation_directory: config.translationDirectory,
+      translation_type: config.translationType
+    }
+  )
 
 
   // Export the parseAcceptLanguage() function as-is.
@@ -37,7 +44,7 @@ module.exports = function (config) {
   // Export the bestLanguage() function, but using defaults from the config.
   abideObj.bestLanguage = function(accepted, supported) {
     if (!supported) {
-      supported = config.supported_languages
+      supported = config.supportedLanguages
     }
     return abide.bestLanguage(accepted, supported)
   }

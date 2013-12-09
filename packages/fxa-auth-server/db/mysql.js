@@ -94,7 +94,7 @@ module.exports = function (
 
   // this will be called from outside this file
   MySql.connect = function(options) {
-    if (options.create_schema) {
+    if (options.createSchema) {
       return createSchema(options)
     }
     return P(new MySql(options))

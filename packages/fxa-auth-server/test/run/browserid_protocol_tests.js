@@ -14,9 +14,9 @@ function main() {
   test(
     'fetch /.well-known/browserid support document',
     function (t) {
-      var client = new Client(config.public_url)
+      var client = new Client(config.publicUrl)
       function fetch(url) {
-        return client.api.doRequest('GET', config.public_url + url)
+        return client.api.doRequest('GET', config.publicUrl + url)
       }
       return fetch('/.well-known/browserid')
       .then(
@@ -81,7 +81,7 @@ function startServer() {
 }
 
 function waitLoop() {
-  Client.Api.heartbeat(config.public_url)
+  Client.Api.heartbeat(config.publicUrl)
     .done(
       main,
       function () {

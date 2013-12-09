@@ -13,7 +13,7 @@ process.on('message', function (message) {
 
   else if (message.action === 'session/create') {
     Client.login(
-      config.public_url,
+      config.publicUrl,
       message.email,
       message.password
     )
@@ -33,7 +33,7 @@ process.on('message', function (message) {
 
   else if (message.action === 'account/create') {
     Client.create(
-      config.public_url,
+      config.publicUrl,
       message.email,
       message.password,
       message.options || {}
@@ -50,7 +50,7 @@ process.on('message', function (message) {
 
   else if (message.action === 'password/change') {
     Client.changePassword(
-      config.public_url,
+      config.publicUrl,
       message.email,
       message.oldPassword,
       message.newPassword

@@ -31,7 +31,7 @@ mail.on(
         console.log(matchLink[1])
         console.log(
           "curl -v -XPOST -H'Content-Type: application/json' %s -d '%s'",
-          config.public_url + '/v1/recovery_email/verify_code',
+          config.publicUrl + '/v1/recovery_email/verify_code',
           JSON.stringify(
             {
               uid: matchUid[1],
