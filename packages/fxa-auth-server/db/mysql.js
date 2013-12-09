@@ -182,7 +182,6 @@ module.exports = function (
   }
 
   MySql.prototype.createKeyFetchToken = function (authToken) {
-    var d = P.defer()
     log.trace({ op: 'MySql.createKeyFetchToken', uid: authToken && authToken.uid })
     var sql = 'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
     var con
@@ -379,7 +378,6 @@ module.exports = function (
   }
 
   MySql.prototype.keyFetchToken = function (id) {
-    var d = P.defer()
     log.trace({ op: 'MySql.keyFetchToken', id: id })
     var sql = 'SELECT t.tokendata, t.uid, a.verified, a.kA, a.wrapKb ' +
               '  FROM keyfetchTokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'

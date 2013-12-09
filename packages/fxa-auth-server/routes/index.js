@@ -8,7 +8,6 @@ var P = require('p-promise')
 var uuid = require('uuid')
 var Hapi = require('hapi')
 var error = require('../error')
-var Client = require('../client')
 var isA = Hapi.types
 
 module.exports = function (
