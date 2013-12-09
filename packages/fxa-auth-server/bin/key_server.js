@@ -33,6 +33,7 @@ function main() {
   )
   memoryMonitor.start()
 
+  var error = require('../error')(log)
   var Token = require('../tokens')(log)
   var i18n = require('../i18n')(config.i18n)
 
@@ -86,8 +87,8 @@ function main() {
       function (backends) {
         var db = backends[0]
         var noncedb = backends[1]
-        var routes = require('../routes')(log, serverPublicKey, signer, clientHelper, db, mailer, Token, config)
-        server = Server.create(log, config, routes, db, noncedb, i18n)
+        var routes = require('../routes')(log, error, serverPublicKey, signer, clientHelper, db, mailer, Token, config)
+        server = Server.create(log, error, config, routes, db, noncedb, i18n)
 
         server.start(
           function () {
