@@ -16,6 +16,15 @@ function TestServer() {
   )
   this.server.stdout.on('data', process.stdout.write.bind(process.stdout))
   this.server.stderr.on('data', process.stderr.write.bind(process.stderr))
+
+  // if another instance is already running this will just die which is ok
+  this.mail = cp.spawn(
+    'node',
+    ['../bin/mail_helper.js'],
+    {
+      cwd: __dirname
+    }
+  )
 }
 
 TestServer.server = { stop: function () {}, fake: true }
@@ -52,6 +61,7 @@ TestServer.start = function (url) {
 
 TestServer.prototype.stop = function () {
   this.server.kill('SIGINT')
+  this.mail.kill()
 }
 
 module.exports = TestServer

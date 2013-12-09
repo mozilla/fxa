@@ -90,7 +90,9 @@ module.exports = function (config, log) {
       text: template.text(values),
       html: template.html(values),
       headers: {
-        'X-Verify-Code': code
+        'X-Uid': uid.toString('hex'),
+        'X-Verify-Code': code,
+        'X-Link': link
       }
     }
     return this.send(message)
