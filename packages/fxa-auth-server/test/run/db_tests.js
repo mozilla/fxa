@@ -41,6 +41,19 @@ DB.connect()
     function (db) {
 
       test(
+        'ping',
+        function (t) {
+          t.plan(1);
+          return db.ping()
+          .then(function(account) {
+            t.pass('Got the ping ok')
+          }, function(err) {
+            t.fail('Should not have arrived here')
+          })
+        }
+      )
+
+      test(
         'account creation',
         function (t) {
           return db.createAccount(ACCOUNT)
