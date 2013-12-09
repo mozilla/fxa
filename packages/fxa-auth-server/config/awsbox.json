@@ -1,5 +1,5 @@
 {
-  "kvstore": {
+  "db": {
     "backend": "mysql"
   },
   "mysql": {

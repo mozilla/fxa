@@ -56,7 +56,7 @@ function main() {
 
   // databases
   var DB = require('../db')(
-    config.kvstore.backend,
+    config.db.backend,
     log,
     Token.error,
     Token.AuthToken,
@@ -71,7 +71,7 @@ function main() {
     config,
     log
   )
-  DB.connect(config[config.kvstore.backend])
+  DB.connect(config[config.db.backend])
     .then(
       function (db) {
         return noncedb.connect()
