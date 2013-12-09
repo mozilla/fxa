@@ -13,14 +13,16 @@ if (isMain) {
   process.chdir(path.dirname(__dirname));
 }
 
-const clientSessions = require('client-sessions'),
-      config = require('../lib/configuration'),
-      express = require('express'),
-      i18n = require('i18n-abide'),
-      nunjucks = require('nunjucks'),
-      routes = require('../lib/routes'),
-      urlparse = require('urlparse'),
-      util = require('util');
+const clientSessions = require('client-sessions');
+const config = require('../lib/configuration');
+const express = require('express');
+const i18n = require('i18n-abide');
+const nunjucks = require('nunjucks');
+const routes = require('../lib/routes');
+const urlparse = require('urlparse');
+const util = require('util');
+// Side effect - Adds default_fxa and dev_fxa to express.logger formats
+const routeLogging = require('../lib/logging/route_logging');
 
 function makeApp() {
   var app = express();
@@ -29,6 +31,7 @@ function makeApp() {
           path.join(__dirname, '..', 'views')));
 
   env.express(app);
+  app.use(routeLogging());
   app.use(express.cookieParser());
   app.use(express.bodyParser());
 

@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const
-convict = require('convict'),
-fs = require('fs'),
-path = require('path');
-
-// Side effect - Adds default_bid and dev_bid to express.logger formats
-require('./custom_logger');
+const convict = require('convict');
+const fs = require('fs');
+const path = require('path');
 
 var conf = module.exports = convict({
   port: {
@@ -75,9 +71,9 @@ var conf = module.exports = convict({
     default: [ "en-US" ],
     env: 'SUPPORTED_LANGUAGES'
   },
-  express_log_format: {
-    format: [ "default_bid", "dev_bid", "default", "dev", "short", "tiny" ],
-    default: "default"
+  route_log_format: {
+    format: [ "default_fxa", "dev_fxa", "default", "dev", "short", "tiny" ],
+    default: "default_fxa"
   },
   use_https: false,
   var_path: {
