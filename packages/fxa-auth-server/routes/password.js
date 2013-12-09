@@ -67,7 +67,7 @@ module.exports = function (log, isA, error, db, mailer) {
                 return mailer.sendRecoveryCode(
                   forgotPasswordToken,
                   forgotPasswordToken.passcode,
-                  request.preferredLang
+                  request.app.preferredLang
                 ).then(
                   function() {
                     return forgotPasswordToken
@@ -122,7 +122,7 @@ module.exports = function (log, isA, error, db, mailer) {
           mailer.sendRecoveryCode(
             forgotPasswordToken,
             forgotPasswordToken.passcode,
-            request.preferredLang
+            request.app.preferredLang
           ).done(
             function () {
               request.reply(

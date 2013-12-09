@@ -145,7 +145,7 @@ module.exports = function (path, url, Hapi, toobusy, error) {
         var acceptLanguage = request.headers['accept-language']
         if (acceptLanguage) {
           var accepted = i18n.parseAcceptLanguage(acceptLanguage)
-          request.preferredLang = i18n.bestLanguage(accepted)
+          request.app.preferredLang = i18n.bestLanguage(accepted)
         }
         next()
       }

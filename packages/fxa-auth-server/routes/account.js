@@ -71,7 +71,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 return mailer.sendVerifyCode(
                   account,
                   account.emailCode,
-                  request.preferredLang
+                  request.app.preferredLang
                 )
                 .then(function () { return account })
               }
@@ -214,7 +214,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
           mailer.sendVerifyCode(
             sessionToken,
             sessionToken.emailCode,
-            request.preferredLang
+            request.app.preferredLang
           ).done(
             function () {
               request.reply({})

@@ -72,7 +72,7 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
               password: request.payload.password,
               options: {
                 preVerified: request.payload.preVerified || false,
-                lang: request.preferredLang
+                lang: request.app.preferredLang
               }
             },
             function (err, result) {
