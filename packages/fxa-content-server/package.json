@@ -24,7 +24,8 @@
     "nunjucks": "0.1.9",
     "urlparse": "0.0.1",
     "jwcrypto": "0.4.3",
-    "intel": "0.4.0"
+    "intel": "0.4.0",
+    "helmet": "0.1.2"
   },
   "devDependencies": {
     "mocha": "1.0.3",

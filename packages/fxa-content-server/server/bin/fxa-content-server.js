@@ -14,23 +14,32 @@ if (isMain) {
 }
 
 const clientSessions = require('client-sessions');
-const config = require('../lib/configuration');
+const util = require('util');
+const helmet = require('helmet');
 const express = require('express');
 const i18n = require('i18n-abide');
 const nunjucks = require('nunjucks');
-const routes = require('../lib/routes');
 const urlparse = require('urlparse');
-const util = require('util');
+
+const config = require('../lib/configuration');
+const routes = require('../lib/routes');
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
 const routeLogging = require('../lib/logging/route_logging');
+
+const VIEWS_ROOT = path.join(__dirname, '..', 'views');
+const STATIC_ROOT = path.join(__dirname, '..', '..', 'app');
 
 function makeApp() {
   var app = express();
   var env = new nunjucks.Environment(
-      new nunjucks.FileSystemLoader(
-          path.join(__dirname, '..', 'views')));
+                  new nunjucks.FileSystemLoader(VIEWS_ROOT));
 
   env.express(app);
+
+  app.use(helmet.xframe('deny'));
+  app.use(helmet.iexss());
+  app.disable('x-powered-by');
+
   app.use(routeLogging());
   app.use(express.cookieParser());
   app.use(express.bodyParser());
@@ -70,7 +79,9 @@ function makeApp() {
   }));
 
   routes(app);
-  app.use(express.static(path.join(__dirname, '..', '..', 'app')));
+
+  app.use(express.static(STATIC_ROOT));
+
   return app;
 }
 
