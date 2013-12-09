@@ -55,7 +55,7 @@ module.exports = function (log, isA, error, db, mailer) {
         tags: ["password"],
         handler: function (request) {
           log.begin('Password.forgotSend', request)
-          var email = request.payload.email
+          var email = Buffer(request.payload.email, 'hex').toString()
           db.emailRecord(email)
             .then(
               function (emailRecord) {
@@ -141,7 +141,7 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         validate: {
           payload: {
-            email: isA.String().max(1024).regex(HEX_STRING).required()
+            email: isA.String().max(1024).regex(HEX_STRING).required() // TODO extraneous
           },
           response: {
             schema: {

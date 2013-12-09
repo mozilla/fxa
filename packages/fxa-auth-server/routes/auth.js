@@ -19,7 +19,7 @@ module.exports = function (log, isA, error, db, Token) {
         handler: function (request) {
           log.begin('Auth.start', request)
           var reply = request.reply.bind(request)
-          db.emailRecord(request.payload.email)
+          db.emailRecord(Buffer(request.payload.email, 'hex').toString())
             .then(
               function (emailRecord) {
                 return db.createSrpToken(emailRecord)

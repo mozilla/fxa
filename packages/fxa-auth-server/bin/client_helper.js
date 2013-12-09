@@ -67,8 +67,7 @@ process.on('message', function (message) {
 
   else if (message.action === 'password/reset') {
     var client = new Client()
-    client.email = message.email
-    client.setupCredentials(null, message.newPassword)
+    client.setupCredentials(message.email, message.newPassword)
     .then(
       function () {
         var stretching = message.passwordStretching

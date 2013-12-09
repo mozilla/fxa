@@ -41,7 +41,7 @@ module.exports = function (
 
     log.trace( { op: 'MySql.createSchema:CreateDatabase' } )
     client.query(
-      'CREATE DATABASE IF NOT EXISTS ' + database,
+      'CREATE DATABASE IF NOT EXISTS ' + database + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci',
       function (err) {
         if (err) {
           log.error({ op: 'MySql.createSchema:CreateDatabase', err: err.message })
