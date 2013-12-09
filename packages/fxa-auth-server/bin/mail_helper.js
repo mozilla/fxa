@@ -16,6 +16,7 @@ var linkMatch = /X-Link: (\S+)/
 
 var mail = new Mail(config.smtp.host)
 var emailCodes = {}
+var emailBodies = {}
 mail.on(
   'mail',
   function (email) {
@@ -23,6 +24,7 @@ mail.on(
     var matchEmail = toMatch.exec(email)
     if (matchCode && matchEmail) {
       emailCodes[matchEmail[1]] = matchCode[2]
+      emailBodies[matchEmail[1]] = email
       if (matchCode[1] === 'Verify') {
         var matchUid = uidMatch.exec(email)
         var matchLink = linkMatch.exec(email)
@@ -60,8 +62,13 @@ function loop(email, cb) {
   if (!code) {
     return setTimeout(loop.bind(null, email, cb), 50)
   }
+  var body = emailBodies[email]
   delete emailCodes[email]
-  cb(code)
+  delete emailBodies[email]
+  cb({
+    code: code,
+    body: body
+  })
 }
 
 api.route(
@@ -71,8 +78,8 @@ api.route(
     handler: function (request) {
       loop(
         request.payload.email,
-        function (code) {
-          request.reply(JSON.stringify(code))
+        function (emailData) {
+          request.reply(JSON.stringify(emailData))
         }
       )
     }

@@ -1,9 +1,9 @@
-Welcome!
+{{gettext "Welcome!"}}
 
-If you didn't sign up for a Firefox account, Report it: {{report_link}}
+{{gettext "If you didn't sign up for a Firefox account,"}} {{gettext "Report it:"}} {{report_link}}
 
-Click the following link to verify your email
+{{gettext "Click the following link to verify your email"}}
 {{link}}
 
-Thank you,
-The Firefox Accounts Team
+{{gettext "Thank you,"}}
+{{gettext "The Firefox Accounts Team"}}

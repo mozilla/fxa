@@ -36,7 +36,7 @@ process.on('message', function (message) {
       config.public_url,
       message.email,
       message.password,
-      message.preVerified || false
+      message.options || {}
     )
     .done(
       function (client) {

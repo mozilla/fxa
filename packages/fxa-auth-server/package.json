@@ -39,6 +39,7 @@
     "toobusy": "0.2.4",
     "nodemailer": "0.5.3",
     "then-redis": "0.3.x",
+    "i18n-abide": "0.0.14",
     "request": "2.27.0"
   },
   "devDependencies": {

@@ -31,10 +31,12 @@ function hawkHeader(token, method, url, payload) {
   return hawk.client.header(url, method, verify).field
 }
 
-ClientApi.prototype.doRequest = function (method, url, token, payload) {
+ClientApi.prototype.doRequest = function (method, url, token, payload, headers) {
   var d = P.defer()
-  var headers = {}
-  if (token) {
+  if (typeof headers === 'undefined') {
+    headers = {}
+  }
+  if (token && !headers.Authorization) {
     headers.Authorization = hawkHeader(token, method, url, payload)
   }
   var options = {
@@ -75,7 +77,8 @@ ClientApi.prototype.doRequest = function (method, url, token, payload) {
  *   {}
  *
  */
-ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStretching, preVerified) {
+ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStretching, options) {
+  options = options || {}
   return this.doRequest(
     'POST',
     this.baseURL + '/account/create',
@@ -88,7 +91,10 @@ ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStr
         salt: salt
       },
       passwordStretching: passwordStretching,
-      preVerified: preVerified
+      preVerified: options.preVerified
+    },
+    {
+      'accept-language': options.lang
     }
   )
 }
@@ -318,7 +324,8 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
     )
 }
 
-ClientApi.prototype.rawPasswordAccountCreate = function (email, password, preVerified) {
+ClientApi.prototype.rawPasswordAccountCreate = function (email, password, options) {
+  options = options || {}
   return this.doRequest(
     'POST',
     this.baseURL + '/raw_password/account/create',
@@ -326,7 +333,10 @@ ClientApi.prototype.rawPasswordAccountCreate = function (email, password, preVer
     {
       email: email,
       password: password,
-      preVerified: preVerified
+      preVerified: options.preVerified
+    },
+    {
+      'accept-language': options.lang
     }
   )
 }

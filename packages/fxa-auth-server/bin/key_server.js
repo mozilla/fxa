@@ -34,6 +34,7 @@ function main() {
   memoryMonitor.start()
 
   var Token = require('../tokens')(log)
+  var i18n = require('../i18n')(config.i18n)
 
   // signer compute-cluster
   var CC = require('compute-cluster')
@@ -48,7 +49,7 @@ function main() {
   var server = null
   // TODO: send to the SMTP server directly. In the future this may change
   // to another process that we send an http request to.
-  var mailer = require('../mailer')(config.smtp, log)
+  var mailer = require('../mailer')(config.smtp, i18n, log)
 
   // server public key
   var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
@@ -86,7 +87,7 @@ function main() {
         var db = backends[0]
         var noncedb = backends[1]
         var routes = require('../routes')(log, serverPublicKey, signer, clientHelper, db, mailer, Token, config)
-        server = Server.create(log, config, routes, db, noncedb)
+        server = Server.create(log, config, routes, db, noncedb, i18n)
 
         server.start(
           function () {

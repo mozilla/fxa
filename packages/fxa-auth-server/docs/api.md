@@ -29,6 +29,10 @@ These endpoints are marked :lock: in the description below.
 
 All POST requests must have a content-type of `application/json` with a utf8-encoded JSON body, and must specify the content-length header.  Keys and other binary data are included in the JSON as base16 encoded strings.
 
+The following request headers may be specified to influence the behaviour of the server:
+
+* `Accept-Language`:  may be used to localize verification emails
+
 
 ## Response Format
 

@@ -27,7 +27,7 @@ TestServer.start(config.public_url)
       var clientApi = new Client.Api(config.public_url)
       var email = Buffer(email1).toString('hex')
       var password = 'allyourbasearebelongtous'
-      return clientApi.rawPasswordAccountCreate(email, password, true)
+      return clientApi.rawPasswordAccountCreate(email, password, {preVerified: true})
         .then(
           function (result) {
             var client = null

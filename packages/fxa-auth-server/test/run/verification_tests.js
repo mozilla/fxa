@@ -383,6 +383,55 @@ TestServer.start(config.public_url)
         )
     }
   )
+ 
+  test(
+    'create account allows localization of emails',
+    function (t) {
+      var email = uniqueID() +'@example.com'
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      return Client.create(config.public_url, email, password)
+        .then(
+          function (x) {
+            client = x
+          }
+        )
+        .then(
+          function () {
+            return waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            t.assert(emailData.body.indexOf('Welcome') !== -1, 'is en')
+            t.assert(emailData.body.indexOf('GDay') === -1, 'not en-AU')
+            return client.destroyAccount()
+          }
+        )
+        .then(
+          function () {
+            return Client.create(config.public_url, email, password, { lang: 'en-AU' })
+          }
+        )
+        .then(
+          function (x) {
+            client = x
+          }
+        )
+        .then(
+          function () {
+            return waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            t.assert(emailData.body.indexOf('Welcome') === -1, 'not en')
+            t.assert(emailData.body.indexOf('GDay') !== -1, 'is en-AU')
+            return client.destroyAccount()
+          }
+        )
+    }
+  )
 
   test(
     'teardown',
@@ -418,7 +467,18 @@ function createFreshAccount(email, password) {
     )
 }
 
+
 function waitForCode(email) {
+  return waitForEmail(email)
+    .then(
+      function (emailData) {
+        return emailData.code;
+      }
+    )
+}
+
+
+function waitForEmail(email) {
   var d = P.defer()
   request(
     {
@@ -432,6 +492,7 @@ function waitForCode(email) {
   )
   return d.promise
 }
+
 
 function resetPassword(client, code, newPassword) {
   return client.verifyPasswordResetCode(code)
