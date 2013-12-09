@@ -29,7 +29,7 @@ module.exports = function (fs, path, url, convict) {
     publicKeyFile: {
       default: path.resolve(__dirname, '../config/public-key.json')
     },
-    kvstore: {
+    db: {
       backend: {
         format: AVAILABLE_BACKENDS,
         default: "memory",
