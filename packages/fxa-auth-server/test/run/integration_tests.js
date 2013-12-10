@@ -8,6 +8,7 @@ var Client = require('../../client')
 var TestServer = require('../test_server')
 var P = require('p-promise')
 var config = require('../../config').root()
+var jwcrypto = require('jwcrypto')
 
 function uniqueID() {
   return crypto.randomBytes(10).toString('hex');
@@ -62,6 +63,8 @@ TestServer.start(config.publicUrl)
         .then(
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
+            var payload = jwcrypto.extractComponents(cert).payload
+            t.equal(payload.principal.email, client.uid + '@' + config.publicUrl)
           }
         )
     }
