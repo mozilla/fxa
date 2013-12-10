@@ -1,11 +1,15 @@
 {
   "public_url": "http://127.0.0.1:8888",
+  "browserid_server": "http://127.0.0.1:10002",
+  "certifier_host": "localhost",
+  "certifier_port": 8000,
   "client_sessions": {
     "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
     "duration": 86400000
   },
   "env": "development",
+  "issuer": "localhost",
   "use_https": false,
   "pub_key_ttl": 120,
   "pub_key_path": "var/key.publickey",
