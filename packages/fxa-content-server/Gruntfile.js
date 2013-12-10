@@ -23,12 +23,6 @@ module.exports = function (grunt) {
             styles: {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
                 tasks: ['copy:styles', 'autoprefixer']
-            },
-            jst: {
-                files: [
-                    '<%= yeoman.app %>/scripts/templates/*.ejs'
-                ],
-                tasks: ['jst']
             }
         },
         connect: {
@@ -244,16 +238,6 @@ module.exports = function (grunt) {
                 rjsConfig: '<%= yeoman.app %>/scripts/main.js'
             }
         },
-        jst: {
-            options: {
-                amd: true
-            },
-            compile: {
-                files: {
-                    '.tmp/scripts/templates.js': ['<%= yeoman.app %>/scripts/templates/*.ejs']
-                }
-            }
-        },
         modernizr: {
             devFile: '<%= yeoman.app %>/bower_components/modernizr/modernizr.js',
             outputFile: '<%= yeoman.dist %>/bower_components/modernizr/modernizr.js',
@@ -266,28 +250,18 @@ module.exports = function (grunt) {
         },
         concurrent: {
             server: [
-                'createDefaultTemplate',
-                'jst',
                 'copy:styles'
             ],
             test: [
-                'createDefaultTemplate',
-                'jst',
                 'copy:styles'
             ],
             dist: [
-                'createDefaultTemplate',
-                'jst',
                 'copy:styles',
                 'imagemin',
                 'svgmin',
                 'htmlmin'
             ]
         }
-    });
-
-    grunt.registerTask('createDefaultTemplate', function () {
-        grunt.file.write('.tmp/scripts/templates.js', 'this.JST = this.JST || {};');
     });
 
     grunt.registerTask('server', function (target) {
