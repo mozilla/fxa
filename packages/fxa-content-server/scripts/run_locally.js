@@ -3,15 +3,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path'),
-      spawn = require('child_process').spawn;
+const path = require('path');
+const spawn = require('child_process').spawn;
 
 
 const BIN_ROOT = path.join(__dirname, '..', 'server', 'bin');
 
-startServer();
-
-function startServer() {
+module.exports = function (done) {
   process.chdir(path.dirname(__dirname));
   // We'll get PORT via config/local.json
   // This is required for Travis-CI to work correctly.
@@ -27,6 +25,12 @@ function startServer() {
   });
   fxaccntbridge.on('exit', function(code, signal) {
     console.log('fxa-content-server killed, existing');
-    process.exit(1);
+    if (done) done(code);
+    else process.exit(code);
   });
-}
+};
+
+// only start the server if the file is called directly, otherwise wait until
+// module.exports is called.
+if (process.argv[1] === __filename) module.exports();
+
