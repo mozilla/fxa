@@ -4,9 +4,10 @@ define([
   'views/base',
   'hgn!templates/sign_in',
   'gherkin',
-  'lib/session'
+  'lib/session',
+  'constants'
 ],
-function(BaseView, SignInTemplate, gherkin, Session) {
+function(BaseView, SignInTemplate, gherkin, Session, Constants) {
   var SignInView = BaseView.extend({
     template: SignInTemplate,
     className: 'sign-in',
@@ -23,7 +24,7 @@ function(BaseView, SignInTemplate, gherkin, Session) {
       var email = this.$('.email').val();
       var password = this.$('.password').val();
 
-      gherkin.Client.login('http://127.0.0.1:9000', email, password)
+      gherkin.Client.login(Constants.FXA_ACCOUNT_SERVER, email, password)
         .then(function (client) {
           Session.email = email;
           Session.token = client.sessionToken;

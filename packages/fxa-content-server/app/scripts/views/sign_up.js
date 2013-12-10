@@ -4,9 +4,10 @@ define([
   'views/base',
   'hgn!templates/sign_up',
   'gherkin',
-  'lib/session'
+  'lib/session',
+  'constants'
 ],
-function(BaseView, SignUpTemplate, gherkin, Session) {
+function(BaseView, SignUpTemplate, gherkin, Session, Constants) {
   var SignUpView = BaseView.extend({
     template: SignUpTemplate,
     className: 'sign-up',
@@ -25,7 +26,7 @@ function(BaseView, SignUpTemplate, gherkin, Session) {
 
       var client;
 
-      gherkin.Client.create('http://127.0.0.1:9000', email, password)
+      gherkin.Client.create(Constants.FXA_ACCOUNT_SERVER, email, password)
         .then(function (x) {
           client = x;
 
