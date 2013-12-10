@@ -64,7 +64,7 @@ TestServer.start(config.publicUrl)
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
             var payload = jwcrypto.extractComponents(cert).payload
-            t.equal(payload.principal.email, client.uid + '@' + config.publicUrl)
+            t.equal(payload.principal.email.split('@')[0], client.uid)
           }
         )
     }
