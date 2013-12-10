@@ -24,17 +24,6 @@ module.exports = function (grunt) {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
                 tasks: ['copy:styles', 'autoprefixer']
             },
-            livereload: {
-                options: {
-                    livereload: '<%= connect.options.livereload %>'
-                },
-                files: [
-                    '<%= yeoman.app %>/*.html',
-                    '.tmp/styles/{,*/}*.css',
-                    '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
-                    '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-                ]
-            },
             jst: {
                 files: [
                     '<%= yeoman.app %>/scripts/templates/*.ejs'
@@ -45,18 +34,8 @@ module.exports = function (grunt) {
         connect: {
             options: {
                 port: 9000,
-                livereload: 35729,
                 // change this to '0.0.0.0' to access the server from outside
                 hostname: 'localhost'
-            },
-            livereload: {
-                options: {
-                    open: true,
-                    base: [
-                        '.tmp',
-                        '<%= yeoman.app %>'
-                    ]
-                }
             },
             test: {
                 options: {
@@ -67,11 +46,16 @@ module.exports = function (grunt) {
                     ]
                 }
             },
+            app: {
+                options: {
+                    open: true,
+                    base: '<%= yeoman.app %>'
+                }
+            },
             dist: {
                 options: {
                     open: true,
-                    base: '<%= yeoman.dist %>',
-                    livereload: false
+                    base: '<%= yeoman.dist %>'
                 }
             }
         },
@@ -315,7 +299,7 @@ module.exports = function (grunt) {
             'clean:server',
             'concurrent:server',
             'autoprefixer',
-            'connect:livereload',
+            'connect:app',
             'watch'
         ]);
     });
