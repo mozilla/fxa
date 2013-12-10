@@ -77,7 +77,7 @@ module.exports = function(log) {
     // If we weren't able to identify a specific type of error,
     // default to a generic "unspecified error" response.
     if (typeof object.errno === 'undefined') {
-      log.warn({ op: 'error.wrap', msg: 'unexpected error', err: object })
+      log.error({ op: 'error.wrap', msg: 'unexpected error', err: object })
       object.errno = 999;
     }
 
