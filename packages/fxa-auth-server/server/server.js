@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (path, url, Hapi, toobusy, error) {
+module.exports = function (path, url, Hapi, toobusy) {
 
   const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
-  function create(log, config, routes, db, noncedb, i18n) {
+  function create(log, error, config, routes, db, noncedb, i18n) {
 
     // Hawk needs to calculate request signatures based on public URL,
     // not the local URL to which it is bound.
