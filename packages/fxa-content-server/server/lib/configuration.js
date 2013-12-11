@@ -86,6 +86,11 @@ var conf = module.exports = convict({
     format: "url",
     default: "http://127.0.0.1:9000",
     env: "FXA_URL"
+  },
+  static_directory: {
+    doc: "Directory that static files are served from.",
+    format: String,
+    default: "app"
   }
 });
 

@@ -16,13 +16,10 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL 2.0",
   "dependencies": {
-    "client-sessions": "0.3.1",
     "connect-cachify": "0.0.15",
     "convict": "0.4.0",
     "express": "3.3.4",
     "i18n-abide": "0.0.14",
-    "nunjucks": "0.1.9",
-    "urlparse": "0.0.1",
     "jwcrypto": "0.4.3",
     "intel": "0.4.0",
     "helmet": "0.1.2"

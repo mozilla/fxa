@@ -1,7 +1,6 @@
 {
   "processes": [
-    "server/bin/firefox_account_bridge.js",
-    "server/bin/browserid-certifier.js"
+    "server/bin/fxa-content-server.js"
   ],
   "env": {
     "CONFIG_FILES": "$HOME/code/server/config/awsbox.json,$HOME/config.json",
