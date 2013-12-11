@@ -30,12 +30,6 @@ module.exports = function (grunt) {
             app: 'app',
             dist: 'dist'
         },
-        watch: {
-            styles: {
-                files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
-                tasks: ['copy:styles', 'autoprefixer']
-            }
-        },
         clean: {
             dist: {
                 files: [{
@@ -240,12 +234,9 @@ module.exports = function (grunt) {
 
     grunt.registerTask('serverproc', function (target) {
       if ( ! target) target = 'app';
-
-      var done = this.async();
-
       process.env.CONFIG_FILES = TARGET_TO_CONFIG[target];
 
-      runServer(done);
+      runServer(this.async());
     });
 
     grunt.registerTask('server', function (target) {
@@ -257,8 +248,7 @@ module.exports = function (grunt) {
             'clean:server',
             'concurrent:server',
             'autoprefixer',
-            'serverproc:app',
-            'watch'
+            'serverproc:app'
         ]);
     });
 
