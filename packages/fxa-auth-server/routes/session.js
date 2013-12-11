@@ -4,8 +4,6 @@
 
 module.exports = function (log, isA, error, db) {
 
-  const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
-
   var routes = [
     {
       method: 'POST',
