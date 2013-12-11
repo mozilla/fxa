@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var Client = require('./')
-var email = Buffer('më@example.com')
+var email = 'më@example.com'
 var password = 'verySecurePassword'
 var publicKey = {
   "algorithm":"RS",
@@ -15,7 +15,7 @@ var duration = 1000 * 60 * 60 * 24
 
 var client = null
 
-Client.create('http://127.0.0.1:9000', email, password)
+Client.create('http://127.0.0.1:9000', email, password, { preVerified: true })
   .then(
     function (x) {
       client = x
@@ -24,7 +24,9 @@ Client.create('http://127.0.0.1:9000', email, password)
   )
   .then(
     function (keys) {
-      console.log('my keys:', keys)
+      console.log('my kA:', keys.kA.toString('hex'))
+      console.log('my kB:', keys.kB.toString('hex'))
+      console.log('my wrapKb:', keys.wrapKb.toString('hex'))
     }
   )
   .then(
