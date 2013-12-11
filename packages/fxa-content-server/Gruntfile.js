@@ -23,40 +23,13 @@ module.exports = function (grunt) {
             styles: {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
                 tasks: ['copy:styles', 'autoprefixer']
-            },
-            livereload: {
-                options: {
-                    livereload: '<%= connect.options.livereload %>'
-                },
-                files: [
-                    '<%= yeoman.app %>/*.html',
-                    '.tmp/styles/{,*/}*.css',
-                    '{.tmp,<%= yeoman.app %>}/scripts/{,*/}*.js',
-                    '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-                ]
-            },
-            jst: {
-                files: [
-                    '<%= yeoman.app %>/scripts/templates/*.ejs'
-                ],
-                tasks: ['jst']
             }
         },
         connect: {
             options: {
                 port: 9000,
-                livereload: 35729,
                 // change this to '0.0.0.0' to access the server from outside
                 hostname: 'localhost'
-            },
-            livereload: {
-                options: {
-                    open: true,
-                    base: [
-                        '.tmp',
-                        '<%= yeoman.app %>'
-                    ]
-                }
             },
             test: {
                 options: {
@@ -67,11 +40,16 @@ module.exports = function (grunt) {
                     ]
                 }
             },
+            app: {
+                options: {
+                    open: true,
+                    base: '<%= yeoman.app %>'
+                }
+            },
             dist: {
                 options: {
                     open: true,
-                    base: '<%= yeoman.dist %>',
-                    livereload: false
+                    base: '<%= yeoman.dist %>'
                 }
             }
         },
@@ -95,16 +73,8 @@ module.exports = function (grunt) {
             all: [
                 '<%= yeoman.app %>/scripts/{,*/}*.js',
                 '!<%= yeoman.app %>/scripts/vendor/*',
-                'test/spec/{,*/}*.js'
+                'tests/{,*/}*.js'
             ]
-        },
-        mocha: {
-            all: {
-                options: {
-                    run: true,
-                    urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
-                }
-            }
         },
         autoprefixer: {
             options: {
@@ -260,16 +230,6 @@ module.exports = function (grunt) {
                 rjsConfig: '<%= yeoman.app %>/scripts/main.js'
             }
         },
-        jst: {
-            options: {
-                amd: true
-            },
-            compile: {
-                files: {
-                    '.tmp/scripts/templates.js': ['<%= yeoman.app %>/scripts/templates/*.ejs']
-                }
-            }
-        },
         modernizr: {
             devFile: '<%= yeoman.app %>/bower_components/modernizr/modernizr.js',
             outputFile: '<%= yeoman.dist %>/bower_components/modernizr/modernizr.js',
@@ -282,28 +242,18 @@ module.exports = function (grunt) {
         },
         concurrent: {
             server: [
-                'createDefaultTemplate',
-                'jst',
                 'copy:styles'
             ],
             test: [
-                'createDefaultTemplate',
-                'jst',
                 'copy:styles'
             ],
             dist: [
-                'createDefaultTemplate',
-                'jst',
                 'copy:styles',
                 'imagemin',
                 'svgmin',
                 'htmlmin'
             ]
         }
-    });
-
-    grunt.registerTask('createDefaultTemplate', function () {
-        grunt.file.write('.tmp/scripts/templates.js', 'this.JST = this.JST || {};');
     });
 
     grunt.registerTask('server', function (target) {
@@ -315,7 +265,7 @@ module.exports = function (grunt) {
             'clean:server',
             'concurrent:server',
             'autoprefixer',
-            'connect:livereload',
+            'connect:app',
             'watch'
         ]);
     });
@@ -325,7 +275,8 @@ module.exports = function (grunt) {
         'concurrent:test',
         'autoprefixer',
         'connect:test',
-        'mocha'
+        // XXX Mocha is removed from here, we should do something else that's
+        // awesome instead.
     ]);
 
     grunt.registerTask('build', [
