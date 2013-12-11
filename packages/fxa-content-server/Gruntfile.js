@@ -73,16 +73,8 @@ module.exports = function (grunt) {
             all: [
                 '<%= yeoman.app %>/scripts/{,*/}*.js',
                 '!<%= yeoman.app %>/scripts/vendor/*',
-                'test/spec/{,*/}*.js'
+                'tests/{,*/}*.js'
             ]
-        },
-        mocha: {
-            all: {
-                options: {
-                    run: true,
-                    urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
-                }
-            }
         },
         autoprefixer: {
             options: {
@@ -283,7 +275,8 @@ module.exports = function (grunt) {
         'concurrent:test',
         'autoprefixer',
         'connect:test',
-        'mocha'
+        // XXX Mocha is removed from here, we should do something else that's
+        // awesome instead.
     ]);
 
     grunt.registerTask('build', [
