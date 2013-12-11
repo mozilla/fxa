@@ -85,7 +85,7 @@ module.exports = function (config, i18n, log) {
     log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
     var template = templates.verify
     var link = this.verificationUrl + '?uid=' + account.uid.toString('hex')
-    link += '#code=' + code
+    link += '&code=' + code
     var reportLink = this.reportUrl
 
     var values = {

@@ -25,7 +25,7 @@ module.exports = function (log, crypto, isA, config) {
         },
         validate: {
           query: {
-            code: isA.String().regex(HEX_STRING).optional(),
+            code: isA.String().regex(HEX_STRING).required(),
             uid: isA.String().max(64).required()
           }
         }
