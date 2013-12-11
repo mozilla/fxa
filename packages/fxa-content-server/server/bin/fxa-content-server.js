@@ -22,7 +22,7 @@ const routes = require('../lib/routes');
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
 const routeLogging = require('../lib/logging/route_logging');
 
-const STATIC_ROOT =
+const STATIC_DIRECTORY =
               path.join(__dirname, '..', '..', config.get('static_directory'));
 const VIEWS_ROOT = path.join(__dirname, '..', 'views');
 
@@ -40,7 +40,7 @@ function makeApp() {
 
   routes(app);
 
-  app.use(express.static(STATIC_ROOT));
+  app.use(express.static(STATIC_DIRECTORY));
   return app;
 }
 
