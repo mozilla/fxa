@@ -1,13 +1,24 @@
 // Generated on 2013-12-04 using generator-backbone-amd 0.0.4
 'use strict';
 
+var path = require('path');
+var runServer = require('./scripts/run_locally');
+
+var CONFIG_ROOT = path.join(__dirname, 'server', 'config');
+var TARGET_TO_CONFIG = {
+  app: path.join(CONFIG_ROOT, 'local.json'),
+  test: path.join(CONFIG_ROOT, 'local.json'),
+  aws: path.join(CONFIG_ROOT, 'awsbox.json'),
+  dist: path.join(CONFIG_ROOT, 'production.json')
+};
+
 // # Globbing
 // for performance reasons we're only matching one level down:
 // 'test/spec/{,*/}*.js'
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
-
 module.exports = function (grunt) {
+
     // show elapsed time at the end
     require('time-grunt')(grunt);
     // load all grunt tasks
@@ -23,34 +34,6 @@ module.exports = function (grunt) {
             styles: {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
                 tasks: ['copy:styles', 'autoprefixer']
-            }
-        },
-        connect: {
-            options: {
-                port: 9000,
-                // change this to '0.0.0.0' to access the server from outside
-                hostname: 'localhost'
-            },
-            test: {
-                options: {
-                    base: [
-                        '.tmp',
-                        'test',
-                        '<%= yeoman.app %>'
-                    ]
-                }
-            },
-            app: {
-                options: {
-                    open: true,
-                    base: '<%= yeoman.app %>'
-                }
-            },
-            dist: {
-                options: {
-                    open: true,
-                    base: '<%= yeoman.dist %>'
-                }
             }
         },
         clean: {
@@ -93,7 +76,7 @@ module.exports = function (grunt) {
             dist: {
                 // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
                 options: {
-                    // `name` and `out` is set by grunt-usemin
+                    // `name` and `out` are set by grunt-usemin
                     baseUrl: '<%= yeoman.app %>/scripts',
                     optimize: 'none',
                     // This path seems to interfere with hogan templates being built
@@ -108,8 +91,7 @@ module.exports = function (grunt) {
                     preserveLicenseComments: false,
                     useStrict: true,
                     wrap: true,
-                    stubModules: ['text', 'hgn'],
-                    //uglify2: {} // https://github.com/mishoo/UglifyJS2
+                    stubModules: ['text', 'hgn']
                 }
             }
         },
@@ -256,16 +238,26 @@ module.exports = function (grunt) {
         }
     });
 
+    grunt.registerTask('serverproc', function (target) {
+      if ( ! target) target = 'app';
+
+      var done = this.async();
+
+      process.env.CONFIG_FILES = TARGET_TO_CONFIG[target];
+
+      runServer(done);
+    });
+
     grunt.registerTask('server', function (target) {
         if (target === 'dist') {
-            return grunt.task.run(['build', 'connect:dist:keepalive']);
+            return grunt.task.run(['build', 'serverproc:dist']);
         }
 
         grunt.task.run([
             'clean:server',
             'concurrent:server',
             'autoprefixer',
-            'connect:app',
+            'serverproc:app',
             'watch'
         ]);
     });
@@ -274,7 +266,7 @@ module.exports = function (grunt) {
         'clean:server',
         'concurrent:test',
         'autoprefixer',
-        'connect:test',
+        'serverproc:test',
         // XXX Mocha is removed from here, we should do something else that's
         // awesome instead.
     ]);

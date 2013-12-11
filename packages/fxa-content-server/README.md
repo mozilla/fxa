@@ -68,8 +68,22 @@ Password is 'asdf'.
 ## Configuration
 
 The default auth server is `http://api-accounts.dev.lcip.org`.  To change this,
-edit `config.json` on your deployed instance.
+edit `server/config/*.json` on your deployed instance.
 
     {
       'fxaccount_url': 'http://your.auth.server.here.org'
     }
+
+
+## Grunt Commands
+
+[Grunt](http://gruntjs.com/) is used to run common tasks to build, test, and run local servers.
+
+* `grunt jshint` - run JSHint on client side and testing JavaScript.
+* `grunt build` - build production resources
+* `grunt clean` - remove any built production resources
+* `grunt test` - run local Intern tests.
+* `grunt server` - run a local server running on port 3030 with development resources.
+* `grunt server:dist` - run a local server running on port 3030 with production resources. Production resources will be built as part of the task.
+
+

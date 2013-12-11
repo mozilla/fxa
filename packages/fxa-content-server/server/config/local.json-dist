@@ -8,5 +8,6 @@
   "env": "development",
   "use_https": false,
   "supported_languages": ["en-US"],
-  "route_log_format": "dev_fxa"
+  "route_log_format": "dev_fxa",
+  "static_root": "app"
 }

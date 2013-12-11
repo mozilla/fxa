@@ -9,9 +9,9 @@ require.config({
     text: '../bower_components/requirejs-hogan-plugin/text',
     hogan: '../bower_components/requirejs-hogan-plugin/hogan',
     gherkin: '../bower_components/fxa-js-client-old/web/bundle',
-    transit: '../bower_components/jquery.transit/jquery.transit'
+    transit: '../bower_components/jquery.transit/jquery.transit',
+    modernizr: '../bower_components/modernizr/modernizr'
   },
-
   shim: {
     underscore: {
       exports: '_'
@@ -32,7 +32,7 @@ require.config({
       ],
       exports: 'jQuery.fn.transition'
     }
-  },
+  }
 });
 
 require([
