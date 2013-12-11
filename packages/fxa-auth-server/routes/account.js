@@ -21,16 +21,21 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
           payload: {
             email: isA.String().max(1024).regex(HEX_EMAIL).required(),
             srp: isA.Object({
-              type: isA.String().max(64).required(), // TODO valid()
+              type: isA.String().max(64).valid('SRP-6a/SHA256/2048/v1').required(),
               verifier: isA.String().min(512).max(512).regex(HEX_STRING).required(),
               salt: isA.String().min(64).max(64).regex(HEX_STRING).required(),
             }).required(),
             passwordStretching: isA.Object(
-              // {
-              //   type: isA.String().required(),
-              //   salt: isA.String().regex(HEX_STRING).required()
-              // }
-            ),
+              {
+                type: isA.String().required().valid('PBKDF2/scrypt/PBKDF2/v1'),
+                PBKDF2_rounds_1: isA.Number().integer().min(20000).max(20000).required(),
+                scrypt_N: isA.Number().integer().min(65536).max(65536).required(),
+                scrypt_r: isA.Number().integer().min(8).max(8).required(),
+                scrypt_p: isA.Number().integer().min(1).max(1).required(),
+                PBKDF2_rounds_2: isA.Number().integer().min(20000).max(20000).required(),
+                salt: isA.String().min(64).max(64).regex(HEX_STRING).required()
+              }
+            ).required(),
             preVerified: isProduction ? undefined : isA.Boolean()
           }
         },

@@ -504,6 +504,47 @@ TestServer.start(config.publicUrl)
   )
 
   test(
+    'incorrect passwordStretching parameters are rejected on /account/create',
+    function (t) {
+      var client = new Client(config.publicUrl)
+      return client.setupCredentials(
+        'test@example.com',
+        Buffer('xxx')
+      )
+      .then(
+        function () {
+          return client.api.accountCreate(
+            client.email,
+            client.srp.verifier,
+            client.srp.salt,
+            {
+              type: 'invalid',
+              PBKDF2_rounds_1: 1,
+              scrypt_N: 8,
+              scrypt_r: 1,
+              scrypt_p: 0,
+              PBKDF2_rounds_2: 1,
+              salt: client.passwordSalt
+            },
+            {
+              preVerified: true,
+              lang: client.lang
+            }
+          )
+        }
+      )
+      .then(
+        function (x) {
+          t.fail('request should have failed')
+        },
+        function (err) {
+          t.equal(err.code, 400, 'bad request')
+        }
+      )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
