@@ -19,6 +19,7 @@ sudo /sbin/service memcached start
 
 echo "Setting up nginx"
 
+sudo mv /home/proxy/conf.d/http.conf /home/proxy/conf.d/http.conf.disabled
 sudo /sbin/chkconfig nginx on
 sudo /sbin/service nginx start
 
