@@ -1,4 +1,4 @@
 {
   "env": "production",
-  "static_root": "dist"
+  "static_directory": "dist"
 }
