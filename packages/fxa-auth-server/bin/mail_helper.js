@@ -7,6 +7,8 @@ var Mail = require('lazysmtp').Mail
 var hapi = require('hapi')
 var config = require('../config').root()
 
+process.title = 'mail_helper.js'
+
 // SMTP half
 
 var codeMatch = /X-(\w+)-Code: (\w+)/
