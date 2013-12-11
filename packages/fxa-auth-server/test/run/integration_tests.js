@@ -483,6 +483,38 @@ TestServer.start(config.publicUrl)
   )
 
   test(
+    'client adjusts to time skew',
+    function (t) {
+      var email = email1
+      var password = 'allyourbasearebelongtous'
+      var url = null
+      var client
+      return Client.login(config.publicUrl, email, password)
+        .then(
+          function (c) {
+            client = c
+            c.api.timeOffset = 61000;
+            return c.keys();
+          }
+        )
+        .then(
+          function (keys) {
+            t.fail("client should have invalid timestamp")
+          },
+          function (err) {
+            t.equal(err.errno, 111, 'invalid timestamp')
+            return client.keys();
+          }
+        )
+        .then(
+          function (keys) {
+            t.ok(keys, 'client readjust to timestamp')
+          }
+        )
+    }
+  )
+
+  test(
     'credentials are set up correctly with keystretching and srp',
     function (t) {
       var salt = '00f000000000000000000000000000000000000000000000000000000000034d'

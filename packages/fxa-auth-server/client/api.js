@@ -16,17 +16,21 @@ function ClientApi(origin) {
   EventEmitter.call(this)
   this.origin = origin
   this.baseURL = origin + "/v1"
+  this.timeOffset = 0;
 }
 
 ClientApi.prototype.Token = tokens
 
-function hawkHeader(token, method, url, payload) {
+function hawkHeader(token, method, url, payload, offset) {
   var verify = {
     credentials: token
   }
   if (payload) {
     verify.contentType = 'application/json'
     verify.payload = JSON.stringify(payload)
+  }
+  if (offset) {
+    verify.localtimeOffsetMsec = offset;
   }
   return hawk.client.header(url, method, verify).field
 }
@@ -37,7 +41,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
     headers = {}
   }
   if (token && !headers.Authorization) {
-    headers.Authorization = hawkHeader(token, method, url, payload)
+    headers.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
   }
   var options = {
     url: url,
@@ -47,6 +51,11 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
   }
   this.emit('startRequest', options)
   request(options, function (err, res, body) {
+    if (res && res.headers.timestamp) {
+      // Record time skew
+      this.timeOffset = Date.now() - parseInt(res.headers.timestamp, 10) * 1000
+    }
+
     this.emit('endRequest', options, err, res)
     if (err || body.error) {
       d.reject(err || body)
