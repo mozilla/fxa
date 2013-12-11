@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, db, Token) {
+var HEX_STRING = require('./validators').HEX_STRING
+var HEX_EMAIL = require('./validators').HEX_EMAIL
 
-  const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+
+module.exports = function (log, isA, error, db, Token) {
 
   var routes = [
     {
@@ -34,7 +36,7 @@ module.exports = function (log, isA, error, db, Token) {
         },
         validate: {
           payload: {
-            email: isA.String().max(1024).regex(HEX_STRING).required()
+            email: isA.String().max(1024).regex(HEX_EMAIL).required()
           },
           response: {
             schema: {

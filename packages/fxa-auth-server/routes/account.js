@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
+var HEX_STRING = require('./validators').HEX_STRING
+var HEX_EMAIL = require('./validators').HEX_EMAIL
 
-  const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
 
   var routes = [
     {
@@ -18,8 +19,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         tags: ["srp", "account"],
         validate: {
           payload: {
-            // TODO: still need to validate the utf8 string is a valid email
-            email: isA.String().max(1024).regex(HEX_STRING).required(),
+            email: isA.String().max(1024).regex(HEX_EMAIL).required(),
             srp: isA.Object({
               type: isA.String().max(64).required(), // TODO valid()
               verifier: isA.String().min(512).max(512).regex(HEX_STRING).required(),
