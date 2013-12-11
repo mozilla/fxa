@@ -8,7 +8,9 @@
   },
   "scripts": {
     "test": "tap ./test/run",
-    "start": "scripts/start-local.sh"
+    "start": "scripts/start-local.sh",
+    "test-mysql": "DB_BACKEND=mysql tap ./test/run",
+    "test-all": "npm test && npm run test-mysql"
   },
   "repository": {
     "type":"git",
