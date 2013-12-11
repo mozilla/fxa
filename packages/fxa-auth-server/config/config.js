@@ -41,41 +41,77 @@ module.exports = function (fs, path, url, convict) {
       }
     },
     mysql: {
-      user: {
-        default: 'root',
-        env: 'MYSQL_USERNAME'
-      },
-      password: {
-        default: '',
-        env: 'MYSQL_PASSWORD'
-      },
-      database: {
-        default: 'fxa',
-        env: 'MYSQL_DATABASE'
-      },
-      host: {
-        default: '127.0.0.1',
-        env: 'MYSQL_HOST'
-      },
-      port: {
-        default: '3306',
-        env: 'MYSQL_PORT'
-      },
       createSchema: {
         default: true,
         env: 'CREATE_MYSQL_SCHEMA'
       },
-      connectionLimit: {
-        doc: "The maximum number of connections to create at once.",
-        default: 100,
-        format: 'nat',
-        env: 'CONNECTION_LIMIT',
+      master: {
+        user: {
+          default: 'root',
+          env: 'MYSQL_USERNAME'
+        },
+        password: {
+          default: '',
+          env: 'MYSQL_PASSWORD'
+        },
+        database: {
+          default: 'fxa',
+          env: 'MYSQL_DATABASE'
+        },
+        host: {
+          default: '127.0.0.1',
+          env: 'MYSQL_HOST'
+        },
+        port: {
+          default: '3306',
+          env: 'MYSQL_PORT'
+        },
+        connectionLimit: {
+          doc: "The maximum number of connections to create at once.",
+          default: 100,
+          format: 'nat',
+          env: 'CONNECTION_LIMIT',
+        },
+        waitForConnections: {
+          doc: "Determines the pool's action when no connections are available and the limit has been reached.",
+          default: true,
+          format: Boolean,
+          env: 'WAIT_FOR_CONNECTIONS',
+        },
       },
-      waitForConnections: {
-        doc: "Determines the pool's action when no connections are available and the limit has been reached.",
-        default: true,
-        format: Boolean,
-        env: 'WAIT_FOR_CONNECTIONS',
+      slave : {
+        user: {
+          default: 'root',
+          env: 'MYSQL_SLAVE_USERNAME'
+        },
+        password: {
+          default: '',
+          env: 'MYSQL_SLAVE_PASSWORD'
+        },
+        database: {
+          default: 'fxa',
+          env: 'MYSQL_SLAVE_DATABASE'
+        },
+        host: {
+          default: '127.0.0.1',
+          env: 'MYSQL_SLAVE_HOST'
+        },
+        port: {
+          default: '3306',
+          env: 'MYSQL_SLAVE_PORT'
+        },
+        connectionLimit: {
+          doc: "The maximum number of connections to create at once.",
+          default: 100,
+          format: 'nat',
+          env: 'SLAVE_CONNECTION_LIMIT',
+        },
+        waitForConnections: {
+          doc: "Determines the pool's action when no connections are available and the limit has been reached.",
+          default: true,
+          format: Boolean,
+          env: 'SLAVE_WAIT_FOR_CONNECTIONS',
+        },
       },
     },
     listen: {
