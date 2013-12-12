@@ -23,7 +23,9 @@ function(BaseView, SignInTemplate, gherkin, Session, Constants) {
     signIn: function(event) {
       event.preventDefault();
 
-      if (! (this._validateEmail() && this._validatePassword())) return;
+      if (! (this._validateEmail() && this._validatePassword())) {
+        return;
+      }
 
       var email = this.$('.email').val();
       var password = this.$('.password').val();

@@ -7,6 +7,8 @@ define([
   'intern/chai!assert',
   'require'
 ], function (registerSuite, assert, require) {
+  'use strict';
+
   var url = 'http://localhost:3030/flow';
   //var email = 'some' + new Date().getTime() + '@example.com';
 
@@ -47,7 +49,7 @@ define([
           .then(function (resultText) {
             assert.strictEqual(resultText, '', 'No errors in email creation');
           })
-        .end()
+        .end();
     }
   });
 });
