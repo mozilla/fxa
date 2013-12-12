@@ -36,7 +36,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 salt: isA.String().min(64).max(64).regex(HEX_STRING).required()
               }
             ).required(),
-            preVerified: isProduction ? undefined : isA.Boolean()
+            preVerified: isA.Boolean()
           }
         },
         handler: function accountCreate(request) {
@@ -326,6 +326,10 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
       }
     }
   ]
+
+  if (isProduction) {
+    delete routes[0].config.validate.payload.preVerified
+  }
 
   return routes
 }
