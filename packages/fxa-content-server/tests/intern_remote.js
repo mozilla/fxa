@@ -7,12 +7,8 @@ define([
 ], function (intern) {
   'use strict';
 
-  // simply override the main config file and adjust it to suite the local env
-
-  // disable Sauce Connect for local config
+  // override the main config file and adjust it to suit Sauce Labs
   intern.useSauceConnect = true;
-
-  // adjust the local Selenium port
   intern.webdriver.port = 4445;
 
   intern.environments = [
