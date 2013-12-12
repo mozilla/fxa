@@ -1,8 +1,16 @@
+#!/usr/bin/env node
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 define([
   'intern!object',
   'intern/chai!assert',
   'require'
 ], function (registerSuite, assert, require) {
+  'use strict';
+
   var url = 'http://localhost:3030/signup';
 
   registerSuite({
@@ -36,7 +44,7 @@ define([
           .then(function (resultText) {
             assert.ok(resultText.match(/^Confirm Your Account/), 'No errors in account creation');
           })
-        .end()
+        .end();
     }
   });
 });

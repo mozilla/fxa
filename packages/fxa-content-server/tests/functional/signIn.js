@@ -1,9 +1,17 @@
+#!/usr/bin/env node
+
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 define([
   'intern!object',
   'intern/chai!assert',
   'require',
   'intern/dojo/node!picl-gherkin'
 ], function (registerSuite, assert, require, fxaClient) {
+  'use strict';
+
   var url = 'http://localhost:3030/signin';
   var password = 'password';
   var email;
@@ -42,7 +50,7 @@ define([
           .then(function (resultText) {
             assert.ok(resultText.match(/^Congratulations,/), 'No errors in sign in');
           })
-        .end()
+        .end();
     }
   });
 });
