@@ -929,10 +929,10 @@ module.exports = function (
               // now commit and release
               commitTransaction(con).then(function() {
                 con.release()
-              })
-              d.resolve({
-                keyFetchToken: keyFetchToken,
-                sessionToken: sessionToken
+                d.resolve({
+                  keyFetchToken: keyFetchToken,
+                  sessionToken: sessionToken
+                })
               })
             }
           )
