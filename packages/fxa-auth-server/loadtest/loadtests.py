@@ -58,7 +58,7 @@ DUMMY_CREDENTIALS = {
         'scrypt_r': 8,
         'scrypt_p': 1,
         'PBKDF2_rounds_2': 20000,
-        'salt': 'AAAAAA'
+        'salt': 'A'*64,
     },
 }
 
