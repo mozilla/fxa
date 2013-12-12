@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  './functional/login',
-  './functional/create_account'
+  './functional/signIn',
+  './functional/signUp'
 ], function () {
   'use strict';
 });
