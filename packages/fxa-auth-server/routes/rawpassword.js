@@ -88,7 +88,7 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
           payload: {
             email: isA.String().max(1024).regex(HEX_EMAIL).required(),
             password: isA.String().required(),
-            preVerified: isProduction ? undefined : isA.Boolean()
+            preVerified: isA.Boolean()
           }
         }
       }
@@ -176,6 +176,10 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
       }
     },
   ]
+
+  if (isProduction) {
+    delete routes[1].config.validate.payload.preVerified
+  }
 
   return routes
 }
