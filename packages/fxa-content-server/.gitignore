@@ -42,3 +42,7 @@ app/bower_components
 ### Yeoman ###
 dist
 test/temp
+
+
+### Pre-processed files that become part of the build ###
+app/scripts/processed

@@ -6,7 +6,7 @@
 
 define([], function () {
   return {
-    FXA_ACCOUNT_SERVER: 'http://127.0.0.1:9000'
+    FXA_ACCOUNT_SERVER: "/* @echo fxaccount_url */"
   };
 });
 

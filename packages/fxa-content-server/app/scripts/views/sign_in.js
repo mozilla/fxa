@@ -9,7 +9,7 @@ define([
   'hgn!templates/sign_in',
   'gherkin',
   'lib/session',
-  'constants'
+  'processed/constants'
 ],
 function(BaseView, SignInTemplate, gherkin, Session, Constants) {
   var SignInView = BaseView.extend({
