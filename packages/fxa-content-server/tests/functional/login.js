@@ -3,6 +3,8 @@ define([
   'intern/chai!assert',
   'require'
 ], function (registerSuite, assert, require) {
+  'use strict';
+
   var url = 'http://localhost:3030/flow';
 
   registerSuite({
@@ -43,7 +45,7 @@ define([
         .then(function (text) {
           assert.strictEqual(text, 'Try another email or Create an account', 'Validates false login');
         })
-        .end()
+        .end();
     }
   });
 });

@@ -1,6 +1,8 @@
 define([
   './intern'
 ], function (intern) {
+  'use strict';
+
   // simply override the main config file and adjust it to suite the local env
 
   // disable Sauce Connect for local config

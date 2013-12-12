@@ -1,4 +1,6 @@
 define([
   './functional/login',
   './functional/create_account'
-], function () {});
+], function () {
+  'use strict';
+});

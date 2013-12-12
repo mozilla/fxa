@@ -7,7 +7,6 @@ define([
   'intern/order!static/javascripts/vendor/bidbundle.js',
   'intern/order!static/javascripts/assertion_service.js'
 ], function (tdd, assert, Deferred, request) {
-
   with (tdd) {
     suite('assertion_service', function () {
       var client;
@@ -30,7 +29,7 @@ define([
 
             return client.login();
           })
-          .done(function (x) {
+          .done(function () {
 
             setupDfd.resolve();
           });
@@ -98,7 +97,7 @@ define([
           request
             .get(serverUrl + '/.well-known/browserid', {
               headers: {
-                "X-Requested-With": ''
+                'X-Requested-With': ''
               }
             })
             .then(
@@ -128,18 +127,21 @@ define([
               assert.ok(components.payload.iat, 'Issued date exists');
               assert.ok(components.payload.exp, 'Expire date exists');
 
-              if (typeof components.payload.iat !== 'number')
+              if (typeof components.payload.iat !== 'number') {
                 dfd.reject(new assert.AssertionError({ message: 'cert lacks an "issued at" (.iat) field' }));
+              }
 
-              if (typeof components.payload.exp !== 'number')
+              if (typeof components.payload.exp !== 'number') {
                 dfd.reject(new assert.AssertionError({ message: 'cert lacks an "expires" (.exp) field' }));
+              }
 
-              if (components.payload.exp < components.payload.iat)
+              if (components.payload.exp < components.payload.iat) {
                 dfd.reject(new assert.AssertionError({ message: 'assertion expires before cert is valid' }));
+              }
 
-              if (components.payload.exp > (components.payload.exp + 5000))
+              if (components.payload.exp > (components.payload.exp + 5000)) {
                 dfd.reject(new assert.AssertionError({ message: 'assertion was likely issued after cert expired' }));
-
+              }
 
               return {
                 assertion: assertion,
@@ -152,7 +154,7 @@ define([
             },
             function (err) {
               dfd.reject();
-              assert.fail(err, null, '.well-known request failed')
+              assert.fail(err, null, '.well-known request failed');
             }
           )
             .then(
@@ -177,7 +179,7 @@ define([
                 }
               );
 
-              return verifyDeferred.promise
+              return verifyDeferred.promise;
             }
           )
             .then(
@@ -205,7 +207,7 @@ define([
                   }
                 });
 
-              return verifyBundleDeferred.promise
+              return verifyBundleDeferred.promise;
             }
           ).otherwise(function (error) { dfd.reject(error); });
 
