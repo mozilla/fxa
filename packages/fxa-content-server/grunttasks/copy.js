@@ -21,6 +21,13 @@ module.exports = function (grunt) {
           'styles/fonts/{,*/}*.*'
         ]
       }]
+    },
+    styles: {
+      expand: true,
+      dot: true,
+      cwd: '<%= yeoman.app %>/styles',
+      dest: '.tmp/styles/',
+      src: '{,*/}*.css'
     }
   });
 };
