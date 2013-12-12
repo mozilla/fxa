@@ -14,6 +14,7 @@ module.exports = function (grunt) {
       },
       src: [
         '**/*.js',
+        '!<%= yeoman.app %>/bower_components/**',
         '!node_modules/**'
       ]
     }
