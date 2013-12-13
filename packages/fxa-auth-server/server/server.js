@@ -20,10 +20,10 @@ module.exports = function (path, url, Hapi, toobusy) {
       port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol],
       timestampSkewSec: 60,
       nonceFunc: function nonceCheck(nonce, ts, cb) {
-        var maxValidTime = ts + hawkOptions.timestampSkewSec
+        var maxValidTime = (+ts) + hawkOptions.timestampSkewSec
         var ttl = Math.ceil(maxValidTime - (Date.now() / 1000))
         if (ttl <= 0) {
-          return cb('stale timestamp')
+          return cb()
         }
         noncedb.checkAndSetNonce(nonce, ttl)
                .done(
