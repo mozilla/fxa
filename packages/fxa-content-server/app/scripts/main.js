@@ -27,9 +27,6 @@ require.config({
       ],
       exports: 'Backbone'
     },
-    gherkin: {
-      exports: 'gherkin'
-    },
     transit: {
       deps: [
         'jquery'

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -28,7 +26,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementByTagName('h1')
+        .wait(2000)
 
         .elementByCssSelector('form input.email')
           .click()
@@ -44,7 +42,7 @@ define([
           .click()
         .end()
 
-        .waitForElementByCssSelector('.settings p.center')
+        .wait(5000)
         .elementByCssSelector('.settings p.center')
           .text()
           .then(function (resultText) {
