@@ -82,7 +82,9 @@ module.exports = function (path, url, Hapi, toobusy) {
             getCredentialsFunc: makeCredentialFn(db.forgotPasswordToken.bind(db))
           }
         },
-        cors: true,
+        cors: {
+          additionalExposedHeaders: ['Timestamp']
+        },
         files: {
           relativeTo: path.dirname(__dirname)
         },
