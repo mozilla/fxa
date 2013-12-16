@@ -8,7 +8,7 @@ Static server that hosts Firefox Account sign up, sign in, email verification, e
 
 * node 0.10.x or higher
 * npm
-* Java
+* Grunt (`npm install -g grunt-cli`)
 * PhantomJS (`npm install -g phantomjs`)
 * bower (`npm install -g bower`)
 * libgmp

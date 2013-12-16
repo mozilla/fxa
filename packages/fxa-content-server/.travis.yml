@@ -8,18 +8,24 @@ env:
     - SAUCE_USERNAME: intern-example-ci
     - SAUCE_ACCESS_KEY: 89ac3089-17b3-4e9b-aaf3-c475b27fa441
 install:
+# install the auth server. Only include prod resources to speed up the build.
   - git clone git://github.com/mozilla/fxa-auth-server.git
   - cd fxa-auth-server
   - npm install
   - node ./scripts/gen_keys.js
   - npm start &
+# install everything for full dev in the fxa-content-server.
   - cd ..
-  - npm install bower
-  - npm install --production
-  - npm install intern-geezer
-  - npm install git://github.com/mozilla/fxa-js-client-old.git
-  - npm start &
+  - npm install
+# for local developers, grunt-cli is installed globally.
+# We have to install it for travis.
+  - npm install grunt-cli
+# install intern-geezer, which is an intern compatible with old IEs
   - cd node_modules/intern-geezer
   - npm install --production
   - cd ../..
+# copy over the configuration that can be used to start the server.
+  - cp server/config/local.json-dist server/config/local.json
+  - npm start &
+# now run the tests!
 script: npm run-script test-remote
