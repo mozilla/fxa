@@ -103,7 +103,7 @@ Client.prototype.setupCredentials = function (email, password, customSalt, custo
     )
 }
 
-Client.create = function (origin, email, password, options, callback) {
+Client.create = function (origin, email, password, options) {
   var c = new Client(origin)
   options = options || {}
   if (typeof(options) === 'function') {
@@ -115,57 +115,38 @@ Client.create = function (origin, email, password, options, callback) {
     c.lang = options.lang
   }
 
-  var p = c.setupCredentials(email, password)
+  return c.setupCredentials(email, password)
     .then(
       function() {
         return c.create()
       }
     )
-
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.login = function (origin, email, password, callback) {
+Client.login = function (origin, email, password) {
   var c = new Client(origin)
   c.email = Buffer(email).toString('hex')
   c.password = password
 
-  var p = c.login()
+  return c.login()
     .then(
     function () {
       return c
     }
   )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.changePassword = function (origin, email, oldPassword, newPassword, callback) {
+Client.changePassword = function (origin, email, oldPassword, newPassword) {
   var c = new Client(origin)
   c.email = Buffer(email).toString('hex')
   c.password = oldPassword
 
-  var p = c.changePassword(newPassword)
+  return c.changePassword(newPassword)
     .then(
       function () {
         return c
       }
     )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
 Client.parse = function (string) {
@@ -188,8 +169,8 @@ Client.parse = function (string) {
   return client
 }
 
-Client.prototype.create = function (callback) {
-  var p = this.api.accountCreate(
+Client.prototype.create = function () {
+  return this.api.accountCreate(
     this.email,
     this.srp.verifier,
     this.srp.salt,
@@ -207,18 +188,12 @@ Client.prototype.create = function (callback) {
       lang: this.lang
     }
   )
-    .then(
-      function (a) {
-        this.uid = a.uid
-        return this
-      }.bind(this)
-    )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
+  .then(
+    function (a) {
+      this.uid = a.uid
+      return this
+    }.bind(this)
+  )
 }
 
 Client.prototype._clear = function () {
@@ -237,11 +212,11 @@ Client.prototype.stringify = function () {
   return JSON.stringify(this)
 }
 
-Client.prototype.accountExists = function (email, callback) {
+Client.prototype.accountExists = function (email) {
   if (email) {
     this.email = Buffer(email).toString('hex')
   }
-  var p = this.api.authStart(this.email)
+  return this.api.authStart(this.email)
     .then(
       function (srpSession) {
         this.srpSession = srpSession
@@ -255,19 +230,13 @@ Client.prototype.accountExists = function (email, callback) {
         }
       }
     )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 };
 
-Client.prototype.auth = function (callback) {
+Client.prototype.auth = function () {
   var K = null
   var session
   var sessionPromise = this.srpSession ? P(this.srpSession) : this.api.authStart(this.email)
-  var p = sessionPromise
+  return sessionPromise
     .then(
       function (srpSession) {
         var k = P.defer()
@@ -315,16 +284,10 @@ Client.prototype.auth = function (callback) {
         return authToken
       }.bind(this)
     )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.login = function (callback) {
-  var p = this.auth()
+Client.prototype.login = function () {
+  return this.auth()
     .then(
       function () {
         return this.api.sessionCreate(this.authToken)
@@ -349,16 +312,9 @@ Client.prototype.login = function (callback) {
         return tokens
       }.bind(this)
     )
-
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.destroySession = function (callback) {
+Client.prototype.destroySession = function () {
   var p = P(null)
   if (this.sessionToken) {
     p = this.api.sessionDestroy(this.sessionToken)
@@ -369,27 +325,16 @@ Client.prototype.destroySession = function (callback) {
         }.bind(this)
       )
   }
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
+  return p
 }
 
-Client.prototype.verifyEmail = function (code, callback) {
-  var p = this.api.recoveryEmailVerifyCode(this.uid, code)
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
+Client.prototype.verifyEmail = function (code) {
+  return this.api.recoveryEmailVerifyCode(this.uid, code)
 }
 
-Client.prototype.emailStatus = function (callback) {
+Client.prototype.emailStatus = function () {
   var o = this.sessionToken ? P(null) : this.login()
-  var p = o.then(
+  return o.then(
       function () {
         return this.api.recoveryEmailStatus(this.sessionToken)
       }.bind(this)
@@ -401,32 +346,20 @@ Client.prototype.emailStatus = function (callback) {
       return status
     }
   )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.requestVerifyEmail = function (callback) {
+Client.prototype.requestVerifyEmail = function () {
   var o = this.sessionToken ? P(null) : this.login()
-  var p = o.then(
+  return o.then(
     function () {
       return this.api.recoveryEmailResendCode(this.sessionToken)
     }.bind(this)
   )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.sign = function (publicKey, duration, callback) {
+Client.prototype.sign = function (publicKey, duration) {
   var o = this.sessionToken ? P(null) : this.login()
-  var p = o.then(
+  return o.then(
       function () {
         return this.api.certificateSign(this.sessionToken, publicKey, duration)
       }.bind(this)
@@ -436,16 +369,10 @@ Client.prototype.sign = function (publicKey, duration, callback) {
       return x.cert
     }
   )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.changePassword = function (newPassword, callback) {
-  var p = this.auth()
+Client.prototype.changePassword = function (newPassword) {
+  return this.auth()
     .then(
       function () {
         return this.api.passwordChangeStart(this.authToken)
@@ -518,17 +445,11 @@ Client.prototype.changePassword = function (newPassword, callback) {
       }.bind(this)
     )
     .then(this._clear.bind(this))
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.keys = function (callback) {
+Client.prototype.keys = function () {
   var o = this.keyFetchToken ? P(null) : this.login()
-  var p = o.then(
+  return o.then(
       function () {
         return this.api.accountKeys(this.keyFetchToken)
       }.bind(this)
@@ -557,18 +478,11 @@ Client.prototype.keys = function (callback) {
         throw err
       }.bind(this)
     )
-
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.devices = function (callback) {
+Client.prototype.devices = function () {
   var o = this.sessionToken ? P(null) : this.login()
-  var p = o.then(
+  return o.then(
       function () {
         return this.api.accountDevices(this.sessionToken)
       }.bind(this)
@@ -579,78 +493,48 @@ Client.prototype.devices = function (callback) {
         return this._devices
       }.bind(this)
     )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.destroyAccount = function (callback) {
-  var p = this.auth()
+Client.prototype.destroyAccount = function () {
+  return this.auth()
     .then(
       function () {
         return this.api.accountDestroy(this.authToken)
       }.bind(this)
     )
     .then(this._clear.bind(this))
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.forgotPassword = function (callback) {
+Client.prototype.forgotPassword = function () {
   this._clear()
-  var p = this.api.passwordForgotSendCode(this.email)
+  return this.api.passwordForgotSendCode(this.email)
     .then(
       function (x) {
         this.forgotPasswordToken = x.forgotPasswordToken
       }.bind(this)
     )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.reforgotPassword = function (callback) {
-  var p = this.api.passwordForgotResendCode(this.forgotPasswordToken, this.email)
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
+Client.prototype.reforgotPassword = function () {
+  return this.api.passwordForgotResendCode(this.forgotPasswordToken, this.email)
 }
 
-Client.prototype.verifyPasswordResetCode = function (code, callback) {
-  var p = this.api.passwordForgotVerifyCode(this.forgotPasswordToken, code)
+Client.prototype.verifyPasswordResetCode = function (code) {
+  return this.api.passwordForgotVerifyCode(this.forgotPasswordToken, code)
     .then(
       function (result) {
         this.accountResetToken = result.accountResetToken
       }.bind(this)
     )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
-Client.prototype.resetPassword = function (newPassword, callback) {
+Client.prototype.resetPassword = function (newPassword) {
   if (!this.accountResetToken) {
     throw new Error("call verifyPasswordResetCode before calling resetPassword");
   }
   // this will generate a new wrapKb on the server
   var wrapKb = NULL
-  var p = this.setupCredentials(this.email, newPassword)
+  return this.setupCredentials(this.email, newPassword)
     .then(
       tokens.AccountResetToken.fromHex.bind(null, this.accountResetToken)
     )
@@ -680,19 +564,13 @@ Client.prototype.resetPassword = function (newPassword, callback) {
         )
       }.bind(this)
     )
-  if (callback) {
-    p.done(callback.bind(null, null), callback)
-  }
-  else {
-    return p
-  }
 }
 
 //TODO recovery methods, session status/destroy
 
 module.exports = Client
 
-},{"./lib/api":3,"./lib/keystretch":8,"./lib/tokens":16,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":78,"srp":85}],3:[function(require,module,exports){
+},{"./lib/api":3,"./lib/keystretch":8,"./lib/tokens":16,"__browserify_Buffer":4,"crypto":"l4eWKl","p-promise":78,"srp":82}],3:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -711,17 +589,21 @@ function ClientApi(origin) {
   EventEmitter.call(this)
   this.origin = origin
   this.baseURL = origin + "/v1"
+  this.timeOffset = 0;
 }
 
 ClientApi.prototype.Token = tokens
 
-function hawkHeader(token, method, url, payload) {
+function hawkHeader(token, method, url, payload, offset) {
   var verify = {
     credentials: token
   }
   if (payload) {
     verify.contentType = 'application/json'
     verify.payload = JSON.stringify(payload)
+  }
+  if (offset) {
+    verify.localtimeOffsetMsec = offset;
   }
   return hawk.client.header(url, method, verify).field
 }
@@ -732,7 +614,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
     headers = {}
   }
   if (token && !headers.Authorization) {
-    headers.Authorization = hawkHeader(token, method, url, payload)
+    headers.Authorization = hawkHeader(token, method, url, payload, this.timeOffset)
   }
   var options = {
     url: url,
@@ -742,6 +624,11 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
   }
   this.emit('startRequest', options)
   request(options, function (err, res, body) {
+    if (res && res.headers && res.headers.timestamp) {
+      // Record time skew
+      this.timeOffset = Date.now() - parseInt(res.headers.timestamp, 10) * 1000
+    }
+
     this.emit('endRequest', options, err, res)
     if (err || body.error) {
       d.reject(err || body)
@@ -1083,7 +970,7 @@ ClientApi.heartbeat = function (origin) {
 
 module.exports = ClientApi
 
-},{"./tokens":16,"events":27,"hawk":59,"p-promise":78,"request":"hWH+d8","util":33}],4:[function(require,module,exports){
+},{"./tokens":16,"events":27,"hawk":61,"p-promise":78,"request":"hWH+d8","util":33}],4:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1138,7 +1025,7 @@ function hkdf(km, info, salt, len) {
 
 module.exports = hkdf
 
-},{"hkdf":60,"p-promise":78}],8:[function(require,module,exports){
+},{"hkdf":75,"p-promise":78}],8:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1150,8 +1037,8 @@ var hkdf = require('./hkdf')
 var crypto = require('crypto')
 
 // The namespace for the salt functions
-const NAMESPACE = 'identity.mozilla.com/picl/v1/'
-const SCRYPT_HELPER = 'https://scrypt-accounts.dev.lcip.org/'
+var NAMESPACE = 'identity.mozilla.com/picl/v1/'
+var SCRYPT_HELPER = 'https://scrypt-accounts.dev.lcip.org/'
 
 
 /** Derive a key from an email and password pair
@@ -1273,8 +1160,8 @@ var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is sub
 var sjcl = require('sjcl')
 var P = require('p-promise')
 
-const ITERATIONS = 20 * 1000
-const LENGTH = 32 * 8
+var ITERATIONS = 20 * 1000
+var LENGTH = 32 * 8
 
 /** pbkdf2 string creator
  *
@@ -1292,7 +1179,7 @@ function derive(input, salt) {
 
 module.exports.derive = derive
 
-},{"__browserify_Buffer":4,"p-promise":78,"sjcl":84}],10:[function(require,module,exports){
+},{"__browserify_Buffer":4,"p-promise":78,"sjcl":81}],10:[function(require,module,exports){
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -1796,7 +1683,7 @@ module.exports = function (log) {
   return Token
 }
 
-},{"../hkdf":7,"./account_reset_token":11,"./auth_token":12,"./bundle":13,"./error":14,"./forgot_password_token":15,"./key_fetch_token":17,"./session_token":18,"./srp_token":19,"./token":20,"crypto":"l4eWKl","p-promise":78,"srp":85,"util":33,"uuid":89}],17:[function(require,module,exports){
+},{"../hkdf":7,"./account_reset_token":11,"./auth_token":12,"./bundle":13,"./error":14,"./forgot_password_token":15,"./key_fetch_token":17,"./session_token":18,"./srp_token":19,"./token":20,"crypto":"l4eWKl","p-promise":78,"srp":82,"util":33,"uuid":89}],17:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -3609,6 +3496,14 @@ function run_xhr(options) {
     request.log.debug('Got response', {'id':xhr.id, 'status':xhr.status})
     clearTimeout(xhr.timeoutTimer)
     xhr.statusCode = xhr.status // Node request compatibility
+
+    xhr.headers = xhr.getAllResponseHeaders().split('\r\n').reduce(function(headers, header) {
+      var pair = header.split(": ");
+      if (pair[0]) {
+        headers[pair[0]] = pair[1];
+      }
+      return headers;
+    }, {});
 
     // Detect failed CORS requests.
     if(is_cors && xhr.statusCode == 0) {
@@ -6357,7 +6252,7 @@ function mix(from, into) {
   }
 }
 
-},{"./copy.js":42,"./create.js":43,"./from.js":44,"./is.js":45,"./join.js":46,"./read.js":48,"./subarray.js":49,"./to.js":50,"./write.js":51}],40:[function(require,module,exports){
+},{"./copy.js":44,"./create.js":45,"./from.js":46,"./is.js":47,"./join.js":48,"./read.js":50,"./subarray.js":51,"./to.js":52,"./write.js":53}],40:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -6519,6 +6414,10 @@ function reduced(list) {
 }
 
 },{}],42:[function(require,module,exports){
+module.exports = require('./lib');
+},{"./lib":69}],"request":[function(require,module,exports){
+module.exports=require('hWH+d8');
+},{}],44:[function(require,module,exports){
 module.exports = copy
 
 var slice = [].slice
@@ -6572,12 +6471,12 @@ function slow_copy(from, to, j, i, jend) {
   }
 }
 
-},{}],43:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports = function(size) {
   return new Uint8Array(size)
 }
 
-},{}],44:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module.exports = from
 
 var base64 = require('base64-js')
@@ -6637,13 +6536,13 @@ function from_base64(str) {
   return new Uint8Array(base64.toByteArray(str)) 
 }
 
-},{"base64-js":40}],45:[function(require,module,exports){
+},{"base64-js":40}],47:[function(require,module,exports){
 
 module.exports = function(buffer) {
   return buffer instanceof Uint8Array;
 }
 
-},{}],46:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = join
 
 function join(targets, hint) {
@@ -6681,7 +6580,7 @@ function get_length(targets) {
   return size
 }
 
-},{}],47:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var proto
   , map
 
@@ -6703,7 +6602,7 @@ function get(target) {
   return out
 }
 
-},{}],48:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 module.exports = {
     readUInt8:      read_uint8
   , readInt8:       read_int8
@@ -6792,14 +6691,14 @@ function read_double_be(target, at) {
   return dv.getFloat64(at + target.byteOffset, false)
 }
 
-},{"./mapped.js":47}],49:[function(require,module,exports){
+},{"./mapped.js":49}],51:[function(require,module,exports){
 module.exports = subarray
 
 function subarray(buf, from, to) {
   return buf.subarray(from || 0, to || buf.length)
 }
 
-},{}],50:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 module.exports = to
 
 var base64 = require('base64-js')
@@ -6837,7 +6736,7 @@ function to_base64(buf) {
 }
 
 
-},{"base64-js":40,"to-utf8":41}],51:[function(require,module,exports){
+},{"base64-js":40,"to-utf8":41}],53:[function(require,module,exports){
 module.exports = {
     writeUInt8:      write_uint8
   , writeInt8:       write_int8
@@ -6925,7 +6824,7 @@ function write_double_be(target, value, at) {
   return dv.setFloat64(at + target.byteOffset, value, false)
 }
 
-},{"./mapped.js":47}],52:[function(require,module,exports){
+},{"./mapped.js":49}],54:[function(require,module,exports){
 exports.readIEEE754 = function(buffer, offset, isBE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -8113,7 +8012,7 @@ Buffer.prototype.writeDoubleBE = function(value, offset, noAssert) {
   writeDouble(this, value, offset, true, noAssert);
 };
 
-},{"./buffer_ieee754":52,"assert":25,"base64-js":54}],54:[function(require,module,exports){
+},{"./buffer_ieee754":54,"assert":25,"base64-js":56}],56:[function(require,module,exports){
 (function (exports) {
 	'use strict';
 
@@ -8326,7 +8225,7 @@ each(['createCredentials'
   }
 })
 
-},{"./rng":57,"./sha256":58,"buffer":"IZihkv"}],56:[function(require,module,exports){
+},{"./rng":59,"./sha256":60,"buffer":"IZihkv"}],58:[function(require,module,exports){
 "use strict";function q(a){throw a;}var t=void 0,u=!1;var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
 "undefined"!=typeof module&&module.exports&&(module.exports=sjcl);
 sjcl.cipher.aes=function(a){this.j[0][0][0]||this.D();var b,c,d,e,f=this.j[0][4],g=this.j[1];b=a.length;var h=1;4!==b&&(6!==b&&8!==b)&&q(new sjcl.exception.invalid("invalid aes key size"));this.a=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
@@ -8376,7 +8275,7 @@ q(new sjcl.exception.invalid("json encode: invalid property name")),c+=d+'"'+b+'
 b){var c={},d;for(d in a)a.hasOwnProperty(d)&&a[d]!==b[d]&&(c[d]=a[d]);return c},W:function(a,b){var c={},d;for(d=0;d<b.length;d++)a[b[d]]!==t&&(c[b[d]]=a[b[d]]);return c}};sjcl.encrypt=sjcl.json.encrypt;sjcl.decrypt=sjcl.json.decrypt;sjcl.misc.V={};
 sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.V,d;b=b||{};d=b.iter||1E3;c=c[a]=c[a]||{};d=c[d]=c[d]||{firstSalt:b.salt&&b.salt.length?b.salt.slice(0):sjcl.random.randomWords(2,0)};c=b.salt===t?d.firstSalt:b.salt;d[c]=d[c]||sjcl.misc.pbkdf2(a,c,b.iter);return{key:d[c].slice(0),salt:c.slice(0)}};
 
-},{}],57:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 // Original code adapted from Robert Kieffer.
 // details at https://github.com/broofa/node-uuid
 (function() {
@@ -8414,7 +8313,7 @@ sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.V,d;b=b||{};d=b.iter||1E3;c
 
 }())
 
-},{}],58:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 var sjcl = require('sjcl');
 var bytes = require('sjcl-codec-bytes');
 var Buffer = require('buffer').Buffer;
@@ -8497,13 +8396,9 @@ exports.hmac_base64 = hmac_base64;
 exports.hmac_buffer = hmac_buffer;
 exports.hmac_binary = hmac_binary;
 
-},{"buffer":"IZihkv","sjcl":56,"sjcl-codec-bytes":79}],59:[function(require,module,exports){
+},{"buffer":"IZihkv","sjcl":58,"sjcl-codec-bytes":79}],61:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":64}],60:[function(require,module,exports){
-module.exports = require("./lib/hkdf");
-},{"./lib/hkdf":76}],"request":[function(require,module,exports){
-module.exports=require('hWH+d8');
-},{}],62:[function(require,module,exports){
+},{"./lib":64}],62:[function(require,module,exports){
 // Load modules
 
 var Url = require('url');
@@ -8876,7 +8771,7 @@ exports.message = function (host, port, message, options) {
 
 
 
-},{"./crypto":63,"./utils":66,"cryptiles":69,"hoek":71,"url":32}],63:[function(require,module,exports){
+},{"./crypto":63,"./utils":66,"cryptiles":42,"hoek":70,"url":32}],63:[function(require,module,exports){
 // Load modules
 
 var Crypto = require('crypto');
@@ -9013,7 +8908,7 @@ exports.uri = {
 };
 
 
-},{"./client":62,"./crypto":63,"./server":65,"./utils":66,"boom":67,"sntp":74}],65:[function(require,module,exports){
+},{"./client":62,"./crypto":63,"./server":65,"./utils":66,"boom":67,"sntp":73}],65:[function(require,module,exports){
 // Load modules
 
 var Boom = require('boom');
@@ -9538,7 +9433,7 @@ exports.authenticateMessage = function (host, port, message, authorization, cred
     });
 };
 
-},{"./crypto":63,"./utils":66,"boom":67,"cryptiles":69,"hoek":71}],66:[function(require,module,exports){
+},{"./crypto":63,"./utils":66,"boom":67,"cryptiles":42,"hoek":70}],66:[function(require,module,exports){
 var __dirname="/node_modules/hawk/lib";// Load modules
 
 var Hoek = require('hoek');
@@ -9723,7 +9618,7 @@ exports.unauthorized = function (message) {
 };
 
 
-},{"boom":67,"hoek":71,"sntp":74}],67:[function(require,module,exports){
+},{"boom":67,"hoek":70,"sntp":73}],67:[function(require,module,exports){
 module.exports = require('./lib');
 },{"./lib":68}],68:[function(require,module,exports){
 // Load modules
@@ -10065,9 +9960,7 @@ internals.Boom.passThrough = function (code, payload, contentType, headers) {
 
 
 
-},{"hoek":71,"http":34,"util":33}],69:[function(require,module,exports){
-module.exports = require('./lib');
-},{"./lib":70}],70:[function(require,module,exports){
+},{"hoek":70,"http":34,"util":33}],69:[function(require,module,exports){
 // Load modules
 
 var Crypto = require('crypto');
@@ -10137,9 +10030,9 @@ exports.fixedTimeComparison = function (a, b) {
 
 
 
-},{"boom":67,"crypto":"l4eWKl"}],71:[function(require,module,exports){
+},{"boom":67,"crypto":"l4eWKl"}],70:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":73}],72:[function(require,module,exports){
+},{"./lib":72}],71:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer;// Declare internals
 
 var internals = {};
@@ -10272,7 +10165,7 @@ internals.safeCharCodes = (function () {
 
     return safe;
 }());
-},{"__browserify_Buffer":4}],73:[function(require,module,exports){
+},{"__browserify_Buffer":4}],72:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");// Load modules
 
 var Fs = require('fs');
@@ -10918,9 +10811,9 @@ exports.readStream = function (stream, callback) {
     });
 };
 
-},{"./escape":72,"__browserify_Buffer":4,"__browserify_process":77,"fs":28,"path":29}],74:[function(require,module,exports){
+},{"./escape":71,"__browserify_Buffer":4,"__browserify_process":77,"fs":28,"path":29}],73:[function(require,module,exports){
 module.exports = require('./lib');
-},{"./lib":75}],75:[function(require,module,exports){
+},{"./lib":74}],74:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");// Load modules
 
 var Dgram = require('dgram');
@@ -11336,7 +11229,9 @@ internals.ignore = function () {
 
 };
 
-},{"__browserify_Buffer":4,"__browserify_process":77,"dgram":26,"dns":24,"hoek":71}],76:[function(require,module,exports){
+},{"__browserify_Buffer":4,"__browserify_process":77,"dgram":26,"dns":24,"hoek":70}],75:[function(require,module,exports){
+module.exports = require("./lib/hkdf");
+},{"./lib/hkdf":76}],76:[function(require,module,exports){
 var Buffer=require("__browserify_Buffer").Buffer,process=require("__browserify_process");//
 // a straightforward implementation of HKDF
 //
@@ -11931,13 +11826,7 @@ module.exports = {
   }
 };
 
-},{"sjcl":83}],"crypto":[function(require,module,exports){
-module.exports=require('l4eWKl');
-},{}],"bignum":[function(require,module,exports){
-module.exports=require('xttfNN');
-},{}],"buffer":[function(require,module,exports){
-module.exports=require('IZihkv');
-},{}],83:[function(require,module,exports){
+},{"sjcl":80}],80:[function(require,module,exports){
 "use strict";function q(a){throw a;}var t=void 0,u=!1;var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
 "undefined"!=typeof module&&module.exports&&(module.exports=sjcl);
 sjcl.cipher.aes=function(a){this.j[0][0][0]||this.D();var b,c,d,e,f=this.j[0][4],g=this.j[1];b=a.length;var h=1;4!==b&&(6!==b&&8!==b)&&q(new sjcl.exception.invalid("invalid aes key size"));this.a=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
@@ -11987,7 +11876,7 @@ q(new sjcl.exception.invalid("json encode: invalid property name")),c+=d+'"'+b+'
 b){var c={},d;for(d in a)a.hasOwnProperty(d)&&a[d]!==b[d]&&(c[d]=a[d]);return c},W:function(a,b){var c={},d;for(d=0;d<b.length;d++)a[b[d]]!==t&&(c[b[d]]=a[b[d]]);return c}};sjcl.encrypt=sjcl.json.encrypt;sjcl.decrypt=sjcl.json.decrypt;sjcl.misc.V={};
 sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.V,d;b=b||{};d=b.iter||1E3;c=c[a]=c[a]||{};d=c[d]=c[d]||{firstSalt:b.salt&&b.salt.length?b.salt.slice(0):sjcl.random.randomWords(2,0)};c=b.salt===t?d.firstSalt:b.salt;d[c]=d[c]||sjcl.misc.pbkdf2(a,c,b.iter);return{key:d[c].slice(0),salt:c.slice(0)}};
 
-},{}],84:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 "use strict";function q(a){throw a;}var t=void 0,u=!1;var sjcl={cipher:{},hash:{},keyexchange:{},mode:{},misc:{},codec:{},exception:{corrupt:function(a){this.toString=function(){return"CORRUPT: "+this.message};this.message=a},invalid:function(a){this.toString=function(){return"INVALID: "+this.message};this.message=a},bug:function(a){this.toString=function(){return"BUG: "+this.message};this.message=a},notReady:function(a){this.toString=function(){return"NOT READY: "+this.message};this.message=a}}};
 "undefined"!=typeof module&&module.exports&&(module.exports=sjcl);
 sjcl.cipher.aes=function(a){this.j[0][0][0]||this.D();var b,c,d,e,f=this.j[0][4],g=this.j[1];b=a.length;var h=1;4!==b&&(6!==b&&8!==b)&&q(new sjcl.exception.invalid("invalid aes key size"));this.a=[d=a.slice(0),e=[]];for(a=b;a<4*b+28;a++){c=d[a-1];if(0===a%b||8===b&&4===a%b)c=f[c>>>24]<<24^f[c>>16&255]<<16^f[c>>8&255]<<8^f[c&255],0===a%b&&(c=c<<8^c>>>24^h<<24,h=h<<1^283*(h>>7));d[a]=d[a-b]^c}for(b=0;a;b++,a--)c=d[b&3?a:a-4],e[b]=4>=a||4>b?c:g[0][f[c>>>24]]^g[1][f[c>>16&255]]^g[2][f[c>>8&255]]^g[3][f[c&
@@ -12038,12 +11927,12 @@ q(new sjcl.exception.invalid("json encode: invalid property name")),c+=d+'"'+b+'
 b){var c={},d;for(d in a)a.hasOwnProperty(d)&&a[d]!==b[d]&&(c[d]=a[d]);return c},W:function(a,b){var c={},d;for(d=0;d<b.length;d++)a[b[d]]!==t&&(c[b[d]]=a[b[d]]);return c}};sjcl.encrypt=sjcl.json.encrypt;sjcl.decrypt=sjcl.json.decrypt;sjcl.misc.V={};
 sjcl.misc.cachedPbkdf2=function(a,b){var c=sjcl.misc.V,d;b=b||{};d=b.iter||1E3;c=c[a]=c[a]||{};d=c[d]=c[d]||{firstSalt:b.salt&&b.salt.length?b.salt.slice(0):sjcl.random.randomWords(2,0)};c=b.salt===t?d.firstSalt:b.salt;d[c]=d[c]||sjcl.misc.pbkdf2(a,c,b.iter);return{key:d[c].slice(0),salt:c.slice(0)}};
 
-},{"crypto":"l4eWKl"}],85:[function(require,module,exports){
+},{"crypto":"l4eWKl"}],82:[function(require,module,exports){
 module.exports = require('./lib/srp');
 
 module.exports.params = require('./lib/params');
 
-},{"./lib/params":86,"./lib/srp":87}],86:[function(require,module,exports){
+},{"./lib/params":83,"./lib/srp":84}],83:[function(require,module,exports){
 /*
  * SRP Group Parameters
  * http://tools.ietf.org/html/rfc5054#appendix-A
@@ -12060,7 +11949,7 @@ module.exports.params = require('./lib/params');
 // since these are meant to be used internally, all values are numbers. If
 // you want to add parameter sets, you'll need to convert them to bignums.
 
-const bignum = require('bignum');
+var bignum = require('bignum');
 
 function hex(s) {
     return bignum(s.split(/\s/).join(''), 16);
@@ -12224,12 +12113,12 @@ module.exports = {
     hash: 'sha256'}
 };
 
-},{"bignum":"xttfNN"}],87:[function(require,module,exports){
-var Buffer=require("__browserify_Buffer").Buffer;const crypto = require('crypto'),
+},{"bignum":"xttfNN"}],84:[function(require,module,exports){
+var Buffer=require("__browserify_Buffer").Buffer;var crypto = require('crypto'),
       bignum = require('bignum'),
       assert = require('assert');
 
-const zero = bignum(0);
+var zero = bignum(0);
 
 function assert_(val, msg) {
   if (!val)
@@ -12635,7 +12524,13 @@ module.exports = {
   Server: Server
 };
 
-},{"./params":86,"__browserify_Buffer":4,"assert":25,"bignum":"xttfNN","crypto":"l4eWKl"}],88:[function(require,module,exports){
+},{"./params":83,"__browserify_Buffer":4,"assert":25,"bignum":"xttfNN","crypto":"l4eWKl"}],"bignum":[function(require,module,exports){
+module.exports=require('xttfNN');
+},{}],"crypto":[function(require,module,exports){
+module.exports=require('l4eWKl');
+},{}],"buffer":[function(require,module,exports){
+module.exports=require('IZihkv');
+},{}],88:[function(require,module,exports){
 var global=self;
 var rng;
 
