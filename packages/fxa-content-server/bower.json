@@ -8,7 +8,7 @@
     "backbone": "~1.1.0",
     "modernizr": "~2.6.2",
     "requirejs-hogan-plugin": "~0.3.1",
-    "fxa-js-client-old": "https://github.com/mozilla/fxa-js-client-old.git#50114bad33712ec3e1f2a82df1836c2f10cd7519",
+    "fxa-js-client-old": "https://github.com/mozilla/fxa-js-client-old.git#umd",
     "normalize-css": "~2.1.3",
     "jquery.transit": "~0.9.9"
   },
