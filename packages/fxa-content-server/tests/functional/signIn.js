@@ -26,7 +26,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .wait(2000)
+        .waitForElementById('fxa-signin-header')
 
         .elementByCssSelector('form input.email')
           .click()
