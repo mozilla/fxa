@@ -25,6 +25,8 @@ function TestServer() {
       cwd: __dirname
     }
   )
+  this.mail.stdout.on('data', process.stdout.write.bind(process.stdout))
+  this.mail.stderr.on('data', process.stderr.write.bind(process.stderr))
 }
 
 TestServer.server = { stop: function () {}, fake: true }
