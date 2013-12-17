@@ -37,7 +37,7 @@ function derive(email, password, saltHex) {
     .then(
       function(K1) {
         // request a hash from scrypt based on the first key
-        return scrypt.hash(K1, KW("scrypt"), SCRYPT_HELPER)
+        return scrypt.hash(K1, KW("scrypt"), module.exports.SCRYPT_HELPER)
       }
     )
     .then(
@@ -120,5 +120,6 @@ function KW(name) {
   return Buffer(NAMESPACE + name)
 }
 
+module.exports.SCRYPT_HELPER = SCRYPT_HELPER
 module.exports.derive = derive
 module.exports.xor = xor
