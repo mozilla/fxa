@@ -36,18 +36,21 @@ module.exports = function (grunt) {
   grunt.loadTasks('grunttasks');
 
   grunt.registerTask('selectconfig', function(target) {
-    if ( ! target) target = 'app';
+    if (! target) {
+      target = 'app';
+    }
 
     // Config files specified in CONFIG_FILES env variable override everything
     // else. awsbox instances use this variable to specify ephemeral
     // configuration like public_url.
-    if ( ! process.env.CONFIG_FILES)
+    if (! process.env.CONFIG_FILES) {
       process.env.CONFIG_FILES = TARGET_TO_CONFIG[target];
+    }
 
-    console.log("Using configuration files", process.env.CONFIG_FILES);
+    console.log('Using configuration files', process.env.CONFIG_FILES);
   });
 
-  grunt.registerTask('serverproc', function (target) {
+  grunt.registerTask('serverproc', function () {
     runServer(this.async());
   });
 

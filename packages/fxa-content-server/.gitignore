@@ -46,3 +46,6 @@ test/temp
 
 ### Pre-processed files that become part of the build ###
 app/scripts/processed
+
+### Local configuration ###
+server/config/local.json

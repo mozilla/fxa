@@ -6,7 +6,7 @@
 
 define([], function () {
   return {
-    FXA_ACCOUNT_SERVER: "/* @echo fxaccount_url */"
+    FXA_ACCOUNT_SERVER: '/* @echo fxaccountUrl */'
   };
 });
 

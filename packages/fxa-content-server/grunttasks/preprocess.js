@@ -11,13 +11,13 @@ module.exports = function (grunt) {
   grunt.task.registerTask(
     'preprocess-config',
     'preprocess client side configuration',
-    function(target) {
+    function() {
       // Correct configuration will be loaded based
       // on process.env.CONFIG_FILES when the selectconfig task is run. If
       // selectconfig is not run, local.json will be used by default.
       var config = require('../server/lib/configuration');
       var context = {
-        fxaccount_url: config.get('fxaccount_url')
+        fxaccountUrl: config.get('fxaccount_url')
       };
 
       grunt.config('preprocess', {
@@ -31,7 +31,8 @@ module.exports = function (grunt) {
       });
 
       grunt.task.run(['preprocess']);
-  });
+    }
+  );
 
 
 
