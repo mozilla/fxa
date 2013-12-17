@@ -22,7 +22,7 @@ TestServer.start(config.publicUrl)
   test(
     'create account',
     function (t) {
-      var email = uniqueID() +'@example.com'
+      var email = uniqueID() +'@restmail.net'
       var password = 'allyourbasearebelongtous'
       var client = null
       var verifyCode = null
@@ -102,7 +102,7 @@ TestServer.start(config.publicUrl)
   test(
     'create account verify with incorrect code',
     function (t) {
-      var email = uniqueID() +'@example.com'
+      var email = uniqueID() +'@restmail.net'
       var password = 'allyourbasearebelongtous'
       var client = null
       return Client.create(config.publicUrl, email, password)
@@ -150,7 +150,7 @@ TestServer.start(config.publicUrl)
   test(
     'forgot password',
     function (t) {
-      var email = uniqueID() +'@example.com'
+      var email = uniqueID() +'@restmail.net'
       var password = 'allyourbasearebelongtous'
       var newPassword = 'ez'
       var wrapKb = null
@@ -223,7 +223,7 @@ TestServer.start(config.publicUrl)
   test(
     '/raw_password/password/reset forgot password',
     function (t) {
-      var email = uniqueID() +'@example.com'
+      var email = uniqueID() +'@restmail.net'
       var password = 'allyourbasearebelongtous'
       var newPassword = 'ez'
       var wrapKb = null
@@ -290,7 +290,7 @@ TestServer.start(config.publicUrl)
     'forgot password limits verify attempts',
     function (t) {
       var code = null
-      var email = uniqueID() +'@example.com'
+      var email = uniqueID() +'@restmail.net'
       var password = "hothamburger"
       var client = null
       return createFreshAccount(email, password)
@@ -387,7 +387,7 @@ TestServer.start(config.publicUrl)
   test(
     'create account allows localization of emails',
     function (t) {
-      var email = uniqueID() +'@example.com'
+      var email = uniqueID() +'@restmail.net'
       var password = 'allyourbasearebelongtous'
       var client = null
       return Client.create(config.publicUrl, email, password)
@@ -403,8 +403,8 @@ TestServer.start(config.publicUrl)
         )
         .then(
           function (emailData) {
-            t.assert(emailData.body.indexOf('Welcome') !== -1, 'is en')
-            t.assert(emailData.body.indexOf('GDay') === -1, 'not en-AU')
+            t.assert(emailData.text.indexOf('Welcome') !== -1, 'is en')
+            t.assert(emailData.text.indexOf('GDay') === -1, 'not en-AU')
             return client.destroyAccount()
           }
         )
@@ -425,8 +425,8 @@ TestServer.start(config.publicUrl)
         )
         .then(
           function (emailData) {
-            t.assert(emailData.body.indexOf('Welcome') === -1, 'not en')
-            t.assert(emailData.body.indexOf('GDay') !== -1, 'is en-AU')
+            t.assert(emailData.text.indexOf('Welcome') === -1, 'not en')
+            t.assert(emailData.text.indexOf('GDay') !== -1, 'is en-AU')
             return client.destroyAccount()
           }
         )
@@ -472,24 +472,45 @@ function waitForCode(email) {
   return waitForEmail(email)
     .then(
       function (emailData) {
-        return emailData.code;
+        return emailData.headers['x-verify-code'] || emailData.headers['x-recovery-code']
       }
     )
 }
 
+function loop(name, tries, cb) {
+  var url = 'http://' + config.smtp.api.host + ':' + config.smtp.api.port + '/mail/' + name
+  console.log('checking mail', url)
+  request({ url: url, method: 'GET' },
+    function (err, res, body) {
+      console.log('mail status', res && res.statusCode, 'tries', tries)
+      try {
+        var json = JSON.parse(body)[0]
+      }
+      catch (e) {
+        return cb(e)
+      }
+
+      if(!json) {
+        if (tries === 0) {
+          return cb(new Error('could not get mail for ' + url))
+        }
+        return setTimeout(loop.bind(null, name, --tries, cb), 1000)
+      }
+      console.log('deleting mail', url)
+      request({ url: url, method: 'DELETE' },
+        function (err, res, body) {
+          cb(err, json)
+        }
+      )
+    }
+  )
+}
 
 function waitForEmail(email) {
   var d = P.defer()
-  request(
-    {
-      url: 'http://' + config.smtp.api.host + ':' + config.smtp.api.port + '/pop',
-      method: 'POST',
-      json: { email: email }
-    },
-    function (err, res, body) {
-      return err ? d.reject(err) : d.resolve(body)
-    }
-  )
+  loop(email.split('@')[0], 20, function (err, json) {
+    return err ? d.reject(err) : d.resolve(json)
+  })
   return d.promise
 }
 

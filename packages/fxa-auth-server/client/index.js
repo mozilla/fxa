@@ -323,13 +323,6 @@ Client.prototype.emailStatus = function () {
         return this.api.recoveryEmailStatus(this.sessionToken)
       }.bind(this)
     )
-    .then(
-    function (status) {
-      // decode email
-      status.email = Buffer(status.email, 'hex').toString()
-      return status
-    }
-  )
 }
 
 Client.prototype.requestVerifyEmail = function () {
