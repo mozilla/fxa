@@ -129,7 +129,7 @@ module.exports = function (config, log, now) {
   if (config.redis && config.redis.host) {
     return RedisNonceDB
   } else {
-    if (config.env === 'production') {
+    if (config.env === 'prod') {
       log.warn('using in-memory nonce db; this is likely not suitable for production')
     }
     return MemoryNonceDB

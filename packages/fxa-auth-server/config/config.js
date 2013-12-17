@@ -9,7 +9,7 @@ module.exports = function (fs, path, url, convict) {
     env: {
       doc: "The current node.js environment",
       default: "dev",
-      format: [ "dev", "test", "stage", "production" ],
+      format: [ "dev", "test", "stage", "prod" ],
       env: 'NODE_ENV'
     },
     log: {

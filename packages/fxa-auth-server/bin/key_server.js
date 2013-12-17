@@ -9,7 +9,7 @@ var config = require('../config').root()
 function main() {
   var log = require('../log')(config.log.level)
 
-  if (config.env !== 'production') {
+  if (config.env !== 'prod') {
     log.info(config, "starting config")
   }
 
