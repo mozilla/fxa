@@ -483,8 +483,9 @@ function loop(name, tries, cb) {
   request({ url: url, method: 'GET' },
     function (err, res, body) {
       console.log('mail status', res && res.statusCode, 'tries', tries)
+      var json = null
       try {
-        var json = JSON.parse(body)[0]
+        json = JSON.parse(body)[0]
       }
       catch (e) {
         return cb(e)

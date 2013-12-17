@@ -487,7 +487,6 @@ TestServer.start(config.publicUrl)
     function (t) {
       var email = email1
       var password = 'allyourbasearebelongtous'
-      var url = null
       var client
       return Client.login(config.publicUrl, email, password)
         .then(

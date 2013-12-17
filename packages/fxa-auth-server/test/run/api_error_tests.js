@@ -81,7 +81,6 @@ TestServer.start(config.publicUrl)
     function (t) {
       var email = 'notAnEmailAddress'
       var password = '123456'
-      var client = null
       return Client.create('http://127.0.0.1:9000', email, password, {preVerified: true})
         .then(
           fail,

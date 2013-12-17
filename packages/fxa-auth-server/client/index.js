@@ -90,10 +90,6 @@ Client.prototype.setupCredentials = function (email, password, customSalt, custo
 Client.create = function (origin, email, password, options) {
   var c = new Client(origin)
   options = options || {}
-  if (typeof(options) === 'function') {
-    callback = options
-    options = {}
-  }
   c.preVerified = options.preVerified || false
   if (options.lang) {
     c.lang = options.lang
