@@ -62,8 +62,8 @@ Verifier.prototype.start = function(cb) {
     e.FALLBACK_DOMAIN = this.config.fallback;
   }
 
-  if (process.env.REPORT_COVERAGE_DIR) {
-    e.REPORT_COVERAGE_DIR = process.env.REPORT_COVERAGE_DIR;
+  if (process.env.ASS_CODE_COVERAGE) {
+    e.ASS_CODE_COVERAGE = process.env.ASS_CODE_COVERAGE;
   }
 
   if (this.config.files) {

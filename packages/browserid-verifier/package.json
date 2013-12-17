@@ -26,10 +26,10 @@
     "walk": "2.2.1",
     "temp": "0.6.0",
     "request": "2.27.0",
-    "blanket": "1.1.5",
+    "ass": "0.0.4",
     "awsbox": "~0.6.2"
   },
   "scripts": {
-    "test": "node scripts/run-tests.js"
+    "test": "mocha -R spec tests/*.js"
   }
 }
