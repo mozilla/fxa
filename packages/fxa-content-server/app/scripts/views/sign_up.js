@@ -7,11 +7,10 @@
 define([
   'views/base',
   'hgn!templates/sign_up',
-  'gherkin',
   'lib/session',
   'processed/constants'
 ],
-function(BaseView, SignUpTemplate, gherkin, Session, Constants) {
+function(BaseView, SignUpTemplate, Session, Constants) {
   var SignUpView = BaseView.extend({
     template: SignUpTemplate,
     className: 'sign-up',
@@ -32,29 +31,32 @@ function(BaseView, SignUpTemplate, gherkin, Session, Constants) {
 
       var client;
 
-      gherkin.Client.create(Constants.FXA_ACCOUNT_SERVER, email, password)
-        .then(function (x) {
-          client = x;
 
-          return client.login();
-        })
-        .done(function () {
-          Session.email = email;
-          Session.token = client.sessionToken;
+      require(['gherkin'], function(gherkin) {
+        gherkin.Client.create(Constants.FXA_ACCOUNT_SERVER, email, password)
+          .then(function (x) {
+            client = x;
 
-          router.navigate('confirm', { trigger: true });
+            return client.login();
+          })
+          .done(function () {
+            Session.email = email;
+            Session.token = client.sessionToken;
 
-          // email: email,
-          // sessionToken: client.sessionToken,
-          // keyFetchToken: client.keyFetchToken,
-          // unwrapBKey: client.unwrapBKey
+            router.navigate('confirm', { trigger: true });
 
-        },
-        function (err) {
-          this.$('.error').html(err.message);
+            // email: email,
+            // sessionToken: client.sessionToken,
+            // keyFetchToken: client.keyFetchToken,
+            // unwrapBKey: client.unwrapBKey
 
-          console.error('Error?', err);
-        }.bind(this));
+          },
+          function (err) {
+            this.$('.error').html(err.message);
+
+            console.error('Error?', err);
+          }.bind(this));
+      }.bind(this));
     },
 
     _validateEmail: function() {
