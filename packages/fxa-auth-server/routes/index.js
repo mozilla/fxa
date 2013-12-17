@@ -20,7 +20,7 @@ module.exports = function (
   Token,
   config
   ) {
-  var isProduction = config.env === 'production'
+  var isProduction = config.env === 'prod'
   var auth = require('./auth')(log, isA, error, db, Token)
   var defaults = require('./defaults')(log, P, db)
   var idp = require('./idp')(log, serverPublicKey)

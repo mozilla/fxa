@@ -211,7 +211,7 @@ module.exports = function (path, url, Hapi, toobusy) {
             }
             response = error.wrap(details)
           }
-          if (config.env !== 'production') {
+          if (config.env !== 'prod') {
             response.response.payload.log = request.app.traced
           }
           if (response.response.payload.domainThrown) {
