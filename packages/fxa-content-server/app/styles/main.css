@@ -78,3 +78,24 @@ a.button:hover, button:hover {
   padding: 5px;
   width: 100%;
 }
+
+.submit-row {
+  margin-top: 25px;
+}
+
+.submit-row .button-secondary {
+  float: left;
+  line-height: 41px;
+  cursor: pointer;
+}
+
+.button-secondary:hover,
+.button-secondary:focus,
+.button-secondary:active {
+  text-decoration: underline;
+}
+
+.submit-row .button-primary {
+  float: right;
+  width: 75%;
+}

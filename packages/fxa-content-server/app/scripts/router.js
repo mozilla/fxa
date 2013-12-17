@@ -14,9 +14,13 @@ define([
   'views/settings',
   'views/tos',
   'views/pp',
+  'views/age',
+  'views/birthday',
+  'views/create_account',
+  'views/cannot_create_account',
   'transit'
 ],
-function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView) {
+function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView) {
   var Router = Backbone.Router.extend({
     routes: {
       '': 'showIntro',
@@ -25,48 +29,67 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
       'confirm': 'showConfirm',
       'settings': 'showSettings',
       'tos': 'showTos',
-      'pp': 'showPp'
+      'pp': 'showPp',
+      'age': 'showAge',
+      'birthday': 'showBirthday',
+      'create_account': 'showCreateAccount',
+      'cannot_create_account': 'showCannotCreateAccount'
     },
 
-    initialize: function() {
+    initialize: function () {
       this.$stage = $('#stage');
 
       this.watchAnchors();
     },
 
-    showIntro: function() {
+    showIntro: function () {
       this.showView(new IntroView());
 
       // TODO - can this go into the IntroView or into CSS?
       this.$stage.css({ scale: 0.6, opacity: 0 }).transition({ scale: 1, opacity: 1 }, 1500);
     },
 
-    showSignIn: function() {
+    showSignIn: function () {
       this.showView(new SignInView());
     },
 
-    showSignUp: function() {
+    showSignUp: function () {
       this.showView(new SignUpView());
     },
 
-    showConfirm: function() {
+    showConfirm: function () {
       this.showView(new ConfirmView());
     },
 
-    showSettings: function() {
+    showSettings: function () {
       this.showView(new SettingsView());
     },
 
-    showTos: function() {
+    showTos: function () {
       this.showView(new TosView());
     },
 
-    showPp: function() {
+    showPp: function () {
       this.showView(new PpView());
     },
 
+    showAge: function () {
+      this.showView(new AgeView());
+    },
 
-    showView: function(view) {
+    showBirthday: function () {
+      this.showView(new BirthdayView());
+    },
+
+    showCreateAccount: function () {
+      this.showView(new CreateAccountView());
+    },
+
+    showCannotCreateAccount: function () {
+      this.showView(new CannotCreateAccountView());
+    },
+
+    showView: function (view) {
       if (this.currentView) {
         this.currentView.destroy();
       }
@@ -76,13 +99,13 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
       this.$stage.html(this.currentView.render().el);
     },
 
-    watchAnchors: function() {
-      $(document).on('click', 'a[href^="/"]', function(event) {
+    watchAnchors: function () {
+      $(document).on('click', 'a[href^="/"]', function (event) {
         if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
           event.preventDefault();
 
           // Remove leading slashes
-          var url = $(event.target).attr('href').replace(/^\//,'');
+          var url = $(event.target).attr('href').replace(/^\//, '');
 
           // Instruct Backbone to trigger routing events
           this.navigate(url, { trigger: true });

@@ -36,12 +36,8 @@ define([
           .click()
         .end()
 
-        .waitForElementByCssSelector('.confirm h2')
-        .elementByCssSelector('.confirm h2')
-          .text()
-          .then(function (resultText) {
-            assert.ok(resultText.match(/^Confirm Your Account/), 'No errors in account creation');
-          })
+        // Being pushed to the age verification screen is success.
+        .waitForElementById('fxa-age-header')
         .end();
     }
   });
