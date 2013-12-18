@@ -64,7 +64,8 @@ function main() {
     Token.KeyFetchToken,
     Token.AccountResetToken,
     Token.SrpToken,
-    Token.ForgotPasswordToken
+    Token.ForgotPasswordToken,
+    Token.PasswordChangeToken
   )
 
   var noncedb = require('../noncedb')(

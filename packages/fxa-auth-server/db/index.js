@@ -11,7 +11,8 @@ module.exports = function (
   KeyFetchToken,
   AccountResetToken,
   SrpToken,
-  ForgotPasswordToken) {
+  ForgotPasswordToken,
+  PasswordChangeToken) {
 
   if (backend === 'mysql') {
     return require('./mysql')(
@@ -22,7 +23,8 @@ module.exports = function (
       KeyFetchToken,
       AccountResetToken,
       SrpToken,
-      ForgotPasswordToken
+      ForgotPasswordToken,
+      PasswordChangeToken
     )
   }
   else {
@@ -34,7 +36,8 @@ module.exports = function (
       KeyFetchToken,
       AccountResetToken,
       SrpToken,
-      ForgotPasswordToken
+      ForgotPasswordToken,
+      PasswordChangeToken
     )
   }
 }

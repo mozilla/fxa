@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS accounts (
   verified BOOLEAN NOT NULL DEFAULT FALSE,
   kA BINARY(32) NOT NULL,
   wrapKb BINARY(32) NOT NULL,
-  srp TEXT NOT NULL,
-  passwordStretching TEXT NOT NULL
+  authSalt BINARY(32) NOT NULL,
+  verifyHash BINARY(32) NOT NULL
 ) ENGINE=InnoDB;
 
 
@@ -57,4 +57,13 @@ CREATE TABLE IF NOT EXISTS forgotpwdTokens (
   passcode INT UNSIGNED NOT NULL,
   created BIGINT UNSIGNED NOT NULL,
   tries SMALLINT UNSIGNED NOT NULL
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS passwordChangeTokens (
+  tokenid BINARY(32) PRIMARY KEY,
+  tokendata BINARY(32) NOT NULL,
+  uid BINARY(16) NOT NULL,
+  verifyHash BINARY(32) NOT NULL,
+  authSalt BINARY(32) NOT NULL,
+  INDEX session_uid (uid)
 ) ENGINE=InnoDB;

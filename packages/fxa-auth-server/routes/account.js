@@ -5,6 +5,20 @@
 var HEX_STRING = require('./validators').HEX_STRING
 var HEX_EMAIL = require('./validators').HEX_EMAIL
 
+var scrypt = require('../client/scrypt')
+var hkdf = require('../hkdf')
+
+function buffersAreEqual(buffer1, buffer2) {
+  var mismatch = buffer1.length - buffer2.length
+  if (mismatch) {
+    return false
+  }
+  for (var i = 0; i < buffer1.length; i++) {
+    mismatch |= buffer1[i] ^ buffer2[i]
+  }
+  return mismatch === 0
+}
+
 module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
 
   var routes = [
@@ -19,30 +33,18 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         tags: ["srp", "account"],
         validate: {
           payload: {
-            email: isA.String().max(1024).regex(HEX_EMAIL).required(),
-            srp: isA.Object({
-              type: isA.String().max(64).valid('SRP-6a/SHA256/2048/v1').required(),
-              verifier: isA.String().min(512).max(512).regex(HEX_STRING).required(),
-              salt: isA.String().min(64).max(64).regex(HEX_STRING).required(),
-            }).required(),
-            passwordStretching: isA.Object(
-              {
-                type: isA.String().required().valid('PBKDF2/scrypt/PBKDF2/v1'),
-                PBKDF2_rounds_1: isA.Number().integer().min(20000).max(20000).required(),
-                scrypt_N: isA.Number().integer().min(65536).max(65536).required(),
-                scrypt_r: isA.Number().integer().min(8).max(8).required(),
-                scrypt_p: isA.Number().integer().min(1).max(1).required(),
-                PBKDF2_rounds_2: isA.Number().integer().min(20000).max(20000).required(),
-                salt: isA.String().min(64).max(64).regex(HEX_STRING).required()
-              }
-            ).required(),
+            email: isA.String().max(1024).required(),
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.Boolean()
           }
         },
         handler: function accountCreate(request) {
           log.begin('Account.create', request)
           var form = request.payload
-          var email = Buffer(form.email, 'hex').toString()
+          var email = form.email
+          var authSalt = crypto.randomBytes(32)
+          var authPW = Buffer(form.authPW, 'hex')
+
           db.accountExists(email)
             .then(
               function (exists) {
@@ -52,22 +54,33 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
               }
             )
             .then(
-              db.createAccount.bind(
-                db,
-                {
-                  uid: uuid.v4('binary'),
-                  email: email,
-                  emailCode: crypto.randomBytes(4).toString('hex'),
-                  verified: form.preVerified || false,
-                  srp: form.srp,
-                  kA: crypto.randomBytes(32),
-                  wrapKb: crypto.randomBytes(32),
-                  passwordStretching: form.passwordStretching,
-                  devices: {},
-                  accountResetToken: null,
-                  forgotPasswordToken: null
-                }
-              )
+              function () {
+                return scrypt.hash(authPW, authSalt)
+              }
+            )
+            .then(
+              function (stretched) {
+                return hkdf(stretched, 'verifyHash', null, 32)
+              }
+            )
+            .then(
+              function (verifyHash) {
+                return db.createAccount(
+                  {
+                    uid: uuid.v4('binary'),
+                    email: email,
+                    emailCode: crypto.randomBytes(4).toString('hex'),
+                    verified: form.preVerified || false,
+                    kA: crypto.randomBytes(32),
+                    wrapKb: crypto.randomBytes(32),
+                    devices: {},
+                    accountResetToken: null,
+                    forgotPasswordToken: null,
+                    authSalt: authSalt,
+                    verifyHash: verifyHash
+                  }
+                )
+              }
             )
             .then(
               function (account) {
@@ -92,6 +105,177 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
               },
               request.reply.bind(request)
             )
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/login',
+      config: {
+        description: "Password based authentication",
+        handler: function accountLogin(request) {
+          log.begin('Account.login', request)
+          var form = request.payload
+          var authPW = Buffer(form.authPW, 'hex')
+          db.emailRecord(form.email)
+            .then(
+              function (emailRecord) {
+                if (!emailRecord) {
+                  throw error.unknownAccount(form.email)
+                }
+                return scrypt.hash(authPW, emailRecord.authSalt)
+                  .then(
+                    function (stretched) {
+                      return hkdf(stretched, 'verifyHash', null, 32)
+                    }
+                  )
+                  .then(
+                    function (verifyHash) {
+                      if (!buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
+                        throw error.incorrectPassword()
+                      }
+                      return db.createSessionToken(
+                        {
+                          uid: emailRecord.uid,
+                          email: emailRecord.email,
+                          emailCode: emailRecord.emailCode,
+                          verified: emailRecord.verified
+                        }
+                      )
+                    }
+                  )
+              }
+            )
+            .done(
+              function (sessionToken) {
+                request.reply(
+                  {
+                    uid: sessionToken.uid.toString('hex'),
+                    sessionToken: sessionToken.data.toString('hex'),
+                    verified: sessionToken.verified
+                  }
+                )
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        },
+        validate: {
+          payload: {
+            email: isA.String().max(255).required(),
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+          },
+          response: {
+            schema: {
+              uid: isA.String().regex(HEX_STRING).required(),
+              sessionToken: isA.String().regex(HEX_STRING).required(),
+              verified: isA.Boolean().required()
+            }
+          }
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/login_and_get_keys',
+      config: {
+        description: 'login with a password and get a keyFetchToken',
+        handler: function (request) {
+          log.begin('Account.loginAndGetKeys', request)
+          var form = request.payload
+          var authPW = Buffer(form.authPW, 'hex')
+          db.emailRecord(form.email)
+            .then(
+              function (emailRecord) {
+                if (!emailRecord) {
+                  throw error.unknownAccount(form.email)
+                }
+                return scrypt.hash(authPW, emailRecord.authSalt)
+                  .then(
+                    function (stretched) {
+                      return hkdf(stretched, 'verifyHash', null, 32)
+                        .then(
+                          function (verifyHash) {
+                            if (!buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
+                              throw error.incorrectPassword()
+                            }
+                            return db.createSessionToken(
+                              {
+                                uid: emailRecord.uid,
+                                email: emailRecord.email,
+                                emailCode: emailRecord.emailCode,
+                                verified: emailRecord.verified
+                              }
+                            )
+                          }
+                        )
+                        .then(
+                          function (sessionToken) {
+                            return db.createKeyFetchToken(
+                              {
+                                uid: emailRecord.uid,
+                                kA: emailRecord.kA,
+                                wrapKb: emailRecord.wrapKb,
+                                verified: emailRecord.verified
+                              }
+                            )
+                            .then(
+                              function (keyFetchToken) {
+                                return {
+                                  sessionToken: sessionToken,
+                                  keyFetchToken: keyFetchToken
+                                }
+                              }
+                            )
+                            .then(
+                              function (tokens) {
+                                return hkdf(stretched, 'stretchWrap', null, 32)
+                                  .then(
+                                    function (stretchWrap) {
+                                      tokens.stretchWrap = stretchWrap
+                                      return tokens
+                                    }
+                                  )
+                              }
+                            )
+                          }
+                        )
+                    }
+                  )
+              }
+            )
+            .done(
+              function (tokens) {
+                request.reply(
+                  {
+                    uid: tokens.sessionToken.uid.toString('hex'),
+                    stretchWrap: tokens.stretchWrap.toString('hex'),
+                    sessionToken: tokens.sessionToken.data.toString('hex'),
+                    keyFetchToken: tokens.keyFetchToken.data.toString('hex'),
+                    verified: tokens.sessionToken.verified
+                  }
+                )
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        },
+        validate: {
+          payload: {
+            email: isA.String().max(255).required(),
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+          },
+          response: {
+            schema: {
+              uid: isA.String().regex(HEX_STRING).required(),
+              stretchWrap: isA.String().regex(HEX_STRING).required(),
+              sessionToken: isA.String().regex(HEX_STRING).required(),
+              keyFetchToken: isA.String().regex(HEX_STRING).required(),
+              verified: isA.Boolean().required()
+            }
+          }
         }
       }
     },
@@ -280,26 +464,31 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         tags: ["account"],
         validate: {
           payload: {
-            // The bundle is wrapKb + srpVerifier + HMAC, hex-encoded.
-            bundle: isA.String().max((32 + 256 + 32) * 2).regex(HEX_STRING).required(),
-            srp: isA.Object({
-              type: isA.String().max(64).required(),
-              salt: isA.String().min(64).max(64).regex(HEX_STRING).required()
-            }).required(),
-            passwordStretching: isA.Object()
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
           }
         },
         handler: function accountReset(request) {
           log.begin('Account.reset', request)
           var reply = request.reply.bind(request)
           var accountResetToken = request.auth.credentials
-          var payload = request.payload
-          accountResetToken.unbundleAccountData(payload.bundle)
+          var authPW = Buffer(request.payload.authPW, 'hex')
+          var authSalt = crypto.randomBytes(32)
+          return scrypt.hash(authPW, authSalt)
             .then(
-              function (unbundle) {
-                payload.wrapKb = unbundle.wrapKb
-                payload.srp.verifier = unbundle.verifier
-                return db.resetAccount(accountResetToken, payload)
+              function (stretched) {
+                return hkdf(stretched, 'verifyHash', null, 32)
+              }
+            )
+            .then(
+              function (verifyHash) {
+                return db.resetAccount(
+                  accountResetToken,
+                  {
+                    authSalt: authSalt,
+                    verifyHash: verifyHash,
+                    wrapKb: crypto.randomBytes(32)
+                  }
+                )
               }
             )
             .then(function () { return {} })
@@ -311,17 +500,28 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
       method: 'POST',
       path: '/account/destroy',
       config: {
-        auth: {
-          strategy: 'authToken'
-        },
         tags: ["account"],
         handler: function accountDestroy(request) {
           log.begin('Account.destroy', request)
+          var form = request.payload
           var reply = request.reply.bind(request)
-          var authToken = request.auth.credentials
-          db.deleteAccount(authToken)
+          db.emailRecord(form.email)
+            .then(
+              function (emailRecord) {
+                if (!emailRecord) {
+                  throw error.unknownAccount(form.email)
+                }
+                return db.deleteAccount(emailRecord)
+              }
+            )
             .then(function () { return {} })
             .done(reply, reply)
+        },
+        validate: {
+          payload: {
+            email: isA.String().max(255).required(),
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+          }
         }
       }
     }

@@ -3,6 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var HEX_EMAIL = require('./validators').HEX_EMAIL
+var HEX_STRING = require('./validators').HEX_STRING
+
+var crypto = require('crypto')
+var scrypt = require('../client/scrypt')
+var hkdf = require('../hkdf')
+
+function buffersAreEqual(buffer1, buffer2) {
+  var mismatch = buffer1.length - buffer2.length
+  if (mismatch) {
+    return false
+  }
+  for (var i = 0; i < buffer1.length; i++) {
+    mismatch |= buffer1[i] ^ buffer2[i]
+  }
+  return mismatch === 0
+}
 
 module.exports = function (log, isA, error, db, mailer) {
 
@@ -19,30 +35,149 @@ module.exports = function (log, isA, error, db, mailer) {
       config: {
         description: "Begin the change password process",
         tags: ["password"],
-        auth: {
-          strategy: 'authToken'
-        },
         handler: function (request) {
           log.begin('Password.changeStart', request)
-          var reply = request.reply.bind(request)
-          var authToken = request.auth.credentials
-          db.createPasswordChange(authToken)
+          var form = request.payload
+          var oldAuthPW = Buffer(form.oldAuthPW, 'hex')
+          var oldStretchWrap = null
+          var newAuthPW = Buffer(form.newAuthPW, 'hex')
+          var newAuthSalt = crypto.randomBytes(32)
+          var newStretchWrap = null
+          var newVerifyHash = null
+
+          db.emailRecord(form.email)
             .then(
-              function (tokens) {
-                return authToken.bundleAccountReset(
-                  tokens.keyFetchToken.data,
-                  tokens.accountResetToken.data
-                )
-              }
-            )
-            .then(
-              function (bundle) {
-                return {
-                  bundle: bundle
+              function (emailRecord) {
+                if (!emailRecord) {
+                  throw error.unknownAccount(form.email)
                 }
+                return scrypt.hash(oldAuthPW, emailRecord.authSalt)
+                  .then(
+                    function (oldStretched) {
+                      return hkdf(oldStretched, 'verifyHash', null, 32)
+                        .then(
+                          function (verifyHash) {
+                            if(!buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
+                              throw error.incorrectPassword()
+                            }
+                            return hkdf(oldStretched, 'stretchWrap', null, 32)
+                          }
+                        )
+                        .then(
+                          function (stretchWrap) {
+                            oldStretchWrap = stretchWrap
+                          }
+                        )
+                    }
+                  )
+                  .then(
+                    function () {
+                      return scrypt.hash(newAuthPW, newAuthSalt)
+                        .then(
+                          function (newStretched) {
+                            return hkdf(newStretched, 'verifyHash', null, 32)
+                              .then(
+                                function (verifyHash) {
+                                  newVerifyHash = verifyHash
+                                  return hkdf(newStretched, 'stretchWrap', null, 32)
+                                }
+                              )
+                          }
+                        )
+                        .then(
+                          function (stretchWrap) {
+                            newStretchWrap = stretchWrap
+                          }
+                        )
+                    }
+                  )
+                  .then(
+                    function () {
+                      return db.createKeyFetchToken(
+                        {
+                          uid: emailRecord.uid,
+                          kA: emailRecord.kA,
+                          wrapKb: emailRecord.wrapKb,
+                          verified: emailRecord.verified
+                        }
+                      )
+                      .then(
+                        function (keyFetchToken) {
+                          return db.createPasswordChangeToken(
+                            {
+                              uid: emailRecord.uid,
+                              verifyHash: newVerifyHash,
+                              authSalt: newAuthSalt
+                            }
+                          )
+                          .then(
+                            function (passwordChangeToken) {
+                              return {
+                                keyFetchToken: keyFetchToken,
+                                passwordChangeToken: passwordChangeToken
+                              }
+                            }
+                          )
+                        }
+                      )
+                    }
+                  )
               }
             )
-            .done(reply, reply)
+            .done(
+              function (tokens) {
+                request.reply(
+                  {
+                    oldStretchWrap: oldStretchWrap.toString('hex'),
+                    newStretchWrap: newStretchWrap.toString('hex'),
+                    keyFetchToken: tokens.keyFetchToken.data.toString('hex'),
+                    passwordChangeToken: tokens.passwordChangeToken.data.toString('hex'),
+                    verified: tokens.keyFetchToken.verified
+                  }
+                )
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        },
+        validate: {
+          payload: {
+            email: isA.String().max(255).required(),
+            oldAuthPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
+            newAuthPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+          }
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/password/change/finish',
+      config: {
+        description: 'complete the password change',
+        auth: {
+          strategy: 'passwordChangeToken'
+        },
+        handler: function (request) {
+          log.begin('Password.changeFinish', request)
+          var reply = request.reply.bind(request)
+          var passwordChangeToken = request.auth.credentials
+          var wrapKb = Buffer(request.payload.wrapKb, 'hex')
+          db.resetAccount(
+            passwordChangeToken,
+            {
+              verifyHash: passwordChangeToken.verifyHash,
+              authSalt: passwordChangeToken.authSalt,
+              wrapKb: wrapKb
+            }
+          )
+          .then(function () { return {} })
+          .done(reply, reply)
+        },
+        validate: {
+          payload: {
+            wrapKb: isA.String().min(64).max(64).regex(HEX_STRING).required()
+          }
         }
       }
     },
@@ -55,7 +190,7 @@ module.exports = function (log, isA, error, db, mailer) {
         tags: ["password"],
         handler: function (request) {
           log.begin('Password.forgotSend', request)
-          var email = Buffer(request.payload.email, 'hex').toString()
+          var email = request.payload.email
           db.emailRecord(email)
             .then(
               function (emailRecord) {
@@ -79,7 +214,7 @@ module.exports = function (log, isA, error, db, mailer) {
               function (forgotPasswordToken) {
                 request.reply(
                   {
-                    forgotPasswordToken: forgotPasswordToken.data.toString('hex'),
+                    passwordForgotToken: forgotPasswordToken.data.toString('hex'),
                     ttl: forgotPasswordToken.ttl(),
                     codeLength: forgotPasswordToken.passcode.length,
                     tries: forgotPasswordToken.tries
@@ -93,11 +228,11 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         validate: {
           payload: {
-            email: isA.String().max(1024).regex(HEX_EMAIL).required()
+            email: isA.String().max(1024).required()
           },
           response: {
             schema: {
-              forgotPasswordToken: isA.String(),
+              passwordForgotToken: isA.String(),
               ttl: isA.Number(),
               codeLength: isA.Number(),
               tries: isA.Number()
@@ -127,7 +262,7 @@ module.exports = function (log, isA, error, db, mailer) {
             function () {
               request.reply(
                 {
-                  forgotPasswordToken: forgotPasswordToken.data.toString('hex'),
+                  passwordForgotToken: forgotPasswordToken.data.toString('hex'),
                   ttl: forgotPasswordToken.ttl(),
                   codeLength: forgotPasswordToken.passcode.length,
                   tries: forgotPasswordToken.tries
@@ -141,11 +276,11 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         validate: {
           payload: {
-            email: isA.String().max(1024).regex(HEX_EMAIL).required()
+            email: isA.String().max(1024).required()
           },
           response: {
             schema: {
-              forgotPasswordToken: isA.String(),
+              passwordForgotToken: isA.String(),
               ttl: isA.Number(),
               codeLength: isA.Number(),
               tries: isA.Number()

@@ -14,7 +14,8 @@ module.exports = function (
   KeyFetchToken,
   AccountResetToken,
   SrpToken,
-  ForgotPasswordToken
+  ForgotPasswordToken,
+  PasswordChangeToken
   ) {
 
   // make a pool of connections that we can draw from
@@ -135,7 +136,7 @@ module.exports = function (
         email: data && data.email
       }
     )
-    var sql = 'INSERT INTO accounts (uid, email, emailCode, verified, srp, kA, wrapKb, passwordStretching) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    var sql = 'INSERT INTO accounts (uid, email, emailCode, verified, kA, wrapKb, authSalt, verifyHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     return this.getMasterConnection()
       .then(function(con) {
         var d = P.defer()
@@ -146,10 +147,10 @@ module.exports = function (
             data.email,
             data.emailCode,
             data.verified,
-            JSON.stringify(data.srp),
             data.kA,
             data.wrapKb,
-            JSON.stringify(data.passwordStretching)
+            data.authSalt,
+            data.verifyHash
           ],
           function (err) {
             con.release()
@@ -308,6 +309,36 @@ module.exports = function (
             con.release()
             if (err) return d.reject(err)
             d.resolve(forgotPasswordToken)
+          }
+        )
+        return d.promise
+      })
+  }
+
+  MySql.prototype.createPasswordChangeToken = function (data) {
+    log.trace({ op: 'MySql.createPasswordChangeToken', uid: data && data.uid })
+    var sql = 'REPLACE INTO passwordChangeTokens (tokenid, tokendata, uid, verifyHash, authSalt) VALUES (?, ?, ?, ?, ?)'
+    var con
+    return this.getMasterConnection()
+      .then(function(thisCon) {
+        con = thisCon
+        return PasswordChangeToken.create(data)
+      })
+      .then(function (passwordChangeToken) {
+        var d = P.defer()
+        con.query(
+          sql,
+          [
+            passwordChangeToken.tokenid,
+            passwordChangeToken.data,
+            passwordChangeToken.uid,
+            passwordChangeToken.verifyHash,
+            passwordChangeToken.authSalt
+          ],
+          function (err) {
+            con.release()
+            if (err) return d.reject(err)
+            d.resolve(passwordChangeToken)
           }
         )
         return d.promise
@@ -520,9 +551,36 @@ module.exports = function (
       })
   }
 
+  MySql.prototype.passwordChangeToken = function (id) {
+    log.trace({ op: 'MySql.passwordChangeToken', id: id })
+    var sql = 'SELECT t.tokendata, t.uid, t.verifyHash, t.authSalt ' +
+              ' FROM passwordChangeTokens t WHERE t.tokenid = ?'
+    return this.getSlaveConnection()
+      .then(function(con) {
+        var d = P.defer()
+        con.query(
+          sql,
+          [id],
+          function (err, results) {
+            con.release()
+            if (err) return d.reject(err)
+            if (!results.length) return d.reject(error.invalidToken())
+            var result = results[0]
+            PasswordChangeToken.fromHex(result.tokendata, result)
+              .done(
+                function (passwordChangeToken) {
+                  return d.resolve(passwordChangeToken)
+                }
+              )
+          }
+        )
+        return d.promise
+      })
+  }
+
   MySql.prototype.emailRecord = function (email) {
     log.trace({ op: 'MySql.emailRecord', email: email })
-    var sql = 'SELECT uid, verified, srp, passwordStretching FROM accounts WHERE email = ?'
+    var sql = 'SELECT uid, verified, emailCode, kA, wrapKb, verifyHash, authSalt FROM accounts WHERE email = ?'
     return this.getSlaveConnection()
       .then(function(con) {
         var d = P.defer()
@@ -537,9 +595,12 @@ module.exports = function (
             return d.resolve({
               uid: result.uid,
               email: email,
+              emailCode: result.emailCode,
               verified: !!result.verified,
-              srp: JSON.parse(result.srp),
-              passwordStretching: JSON.parse(result.passwordStretching)
+              kA: result.kA,
+              wrapKb: result.wrapKb,
+              verifyHash: result.verifyHash,
+              authSalt: result.authSalt
             })
           }
         )
@@ -550,7 +611,7 @@ module.exports = function (
   MySql.prototype.account = function (uid) {
 
     log.trace({ op: 'MySql.account', uid: uid })
-    var sql = 'SELECT email, emailCode, verified, srp, kA, wrapKb, passwordStretching ' +
+    var sql = 'SELECT email, emailCode, verified, kA, wrapKb, verifyHash, authSalt ' +
               '  FROM accounts WHERE uid = ?'
     return this.getSlaveConnection()
       .then(function(con) {
@@ -570,8 +631,8 @@ module.exports = function (
               verified: !!result.verified,
               kA: result.kA,
               wrapKb: result.wrapKb,
-              srp: JSON.parse(result.srp),
-              passwordStretching: JSON.parse(result.passwordStretching)
+              verifyHash: result.verifyHash,
+              authSalt: result.authSalt
             })
           }
         )
@@ -776,6 +837,31 @@ module.exports = function (
       })
   }
 
+  MySql.prototype.deletePasswordChangeToken = function (passwordChangeToken) {
+    log.trace(
+      {
+        op: 'MySql.deletePasswordChangeToken',
+        id: passwordChangeToken && passwordChangeToken.tokenid,
+        uid: passwordChangeToken && passwordChangeToken.uid
+      }
+    )
+    var sql = 'DELETE FROM passwordChangeToken WHERE tokenid = ?'
+    return this.getMasterConnection()
+      .then(function(con) {
+        var d = P.defer()
+        con.query(
+          sql,
+          [passwordChangeToken.tokenid],
+          function (err) {
+            con.release()
+            if (err) return d.reject(err)
+            d.resolve(true)
+          }
+        )
+        return d.promise
+      })
+  }
+
   // BATCH
 
   MySql.prototype.resetAccount = function (accountResetToken, data) {
@@ -797,14 +883,14 @@ module.exports = function (
       })
       .then(function() {
         var d = P.defer()
-        var sql = 'UPDATE accounts SET srp = ?, wrapKb = ?, passwordStretching = ? ' +
+        var sql = 'UPDATE accounts SET verifyHash = ?, authSalt = ?, wrapKb = ? ' +
                   ' WHERE uid = ?'
         con.query(
           sql,
           [
-            JSON.stringify(data.srp),
+            data.verifyHash,
+            data.authSalt,
             data.wrapKb,
-            JSON.stringify(data.passwordStretching),
             accountResetToken.uid,
           ],
           function (err) {

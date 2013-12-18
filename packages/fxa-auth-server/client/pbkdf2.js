@@ -5,19 +5,16 @@
 var sjcl = require('sjcl')
 var P = require('p-promise')
 
-const ITERATIONS = 20 * 1000
-const LENGTH = 32 * 8
-
 /** pbkdf2 string creator
  *
  * @param  {Buffer}  input The password hex buffer.
  * @param  {Buffer}  salt The salt string buffer.
  * @return {Buffer}  the derived key hex buffer.
  */
-function derive(input, salt) {
+function derive(input, salt, iterations, len) {
   var password = sjcl.codec.hex.toBits(input.toString('hex'))
   var saltBits = sjcl.codec.hex.toBits(salt.toString('hex'))
-  var result = sjcl.misc.pbkdf2(password, saltBits, ITERATIONS, LENGTH, sjcl.misc.hmac)
+  var result = sjcl.misc.pbkdf2(password, saltBits, iterations, len, sjcl.misc.hmac)
 
   return P(Buffer(sjcl.codec.hex.fromBits(result), 'hex'))
 }

@@ -64,7 +64,7 @@ TestServer.start(config.publicUrl)
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
             var payload = jwcrypto.extractComponents(cert).payload
-            t.equal(payload.principal.email.split('@')[0], client.uid)
+            t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
           }
         )
     }
@@ -76,20 +76,20 @@ TestServer.start(config.publicUrl)
       var email = email2
       var password = 'allyourbasearebelongtous'
       var newPassword = 'foobar'
-      var wrapKb = null
+      var kB = null
       var client = null
-      var firstSrpPw
+      var firstAuthPW
       return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
           function (x) {
             client = x
-            firstSrpPw = x.srpPw
+            firstAuthPW = x.authPW.toString('hex')
             return client.keys()
           }
         )
         .then(
           function (keys) {
-            wrapKb = keys.wrapKb
+            kB = keys.kB
           }
         )
         .then(
@@ -99,13 +99,13 @@ TestServer.start(config.publicUrl)
         )
         .then(
           function () {
-            t.notEqual(client.srpPw, firstSrpPw, 'password has changed')
+            t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
             return client.keys()
           }
         )
         .then(
           function (keys) {
-            t.deepEqual(keys.wrapKb, wrapKb, 'wrapKb is preserved')
+            t.deepEqual(keys.kB, kB, 'kB is preserved')
             t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
@@ -115,8 +115,8 @@ TestServer.start(config.publicUrl)
   test(
     'Login flow',
     function (t) {
-      var email = email2
-      var password = 'foobar'
+      var email = email1
+      var password = 'allyourbasearebelongtous'
       var client = null
       var publicKey = {
         "algorithm":"RS",
@@ -230,12 +230,16 @@ TestServer.start(config.publicUrl)
   test(
     'Unknown account should not exist',
     function (t) {
-      var email = email5
       var client = new Client(config.publicUrl)
-      return client.accountExists(email)
+      client.email = email5
+      client.authPW = crypto.randomBytes(32)
+      return client.auth()
         .then(
-          function (exists) {
-            t.equal(exists, false, "account shouldn't exist")
+          function () {
+            t.fail('account should not exist')
+          },
+          function (err) {
+            t.equal(err.errno, 102, 'account does not exist')
           }
         )
     }
@@ -251,16 +255,15 @@ TestServer.start(config.publicUrl)
         .then(
           function (x) {
             client = x
-            return client.accountExists()
+            t.ok(client.uid, 'account created')
           }
         ).then(
-          function (exists) {
-            t.equal(exists, true, "account should exist")
+          function () {
             return client.login()
           }
         ).then(
           function () {
-            t.ok(client.sessionToken, "client can login after accountExists")
+            t.ok(client.sessionToken, "client can login")
           }
         )
     }
@@ -510,68 +513,6 @@ TestServer.start(config.publicUrl)
             t.ok(keys, 'client readjust to timestamp')
           }
         )
-    }
-  )
-
-  test(
-    'credentials are set up correctly with keystretching and srp',
-    function (t) {
-      var salt = '00f000000000000000000000000000000000000000000000000000000000034d'
-      var srpSalt = '00f1000000000000000000000000000000000000000000000000000000000179';
-      var email = 'andré@example.org'
-      var password = Buffer('pässwörd')
-      var client = new Client(config.publicUrl)
-      return client.setupCredentials(
-          email, password, salt, srpSalt
-        )
-        .then(
-          function () {
-            t.equal(client.srpPw, '00f9b71800ab5337d51177d8fbc682a3653fa6dae5b87628eeec43a18af59a9d')
-            t.equal(client.unwrapBKey, '6ea660be9c89ec355397f89afb282ea0bf21095760c8c5009bbcc894155bbe2a')
-            t.equal(client.srp.verifier, '00173ffa0263e63ccfd6791b8ee2a40f048ec94cd95aa8a3125726f9805e0c8283c658dc0b607fbb25db68e68e93f2658483049c68af7e8214c49fde2712a775b63e545160d64b00189a86708c69657da7a1678eda0cd79f86b8560ebdb1ffc221db360eab901d643a75bf1205070a5791230ae56466b8c3c1eb656e19b794f1ea0d2a077b3a755350208ea0118fec8c4b2ec344a05c66ae1449b32609ca7189451c259d65bd15b34d8729afdb5faff8af1f3437bbdc0c3d0b069a8ab2a959c90c5a43d42082c77490f3afcc10ef5648625c0605cdaace6c6fdc9e9a7e6635d619f50af7734522470502cab26a52a198f5b00a279858916507b0b4e9ef9524d6')
-          }
-        )
-    }
-  )
-
-  test(
-    'incorrect passwordStretching parameters are rejected on /account/create',
-    function (t) {
-      var client = new Client(config.publicUrl)
-      return client.setupCredentials(
-        'test@example.com',
-        Buffer('xxx')
-      )
-      .then(
-        function () {
-          return client.api.accountCreate(
-            client.email,
-            client.srp.verifier,
-            client.srp.salt,
-            {
-              type: 'invalid',
-              PBKDF2_rounds_1: 1,
-              scrypt_N: 8,
-              scrypt_r: 1,
-              scrypt_p: 0,
-              PBKDF2_rounds_2: 1,
-              salt: client.passwordSalt
-            },
-            {
-              preVerified: true,
-              lang: client.lang
-            }
-          )
-        }
-      )
-      .then(
-        function (x) {
-          t.fail('request should have failed')
-        },
-        function (err) {
-          t.equal(err.code, 400, 'bad request')
-        }
-      )
     }
   )
 
