@@ -8,7 +8,7 @@ define([
   'views/base',
   'hgn!templates/tos'
 ],
-function(BaseView, TosTemplate) {
+function (BaseView, TosTemplate) {
   var TosView = BaseView.extend({
     template: TosTemplate,
     className: 'tos',
@@ -17,7 +17,7 @@ function(BaseView, TosTemplate) {
       'click #fxa-tos-back': 'back'
     },
 
-    back: function(event) {
+    back: function () {
       window.history.back();
     }
 

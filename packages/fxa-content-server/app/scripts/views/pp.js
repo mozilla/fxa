@@ -8,7 +8,7 @@ define([
   'views/base',
   'hgn!templates/pp'
 ],
-function(BaseView, PpTemplate) {
+function (BaseView, PpTemplate) {
   var PpView = BaseView.extend({
     template: PpTemplate,
     className: 'pp',
@@ -17,7 +17,7 @@ function(BaseView, PpTemplate) {
       'click #fxa-pp-back': 'back'
     },
 
-    back: function(event) {
+    back: function () {
       window.history.back();
     }
 
