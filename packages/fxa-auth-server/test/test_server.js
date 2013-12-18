@@ -9,7 +9,7 @@ var request = require('request')
 function TestServer() {
   this.server = cp.spawn(
     'node',
-    ['../bin/key_server.js'],
+    ['./key_server_stub.js'],
     {
       cwd: __dirname
     }
@@ -20,7 +20,7 @@ function TestServer() {
   // if another instance is already running this will just die which is ok
   this.mail = cp.spawn(
     'node',
-    ['../bin/mail_helper.js'],
+    ['./mail_helper_stub.js'],
     {
       cwd: __dirname
     }
