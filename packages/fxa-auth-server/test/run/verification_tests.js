@@ -148,6 +148,56 @@ TestServer.start(config.publicUrl)
   )
 
   test(
+    'create account with service identifier',
+    function (t) {
+      var email = uniqueID() +'@example.com'
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      var options = { service: 'abcdef' }
+      return Client.create(config.publicUrl, email, password, options)
+        .then(
+          function (x) {
+            client = x
+          }
+        )
+        .then(
+          function () {
+            return waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            t.equal(emailData.headers['x-service-id'], 'abcdef')
+            client.service = '123456'
+            return client.requestVerifyEmail()
+          }
+        )
+        .then(
+          function () {
+            return waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            t.equal(emailData.headers['x-service-id'], '123456')
+            client.service = null
+            return client.requestVerifyEmail()
+          }
+        )
+        .then(
+          function () {
+            return waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            t.equal(emailData.headers['x-service-id'], undefined)
+          }
+        )
+    }
+  )
+
+  test(
     'forgot password',
     function (t) {
       var email = uniqueID() +'@restmail.net'
@@ -466,7 +516,6 @@ function createFreshAccount(email, password) {
       }
     )
 }
-
 
 function waitForCode(email) {
   return waitForEmail(email)

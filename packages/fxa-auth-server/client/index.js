@@ -29,6 +29,7 @@ function Client(origin) {
   this.wrapKb = null
   this._devices = null
   this.lang = null
+  this.service = null
 }
 
 Client.Api = ClientApi
@@ -94,6 +95,9 @@ Client.create = function (origin, email, password, options) {
   if (options.lang) {
     c.lang = options.lang
   }
+  if (options.service) {
+    c.service = options.service
+  }
 
   return c.setupCredentials(email, password)
     .then(
@@ -145,6 +149,7 @@ Client.parse = function (string) {
   client.forgotPasswordToken = object.forgotPasswordToken
   client.kA = object.kA
   client.wrapKb = object.wrapKb
+  client.service = object.service || null
 
   return client
 }
@@ -165,7 +170,8 @@ Client.prototype.create = function () {
     },
     {
       preVerified: this.preVerified,
-      lang: this.lang
+      lang: this.lang,
+      service: this.service
     }
   )
   .then(
@@ -325,7 +331,7 @@ Client.prototype.requestVerifyEmail = function () {
   var o = this.sessionToken ? P(null) : this.login()
   return o.then(
     function () {
-      return this.api.recoveryEmailResendCode(this.sessionToken)
+      return this.api.recoveryEmailResendCode(this.sessionToken, this.service)
     }.bind(this)
   )
 }

@@ -145,6 +145,8 @@ Creates a user account. The client provides the email address with which this ac
 
 Because the account email is used for key-derivation by both client and server, it is important to deliver it accurately, byte-for-byte. To avoid transfer-encoding ambiguity (what does HTTP use? what does the JSON parser do? etc), the email should be transferred as a hex-encoded binary string, just like the salts, tokens, and SRP A/B values. For example, "me@example.com" is represented as "6d65406578616d706c652e636f6d", and "andré@example.org" is represented as "616e6472c3a9406578616d706c652e6f7267".
 
+This endpoint may send a verification email to the user.  Callers may optionally provide the `service` parameter to indicate what Identity-Attached Service they are acting on behalf of.  This is an opaque alphanumeric token which will be embedded in the verification link as a query parameter.
+
 ___Parameters___
 
 * email - the primary email for this account (UTF-8 encoded, as hex)
@@ -160,6 +162,8 @@ ___Parameters___
     * scrypt_p: 1
     * PBKDF2_rounds_2: 20000
     * salt: password stretching salt
+* service - opaque alphanumeric token to be included in verification links
+
 
 ### Request
 
@@ -558,6 +562,7 @@ ___Parameters___
 
 * email - the primary email for this account (UTF-8 encoded, as hex)
 * password - the user's plaintext password
+* service - opaque alphanumeric token to be included in verification links
 
 ### Request
 
@@ -875,11 +880,15 @@ Failing requests may be due to the following errors:
 
 Re-sends a verification code to the account's recovery email address. The code is first sent when the account is created, but if the user thinks the message was lost or accidentally deleted, they can request a new message to be sent with this endpoint. The new message will contain the same code as the original message. When this code is provided to `/v1/recovery_email/verify_code` (below), the email will be marked as "verified".
 
+This endpoint may send a verification email to the user.  Callers may optionally provide the `service` parameter to indicate what Identity-Attached Service they are acting on behalf of.  This is an opaque alphanumeric token which will be embedded in the verification link as a query parameter.
+
+
 ### Request
 
 ___Parameters___
 
-none (an empty request body)
+* service - opaque alphanumeric token to be included in verification links
+
 
 ___Headers___
 

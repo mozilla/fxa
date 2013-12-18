@@ -73,6 +73,7 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
               password: request.payload.password,
               options: {
                 preVerified: request.payload.preVerified || false,
+                service: request.payload.service,
                 lang: request.app.preferredLang
               }
             },
@@ -88,7 +89,8 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
           payload: {
             email: isA.String().max(1024).regex(HEX_EMAIL).required(),
             password: isA.String().required(),
-            preVerified: isA.Boolean()
+            preVerified: isA.Boolean(),
+            service: isA.String().max(16).alphanum().optional()
           }
         }
       }
