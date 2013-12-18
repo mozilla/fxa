@@ -9,7 +9,9 @@ define([
   './functional/tos',
   './functional/pp',
   './functional/age',
-  './functional/birthday'
+  './functional/birthday',
+  './functional/confirm',
+  './functional/mocha'
 ], function () {
   'use strict';
 });

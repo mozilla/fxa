@@ -5,20 +5,26 @@
 'use strict';
 
 require.config({
+  baseUrl: '../scripts',
   paths: {
     jquery: '../bower_components/jquery/jquery',
     backbone: '../bower_components/backbone/backbone',
     underscore: '../bower_components/underscore/underscore',
-    fxaClient: '../bower_components/fxa-js-client/fxa-client',
+    gherkin: '../bower_components/fxa-js-client-old/web/bundle',
     text: '../bower_components/requirejs-text/text',
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
     transit: '../bower_components/jquery.transit/jquery.transit',
-    modernizr: '../bower_components/modernizr/modernizr'
+    modernizr: '../bower_components/modernizr/modernizr',
+    mocha: '../bower_components/mocha/mocha',
+    chai: '../bower_components/chai/chai'
   },
   shim: {
     underscore: {
       exports: '_'
+    },
+    mocha: {
+      exports: 'mocha'
     },
     backbone: {
       deps: [
@@ -40,31 +46,23 @@ require.config({
 });
 
 require([
-  'backbone',
-  'router',
-  'lib/translator',
-  'lib/session',
-  'lib/channels/fx-desktop'
+  'mocha',
+  '../tests/setup',
+  '../tests/spec/lib/channels/fx-desktop'
 ],
-function (Backbone, Router, Translator, Session, FxDesktopChannel) {
-  window.router = new Router();
+function (Mocha) {
+  var runner = Mocha.run();
 
-  // IE8 does not support window.navigator.language. Set a default of English.
-  window.translator = new Translator(window.navigator.language || 'en');
+  runner.on('end', function() {
 
-  // Don't start backbone until we have our translations
-  translator.fetch(function () {
-    // Get the party started
-    Backbone.history.start({ pushState: true });
-
-    // Firefox for desktop native=>FxA glue code.
-    // this must be initialized after Backbone.history so that the
-    // Backbone does not override the page the channel sets.
-    var desktopChannel = new FxDesktopChannel();
-    desktopChannel.init();
-
-    Session.channel = desktopChannel;
-
+    // This is our hook to the Selenium tests that run
+    // the mocha tests as part of the CI build.
+    // The selenium test will wait until the #total-failures element exists
+    // and check for "0"
+    var failureEl = document.createElement('div');
+    failureEl.setAttribute('id', 'total-failures');
+    failureEl.innerHTML = runner.failures || '0';
+    document.body.appendChild(failureEl);
   });
 });
 

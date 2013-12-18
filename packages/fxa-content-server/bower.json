@@ -12,7 +12,9 @@
     "jquery.transit": "~0.9.9",
     "requirejs-mustache": "*",
     "mustache": "~0.7.3",
-    "requirejs-text": "~2.0.10"
+    "requirejs-text": "~2.0.10",
+    "mocha": "~1.16.2",
+    "chai": "~1.8.1"
   },
   "devDependencies": {}
 }

@@ -33,9 +33,11 @@ function (BaseView, CreateAccountTemplate, Session, FxaClient) {
     _createAccount: function (email, password) {
       var client = new FxaClient();
       client.signUp(email, password)
-        .done(function (result) {
-          Session.token = result.sessionToken;
-          Session.uid = result.uid;
+        .done(function () {
+          // This info will be sent to the channel in the confirm screen.
+          Session.sessionToken = client.sessionToken;
+          Session.keyFetchToken = client.keyFetchToken;
+          Session.unwrapBKey = client.unwrapBKey;
 
           router.navigate('confirm', { trigger: true });
         },
