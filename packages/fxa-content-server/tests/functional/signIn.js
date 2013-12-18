@@ -42,7 +42,7 @@ define([
           .click()
         .end()
 
-        .wait(5000)
+        .waitForElementByCssSelector('.settings p.center')
         .elementByCssSelector('.settings p.center')
           .text()
           .then(function (resultText) {
