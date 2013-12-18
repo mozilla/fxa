@@ -2,10 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var test = require('../ptaptest')
 var path = require('path')
-var test = require('tap').test
 var CC = require('compute-cluster')
-var signer = new CC({ module: path.join(__dirname, '../../bin/signer.js')})
+var signer = new CC({ module: path.join(__dirname, '../signer-stub.js')})
 signer.on('error', function () {}) // don't die
 
 var validKey = {
