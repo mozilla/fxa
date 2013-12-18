@@ -36,7 +36,7 @@ define([
           .click()
         .end()
 
-        .wait(5000)
+        .waitForElementByCssSelector('.confirm h2')
         .elementByCssSelector('.confirm h2')
           .text()
           .then(function (resultText) {
