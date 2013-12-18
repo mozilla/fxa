@@ -55,6 +55,27 @@ To run tests against saucelabs:
 
     npm run-script test-remote
 
+### Advanced local testing using headed browsers
+
+It is possible to run the Selenium tests against local browsers like Firefox, Chrome, and Safari.
+
+#### Prerequisites:
+
+  * Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+  * Selenium Server (http://docs.seleniumhq.org/download/)
+
+#### Configuration:
+
+  * edit `tests/intern.js` to select the browsers to test under `environments`.
+  * comment out `phantom`
+
+#### Running the tests
+
+  * Start the Selenium Server: `java -jar selenium-server-standalone-2.38.0.jar`
+  * Stop PhantomJS if it is running.
+  * from the `fxa-content-server` directory, type `npm test`
+
+
 ## Configuration
 
 The default auth server is `http://api-accounts.dev.lcip.org`.  To change this,
