@@ -4,7 +4,9 @@
 
 define([
   './functional/signIn',
-  './functional/signUp'
+  './functional/signUp',
+  './functional/tos',
+  './functional/pp'
 ], function () {
   'use strict';
 });

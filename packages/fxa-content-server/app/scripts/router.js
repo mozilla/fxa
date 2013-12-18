@@ -12,16 +12,20 @@ define([
   'views/sign_up',
   'views/confirm',
   'views/settings',
+  'views/tos',
+  'views/pp',
   'transit'
 ],
-function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView) {
+function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView) {
   var Router = Backbone.Router.extend({
     routes: {
       '': 'showIntro',
       'signin': 'showSignIn',
       'signup': 'showSignUp',
       'confirm': 'showConfirm',
-      'settings': 'showSettings'
+      'settings': 'showSettings',
+      'tos': 'showTos',
+      'pp': 'showPp'
     },
 
     initialize: function() {
@@ -33,6 +37,7 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
     showIntro: function() {
       this.switch(new IntroView());
 
+      // TODO - can this go into the IntroView or into CSS?
       this.$stage.css({ scale: 0.6, opacity: 0 }).transition({ scale: 1, opacity: 1 }, 1500);
     },
 
@@ -51,6 +56,15 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
     showSettings: function() {
       this.switch(new SettingsView());
     },
+
+    showTos: function() {
+      this.switch(new TosView());
+    },
+
+    showPp: function() {
+      this.switch(new PpView());
+    },
+
 
     switch: function(view) {
       if (this.currentView) {
