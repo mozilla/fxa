@@ -626,7 +626,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
   request(options, function (err, res, body) {
     if (res && res.headers && res.headers.timestamp) {
       // Record time skew
-      this.timeOffset = Date.now() - parseInt(res.headers.timestamp, 10) * 1000
+      this.timeOffset = parseInt(res.headers.timestamp, 10) * 1000 - (new Date).getTime()
     }
 
     this.emit('endRequest', options, err, res)
@@ -3500,7 +3500,7 @@ function run_xhr(options) {
     xhr.headers = xhr.getAllResponseHeaders().split('\r\n').reduce(function(headers, header) {
       var pair = header.split(": ");
       if (pair[0]) {
-        headers[pair[0]] = pair[1];
+        headers[pair[0].toLowerCase()] = pair[1];
       }
       return headers;
     }, {});
