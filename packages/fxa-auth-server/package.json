@@ -43,9 +43,7 @@
     "nodemailer": "0.5.3",
     "then-redis": "0.3.x",
     "i18n-abide": "0.0.14",
-    "request": "2.27.0",
-    "binary-split": "0.1.1",
-    "through": "2.3.4"
+    "request": "2.27.0"
   },
   "devDependencies": {
     "awsbox": "0.6.x",
@@ -56,6 +54,8 @@
     "grunt-contrib-jshint": "~0.7.0",
     "load-grunt-tasks": "~0.2.0",
     "grunt": "~0.4.1",
-    "ass": "0.0.4"
+    "ass": "0.0.4",
+    "binary-split": "0.1.1",
+    "through": "2.3.4"
   }
 }
