@@ -67,6 +67,16 @@ TestServer.start(config.publicUrl)
             t.equal(payload.principal.email.split('@')[0], client.uid)
           }
         )
+        .then(
+          server.assertLogs.bind(
+            server,
+            t,
+            {
+              'account-create-success': 1,
+              'login-success': 1
+            }
+          )
+        )
     }
   )
 
