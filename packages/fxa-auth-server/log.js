@@ -45,6 +45,47 @@ Overdrive.prototype.trace = function () {
   return Logger.prototype.trace.apply(this, arguments)
 }
 
+
+// Log a security-related event.
+// These get annotated with as much info as we can about the request,
+// e.g. the originating IP and target user account.  The basic structure
+// of the logged object is:
+// 
+//   {
+//      security: true,
+//      event: <name-of-event>,
+//      remoteAddressChain: [<client ip>, <proxy1>, ..., <proxyN>],
+//      rid: <request-id>,
+//      uid: <target-account-uid>,
+//      <event-specific-fields>
+//   }
+//
+Overdrive.prototype.security = function (info) {
+  var request = Domain.active && Domain.active.members[0]
+  info.security = true
+  if (!info.event) {
+    this.error({ op: 'log.security', msg: 'missing event name', err: info })
+    info.event = 'unknown'
+  }
+  if (request) {
+    info.remoteAddressChain = request.app.remoteAddressChain;
+    if (!info.rid) {
+        info.rid = request.id;
+    }
+    if (!info.uid) {
+      // Intuit the target account uid as best we can.
+      if (request.auth && request.auth.credentials) {
+        if (request.auth.credentials.uid) {
+          info.uid = request.auth.credentials.uid.toString('hex')
+        }
+      } else if (request.payload && request.payload.uid) {
+        info.uid = request.payload.uid
+      }
+    }
+  }
+  return this.info(info)
+}
+
 module.exports = function (level) {
   var logStreams = [{ stream: process.stderr, level: level }]
 

@@ -37,8 +37,11 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
             },
             function (err, result) {
               if (err) {
-                return request.reply(error.wrap(err))
+                err = error.wrap(err)
+                log.security({ event: 'login-failure', err: err })
+                return request.reply(err)
               }
+              log.security({ event: 'login-success' })
               return request.reply(result)
             }
           )
@@ -112,8 +115,11 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
             },
             function (err, result) {
               if (err) {
-                return request.reply(error.wrap(err))
+                err = error.wrap(err)
+                log.security({ event: 'pwd-change-failure', err: err })
+                return request.reply(err);
               }
+              log.security({ event: 'pwd-change-success' })
               return request.reply(result)
             }
           )
@@ -153,8 +159,11 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
                   },
                   function (err, result) {
                     if (err) {
-                      return request.reply(error.wrap(err))
+                      err = error.wrap(err)
+                      log.security({ event: 'pwd-reset-failure', err: err })
+                      return request.reply(err)
                     }
+                    log.security({ event: 'pwd-reset-success' })
                     result.wrapKb = crypto.randomBytes(32)
                     db.resetAccount(accountResetToken, result)
                       .done(

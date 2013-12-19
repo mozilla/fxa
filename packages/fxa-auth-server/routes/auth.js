@@ -73,6 +73,16 @@ module.exports = function (log, isA, error, db, Token) {
             )
             .then(
               function (srpToken) {
+                log.security({ event: 'login-success' });
+                return srpToken
+              },
+              function (err) {
+                log.security({ event: 'login-failure', err: err });
+                throw err
+              }
+            )
+            .then(
+              function (srpToken) {
                 return db.authFinish(srpToken)
                   .then(
                     function (authToken) {
