@@ -6,7 +6,7 @@
 
 define([
   'views/base',
-  'hgn!templates/settings'
+  'stache!templates/settings'
 ],
 function(BaseView, SettingsTemplate) {
   var SettingsView = BaseView.extend({

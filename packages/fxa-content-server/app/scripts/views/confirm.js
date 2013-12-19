@@ -6,7 +6,7 @@
 
 define([
   'views/base',
-  'hgn!templates/confirm',
+  'stache!templates/confirm',
   'lib/session'
 ],
 function(BaseView, ConfirmTemplate, Session) {

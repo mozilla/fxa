@@ -6,7 +6,7 @@
 
 define([
   'views/base',
-  'hgn!templates/pp'
+  'stache!templates/pp'
 ],
 function (BaseView, PpTemplate) {
   var PpView = BaseView.extend({

@@ -14,10 +14,6 @@ module.exports = function (grunt) {
         // `name` and `out` are set by grunt-usemin
         baseUrl: '<%= yeoman.app %>/scripts',
         optimize: 'none',
-        // This path seems to interfere with hogan templates being built
-        // paths: {
-        //     'templates': '../../.tmp/scripts/templates'
-        // },
         // TODO: Figure out how to make sourcemaps work with grunt-usemin
         // https://github.com/yeoman/grunt-usemin/issues/30
         //generateSourceMaps: true,
@@ -26,7 +22,7 @@ module.exports = function (grunt) {
         preserveLicenseComments: false,
         useStrict: true,
         wrap: true,
-        stubModules: ['text', 'hgn']
+        stubModules: ['text', 'stache']
       }
     }
   });
