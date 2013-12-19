@@ -86,7 +86,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
             )
             .then(
               function (srpToken) {
-                log.security({ event: 'account-create-success' });
+                log.security({ event: 'account-create-success', uid: srpToken.uid });
                 return srpToken
               },
               function (err) {

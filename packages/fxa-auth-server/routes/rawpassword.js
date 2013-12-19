@@ -38,11 +38,26 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
             function (err, result) {
               if (err) {
                 err = error.wrap(err)
-                log.security({ event: 'login-failure', err: err })
-                return request.reply(err)
+                // Need to look up the uid separately; ugh
+                db.emailRecord(request.payload.email)
+                  .then(
+                    function (emailRecord) {
+                      return emailRecord.uid
+                    },
+                    function () {
+                      return null
+                    }
+                  )
+                  .done(
+                    function (uid) {
+                      log.security({ event: 'login-failure', err: err, uid: uid })
+                      return request.reply(err)
+                    }
+                  )
+              } else {
+                log.security({ event: 'login-success', uid: result.uid })
+                return request.reply(result)
               }
-              log.security({ event: 'login-success' })
-              return request.reply(result)
             }
           )
         },

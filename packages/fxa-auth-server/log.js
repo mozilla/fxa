@@ -75,14 +75,13 @@ Overdrive.prototype.security = function (info) {
     if (!info.uid) {
       // Intuit the target account uid as best we can.
       if (request.auth && request.auth.credentials) {
-        if (request.auth.credentials.uid) {
-          info.uid = request.auth.credentials.uid.toString('hex')
-        }
+        info.uid = request.auth.credentials.uid
       } else if (request.payload && request.payload.uid) {
         info.uid = request.payload.uid
       }
     }
   }
+  unbuffer(info)
   return this.info(info)
 }
 
