@@ -68,14 +68,12 @@ TestServer.start(config.publicUrl)
           }
         )
         .then(
-          server.assertLogs.bind(
-            server,
-            t,
-            {
+          function () {
+            return server.assertLogs(t, {
               'account-create-success': 1,
               'login-success': 1
-            }
-          )
+            })
+          }
         )
     }
   )
@@ -117,6 +115,16 @@ TestServer.start(config.publicUrl)
           function (keys) {
             t.deepEqual(keys.wrapKb, wrapKb, 'wrapKb is preserved')
             t.equal(client.kB.length, 32, 'kB exists, has the right length')
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'login-success': 3,
+              'pwd-change-request': 1,
+              'pwd-reset-success': 1,
+              'auth-failure': 0
+            })
           }
         )
     }
@@ -161,6 +169,14 @@ TestServer.start(config.publicUrl)
             t.equal(typeof(cert), 'string', 'cert exists')
           }
         )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'login-success': 1,
+              'auth-failure': 0
+            })
+          }
+        )
     }
   )
 
@@ -194,6 +210,15 @@ TestServer.start(config.publicUrl)
           },
           function (err) {
             t.equal(err.message, 'Unknown account', 'account destroyed')
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'login-success': 2,
+              'account-destroy': 1,
+              'auth-failure': 0
+            })
           }
         )
     }
@@ -232,6 +257,15 @@ TestServer.start(config.publicUrl)
           },
           function (err) {
             t.equal(err.errno, 110, 'session is invalid')
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'login-success': 1,
+              'session-create': 1,
+              'session-destroy': 1,
+            })
           }
         )
     }
@@ -358,6 +392,13 @@ TestServer.start(config.publicUrl)
             return d.promise
           }
         )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'auth-failure': 1
+            })
+          }
+        )
     }
   )
 
@@ -437,6 +478,13 @@ TestServer.start(config.publicUrl)
               }
             )
             return d.promise
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'auth-failure': 1
+            })
           }
         )
     }

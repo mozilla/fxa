@@ -356,16 +356,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
           log.begin('Account.destroy', request)
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
+          log.security({ event: 'account-destroy' })
           db.deleteAccount(authToken)
-            .then(
-              function () {
-                log.security({ event: 'account-destroy-success' })
-              },
-              function (err) {
-                log.security({ event: 'account-destroy-failure', err: err })
-                throw err
-              }
-            )
             .then(function () { return {} })
             .done(reply, reply)
         }

@@ -60,7 +60,11 @@ TestServer.prototype.assertLogs = function (t, spec) {
     var key = keys[i]
     var expected = spec[key]
     var actual = this.logs[key]
-    t.equal(actual, expected)
+    if (!expected) {
+      t.ok(!actual, 'no log output for ' + key)
+    } else {
+      t.equal(actual, expected, 'correct log output for ' + key)
+    }
   }
   this.logs = {}
   return P()
