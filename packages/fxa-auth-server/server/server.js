@@ -147,7 +147,7 @@ module.exports = function (path, url, Hapi, toobusy) {
       function (request, next) {
         var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
         xff.push(request.info.remoteAddress)
-        request.app.remoteAddressChain = xff;
+        request.app.remoteAddressChain = xff.filter(function(x){ return x});
         next()
       }
     )
