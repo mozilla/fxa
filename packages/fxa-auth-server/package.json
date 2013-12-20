@@ -11,7 +11,7 @@
     "start": "scripts/start-local.sh",
     "test-mysql": "DB_BACKEND=mysql npm test",
     "test-all": "npm test && npm run test-mysql",
-    "test-remote-latest": "PUBLIC_URL=https://api-accounts-latest.dev.lcip.org MAILER_HOST=restmail.net MAILER_PORT=80 tap --timeout=120 --tap test/run/verification_tests.js"
+    "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 tap --timeout=180 --tap test/run/verification_tests.js"
   },
   "repository": {
     "type": "git",

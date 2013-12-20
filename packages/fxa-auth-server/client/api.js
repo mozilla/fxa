@@ -101,7 +101,7 @@ ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStr
       },
       passwordStretching: passwordStretching,
       service: options.service || undefined,
-      preVerified: options.preVerified
+      preVerified: options.preVerified || undefined
     },
     {
       'accept-language': options.lang
@@ -348,7 +348,7 @@ ClientApi.prototype.rawPasswordAccountCreate = function (email, password, option
     {
       email: email,
       password: password,
-      preVerified: options.preVerified
+      preVerified: options.preVerified || undefined
     },
     {
       'accept-language': options.lang
