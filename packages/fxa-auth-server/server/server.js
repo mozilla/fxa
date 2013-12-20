@@ -147,6 +147,7 @@ module.exports = function (path, url, Hapi, toobusy) {
       function (request, next) {
         var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
         xff.push(request.info.remoteAddress)
+        // Remove empty items from the list, in case of badly-formed header.
         request.app.remoteAddressChain = xff.filter(function(x){ return x});
         next()
       }
