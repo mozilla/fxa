@@ -49,6 +49,14 @@ TestServer.start(config.publicUrl)
               )
           }
         )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'account-create-success': 1,
+              'session-create': 1
+            })
+          }
+        )
     }
   )
 
@@ -64,6 +72,14 @@ TestServer.start(config.publicUrl)
             t.ok(result.uid, 'uid exists')
             t.equal(result.verified, true, 'email verified')
             t.equal(typeof(result.sessionToken), 'string', 'sessionToken exists')
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'account-create-success': 0,
+              'session-create': 1
+            })
           }
         )
     }
@@ -84,6 +100,15 @@ TestServer.start(config.publicUrl)
             t.equal(err.errno, 103)
           }
         )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'login-failure': 1,
+              'login-success': 0,
+              'session-create': 0
+            })
+          }
+        )
     }
   )
 
@@ -100,6 +125,17 @@ TestServer.start(config.publicUrl)
           },
           function (err) {
             t.equal(err.errno, 102)
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              // the error here is "account does not exist"
+              // which doesn't trigger security logging
+              'login-failure': 0,
+              'login-success': 0,
+              'session-create': 0
+            })
           }
         )
     }
@@ -124,6 +160,14 @@ TestServer.start(config.publicUrl)
             t.ok(result.uid, 'uid exists')
             t.equal(result.verified, true, 'email verified')
             t.equal(typeof(result.sessionToken), 'string', 'sessionToken exists')
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'pwd-reset-success': 1,
+              'pwd-reset-failure': 0
+            })
           }
         )
     }

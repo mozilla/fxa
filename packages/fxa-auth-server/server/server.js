@@ -116,7 +116,8 @@ module.exports = function (path, url, Hapi, toobusy) {
         if (toobusy()) {
           exit = error.serviceUnavailable()
         }
-        log.info({ op: 'server.onRequest', rid: request.id, path: request.path })
+        log.begin('server.onRequest', request);
+        log.trace({ op: 'server.onRequest', rid: request.id, path: request.path })
         next(exit)
       }
     )
@@ -136,6 +137,18 @@ module.exports = function (path, url, Hapi, toobusy) {
             }
           )
         }
+        next()
+      }
+    )
+
+    // Construct source-ip-address chain for logging security messages.
+    server.ext(
+      'onPreHandler',
+      function (request, next) {
+        var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
+        xff.push(request.info.remoteAddress)
+        // Remove empty items from the list, in case of badly-formed header.
+        request.app.remoteAddressChain = xff.filter(function(x){ return x});
         next()
       }
     )
@@ -219,6 +232,12 @@ module.exports = function (path, url, Hapi, toobusy) {
             response.response.payload.domain = undefined
             response.response.payload.domainEmitter = undefined
             response.response.payload.domainBound = undefined
+          }
+          if (response.response.payload.code === 401) {
+            log.security({
+              event: 'auth-failure',
+              err: response.response.payload
+            });
           }
           log.error(
             {

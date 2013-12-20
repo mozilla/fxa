@@ -96,6 +96,16 @@ TestServer.start(config.publicUrl)
             return client.keys()
           }
         )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'account-create-success': 1,
+              'account-verify-request': 1,
+              'account-verify-success': 1,
+              'account-verify-failure': 0
+            })
+          }
+        )
     }
   )
 
@@ -142,6 +152,16 @@ TestServer.start(config.publicUrl)
         .then(
           function (status) {
             t.equal(status.verified, false, 'account not verified')
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'account-create-success': 1,
+              'account-verify-failure': 1,
+              'account-verify-request': 0,
+              'account-verify-success': 0
+            })
           }
         )
     }
@@ -192,6 +212,16 @@ TestServer.start(config.publicUrl)
         .then(
           function (emailData) {
             t.equal(emailData.headers['x-service-id'], undefined)
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'account-create-success': 1,
+              'account-verify-request': 2,
+              'account-verify-success': 0,
+              'account-verify-failure': 0
+            })
           }
         )
     }
@@ -267,6 +297,19 @@ TestServer.start(config.publicUrl)
             t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'account-create-success': 1,
+              'session-create': 3,
+              'pwd-reset-request': 1,
+              'pwd-reset-verify-success': 1,
+              'pwd-reset-verify-failure': 0,
+              'pwd-reset-success': 1,
+              'pwd-reset-failure': 0
+            })
+          }
+        )
     }
   )
 
@@ -331,6 +374,18 @@ TestServer.start(config.publicUrl)
             t.notDeepEqual(wrapKb, keys.wrapKb, 'wrapKb was reset')
             t.deepEqual(kA, keys.kA, 'kA was not reset')
             t.equal(client.kB.length, 32, 'kB exists, has the right length')
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'session-create': 2,
+              'pwd-reset-request': 1,
+              'pwd-reset-verify-success': 1,
+              'pwd-reset-verify-failure': 0,
+              'pwd-reset-success': 1,
+              'pwd-reset-failure': 0
+            })
           }
         )
     }
@@ -429,6 +484,14 @@ TestServer.start(config.publicUrl)
           },
           function (err) {
             t.equal(err.message, 'Invalid authentication token in request signature', 'token is now invalid')
+          }
+        )
+        .then(
+          function () {
+            return server.assertLogs(t, {
+              'pwd-reset-verify-failure': 3,
+              'pwd-reset-success': 0
+            })
           }
         )
     }

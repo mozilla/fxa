@@ -24,6 +24,7 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         handler: function (request) {
           log.begin('Password.changeStart', request)
+          log.security({ event: 'pwd-change-request' })
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
           db.createPasswordChange(authToken)
@@ -59,6 +60,7 @@ module.exports = function (log, isA, error, db, mailer) {
           db.emailRecord(email)
             .then(
               function (emailRecord) {
+                log.security({ event: 'pwd-reset-request' })
                 return db.createForgotPasswordToken(emailRecord)
               }
             )
@@ -169,6 +171,7 @@ module.exports = function (log, isA, error, db, mailer) {
           var forgotPasswordToken = request.auth.credentials
           var code = +(request.payload.code)
           if (forgotPasswordToken.passcode === code && forgotPasswordToken.ttl() > 0) {
+            log.security({ event: 'pwd-reset-verify-success' })
             db.forgotPasswordVerified(forgotPasswordToken)
               .done(
                 function (accountResetToken) {
@@ -184,6 +187,7 @@ module.exports = function (log, isA, error, db, mailer) {
               )
           }
           else {
+            log.security({ event: 'pwd-reset-verify-failure' })
             failVerifyAttempt(forgotPasswordToken)
               .done(
                 function () {

@@ -65,10 +65,22 @@ module.exports = function (log, isA, error, db, Token) {
           log.begin('Auth.finish', request)
           var reply = request.reply.bind(request)
           var srpTokenId = Buffer(request.payload.srpToken, 'hex')
+          var srpToken = null;
           db.srpToken(srpTokenId)
             .then(
-              function (srpToken) {
+              function (token) {
+                srpToken = token
                 return srpToken.finish(request.payload.A, request.payload.M)
+              }
+            )
+            .then(
+              function (srpToken) {
+                log.security({ event: 'login-success', uid: srpToken.uid });
+                return srpToken
+              },
+              function (err) {
+                log.security({ event: 'login-failure', err: err, uid: srpToken.uid });
+                throw err
               }
             )
             .then(

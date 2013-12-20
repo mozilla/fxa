@@ -18,6 +18,7 @@ module.exports = function (log, isA, error, db) {
           log.begin('Session.create', request)
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
+          log.security({ event: 'session-create' })
           db.createSession(authToken)
             .then(
               function (tokens) {
@@ -52,6 +53,7 @@ module.exports = function (log, isA, error, db) {
         handler: function (request) {
           log.begin('Session.destroy', request)
           var sessionToken = request.auth.credentials
+          log.security({ event: 'session-destroy' })
           db.deleteSessionToken(sessionToken)
             .done(
               function () {

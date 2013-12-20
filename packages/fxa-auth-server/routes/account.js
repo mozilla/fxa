@@ -84,6 +84,16 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 .then(function () { return account })
               }
             )
+            .then(
+              function (srpToken) {
+                log.security({ event: 'account-create-success', uid: srpToken.uid });
+                return srpToken
+              },
+              function (err) {
+                log.security({ event: 'account-create-failure', err: err });
+                throw err
+              }
+            )
             .done(
               function (account) {
                 request.reply(
@@ -223,6 +233,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         tags: ["account", "recovery"],
         handler: function (request) {
           log.begin('Account.RecoveryEmailResend', request)
+          log.security({ event: 'account-verify-request' });
           var sessionToken = request.auth.credentials
           mailer.sendVerifyCode(
             sessionToken,
@@ -258,6 +269,15 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                   throw error.invalidVerificationCode()
                 }
                 return db.verifyEmail(account)
+              }
+            )
+            .then(
+              function () {
+                log.security({ event: 'account-verify-success' });
+              },
+              function (err) {
+                log.security({ event: 'account-verify-failure', err: err });
+                throw err
               }
             )
             .done(
@@ -310,6 +330,15 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 return db.resetAccount(accountResetToken, payload)
               }
             )
+            .then(
+              function () {
+                log.security({ event: 'pwd-reset-success' })
+              },
+              function (err) {
+                log.security({ event: 'pwd-reset-failure', err: err })
+                throw err
+              }
+            )
             .then(function () { return {} })
             .done(reply, reply)
         },
@@ -327,6 +356,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
           log.begin('Account.destroy', request)
           var reply = request.reply.bind(request)
           var authToken = request.auth.credentials
+          log.security({ event: 'account-destroy' })
           db.deleteAccount(authToken)
             .then(function () { return {} })
             .done(reply, reply)
