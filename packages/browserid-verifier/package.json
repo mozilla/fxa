@@ -11,7 +11,7 @@
     "node": ">=0.8.0"
   },
   "dependencies": {
-    "browserid-local-verify": "0.0.6",
+    "browserid-local-verify": "0.0.8",
     "async": "0.2.9",
     "express": "3.4.4",
     "toobusy": "0.2.4",

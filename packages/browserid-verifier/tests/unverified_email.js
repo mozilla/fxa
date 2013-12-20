@@ -28,7 +28,10 @@ describe('unverified email', function() {
   it('assertion with unverified email address should fail to verify', function(done) {
     client = new Client(
       { idp: fallback,
-        principal: { "unverified-email": "bob@example.com" } });
+        principal: { "unverified-email": "bob@example.com" }
+      });
+    // clear email
+    client.email(null);
     client.assertion({ audience: 'http://example.com' }, function(err, assertion) {
       request({
         method: 'post',
