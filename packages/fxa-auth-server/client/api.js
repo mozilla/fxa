@@ -86,7 +86,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
  *   {}
  *
  */
-ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStretching, options) {
+ClientApi.prototype.accountCreate = function (email, authPW, options) {
   options = options || {}
   return this.doRequest(
     'POST',
@@ -94,16 +94,35 @@ ClientApi.prototype.accountCreate = function (email, verifier, salt, passwordStr
     null,
     {
       email: email,
-      srp: {
-        type: 'SRP-6a/SHA256/2048/v1',
-        verifier: verifier,
-        salt: salt
-      },
-      passwordStretching: passwordStretching,
+      authPW: authPW.toString('hex'),
       preVerified: options.preVerified
     },
     {
       'accept-language': options.lang
+    }
+  )
+}
+
+ClientApi.prototype.accountLogin = function (email, authPW) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/account/login',
+    null,
+    {
+      email: email,
+      authPW: authPW.toString('hex')
+    }
+  )
+}
+
+ClientApi.prototype.accountLoginAndGetKeys = function (email, authPW) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/account/login_and_get_keys',
+    null,
+    {
+      email: email,
+      authPW: authPW.toString('hex')
     }
   )
 }
@@ -134,7 +153,7 @@ ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
     )
 }
 
-ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, srp, passwordStretching) {
+ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW) {
   return tokens.AccountResetToken.fromHex(accountResetTokenHex)
     .then(
       function (token) {
@@ -143,26 +162,23 @@ ClientApi.prototype.accountReset = function (accountResetTokenHex, bundle, srp, 
           this.baseURL + '/account/reset',
           token,
           {
-            bundle: bundle,
-            srp: srp,
-            passwordStretching: passwordStretching
+            authPW: authPW.toString('hex')
           }
         )
       }.bind(this)
     )
 }
 
-ClientApi.prototype.accountDestroy = function (authTokenHex) {
-  return tokens.AuthToken.fromHex(authTokenHex)
-    .then(
-      function (token) {
-        return this.doRequest(
-          'POST',
-          this.baseURL + '/account/destroy',
-          token
-        )
-      }.bind(this)
-    )
+ClientApi.prototype.accountDestroy = function (email, authPW) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/account/destroy',
+    null,
+    {
+      email: email,
+      authPW: authPW.toString('hex')
+    }
+  )
 }
 
 ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
@@ -227,18 +243,35 @@ ClientApi.prototype.getRandomBytes = function () {
   )
 }
 
-ClientApi.prototype.passwordChangeStart = function (authTokenHex) {
-  return tokens.AuthToken.fromHex(authTokenHex)
+ClientApi.prototype.passwordChangeStart = function (email, oldAuthPW, newAuthPW) {
+    return this.doRequest(
+      'POST',
+      this.baseURL + '/password/change/start',
+      null,
+      {
+        email: email,
+        oldAuthPW: oldAuthPW.toString('hex'),
+        newAuthPW: newAuthPW.toString('hex')
+      }
+    )
+}
+
+ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, wrapKb) {
+  return tokens.PasswordChangeToken.fromHex(passwordChangeTokenHex)
     .then(
       function (token) {
         return this.doRequest(
           'POST',
-          this.baseURL + '/password/change/start',
-          token
+          this.baseURL + '/password/change/finish',
+          token,
+          {
+            wrapKb: wrapKb.toString('hex')
+          }
         )
       }.bind(this)
     )
 }
+
 
 ClientApi.prototype.passwordForgotSendCode = function (email) {
   return this.doRequest(

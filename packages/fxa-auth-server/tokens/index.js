@@ -44,6 +44,12 @@ module.exports = function (log) {
     error
   )
 
+  var PasswordChangeToken = require('./password_change_token')(
+    log,
+    inherits,
+    Token
+  )
+
   Token.error = error
   Token.Bundle = Bundle
   Token.AccountResetToken = AccountResetToken
@@ -52,6 +58,7 @@ module.exports = function (log) {
   Token.AuthToken = AuthToken
   Token.ForgotPasswordToken = ForgotPasswordToken
   Token.SrpToken = SrpToken
+  Token.PasswordChangeToken = PasswordChangeToken
 
   return Token
 }

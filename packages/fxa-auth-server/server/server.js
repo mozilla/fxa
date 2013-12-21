@@ -80,6 +80,11 @@ module.exports = function (path, url, Hapi, toobusy) {
             scheme: 'hawk',
             hawk: hawkOptions,
             getCredentialsFunc: makeCredentialFn(db.forgotPasswordToken.bind(db))
+          },
+          passwordChangeToken: {
+            scheme: 'hawk',
+            hawk: hawkOptions,
+            getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db))
           }
         },
         cors: {

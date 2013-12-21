@@ -5,7 +5,6 @@
 var HEX_STRING = require('./validators').HEX_STRING
 var HEX_EMAIL = require('./validators').HEX_EMAIL
 
-
 module.exports = function (log, isA, error, db, Token) {
 
   var routes = [

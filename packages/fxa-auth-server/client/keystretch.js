@@ -10,7 +10,8 @@ var hkdf = require('../hkdf')
 // The namespace for the salt functions
 const NAMESPACE = 'identity.mozilla.com/picl/v1/'
 const SCRYPT_HELPER = 'https://scrypt-accounts.dev.lcip.org/'
-
+const ITERATIONS = 20000
+const LENGTH = 8 * 32
 
 /** Derive a key from an email and password pair
  *
@@ -33,7 +34,7 @@ function derive(email, password, saltHex) {
   var salt = Buffer(saltHex, 'hex')
   // derive the first key from pbkdf2
   pbkdf2
-    .derive(password, KWE('first-PBKDF', email))
+    .derive(password, KWE('first-PBKDF', email), ITERATIONS, LENGTH)
     .then(
       function(K1) {
         // request a hash from scrypt based on the first key
@@ -48,7 +49,7 @@ function derive(email, password, saltHex) {
           password
         ])
         // derive the second key from pbkdf2
-        return pbkdf2.derive(scryptPassword, KWE('second-PBKDF', email))
+        return pbkdf2.derive(scryptPassword, KWE('second-PBKDF', email), ITERATIONS, LENGTH)
       }
     )
     .then(
@@ -123,3 +124,5 @@ function KW(name) {
 module.exports.SCRYPT_HELPER = SCRYPT_HELPER
 module.exports.derive = derive
 module.exports.xor = xor
+module.exports.KWE = KWE
+module.exports.KW = KW

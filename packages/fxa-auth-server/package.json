@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "tap ./test/run",
+    "test": "tap --timeout=120 ./test/run",
     "start": "scripts/start-local.sh",
     "test-mysql": "DB_BACKEND=mysql npm test",
     "test-all": "npm test && npm run test-mysql",
