@@ -4,7 +4,6 @@
 
 const config = require('../config').root()
 const Client = require('../client')
-const keystretch = require('../client/keystretch')
 
 process.on('message', function (message) {
   if (message.action === 'crash') {
