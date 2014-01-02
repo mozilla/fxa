@@ -6,10 +6,6 @@ const config = require('../config').root()
 const Client = require('../client')
 const keystretch = require('../client/keystretch')
 
-// Monkey-patch Client lib to use configurable SCRYPT_HELPER url.
-// This is awful but the whole thing is going to go away soon...
-keystretch.SCRYPT_HELPER = config.scryptHelper.url
-
 process.on('message', function (message) {
   if (message.action === 'crash') {
     throw new Error('FML')

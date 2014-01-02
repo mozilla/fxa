@@ -6,7 +6,7 @@ var HEX_EMAIL = require('./validators').HEX_EMAIL
 var HEX_STRING = require('./validators').HEX_STRING
 
 var crypto = require('crypto')
-var scrypt = require('../client/scrypt')
+var scrypt = require('../scrypt')
 var hkdf = require('../hkdf')
 
 function buffersAreEqual(buffer1, buffer2) {
