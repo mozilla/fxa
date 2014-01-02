@@ -11,6 +11,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "virtualbox" do |v|
     v.memory = 1024
   end
+  config.vm.provider "vmware_fusion" do |v|
+    v.vmx["memsize"] = "1024"
+    v.vmx["numvcpus"] = "2"
+  end
   script =
     "wget -q http://nodejs.org/dist/v0.10.23/node-v0.10.23-linux-x64.tar.gz;" \
     "tar --strip-components 1 -C /usr/local -xzf node-v0.10.23-linux-x64.tar.gz;" \
