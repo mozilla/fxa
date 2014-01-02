@@ -88,11 +88,12 @@ smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
 smtp_use_tls = yes
 smtp_tls_security_level = encrypt
 smtp_tls_note_starttls_offer = yes
+smtp_tls_CAfile = /etc/ssl/certs/ca-bundle.crt
 EOF
 
 # Create placeholder for the SES relay credentials.
 sudo tee --append /etc/postfix/sasl_passwd << EOF
-email-smtp.us-east-1.amazonaws.com:25 INSERTUSERNAME:INSERTPASSWORD
+email-smtp.us-east-1.amazonaws.com:587 INSERTUSERNAME:INSERTPASSWORD
 EOF
 sudo /usr/sbin/postmap /etc/postfix/sasl_passwd
  
