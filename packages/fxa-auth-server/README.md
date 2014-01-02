@@ -76,7 +76,7 @@ The dev deployment is configured to send emails via Amazon SES.  If you need to 
       1.  Edit /etc/postfix/sasl_passwd to insert the SES credentials.
       2.  Run `/usr/sbin/postmap /etc/postfix/sasl_passwd` to compile them.
       3.  Edit /etc/postfix/main.cf to change 'relayhost' to the SES SMTP host
-          (typically "email-smtp.us-east-1.amazonaws.com:25").
+          (typically "email-smtp.us-east-1.amazonaws.com:587").
       4.  Run `service postfix restart` to restart postfix.
 
 

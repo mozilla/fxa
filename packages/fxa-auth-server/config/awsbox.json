@@ -9,7 +9,7 @@
     "host": "localhost",
     "port": 25,
     "secure": false,
-    "sender": "Firefox Accounts <rfkelly@mozilla.com>"
+    "sender": "no-reply@lcip.org"
   },
   "secretKeyFile": "/home/app/var/secret-key.json",
   "publicKeyFile": "/home/app/var/public-key.json",

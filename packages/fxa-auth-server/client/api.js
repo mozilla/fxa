@@ -95,7 +95,8 @@ ClientApi.prototype.accountCreate = function (email, authPW, options) {
     {
       email: email,
       authPW: authPW.toString('hex'),
-      preVerified: options.preVerified
+      preVerified: options.preVerified || undefined,
+      service: options.service || undefined
     },
     {
       'accept-language': options.lang
@@ -194,14 +195,19 @@ ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
     )
 }
 
-ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex) {
+ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, service) {
+  var payload = {}
+  if (service) {
+    payload.service = service
+  }
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
         return this.doRequest(
           'POST',
           this.baseURL + '/recovery_email/resend_code',
-          token
+          token,
+          payload
         )
       }.bind(this)
     )
@@ -375,7 +381,7 @@ ClientApi.prototype.rawPasswordAccountCreate = function (email, password, option
     {
       email: email,
       password: password,
-      preVerified: options.preVerified
+      preVerified: options.preVerified || undefined
     },
     {
       'accept-language': options.lang

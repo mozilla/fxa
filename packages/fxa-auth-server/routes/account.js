@@ -35,7 +35,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
           payload: {
             email: isA.String().max(1024).required(),
             authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
-            preVerified: isA.Boolean()
+            preVerified: isA.Boolean(),
+            service: isA.String().max(16).alphanum().optional(),
           }
         },
         handler: function accountCreate(request) {
@@ -90,9 +91,20 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 return mailer.sendVerifyCode(
                   account,
                   account.emailCode,
+                  form.service,
                   request.app.preferredLang
                 )
                 .then(function () { return account })
+              }
+            )
+            .then(
+              function (account) {
+                log.security({ event: 'account-create-success', uid: account.uid });
+                return account
+              },
+              function (err) {
+                log.security({ event: 'account-create-failure', err: err });
+                throw err
               }
             )
             .done(
@@ -144,6 +156,17 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                       )
                     }
                   )
+              }
+            )
+            .then(
+              function (sessionToken) {
+                log.security({ event: 'login-success', uid: sessionToken.uid })
+                log.security({ event: 'session-create' })
+                return sessionToken
+              },
+              function (err) {
+                log.security({ event: 'login-failure', err: err, email: form.email })
+                throw err
               }
             )
             .done(
@@ -208,6 +231,17 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                                 verified: emailRecord.verified
                               }
                             )
+                          }
+                        )
+                        .then(
+                          function (sessionToken) {
+                            log.security({ event: 'login-success', uid: sessionToken.uid })
+                            log.security({ event: 'session-create' })
+                            return sessionToken
+                          },
+                          function (err) {
+                            log.security({ event: 'login-failure', err: err, email: form.email })
+                            throw err
                           }
                         )
                         .then(
@@ -397,13 +431,20 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         auth: {
           strategy: 'sessionToken'
         },
+        validate: {
+          payload: {
+            service: isA.String().max(16).alphanum().optional()
+          }
+        },
         tags: ["account", "recovery"],
         handler: function (request) {
           log.begin('Account.RecoveryEmailResend', request)
+          log.security({ event: 'account-verify-request' });
           var sessionToken = request.auth.credentials
           mailer.sendVerifyCode(
             sessionToken,
             sessionToken.emailCode,
+            request.payload.service,
             request.app.preferredLang
           ).done(
             function () {
@@ -434,6 +475,15 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                   throw error.invalidVerificationCode()
                 }
                 return db.verifyEmail(account)
+              }
+            )
+            .then(
+              function () {
+                log.security({ event: 'account-verify-success' });
+              },
+              function (err) {
+                log.security({ event: 'account-verify-failure', err: err });
+                throw err
               }
             )
             .done(
@@ -491,7 +541,16 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 )
               }
             )
-            .then(function () { return {} })
+            .then(
+              function () {
+                log.security({ event: 'pwd-reset-success' })
+                return {}
+              },
+              function (err) {
+                log.security({ event: 'pwd-reset-failure', err: err })
+                throw err
+              }
+            )
             .done(reply, reply)
         },
       }
@@ -514,7 +573,12 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 return db.deleteAccount(emailRecord)
               }
             )
-            .then(function () { return {} })
+            .then(
+              function () {
+                log.security({ event: 'account-destroy' })
+                return {}
+              }
+            )
             .done(reply, reply)
         },
         validate: {

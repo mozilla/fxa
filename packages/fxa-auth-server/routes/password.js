@@ -37,6 +37,7 @@ module.exports = function (log, isA, error, db, mailer) {
         tags: ["password"],
         handler: function (request) {
           log.begin('Password.changeStart', request)
+          log.security({ event: 'pwd-change-request' })
           var form = request.payload
           var oldAuthPW = Buffer(form.oldAuthPW, 'hex')
           var oldStretchWrap = null
@@ -171,7 +172,12 @@ module.exports = function (log, isA, error, db, mailer) {
               wrapKb: wrapKb
             }
           )
-          .then(function () { return {} })
+          .then(
+            function () {
+              log.security({ event: 'pwd-reset-success' })
+              return {}
+            }
+          )
           .done(reply, reply)
         },
         validate: {
@@ -194,6 +200,7 @@ module.exports = function (log, isA, error, db, mailer) {
           db.emailRecord(email)
             .then(
               function (emailRecord) {
+                log.security({ event: 'pwd-reset-request' })
                 return db.createForgotPasswordToken(emailRecord)
               }
             )
@@ -304,6 +311,7 @@ module.exports = function (log, isA, error, db, mailer) {
           var forgotPasswordToken = request.auth.credentials
           var code = +(request.payload.code)
           if (forgotPasswordToken.passcode === code && forgotPasswordToken.ttl() > 0) {
+            log.security({ event: 'pwd-reset-verify-success' })
             db.forgotPasswordVerified(forgotPasswordToken)
               .done(
                 function (accountResetToken) {
@@ -319,6 +327,7 @@ module.exports = function (log, isA, error, db, mailer) {
               )
           }
           else {
+            log.security({ event: 'pwd-reset-verify-failure' })
             failVerifyAttempt(forgotPasswordToken)
               .done(
                 function () {

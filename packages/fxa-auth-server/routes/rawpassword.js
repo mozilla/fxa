@@ -73,6 +73,7 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
               password: request.payload.password,
               options: {
                 preVerified: request.payload.preVerified || false,
+                service: request.payload.service,
                 lang: request.app.preferredLang
               }
             },
@@ -88,7 +89,8 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
           payload: {
             email: isA.String().max(1024).regex(HEX_EMAIL).required(),
             password: isA.String().required(),
-            preVerified: isA.Boolean()
+            preVerified: isA.Boolean(),
+            service: isA.String().max(16).alphanum().optional()
           }
         }
       }
@@ -110,8 +112,11 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
             },
             function (err, result) {
               if (err) {
-                return request.reply(error.wrap(err))
+                err = error.wrap(err)
+                log.security({ event: 'pwd-change-failure', err: err })
+                return request.reply(err);
               }
+              log.security({ event: 'pwd-change-success' })
               return request.reply(result)
             }
           )
@@ -151,8 +156,11 @@ module.exports = function (log, isA, error, clientHelper, crypto, db, isProducti
                   },
                   function (err, result) {
                     if (err) {
-                      return request.reply(error.wrap(err))
+                      err = error.wrap(err)
+                      log.security({ event: 'pwd-reset-failure', err: err })
+                      return request.reply(err)
                     }
+                    log.security({ event: 'pwd-reset-success' })
                     result.wrapKb = crypto.randomBytes(32)
                     db.resetAccount(accountResetToken, result)
                       .done(

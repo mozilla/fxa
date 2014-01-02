@@ -5,22 +5,45 @@
 var cp = require('child_process')
 var P = require('p-promise')
 var request = require('request')
+var split = require('binary-split')
+var through = require('through')
 
 function TestServer() {
   this.server = cp.spawn(
     'node',
-    ['../bin/key_server.js'],
+    ['./key_server_stub.js'],
     {
       cwd: __dirname
     }
   )
+  this.logs = {}
+  this.server.stderr
+    .pipe(split())
+    .pipe(
+      through(
+        function (data) {
+          try {
+            this.emit('data', JSON.parse(data))
+          }
+          catch (e) {}
+        }
+      )
+    )
+    .on(
+      'data',
+      function (json) {
+        var name = json.event ? json.event : json.op
+        var count = this.logs[name] || 0
+        this.logs[name] = ++count
+      }.bind(this)
+    )
   this.server.stdout.on('data', process.stdout.write.bind(process.stdout))
   this.server.stderr.on('data', process.stderr.write.bind(process.stderr))
 
   // if another instance is already running this will just die which is ok
   this.mail = cp.spawn(
     'node',
-    ['../bin/mail_helper.js'],
+    ['./mail_helper_stub.js'],
     {
       cwd: __dirname
     }
@@ -29,7 +52,23 @@ function TestServer() {
   this.mail.stderr.on('data', process.stderr.write.bind(process.stderr))
 }
 
-TestServer.server = { stop: function () {}, fake: true }
+TestServer.server = { stop: function () {}, assertLogs: function () { return P() }, fake: true }
+
+TestServer.prototype.assertLogs = function (t, spec) {
+  var keys = Object.keys(spec)
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i]
+    var expected = spec[key]
+    var actual = this.logs[key]
+    if (!expected) {
+      t.ok(!actual, 'no log output for ' + key)
+    } else {
+      t.equal(actual, expected, 'correct log output for ' + key)
+    }
+  }
+  this.logs = {}
+  return P()
+}
 
 function waitLoop(url, cb) {
   request(

@@ -28,6 +28,9 @@
  *
  */
 
+// support code coverage
+require('ass');
+
 var tap = require('tap')
 
 module.exports = function(name, testfunc) {
