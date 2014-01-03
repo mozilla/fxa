@@ -5,6 +5,7 @@
 var HEX_STRING = require('./validators').HEX_STRING
 var HEX_EMAIL = require('./validators').HEX_EMAIL
 
+var P = require('p-promise')
 var scrypt = require('../scrypt')
 var hkdf = require('../hkdf')
 
@@ -124,88 +125,9 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
       method: 'POST',
       path: '/account/login',
       config: {
-        description: "Password based authentication",
-        handler: function accountLogin(request) {
-          log.begin('Account.login', request)
-          var form = request.payload
-          var authPW = Buffer(form.authPW, 'hex')
-          db.emailRecord(form.email)
-            .then(
-              function (emailRecord) {
-                if (!emailRecord) {
-                  throw error.unknownAccount(form.email)
-                }
-                return scrypt.hash(authPW, emailRecord.authSalt)
-                  .then(
-                    function (stretched) {
-                      return hkdf(stretched, 'verifyHash', null, 32)
-                    }
-                  )
-                  .then(
-                    function (verifyHash) {
-                      if (!buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
-                        throw error.incorrectPassword()
-                      }
-                      return db.createSessionToken(
-                        {
-                          uid: emailRecord.uid,
-                          email: emailRecord.email,
-                          emailCode: emailRecord.emailCode,
-                          verified: emailRecord.verified
-                        }
-                      )
-                    }
-                  )
-              }
-            )
-            .then(
-              function (sessionToken) {
-                log.security({ event: 'login-success', uid: sessionToken.uid })
-                log.security({ event: 'session-create' })
-                return sessionToken
-              },
-              function (err) {
-                log.security({ event: 'login-failure', err: err, email: form.email })
-                throw err
-              }
-            )
-            .done(
-              function (sessionToken) {
-                request.reply(
-                  {
-                    uid: sessionToken.uid.toString('hex'),
-                    sessionToken: sessionToken.data.toString('hex'),
-                    verified: sessionToken.verified
-                  }
-                )
-              },
-              function (err) {
-                request.reply(err)
-              }
-            )
-        },
-        validate: {
-          payload: {
-            email: isA.String().max(255).required(),
-            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
-          },
-          response: {
-            schema: {
-              uid: isA.String().regex(HEX_STRING).required(),
-              sessionToken: isA.String().regex(HEX_STRING).required(),
-              verified: isA.Boolean().required()
-            }
-          }
-        }
-      }
-    },
-    {
-      method: 'POST',
-      path: '/account/login_and_get_keys',
-      config: {
         description: 'login with a password and get a keyFetchToken',
         handler: function (request) {
-          log.begin('Account.loginAndGetKeys', request)
+          log.begin('Account.login', request)
           var form = request.payload
           var authPW = Buffer(form.authPW, 'hex')
           db.emailRecord(form.email)
@@ -246,7 +168,12 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                         )
                         .then(
                           function (sessionToken) {
-                            return db.createKeyFetchToken(
+                            if (request.query.keys !== 'true') {
+                              return P({
+                                sessionToken: sessionToken
+                              })
+                            }
+                            return db.createKeyFetchToken( // TODO: the rest :)
                               {
                                 uid: emailRecord.uid,
                                 kA: emailRecord.kA,
@@ -262,17 +189,6 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                                 }
                               }
                             )
-                            .then(
-                              function (tokens) {
-                                return hkdf(stretched, 'stretchWrap', null, 32)
-                                  .then(
-                                    function (stretchWrap) {
-                                      tokens.stretchWrap = stretchWrap
-                                      return tokens
-                                    }
-                                  )
-                              }
-                            )
                           }
                         )
                     }
@@ -284,9 +200,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 request.reply(
                   {
                     uid: tokens.sessionToken.uid.toString('hex'),
-                    stretchWrap: tokens.stretchWrap.toString('hex'),
                     sessionToken: tokens.sessionToken.data.toString('hex'),
-                    keyFetchToken: tokens.keyFetchToken.data.toString('hex'),
+                    keyFetchToken: tokens.keyFetchToken ? tokens.keyFetchToken.data.toString('hex') : undefined,
                     verified: tokens.sessionToken.verified
                   }
                 )
@@ -304,9 +219,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
           response: {
             schema: {
               uid: isA.String().regex(HEX_STRING).required(),
-              stretchWrap: isA.String().regex(HEX_STRING).required(),
               sessionToken: isA.String().regex(HEX_STRING).required(),
-              keyFetchToken: isA.String().regex(HEX_STRING).required(),
+              keyFetchToken: isA.String().regex(HEX_STRING).optional(),
               verified: isA.Boolean().required()
             }
           }

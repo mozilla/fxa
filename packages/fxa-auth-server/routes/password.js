@@ -40,10 +40,7 @@ module.exports = function (log, isA, error, db, mailer) {
           log.security({ event: 'pwd-change-request' })
           var form = request.payload
           var oldAuthPW = Buffer(form.oldAuthPW, 'hex')
-          var oldStretchWrap = null
-          var newAuthPW = Buffer(form.newAuthPW, 'hex')
           var newAuthSalt = crypto.randomBytes(32)
-          var newStretchWrap = null
           var newVerifyHash = null
 
           db.emailRecord(form.email)
@@ -61,33 +58,6 @@ module.exports = function (log, isA, error, db, mailer) {
                             if(!buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
                               throw error.incorrectPassword()
                             }
-                            return hkdf(oldStretched, 'stretchWrap', null, 32)
-                          }
-                        )
-                        .then(
-                          function (stretchWrap) {
-                            oldStretchWrap = stretchWrap
-                          }
-                        )
-                    }
-                  )
-                  .then(
-                    function () {
-                      return scrypt.hash(newAuthPW, newAuthSalt)
-                        .then(
-                          function (newStretched) {
-                            return hkdf(newStretched, 'verifyHash', null, 32)
-                              .then(
-                                function (verifyHash) {
-                                  newVerifyHash = verifyHash
-                                  return hkdf(newStretched, 'stretchWrap', null, 32)
-                                }
-                              )
-                          }
-                        )
-                        .then(
-                          function (stretchWrap) {
-                            newStretchWrap = stretchWrap
                           }
                         )
                     }
@@ -104,11 +74,8 @@ module.exports = function (log, isA, error, db, mailer) {
                       )
                       .then(
                         function (keyFetchToken) {
-                          return db.createPasswordChangeToken(
-                            {
-                              uid: emailRecord.uid,
-                              verifyHash: newVerifyHash,
-                              authSalt: newAuthSalt
+                          return db.createPasswordChangeToken({
+                              uid: emailRecord.uid
                             }
                           )
                           .then(
@@ -129,8 +96,6 @@ module.exports = function (log, isA, error, db, mailer) {
               function (tokens) {
                 request.reply(
                   {
-                    oldStretchWrap: oldStretchWrap.toString('hex'),
-                    newStretchWrap: newStretchWrap.toString('hex'),
                     keyFetchToken: tokens.keyFetchToken.data.toString('hex'),
                     passwordChangeToken: tokens.passwordChangeToken.data.toString('hex'),
                     verified: tokens.keyFetchToken.verified
@@ -145,8 +110,7 @@ module.exports = function (log, isA, error, db, mailer) {
         validate: {
           payload: {
             email: isA.String().max(255).required(),
-            oldAuthPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
-            newAuthPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+            oldAuthPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
           }
         }
       }
@@ -163,25 +127,38 @@ module.exports = function (log, isA, error, db, mailer) {
           log.begin('Password.changeFinish', request)
           var reply = request.reply.bind(request)
           var passwordChangeToken = request.auth.credentials
+          var authPW = Buffer(request.payload.authPW, 'hex')
           var wrapKb = Buffer(request.payload.wrapKb, 'hex')
-          db.resetAccount(
-            passwordChangeToken,
-            {
-              verifyHash: passwordChangeToken.verifyHash,
-              authSalt: passwordChangeToken.authSalt,
-              wrapKb: wrapKb
-            }
-          )
-          .then(
-            function () {
-              log.security({ event: 'pwd-reset-success' })
-              return {}
-            }
-          )
-          .done(reply, reply)
+          var authSalt = crypto.randomBytes(32)
+          scrypt.hash(authPW, authSalt)
+            .then(
+              function (stretched) {
+                return hkdf(stretched, 'verifyHash', null, 32)
+              }
+            )
+            .then(
+              function (verifyHash) {
+                return db.resetAccount(
+                  passwordChangeToken,
+                  {
+                    verifyHash: verifyHash,
+                    authSalt: authSalt,
+                    wrapKb: wrapKb
+                  }
+                )
+              }
+            )
+            .then(
+              function () {
+                log.security({ event: 'pwd-reset-success' })
+                return {}
+              }
+            )
+            .done(reply, reply)
         },
         validate: {
           payload: {
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
             wrapKb: isA.String().min(64).max(64).regex(HEX_STRING).required()
           }
         }

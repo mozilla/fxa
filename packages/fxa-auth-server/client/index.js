@@ -76,14 +76,14 @@ Client.prototype.setupCredentials = function (email, password) {
           .then(
             function (authPW) {
               this.authPW = authPW
-              return hkdf(stretch, 'localWrap', null, 32)
+              return hkdf(stretch, 'unwrapBKey', null, 32)
             }.bind(this)
           )
       }.bind(this)
     )
     .then(
-      function (localWrap) {
-        this.localWrap = localWrap.toString('hex')
+      function (unwrapBKey) {
+        this.unwrapBKey = unwrapBKey
         return this
       }.bind(this)
     )
@@ -184,7 +184,6 @@ Client.prototype._clear = function () {
   this.passwordForgotToken = null
   this.kA = null
   this.wrapKb = null
-  this.unwrapBKey = null
   this._devices = null
 }
 
@@ -199,14 +198,7 @@ Client.prototype.auth = function () {
         this.uid = data.uid,
         this.sessionToken = data.sessionToken
         this.keyFetchToken = data.keyFetchToken
-        this.stretchWrap = data.stretchWrap
         this.verified = data.verified
-        return hkdf(Buffer(this.localWrap + this.stretchWrap, 'hex'), 'unwrapBKey', null, 32)
-      }.bind(this)
-    )
-    .then(
-      function (unwrapBKey) {
-        this.unwrapBKey = unwrapBKey
         return this
       }.bind(this)
     )
@@ -267,46 +259,28 @@ Client.prototype.sign = function (publicKey, duration) {
 }
 
 Client.prototype.changePassword = function (newPassword) {
-  this.oldAuthPW = this.authPW
-  this.oldLocalWrap = this.localWrap
-  return this.setupCredentials(this.email, newPassword)
-    .then(
-      function () {
-        return this.api.passwordChangeStart(this.email, this.oldAuthPW, this.authPW)
-      }.bind(this)
-    )
+  return this.api.passwordChangeStart(this.email, this.authPW)
     .then (
       function (json) {
         this.keyFetchToken = json.keyFetchToken
-        return hkdf(Buffer(this.oldLocalWrap + json.oldStretchWrap, 'hex'), 'unwrapBKey', null, 32)
-          .then(
-            function (unwrapBKey) {
-              this.unwrapBKey = unwrapBKey
-              return this.keys()
-            }.bind(this)
-          )
-          .then(
-            function (keys) {
-              return hkdf(Buffer(this.localWrap + json.newStretchWrap, 'hex'), 'unwrapBKey', null, 32)
-                .then(
-                  function (newUnwrapBKey) {
-                    var newWrapKb = keyStretch.xor(this.kB, newUnwrapBKey)
-                    return this.api.passwordChangeFinish(json.passwordChangeToken, newWrapKb)
-                  }.bind(this)
-                )
-            }.bind(this)
-          )
+        this.passwordChangeToken = json.passwordChangeToken
+        return this.keys()
+      }.bind(this)
+    )
+    .then(
+      function (keys) {
+        return this.setupCredentials(this.email, newPassword)
       }.bind(this)
     )
     .then(
       function () {
-        this.oldAuthPW = null
-        this.oldLocalWrap = null
+        this.wrapKb = keyStretch.xor(this.kB, this.unwrapBKey)
+        return this.api.passwordChangeFinish(this.passwordChangeToken, this.authPW, this.wrapKb)
+      }.bind(this)
+    )
+    .then(
+      function () {
         this._clear()
-      }.bind(this),
-      function (err) {
-        this.authPW = this.oldAuthPW
-        this.localWrap = this.oldLocalWrap
       }.bind(this)
     )
 }

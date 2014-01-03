@@ -63,7 +63,5 @@ CREATE TABLE IF NOT EXISTS passwordChangeTokens (
   tokenid BINARY(32) PRIMARY KEY,
   tokendata BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL,
-  verifyHash BINARY(32) NOT NULL,
-  authSalt BINARY(32) NOT NULL,
   INDEX session_uid (uid)
 ) ENGINE=InnoDB;

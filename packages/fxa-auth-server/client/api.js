@@ -119,7 +119,7 @@ ClientApi.prototype.accountLogin = function (email, authPW) {
 ClientApi.prototype.accountLoginAndGetKeys = function (email, authPW) {
   return this.doRequest(
     'POST',
-    this.baseURL + '/account/login_and_get_keys',
+    this.baseURL + '/account/login?keys=true',
     null,
     {
       email: email,
@@ -256,13 +256,12 @@ ClientApi.prototype.passwordChangeStart = function (email, oldAuthPW, newAuthPW)
       null,
       {
         email: email,
-        oldAuthPW: oldAuthPW.toString('hex'),
-        newAuthPW: newAuthPW.toString('hex')
+        oldAuthPW: oldAuthPW.toString('hex')
       }
     )
 }
 
-ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, wrapKb) {
+ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, authPW, wrapKb) {
   return tokens.PasswordChangeToken.fromHex(passwordChangeTokenHex)
     .then(
       function (token) {
@@ -271,6 +270,7 @@ ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, wra
           this.baseURL + '/password/change/finish',
           token,
           {
+            authPW: authPW.toString('hex'),
             wrapKb: wrapKb.toString('hex')
           }
         )

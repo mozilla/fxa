@@ -317,7 +317,7 @@ module.exports = function (
 
   MySql.prototype.createPasswordChangeToken = function (data) {
     log.trace({ op: 'MySql.createPasswordChangeToken', uid: data && data.uid })
-    var sql = 'REPLACE INTO passwordChangeTokens (tokenid, tokendata, uid, verifyHash, authSalt) VALUES (?, ?, ?, ?, ?)'
+    var sql = 'REPLACE INTO passwordChangeTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
     var con
     return this.getMasterConnection()
       .then(function(thisCon) {
@@ -331,9 +331,7 @@ module.exports = function (
           [
             passwordChangeToken.tokenid,
             passwordChangeToken.data,
-            passwordChangeToken.uid,
-            passwordChangeToken.verifyHash,
-            passwordChangeToken.authSalt
+            passwordChangeToken.uid
           ],
           function (err) {
             con.release()
@@ -553,7 +551,7 @@ module.exports = function (
 
   MySql.prototype.passwordChangeToken = function (id) {
     log.trace({ op: 'MySql.passwordChangeToken', id: id })
-    var sql = 'SELECT t.tokendata, t.uid, t.verifyHash, t.authSalt ' +
+    var sql = 'SELECT t.tokendata, t.uid ' +
               ' FROM passwordChangeTokens t WHERE t.tokenid = ?'
     return this.getSlaveConnection()
       .then(function(con) {
