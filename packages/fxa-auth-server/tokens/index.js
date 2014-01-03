@@ -26,7 +26,7 @@ module.exports = function (log) {
   )
   var SessionToken = require('./session_token')(log, inherits, Token)
   var AuthToken = require('./auth_token')(log, inherits, Token, error)
-  var ForgotPasswordToken = require('./forgot_password_token')(
+  var PasswordForgotToken = require('./password_forgot_token')(
     log,
     inherits,
     Date.now,
@@ -56,7 +56,7 @@ module.exports = function (log) {
   Token.KeyFetchToken = KeyFetchToken
   Token.SessionToken = SessionToken
   Token.AuthToken = AuthToken
-  Token.ForgotPasswordToken = ForgotPasswordToken
+  Token.PasswordForgotToken = PasswordForgotToken
   Token.SrpToken = SrpToken
   Token.PasswordChangeToken = PasswordChangeToken
 

@@ -129,8 +129,8 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 * Password
     * [POST /v1/password/change/start (:lock: authToken)](#post-v1passwordchangestart)
     * [POST /v1/password/forgot/send_code](#post-v1passwordforgotsend_code)
-    * [POST /v1/password/forgot/resend_code (:lock: forgotPasswordToken)](#post-v1passwordforgotresend_code)
-    * [POST /v1/password/forgot/verify_code (:lock: forgotPasswordToken)](#post-v1passwordforgotverify_code)
+    * [POST /v1/password/forgot/resend_code (:lock: passwordForgotToken)](#post-v1passwordforgotresend_code)
+    * [POST /v1/password/forgot/verify_code (:lock: passwordForgotToken)](#post-v1passwordforgotverify_code)
 
 * Miscellaneous
     * [POST /v1/get_random_bytes](#post-v1get_random_bytes)
@@ -1095,11 +1095,11 @@ This requests a "reset password" code to be sent to the user's recovery email. T
 
 This code will be either 8 or 16 digits long, and the `send_code` response indicates the code length (so the UI can display a suitable input form). The email will either contain the code itself, or will contain a link to a web page which will display the code.
 
-The `send_code` response includes a `forgotPasswordToken`, which must be submitted with the code to `/v1/password/forgot/verify_code` later.
+The `send_code` response includes a `passwordForgotToken`, which must be submitted with the code to `/v1/password/forgot/verify_code` later.
 
 The response also specifies the ttl of this token, and a limit on the number of times `verify_code` can be called with this token. By limiting the number of submission attempts, we also limit an attacker's ability to guess the code. After the token expires, or the maximum number of submissions have happened, the agent must use `send_code` again to generate a new code and token.
 
-Each account can have at most one `forgotPasswordToken` valid at a time. Calling `send_code` causes any existing tokens to be canceled and a new one created. Each token is associated with a specific code, so `send_code` also invalidates any existing codes.
+Each account can have at most one `passwordForgotToken` valid at a time. Calling `send_code` causes any existing tokens to be canceled and a new one created. Each token is associated with a specific code, so `send_code` also invalidates any existing codes.
 
 ___Parameters___
 
@@ -1122,7 +1122,7 @@ Successful requests will produce a "200 OK" response with details of the reset c
 
 ```json
 {
-  "forgotPasswordToken": "10ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
+  "passwordForgotToken": "10ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
   "ttl": 900,
   "codeLength": 8,
   "tries": 3
@@ -1141,11 +1141,11 @@ Failing requests may be due to the following errors:
 
 ## POST /v1/password/forgot/resend_code
 
-:lock: HAWK-authenticated with the forgotPasswordToken.
+:lock: HAWK-authenticated with the passwordForgotToken.
 
 While the agent is waiting for the user to paste in the forgot-password code, if the user believes the email has been lost or accidentally deleted, the `/v1/password/forgot/resend_code` API can be used to send a new copy of the same code.
 
-This API requires the `forgotPasswordToken` returned by the original `send_code` call (only the original browser which started the process may request a replacement message). It will return the same response as `send_code` did, except with a shorter `ttl` indicating the remaining validity period. If `verify_code` has been called some number of times with the same token, then `tries` will be smaller too.
+This API requires the `passwordForgotToken` returned by the original `send_code` call (only the original browser which started the process may request a replacement message). It will return the same response as `send_code` did, except with a shorter `ttl` indicating the remaining validity period. If `verify_code` has been called some number of times with the same token, then `tries` will be smaller too.
 
 ___Parameters___
 
@@ -1170,7 +1170,7 @@ Successful requests will produce a "200 OK" response with details of the reset c
 
 ```json
 {
-  "forgotPasswordToken": "10ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
+  "passwordForgotToken": "10ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
   "ttl": 550,
   "codeLength": 8,
   "tries": 2
@@ -1193,9 +1193,9 @@ Failing requests may be due to the following errors:
 
 ## POST /v1/password/forgot/verify_code
 
-:lock: HAWK-authenticated with the forgotPasswordToken.
+:lock: HAWK-authenticated with the passwordForgotToken.
 
-Once the code created by `/v1/password/forgot/send_code` is emailed to the user, and they paste it into their browser, the browser agent should deliver it to this `verify_code` endpoint (along with the `forgotPasswordToken`). This will cause the server to allocate and return an `accountResetToken`, which can be used to reset the account password (srpVerifier and wrap(kB)) with the `/v1/account/reset` API (described above).
+Once the code created by `/v1/password/forgot/send_code` is emailed to the user, and they paste it into their browser, the browser agent should deliver it to this `verify_code` endpoint (along with the `passwordForgotToken`). This will cause the server to allocate and return an `accountResetToken`, which can be used to reset the account password (srpVerifier and wrap(kB)) with the `/v1/account/reset` API (described above).
 
 (a future version of this API may replace `verify_code` with a pair of SRP `start` and `finish` methods, just like `/v1/auth/start` and `/v1/auth/finish`)
 

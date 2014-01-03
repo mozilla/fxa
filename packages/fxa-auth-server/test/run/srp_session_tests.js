@@ -16,7 +16,7 @@ var DB = require('../../db/heap')(
   Token.KeyFetchToken,
   Token.AccountResetToken,
   Token.SrpToken,
-  Token.ForgotPasswordToken
+  Token.PasswordForgotToken
 )
 var db = new DB()
 

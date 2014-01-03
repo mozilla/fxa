@@ -9,7 +9,7 @@ var timestamp = Date.now()
 // increment timestamp by 500ms each time now is called
 function now() { return (timestamp += 500) }
 
-var ForgotPasswordToken = require('../../tokens/forgot_password_token')(
+var PasswordForgotToken = require('../../tokens/password_forgot_token')(
   log,
   require('util').inherits,
   now,
@@ -28,7 +28,7 @@ test(
   're-creation from tokendata works',
   function (t) {
     var token = null;
-    return ForgotPasswordToken.create(ACCOUNT)
+    return PasswordForgotToken.create(ACCOUNT)
       .then(
         function (x) {
           token = x
@@ -36,7 +36,7 @@ test(
       )
       .then(
         function () {
-          return ForgotPasswordToken.fromHex(token.data, ACCOUNT)
+          return PasswordForgotToken.fromHex(token.data, ACCOUNT)
         }
       )
       .then(
@@ -56,7 +56,7 @@ test(
 test(
   'ttl "works"',
   function (t) {
-    return ForgotPasswordToken.create(ACCOUNT)
+    return PasswordForgotToken.create(ACCOUNT)
       .then(
         function (token) {
           token.created = timestamp
@@ -73,7 +73,7 @@ test(
 test(
   'failAttempt decrements `tries`',
   function (t) {
-    return ForgotPasswordToken.create(ACCOUNT)
+    return PasswordForgotToken.create(ACCOUNT)
       .then(
         function (x) {
           t.equal(x.tries, 3)

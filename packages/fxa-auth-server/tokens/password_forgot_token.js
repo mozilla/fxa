@@ -6,45 +6,45 @@ module.exports = function (log, inherits, now, Token, crypto) {
 
   var LIFETIME = 1000 * 60 * 15
 
-  function ForgotPasswordToken(keys, details) {
+  function PasswordForgotToken(keys, details) {
     Token.call(this, keys, details)
     this.email = details.email || null
     this.created = details.created || null
     this.passcode = details.passcode || null
     this.tries = details.tries || null
   }
-  inherits(ForgotPasswordToken, Token)
+  inherits(PasswordForgotToken, Token)
 
-  ForgotPasswordToken.tokenTypeID = 'passwordForgotToken'
+  PasswordForgotToken.tokenTypeID = 'passwordForgotToken'
 
-  ForgotPasswordToken.create = function (details) {
+  PasswordForgotToken.create = function (details) {
     details = details || {}
     log.trace({
-      op: 'ForgotPasswordToken.create',
+      op: 'PasswordForgotToken.create',
       uid: details.uid,
       email: details.email
     })
     details.passcode = crypto.randomBytes(4).readUInt32BE(0) % 100000000
     details.created = now()
     details.tries = 3
-    return Token.createNewToken(ForgotPasswordToken, details)
+    return Token.createNewToken(PasswordForgotToken, details)
   }
 
-  ForgotPasswordToken.fromHex = function (string, details) {
-    log.trace({ op: 'ForgotPasswordToken.fromHex' })
+  PasswordForgotToken.fromHex = function (string, details) {
+    log.trace({ op: 'PasswordForgotToken.fromHex' })
     details = details || {}
-    return Token.createTokenFromHexData(ForgotPasswordToken, string, details)
+    return Token.createTokenFromHexData(PasswordForgotToken, string, details)
   }
 
-  ForgotPasswordToken.prototype.ttl = function () {
+  PasswordForgotToken.prototype.ttl = function () {
     var ttl = (LIFETIME - (now() - this.created)) / 1000
     return Math.max(Math.ceil(ttl), 0)
   }
 
-  ForgotPasswordToken.prototype.failAttempt = function () {
+  PasswordForgotToken.prototype.failAttempt = function () {
     this.tries--
     return this.tries < 1
   }
 
-  return ForgotPasswordToken
+  return PasswordForgotToken
 }

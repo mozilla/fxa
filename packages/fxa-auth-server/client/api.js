@@ -290,8 +290,8 @@ ClientApi.prototype.passwordForgotSendCode = function (email) {
   )
 }
 
-ClientApi.prototype.passwordForgotResendCode = function (forgotPasswordTokenHex, email) {
-  return tokens.ForgotPasswordToken.fromHex(forgotPasswordTokenHex)
+ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex, email) {
+  return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
     .then(
       function (token) {
         return this.doRequest(
@@ -306,8 +306,8 @@ ClientApi.prototype.passwordForgotResendCode = function (forgotPasswordTokenHex,
     )
 }
 
-ClientApi.prototype.passwordForgotVerifyCode = function (forgotPasswordTokenHex, code) {
-    return tokens.ForgotPasswordToken.fromHex(forgotPasswordTokenHex)
+ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex, code) {
+    return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
     .then(
       function (token) {
         return this.doRequest(

@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS resetTokens (
 ) ENGINE=InnoDB;
 
 
-CREATE TABLE IF NOT EXISTS forgotpwdTokens (
+CREATE TABLE IF NOT EXISTS passwordForgotTokens (
   tokenid BINARY(32) PRIMARY KEY,
   tokendata BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL UNIQUE KEY,

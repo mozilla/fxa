@@ -51,7 +51,7 @@
 	* wrapKb
 	* verified
 
-## ForgotPasswordTokens
+## PasswordForgotTokens
 
 * id
 * uid
@@ -83,4 +83,4 @@
 * srpTokens
 * authTokens
 * accountResetToken
-* forgotPasswordToken
+* passwordForgotToken

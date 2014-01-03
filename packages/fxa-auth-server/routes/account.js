@@ -76,7 +76,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                     wrapKb: crypto.randomBytes(32),
                     devices: {},
                     accountResetToken: null,
-                    forgotPasswordToken: null,
+                    passwordForgotToken: null,
                     authSalt: authSalt,
                     verifyHash: verifyHash
                   }

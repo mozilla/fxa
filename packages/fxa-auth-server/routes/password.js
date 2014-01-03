@@ -22,10 +22,10 @@ function buffersAreEqual(buffer1, buffer2) {
 
 module.exports = function (log, isA, error, db, mailer) {
 
-  function failVerifyAttempt(forgotPasswordToken) {
-    return (forgotPasswordToken.failAttempt()) ?
-      db.deleteForgotPasswordToken(forgotPasswordToken) :
-      db.updateForgotPasswordToken(forgotPasswordToken)
+  function failVerifyAttempt(passwordForgotToken) {
+    return (passwordForgotToken.failAttempt()) ?
+      db.deletePasswordForgotToken(passwordForgotToken) :
+      db.updatePasswordForgotToken(passwordForgotToken)
   }
 
   var routes = [
@@ -201,30 +201,30 @@ module.exports = function (log, isA, error, db, mailer) {
             .then(
               function (emailRecord) {
                 log.security({ event: 'pwd-reset-request' })
-                return db.createForgotPasswordToken(emailRecord)
+                return db.createPasswordForgotToken(emailRecord)
               }
             )
             .then(
-              function (forgotPasswordToken) {
+              function (passwordForgotToken) {
                 return mailer.sendRecoveryCode(
-                  forgotPasswordToken,
-                  forgotPasswordToken.passcode,
+                  passwordForgotToken,
+                  passwordForgotToken.passcode,
                   request.app.preferredLang
                 ).then(
                   function() {
-                    return forgotPasswordToken
+                    return passwordForgotToken
                   }
                 )
               }
             )
             .done(
-              function (forgotPasswordToken) {
+              function (passwordForgotToken) {
                 request.reply(
                   {
-                    passwordForgotToken: forgotPasswordToken.data.toString('hex'),
-                    ttl: forgotPasswordToken.ttl(),
-                    codeLength: forgotPasswordToken.passcode.length,
-                    tries: forgotPasswordToken.tries
+                    passwordForgotToken: passwordForgotToken.data.toString('hex'),
+                    ttl: passwordForgotToken.ttl(),
+                    codeLength: passwordForgotToken.passcode.length,
+                    tries: passwordForgotToken.tries
                   }
                 )
               },
@@ -256,23 +256,23 @@ module.exports = function (log, isA, error, db, mailer) {
           "Request the previous 'reset password' code again",
         tags: ["password"],
         auth: {
-          strategy: 'forgotPasswordToken'
+          strategy: 'passwordForgotToken'
         },
         handler: function (request) {
           log.begin('Password.forgotResend', request)
-          var forgotPasswordToken = request.auth.credentials
+          var passwordForgotToken = request.auth.credentials
           mailer.sendRecoveryCode(
-            forgotPasswordToken,
-            forgotPasswordToken.passcode,
+            passwordForgotToken,
+            passwordForgotToken.passcode,
             request.app.preferredLang
           ).done(
             function () {
               request.reply(
                 {
-                  passwordForgotToken: forgotPasswordToken.data.toString('hex'),
-                  ttl: forgotPasswordToken.ttl(),
-                  codeLength: forgotPasswordToken.passcode.length,
-                  tries: forgotPasswordToken.tries
+                  passwordForgotToken: passwordForgotToken.data.toString('hex'),
+                  ttl: passwordForgotToken.ttl(),
+                  codeLength: passwordForgotToken.passcode.length,
+                  tries: passwordForgotToken.tries
                 }
               )
             },
@@ -304,15 +304,15 @@ module.exports = function (log, isA, error, db, mailer) {
           "Verify a 'reset password' code",
         tags: ["password"],
         auth: {
-          strategy: 'forgotPasswordToken'
+          strategy: 'passwordForgotToken'
         },
         handler: function (request) {
           log.begin('Password.forgotVerify', request)
-          var forgotPasswordToken = request.auth.credentials
+          var passwordForgotToken = request.auth.credentials
           var code = +(request.payload.code)
-          if (forgotPasswordToken.passcode === code && forgotPasswordToken.ttl() > 0) {
+          if (passwordForgotToken.passcode === code && passwordForgotToken.ttl() > 0) {
             log.security({ event: 'pwd-reset-verify-success' })
-            db.forgotPasswordVerified(forgotPasswordToken)
+            db.forgotPasswordVerified(passwordForgotToken)
               .done(
                 function (accountResetToken) {
                   request.reply(
@@ -328,13 +328,13 @@ module.exports = function (log, isA, error, db, mailer) {
           }
           else {
             log.security({ event: 'pwd-reset-verify-failure' })
-            failVerifyAttempt(forgotPasswordToken)
+            failVerifyAttempt(passwordForgotToken)
               .done(
                 function () {
                   request.reply(
                     error.invalidVerificationCode({
-                      tries: forgotPasswordToken.tries,
-                      ttl: forgotPasswordToken.ttl()
+                      tries: passwordForgotToken.tries,
+                      ttl: passwordForgotToken.ttl()
                     })
                   )
                 },

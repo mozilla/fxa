@@ -24,7 +24,7 @@ function Client(origin) {
   this.sessionToken = null
   this.accountResetToken = null
   this.keyFetchToken = null
-  this.forgotPasswordToken = null
+  this.passwordForgotToken = null
   this.kA = null
   this.wrapKb = null
   this._devices = null
@@ -149,7 +149,7 @@ Client.parse = function (string) {
   client.sessionToken = object.sessionToken
   client.accountResetToken = object.accountResetToken
   client.keyFetchToken = object.keyFetchToken
-  client.forgotPasswordToken = object.forgotPasswordToken
+  client.passwordForgotToken = object.passwordForgotToken
   client.kA = object.kA
   client.wrapKb = object.wrapKb
   client.service = object.service || null
@@ -181,7 +181,7 @@ Client.prototype._clear = function () {
   this.srpSession = null
   this.accountResetToken = null
   this.keyFetchToken = null
-  this.forgotPasswordToken = null
+  this.passwordForgotToken = null
   this.kA = null
   this.wrapKb = null
   this.unwrapBKey = null
@@ -368,17 +368,17 @@ Client.prototype.forgotPassword = function () {
   return this.api.passwordForgotSendCode(this.email)
     .then(
       function (x) {
-        this.forgotPasswordToken = x.passwordForgotToken
+        this.passwordForgotToken = x.passwordForgotToken
       }.bind(this)
     )
 }
 
 Client.prototype.reforgotPassword = function () {
-  return this.api.passwordForgotResendCode(this.forgotPasswordToken, this.email)
+  return this.api.passwordForgotResendCode(this.passwordForgotToken, this.email)
 }
 
 Client.prototype.verifyPasswordResetCode = function (code) {
-  return this.api.passwordForgotVerifyCode(this.forgotPasswordToken, code)
+  return this.api.passwordForgotVerifyCode(this.passwordForgotToken, code)
     .then(
       function (result) {
         this.accountResetToken = result.accountResetToken

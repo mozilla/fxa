@@ -63,7 +63,7 @@ function main() {
     Token.KeyFetchToken,
     Token.AccountResetToken,
     Token.SrpToken,
-    Token.ForgotPasswordToken,
+    Token.PasswordForgotToken,
     Token.PasswordChangeToken
   )
 

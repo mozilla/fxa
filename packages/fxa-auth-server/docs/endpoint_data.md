@@ -17,7 +17,7 @@
   * passwordStretching
   * sessionTokenList
   * keyFetchTokenList
-  * forgotPasswordTokenList
+  * passwordForgotTokenList
   * srpTokenList
   * authTokenList
   * accountResetTokenList
@@ -79,7 +79,7 @@
 	* uid
   * sessionTokenList
   * keyFetchTokenList
-  * forgotPasswordTokenList
+  * passwordForgotTokenList
   * srpTokenList
   * authTokenList
   * accountResetTokenList
@@ -91,7 +91,7 @@
   * wrapKb
   * sessionTokenList
   * keyFetchTokenList
-  * forgotPasswordTokenList
+  * passwordForgotTokenList
   * srpTokenList
   * authTokenList
   * accountResetTokenList
@@ -106,7 +106,7 @@
 	* AccountResetTokens
 	* AuthTokens
 	* SrpTokens
-	* ForgotPasswordTokens
+	* PasswordForgotTokens
 	* Emails
 	* Accounts
 
@@ -118,7 +118,7 @@
 	* uid
   * sessionTokenList
   * keyFetchTokenList
-  * forgotPasswordTokenList
+  * passwordForgotTokenList
   * srpTokenList
   * authTokenList
   * accountResetTokenList
@@ -136,7 +136,7 @@
 	* AccountResetTokens
 	* AuthTokens
 	* SrpTokens
-	* ForgotPasswordTokens
+	* PasswordForgotTokens
 	* Emails
 	* Accounts
 
@@ -361,26 +361,26 @@
 	* email
 * reads
 	* uid
-	* forgotPasswordToken data
+	* passwordForgotToken data
 		* (none)
 * writes
-	* forgotPasswordToken
-	* forgotPasswordTokenList
+	* passwordForgotToken
+	* passwordForgotTokenList
 * output
-	* forgotPasswordToken.id
+	* passwordForgotToken.id
 	* ttl
 	* codeLength
 	* tries
 * db-read
 	* Emails
 * db-write
-	* ForgotPasswordTokens
+	* PasswordForgotTokens
 	* Accounts
 
 ## /password/forgot/resend_code
 
 * input
-	* forgotPasswordToken.id
+	* passwordForgotToken.id
 * reads
 	* uid
 	* email
@@ -391,19 +391,19 @@
 * writes
 	* (none)
 * output
-	* forgotPasswordToken.id
+	* passwordForgotToken.id
 	* ttl
 	* codeLength
 	* tries
 * db-read
-	* ForgotPasswordTokens
+	* PasswordForgotTokens
 * db-write
 	* (none)
 
 ## /password/forgot/verify_code
 
 * input
-	* forgotPasswordToken.id
+	* passwordForgotToken.id
 	* code
 * reads
 	* uid
@@ -413,18 +413,18 @@
 		* (none)
 * writes
 	* delete
-		* forgotPasswordToken
+		* passwordForgotToken
 	* tries
 	* accountResetToken
-	* forgotPasswordTokenList
+	* passwordForgotTokenList
 	* accountResetTokenList
 * output
 	* accountResetToken.id
 	* ttl
 	* tries
 * db-read
-	* ForgotPasswordTokens
+	* PasswordForgotTokens
 * db-write
-	* ForgotPasswordTokens
+	* PasswordForgotTokens
 	* AccountResetTokens
 	* Accounts
