@@ -4,8 +4,6 @@
 
 var crypto = require('crypto')
 var P = require('p-promise')
-var srp = require('srp')
-
 var ClientApi = require('./api')
 var keyStretch = require('./keystretch')
 var pbkdf2 = require('./pbkdf2')
@@ -33,39 +31,6 @@ function Client(origin) {
 }
 
 Client.Api = ClientApi
-
-function getAMK(srpSession, emailHex, passwordHex) {
-  var a = crypto.randomBytes(32)
-  var srpClient = new srp.Client(
-    srp.params[2048],
-    Buffer(srpSession.srp.salt, 'hex'),
-    Buffer(emailHex, 'hex'),
-    Buffer(passwordHex, 'hex'),
-    a
-  )
-  var A = srpClient.computeA()
-  var B = Buffer(srpSession.srp.B, 'hex')
-  srpClient.setB(B)
-
-  var M = srpClient.computeM1()
-  var K = srpClient.computeK()
-
-  return {
-    srpToken: srpSession.srpToken,
-    A: A.toString('hex'),
-    M: M.toString('hex'),
-    K: K
-  }
-}
-
-function verifier(saltHex, emailHex, passwordHex) {
-  return srp.computeVerifier(
-    srp.params[2048],
-    Buffer(saltHex, 'hex'),
-    Buffer(emailHex, 'hex'),
-    Buffer(passwordHex, 'hex')
-    ).toString('hex')
-}
 
 Client.prototype.setupCredentials = function (email, password) {
   this.email = email
@@ -134,27 +99,6 @@ Client.changePassword = function (origin, email, oldPassword, newPassword) {
         )
       }
     )
-}
-
-Client.parse = function (string) {
-  var object = JSON.parse(string)
-  var client = new Client(object.api.origin)
-  client.uid = object.uid
-  client.email = object.email
-  client.password = object.password
-  client.verified = !!object.verified
-  client.srp = object.srp
-  client.passwordSalt = object.passwordSalt
-  client.passwordStretching = object.passwordStretching
-  client.sessionToken = object.sessionToken
-  client.accountResetToken = object.accountResetToken
-  client.keyFetchToken = object.keyFetchToken
-  client.passwordForgotToken = object.passwordForgotToken
-  client.kA = object.kA
-  client.wrapKb = object.wrapKb
-  client.service = object.service || null
-
-  return client
 }
 
 Client.prototype.create = function () {

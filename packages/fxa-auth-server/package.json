@@ -27,12 +27,10 @@
   },
   "dependencies": {
     "mysql": "2.0.0-rc2",
-    "srp": "0.2.0",
     "uuid": "1.4.1",
     "hapi": "1.20.0",
     "hawk": "1.1.2",
     "hkdf": "0.0.2",
-    "sjcl": "1.0.0",
     "compute-cluster": "git://github.com/dannycoates/node-compute-cluster.git#0222a742",
     "jwcrypto": "0.4.4",
     "handlebars": "1.1.2",
@@ -43,7 +41,6 @@
     "nodemailer": "0.5.15",
     "then-redis": "0.3.x",
     "i18n-abide": "0.0.14",
-    "request": "2.30.0",
     "scrypt-hash": "1.1.7"
   },
   "devDependencies": {
@@ -56,6 +53,8 @@
     "load-grunt-tasks": "~0.2.0",
     "grunt": "~0.4.1",
     "ass": "0.0.4",
+    "sjcl": "1.0.0",
+    "request": "2.30.0",
     "binary-split": "0.1.1",
     "through": "2.3.4"
   }

@@ -76,7 +76,7 @@ function main() {
         process.exit(1)
       }
     )
-    .then(
+    .done(
       function (backends) {
         var db = backends[0]
         var noncedb = backends[1]
