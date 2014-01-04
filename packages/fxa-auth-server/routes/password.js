@@ -20,6 +20,21 @@ function buffersAreEqual(buffer1, buffer2) {
   return mismatch === 0
 }
 
+function xorBuffers(buffer1, buffer2) {
+  if (buffer1.length !== buffer2.length) {
+    throw new Error(
+      'XOR buffers must be same length (%d != %d)',
+      buffer1.length,
+      buffer2.length
+    )
+  }
+  var result = Buffer(buffer1.length)
+  for (var i = 0; i < buffer1.length; i++) {
+    result[i] = buffer1[i] ^ buffer2[i]
+  }
+  return result
+}
+
 module.exports = function (log, isA, error, db, mailer) {
 
   function failVerifyAttempt(passwordForgotToken) {
@@ -60,15 +75,25 @@ module.exports = function (log, isA, error, db, mailer) {
                             }
                           }
                         )
+                        .then(
+                          function () {
+                            return hkdf(oldStretched, 'wrapwrapKey', null, 32)
+                              .then(
+                                function (wrapWrapKey) {
+                                  return xorBuffers(wrapWrapKey, emailRecord.wrapWrapKb)
+                                }
+                              )
+                          }
+                        )
                     }
                   )
                   .then(
-                    function () {
+                    function (wrapKb) {
                       return db.createKeyFetchToken(
                         {
                           uid: emailRecord.uid,
                           kA: emailRecord.kA,
-                          wrapKb: emailRecord.wrapKb,
+                          wrapKb: wrapKb,
                           verified: emailRecord.verified
                         }
                       )
@@ -134,18 +159,28 @@ module.exports = function (log, isA, error, db, mailer) {
             .then(
               function (stretched) {
                 return hkdf(stretched, 'verifyHash', null, 32)
-              }
-            )
-            .then(
-              function (verifyHash) {
-                return db.resetAccount(
-                  passwordChangeToken,
-                  {
-                    verifyHash: verifyHash,
-                    authSalt: authSalt,
-                    wrapKb: wrapKb
-                  }
-                )
+                  .then(
+                    function (verifyHash) {
+                      return hkdf(stretched, 'wrapwrapKey', null, 32)
+                        .then(
+                          function (wrapWrapKey) {
+                            return xorBuffers(wrapWrapKey, wrapKb)
+                          }
+                        )
+                        .then(
+                          function (wrapWrapKb) {
+                            return db.resetAccount(
+                              passwordChangeToken,
+                              {
+                                verifyHash: verifyHash,
+                                authSalt: authSalt,
+                                wrapWrapKb: wrapWrapKb
+                              }
+                            )
+                          }
+                        )
+                    }
+                  )
               }
             )
             .then(

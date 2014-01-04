@@ -20,6 +20,21 @@ function buffersAreEqual(buffer1, buffer2) {
   return mismatch === 0
 }
 
+function xorBuffers(buffer1, buffer2) {
+  if (buffer1.length !== buffer2.length) {
+    throw new Error(
+      'XOR buffers must be same length (%d != %d)',
+      buffer1.length,
+      buffer2.length
+    )
+  }
+  var result = Buffer(buffer1.length)
+  for (var i = 0; i < buffer1.length; i++) {
+    result[i] = buffer1[i] ^ buffer2[i]
+  }
+  return result
+}
+
 module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
 
   var routes = [
@@ -74,7 +89,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                     emailCode: crypto.randomBytes(4).toString('hex'),
                     verified: form.preVerified || false,
                     kA: crypto.randomBytes(32),
-                    wrapKb: crypto.randomBytes(32),
+                    wrapWrapKb: crypto.randomBytes(32),
                     devices: {},
                     accountResetToken: null,
                     passwordForgotToken: null,
@@ -173,22 +188,32 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                                 sessionToken: sessionToken
                               })
                             }
-                            return db.createKeyFetchToken( // TODO: the rest :)
-                              {
-                                uid: emailRecord.uid,
-                                kA: emailRecord.kA,
-                                wrapKb: emailRecord.wrapKb,
-                                verified: emailRecord.verified
-                              }
-                            )
-                            .then(
-                              function (keyFetchToken) {
-                                return {
-                                  sessionToken: sessionToken,
-                                  keyFetchToken: keyFetchToken
+                            return hkdf(stretched, 'wrapwrapKey', null, 32)
+                              .then(
+                                function (wrapWrapKey) {
+                                  return xorBuffers(wrapWrapKey, emailRecord.wrapWrapKb)
                                 }
-                              }
-                            )
+                              )
+                              .then(
+                                function (wrapKb) {
+                                  return db.createKeyFetchToken(
+                                    {
+                                      uid: emailRecord.uid,
+                                      kA: emailRecord.kA,
+                                      wrapKb: wrapKb,
+                                      verified: emailRecord.verified
+                                    }
+                                  )
+                                }
+                              )
+                              .then(
+                                function (keyFetchToken) {
+                                  return {
+                                    sessionToken: sessionToken,
+                                    keyFetchToken: keyFetchToken
+                                  }
+                                }
+                              )
                           }
                         )
                     }
@@ -290,14 +315,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 if (!keyFetchToken.verified) {
                   throw error.unverifiedAccount()
                 }
-                return keyFetchToken.bundleKeys(keyFetchToken.kA,
-                                                keyFetchToken.wrapKb)
-              }
-            )
-            .then(
-              function (bundle) {
                 return {
-                  bundle: bundle
+                  bundle: keyFetchToken.keyBundle.toString('hex')
                 }
               }
             )
@@ -450,7 +469,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                   {
                     authSalt: authSalt,
                     verifyHash: verifyHash,
-                    wrapKb: crypto.randomBytes(32)
+                    wrapWrapKb: crypto.randomBytes(32)
                   }
                 )
               }

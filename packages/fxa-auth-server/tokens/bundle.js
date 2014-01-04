@@ -42,7 +42,8 @@ module.exports = function (crypto, P, hkdf, error) {
           var ciphertext = xorBuffers(payload, keys[1])
           var hmac = crypto.createHmac(HASH_ALGORITHM, keys[0])
           hmac.update(ciphertext)
-          return Buffer.concat([ciphertext, hmac.digest()]).toString('hex')
+          var mac = hmac.digest()
+          return Buffer.concat([ciphertext, mac]).toString('hex')
         }
       )
   }
@@ -59,7 +60,8 @@ module.exports = function (crypto, P, hkdf, error) {
         function (keys) {
           var hmac = crypto.createHmac(HASH_ALGORITHM, keys[0])
           hmac.update(ciphertext)
-          if (!buffersAreEqual(hmac.digest(), expectedHmac)) {
+          var mac = hmac.digest()
+          if (!buffersAreEqual(mac, expectedHmac)) {
             throw error.invalidSignature()
           }
           return xorBuffers(ciphertext, keys[1])

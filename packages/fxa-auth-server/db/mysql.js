@@ -136,7 +136,7 @@ module.exports = function (
         email: data && data.email
       }
     )
-    var sql = 'INSERT INTO accounts (uid, email, emailCode, verified, kA, wrapKb, authSalt, verifyHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    var sql = 'INSERT INTO accounts (uid, email, emailCode, verified, kA, wrapWrapKb, authSalt, verifyHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
     return this.getMasterConnection()
       .then(function(con) {
         var d = P.defer()
@@ -148,7 +148,7 @@ module.exports = function (
             data.emailCode,
             data.verified,
             data.kA,
-            data.wrapKb,
+            data.wrapWrapKb,
             data.authSalt,
             data.verifyHash
           ],
@@ -189,7 +189,7 @@ module.exports = function (
 
   MySql.prototype.createKeyFetchToken = function (authToken) {
     log.trace({ op: 'MySql.createKeyFetchToken', uid: authToken && authToken.uid })
-    var sql = 'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
+    var sql = 'INSERT INTO keyfetchTokens (tokenid, authKey, uid, keyBundle) VALUES (?, ?, ?, ?)'
     var con
     return this.getMasterConnection()
       .then(function(thisCon) {
@@ -200,7 +200,7 @@ module.exports = function (
         var d = P.defer()
         con.query(
           sql,
-          [keyFetchToken.tokenid, keyFetchToken.data, keyFetchToken.uid],
+          [keyFetchToken.tokenid, keyFetchToken.authKey, keyFetchToken.uid, keyFetchToken.keyBundle],
           function (err) {
             con.release()
             if (err) return d.reject(err)
@@ -413,7 +413,7 @@ module.exports = function (
 
   MySql.prototype.keyFetchToken = function (id) {
     log.trace({ op: 'MySql.keyFetchToken', id: id })
-    var sql = 'SELECT t.tokendata, t.uid, a.verified, a.kA, a.wrapKb ' +
+    var sql = 'SELECT t.authKey, t.uid, t.keyBundle, a.verified ' +
               '  FROM keyfetchTokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'
     return this.getSlaveConnection()
       .then(function(con) {
@@ -426,7 +426,7 @@ module.exports = function (
             if (err) return d.reject(err)
             if (!results.length) return d.reject(error.invalidToken())
             var result = results[0]
-            KeyFetchToken.fromHex(result.tokendata, result)
+            KeyFetchToken.fromId(id, result)
               .done(
                 function (keyFetchToken) {
                   return d.resolve(keyFetchToken)
@@ -578,7 +578,7 @@ module.exports = function (
 
   MySql.prototype.emailRecord = function (email) {
     log.trace({ op: 'MySql.emailRecord', email: email })
-    var sql = 'SELECT uid, verified, emailCode, kA, wrapKb, verifyHash, authSalt FROM accounts WHERE email = ?'
+    var sql = 'SELECT uid, verified, emailCode, kA, wrapWrapKb, verifyHash, authSalt FROM accounts WHERE email = ?'
     return this.getSlaveConnection()
       .then(function(con) {
         var d = P.defer()
@@ -596,7 +596,7 @@ module.exports = function (
               emailCode: result.emailCode,
               verified: !!result.verified,
               kA: result.kA,
-              wrapKb: result.wrapKb,
+              wrapWrapKb: result.wrapWrapKb,
               verifyHash: result.verifyHash,
               authSalt: result.authSalt
             })
@@ -609,7 +609,7 @@ module.exports = function (
   MySql.prototype.account = function (uid) {
 
     log.trace({ op: 'MySql.account', uid: uid })
-    var sql = 'SELECT email, emailCode, verified, kA, wrapKb, verifyHash, authSalt ' +
+    var sql = 'SELECT email, emailCode, verified, kA, wrapWrapKb, verifyHash, authSalt ' +
               '  FROM accounts WHERE uid = ?'
     return this.getSlaveConnection()
       .then(function(con) {
@@ -628,7 +628,7 @@ module.exports = function (
               emailCode: result.emailCode,
               verified: !!result.verified,
               kA: result.kA,
-              wrapKb: result.wrapKb,
+              wrapWrapKb: result.wrapWrapKb,
               verifyHash: result.verifyHash,
               authSalt: result.authSalt
             })
@@ -881,14 +881,14 @@ module.exports = function (
       })
       .then(function() {
         var d = P.defer()
-        var sql = 'UPDATE accounts SET verifyHash = ?, authSalt = ?, wrapKb = ? ' +
+        var sql = 'UPDATE accounts SET verifyHash = ?, authSalt = ?, wrapWrapKb = ? ' +
                   ' WHERE uid = ?'
         con.query(
           sql,
           [
             data.verifyHash,
             data.authSalt,
-            data.wrapKb,
+            data.wrapWrapKb,
             accountResetToken.uid,
           ],
           function (err) {

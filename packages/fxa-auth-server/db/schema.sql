@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   emailCode CHAR(8) NOT NULL,
   verified BOOLEAN NOT NULL DEFAULT FALSE,
   kA BINARY(32) NOT NULL,
-  wrapKb BINARY(32) NOT NULL,
+  wrapWrapKb BINARY(32) NOT NULL,
   authSalt BINARY(32) NOT NULL,
   verifyHash BINARY(32) NOT NULL
 ) ENGINE=InnoDB;
@@ -37,8 +37,9 @@ CREATE TABLE IF NOT EXISTS sessionTokens (
 
 CREATE TABLE IF NOT EXISTS keyfetchTokens (
   tokenid BINARY(32) PRIMARY KEY,
-  tokendata BINARY(32) NOT NULL,
+  authKey BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL,
+  keyBundle BINARY(96) NOT NULL,
   INDEX key_uid (uid)
 ) ENGINE=InnoDB;
 

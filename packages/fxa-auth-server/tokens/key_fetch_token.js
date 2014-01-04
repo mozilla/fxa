@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var P = require('p-promise')
+
 module.exports = function (log, inherits, Token, error) {
 
   function KeyFetchToken(keys, details) {
     Token.call(this, keys, details)
-    this.kA = details.kA || null
-    this.wrapKb = details.wrapKb || null
+    this.keyBundle = details.keyBundle
     this.verified = !!details.verified
   }
   inherits(KeyFetchToken, Token)
@@ -17,6 +18,22 @@ module.exports = function (log, inherits, Token, error) {
   KeyFetchToken.create = function (details) {
     log.trace({ op: 'KeyFetchToken.create', uid: details && details.uid })
     return Token.createNewToken(KeyFetchToken, details || {})
+      .then(
+        function (token) {
+          return token.bundleKeys(details.kA, details.wrapKb)
+            .then(
+              function (keyBundle) {
+                token.keyBundle = Buffer(keyBundle, 'hex') //TODO see if we can skip hex
+                return token
+              }
+            )
+        }
+      )
+  }
+
+  KeyFetchToken.fromId = function (id, details) {
+    log.trace({ op: 'KeyFetchToken.fromId' })
+    return P(new KeyFetchToken({ tokenid: id, authKey: details.authKey }, details))
   }
 
   KeyFetchToken.fromHex = function (string, details) {

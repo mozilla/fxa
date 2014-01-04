@@ -186,7 +186,7 @@ module.exports = function (
     var account = this.accounts[keyFetchToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     keyFetchToken.kA = account.kA
-    keyFetchToken.wrapKb = account.wrapKb
+    keyFetchToken.wrapWrapKb = account.wrapWrapKb
     keyFetchToken.verified = account.verified
     return P(keyFetchToken)
   }
@@ -364,7 +364,7 @@ module.exports = function (
     var account = this.accounts[accountResetToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     account.verifyHash = data.verifyHash
-    account.wrapKb = data.wrapKb
+    account.wrapWrapKb = data.wrapWrapKb
     account.authSalt = data.authSalt
     account.devices = {}
     account.accountResetToken = null
