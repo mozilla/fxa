@@ -134,7 +134,7 @@ module.exports = function (
         email: data && data.email
       }
     )
-    var sql = 'INSERT INTO accounts (uid, email, emailCode, verified, kA, wrapWrapKb, authSalt, verifyHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+    var sql = 'INSERT INTO accounts (uid, email, rawEmail, emailCode, verified, kA, wrapWrapKb, authSalt, verifyHash) VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?)'
     return this.getMasterConnection()
       .then(function(con) {
         var d = P.defer()
@@ -142,6 +142,7 @@ module.exports = function (
           sql,
           [
             data.uid,
+            data.email,
             data.email,
             data.emailCode,
             data.verified,
@@ -296,7 +297,7 @@ module.exports = function (
 
   MySql.prototype.accountExists = function (email) {
     log.trace({ op: 'MySql.accountExists', email: email })
-    var sql = 'SELECT uid FROM accounts WHERE email = ?'
+    var sql = 'SELECT uid FROM accounts WHERE email = LOWER(?)'
 
     return this.getSlaveConnection()
       .then(function(con) {
@@ -469,7 +470,7 @@ module.exports = function (
 
   MySql.prototype.emailRecord = function (email) {
     log.trace({ op: 'MySql.emailRecord', email: email })
-    var sql = 'SELECT uid, verified, emailCode, kA, wrapWrapKb, verifyHash, authSalt FROM accounts WHERE email = ?'
+    var sql = 'SELECT uid, email, rawEmail, verified, emailCode, kA, wrapWrapKb, verifyHash, authSalt FROM accounts WHERE email = LOWER(?)'
     return this.getSlaveConnection()
       .then(function(con) {
         var d = P.defer()
@@ -483,7 +484,8 @@ module.exports = function (
             var result = results[0]
             return d.resolve({
               uid: result.uid,
-              email: email,
+              email: result.email,
+              rawEmail: result.rawEmail,
               emailCode: result.emailCode,
               verified: !!result.verified,
               kA: result.kA,
@@ -500,7 +502,7 @@ module.exports = function (
   MySql.prototype.account = function (uid) {
 
     log.trace({ op: 'MySql.account', uid: uid })
-    var sql = 'SELECT email, emailCode, verified, kA, wrapWrapKb, verifyHash, authSalt ' +
+    var sql = 'SELECT email, rawEmail, emailCode, verified, kA, wrapWrapKb, verifyHash, authSalt ' +
               '  FROM accounts WHERE uid = ?'
     return this.getSlaveConnection()
       .then(function(con) {
@@ -516,6 +518,7 @@ module.exports = function (
             return d.resolve({
               uid: uid,
               email: result.email,
+              rawEmail: result.rawEmail,
               emailCode: result.emailCode,
               verified: !!result.verified,
               kA: result.kA,

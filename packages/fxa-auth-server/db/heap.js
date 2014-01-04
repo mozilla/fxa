@@ -63,6 +63,8 @@ module.exports = function (
         email: data && data.email
       }
     )
+    data.rawEmail = data.email
+    data.email = data.email.toLowerCase()
     this.accounts[data.uid.toString('hex')] = data
     this.emailRecords[data.email] = data.uid.toString('hex')
     data.devices = {}
@@ -134,7 +136,7 @@ module.exports = function (
 
   Heap.prototype.accountExists = function (email) {
     log.trace({ op: 'Heap.accountExists', email: email })
-    return P(!!this.emailRecords[email])
+    return P(!!this.emailRecords[email.toLowerCase()])
   }
 
   Heap.prototype.accountDevices = function (uid) {
@@ -201,7 +203,7 @@ module.exports = function (
 
   Heap.prototype.emailRecord = function (email) {
     log.trace({ op: 'Heap.emailRecord', email: email })
-    var uid = this.emailRecords[email]
+    var uid = this.emailRecords[email.toLowerCase()]
     if (!uid) { return P.reject(error.unknownAccount(email)) }
     return this.account(uid)
   }
