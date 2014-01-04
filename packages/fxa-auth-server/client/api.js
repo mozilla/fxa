@@ -322,43 +322,6 @@ ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex,
     )
 }
 
-ClientApi.prototype.authStart = function (email) {
-  return this.doRequest(
-    'POST',
-    this.baseURL + '/auth/start',
-    null,
-    {
-      email: email
-    }
-  )
-}
-
-ClientApi.prototype.authFinish = function (srpToken, A, M) {
-  return this.doRequest(
-    'POST',
-    this.baseURL + '/auth/finish',
-    null,
-    {
-      srpToken: srpToken,
-      A: A,
-      M: M
-    }
-  )
-}
-
-ClientApi.prototype.sessionCreate = function (authTokenHex) {
-  return tokens.AuthToken.fromHex(authTokenHex)
-    .then(
-      function (token) {
-        return this.doRequest(
-          'POST',
-          this.baseURL + '/session/create',
-          token
-        )
-      }.bind(this)
-    )
-}
-
 ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
@@ -367,64 +330,6 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
           'POST',
           this.baseURL + '/session/destroy',
           token
-        )
-      }.bind(this)
-    )
-}
-
-ClientApi.prototype.rawPasswordAccountCreate = function (email, password, options) {
-  options = options || {}
-  return this.doRequest(
-    'POST',
-    this.baseURL + '/raw_password/account/create',
-    null,
-    {
-      email: email,
-      password: password,
-      preVerified: options.preVerified || undefined
-    },
-    {
-      'accept-language': options.lang
-    }
-  )
-}
-
-ClientApi.prototype.rawPasswordSessionCreate = function (email, password) {
-  return this.doRequest(
-    'POST',
-    this.baseURL + '/raw_password/session/create',
-    null,
-    {
-      email: email,
-      password: password
-    }
-  )
-}
-
-ClientApi.prototype.rawPasswordPasswordChange = function (email, oldPassword, newPassword) {
-  return this.doRequest(
-    'POST',
-    this.baseURL + '/raw_password/password/change',
-    null,
-    {
-      email: email,
-      oldPassword: oldPassword,
-      newPassword: newPassword
-    }
-  )
-}
-
-ClientApi.prototype.rawPasswordPasswordReset = function (accountResetTokenHex, newPassword) {
-  return tokens.AccountResetToken.fromHex(accountResetTokenHex)
-    .then(
-      function (token) {
-        return this.doRequest(
-          'POST',
-          this.baseURL + '/raw_password/password/reset',
-          token,
-          {
-            newPassword: newPassword
-          }
         )
       }.bind(this)
     )
