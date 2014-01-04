@@ -71,11 +71,6 @@ module.exports = function (path, url, Hapi, toobusy) {
             hawk: hawkOptions,
             getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db))
           },
-          authToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.authToken.bind(db))
-          },
           passwordForgotToken: {
             scheme: 'hawk',
             hawk: hawkOptions,

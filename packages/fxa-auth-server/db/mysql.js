@@ -9,11 +9,9 @@ var schema = require('fs').readFileSync(__dirname + '/schema.sql', { encoding: '
 module.exports = function (
   log,
   error,
-  AuthToken,
   SessionToken,
   KeyFetchToken,
   AccountResetToken,
-  SrpToken,
   PasswordForgotToken,
   PasswordChangeToken
   ) {
@@ -235,55 +233,6 @@ module.exports = function (
       }.bind(this))
   }
 
-  MySql.prototype.createAuthToken = function (srpToken) {
-    log.trace({ op: 'MySql.createAuthToken', uid: srpToken && srpToken.uid })
-    var sql = 'INSERT INTO authTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
-    var con
-    return this.getMasterConnection()
-      .then(function(thisCon) {
-        con = thisCon
-        return AuthToken.create(srpToken)
-      })
-      .then(function(authToken) {
-        var d = P.defer()
-        con.query(
-          sql,
-          [authToken.tokenid, authToken.data, authToken.uid],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(authToken)
-          }
-        )
-        return d.promise
-      }.bind(this))
-  }
-
-  MySql.prototype.createSrpToken = function (emailRecord) {
-    log.trace({ op: 'MySql.createSrpToken', uid: emailRecord && emailRecord.uid })
-    var sql = 'INSERT INTO srpTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)'
-
-    var con
-    return this.getMasterConnection()
-      .then(function(thisCon) {
-        con = thisCon
-        return SrpToken.create(emailRecord)
-      })
-      .then(function (srpToken) {
-        var d = P.defer()
-        con.query(
-          sql,
-          [srpToken.tokenid, srpToken.data, srpToken.uid],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(srpToken)
-          }
-        )
-        return d.promise
-      }.bind(this))
-  }
-
   MySql.prototype.createPasswordForgotToken = function (emailRecord) {
     log.trace({ op: 'MySql.createPasswordForgotToken', uid: emailRecord && emailRecord.uid })
     var sql = 'REPLACE INTO passwordForgotTokens (tokenid, tokendata, uid, passcode, created, tries) VALUES (?, ?, ?, ?, ?, ?)'
@@ -461,64 +410,6 @@ module.exports = function (
       })
       .then(function(accountResetToken) {
         return P(accountResetToken)
-      })
-  }
-
-  MySql.prototype.authToken = function (id) {
-    log.trace({ op: 'MySql.authToken', id: id })
-    var sql = 'SELECT t.uid, t.tokendata, a.verified' +
-              '  FROM authTokens t, accounts a' +
-              '  WHERE t.tokenid = ? AND t.uid = a.uid'
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          sql,
-          [id],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.invalidToken())
-            var result = results[0]
-            AuthToken.fromHex(result.tokendata, result)
-              .done(
-                function (authToken) {
-                  return d.resolve(authToken)
-                }
-              )
-          }
-        )
-        return d.promise
-      })
-  }
-
-  MySql.prototype.srpToken = function (id) {
-    log.trace({ op: 'MySql.srpToken', id: id })
-    var sql = 'SELECT t.tokendata, t.uid, a.srp, a.passwordStretching ' +
-              '  FROM srpTokens t, accounts a ' +
-              '  WHERE t.tokenid = ? AND t.uid = a.uid'
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          sql,
-          [id],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.invalidToken())
-            var result = results[0]
-            result.srp = JSON.parse(result.srp)
-            result.passwordStretching = JSON.parse(result.passwordStretching)
-            SrpToken.fromHex(result.tokendata, result)
-              .done(
-                function (srpToken) {
-                  return d.resolve(srpToken)
-                }
-              )
-          }
-        )
-        return d.promise
       })
   }
 
@@ -760,56 +651,6 @@ module.exports = function (
       })
   }
 
-  MySql.prototype.deleteAuthToken = function (authToken) {
-    log.trace(
-      {
-        op: 'MySql.deleteAuthToken',
-        id: authToken && authToken.tokenid,
-        uid: authToken && authToken.uid
-      }
-    )
-    var sql = 'DELETE FROM authTokens WHERE tokenid = ?'
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          sql,
-          [authToken.tokenid],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
-        )
-        return d.promise
-      })
-  }
-
-  MySql.prototype.deleteSrpToken = function (srpToken) {
-    log.trace(
-      {
-        op: 'MySql.deleteSrpToken',
-        id: srpToken && srpToken.tokenid,
-        uid: srpToken && srpToken.uid
-      }
-    )
-    var sql = 'DELETE FROM srpTokens WHERE tokenid = ?'
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          sql,
-          [srpToken.tokenid],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
-        )
-        return d.promise
-      })
-  }
-
   MySql.prototype.deletePasswordForgotToken = function (passwordForgotToken) {
     log.trace(
       {
@@ -905,126 +746,6 @@ module.exports = function (
       })
   }
 
-  MySql.prototype.authFinish = function (srpToken) {
-    log.trace({ op: 'MySql.authFinish', uid: srpToken && srpToken.uid })
-    // Order of events:
-    // (1) make an AuthToken
-    // (2) get a connection
-    // (3) start a transaction
-    // (4) delete from srpTokens
-    // (5) insert into authTokens
-    // (6) commit transaction
-    // (7) release connection
-    // (8) resolve with the new authToken
-    var con
-    var authToken
-    return this.getMasterConnection()
-      .then(function(thisCon) {
-        con = thisCon
-        return beginTransaction(con)
-      })
-      .then(function() {
-        return AuthToken.create(srpToken)
-      })
-      .then(function (newAuthToken) {
-        authToken = newAuthToken
-        var d = P.defer()
-        con.query(
-          'DELETE FROM srpTokens WHERE tokenid = ?',
-          [srpToken.tokenid],
-          function(err) {
-            if (err) d.reject(err)
-            d.resolve()
-          }
-        )
-        return d.promise
-      })
-      .then(function() {
-        var d = P.defer()
-        con.query(
-          'INSERT INTO authTokens(tokenid, tokendata, uid) VALUES (?, ?, ?)',
-          [authToken.tokenid, authToken.data, authToken.uid],
-          function(err) {
-            if (err) d.reject(err)
-            d.resolve(authToken)
-          }
-        )
-        return d.promise
-      })
-      .then(function() {
-          return commitTransaction(con).then(function() {
-            con.release()
-          })
-      })
-      .then(function() {
-          return P(authToken)
-      })
-  }
-
-  MySql.prototype.createSession = function (authToken) {
-    log.trace({ op: 'MySql.createSession', uid: authToken && authToken.uid })
-    var con
-    return P.all(
-      [
-        KeyFetchToken.create(authToken),
-        SessionToken.create(authToken)
-      ]
-    )
-    .then(function (tokens) {
-      var keyFetchToken = tokens[0]
-      var sessionToken = tokens[1]
-
-      return this.getMasterConnection()
-        .then(function(thisCon) {
-          con = thisCon
-          return beginTransaction(con)
-        })
-        .then(function(thisCon) {
-          var d = P.defer()
-          con.query(
-            'DELETE FROM authTokens WHERE tokenid = ?',
-            [authToken.tokenid],
-            function(err) {
-              if (err) return d.reject(err)
-              d.resolve()
-            }
-          )
-          return d.promise
-        })
-        .then(function() {
-          var d = P.defer()
-          con.query(
-            'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-            [keyFetchToken.tokenid, keyFetchToken.data, keyFetchToken.uid],
-            function(err) {
-              if (err) return d.reject(err)
-              d.resolve()
-            }
-          )
-          return d.promise
-        })
-        .then(function() {
-          var d = P.defer()
-          con.query(
-            'INSERT INTO sessionTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-            [sessionToken.tokenid, sessionToken.data, sessionToken.uid],
-            function(err) {
-              if (err) return d.reject(err)
-              // now commit and release
-              commitTransaction(con).then(function() {
-                con.release()
-                d.resolve({
-                  keyFetchToken: keyFetchToken,
-                  sessionToken: sessionToken
-                })
-              })
-            }
-          )
-          return d.promise
-        })
-    }.bind(this))
-  }
-
   MySql.prototype.verifyEmail = function (account) {
     log.trace({ op: 'MySql.verifyEmail', uid: account && account.uid })
     var sql = 'UPDATE accounts SET verified = true WHERE uid = ?'
@@ -1042,73 +763,6 @@ module.exports = function (
         )
         return d.promise
       })
-  }
-
-  MySql.prototype.createPasswordChange = function (authToken) {
-    log.trace({ op: 'MySql.createPasswordChange', uid: authToken && authToken.uid })
-    var con
-    return P.all(
-      [
-        KeyFetchToken.create(authToken),
-        AccountResetToken.create(authToken)
-      ]
-    )
-    .then(function (tokens) {
-      var keyFetchToken = tokens[0]
-      var accountResetToken = tokens[1]
-
-      return this.getMasterConnection()
-        .then(function(thisCon) {
-          con = thisCon
-          return beginTransaction(con)
-        })
-        .then(function(thisCon) {
-          var d = P.defer()
-          con.query(
-            'DELETE FROM authTokens WHERE tokenid = ?',
-            [authToken.tokenid],
-            function(err) {
-              if (err) return d.reject(err)
-              d.resolve()
-            }
-          )
-          return d.promise
-        })
-        .then(function() {
-          var d = P.defer()
-          con.query(
-            'INSERT INTO keyfetchTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-            [keyFetchToken.tokenid, keyFetchToken.data, keyFetchToken.uid],
-            function(err) {
-              if (err) return d.reject(err)
-              d.resolve()
-            }
-          )
-          return d.promise
-        })
-        .then(function() {
-          var d = P.defer()
-          con.query(
-            'REPLACE INTO resetTokens (tokenid, tokendata, uid) VALUES (?, ?, ?)',
-            [accountResetToken.tokenid, accountResetToken.data, accountResetToken.uid],
-            function(err) {
-              if (err) return d.reject(err)
-              d.resolve()
-            }
-          )
-          return d.promise
-        })
-        .then(function() {
-            return commitTransaction(con)
-        })
-        .then(function() {
-          con.release()
-          return P({
-            keyFetchToken: keyFetchToken,
-            accountResetToken: accountResetToken
-          })
-        })
-    }.bind(this))
   }
 
   MySql.prototype.forgotPasswordVerified = function (passwordForgotToken) {

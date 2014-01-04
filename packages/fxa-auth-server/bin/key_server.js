@@ -40,10 +40,6 @@ function main() {
   var signer = new CC({ module: __dirname + '/signer.js' })
   signer.on('error', function () {}) // don't die
 
-  // client_heklper compute-cluster
-  var clientHelper = new CC({ module: __dirname + '/client_helper.js' })
-  clientHelper.on('error', function () {}) // don't die
-
   var Server = require('../server')
   var server = null
   // TODO: send to the SMTP server directly. In the future this may change
@@ -58,11 +54,9 @@ function main() {
     config.db.backend,
     log,
     Token.error,
-    Token.AuthToken,
     Token.SessionToken,
     Token.KeyFetchToken,
     Token.AccountResetToken,
-    Token.SrpToken,
     Token.PasswordForgotToken,
     Token.PasswordChangeToken
   )
@@ -86,7 +80,7 @@ function main() {
       function (backends) {
         var db = backends[0]
         var noncedb = backends[1]
-        var routes = require('../routes')(log, error, serverPublicKey, signer, clientHelper, db, mailer, Token, config)
+        var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, config)
         server = Server.create(log, error, config, routes, db, noncedb, i18n)
 
         server.start(

@@ -6,8 +6,6 @@ var crypto = require('crypto')
 var inherits = require('util').inherits
 
 var P = require('p-promise')
-var srp = require('srp')
-var uuid = require('uuid')
 var hkdf = require('../hkdf')
 
 var error = require('./error')
@@ -25,23 +23,12 @@ module.exports = function (log) {
     crypto
   )
   var SessionToken = require('./session_token')(log, inherits, Token)
-  var AuthToken = require('./auth_token')(log, inherits, Token, error)
   var PasswordForgotToken = require('./password_forgot_token')(
     log,
     inherits,
     Date.now,
     Token,
     crypto
-  )
-  var SrpToken = require('./srp_token')(
-    log,
-    inherits,
-    P,
-    uuid,
-    srp,
-    Bundle,
-    Token,
-    error
   )
 
   var PasswordChangeToken = require('./password_change_token')(
@@ -55,9 +42,7 @@ module.exports = function (log) {
   Token.AccountResetToken = AccountResetToken
   Token.KeyFetchToken = KeyFetchToken
   Token.SessionToken = SessionToken
-  Token.AuthToken = AuthToken
   Token.PasswordForgotToken = PasswordForgotToken
-  Token.SrpToken = SrpToken
   Token.PasswordChangeToken = PasswordChangeToken
 
   return Token

@@ -6,11 +6,9 @@ module.exports = function (
   backend,
   log,
   error,
-  AuthToken,
   SessionToken,
   KeyFetchToken,
   AccountResetToken,
-  SrpToken,
   PasswordForgotToken,
   PasswordChangeToken) {
 
@@ -18,11 +16,9 @@ module.exports = function (
     return require('./mysql')(
       log,
       error,
-      AuthToken,
       SessionToken,
       KeyFetchToken,
       AccountResetToken,
-      SrpToken,
       PasswordForgotToken,
       PasswordChangeToken
     )
@@ -31,11 +27,9 @@ module.exports = function (
     return require('./heap')(
       log,
       error,
-      AuthToken,
       SessionToken,
       KeyFetchToken,
       AccountResetToken,
-      SrpToken,
       PasswordForgotToken,
       PasswordChangeToken
     )
