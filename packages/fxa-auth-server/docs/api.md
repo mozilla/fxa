@@ -102,21 +102,13 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [GET  /v1/account/devices (:lock: sessionToken)](#get-v1accountdevices)
     * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-v1accountkeys)
     * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
-    * [POST /v1/account/destroy (:lock: authToken)](#post-v1accountdestroy)
+    * [POST /v1/account/destroy](#post-v1accountdestroy)
 
 * Authentication
-    * [POST /v1/auth/start](#post-v1authstart)
-    * [POST /v1/auth/finish](#post-v1authfinish)
+    * [POST /v1/account/login](#post-v1accountlogin)
 
 * Session
-    * [POST /v1/session/create (:lock: authToken)](#post-v1sessioncreate)
     * [POST /v1/session/destroy (:lock: sessionToken)](#post-v1sessiondestroy)
-
-* RawPassword **REDUCED SECURITY**
-    * [POST /v1/raw_password/account/create](#post-v1raw_passwordaccountcreate)
-    * [POST /v1/raw_password/password/reset](#post-v1raw_passwordpasswordreset)
-    * [POST /v1/raw_password/password/change](#post-v1raw_passwordpasswordchange)
-    * [POST /v1/raw_password/session/create](#post-v1raw_passwordsessioncreate)
 
 * Recovery Email
     * [GET  /v1/recovery_email/status (:lock: sessionToken)](#get-v1recovery_emailstatus)
@@ -127,7 +119,8 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [POST /v1/certificate/sign (:lock: sessionToken) (verf-required)](#post-v1certificatesign)
 
 * Password
-    * [POST /v1/password/change/start (:lock: authToken)](#post-v1passwordchangestart)
+    * [POST /v1/password/change/start](#post-v1passwordchangestart)
+    * [POST /v1/password/change/finish](#post-v1passwordchangefinish)
     * [POST /v1/password/forgot/send_code](#post-v1passwordforgotsend_code)
     * [POST /v1/password/forgot/resend_code (:lock: passwordForgotToken)](#post-v1passwordforgotresend_code)
     * [POST /v1/password/forgot/verify_code (:lock: passwordForgotToken)](#post-v1passwordforgotverify_code)
@@ -136,32 +129,16 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [POST /v1/get_random_bytes](#post-v1get_random_bytes)
 
 
-
 ## POST /v1/account/create
 
-Not HAWK authenticated.
-
-Creates a user account. The client provides the email address with which this account will be labeled, the two salts, all the stretching parameters, and the resulting SRP verifier. Of these values, only the salts and the stretching parameters will be returned to the client when they next log in using `/v1/auth/start`.
-
-Because the account email is used for key-derivation by both client and server, it is important to deliver it accurately, byte-for-byte. To avoid transfer-encoding ambiguity (what does HTTP use? what does the JSON parser do? etc), the email should be transferred as a hex-encoded binary string, just like the salts, tokens, and SRP A/B values. For example, "me@example.com" is represented as "6d65406578616d706c652e636f6d", and "andré@example.org" is represented as "616e6472c3a9406578616d706c652e6f7267".
+Creates a user account. The client provides the email address with which this account will be labeled and a stretched password. Stretching is detailed on the [onepw](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol#creating-the-account) wiki page.
 
 This endpoint may send a verification email to the user.  Callers may optionally provide the `service` parameter to indicate what Identity-Attached Service they are acting on behalf of.  This is an opaque alphanumeric token which will be embedded in the verification link as a query parameter.
 
 ___Parameters___
 
-* email - the primary email for this account (UTF-8 encoded, as hex)
-* srp
-    * type - "SRP-6a/SHA256/2048/v1"
-    * verifer - the derived SRP verifier
-    * salt - SRP salt
-* passwordStretching
-    * type: "PBKDF2/scrypt/PBKDF2/v1"
-    * PBKDF2_rounds_1: 20000
-    * scrypt_N: 65536
-    * scrypt_r: 8
-    * scrypt_p: 1
-    * PBKDF2_rounds_2: 20000
-    * salt: password stretching salt
+* email - the primary email for this account
+* authPW - the PBKDF2/HKDF stretched password as a hex string
 * service - opaque alphanumeric token to be included in verification links
 
 
@@ -171,23 +148,10 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://api-accounts.dev.lcip.org/v1/account/create \
+https://api-accounts.dev.lcip.org/v1/account/create \
 -d '{
-  "email": "6d65406578616d706c652e636f6d",
-  "srp": {
-    "type": "SRP-6a/SHA256/2048/v1",
-    "verifier": "7597c55064c73bf1b2735878cb8711c289fc8f1cfb3d633a4593b36a8c51dbd68b27f649949de27d1dcccf7ece1e1a42c5c6bdc3d209cf13a3813d333bfcadd2641a9a3e2eb4289788ed8510cc8f2f1061789d58aef38b9d21b81831413f55473f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4e0bda74fcaa2347be4664f553d332df8166278c0e2f8663aa9238a2429631f7afd11622e193747b57975c51bbb69bb11f60c1a5ba449d3119e70d1ec580212151f79b26e73a57dba313376f0ba7a2afc232146a3b1d68b2d0afc35ebb8699cb10b3a3f8e0d51cefc7ac29212b238fb7a87f2f61edc9cbff103e386f778925fe",
-    "salt": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4"
-  },
-  "passwordStretching": {
-    "type": "PBKDF2/scrypt/PBKDF2/v1",
-    "PBKDF2_rounds_1": 20000,
-    "scrypt_N": 65536,
-    "scrypt_r": 8,
-    "scrypt_p": 1,
-    "PBKDF2_rounds_2": 20000,
-    "salt": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
-  }
+  "email": "me@example,com",
+  "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
 }'
 ```
 
@@ -203,8 +167,52 @@ Successful requests will produce a "200 OK" response with the account's unique i
 
 Failing requests may be due to the following errors:
 
-
 * status code 400, errno 101:  attempt to create an account that already exists
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
+
+## POST /v1/account/login
+
+Obtain a `sessionToken` and optionally a `keyFetchToken` by adding the query parameter `keys=true`.
+
+___Parameters___
+
+* email - the primary email for this account
+* authPW - the PBKDF2/HKDF stretched password as a hex string
+
+### Request
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+https://api-accounts.dev.lcip.org/v1/account/login?keys=true \
+-d '{
+  "email": "me@example,com",
+  "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" and a json body. `keyFetchToken` will only be present if `keys=true` was specified.
+
+```json
+{
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
+  "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
+  "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
+  "verified": true
+}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 103:  incorrect password
 * status code 400, errno 106:  request body was not valid json
 * status code 400, errno 107:  request body contains invalid parameters
 * status code 400, errno 108:  request body missing required parameters
@@ -224,7 +232,7 @@ Devices describe themselves to the server with arguments to `/v1/session/create`
 
 ___Headers___
 
-The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/session/create`.
+The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/account/login`.
 
 ### Request
 
@@ -234,7 +242,7 @@ curl -v \
 -H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/account/devices \
+https://api-accounts.dev.lcip.org/v1/account/devices \
 ```
 
 ### Response
@@ -284,7 +292,7 @@ curl -v \
 -H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/account/keys \
+https://api-accounts.dev.lcip.org/v1/account/keys \
 ```
 
 ### Response
@@ -314,9 +322,7 @@ Failing requests may be due to the following errors:
 
 :lock: HAWK-authenticated with accountResetToken
 
-This resets the account password (by replacing the SRP verifier), and optionally resets the encrypted "wrap(kB)" value, both of which are delivered in an encrypted request body. It also updates several non-secret values: the SRP parameters, the two salts, and the key-stretching parameters.
-
-See [resetting the account](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Resetting_the_Account) for details of how the request body is encrypted.
+This sets the account password and resets wrapKb to a new random value.
 
 The accountResetToken is single-use, and is consumed regardless of whether the request succeeds or fails.
 
@@ -324,23 +330,12 @@ The accountResetToken is single-use, and is consumed regardless of whether the r
 
 ___Parameters___
 
-* bundle - a base16 string of encrypted (`wrapKb|verifier`)
-* srp
-    * type - "SRP-6a/SHA256/2048/v1"
-    * salt - SRP salt
-* passwordStretching
-    * type: "PBKDF2/scrypt/PBKDF2/v1"
-    * PBKDF2_rounds_1: 20000
-    * scrypt_N: 65536
-    * scrypt_r: 8
-    * scrypt_p: 1
-    * PBKDF2_rounds_2: 20000
-    * salt: password stretching salt
+* authPW - the PBKDF2/HKDF stretched password as a hex string
 
 
 ___Headers___
 
-The request must include a HAWK header that authenticates the request (including payload) using a key derived from the `accountResetToken`, which is returned by `/v1/password/change/start` or `/v1/password/forgot/verify_code`.
+The request must include a HAWK header that authenticates the request (including payload) using a key derived from the `accountResetToken`, which is returned by `/v1/password/forgot/verify_code`.
 
 ```sh
 curl -v \
@@ -348,21 +343,9 @@ curl -v \
 -H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/account/reset \
+https://api-accounts.dev.lcip.org/v1/account/reset \
 -d '{
-  "bundle": "a586e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a98264bdc",
-  "srp": {
-    "type": "SRP-6a/SHA256/2048/v1",
-    "salt": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4"
-  },
-  "passwordStretching": {
-    "type": "PBKDF2/scrypt/PBKDF2/v1",
-    "PBKDF2_rounds_1": 20000,
-    "scrypt_N": 65536,
-    "scrypt_r": 8,
-    "scrypt_p": 1,
-    "PBKDF2_rounds_2": 20000,
-    "salt": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
+  "authPW": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4"
   }
 }'
 ```
@@ -391,240 +374,24 @@ Failing requests may be due to the following errors:
 
 ## POST /v1/account/destroy
 
-:lock: HAWK-authenticated with the authToken
-
 This deletes the account completely. All stored data is erased. The client should seek user confirmation first. The client should erase data stored on any attached services before deleting the user's account data.
 
-This request must be authenticated with the single-use authToken, to confirm that the password has been correctly entered recently. The authToken is consumed regardless of whether the request succeeds or fails.
-
 ### Request
 
 ___Parameters___
 
-none
-
-___Headers___
-
-The request must include a HAWK header that authenticates the request (including payload) using the `authToken`, which is returned by `/v1/auth/finish`.
+* email - the account email address
+* authPW - the PBKDF2/HKDF stretched password as a hex string
 
 ```sh
 curl -v \
 -X POST \
 -H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/account/destroy \
--d ''
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 106:  request body was not valid json
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-## POST /v1/auth/start
-
-Not HAWK authenticated.
-
-Begin the login process. This is the first of two calls used to prove knowledge of the user's password. The two calls are tied together with the single-use `srpToken`, which is returned from `/v1/auth/start` and passed back to `/v1/auth/finish`. This token is valid for a limited time (60 seconds), and is consumed by `/v1/auth/finish` regardless of whether it succeeds or fails.
-
-The `start` call returns the salts and stretching parameters stored for the account. It also returns the SRP "B" message, which the client uses to compute its "A" response (which is submitted in `/v1/auth/finish`).
-
-___Parameters___
-
-* email - user's email address (UTF-8 encoded, as hex)
-
-### Request
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-http://api-accounts.dev.lcip.org/v1/auth/start \
+https://api-accounts.dev.lcip.org/v1/account/destroy \
 -d '{
-  "email": "6d65406578616d706c652e636f6d"
-}'
-```
-
-### Response
-
-___Parameters___
-
-Successful requests will produce a "200 OK" response with the "srpToken", "srp" and "passwordStretching" fields in the JSON body object:
-
-```json
-{
-  "srpToken": "b223b00e-5a10-46a9-983c-1c346c0d1907",
-  "srp": {
-    "type": "SRP-6a/SHA256/2048/v1",
-    "salt": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4",
-    "B": "3cd467e3afd4cc2d7abd913e322d76c245c667e9dffc6e28a1108ac02c5af9eee1148a0c735f52ed786c33add4936dd5534326794e03d1b48b77b347c728740288adf488a9f4f11d75bb60e9bb1e975cccd128e28115178de01702fd2e8715e7c33b02c142569669bb52cf167092fa79c3c03c81affc5c8d97fd3cb8d12605e5dd59f75e21376cfdc6536125650ff8559f1c5319a9bfbb5191238c1570d41dc43e880d213fa06ff9d2f6ca7f31e05aef6236ae3657450250c06145a346151c54f227996532bbdc6e1531456174975eded5404baae081b3ce7b42646b98baec1029082823a041aaace4ffa362d5ed42a4e5088c496dda8ba2a35e804e89597313"
-  },
-  "passwordStretching": {
-    "type": "PBKDF2/scrypt/PBKDF2/v1",
-    "PBKDF2_rounds_1": 20000,
-    "scrypt_N": 65536,
-    "scrypt_r": 8,
-    "scrypt_p": 1,
-    "PBKDF2_rounds_2": 20000,
-    "salt": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
-  }
-}
-```
-
-How to derive the values for the next step are explained in the
-[SRP Client Calculation](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#SRP_Client_Calculation)
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-
-## POST /v1/auth/finish
-
-Not HAWK authenticated.
-
-This completes the login process started in `/v1/auth/start`. The client supplies its SRP "A" message and the SRP "M" verification message. If these are correct (indicating the user knew the account password), the server returns an encrypted bundle that will yield a single-use "authToken".
-
-___Parameters___
-
-* srpToken - the srpToken received from `/v1/auth/start`
-* A - the derived SRP "A" value
-* M - the derived SRP "M" value
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-http://api-accounts.dev.lcip.org/v1/auth/finish \
--d '{
-  "srpToken": "4c352927-cd4f-4a4a-a03d-7d1893d950b8",
-  "A": "024ba1bb53d42918dc34131b41548843e1fa533bd5952be3ec8884fba4aa5c3542ac161fa0d5587d1e694248573be8a1b18f7b0c132f74ddde08ac2a230f4db4a1d831eb74ee772c83121ecba80e51b9293942681655dca4f98a766408fbaf5c13c09d21b9d6d3dabea8024fbb658ca67e20bc63cb349cb9bea54d7b1f4990cfe45fad7e492ca90a578d7b559143eb0987825b48aa6bfbb684b7973c75e6e98011ffc3ba724797ea575d440fa3c052be978590f828d3f850a4ccdecbe8e4d2c6d2b981e3c75ee26d5cf477cda9273a60000d6e942d4eb27e027a8ca16f668862260a4c9d3ab6cd3139decf4976633844684b8371a68a7419f6beffd2fc078327",
-  "M": "396a46b1aa63cd69856a2ec81cbf19d5c8a60471cc62df9ee15c2bf07838efba"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with the encrypted authToken bundle in the JSON body object:
-
-```json
-{
-  "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
-}
-```
-
-See [decrypting the bundle](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Decrypting_the_.2Fauth.2Ffinish_Response)
-for info on how to retrieve `authToken` from the bundle.
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 103:  incorrect password
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-
-## POST /v1/raw_password/account/create
-
-Not HAWK authenticated.
-
-Same as `/v1/account/create` except the plaintext password is sent for server-side stretching.
-
-This is a reduced security login method for resource constrained devices that sends the password to the server. The request and response are only protected by TLS encryption.
-
-See the below [discussion](#raw_password-discussion) on the motivation for the `/raw_password` API.
-
-___Parameters___
-
-* email - the primary email for this account (UTF-8 encoded, as hex)
-* password - the user's plaintext password
-* service - opaque alphanumeric token to be included in verification links
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-http://api-accounts.dev.lcip.org/v1/raw_password/account/create \
--d '{
-  "email": "6d65406578616d706c652e636f6d",
-  "password": "mySecurePassword"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with the account's unique identifier in the JSON body:
-
-```json
-{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8"
-}
-```
-
-Failing requests may be due to the following errors:
-
-
-* status code 400, errno 101:  attempt to create an account that already exists
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-
-## POST /v1/raw_password/password/reset
-
-:lock: HAWK-authenticated with accountResetToken
-
-This resets the account password and resets the encrypted "wrap(kB)" to a new randomly-generated value.
-
-The accountResetToken is single-use, and is consumed regardless of whether the request succeeds or fails.
-
-### Request
-
-___Parameters___
-
-* newPassword - the user's new plaintext password
-
-___Headers___
-
-The request must include a HAWK header that authenticates the request (including payload) using a key derived from the `accountResetToken`, which is returned by `/v1/password/change/start` or `/v1/password/forgot/verify_code`.
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/raw_password/password/reset \
--d '{
-  "newPassword": "OhMyGlob!"
+  "email": "me@example.com",
+  "authPW": "f9fae9253549b2428a403d6fa51e6fb43d2f8a302e132cf902ffade52c02e6a4"
 }'
 ```
 
@@ -640,146 +407,6 @@ Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 401, errno 109:  invalid request signature
-* status code 401, errno 110:  invalid authentication token
-* status code 401, errno 111:  invalid authentication timestamp
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-
-## POST /v1/raw_password/password/change
-
-This changes the account password. The encrypted "wrap(kB)" will remain unchanged. Use `/v1/raw_password/password/reset` to reset wrap(kB).
-
-___Parameters___
-
-* email - the primary email for this account (UTF-8 encoded, as hex)
-* oldPassword - the user's current plaintext password
-* newPassword - the user's new plaintext password
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
-http://api-accounts.dev.lcip.org/v1/raw_password/password/change \
--d '{
-  "email": "6d65406578616d706c652e636f6d",
-  "oldPassword": "123456",
-  "newPassword": "My_Old-Password-Got_Leaked!!1!"
-}'
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with empty JSON body:
-
-```json
-{}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-
-## POST /v1/raw_password/session/create
-
-Not HAWK authenticated.
-
-This is a reduced security login method for resource constrained devices that sends the password to the server. The request and response are only protected by TLS encryption.
-
-See the below [discussion](#raw_password-discussion) on the motivation for the `/raw_password` API.
-
-___Parameters___
-
-* email - user's email address (UTF-8 encoded, as hex)
-* password - the user's plaintext password
-
-### Request
-```sh
-curl -v \
--X POST \
--H "Content-Type: application/json" \
-http://api-accounts.dev.lcip.org/v1/raw_password/session/create \
--d '{
-  "email": "6d65406578616d706c652e636f6d",
-  "password": "mySecurePassword"
-}'
-```
-
-### Response
-
-___Parameters___
-
-Successful requests will produce a "200 OK" response with the "sessionToken" field in the JSON body object:
-
-```json
-{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "verified": true,
-  "sessionToken": "00ce20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a301"
-}
-```
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 103:  incorrect password
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
-* status code 411, errno 112:  content-length header was not provided
-* status code 413, errno 113:  request body too large
-
-
-## POST /v1/session/create
-
-:lock: HAWK-authenticated with the authToken.
-
-This is used when adding a new device, or when creating a new account (and then adding the first device). It consumes a single-use authToken, and returns a long-lived `sessionToken` and a single-use `keyFetchToken`.
-
-### Request
-
-```sh
-curl -v \
--X POST \
--H "Host: api-accounts.dev.lcip.org" \
--H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/session/create \
-```
-
-### Response
-
-Successful requests will produce a "200 OK" response with the encrypted sessionToken+keyFetchToken bundle in the JSON body object:
-
-```json
-{
-  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
-  "verified": true,
-  "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
-}
-```
-
-See [creating a session](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Creating_a_Session)
-for info on how to retrieve `sessionToken` and `keyFetchToken` from the bundle.
-
-Failing requests may be due to the following errors:
-
-* status code 400, errno 102:  attempt to access an account that does not exist
-* status code 400, errno 106:  request body was not valid json
-* status code 400, errno 107:  request body contains invalid parameters
-* status code 400, errno 108:  request body missing required parameters
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
@@ -792,11 +419,11 @@ Failing requests may be due to the following errors:
 
 :lock: HAWK-authenticated with the sessionToken.
 
-Destroys this session, by invalidating the sessionToken. This is used when a device "signs-out", detaching itself from the  account. After calling this, the device must re-perform the `/v1/auth/start` sequence to obtain a new sessionToken.
+Destroys this session, by invalidating the sessionToken. This is used when a device "signs-out", detaching itself from the  account. After calling this, the device must re-perform the `/v1/account/login` sequence to obtain a new sessionToken.
 
 ___Headers___
 
-The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/auth/finish`.
+The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/account/login`.
 
 ### Request
 ```sh
@@ -805,7 +432,7 @@ curl -v \
 -H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/session/destroy \
+https://api-accounts.dev.lcip.org/v1/session/destroy \
 ```
 
 ### Response
@@ -843,7 +470,7 @@ This call is used to determine the current state (verified or unverified) of the
 
 ___Headers___
 
-The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/session/create`.
+The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/account/login`.
 
 ```sh
 curl -v \
@@ -851,7 +478,7 @@ curl -v \
 -H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/recovery_email/status \
+https://api-accounts.dev.lcip.org/v1/recovery_email/status \
 ```
 
 
@@ -860,10 +487,8 @@ http://api-accounts.dev.lcip.org/v1/recovery_email/status \
 Successful requests will produce a "200 OK" response with the account email and verification status in the JSON body object:
 
 ```json
-{ "email": "6d65406578616d706c652e636f6d", "verified": true }
+{ "email": "me@example.com", "verified": true }
 ```
-
-The email address is encoded as a hex string, just like in /auth/start and /account/create .
 
 Failing requests may be due to the following errors:
 
@@ -900,7 +525,7 @@ curl -v \
 -H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/recovery_email/resend_code
+https://api-accounts.dev.lcip.org/v1/recovery_email/resend_code
 ```
 
 ### Response
@@ -943,7 +568,7 @@ curl -v \
 -X POST \
 -H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
-http://api-accounts.dev.lcip.org/v1/recovery_email/verify_code \
+https://api-accounts.dev.lcip.org/v1/recovery_email/verify_code \
 -d '{
   "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
   "code": "e3c5b0e3f5391e134596c27519979b93a45e6d0da34c7509c5632ac35b28b48d"
@@ -991,7 +616,7 @@ ___Parameters___
 
 ___Headers___
 
-The request must include a Hawk header that authenticates the request (including payload) using a `sessionToken` received from `/v1/session/create`.
+The request must include a Hawk header that authenticates the request (including payload) using a `sessionToken` received from `/v1/account/login`.
 
 ### Request
 ```sh
@@ -1000,7 +625,7 @@ curl -v \
 -H "Host: api-accounts.dev.lcip.org" \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/certificate/sign \
+https://api-accounts.dev.lcip.org/v1/certificate/sign \
 -d '{
   "publicKey": {
     "algorithm":"RS",
@@ -1039,18 +664,12 @@ Failing requests may be due to the following errors:
 
 ## POST /v1/password/change/start
 
-:lock: HAWK-authenticated with the authToken.
+Begin the "change password" process. It returns a single-use `passwordChangeToken`, which will be delivered to `/v1/password/change/finish`. It also returns a single-use `keyFetchToken`.
 
-Begin the "change password" process. This consumes a single-use `authToken`, which indicates that the user recently proved knowledge of the account password. It returns a single-use `accountResetToken`, which will be delivered to `/v1/account/reset`. It also returns a single-use `keyFetchToken`.
+___Parameters___
 
-The indirect "`authToken` -> `accountResetToken` -> reset" sequence is used because it lines up with the similar "`/v1/password/forgot/send_code` -> `/v1/password/forgot/verify_code` -> `accountResetToken` -> reset" sequence.
-
-This API returns an encrypted bundle, from which `accountResetToken` and `keyFetchToken` can be extracted.
-
-
-___Headers___
-
-The request must include a HAWK header that authenticates the request using a `authToken` received from `/v1/auth/finish`.
+* email - the account email address
+* oldAuthPW - the PBKDF2/HKDF stretched password as a hex string
 
 ### Request
 
@@ -1058,8 +677,11 @@ The request must include a HAWK header that authenticates the request using a `a
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
--H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/password/change/start
+https://api-accounts.dev.lcip.org/v1/password/change/start \
+-d '{
+  "email": "me@example.com",
+  "oldAuthPW": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6"
+}'
 ```
 
 ### Response
@@ -1068,17 +690,60 @@ Successful requests will produce a "200 OK" response with the encrypted sessionT
 
 ```json
 {
-  "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"
+  "keyFetchToken": "fa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad",
+  "passwordChangeToken": "0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215b",
+  "verified": true
 }
 ```
 
-See [changing the password](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol#Changing_the_Password)
-for info on how to extract `accountResetToken` and `keyFetchToken` from the bundle.
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 103:  incorrect password
+* status code 400, errno 106:  request body was not valid json
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
+
+
+## POST /v1/password/change/finish
+
+:lock: HAWK-authenticated with the passwordChangeToken.
+
+Change the password and update `wrapKb`.
+
+___Parameters___
+
+* authPW - the new PBKDF2/HKDF stretched password as a hex string
+* wrapKb - the new wrapKb value as a hex string
+
+### Request
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/password/change/finish \
+-d '{
+  "authPW": "761443da0ab27b1fa18c98912af6291714e9600aa3499109c5632ac35b28a309",
+  "wrapKb": "20e3f5391e134596c27519979b93a45e6d0da34c75ac55c0520f2edfb0267614"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with an empty JSON body:
+
+```json
+{}
+```
 
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
@@ -1091,7 +756,7 @@ Failing requests may be due to the following errors:
 
 Not HAWK-authenticated.
 
-This requests a "reset password" code to be sent to the user's recovery email. The user should type this code into the agent, which will then submit it to `/v1/password/forgot/verify_code` (described below). `verify_code` will then return a `passwordResetToken`, which can be used to reset the account password.
+This requests a "reset password" code to be sent to the user's recovery email. The user should type this code into the agent, which will then submit it to `/v1/password/forgot/verify_code` (described below). `verify_code` will then return a `accountResetToken`, which can be used to reset the account password.
 
 This code will be either 8 or 16 digits long, and the `send_code` response indicates the code length (so the UI can display a suitable input form). The email will either contain the code itself, or will contain a link to a web page which will display the code.
 
@@ -1103,16 +768,16 @@ Each account can have at most one `passwordForgotToken` valid at a time. Calling
 
 ___Parameters___
 
-* email - the recovery email for this account (UTF-8, in hex)
+* email - the recovery email for this account
 
 ### Request
 ```sh
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-http://api-accounts.dev.lcip.org/v1/password/forgot/send_code \
+https://api-accounts.dev.lcip.org/v1/password/forgot/send_code \
 -d '{
-  "email": "6d65406578616d706c652e636f6d"
+  "email": "me@example.com"
 }'
 ```
 
@@ -1149,7 +814,7 @@ This API requires the `passwordForgotToken` returned by the original `send_code`
 
 ___Parameters___
 
-* email - the recovery email for this account (UTF-8, in hex)
+* email - the recovery email for this account
 
 ### Request
 
@@ -1158,9 +823,9 @@ curl -v \
 -X POST \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/password/forgot/resend_code \
+https://api-accounts.dev.lcip.org/v1/password/forgot/resend_code \
 -d '{
-  "email": "6d65406578616d706c652e636f6d"
+  "email": "me@example.com"
 }'
 ```
 
@@ -1195,9 +860,7 @@ Failing requests may be due to the following errors:
 
 :lock: HAWK-authenticated with the passwordForgotToken.
 
-Once the code created by `/v1/password/forgot/send_code` is emailed to the user, and they paste it into their browser, the browser agent should deliver it to this `verify_code` endpoint (along with the `passwordForgotToken`). This will cause the server to allocate and return an `accountResetToken`, which can be used to reset the account password (srpVerifier and wrap(kB)) with the `/v1/account/reset` API (described above).
-
-(a future version of this API may replace `verify_code` with a pair of SRP `start` and `finish` methods, just like `/v1/auth/start` and `/v1/auth/finish`)
+Once the code created by `/v1/password/forgot/send_code` is emailed to the user, and they paste it into their browser, the browser agent should deliver it to this `verify_code` endpoint (along with the `passwordForgotToken`). This will cause the server to allocate and return an `accountResetToken`, which can be used to reset the account password and wrap(kB) with the `/v1/account/reset` API (described above).
 
 ___Parameters___
 
@@ -1210,7 +873,7 @@ curl -v \
 -X POST \
 -H "Content-Type: application/json" \
 -H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
-http://api-accounts.dev.lcip.org/v1/password/forgot/verify_code \
+https://api-accounts.dev.lcip.org/v1/password/forgot/verify_code \
 -d '{
   "code": "12345678"
 }'
@@ -1245,12 +908,12 @@ Failing requests may be due to the following errors:
 
 Not HAWK-authenticated.
 
-Get 32 bytes of random data.  This should be combined with locally-sourced entropy when creating salts, SRP messages, etc.
+Get 32 bytes of random data.  This should be combined with locally-sourced entropy when creating salts, etc.
 
 ### Request
 
 ```sh
-curl -X POST -v http://api-accounts.dev.lcip.org/v1/get_random_bytes
+curl -X POST -v https://api-accounts.dev.lcip.org/v1/get_random_bytes
 ```
 
 ### Response
@@ -1272,9 +935,7 @@ There are no standard failure modes for this endpoint.
 
 * `POST /get_random_bytes`
 * `POST /account/create`
-* `POST /auth/start`
-* `POST /auth/finish`
-* `POST /session/create`
+* `POST /account/login?keys=true`
 * `GET /recovery_email/status`
 * `POST /recovery_email/verify_code`
 * `GET /account/keys`
@@ -1282,9 +943,7 @@ There are no standard failure modes for this endpoint.
 
 ## Attach a new device
 
-* `POST /auth/start`
-* `POST /auth/finish`
-* `POST /session/create`
+* `POST /account/login?keys=true`
 * `GET /account/keys`
 * `POST /certificate/sign`
 
@@ -1298,11 +957,9 @@ There are no standard failure modes for this endpoint.
 ## Change password
 
 * start with active session (and keys)
-* `POST /auth/start`
-* `POST /auth/finish`
 * `POST /password/change/start`
 * `GET /account/keys`
-* `POST /account/reset`
+* `POST /password/change/finish`
 * GOTO "Attach a new device"
 
 
@@ -1352,7 +1009,3 @@ Content-Type: application/json
 The [git repo](https://github.com/mozilla/fxa-auth-server) contains a reference implementation
 of the client side of the protocol in [/client/index.js](/client/index.js) with
 sample usage in [/client/example.js](/client/example.js)
-
-# /raw_password Discussion
-
-The motivation of this endpoint is to support near term, ambitious efforts to land Firefox Accounts on Firefox OS 1.3. Firefox OS devices are computationally, memory, and network constrained, and the development cycles are short and intense. It would be herculean effort to land FxA support by the feature complete deadline of 12/09/13, and this endpoint eliminates the near term need to land native SRP and key stretching functionality. It's not ideal, but users still get "first-class", key stretched, SRP enabled accounts, which doesn't preclude them from using the non-raw_password API in the future. Whether this API endpoint hits production remains to be seen. We'll know more by 12/09/13.
