@@ -9,10 +9,10 @@ require.config({
     jquery: '../bower_components/jquery/jquery',
     backbone: '../bower_components/backbone/backbone',
     underscore: '../bower_components/underscore/underscore',
-    hgn: '../bower_components/requirejs-hogan-plugin/hgn',
-    text: '../bower_components/requirejs-hogan-plugin/text',
-    hogan: '../bower_components/requirejs-hogan-plugin/hogan',
     gherkin: '../bower_components/fxa-js-client-old/web/bundle',
+    text: '../bower_components/requirejs-text/text',
+    mustache: '../bower_components/mustache/mustache',
+    stache: '../bower_components/requirejs-mustache/stache',
     transit: '../bower_components/jquery.transit/jquery.transit',
     modernizr: '../bower_components/modernizr/modernizr'
   },
@@ -33,6 +33,9 @@ require.config({
       ],
       exports: 'jQuery.fn.transition'
     }
+  },
+  stache: {
+    extension: '.mustache'
   }
 });
 

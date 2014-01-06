@@ -6,7 +6,7 @@
 
 define([
   'views/base',
-  'hgn!templates/sign_in',
+  'stache!templates/sign_in',
   'lib/session',
   'processed/constants'
 ],

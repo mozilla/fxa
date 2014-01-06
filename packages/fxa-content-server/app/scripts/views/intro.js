@@ -6,7 +6,7 @@
 
 define([
   'views/base',
-  'hgn!templates/intro'
+  'stache!templates/intro'
 ],
 function(BaseView, IntroTemplate) {
   var IntroView = BaseView.extend({

@@ -6,7 +6,7 @@
 
 define([
   'views/base',
-  'hgn!templates/tos'
+  'stache!templates/tos'
 ],
 function (BaseView, TosTemplate) {
   var TosView = BaseView.extend({
