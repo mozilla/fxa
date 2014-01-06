@@ -11,6 +11,6 @@ define({
   suites: [ 'tests/all' ],
   functionalSuites: [ ],
 
-  // A regular expression matching URLs to files that should not be included in code coverage analysis
-  excludeInstrumentation: /^tests\//
+  excludeInstrumentation: /(?:.)\//
+
 });

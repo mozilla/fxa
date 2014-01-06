@@ -17,4 +17,4 @@ notifications:
 node_js:
   - "0.10"
 
-script: grunt intern
+script: grunt travis

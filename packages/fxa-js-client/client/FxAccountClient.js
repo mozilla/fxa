@@ -1,30 +1,69 @@
-define(['./lib/request', './vendor/sjcl', '../components/p/p'], function (Request, sjcl, p) {
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+define(['./lib/request', './vendor/sjcl', './lib/credentials'], function (Request, sjcl, credentials) {
   'use strict';
 
-  function str2hex(str) {
-    return sjcl.codec.hex.fromBits(sjcl.codec.utf8String.toBits(str));
-  }
-
+  /**
+   * @class FxAccountClient
+   * @constructor
+   * @param {String} uri Auth Server URI
+   * @param {Object} config Configuration
+   */
   function FxAccountClient(uri, config) {
     if (typeof uri !== 'string') {
       config = uri || {};
       uri = config.uri;
     }
+    if (typeof config === "undefined") {
+      config = {};
+    }
+
     this.request = new Request(uri, config.xhr);
   }
 
-  FxAccountClient.prototype.signUp = function(email, password) {
-    return this.request.send("/raw_password/account/create", "POST", null, {
-      email: str2hex(email),
-      password: password
-    });
+  /**
+   * @method signUp
+   * @param {String} email Email input
+   * @param {String} password Password input
+   * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
+   */
+  FxAccountClient.prototype.signUp = function (email, password) {
+    var self = this;
+
+    return credentials.setup(email, password)
+      .then(
+        function (result) {
+          var data = {
+            email: result.emailUTF8,
+            authPW: sjcl.codec.hex.fromBits(result.authPW)
+          };
+
+          return self.request.send("/account/create", "POST", null, data);
+        }
+      );
   };
 
-  FxAccountClient.prototype.signIn = function(email, password) {
-    return this.request.send("/raw_password/session/create", "POST", null, {
-      email: str2hex(email),
-      password: password
-    });
+  /**
+   * @method signIn
+   * @param {String} email Email input
+   * @param {String} password Password input
+   * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
+   */
+  FxAccountClient.prototype.signIn = function (email, password) {
+    var self = this;
+
+    return credentials.setup(email, password)
+      .then(
+        function (result) {
+          var data = {
+            email: result.emailUTF8,
+            authPW: sjcl.codec.hex.fromBits(result.authPW)
+          };
+
+          return self.request.send("/account/login", "POST", null, data);
+        }
+      );
   };
 
   return FxAccountClient;

@@ -1,4 +1,5 @@
 /node_modules
 /build
 /components
+/docs
 sauce_connect.log*

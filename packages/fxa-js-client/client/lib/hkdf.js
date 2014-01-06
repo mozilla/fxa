@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 define(['../vendor/sjcl', '../../components/p/p'], function (sjcl, P) {
   'use strict';
 
@@ -24,7 +27,7 @@ define(['../vendor/sjcl', '../../components/p/p'], function (sjcl, P) {
     // hash length is 32 because only sjcl.hash.sha256 is used at this moment
     var hashLength = 32;
     var num_blocks = Math.ceil(length / hashLength);
-    var prev = sjcl.codec.hex.toBits("");
+    var prev = sjcl.codec.hex.toBits('');
 
     for (var i=0; i < num_blocks; i++) {
       var hmac = new sjcl.misc.hmac(prk, sjcl.hash.sha256);
@@ -40,7 +43,11 @@ define(['../vendor/sjcl', '../../components/p/p'], function (sjcl, P) {
       buffers.push(prev);
     }
 
-    var output = sjcl.bitArray.concat.apply(null, buffers);
+    var output = buffers[0];
+    if (buffers.length > 1) {
+      output = sjcl.bitArray.concat.apply(null, buffers);
+    }
+
     var truncated = sjcl.bitArray.clamp(output, length * 8);
 
     return P(truncated);
