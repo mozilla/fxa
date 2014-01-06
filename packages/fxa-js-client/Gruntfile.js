@@ -6,6 +6,7 @@ module.exports = function(grunt) {
 
 
   grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
     requirejs: {
       options: {
         baseUrl: '.',
@@ -38,12 +39,15 @@ module.exports = function(grunt) {
         options: {
           atBegin: true
         },
-        files: ['client/**/*.js', 'tests/**/*.js'],
+        files: ['Gruntfile.js', 'client/**/*.js', 'tests/**/*.js'],
         tasks: ['build', 'intern:node']
       },
-      config: {
-        files: ['Gruntfile.js', 'config/*'],
-        tasks: ['build']
+      debug: {
+        options: {
+          atBegin: true
+        },
+        files: ['Gruntfile.js', 'client/**/*.js', 'tests/**/*.js'],
+        tasks: ['requirejs:debug', 'intern:node']
       }
     },
     clean: {
@@ -72,7 +76,15 @@ module.exports = function(grunt) {
           suites: ['tests/all']
         }
       },
+      // local browser
       browser: {
+        options: {
+          runType: 'runner',
+          config: 'tests/intern_browser',
+          suites: ['tests/all']
+        }
+      },
+      sauce: {
         options: {
           runType: 'runner',
           config: 'tests/intern_sauce',
@@ -80,6 +92,22 @@ module.exports = function(grunt) {
           sauceUsername: "gherkin-web",
           sauceAccessKey: "de4982ac-cb05-4b9c-8059-385a83de8af4"
         }
+      }
+    },
+    yuidoc: {
+      compile: {
+        name: '<%= pkg.name %>',
+        description: '<%= pkg.description %>',
+        version: '<%= pkg.version %>',
+        options: {
+          paths: 'client/',
+          outdir: 'docs/'
+        }
+      }
+    },
+    open : {
+      dev : {
+        path: 'docs/index.html'
       }
     }
   });
@@ -96,5 +124,15 @@ module.exports = function(grunt) {
     ['build']);
 
   grunt.registerTask('dev',
-    ['watch']);
+    ['watch:dev']);
+
+  grunt.registerTask('debug',
+    ['watch:debug']);
+
+  grunt.registerTask('doc',
+    ['yuidoc', 'open']);
+
+  grunt.registerTask('travis',
+    'Test runner task for Travis CI',
+    ['intern:node', 'intern:sauce']);
 };

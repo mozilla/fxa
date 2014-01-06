@@ -32,7 +32,9 @@ define([
             assert.ok(res.uid);
           });
 
-        SinonResponder.respond(requests[0], RequestMocks.signUp);
+        setTimeout(function() {
+          SinonResponder.respond(requests[0], RequestMocks.signUp);
+        }, 200);
 
         return signUpRequest;
       });
@@ -43,7 +45,10 @@ define([
         var signUpRequest =  client.signUp(email, password)
           .then(function (res) {
             var signInRequest = client.signIn(email, password);
-            SinonResponder.respond(requests[1], RequestMocks.signIn);
+
+            setTimeout(function() {
+              SinonResponder.respond(requests[1], RequestMocks.signIn);
+            }, 200);
 
             return signInRequest;
           })
@@ -51,7 +56,9 @@ define([
             assert.ok(res.sessionToken);
           });
 
-        SinonResponder.respond(requests[0], RequestMocks.signUp);
+        setTimeout(function() {
+          SinonResponder.respond(requests[0], RequestMocks.signUp);
+        }, 200);
 
         return signUpRequest;
       });

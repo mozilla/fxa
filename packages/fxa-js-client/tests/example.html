@@ -1,0 +1,41 @@
+<html>
+<head>
+</head>
+<body>
+<h1>fxa-js-client tester</h1>
+<label>Email:
+  <input id="email" type="text" />
+</label>
+
+<label>
+  Password:
+  <input id="password" type="text" value="allyourbasearebelongtous"/>
+</label>
+
+<button id="create">Create Account</button>
+<button id="login">Login</button>
+<hr/>
+See Console....
+
+<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="../build/fxa-client.js"></script>
+<script>
+  var email = 'example' + Date.now() + '@example.com';
+  var password = 'allyourbasearebelongtous';
+  var server = 'http://127.0.0.1:9000/v1';
+  var client = new FxAccountClient(server);
+
+  // Set Email value
+  $('#email').val(email);
+
+  // Register Tester
+  $("#create").click(function () {
+    client.signUp($('#email').val(),$('#password').val());
+  });
+  // Login Tester
+  $("#login").click(function () {
+    client.signIn($('#email').val(),$('#password').val());
+  });
+</script>
+</body>
+</html>
