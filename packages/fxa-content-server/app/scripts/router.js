@@ -35,38 +35,38 @@ function($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsVi
     },
 
     showIntro: function() {
-      this.switch(new IntroView());
+      this.showView(new IntroView());
 
       // TODO - can this go into the IntroView or into CSS?
       this.$stage.css({ scale: 0.6, opacity: 0 }).transition({ scale: 1, opacity: 1 }, 1500);
     },
 
     showSignIn: function() {
-      this.switch(new SignInView());
+      this.showView(new SignInView());
     },
 
     showSignUp: function() {
-      this.switch(new SignUpView());
+      this.showView(new SignUpView());
     },
 
     showConfirm: function() {
-      this.switch(new ConfirmView());
+      this.showView(new ConfirmView());
     },
 
     showSettings: function() {
-      this.switch(new SettingsView());
+      this.showView(new SettingsView());
     },
 
     showTos: function() {
-      this.switch(new TosView());
+      this.showView(new TosView());
     },
 
     showPp: function() {
-      this.switch(new PpView());
+      this.showView(new PpView());
     },
 
 
-    switch: function(view) {
+    showView: function(view) {
       if (this.currentView) {
         this.currentView.destroy();
       }
