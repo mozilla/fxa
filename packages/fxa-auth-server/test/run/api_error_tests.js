@@ -114,6 +114,29 @@ TestServer.start(config.publicUrl)
   )
 
   test(
+    'the rawEmail is returned in the error on Incorrect Password errors',
+    function (t) {
+      var signupEmail = 'TestX@example.com'
+      var loginEmail = 'testx@example.com'
+      var password = 'abcdef'
+      return Client.create(config.publicUrl, signupEmail, password, { preVerified: true})
+        .then(
+          function (c) {
+            return Client.login(config.publicUrl, loginEmail, password)
+          }
+        )
+        .then(
+          fail,
+          function (err) {
+            t.equal(err.code, 400)
+            t.equal(err.errno, 103)
+            t.equal(err.email, signupEmail)
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
