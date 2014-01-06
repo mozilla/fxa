@@ -164,6 +164,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                               {
                                 uid: emailRecord.uid,
                                 email: emailRecord.email,
+                                rawEmail: emailRecord.rawEmail,
                                 emailCode: emailRecord.emailCode,
                                 verified: emailRecord.verified
                               }

@@ -82,7 +82,7 @@ module.exports = function (config, i18n, log) {
   }
 
   Mailer.prototype.sendVerifyCode = function (account, code, service, preferredLang) {
-    log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
+    log.trace({ op: 'mailer.sendVerifyCode', email: account.rawEmail, uid: account.uid })
     var template = templates.verify
     var link = this.verificationUrl + '?uid=' + account.uid.toString('hex')
     if (service) {
@@ -98,7 +98,7 @@ module.exports = function (config, i18n, log) {
     }
     var message = {
       sender: this.sender,
-      to: account.email,
+      to: account.rawEmail,
       subject: values.l10n.gettext(template.subject),
       text: template.text(values),
       html: template.html(values),
@@ -113,7 +113,7 @@ module.exports = function (config, i18n, log) {
   }
 
   Mailer.prototype.sendRecoveryCode = function (account, code, preferredLang) {
-    log.trace({ op: 'mailer.sendRecoveryCode', email: account.email })
+    log.trace({ op: 'mailer.sendRecoveryCode', email: account.rawEmail })
     var template = templates.reset
     var values = {
       l10n: i18n.localizationContext(preferredLang),
@@ -121,7 +121,7 @@ module.exports = function (config, i18n, log) {
     }
     var message = {
       sender: this.sender,
-      to: account.email,
+      to: account.rawEmail,
       subject: values.l10n.gettext(template.subject),
       text: template.text(values),
       html: template.html(values),

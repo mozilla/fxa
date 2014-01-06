@@ -134,6 +134,7 @@ module.exports = function (
         email: data && data.email
       }
     )
+    data.rawEmail = data.email
     var sql = 'INSERT INTO accounts (uid, email, rawEmail, emailCode, verified, kA, wrapWrapKb, authSalt, verifyHash) VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?)'
     return this.getMasterConnection()
       .then(function(con) {
@@ -143,7 +144,7 @@ module.exports = function (
           [
             data.uid,
             data.email,
-            data.email,
+            data.rawEmail,
             data.emailCode,
             data.verified,
             data.kA,
@@ -336,7 +337,7 @@ module.exports = function (
 
   MySql.prototype.sessionToken = function (id) {
     log.trace({ op: 'MySql.sessionToken', id: id })
-    var sql = 'SELECT t.tokendata, t.uid, a.verified, a.email, a.emailCode' +
+    var sql = 'SELECT t.tokendata, t.uid, a.verified, a.email, a.rawEmail, a.emailCode' +
               '  FROM sessionTokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'
     return this.getSlaveConnection()
       .then(function(con) {
@@ -416,7 +417,7 @@ module.exports = function (
 
   MySql.prototype.passwordForgotToken = function (id) {
     log.trace({ op: 'MySql.passwordForgotToken', id: id })
-    var sql = 'SELECT t.tokendata, t.uid, a.email, t.passcode, t.created, t.tries  ' +
+    var sql = 'SELECT t.tokendata, t.uid, a.email, a.rawEmail, t.passcode, t.created, t.tries  ' +
               ' FROM passwordForgotTokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'
     return this.getSlaveConnection()
       .then(function(con) {
