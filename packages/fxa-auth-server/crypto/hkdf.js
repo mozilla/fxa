@@ -5,15 +5,21 @@
 var HKDF = require('hkdf')
 var P = require('p-promise')
 
-function kw(name) {
-  return 'identity.mozilla.com/picl/v1/' + name
+const NAMESPACE = 'identity.mozilla.com/picl/v1/'
+
+function KWE(name, email) {
+  return Buffer(NAMESPACE + name + ':' + email)
+}
+
+function KW(name) {
+  return Buffer(NAMESPACE + name)
 }
 
 function hkdf(km, info, salt, len) {
   var d = P.defer()
   var df = new HKDF('sha256', salt, km)
   df.derive(
-    kw(info),
+    KW(info),
     len,
     function(key) {
       d.resolve(key)
@@ -21,5 +27,8 @@ function hkdf(km, info, salt, len) {
   )
   return d.promise
 }
+
+hkdf.KW = KW
+hkdf.KWE = KWE
 
 module.exports = hkdf

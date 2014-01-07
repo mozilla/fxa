@@ -5,7 +5,7 @@
 var crypto = require('crypto')
 var P = require('p-promise')
 var ClientApi = require('./api')
-var keyStretch = require('../crypto/keystretch')
+var butil = require('../crypto/butil')
 var pbkdf2 = require('../crypto/pbkdf2')
 var hkdf = require('../crypto/hkdf')
 var tokens = require('../tokens')({ trace: function () {}})
@@ -34,7 +34,7 @@ Client.Api = ClientApi
 
 Client.prototype.setupCredentials = function (email, password) {
   this.email = email
-  return pbkdf2.derive(Buffer(password), keyStretch.KWE('quickStretch', email), 1000, 32)
+  return pbkdf2.derive(Buffer(password), hkdf.KWE('quickStretch', email), 1000, 32)
     .then(
       function (stretch) {
         return hkdf(stretch, 'authPW', null, 32)
@@ -218,7 +218,7 @@ Client.prototype.changePassword = function (newPassword) {
     )
     .then(
       function () {
-        this.wrapKb = keyStretch.xor(this.kB, this.unwrapBKey)
+        this.wrapKb = butil.xorBuffers(this.kB, this.unwrapBKey)
         return this.api.passwordChangeFinish(this.passwordChangeToken, this.authPW, this.wrapKb)
       }.bind(this)
     )
@@ -251,7 +251,7 @@ Client.prototype.keys = function () {
         this.keyFetchToken = null
         this.kA = keys.kA
         this.wrapKb = keys.wrapKb
-        this.kB = keys.kB = keyStretch.xor(this.wrapKb, this.unwrapBKey)
+        this.kB = keys.kB = butil.xorBuffers(this.wrapKb, this.unwrapBKey)
         return keys
       }.bind(this),
       function (err) {
