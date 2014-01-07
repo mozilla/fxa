@@ -8,6 +8,7 @@
     "cjs": "latest"
   },
   "dependencies": {
-    "p": "https://github.com/rkatic/p.git"
+    "p": "https://github.com/rkatic/p.git",
+    "sjcl": "~1.0.0"
   }
 }

@@ -8,7 +8,7 @@
   "scripts": {
     "start": "grunt",
     "test": "grunt test",
-    "postinstall": "bower install"
+    "postinstall": "bower install && grunt sjcl"
   },
   "readmeFilename": "README.md",
   "homepage": "https://github.com/mozilla/fxa-js-client",

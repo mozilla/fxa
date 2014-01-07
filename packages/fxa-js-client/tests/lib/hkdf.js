@@ -1,7 +1,7 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
-  'client/vendor/sjcl',
+  'components/sjcl/sjcl',
   'client/lib/hkdf'
 ], function (tdd, assert, sjcl, hkdf) {
   with (tdd) {

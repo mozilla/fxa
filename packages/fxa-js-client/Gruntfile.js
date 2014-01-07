@@ -3,7 +3,8 @@ module.exports = function(grunt) {
   require('load-grunt-tasks')(grunt);
   // load the Intern tasks
   grunt.loadNpmTasks('intern');
-
+  // load local Grunt tasks
+  grunt.loadTasks('tasks');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
