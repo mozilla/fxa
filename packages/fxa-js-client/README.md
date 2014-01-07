@@ -26,6 +26,8 @@ client.signUp(email, password);
 client.signIn(email, password);
 ```
 
+See [Library Documentation](http://mozilla.github.io/fxa-js-client/docs/classes/FxAccountClient.html) for more.
+
 ## Development
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on development, testing and documentation.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details on development and testing.
