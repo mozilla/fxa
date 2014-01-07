@@ -3,37 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var HEX_STRING = require('./validators').HEX_STRING
-var HEX_EMAIL = require('./validators').HEX_EMAIL
+var LAZY_EMAIL = require('./validators').LAZY_EMAIL
 
 var P = require('p-promise')
-var scrypt = require('../scrypt')
-var hkdf = require('../hkdf')
-
-function buffersAreEqual(buffer1, buffer2) {
-  var mismatch = buffer1.length - buffer2.length
-  if (mismatch) {
-    return false
-  }
-  for (var i = 0; i < buffer1.length; i++) {
-    mismatch |= buffer1[i] ^ buffer2[i]
-  }
-  return mismatch === 0
-}
-
-function xorBuffers(buffer1, buffer2) {
-  if (buffer1.length !== buffer2.length) {
-    throw new Error(
-      'XOR buffers must be same length (%d != %d)',
-      buffer1.length,
-      buffer2.length
-    )
-  }
-  var result = Buffer(buffer1.length)
-  for (var i = 0; i < buffer1.length; i++) {
-    result[i] = buffer1[i] ^ buffer2[i]
-  }
-  return result
-}
+var scrypt = require('../crypto/scrypt')
+var hkdf = require('../crypto/hkdf')
+var butil = require('../crypto/butil')
 
 module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
 
@@ -49,7 +24,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         tags: ["srp", "account"],
         validate: {
           payload: {
-            email: isA.String().max(1024).required(),
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.Boolean(),
             service: isA.String().max(16).alphanum().optional(),
@@ -157,7 +132,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                       return hkdf(stretched, 'verifyHash', null, 32)
                         .then(
                           function (verifyHash) {
-                            if (!buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
+                            if (!butil.buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
                               throw error.incorrectPassword(emailRecord.rawEmail)
                             }
                             return db.createSessionToken(
@@ -192,7 +167,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                             return hkdf(stretched, 'wrapwrapKey', null, 32)
                               .then(
                                 function (wrapWrapKey) {
-                                  return xorBuffers(wrapWrapKey, emailRecord.wrapWrapKb)
+                                  return butil.xorBuffers(wrapWrapKey, emailRecord.wrapWrapKb)
                                 }
                               )
                               .then(
@@ -239,7 +214,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         },
         validate: {
           payload: {
-            email: isA.String().max(255).required(),
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
           },
           response: {
@@ -348,7 +323,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         validate: {
           response: {
             schema: {
-              email: isA.String().required(),
+              email: isA.String().regex(LAZY_EMAIL).required(),
               verified: isA.Boolean().required()
             }
           }
@@ -517,7 +492,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         },
         validate: {
           payload: {
-            email: isA.String().max(255).required(),
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
           }
         }

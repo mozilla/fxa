@@ -75,7 +75,7 @@ TestServer.start(config.publicUrl)
         )
     }
   )
-/*/
+
   test(
     '/account/create with malformed email address',
     function (t) {
@@ -90,12 +90,12 @@ TestServer.start(config.publicUrl)
         )
     }
   )
-/*/
+
   test(
     'signup with same email, different case',
     function (t) {
-      var email = 'TEST@EXAMPLE.COM'
-      var email2 = 'test@example.com'
+      var email = Math.random() + 'TEST@EXAMPLE.COM'
+      var email2 = email.toLowerCase()
       var password = 'abcdef'
       return Client.create(config.publicUrl, email, password, { preVerified: true })
         .then(
@@ -116,8 +116,8 @@ TestServer.start(config.publicUrl)
   test(
     'the rawEmail is returned in the error on Incorrect Password errors',
     function (t) {
-      var signupEmail = 'TestX@example.com'
-      var loginEmail = 'testx@example.com'
+      var signupEmail = Math.random() + 'Test@example.com'
+      var loginEmail = signupEmail.toLowerCase()
       var password = 'abcdef'
       return Client.create(config.publicUrl, signupEmail, password, { preVerified: true})
         .then(

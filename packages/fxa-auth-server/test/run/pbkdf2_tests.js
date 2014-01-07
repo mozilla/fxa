@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var pbkdf2 = require('../../client/pbkdf2')
+var pbkdf2 = require('../../crypto/pbkdf2')
 var test = require('../ptaptest')
 var ITERATIONS = 20000
 var LENGTH = 8 * 32

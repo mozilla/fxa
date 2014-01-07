@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var scrypt = require('../../scrypt')
+var scrypt = require('../../crypto/scrypt')
 
 test(
   'scrypt basic',

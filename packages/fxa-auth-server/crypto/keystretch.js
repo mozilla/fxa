@@ -4,8 +4,8 @@
 
 var P = require('p-promise')
 var pbkdf2 = require('./pbkdf2')
-var scrypt = require('../scrypt')
-var hkdf = require('../hkdf')
+var scrypt = require('./scrypt')
+var hkdf = require('./hkdf')
 
 // The namespace for the salt functions
 const NAMESPACE = 'identity.mozilla.com/picl/v1/'

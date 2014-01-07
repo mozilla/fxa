@@ -2,38 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var HEX_EMAIL = require('./validators').HEX_EMAIL
 var HEX_STRING = require('./validators').HEX_STRING
+var LAZY_EMAIL = require('./validators').LAZY_EMAIL
 
 var crypto = require('crypto')
-var scrypt = require('../scrypt')
-var hkdf = require('../hkdf')
-
-function buffersAreEqual(buffer1, buffer2) {
-  var mismatch = buffer1.length - buffer2.length
-  if (mismatch) {
-    return false
-  }
-  for (var i = 0; i < buffer1.length; i++) {
-    mismatch |= buffer1[i] ^ buffer2[i]
-  }
-  return mismatch === 0
-}
-
-function xorBuffers(buffer1, buffer2) {
-  if (buffer1.length !== buffer2.length) {
-    throw new Error(
-      'XOR buffers must be same length (%d != %d)',
-      buffer1.length,
-      buffer2.length
-    )
-  }
-  var result = Buffer(buffer1.length)
-  for (var i = 0; i < buffer1.length; i++) {
-    result[i] = buffer1[i] ^ buffer2[i]
-  }
-  return result
-}
+var scrypt = require('../crypto/scrypt')
+var hkdf = require('../crypto/hkdf')
+var butil = require('../crypto/butil')
 
 module.exports = function (log, isA, error, db, mailer) {
 
@@ -70,7 +45,7 @@ module.exports = function (log, isA, error, db, mailer) {
                       return hkdf(oldStretched, 'verifyHash', null, 32)
                         .then(
                           function (verifyHash) {
-                            if(!buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
+                            if(!butil.buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
                               throw error.incorrectPassword()
                             }
                           }
@@ -80,7 +55,7 @@ module.exports = function (log, isA, error, db, mailer) {
                             return hkdf(oldStretched, 'wrapwrapKey', null, 32)
                               .then(
                                 function (wrapWrapKey) {
-                                  return xorBuffers(wrapWrapKey, emailRecord.wrapWrapKb)
+                                  return butil.xorBuffers(wrapWrapKey, emailRecord.wrapWrapKb)
                                 }
                               )
                           }
@@ -134,7 +109,7 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         validate: {
           payload: {
-            email: isA.String().max(255).required(),
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             oldAuthPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
           }
         }
@@ -164,7 +139,7 @@ module.exports = function (log, isA, error, db, mailer) {
                       return hkdf(stretched, 'wrapwrapKey', null, 32)
                         .then(
                           function (wrapWrapKey) {
-                            return xorBuffers(wrapWrapKey, wrapKb)
+                            return butil.xorBuffers(wrapWrapKey, wrapKb)
                           }
                         )
                         .then(
@@ -247,7 +222,7 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         validate: {
           payload: {
-            email: isA.String().max(1024).required()
+            email: isA.String().max(255).regex(LAZY_EMAIL).required()
           },
           response: {
             schema: {
@@ -295,7 +270,7 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         validate: {
           payload: {
-            email: isA.String().max(1024).required()
+            email: isA.String().max(255).regex(LAZY_EMAIL).required()
           },
           response: {
             schema: {

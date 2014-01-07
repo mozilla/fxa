@@ -10,3 +10,5 @@ module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 // This is a pretty coarse match - basically /.+@.+/ on a hex string.
 
 module.exports.HEX_EMAIL = /^(?:[a-fA-F0-9]{2})+40(?:[a-fA_F0-9]{2})+$/
+
+module.exports.LAZY_EMAIL = /^[^@\s]+@[^@\s]+$/

@@ -5,9 +5,9 @@
 var crypto = require('crypto')
 var P = require('p-promise')
 var ClientApi = require('./api')
-var keyStretch = require('./keystretch')
-var pbkdf2 = require('./pbkdf2')
-var hkdf = require('../hkdf')
+var keyStretch = require('../crypto/keystretch')
+var pbkdf2 = require('../crypto/pbkdf2')
+var hkdf = require('../crypto/hkdf')
 var tokens = require('../tokens')({ trace: function () {}})
 var Bundle = tokens.Bundle
 
