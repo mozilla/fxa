@@ -13,6 +13,14 @@ define([], function () {
     heartbeat: {
       status: 200,
       body: '{}'
+    },
+    verifyCode: {
+      status: 200,
+      body: '{}'
+    },
+    mail: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}]'
     }
   };
 });
