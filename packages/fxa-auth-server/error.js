@@ -108,11 +108,12 @@ module.exports = function(log) {
     })
   }
 
-  errors.incorrectPassword = function () {
+  errors.incorrectPassword = function (rawEmail) {
     return errors.wrap({
       code: 400,
       errno: 103,
-      message: 'Incorrect password'
+      message: 'Incorrect password',
+      email: rawEmail
     })
   }
 
@@ -157,7 +158,7 @@ module.exports = function(log) {
       param: param
     })
   }
-  
+
   errors.invalidSignature = function (message) {
     return errors.wrap({
       code: 401,

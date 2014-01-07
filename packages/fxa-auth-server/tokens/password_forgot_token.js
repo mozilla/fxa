@@ -9,6 +9,7 @@ module.exports = function (log, inherits, now, Token, crypto) {
   function PasswordForgotToken(keys, details) {
     Token.call(this, keys, details)
     this.email = details.email || null
+    this.rawEmail = details.rawEmail || null
     this.created = details.created || null
     this.passcode = details.passcode || null
     this.tries = details.tries || null

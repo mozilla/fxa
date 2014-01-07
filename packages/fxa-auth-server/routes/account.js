@@ -158,12 +158,13 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                         .then(
                           function (verifyHash) {
                             if (!buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
-                              throw error.incorrectPassword()
+                              throw error.incorrectPassword(emailRecord.rawEmail)
                             }
                             return db.createSessionToken(
                               {
                                 uid: emailRecord.uid,
                                 email: emailRecord.email,
+                                rawEmail: emailRecord.rawEmail,
                                 emailCode: emailRecord.emailCode,
                                 verified: emailRecord.verified
                               }

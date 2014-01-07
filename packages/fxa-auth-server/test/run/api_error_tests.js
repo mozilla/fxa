@@ -19,7 +19,7 @@ TestServer.start(config.publicUrl)
       var email = crypto.randomBytes(10).toString('hex') + '@example.com'
       var password = '123456'
       var client = null
-      return Client.create('http://127.0.0.1:9000', email, password, {preVerified: true})
+      return Client.create(config.publicUrl, email, password, {preVerified: true})
         .then(
           function (c) {
             client = c
@@ -91,7 +91,52 @@ TestServer.start(config.publicUrl)
     }
   )
 /*/
- test(
+  test(
+    'signup with same email, different case',
+    function (t) {
+      var email = 'TEST@EXAMPLE.COM'
+      var email2 = 'test@example.com'
+      var password = 'abcdef'
+      return Client.create(config.publicUrl, email, password, { preVerified: true })
+        .then(
+          function (c) {
+            return Client.create(config.publicUrl, email2, password, { preVerified: true })
+          }
+        )
+        .then(
+          fail,
+          function (err) {
+            t.equal(err.code, 400)
+            t.equal(err.errno, 101, 'Account already exists')
+          }
+        )
+    }
+  )
+
+  test(
+    'the rawEmail is returned in the error on Incorrect Password errors',
+    function (t) {
+      var signupEmail = 'TestX@example.com'
+      var loginEmail = 'testx@example.com'
+      var password = 'abcdef'
+      return Client.create(config.publicUrl, signupEmail, password, { preVerified: true})
+        .then(
+          function (c) {
+            return Client.login(config.publicUrl, loginEmail, password)
+          }
+        )
+        .then(
+          fail,
+          function (err) {
+            t.equal(err.code, 400)
+            t.equal(err.errno, 103)
+            t.equal(err.email, signupEmail)
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
