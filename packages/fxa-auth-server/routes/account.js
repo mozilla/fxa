@@ -6,9 +6,7 @@ var HEX_STRING = require('./validators').HEX_STRING
 var LAZY_EMAIL = require('./validators').LAZY_EMAIL
 
 var P = require('p-promise')
-var scrypt = require('../crypto/scrypt')
-var hkdf = require('../crypto/hkdf')
-var butil = require('../crypto/butil')
+var password = require('../crypto/password')
 
 module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
 
@@ -45,16 +43,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 }
               }
             )
-            .then(
-              function () {
-                return scrypt.hash(authPW, authSalt)
-              }
-            )
-            .then(
-              function (stretched) {
-                return hkdf(stretched, 'verifyHash', null, 32)
-              }
-            )
+            .then(password.verifyHash.bind(null, authPW, authSalt))
             .then(
               function (verifyHash) {
                 return db.createAccount(
@@ -90,11 +79,11 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
             )
             .then(
               function (account) {
-                log.security({ event: 'account-create-success', uid: account.uid });
+                log.security({ event: 'account-create-success', uid: account.uid })
                 return account
               },
               function (err) {
-                log.security({ event: 'account-create-failure', err: err });
+                log.security({ event: 'account-create-failure', err: err })
                 throw err
               }
             )
@@ -126,13 +115,13 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 if (!emailRecord) {
                   throw error.unknownAccount(form.email)
                 }
-                return scrypt.hash(authPW, emailRecord.authSalt)
+                return password.stretch(authPW, emailRecord.authSalt)
                   .then(
                     function (stretched) {
-                      return hkdf(stretched, 'verifyHash', null, 32)
+                      return password.verify(stretched, emailRecord.verifyHash)
                         .then(
                           function (verifyHash) {
-                            if (!butil.buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
+                            if (!verifyHash) {
                               throw error.incorrectPassword(emailRecord.rawEmail)
                             }
                             return db.createSessionToken(
@@ -164,12 +153,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                                 sessionToken: sessionToken
                               })
                             }
-                            return hkdf(stretched, 'wrapwrapKey', null, 32)
-                              .then(
-                                function (wrapWrapKey) {
-                                  return butil.xorBuffers(wrapWrapKey, emailRecord.wrapWrapKb)
-                                }
-                              )
+                            return password.wrapKb(stretched, emailRecord.wrapWrapKb)
                               .then(
                                 function (wrapKb) {
                                   return db.createKeyFetchToken(
@@ -348,7 +332,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         tags: ["account", "recovery"],
         handler: function (request) {
           log.begin('Account.RecoveryEmailResend', request)
-          log.security({ event: 'account-verify-request' });
+          log.security({ event: 'account-verify-request' })
           var sessionToken = request.auth.credentials
           mailer.sendVerifyCode(
             sessionToken,
@@ -388,10 +372,10 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
             )
             .then(
               function () {
-                log.security({ event: 'account-verify-success' });
+                log.security({ event: 'account-verify-success' })
               },
               function (err) {
-                log.security({ event: 'account-verify-failure', err: err });
+                log.security({ event: 'account-verify-failure', err: err })
                 throw err
               }
             )
@@ -432,12 +416,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
           var accountResetToken = request.auth.credentials
           var authPW = Buffer(request.payload.authPW, 'hex')
           var authSalt = crypto.randomBytes(32)
-          return scrypt.hash(authPW, authSalt)
-            .then(
-              function (stretched) {
-                return hkdf(stretched, 'verifyHash', null, 32)
-              }
-            )
+          return password.verifyHash(authPW, authSalt)
             .then(
               function (verifyHash) {
                 return db.resetAccount(

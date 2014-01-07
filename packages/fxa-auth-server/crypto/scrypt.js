@@ -5,7 +5,7 @@
 var P = require('p-promise')
 var scrypt = require('scrypt-hash')
 
-/**  hash Creates an scrypt hash
+/**  hash - Creates an scrypt hash asynchronously
  *
  * @param {Buffer} input The input for scrypt
  * @param {Buffer} salt The salt for the hash

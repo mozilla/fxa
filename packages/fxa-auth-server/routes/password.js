@@ -6,9 +6,7 @@ var HEX_STRING = require('./validators').HEX_STRING
 var LAZY_EMAIL = require('./validators').LAZY_EMAIL
 
 var crypto = require('crypto')
-var scrypt = require('../crypto/scrypt')
-var hkdf = require('../crypto/hkdf')
-var butil = require('../crypto/butil')
+var password = require('../crypto/password')
 
 module.exports = function (log, isA, error, db, mailer) {
 
@@ -39,26 +37,19 @@ module.exports = function (log, isA, error, db, mailer) {
                 if (!emailRecord) {
                   throw error.unknownAccount(form.email)
                 }
-                return scrypt.hash(oldAuthPW, emailRecord.authSalt)
+                return password.stretch(oldAuthPW, emailRecord.authSalt)
                   .then(
                     function (oldStretched) {
-                      return hkdf(oldStretched, 'verifyHash', null, 32)
+                      return password.verify(oldStretched, emailRecord.verifyHash)
                         .then(
                           function (verifyHash) {
-                            if(!butil.buffersAreEqual(verifyHash, emailRecord.verifyHash)) {
-                              throw error.incorrectPassword()
+                            if(!verifyHash) {
+                              throw error.incorrectPassword(emailRecord.rawEmail)
                             }
                           }
                         )
                         .then(
-                          function () {
-                            return hkdf(oldStretched, 'wrapwrapKey', null, 32)
-                              .then(
-                                function (wrapWrapKey) {
-                                  return butil.xorBuffers(wrapWrapKey, emailRecord.wrapWrapKb)
-                                }
-                              )
-                          }
+                          password.wrapKb.bind(null, oldStretched, emailRecord.wrapWrapKb)
                         )
                     }
                   )
@@ -130,18 +121,13 @@ module.exports = function (log, isA, error, db, mailer) {
           var authPW = Buffer(request.payload.authPW, 'hex')
           var wrapKb = Buffer(request.payload.wrapKb, 'hex')
           var authSalt = crypto.randomBytes(32)
-          scrypt.hash(authPW, authSalt)
+          password.stretch(authPW, authSalt)
             .then(
               function (stretched) {
-                return hkdf(stretched, 'verifyHash', null, 32)
+                return password.verify(stretched)
                   .then(
                     function (verifyHash) {
-                      return hkdf(stretched, 'wrapwrapKey', null, 32)
-                        .then(
-                          function (wrapWrapKey) {
-                            return butil.xorBuffers(wrapWrapKey, wrapKb)
-                          }
-                        )
+                      return password.wrapKb(stretched, wrapKb)
                         .then(
                           function (wrapWrapKb) {
                             return db.resetAccount(
