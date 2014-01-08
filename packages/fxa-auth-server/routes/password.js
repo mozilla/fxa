@@ -28,8 +28,6 @@ module.exports = function (log, isA, error, db, mailer) {
           log.security({ event: 'pwd-change-request' })
           var form = request.payload
           var oldAuthPW = Buffer(form.oldAuthPW, 'hex')
-          var newAuthSalt = crypto.randomBytes(32)
-          var newVerifyHash = null
 
           db.emailRecord(form.email)
             .then(

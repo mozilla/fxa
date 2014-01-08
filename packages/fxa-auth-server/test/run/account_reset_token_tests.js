@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var crypto = require('crypto')
 var log = { trace: function() {} }
 
 var tokens = require('../../tokens')(log)

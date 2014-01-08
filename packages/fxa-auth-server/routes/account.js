@@ -5,7 +5,6 @@
 var HEX_STRING = require('./validators').HEX_STRING
 var LAZY_EMAIL = require('./validators').LAZY_EMAIL
 
-var P = require('p-promise')
 var password = require('../crypto/password')
 
 module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {

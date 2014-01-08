@@ -2,16 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var crypto = require('crypto')
 var P = require('p-promise')
 var ClientApi = require('./api')
 var butil = require('../crypto/butil')
 var pbkdf2 = require('../crypto/pbkdf2')
 var hkdf = require('../crypto/hkdf')
 var tokens = require('../tokens')({ trace: function () {}})
-var Bundle = tokens.Bundle
-
-var NULL = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 
 function Client(origin) {
   this.uid = null
@@ -139,7 +135,7 @@ Client.prototype.auth = function () {
   return this.api.accountLoginAndGetKeys(this.email, this.authPW)
     .then(
       function (data) {
-        this.uid = data.uid,
+        this.uid = data.uid
         this.sessionToken = data.sessionToken
         this.keyFetchToken = data.keyFetchToken
         this.verified = data.verified
@@ -309,7 +305,6 @@ Client.prototype.resetPassword = function (newPassword) {
     throw new Error("call verifyPasswordResetCode before calling resetPassword");
   }
   // this will generate a new wrapKb on the server
-  var wrapKb = NULL
   return this.setupCredentials(this.email, newPassword)
     .then(
       function (bundle) {

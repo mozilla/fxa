@@ -291,9 +291,9 @@ module.exports = function (
   Heap.prototype.deletePasswordChangeToken = function (passwordChangeToken) {
     log.trace(
       {
-        op: 'Heap.deletePasswordForgotToken',
-        id: passwordForgotToken && passwordForgotToken.id,
-        uid: passwordForgotToken && passwordForgotToken.uid
+        op: 'Heap.deletePasswordChangeToken',
+        id: passwordChangeToken && passwordChangeToken.id,
+        uid: passwordChangeToken && passwordChangeToken.uid
       }
     )
     delete this.passwordChangeTokens[passwordChangeToken.id]
