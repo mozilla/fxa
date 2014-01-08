@@ -135,13 +135,6 @@ module.exports = function (fs, path, url, convict) {
         env: 'CONTENT_SERVER_URL'
       }
     },
-    scryptHelper: {
-      url: {
-        doc: "The url of the correspoding fxa-scrypt-helper instance",
-        default: 'https://scrypt-accounts.dev.lcip.org',
-        env: 'SCRYPT_HELPER_URL'
-      }
-    },
     smtp: {
       api: {
         host: {

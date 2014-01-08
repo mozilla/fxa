@@ -3,14 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var pbkdf2 = require('../../client/pbkdf2')
+var pbkdf2 = require('../../crypto/pbkdf2')
+var test = require('../ptaptest')
+var ITERATIONS = 20000
+var LENGTH = 8 * 32
 
 test(
   'pbkdf2 derive',
   function (t) {
     var salt = Buffer('identity.mozilla.com/picl/v1/first-PBKDF:andré@example.org')
     var password = Buffer('pässwörd')
-    return pbkdf2.derive(password, salt)
+    return pbkdf2.derive(password, salt, ITERATIONS, LENGTH)
       .then(
       function (K1) {
         t.equal(K1.toString('hex'), 'f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd')
@@ -25,7 +28,7 @@ test(
     var email = Buffer('ijqmkkafer3xsj5rzoq+msnxsacvkmqxabtsvxvj@some-test-domain-with-a-long-name-example.org')
     var password = Buffer('mSnxsacVkMQxAbtSVxVjCCoWArNUsFhiJqmkkafER3XSJ5rzoQ')
     var salt = Buffer('identity.mozilla.com/picl/v1/first-PBKDF:' + email)
-    return pbkdf2.derive(password, salt)
+    return pbkdf2.derive(password, salt, ITERATIONS, LENGTH)
       .then(
       function (K1) {
         t.equal(K1.toString('hex'), '5f99c22dfac713b6d73094604a05082e6d345f8a00d4947e57105733f51216eb')
@@ -45,7 +48,7 @@ test(
       Buffer(passwordString)
     ])
 
-    return pbkdf2.derive(password, salt)
+    return pbkdf2.derive(password, salt, ITERATIONS, LENGTH)
       .then(
       function (K1) {
         t.equal(K1.toString('hex'), 'c16d46c31bee242cb31f916e9e38d60b76431d3f5304549cc75ae4bc20c7108c')

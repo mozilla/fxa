@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var HEX_STRING = require('./validators').HEX_STRING
-var HEX_EMAIL = require('./validators').HEX_EMAIL
+var LAZY_EMAIL = require('./validators').LAZY_EMAIL
+
+var password = require('../crypto/password')
 
 module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
 
@@ -19,31 +21,19 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         tags: ["srp", "account"],
         validate: {
           payload: {
-            email: isA.String().max(1024).regex(HEX_EMAIL).required(),
-            srp: isA.Object({
-              type: isA.String().max(64).valid('SRP-6a/SHA256/2048/v1').required(),
-              verifier: isA.String().min(512).max(512).regex(HEX_STRING).required(),
-              salt: isA.String().min(64).max(64).regex(HEX_STRING).required(),
-            }).required(),
-            passwordStretching: isA.Object(
-              {
-                type: isA.String().required().valid('PBKDF2/scrypt/PBKDF2/v1'),
-                PBKDF2_rounds_1: isA.Number().integer().min(20000).max(20000).required(),
-                scrypt_N: isA.Number().integer().min(65536).max(65536).required(),
-                scrypt_r: isA.Number().integer().min(8).max(8).required(),
-                scrypt_p: isA.Number().integer().min(1).max(1).required(),
-                PBKDF2_rounds_2: isA.Number().integer().min(20000).max(20000).required(),
-                salt: isA.String().min(64).max(64).regex(HEX_STRING).required()
-              }
-            ).required(),
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
+            preVerified: isA.Boolean(),
             service: isA.String().max(16).alphanum().optional(),
-            preVerified: isA.Boolean()
           }
         },
         handler: function accountCreate(request) {
           log.begin('Account.create', request)
           var form = request.payload
-          var email = Buffer(form.email, 'hex').toString()
+          var email = form.email
+          var authSalt = crypto.randomBytes(32)
+          var authPW = Buffer(form.authPW, 'hex')
+
           db.accountExists(email)
             .then(
               function (exists) {
@@ -52,23 +42,25 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 }
               }
             )
+            .then(password.verifyHash.bind(null, authPW, authSalt))
             .then(
-              db.createAccount.bind(
-                db,
-                {
-                  uid: uuid.v4('binary'),
-                  email: email,
-                  emailCode: crypto.randomBytes(4).toString('hex'),
-                  verified: form.preVerified || false,
-                  srp: form.srp,
-                  kA: crypto.randomBytes(32),
-                  wrapKb: crypto.randomBytes(32),
-                  passwordStretching: form.passwordStretching,
-                  devices: {},
-                  accountResetToken: null,
-                  forgotPasswordToken: null
-                }
-              )
+              function (verifyHash) {
+                return db.createAccount(
+                  {
+                    uid: uuid.v4('binary'),
+                    email: email,
+                    emailCode: crypto.randomBytes(4).toString('hex'),
+                    verified: form.preVerified || false,
+                    kA: crypto.randomBytes(32),
+                    wrapWrapKb: crypto.randomBytes(32),
+                    devices: {},
+                    accountResetToken: null,
+                    passwordForgotToken: null,
+                    authSalt: authSalt,
+                    verifyHash: verifyHash
+                  }
+                )
+              }
             )
             .then(
               function (account) {
@@ -85,12 +77,12 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
               }
             )
             .then(
-              function (srpToken) {
-                log.security({ event: 'account-create-success', uid: srpToken.uid });
-                return srpToken
+              function (account) {
+                log.security({ event: 'account-create-success', uid: account.uid })
+                return account
               },
               function (err) {
-                log.security({ event: 'account-create-failure', err: err });
+                log.security({ event: 'account-create-failure', err: err })
                 throw err
               }
             )
@@ -104,6 +96,118 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
               },
               request.reply.bind(request)
             )
+        }
+      }
+    },
+    {
+      method: 'POST',
+      path: '/account/login',
+      config: {
+        description: 'login with a password and get a keyFetchToken',
+        handler: function (request) {
+          log.begin('Account.login', request)
+          var form = request.payload
+          var authPW = Buffer(form.authPW, 'hex')
+          db.emailRecord(form.email)
+            .then(
+              function (emailRecord) {
+                if (!emailRecord) {
+                  throw error.unknownAccount(form.email)
+                }
+                return password.stretch(authPW, emailRecord.authSalt)
+                  .then(
+                    function (stretched) {
+                      return password.verify(stretched, emailRecord.verifyHash)
+                        .then(
+                          function (verifyHash) {
+                            if (!verifyHash) {
+                              throw error.incorrectPassword(emailRecord.rawEmail)
+                            }
+                            return db.createSessionToken(
+                              {
+                                uid: emailRecord.uid,
+                                email: emailRecord.email,
+                                rawEmail: emailRecord.rawEmail,
+                                emailCode: emailRecord.emailCode,
+                                verified: emailRecord.verified
+                              }
+                            )
+                          }
+                        )
+                        .then(
+                          function (sessionToken) {
+                            log.security({ event: 'login-success', uid: sessionToken.uid })
+                            log.security({ event: 'session-create' })
+                            return sessionToken
+                          },
+                          function (err) {
+                            log.security({ event: 'login-failure', err: err, email: form.email })
+                            throw err
+                          }
+                        )
+                        .then(
+                          function (sessionToken) {
+                            if (request.query.keys !== 'true') {
+                              return P({
+                                sessionToken: sessionToken
+                              })
+                            }
+                            return password.wrapKb(stretched, emailRecord.wrapWrapKb)
+                              .then(
+                                function (wrapKb) {
+                                  return db.createKeyFetchToken(
+                                    {
+                                      uid: emailRecord.uid,
+                                      kA: emailRecord.kA,
+                                      wrapKb: wrapKb,
+                                      verified: emailRecord.verified
+                                    }
+                                  )
+                                }
+                              )
+                              .then(
+                                function (keyFetchToken) {
+                                  return {
+                                    sessionToken: sessionToken,
+                                    keyFetchToken: keyFetchToken
+                                  }
+                                }
+                              )
+                          }
+                        )
+                    }
+                  )
+              }
+            )
+            .done(
+              function (tokens) {
+                request.reply(
+                  {
+                    uid: tokens.sessionToken.uid.toString('hex'),
+                    sessionToken: tokens.sessionToken.data.toString('hex'),
+                    keyFetchToken: tokens.keyFetchToken ? tokens.keyFetchToken.data.toString('hex') : undefined,
+                    verified: tokens.sessionToken.verified
+                  }
+                )
+              },
+              function (err) {
+                request.reply(err)
+              }
+            )
+        },
+        validate: {
+          payload: {
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+          },
+          response: {
+            schema: {
+              uid: isA.String().regex(HEX_STRING).required(),
+              sessionToken: isA.String().regex(HEX_STRING).required(),
+              keyFetchToken: isA.String().regex(HEX_STRING).optional(),
+              verified: isA.Boolean().required()
+            }
+          }
         }
       }
     },
@@ -170,14 +274,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                 if (!keyFetchToken.verified) {
                   throw error.unverifiedAccount()
                 }
-                return keyFetchToken.bundleKeys(keyFetchToken.kA,
-                                                keyFetchToken.wrapKb)
-              }
-            )
-            .then(
-              function (bundle) {
                 return {
-                  bundle: bundle
+                  bundle: keyFetchToken.keyBundle.toString('hex')
                 }
               }
             )
@@ -208,7 +306,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         validate: {
           response: {
             schema: {
-              email: isA.String().required(),
+              email: isA.String().regex(LAZY_EMAIL).required(),
               verified: isA.Boolean().required()
             }
           }
@@ -233,7 +331,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         tags: ["account", "recovery"],
         handler: function (request) {
           log.begin('Account.RecoveryEmailResend', request)
-          log.security({ event: 'account-verify-request' });
+          log.security({ event: 'account-verify-request' })
           var sessionToken = request.auth.credentials
           mailer.sendVerifyCode(
             sessionToken,
@@ -273,10 +371,10 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
             )
             .then(
               function () {
-                log.security({ event: 'account-verify-success' });
+                log.security({ event: 'account-verify-success' })
               },
               function (err) {
-                log.security({ event: 'account-verify-failure', err: err });
+                log.security({ event: 'account-verify-failure', err: err })
                 throw err
               }
             )
@@ -308,38 +406,38 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         tags: ["account"],
         validate: {
           payload: {
-            // The bundle is wrapKb + srpVerifier + HMAC, hex-encoded.
-            bundle: isA.String().max((32 + 256 + 32) * 2).regex(HEX_STRING).required(),
-            srp: isA.Object({
-              type: isA.String().max(64).required(),
-              salt: isA.String().min(64).max(64).regex(HEX_STRING).required()
-            }).required(),
-            passwordStretching: isA.Object()
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
           }
         },
         handler: function accountReset(request) {
           log.begin('Account.reset', request)
           var reply = request.reply.bind(request)
           var accountResetToken = request.auth.credentials
-          var payload = request.payload
-          accountResetToken.unbundleAccountData(payload.bundle)
+          var authPW = Buffer(request.payload.authPW, 'hex')
+          var authSalt = crypto.randomBytes(32)
+          return password.verifyHash(authPW, authSalt)
             .then(
-              function (unbundle) {
-                payload.wrapKb = unbundle.wrapKb
-                payload.srp.verifier = unbundle.verifier
-                return db.resetAccount(accountResetToken, payload)
+              function (verifyHash) {
+                return db.resetAccount(
+                  accountResetToken,
+                  {
+                    authSalt: authSalt,
+                    verifyHash: verifyHash,
+                    wrapWrapKb: crypto.randomBytes(32)
+                  }
+                )
               }
             )
             .then(
               function () {
                 log.security({ event: 'pwd-reset-success' })
+                return {}
               },
               function (err) {
                 log.security({ event: 'pwd-reset-failure', err: err })
                 throw err
               }
             )
-            .then(function () { return {} })
             .done(reply, reply)
         },
       }
@@ -348,18 +446,33 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
       method: 'POST',
       path: '/account/destroy',
       config: {
-        auth: {
-          strategy: 'authToken'
-        },
         tags: ["account"],
         handler: function accountDestroy(request) {
           log.begin('Account.destroy', request)
+          var form = request.payload
           var reply = request.reply.bind(request)
-          var authToken = request.auth.credentials
-          log.security({ event: 'account-destroy' })
-          db.deleteAccount(authToken)
-            .then(function () { return {} })
+          db.emailRecord(form.email)
+            .then(
+              function (emailRecord) {
+                if (!emailRecord) {
+                  throw error.unknownAccount(form.email)
+                }
+                return db.deleteAccount(emailRecord)
+              }
+            )
+            .then(
+              function () {
+                log.security({ event: 'account-destroy' })
+                return {}
+              }
+            )
             .done(reply, reply)
+        },
+        validate: {
+          payload: {
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
+            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+          }
         }
       }
     }

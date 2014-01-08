@@ -6,35 +6,32 @@ module.exports = function (
   backend,
   log,
   error,
-  AuthToken,
   SessionToken,
   KeyFetchToken,
   AccountResetToken,
-  SrpToken,
-  ForgotPasswordToken) {
+  PasswordForgotToken,
+  PasswordChangeToken) {
 
   if (backend === 'mysql') {
     return require('./mysql')(
       log,
       error,
-      AuthToken,
       SessionToken,
       KeyFetchToken,
       AccountResetToken,
-      SrpToken,
-      ForgotPasswordToken
+      PasswordForgotToken,
+      PasswordChangeToken
     )
   }
   else {
     return require('./heap')(
       log,
       error,
-      AuthToken,
       SessionToken,
       KeyFetchToken,
       AccountResetToken,
-      SrpToken,
-      ForgotPasswordToken
+      PasswordForgotToken,
+      PasswordChangeToken
     )
   }
 }

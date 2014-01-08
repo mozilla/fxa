@@ -7,21 +7,19 @@ var P = require('p-promise')
 module.exports = function (
   log,
   error,
-  AuthToken,
   SessionToken,
   KeyFetchToken,
   AccountResetToken,
-  SrpToken,
-  ForgotPasswordToken
+  PasswordForgotToken,
+  PasswordChangeToken
   ) {
 
   function Heap() {
     this.sessionTokens = {}
     this.keyFetchTokens = {}
     this.accountResetTokens = {}
-    this.authTokens = {}
-    this.srpTokens = {}
-    this.forgotPasswordTokens = {}
+    this.passwordForgotTokens = {}
+    this.passwordChangeTokens = {}
     this.accounts = {}
     this.emailRecords = {}
   }
@@ -65,6 +63,8 @@ module.exports = function (
         email: data && data.email
       }
     )
+    data.rawEmail = data.email
+    data.email = data.email.toLowerCase()
     this.accounts[data.uid.toString('hex')] = data
     this.emailRecords[data.email] = data.uid.toString('hex')
     data.devices = {}
@@ -90,7 +90,7 @@ module.exports = function (
       .then(saveTo(this.keyFetchTokens))
   }
 
-  Heap.prototype.createAccountResetToken = function (token /* authToken|forgotPasswordToken */) {
+  Heap.prototype.createAccountResetToken = function (token /* authToken|passwordForgotToken */) {
     log.trace({ op: 'Heap.createAccountResetToken', uid: token && token.uid })
     return AccountResetToken.create(token)
       .then(
@@ -104,37 +104,39 @@ module.exports = function (
       .then(saveTo(this.accountResetTokens))
   }
 
-  Heap.prototype.createAuthToken = function (srpToken) {
-    log.trace({ op: 'Heap.createAuthToken', uid: srpToken && srpToken.uid })
-    return AuthToken.create(srpToken)
-      .then(saveTo(this.authTokens))
-  }
-
-  Heap.prototype.createSrpToken = function (emailRecord) {
-    log.trace({ op: 'Heap.createSrpToken', uid: emailRecord && emailRecord.uid })
-    return SrpToken.create(emailRecord)
-      .then(saveTo(this.srpTokens))
-  }
-
-  Heap.prototype.createForgotPasswordToken = function (emailRecord) {
-    log.trace({ op: 'Heap.createForgotPasswordToken', uid: emailRecord && emailRecord.uid })
-    return ForgotPasswordToken.create(emailRecord)
+  Heap.prototype.createPasswordForgotToken = function (emailRecord) {
+    log.trace({ op: 'Heap.createPasswordForgotToken', uid: emailRecord && emailRecord.uid })
+    return PasswordForgotToken.create(emailRecord)
       .then(
-        function (forgotPasswordToken) {
-          var account = this.accounts[forgotPasswordToken.uid.toString('hex')]
+        function (passwordForgotToken) {
+          var account = this.accounts[passwordForgotToken.uid.toString('hex')]
           if (!account) { return P.reject(error.unknownAccount()) }
-          account.forgotPasswordToken = forgotPasswordToken.id
-          return forgotPasswordToken
+          account.passwordForgotToken = passwordForgotToken.id
+          return passwordForgotToken
         }.bind(this)
       )
-      .then(saveTo(this.forgotPasswordTokens))
+      .then(saveTo(this.passwordForgotTokens))
+  }
+
+  Heap.prototype.createPasswordChangeToken = function (data) {
+    log.trace({ op: 'Heap.createPasswordChangeToken', uid: data.uid })
+    return PasswordChangeToken.create(data)
+      .then(
+        function (passwordChangeToken) {
+          var account = this.accounts[passwordChangeToken.uid.toString('hex')]
+          if (!account) { return P.reject(error.unknownAccount()) }
+          account.passwordChangeToken = passwordChangeToken.id
+          return passwordChangeToken
+        }.bind(this)
+      )
+      .then(saveTo(this.passwordChangeTokens))
   }
 
   // READ
 
   Heap.prototype.accountExists = function (email) {
     log.trace({ op: 'Heap.accountExists', email: email })
-    return P(!!this.emailRecords[email])
+    return P(!!this.emailRecords[email.toLowerCase()])
   }
 
   Heap.prototype.accountDevices = function (uid) {
@@ -170,7 +172,7 @@ module.exports = function (
     var account = this.accounts[keyFetchToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
     keyFetchToken.kA = account.kA
-    keyFetchToken.wrapKb = account.wrapKb
+    keyFetchToken.wrapWrapKb = account.wrapWrapKb
     keyFetchToken.verified = account.verified
     return P(keyFetchToken)
   }
@@ -182,36 +184,26 @@ module.exports = function (
     return P(accountResetToken)
   }
 
-  Heap.prototype.authToken = function (id) {
-    log.trace({ op: 'Heap.authToken', id: id })
-    var authToken = this.authTokens[id.toString('hex')]
-    if (!authToken) { return P.reject(error.invalidToken()) }
-    var account = this.accounts[authToken.uid.toString('hex')]
+  Heap.prototype.passwordForgotToken = function (id) {
+    log.trace({ op: 'Heap.passwordForgotToken', id: id })
+    var passwordForgotToken = this.passwordForgotTokens[id.toString('hex')]
+    if (!passwordForgotToken) { return P.reject(error.invalidToken()) }
+    var account = this.accounts[passwordForgotToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
-    authToken.verified = account.verified
-    return P(authToken)
+    passwordForgotToken.email = account.email
+    return P(passwordForgotToken)
   }
 
-  Heap.prototype.srpToken = function (id) {
-    log.trace({ op: 'Heap.srpToken', id: id })
-    var srpToken = this.srpTokens[id.toString('hex')]
-    if (!srpToken) { return P.reject(error.invalidToken()) }
-    return P(srpToken)
-  }
-
-  Heap.prototype.forgotPasswordToken = function (id) {
-    log.trace({ op: 'Heap.forgotPasswordToken', id: id })
-    var forgotPasswordToken = this.forgotPasswordTokens[id.toString('hex')]
-    if (!forgotPasswordToken) { return P.reject(error.invalidToken()) }
-    var account = this.accounts[forgotPasswordToken.uid.toString('hex')]
-    if (!account) { return P.reject(error.unknownAccount()) }
-    forgotPasswordToken.email = account.email
-    return P(forgotPasswordToken)
+  Heap.prototype.passwordChangeToken = function (id) {
+    log.trace({ op: 'Heap.passwordChangeToken', id: id })
+    var passwordChangeToken = this.passwordChangeTokens[id.toString('hex')]
+    if (!passwordChangeToken) { return P.reject(error.invalidToken()) }
+    return P(passwordChangeToken)
   }
 
   Heap.prototype.emailRecord = function (email) {
     log.trace({ op: 'Heap.emailRecord', email: email })
-    var uid = this.emailRecords[email]
+    var uid = this.emailRecords[email.toLowerCase()]
     if (!uid) { return P.reject(error.unknownAccount(email)) }
     return this.account(uid)
   }
@@ -225,8 +217,8 @@ module.exports = function (
 
   // UPDATE
 
-  Heap.prototype.updateForgotPasswordToken = function (forgotPasswordToken) {
-    log.trace({ op: 'Heap.udateForgotPasswordToken', uid: forgotPasswordToken && forgotPasswordToken.uid })
+  Heap.prototype.updatePasswordForgotToken = function (passwordForgotToken) {
+    log.trace({ op: 'Heap.udatePasswordForgotToken', uid: passwordForgotToken && passwordForgotToken.uid })
     return P(true)
   }
 
@@ -238,10 +230,8 @@ module.exports = function (
     if (!account) { return P.reject(error.unknownAccount()) }
     deleteUid(account.uid, this.sessionTokens)
     deleteUid(account.uid, this.keyFetchTokens)
-    deleteUid(account.uid, this.authTokens)
-    deleteUid(account.uid, this.srpTokens)
     deleteUid(account.uid, this.accountResetTokens)
-    deleteUid(account.uid, this.forgotPasswordTokens)
+    deleteUid(account.uid, this.passwordForgotTokens)
     delete this.emailRecords[account.email]
     delete this.accounts[account.uid.toString('hex')]
     return P(true)
@@ -286,39 +276,27 @@ module.exports = function (
     return P(true)
   }
 
-  Heap.prototype.deleteAuthToken = function (authToken) {
+  Heap.prototype.deletePasswordForgotToken = function (passwordForgotToken) {
     log.trace(
       {
-        op: 'Heap.deleteAuthToken',
-        id: authToken && authToken.id,
-        uid: authToken && authToken.uid
+        op: 'Heap.deletePasswordForgotToken',
+        id: passwordForgotToken && passwordForgotToken.id,
+        uid: passwordForgotToken && passwordForgotToken.uid
       }
     )
-    delete this.authTokens[authToken.id]
+    delete this.passwordForgotTokens[passwordForgotToken.id]
     return P(true)
   }
 
-  Heap.prototype.deleteSrpToken = function (srpToken) {
+  Heap.prototype.deletePasswordChangeToken = function (passwordChangeToken) {
     log.trace(
       {
-        op: 'Heap.deleteSrpToken',
-        id: srpToken && srpToken.id,
-        uid: srpToken && srpToken.uid
+        op: 'Heap.deletePasswordChangeToken',
+        id: passwordChangeToken && passwordChangeToken.id,
+        uid: passwordChangeToken && passwordChangeToken.uid
       }
     )
-    delete this.srpTokens[srpToken.id]
-    return P(true)
-  }
-
-  Heap.prototype.deleteForgotPasswordToken = function (forgotPasswordToken) {
-    log.trace(
-      {
-        op: 'Heap.deleteForgotPasswordToken',
-        id: forgotPasswordToken && forgotPasswordToken.id,
-        uid: forgotPasswordToken && forgotPasswordToken.uid
-      }
-    )
-    delete this.forgotPasswordTokens[forgotPasswordToken.id]
+    delete this.passwordChangeTokens[passwordChangeToken.id]
     return P(true)
   }
 
@@ -328,46 +306,17 @@ module.exports = function (
     log.trace({ op: 'Heap.resetAccount', uid: accountResetToken && accountResetToken.uid })
     var account = this.accounts[accountResetToken.uid.toString('hex')]
     if (!account) { return P.reject(error.unknownAccount()) }
-    account.srp = data.srp
-    account.wrapKb = data.wrapKb
-    account.passwordStretching = data.passwordStretching
+    account.verifyHash = data.verifyHash
+    account.wrapWrapKb = data.wrapWrapKb
+    account.authSalt = data.authSalt
     account.devices = {}
     account.accountResetToken = null
-    account.forgotPasswordToken = null
+    account.passwordForgotToken = null
     deleteUid(account.uid, this.sessionTokens)
     deleteUid(account.uid, this.keyFetchTokens)
-    deleteUid(account.uid, this.authTokens)
-    deleteUid(account.uid, this.srpTokens)
     deleteUid(account.uid, this.accountResetTokens)
-    deleteUid(account.uid, this.forgotPasswordTokens)
+    deleteUid(account.uid, this.passwordForgotTokens)
     return P(true)
-  }
-
-  Heap.prototype.authFinish = function (srpToken) {
-    log.trace({ op: 'Heap.authFinish', uid: srpToken && srpToken.uid })
-    return this.deleteSrpToken(srpToken)
-      .then(this.createAuthToken.bind(this, srpToken))
-  }
-
-  Heap.prototype.createSession = function (authToken) {
-    log.trace({ op: 'Heap.createSession', uid: authToken && authToken.uid })
-    return this.deleteAuthToken(authToken)
-      .then(
-        function () {
-          return P.all([
-              this.createKeyFetchToken(authToken),
-              this.createSessionToken(authToken)
-            ])
-        }.bind(this)
-      )
-      .then(
-        function (tokens) {
-          return {
-            keyFetchToken: tokens[0],
-            sessionToken: tokens[1]
-          }
-        }
-      )
   }
 
   Heap.prototype.verifyEmail = function (account) {
@@ -376,31 +325,10 @@ module.exports = function (
     return P(true)
   }
 
-  Heap.prototype.createPasswordChange = function (authToken) {
-    log.trace({ op: 'Heap.createPasswordChange', uid: authToken && authToken.uid })
-    return this.deleteAuthToken(authToken)
-      .then(
-        function () {
-          return P.all([
-              this.createKeyFetchToken(authToken),
-              this.createAccountResetToken(authToken)
-            ])
-        }.bind(this)
-      )
-      .then(
-        function (tokens) {
-          return {
-            keyFetchToken: tokens[0],
-            accountResetToken: tokens[1]
-          }
-        }
-      )
-  }
-
-  Heap.prototype.forgotPasswordVerified = function (forgotPasswordToken) {
-    log.trace({ op: 'Heap.forgotPasswordVerified', uid: forgotPasswordToken && forgotPasswordToken.uid })
-    return this.deleteForgotPasswordToken(forgotPasswordToken)
-      .then(this.createAccountResetToken.bind(this, forgotPasswordToken))
+  Heap.prototype.forgotPasswordVerified = function (passwordForgotToken) {
+    log.trace({ op: 'Heap.forgotPasswordVerified', uid: passwordForgotToken && passwordForgotToken.uid })
+    return this.deletePasswordForgotToken(passwordForgotToken)
+      .then(this.createAccountResetToken.bind(this, passwordForgotToken))
   }
 
   return Heap

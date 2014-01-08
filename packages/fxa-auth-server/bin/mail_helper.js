@@ -44,7 +44,7 @@ mail.on(
           )
         }
         else if (rc) {
-          console.log('recovery: %s email: %s', rc, mail.to.address)
+          console.log('recovery: %s email: %s', rc, mail.headers.to)
         }
         else {
           console.error('No verify code match')

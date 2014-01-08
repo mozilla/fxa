@@ -24,7 +24,7 @@
  */
 
 
-module.exports = function (crypto, P, hkdf, error) {
+module.exports = function (crypto, P, hkdf, butil, error) {
 
 
   var HASH_ALGORITHM = 'sha256'
@@ -39,10 +39,11 @@ module.exports = function (crypto, P, hkdf, error) {
     return deriveBundleKeys(key, keyInfo, payload.length)
       .then(
         function (keys) {
-          var ciphertext = xorBuffers(payload, keys[1])
+          var ciphertext = butil.xorBuffers(payload, keys[1])
           var hmac = crypto.createHmac(HASH_ALGORITHM, keys[0])
           hmac.update(ciphertext)
-          return Buffer.concat([ciphertext, hmac.digest()]).toString('hex')
+          var mac = hmac.digest()
+          return Buffer.concat([ciphertext, mac]).toString('hex')
         }
       )
   }
@@ -59,10 +60,11 @@ module.exports = function (crypto, P, hkdf, error) {
         function (keys) {
           var hmac = crypto.createHmac(HASH_ALGORITHM, keys[0])
           hmac.update(ciphertext)
-          if (!buffersAreEqual(hmac.digest(), expectedHmac)) {
+          var mac = hmac.digest()
+          if (!butil.buffersAreEqual(mac, expectedHmac)) {
             throw error.invalidSignature()
           }
-          return xorBuffers(ciphertext, keys[1])
+          return butil.xorBuffers(ciphertext, keys[1])
         }
       )
   }
@@ -80,40 +82,6 @@ module.exports = function (crypto, P, hkdf, error) {
         }
       )
   }
-
-
-  // Xor the contents of two equal-sized buffers.
-  //
-  function xorBuffers(buffer1, buffer2) {
-    if (buffer1.length !== buffer2.length) {
-      throw new Error(
-        'XOR buffers must be same length (%d != %d)',
-        buffer1.length,
-        buffer2.length
-      )
-    }
-    var result = Buffer(buffer1.length)
-    for (var i = 0; i < buffer1.length; i++) {
-      result[i] = buffer1[i] ^ buffer2[i]
-    }
-    return result
-  }
-
-
-  //  Time-invariant buffer comparison.
-  //  For checking hmacs without timing attacks.
-  //
-  function buffersAreEqual(buffer1, buffer2) {
-    var mismatch = buffer1.length - buffer2.length
-    if (mismatch) {
-      return false
-    }
-    for (var i = 0; i < buffer1.length; i++) {
-      mismatch |= buffer1[i] ^ buffer2[i]
-    }
-    return mismatch === 0
-  }
-
 
   return Bundle
 }
