@@ -16,6 +16,9 @@ if (isMain) {
 const util = require('util');
 const helmet = require('helmet');
 const express = require('express');
+const connect_fonts = require('connect-fonts');
+const firasans = require('connect-fonts-firasans');
+const clearsans = require('connect-fonts-clearsans');
 
 const config = require('../lib/configuration');
 const routes = require('../lib/routes');
@@ -32,6 +35,13 @@ function makeApp() {
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());
   app.disable('x-powered-by');
+
+  app.use(connect_fonts.setup({
+    fonts: [ firasans, clearsans ],
+    allow_origin: [ config.get('public_url') ],
+    max_age: config.get('font_max_age_ms'),
+    compress: true
+  }));
 
   app.use(routeLogging());
   app.use(express.cookieParser());

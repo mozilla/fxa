@@ -7,8 +7,16 @@
 
 body {
   color: #333;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
+}
+
+h1, h2 {
+  font-family: "Fira Sans", Helvetica, Arial, sans-serif;
+}
+
+h2 {
+  font-weight: 300;
 }
 
 p.center {
