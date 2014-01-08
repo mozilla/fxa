@@ -91,6 +91,11 @@ var conf = module.exports = convict({
     doc: "Directory that static files are served from.",
     format: String,
     default: "app"
+  },
+  font_max_age_ms: {
+    doc: "Cache fonts for this amount of time, in ms",
+    format: Number,
+    default: 180 * 24 * 60 * 60 * 1000      // 180 days
   }
 });
 

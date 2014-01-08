@@ -23,7 +23,10 @@
     "i18n-abide": "0.0.14",
     "jwcrypto": "0.4.3",
     "intel": "0.4.0",
-    "helmet": "0.1.2"
+    "helmet": "0.1.2",
+    "connect-fonts": "0.0.12",
+    "connect-fonts-firasans": "0.0.2",
+    "connect-fonts-clearsans": "0.0.1"
   },
   "devDependencies": {
     "bower": "1.2.8",
