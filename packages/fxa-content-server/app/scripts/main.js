@@ -49,7 +49,9 @@ require([
 function (Polyfills, Backbone, Router, Translator) {
   // A few globals
   window.router = new Router();
-  window.translator = new Translator(window.navigator.language);
+
+  // IE8 does not support window.navigator.language. Set a default of English.
+  window.translator = new Translator(window.navigator.language || 'en');
 
   // Don't start backbone until we have our translations
   translator.fetch(function() {
