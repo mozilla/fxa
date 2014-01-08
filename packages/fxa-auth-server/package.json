@@ -51,11 +51,12 @@
     "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
     "mailparser": "0.3.6",
     "tap": "0.4.6",
-    "grunt-contrib-jshint": "~0.7.0",
+    "grunt-contrib-jshint": "~0.8.0",
     "load-grunt-tasks": "~0.2.0",
-    "grunt": "~0.4.1",
+    "grunt": "~0.4.2",
     "ass": "0.0.4",
     "binary-split": "0.1.1",
-    "through": "2.3.4"
+    "through": "2.3.4",
+    "grunt-copyright": "~0.1.0"
   }
 }
