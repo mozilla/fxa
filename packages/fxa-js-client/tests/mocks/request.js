@@ -21,6 +21,14 @@ define([], function () {
     mail: {
       status: 200,
       body: '[{"html":"Mocked code=9001"}]'
+    },
+    recoveryEmailUnverified: {
+      status: 200,
+      body: '{"verified": false}'
+    },
+    recoveryEmailVerified: {
+      status: 200,
+      body: '{"verified": true}'
     }
   };
 });
