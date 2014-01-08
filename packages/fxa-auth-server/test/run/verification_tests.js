@@ -26,6 +26,7 @@ TestServer.start(config.publicUrl)
       var password = 'allyourbasearebelongtous'
       var client = null
       var verifyCode = null
+      var keyFetchToken = null
       return Client.create(config.publicUrl, email, password)
         .then(
           function (x) {
@@ -42,6 +43,8 @@ TestServer.start(config.publicUrl)
             t.fail('got keys before verifying email')
           },
           function (err) {
+            keyFetchToken = client.keyFetchToken
+            t.ok(client.keyFetchToken, 'retained keyFetchToken')
             t.equal(err.message, 'Unverified account', 'account is unverified')
           }
         )
@@ -93,6 +96,7 @@ TestServer.start(config.publicUrl)
         )
         .then(
           function () {
+            t.equal(keyFetchToken, client.keyFetchToken, 'reusing keyFetchToken')
             return client.keys()
           }
         )
