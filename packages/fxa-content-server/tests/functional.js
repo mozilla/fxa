@@ -11,6 +11,10 @@ define([
   './functional/age',
   './functional/birthday',
   './functional/confirm',
+  './functional/reset_password',
+  './functional/confirm_reset_password',
+  './functional/complete_reset_password',
+  './functional/reset_password_complete',
   './functional/mocha'
 ], function () {
   'use strict';

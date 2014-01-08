@@ -9,26 +9,10 @@ define([
   'views/base',
   'stache!templates/complete_sign_up',
   'lib/session',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'lib/url'
 ],
-function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient) {
-  function getSearchParam(name) {
-    var search = window.location.search.replace(/^\?/, '');
-    if (! search) {
-      return;
-    }
-
-    var pairs = search.split('&');
-    var terms = {};
-
-    _.each(pairs, function (pair) {
-      var keyValue = pair.split('=');
-      terms[keyValue[0]] = keyValue[1];
-    });
-
-    return terms[name];
-  }
-
+function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url) {
   var CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
@@ -36,34 +20,32 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient) {
     context: function () {
       return {
         email: Session.email,
-        siteName: getSearchParam('service'),
-        redirectTo: getSearchParam('service')
+        siteName: Url.searchParam('service'),
+        redirectTo: Url.searchParam('continue')
       };
     },
 
     afterRender: function () {
-      var uid = getSearchParam('uid');
+      var uid = Url.searchParam('uid');
       if (! uid) {
-        return this._displayError('no uid specified');
+        return this.displayError('no uid specified');
       }
 
-      var code = getSearchParam('code');
+      var code = Url.searchParam('code');
       if (! code) {
-        return this._displayError('no code specified');
+        return this.displayError('no code specified');
       }
 
       var client = new FxaClient();
       client.verifyCode(uid, code)
             .then(function () {
+              // TODO - we could go to a "sign_up_complete" screen here.
               this.$('#fxa-complete-sign-up-success').show();
             }.bind(this), function (err) {
-              this._displayError(err.message);
+              this.displayError(err.message);
             }.bind(this));
-    },
-
-    _displayError: function (msg) {
-      this.$('.error').html(msg);
     }
+
   });
 
   return CompleteSignUpView;

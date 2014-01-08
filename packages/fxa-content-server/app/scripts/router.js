@@ -19,9 +19,13 @@ define([
   'views/create_account',
   'views/cannot_create_account',
   'views/complete_sign_up',
+  'views/reset_password',
+  'views/confirm_reset_password',
+  'views/complete_reset_password',
+  'views/reset_password_complete',
   'transit'
 ],
-function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView, CompleteSignUpView) {
+function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
   var Router = Backbone.Router.extend({
     routes: {
       '': 'showIntro',
@@ -35,7 +39,11 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
       'birthday': 'showBirthday',
       'create_account': 'showCreateAccount',
       'cannot_create_account': 'showCannotCreateAccount',
-      'verify_email': 'showCompleteSignUp'
+      'verify_email': 'showCompleteSignUp',
+      'reset_password': 'showResetPassword',
+      'confirm_reset_password': 'showConfirmResetPassword',
+      'complete_reset_password': 'showCompleteResetPassword',
+      'reset_password_complete': 'showResetPasswordComplete'
     },
 
     initialize: function () {
@@ -93,6 +101,22 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
 
     showCompleteSignUp: function () {
       this.showView(new CompleteSignUpView());
+    },
+
+    showResetPassword: function () {
+      this.showView(new ResetPasswordView());
+    },
+
+    showConfirmResetPassword: function () {
+      this.showView(new ConfirmResetPasswordView());
+    },
+
+    showCompleteResetPassword: function () {
+      this.showView(new CompleteResetPasswordView());
+    },
+
+    showResetPasswordComplete: function () {
+      this.showView(new ResetPasswordCompleteView());
     },
 
     showView: function (view) {
