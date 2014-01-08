@@ -120,7 +120,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 
 * Password
     * [POST /v1/password/change/start](#post-v1passwordchangestart)
-    * [POST /v1/password/change/finish](#post-v1passwordchangefinish)
+    * [POST /v1/password/change/finish (:lock: passwordChangeToken)](#post-v1passwordchangefinish)
     * [POST /v1/password/forgot/send_code](#post-v1passwordforgotsend_code)
     * [POST /v1/password/forgot/resend_code (:lock: passwordForgotToken)](#post-v1passwordforgotresend_code)
     * [POST /v1/password/forgot/verify_code (:lock: passwordForgotToken)](#post-v1passwordforgotverify_code)
@@ -150,7 +150,7 @@ curl -v \
 -H "Content-Type: application/json" \
 https://api-accounts.dev.lcip.org/v1/account/create \
 -d '{
-  "email": "me@example,com",
+  "email": "me@example.com",
   "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
 }'
 ```
@@ -191,7 +191,7 @@ curl -v \
 -H "Content-Type: application/json" \
 https://api-accounts.dev.lcip.org/v1/account/login?keys=true \
 -d '{
-  "email": "me@example,com",
+  "email": "me@example.com",
   "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
 }'
 ```
