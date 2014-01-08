@@ -42,7 +42,7 @@ module.exports = function (log, isA, error, db, mailer) {
                         .then(
                           function (verifyHash) {
                             if(!verifyHash) {
-                              throw error.incorrectPassword(emailRecord.rawEmail)
+                              throw error.incorrectPassword(emailRecord.email)
                             }
                           }
                         )
@@ -119,7 +119,10 @@ module.exports = function (log, isA, error, db, mailer) {
           var authPW = Buffer(request.payload.authPW, 'hex')
           var wrapKb = Buffer(request.payload.wrapKb, 'hex')
           var authSalt = crypto.randomBytes(32)
-          password.stretch(authPW, authSalt)
+          db.deletePasswordChangeToken(passwordChangeToken)
+            .then(
+              password.stretch.bind(null, authPW, authSalt)
+            )
             .then(
               function (stretched) {
                 return password.verify(stretched)

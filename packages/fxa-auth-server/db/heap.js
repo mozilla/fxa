@@ -63,10 +63,9 @@ module.exports = function (
         email: data && data.email
       }
     )
-    data.rawEmail = data.email
-    data.email = data.email.toLowerCase()
+    data.normalizedEmail = data.email.toLowerCase()
     this.accounts[data.uid.toString('hex')] = data
-    this.emailRecords[data.email] = data.uid.toString('hex')
+    this.emailRecords[data.normalizedEmail] = data.uid.toString('hex')
     data.devices = {}
     return P(data)
   }

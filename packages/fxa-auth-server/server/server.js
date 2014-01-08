@@ -270,6 +270,7 @@ module.exports = function (path, url, Hapi, toobusy) {
             op: 'server.response',
             rid: request.id,
             path: request.path,
+            code: request.response()._code,
             t: Date.now() - request.info.received
           }
         )

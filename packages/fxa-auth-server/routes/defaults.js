@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var version = require('../package.json').version
+
 module.exports = function (log, P, db) {
 
   var routes = [
@@ -11,7 +13,11 @@ module.exports = function (log, P, db) {
       config: {
         handler: function index(request) {
           log.begin('Defaults.root', request)
-          request.reply("ok").type('text/plain')
+          request.reply(
+            {
+              version: version
+            }
+          )
         }
       }
     },

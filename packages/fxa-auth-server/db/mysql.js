@@ -134,8 +134,8 @@ module.exports = function (
         email: data && data.email
       }
     )
-    data.rawEmail = data.email
-    var sql = 'INSERT INTO accounts (uid, email, rawEmail, emailCode, verified, kA, wrapWrapKb, authSalt, verifyHash) VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?)'
+    data.normalizedEmail = data.email
+    var sql = 'INSERT INTO accounts (uid, normalizedEmail, email, emailCode, verified, kA, wrapWrapKb, authSalt, verifyHash) VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?)'
     return this.getMasterConnection()
       .then(function(con) {
         var d = P.defer()
@@ -143,8 +143,8 @@ module.exports = function (
           sql,
           [
             data.uid,
+            data.normalizedEmail,
             data.email,
-            data.rawEmail,
             data.emailCode,
             data.verified,
             data.kA,
@@ -298,7 +298,7 @@ module.exports = function (
 
   MySql.prototype.accountExists = function (email) {
     log.trace({ op: 'MySql.accountExists', email: email })
-    var sql = 'SELECT uid FROM accounts WHERE email = LOWER(?)'
+    var sql = 'SELECT uid FROM accounts WHERE normalizedEmail = LOWER(?)'
 
     return this.getSlaveConnection()
       .then(function(con) {
@@ -337,7 +337,7 @@ module.exports = function (
 
   MySql.prototype.sessionToken = function (id) {
     log.trace({ op: 'MySql.sessionToken', id: id })
-    var sql = 'SELECT t.tokendata, t.uid, a.verified, a.email, a.rawEmail, a.emailCode' +
+    var sql = 'SELECT t.tokendata, t.uid, a.verified, a.email, a.emailCode' +
               '  FROM sessionTokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'
     return this.getSlaveConnection()
       .then(function(con) {
@@ -417,7 +417,7 @@ module.exports = function (
 
   MySql.prototype.passwordForgotToken = function (id) {
     log.trace({ op: 'MySql.passwordForgotToken', id: id })
-    var sql = 'SELECT t.tokendata, t.uid, a.email, a.rawEmail, t.passcode, t.created, t.tries  ' +
+    var sql = 'SELECT t.tokendata, t.uid, a.email, t.passcode, t.created, t.tries  ' +
               ' FROM passwordForgotTokens t, accounts a WHERE t.tokenid = ? AND t.uid = a.uid'
     return this.getSlaveConnection()
       .then(function(con) {
@@ -471,7 +471,7 @@ module.exports = function (
 
   MySql.prototype.emailRecord = function (email) {
     log.trace({ op: 'MySql.emailRecord', email: email })
-    var sql = 'SELECT uid, email, rawEmail, verified, emailCode, kA, wrapWrapKb, verifyHash, authSalt FROM accounts WHERE email = LOWER(?)'
+    var sql = 'SELECT uid, email, normalizedEmail, verified, emailCode, kA, wrapWrapKb, verifyHash, authSalt FROM accounts WHERE normalizedEmail = LOWER(?)'
     return this.getSlaveConnection()
       .then(function(con) {
         var d = P.defer()
@@ -486,7 +486,7 @@ module.exports = function (
             return d.resolve({
               uid: result.uid,
               email: result.email,
-              rawEmail: result.rawEmail,
+              normalizedEmail: result.normalizedEmail,
               emailCode: result.emailCode,
               verified: !!result.verified,
               kA: result.kA,
@@ -503,7 +503,7 @@ module.exports = function (
   MySql.prototype.account = function (uid) {
 
     log.trace({ op: 'MySql.account', uid: uid })
-    var sql = 'SELECT email, rawEmail, emailCode, verified, kA, wrapWrapKb, verifyHash, authSalt ' +
+    var sql = 'SELECT email, normalizedEmail, emailCode, verified, kA, wrapWrapKb, verifyHash, authSalt ' +
               '  FROM accounts WHERE uid = ?'
     return this.getSlaveConnection()
       .then(function(con) {
@@ -519,7 +519,7 @@ module.exports = function (
             return d.resolve({
               uid: uid,
               email: result.email,
-              rawEmail: result.rawEmail,
+              normalizedEmail: result.normalizedEmail,
               emailCode: result.emailCode,
               verified: !!result.verified,
               kA: result.kA,
@@ -688,7 +688,7 @@ module.exports = function (
         uid: passwordChangeToken && passwordChangeToken.uid
       }
     )
-    var sql = 'DELETE FROM passwordChangeToken WHERE tokenid = ?'
+    var sql = 'DELETE FROM passwordChangeTokens WHERE tokenid = ?'
     return this.getMasterConnection()
       .then(function(con) {
         var d = P.defer()
