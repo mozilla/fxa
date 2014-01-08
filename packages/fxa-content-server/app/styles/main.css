@@ -107,3 +107,7 @@ a.button:hover, button:hover {
   float: right;
   width: 75%;
 }
+
+#fxa-complete-sign-up-success {
+  display: none;
+}

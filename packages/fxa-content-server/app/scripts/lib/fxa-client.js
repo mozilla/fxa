@@ -29,6 +29,10 @@ function (FxaClient, Constants) {
                     // when a user signs up, sign them in immediately
                     return this.signIn(email, password);
                   }.bind(this));
+    },
+
+    verifyCode: function (uid, code) {
+      return this.client.verifyCode(uid, code);
     }
   };
 

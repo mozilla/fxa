@@ -22,7 +22,12 @@ function (BaseView, CreateAccountTemplate, Session, FxaClient) {
     },
 
     initialize: function () {
-      this._createAccount(Session.email, Session.password);
+      var email = Session.email;
+      var password = Session.password;
+
+      if (email && password) {
+        this._createAccount(email, password);
+      }
     },
 
     _createAccount: function (email, password) {

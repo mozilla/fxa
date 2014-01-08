@@ -18,9 +18,10 @@ define([
   'views/birthday',
   'views/create_account',
   'views/cannot_create_account',
+  'views/complete_sign_up',
   'transit'
 ],
-function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView) {
+function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView, CompleteSignUpView) {
   var Router = Backbone.Router.extend({
     routes: {
       '': 'showIntro',
@@ -33,7 +34,8 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
       'age': 'showAge',
       'birthday': 'showBirthday',
       'create_account': 'showCreateAccount',
-      'cannot_create_account': 'showCannotCreateAccount'
+      'cannot_create_account': 'showCannotCreateAccount',
+      'complete_sign_up': 'showCompleteSignUp'
     },
 
     initialize: function () {
@@ -87,6 +89,10 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
 
     showCannotCreateAccount: function () {
       this.showView(new CannotCreateAccountView());
+    },
+
+    showCompleteSignUp: function () {
+      this.showView(new CompleteSignUpView());
     },
 
     showView: function (view) {
