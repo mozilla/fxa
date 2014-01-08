@@ -6,7 +6,9 @@ define([
   './functional/signIn',
   './functional/signUp',
   './functional/tos',
-  './functional/pp'
+  './functional/pp',
+  './functional/age',
+  './functional/birthday'
 ], function () {
   'use strict';
 });

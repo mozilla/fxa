@@ -9,12 +9,12 @@ define([
   'stache!templates/confirm',
   'lib/session'
 ],
-function(BaseView, ConfirmTemplate, Session) {
+function (BaseView, ConfirmTemplate, Session) {
   var ConfirmView = BaseView.extend({
     template: ConfirmTemplate,
     className: 'confirm',
 
-    context: function() {
+    context: function () {
       return {
         email: Session.email
       };
