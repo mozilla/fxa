@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  './functional/signIn',
-  './functional/signUp',
+  './functional/sign_in',
+  './functional/sign_up',
+  './functional/complete_sign_up',
   './functional/tos',
   './functional/pp',
   './functional/age',
