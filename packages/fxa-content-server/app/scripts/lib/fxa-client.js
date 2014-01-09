@@ -2,20 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// a very light wrapper around gherkin to reduce boilerplate code.
+// a very light wrapper around the real FxaClient to reduce boilerplate code
+// and to allow us to develop to features that are not yet present in the real
+// client.
 
 'use strict';
 
 define([
-  'gherkin',
+  'fxaClient',
   'processed/constants'
 ],
-function (Gherkin, Constants) {
-  function FxaClient() {
-    this.client = new Gherkin(Constants.FXA_ACCOUNT_SERVER);
+function (FxaClient, Constants) {
+  function FxaClientWrapper() {
+    this.client = new FxaClient(Constants.FXA_ACCOUNT_SERVER);
   }
 
-  FxaClient.prototype = {
+  FxaClientWrapper.prototype = {
     signIn: function (email, password) {
       return this.client.signIn(email, password);
     },
@@ -30,6 +32,6 @@ function (Gherkin, Constants) {
     }
   };
 
-  return FxaClient;
+  return FxaClientWrapper;
 });
 
