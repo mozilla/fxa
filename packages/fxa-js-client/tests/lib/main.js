@@ -103,6 +103,70 @@ define([
           })
       });
 
+      test('#check verification status', function () {
+        var user = 'test4' + Date.now();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
+        var uid;
+        var sessionToken;
+
+        setTimeout(function() {
+          SinonResponder.respond(requests[0], RequestMocks.signUp);
+        }, 200);
+
+        return client.signUp(email, password)
+          .then(function (result) {
+            uid = result.uid;
+            assert.ok(uid, "uid is returned");
+
+            setTimeout(function() {
+              SinonResponder.respond(requests[1], RequestMocks.signIn);
+            }, 200);
+
+            return client.signIn(email, password);
+          })
+          .then(function (result) {
+            assert.ok(result.sessionToken, "sessionToken is returned");
+            sessionToken = result.sessionToken;
+
+            setTimeout(function() {
+              SinonResponder.respond(requests[2], RequestMocks.recoveryEmailUnverified);
+            }, 200);
+
+            return client.recoveryEmailStatus(sessionToken);
+          })
+          .then(function (result) {
+            assert.equal(result.verified, false, "Email should not be verified.");
+
+            setTimeout(function() {
+              SinonResponder.respond(requests[3], RequestMocks.mail);
+            }, 200);
+
+            return waitForEmail(user);
+          })
+          .then(function (emails) {
+
+            setTimeout(function() {
+              SinonResponder.respond(requests[4], RequestMocks.verifyCode);
+            }, 200);
+
+            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+            assert.ok(code, "code is returned: " + code);
+            return client.verifyCode(uid, code);
+          })
+          .then(function (result) {
+            setTimeout(function() {
+              SinonResponder.respond(requests[5], RequestMocks.recoveryEmailVerified);
+            }, 200);
+
+            return client.recoveryEmailStatus(sessionToken);
+          })
+          .then(function (result) {
+            assert.equal(result.verified, true, "Email should be verified.");
+            return true;
+          })
+      });
+
       // utility function that waits for a restmail email to arrive
       function waitForEmail(user) {
         return restmailClient.send('/mail/' + user, 'GET')
