@@ -6,12 +6,14 @@ define([
   'intern!object',
   'intern/chai!assert',
   'require',
-  'intern/dojo/node!picl-gherkin'
-], function (registerSuite, assert, require, fxaClient) {
+  'intern/node_modules/dojo/node!xmlhttprequest',
+  'app/bower_components/fxa-js-client/client/FxAccountClient'
+], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient) {
   'use strict';
 
-  var url = 'http://localhost:3030/signin';
-  var password = 'password';
+  var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
+  var PAGE_URL = 'http://localhost:3030/signin';
+  var PASSWORD = 'password';
   var email;
 
   registerSuite({
@@ -19,13 +21,16 @@ define([
 
     setup: function () {
       email = 'signin' + Math.random() + '@example.com';
-      return fxaClient.create('http://127.0.0.1:9000', email, password, { preVerified: true });
+      var client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+      return client.signUp(email, PASSWORD);
     },
 
     'sign in': function () {
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(require.toUrl(PAGE_URL))
         .waitForElementById('fxa-signin-header')
 
         .elementByCssSelector('form input.email')
@@ -35,7 +40,7 @@ define([
 
         .elementByCssSelector('form input.password')
           .click()
-          .type(password)
+          .type(PASSWORD)
         .end()
 
         .elementByCssSelector('button[type="submit"]')

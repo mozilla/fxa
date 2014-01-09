@@ -9,7 +9,7 @@ require.config({
     jquery: '../bower_components/jquery/jquery',
     backbone: '../bower_components/backbone/backbone',
     underscore: '../bower_components/underscore/underscore',
-    gherkin: '../bower_components/fxa-js-client-old/web/bundle',
+    fxaClient: '../bower_components/fxa-js-client/build/fxa-client',
     text: '../bower_components/requirejs-text/text',
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',

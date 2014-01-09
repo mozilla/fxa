@@ -8,9 +8,9 @@ define([
   'views/base',
   'stache!templates/create_account',
   'lib/session',
-  'processed/constants'
+  'lib/fxa-client'
 ],
-function (BaseView, CreateAccountTemplate, Session, Constants) {
+function (BaseView, CreateAccountTemplate, Session, FxaClient) {
   var CreateAccountView = BaseView.extend({
     template: CreateAccountTemplate,
     className: 'create_account',
@@ -26,32 +26,19 @@ function (BaseView, CreateAccountTemplate, Session, Constants) {
     },
 
     _createAccount: function (email, password) {
-      var client;
+      var client = new FxaClient();
+      client.signUp(email, password)
+        .done(function (result) {
+          Session.token = result.sessionToken;
+          Session.uid = result.uid;
 
-      require(['gherkin'], function (gherkin) {
-        gherkin.Client.create(Constants.FXA_ACCOUNT_SERVER, email, password)
-          .then(function (x) {
-            client = x;
+          router.navigate('confirm', { trigger: true });
+        },
+        function (err) {
+          this.$('.error').html(err.message);
 
-            return client.login();
-          })
-          .done(function () {
-            Session.token = client.sessionToken;
-
-
-            // email: email,
-            // sessionToken: client.sessionToken,
-            // keyFetchToken: client.keyFetchToken,
-            // unwrapBKey: client.unwrapBKey
-
-            router.navigate('confirm', { trigger: true });
-          },
-          function (err) {
-            this.$('.error').html(err.message);
-
-            console.error('Error?', err);
-          }.bind(this));
-      }.bind(this));
+          console.error('Error?', err);
+        }.bind(this));
     }
   });
 
