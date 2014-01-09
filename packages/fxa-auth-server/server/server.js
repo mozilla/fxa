@@ -13,7 +13,7 @@ module.exports = function (path, url, Hapi, toobusy) {
     var publicURL = url.parse(config.publicUrl);
     var defaultPorts = {
       "http:": 80,
-      "https:": 443,
+      "https:": 443
     }
     var hawkOptions = {
       host: publicURL.hostname,
@@ -204,7 +204,7 @@ module.exports = function (path, url, Hapi, toobusy) {
         var res = request.response()
         // error responses don't have `header`
         if (res.header) {
-          res.header('Timestamp', ''+Math.floor(Date.now() / 1000))
+          res.header('Timestamp', '' + Math.floor(Date.now() / 1000))
         }
         next()
       }

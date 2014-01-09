@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -30,8 +31,8 @@ const secretKeyFile = config.get('secretKeyFile')
 require("jwcrypto/lib/algs/rs")
 
 try {
-  assert(! fs.existsSync(pubKeyFile), "public key file: ["+pubKeyFile+"] already exists")
-  assert(! fs.existsSync(secretKeyFile), "secret key file: ["+secretKeyFile+"] already exists")
+  assert(! fs.existsSync(pubKeyFile), "public key file: [" + pubKeyFile + "] already exists")
+  assert(! fs.existsSync(secretKeyFile), "secret key file: [" + secretKeyFile + "] already exists")
 } catch(e) {
   console.error("Error: " + e.message)
   process.exit(1)

@@ -55,7 +55,7 @@ module.exports = function (
           {
             user     : options.master.user,
             password : options.master.password,
-            database : database,
+            database : database
           },
           function (err) {
             if (err) {
@@ -730,7 +730,7 @@ module.exports = function (
             data.verifyHash,
             data.authSalt,
             data.wrapWrapKb,
-            accountResetToken.uid,
+            accountResetToken.uid
           ],
           function (err) {
             if (err) return d.reject(err)

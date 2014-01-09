@@ -25,7 +25,7 @@ process.on('message', function (message) {
     jwcrypto.cert.sign(
       {
         publicKey: jwcrypto.loadPublicKeyFromObject(message.publicKey),
-        principal: { email: message.email },
+        principal: { email: message.email }
         //TODO: kA, etc
       },
       {

@@ -7,31 +7,31 @@ var scrypt = require('./scrypt')
 var butil = require('./butil')
 
 function stretch(authPW, authSalt) {
-	return scrypt.hash(authPW, authSalt)
+  return scrypt.hash(authPW, authSalt)
 }
 
 function verify(stretched, verifyHash) {
-	return hkdf(stretched, 'verifyHash', null, 32)
-		.then(
-			function (hash) {
-				if (!verifyHash) { return hash }
-				return butil.buffersAreEqual(hash, verifyHash) ? hash : false
-			}
-		)
+  return hkdf(stretched, 'verifyHash', null, 32)
+    .then(
+      function (hash) {
+        if (!verifyHash) { return hash }
+        return butil.buffersAreEqual(hash, verifyHash) ? hash : false
+      }
+    )
 }
 
 function verifyHash(authPW, authSalt) {
-	return stretch(authPW, authSalt)
-		.then(verify)
+  return stretch(authPW, authSalt)
+    .then(verify)
 }
 
 function wrapKb(stretched, wrapWrapKb) {
-	return hkdf(stretched, 'wrapwrapKey', null, 32)
-		.then(
-			function (wrapwrapKey) {
-				return butil.xorBuffers(wrapwrapKey, wrapWrapKb)
-			}
-		)
+  return hkdf(stretched, 'wrapwrapKey', null, 32)
+    .then(
+      function (wrapwrapKey) {
+        return butil.xorBuffers(wrapwrapKey, wrapWrapKb)
+      }
+    )
 }
 
 module.exports.verifyHash = verifyHash

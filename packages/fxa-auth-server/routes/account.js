@@ -24,7 +24,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
             email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.Boolean(),
-            service: isA.String().max(16).alphanum().optional(),
+            service: isA.String().max(16).alphanum().optional()
           }
         },
         handler: function accountCreate(request) {
@@ -442,7 +442,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
               }
             )
             .done(reply, reply)
-        },
+        }
       }
     },
     {
