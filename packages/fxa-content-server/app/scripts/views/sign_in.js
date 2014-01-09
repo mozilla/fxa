@@ -8,9 +8,9 @@ define([
   'views/base',
   'stache!templates/sign_in',
   'lib/session',
-  'processed/constants'
+  'lib/fxa-client'
 ],
-function(BaseView, SignInTemplate, Session, Constants) {
+function(BaseView, SignInTemplate, Session, FxaClient) {
   var SignInView = BaseView.extend({
     template: SignInTemplate,
     className: 'sign-in',
@@ -29,20 +29,19 @@ function(BaseView, SignInTemplate, Session, Constants) {
       var email = this.$('.email').val();
       var password = this.$('.password').val();
 
-      require(['gherkin'], function(gherkin) {
-        gherkin.Client.login(Constants.FXA_ACCOUNT_SERVER, email, password)
-          .then(function (client) {
-            Session.email = email;
-            Session.token = client.sessionToken;
+      var client = new FxaClient();
+      client.signIn(email, password)
+            .then(function (client) {
+              Session.email = email;
+              Session.token = client.sessionToken;
 
-            router.navigate('settings', { trigger: true });
-          })
-          .done(null, function (err) {
-            this.$('.error').html(err.message);
+              router.navigate('settings', { trigger: true });
+            })
+            .done(null, function (err) {
+              this.$('.error').html(err.message);
 
-            console.error('Error?', err);
-          }.bind(this));
-      }.bind(this));
+              console.error('Error?', err);
+            }.bind(this));
     },
 
     _validateEmail: function() {
