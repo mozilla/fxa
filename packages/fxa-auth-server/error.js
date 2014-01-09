@@ -226,5 +226,13 @@ module.exports = function(log) {
     })
   }
 
+  errors.gone = function () {
+    return errors.wrap({
+      code: 410,
+      errno: 116,
+      message: 'This endpoint is no longer supported'
+    })
+  }
+
   return errors
 }

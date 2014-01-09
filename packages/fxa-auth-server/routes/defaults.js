@@ -4,7 +4,7 @@
 
 var version = require('../package.json').version
 
-module.exports = function (log, P, db) {
+module.exports = function (log, P, db, error) {
 
   var routes = [
     {
@@ -28,7 +28,7 @@ module.exports = function (log, P, db) {
         handler: function heartbeat(request) {
           log.begin('Defaults.heartbeat', request)
           db.ping()
-            .then(
+            .done(
               function () {
                 request.reply({})
               },
@@ -36,6 +36,16 @@ module.exports = function (log, P, db) {
                 request.reply(err)
               }
             )
+        }
+      }
+    },
+    {
+      method: '*',
+      path: '/v0/{p*}',
+      config: {
+        handler: function v0(request) {
+          log.begin('Defaults.v0', request)
+          request.reply(error.gone())
         }
       }
     }

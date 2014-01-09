@@ -19,7 +19,7 @@ module.exports = function (
   config
   ) {
   var isProduction = config.env === 'prod'
-  var defaults = require('./defaults')(log, P, db)
+  var defaults = require('./defaults')(log, P, db, error)
   var idp = require('./idp')(log, serverPublicKey)
   var account = require('./account')(log, crypto, P, uuid, isA, error, db, mailer, isProduction)
   var password = require('./password')(log, isA, error, db, mailer)

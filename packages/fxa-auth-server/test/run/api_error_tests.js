@@ -7,6 +7,7 @@ var TestServer = require('../test_server')
 var crypto = require('crypto')
 var config = require('../../config').root()
 var Client = require('../../client')
+var request = require('request')
 
 function fail() { throw new Error() }
 
@@ -133,6 +134,16 @@ TestServer.start(config.publicUrl)
             t.equal(err.email, signupEmail)
           }
         )
+    }
+  )
+
+  test(
+    'unsupported api version',
+    function (t) {
+      request(config.publicUrl + '/v0/account/create', function (err, res) {
+        t.equal(res.statusCode, 410, 'http gone')
+        t.end()
+      })
     }
   )
 
