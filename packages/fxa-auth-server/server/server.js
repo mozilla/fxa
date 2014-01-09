@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (path, url, Hapi, toobusy) {
+var HEX_STRING = require('../routes/validators').HEX_STRING
 
-  const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
+module.exports = function (path, url, Hapi, toobusy) {
 
   function create(log, error, config, routes, db, noncedb, i18n) {
 
