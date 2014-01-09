@@ -64,16 +64,20 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
             )
             .then(
               function (account) {
-                if (account.verified) {
-                  return P(account)
+                if (!account.verified) {
+                  mailer.sendVerifyCode(
+                    account,
+                    account.emailCode,
+                    form.service,
+                    request.app.preferredLang
+                  )
+                  .fail(
+                    function (err) {
+                      log.error({ op: 'mailer.sendVerifyCode1', err: err })
+                    }
+                  )
                 }
-                return mailer.sendVerifyCode(
-                  account,
-                  account.emailCode,
-                  form.service,
-                  request.app.preferredLang
-                )
-                .then(function () { return account })
+                return account
               }
             )
             .then(
