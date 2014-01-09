@@ -9,10 +9,12 @@ define(['../../components/sjcl/sjcl', './hkdf'], function (sjcl, hkdf) {
   var salt = sjcl.codec.hex.toBits('');
 
   /**
-   * @class FxAccountClient
-   * @constructor
-   * @param {String} uri Auth Server URI
-   * @param {Object} config Configuration
+   * @class hawkCredentials
+   * @method deriveHawkCredentials
+   * @param {String} tokenHex
+   * @param {String} context
+   * @param {int} size
+   * @returns {Promise}
    */
   function deriveHawkCredentials(tokenHex, context, size) {
     var token = sjcl.codec.hex.toBits(tokenHex);
