@@ -8,7 +8,7 @@ address = ":8125"
 
 [fxa-auth-server-log]
 type = "LogfileInput"
-logfile = "/home/app/code/var/log/key_server.js.log"
+logfile = "/home/app/var/log/key_server.js.log"
 logger = "fxa-auth-server-log"
 
 [nginx-access-log]
