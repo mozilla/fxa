@@ -40,13 +40,11 @@ require.config({
 });
 
 require([
-  // polyfill is defined first in case any browsers need something filled.
-  'lib/polyfills',
   'backbone',
   'router',
   'lib/translator'
 ],
-function (Polyfills, Backbone, Router, Translator) {
+function (Backbone, Router, Translator) {
   // A few globals
   window.router = new Router();
 
