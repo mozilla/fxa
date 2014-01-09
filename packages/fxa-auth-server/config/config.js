@@ -70,14 +70,14 @@ module.exports = function (fs, path, url, convict) {
           doc: "The maximum number of connections to create at once.",
           default: 100,
           format: 'nat',
-          env: 'CONNECTION_LIMIT',
+          env: 'CONNECTION_LIMIT'
         },
         waitForConnections: {
           doc: "Determines the pool's action when no connections are available and the limit has been reached.",
           default: true,
           format: Boolean,
-          env: 'WAIT_FOR_CONNECTIONS',
-        },
+          env: 'WAIT_FOR_CONNECTIONS'
+        }
       },
       slave : {
         user: {
@@ -104,15 +104,15 @@ module.exports = function (fs, path, url, convict) {
           doc: "The maximum number of connections to create at once.",
           default: 100,
           format: 'nat',
-          env: 'SLAVE_CONNECTION_LIMIT',
+          env: 'SLAVE_CONNECTION_LIMIT'
         },
         waitForConnections: {
           doc: "Determines the pool's action when no connections are available and the limit has been reached.",
           default: true,
           format: Boolean,
-          env: 'SLAVE_WAIT_FOR_CONNECTIONS',
-        },
-      },
+          env: 'SLAVE_WAIT_FOR_CONNECTIONS'
+        }
+      }
     },
     listen: {
       host: {

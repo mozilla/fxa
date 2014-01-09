@@ -200,7 +200,7 @@ Client.prototype.sign = function (publicKey, duration) {
 
 Client.prototype.changePassword = function (newPassword) {
   return this.api.passwordChangeStart(this.email, this.authPW)
-    .then (
+    .then(
       function (json) {
         this.keyFetchToken = json.keyFetchToken
         this.passwordChangeToken = json.passwordChangeToken
