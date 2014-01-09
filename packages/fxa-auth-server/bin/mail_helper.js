@@ -31,7 +31,7 @@ mail.on(
         var rc = mail.headers['x-recovery-code']
         var vc = mail.headers['x-verify-code']
         if (vc) {
-          console.log(link)
+          console.log('\x1B[32m', link, '\x1B[39m')
           console.log(
             "curl -v -XPOST -H'Content-Type: application/json' %s -d '%s'",
             config.publicUrl + '/v1/recovery_email/verify_code',
@@ -44,10 +44,10 @@ mail.on(
           )
         }
         else if (rc) {
-          console.log('recovery: %s email: %s', rc, mail.headers.to)
+          console.log('\x1B[34mrecovery: %s email: %s', rc, mail.headers.to, '\x1B[39m')
         }
         else {
-          console.error('No verify code match')
+          console.error('\x1B[31mNo verify code match\x1B[39m')
           console.error(email)
         }
         users[emailName(mail.headers.to)] = mail

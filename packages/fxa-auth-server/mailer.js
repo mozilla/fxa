@@ -61,6 +61,10 @@ module.exports = function (config, i18n, log) {
     this.reportUrl = config.reportUrl
   }
 
+  Mailer.prototype.stop = function () {
+    this.mailer.close()
+  }
+
   Mailer.prototype.send = function (message) {
     log.trace({ op: 'mailer.send', email: message && message.to })
     var d = P.defer()

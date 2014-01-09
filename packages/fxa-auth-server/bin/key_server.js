@@ -99,6 +99,7 @@ function main() {
     'SIGINT',
     function () {
       memoryMonitor.stop()
+      mailer.stop()
       server.stop(
         function () {
           process.exit()
