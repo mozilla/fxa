@@ -5,7 +5,7 @@
 var crypto = require('crypto')
 var inherits = require('util').inherits
 
-var P = require('p-promise')
+var P = require('../promise')
 var hkdf = require('../crypto/hkdf')
 var butil = require('../crypto/butil')
 
@@ -16,7 +16,7 @@ module.exports = function (log) {
   var Bundle = require('./bundle')(crypto, P, hkdf, butil, error)
   var Token = require('./token')(log, crypto, P, hkdf, Bundle, error)
 
-  var KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, error)
+  var KeyFetchToken = require('./key_fetch_token')(log, inherits, Token, P, error)
   var AccountResetToken = require('./account_reset_token')(
     log,
     inherits,

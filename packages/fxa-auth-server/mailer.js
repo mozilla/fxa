@@ -5,7 +5,7 @@
 var path = require('path')
 var fs = require('fs')
 var nodemailer = require('nodemailer')
-var P = require('p-promise')
+var P = require('./promise')
 var handlebars = require("handlebars")
 
 module.exports = function (config, i18n, log) {

@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('p-promise')
-
-module.exports = function (log, inherits, Token, error) {
+module.exports = function (log, inherits, Token, P, error) {
 
   function KeyFetchToken(keys, details) {
     Token.call(this, keys, details)

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var cp = require('child_process')
-var P = require('p-promise')
+var P = require('../promise')
 var request = require('request')
 var split = require('binary-split')
 var through = require('through')

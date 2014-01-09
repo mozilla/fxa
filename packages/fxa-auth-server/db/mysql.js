@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('p-promise')
 var mysql = require('mysql');
 var schema = require('fs').readFileSync(__dirname + '/schema.sql', { encoding: 'utf8'})
 
 module.exports = function (
+  P,
   log,
   error,
   SessionToken,
@@ -82,8 +82,7 @@ module.exports = function (
                     delete options.master.multipleStatements
 
                     // create the mysql class
-                    var mysql = new MySql(options)
-                    d.resolve(mysql)
+                    d.resolve(new MySql(options))
                   }
                 )
               }
@@ -410,9 +409,6 @@ module.exports = function (
       .then(function(result) {
         return AccountResetToken.fromHex(result.tokendata, result)
       })
-      .then(function(accountResetToken) {
-        return P(accountResetToken)
-      })
   }
 
   MySql.prototype.passwordForgotToken = function (id) {
@@ -565,7 +561,7 @@ module.exports = function (
         return beginTransaction(con)
       })
       .then(function() {
-        var tables = ['sessionTokens', 'keyfetchTokens', 'authTokens', 'srpTokens',
+        var tables = ['sessionTokens', 'keyfetchTokens',
                       'resetTokens', 'passwordForgotTokens', 'accounts']
         var all = [];
         tables.forEach(function(tablename) {
@@ -716,7 +712,7 @@ module.exports = function (
         return beginTransaction(con)
       })
       .then(function() {
-        var tables = ['sessionTokens', 'keyfetchTokens', 'authTokens', 'srpTokens',
+        var tables = ['sessionTokens', 'keyfetchTokens',
                       'resetTokens', 'passwordForgotTokens']
         var all = [];
         tables.forEach(function(tablename) {
@@ -812,10 +808,8 @@ module.exports = function (
           accountResetToken = newAccountResetToken
           return commitTransaction(con).then(function() {
             con.release()
+            return accountResetToken
           })
-      })
-      .then(function() {
-          return P(accountResetToken)
       })
   }
 

@@ -6,7 +6,7 @@ var EventEmitter = require('events').EventEmitter
 var util = require('util')
 
 var hawk = require('hawk')
-var P = require('p-promise')
+var P = require('../promise')
 var request = require('request')
 
 var tokens = require('../tokens')({ trace: function() {}})

@@ -11,23 +11,6 @@ CREATE TABLE IF NOT EXISTS accounts (
   verifyHash BINARY(32) NOT NULL
 ) ENGINE=InnoDB;
 
-
-CREATE TABLE IF NOT EXISTS srpTokens (
-  tokenid BINARY(32) PRIMARY KEY,
-  tokendata BINARY(32) NOT NULL,
-  uid BINARY(16) NOT NULL,
-  INDEX srp_uid (uid)
-) ENGINE=InnoDB;
-
-
-CREATE TABLE IF NOT EXISTS authTokens (
-  tokenid BINARY(32) PRIMARY KEY,
-  tokendata BINARY(32) NOT NULL,
-  uid BINARY(16) NOT NULL,
-  INDEX auth_uid (uid)
-) ENGINE=InnoDB;
-
-
 CREATE TABLE IF NOT EXISTS sessionTokens (
   tokenid BINARY(32) PRIMARY KEY,
   tokendata BINARY(32) NOT NULL,

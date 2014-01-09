@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var sjcl = require('sjcl')
-var P = require('p-promise')
+var P = require('../promise')
 
 /** pbkdf2 string creator
  *

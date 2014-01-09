@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var P = require('../promise')
+
 module.exports = function (
   backend,
   log,
@@ -14,6 +16,7 @@ module.exports = function (
 
   if (backend === 'mysql') {
     return require('./mysql')(
+      P,
       log,
       error,
       SessionToken,
@@ -25,6 +28,7 @@ module.exports = function (
   }
   else {
     return require('./heap')(
+      P,
       log,
       error,
       SessionToken,

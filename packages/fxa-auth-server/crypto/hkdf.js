@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var HKDF = require('hkdf')
-var P = require('p-promise')
+var P = require('../promise')
 
 const NAMESPACE = 'identity.mozilla.com/picl/v1/'
 

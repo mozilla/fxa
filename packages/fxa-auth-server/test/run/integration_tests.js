@@ -6,7 +6,7 @@ var test = require('../ptaptest')
 var crypto = require('crypto')
 var Client = require('../../client')
 var TestServer = require('../test_server')
-var P = require('p-promise')
+var P = require('../../promise')
 var config = require('../../config').root()
 var jwcrypto = require('jwcrypto')
 

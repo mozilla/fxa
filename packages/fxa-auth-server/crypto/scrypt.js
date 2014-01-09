@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('p-promise')
+var P = require('../promise')
 var scrypt = require('scrypt-hash')
 
 /**  hash - Creates an scrypt hash asynchronously

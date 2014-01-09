@@ -4,7 +4,7 @@
 
 var crypto = require('crypto')
 
-var P = require('p-promise')
+var P = require('../promise')
 var uuid = require('uuid')
 var Hapi = require('hapi')
 var isA = Hapi.types

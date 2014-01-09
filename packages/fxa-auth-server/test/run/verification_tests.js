@@ -5,7 +5,7 @@
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var path = require('path')
-var P = require('p-promise')
+var P = require('../../promise')
 var Client = require('../../client')
 var crypto = require('crypto')
 
