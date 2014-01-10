@@ -141,7 +141,7 @@ header h2 {
 /* Responsiveness */
 
 /* TODO: Confirm breakpoint sizes */
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 500px) {
   html {
     background: #fff;
   }
