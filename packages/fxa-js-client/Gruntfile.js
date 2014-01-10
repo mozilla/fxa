@@ -110,6 +110,24 @@ module.exports = function(grunt) {
       dev : {
         path: 'docs/index.html'
       }
+    },
+    buildcontrol: {
+      options: {
+        commit: true,
+        remote: 'git://github.com/vladikoff/fxa-js-client.git'
+      },
+      release: {
+        options: {
+          branch: 'release',
+          dir: 'build'
+        }
+      },
+      docs: {
+        options: {
+          branch: 'gh-pages',
+          dir: 'docs'
+        }
+      }
     }
   });
 
@@ -123,6 +141,9 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default',
     ['build']);
+
+  grunt.registerTask('release',
+    ['build', 'yuidoc', 'buildcontrol']);
 
   grunt.registerTask('dev',
     ['watch:dev']);
