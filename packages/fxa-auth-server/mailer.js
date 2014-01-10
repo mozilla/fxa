@@ -58,6 +58,7 @@ module.exports = function (config, i18n, log) {
     this.mailer = nodemailer.createTransport('SMTP', options)
     this.sender = config.sender
     this.verificationUrl = config.verificationUrl
+    this.passwordResetUrl = config.passwordResetUrl
     this.reportUrl = config.reportUrl
   }
 
@@ -87,9 +88,9 @@ module.exports = function (config, i18n, log) {
 
   Mailer.prototype.sendVerifyCode = function (account, code, service, preferredLang) {
     log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
+    code = code.toString('hex')
     var template = templates.verify
     var link = this.verificationUrl + '?uid=' + account.uid.toString('hex')
-    code = code.toString('hex')
     if (service) {
       link += '&service=' + service
     }
@@ -117,17 +118,21 @@ module.exports = function (config, i18n, log) {
     return this.send(message)
   }
 
-  Mailer.prototype.sendRecoveryCode = function (account, code, preferredLang) {
-    log.trace({ op: 'mailer.sendRecoveryCode', email: account.email })
+  Mailer.prototype.sendRecoveryCode = function (token, code, preferredLang) {
+    log.trace({ op: 'mailer.sendRecoveryCode', email: token.email })
     code = code.toString('hex')
     var template = templates.reset
+    var link = this.passwordResetUrl +
+      '?token=' + token.data.toString('hex') +
+      '&code=' + code
     var values = {
       l10n: i18n.localizationContext(preferredLang),
+      link: link,
       code: code
     }
     var message = {
       sender: this.sender,
-      to: account.email,
+      to: token.email,
       subject: values.l10n.gettext(template.subject),
       text: template.text(values),
       html: template.html(values),

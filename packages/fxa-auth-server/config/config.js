@@ -187,6 +187,13 @@ module.exports = function (fs, path, url, convict) {
         env: 'VERIFY_URL',
         arg: 'verify-url'
       },
+      passwordResetUrl: {
+        doc: 'The landing page for password reset emails',
+        format: String,
+        default: undefined,
+        env: 'RESET_URL',
+        arg: 'reset-url'
+      },
       reportUrl: {
         doc: 'A page where users can report suspicious activity',
         format: String,
@@ -260,8 +267,12 @@ module.exports = function (fs, path, url, convict) {
   // set the public url as the issuer domain for assertions
   conf.set('domain', url.parse(conf.get('publicUrl')).host)
 
-  if (! conf.has('smtp.verificationUrl')) {
+  if (!conf.has('smtp.verificationUrl')) {
     conf.set('smtp.verificationUrl', conf.get('publicUrl') + '/v1/verify_email')
+  }
+
+  if (!conf.has('smtp.passwordResetUrl')) {
+    conf.set('smtp.passwordResetUrl', conf.get('publicUrl') + '/v1/reset_password')
   }
 
   conf.validate()

@@ -1,7 +1,7 @@
 {{gettext "Hi!"}}
 
-{{gettext "Copy the following code in Firefox to reset your password:"}}
-{{code}}
+{{gettext "Click the following link to reset your password"}}
+{{link}}
 
 {{gettext "Thank you,"}}
 {{gettext "The Firefox Accounts Team"}}

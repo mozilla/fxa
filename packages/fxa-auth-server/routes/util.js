@@ -25,8 +25,23 @@ module.exports = function (log, crypto, isA, config) {
         },
         validate: {
           query: {
-            code: isA.String().regex(HEX_STRING).required(),
-            uid: isA.String().max(64).required()
+            code: isA.String().max(32).regex(HEX_STRING).required(),
+            uid: isA.String().max(64).regex(HEX_STRING).required()
+          }
+        }
+      }
+    },
+    {
+      method: 'GET',
+      path: '/reset_password',
+      config: {
+        handler: function (request) {
+          return request.reply.redirect(config.contentServer.url + request.raw.req.url)
+        },
+        validate: {
+          query: {
+            code: isA.String().max(32).regex(HEX_STRING).required(),
+            uid: isA.String().max(64).regex(HEX_STRING).required()
           }
         }
       }
