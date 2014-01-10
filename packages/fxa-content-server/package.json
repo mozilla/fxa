@@ -4,9 +4,10 @@
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",
-    "postinstall": "bower install;cd app/bower_components/fxa-js-client;npm install;grunt build",
+    "postinstall": "bower install",
     "test": "intern-runner config=tests/intern",
-    "test-remote": "intern-runner config=tests/intern_remote"
+    "test-browser": "intern-runner config=tests/intern_browser",
+    "test-remote": "intern-runner config=tests/intern_sauce"
   },
   "repository": {
     "type": "git",
