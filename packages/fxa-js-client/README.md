@@ -5,15 +5,10 @@ fxa-js-client
 
 Web client that talks to the Firefox Accounts API server
 
+[__Download Library__](https://github.com/mozilla/fxa-js-client/releases)
 
-## Build Library
+Install using [Bower](http://bower.io/): `bower install git://github.com/mozilla/fxa-js-client`
 
-```
-npm install
-npm start
-```
-
-The `build` directory should have `fxa-client.js` and `fxa-client.min.js`.
 
 ## Usage
 
@@ -26,7 +21,18 @@ client.signUp(email, password);
 client.signIn(email, password);
 ```
 
-See [Library Documentation](http://mozilla.github.io/fxa-js-client/docs/classes/FxAccountClient.html) for more.
+See [Library Documentation](http://mozilla.github.io/fxa-js-client/classes/FxAccountClient.html) for more.
+
+
+## Build Library
+
+```
+npm install
+npm start
+```
+
+The `build` directory should have `fxa-client.js` and `fxa-client.min.js`.
+
 
 ## Development
 

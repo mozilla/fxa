@@ -8,6 +8,10 @@
 
 `grunt debug` - builds the regular library, runs test, watches for changes. Helpful when you are debugging.
 
+`grunt release` - will prepare a new release of this library.
+After the task, push the repositories in `build` and `docs` directories. Tag it on GitHub using the Releases feature.
+
+
 ### SJCL Notes
 
 Currently [SJCL](http://bitwiseshiftleft.github.io/sjcl/) is built with `./configure --without-random --without-ocb2 --without-gcm --without-ccm`.

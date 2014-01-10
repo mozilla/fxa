@@ -114,7 +114,8 @@ module.exports = function(grunt) {
     buildcontrol: {
       options: {
         commit: true,
-        remote: 'git://github.com/vladikoff/fxa-js-client.git'
+        push: false,
+        remote: 'git://github.com/mozilla/fxa-js-client.git'
       },
       release: {
         options: {
