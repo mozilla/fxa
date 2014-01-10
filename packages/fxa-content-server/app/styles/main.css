@@ -23,19 +23,19 @@ body {
 
 a {
   color: #0096DD;
-  /* Use the correct cursor for anchors without an href */
-  cursor: pointer;
+  cursor: pointer; /* Use the correct cursor for anchors without an href */
 }
 
 #stage {
-  background: #fff;
+  background: #fff url(../images/fox.png) no-repeat left 50% bottom 30px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
   -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);;
   box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
   margin: 100px auto 0;
-  min-height: 500px;
-  padding: 50px 25px 30px 25px;
+  min-height: 550px;
+  /* padding-bottom = 30px (very bottom) + 31px (firefox icon) + 40px (above icon) */
+  padding: 50px 25px 101px 25px;
   text-align: center;
   width: 320px;
 }
@@ -115,6 +115,10 @@ header h2 {
   width: 100%;
 }
 
+.button-row button:active {
+  background: #FF9500;
+}
+
 .button-row button:disabled {
   background: #C0C9D0;
 }
@@ -152,5 +156,21 @@ header h2 {
     margin: 0 auto;
     min-height: none;
     width: 100%;
+  }
+}
+
+/* Retina */
+
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (   min--moz-device-pixel-ratio: 2),
+only screen and (   -moz-min-device-pixel-ratio: 2),
+only screen and (     -o-min-device-pixel-ratio: 2/1),
+only screen and (        min-device-pixel-ratio: 2),
+only screen and (                min-resolution: 192dpi),
+only screen and (                min-resolution: 2dppx) {
+  #stage {
+    background-image: url(../images/fox@2x.png);
+    background-size: 30px 31px;
   }
 }
