@@ -24,7 +24,7 @@ module.exports = function (log, inherits, now, Token, crypto) {
       uid: details.uid,
       email: details.email
     })
-    details.passcode = crypto.randomBytes(4).readUInt32BE(0) % 100000000
+    details.passcode = crypto.randomBytes(16)
     details.created = now()
     details.tries = 3
     return Token.createNewToken(PasswordForgotToken, details)

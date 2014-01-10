@@ -133,7 +133,7 @@ TestServer.start(config.publicUrl)
         )
         .then(
           function () {
-            return client.verifyEmail('badcode')
+            return client.verifyEmail('00000000000000000000000000000000')
           }
         )
         .then(
@@ -355,7 +355,7 @@ TestServer.start(config.publicUrl)
         )
         .then(
           function () {
-            return resetPassword(client, 'wrongcode', 'password')
+            return resetPassword(client, '00000000000000000000000000000000', 'password')
           }
         )
         .then(
@@ -369,7 +369,7 @@ TestServer.start(config.publicUrl)
         )
         .then(
           function () {
-            return resetPassword(client, 'wrongcode', 'password')
+            return resetPassword(client, '00000000000000000000000000000000', 'password')
           }
         )
         .then(
@@ -383,7 +383,7 @@ TestServer.start(config.publicUrl)
         )
         .then(
           function () {
-            return resetPassword(client, 'wrongcode', 'password')
+            return resetPassword(client, '00000000000000000000000000000000', 'password')
           }
         )
         .then(
@@ -397,7 +397,7 @@ TestServer.start(config.publicUrl)
         )
         .then(
           function () {
-            return resetPassword(client, 'wrongcode', 'password')
+            return resetPassword(client, '00000000000000000000000000000000', 'password')
           }
         )
         .then(

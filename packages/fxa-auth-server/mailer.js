@@ -89,6 +89,7 @@ module.exports = function (config, i18n, log) {
     log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
     var template = templates.verify
     var link = this.verificationUrl + '?uid=' + account.uid.toString('hex')
+    code = code.toString('hex')
     if (service) {
       link += '&service=' + service
     }
@@ -118,6 +119,7 @@ module.exports = function (config, i18n, log) {
 
   Mailer.prototype.sendRecoveryCode = function (account, code, preferredLang) {
     log.trace({ op: 'mailer.sendRecoveryCode', email: account.email })
+    code = code.toString('hex')
     var template = templates.reset
     var values = {
       l10n: i18n.localizationContext(preferredLang),

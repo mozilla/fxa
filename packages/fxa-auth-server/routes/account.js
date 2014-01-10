@@ -6,6 +6,7 @@ var HEX_STRING = require('./validators').HEX_STRING
 var LAZY_EMAIL = require('./validators').LAZY_EMAIL
 
 var password = require('../crypto/password')
+var butil = require('../crypto/butil')
 
 module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
 
@@ -49,7 +50,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                   {
                     uid: uuid.v4('binary'),
                     email: email,
-                    emailCode: crypto.randomBytes(4).toString('hex'),
+                    emailCode: crypto.randomBytes(16),
                     verified: form.preVerified || false,
                     kA: crypto.randomBytes(32),
                     wrapWrapKb: crypto.randomBytes(32),
@@ -362,11 +363,11 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         handler: function (request) {
           log.begin('Account.RecoveryEmailVerify', request)
           var uid = request.payload.uid
-          var code = request.payload.code
+          var code = Buffer(request.payload.code, 'hex')
           db.account(Buffer(uid, 'hex'))
             .then(
               function (account) {
-                if (code !== account.emailCode) {
+                if (!butil.buffersAreEqual(code, account.emailCode)) {
                   throw error.invalidVerificationCode()
                 }
                 return db.verifyEmail(account)
@@ -393,7 +394,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         validate: {
           payload: {
             uid: isA.String().max(32).regex(HEX_STRING).required(),
-            code: isA.String().max(16).required()
+            code: isA.String().min(32).max(32).regex(HEX_STRING).required()
           }
         }
       }

@@ -7,6 +7,7 @@ var LAZY_EMAIL = require('./validators').LAZY_EMAIL
 
 var crypto = require('crypto')
 var password = require('../crypto/password')
+var butil = require('../crypto/butil')
 
 module.exports = function (log, isA, error, db, mailer) {
 
@@ -283,8 +284,8 @@ module.exports = function (log, isA, error, db, mailer) {
         handler: function (request) {
           log.begin('Password.forgotVerify', request)
           var passwordForgotToken = request.auth.credentials
-          var code = +(request.payload.code)
-          if (passwordForgotToken.passcode === code && passwordForgotToken.ttl() > 0) {
+          var code = Buffer(request.payload.code, 'hex')
+          if (butil.buffersAreEqual(passwordForgotToken.passcode, code) && passwordForgotToken.ttl() > 0) {
             log.security({ event: 'pwd-reset-verify-success' })
             db.forgotPasswordVerified(passwordForgotToken)
               .done(
@@ -320,7 +321,7 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         validate: {
           payload: {
-            code: isA.String().required()
+            code: isA.String().min(32).max(32).regex(HEX_STRING).required()
           },
           response: {
             schema: {
