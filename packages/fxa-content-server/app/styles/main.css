@@ -133,3 +133,19 @@ header h2 {
 #fxa-complete-sign-up-success {
   display: none;
 }
+
+/* Responsiveness */
+
+/* TODO: Confirm breakpoint sizes */
+@media only screen and (max-width: 400px) {
+  html {
+    background: #fff;
+  }
+
+  #stage {
+    box-shadow: none;
+    margin: 0 auto;
+    min-height: none;
+    width: 100%;
+  }
+}
