@@ -6,7 +6,13 @@
 }
 
 html {
-  background: #f1f1f1 linear-gradient(-180deg, #fefefe 0%, #f1f1f1 100%) no-repeat;
+  background-color: #f1f1f1;
+  background-image: -o-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
+  background-image: -moz-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
+  background-image: -webkit-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
+  background-image: -ms-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
+  background-image: linear-gradient(-180deg, #fefefe 0%, #f1f1f1 100%);
+  background-repeat: no-repeat;
 }
 
 body {
@@ -23,7 +29,9 @@ a {
 
 #stage {
   background: #fff;
+  -webkit-border-radius: 10px;
   border-radius: 10px;
+  -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);;
   box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
   margin: 100px auto 0;
   min-height: 500px;
@@ -64,24 +72,19 @@ header h2 {
   width: 100%;
 }
 
-.input-row input, .input-row select {
+.input-row input {
   border: 1px solid #C0C9D0;
+  -webkit-border-radius: 5px;
   border-radius: 5px;
   color: #454f59;
   font-size: 18px;
   height: 45px;
   padding: 0 20px;
   width: 100%;
-
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  -moz-user-select: none;
 }
 
 .input-row select {
-  /* Some hackery for firefox since moz-appearance isn't removing the arrow */
-  text-indent: 0.01px;
-  text-overflow: "";
+  width: 100%;
 }
 
 .input-row input:focus {
@@ -104,6 +107,7 @@ header h2 {
 .button-row button {
   background: #E66000;
   border: none;
+  -webkit-border-radius: 5px;
   border-radius: 5px;
   color: #fff;
   font-size: 24px;
@@ -143,6 +147,7 @@ header h2 {
   }
 
   #stage {
+    -webkit-box-shadow: none;
     box-shadow: none;
     margin: 0 auto;
     min-height: none;
