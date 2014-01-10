@@ -1,112 +1,134 @@
-/* Border box all the things */
+/* Border box all the things by default */
 *, *:before, *:after {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
 
+html {
+  background: #f1f1f1 linear-gradient(-180deg, #fefefe 0%, #f1f1f1 100%) no-repeat;
+}
+
 body {
   color: #333;
   font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 16px;
+  font-size: 14px;
 }
 
-h1, h2 {
-  font-family: "Fira Sans", Helvetica, Arial, sans-serif;
-}
-
-h2 {
-  font-weight: 300;
-}
-
-p.center {
-  text-align: center;
+a {
+  color: #0096DD;
+  /* Use the correct cursor for anchors without an href */
+  cursor: pointer;
 }
 
 #stage {
   background: #fff;
-  margin: 20px auto;
-  max-width: 400px;
-  padding: 20px;
-  width: 100%;
-}
-
-#stage h1 {
-  margin-top: 0;
+  border-radius: 10px;
+  box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
+  margin: 100px auto 0;
+  min-height: 500px;
+  padding: 50px 25px 30px 25px;
   text-align: center;
+  width: 320px;
 }
 
-.placeholder {
-  border: 1px dashed #ccc;
-  color: #bbb;
-  font-weight: bold;
-  padding: 50px 0;
-  text-align: center;
-  text-transform: uppercase;
+header h1, header h2 {
+  font-family: "Fira Sans", Helvetica, Arial, sans-serif;
+  line-height: 1em;
+  margin: 0;
 }
 
-.placeholder.email-placeholder {
-  padding: 10px 0;
-  float: left;
-  margin-right: 10px;
-  width: 75px;
+header h1 {
+  font-size: 24px;
+  font-weight: normal;
+  margin-bottom: 21px;
 }
 
-a.button, button {
-  background: #f8f8f8;
-  border: 1px solid #ddd;
-  color: #333;
-  border-radius: 5px;
-  display: block;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  width: 100%;
-}
-
-a.button:hover, button:hover {
-  background: #eee;
+header h2 {
+  font-size: 20px;
+  font-weight: 200;
+  margin-bottom: 55px;
 }
 
 .error {
-  color: red;
-  font-weight: bold;
-  text-align: center;
+  color: #f00;
+  margin-bottom: 20px;
 }
 
 .error:empty {
   display: none;
 }
 
-.form-row {
-  margin-bottom: 10px;
-}
-
-.form-row input {
-  padding: 5px;
+.input-row {
+  margin-bottom: 15px;
   width: 100%;
 }
 
-.submit-row {
-  margin-top: 25px;
+.input-row input, .input-row select {
+  border: 1px solid #C0C9D0;
+  border-radius: 5px;
+  color: #454f59;
+  font-size: 18px;
+  height: 45px;
+  padding: 0 20px;
+  width: 100%;
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -moz-user-select: none;
 }
 
-.submit-row .button-secondary {
-  float: left;
-  line-height: 41px;
-  cursor: pointer;
+.input-row select {
+  /* Some hackery for firefox since moz-appearance isn't removing the arrow */
+  text-indent: 0.01px;
+  text-overflow: "";
 }
 
-.button-secondary:hover,
-.button-secondary:focus,
-.button-secondary:active {
-  text-decoration: underline;
+.input-row input:focus {
+  border-color: #6f7a85;
 }
 
-.submit-row .button-primary {
-  float: right;
-  width: 75%;
+.input-row select {
+  width: 100%;
 }
+
+.input-row:last-child {
+  margin-bottom: 0;
+}
+
+.button-row {
+  margin-bottom: 20px;
+  margin-top: 45px;
+}
+
+.button-row button {
+  background: #E66000;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 24px;
+  height: 64px;
+  width: 100%;
+}
+
+.button-row button:disabled {
+  background: #C0C9D0;
+}
+
+/* Custom rows */
+.input-row-month-day select {
+  width: 45%;
+}
+
+.links {
+  margin-bottom: 20px;
+}
+
+.privacy-links, .privacy-links a {
+  color: #C0C9D0;
+}
+
+/* TODO: These need further consideration */
 
 #fxa-complete-sign-up-success {
   display: none;

@@ -1,21 +1,35 @@
-<h1 id="fxa-signup-header">{{#t}}Firefox Accounts{{/t}}</h1>
+<header>
+  <h1 id="fxa-signup-header">{{#t}}Firefox Accounts{{/t}}</h1>
 
-<p class="error"></p>
+  <h2>{{#t}}Create an account{{/t}}</h2>
+</header>
 
-<p class="center">{{#t}}Sign up to access <strong>[site name]</strong>.{{/t}}</p>
+<section>
+  <div class="error"></div>
 
-<form>
-  <div class="form-row">
-    <input type="email" class="email" placeholder="{{#t}}Email{{/t}}">
+  <form>
+    <div class="input-row">
+      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}">
+    </div>
+
+    <div class="input-row">
+      <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}">
+    </div>
+
+    <div class="button-row">
+      <button type="submit">{{#t}}Next{{/t}}</button>
+    </div>
+  </form>
+
+  <div class="links">
+    <a href="/signin">{{#t}}Already have an account?{{/t}} {{#t}}Sign in!{{/t}}</a>
   </div>
-  <div class="form-row">
-    <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}">
+
+  <div class="privacy-links">
+    {{#t}}By proceeding, you agree to our <a id="fxa-tos" href="/tos">Terms of Service</a> and <a id="fxa-pp" href="/pp">Privacy Policy</a>.{{/t}}
   </div>
+</section>
 
-  <p>{{#t}}By proceeding, you agree to our <a id="fxa-tos" href="/tos">Terms of Service</a> and <a id="fxa-pp" href="/pp">Privacy Policy</a>.{{/t}}</p>
-
-  <button type="submit">{{#t}}Next >{{/t}}</button>
-</form>
-
-<p class="center">{{#t}}Already have an account?{{/t}} <a href="/signin">{{#t}}Sign in{{/t}}</a></p>
-
+<footer>
+  <!-- firefox logo to be here soon -->
+</footer>

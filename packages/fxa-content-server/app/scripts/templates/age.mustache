@@ -1,32 +1,41 @@
-<h1 id="fxa-age-header">{{#t}}Firefox Accounts{{/t}}</h1>
+<header>
+  <h1 id="fxa-age-header">{{#t}}Firefox Accounts{{/t}}</h1>
 
-<p class="error"></p>
+  <h2>{{#t}}When were you born?{{/t}}</h2>
+</header>
 
-<p class="center">{{#t}}When were you born?{{/t}}</p>
+<section>
+  <div class="error"></div>
 
-<form>
-  <div class="form-row">
-    <select id="fxa-age-year">
-      <option id="fxa-none" value="none">{{#t}}Pick a year{{/t}}</option>
-      <option id="fxa-1960" value="1960">{{#t}}1960s or earlier{{/t}}</option>
-      <option id="fxa-1970" value="1970">{{#t}}1970s{{/t}}</option>
-      <option id="fxa-1980" value="1980">{{#t}}1980s{{/t}}</option>
-      <option id="fxa-1990" value="1990">{{#t}}1990s{{/t}}</option>
-      <option id="fxa-2000" value="2000">{{#t}}2000{{/t}}</option>
-      <option id="fxa-2001" value="2001">{{#t}}2001{{/t}}</option>
-      <option id="fxa-2002" value="2002">{{#t}}2002{{/t}}</option>
-      <option id="fxa-2003" value="2003">{{#t}}2003{{/t}}</option>
-      <option id="fxa-2004" value="2004">{{#t}}2004{{/t}}</option>
-      <option id="fxa-2005" value="2005">{{#t}}2005{{/t}}</option>
-      <option id="fxa-2006" value="2006">{{#t}}2006{{/t}}</option>
-      <option id="fxa-2007" value="2007">{{#t}}2007{{/t}}</option>
-    </select>
+  <form>
+    <div class="input-row">
+      <select id="fxa-age-year">
+        <option id="fxa-none" value="none">{{#t}}Pick a year{{/t}}</option>
+        <option id="fxa-1960" value="1960">{{#t}}1960s or earlier{{/t}}</option>
+        <option id="fxa-1970" value="1970">{{#t}}1970s{{/t}}</option>
+        <option id="fxa-1980" value="1980">{{#t}}1980s{{/t}}</option>
+        <option id="fxa-1990" value="1990">{{#t}}1990s{{/t}}</option>
+        <option id="fxa-2000" value="2000">{{#t}}2000{{/t}}</option>
+        <option id="fxa-2001" value="2001">{{#t}}2001{{/t}}</option>
+        <option id="fxa-2002" value="2002">{{#t}}2002{{/t}}</option>
+        <option id="fxa-2003" value="2003">{{#t}}2003{{/t}}</option>
+        <option id="fxa-2004" value="2004">{{#t}}2004{{/t}}</option>
+        <option id="fxa-2005" value="2005">{{#t}}2005{{/t}}</option>
+        <option id="fxa-2006" value="2006">{{#t}}2006{{/t}}</option>
+        <option id="fxa-2007" value="2007">{{#t}}2007{{/t}}</option>
+      </select>
+    </div>
+
+    <div class="button-row">
+      <button id="fxa-age-submit" type="submit">{{#t}}Next{{/t}}</button>
+    </div>
+  </form>
+
+  <div class="links">
+    <a id="fxa-age-back">{{#t}}Back{{/t}}</a>
   </div>
+</section>
 
-
-  <div class="submit-row">
-    <a id="fxa-age-back" class="button-secondary">{{#t}}Back{{/t}}</a>
-    <button id="fxa-age-submit" class="button button-primary" type="submit">{{#t}}Next{{/t}}</button>
-  </div>
-</form>
-
+<footer>
+  <!-- firefox logo to be here soon -->
+</footer>
