@@ -9,32 +9,32 @@ var log = { trace: console.log }
 var config = require('../../config').root()
 var Token = require('../../tokens')(log)
 var DB = require('../../db')(
-  config,
+  config.db.backend,
   log,
   Token.error,
   Token.SessionToken,
   Token.KeyFetchToken,
   Token.AccountResetToken,
-  Token.PasswordForgotToken
+  Token.PasswordForgotToken,
+  Token.PasswordChangeToken
 )
 
+var b16 = Buffer('00000000000000000000000000000000', 'hex')
+var b32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 
 var ACCOUNT = {
   uid: uuid.v4('binary'),
   email: 'foo@bar.com',
-  emailCode: 'xxx',
+  emailCode: b16,
   verified: false,
-  srp: {
-    verifier: '0000000000000000000000000000000000000000000000000000000000000000',
-    salt: '0000000000000000000000000000000000000000000000000000000000000000'
-  },
-  kA: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
-  wrapWrapKb: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
-  passwordStretching: { blah: false }
+  verifyHash: b32,
+  authSalt: b32,
+  kA: b32,
+  wrapWrapKb: b32
 }
 
 
-DB.connect()
+DB.connect(config[config.db.backend])
   .then(
     function (db) {
 
@@ -70,12 +70,12 @@ DB.connect()
           .then(function(account) {
             t.deepEqual(account.uid, ACCOUNT.uid)
             t.equal(account.email, ACCOUNT.email)
-            t.equal(account.emailCode, ACCOUNT.emailCode)
+            t.deepEqual(account.emailCode, ACCOUNT.emailCode)
             t.equal(account.verified, ACCOUNT.verified)
             t.deepEqual(account.kA, ACCOUNT.kA)
             t.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb)
-            t.deepEqual(account.srp, ACCOUNT.srp)
-            t.deepEqual(account.passwordStretching, ACCOUNT.passwordStretching)
+            t.deepEqual(account.verifyHash, ACCOUNT.verifyHash)
+            t.deepEqual(account.authSalt, ACCOUNT.authSalt)
           })
         }
       )
@@ -99,7 +99,7 @@ DB.connect()
             t.deepEqual(sessionToken.tokenid, tokenid, 'token id matches')
             t.deepEqual(sessionToken.uid, ACCOUNT.uid)
             t.equal(sessionToken.email, ACCOUNT.email)
-            t.equal(sessionToken.emailCode, ACCOUNT.emailCode)
+            t.deepEqual(sessionToken.emailCode, ACCOUNT.emailCode)
             t.equal(sessionToken.verified, ACCOUNT.verified)
             return sessionToken
           })
@@ -310,7 +310,7 @@ DB.connect()
             return db.accountExists(ACCOUNT.email, 'account should exist for this email address')
           })
           .then(function(exists) {
-            t.notOk(exists, 'account should no longer exist')
+            t.equal(exists, false, 'account should no longer exist')
           })
         }
       )

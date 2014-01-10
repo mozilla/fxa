@@ -8,13 +8,15 @@ CREATE TABLE IF NOT EXISTS accounts (
   kA BINARY(32) NOT NULL,
   wrapWrapKb BINARY(32) NOT NULL,
   authSalt BINARY(32) NOT NULL,
-  verifyHash BINARY(32) NOT NULL
+  verifyHash BINARY(32) NOT NULL,
+  generation BIGINT UNSIGNED NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS sessionTokens (
   tokenid BINARY(32) PRIMARY KEY,
   tokendata BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL,
+  created BIGINT UNSIGNED NOT NULL,
   INDEX session_uid (uid)
 ) ENGINE=InnoDB;
 
@@ -24,6 +26,7 @@ CREATE TABLE IF NOT EXISTS keyfetchTokens (
   authKey BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL,
   keyBundle BINARY(96) NOT NULL,
+  created BIGINT UNSIGNED NOT NULL,
   INDEX key_uid (uid)
 ) ENGINE=InnoDB;
 
@@ -31,7 +34,8 @@ CREATE TABLE IF NOT EXISTS keyfetchTokens (
 CREATE TABLE IF NOT EXISTS resetTokens (
   tokenid BINARY(32) PRIMARY KEY,
   tokendata BINARY(32) NOT NULL,
-  uid BINARY(16) NOT NULL UNIQUE KEY
+  uid BINARY(16) NOT NULL UNIQUE KEY,
+  created BIGINT UNSIGNED NOT NULL
 ) ENGINE=InnoDB;
 
 
@@ -48,5 +52,6 @@ CREATE TABLE IF NOT EXISTS passwordChangeTokens (
   tokenid BINARY(32) PRIMARY KEY,
   tokendata BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL,
+  created BIGINT UNSIGNED NOT NULL,
   INDEX session_uid (uid)
 ) ENGINE=InnoDB;
