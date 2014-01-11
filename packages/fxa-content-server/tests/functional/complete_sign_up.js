@@ -7,7 +7,7 @@ define([
   'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/client/FxAccountClient'
+  'app/bower_components/fxa-js-client/fxa-client'
 ], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient) {
   'use strict';
 
@@ -33,7 +33,7 @@ define([
       // the email
       var token = 'token';
       var uid = 'uid';
-      var url = PAGE_URL_ROOT + '?uid=' + uid + '&token=' + token;
+      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + token;
 
       return this.get('remote')
         .get(require.toUrl(url))

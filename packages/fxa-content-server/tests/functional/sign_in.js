@@ -7,7 +7,7 @@ define([
   'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/client/FxAccountClient'
+  'app/bower_components/fxa-js-client/fxa-client'
 ], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient) {
   'use strict';
 

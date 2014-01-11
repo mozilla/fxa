@@ -10,96 +10,118 @@ define([
   'use strict';
 
   var url = 'http://localhost:3030/birthday';
-
-  var ONE_DAY_IN_MS = 1000 * 60 * 60 * 24;
-  var NOW = new Date();
-  var YESTERDAY = new Date();
-  YESTERDAY.setTime(NOW.getTime() - ONE_DAY_IN_MS);
-
-  var TOMORROW = new Date();
-  TOMORROW.setTime(NOW.getTime() + ONE_DAY_IN_MS);
-
   var MONTHS = [
     'jan', 'feb', 'mar', 'apr', 'may', 'jun',
     'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
   ];
 
   registerSuite({
-    name: 'sign_up',
+    name: 'birthday',
 
     'pick a day that is before today - user can register': function () {
-      var month = MONTHS[YESTERDAY.getMonth()];
-      var day = YESTERDAY.getDate();
+      var month;
+      var day;
 
-      return this.get('remote')
-        .get(require.toUrl(url))
-        .waitForElementById('fxa-birthday-header')
+      var remote = this.get('remote')
+        .eval("{ day: new Date(new Date().getTime() - 1000 * 60 * 60 * 24).getDate(), month: new Date(new Date().getTime() - 1000 * 60 * 60 * 24).getMonth() }")
+        .then(function (result) {
+          day = result.day;
+          month = MONTHS[result.month];
 
-        .elementById('fxa-month-' + month)
-          .click()
-        .end()
+          remote.get(require.toUrl(url + '#yesterday'))
+            .waitForElementById('fxa-birthday-header')
+            .elementById('fxa-month-' + month)
+            .click()
+            .end()
 
-        .elementById('fxa-day-' + day)
-          .click()
-        .end()
+            .elementById('fxa-day-' + day)
+            .click()
+            .wait(1000)
+            .end()
 
-        .elementById('fxa-birthday-submit')
-          .click()
-        .end()
+            .elementById('fxa-birthday-submit')
+            .submit()
+            .end()
 
-        // Success is being redirected to the create account screen.
-        .waitForElementById('fxa-create-account-header')
+            // Success is being redirected to the create account screen.
+            .waitForElementById('fxa-create-account-header')
+            .end();
+        })
         .end();
+
+      return remote;
     },
 
     'pick today - user can register': function () {
-      var month = MONTHS[NOW.getMonth()];
-      var day = NOW.getDate();
+      var month;
+      var day;
 
-      return this.get('remote')
-        .get(require.toUrl(url))
-        .waitForElementById('fxa-birthday-header')
+      var remote = this.get('remote')
+        // Get client current date, we cannot use the date of the test runner.
+        .eval("{ day: new Date().getDate(), month: new Date().getMonth() }")
+        .then(function (result) {
+          day = result.day;
+          month = MONTHS[result.month];
 
-        .elementById('fxa-month-' + month)
-          .click()
-        .end()
+          remote.get(require.toUrl(url + '#today'))
+            .waitForElementById('fxa-birthday-header')
 
-        .elementById('fxa-day-' + day)
-          .click()
-        .end()
+            .elementById('fxa-month-' + month)
+            .click()
+            .end()
 
-        .elementById('fxa-birthday-submit')
-          .click()
-        .end()
+            .elementById('fxa-day-' + day)
+            .click()
+            .wait(1000)
+            .end()
 
-        // Success is being redirected to the create account screen.
-        .waitForElementById('fxa-create-account-header')
+            .elementById('fxa-birthday-submit')
+            .submit()
+            .end()
+
+            // Success is being redirected to the create account screen.
+            .waitForElementById('fxa-create-account-header')
+            .end();
+        })
         .end();
+
+
+      return remote;
     },
 
     'pick a day that is after today - user is too young': function () {
-      var month = MONTHS[TOMORROW.getMonth()];
-      var day = TOMORROW.getDate();
+      var month;
+      var day;
 
-      return this.get('remote')
-        .get(require.toUrl(url))
-        .waitForElementById('fxa-birthday-header')
+      var remote = this.get('remote')
+        .eval("{ day: new Date(new Date().getTime() + 1000 * 60 * 60 * 24).getDate(), month: new Date(new Date().getTime() + 1000 * 60 * 60 * 24).getMonth() }")
+        .then(function (result) {
+          day = result.day;
+          month = MONTHS[result.month];
 
-        .elementById('fxa-month-' + month)
-          .click()
-        .end()
+          remote.get(require.toUrl(url + '#tomorrow'))
+            .waitForElementById('fxa-birthday-header')
+            .elementById('fxa-month-' + month)
+            .click()
+            .end()
 
-        .elementById('fxa-day-' + day)
-          .click()
-        .end()
+            .elementById('fxa-day-' + day)
+            .click()
+            .wait(1000)
+            .end()
 
-        .elementById('fxa-birthday-submit')
-          .click()
-        .end()
+            .elementById('fxa-birthday-submit')
+            .submit()
+            .end()
 
-        // Success is being redirected to the cannot create account screen.
-        .waitForElementById('fxa-cannot-create-account-header')
+            // Success is being redirected to the cannot create account screen.
+            .waitForElementById('fxa-cannot-create-account-header')
+            .end();
+        })
         .end();
+
+
+      return remote;
     }
   });
 });
