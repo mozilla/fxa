@@ -16,7 +16,6 @@ module.exports = function (grunt) {
       options: {
         baseUrl: '.',
         include: ['client/FxAccountClient'],
-        insertRequire: ['client/FxAccountClient'],
         name: 'components/almond/almond',
         wrap: {
           startFile: 'config/start.frag',
