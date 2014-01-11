@@ -32,7 +32,7 @@ a {
   border-radius: 10px;
   -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);;
   box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
-  margin: 100px auto 0;
+  margin: 60px auto 0;
   min-height: 550px;
   /* padding-bottom = 30px (below icon) + 31px (firefox icon) + 40px (above icon) */
   padding: 50px 25px 101px 25px;
@@ -120,15 +120,20 @@ header h2 {
   margin-top: 45px;
 }
 
-.button-row button {
+.button-row button, .button-row a.button {
   background: #E66000;
   border: none;
   -webkit-border-radius: 5px;
   border-radius: 5px;
   color: #fff;
   font-size: 24px;
-  height: 64px;
+  padding: 15px 0;
   width: 100%;
+}
+
+.button-row a.button {
+  display: inline-block;
+  text-decoration: none;
 }
 
 .button-row button:active {
@@ -142,6 +147,10 @@ header h2 {
 /* Custom rows */
 .input-row-month-day select {
   width: 45%;
+}
+
+.description {
+  font-size: 18px;
 }
 
 .links {
