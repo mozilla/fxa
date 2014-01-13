@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials'], function (Request, sjcl, credentials) {
+define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/hawkCredentials'], function (Request, sjcl, credentials, hawkCredentials) {
   'use strict';
 
   /**
@@ -77,6 +77,19 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials'], functi
       uid: uid,
       code: code
     });
+  };
+
+  /**
+   * @method recoveryEmailStatus
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
+   */
+  FxAccountClient.prototype.recoveryEmailStatus = function(sessionToken) {
+    var self = this;
+    return hawkCredentials(sessionToken, "sessionToken",  2 * 32)
+      .then(function(creds) {
+        return self.request.send("/recovery_email/status", "GET", creds);
+      });
   };
 
   return FxAccountClient;

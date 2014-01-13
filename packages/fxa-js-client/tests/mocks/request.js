@@ -1,4 +1,8 @@
-define([], function () {
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+ define([], function () {
   return {
     signUp: {
       status: 200,
@@ -21,6 +25,14 @@ define([], function () {
     mail: {
       status: 200,
       body: '[{"html":"Mocked code=9001"}]'
+    },
+    recoveryEmailUnverified: {
+      status: 200,
+      body: '{"verified": false}'
+    },
+    recoveryEmailVerified: {
+      status: 200,
+      body: '{"verified": true}'
     }
   };
 });

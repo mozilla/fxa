@@ -18,7 +18,8 @@
 See Console....
 
 <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="../build/fxa-client.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.9/require.min.js"></script>
+
 <script>
   var email = 'example' + Date.now() + '@example.com';
   var password = 'allyourbasearebelongtous';
@@ -36,6 +37,15 @@ See Console....
   $("#login").click(function () {
     client.signIn($('#email').val(),$('#password').val());
   });
+</script>
+
+<script>
+  require([
+    '../build/fxa-client'
+  ],
+    function(fxa) {
+    }
+  );
 </script>
 </body>
 </html>
