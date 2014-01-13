@@ -10,7 +10,7 @@ define([
   'lib/session',
   'lib/fxa-client'
 ],
-function(BaseView, SignInTemplate, Session, FxaClient) {
+function (BaseView, SignInTemplate, Session, FxaClient) {
   var SignInView = BaseView.extend({
     template: SignInTemplate,
     className: 'sign-in',
@@ -19,7 +19,7 @@ function(BaseView, SignInTemplate, Session, FxaClient) {
       'submit form': 'signIn'
     },
 
-    signIn: function(event) {
+    signIn: function (event) {
       event.preventDefault();
 
       if (! (this._validateEmail() && this._validatePassword())) {
@@ -32,9 +32,13 @@ function(BaseView, SignInTemplate, Session, FxaClient) {
       var client = new FxaClient();
       client.signIn(email, password)
             .then(function (client) {
-              Session.email = email;
-              Session.token = client.sessionToken;
 
+              Session.channel.send('login', {
+                email: email,
+                token: client.sessionToken,
+                unwrapBKey: client.unwrapBKey,
+                keyFetchToken: client.keyFetchToken
+              });
               router.navigate('settings', { trigger: true });
             })
             .done(null, function (err) {
@@ -44,15 +48,15 @@ function(BaseView, SignInTemplate, Session, FxaClient) {
             }.bind(this));
     },
 
-    _validateEmail: function() {
+    _validateEmail: function () {
       return this._isElementValid('.email');
     },
 
-    _validatePassword: function() {
+    _validatePassword: function () {
       return this._isElementValid('.password');
     },
 
-    _isElementValid: function(selector) {
+    _isElementValid: function (selector) {
       var el = this.$(selector);
       var value = el.val();
       return value && el[0].validity.valid;

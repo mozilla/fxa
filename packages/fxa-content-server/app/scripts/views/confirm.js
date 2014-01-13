@@ -18,6 +18,21 @@ function (BaseView, ConfirmTemplate, Session) {
       return {
         email: Session.email
       };
+    },
+
+    afterRender: function() {
+      // Ugh, kind of sloppy, but the channel is not yet created if the
+      // user (or Selenium tests) access this page directly. do a setTimeout
+      // to allow page initialization to complete, and then get back
+      // to sending the message.
+      setTimeout(function() {
+        Session.channel.send('login', {
+          email: Session.email,
+          token: Session.sessionToken,
+          unwrapBKey: Session.unwrapBKey,
+          keyFetchToken: Session.keyFetchToken
+        });
+      }, 0);
     }
   });
 
