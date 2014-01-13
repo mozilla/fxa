@@ -10,4 +10,6 @@ else
     nohup /usr/bin/circusd --daemon /home/app/circus.ini > /home/app/circusd.log 2>&1 &
 fi
 
+node_modules/.bin/grunt build
+
 echo "DONE"
