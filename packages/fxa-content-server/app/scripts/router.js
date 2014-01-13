@@ -35,7 +35,7 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
       'birthday': 'showBirthday',
       'create_account': 'showCreateAccount',
       'cannot_create_account': 'showCannotCreateAccount',
-      'complete_sign_up': 'showCompleteSignUp'
+      'verify_email': 'showCompleteSignUp'
     },
 
     initialize: function () {

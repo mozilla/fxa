@@ -6,43 +6,10 @@ const config = require('./configuration');
 const path = require('path');
 
 module.exports = function(app) {
-  function routeToVerify(req, res) {
-    res.render('verify_email.html', {
-      fxa: config.get('fxaccount_url'),
-      code: req.query.code,
-      uid: req.query.uid
-    });
-  }
-
-  // route both of these to 'verify_email'
-  app.get('/verify_email', function(req, res) {
-    routeToVerify(req, res);
-  });
-
+  // handle email verification links
   app.get('/v1/verify_email', function(req, res) {
-    routeToVerify(req, res);
+    res.redirect(req.originalUrl.slice(3));
   });
-
-  app.get('/flow/:page?',
-    function(req, res) {
-      res.render('accounts/desktop_flow.html', {
-        fxa: config.get('fxaccount_url'),
-        user: "null",
-        verified: 0,
-        page: JSON.stringify(req.params.page || ''),
-        desktop: true
-      });
-    });
-
-  app.get('/mobile/:page?',
-    function(req, res) {
-      res.render('accounts/flow.html', {
-        fxa: config.get('fxaccount_url'),
-        user: "null",
-        verified: 0,
-        page: JSON.stringify(req.params.page || '')
-      });
-    });
 
   app.get(/\/[^.]*$/, function(req, res, next) {
     // setting the url to / will use the correct index.html for either dev or

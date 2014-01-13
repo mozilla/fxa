@@ -12,7 +12,7 @@ define([
   'use strict';
 
   var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
-  var PAGE_URL_ROOT = 'http://localhost:3030/complete_sign_up';
+  var PAGE_URL_ROOT = 'http://localhost:3030/verify_email';
   var PASSWORD = 'password';
   var email;
 
