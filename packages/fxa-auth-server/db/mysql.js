@@ -122,7 +122,7 @@ module.exports = function (
   // CREATE
   var CREATE_ACCOUNT = 'INSERT INTO accounts' +
     ' (uid, normalizedEmail, email, emailCode, verified,' +
-    ' kA, wrapWrapKb, authSalt, verifyHash, generation)' +
+    ' kA, wrapWrapKb, authSalt, verifyHash, verifierSetAt)' +
     ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (data) {
@@ -134,7 +134,7 @@ module.exports = function (
       }
     )
     data.normalizedEmail = data.email
-    data.generation = Date.now()
+    data.verifierSetAt = Date.now()
 
     return this.getMasterConnection()
       .then(function(con) {
@@ -151,7 +151,7 @@ module.exports = function (
             data.wrapWrapKb,
             data.authSalt,
             data.verifyHash,
-            data.generation
+            data.verifierSetAt
           ],
           function (err) {
             con.release()
@@ -164,7 +164,7 @@ module.exports = function (
   }
 
   var CREATE_SESSION_TOKEN = 'INSERT INTO sessionTokens' +
-    ' (tokenid, tokendata, uid, created)' +
+    ' (tokenid, tokendata, uid, createdAt)' +
     ' VALUES (?, ?, ?, ?)'
 
   MySql.prototype.createSessionToken = function (authToken) {
@@ -185,7 +185,7 @@ module.exports = function (
             sessionToken.tokenid,
             sessionToken.data,
             sessionToken.uid,
-            sessionToken.created
+            sessionToken.createdAt
           ],
           function (err) {
             con.release()
@@ -198,7 +198,7 @@ module.exports = function (
   }
 
   var CREATE_KEY_FETCH_TOKEN = 'INSERT INTO keyfetchTokens' +
-    ' (tokenid, authKey, uid, keyBundle, created)' +
+    ' (tokenid, authKey, uid, keyBundle, createdAt)' +
     ' VALUES (?, ?, ?, ?, ?)'
 
   MySql.prototype.createKeyFetchToken = function (authToken) {
@@ -218,7 +218,7 @@ module.exports = function (
             keyFetchToken.authKey,
             keyFetchToken.uid,
             keyFetchToken.keyBundle,
-            keyFetchToken.created
+            keyFetchToken.createdAt
           ],
           function (err) {
             con.release()
@@ -231,7 +231,7 @@ module.exports = function (
   }
 
   var CREATE_ACCOUNT_RESET_TOKEN = 'REPLACE INTO resetTokens' +
-    ' (tokenid, tokendata, uid, created)' +
+    ' (tokenid, tokendata, uid, createdAt)' +
     ' VALUES (?, ?, ?, ?)'
 
   MySql.prototype.createAccountResetToken = function (token /* authToken|passwordForgotToken */) {
@@ -250,7 +250,7 @@ module.exports = function (
             accountResetToken.tokenid,
             accountResetToken.data,
             accountResetToken.uid,
-            accountResetToken.created
+            accountResetToken.createdAt
           ],
           function (err) {
             con.release()
@@ -263,7 +263,7 @@ module.exports = function (
   }
 
   var CREATE_PASSWORD_FORGOT_TOKEN = 'REPLACE INTO passwordForgotTokens' +
-    ' (tokenid, tokendata, uid, passcode, created, tries)' +
+    ' (tokenid, tokendata, uid, passcode, createdAt, tries)' +
     ' VALUES (?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createPasswordForgotToken = function (emailRecord) {
@@ -283,7 +283,7 @@ module.exports = function (
             passwordForgotToken.data,
             passwordForgotToken.uid,
             passwordForgotToken.passcode,
-            passwordForgotToken.created,
+            passwordForgotToken.createdAt,
             passwordForgotToken.tries
           ],
           function (err) {
@@ -297,7 +297,7 @@ module.exports = function (
   }
 
   var CREATE_PASSWORD_CHANGE_TOKEN = 'REPLACE INTO passwordChangeTokens' +
-    ' (tokenid, tokendata, uid, created)' +
+    ' (tokenid, tokendata, uid, createdAt)' +
     ' VALUES (?, ?, ?, ?)'
 
   MySql.prototype.createPasswordChangeToken = function (data) {
@@ -316,7 +316,7 @@ module.exports = function (
             passwordChangeToken.tokenid,
             passwordChangeToken.data,
             passwordChangeToken.uid,
-            passwordChangeToken.created
+            passwordChangeToken.createdAt
           ],
           function (err) {
             con.release()
@@ -372,8 +372,8 @@ module.exports = function (
       })
   }
 
-var SESSION_TOKEN = 'SELECT t.tokendata, t.uid, t.created,' +
-  ' a.verified, a.email, a.emailCode, a.generation' +
+var SESSION_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt,' +
+  ' a.verified, a.email, a.emailCode, a.verifierSetAt' +
   ' FROM sessionTokens t, accounts a' +
   ' WHERE t.tokenid = ? AND t.uid = a.uid'
 
@@ -403,8 +403,8 @@ var SESSION_TOKEN = 'SELECT t.tokendata, t.uid, t.created,' +
       })
   }
 
-var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
-  ' a.verified, a.generation' +
+var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
+  ' a.verified, a.verifierSetAt' +
   ' FROM keyfetchTokens t, accounts a' +
   ' WHERE t.tokenid = ? AND t.uid = a.uid'
 
@@ -434,8 +434,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
       })
   }
 
-  var ACCOUNT_RESET_TOKEN = 'SELECT t.uid, t.tokendata, t.created,' +
-    ' a.generation' +
+  var ACCOUNT_RESET_TOKEN = 'SELECT t.uid, t.tokendata, t.createdAt,' +
+    ' a.verifierSetAt' +
     ' FROM resetTokens t, accounts a' +
     ' WHERE t.tokenid = ? AND t.uid = a.uid'
 
@@ -462,8 +462,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
       })
   }
 
-  var PASSWORD_FORGOT_TOKEN = 'SELECT t.tokendata, t.uid, t.created,' +
-    ' t.passcode, t.tries, a.email, a.generation' +
+  var PASSWORD_FORGOT_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt,' +
+    ' t.passcode, t.tries, a.email, a.verifierSetAt' +
     ' FROM passwordForgotTokens t, accounts a' +
     ' WHERE t.tokenid = ? AND t.uid = a.uid'
 
@@ -493,7 +493,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
       })
   }
 
-  var PASSWORD_CHANGE_TOKEN = 'SELECT t.tokendata, t.uid, t.created, a.generation ' +
+  var PASSWORD_CHANGE_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt, a.verifierSetAt ' +
     ' FROM passwordChangeTokens t, accounts a' +
     ' WHERE t.tokenid = ? AND t.uid = a.uid'
 
@@ -524,7 +524,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
   }
 
   var EMAIL_RECORD = 'SELECT uid, email, normalizedEmail, verified,' +
-    ' emailCode, kA, wrapWrapKb, verifyHash, authSalt, generation' +
+    ' emailCode, kA, wrapWrapKb, verifyHash, authSalt, verifierSetAt' +
     ' FROM accounts' +
     ' WHERE normalizedEmail = LOWER(?)'
 
@@ -552,7 +552,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
               wrapWrapKb: result.wrapWrapKb,
               verifyHash: result.verifyHash,
               authSalt: result.authSalt,
-              generation: result.generation
+              verifierSetAt: result.verifierSetAt
             })
           }
         )
@@ -561,7 +561,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
   }
 
   var ACCOUNT = 'SELECT email, normalizedEmail, emailCode, verified, kA,' +
-    ' wrapWrapKb, verifyHash, authSalt, generation ' +
+    ' wrapWrapKb, verifyHash, authSalt, verifierSetAt ' +
     ' FROM accounts WHERE uid = ?'
 
   MySql.prototype.account = function (uid) {
@@ -589,7 +589,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
               wrapWrapKb: result.wrapWrapKb,
               verifyHash: result.verifyHash,
               authSalt: result.authSalt,
-              generation: result.generation
+              verifierSetAt: result.verifierSetAt
             })
           }
         )
@@ -785,7 +785,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
   // BATCH
 
   var RESET_ACCOUNT = 'UPDATE accounts' +
-    ' SET verifyHash = ?, authSalt = ?, wrapWrapKb = ?, generation = ? ' +
+    ' SET verifyHash = ?, authSalt = ?, wrapWrapKb = ?, verifierSetAt = ? ' +
     ' WHERE uid = ?'
 
   MySql.prototype.resetAccount = function (accountResetToken, data) {
@@ -890,7 +890,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.created,' +
             accountResetToken.tokenid,
             accountResetToken.data,
             accountResetToken.uid,
-            accountResetToken.created
+            accountResetToken.createdAt
           ],
           function (err) {
             if (err) return d.reject(err)

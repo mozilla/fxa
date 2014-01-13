@@ -35,7 +35,7 @@ module.exports = function (log, inherits, now, Token, crypto) {
   }
 
   PasswordForgotToken.prototype.ttl = function () {
-    var ttl = (LIFETIME - (now() - this.created)) / 1000
+    var ttl = (LIFETIME - (now() - this.createdAt)) / 1000
     return Math.max(Math.ceil(ttl), 0)
   }
 

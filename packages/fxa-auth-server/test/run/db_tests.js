@@ -19,18 +19,18 @@ var DB = require('../../db')(
   Token.PasswordChangeToken
 )
 
-var b16 = Buffer('00000000000000000000000000000000', 'hex')
-var b32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+var zeroBuffer16 = Buffer('00000000000000000000000000000000', 'hex')
+var zeroBuffer32 = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
 
 var ACCOUNT = {
   uid: uuid.v4('binary'),
   email: 'foo@bar.com',
-  emailCode: b16,
+  emailCode: zeroBuffer16,
   verified: false,
-  verifyHash: b32,
-  authSalt: b32,
-  kA: b32,
-  wrapWrapKb: b32
+  verifyHash: zeroBuffer32,
+  authSalt: zeroBuffer32,
+  kA: zeroBuffer32,
+  wrapWrapKb: zeroBuffer32
 }
 
 
