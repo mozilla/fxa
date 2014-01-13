@@ -1,0 +1,201 @@
+/* Border box all the things by default */
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+html {
+  background-color: #f1f1f1;
+  background-image: -webkit-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
+  background-image:    -moz-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
+  background-image:     -ms-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
+  background-image:      -o-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
+  background-image:         linear-gradient(-180deg, #fefefe 0%, #f1f1f1 100%);
+  background-repeat: no-repeat;
+}
+
+body {
+  color: #333;
+  font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+a {
+  color: #0096DD;
+  cursor: pointer; /* Use the correct cursor for anchors without an href */
+}
+
+#stage {
+  background: #fff url(../images/fox.png) no-repeat left 50% bottom 30px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);;
+  box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
+  margin: 60px auto 0;
+  min-height: 550px;
+  /* padding-bottom = 30px (below icon) + 31px (firefox icon) + 40px (above icon) */
+  padding: 50px 25px 101px 25px;
+  text-align: center;
+  width: 320px;
+}
+
+header h1, header h2 {
+  font-family: "Fira Sans", Helvetica, Arial, sans-serif;
+  line-height: 1em;
+  margin: 0;
+}
+
+header h1 {
+  font-size: 24px;
+  font-weight: normal;
+  margin-bottom: 21px;
+}
+
+header h2 {
+  font-size: 20px;
+  font-weight: 200;
+  margin-bottom: 55px;
+}
+
+.error {
+  color: #f00;
+  margin-bottom: 20px;
+}
+
+.error:empty {
+  display: none;
+}
+
+.input-row {
+  margin-bottom: 15px;
+  width: 100%;
+}
+
+.input-row input {
+  border: 1px solid #C0C9D0;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  color: #454f59;
+  font-size: 18px;
+  height: 45px;
+  padding: 0 20px;
+  width: 100%;
+}
+
+.input-row input::-webkit-input-placeholder {
+   color: #C0C9D0;
+}
+
+.input-row input:-moz-placeholder { /* Firefox 18- */
+   color: #C0C9D0;
+}
+
+.input-row input::-moz-placeholder {  /* Firefox 19+ */
+   color: #C0C9D0;
+}
+
+.input-row input:-ms-input-placeholder {
+   color: #C0C9D0;
+}
+
+.input-row select {
+  width: 100%;
+}
+
+.input-row input:focus {
+  border-color: #6f7a85;
+}
+
+.input-row select {
+  width: 100%;
+}
+
+.input-row:last-child {
+  margin-bottom: 0;
+}
+
+.button-row {
+  margin-bottom: 20px;
+  margin-top: 45px;
+}
+
+.button-row button, .button-row a.button {
+  background: #E66000;
+  border: none;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 24px;
+  padding: 15px 0;
+  width: 100%;
+}
+
+.button-row a.button {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.button-row button:active {
+  background: #FF9500;
+}
+
+.button-row button:disabled {
+  background: #C0C9D0;
+}
+
+/* Custom rows */
+.input-row-month-day select {
+  width: 45%;
+}
+
+.description {
+  font-size: 18px;
+}
+
+.links {
+  margin-bottom: 20px;
+}
+
+.privacy-links, .privacy-links a {
+  color: #C0C9D0;
+}
+
+/* TODO: These need further consideration */
+
+#fxa-complete-sign-up-success {
+  display: none;
+}
+
+/* Responsiveness */
+
+/* TODO: Confirm breakpoint sizes */
+@media only screen and (max-width: 500px) {
+  html {
+    background: #fff;
+  }
+
+  #stage {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    margin: 0 auto;
+    min-height: none;
+    width: 100%;
+  }
+}
+
+/* Retina */
+
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (   min--moz-device-pixel-ratio: 2),
+only screen and (   -moz-min-device-pixel-ratio: 2),
+only screen and (     -o-min-device-pixel-ratio: 2/1),
+only screen and (        min-device-pixel-ratio: 2),
+only screen and (                min-resolution: 192dpi),
+only screen and (                min-resolution: 2dppx) {
+  #stage {
+    background-image: url(../images/fox@2x.png);
+    background-size: 30px 31px;
+  }
+}

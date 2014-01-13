@@ -3,52 +3,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path'),
-      spawn = require('child_process').spawn,
-      config = require('../server/lib/configuration');
+const path = require('path');
+const spawn = require('child_process').spawn;
 
 
-// CK: 09/17/13 The role of the FxA Bridge going forward is unclear. We're not using
-// the certifier right now so I'm disabling it, but leaving the code in that supports
-// it for now.
-// TODO what if priv or pub key don't exist?
+const BIN_ROOT = path.join(__dirname, '..', 'server', 'bin');
 
-// Certifier can't be run in the same process,
-// convict's schema mapping wil get messed up.
-// So we must run as a process
-// var certifierPath = path.join(__dirname, '..', 'server', 'bin', 'browserid-certifier.js');
-// var certifier = spawn('node', [certifierPath]);
-// certifier.stdout.on('data', function(data) {
-//   var msg = data.toString('utf8');
-//   if (msg.indexOf('Certifier started') !== -1) {
-//     console.log(msg);
-//     startFAB();
-//   }
-// });
-
-// certifier.stderr.on('data', function(data) {
-//   console.error('CERTIFIER ERR:', data.toString('utf8'));
-// });
-
-// No certifier so just start the FAB server directly
-startFAB();
-
-function startFAB() {
+module.exports = function (done) {
   process.chdir(path.dirname(__dirname));
   // We'll get PORT via config/local.json
+  // This is required for Travis-CI to work correctly.
   delete process.env['PORT'];
 
-  // TODO what if there is no local.json?
-  var fabPath = path.join(process.cwd(), 'server', 'bin', 'firefox_account_bridge.js');
+  var fabPath = path.join(BIN_ROOT, 'fxa-content-server.js');
   var fxaccntbridge = spawn('node', [fabPath]);
   fxaccntbridge.stdout.on('data', function(data) {
-    console.log('FAB:', data.toString('utf8'));
+    console.log('fxa-content-server:', data.toString('utf8').trim());
   });
   fxaccntbridge.stderr.on('data', function(data) {
-    console.log('FAB ERR:', data.toString('utf8'));
+    console.log('fxa-content-server err:', data.toString('utf8').trim());
   });
   fxaccntbridge.on('exit', function(code, signal) {
-    console.log('FAB killed, existing');
-    process.exit(1);
+    console.log('fxa-content-server killed, existing');
+    if (done) done(code);
+    else process.exit(code);
   });
-}
+};
+
+// only start the server if the file is called directly, otherwise wait until
+// module.exports is called.
+if (process.argv[1] === __filename) module.exports();
+

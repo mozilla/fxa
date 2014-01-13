@@ -8,16 +8,20 @@ env:
     - SAUCE_USERNAME: intern-example-ci
     - SAUCE_ACCESS_KEY: 89ac3089-17b3-4e9b-aaf3-c475b27fa441
 install:
+# install the auth server. Only include prod resources to speed up the build.
   - git clone git://github.com/mozilla/fxa-auth-server.git
   - cd fxa-auth-server
   - npm install
   - node ./scripts/gen_keys.js
   - npm start &
+# install everything for full dev in the fxa-content-server.
   - cd ..
-  - npm install --production
-  - npm install intern
+  - npm install
+# for local developers, grunt-cli is installed globally.
+# We have to install it for travis.
+  - npm install grunt-cli
+# copy over the configuration that can be used to start the server.
+  - cp server/config/local.json-dist server/config/local.json
   - npm start &
-  - cd node_modules/intern
-  - npm install --production
-  - cd ../..
-script: node node_modules/intern/runner.js config=tests/intern_remote
+# now run the tests!
+script: npm run-script test-remote

@@ -1,12 +1,13 @@
 {
   "name": "fxa-content-server",
-  "version": "0.0.0",
-  "description": "Firefox Accounts Persona Bridge",
+  "version": "0.0.1",
+  "description": "Firefox Accounts Content Server",
   "scripts": {
-    "postinstall": "node ./scripts/postinstall.js",
-    "start": "node scripts/run_locally.js",
-    "test": "node node_modules/intern/runner.js config=tests/intern suites=tests/tdd ",
-    "test-functional": "node node_modules/intern/runner.js config=tests/intern_functional"
+    "start": "grunt server",
+    "postinstall": "bower install",
+    "test": "intern-runner config=tests/intern",
+    "test-browser": "intern-runner config=tests/intern_browser",
+    "test-remote": "intern-runner config=tests/intern_sauce"
   },
   "repository": {
     "type": "git",
@@ -17,23 +18,52 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL 2.0",
   "dependencies": {
-    "client-sessions": "0.3.1",
+    "bower": "1.2.8",
+    "jshint": "0.9.1",
     "connect-cachify": "0.0.15",
     "convict": "0.4.0",
     "express": "3.3.4",
     "i18n-abide": "0.0.14",
-    "nunjucks": "0.1.9",
-    "urlparse": "0.0.1",
-    "browserid-certifier": "git://github.com/mozilla/browserid-certifier.git#881257b",
-    "jwcrypto": "0.4.3"
+    "jwcrypto": "0.4.3",
+    "intel": "0.4.0",
+    "helmet": "0.1.2",
+    "grunt": "~0.4.1",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.0",
+    "grunt-contrib-jshint": "~0.6.3",
+    "grunt-contrib-cssmin": "~0.6.0",
+    "grunt-contrib-connect": "~0.5.0",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-htmlmin": "~0.1.3",
+    "grunt-bower-install": "~0.5.0",
+    "grunt-contrib-imagemin": "~0.2.0",
+    "grunt-contrib-watch": "~0.5.2",
+    "grunt-bower-requirejs": "~0.7.1",
+    "grunt-rev": "~0.1.0",
+    "grunt-autoprefixer": "~0.2.0",
+    "grunt-usemin": "~0.1.10",
+    "grunt-mocha": "~0.4.0",
+    "grunt-modernizr": "~0.3.0",
+    "grunt-requirejs": "~0.4.0",
+    "grunt-svgmin": "~0.2.0",
+    "grunt-concurrent": "~0.3.0",
+    "grunt-preprocess": "~3.0.1",
+    "load-grunt-tasks": "0.2.1",
+    "time-grunt": "~0.1.1",
+    "jshint-stylish": "~0.1.4",
+    "connect-fonts": "0.0.12",
+    "connect-fonts-firasans": "0.0.2",
+    "connect-fonts-clearsans": "0.0.1",
+    "grunt-cli": "0.1.11"
   },
   "devDependencies": {
-    "mocha": "1.0.3",
-    "should": "0.6.3",
-    "supertest": "0.7.1",
     "awsbox": "0.6.2",
-    "jshint": "0.9.1",
-    "intern": "1.2.1"
+    "intern-geezer": "1.3.2",
+    "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
+  },
+  "engines": {
+    "node": ">=0.8.0"
   },
   "readmeFilename": "README.md"
 }

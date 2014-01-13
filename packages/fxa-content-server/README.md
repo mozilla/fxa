@@ -8,11 +8,13 @@ Static server that hosts Firefox Account sign up, sign in, email verification, e
 
 * node 0.10.x or higher
 * npm
-* Java
-* [Selenium Server Standalone 2.35.0](http://selenium.googlecode.com/files/selenium-server-standalone-2.35.0.jar)
+* Grunt (`npm install -g grunt-cli`)
+* PhantomJS (`npm install -g phantomjs`)
+* bower (`npm install -g bower`)
 * libgmp
   * On Linux: install libgmp and libgmp-dev packages
   * On Mac OS X: brew install gmp
+* [fxa-auth-server](https://github.com/mozilla/fxa-auth-server) running on 127.0.0.1:9000.
 
 ## Development Setup
 
@@ -25,51 +27,77 @@ npm start
 
 ### Setup
 There is quite a bit of setup to do before you can test this service, which is non-optimal, but for now:
-  * Run Selenium Server: `java -jar selenium-server-standalone-2.35.0.jar` (see [Prerequisites](#prerequisites))
-  * Run the Firefox Account Bridge locally: `npm start`
+
+  * Set up saucelabs credentials (we have an opensource account: `SAUCE_USERNAME=intern-example-ci` `SAUCE_ACCESS_KEY=89ac3089-17b3-4e9b-aaf3-c475b27fa441`)
+  * PhantomJS: `phantomjs --webdriver=4444` (see [Prerequisites](#prerequisites))
+  * Run the Firefox Content Server locally: `npm start`
   * Run an instance of the [fxa-auth-server](https://github.com/mozilla/fxa-auth-server) at 127.0.0.1:9000.
 
+e.g. in shell form:
+
+```
+export SAUCE_USERNAME=intern-example-ci
+export SAUCE_ACCESS_KEY=89ac3089-17b3-4e9b-aaf3-c475b27fa441
+phantomjs --webdriver=4444 &
+cd fxa-auth-server
+npm start &
+cd ../fxa-content-server
+npm start &
+```
+
 ### Running the tests
-  * Integration tests between the FAB and fxa-auth-server: `npm test`
-  * Functional tests: `npm run-script test-functional`
 
-<!-- The below test is relevant to using the FAB as a Persona bridge, which is put on the back burner for now -->
-<!--  * Server test: `npm run-script test-server` (Selenium server not required) -->
+To run tests locally against phantomjs:
 
-<!--
-## Persona Bridge Setup
+    npm test
 
-### One Time Setup
+To run tests against saucelabs:
 
-    cp server/config/local.json-dist server/config/local.json
+    npm run-script test-remote
 
-### Running the service
+### Advanced local testing using headed browsers
 
-Issuer determines the hostname and the environment`PORT` variable the port.
+It is possible to run the Selenium tests against local browsers like Firefox, Chrome, and Safari.
 
-    PORT=3030 npm start
+#### Prerequisites:
 
-The easiest way to develop, is to run a local browserid instance and `SHIMMED_PRIMARIES`:
+  * Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+  * Selenium Server (http://docs.seleniumhq.org/download/)
 
-You have to save the `/.well-known/browserid` to the file system:
+#### Configuration:
 
-    curl http://localhost:3030/.well-known/browserid > /tmp/fxwellknown
+  * edit `tests/intern.js` to select the browsers to test under `environments`.
+  * comment out `phantom`
 
-And then start up browserid:
+#### Running the tests
 
-    SHIMMED_PRIMARIES="dev.fxaccounts.mozilla.org|http://127.0.0.1:3030|/tmp/fxwellknown"  npm start
+  * Start the Selenium Server: `java -jar selenium-server-standalone-2.38.0.jar`
+  * Stop PhantomJS if it is running.
+  * from the `fxa-content-server` directory, type `npm test`
 
-Now you can type foo@dev.fxaccounts.mozilla.org in the test dialog at http://127.0.0.1:10001/. No DNS or `/etc/hosts` hacks are needed.
-
-Password is 'asdf'.
-
--->
 
 ## Configuration
 
 The default auth server is `http://api-accounts.dev.lcip.org`.  To change this,
-edit `config.json` on your deployed instance.
+edit `server/config/*.json` on your deployed instance.
 
     {
       'fxaccount_url': 'http://your.auth.server.here.org'
     }
+
+
+## Grunt Commands
+
+[Grunt](http://gruntjs.com/) is used to run common tasks to build, test, and run local servers.
+
+* `grunt jshint` - run JSHint on client side and testing JavaScript.
+* `grunt build` - build production resources
+* `grunt clean` - remove any built production resources
+* `grunt test` - run local Intern tests.
+* `grunt server` - run a local server running on port 3030 with development resources.
+* `grunt server:dist` - run a local server running on port 3030 with production resources. Production resources will be built as part of the task.
+
+
+## License
+
+MPL 2.0

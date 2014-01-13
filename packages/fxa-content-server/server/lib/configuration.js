@@ -2,13 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const
-convict = require('convict'),
-fs = require('fs'),
-path = require('path');
-
-// Side effect - Adds default_bid and dev_bid to express.logger formats
-require('./custom_logger');
+const convict = require('convict');
+const fs = require('fs');
+const path = require('path');
 
 var conf = module.exports = convict({
   port: {
@@ -16,25 +12,9 @@ var conf = module.exports = convict({
     default: 3030,
     env: "PORT"
   },
-  browserid_server: "https://fxaccounts.org",
   cachify_prefix: {
     doc: "The prefix for cachify hashes in URLs",
     default: "v"
-  },
-  certificate_duration: {
-    doc: "Longest possible cert expiration in seconds",
-    format: "duration",
-    default: "5 minutes"
-  },
-  certifier_host: {
-    format: String,
-    default: "127.0.0.1",
-    env: "CERTIFIER_HOST"
-  },
-  certifier_port: {
-    format: "port",
-    default: 8080,
-    env: "CERTIFIER_PORT"
   },
   client_sessions: {
     cookie_name: "session",
@@ -66,10 +46,9 @@ var conf = module.exports = convict({
       default: undefined
     }
   },
-  issuer: "dev.fxaccounts.mozilla.org",
   public_url: {
     doc: "The publically visible URL of the deployment",
-    default: "https://fxaccounts.persona.org",
+    default: "http://127.0.0.1:3030",
     env: 'PUBLIC_URL'
   },
   process_type: 'ephemeral',
@@ -92,9 +71,9 @@ var conf = module.exports = convict({
     default: [ "en-US" ],
     env: 'SUPPORTED_LANGUAGES'
   },
-  express_log_format: {
-    format: [ "default_bid", "dev_bid", "default", "dev", "short", "tiny" ],
-    default: "default"
+  route_log_format: {
+    format: [ "default_fxa", "dev_fxa", "default", "dev", "short", "tiny" ],
+    default: "default_fxa"
   },
   use_https: false,
   var_path: {
@@ -102,17 +81,21 @@ var conf = module.exports = convict({
     default: path.resolve(__dirname, "..", "var"),
     env: 'VAR_PATH'
   },
-  pub_key_ttl: {
-    format: "duration",
-    default: "6 hours"
-  },
-  pub_key_path: path.resolve(__dirname, "..", "var", "key.publickey"),
-  priv_key_path: path.resolve(__dirname, "..", "var", "key.secretkey"),
   fxaccount_url: {
     doc: "The url of the Firefox Account server",
     format: "url",
-    default: "http://127.0.0.1:9000",
+    default: "http://127.0.0.1:9000/v1",
     env: "FXA_URL"
+  },
+  static_directory: {
+    doc: "Directory that static files are served from.",
+    format: String,
+    default: "app"
+  },
+  font_max_age_ms: {
+    doc: "Cache fonts for this amount of time, in ms",
+    format: Number,
+    default: 180 * 24 * 60 * 60 * 1000      // 180 days
   }
 });
 
@@ -121,10 +104,10 @@ var conf = module.exports = convict({
 // on the path, we'll use that, otherwise we'll name it 'ephemeral'.
 conf.set('process_type', path.basename(process.argv[1], ".js"));
 
-var dev_config_path = path.join(__dirname, '..', 'config', 'local.json');
+var DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');
 if (! process.env.CONFIG_FILES &&
-    fs.existsSync(dev_config_path)) {
-  process.env.CONFIG_FILES = dev_config_path;
+    fs.existsSync(DEV_CONFIG_PATH)) {
+  process.env.CONFIG_FILES = DEV_CONFIG_PATH;
 }
 
 // handle configuration files.  you can specify a CSV list of configuration

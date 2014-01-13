@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 define([
   'intern!tdd',
   'intern/chai!assert',
@@ -6,17 +10,18 @@ define([
   'intern/order!static/js/gherkin.js',
   'intern/order!static/javascripts/vendor/bidbundle.js',
   'intern/order!static/javascripts/assertion_service.js'
-], function (tdd, assert, Deferred, request) {
+],
+function (tdd, assert, Deferred, request, gherkin, bidbundle, AssertionService) {
+    'use strict';
 
-  with (tdd) {
-    suite('assertion_service', function () {
+    tdd.suite('assertion_service', function () {
       var client;
       var assertionService;
       var serverUrl = 'http://127.0.0.1:9000';
       //var serverUrl = 'https://api-accounts.dev.lcip.org';
 
       // before the suite starts
-      before(function () {
+      tdd.before(function () {
         var setupDfd = new Deferred();
 
         var Client = gherkin.Client;
@@ -30,7 +35,7 @@ define([
 
             return client.login();
           })
-          .done(function (x) {
+          .done(function () {
 
             setupDfd.resolve();
           });
@@ -38,15 +43,15 @@ define([
         return setupDfd.promise;
       });
 
-      beforeEach(function () {
+      tdd.beforeEach(function () {
         assertionService = new AssertionService(client);
       });
 
-      test('client session check', function () {
+      tdd.test('client session check', function () {
         assert.ok(client.sessionToken, 'token', 'Session should have a sessionToken');
       });
 
-      test('#getAssertion (async)', function () {
+      tdd.test('#getAssertion (async)', function () {
         // test will time out after 9 seconds
         var dfd = this.async(9000);
 
@@ -58,7 +63,7 @@ define([
         }));
       });
 
-      test('#generateKeys (async)', function () {
+      tdd.test('#generateKeys (async)', function () {
         var dfd = this.async(9000);
 
         // dfd.callback resolves the promise as long as no errors are thrown from within the callback function
@@ -74,7 +79,7 @@ define([
         }));
       });
 
-      test('#testVerify (async)', function () {
+      tdd.test('#testVerify (async)', function () {
         var dfd = this.async(9000);
 
         // dfd.callback resolves the promise as long as no errors are thrown from within the callback function
@@ -86,7 +91,7 @@ define([
 
       });
 
-      test('#checkAssertion (async)', function () {
+      tdd.test('#checkAssertion (async)', function () {
         var dfd = this.async(9000);
         var jwcrypto = require('./lib/jwcrypto');
 
@@ -98,28 +103,34 @@ define([
           request
             .get(serverUrl + '/.well-known/browserid', {
               headers: {
-                "X-Requested-With": ''
+                'X-Requested-With': ''
               }
             })
             .then(
             function (data) {
               assert.ok(data, 'Received .well-known data');
 
+              var rk;
               try {
-                var rk = JSON.stringify(JSON.parse(data)['public-key']);
+                rk = JSON.stringify(JSON.parse(data)['public-key']);
               } catch (e) {
                 console.log(e);
                 dfd.reject(new assert.AssertionError({ message: 'Could not parse public key out of .well-known' }));
               }
 
               // jwcrypto verification can go wrong
+              var fxaRootKey;
+              var fullAssertion;
+              var components;
+              var assertionPublicKey;
+              var checkDate;
               try {
-                var fxaRootKey = jwcrypto.loadPublicKeyFromObject(JSON.parse(rk));
-                var fullAssertion = jwcrypto.cert.unbundle(assertion);
-                var components = jwcrypto.extractComponents(fullAssertion.certs[0]);
-                var assertionPublicKey = jwcrypto.loadPublicKey(JSON.stringify(components.payload['public-key']));
+                fxaRootKey = jwcrypto.loadPublicKeyFromObject(JSON.parse(rk));
+                fullAssertion = jwcrypto.cert.unbundle(assertion);
+                components = jwcrypto.extractComponents(fullAssertion.certs[0]);
+                assertionPublicKey = jwcrypto.loadPublicKey(JSON.stringify(components.payload['public-key']));
 
-                var checkDate = new Date(components.payload.exp - 1);
+                checkDate = new Date(components.payload.exp - 1);
               } catch (e) {
                 dfd.reject(new assert.AssertionError({ message: e }));
               }
@@ -128,18 +139,21 @@ define([
               assert.ok(components.payload.iat, 'Issued date exists');
               assert.ok(components.payload.exp, 'Expire date exists');
 
-              if (typeof components.payload.iat !== 'number')
+              if (typeof components.payload.iat !== 'number') {
                 dfd.reject(new assert.AssertionError({ message: 'cert lacks an "issued at" (.iat) field' }));
+              }
 
-              if (typeof components.payload.exp !== 'number')
+              if (typeof components.payload.exp !== 'number') {
                 dfd.reject(new assert.AssertionError({ message: 'cert lacks an "expires" (.exp) field' }));
+              }
 
-              if (components.payload.exp < components.payload.iat)
+              if (components.payload.exp < components.payload.iat) {
                 dfd.reject(new assert.AssertionError({ message: 'assertion expires before cert is valid' }));
+              }
 
-              if (components.payload.exp > (components.payload.exp + 5000))
+              if (components.payload.exp > (components.payload.exp + 5000)) {
                 dfd.reject(new assert.AssertionError({ message: 'assertion was likely issued after cert expired' }));
-
+              }
 
               return {
                 assertion: assertion,
@@ -152,11 +166,11 @@ define([
             },
             function (err) {
               dfd.reject();
-              assert.fail(err, null, '.well-known request failed')
+              assert.fail(err, null, '.well-known request failed');
             }
           )
             .then(
-            function(objs) {
+            function (objs) {
               var verifyDeferred = new Deferred();
 
               jwcrypto.assertion.verify(
@@ -177,11 +191,10 @@ define([
                 }
               );
 
-              return verifyDeferred.promise
+              return verifyDeferred.promise;
             }
           )
-            .then(
-            function(objs){
+            .then(function (objs) {
               var verifyBundleDeferred = new Deferred();
 
               jwcrypto.cert.verifyBundle(
@@ -205,7 +218,7 @@ define([
                   }
                 });
 
-              return verifyBundleDeferred.promise
+              return verifyBundleDeferred.promise;
             }
           ).otherwise(function (error) { dfd.reject(error); });
 
@@ -215,5 +228,4 @@ define([
       });
 
     });
-  }
-});
+  });
