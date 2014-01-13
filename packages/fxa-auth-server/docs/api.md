@@ -141,8 +141,8 @@ ___Parameters___
 
 * email - the primary email for this account
 * authPW - the PBKDF2/HKDF stretched password as a hex string
-* service - opaque alphanumeric token to be included in verification links
-
+* service - (optional) opaque alphanumeric token to be included in verification links
+* redirectTo - (optional) a URL that the client should be redirected to after handling the request
 
 ### Request
 
@@ -514,7 +514,8 @@ This endpoint may send a verification email to the user.  Callers may optionally
 
 ___Parameters___
 
-* service - opaque alphanumeric token to be included in verification links
+* service - (optional) opaque alphanumeric token to be included in verification links
+* redirectTo - (optional) a URL that the client should be redirected to after handling the request
 
 
 ___Headers___
@@ -771,6 +772,8 @@ Each account can have at most one `passwordForgotToken` valid at a time. Calling
 ___Parameters___
 
 * email - the recovery email for this account
+* service - (optional) indicates the relying service that the user was interacting with that triggered the password reset
+* redirectTo - (optional) a URL that the client should be redirected to after handling the request
 
 ### Request
 ```sh
@@ -779,7 +782,9 @@ curl -v \
 -H "Content-Type: application/json" \
 https://api-accounts.dev.lcip.org/v1/password/forgot/send_code \
 -d '{
-  "email": "me@example.com"
+  "email": "me@example.com",
+  "service": "sync",
+  "redirectTo": "https://sync.firefox.com/after_reset"
 }'
 ```
 
@@ -817,6 +822,8 @@ This API requires the `passwordForgotToken` returned by the original `send_code`
 ___Parameters___
 
 * email - the recovery email for this account
+* service - (optional) indicates the relying service that the user was interacting with that triggered the password reset
+* redirectTo - (optional) a URL that the client should be redirected to after handling the request
 
 ### Request
 

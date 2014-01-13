@@ -4,6 +4,7 @@
 
 var path = require('path')
 var fs = require('fs')
+var qs = require('querystring')
 var nodemailer = require('nodemailer')
 var P = require('./promise')
 var handlebars = require("handlebars")
@@ -86,17 +87,19 @@ module.exports = function (config, i18n, log) {
     return d.promise
   }
 
-  Mailer.prototype.sendVerifyCode = function (account, code, service, preferredLang) {
+  Mailer.prototype.sendVerifyCode = function (account, code, service, redirectTo, preferredLang) {
     log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
     code = code.toString('hex')
     var template = templates.verify
-    var link = this.verificationUrl + '?uid=' + account.uid.toString('hex')
-    if (service) {
-      link += '&service=' + service
+    var query = {
+      uid: account.uid.toString('hex'),
+      code: code
     }
-    link += '&code=' + code
-    var reportLink = this.reportUrl
+    if (service) { query.service = service }
+    if (redirectTo) { query.redirectTo = redirectTo }
 
+    var link = this.verificationUrl + '?' + qs.stringify(query)
+    var reportLink = this.reportUrl
     var values = {
       l10n: i18n.localizationContext(preferredLang),
       link: link,
@@ -118,13 +121,18 @@ module.exports = function (config, i18n, log) {
     return this.send(message)
   }
 
-  Mailer.prototype.sendRecoveryCode = function (token, code, preferredLang) {
+  Mailer.prototype.sendRecoveryCode = function (token, code, service, redirectTo, preferredLang) {
     log.trace({ op: 'mailer.sendRecoveryCode', email: token.email })
     code = code.toString('hex')
     var template = templates.reset
-    var link = this.passwordResetUrl +
-      '?token=' + token.data.toString('hex') +
-      '&code=' + code
+    var query = {
+      token: token.data.toString('hex'),
+      code: code
+    }
+    if (service) { query.service = service }
+    if (redirectTo) { query.redirectTo = redirectTo }
+
+    var link = this.passwordResetUrl + '?' + qs.stringify(query)
     var values = {
       l10n: i18n.localizationContext(preferredLang),
       link: link,
@@ -137,7 +145,8 @@ module.exports = function (config, i18n, log) {
       text: template.text(values),
       html: template.html(values),
       headers: {
-        'X-Recovery-Code': code
+        'X-Recovery-Code': code,
+        'X-Link': link
       }
     }
     return this.send(message)

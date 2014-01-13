@@ -93,6 +93,35 @@ TestServer.start(config.publicUrl)
   )
 
   test(
+    'invalid redirectTo',
+    function (t) {
+      var api = new Client.Api(config.publicUrl)
+      var email = crypto.randomBytes(10).toString('hex') + '@example.com'
+      var options = {
+        redirectTo: 'http://accounts.firefox.com.evil.us'
+      }
+      return api.accountCreate(email, '123456', options)
+      .then(
+        fail,
+        function (err) {
+          t.equal(err.code, 400, 'bad redirectTo rejected')
+        }
+      )
+      .then(
+        function () {
+          return api.passwordForgotSendCode(email, options)
+        }
+      )
+      .then(
+        fail,
+        function (err) {
+          t.equal(err.code, 400, 'bad redirectTo rejected')
+        }
+      )
+    }
+  )
+
+  test(
     'signup with same email, different case',
     function (t) {
       var email = Math.random() + 'TEST@EXAMPLE.COM'

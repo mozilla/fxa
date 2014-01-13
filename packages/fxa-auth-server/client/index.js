@@ -22,8 +22,7 @@ function Client(origin) {
   this.kA = null
   this.wrapKb = null
   this._devices = null
-  this.lang = null
-  this.service = null
+  this.options = null
 }
 
 Client.Api = ClientApi
@@ -52,14 +51,7 @@ Client.prototype.setupCredentials = function (email, password) {
 
 Client.create = function (origin, email, password, options) {
   var c = new Client(origin)
-  options = options || {}
-  c.preVerified = options.preVerified || false
-  if (options.lang) {
-    c.lang = options.lang
-  }
-  if (options.service) {
-    c.service = options.service
-  }
+  c.options = options || {}
 
   return c.setupCredentials(email, password)
     .then(
@@ -101,11 +93,7 @@ Client.prototype.create = function () {
   return this.api.accountCreate(
     this.email,
     this.authPW,
-    {
-      preVerified: this.preVerified,
-      lang: this.lang,
-      service: this.service
-    }
+    this.options
   )
   .then(
     function (a) {
@@ -179,7 +167,7 @@ Client.prototype.requestVerifyEmail = function () {
   var o = this.sessionToken ? P(null) : this.login()
   return o.then(
     function () {
-      return this.api.recoveryEmailResendCode(this.sessionToken, this.service)
+      return this.api.recoveryEmailResendCode(this.sessionToken, this.options)
     }.bind(this)
   )
 }
@@ -279,7 +267,7 @@ Client.prototype.destroyAccount = function () {
 
 Client.prototype.forgotPassword = function () {
   this._clear()
-  return this.api.passwordForgotSendCode(this.email)
+  return this.api.passwordForgotSendCode(this.email, this.options)
     .then(
       function (x) {
         this.passwordForgotToken = x.passwordForgotToken

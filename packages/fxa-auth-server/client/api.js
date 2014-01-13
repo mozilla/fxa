@@ -96,7 +96,8 @@ ClientApi.prototype.accountCreate = function (email, authPW, options) {
       email: email,
       authPW: authPW.toString('hex'),
       preVerified: options.preVerified || undefined,
-      service: options.service || undefined
+      service: options.service || undefined,
+      redirectTo: options.redirectTo || undefined
     },
     {
       'accept-language': options.lang
@@ -195,11 +196,8 @@ ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
     )
 }
 
-ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, service) {
-  var payload = {}
-  if (service) {
-    payload.service = service
-  }
+ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, options) {
+  options = options || {}
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
@@ -207,7 +205,10 @@ ClientApi.prototype.recoveryEmailResendCode = function (sessionTokenHex, service
           'POST',
           this.baseURL + '/recovery_email/resend_code',
           token,
-          payload
+          {
+            service: options.service || undefined,
+            redirectTo: options.redirectTo || undefined
+          }
         )
       }.bind(this)
     )
@@ -279,18 +280,22 @@ ClientApi.prototype.passwordChangeFinish = function (passwordChangeTokenHex, aut
 }
 
 
-ClientApi.prototype.passwordForgotSendCode = function (email) {
+ClientApi.prototype.passwordForgotSendCode = function (email, options) {
+  options = options || {}
   return this.doRequest(
     'POST',
     this.baseURL + '/password/forgot/send_code',
     null,
     {
-      email: email
+      email: email,
+      service: options.service || undefined,
+      redirectTo: options.redirectTo || undefined
     }
   )
 }
 
-ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex, email) {
+ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex, email, options) {
+  options = options || {}
   return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
     .then(
       function (token) {
@@ -299,7 +304,9 @@ ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex,
           this.baseURL + '/password/forgot/resend_code',
           token,
           {
-            email: email
+            email: email,
+            service: options.service || undefined,
+            redirectTo: options.redirectTo || undefined
           }
         )
       }.bind(this)

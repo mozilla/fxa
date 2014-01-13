@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var HEX_STRING = require('./validators').HEX_STRING
-var LAZY_EMAIL = require('./validators').LAZY_EMAIL
+var validators = require('./validators')
+var HEX_STRING = validators.HEX_STRING
+var LAZY_EMAIL = validators.LAZY_EMAIL
 
 var crypto = require('crypto')
 var password = require('../crypto/password')
 var butil = require('../crypto/butil')
 
-module.exports = function (log, isA, error, db, mailer) {
+module.exports = function (log, isA, error, db, redirectDomain, mailer) {
 
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
@@ -184,6 +185,8 @@ module.exports = function (log, isA, error, db, mailer) {
                 return mailer.sendRecoveryCode(
                   passwordForgotToken,
                   passwordForgotToken.passcode,
+                  request.payload.service,
+                  request.payload.redirectTo,
                   request.app.preferredLang
                 ).then(
                   function() {
@@ -210,7 +213,9 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         validate: {
           payload: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required()
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
+            service: isA.String().max(16).alphanum().optional(),
+            redirectTo: isA.String().max(512).regex(validators.domainRegex(redirectDomain)).optional()
           },
           response: {
             schema: {
@@ -239,6 +244,8 @@ module.exports = function (log, isA, error, db, mailer) {
           mailer.sendRecoveryCode(
             passwordForgotToken,
             passwordForgotToken.passcode,
+            request.payload.service,
+            request.payload.redirectTo,
             request.app.preferredLang
           ).done(
             function () {
@@ -258,7 +265,9 @@ module.exports = function (log, isA, error, db, mailer) {
         },
         validate: {
           payload: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required()
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
+            service: isA.String().max(16).alphanum().optional(),
+            redirectTo: isA.String().max(512).regex(validators.domainRegex(redirectDomain)).optional()
           },
           response: {
             schema: {

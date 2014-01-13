@@ -199,6 +199,11 @@ module.exports = function (fs, path, url, convict) {
         format: String,
         default: '#'
       },
+      redirectDomain: {
+        doc: 'Domain that mail urls are allowed to redirect to',
+        format: String,
+        default: 'firefox.com'
+      },
       templatePath: {
         doc: 'path to the email template directory',
         default: path.resolve(__dirname, '../templates/email')

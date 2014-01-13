@@ -8,6 +8,7 @@ var path = require('path')
 var P = require('../../promise')
 var Client = require('../../client')
 var crypto = require('crypto')
+var url = require('url')
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/verification.json')
 var config = require('../../config').root()
@@ -192,7 +193,7 @@ TestServer.start(config.publicUrl)
         .then(
           function (emailData) {
             t.equal(emailData.headers['x-service-id'], 'abcdef')
-            client.service = '123456'
+            client.options.service = '123456'
             return client.requestVerifyEmail()
           }
         )
@@ -204,7 +205,7 @@ TestServer.start(config.publicUrl)
         .then(
           function (emailData) {
             t.equal(emailData.headers['x-service-id'], '123456')
-            client.service = null
+            client.options.service = null
             return client.requestVerifyEmail()
           }
         )
@@ -467,6 +468,84 @@ TestServer.start(config.publicUrl)
             t.assert(emailData.text.indexOf('Welcome') === -1, 'not en')
             t.assert(emailData.text.indexOf('GDay') !== -1, 'is en-AU')
             return client.destroyAccount()
+          }
+        )
+    }
+  )
+
+  test(
+    'verifcation email link',
+    function (t) {
+      var email = uniqueID() + '@restmail.net'
+      var password = 'something'
+      var client = null
+      var options = {
+        redirectTo: 'https://sync.firefox.com',
+        service: 'sync'
+      }
+      return Client.create(config.publicUrl, email, password, options)
+        .then(
+          function (c) {
+            client = c
+          }
+        )
+        .then(
+          function () {
+            return waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            t.ok(query.uid, 'uid is in link')
+            t.ok(query.code, 'code is in link')
+            t.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link')
+            t.equal(query.service, options.service, 'service is in link')
+          }
+        )
+    }
+  )
+
+  test(
+    'recovery email link',
+    function (t) {
+      var email = uniqueID() + '@restmail.net'
+      var password = 'something'
+      var client = null
+      var options = {
+        redirectTo: 'https://sync.firefox.com',
+        service: 'sync'
+      }
+      return Client.create(config.publicUrl, email, password, options)
+        .then(
+          function (c) {
+            client = c
+          }
+        )
+        .then(
+          function () {
+            return waitForEmail(email)
+          }
+        )
+        .then(
+          function () {
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            t.ok(query.token, 'uid is in link')
+            t.ok(query.code, 'code is in link')
+            t.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link')
+            t.equal(query.service, options.service, 'service is in link')
           }
         )
     }
