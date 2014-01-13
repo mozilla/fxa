@@ -59,7 +59,7 @@ test(
     return PasswordForgotToken.create(ACCOUNT)
       .then(
         function (token) {
-          token.created = timestamp
+          token.createdAt = timestamp
           t.equal(token.ttl(), 900)
           t.equal(token.ttl(), 899)
           t.equal(token.ttl(), 899)

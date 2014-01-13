@@ -9,7 +9,6 @@ module.exports = function (log, inherits, now, Token, crypto) {
   function PasswordForgotToken(keys, details) {
     Token.call(this, keys, details)
     this.email = details.email || null
-    this.created = details.created || null
     this.passcode = details.passcode || null
     this.tries = details.tries || null
   }
@@ -25,7 +24,6 @@ module.exports = function (log, inherits, now, Token, crypto) {
       email: details.email
     })
     details.passcode = crypto.randomBytes(16)
-    details.created = now()
     details.tries = 3
     return Token.createNewToken(PasswordForgotToken, details)
   }
@@ -37,7 +35,7 @@ module.exports = function (log, inherits, now, Token, crypto) {
   }
 
   PasswordForgotToken.prototype.ttl = function () {
-    var ttl = (LIFETIME - (now() - this.created)) / 1000
+    var ttl = (LIFETIME - (now() - this.createdAt)) / 1000
     return Math.max(Math.ceil(ttl), 0)
   }
 
