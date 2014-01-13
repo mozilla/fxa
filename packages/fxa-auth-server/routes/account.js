@@ -272,12 +272,13 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
           log.begin('Account.keys', request)
           var reply = request.reply.bind(request)
           var keyFetchToken = request.auth.credentials
+          if (!keyFetchToken.verified) {
+            // don't delete the token on use until the account is verified
+            return reply(error.unverifiedAccount())
+          }
           db.deleteKeyFetchToken(keyFetchToken)
             .then(
               function () {
-                if (!keyFetchToken.verified) {
-                  throw error.unverifiedAccount()
-                }
                 return {
                   bundle: keyFetchToken.keyBundle.toString('hex')
                 }

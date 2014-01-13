@@ -251,7 +251,7 @@ Client.prototype.keys = function () {
         return keys
       }.bind(this),
       function (err) {
-        this.keyFetchToken = null
+        if (err && err.errno !== 104) { this.keyFetchToken = null }
         throw err
       }.bind(this)
     )
