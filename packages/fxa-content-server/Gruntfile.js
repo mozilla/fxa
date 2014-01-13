@@ -28,7 +28,7 @@ module.exports = function (grunt) {
   // show elapsed time at the end
   require('time-grunt')(grunt);
   // load all grunt tasks
-  require('load-grunt-tasks')(grunt);
+  require('load-grunt-tasks')(grunt, {scope: 'dependencies'});
 
   grunt.initConfig({
   });
