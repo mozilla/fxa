@@ -23,7 +23,8 @@ define([
       var day;
 
       var remote = this.get('remote')
-        .eval("{ day: new Date(new Date().getTime() - 1000 * 60 * 60 * 24).getDate(), month: new Date(new Date().getTime() - 1000 * 60 * 60 * 24).getMonth() }")
+        /*jshint evil:true*/
+        .eval('{ day: new Date(new Date().getTime() - 1000 * 60 * 60 * 24).getDate(), month: new Date(new Date().getTime() - 1000 * 60 * 60 * 24).getMonth() }')
         .then(function (result) {
           day = result.day;
           month = MONTHS[result.month];
@@ -58,7 +59,8 @@ define([
 
       var remote = this.get('remote')
         // Get client current date, we cannot use the date of the test runner.
-        .eval("{ day: new Date().getDate(), month: new Date().getMonth() }")
+        /*jshint evil:true*/
+        .eval('{ day: new Date().getDate(), month: new Date().getMonth() }')
         .then(function (result) {
           day = result.day;
           month = MONTHS[result.month];
@@ -94,7 +96,8 @@ define([
       var day;
 
       var remote = this.get('remote')
-        .eval("{ day: new Date(new Date().getTime() + 1000 * 60 * 60 * 24).getDate(), month: new Date(new Date().getTime() + 1000 * 60 * 60 * 24).getMonth() }")
+        /*jshint evil:true*/
+        .eval('{ day: new Date(new Date().getTime() + 1000 * 60 * 60 * 24).getDate(), month: new Date(new Date().getTime() + 1000 * 60 * 60 * 24).getMonth() }')
         .then(function (result) {
           day = result.day;
           month = MONTHS[result.month];
