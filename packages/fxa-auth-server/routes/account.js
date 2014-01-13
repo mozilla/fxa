@@ -2,13 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var HEX_STRING = require('./validators').HEX_STRING
-var LAZY_EMAIL = require('./validators').LAZY_EMAIL
+var validators = require('./validators')
+var HEX_STRING = validators.HEX_STRING
+var LAZY_EMAIL = validators.LAZY_EMAIL
 
 var password = require('../crypto/password')
 var butil = require('../crypto/butil')
 
-module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProduction) {
+module.exports = function (
+  log,
+  crypto,
+  P,
+  uuid,
+  isA,
+  error,
+  db,
+  mailer,
+  redirectDomain,
+  isProduction
+  ) {
 
   var routes = [
     {
@@ -25,7 +37,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
             email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.Boolean(),
-            service: isA.String().max(16).alphanum().optional()
+            service: isA.String().max(16).alphanum().optional(),
+            redirectTo: isA.String().max(512).regex(validators.domainRegex(redirectDomain)).optional()
           }
         },
         handler: function accountCreate(request) {
@@ -70,6 +83,7 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
                     account,
                     account.emailCode,
                     form.service,
+                    form.redirectTo,
                     request.app.preferredLang
                   )
                   .fail(
@@ -330,7 +344,8 @@ module.exports = function (log, crypto, P, uuid, isA, error, db, mailer, isProdu
         },
         validate: {
           payload: {
-            service: isA.String().max(16).alphanum().optional()
+            service: isA.String().max(16).alphanum().optional(),
+            redirectTo: isA.String().max(512).regex(validators.domainRegex(redirectDomain)).optional()
           }
         },
         tags: ["account", "recovery"],
