@@ -20,10 +20,6 @@ install:
 # for local developers, grunt-cli is installed globally.
 # We have to install it for travis.
   - npm install grunt-cli
-# install intern-geezer, which is an intern compatible with old IEs
-  - cd node_modules/intern-geezer
-  - npm install --production
-  - cd ../..
 # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
   - npm start &
