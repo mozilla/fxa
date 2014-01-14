@@ -265,7 +265,7 @@ module.exports = function (
   }
 
   var CREATE_PASSWORD_FORGOT_TOKEN = 'REPLACE INTO passwordForgotTokens' +
-    ' (tokenId, tokenData, uid, passcode, createdAt, tries)' +
+    ' (tokenId, tokenData, uid, passCode, createdAt, tries)' +
     ' VALUES (?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createPasswordForgotToken = function (emailRecord) {
@@ -284,7 +284,7 @@ module.exports = function (
             passwordForgotToken.tokenId,
             passwordForgotToken.data,
             passwordForgotToken.uid,
-            passwordForgotToken.passcode,
+            passwordForgotToken.passCode,
             passwordForgotToken.createdAt,
             passwordForgotToken.tries
           ],
@@ -465,7 +465,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   }
 
   var PASSWORD_FORGOT_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt,' +
-    ' t.passcode, t.tries, a.email, a.verifierSetAt' +
+    ' t.passCode, t.tries, a.email, a.verifierSetAt' +
     ' FROM passwordForgotTokens t, accounts a' +
     ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
