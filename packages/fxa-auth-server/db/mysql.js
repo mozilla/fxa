@@ -121,7 +121,7 @@ module.exports = function (
 
   // CREATE
   var CREATE_ACCOUNT = 'INSERT INTO accounts' +
-    ' (uid, normalizedEmail, email, emailCode, verified,' +
+    ' (uid, normalizedEmail, email, emailCode, emailVerified,' +
     ' kA, wrapWrapKb, authSalt, verifyHash, verifierSetAt)' +
     ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?)'
 
@@ -146,7 +146,7 @@ module.exports = function (
             data.normalizedEmail,
             data.email,
             data.emailCode,
-            data.verified,
+            data.emailVerified,
             data.kA,
             data.wrapWrapKb,
             data.authSalt,
@@ -373,7 +373,7 @@ module.exports = function (
   }
 
 var SESSION_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt,' +
-  ' a.verified, a.email, a.emailCode, a.verifierSetAt' +
+  ' a.emailVerified, a.email, a.emailCode, a.verifierSetAt' +
   ' FROM sessionTokens t, accounts a' +
   ' WHERE t.tokenid = ? AND t.uid = a.uid'
 
@@ -404,7 +404,7 @@ var SESSION_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt,' +
   }
 
 var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
-  ' a.verified, a.verifierSetAt' +
+  ' a.emailVerified, a.verifierSetAt' +
   ' FROM keyfetchTokens t, accounts a' +
   ' WHERE t.tokenid = ? AND t.uid = a.uid'
 
@@ -523,7 +523,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var EMAIL_RECORD = 'SELECT uid, email, normalizedEmail, verified,' +
+  var EMAIL_RECORD = 'SELECT uid, email, normalizedEmail, emailVerified,' +
     ' emailCode, kA, wrapWrapKb, verifyHash, authSalt, verifierSetAt' +
     ' FROM accounts' +
     ' WHERE normalizedEmail = LOWER(?)'
@@ -547,7 +547,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
               email: result.email,
               normalizedEmail: result.normalizedEmail,
               emailCode: result.emailCode,
-              verified: !!result.verified,
+              emailVerified: !!result.emailVerified,
               kA: result.kA,
               wrapWrapKb: result.wrapWrapKb,
               verifyHash: result.verifyHash,
@@ -560,7 +560,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var ACCOUNT = 'SELECT email, normalizedEmail, emailCode, verified, kA,' +
+  var ACCOUNT = 'SELECT email, normalizedEmail, emailCode, emailVerified, kA,' +
     ' wrapWrapKb, verifyHash, authSalt, verifierSetAt ' +
     ' FROM accounts WHERE uid = ?'
 
@@ -584,7 +584,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
               email: result.email,
               normalizedEmail: result.normalizedEmail,
               emailCode: result.emailCode,
-              verified: !!result.verified,
+              emailVerified: !!result.emailVerified,
               kA: result.kA,
               wrapWrapKb: result.wrapWrapKb,
               verifyHash: result.verifyHash,
@@ -834,7 +834,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var VERIFY_EMAIL = 'UPDATE accounts SET verified = true WHERE uid = ?'
+  var VERIFY_EMAIL = 'UPDATE accounts SET emailVerified = true WHERE uid = ?'
 
   MySql.prototype.verifyEmail = function (account) {
     log.trace({ op: 'MySql.verifyEmail', uid: account && account.uid })

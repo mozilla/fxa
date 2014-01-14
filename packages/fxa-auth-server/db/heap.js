@@ -160,7 +160,7 @@ module.exports = function (
     if (!account) { return P.reject(error.unknownAccount()) }
     sessionToken.email = account.email
     sessionToken.emailCode = account.emailCode
-    sessionToken.verified = account.verified
+    sessionToken.emailVerified = account.emailVerified
     return P(sessionToken)
   }
 
@@ -172,7 +172,7 @@ module.exports = function (
     if (!account) { return P.reject(error.unknownAccount()) }
     keyFetchToken.kA = account.kA
     keyFetchToken.wrapWrapKb = account.wrapWrapKb
-    keyFetchToken.verified = account.verified
+    keyFetchToken.emailVerified = account.emailVerified
     return P(keyFetchToken)
   }
 
@@ -320,7 +320,7 @@ module.exports = function (
 
   Heap.prototype.verifyEmail = function (account) {
     log.trace({ op: 'Heap.verifyEmail', uid: account && account.uid })
-    account.verified = true
+    account.emailVerified = true
     return P(true)
   }
 

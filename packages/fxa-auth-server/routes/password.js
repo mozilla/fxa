@@ -60,7 +60,7 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
                           uid: emailRecord.uid,
                           kA: emailRecord.kA,
                           wrapKb: wrapKb,
-                          verified: emailRecord.verified
+                          emailVerified: emailRecord.emailVerified
                         }
                       )
                       .then(
@@ -89,7 +89,7 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
                   {
                     keyFetchToken: tokens.keyFetchToken.data.toString('hex'),
                     passwordChangeToken: tokens.passwordChangeToken.data.toString('hex'),
-                    verified: tokens.keyFetchToken.verified
+                    verified: tokens.keyFetchToken.emailVerified
                   }
                 )
               },

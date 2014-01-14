@@ -64,7 +64,7 @@ module.exports = function (
                     uid: uuid.v4('binary'),
                     email: email,
                     emailCode: crypto.randomBytes(16),
-                    verified: form.preVerified || false,
+                    emailVerified: form.preVerified || false,
                     kA: crypto.randomBytes(32),
                     wrapWrapKb: crypto.randomBytes(32),
                     devices: {},
@@ -78,7 +78,7 @@ module.exports = function (
             )
             .then(
               function (account) {
-                if (!account.verified) {
+                if (!account.emailVerified) {
                   mailer.sendVerifyCode(
                     account,
                     account.emailCode,
@@ -147,7 +147,7 @@ module.exports = function (
                                 uid: emailRecord.uid,
                                 email: emailRecord.email,
                                 emailCode: emailRecord.emailCode,
-                                verified: emailRecord.verified
+                                emailVerified: emailRecord.emailVerified
                               }
                             )
                           }
@@ -178,7 +178,7 @@ module.exports = function (
                                       uid: emailRecord.uid,
                                       kA: emailRecord.kA,
                                       wrapKb: wrapKb,
-                                      verified: emailRecord.verified
+                                      emailVerified: emailRecord.emailVerified
                                     }
                                   )
                                 }
@@ -204,7 +204,7 @@ module.exports = function (
                     uid: tokens.sessionToken.uid.toString('hex'),
                     sessionToken: tokens.sessionToken.data.toString('hex'),
                     keyFetchToken: tokens.keyFetchToken ? tokens.keyFetchToken.data.toString('hex') : undefined,
-                    verified: tokens.sessionToken.verified
+                    verified: tokens.sessionToken.emailVerified
                   }
                 )
               },
@@ -286,7 +286,7 @@ module.exports = function (
           log.begin('Account.keys', request)
           var reply = request.reply.bind(request)
           var keyFetchToken = request.auth.credentials
-          if (!keyFetchToken.verified) {
+          if (!keyFetchToken.emailVerified) {
             // don't delete the token on use until the account is verified
             return reply(error.unverifiedAccount())
           }
@@ -318,7 +318,7 @@ module.exports = function (
           request.reply(
             {
               email: sessionToken.email,
-              verified: sessionToken.verified
+              verified: sessionToken.emailVerified
             }
           )
         },

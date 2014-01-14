@@ -7,7 +7,7 @@ module.exports = function (log, inherits, Token, P, error) {
   function KeyFetchToken(keys, details) {
     Token.call(this, keys, details)
     this.keyBundle = details.keyBundle
-    this.verified = !!details.verified
+    this.emailVerified = !!details.emailVerified
   }
   inherits(KeyFetchToken, Token)
 

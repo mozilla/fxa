@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   normalizedEmail VARCHAR(255) NOT NULL UNIQUE KEY,
   email VARCHAR(255) NOT NULL,
   emailCode BINARY(16) NOT NULL,
-  verified BOOLEAN NOT NULL DEFAULT FALSE,
+  emailVerified BOOLEAN NOT NULL DEFAULT FALSE,
   kA BINARY(32) NOT NULL,
   wrapWrapKb BINARY(32) NOT NULL,
   authSalt BINARY(32) NOT NULL,
@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS sessionTokens (
   INDEX session_uid (uid)
 ) ENGINE=InnoDB;
 
-
 CREATE TABLE IF NOT EXISTS keyfetchTokens (
   tokenid BINARY(32) PRIMARY KEY,
   authKey BINARY(32) NOT NULL,
@@ -30,14 +29,12 @@ CREATE TABLE IF NOT EXISTS keyfetchTokens (
   INDEX key_uid (uid)
 ) ENGINE=InnoDB;
 
-
 CREATE TABLE IF NOT EXISTS resetTokens (
   tokenid BINARY(32) PRIMARY KEY,
   tokendata BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL UNIQUE KEY,
   createdAt BIGINT UNSIGNED NOT NULL
 ) ENGINE=InnoDB;
-
 
 CREATE TABLE IF NOT EXISTS passwordForgotTokens (
   tokenid BINARY(32) PRIMARY KEY,

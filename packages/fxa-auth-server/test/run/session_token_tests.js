@@ -13,7 +13,7 @@ var ACCOUNT = {
   uid: 'xxx',
   email: Buffer('test@example.com').toString('hex'),
   emailCode: '123456',
-  verified: true
+  emailVerified: true
 }
 
 
@@ -41,7 +41,7 @@ test(
           t.deepEqual(token.uid, token2.uid)
           t.equal(token.email, token2.email)
           t.equal(token.emailCode, token2.emailCode)
-          t.equal(token.verified, token2.verified)
+          t.equal(token.emailVerified, token2.emailVerified)
         }
       )
   }

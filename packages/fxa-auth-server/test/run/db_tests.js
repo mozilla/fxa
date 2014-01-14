@@ -26,7 +26,7 @@ var ACCOUNT = {
   uid: uuid.v4('binary'),
   email: 'foo@bar.com',
   emailCode: zeroBuffer16,
-  verified: false,
+  emailVerified: false,
   verifyHash: zeroBuffer32,
   authSalt: zeroBuffer32,
   kA: zeroBuffer32,
@@ -71,7 +71,7 @@ DB.connect(config[config.db.backend])
             t.deepEqual(account.uid, ACCOUNT.uid)
             t.equal(account.email, ACCOUNT.email)
             t.deepEqual(account.emailCode, ACCOUNT.emailCode)
-            t.equal(account.verified, ACCOUNT.verified)
+            t.equal(account.emailVerified, ACCOUNT.emailVerified)
             t.deepEqual(account.kA, ACCOUNT.kA)
             t.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb)
             t.deepEqual(account.verifyHash, ACCOUNT.verifyHash)
@@ -100,7 +100,7 @@ DB.connect(config[config.db.backend])
             t.deepEqual(sessionToken.uid, ACCOUNT.uid)
             t.equal(sessionToken.email, ACCOUNT.email)
             t.deepEqual(sessionToken.emailCode, ACCOUNT.emailCode)
-            t.equal(sessionToken.verified, ACCOUNT.verified)
+            t.equal(sessionToken.emailVerified, ACCOUNT.emailVerified)
             return sessionToken
           })
           .then(function(sessionToken) {
@@ -127,7 +127,7 @@ DB.connect(config[config.db.backend])
           .then(function(keyFetchToken) {
             t.deepEqual(keyFetchToken.tokenid, tokenid, 'token id matches')
             t.deepEqual(keyFetchToken.uid, ACCOUNT.uid)
-            t.equal(keyFetchToken.verified, ACCOUNT.verified)
+            t.equal(keyFetchToken.emailVerified, ACCOUNT.emailVerified)
             return keyFetchToken
           })
           .then(function(keyFetchToken) {
@@ -213,7 +213,7 @@ DB.connect(config[config.db.backend])
             return db.account(ACCOUNT.uid)
           })
           .then(function(account) {
-            t.ok(account.verified, 'account should now be verified')
+            t.ok(account.emailVerified, 'account should now be emailVerified')
           })
         }
       )

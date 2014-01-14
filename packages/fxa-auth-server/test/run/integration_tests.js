@@ -147,7 +147,7 @@ TestServer.start(config.publicUrl)
           function (x) {
             client = x
             t.ok(client.uid, 'got a uid')
-            t.equal(client.verified, true, 'email is verified')
+            t.equal(client.emailVerified, true, 'email is verified')
             return client.keys()
           }
         )

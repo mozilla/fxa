@@ -37,7 +37,7 @@ module.exports = function (log, isA, error, signer, domain) {
           var publicKey = request.payload.publicKey
           var duration = request.payload.duration
 
-          if (!sessionToken.verified) {
+          if (!sessionToken.emailVerified) {
             return request.reply(error.unverifiedAccount())
           }
 
