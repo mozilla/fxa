@@ -9,7 +9,8 @@ http = require('http'),
 toobusy = require('toobusy'),
 log = require('./log'),
 config = require('./config'),
-verify = require('./verify');
+v1api = require('./v1'),
+v2api = require('./v2');
 
 log.debug("verifier server starting up");
 
@@ -76,9 +77,9 @@ app.use(function(req, res, next) {
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ limit: "10kb" }));
 
-app.post('/verify', verify);
-
-app.post('/', verify);
+app.post('/verify', v1api);
+app.post('/', v1api);
+app.post('/v2', v2api);
 
 server.listen(config.get('port'), config.get('ip'), function() {
   log.info("running on http://" +

@@ -19,7 +19,12 @@ describe('audience tests', function() {
   it('test servers should start', function(done) {
     idp.start(function(e) {
       verifier.start(function(e1) {
-        client = new Client({ idp: idp });
+        client = new Client({
+          idp: idp,
+          // note, using an email not rooted at the idp.  trustIssuer is the only
+          // way this can work
+          email: 'user@example.com'
+        });
         done(e || e1);
       });
     });
@@ -34,59 +39,50 @@ describe('audience tests', function() {
     });
   });
 
-  function submitWithAudience(audience, cb) {
+  function submitWithTrustedIssuers(ti, cb) {
     request({
       method: 'post',
       url: verifier.url(),
       json: true,
       body: {
         assertion: assertion,
-        audience: audience
+        audience: 'http://example.com',
+        trustedIssuers: ti
       }
     }, cb);
   }
 
-  it('should verify with complete audience', function(done) {
-    submitWithAudience('http://example.com', function(err, r) {
+  it('should verify when trusted issuers is specified', function(done) {
+    submitWithTrustedIssuers([ idp.domain() ], function(err, r) {
       should.not.exist(err);
       ('okay').should.equal(r.body.status);
       done();
     });
   });
 
-  it('should fail to verify with different domain as audience', function(done) {
-    submitWithAudience('incorrect.com', function(err, r) {
+  it('should fail when trusted issuers is not specified', function(done) {
+    submitWithTrustedIssuers(undefined, function(err, r) {
       should.not.exist(err);
-      (r.body.status).should.equal('failure');
-      (r.body.reason).should.equal('audience mismatch: domain mismatch');
-      done(err);
+      ('failure').should.equal(r.body.status);
+      done();
     });
   });
 
-  it('should fail to verify with different port', function(done) {
-    submitWithAudience('http://example.com:8080', function(err, r) {
+  it('should fail when trusted issuers is not an array', function(done) {
+    submitWithTrustedIssuers(idp.domain(), function(err, r) {
       should.not.exist(err);
-      (r.body.status).should.equal('failure');
-      (r.body.reason).should.equal('audience mismatch: port mismatch');
-      done(err);
+      ('failure').should.equal(r.body.status);
+      ('trusted issuers must be an array').should.equal(r.body.reason);
+      done();
     });
   });
 
-  it('should fail to verify with incorrect scheme', function(done) {
-    submitWithAudience('https://example.com', function(err, r) {
+  it('should fail when trusted issuers contains non-strings', function(done) {
+    submitWithTrustedIssuers([ idp.domain(), [ "example.com" ] ], function(err, r) {
       should.not.exist(err);
-      (r.body.status).should.equal('failure');
-      (r.body.reason).should.equal('audience mismatch: scheme mismatch');
-      done(err);
-    });
-  });
-
-  it('should fail to verify if audience is missing', function(done) {
-    submitWithAudience(undefined, function(err, r) {
-      should.not.exist(err);
-      (r.body.status).should.equal('failure');
-      (r.body.reason).should.equal('missing audience parameter');
-      done(err);
+      ('failure').should.equal(r.body.status);
+      ('trusted issuers must be an array of strings').should.equal(r.body.reason);
+      done();
     });
   });
 

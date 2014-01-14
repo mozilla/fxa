@@ -25,7 +25,7 @@ describe('unverified email', function() {
     });
   });
 
-  it('assertion with unverified email address should fail to verify', function(done) {
+  it('(v1) assertion with unverified email address should fail to verify', function(done) {
     client = new Client(
       { idp: fallback,
         principal: { "unverified-email": "bob@example.com" }
@@ -35,7 +35,7 @@ describe('unverified email', function() {
     client.assertion({ audience: 'http://example.com' }, function(err, assertion) {
       request({
         method: 'post',
-        url: verifier.url(),
+        url: verifier.v1url(),
         json: true,
         body: {
           assertion: assertion,
@@ -51,7 +51,7 @@ describe('unverified email', function() {
     });
   });
 
-  it('assertion with unverified email address and forceIssuer should verify', function(done) {
+  it('(v1) assertion with unverified email address and forceIssuer should verify', function(done) {
     client = new Client(
       { idp: fallback,
         principal: { "unverified-email": "bob@example.com" } });
@@ -77,7 +77,7 @@ describe('unverified email', function() {
     });
   });
 
-  it('allowUnverified causes extractin of unverified email addresses', function(done) {
+  it('(v1) allowUnverified causes extraction of unverified email addresses', function(done) {
     client = new Client(
       { idp: fallback,
         principal: { "unverified-email": "bob@example.com" } });
@@ -85,7 +85,7 @@ describe('unverified email', function() {
     client.assertion({ audience: 'http://example.com' }, function(err, assertion) {
       request({
         method: 'post',
-        url: verifier.url(),
+        url: verifier.v1url(),
         json: true,
         body: {
           assertion: assertion,

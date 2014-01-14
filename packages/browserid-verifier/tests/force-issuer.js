@@ -55,7 +55,33 @@ describe('force issuer', function() {
     });
   });
 
-  it('forceIssuer should over-ride authority discovery', function(done) {
+  it('(v1) forceIssuer should over-ride authority discovery', function(done) {
+    // user has an email from idp, but fallback will be used for certificate
+    client = new Client({
+      idp: fallback,
+      email: "user@" + idp.domain()
+    });
+
+    client.assertion({ audience: 'http://example.com' }, function(err, assertion) {
+      request({
+        method: 'post',
+        url: verifier.v1url(),
+        json: true,
+        body: {
+          assertion: assertion,
+          audience: "http://example.com",
+          experimental_forceIssuer: fallback.domain()
+        }
+      }, function(err, r) {
+        should.not.exist(err);
+        (r.statusCode).should.equal(200);
+        (r.body.status).should.equal('okay');
+        done();
+      });
+    });
+  });
+
+  it('(v2) trustedIssuers should over-ride authority discovery', function(done) {
     // user has an email from idp, but fallback will be used for certificate
     client = new Client({
       idp: fallback,
@@ -70,7 +96,7 @@ describe('force issuer', function() {
         body: {
           assertion: assertion,
           audience: "http://example.com",
-          experimental_forceIssuer: fallback.domain()
+          trustedIssuers: [ fallback.domain() ]
         }
       }, function(err, r) {
         should.not.exist(err);

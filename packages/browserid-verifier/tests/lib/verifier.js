@@ -38,6 +38,14 @@ Verifier.prototype.buffer = function(b) {
 };
 
 Verifier.prototype.url = function() {
+  return this.baseurl() + '/v2';
+};
+
+Verifier.prototype.v1url = function() {
+  return this.baseurl();
+};
+
+Verifier.prototype.baseurl =  function() {
   if (!this._url) {
     throw new Error("verifier not running");
   }

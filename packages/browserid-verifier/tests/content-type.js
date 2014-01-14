@@ -34,7 +34,7 @@ describe('content-type tests', function() {
     });
   });
 
-  it('should fail to verify when content-type is unsupported', function(done) {
+  it('(v2 api) should fail to verify when content-type is unsupported', function(done) {
     request({
       method: 'post',
       url: verifier.url(),
@@ -53,7 +53,26 @@ describe('content-type tests', function() {
     });
   });
 
-  it('shouldn\'t get confused when extended content-types are used', function(done) {
+  it('(v1 api) should fail to verify when content-type is unsupported', function(done) {
+    request({
+      method: 'post',
+      url: verifier.v1url(),
+      headers: {
+        "Content-Type": "text/plain"
+      }
+    }, function(err, r) {
+      should.not.exist(err);
+      (r.statusCode).should.equal(415);
+      (function() {
+        r.body = JSON.parse(r.body);
+      }).should.not.throw();
+      (r.body.status).should.equal('failure');
+      (r.body.reason).should.startWith('Unsupported Content-Type: text/plain');
+      done();
+    });
+  });
+
+  it('(v2 api) shouldn\'t get confused when extended content-types are used', function(done) {
     request({
       method: 'post',
       url: verifier.url(),
@@ -70,6 +89,71 @@ describe('content-type tests', function() {
         r.body = JSON.parse(r.body);
       }).should.not.throw();
       (r.body.status).should.equal('failure');
+      done();
+    });
+  });
+
+  it('(v1 api) shouldn\'t get confused when extended content-types are used', function(done) {
+    request({
+      method: 'post',
+      url: verifier.v1url(),
+      headers: {
+        "Content-Type": "application/json; charset: utf-8",
+      },
+      body: JSON.stringify({
+        assertion: assertion
+      })
+    }, function(err, r) {
+      should.not.exist(err);
+      (r.statusCode).should.equal(400);
+      (function() {
+        r.body = JSON.parse(r.body);
+      }).should.not.throw();
+      (r.body.status).should.equal('failure');
+      done();
+    });
+  });
+
+  it('(v2 api) shouldn\'t support x-www-form-urlencoded', function(done) {
+    request({
+      method: 'post',
+      url: verifier.url(),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: require('querystring').stringify({
+        assertion: assertion
+      })
+    }, function(err, r) {
+      should.not.exist(err);
+      (r.statusCode).should.equal(415);
+      (function() {
+        r.body = JSON.parse(r.body);
+      }).should.not.throw();
+      (r.body.status).should.equal('failure');
+      r.body.reason.should.startWith('Unsupported Content-Type');
+      done();
+    });
+  });
+
+  it('(v1 api) should support x-www-form-urlencoded', function(done) {
+    request({
+      method: 'post',
+      url: verifier.v1url(),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: require('querystring').stringify({
+        assertion: assertion
+      })
+    }, function(err, r) {
+      should.not.exist(err);
+      (r.statusCode).should.equal(400);
+      (function() {
+        r.body = JSON.parse(r.body);
+      }).should.not.throw();
+      (r.body.status).should.equal('failure');
+      r.body.reason.should.startWith('missing audience');
       done();
     });
   });
