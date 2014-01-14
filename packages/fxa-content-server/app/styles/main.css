@@ -163,6 +163,10 @@ header h2 {
   color: #C0C9D0;
 }
 
+.spinner {
+  margin-top: 125px;
+}
+
 /* TODO: These need further consideration */
 
 #fxa-complete-sign-up-success {

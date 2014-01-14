@@ -43,6 +43,7 @@ function (BaseView, CreateAccountTemplate, Session, FxaClient) {
           router.navigate('confirm', { trigger: true });
         },
         function (err) {
+          this.$('.spinner').hide()
           this.$('.error').html(err.message);
 
           console.error('Error?', err);
