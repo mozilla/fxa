@@ -30,6 +30,7 @@ mail.on(
         var link = mail.headers['x-link']
         var rc = mail.headers['x-recovery-code']
         var vc = mail.headers['x-verify-code']
+        var name = emailName(mail.headers.to)
         if (vc) {
           console.log('\x1B[32m', link, '\x1B[39m')
           console.log(
@@ -50,7 +51,11 @@ mail.on(
           console.error('\x1B[31mNo verify code match\x1B[39m')
           console.error(email)
         }
-        users[emailName(mail.headers.to)] = mail
+        if (users[name]) {
+          users[name].push(mail)
+        } else {
+          users[name] = [mail]
+        }
       }
     )
     mp.write(email)
@@ -81,7 +86,7 @@ api.route(
         loop(
           request.params.email,
           function (emailData) {
-            request.reply([emailData])
+            request.reply(emailData)
           }
         )
       }
