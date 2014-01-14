@@ -14,6 +14,7 @@ define({
 
   suites: [ 'tests/all' ],
   functionalSuites: [ ],
+  SERVER: typeof process !== 'undefined' ? process.env.SERVER : undefined,
 
   excludeInstrumentation: /(?:.)\//
 

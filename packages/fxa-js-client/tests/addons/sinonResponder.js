@@ -9,7 +9,9 @@ define([
   return {
     useFakeXMLHttpRequest: Sinon.useFakeXMLHttpRequest,
     respond: function (req, mock) {
-      req.respond(mock.status, mock.headers, mock.body);
+      if (req && req.respond) {
+        req.respond(mock.status, mock.headers, mock.body);
+      }
     }
   }
 });

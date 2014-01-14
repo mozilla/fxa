@@ -3,14 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'tests/intern',
   'intern!tdd',
   'intern/chai!assert',
   'client/FxAccountClient',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest',
   'tests/addons/sinonResponder',
   'tests/mocks/request',
-  'client/lib/request'
-], function (tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Request) {
+  'client/lib/request',
+  'components/p/p',
+], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Request, p) {
 
   with (tdd) {
     suite('fxa client', function () {
@@ -20,20 +22,30 @@ define([
       var restmailClient;
 
       beforeEach(function () {
-        // TODO: allow real requests by using 'XHR'
-        var xhr = SinonResponder.useFakeXMLHttpRequest();
-        requests = [];
+        var xhr;
+        if (config.SERVER) {
+          xhr = XHR ? XHR.XMLHttpRequest : undefined;
+          baseUri = config.SERVER;
+          // TODO
+          requests = Array(50);
+        } else {
+          // TODO: allow real requests by using 'XHR'
+          xhr = SinonResponder.useFakeXMLHttpRequest();
+          requests = [];
 
-        xhr.onCreate = function (xhr) {
-          requests.push(xhr);
-        };
+          xhr.onCreate = function (xhr) {
+            requests.push(xhr);
+          };
+        }
 
         client = new FxAccountClient(baseUri, { xhr: xhr });
         restmailClient = new Request('http://restmail.net', xhr);
       });
 
-
-      test('#create account (async)', function () {
+      /**
+       * Create Account
+       */
+      test('#create account', function () {
         var email = "test" + Date.now() + "@restmail.net";
         var password = "iliketurtles";
         var signUpRequest = client.signUp(email, password)
@@ -48,7 +60,10 @@ define([
         return signUpRequest;
       });
 
-      test('#sign in (async)', function () {
+      /**
+       * Sign In
+       */
+      test('#sign in', function () {
         var email = "test" + Date.now() + "@restmail.net";
         var password = "iliketurtles";
         var signUpRequest =  client.signUp(email, password)
@@ -72,6 +87,37 @@ define([
         return signUpRequest;
       });
 
+      /**
+       * Sign In with Keys
+       */
+      test('#sign in with keys', function () {
+        var email = "test" + Date.now() + "@restmail.net";
+        var password = "iliketurtles";
+        var signUpRequest =  client.signUp(email, password)
+          .then(function (res) {
+            var signInRequest = client.signIn(email, password, {keys: true});
+
+            setTimeout(function() {
+              SinonResponder.respond(requests[1], RequestMocks.signInWithKeys);
+            }, 200);
+
+            return signInRequest;
+          })
+          .then(function (res) {
+            assert.ok(res.sessionToken);
+            return true;
+          });
+
+        setTimeout(function() {
+          SinonResponder.respond(requests[0], RequestMocks.signUp);
+        }, 200);
+
+        return signUpRequest;
+      });
+
+      /**
+       * Verify Email
+       */
       test('#verify email', function () {
         var user = 'test3' + Date.now();
         var email = user + '@restmail.net';
@@ -107,6 +153,9 @@ define([
           })
       });
 
+      /**
+       * Check Verification Status
+       */
       test('#check verification status', function () {
         var user = 'test4' + Date.now();
         var email = user + '@restmail.net';
@@ -171,8 +220,73 @@ define([
           })
       });
 
+      /**
+       * Password Reset
+       */
+      test('#reset password', function () {
+        var user = 'test5' + Date.now();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
+        var uid;
+        var passwordForgotToken;
+        var accountResetToken;
+
+        setTimeout(function() {
+          SinonResponder.respond(requests[0], RequestMocks.signUp);
+        }, 200);
+
+        return client.signUp(email, password)
+          .then(function (result) {
+            uid = result.uid;
+            assert.ok(uid, "uid is returned");
+
+            setTimeout(function() {
+              SinonResponder.respond(requests[1], RequestMocks.passwordForgotSendCode);
+            }, 200);
+
+            return client.passwordForgotSendCode(email);
+          })
+          .then(function (result) {
+            passwordForgotToken = result.passwordForgotToken;
+            assert.ok(passwordForgotToken, "passwordForgotToken is returned");
+
+            setTimeout(function() {
+              SinonResponder.respond(requests[2], RequestMocks.mail);
+            }, 200);
+
+            return waitForEmail(user);
+          })
+          .then(function (emails) {
+
+            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+            assert.ok(code, "code is returned: " + code);
+
+            setTimeout(function() {
+              SinonResponder.respond(requests[3], RequestMocks.passwordForgotVerifyCode);
+            }, 200);
+
+            return client.passwordForgotVerifyCode(code, passwordForgotToken);
+          })
+          .then(function (result) {
+            accountResetToken = result.accountResetToken;
+            var newPassword = 'newturles';
+
+            assert.ok(accountResetToken, "accountResetToken is returned");
+            setTimeout(function() {
+              SinonResponder.respond(requests[4], RequestMocks.accountReset);
+            }, 200);
+
+            return client.accountReset(email, newPassword, accountResetToken);
+          })
+          .then(function (result) {
+            assert.ok(result, '{}');
+            return true;
+          })
+      });
+
       // utility function that waits for a restmail email to arrive
       function waitForEmail(user) {
+        console.log('Waiting for email...');
         return restmailClient.send('/mail/' + user, 'GET')
           .then(function(result) {
             if (result.length > 0) {

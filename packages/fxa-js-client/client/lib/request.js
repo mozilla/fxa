@@ -5,11 +5,25 @@ define(['./hawk', '../../components/p/p'], function (hawk, p) {
   'use strict';
   /* global XMLHttpRequest */
 
+  /**
+   * @class Request
+   * @constructor
+   * @param {String} baseUri Base URI
+   * @param {Object} xhr XMLHttpRequest constructor
+   */
   function Request (baseUri, xhr) {
     this.baseUri = baseUri;
     this.xhr = xhr || XMLHttpRequest;
   }
 
+  /**
+   * @method send
+   * @param {String} path Request path
+   * @param {String} method HTTP Method
+   * @param {Object} credentials HAWK Headers
+   * @param {Object} jsonPayload JSON Payload
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
   Request.prototype.send = function request(path, method, credentials, jsonPayload) {
     var deferred = p.defer();
     var xhr = new this.xhr();
