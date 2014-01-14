@@ -641,6 +641,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
           'sessionTokens',
           'keyFetchTokens',
           'accountResetTokens',
+          'passwordChangeTokens',
           'passwordForgotTokens',
           'accounts'
         ]
@@ -806,6 +807,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
           'sessionTokens',
           'keyFetchTokens',
           'accountResetTokens',
+          'passwordChangeTokens',
           'passwordForgotTokens'
         ]
         var all = [];
