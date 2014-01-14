@@ -62,7 +62,7 @@ module.exports = function (
         email: data && data.email
       }
     )
-    data.verifierSetAt = Date.now()
+    data.createdAt = data.verifierSetAt = Date.now()
     data.normalizedEmail = data.email.toLowerCase()
     this.accounts[data.uid.toString('hex')] = data
     this.emailRecords[data.normalizedEmail] = data.uid.toString('hex')

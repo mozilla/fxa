@@ -76,6 +76,7 @@ DB.connect(config[config.db.backend])
             t.deepEqual(account.wrapWrapKb, ACCOUNT.wrapWrapKb)
             t.deepEqual(account.verifyHash, ACCOUNT.verifyHash)
             t.deepEqual(account.authSalt, ACCOUNT.authSalt)
+            t.ok(account.createdAt)
           })
         }
       )

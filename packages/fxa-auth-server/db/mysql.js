@@ -122,8 +122,8 @@ module.exports = function (
   // CREATE
   var CREATE_ACCOUNT = 'INSERT INTO accounts' +
     ' (uid, normalizedEmail, email, emailCode, emailVerified,' +
-    ' kA, wrapWrapKb, authSalt, verifyHash, verifierSetAt)' +
-    ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?)'
+    ' kA, wrapWrapKb, authSalt, verifyHash, verifierSetAt, createdAt)' +
+    ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (data) {
     log.trace(
@@ -134,7 +134,7 @@ module.exports = function (
       }
     )
     data.normalizedEmail = data.email
-    data.verifierSetAt = Date.now()
+    data.createdAt = data.verifierSetAt = Date.now()
 
     return this.getMasterConnection()
       .then(function(con) {
@@ -151,7 +151,8 @@ module.exports = function (
             data.wrapWrapKb,
             data.authSalt,
             data.verifyHash,
-            data.verifierSetAt
+            data.verifierSetAt,
+            data.createdAt
           ],
           function (err) {
             con.release()
@@ -561,7 +562,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   }
 
   var ACCOUNT = 'SELECT email, normalizedEmail, emailCode, emailVerified, kA,' +
-    ' wrapWrapKb, verifyHash, authSalt, verifierSetAt ' +
+    ' wrapWrapKb, verifyHash, authSalt, verifierSetAt, createdAt' +
     ' FROM accounts WHERE uid = ?'
 
   MySql.prototype.account = function (uid) {
@@ -589,7 +590,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
               wrapWrapKb: result.wrapWrapKb,
               verifyHash: result.verifyHash,
               authSalt: result.authSalt,
-              verifierSetAt: result.verifierSetAt
+              verifierSetAt: result.verifierSetAt,
+              createdAt: result.createdAt
             })
           }
         )
