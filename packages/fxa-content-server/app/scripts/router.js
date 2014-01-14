@@ -24,7 +24,7 @@ define([
 function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView, CompleteSignUpView) {
   var Router = Backbone.Router.extend({
     routes: {
-      '': 'showIntro',
+      '': 'showSignUp',
       'signin': 'showSignIn',
       'signup': 'showSignUp',
       'confirm': 'showConfirm',
