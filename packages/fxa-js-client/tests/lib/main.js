@@ -254,11 +254,11 @@ define([
               SinonResponder.respond(requests[2], RequestMocks.mail);
             }, 200);
 
-            return waitForEmail(user);
+            return waitForEmail(user, 2);
           })
           .then(function (emails) {
 
-            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, "code is returned: " + code);
 
             setTimeout(function() {
@@ -285,17 +285,19 @@ define([
       });
 
       // utility function that waits for a restmail email to arrive
-      function waitForEmail(user) {
+      function waitForEmail(user, number) {
+        if (!number) number = 1;
         console.log('Waiting for email...');
+
         return restmailClient.send('/mail/' + user, 'GET')
           .then(function(result) {
-            if (result.length > 0) {
+            if (result.length === number) {
               return result;
             } else {
               var deferred = p.defer();
 
               setTimeout(function() {
-                waitForEmail(user)
+                waitForEmail(user, number)
                   .then(function(emails) {
                     deferred.resolve(emails);
                   }, function(err) {

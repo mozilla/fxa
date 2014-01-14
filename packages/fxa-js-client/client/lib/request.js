@@ -50,7 +50,8 @@ define(['./hawk', '../../components/p/p'], function (hawk, p) {
     if (credentials) {
       var header = hawk.client.header(uri, method, {
                           credentials: credentials,
-                          payload: payload
+                          payload: payload,
+                          contentType: 'application/json'
                         });
       xhr.setRequestHeader("authorization", header.field);
     }
