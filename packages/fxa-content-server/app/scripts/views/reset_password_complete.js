@@ -8,9 +8,10 @@ define([
   'underscore',
   'views/base',
   'stache!templates/reset_password_complete',
-  'lib/session'
+  'lib/session',
+  'lib/xss'
 ],
-function (_, BaseView, Template, Session) {
+function (_, BaseView, Template, Session, Xss) {
   var View = BaseView.extend({
     template: Template,
     className: 'reset_password_complete',
@@ -19,7 +20,7 @@ function (_, BaseView, Template, Session) {
       return {
         email: Session.email,
         service: Session.service,
-        redirectTo: Session.redirectTo
+        redirectTo: Xss.href(Session.redirectTo)
       };
     }
   });

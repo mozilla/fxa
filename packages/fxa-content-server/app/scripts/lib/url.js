@@ -8,8 +8,8 @@
 define(['underscore'],
 function (_) {
   return {
-    searchParam: function (name) {
-      var search = window.location.search.replace(/^\?/, '');
+    searchParam: function (name, str) {
+      var search = (window.location.search || str).replace(/^\?/, '');
       if (! search) {
         return;
       }

@@ -10,9 +10,10 @@ define([
   'stache!templates/complete_sign_up',
   'lib/session',
   'lib/fxa-client',
-  'lib/url'
+  'lib/url',
+  'lib/xss'
 ],
-function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url) {
+function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
   var CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
@@ -20,8 +21,8 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url) {
     context: function () {
       return {
         email: Session.email,
-        siteName: Url.searchParam('service'),
-        redirectTo: Url.searchParam('continue')
+        service: Url.searchParam('service'),
+        redirectTo: Xss.href(Url.searchParam('redirectTo'))
       };
     },
 
