@@ -78,6 +78,9 @@ The currently-defined error responses are:
 * status code 429, errno 114:  client has sent too many requests (see [backoff protocol](#backoff-protocol))
 * status code 401, errno 115:  invalid nonce in request signature
 * status code 410, errno 116:  endpoint is no longer supported
+* status code 400, errno 117:  incorrect login method for this account
+* status code 400, errno 118:  incorrect key retrieval method for this account
+* status code 400, errno 119:  incorrect API version for this account
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * any status code, errno 999:  unknown error
 
