@@ -13,7 +13,7 @@ function Client(origin) {
   this.uid = null
   this.api = new ClientApi(origin)
   this.email = null
-  this.verified = false
+  this.emailVerified = false
   this.authToken = null
   this.sessionToken = null
   this.accountResetToken = null
@@ -63,7 +63,6 @@ Client.create = function (origin, email, password, options) {
 
 Client.login = function (origin, email, password) {
   var c = new Client(origin)
-
 
   return c.setupCredentials(email, password)
     .then(
@@ -126,7 +125,7 @@ Client.prototype.auth = function () {
         this.uid = data.uid
         this.sessionToken = data.sessionToken
         this.keyFetchToken = data.keyFetchToken
-        this.verified = data.verified
+        this.emailVerified = data.verified
         return this
       }.bind(this)
     )

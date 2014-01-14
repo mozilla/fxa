@@ -9,7 +9,7 @@ module.exports = function (log, inherits, now, Token, crypto) {
   function PasswordForgotToken(keys, details) {
     Token.call(this, keys, details)
     this.email = details.email || null
-    this.passcode = details.passcode || null
+    this.passCode = details.passCode || null
     this.tries = details.tries || null
   }
   inherits(PasswordForgotToken, Token)
@@ -23,7 +23,7 @@ module.exports = function (log, inherits, now, Token, crypto) {
       uid: details.uid,
       email: details.email
     })
-    details.passcode = crypto.randomBytes(16)
+    details.passCode = crypto.randomBytes(16)
     details.tries = 3
     return Token.createNewToken(PasswordForgotToken, details)
   }

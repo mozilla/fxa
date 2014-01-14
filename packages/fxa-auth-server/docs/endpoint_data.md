@@ -384,7 +384,7 @@
 * reads
 	* uid
 	* email
-	* passcode
+	* passCode
 	* ttl
 	* codeLength
 	* tries
@@ -407,7 +407,7 @@
 	* code
 * reads
 	* uid
-	* passcode
+	* passCode
 	* ttl
 	* accountResetToken data
 		* (none)

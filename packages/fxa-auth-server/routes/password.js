@@ -60,7 +60,7 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
                           uid: emailRecord.uid,
                           kA: emailRecord.kA,
                           wrapKb: wrapKb,
-                          verified: emailRecord.verified
+                          emailVerified: emailRecord.emailVerified
                         }
                       )
                       .then(
@@ -89,7 +89,7 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
                   {
                     keyFetchToken: tokens.keyFetchToken.data.toString('hex'),
                     passwordChangeToken: tokens.passwordChangeToken.data.toString('hex'),
-                    verified: tokens.keyFetchToken.verified
+                    verified: tokens.keyFetchToken.emailVerified
                   }
                 )
               },
@@ -184,7 +184,7 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
               function (passwordForgotToken) {
                 return mailer.sendRecoveryCode(
                   passwordForgotToken,
-                  passwordForgotToken.passcode,
+                  passwordForgotToken.passCode,
                   request.payload.service,
                   request.payload.redirectTo,
                   request.app.preferredLang
@@ -201,7 +201,7 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
                   {
                     passwordForgotToken: passwordForgotToken.data.toString('hex'),
                     ttl: passwordForgotToken.ttl(),
-                    codeLength: passwordForgotToken.passcode.length,
+                    codeLength: passwordForgotToken.passCode.length,
                     tries: passwordForgotToken.tries
                   }
                 )
@@ -243,7 +243,7 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
           var passwordForgotToken = request.auth.credentials
           mailer.sendRecoveryCode(
             passwordForgotToken,
-            passwordForgotToken.passcode,
+            passwordForgotToken.passCode,
             request.payload.service,
             request.payload.redirectTo,
             request.app.preferredLang
@@ -253,7 +253,7 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
                 {
                   passwordForgotToken: passwordForgotToken.data.toString('hex'),
                   ttl: passwordForgotToken.ttl(),
-                  codeLength: passwordForgotToken.passcode.length,
+                  codeLength: passwordForgotToken.passCode.length,
                   tries: passwordForgotToken.tries
                 }
               )
@@ -294,7 +294,7 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
           log.begin('Password.forgotVerify', request)
           var passwordForgotToken = request.auth.credentials
           var code = Buffer(request.payload.code, 'hex')
-          if (butil.buffersAreEqual(passwordForgotToken.passcode, code) && passwordForgotToken.ttl() > 0) {
+          if (butil.buffersAreEqual(passwordForgotToken.passCode, code) && passwordForgotToken.ttl() > 0) {
             log.security({ event: 'pwd-reset-verify-success' })
             db.forgotPasswordVerified(passwordForgotToken)
               .done(

@@ -8,7 +8,7 @@ module.exports = function (log, inherits, Token) {
     Token.call(this, keys, details)
     this.email = details.email || null
     this.emailCode = details.emailCode || null
-    this.verified = !!details.verified
+    this.emailVerified = !!details.emailVerified
   }
   inherits(SessionToken, Token)
 

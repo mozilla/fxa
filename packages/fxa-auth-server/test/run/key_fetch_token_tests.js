@@ -13,12 +13,12 @@ var ACCOUNT = {
   uid: 'xxx',
   kA: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
   wrapKb: Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex'),
-  verified: true
+  emailVerified: true
 }
 
 
 test(
-  're-creation from tokendata works',
+  're-creation from tokenData works',
   function (t) {
     var token = null;
     return KeyFetchToken.create(ACCOUNT)
@@ -41,7 +41,7 @@ test(
           t.deepEqual(token.uid, token2.uid)
           t.deepEqual(token.kA, token2.kA)
           t.deepEqual(token.wrapKb, token2.wrapKb)
-          t.equal(token.verified, token2.verified)
+          t.equal(token.emailVerified, token2.emailVerified)
         }
       )
   }
@@ -80,12 +80,12 @@ test(
   'keyFetchToken key derivations are test-vector compliant',
   function (t) {
     var token = null;
-    var tokendata = '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f'
-    return KeyFetchToken.fromHex(tokendata, ACCOUNT)
+    var tokenData = '808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f'
+    return KeyFetchToken.fromHex(tokenData, ACCOUNT)
       .then(
         function (x) {
           token = x
-          t.equal(token.data.toString('hex'), tokendata)
+          t.equal(token.data.toString('hex'), tokenData)
           t.equal(token.id.toString('hex'), '3d0a7c02a15a62a2882f76e39b6494b500c022a8816e048625a495718998ba60')
           t.equal(token.authKey.toString('hex'), '87b8937f61d38d0e29cd2d5600b3f4da0aa48ac41de36a0efe84bb4a9872ceb7')
           t.equal(token.bundleKey.toString('hex'), '14f338a9e8c6324d9e102d4e6ee83b209796d5c74bb734a410e729e014a4a546')

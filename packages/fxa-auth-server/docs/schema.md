@@ -56,7 +56,7 @@
 * id
 * uid
 * email
-* passcode
+* passCode
 * ttl
 * codeLength
 * tries

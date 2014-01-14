@@ -121,9 +121,9 @@ module.exports = function (
 
   // CREATE
   var CREATE_ACCOUNT = 'INSERT INTO accounts' +
-    ' (uid, normalizedEmail, email, emailCode, verified,' +
-    ' kA, wrapWrapKb, authSalt, verifyHash, verifierSetAt)' +
-    ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?)'
+    ' (uid, normalizedEmail, email, emailCode, emailVerified, kA, wrapWrapKb,' +
+    ' authSalt, verifierVersion, verifyHash, verifierSetAt, createdAt)' +
+    ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (data) {
     log.trace(
@@ -134,7 +134,7 @@ module.exports = function (
       }
     )
     data.normalizedEmail = data.email
-    data.verifierSetAt = Date.now()
+    data.createdAt = data.verifierSetAt = Date.now()
 
     return this.getMasterConnection()
       .then(function(con) {
@@ -146,12 +146,14 @@ module.exports = function (
             data.normalizedEmail,
             data.email,
             data.emailCode,
-            data.verified,
+            data.emailVerified,
             data.kA,
             data.wrapWrapKb,
             data.authSalt,
+            data.verifierVersion,
             data.verifyHash,
-            data.verifierSetAt
+            data.verifierSetAt,
+            data.createdAt
           ],
           function (err) {
             con.release()
@@ -164,7 +166,7 @@ module.exports = function (
   }
 
   var CREATE_SESSION_TOKEN = 'INSERT INTO sessionTokens' +
-    ' (tokenid, tokendata, uid, createdAt)' +
+    ' (tokenId, tokenData, uid, createdAt)' +
     ' VALUES (?, ?, ?, ?)'
 
   MySql.prototype.createSessionToken = function (authToken) {
@@ -182,7 +184,7 @@ module.exports = function (
         con.query(
           CREATE_SESSION_TOKEN,
           [
-            sessionToken.tokenid,
+            sessionToken.tokenId,
             sessionToken.data,
             sessionToken.uid,
             sessionToken.createdAt
@@ -197,8 +199,8 @@ module.exports = function (
       })
   }
 
-  var CREATE_KEY_FETCH_TOKEN = 'INSERT INTO keyfetchTokens' +
-    ' (tokenid, authKey, uid, keyBundle, createdAt)' +
+  var CREATE_KEY_FETCH_TOKEN = 'INSERT INTO keyFetchTokens' +
+    ' (tokenId, authKey, uid, keyBundle, createdAt)' +
     ' VALUES (?, ?, ?, ?, ?)'
 
   MySql.prototype.createKeyFetchToken = function (authToken) {
@@ -214,7 +216,7 @@ module.exports = function (
         con.query(
           CREATE_KEY_FETCH_TOKEN,
           [
-            keyFetchToken.tokenid,
+            keyFetchToken.tokenId,
             keyFetchToken.authKey,
             keyFetchToken.uid,
             keyFetchToken.keyBundle,
@@ -230,8 +232,8 @@ module.exports = function (
       }.bind(this))
   }
 
-  var CREATE_ACCOUNT_RESET_TOKEN = 'REPLACE INTO resetTokens' +
-    ' (tokenid, tokendata, uid, createdAt)' +
+  var CREATE_ACCOUNT_RESET_TOKEN = 'REPLACE INTO accountResetTokens' +
+    ' (tokenId, tokenData, uid, createdAt)' +
     ' VALUES (?, ?, ?, ?)'
 
   MySql.prototype.createAccountResetToken = function (token /* authToken|passwordForgotToken */) {
@@ -247,7 +249,7 @@ module.exports = function (
         con.query(
           CREATE_ACCOUNT_RESET_TOKEN,
           [
-            accountResetToken.tokenid,
+            accountResetToken.tokenId,
             accountResetToken.data,
             accountResetToken.uid,
             accountResetToken.createdAt
@@ -263,7 +265,7 @@ module.exports = function (
   }
 
   var CREATE_PASSWORD_FORGOT_TOKEN = 'REPLACE INTO passwordForgotTokens' +
-    ' (tokenid, tokendata, uid, passcode, createdAt, tries)' +
+    ' (tokenId, tokenData, uid, passCode, createdAt, tries)' +
     ' VALUES (?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createPasswordForgotToken = function (emailRecord) {
@@ -279,10 +281,10 @@ module.exports = function (
         con.query(
           CREATE_PASSWORD_FORGOT_TOKEN,
           [
-            passwordForgotToken.tokenid,
+            passwordForgotToken.tokenId,
             passwordForgotToken.data,
             passwordForgotToken.uid,
-            passwordForgotToken.passcode,
+            passwordForgotToken.passCode,
             passwordForgotToken.createdAt,
             passwordForgotToken.tries
           ],
@@ -297,7 +299,7 @@ module.exports = function (
   }
 
   var CREATE_PASSWORD_CHANGE_TOKEN = 'REPLACE INTO passwordChangeTokens' +
-    ' (tokenid, tokendata, uid, createdAt)' +
+    ' (tokenId, tokenData, uid, createdAt)' +
     ' VALUES (?, ?, ?, ?)'
 
   MySql.prototype.createPasswordChangeToken = function (data) {
@@ -313,7 +315,7 @@ module.exports = function (
         con.query(
           CREATE_PASSWORD_CHANGE_TOKEN,
           [
-            passwordChangeToken.tokenid,
+            passwordChangeToken.tokenId,
             passwordChangeToken.data,
             passwordChangeToken.uid,
             passwordChangeToken.createdAt
@@ -351,7 +353,7 @@ module.exports = function (
       })
   }
 
-  var ACCOUNT_DEVICES = 'SELECT tokenid FROM sessionTokens WHERE uid = ?'
+  var ACCOUNT_DEVICES = 'SELECT tokenId FROM sessionTokens WHERE uid = ?'
 
   MySql.prototype.accountDevices = function (uid) {
     log.trace({ op: 'MySql.accountDevices', uid: uid })
@@ -372,10 +374,10 @@ module.exports = function (
       })
   }
 
-var SESSION_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt,' +
-  ' a.verified, a.email, a.emailCode, a.verifierSetAt' +
+var SESSION_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt,' +
+  ' a.emailVerified, a.email, a.emailCode, a.verifierSetAt' +
   ' FROM sessionTokens t, accounts a' +
-  ' WHERE t.tokenid = ? AND t.uid = a.uid'
+  ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
   MySql.prototype.sessionToken = function (id) {
     log.trace({ op: 'MySql.sessionToken', id: id })
@@ -391,7 +393,7 @@ var SESSION_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt,' +
             if (err) return d.reject(err)
             if (!results.length) return d.reject(error.invalidToken())
             var result = results[0]
-            SessionToken.fromHex(result.tokendata, result)
+            SessionToken.fromHex(result.tokenData, result)
               .done(
                 function (sessionToken) {
                   return d.resolve(sessionToken)
@@ -404,9 +406,9 @@ var SESSION_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt,' +
   }
 
 var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
-  ' a.verified, a.verifierSetAt' +
-  ' FROM keyfetchTokens t, accounts a' +
-  ' WHERE t.tokenid = ? AND t.uid = a.uid'
+  ' a.emailVerified, a.verifierSetAt' +
+  ' FROM keyFetchTokens t, accounts a' +
+  ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
   MySql.prototype.keyFetchToken = function (id) {
     log.trace({ op: 'MySql.keyFetchToken', id: id })
@@ -434,10 +436,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var ACCOUNT_RESET_TOKEN = 'SELECT t.uid, t.tokendata, t.createdAt,' +
+  var ACCOUNT_RESET_TOKEN = 'SELECT t.uid, t.tokenData, t.createdAt,' +
     ' a.verifierSetAt' +
-    ' FROM resetTokens t, accounts a' +
-    ' WHERE t.tokenid = ? AND t.uid = a.uid'
+    ' FROM accountResetTokens t, accounts a' +
+    ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
   MySql.prototype.accountResetToken = function (id) {
     log.trace({ op: 'MySql.accountResetToken', id: id })
@@ -458,14 +460,14 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         return d.promise
       })
       .then(function(result) {
-        return AccountResetToken.fromHex(result.tokendata, result)
+        return AccountResetToken.fromHex(result.tokenData, result)
       })
   }
 
-  var PASSWORD_FORGOT_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt,' +
-    ' t.passcode, t.tries, a.email, a.verifierSetAt' +
+  var PASSWORD_FORGOT_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt,' +
+    ' t.passCode, t.tries, a.email, a.verifierSetAt' +
     ' FROM passwordForgotTokens t, accounts a' +
-    ' WHERE t.tokenid = ? AND t.uid = a.uid'
+    ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
   MySql.prototype.passwordForgotToken = function (id) {
     log.trace({ op: 'MySql.passwordForgotToken', id: id })
@@ -481,7 +483,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
             if (err) return d.reject(err)
             if (!results.length) return d.reject(error.invalidToken())
             var result = results[0]
-            PasswordForgotToken.fromHex(result.tokendata, result)
+            PasswordForgotToken.fromHex(result.tokenData, result)
               .done(
                 function (passwordForgotToken) {
                   return d.resolve(passwordForgotToken)
@@ -493,9 +495,9 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var PASSWORD_CHANGE_TOKEN = 'SELECT t.tokendata, t.uid, t.createdAt, a.verifierSetAt ' +
+  var PASSWORD_CHANGE_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt, a.verifierSetAt ' +
     ' FROM passwordChangeTokens t, accounts a' +
-    ' WHERE t.tokenid = ? AND t.uid = a.uid'
+    ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
   MySql.prototype.passwordChangeToken = function (id) {
     log.trace({ op: 'MySql.passwordChangeToken', id: id })
@@ -511,7 +513,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
             if (err) return d.reject(err)
             if (!results.length) return d.reject(error.invalidToken())
             var result = results[0]
-            PasswordChangeToken.fromHex(result.tokendata, result)
+            PasswordChangeToken.fromHex(result.tokenData, result)
               .done(
                 function (passwordChangeToken) {
                   return d.resolve(passwordChangeToken)
@@ -523,8 +525,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var EMAIL_RECORD = 'SELECT uid, email, normalizedEmail, verified,' +
-    ' emailCode, kA, wrapWrapKb, verifyHash, authSalt, verifierSetAt' +
+  var EMAIL_RECORD = 'SELECT uid, email, normalizedEmail, emailVerified, emailCode,' +
+    ' kA, wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt' +
     ' FROM accounts' +
     ' WHERE normalizedEmail = LOWER(?)'
 
@@ -547,9 +549,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
               email: result.email,
               normalizedEmail: result.normalizedEmail,
               emailCode: result.emailCode,
-              verified: !!result.verified,
+              emailVerified: !!result.emailVerified,
               kA: result.kA,
               wrapWrapKb: result.wrapWrapKb,
+              verifierVersion: result.verifierVersion,
               verifyHash: result.verifyHash,
               authSalt: result.authSalt,
               verifierSetAt: result.verifierSetAt
@@ -560,8 +563,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var ACCOUNT = 'SELECT email, normalizedEmail, emailCode, verified, kA,' +
-    ' wrapWrapKb, verifyHash, authSalt, verifierSetAt ' +
+  var ACCOUNT = 'SELECT email, normalizedEmail, emailCode, emailVerified, kA,' +
+    ' wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt, createdAt' +
     ' FROM accounts WHERE uid = ?'
 
   MySql.prototype.account = function (uid) {
@@ -584,12 +587,14 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
               email: result.email,
               normalizedEmail: result.normalizedEmail,
               emailCode: result.emailCode,
-              verified: !!result.verified,
+              emailVerified: !!result.emailVerified,
               kA: result.kA,
               wrapWrapKb: result.wrapWrapKb,
+              verifierVersion: result.verifierVersion,
               verifyHash: result.verifyHash,
               authSalt: result.authSalt,
-              verifierSetAt: result.verifierSetAt
+              verifierSetAt: result.verifierSetAt,
+              createdAt: result.createdAt
             })
           }
         )
@@ -600,7 +605,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   // UPDATE
 
   var UPDATE_PASSWORD_FORGOT_TOKEN = 'UPDATE passwordForgotTokens' +
-    ' SET tries = ? WHERE tokenid = ?'
+    ' SET tries = ? WHERE tokenId = ?'
 
   MySql.prototype.updatePasswordForgotToken = function (passwordForgotToken) {
     log.trace({ op: 'MySql.udatePasswordForgotToken', uid: passwordForgotToken && passwordForgotToken.uid })
@@ -610,7 +615,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         var d = P.defer()
         con.query(
           UPDATE_PASSWORD_FORGOT_TOKEN,
-          [passwordForgotToken.tries, passwordForgotToken.tokenid],
+          [passwordForgotToken.tries, passwordForgotToken.tokenId],
           function (err) {
             con.release()
             if (err) return d.reject(err)
@@ -634,8 +639,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       .then(function() {
         var tables = [
           'sessionTokens',
-          'keyfetchTokens',
-          'resetTokens',
+          'keyFetchTokens',
+          'accountResetTokens',
           'passwordForgotTokens',
           'accounts'
         ]
@@ -652,13 +657,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var DELETE_SESSION_TOKEN = 'DELETE FROM sessionTokens WHERE tokenid = ?'
+  var DELETE_SESSION_TOKEN = 'DELETE FROM sessionTokens WHERE tokenId = ?'
 
   MySql.prototype.deleteSessionToken = function (sessionToken) {
     log.trace(
       {
         op: 'MySql.deleteSessionToken',
-        id: sessionToken && sessionToken.tokenid,
+        id: sessionToken && sessionToken.tokenId,
         uid: sessionToken && sessionToken.uid
       }
     )
@@ -667,7 +672,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         var d = P.defer()
         con.query(
           DELETE_SESSION_TOKEN,
-          [sessionToken.tokenid],
+          [sessionToken.tokenId],
           function (err) {
             con.release()
             if (err) return d.reject(err)
@@ -678,13 +683,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var DELETE_KEY_FETCH_TOKEN = 'DELETE FROM keyfetchTokens WHERE tokenid = ?'
+  var DELETE_KEY_FETCH_TOKEN = 'DELETE FROM keyFetchTokens WHERE tokenId = ?'
 
   MySql.prototype.deleteKeyFetchToken = function (keyFetchToken) {
     log.trace(
       {
         op: 'MySql.deleteKeyFetchToken',
-        id: keyFetchToken && keyFetchToken.tokenid,
+        id: keyFetchToken && keyFetchToken.tokenId,
         uid: keyFetchToken && keyFetchToken.uid
       }
     )
@@ -693,7 +698,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         var d = P.defer()
         con.query(
           DELETE_KEY_FETCH_TOKEN,
-          [keyFetchToken.tokenid],
+          [keyFetchToken.tokenId],
           function (err) {
             con.release()
             if (err) return d.reject(err)
@@ -704,13 +709,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var DELETE_ACCOUNT_RESET_TOKEN = 'DELETE FROM resetTokens WHERE tokenid = ?'
+  var DELETE_ACCOUNT_RESET_TOKEN = 'DELETE FROM accountResetTokens WHERE tokenId = ?'
 
   MySql.prototype.deleteAccountResetToken = function (accountResetToken) {
     log.trace(
       {
         op: 'MySql.deleteAccountResetToken',
-        id: accountResetToken && accountResetToken.tokenid,
+        id: accountResetToken && accountResetToken.tokenId,
         uid: accountResetToken && accountResetToken.uid
       }
     )
@@ -719,7 +724,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         var d = P.defer()
         con.query(
           DELETE_ACCOUNT_RESET_TOKEN,
-          [accountResetToken.tokenid],
+          [accountResetToken.tokenId],
           function (err) {
             con.release()
             if (err) return d.reject(err)
@@ -730,13 +735,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var DELETE_PASSWORD_FORGOT_TOKEN = 'DELETE FROM passwordForgotTokens WHERE tokenid = ?'
+  var DELETE_PASSWORD_FORGOT_TOKEN = 'DELETE FROM passwordForgotTokens WHERE tokenId = ?'
 
   MySql.prototype.deletePasswordForgotToken = function (passwordForgotToken) {
     log.trace(
       {
         op: 'MySql.deletePasswordForgotToken',
-        id: passwordForgotToken && passwordForgotToken.tokenid,
+        id: passwordForgotToken && passwordForgotToken.tokenId,
         uid: passwordForgotToken && passwordForgotToken.uid
       }
     )
@@ -745,7 +750,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         var d = P.defer()
         con.query(
           DELETE_PASSWORD_FORGOT_TOKEN,
-          [passwordForgotToken.tokenid],
+          [passwordForgotToken.tokenId],
           function (err) {
             con.release()
             if (err) return d.reject(err)
@@ -756,13 +761,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var DELETE_PASSWORD_CHANGE_TOKEN = 'DELETE FROM passwordChangeTokens WHERE tokenid = ?'
+  var DELETE_PASSWORD_CHANGE_TOKEN = 'DELETE FROM passwordChangeTokens WHERE tokenId = ?'
 
   MySql.prototype.deletePasswordChangeToken = function (passwordChangeToken) {
     log.trace(
       {
         op: 'MySql.deletePasswordChangeToken',
-        id: passwordChangeToken && passwordChangeToken.tokenid,
+        id: passwordChangeToken && passwordChangeToken.tokenId,
         uid: passwordChangeToken && passwordChangeToken.uid
       }
     )
@@ -771,7 +776,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         var d = P.defer()
         con.query(
           DELETE_PASSWORD_CHANGE_TOKEN,
-          [passwordChangeToken.tokenid],
+          [passwordChangeToken.tokenId],
           function (err) {
             con.release()
             if (err) return d.reject(err)
@@ -799,8 +804,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       .then(function() {
         var tables = [
           'sessionTokens',
-          'keyfetchTokens',
-          'resetTokens',
+          'keyFetchTokens',
+          'accountResetTokens',
           'passwordForgotTokens'
         ]
         var all = [];
@@ -834,7 +839,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var VERIFY_EMAIL = 'UPDATE accounts SET verified = true WHERE uid = ?'
+  var VERIFY_EMAIL = 'UPDATE accounts SET emailVerified = true WHERE uid = ?'
 
   MySql.prototype.verifyEmail = function (account) {
     log.trace({ op: 'MySql.verifyEmail', uid: account && account.uid })
@@ -874,7 +879,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         var d = P.defer()
         con.query(
           DELETE_PASSWORD_FORGOT_TOKEN,
-          [passwordForgotToken.tokenid],
+          [passwordForgotToken.tokenId],
           function (err) {
             if (err) return d.reject(err)
             d.resolve()
@@ -887,7 +892,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         con.query(
           CREATE_ACCOUNT_RESET_TOKEN,
           [
-            accountResetToken.tokenid,
+            accountResetToken.tokenId,
             accountResetToken.data,
             accountResetToken.uid,
             accountResetToken.createdAt

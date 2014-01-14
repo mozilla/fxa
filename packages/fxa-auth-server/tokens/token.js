@@ -10,10 +10,10 @@
  *
  *    - Each token is created from an initial data seed of 32 random bytes.
  *
- *    - From the seed data we HKDF-derive three 32-byte values: a tokenid,
+ *    - From the seed data we HKDF-derive three 32-byte values: a tokenId,
  *      an authKey and a bundleKey.
  *
- *    - The tokenid/authKey pair can be used as part of a request-signing
+ *    - The tokenId/authKey pair can be used as part of a request-signing
  *      authentication scheme.
  *
  *    - The bundleKey can be used to encrypt data as part of the request.
@@ -32,7 +32,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
   //
   function Token(keys, details) {
     this.data = keys.data
-    this.tokenid = keys.tokenid
+    this.tokenId = keys.tokenId
     this.authKey = keys.authKey
     this.bundleKey = keys.bundleKey
     this.algorithm = 'sha256'
@@ -97,7 +97,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
   }
 
 
-  // Derive tokenid, authKey and bundleKey from token seed data.
+  // Derive tokenId, authKey and bundleKey from token seed data.
   //
   Token.deriveTokenKeys = function (TokenType, data) {
     return hkdf(data, TokenType.tokenTypeID, null, 3 * 32)
@@ -105,7 +105,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
         function (keyMaterial) {
           return {
             data: data,
-            tokenid: keyMaterial.slice(0, 32),
+            tokenId: keyMaterial.slice(0, 32),
             authKey: keyMaterial.slice(32, 64),
             bundleKey: keyMaterial.slice(64, 96)
           }
@@ -135,7 +135,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
     Token.prototype,
     {
       id: {
-        get: function () { return this.tokenid.toString('hex') }
+        get: function () { return this.tokenId.toString('hex') }
       },
       key: {
         get: function () { return this.authKey }

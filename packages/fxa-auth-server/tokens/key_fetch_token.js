@@ -7,7 +7,7 @@ module.exports = function (log, inherits, Token, P, error) {
   function KeyFetchToken(keys, details) {
     Token.call(this, keys, details)
     this.keyBundle = details.keyBundle
-    this.verified = !!details.verified
+    this.emailVerified = !!details.emailVerified
   }
   inherits(KeyFetchToken, Token)
 
@@ -31,7 +31,7 @@ module.exports = function (log, inherits, Token, P, error) {
 
   KeyFetchToken.fromId = function (id, details) {
     log.trace({ op: 'KeyFetchToken.fromId' })
-    return P(new KeyFetchToken({ tokenid: id, authKey: details.authKey }, details))
+    return P(new KeyFetchToken({ tokenId: id, authKey: details.authKey }, details))
   }
 
   KeyFetchToken.fromHex = function (string, details) {

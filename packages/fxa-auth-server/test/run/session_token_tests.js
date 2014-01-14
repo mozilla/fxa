@@ -13,12 +13,12 @@ var ACCOUNT = {
   uid: 'xxx',
   email: Buffer('test@example.com').toString('hex'),
   emailCode: '123456',
-  verified: true
+  emailVerified: true
 }
 
 
 test(
-  're-creation from tokendata works',
+  're-creation from tokenData works',
   function (t) {
     var token = null;
     return SessionToken.create(ACCOUNT)
@@ -41,7 +41,7 @@ test(
           t.deepEqual(token.uid, token2.uid)
           t.equal(token.email, token2.email)
           t.equal(token.emailCode, token2.emailCode)
-          t.equal(token.verified, token2.verified)
+          t.equal(token.emailVerified, token2.emailVerified)
         }
       )
   }
@@ -52,12 +52,12 @@ test(
   'sessionToken key derivations are test-vector compliant',
   function (t) {
     var token = null;
-    var tokendata = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf'
-    return SessionToken.fromHex(tokendata, ACCOUNT)
+    var tokenData = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf'
+    return SessionToken.fromHex(tokenData, ACCOUNT)
       .then(
         function (x) {
           token = x
-          t.equal(token.data.toString('hex'), tokendata)
+          t.equal(token.data.toString('hex'), tokenData)
           t.equal(token.id.toString('hex'), 'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab')
           t.equal(token.authKey.toString('hex'), '9d8f22998ee7f5798b887042466b72d53e56ab0c094388bf65831f702d2febc0')
         }
