@@ -86,6 +86,12 @@ function(_, Backbone) {
       _.invoke(this.subviews, 'destroy');
 
       this.subviews = [];
+    },
+
+    enableButtonWhenValid: function() {
+      var enabled = this.isValid && this.isValid();
+
+      this.$('button[type="submit"]').attr('disabled', !enabled);
     }
   });
 

@@ -56,8 +56,14 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient) {
       client.verifyCode(uid, code)
             .then(function () {
               this.$('#fxa-complete-sign-up-success').show();
+
+              this.$('h2.success').show()
+              this.$('h2.failure').hide()
             }.bind(this), function (err) {
               this._displayError(err.message);
+
+              this.$('h2.success').hide()
+              this.$('h2.failure').show()
             }.bind(this));
     },
 

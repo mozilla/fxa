@@ -1,15 +1,17 @@
-<h1 id="fxa-confirm-header">{{#t}}Firefox Accounts{{/t}}</h1>
+<header>
+  <h1 id="fxa-confirm-header">{{#t}}Firefox Accounts{{/t}}</h1>
 
-<p class="error"></p>
+  <h2>{{#t}}Confirm your account{{/t}}</h2>
+</header>
 
-<h2>{{#t}}Confirm Your Account{{/t}}</h2>
+<section>
+  <div class="error"></div>
 
-<div class="placeholder email-placeholder">
-  Email
-</div>
+  <img src="/images/graphic_mail.png" alt="Email" width="150" class="graphic" />
 
-<p>{{#t}}We will send an email to:{{/t}} <br/><strong>{{email}}</strong>.</p>
+  <p>{{#t}}A verification link has been sent to:{{/t}}<br/>{{email}}.</p>
 
-<p>{{#t}}Next time you check your email, click the verification link to confirm your Firefox account.{{/t}}</p>
-
-<p>{{#t}}In the future, you can access and manage your account from your phone's settings.{{/t}}</p>
+  <div class="links">
+    <a>Email not showing up? Send again</a>
+  </div>
+</section>

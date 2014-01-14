@@ -16,19 +16,13 @@ function (BaseView, SignUpTemplate, Session) {
 
     events: {
       'submit form': 'signUp',
-      'keyup input': 'enableSignUp'
-    },
-
-    enableSignUp: function (event) {
-      var isValid = this._validateEmail() && this._validatePassword();
-
-      this.$('button').attr('disabled', !isValid);
+      'keyup input': 'enableButtonWhenValid'
     },
 
     signUp: function (event) {
       event.preventDefault();
 
-      if (! (this._validateEmail() && this._validatePassword())) {
+      if (! (this.isValid())) {
         return;
       }
 
@@ -36,6 +30,10 @@ function (BaseView, SignUpTemplate, Session) {
       Session.password = this.$('.password').val();
 
       router.navigate('age', { trigger: true });
+    },
+
+    isValid: function () {
+      return this._validateEmail() && this._validatePassword();
     },
 
     _validateEmail: function () {

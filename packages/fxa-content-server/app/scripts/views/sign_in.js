@@ -17,20 +17,13 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
 
     events: {
       'submit form': 'signIn',
-      'keyup input': 'enableSignIn'
+      'keyup input': 'enableButtonWhenValid'
     },
-
-    enableSignIn: function (event) {
-      var isValid = this._validateEmail() && this._validatePassword();
-
-      this.$('button').attr('disabled', !isValid);
-    },
-
 
     signIn: function (event) {
       event.preventDefault();
 
-      if (! (this._validateEmail() && this._validatePassword())) {
+      if (! (this.isValid())) {
         return;
       }
 
@@ -54,6 +47,10 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
 
               console.error('Error?', err);
             }.bind(this));
+    },
+
+    isValid: function () {
+      return this._validateEmail() && this._validatePassword();
     },
 
     _validateEmail: function () {

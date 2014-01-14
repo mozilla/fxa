@@ -16,7 +16,7 @@ html {
 }
 
 body {
-  color: #333;
+  color: #424F59;
   font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
 }
@@ -55,7 +55,11 @@ header h1 {
 header h2 {
   font-size: 20px;
   font-weight: 200;
-  margin-bottom: 55px;
+  margin-bottom: 40px;
+}
+
+section p {
+  font-size: 18px;
 }
 
 .error {
@@ -157,10 +161,32 @@ header h2 {
 
 .links {
   margin-bottom: 20px;
+  overflow: auto;
+}
+
+.links a {
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.links .left {
+  float: left;
+}
+
+.links .right {
+  float: right;
 }
 
 .privacy-links, .privacy-links a {
   color: #C0C9D0;
+  margin-top: 35px;
+}
+
+.privacy-links + .button-row {
+  margin-top: 20px;
 }
 
 .spinner {
@@ -169,7 +195,7 @@ header h2 {
 
 /* TODO: These need further consideration */
 
-#fxa-complete-sign-up-success {
+.hidden {
   display: none;
 }
 
@@ -181,7 +207,7 @@ header h2 {
     background: #fff;
   }
 
-  #stage {
+  #stage > div {
     -webkit-box-shadow: none;
     box-shadow: none;
     margin: 0 auto;
@@ -200,7 +226,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1),
 only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 192dpi),
 only screen and (                min-resolution: 2dppx) {
-  #stage {
+  #stage > div {
     background-image: url(../images/fox@2x.png);
     background-size: 30px 31px;
   }
