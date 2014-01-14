@@ -15,7 +15,14 @@ function (BaseView, SignUpTemplate, Session) {
     className: 'sign-up',
 
     events: {
-      'submit form': 'signUp'
+      'submit form': 'signUp',
+      'keyup input': 'enableSignUp'
+    },
+
+    enableSignUp: function (event) {
+      var isValid = this._validateEmail() && this._validatePassword();
+
+      this.$('button').attr('disabled', !isValid);
     },
 
     signUp: function (event) {

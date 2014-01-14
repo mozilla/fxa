@@ -16,8 +16,16 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
     className: 'sign-in',
 
     events: {
-      'submit form': 'signIn'
+      'submit form': 'signIn',
+      'keyup input': 'enableSignIn'
     },
+
+    enableSignIn: function (event) {
+      var isValid = this._validateEmail() && this._validatePassword();
+
+      this.$('button').attr('disabled', !isValid);
+    },
+
 
     signIn: function (event) {
       event.preventDefault();
