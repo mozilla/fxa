@@ -26,7 +26,7 @@ a {
   cursor: pointer; /* Use the correct cursor for anchors without an href */
 }
 
-#stage {
+#stage > div {
   background: #fff url(../images/fox.png) no-repeat left 50% bottom 30px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
