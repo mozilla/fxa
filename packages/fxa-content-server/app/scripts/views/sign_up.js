@@ -32,17 +32,11 @@ function (BaseView, SignUpTemplate, Session) {
     },
 
     _validateEmail: function () {
-      return this._isElementValid('.email');
+      return this.isElementValid('.email');
     },
 
     _validatePassword: function () {
-      return this._isElementValid('.password');
-    },
-
-    _isElementValid: function (selector) {
-      var el = this.$(selector);
-      var value = el.val();
-      return value && el[0].validity.valid;
+      return this.isElementValid('.password');
     }
   });
 

@@ -86,6 +86,17 @@ function(_, Backbone) {
       _.invoke(this.subviews, 'destroy');
 
       this.subviews = [];
+    },
+
+    isElementValid: function (selector) {
+      var el = this.$(selector);
+      var value = el.val();
+      return value && el[0].validity.valid;
+    },
+
+    displayError: function(msg) {
+      // TODO - run the error message through the translator
+      this.$('.error').html(msg);
     }
   });
 
