@@ -35,8 +35,6 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
               Session.channel.send('login', {
                 email: email,
                 uid: accountData.uid,
-                isVerified: accountData.verified,
-                verified: accountData.verified,
                 sessionToken: accountData.sessionToken,
                 unwrapBKey: accountData.unwrapBKey,
                 keyFetchToken: accountData.keyFetchToken

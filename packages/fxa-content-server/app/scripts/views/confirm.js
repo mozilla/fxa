@@ -29,8 +29,6 @@ function (BaseView, ConfirmTemplate, Session) {
         Session.channel.send('login', {
           email: Session.email,
           uid: Session.uid,
-          isVerified: Session.verified,
-          verified: Session.verified,
           sessionToken: Session.sessionToken,
           unwrapBKey: Session.unwrapBKey,
           keyFetchToken: Session.keyFetchToken

@@ -39,7 +39,6 @@ function (BaseView, CreateAccountTemplate, Session, FxaClient) {
           Session.keyFetchToken = accountData.keyFetchToken;
           Session.unwrapBKey = accountData.unwrapBKey;
           Session.uid = accountData.uid;
-          Session.verified = accountData.verified;
 
           router.navigate('confirm', { trigger: true });
         },
