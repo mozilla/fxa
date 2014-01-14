@@ -34,6 +34,7 @@ function makeApp() {
 
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());
+  app.use(helmet.hsts(config.get('hsts_max_age'), true));
   app.disable('x-powered-by');
 
   app.use(connect_fonts.setup({
