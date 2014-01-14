@@ -46,9 +46,6 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
 
     showIntro: function () {
       this.showView(new IntroView());
-
-      // TODO - can this go into the IntroView or into CSS?
-      this.$stage.css({ scale: 0.6, opacity: 0 }).transition({ scale: 1, opacity: 1 }, 1500);
     },
 
     showSignIn: function () {
