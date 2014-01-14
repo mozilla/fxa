@@ -9,7 +9,7 @@ define(['underscore'],
 function (_) {
   return {
     searchParam: function (name, str) {
-      var search = (window.location.search || str).replace(/^\?/, '');
+      var search = (str || window.location.search).replace(/^\?/, '');
       if (! search) {
         return;
       }

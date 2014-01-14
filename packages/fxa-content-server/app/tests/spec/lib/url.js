@@ -26,6 +26,10 @@ function (mocha, chai, _, Url, Constants) {
       it('returns undefined if parameter does not exist', function() {
         assert.isUndefined(Url.searchParam('animal', '?color=green'));
       });
+
+      it('does not throw if str override is not specified', function() {
+        assert.isUndefined(Url.searchParam('animal'));
+      });
     });
   });
 });
