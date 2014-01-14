@@ -25,7 +25,7 @@ var ACCOUNT = {
 
 
 test(
-  're-creation from tokendata works',
+  're-creation from tokenData works',
   function (t) {
     var token = null;
     return PasswordForgotToken.create(ACCOUNT)

@@ -15,15 +15,15 @@ CREATE TABLE IF NOT EXISTS accounts (
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS sessionTokens (
-  tokenid BINARY(32) PRIMARY KEY,
-  tokendata BINARY(32) NOT NULL,
+  tokenId BINARY(32) PRIMARY KEY,
+  tokenData BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL,
   createdAt BIGINT UNSIGNED NOT NULL,
   INDEX session_uid (uid)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS keyfetchTokens (
-  tokenid BINARY(32) PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS keyFetchTokens (
+  tokenId BINARY(32) PRIMARY KEY,
   authKey BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL,
   keyBundle BINARY(96) NOT NULL,
@@ -32,15 +32,15 @@ CREATE TABLE IF NOT EXISTS keyfetchTokens (
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS resetTokens (
-  tokenid BINARY(32) PRIMARY KEY,
-  tokendata BINARY(32) NOT NULL,
+  tokenId BINARY(32) PRIMARY KEY,
+  tokenData BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL UNIQUE KEY,
   createdAt BIGINT UNSIGNED NOT NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS passwordForgotTokens (
-  tokenid BINARY(32) PRIMARY KEY,
-  tokendata BINARY(32) NOT NULL,
+  tokenId BINARY(32) PRIMARY KEY,
+  tokenData BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL UNIQUE KEY,
   passcode BINARY(16) NOT NULL,
   createdAt BIGINT UNSIGNED NOT NULL,
@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS passwordForgotTokens (
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS passwordChangeTokens (
-  tokenid BINARY(32) PRIMARY KEY,
-  tokendata BINARY(32) NOT NULL,
+  tokenId BINARY(32) PRIMARY KEY,
+  tokenData BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL,
   createdAt BIGINT UNSIGNED NOT NULL,
   INDEX session_uid (uid)

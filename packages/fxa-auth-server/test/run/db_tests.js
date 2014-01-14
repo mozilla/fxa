@@ -86,20 +86,20 @@ DB.connect(config[config.db.backend])
       test(
         'session token handling',
         function (t) {
-          var tokenid;
+          var tokenId;
           return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createSessionToken(emailRecord)
           })
           .then(function(sessionToken) {
             t.deepEqual(sessionToken.uid, ACCOUNT.uid)
-            tokenid = sessionToken.tokenid
+            tokenId = sessionToken.tokenId
           })
           .then(function() {
-            return db.sessionToken(tokenid)
+            return db.sessionToken(tokenId)
           })
           .then(function(sessionToken) {
-            t.deepEqual(sessionToken.tokenid, tokenid, 'token id matches')
+            t.deepEqual(sessionToken.tokenId, tokenId, 'token id matches')
             t.deepEqual(sessionToken.uid, ACCOUNT.uid)
             t.equal(sessionToken.email, ACCOUNT.email)
             t.deepEqual(sessionToken.emailCode, ACCOUNT.emailCode)
@@ -115,20 +115,20 @@ DB.connect(config[config.db.backend])
       test(
         'keyfetch token handling',
         function (t) {
-          var tokenid;
+          var tokenId;
           return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createKeyFetchToken({uid: emailRecord.uid, kA: emailRecord.kA, wrapKb: ACCOUNT.wrapWrapKb})
           })
           .then(function(keyFetchToken) {
             t.deepEqual(keyFetchToken.uid, ACCOUNT.uid)
-            tokenid = keyFetchToken.tokenid
+            tokenId = keyFetchToken.tokenId
           })
           .then(function() {
-            return db.keyFetchToken(tokenid)
+            return db.keyFetchToken(tokenId)
           })
           .then(function(keyFetchToken) {
-            t.deepEqual(keyFetchToken.tokenid, tokenid, 'token id matches')
+            t.deepEqual(keyFetchToken.tokenId, tokenId, 'token id matches')
             t.deepEqual(keyFetchToken.uid, ACCOUNT.uid)
             t.equal(keyFetchToken.emailVerified, ACCOUNT.emailVerified)
             return keyFetchToken
@@ -142,20 +142,20 @@ DB.connect(config[config.db.backend])
       test(
         'reset token handling',
         function (t) {
-          var tokenid;
+          var tokenId;
           return db.emailRecord(ACCOUNT.email)
           .then(function(emailRecord) {
             return db.createAccountResetToken(emailRecord)
           })
           .then(function(accountResetToken) {
             t.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'account reset token uid should be the same as the account.uid')
-            tokenid = accountResetToken.tokenid
+            tokenId = accountResetToken.tokenId
           })
           .then(function() {
-            return db.accountResetToken(tokenid)
+            return db.accountResetToken(tokenId)
           })
           .then(function(accountResetToken) {
-            t.deepEqual(accountResetToken.tokenid, tokenid, 'token id matches')
+            t.deepEqual(accountResetToken.tokenId, tokenId, 'token id matches')
             t.deepEqual(accountResetToken.uid, ACCOUNT.uid, 'account reset token uid should still be the same as the account.uid')
             return accountResetToken
           })
@@ -180,10 +180,10 @@ DB.connect(config[config.db.backend])
             token1tries = token1.tries
           })
           .then(function() {
-            return db.passwordForgotToken(token1.tokenid)
+            return db.passwordForgotToken(token1.tokenId)
           })
           .then(function(passwordForgotToken) {
-            t.deepEqual(passwordForgotToken.tokenid, token1.tokenid, 'token id matches')
+            t.deepEqual(passwordForgotToken.tokenId, token1.tokenId, 'token id matches')
             t.deepEqual(passwordForgotToken.uid, token1.uid, 'tokens are identical')
             return passwordForgotToken
           })
@@ -192,10 +192,10 @@ DB.connect(config[config.db.backend])
             return db.updatePasswordForgotToken(passwordForgotToken)
           })
           .then(function() {
-            return db.passwordForgotToken(token1.tokenid)
+            return db.passwordForgotToken(token1.tokenId)
           })
           .then(function(passwordForgotToken) {
-            t.deepEqual(passwordForgotToken.tokenid, token1.tokenid, 'token id matches again')
+            t.deepEqual(passwordForgotToken.tokenId, token1.tokenId, 'token id matches again')
             t.equal(passwordForgotToken.tries, token1tries - 1, '')
             return passwordForgotToken
           })
@@ -237,7 +237,7 @@ DB.connect(config[config.db.backend])
             token1 = accountResetToken
           })
           .then(function() {
-            return db.accountResetToken(token1.tokenid)
+            return db.accountResetToken(token1.tokenId)
           })
           .then(function(accountResetToken) {
             t.deepEqual(accountResetToken.uid, ACCOUNT.uid)
