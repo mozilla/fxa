@@ -75,7 +75,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
           return self.request.send(endpoint, "POST", null, data)
           .then(function(accountData) {
             if (keys) {
-              accountData.unwrapBKey = result.unwrapBKey;
+              accountData.unwrapBKey = sjcl.codec.hex.fromBits(result.unwrapBKey);
             }
             return accountData;
           });
