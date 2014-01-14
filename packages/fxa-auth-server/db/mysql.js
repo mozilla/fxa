@@ -232,7 +232,7 @@ module.exports = function (
       }.bind(this))
   }
 
-  var CREATE_ACCOUNT_RESET_TOKEN = 'REPLACE INTO resetTokens' +
+  var CREATE_ACCOUNT_RESET_TOKEN = 'REPLACE INTO accountResetTokens' +
     ' (tokenId, tokenData, uid, createdAt)' +
     ' VALUES (?, ?, ?, ?)'
 
@@ -438,7 +438,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
 
   var ACCOUNT_RESET_TOKEN = 'SELECT t.uid, t.tokenData, t.createdAt,' +
     ' a.verifierSetAt' +
-    ' FROM resetTokens t, accounts a' +
+    ' FROM accountResetTokens t, accounts a' +
     ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
   MySql.prototype.accountResetToken = function (id) {
@@ -640,7 +640,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         var tables = [
           'sessionTokens',
           'keyFetchTokens',
-          'resetTokens',
+          'accountResetTokens',
           'passwordForgotTokens',
           'accounts'
         ]
@@ -709,7 +709,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var DELETE_ACCOUNT_RESET_TOKEN = 'DELETE FROM resetTokens WHERE tokenId = ?'
+  var DELETE_ACCOUNT_RESET_TOKEN = 'DELETE FROM accountResetTokens WHERE tokenId = ?'
 
   MySql.prototype.deleteAccountResetToken = function (accountResetToken) {
     log.trace(
@@ -805,7 +805,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         var tables = [
           'sessionTokens',
           'keyFetchTokens',
-          'resetTokens',
+          'accountResetTokens',
           'passwordForgotTokens'
         ]
         var all = [];

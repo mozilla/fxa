@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS keyFetchTokens (
   INDEX key_uid (uid)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS resetTokens (
+CREATE TABLE IF NOT EXISTS accountResetTokens (
   tokenId BINARY(32) PRIMARY KEY,
   tokenData BINARY(32) NOT NULL,
   uid BINARY(16) NOT NULL UNIQUE KEY,
