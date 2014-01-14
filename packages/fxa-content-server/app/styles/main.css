@@ -59,8 +59,10 @@ header h2 {
 }
 
 .error {
-  color: #f00;
-  margin-bottom: 20px;
+  background: #D63920;
+  color: #fff;
+  margin-bottom: 5px;
+  padding: 5px;
 }
 
 .error:empty {
