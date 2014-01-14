@@ -8,7 +8,6 @@ module.exports = function (grunt) {
   grunt.config('jscs', {
     src: [
       '**/*.js',
-      '!tests/**',
       '!dist/**',
       '!node_modules/**',
       '!**/bower_components/**',
