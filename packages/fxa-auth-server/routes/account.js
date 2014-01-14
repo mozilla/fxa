@@ -71,6 +71,7 @@ module.exports = function (
                     accountResetToken: null,
                     passwordForgotToken: null,
                     authSalt: authSalt,
+                    verifierVersion: 1,
                     verifyHash: verifyHash
                   }
                 )

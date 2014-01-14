@@ -121,9 +121,9 @@ module.exports = function (
 
   // CREATE
   var CREATE_ACCOUNT = 'INSERT INTO accounts' +
-    ' (uid, normalizedEmail, email, emailCode, emailVerified,' +
-    ' kA, wrapWrapKb, authSalt, verifyHash, verifierSetAt, createdAt)' +
-    ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ' (uid, normalizedEmail, email, emailCode, emailVerified, kA, wrapWrapKb,' +
+    ' authSalt, verifierVersion, verifyHash, verifierSetAt, createdAt)' +
+    ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (data) {
     log.trace(
@@ -150,6 +150,7 @@ module.exports = function (
             data.kA,
             data.wrapWrapKb,
             data.authSalt,
+            data.verifierVersion,
             data.verifyHash,
             data.verifierSetAt,
             data.createdAt
@@ -524,8 +525,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  var EMAIL_RECORD = 'SELECT uid, email, normalizedEmail, emailVerified,' +
-    ' emailCode, kA, wrapWrapKb, verifyHash, authSalt, verifierSetAt' +
+  var EMAIL_RECORD = 'SELECT uid, email, normalizedEmail, emailVerified, emailCode,' +
+    ' kA, wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt' +
     ' FROM accounts' +
     ' WHERE normalizedEmail = LOWER(?)'
 
@@ -551,6 +552,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
               emailVerified: !!result.emailVerified,
               kA: result.kA,
               wrapWrapKb: result.wrapWrapKb,
+              verifierVersion: result.verifierVersion,
               verifyHash: result.verifyHash,
               authSalt: result.authSalt,
               verifierSetAt: result.verifierSetAt
@@ -562,7 +564,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   }
 
   var ACCOUNT = 'SELECT email, normalizedEmail, emailCode, emailVerified, kA,' +
-    ' wrapWrapKb, verifyHash, authSalt, verifierSetAt, createdAt' +
+    ' wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt, createdAt' +
     ' FROM accounts WHERE uid = ?'
 
   MySql.prototype.account = function (uid) {
@@ -588,6 +590,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
               emailVerified: !!result.emailVerified,
               kA: result.kA,
               wrapWrapKb: result.wrapWrapKb,
+              verifierVersion: result.verifierVersion,
               verifyHash: result.verifyHash,
               authSalt: result.authSalt,
               verifierSetAt: result.verifierSetAt,
