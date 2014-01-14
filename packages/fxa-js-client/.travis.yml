@@ -13,6 +13,8 @@ notifications:
       - "irc.mozilla.org#fxa"
     use_notice: false
     skip_join: false
+    on_success: change
+    on_failure: change
 
 node_js:
   - "0.10"
