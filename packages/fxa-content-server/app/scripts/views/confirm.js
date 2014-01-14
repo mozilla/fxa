@@ -28,7 +28,8 @@ function (BaseView, ConfirmTemplate, Session) {
       setTimeout(function() {
         Session.channel.send('login', {
           email: Session.email,
-          token: Session.sessionToken,
+          uid: Session.uid,
+          sessionToken: Session.sessionToken,
           unwrapBKey: Session.unwrapBKey,
           keyFetchToken: Session.keyFetchToken
         });

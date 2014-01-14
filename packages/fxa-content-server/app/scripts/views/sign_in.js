@@ -31,13 +31,13 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
 
       var client = new FxaClient();
       client.signIn(email, password)
-            .then(function (client) {
-
+            .then(function (accountData) {
               Session.channel.send('login', {
                 email: email,
-                token: client.sessionToken,
-                unwrapBKey: client.unwrapBKey,
-                keyFetchToken: client.keyFetchToken
+                uid: accountData.uid,
+                sessionToken: accountData.sessionToken,
+                unwrapBKey: accountData.unwrapBKey,
+                keyFetchToken: accountData.keyFetchToken
               });
               router.navigate('settings', { trigger: true });
             })

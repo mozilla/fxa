@@ -19,16 +19,16 @@ function (FxaClient, Constants) {
 
   FxaClientWrapper.prototype = {
     signIn: function (email, password) {
-      return this.client.signIn(email, password);
+      return this.client.signIn(email, password, { keys: true });
     },
 
     signUp: function (email, password) {
       return this.client
                  .signUp(email, password)
                  .then(function () {
-                    // when a user signs up, sign them in immediately
-                    return this.signIn(email, password);
-                  }.bind(this));
+                   // when a user signs up, sign them in immediately
+                   return this.signIn(email, password, { keys: true });
+                 }.bind(this));
     },
 
     verifyCode: function (uid, code) {
