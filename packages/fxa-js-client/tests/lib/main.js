@@ -105,6 +105,8 @@ define([
           })
           .then(function (res) {
             assert.ok(res.sessionToken);
+            assert.ok(res.keyFetchToken);
+            assert.ok(res.unwrapBKey);
             return true;
           });
 
@@ -251,7 +253,7 @@ define([
             assert.ok(passwordForgotToken, "passwordForgotToken is returned");
 
             setTimeout(function() {
-              SinonResponder.respond(requests[2], RequestMocks.mail);
+              SinonResponder.respond(requests[2], RequestMocks.resetMail);
             }, 200);
 
             return waitForEmail(user, 2);

@@ -75,7 +75,7 @@ define(['./request', '../../components/sjcl/sjcl', '../../components/p/p', './hk
       )
         .then(
         function (unwrapBKey) {
-          result.unwrapBkey = unwrapBKey;
+          result.unwrapBKey = unwrapBKey;
           return result;
         }
       );

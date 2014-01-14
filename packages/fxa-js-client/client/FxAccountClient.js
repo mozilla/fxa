@@ -61,17 +61,22 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
       .then(
         function (result) {
           var endpoint = "/account/login";
+          var keys = options && options.keys === true;
 
           var data = {
             email: result.emailUTF8,
             authPW: sjcl.codec.hex.fromBits(result.authPW)
           };
 
-          if (options && options.keys === true) {
+          if (keys) {
             endpoint += '?keys=true';
           }
 
-          return self.request.send(endpoint, "POST", null, data);
+          return self.request.send(endpoint, "POST", null, data)
+          .then(function(accountData) {
+            if (keys) accountData.unwrapBKey = result.unwrapBKey;
+            return accountData;
+          });
         }
       );
   };
