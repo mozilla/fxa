@@ -6,9 +6,10 @@
 
 define([
   'underscore',
-  'backbone'
+  'backbone',
+  'jquery'
 ],
-function(_, Backbone) {
+function(_, Backbone, jQuery) {
   var ENTER_BUTTON_CODE = 13;
 
   var BaseView = Backbone.View.extend({
@@ -54,6 +55,20 @@ function(_, Backbone) {
 
     afterRender: function() {
       // Implement in subclasses
+    },
+
+    // called after the view is visible.
+    afterVisible: function() {
+      // make a huge assumption and say if the device does not have touch,
+      // it's a desktop device and autofocus can be applied without
+      // hiding part of the screen. The no-touch class is added by modernizr
+      if (jQuery('html').hasClass('no-touch')) {
+        try {
+          this.$('[autofocus]').get(0).focus();
+        } catch (e) {
+          // IE can blow up if the element is not visible.
+        }
+      }
     },
 
     assign: function(view, selector) {

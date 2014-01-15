@@ -7,6 +7,7 @@
 define([
   'jquery',
   'backbone',
+  'underscore',
   'views/intro',
   'views/sign_in',
   'views/sign_up',
@@ -25,7 +26,7 @@ define([
   'views/reset_password_complete',
   'transit'
 ],
-function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
+function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
   var Router = Backbone.Router.extend({
     routes: {
       '': 'showSignUp',
@@ -130,7 +131,8 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
       this.$stage.html(this.currentView.render().el);
 
       // Fade the stage back in
-      this.$stage.transition({ opacity: 100 });
+      this.$stage.transition({ opacity: 100 },
+        _.bind(this.currentView.afterVisible, this.currentView));
     },
 
     watchAnchors: function () {
