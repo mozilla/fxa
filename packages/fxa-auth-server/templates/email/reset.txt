@@ -1,7 +1,7 @@
 {{gettext "Hi!"}}
 
 {{gettext "Click the following link to reset your password"}}
-{{link}}
+{{{link}}}
 
 {{gettext "Thank you,"}}
 {{gettext "The Firefox Accounts Team"}}
