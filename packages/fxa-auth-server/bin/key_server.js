@@ -107,6 +107,13 @@ function main() {
       )
     }
   )
+  process.on(
+    'uncaughtException',
+    function (err) {
+      log.fatal(err)
+      process.exit(8)
+    }
+  )
 }
 
 if (!fs.existsSync(config.publicKeyFile)) {
