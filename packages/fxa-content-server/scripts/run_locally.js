@@ -23,14 +23,19 @@ module.exports = function (done) {
   fxaccntbridge.stderr.on('data', function(data) {
     console.log('fxa-content-server err:', data.toString('utf8').trim());
   });
-  fxaccntbridge.on('exit', function(code, signal) {
+  fxaccntbridge.on('exit', function (code, signal) {
     console.log('fxa-content-server killed, existing');
-    if (done) done(code);
-    else process.exit(code);
+    if (done) {
+      done(code);
+    } else {
+      process.exit(code);
+    }
   });
 };
 
 // only start the server if the file is called directly, otherwise wait until
 // module.exports is called.
-if (process.argv[1] === __filename) module.exports();
+if (process.argv[1] === __filename) {
+  module.exports();
+}
 
