@@ -87,7 +87,6 @@ section p {
 
 .graphic-checkbox {
   background-image: url(../images/graphic_checkbox.png);
-
 }
 
 .graphic-mail {
@@ -211,7 +210,45 @@ section p {
 }
 
 .spinner {
-  margin-top: 125px;
+  -webkit-animation: 0.9s spin infinite linear;
+  -moz-animation: 0.9s spin infinite linear;
+  animation: 0.9s spin infinite linear;
+  background-image: url(../images/spinnerlight.png);
+  background-size: 30px 30px;
+  display: block;
+  margin: 130px auto 0;
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+}
+
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(365deg);
+  }
+}
+
+@-moz-keyframes spin {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(365deg);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(365deg);
+  }
 }
 
 /* TODO: These need further consideration */
@@ -253,10 +290,13 @@ only screen and (                min-resolution: 2dppx) {
 
   .graphic-checkbox {
     background-image: url(../images/graphic_checkbox@2x.png);
-
   }
 
   .graphic-mail {
     background-image: url(../images/graphic_mail@2x.png);
+  }
+
+  .spinner {
+    background-image: url(../images/spinnerlight@2x.png);
   }
 }
