@@ -257,6 +257,17 @@ module.exports = function (fs, path, url, convict) {
         default: "key-value-json",
         env: "I18N_TRANSLATION_TYPE"
       }
+    },
+    tokenLifetimes: {
+      accountResetToken: {
+        default: 1000 * 60 * 15
+      },
+      passwordFogotToken: {
+        default: 1000 * 60 * 15
+      },
+      passwordChangeToken: {
+        default: 1000 * 60 * 15
+      }
     }
   })
 

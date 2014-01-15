@@ -37,6 +37,7 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
     this.bundleKey = keys.bundleKey
     this.algorithm = 'sha256'
     this.uid = details.uid || null
+    this.lifetime = details.lifetime || Infinity
     this.createdAt = details.createdAt || Date.now()
   }
 
@@ -129,6 +130,15 @@ module.exports = function (log, crypto, P, hkdf, Bundle, error) {
     return Bundle.unbundle(this.bundleKey, keyInfo, payload)
   }
 
+  Token.prototype.ttl = function (asOf) {
+    asOf = asOf || Date.now()
+    var ttl = (this.lifetime - (asOf - this.createdAt)) / 1000
+    return Math.max(Math.ceil(ttl), 0)
+  }
+
+  Token.prototype.expired = function (asOf) {
+    return this.ttl(asOf) === 0
+  }
 
   // Properties defined for HAWK
   Object.defineProperties(

@@ -11,8 +11,12 @@ var butil = require('../crypto/butil')
 
 var error = require('./error')
 
-module.exports = function (log) {
-
+module.exports = function (log, lifetimes) {
+  lifetimes = lifetimes || {
+    accountResetToken: 1000 * 60 * 15,
+    passwordChangeToken: 1000 * 60 * 15,
+    passwordForgotToken: 1000 * 60 * 15
+  }
   var Bundle = require('./bundle')(crypto, P, hkdf, butil, error)
   var Token = require('./token')(log, crypto, P, hkdf, Bundle, error)
 
@@ -21,21 +25,23 @@ module.exports = function (log) {
     log,
     inherits,
     Token,
-    crypto
+    crypto,
+    lifetimes.accountResetToken
   )
   var SessionToken = require('./session_token')(log, inherits, Token)
   var PasswordForgotToken = require('./password_forgot_token')(
     log,
     inherits,
-    Date.now,
     Token,
-    crypto
+    crypto,
+    lifetimes.passwordForgotToken
   )
 
   var PasswordChangeToken = require('./password_change_token')(
     log,
     inherits,
-    Token
+    Token,
+    lifetimes.passwordChangeToken
   )
 
   Token.error = error
