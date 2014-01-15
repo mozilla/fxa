@@ -33,6 +33,16 @@ define([
         .get(require.toUrl(PAGE_URL))
         .waitForElementById('fxa-reset-password-header')
 
+        .elementByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-confirm-reset-password-header')
         .end();
     }
   });

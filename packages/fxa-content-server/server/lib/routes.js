@@ -6,6 +6,11 @@ const config = require('./configuration');
 const path = require('path');
 
 module.exports = function(app) {
+  // handle password reset links
+  app.get('/v1/complete_reset_password', function(req, res) {
+    res.redirect(req.originalUrl.slice(3));
+  });
+
   // handle email verification links
   app.get('/v1/verify_email', function(req, res) {
     res.redirect(req.originalUrl.slice(3));
