@@ -20,8 +20,10 @@ define([
   };
 
   intern.environments = [
-    { browserName: 'firefox' }
+    { browserName: 'firefox', version: '25' }
   ];
+
+  console.log("BROWSER", intern.proxyUrl);
 
   return intern;
 });

@@ -14,7 +14,7 @@ define({
 
   suites: [ 'tests/all' ],
   functionalSuites: [ ],
-  SERVER: typeof process !== 'undefined' ? process.env.SERVER : undefined,
+  AUTH_SERVER_URL: typeof process !== 'undefined' ? process.env.AUTH_SERVER_URL : undefined,
 
   excludeInstrumentation: /(?:.)\//
 

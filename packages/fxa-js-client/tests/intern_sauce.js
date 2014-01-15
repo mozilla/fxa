@@ -25,5 +25,7 @@ define([
     { browserName: 'internet explorer', version: '10', platform: [ 'Windows 7' ] }
   ];
 
+  console.log("SAUCE", intern.proxyUrl);
+
   return intern;
 });
