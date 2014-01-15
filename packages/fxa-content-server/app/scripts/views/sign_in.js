@@ -17,7 +17,8 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
 
     events: {
       'submit form': 'signIn',
-      'keyup input': 'enableButtonWhenValid'
+      'keyup input': 'enableButtonWhenValid',
+      'change input': 'enableButtonWhenValid'
     },
 
     signIn: function (event) {

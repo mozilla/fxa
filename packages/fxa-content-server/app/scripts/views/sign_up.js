@@ -16,7 +16,8 @@ function (BaseView, SignUpTemplate, Session) {
 
     events: {
       'submit form': 'signUp',
-      'keyup input': 'enableButtonWhenValid'
+      'keyup input': 'enableButtonWhenValid',
+      'change input': 'enableButtonWhenValid'
     },
 
     signUp: function (event) {

@@ -18,7 +18,8 @@ function (_, BaseView, Template, FxaClient, Session) {
 
     events: {
       'submit form': 'requestPasswordReset',
-      'keyup input': 'enableButtonWhenValid'
+      'keyup input': 'enableButtonWhenValid',
+      'change input': 'enableButtonWhenValid'
     },
 
     requestPasswordReset: function (event) {
