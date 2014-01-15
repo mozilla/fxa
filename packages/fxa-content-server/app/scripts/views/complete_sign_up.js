@@ -9,26 +9,11 @@ define([
   'views/base',
   'stache!templates/complete_sign_up',
   'lib/session',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'lib/url',
+  'lib/xss'
 ],
-function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient) {
-  function getSearchParam(name) {
-    var search = window.location.search.replace(/^\?/, '');
-    if (! search) {
-      return;
-    }
-
-    var pairs = search.split('&');
-    var terms = {};
-
-    _.each(pairs, function (pair) {
-      var keyValue = pair.split('=');
-      terms[keyValue[0]] = keyValue[1];
-    });
-
-    return terms[name];
-  }
-
+function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
   var CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
@@ -36,40 +21,38 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient) {
     context: function () {
       return {
         email: Session.email,
-        siteName: getSearchParam('service'),
-        redirectTo: getSearchParam('service')
+        service: Url.searchParam('service'),
+        redirectTo: Xss.href(Url.searchParam('redirectTo'))
       };
     },
 
     afterRender: function () {
-      var uid = getSearchParam('uid');
+      var uid = Url.searchParam('uid');
       if (! uid) {
-        return this._displayError('no uid specified');
+        return this.displayError('no uid specified');
       }
 
-      var code = getSearchParam('code');
+      var code = Url.searchParam('code');
       if (! code) {
-        return this._displayError('no code specified');
+        return this.displayError('no code specified');
       }
 
       var client = new FxaClient();
       client.verifyCode(uid, code)
             .then(function () {
+              // TODO - we could go to a "sign_up_complete" screen here.
               this.$('#fxa-complete-sign-up-success').show();
 
-              this.$('h2.success').show()
-              this.$('h2.failure').hide()
+              this.$('h2.success').show();
+              this.$('h2.failure').hide();
             }.bind(this), function (err) {
-              this._displayError(err.message);
+              this.displayError(err.message);
 
-              this.$('h2.success').hide()
-              this.$('h2.failure').show()
+              this.$('h2.success').hide();
+              this.$('h2.failure').show();
             }.bind(this));
-    },
-
-    _displayError: function (msg) {
-      this.$('.error').html(msg);
     }
+
   });
 
   return CompleteSignUpView;

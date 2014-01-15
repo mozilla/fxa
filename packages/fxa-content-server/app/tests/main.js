@@ -48,7 +48,9 @@ require.config({
 require([
   'mocha',
   '../tests/setup',
-  '../tests/spec/lib/channels/fx-desktop'
+  '../tests/spec/lib/channels/fx-desktop',
+  '../tests/spec/lib/xss',
+  '../tests/spec/lib/url'
 ],
 function (Mocha) {
   var runner = Mocha.run();
