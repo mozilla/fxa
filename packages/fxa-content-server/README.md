@@ -97,6 +97,12 @@ edit `server/config/*.json` on your deployed instance.
 * `grunt server` - run a local server running on port 3030 with development resources.
 * `grunt server:dist` - run a local server running on port 3030 with production resources. Production resources will be built as part of the task.
 
+## Servers
+
+* latest development - https://accounts-latest.dev.lcip.org/
+* testing - https://accounts.dev.lcip.org/
+* stage - https://accounts.stage.mozaws.net/
+* production - https://accounts.firefox.com/
 
 ## License
 
