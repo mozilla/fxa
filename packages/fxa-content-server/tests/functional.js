@@ -15,6 +15,7 @@ define([
   './functional/confirm_reset_password',
   './functional/complete_reset_password',
   './functional/reset_password_complete',
+  './functional/robots_txt',
   './functional/mocha'
 ], function () {
   'use strict';
