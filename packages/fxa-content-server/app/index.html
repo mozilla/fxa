@@ -24,7 +24,14 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <div id="stage"></div>
+        <div id="stage">
+          <!-- this will be overwritten if JS is enabled -->
+          <!-- TODO - this needs to be translated on the server -->
+          <noscript>
+            Firefox Accounts requires JavaScript.
+          </noscript>
+
+        </div>
 
         <!-- build:js scripts/main.js -->
         <script data-main="scripts/main" src="bower_components/requirejs/require.js"></script>

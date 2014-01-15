@@ -26,6 +26,12 @@ a {
   cursor: pointer; /* Use the correct cursor for anchors without an href */
 }
 
+noscript {
+  color: #f00;
+  display: block;
+  margin: 160px 0 0 0;
+}
+
 #stage {
   background: #fff url(../images/fox.png) no-repeat left 50% bottom 30px;
   -webkit-border-radius: 10px;
