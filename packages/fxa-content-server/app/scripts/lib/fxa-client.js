@@ -45,9 +45,9 @@ function (FxaClient, Constants) {
       return this.client
                  .signUp(email, password)
                  .then(function () {
-                    // when a user signs up, sign them in immediately
-                    return this.signIn(email, password, { keys: true });
-                  }.bind(this));
+                   // when a user signs up, sign them in immediately
+                   return this.signIn(email, password, { keys: true });
+                 }.bind(this));
     },
 
     verifyCode: function (uid, code) {
