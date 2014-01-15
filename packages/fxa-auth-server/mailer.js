@@ -127,7 +127,8 @@ module.exports = function (config, i18n, log) {
     var template = templates.reset
     var query = {
       token: token.data.toString('hex'),
-      code: code
+      code: code,
+      email: token.email
     }
     if (service) { query.service = service }
     if (redirectTo) { query.redirectTo = redirectTo }

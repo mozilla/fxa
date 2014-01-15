@@ -547,6 +547,7 @@ TestServer.start(config.publicUrl)
             t.ok(query.code, 'code is in link')
             t.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link')
             t.equal(query.service, options.service, 'service is in link')
+            t.equal(query.email, email, 'email is in link')
           }
         )
     }
