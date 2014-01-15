@@ -51,6 +51,9 @@ server.stderr
           pathStats[json.path] = stat
           this.emit('data', json)
         }
+        else if (json.op === 'server.start.1') {
+          startClients()
+        }
       }
     )
   )
@@ -79,8 +82,9 @@ function clientExit() {
   }
 }
 
-for (var i = 0; i < clientCount; i++) {
-  var c = startClient()
-  c.on('exit', clientExit)
+function startClients() {
+  for (var i = 0; i < clientCount; i++) {
+    var c = startClient()
+    c.on('exit', clientExit)
+  }
 }
-

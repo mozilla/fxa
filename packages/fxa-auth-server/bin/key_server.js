@@ -85,7 +85,7 @@ function main() {
 
         server.start(
           function () {
-            log.info('running on ' + server.info.uri)
+            log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
           }
         )
       },

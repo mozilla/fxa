@@ -61,8 +61,6 @@ function run(c) {
 var client = new Client(config.origin)
 client.options.preVerified = true
 
-setTimeout(
-  function () {
 client.setupCredentials(config.email, config.password)
   .then(
     function () {
@@ -85,6 +83,3 @@ client.setupCredentials(config.email, config.password)
       loop(config.duration)
     }
   )
-  },
-  500
-)
