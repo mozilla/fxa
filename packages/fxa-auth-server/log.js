@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var Domain = require('domain')
-var inherits = require('util').inherits
+var util = require('util')
 var Logger = require('bunyan')
 
 function Overdrive(options) {
   Logger.call(this, options)
 }
-inherits(Overdrive, Logger)
+util.inherits(Overdrive, Logger)
 
 Overdrive.prototype.begin = function (op, request) {
   var domain = Domain.active
@@ -50,7 +50,7 @@ Overdrive.prototype.trace = function () {
 // These get annotated with as much info as we can about the request,
 // e.g. the originating IP and target user account.  The basic structure
 // of the logged object is:
-// 
+//
 //   {
 //      security: true,
 //      event: <name-of-event>,
@@ -92,6 +92,20 @@ module.exports = function (level) {
     {
       name: 'fxa-auth-server',
       streams: logStreams
+    }
+  )
+
+  Object.keys(console).forEach(
+    function (key) {
+      console[key] = function () {
+        var json = { op: 'console', message: util.format.apply(null, arguments) }
+        if(log[key]) {
+          log[key](json)
+        }
+        else {
+          log.warn(json)
+        }
+      }
     }
   )
 
