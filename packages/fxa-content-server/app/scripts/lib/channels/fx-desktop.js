@@ -20,6 +20,7 @@ function (_, Backbone, Session) {
   }
 
   function createEvent(command, data) {
+    /*jshint validthis: true*/
     return new this.window.CustomEvent('FirefoxAccountsCommand', {
       detail: {
         command: command,
@@ -31,10 +32,10 @@ function (_, Backbone, Session) {
 
   function retryIfNoResponse(outstandingRequest) {
     /*jshint validthis: true*/
-    outstandingRequest.timeout = setTimeout(_.bind(function() {
+    outstandingRequest.timeout = setTimeout(_.bind(function () {
       // only called if the request has not been responded to.
-      outstandingRequest.retries_completed++;
-      if (outstandingRequest.retries_completed > MAX_RETRIES) {
+      outstandingRequest.retriesCompleted++;
+      if (outstandingRequest.retriesCompleted > MAX_RETRIES) {
         return outstandingRequest.done(new Error('too many retries'));
       }
 
@@ -47,7 +48,9 @@ function (_, Backbone, Session) {
   function receiveMessage(event) {
     /*jshint validthis: true*/
     var result = event.data.content;
-    if (! result) return;
+    if (! result) {
+      return;
+    }
 
     var type = event.data.type;
     var command = result.status;
@@ -58,7 +61,7 @@ function (_, Backbone, Session) {
         clearTimeout(outstandingRequest.timeout);
         delete this.outstandingRequests[command];
 
-        outstandingRequest.handler(null, result);
+        outstandingRequest.done(null, result);
       }
 
       this.trigger(command, result);
@@ -66,8 +69,11 @@ function (_, Backbone, Session) {
   }
 
   function findInitialPage() {
-    this.send('session_status', {}, _.bind(function(err, response) {
-      if (err) return;
+    /*jshint validthis: true*/
+    this.send('session_status', {}, _.bind(function (err, response) {
+      if (err) {
+        return;
+      }
 
       if (response.data) {
         Session.email = response.data.email;
@@ -112,13 +118,14 @@ function (_, Backbone, Session) {
       done = done || noOp();
 
       var outstanding = this.outstandingRequests[command];
-      if ( ! outstanding) {
+      if (! outstanding) {
+        // if this is a resend, retriesCompleted has already been updated
+        // and none of the other data needs to be updated.
         outstanding = this.outstandingRequests[command] = {
-          handler: done,
-          retries_completed: 0,
+          done: done,
+          retriesCompleted: 0,
           command: command,
-          data: data,
-          done: done
+          data: data
         };
       }
 
@@ -128,6 +135,9 @@ function (_, Backbone, Session) {
         var event = createEvent.call(this, command, data);
         this.window.dispatchEvent(event);
       } catch (e) {
+        // something went wrong sending the message and we are not going to
+        // retry, no need to keep track of it any longer.
+        delete this.outstandingRequest[command];
         return done && done(e);
       }
 
