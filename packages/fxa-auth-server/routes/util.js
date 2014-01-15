@@ -33,7 +33,7 @@ module.exports = function (log, crypto, isA, config) {
     },
     {
       method: 'GET',
-      path: '/reset_password',
+      path: '/complete_reset_password',
       config: {
         handler: function (request) {
           return request.reply.redirect(config.contentServer.url + request.raw.req.url)

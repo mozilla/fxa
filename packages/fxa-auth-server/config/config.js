@@ -277,7 +277,7 @@ module.exports = function (fs, path, url, convict) {
   }
 
   if (!conf.has('smtp.passwordResetUrl')) {
-    conf.set('smtp.passwordResetUrl', conf.get('publicUrl') + '/v1/reset_password')
+    conf.set('smtp.passwordResetUrl', conf.get('publicUrl') + '/v1/complete_reset_password')
   }
 
   conf.validate()
