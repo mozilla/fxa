@@ -7,5 +7,6 @@ define([
   'tests/lib/request',
   'tests/lib/hkdf',
   'tests/lib/credentials',
-  'tests/lib/hawkCredentials'
+  'tests/lib/hawkCredentials',
+  'tests/lib/passwordChange'
 ], function () {});

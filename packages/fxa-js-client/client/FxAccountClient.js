@@ -210,6 +210,87 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
       });
   };
 
+  /**
+   * Change the password from one known value to another.
+   *
+   * @method passwordChange
+   * @param {String} email
+   * @param {String} oldPassword
+   * @param {String} newPassword
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.passwordChange = function(email, oldPassword, newPassword) {
+    var self = this;
+
+    return self._passwordChangeStart(email, oldPassword)
+      .then(function (oldCreds) {
+
+        return self._passwordChangeFinish(email, newPassword, oldCreds);
+      });
+  };
+
+  /**
+   * First step to change the password.
+   *
+   * @method passwordChangeStart
+   * @private
+   * @param {String} email
+   * @param {String} oldPassword
+   * @return {Promise} A promise that will be fulfilled with JSON of `xhr.responseText` and `oldUnwrapBKey`
+   */
+  FxAccountClient.prototype._passwordChangeStart = function(email, oldPassword) {
+    var self = this;
+
+    return credentials.setup(email, oldPassword)
+      .then(function (oldCreds) {
+        var data = {
+          email: oldCreds.emailUTF8,
+          oldAuthPW: sjcl.codec.hex.fromBits(oldCreds.authPW)
+        };
+
+        return self.request.send('/password/change/start', 'POST', null, data)
+          .then(function(passwordData) {
+            passwordData.oldUnwrapBKey = sjcl.codec.hex.fromBits(oldCreds.unwrapBKey);
+          return passwordData;
+        });
+      });
+  };
+
+  /**
+   * Second step to change the password.
+   *
+   * @method _passwordChangeFinish
+   * @private
+   * @param {String} email
+   * @param {String} newPassword
+   * @param {Object} oldCreds This object should consists of `oldUnwrapBKey` and `passwordChangeToken`.
+   * @return {Promise} A promise that will be fulfilled with JSON of `xhr.responseText`
+   */
+  FxAccountClient.prototype._passwordChangeFinish = function(email, newPassword, oldCreds) {
+    var self = this;
+    var wrapKb;
+    var authPW;
+
+    return credentials.setup(email, newPassword)
+      .then(function(newCreds) {
+        wrapKb = sjcl.codec.hex.fromBits(
+          credentials.wrap(
+            sjcl.codec.hex.toBits(oldCreds.oldUnwrapBKey),
+            newCreds.unwrapBKey
+          )
+        );
+
+        authPW = sjcl.codec.hex.fromBits(newCreds.authPW);
+
+        return hawkCredentials(oldCreds.passwordChangeToken, 'passwordChangeToken',  2 * 32);
+      }).then(function(hawkCreds) {
+
+        return self.request.send('/password/change/finish', 'POST', hawkCreds, {
+          wrapKb: wrapKb,
+          authPW: authPW
+        });
+      });
+  };
 
   return FxAccountClient;
 });

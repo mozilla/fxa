@@ -9,7 +9,7 @@ define([
   'client/lib/credentials'
 ], function (tdd, assert, sjcl, credentials) {
   with (tdd) {
-    suite('client setupCredentials', function () {
+    suite('credentials', function () {
       test('#client stretch-KDF vectors', function () {
         var email = sjcl.codec.utf8String.fromBits(sjcl.codec.hex.toBits('616e6472c3a9406578616d706c652e6f7267'));
         var password = sjcl.codec.utf8String.fromBits(sjcl.codec.hex.toBits('70c3a4737377c3b67264'));
@@ -26,6 +26,14 @@ define([
               assert.equal(unwrapBKey, 'de6a2648b78284fcb9ffa81ba95803309cfba7af583c01a8a1a63e567234dd28', '== unwrapBkey is equal');
             }
           );
+      });
+
+      test('#wrap', function () {
+        var bit1 = sjcl.codec.hex.toBits('c347de41c8a409c17b5b88e4985e1cd10585bb79b4a80d5e576eaf97cd1277fc');
+        var bit2 = sjcl.codec.hex.toBits('3afd383d9bc1857318f24c5f293af62254f0476f0aaacfb929c61b534d0b5075');
+        var result = credentials.wrap(bit1, bit2);
+
+        assert.equal(sjcl.codec.hex.fromBits(result), 'f9bae67c53658cb263a9c4bbb164eaf35175fc16be02c2e77ea8b4c480192789', '== wrap worked correctly');
       });
     });
   }
