@@ -123,7 +123,14 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
 
       this.currentView = view;
 
+      // Make the stage transparent
+      this.$stage.css({ opacity: 0 });
+
+      // Render the new view
       this.$stage.html(this.currentView.render().el);
+
+      // Fade the stage back in
+      this.$stage.transition({ opacity: 100 });
     },
 
     watchAnchors: function () {
