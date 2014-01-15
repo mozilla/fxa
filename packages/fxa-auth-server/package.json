@@ -43,7 +43,7 @@
     "nodemailer": "0.6.0",
     "then-redis": "0.3.9",
     "i18n-abide": "0.0.16",
-    "scrypt-hash": "1.1.7"
+    "scrypt-hash": "1.1.8"
   },
   "devDependencies": {
     "awsbox": "0.6.2",

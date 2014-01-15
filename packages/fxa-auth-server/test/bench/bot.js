@@ -59,7 +59,7 @@ function run(c) {
 }
 
 var client = new Client(config.origin)
-client.preVerified = true
+client.options.preVerified = true
 
 setTimeout(
   function () {

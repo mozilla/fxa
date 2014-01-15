@@ -22,7 +22,7 @@ function Client(origin) {
   this.kA = null
   this.wrapKb = null
   this._devices = null
-  this.options = null
+  this.options = {}
 }
 
 Client.Api = ClientApi

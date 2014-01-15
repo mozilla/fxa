@@ -183,9 +183,6 @@ test(
       if (err) {
         failed++
       }
-      else {
-        t.ok(result.cert, x + ' ok')
-      }
       if (++x === count) {
         t.ok(failed > 0, failed + ' requests failed')
         t.end()
