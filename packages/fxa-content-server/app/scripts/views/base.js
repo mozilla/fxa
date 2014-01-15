@@ -9,6 +9,8 @@ define([
   'backbone'
 ],
 function(_, Backbone) {
+  var ENTER_BUTTON_CODE = 13;
+
   var BaseView = Backbone.View.extend({
     constructor: function(options) {
       this.subviews = [];
@@ -103,6 +105,20 @@ function(_, Backbone) {
     displayError: function(msg) {
       // TODO - run the error message through the translator
       this.$('.error').html(msg);
+    },
+
+    back: function (event) {
+      if (event) {
+        event.preventDefault();
+      }
+
+      window.history.back();
+    },
+
+    backOnEnter: function (event) {
+      if (event.which === ENTER_BUTTON_CODE) {
+        window.history.back();
+      }
     }
   });
 

@@ -14,13 +14,9 @@ function (BaseView, TosTemplate) {
     className: 'tos',
 
     events: {
-      'click #fxa-tos-back': 'back'
-    },
-
-    back: function () {
-      window.history.back();
+      'click #fxa-tos-back': 'back',
+      'keyup #fxa-tos-back': 'backOnEnter'
     }
-
   });
 
   return TosView;

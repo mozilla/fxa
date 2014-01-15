@@ -14,13 +14,9 @@ function (BaseView, PpTemplate) {
     className: 'pp',
 
     events: {
-      'click #fxa-pp-back': 'back'
-    },
-
-    back: function () {
-      window.history.back();
+      'click #fxa-pp-back': 'back',
+      'keyup #fxa-pp-back': 'backOnEnter'
     }
-
   });
 
   return PpView;

@@ -20,7 +20,7 @@ function (BaseView, AgeTemplate) {
 
     events: {
       'submit form': 'age',
-      'click #fxa-age-back': 'back',
+      'keyup select': 'enableButtonWhenValid',
       'change select': 'enableButtonWhenValid'
     },
 
@@ -38,13 +38,7 @@ function (BaseView, AgeTemplate) {
       router.navigate(nextStep, { trigger: true });
     },
 
-    back: function (event) {
-      event.preventDefault();
-
-      window.history.back();
-    },
-
-    isValid: function() {
+    isValid: function () {
       return this._validateYear();
     },
 

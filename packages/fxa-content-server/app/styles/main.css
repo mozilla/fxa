@@ -168,7 +168,9 @@ section p {
   text-decoration: none;
 }
 
-.button-row button:active {
+.button-row button:active,
+.button-row button:hover,
+.button-row button:focus {
   background: #FF9500;
 }
 
