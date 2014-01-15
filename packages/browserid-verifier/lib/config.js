@@ -57,3 +57,23 @@ function loadConf() {
 }
 
 loadConf();
+
+// command line options
+
+var args = require('optimist')
+.alias('h', 'help')
+.describe('h', 'display this usage message')
+.alias('c', 'config')
+.describe('c', 'Display current configuration.');
+
+var argv = args.argv;
+
+if (argv.h) {
+  args.showHelp();
+  process.exit(1);
+}
+
+if (argv.c) {
+  console.log(module.exports.get());
+  process.exit(0);
+}

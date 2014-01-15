@@ -4,7 +4,7 @@
 
 /* global describe,it,require */
 
-const EXPECT_COVERAGE = 99.1;
+const EXPECT_COVERAGE = 96.3;
 
 if (!process.env.NO_COVERAGE) {
   var
