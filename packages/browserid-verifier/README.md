@@ -1,11 +1,11 @@
 [![Build Status](https://travis-ci.org/mozilla/browserid-verifier.png?branch=master)](https://travis-ci.org/mozilla/browserid-verifier)
 
-# A BrowserID verification server
+## A BrowserID verification server
 
 This repository contains a flexible BrowserID verification server authored in
 Node.JS.
 
-# Getting Started
+## Getting Started
 
 To run the verification server locally:
 
@@ -17,7 +17,7 @@ To run the verification server locally:
 At this point, your verifier will be running and available to use locally over
 HTTP.
 
-# Configuration
+## Configuration
 
 There are several configuration variables which can change the behavior of the
 server.  You can inspect available configuration variables in `lib/config.js`.
@@ -27,12 +27,12 @@ inspect the current server configuration with:
 
     $ node ./lib/server.js -c
 
-# Health Checks
+## Health Checks
 
 The server exports an endpoint at `/status` that can be polled for server health.
 When the server is healthy, a `200` HTTP response is returned with a body of `OK`.
 
-# API
+## API
 
 The server exports an HTTP endpoint at `/v2` that can be POSTed to verify BrowserID
 assertions.  Arguments may be provided inside a JSON object.  The following are
@@ -44,21 +44,21 @@ required:
 
 The following arguments are supported:
 
-## **required** (string) `assertion`
+### **required** (string) `assertion`
 
 A BrowserID assertion
 
-## **required** (string) `audience`
+### **required** (string) `audience`
 
 The origin of the site to which the assertion is expected to be bound.
 
-## **optional** (array of strings) `trustedIssuers`
+### **optional** (array of strings) `trustedIssuers`
 
 An array of domain names that are *trusted* issuers.  Assertions
 signed by any of the domains in this set will be honored regardless of
 the presence of a subject or principal in a BrowserID assertion.
 
-## Error Response
+### Error Response
 
 Example:
 
@@ -75,7 +75,7 @@ response body contains a JSON formated response containing a `status` key with t
 value of `failure`.  Additionally, more verbose developer readable information will
 be available in a string value on the `reason` key.
 
-## Success Response
+### Success Response
 
 Example:
 
@@ -93,6 +93,6 @@ Example:
 Upon successful assertion verification, a 200 response will be sent with a JSON formatted body.
 The body will always include `audience`, `issuer`, `status` (of "okay"), and `expires`. 
 
-## Extra IdP claims
+### Extra IdP claims
 
 XXX: document me
