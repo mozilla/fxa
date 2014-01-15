@@ -55,7 +55,8 @@
     "connect-fonts": "0.0.12",
     "connect-fonts-firasans": "0.0.2",
     "connect-fonts-clearsans": "0.0.1",
-    "grunt-cli": "0.1.11"
+    "grunt-cli": "0.1.11",
+    "grunt-jscs-checker": "~0.3.2"
   },
   "devDependencies": {
     "awsbox": "0.6.2",

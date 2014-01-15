@@ -5,18 +5,16 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.config('concurrent', {
-    server: [
-      'copy:styles'
+  grunt.config('jscs', {
+    src: [
+      '**/*.js',
+      '!dist/**',
+      '!node_modules/**',
+      '!**/bower_components/**',
+      '!**/vendor/**'
     ],
-    test: [
-      'copy:styles'
-    ],
-    dist: [
-      'copy:styles',
-      'imagemin',
-      'svgmin',
-      'htmlmin'
-    ]
+    options: {
+      config: '.jscs.json'
+    }
   });
 };

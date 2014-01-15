@@ -4,4 +4,6 @@
 
 define([
   './tdd/assertion_service'
-], function () {});
+], function () {
+  'use strict';
+});
