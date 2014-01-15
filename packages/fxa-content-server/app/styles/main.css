@@ -265,7 +265,7 @@ section p {
     background: #fff;
   }
 
-  #stage > div {
+  #stage {
     -webkit-box-shadow: none;
     box-shadow: none;
     margin: 0 auto;
