@@ -4,6 +4,8 @@
 
 /* global describe,it,require */
 
+const EXPECT_COVERAGE = 99.1;
+
 if (!process.env.NO_COVERAGE) {
   var
   should = require('should'),
@@ -11,10 +13,10 @@ if (!process.env.NO_COVERAGE) {
   fs = require('fs');
 
   describe('code coverage', function() {
-    it('tests should exceed 96.7% coverage', function(done) {
+    it('tests should exceed ' + EXPECT_COVERAGE + '% coverage', function(done) {
       ass.report('json', function(err, r) {
         should.not.exist(err);
-        (r.percent).should.be.above(96.7);
+        (r.percent).should.be.above(EXPECT_COVERAGE);
         done();
       });
     });
