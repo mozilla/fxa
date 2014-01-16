@@ -137,7 +137,7 @@ function (_, Backbone, Session) {
       } catch (e) {
         // something went wrong sending the message and we are not going to
         // retry, no need to keep track of it any longer.
-        delete this.outstandingRequest[command];
+        delete this.outstandingRequests[command];
         return done && done(e);
       }
 
