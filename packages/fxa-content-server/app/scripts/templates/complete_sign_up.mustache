@@ -1,15 +1,15 @@
 <header>
   <h1 id='fxa-complete-sign-up-header'>{{#t}}Firefox Accounts{{/t}}</h1>
 
-  <!-- TODO: Change text when in error state -->
-  <h2>{{#t}}Email verified???{{/t}}</h2>
+  <h2 class="success hidden">{{#t}}Email verified{{/t}}</h2>
+  <h2 class="failure">{{#t}}Email not verified{{/t}}</h2>
 </header>
 
 <section>
   <div class="error"></div>
 
-  <div id="fxa-complete-sign-up-success">
-    <h3>{{#t}}Email Verified!{{/t}}</h3>
+  <div id="fxa-complete-sign-up-success" class="hidden">
+    <div class="graphic graphic-checkbox">{{#t}}Success{{/t}}</div>
 
     {{#redirectTo}}
       <p>{{#t}}You are now ready to use{{/t}} {{ siteName }}</p>
@@ -17,11 +17,7 @@
       <a href="{{ redirectTo }}">Continue</a>
     {{/redirectTo}}
     {{^redirectTo}}
-      {{#t}}Your account is ready!{{/t}}
+      <p>{{#t}}Your account is ready!{{/t}}</p>
     {{/redirectTo}}
   </div>
 </section>
-
-<footer>
-
-</footer>

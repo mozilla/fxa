@@ -17,13 +17,15 @@ function (_, BaseView, Template, FxaClient, Session) {
     className: 'reset_password',
 
     events: {
-      'submit form': 'requestPasswordReset'
+      'submit form': 'requestPasswordReset',
+      'keyup input': 'enableButtonWhenValid',
+      'change input': 'enableButtonWhenValid'
     },
 
     requestPasswordReset: function (event) {
       event.preventDefault();
 
-      if (! this._validateEmail()) {
+      if (! this.isValid()) {
         return;
       }
 
@@ -34,6 +36,10 @@ function (_, BaseView, Template, FxaClient, Session) {
             .done(this._onRequestResetSuccess.bind(this),
                   this._onRequestResetFailure.bind(this));
 
+    },
+
+    isValid: function () {
+      return this._validateEmail();
     },
 
     _onRequestResetSuccess: function () {

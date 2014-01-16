@@ -14,13 +14,14 @@ function (BaseView, BirthdayTemplate) {
     className: 'birthday',
 
     events: {
-      'submit form': 'birthday'
+      'submit form': 'birthday',
+      'change select': 'enableButtonWhenValid'
     },
 
     birthday: function (event) {
       event.preventDefault();
 
-      if (!this._validate()) {
+      if (!this.isValid()) {
         return;
       }
 
@@ -32,7 +33,7 @@ function (BaseView, BirthdayTemplate) {
       router.navigate(nextStep, { trigger: true });
     },
 
-    _validate: function () {
+    isValid: function () {
       return !(isNaN(this._getMonth()) || isNaN(this._getDay()));
     },
 

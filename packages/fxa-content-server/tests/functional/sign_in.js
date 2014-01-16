@@ -47,8 +47,8 @@ define([
           .click()
         .end()
 
-        .waitForElementByCssSelector('.settings p.center')
-        .elementByCssSelector('.settings p.center')
+        .waitForElementByCssSelector('.settings section p')
+        .elementByCssSelector('.settings section p')
           .text()
           .then(function (resultText) {
             assert.ok(resultText.match(/^Congratulations,/), 'No errors in sign in');

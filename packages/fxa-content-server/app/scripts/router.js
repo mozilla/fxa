@@ -28,7 +28,7 @@ define([
 function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
   var Router = Backbone.Router.extend({
     routes: {
-      '': 'showIntro',
+      '': 'showSignUp',
       'signin': 'showSignIn',
       'signup': 'showSignUp',
       'confirm': 'showConfirm',
@@ -54,9 +54,6 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
 
     showIntro: function () {
       this.showView(new IntroView());
-
-      // TODO - can this go into the IntroView or into CSS?
-      this.$stage.css({ scale: 0.6, opacity: 0 }).transition({ scale: 1, opacity: 1 }, 1500);
     },
 
     showSignIn: function () {
@@ -126,7 +123,14 @@ function ($, Backbone, IntroView, SignInView, SignUpView, ConfirmView, SettingsV
 
       this.currentView = view;
 
+      // Make the stage transparent
+      this.$stage.css({ opacity: 0 });
+
+      // Render the new view
       this.$stage.html(this.currentView.render().el);
+
+      // Fade the stage back in
+      this.$stage.transition({ opacity: 100 });
     },
 
     watchAnchors: function () {

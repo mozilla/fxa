@@ -16,8 +16,12 @@
       <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}">
     </div>
 
+    <div class="privacy-links">
+      {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/tos">Terms of Service</a> and <a id="fxa-pp" href="/pp">Privacy Notice</a> for Sync.{{/t}}
+    </div>
+
     <div class="button-row">
-      <button type="submit">{{#t}}Next{{/t}}</button>
+      <button type="submit" disabled>{{#t}}Next{{/t}}</button>
     </div>
   </form>
 
@@ -25,11 +29,4 @@
     <a href="/signin">{{#t}}Already have an account?{{/t}} {{#t}}Sign in!{{/t}}</a>
   </div>
 
-  <div class="privacy-links">
-    {{#t}}By proceeding, you agree to our <a id="fxa-tos" href="/tos">Terms of Service</a> and <a id="fxa-pp" href="/pp">Privacy Policy</a>.{{/t}}
-  </div>
 </section>
-
-<footer>
-
-</footer>

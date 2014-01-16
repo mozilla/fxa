@@ -16,13 +16,15 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
     className: 'sign-in',
 
     events: {
-      'submit form': 'signIn'
+      'submit form': 'signIn',
+      'keyup input': 'enableButtonWhenValid',
+      'change input': 'enableButtonWhenValid'
     },
 
     signIn: function (event) {
       event.preventDefault();
 
-      if (! (this._validateEmail() && this._validatePassword())) {
+      if (! (this.isValid())) {
         return;
       }
 
@@ -46,6 +48,10 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
 
               console.error('Error?', err);
             }.bind(this));
+    },
+
+    isValid: function () {
+      return this._validateEmail() && this._validatePassword();
     },
 
     _validateEmail: function () {
