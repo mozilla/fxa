@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var HEX_STRING = require('./validators').HEX_STRING
+var validators = require('./validators')
+var HEX_STRING = validators.HEX_STRING
+var LAZY_EMAIL = validators.LAZY_EMAIL
 
 module.exports = function (log, crypto, isA, config) {
 
@@ -40,8 +42,9 @@ module.exports = function (log, crypto, isA, config) {
         },
         validate: {
           query: {
+            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             code: isA.String().max(32).regex(HEX_STRING).required(),
-            uid: isA.String().max(64).regex(HEX_STRING).required()
+            token: isA.String().max(64).regex(HEX_STRING).required()
           }
         }
       }
