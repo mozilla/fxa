@@ -6,7 +6,7 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.config('open', {
-    dev : {
+    dev: {
       path: 'docs/index.html'
     }
   });

@@ -4,7 +4,7 @@
 define(['../../components/sjcl/sjcl', './hkdf'], function (sjcl, hkdf) {
   'use strict';
 
-  var PREFIX_NAME = "identity.mozilla.com/picl/v1/";
+  var PREFIX_NAME = 'identity.mozilla.com/picl/v1/';
   var bitSlice = sjcl.bitArray.bitSlice;
   var salt = sjcl.codec.hex.toBits('');
 
@@ -26,7 +26,7 @@ define(['../../components/sjcl/sjcl', './hkdf'], function (sjcl, hkdf) {
         var bundleKey = bitSlice(out, 8 * 64);
 
         return {
-          algorithm: "sha256",
+          algorithm: 'sha256',
           id: sjcl.codec.hex.fromBits(bitSlice(out, 0, 8 * 32)),
           key: authKey,
           bundleKey: bundleKey

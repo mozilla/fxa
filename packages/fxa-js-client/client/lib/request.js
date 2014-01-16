@@ -53,10 +53,10 @@ define(['./hawk', '../../components/p/p'], function (hawk, p) {
                           payload: payload,
                           contentType: 'application/json'
                         });
-      xhr.setRequestHeader("authorization", header.field);
+      xhr.setRequestHeader('authorization', header.field);
     }
 
-    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader('Content-Type', 'application/json');
 
     xhr.send(payload);
 

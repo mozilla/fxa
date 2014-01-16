@@ -15,7 +15,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
       config = uri || {};
       uri = config.uri;
     }
-    if (typeof config === "undefined") {
+    if (typeof config === 'undefined') {
       config = {};
     }
 
@@ -39,7 +39,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
             authPW: sjcl.codec.hex.fromBits(result.authPW)
           };
 
-          return self.request.send("/account/create", "POST", null, data);
+          return self.request.send('/account/create', 'POST', null, data);
         }
       );
   };
@@ -60,7 +60,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
     return credentials.setup(email, password)
       .then(
         function (result) {
-          var endpoint = "/account/login";
+          var endpoint = '/account/login';
           var keys = options && options.keys === true;
 
           var data = {
@@ -72,7 +72,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
             endpoint += '?keys=true';
           }
 
-          return self.request.send(endpoint, "POST", null, data)
+          return self.request.send(endpoint, 'POST', null, data)
           .then(function(accountData) {
             if (keys) {
               accountData.unwrapBKey = sjcl.codec.hex.fromBits(result.unwrapBKey);
@@ -90,7 +90,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
    */
   FxAccountClient.prototype.verifyCode = function(uid, code) {
-    return this.request.send("/recovery_email/verify_code", "POST", null, {
+    return this.request.send('/recovery_email/verify_code', 'POST', null, {
       uid: uid,
       code: code
     });
@@ -103,9 +103,9 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    */
   FxAccountClient.prototype.recoveryEmailStatus = function(sessionToken) {
     var self = this;
-    return hawkCredentials(sessionToken, "sessionToken",  2 * 32)
+    return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
-        return self.request.send("/recovery_email/status", "GET", creds);
+        return self.request.send('/recovery_email/status', 'GET', creds);
       });
   };
 
@@ -135,7 +135,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
   FxAccountClient.prototype.passwordForgotResendCode = function(email, passwordForgotToken) {
     var self = this;
 
-    return hawkCredentials(passwordForgotToken, "passwordForgotToken",  2 * 32)
+    return hawkCredentials(passwordForgotToken, 'passwordForgotToken',  2 * 32)
       .then(function(creds) {
         return self.request.send('/password/forgot/resend_code', 'POST', creds, {
           email: email
@@ -156,7 +156,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
   FxAccountClient.prototype.passwordForgotVerifyCode = function(code, passwordForgotToken) {
     var self = this;
 
-    return hawkCredentials(passwordForgotToken, "passwordForgotToken",  2 * 32)
+    return hawkCredentials(passwordForgotToken, 'passwordForgotToken',  2 * 32)
       .then(function(creds) {
         return self.request.send('/password/forgot/verify_code', 'POST', creds, {
           code: code
@@ -204,7 +204,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
   FxAccountClient.prototype.accountKeys = function(keyFetchToken) {
     var self = this;
 
-    return hawkCredentials(keyFetchToken, "keyFetchToken",  2 * 32)
+    return hawkCredentials(keyFetchToken, 'keyFetchToken',  2 * 32)
       .then(function(creds) {
         return self.request.send('/account/keys', 'POST', creds);
       });
