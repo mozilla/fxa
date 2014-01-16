@@ -17,7 +17,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build',
     'Build client',
-    ['clean', 'jshint', 'requirejs', 'bytesize']);
+    ['clean', 'jshint', 'jscs', 'requirejs', 'bytesize']);
 
   grunt.registerTask('test',
     'Run tests via node',
