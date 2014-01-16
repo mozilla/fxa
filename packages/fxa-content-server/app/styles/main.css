@@ -217,6 +217,10 @@ section p {
   margin-top: 20px;
 }
 
+.cannot-create-account-content {
+  margin-top: 105px;
+}
+
 .spinner {
   -webkit-animation: 0.9s spin infinite linear;
   -moz-animation: 0.9s spin infinite linear;
