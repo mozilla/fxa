@@ -61,33 +61,6 @@ module.exports = function (path, url, Hapi, toobusy) {
       config.listen.host,
       config.listen.port,
       {
-        auth: {
-          sessionToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db))
-          },
-          keyFetchToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db))
-          },
-          accountResetToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db))
-          },
-          passwordForgotToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db))
-          },
-          passwordChangeToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db))
-          }
-        },
         cors: {
           additionalExposedHeaders: ['Timestamp']
         },
@@ -101,6 +74,14 @@ module.exports = function (path, url, Hapi, toobusy) {
         }
       }
     )
+
+    server.pack.require('hapi-auth-hawk', function (err) {
+      server.auth.strategy('sessionToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)) })
+      server.auth.strategy('keyFetchToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)) })
+      server.auth.strategy('accountResetToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)) })
+      server.auth.strategy('passwordForgotToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)) })
+      server.auth.strategy('passwordChangeToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)) })
+    })
 
     server.route(routes)
 

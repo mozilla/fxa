@@ -267,13 +267,13 @@ module.exports = function (
             email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
           },
-          response: {
-            schema: {
-              uid: isA.String().regex(HEX_STRING).required(),
-              sessionToken: isA.String().regex(HEX_STRING).required(),
-              keyFetchToken: isA.String().regex(HEX_STRING).optional(),
-              verified: isA.Boolean().required()
-            }
+        },
+        response: {
+          schema: {
+            uid: isA.String().regex(HEX_STRING).required(),
+            sessionToken: isA.String().regex(HEX_STRING).required(),
+            keyFetchToken: isA.String().regex(HEX_STRING).optional(),
+            verified: isA.Boolean().required()
           }
         }
       }
@@ -305,11 +305,9 @@ module.exports = function (
               }
             )
         },
-        validate: {
-          response: {
-            schema: {
-              devices: isA.Object()
-            }
+        response: {
+          schema: {
+            devices: isA.Object()
           }
         }
       }
@@ -324,11 +322,9 @@ module.exports = function (
           strategy: 'keyFetchToken'
         },
         tags: ["account"],
-        validate: {
-          response: {
-            schema: {
-              bundle: isA.String().regex(HEX_STRING)
-            }
+        response: {
+          schema: {
+            bundle: isA.String().regex(HEX_STRING)
           }
         },
         handler: function accountKeys(request) {
@@ -371,12 +367,10 @@ module.exports = function (
             }
           )
         },
-        validate: {
-          response: {
-            schema: {
-              email: isA.String().regex(LAZY_EMAIL).required(),
-              verified: isA.Boolean().required()
-            }
+        response: {
+          schema: {
+            email: isA.String().regex(LAZY_EMAIL).required(),
+            verified: isA.Boolean().required()
           }
         }
       }

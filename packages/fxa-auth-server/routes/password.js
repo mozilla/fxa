@@ -219,13 +219,13 @@ module.exports = function (
               .regex(validators.domainRegex(redirectDomain))
               .optional()
           },
-          response: {
-            schema: {
-              passwordForgotToken: isA.String(),
-              ttl: isA.Number(),
-              codeLength: isA.Number(),
-              tries: isA.Number()
-            }
+        },
+        response: {
+          schema: {
+            passwordForgotToken: isA.String(),
+            ttl: isA.Number(),
+            codeLength: isA.Number(),
+            tries: isA.Number()
           }
         }
       }
@@ -272,13 +272,13 @@ module.exports = function (
               .regex(validators.domainRegex(redirectDomain))
               .optional()
           },
-          response: {
-            schema: {
-              passwordForgotToken: isA.String(),
-              ttl: isA.Number(),
-              codeLength: isA.Number(),
-              tries: isA.Number()
-            }
+        },
+        response: {
+          schema: {
+            passwordForgotToken: isA.String(),
+            ttl: isA.Number(),
+            codeLength: isA.Number(),
+            tries: isA.Number()
           }
         }
       }
@@ -336,10 +336,10 @@ module.exports = function (
           payload: {
             code: isA.String().min(32).max(32).regex(HEX_STRING).required()
           },
-          response: {
-            schema: {
-              accountResetToken: isA.String()
-            }
+        },
+        response: {
+          schema: {
+            accountResetToken: isA.String()
           }
         }
       }
