@@ -201,6 +201,27 @@ TestServer.start(config.publicUrl)
   )
 
   test(
+    'invalid authPW on account destroy',
+    function (t) {
+      var email = Math.random() + "@example.com"
+      var password = 'ok'
+      return Client.create(config.publicUrl, email, password, { preVerified: true })
+        .then(
+          function (c) {
+            c.authPW = Buffer('0000000000000000000000000000000000000000000000000000000000000000', 'hex')
+            return c.destroyAccount()
+          }
+        )
+        .then(
+          fail,
+          function (err) {
+            t.equal(err.errno, 103)
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
