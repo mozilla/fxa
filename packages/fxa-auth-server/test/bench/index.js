@@ -37,7 +37,7 @@ server.stderr
   .pipe(
     through(
       function (json) {
-        if (json.level > 30) {
+        if (json.level > 30 && json.op !== 'console') {
           console.log(json)
         }
         if (json.op && json.op === 'server.response') {

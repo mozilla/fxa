@@ -9,5 +9,6 @@ module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 module.exports.LAZY_EMAIL = /^[^@\s]+@[^@\s]+$/
 
 module.exports.domainRegex = function (hostname) {
+	if (!hostname) { return new RegExp() }
 	return new RegExp('^https?:\\/\\/\\S+\\.' + hostname.replace('.', '\\.') + '(?:\\/\\S*)*$')
 }
