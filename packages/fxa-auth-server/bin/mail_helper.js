@@ -45,7 +45,7 @@ mail.on(
           )
         }
         else if (rc) {
-          console.log('\x1B[34mrecovery: %s email: %s', rc, mail.headers.to, '\x1B[39m')
+          console.log('\x1B[34m %s', link, '\x1B[39m')
         }
         else {
           console.error('\x1B[31mNo verify code match\x1B[39m')
