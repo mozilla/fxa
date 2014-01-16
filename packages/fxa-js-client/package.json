@@ -24,7 +24,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "grunt": "~0.4.1",
+    "grunt": "~0.4.2",
     "load-grunt-tasks": "~0.2.0",
     "grunt-cli": "~0.1.11",
     "grunt-contrib-jshint": "~0.7.0",
@@ -37,6 +37,7 @@
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror",
     "grunt-contrib-yuidoc": "~0.5.0",
     "grunt-open": "~0.2.2",
-    "grunt-build-control": "~0.1.2"
+    "grunt-build-control": "~0.1.2",
+    "grunt-jscs-checker": "~0.3.2"
   }
 }
