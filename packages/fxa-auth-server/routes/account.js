@@ -471,6 +471,7 @@ module.exports = function (
         handler: function accountDestroy(request) {
           log.begin('Account.destroy', request)
           var form = request.payload
+          var authPW = Buffer(form.authPW, 'hex')
           var reply = request.reply.bind(request)
           db.emailRecord(form.email)
             .then(
@@ -478,7 +479,20 @@ module.exports = function (
                 if (!emailRecord) {
                   throw error.unknownAccount(form.email)
                 }
-                return db.deleteAccount(emailRecord)
+                return password.stretch(authPW, emailRecord.authSalt)
+                  .then(
+                    function (stretched) {
+                      return password.verify(stretched, emailRecord.verifyHash)
+                    }
+                  )
+                  .then(
+                    function (verifyHash) {
+                      if (!verifyHash) {
+                        throw error.incorrectPassword(emailRecord.email)
+                      }
+                      return db.deleteAccount(emailRecord)
+                    }
+                  )
               }
             )
             .then(
