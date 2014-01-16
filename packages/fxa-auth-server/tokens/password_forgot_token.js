@@ -2,11 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, inherits, now, Token, crypto) {
-
-  var LIFETIME = 1000 * 60 * 15
+module.exports = function (log, inherits, Token, crypto, lifetime) {
 
   function PasswordForgotToken(keys, details) {
+    details.lifetime = lifetime
     Token.call(this, keys, details)
     this.email = details.email || null
     this.passCode = details.passCode || null
@@ -32,11 +31,6 @@ module.exports = function (log, inherits, now, Token, crypto) {
     log.trace({ op: 'PasswordForgotToken.fromHex' })
     details = details || {}
     return Token.createTokenFromHexData(PasswordForgotToken, string, details)
-  }
-
-  PasswordForgotToken.prototype.ttl = function () {
-    var ttl = (LIFETIME - (now() - this.createdAt)) / 1000
-    return Math.max(Math.ceil(ttl), 0)
   }
 
   PasswordForgotToken.prototype.failAttempt = function () {

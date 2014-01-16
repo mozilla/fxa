@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, inherits, Token) {
+module.exports = function (log, inherits, Token, lifetime) {
 
   function PasswordChangeToken(keys, details) {
+    details.lifetime = lifetime
     Token.call(this, keys, details)
     this.verifyHash = details.verifyHash || null
     this.authSalt = details.authSalt || null

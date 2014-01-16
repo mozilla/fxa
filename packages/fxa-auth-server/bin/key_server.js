@@ -32,7 +32,7 @@ function main() {
   memoryMonitor.start()
 
   var error = require('../error')(log)
-  var Token = require('../tokens')(log)
+  var Token = require('../tokens')(log, config.tokenLifetimes)
   var i18n = require('../i18n')(config.i18n)
 
   // signer compute-cluster

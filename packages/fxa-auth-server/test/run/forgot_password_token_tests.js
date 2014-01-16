@@ -6,15 +6,13 @@ var test = require('../ptaptest')
 var log = { trace: function() {} }
 
 var timestamp = Date.now()
-// increment timestamp by 500ms each time now is called
-function now() { return (timestamp += 500) }
 
 var PasswordForgotToken = require('../../tokens/password_forgot_token')(
   log,
   require('util').inherits,
-  now,
   require('../../tokens')(log),
-  require('crypto')
+  require('crypto'),
+  1000 * 60 * 15
 )
 
 
@@ -60,10 +58,9 @@ test(
       .then(
         function (token) {
           token.createdAt = timestamp
-          t.equal(token.ttl(), 900)
-          t.equal(token.ttl(), 899)
-          t.equal(token.ttl(), 899)
-          t.equal(token.ttl(), 898)
+          t.equal(token.ttl(timestamp), 900)
+          t.equal(token.ttl(timestamp + 1000), 899)
+          t.equal(token.ttl(timestamp + 2000), 898)
         }
       )
   }

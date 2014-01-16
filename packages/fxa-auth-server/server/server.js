@@ -10,7 +10,7 @@ module.exports = function (path, url, Hapi, toobusy) {
 
     // Hawk needs to calculate request signatures based on public URL,
     // not the local URL to which it is bound.
-    var publicURL = url.parse(config.publicUrl);
+    var publicURL = url.parse(config.publicUrl)
     var defaultPorts = {
       "http:": 80,
       "https:": 443
@@ -28,10 +28,10 @@ module.exports = function (path, url, Hapi, toobusy) {
         noncedb.checkAndSetNonce(nonce, ttl)
                .done(
                  function() {
-                   cb();
+                   cb()
                  },
                  function(err) {
-                   cb(err);
+                   cb(err)
                  }
                )
       }
@@ -45,7 +45,13 @@ module.exports = function (path, url, Hapi, toobusy) {
         }
         dbGetFn(Buffer(id, 'hex'))
           .done(
-            cb.bind(null, null),
+            function (token) {
+              if (token.expired(Date.now())) {
+                // TODO: delete token
+                return cb(error.invalidToken())
+              }
+              return cb(null, token)
+            },
             cb
           )
       }

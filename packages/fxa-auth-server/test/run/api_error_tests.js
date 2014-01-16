@@ -5,9 +5,12 @@
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var crypto = require('crypto')
-var config = require('../../config').root()
+var path = require('path')
 var Client = require('../../client')
 var request = require('request')
+
+process.env.CONFIG_FILES = path.join(__dirname, '../config/api_error.json')
+var config = require('../../config').root()
 
 function fail() { throw new Error() }
 
@@ -173,6 +176,27 @@ TestServer.start(config.publicUrl)
         t.equal(res.statusCode, 410, 'http gone')
         t.end()
       })
+    }
+  )
+
+  test(
+    'token expiry',
+    function (t) {
+      // FYI config.tokenLifetimes.passwordChangeToken = -1
+      var email = Math.random() + "@example.com"
+      var password = 'ok'
+      return Client.create(config.publicUrl, email, password, { preVerified: true })
+        .then(
+          function (c) {
+            return c.changePassword('hello')
+          }
+        )
+        .then(
+          fail,
+          function (err) {
+            t.equal(err.errno, 110, 'invalid token')
+          }
+        )
     }
   )
 
