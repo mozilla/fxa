@@ -22,6 +22,9 @@ define([
       }
     },
     respond: function (req, mock) {
+      if (typeof mock === 'undefined') {
+        console.log('Mock does not exist!');
+      }
       if (req && req.respond) {
         req.respond(mock.status, mock.headers, mock.body);
       }

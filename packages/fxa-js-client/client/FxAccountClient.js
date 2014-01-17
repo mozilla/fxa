@@ -56,7 +56,6 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
   FxAccountClient.prototype.signIn = function (email, password, options) {
     var self = this;
 
-
     return credentials.setup(email, password)
       .then(
         function (result) {
@@ -103,9 +102,26 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    */
   FxAccountClient.prototype.recoveryEmailStatus = function(sessionToken) {
     var self = this;
+
     return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
         return self.request.send('/recovery_email/status', 'GET', creds);
+      });
+  };
+
+  /**
+   * Re-sends a verification code to the account's recovery email address.
+   *
+   * @method recoveryEmailResendCode
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
+   */
+  FxAccountClient.prototype.recoveryEmailResendCode = function(sessionToken) {
+    var self = this;
+
+    return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
+      .then(function(creds) {
+        return self.request.send('/recovery_email/resend_code', 'POST', creds);
       });
   };
 
@@ -206,7 +222,81 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
 
     return hawkCredentials(keyFetchToken, 'keyFetchToken',  2 * 32)
       .then(function(creds) {
-        return self.request.send('/account/keys', 'POST', creds);
+        return self.request.send('/account/keys', 'GET', creds);
+      });
+  };
+
+  /**
+   * Gets the collection of devices currently authenticated and syncing for the user.
+   *
+   * @method accountDevices
+   * @param {String} sessionToken User session token
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.accountDevices = function(sessionToken) {
+    var self = this;
+
+    return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
+      .then(function(creds) {
+        return self.request.send('/account/devices', 'GET', creds);
+      });
+  };
+
+  /**
+   * This deletes the account completely. All stored data is erased.
+   *
+   * @method accountDestroy
+   * @param {String} email Email input
+   * @param {String} password Password input
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.accountDestroy = function(email, password) {
+    var self = this;
+
+    return credentials.setup(email, password)
+      .then(
+      function (result) {
+        var data = {
+          email: result.emailUTF8,
+          authPW: sjcl.codec.hex.fromBits(result.authPW)
+        };
+
+        return self.request.send('/account/destroy', 'POST', null, data);
+      }
+    );
+  };
+
+  /**
+   * Destroys this session, by invalidating the sessionToken.
+   *
+   * @method sessionDestroy
+   * @param {String} sessionToken User session token
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.sessionDestroy = function(sessionToken) {
+    var self = this;
+
+    return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
+      .then(function(creds) {
+        return self.request.send('/session/destroy', 'POST', creds);
+      });
+  };
+
+  /**
+   * Sign a BrowserID public key
+   *
+   * @method certificateSign
+   * @param {String} sessionToken User session token
+   * @param {Object} publicKey The key to sign
+   * @param {int} duration Time interval from now when the certificate will expire in seconds
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.certificateSign = function(sessionToken, publicKey, duration) {
+    var self = this;
+
+    return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
+      .then(function(creds) {
+        return self.request.send('/session/destroy', 'POST', creds);
       });
   };
 
@@ -290,6 +380,17 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
           authPW: authPW
         });
       });
+  };
+
+  /**
+   * Get 32 bytes of random data. This should be combined with locally-sourced entropy when creating salts, etc.
+   *
+   * @method getRandomBytes
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.getRandomBytes = function() {
+
+    return this.request.send('/get_random_bytes', 'POST');
   };
 
   return FxAccountClient;

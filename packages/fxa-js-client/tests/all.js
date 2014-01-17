@@ -8,5 +8,12 @@ define([
   'tests/lib/hkdf',
   'tests/lib/credentials',
   'tests/lib/hawkCredentials',
-  'tests/lib/passwordChange'
+  'tests/lib/passwordChange',
+  'tests/lib/keys',
+  'tests/lib/devices',
+  'tests/lib/sessionDestroy',
+  'tests/lib/certificateSign',
+  'tests/lib/account',
+  'tests/lib/recoveryEmail',
+  'tests/lib/misc'
 ], function () {});
