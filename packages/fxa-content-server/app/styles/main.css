@@ -147,6 +147,11 @@ section p {
   margin-bottom: 0;
 }
 
+.input-row .input-help {
+  margin-top: 10px;
+  color: #C0C9D0;
+}
+
 .button-row {
   margin-bottom: 20px;
   margin-top: 45px;
