@@ -21,14 +21,10 @@ function (FxaClient, $) {
 
   FxaClientWrapper.prototype = {
     _withClient: function (callback) {
-      var defer = $.Deferred();
-
-      this._getAsync()
+      return this._getAsync()
         .then(function (client) {
-            callback(client, defer);
-          }, defer.reject);
-
-      return defer.promise();
+            callback(client);
+          });
     },
 
     _getAsync: function () {
@@ -47,51 +43,41 @@ function (FxaClient, $) {
     },
 
     signIn: function (email, password) {
-      return this._withClient(function (client, defer) {
-                client.signIn(email, password, { keys: true })
-                     .then(defer.resolve, defer.reject);
+      return this._withClient(function (client) {
+                return client.signIn(email, password, { keys: true });
               });
     },
 
     signUp: function (email, password) {
-      // this jankiness is to appease JSHint
-      function signUp(client, defer) {
-
-        function signIn() {
-          client.signIn(email, password, { keys: true })
-                .then(defer.resolve, defer.reject);
-        }
-
+      return this._withClient(function (client) {
         client.signUp(email, password, { keys: true })
-               .then(signIn, defer.reject);
+               .then(function () {
+                  return client.signIn(email, password, { keys: true });
+                });
 
-      }
-      return this._withClient(signUp);
+      });
     },
 
     verifyCode: function (uid, code) {
-      return this._withClient(function (client, defer) {
-                client.verifyCode(uid, code)
-                       .then(defer.resolve, defer.reject);
+      return this._withClient(function (client) {
+                return client.verifyCode(uid, code);
               });
     },
 
     requestPasswordReset: function (email) {
-      return this._withClient(function (client, defer) {
-                client.passwordForgotSendCode(email)
-                      .then(defer.resolve, defer.reject);
+      return this._withClient(function (client) {
+                return client.passwordForgotSendCode(email);
               });
     },
 
     completePasswordReset: function (email, newPassword, token, code) {
-      return this._withClient(function (client, defer) {
-                client.passwordForgotVerifyCode(code, token)
+      return this._withClient(function (client) {
+                return client.passwordForgotVerifyCode(code, token)
                       .then(function (result) {
-                          client.accountReset(email,
+                          return client.accountReset(email,
                                      newPassword,
-                                     result.accountResetToken)
-                          .then(defer.resolve, defer.reject);
-                        }, defer.reject);
+                                     result.accountResetToken);
+                        });
               });
     }
   };
