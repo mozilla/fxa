@@ -5,13 +5,12 @@
 'use strict';
 
 define([
-  'underscore',
   'views/base',
   'stache!templates/create_account',
   'lib/session',
   'lib/fxa-client'
 ],
-function (_, BaseView, CreateAccountTemplate, Session, FxaClient) {
+function (BaseView, CreateAccountTemplate, Session, FxaClient) {
   var CreateAccountView = BaseView.extend({
     template: CreateAccountTemplate,
     className: 'create_account',
@@ -32,25 +31,23 @@ function (_, BaseView, CreateAccountTemplate, Session, FxaClient) {
     },
 
     _createAccount: function (email, password) {
-      FxaClient.getAsync()
-        .then(_.bind(function (client) {
-          client.signUp(email, password)
-            .done(function (accountData) {
-              // This info will be sent to the channel in the confirm screen.
-              Session.sessionToken = accountData.sessionToken;
-              Session.keyFetchToken = accountData.keyFetchToken;
-              Session.unwrapBKey = accountData.unwrapBKey;
-              Session.uid = accountData.uid;
+      var client = new FxaClient();
+      client.signUp(email, password)
+        .done(function (accountData) {
+          // This info will be sent to the channel in the confirm screen.
+          Session.sessionToken = accountData.sessionToken;
+          Session.keyFetchToken = accountData.keyFetchToken;
+          Session.unwrapBKey = accountData.unwrapBKey;
+          Session.uid = accountData.uid;
 
-              router.navigate('confirm', { trigger: true });
-            },
-            function (err) {
-              this.$('.spinner').hide();
-              this.$('.error').html(err.message);
+          router.navigate('confirm', { trigger: true });
+        },
+        function (err) {
+          this.$('.spinner').hide();
+          this.$('.error').html(err.message);
 
-              console.error('Error?', err);
-            }.bind(this));
-        }, this));
+          console.error('Error?', err);
+        }.bind(this));
     }
   });
 

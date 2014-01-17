@@ -37,22 +37,20 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
         return this.displayError('no code specified');
       }
 
-      FxaClient.getAsync()
-        .then(_.bind(function (client) {
-          client.verifyCode(uid, code)
-                .then(function () {
-                  // TODO - we could go to a "sign_up_complete" screen here.
-                  this.$('#fxa-complete-sign-up-success').show();
+      var client = new FxaClient();
+      client.verifyCode(uid, code)
+            .then(function () {
+              // TODO - we could go to a "sign_up_complete" screen here.
+              this.$('#fxa-complete-sign-up-success').show();
 
-                  this.$('h2.success').show();
-                  this.$('h2.failure').hide();
-                }.bind(this), function (err) {
-                  this.displayError(err.message);
+              this.$('h2.success').show();
+              this.$('h2.failure').hide();
+            }.bind(this), function (err) {
+              this.displayError(err.message);
 
-                  this.$('h2.success').hide();
-                  this.$('h2.failure').show();
-                }.bind(this));
-        }, this));
+              this.$('h2.success').hide();
+              this.$('h2.failure').show();
+            }.bind(this));
     }
 
   });

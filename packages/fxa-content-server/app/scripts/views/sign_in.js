@@ -5,13 +5,12 @@
 'use strict';
 
 define([
-  'underscore',
   'views/base',
   'stache!templates/sign_in',
   'lib/session',
   'lib/fxa-client'
 ],
-function (_, BaseView, SignInTemplate, Session, FxaClient) {
+function (BaseView, SignInTemplate, Session, FxaClient) {
   var SignInView = BaseView.extend({
     template: SignInTemplate,
     className: 'sign-in',
@@ -32,25 +31,23 @@ function (_, BaseView, SignInTemplate, Session, FxaClient) {
       var email = this.$('.email').val();
       var password = this.$('.password').val();
 
-      FxaClient.getAsync()
-        .then(_.bind(function (client) {
-          client.signIn(email, password)
-                .then(function (accountData) {
-                  Session.channel.send('login', {
-                    email: email,
-                    uid: accountData.uid,
-                    sessionToken: accountData.sessionToken,
-                    unwrapBKey: accountData.unwrapBKey,
-                    keyFetchToken: accountData.keyFetchToken
-                  });
-                  router.navigate('settings', { trigger: true });
-                })
-                .done(null, function (err) {
-                  this.$('.error').html(err.message);
+      var client = new FxaClient();
+      client.signIn(email, password)
+            .then(function (accountData) {
+              Session.channel.send('login', {
+                email: email,
+                uid: accountData.uid,
+                sessionToken: accountData.sessionToken,
+                unwrapBKey: accountData.unwrapBKey,
+                keyFetchToken: accountData.keyFetchToken
+              });
+              router.navigate('settings', { trigger: true });
+            })
+            .done(null, function (err) {
+              this.$('.error').html(err.message);
 
-                  console.error('Error?', err);
-                }.bind(this));
-        }, this));
+              console.error('Error?', err);
+            }.bind(this));
     },
 
     isValid: function () {

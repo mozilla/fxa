@@ -13,56 +13,86 @@ define([
   'jquery'
 ],
 function (FxaClient, $) {
-  var FXA_ACCOUNT_SERVER;
+  var client;
 
   function FxaClientWrapper() {
-    this.client = new FxaClient(FXA_ACCOUNT_SERVER);
+    // nothing to do here.
   }
 
-  FxaClientWrapper.getAsync = function () {
-    var defer = $.Deferred();
-
-    if (FXA_ACCOUNT_SERVER) {
-      defer.resolve(new FxaClientWrapper());
-    } else {
-      $.getJSON('/config', function (data) {
-        FXA_ACCOUNT_SERVER = data.fxaccountUrl;
-        defer.resolve(new FxaClientWrapper());
-      });
-    }
-
-    return defer.promise();
-  };
-
   FxaClientWrapper.prototype = {
+    _withClient: function (callback) {
+      var defer = $.Deferred();
+
+      this._getAsync()
+        .then(function (client) {
+            callback(client, defer);
+          }, defer.reject);
+
+      return defer.promise();
+    },
+
+    _getAsync: function () {
+      var defer = $.Deferred();
+
+      if (client) {
+        defer.resolve(client);
+      } else {
+        $.getJSON('/config', function (data) {
+          client = new FxaClient(data.fxaccountUrl);
+          defer.resolve(client);
+        });
+      }
+
+      return defer.promise();
+    },
+
     signIn: function (email, password) {
-      return this.client.signIn(email, password, { keys: true });
+      return this._withClient(function (client, defer) {
+                client.signIn(email, password, { keys: true })
+                     .then(defer.resolve, defer.reject);
+              });
     },
 
     signUp: function (email, password) {
-      return this.client
-                 .signUp(email, password)
-                 .then(function () {
-                    // when a user signs up, sign them in immediately
-                    return this.signIn(email, password, { keys: true });
-                  }.bind(this));
+      // this jankiness is to appease JSHint
+      function signUp(client, defer) {
+
+        function signIn() {
+          client.signIn(email, password, { keys: true })
+                .then(defer.resolve, defer.reject);
+        }
+
+        client.signUp(email, password, { keys: true })
+               .then(signIn, defer.reject);
+
+      }
+      return this._withClient(signUp);
     },
 
     verifyCode: function (uid, code) {
-      return this.client.verifyCode(uid, code);
+      return this._withClient(function (client, defer) {
+                client.verifyCode(uid, code)
+                       .then(defer.resolve, defer.reject);
+              });
     },
 
     requestPasswordReset: function (email) {
-      return this.client.passwordForgotSendCode(email);
+      return this._withClient(function (client, defer) {
+                client.passwordForgotSendCode(email)
+                      .then(defer.resolve, defer.reject);
+              });
     },
 
     completePasswordReset: function (email, newPassword, token, code) {
-      return this.client.passwordForgotVerifyCode(code, token)
-                 .then(function (result) {
-                    return this.client.accountReset(email,
-                                                   newPassword,
-                                                   result.accountResetToken);
-                  }.bind(this));
+      return this._withClient(function (client, defer) {
+                client.passwordForgotVerifyCode(code, token)
+                      .then(function (result) {
+                          client.accountReset(email,
+                                     newPassword,
+                                     result.accountResetToken)
+                          .then(defer.resolve, defer.reject);
+                        }, defer.reject);
+              });
     }
   };
 
