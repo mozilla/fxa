@@ -99,6 +99,12 @@ function(mocha, chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
           done();
         });
       });
+
+      it('does not except on timeout if callback is not given', function(done) {
+        // if there is an exception, done is never called.
+        setTimeout(done, 500);
+        channel.send('wait-for-response', { key: 'value' });
+      });
     });
 
     describe('on', function() {

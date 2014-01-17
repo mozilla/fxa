@@ -115,7 +115,7 @@ function (_, Backbone, Session) {
     },
 
     send: function (command, data, done) {
-      done = done || noOp();
+      done = done || noOp;
 
       var outstanding = this.outstandingRequests[command];
       if (! outstanding) {
