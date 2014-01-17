@@ -50,7 +50,7 @@ function (FxaClient, $) {
 
     signUp: function (email, password) {
       return this._withClient(function (client) {
-        client.signUp(email, password, { keys: true })
+        return client.signUp(email, password, { keys: true })
                .then(function () {
                   return client.signIn(email, password, { keys: true });
                 });
