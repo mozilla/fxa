@@ -113,6 +113,7 @@ function (_, BaseView, SignUpTemplate, Session, FxaClient) {
       client.signUp(email, password)
         .done(_.bind(function (accountData) {
           // This info will be sent to the channel in the confirm screen.
+          Session.email = email;
           Session.sessionToken = accountData.sessionToken;
           Session.keyFetchToken = accountData.keyFetchToken;
           Session.unwrapBKey = accountData.unwrapBKey;
