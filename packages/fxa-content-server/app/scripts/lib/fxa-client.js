@@ -10,9 +10,10 @@
 
 define([
   'fxaClient',
-  'jquery'
+  'jquery',
+  'p'
 ],
-function (FxaClient, $) {
+function (FxaClient, $, p) {
   var client;
 
   function FxaClientWrapper() {
@@ -21,7 +22,7 @@ function (FxaClient, $) {
 
   FxaClientWrapper.prototype = {
     _getClientAsync: function () {
-      var defer = $.Deferred();
+      var defer = p.defer();
 
       if (client) {
         defer.resolve(client);
@@ -32,7 +33,7 @@ function (FxaClient, $) {
         });
       }
 
-      return defer.promise();
+      return defer.promise;
     },
 
     signIn: function (email, password) {
