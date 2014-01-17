@@ -62,7 +62,6 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'selectconfig:app',
-      'preprocess-config',
       'concurrent:server',
       'autoprefixer',
       'serverproc:app'
@@ -82,7 +81,6 @@ module.exports = function (grunt) {
     'clean:dist',
     'useminPrepare',
     'selectconfig:dist',
-    'preprocess-config',
     'requirejs',
     'concurrent:dist',
     'autoprefixer',

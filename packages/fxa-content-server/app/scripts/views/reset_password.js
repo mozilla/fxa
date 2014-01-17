@@ -31,10 +31,12 @@ function (_, BaseView, Template, FxaClient, Session) {
 
       var email = this._getEmail();
 
-      var client = new FxaClient();
-      client.requestPasswordReset(email)
-            .done(this._onRequestResetSuccess.bind(this),
-                  this._onRequestResetFailure.bind(this));
+      FxaClient.getAsync()
+        .then(function (client) {
+          client.requestPasswordReset(email)
+                .done(this._onRequestResetSuccess.bind(this),
+                      this._onRequestResetFailure.bind(this));
+        });
 
     },
 

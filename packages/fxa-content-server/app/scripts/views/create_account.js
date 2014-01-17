@@ -31,23 +31,25 @@ function (BaseView, CreateAccountTemplate, Session, FxaClient) {
     },
 
     _createAccount: function (email, password) {
-      var client = new FxaClient();
-      client.signUp(email, password)
-        .done(function (accountData) {
-          // This info will be sent to the channel in the confirm screen.
-          Session.sessionToken = accountData.sessionToken;
-          Session.keyFetchToken = accountData.keyFetchToken;
-          Session.unwrapBKey = accountData.unwrapBKey;
-          Session.uid = accountData.uid;
+      FxaClient.getAsync()
+        .then(function (client) {
+          client.signUp(email, password)
+            .done(function (accountData) {
+              // This info will be sent to the channel in the confirm screen.
+              Session.sessionToken = accountData.sessionToken;
+              Session.keyFetchToken = accountData.keyFetchToken;
+              Session.unwrapBKey = accountData.unwrapBKey;
+              Session.uid = accountData.uid;
 
-          router.navigate('confirm', { trigger: true });
-        },
-        function (err) {
-          this.$('.spinner').hide();
-          this.$('.error').html(err.message);
+              router.navigate('confirm', { trigger: true });
+            },
+            function (err) {
+              this.$('.spinner').hide();
+              this.$('.error').html(err.message);
 
-          console.error('Error?', err);
-        }.bind(this));
+              console.error('Error?', err);
+            }.bind(this));
+        });
     }
   });
 

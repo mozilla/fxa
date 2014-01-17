@@ -10,12 +10,29 @@
 
 define([
   'fxaClient',
-  'processed/constants'
+  'jquery'
 ],
-function (FxaClient, Constants) {
+function (FxaClient, $) {
+  var FXA_ACCOUNT_SERVER;
+
   function FxaClientWrapper() {
-    this.client = new FxaClient(Constants.FXA_ACCOUNT_SERVER);
+    this.client = new FxaClient(FXA_ACCOUNT_SERVER);
   }
+
+  FxaClientWrapper.getAsync = function () {
+    var defer = $.Deferred();
+
+    if (FXA_ACCOUNT_SERVER) {
+      defer.resolve(new FxaClientWrapper());
+    } else {
+      $.getJSON('/config', function (data) {
+        FXA_ACCOUNT_SERVER = data.fxaccountUrl;
+        defer.resolve(new FxaClientWrapper());
+      });
+    }
+
+    return defer.promise();
+  };
 
   FxaClientWrapper.prototype = {
     signIn: function (email, password) {

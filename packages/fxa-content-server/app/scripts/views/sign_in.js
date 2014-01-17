@@ -31,23 +31,25 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
       var email = this.$('.email').val();
       var password = this.$('.password').val();
 
-      var client = new FxaClient();
-      client.signIn(email, password)
-            .then(function (accountData) {
-              Session.channel.send('login', {
-                email: email,
-                uid: accountData.uid,
-                sessionToken: accountData.sessionToken,
-                unwrapBKey: accountData.unwrapBKey,
-                keyFetchToken: accountData.keyFetchToken
-              });
-              router.navigate('settings', { trigger: true });
-            })
-            .done(null, function (err) {
-              this.$('.error').html(err.message);
+      FxaClient.getAsync()
+        .then(function (client) {
+          client.signIn(email, password)
+                .then(function (accountData) {
+                  Session.channel.send('login', {
+                    email: email,
+                    uid: accountData.uid,
+                    sessionToken: accountData.sessionToken,
+                    unwrapBKey: accountData.unwrapBKey,
+                    keyFetchToken: accountData.keyFetchToken
+                  });
+                  router.navigate('settings', { trigger: true });
+                })
+                .done(null, function (err) {
+                  this.$('.error').html(err.message);
 
-              console.error('Error?', err);
-            }.bind(this));
+                  console.error('Error?', err);
+                }.bind(this));
+        });
     },
 
     isValid: function () {

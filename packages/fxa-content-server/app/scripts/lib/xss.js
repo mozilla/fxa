@@ -8,7 +8,7 @@
 
 define([
   'underscore',
-  'processed/constants'
+  'lib/constants'
 ],
 function(_, Constants) {
   return {
