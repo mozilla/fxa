@@ -6,8 +6,6 @@
 
 define([], function () {
   return {
-    FXA_ACCOUNT_SERVER: '/* @echo fxaccountUrl */',
-
     // All browsers have a max length of URI that they can handle.
     // IE8 has the shortest total length at 2083 bytes and 2048 characters
     // for GET requests.

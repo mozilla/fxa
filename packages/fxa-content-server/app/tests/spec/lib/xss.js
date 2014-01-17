@@ -10,7 +10,7 @@ define([
   'chai',
   'underscore',
   'lib/xss',
-  'processed/constants'
+  'lib/constants'
 ],
 function (mocha, chai, _, XSS, Constants) {
   var assert = chai.assert;

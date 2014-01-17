@@ -10,7 +10,7 @@ require.config({
     jquery: '../bower_components/jquery/jquery',
     backbone: '../bower_components/backbone/backbone',
     underscore: '../bower_components/underscore/underscore',
-    gherkin: '../bower_components/fxa-js-client-old/web/bundle',
+    fxaClient: '../bower_components/fxa-js-client/fxa-client',
     text: '../bower_components/requirejs-text/text',
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
@@ -50,7 +50,8 @@ require([
   '../tests/setup',
   '../tests/spec/lib/channels/fx-desktop',
   '../tests/spec/lib/xss',
-  '../tests/spec/lib/url'
+  '../tests/spec/lib/url',
+  '../tests/spec/lib/fxa-client'
 ],
 function (Mocha) {
   var runner = Mocha.run();

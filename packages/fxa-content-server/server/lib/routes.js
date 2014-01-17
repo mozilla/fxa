@@ -11,6 +11,12 @@ module.exports = function(app) {
     res.redirect(req.originalUrl.slice(3));
   });
 
+  app.get('/config', function(req, res) {
+    res.json({
+      fxaccountUrl: config.get('fxaccount_url')
+    });
+  });
+
   // handle email verification links
   app.get('/v1/verify_email', function(req, res) {
     res.redirect(req.originalUrl.slice(3));

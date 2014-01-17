@@ -10,42 +10,68 @@
 
 define([
   'fxaClient',
-  'processed/constants'
+  'jquery'
 ],
-function (FxaClient, Constants) {
+function (FxaClient, $) {
+  var client;
+
   function FxaClientWrapper() {
-    this.client = new FxaClient(Constants.FXA_ACCOUNT_SERVER);
+    // nothing to do here.
   }
 
   FxaClientWrapper.prototype = {
+    _getClientAsync: function () {
+      var defer = $.Deferred();
+
+      if (client) {
+        defer.resolve(client);
+      } else {
+        $.getJSON('/config', function (data) {
+          client = new FxaClient(data.fxaccountUrl);
+          defer.resolve(client);
+        });
+      }
+
+      return defer.promise();
+    },
+
     signIn: function (email, password) {
-      return this.client.signIn(email, password, { keys: true });
+      return this._getClientAsync().then(function (client) {
+                return client.signIn(email, password, { keys: true });
+              });
     },
 
     signUp: function (email, password) {
-      return this.client
-                 .signUp(email, password)
-                 .then(function () {
-                    // when a user signs up, sign them in immediately
-                    return this.signIn(email, password, { keys: true });
-                  }.bind(this));
+      return this._getClientAsync().then(function (client) {
+        return client.signUp(email, password, { keys: true })
+               .then(function () {
+                  return client.signIn(email, password, { keys: true });
+                });
+
+      });
     },
 
     verifyCode: function (uid, code) {
-      return this.client.verifyCode(uid, code);
+      return this._getClientAsync().then(function (client) {
+                return client.verifyCode(uid, code);
+              });
     },
 
     requestPasswordReset: function (email) {
-      return this.client.passwordForgotSendCode(email);
+      return this._getClientAsync().then(function (client) {
+                return client.passwordForgotSendCode(email);
+              });
     },
 
     completePasswordReset: function (email, newPassword, token, code) {
-      return this.client.passwordForgotVerifyCode(code, token)
-                 .then(function (result) {
-                    return this.client.accountReset(email,
-                                                   newPassword,
-                                                   result.accountResetToken);
-                  }.bind(this));
+      return this._getClientAsync().then(function (client) {
+                return client.passwordForgotVerifyCode(code, token)
+                      .then(function (result) {
+                          return client.accountReset(email,
+                                     newPassword,
+                                     result.accountResetToken);
+                        });
+              });
     }
   };
 
