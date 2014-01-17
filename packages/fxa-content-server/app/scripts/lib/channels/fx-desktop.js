@@ -78,8 +78,7 @@ function (_, Backbone, Session) {
       if (response.data) {
         Session.email = response.data.email;
         this.router.navigate('settings', { trigger: true });
-      }
-      else {
+      } else {
         delete Session.email;
         this.router.navigate('signup', { trigger: true });
       }

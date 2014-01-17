@@ -24,4 +24,4 @@ install:
   - cp server/config/local.json-dist server/config/local.json
   - npm start &
 # now run the tests!
-script: grunt jshint && npm run-script test-remote
+script: grunt lint && npm run-script test-remote
