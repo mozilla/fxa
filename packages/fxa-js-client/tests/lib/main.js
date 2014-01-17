@@ -58,7 +58,7 @@ define([
         var password = "iliketurtles";
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (res, b, c) {
+          .then(function (res) {
             assert.ok(res.uid);
           });
       });
