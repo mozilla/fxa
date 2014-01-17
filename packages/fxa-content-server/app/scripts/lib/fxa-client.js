@@ -20,14 +20,7 @@ function (FxaClient, $) {
   }
 
   FxaClientWrapper.prototype = {
-    _withClient: function (callback) {
-      return this._getAsync()
-        .then(function (client) {
-            callback(client);
-          });
-    },
-
-    _getAsync: function () {
+    _getClientAsync: function () {
       var defer = $.Deferred();
 
       if (client) {
@@ -43,13 +36,13 @@ function (FxaClient, $) {
     },
 
     signIn: function (email, password) {
-      return this._withClient(function (client) {
+      return this._getClientAsync().then(function (client) {
                 return client.signIn(email, password, { keys: true });
               });
     },
 
     signUp: function (email, password) {
-      return this._withClient(function (client) {
+      return this._getClientAsync().then(function (client) {
         return client.signUp(email, password, { keys: true })
                .then(function () {
                   return client.signIn(email, password, { keys: true });
@@ -59,19 +52,19 @@ function (FxaClient, $) {
     },
 
     verifyCode: function (uid, code) {
-      return this._withClient(function (client) {
+      return this._getClientAsync().then(function (client) {
                 return client.verifyCode(uid, code);
               });
     },
 
     requestPasswordReset: function (email) {
-      return this._withClient(function (client) {
+      return this._getClientAsync().then(function (client) {
                 return client.passwordForgotSendCode(email);
               });
     },
 
     completePasswordReset: function (email, newPassword, token, code) {
-      return this._withClient(function (client) {
+      return this._getClientAsync().then(function (client) {
                 return client.passwordForgotVerifyCode(code, token)
                       .then(function (result) {
                           return client.accountReset(email,
