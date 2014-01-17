@@ -22,22 +22,28 @@ function (_, BaseView, Template, FxaClient, Session, Url) {
     },
 
     afterRender: function () {
-      this.uid = Url.searchParam('uid');
-      if (! this.uid) {
-        return this.displayError('no uid specified');
+      this.token = Url.searchParam('token');
+      if (! this.token) {
+        return this.displayError('no token specified');
       }
 
       this.code = Url.searchParam('code');
       if (! this.code) {
         return this.displayError('no code specified');
       }
+
+      this.email = Url.searchParam('email');
+      if (! this.email) {
+        return this.displayError('no email specified');
+      }
     },
 
     submit: function (event) {
       event.preventDefault();
 
-      if (! (this.uid &&
+      if (! (this.token &&
              this.code &&
+             this.email &&
              this._validatePasswords())) {
         return;
       }
@@ -45,7 +51,7 @@ function (_, BaseView, Template, FxaClient, Session, Url) {
       var password = this._getPassword();
 
       var client = new FxaClient();
-      client.completePasswordReset(password, this.uid, this.code)
+      client.completePasswordReset(this.email, password, this.token, this.code)
             .done(_.bind(this._onResetCompleteSuccess, this),
                   _.bind(this._onResetCompleteFailure, this));
     },

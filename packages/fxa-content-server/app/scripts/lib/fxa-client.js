@@ -13,25 +13,6 @@ define([
   'processed/constants'
 ],
 function (FxaClient, Constants) {
-  // placeholder promise to stand in for FxaClient functionality that is
-  // not yet ready.
-  function PromiseMock() {
-  }
-  PromiseMock.prototype = {
-    then: function (callback) {
-      var promise = new PromiseMock();
-      if (callback) {
-        callback();
-      }
-      return promise;
-    },
-    done: function (callback) {
-      if (callback) {
-        callback();
-      }
-    }
-  };
-
   function FxaClientWrapper() {
     this.client = new FxaClient(Constants.FXA_ACCOUNT_SERVER);
   }
@@ -54,12 +35,17 @@ function (FxaClient, Constants) {
       return this.client.verifyCode(uid, code);
     },
 
-    requestPasswordReset: function () {
-      return new PromiseMock();
+    requestPasswordReset: function (email) {
+      return this.client.passwordForgotSendCode(email);
     },
 
-    completePasswordReset: function () {
-      return new PromiseMock();
+    completePasswordReset: function (email, newPassword, token, code) {
+      return this.client.passwordForgotVerifyCode(code, token)
+                 .then(function (result) {
+                    return this.client.accountReset(email,
+                                                   newPassword,
+                                                   result.accountResetToken);
+                  }.bind(this));
     }
   };
 
