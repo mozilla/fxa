@@ -8,9 +8,10 @@ define([
   'underscore',
   'views/base',
   'stache!templates/sign_up',
-  'lib/session'
+  'lib/session',
+  'lib/fxa-client'
 ],
-function (_, BaseView, SignUpTemplate, Session) {
+function (_, BaseView, SignUpTemplate, Session, FxaClient) {
   var now = new Date();
 
   // If COPPA says 13, why 14 here? To make UX simpler, we only ask
@@ -29,7 +30,7 @@ function (_, BaseView, SignUpTemplate, Session) {
       this.router = options.router || window.router;
     },
 
-    beforeRender: function() {
+    beforeRender: function () {
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.router.navigate('cannot_create_account', { trigger: true });
         return false;
@@ -42,7 +43,7 @@ function (_, BaseView, SignUpTemplate, Session) {
     className: 'sign-up',
 
     events: {
-      'submit form': 'signUp',
+      'submit form': 'onSubmit',
       'keyup form': 'enableButtonWhenValid',
       'change form': 'enableButtonWhenValid'
     },
@@ -57,11 +58,11 @@ function (_, BaseView, SignUpTemplate, Session) {
         return;
       }
 
-      Session.email = this.$('.email').val();
-      Session.password = this.$('.password').val();
+      if (! this._isUserOldEnough()) {
+        return this._cannotCreateAccount();
+      }
 
-      var nextStep = this._getNextStep();
-      this.router.navigate(nextStep, { trigger: true });
+      this._createAccount();
     },
 
     isValid: function () {
@@ -86,29 +87,45 @@ function (_, BaseView, SignUpTemplate, Session) {
       return this.$('#fxa-age-year').val();
     },
 
-    _getNextStep: function () {
+    _isUserOldEnough: function () {
       var year = parseInt(this._getYear(), 10);
-      var nextStep;
 
-      if (this._canCreateAccount(year)) {
-        nextStep = 'create_account';
-      }
-      else {
-        nextStep = 'cannot_create_account';
-        // this is a session cookie. It will go away once:
-        // 1. the user closes the tab
-        // and
-        // 2. the user closes the browser
-        // Both of these have to happen or else the cookie
-        // hangs around like a bad smell.
-        document.cookie = 'tooyoung=1;';
-      }
-
-      return nextStep;
+      return year <= TOO_YOUNG_YEAR;
     },
 
-    _canCreateAccount: function (year) {
-      return year <= TOO_YOUNG_YEAR;
+    _cannotCreateAccount: function () {
+      // this is a session cookie. It will go away once:
+      // 1. the user closes the tab
+      // and
+      // 2. the user closes the browser
+      // Both of these have to happen or else the cookie
+      // hangs around like a bad smell.
+      document.cookie = 'tooyoung=1;';
+
+      this.router.navigate('cannot_create_account', { trigger: true });
+    },
+
+    _createAccount: function () {
+      var email = this.$('.email').val();
+      var password = this.$('.password').val();
+
+      var client = new FxaClient();
+      client.signUp(email, password)
+        .done(_.bind(function (accountData) {
+          // This info will be sent to the channel in the confirm screen.
+          Session.sessionToken = accountData.sessionToken;
+          Session.keyFetchToken = accountData.keyFetchToken;
+          Session.unwrapBKey = accountData.unwrapBKey;
+          Session.uid = accountData.uid;
+
+          this.router.navigate('confirm', { trigger: true });
+        }, this),
+        _.bind(function (err) {
+          this.$('.spinner').hide();
+          this.$('.error').html(err.message);
+
+          console.error('Error?', err);
+        }, this));
     }
 
   });

@@ -87,7 +87,7 @@ function (mocha, chai, _, $, View, RouterMock) {
     });
 
     describe('signUp', function() {
-      it('sends the user to create_account screen if form filled out, >= 14 years ago', function() {
+      it('sends the user to confirm screen if form filled out, >= 14 years ago', function() {
         $('.email').val('testuser@testuser.com');
         $('.password').val('password');
 
@@ -95,7 +95,7 @@ function (mocha, chai, _, $, View, RouterMock) {
         $('#fxa-age-year').val(nowYear - 14);
 
         view.signUp();
-        assert.equal(router.page, 'create_account');
+        assert.equal(router.page, 'confirm');
       });
 
       it('sends the user to cannot_create_account screen if user selects <= 13 years ago', function() {

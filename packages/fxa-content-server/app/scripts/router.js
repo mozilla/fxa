@@ -15,7 +15,6 @@ define([
   'views/settings',
   'views/tos',
   'views/pp',
-  'views/create_account',
   'views/cannot_create_account',
   'views/complete_sign_up',
   'views/reset_password',
@@ -24,7 +23,7 @@ define([
   'views/reset_password_complete',
   'transit'
 ],
-function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, CreateAccountView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
+function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
   var Router = Backbone.Router.extend({
     routes: {
       '': 'showSignUp',
@@ -34,7 +33,6 @@ function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, Settin
       'settings': 'showSettings',
       'tos': 'showTos',
       'pp': 'showPp',
-      'create_account': 'showCreateAccount',
       'cannot_create_account': 'showCannotCreateAccount',
       'verify_email': 'showCompleteSignUp',
       'reset_password': 'showResetPassword',
@@ -75,10 +73,6 @@ function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, Settin
 
     showPp: function () {
       this.showView(new PpView());
-    },
-
-    showCreateAccount: function () {
-      this.showView(new CreateAccountView());
     },
 
     showCannotCreateAccount: function () {

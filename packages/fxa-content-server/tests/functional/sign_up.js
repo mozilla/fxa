@@ -49,7 +49,7 @@ define([
         .end()
 
         // Being pushed to the age verification screen is success.
-        .waitForElementById('fxa-create-account-header')
+        .waitForElementById('fxa-confirm-header')
         .end();
     },
 
