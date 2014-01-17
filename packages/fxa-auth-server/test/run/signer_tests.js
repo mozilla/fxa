@@ -5,6 +5,8 @@
 var test = require('../ptaptest')
 var path = require('path')
 var CC = require('compute-cluster')
+var jwcrypto = require('jwcrypto')
+var config = require('../../config').root()
 var signer = new CC({ module: path.join(__dirname, '../signer-stub.js')})
 signer.on('error', function () {}) // don't die
 
@@ -198,6 +200,30 @@ test(
         done
       )
     }
+  }
+)
+
+test(
+  'the signed cert is properly formatted',
+  function (t) {
+    var email = 'test@example.com'
+    var duration = 100
+    signer.enqueue(
+      {
+        email: email,
+        publicKey: validKey,
+        duration: duration
+      },
+      function (err, result) {
+        t.ok(result, 'got cert')
+        var payload = jwcrypto.extractComponents(result.cert).payload
+        t.deepEqual(payload['public-key'], validKey, 'key, check')
+        t.equal(payload.principal.email, email, 'email, check')
+        t.equal(payload.iss, config.domain, 'issuer, check')
+        t.equal(payload.exp, payload.iat + duration, 'exp, check')
+        t.end()
+      }
+    )
   }
 )
 

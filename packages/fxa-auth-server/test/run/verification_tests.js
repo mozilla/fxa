@@ -175,7 +175,7 @@ TestServer.start(config.publicUrl)
   test(
     'create account with service identifier',
     function (t) {
-      var email = uniqueID() +'@example.com'
+      var email = uniqueID() +'@restmail.net'
       var password = 'allyourbasearebelongtous'
       var client = null
       var options = { service: 'abcdef' }
