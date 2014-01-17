@@ -51,12 +51,13 @@ require([
   '../tests/spec/lib/channels/fx-desktop',
   '../tests/spec/lib/xss',
   '../tests/spec/lib/url',
-  '../tests/spec/lib/fxa-client'
+  '../tests/spec/lib/fxa-client',
+  '../tests/spec/views/base'
 ],
 function (Mocha) {
   var runner = Mocha.run();
 
-  runner.on('end', function() {
+  runner.on('end', function () {
 
     // This is our hook to the Selenium tests that run
     // the mocha tests as part of the CI build.
