@@ -51,11 +51,11 @@ function (_, BaseView, Template, FxaClient, Session, Url) {
       var password = this._getPassword();
 
       FxaClient.getAsync()
-        .then(function (client) {
+        .then(_.bind(function (client) {
           client.completePasswordReset(this.email, password, this.token, this.code)
                 .done(_.bind(this._onResetCompleteSuccess, this),
                       _.bind(this._onResetCompleteFailure, this));
-        });
+        }, this));
     },
 
     _onResetCompleteSuccess: function () {

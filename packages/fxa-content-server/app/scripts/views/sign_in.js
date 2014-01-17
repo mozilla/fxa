@@ -5,12 +5,13 @@
 'use strict';
 
 define([
+  'underscore',
   'views/base',
   'stache!templates/sign_in',
   'lib/session',
   'lib/fxa-client'
 ],
-function (BaseView, SignInTemplate, Session, FxaClient) {
+function (_, BaseView, SignInTemplate, Session, FxaClient) {
   var SignInView = BaseView.extend({
     template: SignInTemplate,
     className: 'sign-in',
@@ -32,7 +33,7 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
       var password = this.$('.password').val();
 
       FxaClient.getAsync()
-        .then(function (client) {
+        .then(_.bind(function (client) {
           client.signIn(email, password)
                 .then(function (accountData) {
                   Session.channel.send('login', {
@@ -49,7 +50,7 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
 
                   console.error('Error?', err);
                 }.bind(this));
-        });
+        }, this));
     },
 
     isValid: function () {

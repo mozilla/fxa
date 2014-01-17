@@ -5,12 +5,13 @@
 'use strict';
 
 define([
+  'underscore',
   'views/base',
   'stache!templates/create_account',
   'lib/session',
   'lib/fxa-client'
 ],
-function (BaseView, CreateAccountTemplate, Session, FxaClient) {
+function (_, BaseView, CreateAccountTemplate, Session, FxaClient) {
   var CreateAccountView = BaseView.extend({
     template: CreateAccountTemplate,
     className: 'create_account',
@@ -32,7 +33,7 @@ function (BaseView, CreateAccountTemplate, Session, FxaClient) {
 
     _createAccount: function (email, password) {
       FxaClient.getAsync()
-        .then(function (client) {
+        .then(_.bind(function (client) {
           client.signUp(email, password)
             .done(function (accountData) {
               // This info will be sent to the channel in the confirm screen.
@@ -49,7 +50,7 @@ function (BaseView, CreateAccountTemplate, Session, FxaClient) {
 
               console.error('Error?', err);
             }.bind(this));
-        });
+        }, this));
     }
   });
 

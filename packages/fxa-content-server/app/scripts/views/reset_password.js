@@ -32,11 +32,11 @@ function (_, BaseView, Template, FxaClient, Session) {
       var email = this._getEmail();
 
       FxaClient.getAsync()
-        .then(function (client) {
+        .then(_.bind(function (client) {
           client.requestPasswordReset(email)
                 .done(this._onRequestResetSuccess.bind(this),
                       this._onRequestResetFailure.bind(this));
-        });
+        }, this));
 
     },
 

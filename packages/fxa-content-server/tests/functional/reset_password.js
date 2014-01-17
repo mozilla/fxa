@@ -17,7 +17,7 @@ define([
   var email;
 
   registerSuite({
-    name: 'password_reset',
+    name: 'reset_password',
 
     setup: function () {
       email = 'signin' + Math.random() + '@example.com';

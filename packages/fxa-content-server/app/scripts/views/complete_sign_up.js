@@ -38,7 +38,7 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
       }
 
       FxaClient.getAsync()
-        .then(function (client) {
+        .then(_.bind(function (client) {
           client.verifyCode(uid, code)
                 .then(function () {
                   // TODO - we could go to a "sign_up_complete" screen here.
@@ -52,7 +52,7 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
                   this.$('h2.success').hide();
                   this.$('h2.failure').show();
                 }.bind(this));
-        });
+        }, this));
     }
 
   });
