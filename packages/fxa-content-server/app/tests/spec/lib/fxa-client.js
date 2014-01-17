@@ -41,8 +41,8 @@ function (mocha, chai, $, FxaClientWrapper) {
       it('signs a user in with email/password', function (done) {
         client.signUp(email, password)
           .then(function () {
-            return client.signIn(email, password)
-          });
+            return client.signIn(email, password);
+          })
           .then(function () {
             assert.isTrue(true);
             done();
@@ -61,10 +61,10 @@ function (mocha, chai, $, FxaClientWrapper) {
         client.signUp(email, password)
           .then(function () {
             return client.signIn(email, password);
-          });
+          })
           .then(function () {
             return client.requestPasswordReset(email);
-          });
+          })
           .then(function () {
             assert.isTrue(true);
             done();
