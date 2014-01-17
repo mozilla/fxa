@@ -14,7 +14,8 @@
     "mustache": "~0.7.3",
     "requirejs-text": "~2.0.10",
     "mocha": "~1.16.2",
-    "chai": "~1.8.1"
+    "chai": "~1.8.1",
+    "p": "https://github.com/rkatic/p.git"
   },
   "devDependencies": {}
 }

@@ -41,14 +41,11 @@ function (mocha, chai, $, FxaClientWrapper) {
       it('signs a user in with email/password', function (done) {
         client.signUp(email, password)
           .then(function () {
-            client.signIn(email, password)
-                  .then(function () {
-                    assert.isTrue(true);
-                    done();
-                  }, function (err) {
-                    assert.fail(err);
-                    done();
-                  });
+            return client.signIn(email, password);
+          })
+          .then(function () {
+            assert.isTrue(true);
+            done();
           }, function (err) {
             assert.fail(err);
             done();
@@ -63,17 +60,17 @@ function (mocha, chai, $, FxaClientWrapper) {
       it('requests a password reset', function (done) {
         client.signUp(email, password)
           .then(function () {
-            client.signIn(email, password)
-              .then(function () {
-                client.requestPasswordReset(email)
-                  .then(function () {
-                    assert.isTrue(true);
-                    done();
-                  }, function (err) {
-                    assert.fail(err);
-                    done();
-                  });
-              });
+            return client.signIn(email, password);
+          })
+          .then(function () {
+            return client.requestPasswordReset(email);
+          })
+          .then(function () {
+            assert.isTrue(true);
+            done();
+          }, function (err) {
+            assert.fail(err);
+            done();
           });
       });
     });
