@@ -58,8 +58,7 @@ function (BaseView, AgeTemplate) {
 
       if (this._requiresMoreVerification(year)) {
         nextStep = 'birthday';
-      }
-      else if (this._canCreateAccount(year)) {
+      } else if (this._canCreateAccount(year)) {
         nextStep = 'create_account';
       }
 

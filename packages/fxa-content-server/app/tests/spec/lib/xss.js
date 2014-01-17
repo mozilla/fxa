@@ -70,7 +70,7 @@ function (mocha, chai, _, XSS, Constants) {
 
       it('allows hrefs of the max length', function() {
         var maxLength = Constants.URL_MAX_LENGTH;
-        var allowed = "http://";
+        var allowed = 'http://';
 
         while (allowed.length < maxLength) {
           allowed += 'a';
@@ -81,7 +81,7 @@ function (mocha, chai, _, XSS, Constants) {
 
       it('disallowed hrefs that are too long', function() {
         var maxLength = Constants.URL_MAX_LENGTH;
-        var tooLong = "http://";
+        var tooLong = 'http://';
 
         while (tooLong.length < maxLength + 1) {
           tooLong += 'a';
