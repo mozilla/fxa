@@ -15,7 +15,8 @@ module.exports = function (grunt) {
         '!tests/addons/sinon.js',
         '!build/**',
         '!components/**',
-        '!node_modules/**'
+        '!node_modules/**',
+        '!docs/**'
       ]
     }
   });
