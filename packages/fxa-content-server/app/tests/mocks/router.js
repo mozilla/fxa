@@ -6,17 +6,22 @@
 
 'use strict';
 
-define([], function () {
+define([
+  'underscore',
+  'backbone'
+], function (_, Backbone) {
   function RouterMock() {
     // nothing to do here.
   }
 
-  RouterMock.prototype = {
+  _.extend(RouterMock.prototype, Backbone.Events, {
     navigate: function(page, opts) {
       this.page = page;
       this.opts = opts;
+
+      this.trigger('navigate');
     }
-  };
+  });
 
   return RouterMock;
 });

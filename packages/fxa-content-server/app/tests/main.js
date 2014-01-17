@@ -53,13 +53,20 @@ require([
   '../tests/spec/lib/xss',
   '../tests/spec/lib/url',
   '../tests/spec/lib/fxa-client',
-  '../tests/spec/views/base'
+  '../tests/spec/views/base',
+  '../tests/spec/views/sign_up'
 ],
 function (Mocha) {
+  // Use a mock for the translator
+  window.translator = {
+    get: function (key) {
+      return key;
+    }
+  };
+
   var runner = Mocha.run();
 
   runner.on('end', function () {
-
     // This is our hook to the Selenium tests that run
     // the mocha tests as part of the CI build.
     // The selenium test will wait until the #total-failures element exists

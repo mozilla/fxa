@@ -20,7 +20,9 @@ function(_, Backbone, jQuery) {
     },
 
     render: function() {
-      this.beforeRender();
+      if ( ! this.beforeRender()) {
+        return false;
+      }
 
       this.destroySubviews();
 
@@ -50,7 +52,10 @@ function(_, Backbone, jQuery) {
     },
 
     beforeRender: function() {
-      // Implement in subclasses
+      // Implement in subclasses. If returns false, then the view is not
+      // rendered. Useful if the view must immediately redirect to another
+      // view.
+      return true;
     },
 
     afterRender: function() {

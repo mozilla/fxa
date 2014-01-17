@@ -8,8 +8,6 @@ define([
   './functional/complete_sign_up',
   './functional/tos',
   './functional/pp',
-  './functional/age',
-  './functional/birthday',
   './functional/confirm',
   './functional/reset_password',
   './functional/confirm_reset_password',

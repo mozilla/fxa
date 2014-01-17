@@ -15,9 +15,6 @@ define([
   'views/settings',
   'views/tos',
   'views/pp',
-  'views/age',
-  'views/birthday',
-  'views/create_account',
   'views/cannot_create_account',
   'views/complete_sign_up',
   'views/reset_password',
@@ -26,7 +23,7 @@ define([
   'views/reset_password_complete',
   'transit'
 ],
-function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, AgeView, BirthdayView, CreateAccountView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
+function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
   var Router = Backbone.Router.extend({
     routes: {
       '': 'showSignUp',
@@ -36,9 +33,6 @@ function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, Settin
       'settings': 'showSettings',
       'tos': 'showTos',
       'pp': 'showPp',
-      'age': 'showAge',
-      'birthday': 'showBirthday',
-      'create_account': 'showCreateAccount',
       'cannot_create_account': 'showCannotCreateAccount',
       'verify_email': 'showCompleteSignUp',
       'reset_password': 'showResetPassword',
@@ -81,18 +75,6 @@ function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, Settin
       this.showView(new PpView());
     },
 
-    showAge: function () {
-      this.showView(new AgeView());
-    },
-
-    showBirthday: function () {
-      this.showView(new BirthdayView());
-    },
-
-    showCreateAccount: function () {
-      this.showView(new CreateAccountView());
-    },
-
     showCannotCreateAccount: function () {
       this.showView(new CannotCreateAccountView());
     },
@@ -127,12 +109,17 @@ function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, Settin
       // Make the stage transparent
       this.$stage.css({ opacity: 0 });
 
-      // Render the new view
-      this.$stage.html(this.currentView.render().el);
+      // render will return false if the view could not be
+      // rendered for any reason, including if the view was
+      // automatically redirected.
+      if (this.currentView.render()) {
+        // Render the new view
+        this.$stage.html(this.currentView.el);
 
-      // Fade the stage back in
-      this.$stage.transition({ opacity: 100 },
-        _.bind(this.currentView.afterVisible, this.currentView));
+        // Fade the stage back in
+        this.$stage.transition({ opacity: 100 },
+          _.bind(this.currentView.afterVisible, this.currentView));
+      }
     },
 
     watchAnchors: function () {
