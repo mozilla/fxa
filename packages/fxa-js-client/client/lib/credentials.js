@@ -79,6 +79,23 @@ define(['./request', '../../components/sjcl/sjcl', '../../components/p/p', './hk
           return result;
         }
       );
+    },
+    /**
+     * Wrap
+     *
+     * @method wrap
+     * @param {bitArray} bitArray1
+     * @param {bitArray} bitArray2
+     * @return {bitArray} wrap result of the two bitArrays
+     */
+    wrap: function (bitArray1, bitArray2) {
+      var result = [];
+
+      for (var i = 0; i < bitArray1.length; i++) {
+        result[i] = bitArray1[i] ^ bitArray2[i];
+      }
+
+      return result;
     }
   };
 

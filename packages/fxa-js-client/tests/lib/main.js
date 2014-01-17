@@ -10,9 +10,8 @@ define([
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest',
   'tests/addons/sinonResponder',
   'tests/mocks/request',
-  'client/lib/request',
-  'components/p/p'
-], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Request, p) {
+  'tests/addons/restmail'
+], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail) {
 
   with (tdd) {
     suite('fxa client', function () {
@@ -22,7 +21,7 @@ define([
                             'http://127.0.0.1:9001' :
                             'http://restmail.net';
       var client;
-      var restmailClient;
+      var mail;
       var respond;
 
       function noop(val) { return val; }
@@ -45,10 +44,10 @@ define([
           xhr.onCreate = function (xhr) {
             requests.push(xhr);
           };
-          respond = makeMockResponder(requests);
+          respond = SinonResponder.makeMockResponder(requests);
         }
         client = new FxAccountClient(authServerUrl, { xhr: xhr });
-        restmailClient = new Request(mailServerUrl, xhr);
+        mail = new Restmail(mailServerUrl, xhr);
       });
 
       /**
@@ -114,7 +113,7 @@ define([
             uid = result.uid;
             assert.ok(uid, "uid is returned");
 
-            return respond(waitForEmail(user), RequestMocks.mail);
+            return respond(mail.wait(user), RequestMocks.mail);
           })
           .then(function (emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
@@ -151,7 +150,7 @@ define([
           .then(function (result) {
             assert.equal(result.verified, false, "Email should not be verified.");
 
-            return respond(waitForEmail(user), RequestMocks.mail);
+            return respond(mail.wait(user), RequestMocks.mail);
           })
           .then(function (emails) {
             var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
@@ -193,7 +192,7 @@ define([
             passwordForgotToken = result.passwordForgotToken;
             assert.ok(passwordForgotToken, "passwordForgotToken is returned");
 
-            return respond(waitForEmail(user, 2), RequestMocks.resetMail);
+            return respond(mail.wait(user, 2), RequestMocks.resetMail);
           })
           .then(function (emails) {
             var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
@@ -214,42 +213,6 @@ define([
           })
       });
 
-      function makeMockResponder(requests) {
-        var requestIndex = 0;
-
-        return function(returnValue, response) {
-          setTimeout(function() {
-            SinonResponder.respond(requests[requestIndex++], response);
-          }, 200);
-
-          return returnValue;
-        }
-      }
-
-      // utility function that waits for a restmail email to arrive
-      function waitForEmail(user, number) {
-        if (!number) number = 1;
-        console.log('Waiting for email...');
-
-        return restmailClient.send('/mail/' + user, 'GET')
-          .then(function(result) {
-            if (result.length === number) {
-              return result;
-            } else {
-              var deferred = p.defer();
-
-              setTimeout(function() {
-                waitForEmail(user, number)
-                  .then(function(emails) {
-                    deferred.resolve(emails);
-                  }, function(err) {
-                    deferred.reject(err);
-                  });
-              }, 1000);
-              return deferred.promise;
-            }
-          });
-      }
 
     });
   }

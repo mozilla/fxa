@@ -14,6 +14,11 @@
       headers: {},
       body: '{"uid":"9c8e5cf6915949c1b063b88fa0c53d05","verified":true,"sessionToken":"6544062365c5ebee16e3c5e15448139851583b5f5f7b6bd6d4a37bac41665e8a"}'
     },
+    signInFailurePassword: {
+      status: 400,
+      headers: {},
+      body: '{"code":400,"message":"Incorrect password"}'
+    },
     signInWithKeys: {
       status: 200,
       headers: {},
@@ -50,6 +55,14 @@
     passwordForgotVerifyCode: {
       status: 200,
       body: '{"accountResetToken":"50a2052498d538a5d3918847751c8d5077294fd637dbf20d27f2f5f854cbcf4f"}'
+    },
+    passwordChangeStart: {
+      status: 200,
+      body: '{ "keyFetchToken": "fa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad", "passwordChangeToken": "0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215b", "verified": true }'
+    },
+    passwordChangeFinish: {
+      status: 200,
+      body: '{}'
     },
     accountReset: {
       status: 200,

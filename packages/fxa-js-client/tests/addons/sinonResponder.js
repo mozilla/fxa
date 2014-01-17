@@ -8,6 +8,19 @@ define([
 
   return {
     useFakeXMLHttpRequest: Sinon.useFakeXMLHttpRequest,
+
+    makeMockResponder: function (requests) {
+      var self = this;
+      var requestIndex = 0;
+
+      return function (returnValue, response) {
+        setTimeout(function () {
+          self.respond(requests[requestIndex++], response);
+        }, 200);
+
+        return returnValue;
+      }
+    },
     respond: function (req, mock) {
       if (req && req.respond) {
         req.respond(mock.status, mock.headers, mock.body);
