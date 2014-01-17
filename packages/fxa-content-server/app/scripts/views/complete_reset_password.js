@@ -10,15 +10,17 @@ define([
   'stache!templates/complete_reset_password',
   'lib/fxa-client',
   'lib/session',
-  'lib/url'
+  'lib/url',
+  'lib/password-mixin'
 ],
-function (_, BaseView, Template, FxaClient, Session, Url) {
+function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
   var View = BaseView.extend({
     template: Template,
     className: 'complete_reset_password',
 
     events: {
-      'submit form': 'submit'
+      'submit form': 'submit',
+      'change .show-password': 'onPasswordVisibilityChange'
     },
 
     afterRender: function () {
@@ -90,6 +92,8 @@ function (_, BaseView, Template, FxaClient, Session, Url) {
       return this.$('#vpassword').val();
     }
   });
+
+  _.extend(View.prototype, PasswordMixin);
 
   return View;
 });

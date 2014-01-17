@@ -54,7 +54,9 @@ require([
   '../tests/spec/lib/url',
   '../tests/spec/lib/fxa-client',
   '../tests/spec/views/base',
-  '../tests/spec/views/sign_up'
+  '../tests/spec/views/sign_up',
+  '../tests/spec/views/sign_in',
+  '../tests/spec/views/complete_reset_password'
 ],
 function (Mocha) {
   // Use a mock for the translator
