@@ -20,7 +20,6 @@ notifications:
     skip_join: false
 
 env:
-  - DB_BACKEND=memory
   - DB_BACKEND=mysql REDIS_HOST=localhost
 
 before_script:
