@@ -542,7 +542,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
           function (err, results) {
             con.release()
             if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.unknownAccount())
+            if (!results.length) return d.reject(error.unknownAccount(email))
             var result = results[0]
             return d.resolve({
               uid: result.uid,
