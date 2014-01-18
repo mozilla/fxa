@@ -114,58 +114,6 @@ TestServer.start(config)
   )
 
   test(
-    'Change password flow',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'allyourbasearebelongtous'
-      var newPassword = 'foobar'
-      var kB = null
-      var client = null
-      var firstAuthPW
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function (x) {
-            client = x
-            firstAuthPW = x.authPW.toString('hex')
-            return client.keys()
-          }
-        )
-        .then(
-          function (keys) {
-            kB = keys.kB
-          }
-        )
-        .then(
-          function () {
-            return client.changePassword(newPassword)
-          }
-        )
-        .then(
-          function () {
-            t.notEqual(client.authPW.toString('hex'), firstAuthPW, 'password has changed')
-            return client.keys()
-          }
-        )
-        .then(
-          function (keys) {
-            t.deepEqual(keys.kB, kB, 'kB is preserved')
-            t.equal(client.kB.length, 32, 'kB exists, has the right length')
-          }
-        )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'login-success': 2,
-              'pwd-change-request': 1,
-              'pwd-reset-success': 1,
-              'auth-failure': 0
-            })
-          }
-        )
-    }
-  )
-
-  test(
     'teardown',
     function (t) {
       server.stop()
