@@ -11,6 +11,44 @@ var through = require('through')
 var mailbox = require('./mailbox')
 
 function TestServer(config) {
+  this.server = null
+  this.mail = null
+  this.mailbox = mailbox(config.smtp.api.host, config.smtp.api.port)
+  this.logs = {}
+}
+
+function waitLoop(testServer, url, cb) {
+  request(
+    url + '/__heartbeat__',
+    function (err, res, body) {
+      if (err) {
+        if (err.errno !== 'ECONNREFUSED') {
+          console.log("ERROR: unexpected result from " + url)
+          console.log(err)
+          return cb(err)
+        }
+        if (!testServer.server) {
+          console.log('starting...')
+          testServer.start()
+        }
+        console.log('waiting...')
+        return setTimeout(waitLoop.bind(null, testServer, url, cb), 100)
+      }
+      cb()
+    }
+  )
+}
+
+TestServer.start = function (config) {
+  var d = P.defer()
+  var testServer = new TestServer(config)
+  waitLoop(testServer, config.publicUrl, function (err) {
+    return err ? d.reject(err) : d.resolve(testServer)
+  })
+  return d.promise
+}
+
+TestServer.prototype.start = function () {
   this.server = cp.spawn(
     'node',
     ['./key_server_stub.js'],
@@ -18,8 +56,6 @@ function TestServer(config) {
       cwd: __dirname
     }
   )
-  this.mailbox = mailbox(config.smtp.api.host, config.smtp.api.port)
-  this.logs = {}
   this.server.stderr
     .pipe(split())
     .pipe(
@@ -55,9 +91,8 @@ function TestServer(config) {
   this.mail.stderr.on('data', process.stderr.write.bind(process.stderr))
 }
 
-TestServer.server = { stop: function () {}, assertLogs: function () { return P() }, fake: true }
-
 TestServer.prototype.assertLogs = function (t, spec) {
+  if (!this.server) { return P() }
   var keys = Object.keys(spec)
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i]
@@ -73,40 +108,11 @@ TestServer.prototype.assertLogs = function (t, spec) {
   return P()
 }
 
-function waitLoop(config, cb) {
-  var url = config.publicUrl
-  request(
-    url + '/__heartbeat__',
-    function (err, res, body) {
-      if (err) {
-        if (err.errno !== 'ECONNREFUSED') {
-          console.log("ERROR: unexpected result from " + url)
-          console.log(err)
-          return cb(err)
-        }
-        if (TestServer.server.fake) {
-          console.log('starting...')
-          TestServer.server = new TestServer(config)
-        }
-        console.log('waiting...')
-        return setTimeout(waitLoop.bind(null, config, cb), 100)
-      }
-      cb()
-    }
-  )
-}
-
-TestServer.start = function (config) {
-  var d = P.defer()
-  waitLoop(config, function (err) {
-    return err ? d.reject(err) : d.resolve(TestServer.server)
-  })
-  return d.promise
-}
-
 TestServer.prototype.stop = function () {
-  this.server.kill('SIGINT')
-  this.mail.kill()
+  if (this.server) {
+    this.server.kill('SIGINT')
+    this.mail.kill()
+  }
 }
 
 TestServer.prototype.uniqueEmail = function () {
