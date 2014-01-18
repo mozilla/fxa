@@ -17,11 +17,15 @@ module.exports = function (grunt) {
 
   grunt.registerTask('build',
     'Build client',
-    ['clean', 'jshint', 'jscs', 'requirejs', 'bytesize']);
+    ['clean', 'lint', 'requirejs', 'bytesize']);
 
   grunt.registerTask('test',
     'Run tests via node',
     ['intern:node']);
+
+  grunt.registerTask('lint',
+    'Alias for jshint and jscs tasks',
+    ['jshint', 'jscs']);
 
   grunt.registerTask('default',
     ['build']);
