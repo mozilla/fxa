@@ -15,5 +15,6 @@ define([
   'tests/lib/certificateSign',
   'tests/lib/account',
   'tests/lib/recoveryEmail',
-  'tests/lib/misc'
+  'tests/lib/misc',
+  'tests/lib/timeOffset'
 ], function () {});

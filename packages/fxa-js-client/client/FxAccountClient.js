@@ -19,7 +19,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
       config = {};
     }
 
-    this.request = new Request(uri, config.xhr);
+    this.request = new Request(uri, config.xhr, { localtimeOffsetMsec: config.localtimeOffsetMsec });
   }
 
   /**
