@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var cp = require('child_process')
+var crypto = require('crypto')
 var P = require('../promise')
 var request = require('request')
 var split = require('binary-split')
 var through = require('through')
+var mailbox = require('./mailbox')
 
-function TestServer() {
+function TestServer(config) {
   this.server = cp.spawn(
     'node',
     ['./key_server_stub.js'],
@@ -16,6 +18,7 @@ function TestServer() {
       cwd: __dirname
     }
   )
+  this.mailbox = mailbox(config.smtp.api.host, config.smtp.api.port)
   this.logs = {}
   this.server.stderr
     .pipe(split())
@@ -70,7 +73,8 @@ TestServer.prototype.assertLogs = function (t, spec) {
   return P()
 }
 
-function waitLoop(url, cb) {
+function waitLoop(config, cb) {
+  var url = config.publicUrl
   request(
     url + '/__heartbeat__',
     function (err, res, body) {
@@ -82,19 +86,19 @@ function waitLoop(url, cb) {
         }
         if (TestServer.server.fake) {
           console.log('starting...')
-          TestServer.server = new TestServer()
+          TestServer.server = new TestServer(config)
         }
         console.log('waiting...')
-        return setTimeout(waitLoop.bind(null, url, cb), 100)
+        return setTimeout(waitLoop.bind(null, config, cb), 100)
       }
       cb()
     }
   )
 }
 
-TestServer.start = function (url) {
+TestServer.start = function (config) {
   var d = P.defer()
-  waitLoop(url, function (err) {
+  waitLoop(config, function (err) {
     return err ? d.reject(err) : d.resolve(TestServer.server)
   })
   return d.promise
@@ -103,6 +107,10 @@ TestServer.start = function (url) {
 TestServer.prototype.stop = function () {
   this.server.kill('SIGINT')
   this.mail.kill()
+}
+
+TestServer.prototype.uniqueEmail = function () {
+  return crypto.randomBytes(10).toString('hex') + '@restmail.net'
 }
 
 module.exports = TestServer

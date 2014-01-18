@@ -9,11 +9,12 @@
     "test": "test"
   },
   "scripts": {
-    "test": "./scripts/tap-coverage.js ./test/run",
+    "test": "./scripts/tap-coverage.js test/local test/remote",
     "start": "scripts/start-local.sh",
     "test-mysql": "DB_BACKEND=mysql npm test",
-    "test-all": "npm test && npm run test-mysql",
-    "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 tap --timeout=180 --tap test/run/verification_tests.js"
+    "test-all": "npm run test-quick && npm run test-mysql",
+    "test-quick": "tap test/local test/remote",
+    "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 tap --timeout=300 --tap test/remote"
   },
   "repository": {
     "type": "git",
