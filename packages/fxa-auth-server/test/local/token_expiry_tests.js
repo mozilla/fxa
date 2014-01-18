@@ -4,10 +4,8 @@
 
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var crypto = require('crypto')
 var path = require('path')
 var Client = require('../../client')
-var request = require('request')
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/api_error.json')
 var config = require('../../config').root()

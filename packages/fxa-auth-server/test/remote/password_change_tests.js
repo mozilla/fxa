@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var url = require('url')
 var Client = require('../../client')
 var TestServer = require('../test_server')
 var config = require('../../config').root()
@@ -70,6 +69,7 @@ TestServer.start(config)
     function (t) {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
+      var client = null
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (x) {

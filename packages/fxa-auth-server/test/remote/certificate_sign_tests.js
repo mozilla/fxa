@@ -26,7 +26,7 @@ TestServer.start(config)
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
-          	client = c
+            client = c
             return client.sign(publicKey, duration)
           }
         )

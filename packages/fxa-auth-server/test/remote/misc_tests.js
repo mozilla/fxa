@@ -375,7 +375,7 @@ TestServer.start(config)
       )
       .then(
         function (doc) {
-          return fetch(doc['authentication'])
+          return fetch(doc.authentication)
           .then(
             function (authPage) {
               t.ok(authPage, 'auth page can be fetched')
@@ -386,7 +386,7 @@ TestServer.start(config)
       )
       .then(
         function (doc) {
-          return fetch(doc['provisioning'])
+          return fetch(doc.provisioning)
           .then(
             function (provPage) {
               t.ok(provPage, 'provisioning page can be fetched')
