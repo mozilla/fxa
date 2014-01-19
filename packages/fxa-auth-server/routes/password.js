@@ -7,10 +7,18 @@ var HEX_STRING = validators.HEX_STRING
 var LAZY_EMAIL = validators.LAZY_EMAIL
 
 var crypto = require('crypto')
-var password = require('../crypto/password')
+var Password = require('../crypto/password')
 var butil = require('../crypto/butil')
 
-module.exports = function (log, isA, error, db, redirectDomain, mailer) {
+module.exports = function (
+  log,
+  isA,
+  error,
+  db,
+  redirectDomain,
+  mailer,
+  verifierVersion
+  ) {
 
   function failVerifyAttempt(passwordForgotToken) {
     return (passwordForgotToken.failAttempt()) ?
@@ -34,50 +42,48 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
           db.emailRecord(form.email)
             .then(
               function (emailRecord) {
-                return password.stretch(oldAuthPW, emailRecord.authSalt)
-                  .then(
-                    function (oldStretched) {
-                      return password.verify(oldStretched, emailRecord.verifyHash)
-                        .then(
-                          function (verifyHash) {
-                            if(!verifyHash) {
-                              throw error.incorrectPassword(emailRecord.email)
-                            }
+                var password = new Password(
+                  oldAuthPW,
+                  emailRecord.authSalt,
+                  emailRecord.verifierVersion
+                )
+                return password.matches(emailRecord.verifyHash)
+                .then(
+                  function (match) {
+                    if (!match) {
+                      throw error.incorrectPassword(emailRecord.email)
+                    }
+                    return password.wrapKb(emailRecord.wrapWrapKb)
+                  }
+                )
+                .then(
+                  function (wrapKb) {
+                    return db.createKeyFetchToken(
+                      {
+                        uid: emailRecord.uid,
+                        kA: emailRecord.kA,
+                        wrapKb: wrapKb,
+                        emailVerified: emailRecord.emailVerified
+                      }
+                    )
+                    .then(
+                      function (keyFetchToken) {
+                        return db.createPasswordChangeToken({
+                            uid: emailRecord.uid
                           }
                         )
                         .then(
-                          password.wrapKb.bind(null, oldStretched, emailRecord.wrapWrapKb)
+                          function (passwordChangeToken) {
+                            return {
+                              keyFetchToken: keyFetchToken,
+                              passwordChangeToken: passwordChangeToken
+                            }
+                          }
                         )
-                    }
-                  )
-                  .then(
-                    function (wrapKb) {
-                      return db.createKeyFetchToken(
-                        {
-                          uid: emailRecord.uid,
-                          kA: emailRecord.kA,
-                          wrapKb: wrapKb,
-                          emailVerified: emailRecord.emailVerified
-                        }
-                      )
-                      .then(
-                        function (keyFetchToken) {
-                          return db.createPasswordChangeToken({
-                              uid: emailRecord.uid
-                            }
-                          )
-                          .then(
-                            function (passwordChangeToken) {
-                              return {
-                                keyFetchToken: keyFetchToken,
-                                passwordChangeToken: passwordChangeToken
-                              }
-                            }
-                          )
-                        }
-                      )
-                    }
-                  )
+                      }
+                    )
+                  }
+                )
               }
             )
             .done(
@@ -118,16 +124,14 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
           var authPW = Buffer(request.payload.authPW, 'hex')
           var wrapKb = Buffer(request.payload.wrapKb, 'hex')
           var authSalt = crypto.randomBytes(32)
+          var password = new Password(authPW, authSalt, verifierVersion)
           db.deletePasswordChangeToken(passwordChangeToken)
             .then(
-              password.stretch.bind(null, authPW, authSalt)
-            )
-            .then(
-              function (stretched) {
-                return password.verify(stretched)
+              function () {
+                return password.verifyHash()
                   .then(
                     function (verifyHash) {
-                      return password.wrapKb(stretched, wrapKb)
+                      return password.wrapKb(wrapKb)
                         .then(
                           function (wrapWrapKb) {
                             return db.resetAccount(
@@ -212,7 +216,10 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
           payload: {
             email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String().max(512).regex(validators.domainRegex(redirectDomain)).optional()
+            redirectTo: isA.String()
+              .max(512)
+              .regex(validators.domainRegex(redirectDomain))
+              .optional()
           },
           response: {
             schema: {
@@ -264,7 +271,10 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
           payload: {
             email: isA.String().max(255).regex(LAZY_EMAIL).required(),
             service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String().max(512).regex(validators.domainRegex(redirectDomain)).optional()
+            redirectTo: isA.String()
+              .max(512)
+              .regex(validators.domainRegex(redirectDomain))
+              .optional()
           },
           response: {
             schema: {
@@ -291,7 +301,8 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
           log.begin('Password.forgotVerify', request)
           var passwordForgotToken = request.auth.credentials
           var code = Buffer(request.payload.code, 'hex')
-          if (butil.buffersAreEqual(passwordForgotToken.passCode, code) && passwordForgotToken.ttl() > 0) {
+          if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
+              passwordForgotToken.ttl() > 0) {
             log.security({ event: 'pwd-reset-verify-success' })
             db.forgotPasswordVerified(passwordForgotToken)
               .done(

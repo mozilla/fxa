@@ -31,6 +31,7 @@ module.exports = function (
     db,
     mailer,
     config.smtp.redirectDomain,
+    config.verifierVersion,
     isProduction
   )
   var password = require('./password')(
@@ -39,7 +40,8 @@ module.exports = function (
     error,
     db,
     config.smtp.redirectDomain,
-    mailer
+    mailer,
+    config.verifierVersion
   )
   var session = require('./session')(log, isA, error, db)
   var sign = require('./sign')(log, isA, error, signer, config.domain)

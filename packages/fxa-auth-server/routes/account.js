@@ -6,7 +6,7 @@ var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
 var LAZY_EMAIL = validators.LAZY_EMAIL
 
-var password = require('../crypto/password')
+var Password = require('../crypto/password')
 var butil = require('../crypto/butil')
 
 module.exports = function (
@@ -19,6 +19,7 @@ module.exports = function (
   db,
   mailer,
   redirectDomain,
+  verifierVersion,
   isProduction
   ) {
 
@@ -38,7 +39,10 @@ module.exports = function (
             authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.Boolean(),
             service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String().max(512).regex(validators.domainRegex(redirectDomain)).optional()
+            redirectTo: isA.String()
+              .max(512)
+              .regex(validators.domainRegex(redirectDomain))
+              .optional()
           }
         },
         handler: function accountCreate(request) {
@@ -54,25 +58,26 @@ module.exports = function (
                 if (exists) {
                   throw error.accountExists(email)
                 }
-              }
-            )
-            .then(password.verifyHash.bind(null, authPW, authSalt))
-            .then(
-              function (verifyHash) {
-                return db.createAccount(
-                  {
-                    uid: uuid.v4('binary'),
-                    email: email,
-                    emailCode: crypto.randomBytes(16),
-                    emailVerified: form.preVerified || false,
-                    kA: crypto.randomBytes(32),
-                    wrapWrapKb: crypto.randomBytes(32),
-                    devices: {},
-                    accountResetToken: null,
-                    passwordForgotToken: null,
-                    authSalt: authSalt,
-                    verifierVersion: 1,
-                    verifyHash: verifyHash
+                var password = new Password(authPW, authSalt, verifierVersion)
+                return password.verifyHash()
+                .then(
+                  function (verifyHash) {
+                    return db.createAccount(
+                      {
+                        uid: uuid.v4('binary'),
+                        email: email,
+                        emailCode: crypto.randomBytes(16),
+                        emailVerified: form.preVerified || false,
+                        kA: crypto.randomBytes(32),
+                        wrapWrapKb: crypto.randomBytes(32),
+                        devices: {},
+                        accountResetToken: null,
+                        passwordForgotToken: null,
+                        authSalt: authSalt,
+                        verifierVersion: password.version,
+                        verifyHash: verifyHash
+                      }
+                    )
                   }
                 )
               }
@@ -131,68 +136,68 @@ module.exports = function (
           db.emailRecord(form.email)
             .then(
               function (emailRecord) {
-                return password.stretch(authPW, emailRecord.authSalt)
-                  .then(
-                    function (stretched) {
-                      return password.verify(stretched, emailRecord.verifyHash)
-                        .then(
-                          function (verifyHash) {
-                            if (!verifyHash) {
-                              throw error.incorrectPassword(emailRecord.email)
-                            }
-                            return db.createSessionToken(
-                              {
-                                uid: emailRecord.uid,
-                                email: emailRecord.email,
-                                emailCode: emailRecord.emailCode,
-                                emailVerified: emailRecord.emailVerified
-                              }
-                            )
-                          }
-                        )
-                        .then(
-                          function (sessionToken) {
-                            log.security({ event: 'login-success', uid: sessionToken.uid })
-                            log.security({ event: 'session-create' })
-                            return sessionToken
-                          },
-                          function (err) {
-                            log.security({ event: 'login-failure', err: err, email: form.email })
-                            throw err
-                          }
-                        )
-                        .then(
-                          function (sessionToken) {
-                            if (request.query.keys !== 'true') {
-                              return P({
-                                sessionToken: sessionToken
-                              })
-                            }
-                            return password.wrapKb(stretched, emailRecord.wrapWrapKb)
-                              .then(
-                                function (wrapKb) {
-                                  return db.createKeyFetchToken(
-                                    {
-                                      uid: emailRecord.uid,
-                                      kA: emailRecord.kA,
-                                      wrapKb: wrapKb,
-                                      emailVerified: emailRecord.emailVerified
-                                    }
-                                  )
-                                }
-                              )
-                              .then(
-                                function (keyFetchToken) {
-                                  return {
-                                    sessionToken: sessionToken,
-                                    keyFetchToken: keyFetchToken
-                                  }
-                                }
-                              )
-                          }
-                        )
+                var password = new Password(
+                  authPW,
+                  emailRecord.authSalt,
+                  emailRecord.verifierVersion
+                )
+                return password.matches(emailRecord.verifyHash)
+                .then(
+                  function (match) {
+                    if (!match) {
+                      throw error.incorrectPassword(emailRecord.email)
                     }
-                  )
+                    return db.createSessionToken(
+                      {
+                        uid: emailRecord.uid,
+                        email: emailRecord.email,
+                        emailCode: emailRecord.emailCode,
+                        emailVerified: emailRecord.emailVerified
+                      }
+                    )
+                  }
+                )
+                .then(
+                  function (sessionToken) {
+                    log.security({ event: 'login-success', uid: sessionToken.uid })
+                    log.security({ event: 'session-create' })
+                    return sessionToken
+                  },
+                  function (err) {
+                    log.security({ event: 'login-failure', err: err, email: form.email })
+                    throw err
+                  }
+                )
+                .then(
+                  function (sessionToken) {
+                    if (request.query.keys !== 'true') {
+                      return P({
+                        sessionToken: sessionToken
+                      })
+                    }
+                    return password.wrapKb(emailRecord.wrapWrapKb)
+                    .then(
+                      function (wrapKb) {
+                        return db.createKeyFetchToken(
+                          {
+                            uid: emailRecord.uid,
+                            kA: emailRecord.kA,
+                            wrapKb: wrapKb,
+                            emailVerified: emailRecord.emailVerified
+                          }
+                        )
+                      }
+                    )
+                    .then(
+                      function (keyFetchToken) {
+                        return {
+                          sessionToken: sessionToken,
+                          keyFetchToken: keyFetchToken
+                        }
+                      }
+                    )
+                  }
+                )
               }
             )
             .done(
@@ -201,7 +206,9 @@ module.exports = function (
                   {
                     uid: tokens.sessionToken.uid.toString('hex'),
                     sessionToken: tokens.sessionToken.data.toString('hex'),
-                    keyFetchToken: tokens.keyFetchToken ? tokens.keyFetchToken.data.toString('hex') : undefined,
+                    keyFetchToken: tokens.keyFetchToken ?
+                      tokens.keyFetchToken.data.toString('hex')
+                      : undefined,
                     verified: tokens.sessionToken.emailVerified
                   }
                 )
@@ -343,7 +350,10 @@ module.exports = function (
         validate: {
           payload: {
             service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String().max(512).regex(validators.domainRegex(redirectDomain)).optional()
+            redirectTo: isA.String()
+              .max(512)
+              .regex(validators.domainRegex(redirectDomain))
+              .optional()
           }
         },
         tags: ["account", "recovery"],
@@ -433,7 +443,8 @@ module.exports = function (
           var accountResetToken = request.auth.credentials
           var authPW = Buffer(request.payload.authPW, 'hex')
           var authSalt = crypto.randomBytes(32)
-          return password.verifyHash(authPW, authSalt)
+          var password = new Password(authPW, authSalt, verifierVersion)
+          return password.verifyHash()
             .then(
               function (verifyHash) {
                 return db.resetAccount(
@@ -473,18 +484,16 @@ module.exports = function (
           db.emailRecord(form.email)
             .then(
               function (emailRecord) {
-                if (!emailRecord) {
-                  throw error.unknownAccount(form.email)
-                }
-                return password.stretch(authPW, emailRecord.authSalt)
+                var password = new Password(
+                  authPW,
+                  emailRecord.authSalt,
+                  emailRecord.verifierVersion
+                )
+
+                return password.matches(emailRecord.verifyHash)
                   .then(
-                    function (stretched) {
-                      return password.verify(stretched, emailRecord.verifyHash)
-                    }
-                  )
-                  .then(
-                    function (verifyHash) {
-                      if (!verifyHash) {
+                    function (match) {
+                      if (!match) {
                         throw error.incorrectPassword(emailRecord.email)
                       }
                       return db.deleteAccount(emailRecord)
