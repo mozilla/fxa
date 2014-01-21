@@ -8,7 +8,6 @@ define([
   'jquery',
   'backbone',
   'underscore',
-  'views/intro',
   'views/sign_in',
   'views/sign_up',
   'views/confirm',
@@ -23,10 +22,10 @@ define([
   'views/reset_password_complete',
   'transit'
 ],
-function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
+function ($, Backbone, _, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
   var Router = Backbone.Router.extend({
     routes: {
-      '': 'showSignUp',
+      '': 'redirectToSignup',
       'signin': 'showSignIn',
       'signup': 'showSignUp',
       'confirm': 'showConfirm',
@@ -47,8 +46,8 @@ function ($, Backbone, _, IntroView, SignInView, SignUpView, ConfirmView, Settin
       this.watchAnchors();
     },
 
-    showIntro: function () {
-      this.showView(new IntroView());
+    redirectToSignup: function () {
+      this.navigate('/signup', { trigger: true });
     },
 
     showSignIn: function () {
