@@ -12,7 +12,7 @@ build:
 
 # Clean all the things installed by `make build`.
 clean:
-	rm -rf ./include ./bin ./lib ./lib64
+	rm -rf ./include ./bin ./lib ./lib64 *.pyc
 
 # Run a single test from the local machine, for sanity-checking.
 test:
