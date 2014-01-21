@@ -335,6 +335,13 @@ section p {
   display: none;
 }
 
+.success {
+  display: none;
+  margin-bottom: 40px;
+  color: green;
+  font-size: 18px;
+}
+
 /* Responsiveness */
 
 /* TODO: Confirm breakpoint sizes */

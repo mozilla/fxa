@@ -6,12 +6,13 @@
 
 
 define([
+  'underscore',
   'mocha',
   'chai',
   'jquery',
   'lib/fxa-client'
 ],
-function (mocha, chai, $, FxaClientWrapper) {
+function (_, mocha, chai, $, FxaClientWrapper) {
   /*global beforeEach, describe, it*/
   var assert = chai.assert;
   var email;
@@ -77,6 +78,61 @@ function (mocha, chai, $, FxaClientWrapper) {
 
     describe('completePasswordReset', function () {
     });
+
+    describe('signOut', function () {
+      it('signs the user out', function (done) {
+        client.signUp(email, password)
+          .then(function () {
+            return client.signOut();
+          })
+          .then(function () {
+            assert.isTrue(true);
+            done();
+          }, function (err) {
+            assert.fail(err);
+            done();
+          });
+      });
+    });
+
+    describe('changePassword', function () {
+      it('changes the user\'s password', function (done) {
+        client.signUp(email, password)
+          .then(function () {
+            return client.changePassword(email, password, 'new_password');
+          })
+          .then(function () {
+            assert.isTrue(true);
+            done();
+          }, function (err) {
+            assert.fail(err);
+            done();
+          });
+      });
+    });
+
+    describe('deleteAccount', function () {
+      it('deletes the user\'s account', function (done) {
+        client.signUp(email, password)
+          .then(function () {
+            return client.deleteAccount(email, password);
+          })
+          .then(function () {
+            return client.signIn(email, password);
+          }, function(err) {
+            assert.fail('unexpected failure: ' + err.message);
+            done();
+          })
+          .then(function () {
+            assert.fail(err, 'client should not be able to sign in after account is deleted');
+            done();
+          }, function (err) {
+            assert.isTrue(true);
+            done();
+          });
+      });
+    });
+
   });
 });
 

@@ -5,14 +5,96 @@
 'use strict';
 
 define([
+  'underscore',
   'views/base',
-  'stache!templates/settings'
+  'stache!templates/settings',
+  'lib/fxa-client',
+  'lib/session'
 ],
-function(BaseView, SettingsTemplate) {
-  var SettingsView = BaseView.extend({
-    template: SettingsTemplate,
-    className: 'settings'
+function (_, BaseView, Template, FxaClient, Session) {
+  var View = BaseView.extend({
+    initialize: function (options) {
+      options = options || {};
+
+      this.router = options.router || router;
+    },
+
+    template: Template,
+    className: 'settings',
+
+    context: function () {
+      return {
+        email: Session.email
+      };
+    },
+
+    events: {
+      'submit form': 'changePassword',
+      'keyup input': 'enableButtonWhenValid',
+      'change input': 'enableButtonWhenValid',
+      'click #signout': 'signOut'
+    },
+
+    isValid: function () {
+      if (! (this.isElementValid('#old_password') &&
+             this.isElementValid('#new_password'))) {
+        return false;
+      }
+
+      // require the passwords to be different
+      return this._getOldPassword() !== this._getNewPassword();
+    },
+
+    changePassword: function (event) {
+      if (event) {
+        event.preventDefault();
+      }
+
+      if (! this.isValid()) {
+        return;
+      }
+
+      var email = Session.email;
+      var oldPassword = this._getOldPassword();
+      var newPassword = this._getNewPassword();
+
+      var client = new FxaClient();
+      var self = this;
+      client.changePassword(email, oldPassword, newPassword)
+            .then(function () {
+              self.$('.success').show();
+
+              self.$('#new_password').val('');
+              self.$('#old_password').val('').focus();
+              self.enableButtonWhenValid();
+            }, function (err) {
+              self.displayError(err.msg || err.message);
+            });
+    },
+
+    _getOldPassword: function () {
+      return this.$('#old_password').val();
+    },
+
+    _getNewPassword: function () {
+      return this.$('#new_password').val();
+    },
+
+    signOut: function (event) {
+      if (event) {
+        event.preventDefault();
+      }
+
+      var client = new FxaClient();
+      var self = this;
+      client.signOut()
+            .then(function () {
+              self.router.navigate('signin', { trigger: true });
+            }, function (err) {
+              self.displayError(err.msg || err.message);
+            });
+    }
   });
 
-  return SettingsView;
+  return View;
 });

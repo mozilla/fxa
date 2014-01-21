@@ -1,0 +1,28 @@
+<header>
+  <h1>{{#t}}Firefox Accounts{{/t}}</h1>
+
+  <h2 id="fxa-delete-account-header">{{#t}}Delete account{{/t}}</h2>
+  <h3>{{#t}}Are you sure you want to delete your account? This action cannot be undone.{{/t}}</h2>
+</header>
+
+<section>
+  <div class="error"></div>
+
+  <form>
+    <div class="input-row">
+      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus>
+    </div>
+
+    <div class="input-row">
+      <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}">
+    </div>
+
+    <div class="button-row">
+      <button type="submit" disabled>{{#t}}Delete Account{{/t}}</button>
+    </div>
+  </form>
+
+  <div class="links">
+    <a href="#" id="back">{{#t}}Back{{/t}}</a>
+  </div>
+</section>

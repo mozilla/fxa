@@ -38,10 +38,11 @@ function (FxaClient, $, p, Session) {
     },
 
     signIn: function (email, password) {
-      return this._getClientAsync().then(function (client) {
+      return this._getClientAsync()
+              .then(function (client) {
                 return client.signIn(email, password, { keys: true });
               })
-             .then(function(accountData) {
+             .then(function (accountData) {
                 Session.email = email;
                 Session.sessionToken = accountData.sessionToken;
                 Session.keyFetchToken = accountData.keyFetchToken;
@@ -55,35 +56,71 @@ function (FxaClient, $, p, Session) {
 
     signUp: function (email, password) {
       var self = this;
-      return this._getClientAsync().then(function (client) {
-        return client.signUp(email, password, { keys: true })
-               .then(function () {
-                  return self.signIn(email, password);
-                });
+      return this._getClientAsync()
+              .then(function (client) {
+                return client.signUp(email, password, { keys: true });
+              })
+              .then(function () {
+                return self.signIn(email, password);
+              });
+    },
 
-      });
+    signOut: function () {
+      return this._getClientAsync()
+              .then(function (client) {
+                return client.sessionDestroy(Session.sessionToken);
+              })
+              .then(function () {
+                Session.email = null;
+                Session.uid = null;
+                Session.unwrapBKey = null;
+                Session.keyFetchToken = null;
+                Session.sessionToken = null;
+              });
     },
 
     verifyCode: function (uid, code) {
-      return this._getClientAsync().then(function (client) {
+      return this._getClientAsync()
+              .then(function (client) {
                 return client.verifyCode(uid, code);
               });
     },
 
     requestPasswordReset: function (email) {
-      return this._getClientAsync().then(function (client) {
+      return this._getClientAsync()
+              .then(function (client) {
                 return client.passwordForgotSendCode(email);
               });
     },
 
     completePasswordReset: function (email, newPassword, token, code) {
-      return this._getClientAsync().then(function (client) {
-                return client.passwordForgotVerifyCode(code, token)
-                      .then(function (result) {
-                          return client.accountReset(email,
-                                     newPassword,
-                                     result.accountResetToken);
-                        });
+      return this._getClientAsync()
+              .then(function (client) {
+                return client.passwordForgotVerifyCode(code, token);
+              })
+              .then(function (result) {
+                return client.accountReset(email,
+                           newPassword,
+                           result.accountResetToken);
+              });
+    },
+
+    changePassword: function (email, oldPassword, newPassword) {
+      return this._getClientAsync()
+              .then(function (client) {
+                return client.passwordChange(email, oldPassword, newPassword);
+              })
+              .then(function (result) {
+                Session.keyFetchToken = result.keyFetchToken;
+
+                return result;
+              });
+    },
+
+    deleteAccount: function (email, password) {
+      return this._getClientAsync()
+              .then(function (client) {
+                return client.accountDestroy(email, password);
               });
     },
 
@@ -92,6 +129,7 @@ function (FxaClient, $, p, Session) {
                 return client.recoveryEmailResendCode(sessionToken);
               });
     }
+
   };
 
   return FxaClientWrapper;
