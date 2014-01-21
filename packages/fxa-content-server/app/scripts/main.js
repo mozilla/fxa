@@ -45,9 +45,19 @@ require([
   'router',
   'lib/translator',
   'lib/session',
+  'lib/url',
+  'lib/channels/web',
   'lib/channels/fx-desktop'
 ],
-function (Backbone, Router, Translator, Session, FxDesktopChannel) {
+function (
+  Backbone,
+  Router,
+  Translator,
+  Session,
+  Url,
+  WebChannel,
+  FxDesktopChannel
+) {
   window.router = new Router();
 
   // IE8 does not support window.navigator.language. Set a default of English.
@@ -58,15 +68,26 @@ function (Backbone, Router, Translator, Session, FxDesktopChannel) {
     // Get the party started
     Backbone.history.start({ pushState: true });
 
-    // Firefox for desktop native=>FxA glue code.
-    // this must be initialized after Backbone.history so that the
+    // The channel must be initialized after Backbone.history so that the
     // Backbone does not override the page the channel sets.
-    var desktopChannel = new FxDesktopChannel();
-    desktopChannel.init();
-
-    Session.channel = desktopChannel;
-
+    Session.channel = getChannel();
   });
+
+  function getChannel() {
+    var context = Url.searchParam('context');
+    var channel;
+
+    if (context === 'fx_desktop_v1') {
+      // Firefox for desktop native=>FxA glue code.
+      channel = new FxDesktopChannel();
+    } else {
+      // default to the web channel that doesn't do anything yet.
+      channel = new WebChannel();
+    }
+
+    channel.init();
+    return channel;
+  }
 });
 
 
