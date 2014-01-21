@@ -11,9 +11,9 @@ var scrypt = require('scrypt-hash')
  * @param {Buffer} salt The salt for the hash
  * @returns {Object} d.promise Deferred promise
  */
-function hash(input, salt) {
+function hash(input, salt, N, r, p, len) {
   var d = P.defer()
-  scrypt(input, salt, 65536, 8, 1, 32,
+  scrypt(input, salt, N, r, p, len,
     function (err, hash) {
       return err ? d.reject(err) : d.resolve(hash.toString('hex'))
     }

@@ -11,7 +11,7 @@ test(
     var K1 = Buffer('f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd', 'hex')
     var salt = Buffer('identity.mozilla.com/picl/v1/scrypt')
 
-    return scrypt.hash(K1, salt)
+    return scrypt.hash(K1, salt, 65536, 8, 1, 32)
       .then(
         function (K2) {
           t.equal(K2, '5b82f146a64126923e4167a0350bb181feba61f63cb1714012b19cb0be0119c5')

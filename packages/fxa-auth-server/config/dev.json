@@ -10,5 +10,6 @@
   },
   "log": {
     "level": "trace"
-  }
+  },
+  "verifierVersion": 0
 }

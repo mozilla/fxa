@@ -268,6 +268,10 @@ module.exports = function (fs, path, url, convict) {
       passwordChangeToken: {
         default: 1000 * 60 * 15
       }
+    },
+    verifierVersion: {
+      doc: 'verifer version for new and changed passwords',
+      default: 1
     }
   })
 
