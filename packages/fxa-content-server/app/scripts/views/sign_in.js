@@ -5,20 +5,23 @@
 'use strict';
 
 define([
+  'underscore',
   'views/base',
   'stache!templates/sign_in',
   'lib/session',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'lib/password-mixin'
 ],
-function (BaseView, SignInTemplate, Session, FxaClient) {
-  var SignInView = BaseView.extend({
+function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
+  var View = BaseView.extend({
     template: SignInTemplate,
     className: 'sign-in',
 
     events: {
       'submit form': 'signIn',
       'keyup input': 'enableButtonWhenValid',
-      'change input': 'enableButtonWhenValid'
+      'change input': 'enableButtonWhenValid',
+      'change .show-password': 'onPasswordVisibilityChange'
     },
 
     signIn: function (event) {
@@ -69,6 +72,8 @@ function (BaseView, SignInTemplate, Session, FxaClient) {
     }
   });
 
-  return SignInView;
+  _.extend(View.prototype, PasswordMixin);
+
+  return View;
 });
 

@@ -14,12 +14,13 @@ define([
   '../../mocks/router'
 ],
 function (mocha, chai, _, $, View, RouterMock) {
+  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/sign_up', function () {
     var view, router, email;
 
-    beforeEach(function() {
+    beforeEach(function () {
       email = 'testuser.' + Math.random() + '@testuser.com';
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
       sessionStorage.removeItem('tooYoung');
@@ -29,19 +30,19 @@ function (mocha, chai, _, $, View, RouterMock) {
       });
       view.render();
 
-      $('body').append(view.el);
+      $('#container').append(view.el);
     });
 
-    afterEach(function() {
-      $(view.el).remove();
+    afterEach(function () {
+      view.remove();
       view.destroy();
       view = null;
       router = null;
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
     });
 
-    describe('isValid', function() {
-      it('returns true if email, password, and age are all valid', function() {
+    describe('isValid', function () {
+      it('returns true if email, password, and age are all valid', function () {
         $('.email').val(email);
         $('.password').val('password');
         $('#fxa-age-year').val('1960');
@@ -49,29 +50,29 @@ function (mocha, chai, _, $, View, RouterMock) {
         assert.isTrue(view.isValid());
       });
 
-      it('returns false if email is empty', function() {
+      it('returns false if email is empty', function () {
         $('.password').val('password');
         $('#fxa-age-year').val('1960');
 
         assert.isFalse(view.isValid());
       });
 
-      it('returns false if email is not an email address', function() {
-        $('.email').val('testuser')
+      it('returns false if email is not an email address', function () {
+        $('.email').val('testuser');
         $('.password').val('password');
         $('#fxa-age-year').val('1960');
 
         assert.isFalse(view.isValid());
       });
 
-      it('returns false if password is empty', function() {
+      it('returns false if password is empty', function () {
         $('.email').val(email);
         $('#fxa-age-year').val('1960');
 
         assert.isFalse(view.isValid());
       });
 
-      it('returns false if password is invalid', function() {
+      it('returns false if password is invalid', function () {
         $('.email').val(email);
         $('.password').val('passwor');
         $('#fxa-age-year').val('1960');
@@ -79,7 +80,7 @@ function (mocha, chai, _, $, View, RouterMock) {
         assert.isFalse(view.isValid());
       });
 
-      it('returns false if age is invalid', function() {
+      it('returns false if age is invalid', function () {
         $('.email').val(email);
         $('.password').val('password');
 
@@ -87,36 +88,36 @@ function (mocha, chai, _, $, View, RouterMock) {
       });
     });
 
-    describe('signUp', function() {
-      it('sends the user to confirm screen if form filled out, >= 14 years ago', function(done) {
+    describe('signUp', function () {
+      it('sends the user to confirm screen if form filled out, >= 14 years ago', function (done) {
         $('.email').val(email);
         $('.password').val('password');
 
         var nowYear = (new Date()).getFullYear();
         $('#fxa-age-year').val(nowYear - 14);
 
-        router.on('navigate', function() {
+        router.on('navigate', function () {
           assert.equal(router.page, 'confirm');
           done();
         });
         view.signUp();
       });
 
-      it('sends the user to cannot_create_account screen if user selects <= 13 years ago', function(done) {
+      it('sends the user to cannot_create_account screen if user selects <= 13 years ago', function (done) {
         $('.email').val(email);
         $('.password').val('password');
 
         var nowYear = (new Date()).getFullYear();
         $('#fxa-age-year').val(nowYear - 13);
 
-        router.on('navigate', function() {
+        router.on('navigate', function () {
           assert.equal(router.page, 'cannot_create_account');
           done();
         });
         view.signUp();
       });
 
-      it('a user who retries to enter the signUp screen after already going to cannot_create_account is automatically sent to cannot_create_account', function(done) {
+      it('a user who retries to enter the signUp screen after already going to cannot_create_account is automatically sent to cannot_create_account', function (done) {
         $('.email').val(email);
         $('.password').val('password');
 
@@ -129,7 +130,7 @@ function (mocha, chai, _, $, View, RouterMock) {
         // simulate user re-visiting the /signup page after being rejected
         var revisitRouter = new RouterMock();
 
-        revisitRouter.on('navigate', function() {
+        revisitRouter.on('navigate', function () {
           assert.equal(revisitRouter.page, 'cannot_create_account');
           done();
         });
@@ -138,6 +139,21 @@ function (mocha, chai, _, $, View, RouterMock) {
           router: revisitRouter
         });
         revisitView.render();
+      });
+    });
+
+    describe('updatePasswordVisibility', function () {
+      it('pw field set to text when clicked', function () {
+        $('.show-password').click();
+        assert.equal($('.password').attr('type'), 'text');
+        assert.equal($('.show-password-label-text').text(), 'Hide');
+      });
+
+      it('pw field set to password when clicked again', function () {
+        $('.show-password').click();
+        $('.show-password').click();
+        assert.equal($('.password').attr('type'), 'password');
+        assert.equal($('.show-password-label-text').text(), 'Show');
       });
     });
   });

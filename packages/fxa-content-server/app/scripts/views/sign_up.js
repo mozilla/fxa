@@ -9,9 +9,10 @@ define([
   'views/base',
   'stache!templates/sign_up',
   'lib/session',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'lib/password-mixin'
 ],
-function (_, BaseView, SignUpTemplate, Session, FxaClient) {
+function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
   var now = new Date();
 
   // If COPPA says 13, why 14 here? To make UX simpler, we only ask
@@ -24,7 +25,10 @@ function (_, BaseView, SignUpTemplate, Session, FxaClient) {
   // To avoid letting the 12 year old in, add an extra year.
   var TOO_YOUNG_YEAR = now.getFullYear() - 14;
 
-  var SignUpView = BaseView.extend({
+  var View = BaseView.extend({
+    template: Template,
+    className: 'sign-up',
+
     initialize: function (options) {
       options = options || {};
       this.router = options.router || window.router;
@@ -39,13 +43,11 @@ function (_, BaseView, SignUpTemplate, Session, FxaClient) {
       return true;
     },
 
-    template: SignUpTemplate,
-    className: 'sign-up',
-
     events: {
       'submit form': 'onSubmit',
       'keyup form': 'enableButtonWhenValid',
-      'change form': 'enableButtonWhenValid'
+      'change form': 'enableButtonWhenValid',
+      'change .show-password': 'onPasswordVisibilityChange'
     },
 
     onSubmit: function (event) {
@@ -131,5 +133,7 @@ function (_, BaseView, SignUpTemplate, Session, FxaClient) {
 
   });
 
-  return SignUpView;
+  _.extend(View.prototype, PasswordMixin);
+
+  return View;
 });
