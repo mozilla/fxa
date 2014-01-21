@@ -55,11 +55,9 @@ module.exports = function (config, log, now) {
 
   RedisNonceDB.prototype.checkAndSetNonce = function(nonce, ttl) {
     log.trace({ op: 'RedisNonceDB.checkAndSetNonce', nonce: nonce })
-    // The redis promises don't seem compatible with our own..?
-    var d = P.defer()
     // Use a set-if-not-exists to check and set the key in a single call.
     var key = "NONCEDB:" + nonce
-    this.client.set(key, '', 'EX', ttl, 'NX')
+    return this.client.set(key, '', 'EX', ttl, 'NX')
       .then(
         function(res) {
           log.trace({
@@ -67,14 +65,11 @@ module.exports = function (config, log, now) {
             nonce: nonce,
             res: res
           })
-          if (res === 'OK') {
-            d.resolve()
-          } else {
-            d.reject('duplicate nonce')
+          if (res !== 'OK') {
+            throw new Error('duplicate nonce')
           }
         }
       )
-    return d.promise
   }
 
 
