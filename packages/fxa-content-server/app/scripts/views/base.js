@@ -14,13 +14,16 @@ function(_, Backbone, jQuery) {
 
   var BaseView = Backbone.View.extend({
     constructor: function(options) {
+      options = options || {};
+
       this.subviews = [];
+      this.translator = options.translator || window.translator;
 
       Backbone.View.call(this, options);
     },
 
     render: function() {
-      if ( ! this.beforeRender()) {
+      if (! this.beforeRender()) {
         return false;
       }
 
@@ -123,8 +126,8 @@ function(_, Backbone, jQuery) {
     },
 
     displayError: function(msg) {
-      // TODO - run the error message through the translator
-      this.$('.error').html(msg);
+      this.$('.spinner').hide();
+      this.$('.error').text(this.translator.get(msg));
     },
 
     back: function (event) {
