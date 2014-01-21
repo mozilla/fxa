@@ -10,7 +10,8 @@ var split = require('binary-split')
 var through = require('through')
 var mailbox = require('./mailbox')
 
-function TestServer(config) {
+function TestServer(config, printLogs) {
+  this.printLogs = printLogs === false ? false : true
   this.server = null
   this.mail = null
   this.mailbox = mailbox(config.smtp.api.host, config.smtp.api.port)
@@ -39,9 +40,9 @@ function waitLoop(testServer, url, cb) {
   )
 }
 
-TestServer.start = function (config) {
+TestServer.start = function (config, printLogs) {
   var d = P.defer()
-  var testServer = new TestServer(config)
+  var testServer = new TestServer(config, printLogs)
   waitLoop(testServer, config.publicUrl, function (err) {
     return err ? d.reject(err) : d.resolve(testServer)
   })
@@ -76,8 +77,10 @@ TestServer.prototype.start = function () {
         this.logs[name] = ++count
       }.bind(this)
     )
-  this.server.stdout.on('data', process.stdout.write.bind(process.stdout))
-  this.server.stderr.on('data', process.stderr.write.bind(process.stderr))
+  if (this.printLogs) {
+    this.server.stdout.on('data', process.stdout.write.bind(process.stdout))
+    this.server.stderr.on('data', process.stderr.write.bind(process.stderr))
+  }
 
   // if another instance is already running this will just die which is ok
   this.mail = cp.spawn(
@@ -87,8 +90,10 @@ TestServer.prototype.start = function () {
       cwd: __dirname
     }
   )
-  this.mail.stdout.on('data', process.stdout.write.bind(process.stdout))
-  this.mail.stderr.on('data', process.stderr.write.bind(process.stderr))
+  if (this.printLogs) {
+    this.mail.stdout.on('data', process.stdout.write.bind(process.stdout))
+    this.mail.stderr.on('data', process.stderr.write.bind(process.stderr))
+  }
 }
 
 TestServer.prototype.assertLogs = function (t, spec) {
