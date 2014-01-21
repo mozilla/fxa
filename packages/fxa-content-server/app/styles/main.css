@@ -258,6 +258,10 @@ section p {
   visibility: hidden;
 }
 
+.links + .privacy-links {
+  margin: 20px 0 15px 0;
+}
+
 .cannot-create-account-content {
   margin-top: 105px;
 }
