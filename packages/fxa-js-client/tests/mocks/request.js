@@ -95,6 +95,10 @@ define([], function () {
     getRandomBytes: {
       status: 200,
       body: '{ "data": "ac55c0520f2edfb026761443da0ab27b1fa18c98912af6291714e9600aa34991" }'
+    },
+    invalidTimestamp: {
+      status: 401,
+      body: '{ "errno": 111, "error": "Invalid authentication timestamp" }'
     }
   };
 });
