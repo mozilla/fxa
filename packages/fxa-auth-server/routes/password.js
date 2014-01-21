@@ -34,9 +34,6 @@ module.exports = function (log, isA, error, db, redirectDomain, mailer) {
           db.emailRecord(form.email)
             .then(
               function (emailRecord) {
-                if (!emailRecord) {
-                  throw error.unknownAccount(form.email)
-                }
                 return password.stretch(oldAuthPW, emailRecord.authSalt)
                   .then(
                     function (oldStretched) {

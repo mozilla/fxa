@@ -88,6 +88,25 @@ Client.changePassword = function (origin, email, oldPassword, newPassword) {
     )
 }
 
+Client.createAndVerify = function (origin, email, password, mailbox, options) {
+  return Client.create(origin, email, password, options)
+    .then(
+      function (client) {
+        return mailbox.waitForCode(email)
+          .then(
+            function (code) {
+              return client.verifyEmail(code)
+            }
+          )
+          .then(
+            function () {
+              return client
+            }
+          )
+      }
+    )
+}
+
 Client.prototype.create = function () {
   return this.api.accountCreate(
     this.email,

@@ -57,7 +57,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
     }
 
     this.emit('endRequest', options, err, res)
-    if (err || body.error) {
+    if (err || body.error || res.statusCode !== 200) {
       d.reject(err || body)
     }
     else {
