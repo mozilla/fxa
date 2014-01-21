@@ -53,7 +53,7 @@ module.exports = function (
                     if (!match) {
                       throw error.incorrectPassword(emailRecord.email)
                     }
-                    return password.wrapKb(emailRecord.wrapWrapKb)
+                    return password.unwrap(emailRecord.wrapWrapKb)
                   }
                 )
                 .then(
@@ -131,7 +131,7 @@ module.exports = function (
                 return password.verifyHash()
                   .then(
                     function (verifyHash) {
-                      return password.wrapKb(wrapKb)
+                      return password.wrap(wrapKb)
                         .then(
                           function (wrapWrapKb) {
                             return db.resetAccount(

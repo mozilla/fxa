@@ -175,7 +175,7 @@ module.exports = function (
                         sessionToken: sessionToken
                       })
                     }
-                    return password.wrapKb(emailRecord.wrapWrapKb)
+                    return password.unwrap(emailRecord.wrapWrapKb)
                     .then(
                       function (wrapKb) {
                         return db.createKeyFetchToken(

@@ -41,18 +41,20 @@ Password.prototype.matches = function (verifyHash) {
   )
 }
 
-Password.prototype.wrapKb = function (wrapWrapKb) {
+Password.prototype.unwrap = function (wrapped, context) {
+  context = context || 'wrapwrapKey'
   return this.stretchedPassword().then(
     function (stretched) {
-      return hkdf(stretched, 'wrapwrapKey', null, 32)
+      return hkdf(stretched, context, null, 32)
         .then(
-          function (wrapwrapKey) {
-            return butil.xorBuffers(wrapwrapKey, wrapWrapKb)
+          function (wrapper) {
+            return butil.xorBuffers(wrapper, wrapped)
           }
         )
     }
   )
 }
+Password.prototype.wrap = Password.prototype.unwrap
 
 function hkdfVerify(stretched) {
   return hkdf(stretched, 'verifyHash', null, 32)
