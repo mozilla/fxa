@@ -1,3 +1,5 @@
+SERVER_URL = http://api-accounts.loadtest.lcip.org
+
 .PHONY: build test bench
 
 # Build virtualenv, to ensure we have all the dependencies.
@@ -16,11 +18,11 @@ clean:
 
 # Run a single test from the local machine, for sanity-checking.
 test:
-	./bin/loads-runner --hits=1 --users=1 loadtests.LoadTest.test_auth_server
+	./bin/loads-runner --hits=1 --users=1 loadtests.LoadTest.test_auth_server --server-url=$(SERVER_URL)
 
 # Run a full bench, by submitting to broker in AWS.
 bench:
-	./loadsrunner.sh --users=20 --duration=1800 --agents=5 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_auth_server
+	./loadsrunner.sh --users=20 --duration=1800 --agents=5 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_auth_server --server-url=$(SERVER_URL)
 
 # Purge any currently-running loadtest runs.
 purge:
