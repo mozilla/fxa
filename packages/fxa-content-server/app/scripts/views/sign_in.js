@@ -46,11 +46,9 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
               });
               router.navigate('settings', { trigger: true });
             })
-            .done(null, function (err) {
-              this.$('.error').html(err.message);
-
-              console.error('Error?', err);
-            }.bind(this));
+            .done(null, _.bind(function (err) {
+              this.displayError(err.message);
+            }, this));
     },
 
     isValid: function () {
