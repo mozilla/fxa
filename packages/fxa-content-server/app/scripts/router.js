@@ -22,7 +22,22 @@ define([
   'views/reset_password_complete',
   'transit'
 ],
-function ($, Backbone, _, SignInView, SignUpView, ConfirmView, SettingsView, TosView, PpView, CannotCreateAccountView, CompleteSignUpView, ResetPasswordView, ConfirmResetPasswordView, CompleteResetPasswordView, ResetPasswordCompleteView) {
+function (
+  $,
+  Backbone,
+  _,
+  SignInView,
+  SignUpView,
+  ConfirmView,
+  SettingsView,
+  TosView,
+  PpView,
+  CannotCreateAccountView,
+  CompleteSignUpView,
+  ResetPasswordView,
+  ConfirmResetPasswordView,
+  CompleteResetPasswordView,
+  ResetPasswordCompleteView) {
   var Router = Backbone.Router.extend({
     routes: {
       '': 'redirectToSignup',

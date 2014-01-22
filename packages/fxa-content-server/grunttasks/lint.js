@@ -2,20 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// meta grunt task to run other linters.
+
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.config('jscs', {
-    src: [
-      '**/*.js',
-      '!dist/**',
-      '!node_modules/**',
-      '!fxa-auth-server/**',
-      '!**/bower_components/**',
-      '!**/vendor/**'
-    ],
-    options: {
-      config: '.jscs.json'
-    }
-  });
+  grunt.registerTask('lint', [
+    'jshint',
+    'jscs'
+  ]);
 };

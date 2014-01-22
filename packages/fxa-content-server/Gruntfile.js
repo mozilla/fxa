@@ -78,6 +78,7 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('build', [
+    'lint',
     'clean:dist',
     'useminPrepare',
     'selectconfig:dist',
@@ -94,7 +95,7 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('default', [
-    'jshint',
+    'lint',
     'test',
     'build',
     'copyright'
