@@ -117,7 +117,7 @@ function (mocha, chai, _, $, View, RouterMock) {
         view.signUp();
       });
 
-      it('a user who retries to enter the signUp screen after already going to cannot_create_account is automatically sent to cannot_create_account', function (done) {
+      it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function (done) {
         $('.email').val(email);
         $('.password').val('password');
 
