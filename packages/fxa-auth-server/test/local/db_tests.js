@@ -110,6 +110,16 @@ DB.connect(config[config.db.backend])
           .then(function(sessionToken) {
             return db.deleteSessionToken(sessionToken)
           })
+          .then(function() {
+            return db.sessionToken(tokenId)
+          })
+          .then(function(sessionToken) {
+            t.fail('The above sessionToken() call should fail, since the sessionToken has been deleted')
+          }, function(err) {
+            t.equal(err.errno, 110, 'sessionToken() fails with the correct error code')
+            var msg = 'Error: Invalid authentication token in request signature'
+            t.equal(msg, '' + err, 'sessionToken() fails with the correct message')
+          })
         }
       )
 
@@ -137,6 +147,16 @@ DB.connect(config[config.db.backend])
           .then(function(keyFetchToken) {
             return db.deleteKeyFetchToken(keyFetchToken)
           })
+          .then(function() {
+            return db.keyFetchToken(tokenId)
+          })
+          .then(function(keyFetchToken) {
+            t.fail('The above keyFetchToken() call should fail, since the keyFetchToken has been deleted')
+          }, function(err) {
+            t.equal(err.errno, 110, 'keyFetchToken() fails with the correct error code')
+            var msg = 'Error: Invalid authentication token in request signature'
+            t.equal(msg, '' + err, 'keyFetchToken() fails with the correct message')
+          })
         }
       )
 
@@ -162,6 +182,16 @@ DB.connect(config[config.db.backend])
           })
           .then(function(accountResetToken) {
             return db.deleteAccountResetToken(accountResetToken)
+          })
+          .then(function() {
+            return db.accountResetToken(tokenId)
+          })
+          .then(function(accountResetToken) {
+            t.fail('The above accountResetToken() call should fail, since the accountResetToken has been deleted')
+          }, function(err) {
+            t.equal(err.errno, 110, 'accountResetToken() fails with the correct error code')
+            var msg = 'Error: Invalid authentication token in request signature'
+            t.equal(msg, '' + err, 'accountResetToken() fails with the correct message')
           })
         }
       )
@@ -202,6 +232,16 @@ DB.connect(config[config.db.backend])
           })
           .then(function(passwordForgotToken) {
             return db.deletePasswordForgotToken(passwordForgotToken)
+          })
+          .then(function() {
+            return db.passwordForgotToken(token1.tokenId)
+          })
+          .then(function(passwordForgotToken) {
+            t.fail('The above passwordForgotToken() call should fail, since the passwordForgotToken has been deleted')
+          }, function(err) {
+            t.equal(err.errno, 110, 'passwordForgotToken() fails with the correct error code')
+            var msg = 'Error: Invalid authentication token in request signature'
+            t.equal(msg, '' + err, 'passwordForgotToken() fails with the correct message')
           })
         }
       )
@@ -299,6 +339,13 @@ DB.connect(config[config.db.backend])
           .then(function(devices) {
             t.equal(devices.length, 0, 'The devices length should be zero')
           })
+          .then(function() {
+            // account should STILL exist for this email address
+            return db.accountExists(ACCOUNT.email)
+          })
+          .then(function(exists) {
+            t.equal(exists, true, 'account should still exist')
+          })
         }
       )
 
@@ -311,7 +358,8 @@ DB.connect(config[config.db.backend])
             return db.deleteAccount(emailRecord)
           })
           .then(function() {
-            return db.accountExists(ACCOUNT.email, 'account should exist for this email address')
+            // account should no longer exist for this email address
+            return db.accountExists(ACCOUNT.email)
           })
           .then(function(exists) {
             t.equal(exists, false, 'account should no longer exist')
