@@ -10,6 +10,7 @@ module.exports = function (grunt) {
       '**/*.js',
       '!dist/**',
       '!node_modules/**',
+      '!fxa-auth-server/**',
       '!**/bower_components/**',
       '!**/vendor/**'
     ],
