@@ -37,7 +37,7 @@ function (FxaClient, $, p, Session) {
       return defer.promise;
     },
 
-    signIn: function (email, password) {
+    signIn: function (email, password, customizeSync) {
       return this._getClientAsync()
               .then(function (client) {
                 return client.signIn(email, password, { keys: true });
@@ -51,7 +51,8 @@ function (FxaClient, $, p, Session) {
                   uid: accountData.uid,
                   unwrapBKey: accountData.unwrapBKey,
                   keyFetchToken: accountData.keyFetchToken,
-                  sessionToken: accountData.sessionToken
+                  sessionToken: accountData.sessionToken,
+                  customizeSync: customizeSync
                 };
 
                 Session.set(updatedSessionData);

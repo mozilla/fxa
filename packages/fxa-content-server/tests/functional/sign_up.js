@@ -48,6 +48,7 @@ define([
           .click()
         .end()
 
+        // Being pushed to the confirmation screen is success.
         .waitForElementById('fxa-confirm-header')
         .elementById('confirm-email')
           .text()
@@ -97,6 +98,49 @@ define([
         // ensure that this does not interfere with other tests.
         /*jshint evil:true*/
         .eval('document.cookie = "tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT";')
+        .end();
+    },
+
+    'choose option to customize sync': function () {
+      var urlForSync = url + '?service=sync';
+
+      var email = 'signup' + Math.random() + '@example.com';
+      var password = '12345678';
+
+      return this.get('remote')
+        .get(require.toUrl(urlForSync))
+        .waitForElementById('fxa-signup-header')
+
+        .elementByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('form input.password')
+          .click()
+          .type(password)
+        .end()
+
+        .elementByCssSelector('#fxa-age-year')
+          .click()
+        .end()
+
+        .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
+          .buttonDown()
+          .buttonUp()
+          .click()
+        .end()
+
+        .elementByCssSelector('form input.customize-sync')
+          .click()
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        // Being pushed to the confirmation screen is success.
+        .waitForElementById('fxa-confirm-header')
         .end();
     }
   });

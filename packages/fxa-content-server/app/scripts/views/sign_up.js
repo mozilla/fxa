@@ -10,9 +10,10 @@ define([
   'stache!templates/sign_up',
   'lib/session',
   'lib/fxa-client',
-  'lib/password-mixin'
+  'lib/password-mixin',
+  'lib/url'
 ],
-function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
+function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
   var now = new Date();
 
   // If COPPA says 13, why 14 here? To make UX simpler, we only ask
@@ -32,6 +33,8 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
     initialize: function (options) {
       options = options || {};
       this.router = options.router || window.router;
+
+      this.service = Url.searchParam('service');
     },
 
     beforeRender: function () {
@@ -48,6 +51,13 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
       'keyup form': 'enableButtonWhenValid',
       'change form': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
+    },
+
+    context: function () {
+      return {
+        service: this.service,
+        isSync: this.service === 'sync'
+      };
     },
 
     onSubmit: function (event) {
@@ -110,9 +120,10 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
     _createAccount: function () {
       var email = this.$('.email').val();
       var password = this.$('.password').val();
+      var customizeSync = this.$('.customize-sync').is(':checked');
 
       var client = new FxaClient();
-      client.signUp(email, password)
+      client.signUp(email, password, customizeSync)
         .done(_.bind(function () {
           this.router.navigate('confirm', { trigger: true });
         }, this),

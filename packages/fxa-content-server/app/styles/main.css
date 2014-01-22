@@ -105,7 +105,7 @@ section p {
   width: 100%;
 }
 
-.input-row input, .input-row select {
+.input-row input[type='text'], .input-row input[type='email'], .input-row input[type='password'], .input-row select {
   border: 1px solid #C0C9D0;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -277,6 +277,11 @@ section p {
 
 .password-row > .password + label > input[type=checkbox] {
   visibility: hidden;
+}
+
+.customize-sync-row {
+  color: #C0C9D0;
+  margin-bottom: 20px !important;
 }
 
 .links + .privacy-links {
