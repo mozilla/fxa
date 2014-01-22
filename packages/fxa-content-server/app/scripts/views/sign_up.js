@@ -124,10 +124,7 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
           this.router.navigate('confirm', { trigger: true });
         }, this),
         _.bind(function (err) {
-          this.$('.spinner').hide();
-          this.$('.error').html(err.message);
-
-          console.error('Error?', err);
+          this.displayError(err.message);
         }, this));
     }
 

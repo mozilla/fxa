@@ -14,6 +14,10 @@ function($) {
   };
 
   Translator.prototype = {
+    set: function(translations) {
+      this.translations = translations;
+    },
+
     // Fetches our JSON translation file
     fetch: function(done) {
       $.ajax({ dataType: 'json', url: '/i18n/' + this.language.replace(/-/, '_') + '/messages.json' })
