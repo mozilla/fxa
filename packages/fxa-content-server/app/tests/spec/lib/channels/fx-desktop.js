@@ -13,11 +13,12 @@ define([
   'lib/session',
   'lib/channels/fx-desktop'
 ],
-function(mocha, chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
+function (mocha, chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
+  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var channel;
 
-  describe('lib/channel/fx-desktop', function() {
+  describe('lib/channel/fx-desktop', function () {
     var windowMock;
     var routerMock;
 
@@ -29,11 +30,11 @@ function(mocha, chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
             status: status,
             data: data
           }
-        },
+        }
       });
     }
 
-    beforeEach(function() {
+    beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
 
@@ -45,13 +46,15 @@ function(mocha, chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
       });
     });
 
-    afterEach(function() {
-      if (channel) channel.teardown();
+    afterEach(function () {
+      if (channel) {
+        channel.teardown();
+      }
     });
 
-    describe('init', function() {
-      it('sends the user to the settings page if signed in', function(done) {
-        channel.on('session_status', function() {
+    describe('init', function () {
+      it('sends the user to the settings page if signed in', function (done) {
+        channel.on('session_status', function () {
           assert.equal(routerMock.page, 'settings');
           done();
         });
@@ -61,8 +64,8 @@ function(mocha, chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
         });
       });
 
-      it('sends the user to the signup page if not signed in', function(done) {
-        channel.on('session_status', function() {
+      it('sends the user to the signup page if not signed in', function (done) {
+        channel.on('session_status', function () {
           assert.equal(routerMock.page, 'signup');
           done();
         });
@@ -72,46 +75,46 @@ function(mocha, chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
       });
     });
 
-    describe('send', function() {
-      it('sends a message to the browser', function() {
+    describe('send', function () {
+      it('sends a message to the browser', function () {
         channel.send('test-command', { key: 'value' });
         assert.isTrue(windowMock.dispatchedEvents['test-command']);
       });
 
       it('retries sending until a response is received from the browser',
-        function(done) {
-        channel.send('wait-for-response', { key: 'value' }, function(err) {
+        function (done) {
+        channel.send('wait-for-response', { key: 'value' }, function (err) {
           assert.isNull(err);
           done();
         });
 
-        setTimeout(function() {
+        setTimeout(function () {
           // This is a bit of a hackity hack because we are not using
           // the real event system.
           dispatchEvent('wait-for-response');
         }, 50);
       });
 
-      it('times out if browser does not respond', function(done) {
-        channel.send('wait-for-response', { key: 'value' }, function(err) {
+      it('times out if browser does not respond', function (done) {
+        channel.send('wait-for-response', { key: 'value' }, function (err) {
           assert.equal(String(err), 'Error: too many retries');
 
           done();
         });
       });
 
-      it('does not except on timeout if callback is not given', function(done) {
+      it('does not except on timeout if callback is not given', function (done) {
         // if there is an exception, done is never called.
         setTimeout(done, 500);
         channel.send('wait-for-response', { key: 'value' });
       });
     });
 
-    describe('on', function() {
+    describe('on', function () {
       it('registers a callback to be called when the browser sends ' +
-            'the registered message', function(done) {
+            'the registered message', function (done) {
 
-        channel.on('call-the-callback', function(event) {
+        channel.on('call-the-callback', function () {
           done();
         });
 
