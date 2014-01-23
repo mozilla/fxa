@@ -20,6 +20,8 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
 
     events: {
       'submit form': 'submit',
+      'keyup input': 'enableButtonWhenValid',
+      'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
@@ -70,9 +72,13 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
       this.displayError(err.message);
     },
 
+    isValid: function () {
+      return this.isElementValid('#password') &&
+             this.isElementValid('#vpassword');
+    },
+
     _validatePasswords: function () {
-      if (! (this.isElementValid('#password') &&
-             this.isElementValid('#vpassword'))) {
+      if (! this.isValid()) {
         return false;
       }
 
