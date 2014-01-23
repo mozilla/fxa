@@ -58,11 +58,12 @@ define([
           .click()
         .end()
 
-        .waitForElementByCssSelector('.confirm section p')
-        .elementByCssSelector('.confirm section p')
+        .waitForElementById('fxa-confirm-header')
+        .elementById('confirm-email')
           .text()
           .then(function (resultText) {
-            assert.ok(resultText.match(/^A verification link has been sent to/), 'No errors in sign in');
+            // check the email address was written
+            assert.equal(resultText, email);
           })
         .end();
     },
@@ -94,12 +95,8 @@ define([
               .click()
             .end()
 
-            .waitForElementByCssSelector('.settings section p')
-            .elementByCssSelector('.settings section p')
-              .text()
-              .then(function (resultText) {
-                assert.ok(resultText.match(/^Congratulations,/), 'No errors in sign in');
-              })
+            // success is setting the settings screen.
+            .waitForElementById('fxa-settings-header')
             .end();
         });
     }
