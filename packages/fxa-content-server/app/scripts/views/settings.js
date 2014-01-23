@@ -35,6 +35,15 @@ function (_, BaseView, Template, FxaClient, Session) {
       'click #signout': 'signOut'
     },
 
+    beforeRender: function() {
+      if (! Session.sessionToken) {
+        this.router.navigate('signin', { trigger: true });
+        return false;
+      }
+
+      return true;
+    },
+
     isValid: function () {
       if (! (this.isElementValid('#old_password') &&
              this.isElementValid('#new_password'))) {

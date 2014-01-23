@@ -12,6 +12,12 @@ define([
 ],
 function (BaseView, Template, Session, FxaClient) {
   var View = BaseView.extend({
+    initialize: function (options) {
+      options = options || {};
+
+      this.router = options.router || router;
+    },
+
     template: Template,
     className: 'delete-account',
 
@@ -21,6 +27,15 @@ function (BaseView, Template, Session, FxaClient) {
       'submit form': 'deleteAccount',
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid'
+    },
+
+    beforeRender: function() {
+      if (! Session.sessionToken) {
+        this.router.navigate('signin', { trigger: true });
+        return false;
+      }
+
+      return true;
     },
 
     deleteAccount: function (event) {
@@ -42,7 +57,7 @@ function (BaseView, Template, Session, FxaClient) {
               Session.channel.send('logout', {
                 email: email
               });
-              router.navigate('signup', { trigger: true });
+              self.router.navigate('signup', { trigger: true });
             })
             .done(null, function (err) {
               self.displayError(err.message);

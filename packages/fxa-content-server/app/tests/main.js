@@ -59,7 +59,8 @@ require([
   '../tests/spec/views/sign_up',
   '../tests/spec/views/sign_in',
   '../tests/spec/views/complete_reset_password',
-  '../tests/spec/views/settings'
+  '../tests/spec/views/settings',
+  '../tests/spec/views/delete_account'
 ],
 function (Mocha) {
   // Use a mock for the translator

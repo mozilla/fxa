@@ -10,16 +10,17 @@ define([
   'chai',
   'underscore',
   'jquery',
-  'views/settings',
+  'views/delete_account',
   'lib/fxa-client',
   'lib/session',
   '../../mocks/router'
 ],
 function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
+  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
-  describe('views/settings', function () {
-    var view, router, email;
+  describe('views/delete_account', function () {
+    var view, router, email, password = 'password';
 
     beforeEach(function () {
       Session.clear();
@@ -37,7 +38,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function(done) {
+      it('redirects to signin', function (done) {
         router.on('navigate', function (newPage) {
           assert.equal(newPage, 'signin');
           done();
@@ -54,7 +55,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
 
         var client = new FxaClient();
         client.signUp(email, 'password')
-          .then(function() {
+          .then(function () {
             view.render();
 
             $('body').append(view.el);
@@ -63,57 +64,39 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
       });
 
       describe('isValid', function () {
-        it('returns true if both old and new passwords are valid and different', function () {
-          $('#old_password').val('password');
-          $('#new_password').val('password2');
+        it('returns true if email and password are filled out', function () {
+          $('form input[type=email]').val(email);
+          $('form input[type=password]').val(password);
 
           assert.equal(view.isValid(), true);
         });
 
-        it('returns true if both old and new passwords are valid and the same', function () {
-          $('#old_password').val('password');
-          $('#new_password').val('password');
+        it('returns false if not an email', function () {
+          $('form input[type=email]').val('notanemail');
+          $('form input[type=password]').val(password);
 
           assert.equal(view.isValid(), false);
         });
 
-        it('returns false if old password is too short', function () {
-          $('#old_password').val('passwor');
-          $('#new_password').val('password');
-
-          assert.equal(view.isValid(), false);
-        });
-
-        it('returns false if new password is too short', function () {
-          $('#old_password').val('password');
-          $('#new_password').val('passwor');
+        it('returns false if password is too short', function () {
+          $('form input[type=email]').val(email);
+          $('form input[type=password]').val('passwor');
 
           assert.equal(view.isValid(), false);
         });
       });
 
-      describe('changePassword', function () {
-        it('changes from old to new password, redirects user to signin', function (done) {
-          $('#old_password').val('password');
-          $('#new_password').val('new_password');
+      describe('deleteAccount', function () {
+        it('deletes the users account, redirect to signup', function (done) {
+          $('form input[type=email]').val(email);
+          $('form input[type=password]').val(password);
 
           router.on('navigate', function (newPage) {
-            assert.equal(newPage, 'signin');
+            assert.equal(newPage, 'signup');
             done();
           });
 
-          view.changePassword();
-        });
-      });
-
-      describe('signOut', function () {
-        it('signs the user out, redirects to signin page', function (done) {
-          router.on('navigate', function (newPage) {
-            assert.equal(newPage, 'signin');
-            done();
-          });
-
-          view.signOut();
+          view.deleteAccount();
         });
       });
     });
