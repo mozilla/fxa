@@ -48,8 +48,13 @@ define([
           .click()
         .end()
 
-        // Being pushed to the age verification screen is success.
         .waitForElementById('fxa-confirm-header')
+        .elementById('confirm-email')
+          .text()
+          .then(function (resultText) {
+            // check the email address was written
+            assert.equal(resultText, email);
+          })
         .end();
     },
 

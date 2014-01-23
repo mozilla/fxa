@@ -44,7 +44,14 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
                 unwrapBKey: accountData.unwrapBKey,
                 keyFetchToken: accountData.keyFetchToken
               });
-              router.navigate('settings', { trigger: true });
+              if (accountData.verified) {
+                router.navigate('settings', { trigger: true });
+              } else {
+                return client.recoveryEmailResendCode(accountData.sessionToken)
+                  .then(function () {
+                    router.navigate('confirm', { trigger: true });
+                  });
+              }
             })
             .done(null, _.bind(function (err) {
               this.displayError(err.message);

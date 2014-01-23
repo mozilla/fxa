@@ -4,28 +4,30 @@
 
 define([
   'tests/lib/request',
-], function (request) {
+  'intern/node_modules/dojo/Deferred'
+], function (request, Deferred) {
   'use strict';
 
-  function waitForEmail(uri, number, cb) {
+  function waitForEmail(uri, number) {
     if (!number) {
       number = 1;
     }
     console.log('Waiting for email...');
 
-    request(uri, 'GET', null, function (err, result) {
-      if (err) {
-        return cb(err);
-      }
+    return request(uri, 'GET', null)
+      .then(function (result) {
+        if (result.length >= number) {
+          return result;
+        } else {
+          var dfd = new Deferred();
+          setTimeout(function() {
+            waitForEmail(uri, number)
+              .then(dfd.resolve, dfd.reject);
+          }, 1000);
 
-      if (result.length >= number) {
-        return cb(null, result);
-      } else {
-        setTimeout(function() {
-          waitForEmail(uri, number, cb);
-        }, 1000);
-      }
-    });
+          return dfd.promise;
+        }
+      });
   }
 
   return waitForEmail;
