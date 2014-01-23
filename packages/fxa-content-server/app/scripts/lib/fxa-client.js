@@ -42,12 +42,14 @@ function (FxaClient, $, p, Session) {
               .then(function (client) {
                 return client.signIn(email, password, { keys: true });
               })
-             .then(function (accountData) {
-                Session.email = email;
-                Session.sessionToken = accountData.sessionToken;
-                Session.keyFetchToken = accountData.keyFetchToken;
-                Session.unwrapBKey = accountData.unwrapBKey;
-                Session.uid = accountData.uid;
+              .then(function (accountData) {
+                Session.set({
+                  email: email,
+                  uid: accountData.uid,
+                  unwrapBKey: accountData.unwrapBKey,
+                  keyFetchToken: accountData.keyFetchToken,
+                  sessionToken: accountData.sessionToken
+                });
 
                 return accountData;
               });
@@ -71,11 +73,11 @@ function (FxaClient, $, p, Session) {
                 return client.sessionDestroy(Session.sessionToken);
               })
               .then(function () {
-                Session.email = null;
-                Session.uid = null;
-                Session.unwrapBKey = null;
-                Session.keyFetchToken = null;
-                Session.sessionToken = null;
+                Session.clear('email');
+                Session.clear('uid');
+                Session.clear('unwrapBKey');
+                Session.clear('keyFetchToken');
+                Session.clear('sessionToken');
               });
     },
 

@@ -53,6 +53,7 @@ require([
   '../tests/spec/lib/channels/fx-desktop',
   '../tests/spec/lib/xss',
   '../tests/spec/lib/url',
+  '../tests/spec/lib/session',
   '../tests/spec/lib/fxa-client',
   '../tests/spec/views/base',
   '../tests/spec/views/sign_up',
