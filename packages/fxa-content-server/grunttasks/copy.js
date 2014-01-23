@@ -18,7 +18,8 @@ module.exports = function (grunt) {
           'images/{,*/}*.{webp,gif}',
           'styles/fonts/{,*/}*.*',
           'bower_components/{,*/}{,*/}*.*',
-          'i18n/{,*/}{,*/}*.*'
+          'i18n/{,*/}{,*/}*.*',
+          'sync/*.html'
         ]
       }]
     },

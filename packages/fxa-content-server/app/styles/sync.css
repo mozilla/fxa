@@ -1,0 +1,25 @@
+#stage {
+  opacity: 1;
+}
+
+.graphic-sync-intro {
+  background-image: url(../images/graphic_sync_intro.png);
+}
+
+.description, .button-row {
+  margin-top: 30px;
+}
+
+/* Retina */
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (   min--moz-device-pixel-ratio: 2),
+only screen and (   -moz-min-device-pixel-ratio: 2),
+only screen and (     -o-min-device-pixel-ratio: 2/1),
+only screen and (        min-device-pixel-ratio: 2),
+only screen and (                min-resolution: 192dpi),
+only screen and (                min-resolution: 2dppx) {
+  .graphic-sync-intro {
+    background-image: url(../images/graphic_sync_intro@2x.png);
+  }
+}

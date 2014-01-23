@@ -9,7 +9,10 @@ module.exports = function (grunt) {
     options: {
       dest: '<%= yeoman.dist %>'
     },
-    html: '<%= yeoman.app %>/index.html'
+    html: [
+      '<%= yeoman.app %>/index.html',
+      '<%= yeoman.app %>/sync/*.html',
+    ]
   });
 
   grunt.config('usemin', {
