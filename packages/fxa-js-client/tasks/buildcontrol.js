@@ -8,7 +8,7 @@ module.exports = function (grunt) {
   grunt.config('buildcontrol', {
     options: {
       commit: true,
-      push: false,
+      push: true,
       remote: 'git://github.com/mozilla/fxa-js-client.git'
     },
     release: {

@@ -27,12 +27,6 @@ define([
 
       function noop(val) { return val; }
 
-      if (!useRemoteServer) {
-        console.log("Running with mocks..");
-      } else {
-        console.log("Running against " + authServerUrl);
-      }
-
       beforeEach(function () {
         var xhr;
 
