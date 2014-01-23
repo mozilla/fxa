@@ -155,5 +155,33 @@ function (_, Backbone, jQuery, Session) {
     }
   });
 
+  /**
+   * Return a backbone compatible event handler that
+   * prevents the default action, then calls the specified handler.
+   * @method Baseview.preventDefaultThen
+   * handler can be either a string or a function. If a string, this[handler]
+   * will be called. Handler called with context of "this" view and is passed
+   * the event
+   */
+  BaseView.preventDefaultThen = function (handler) {
+    return function (event) {
+      event.preventDefault();
+
+      // convert a name to a function.
+      if (typeof handler === 'string') {
+        handler = this[handler];
+
+        if (typeof handler !== 'function') {
+          console.warn(handler +
+                ' is an invalid function name to use with preventDefaultThen');
+        }
+      }
+
+      if (typeof handler === 'function') {
+        return handler.call(this, event);
+      }
+    };
+  };
+
   return BaseView;
 });

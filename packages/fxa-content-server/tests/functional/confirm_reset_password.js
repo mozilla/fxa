@@ -14,12 +14,24 @@ define([
   registerSuite({
     name: 'confirm_password_reset',
 
-    'open page': function () {
+    'open page, click resend': function () {
 
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
         .waitForElementById('fxa-confirm-reset-password-header')
 
+        .elementById('resend')
+          .click()
+        .end()
+
+        // brittle, but some processing time.
+        .wait(2000)
+
+        // Success is showing the screen
+        .elementByCssSelector('.success').isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isTrue(isDisplayed);
+          })
         .end();
     }
   });

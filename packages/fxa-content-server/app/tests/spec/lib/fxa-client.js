@@ -36,7 +36,7 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
       channelMock = null;
     });
 
-    describe('signUp', function () {
+    describe('signUp/signUpResend', function () {
       it('signs up a user with email/password', function (done) {
         client.signUp(email, password)
           .then(function () {
@@ -54,6 +54,9 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
           .then(function () {
             assert.equal(channelMock.message, 'login');
             assert.isTrue(channelMock.data.customizeSync);
+            return client.signUpResend();
+          })
+          .then(function () {
             done();
           }, function (err) {
             assert.fail(err);
@@ -94,17 +97,17 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
       });
     });
 
-    describe('verifyCode', function () {
-    });
-
-    describe('requestPasswordReset', function () {
+    describe('passwordReset/passwordResetResend', function () {
       it('requests a password reset', function (done) {
         client.signUp(email, password)
           .then(function () {
             return client.signIn(email, password);
           })
           .then(function () {
-            return client.requestPasswordReset(email);
+            return client.passwordReset(email);
+          })
+          .then(function () {
+            return client.passwordResetResend();
           })
           .then(function () {
             // positive test to ensure success case has an assertion
@@ -180,7 +183,6 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
           });
       });
     });
-
   });
 });
 

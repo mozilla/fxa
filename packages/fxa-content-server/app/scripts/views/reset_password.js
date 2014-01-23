@@ -31,7 +31,7 @@ function (_, BaseView, Template, FxaClient) {
       var email = this._getEmail();
 
       var client = new FxaClient();
-      client.requestPasswordReset(email)
+      client.passwordReset(email)
             .done(this._onRequestResetSuccess.bind(this),
                   this._onRequestResetFailure.bind(this));
 

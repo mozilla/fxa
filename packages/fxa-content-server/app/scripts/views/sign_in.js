@@ -40,7 +40,7 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
               if (accountData.verified) {
                 router.navigate('settings', { trigger: true });
               } else {
-                return client.recoveryEmailResendCode(accountData.sessionToken)
+                return client.signUpResend()
                   .then(function () {
                     router.navigate('confirm', { trigger: true });
                   });

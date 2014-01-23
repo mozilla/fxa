@@ -14,14 +14,26 @@ define([
   registerSuite({
     name: 'confirm',
 
-    'load up the screen': function () {
+    'load up the screen, click resend': function () {
 
       return this.get('remote')
         .get(require.toUrl(url))
         .waitForElementById('fxa-confirm-header')
 
+        .elementById('resend')
+          .click()
+        .end()
+
+        // brittle, but some processing time.
+        .wait(2000)
+
         // Success is showing the screen
+        .elementByCssSelector('.success').isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isTrue(isDisplayed);
+          })
         .end();
     }
+
   });
 });

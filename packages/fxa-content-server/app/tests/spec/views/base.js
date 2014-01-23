@@ -11,9 +11,10 @@ define([
   'jquery',
   'views/base',
   'lib/translator',
-  'stache!templates/test_template'
+  'stache!templates/test_template',
+  '../../mocks/dom-event'
 ],
-function (mocha, chai, jQuery, BaseView, Translator, Template) {
+function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -82,6 +83,39 @@ function (mocha, chai, jQuery, BaseView, Translator, Template) {
       it('translates and display an error in the .error element', function () {
         view.displayError('the error message');
         assert.equal($('.error').html(), 'a translated error message');
+      });
+    });
+
+    describe('BaseView.preventDefaultThen', function() {
+      var event;
+
+      it('can take the name of a function as the name of the event handler', function(done) {
+        view.eventHandler = function(event) {
+          assert.isTrue(event.isDefaultPrevented());
+          done();
+        };
+
+        var backboneHandler = BaseView.preventDefaultThen('eventHandler');
+        backboneHandler.call(view, new DOMEventMock());
+      });
+
+      it('can take a function as the event handler', function(done) {
+        function eventHandler(event) {
+          assert.isTrue(event.isDefaultPrevented());
+          done();
+        };
+
+        var backboneHandler = BaseView.preventDefaultThen(eventHandler);
+        backboneHandler.call(view, new DOMEventMock());
+      });
+
+      it('can take no arguments at all', function() {
+        var backboneHandler = BaseView.preventDefaultThen();
+
+        var eventMock = new DOMEventMock();
+        backboneHandler.call(view, eventMock);
+
+        assert.isTrue(eventMock.isDefaultPrevented());
       });
     });
   });
