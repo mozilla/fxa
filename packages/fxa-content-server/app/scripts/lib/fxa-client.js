@@ -45,13 +45,21 @@ function (FxaClient, $, p, Session) {
               .then(function (accountData) {
                 // get rid of any old data.
                 Session.clear();
-                Session.set({
+
+                var updatedSessionData = {
                   email: email,
                   uid: accountData.uid,
                   unwrapBKey: accountData.unwrapBKey,
                   keyFetchToken: accountData.keyFetchToken,
                   sessionToken: accountData.sessionToken
-                });
+                };
+
+                Session.set(updatedSessionData);
+                try {
+                  Session.channel.send('login', updatedSessionData);
+                } catch (e) {
+                  // phantom blows up here.
+                }
 
                 return accountData;
               });

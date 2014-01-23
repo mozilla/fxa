@@ -54,9 +54,6 @@ function (BaseView, Template, Session, FxaClient) {
       var self = this;
       client.deleteAccount(email, password)
             .then(function () {
-              Session.channel.send('logout', {
-                email: email
-              });
               self.router.navigate('signup', { trigger: true });
             })
             .done(null, function (err) {

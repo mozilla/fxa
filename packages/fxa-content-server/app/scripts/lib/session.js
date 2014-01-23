@@ -27,7 +27,7 @@ define([
       try {
         values = JSON.parse(localStorage.getItem(NAMESPACE));
         this.set(values);
-      } catch(e) {
+      } catch (e) {
         // ignore the parse error.
       }
     },
@@ -43,11 +43,15 @@ define([
       if (! Session.prototype.hasOwnProperty(key)) {
         this[key] = value;
 
-        // items on the blacklist do not get saved to localStorage but we
-        // still want a reference to them in the session information.
-        if (DO_NOT_PERSIST.indexOf(key) === -1) {
-          localStorage.setItem(NAMESPACE, JSON.stringify(this));
-        }
+        // items on the blacklist do not get saved to localStorage.
+        var toSave = {};
+        _.each(this, function (value, key) {
+          if (DO_NOT_PERSIST.indexOf(key) === -1) {
+            toSave[key] = value;
+          }
+        });
+
+        localStorage.setItem(NAMESPACE, JSON.stringify(toSave));
       }
     },
 
