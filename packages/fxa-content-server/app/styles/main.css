@@ -222,6 +222,10 @@ section p {
   margin-top: 20px;
 }
 
+.verification-email-message {
+  word-wrap: break-word;
+}
+
 .password-row {
   position: relative;
 }
