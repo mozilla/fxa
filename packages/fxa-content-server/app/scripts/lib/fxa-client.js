@@ -11,9 +11,10 @@
 define([
   'fxaClient',
   'jquery',
-  'p'
+  'p',
+  'lib/session'
 ],
-function (FxaClient, $, p) {
+function (FxaClient, $, p, Session) {
   var client;
 
   function FxaClientWrapper() {
@@ -39,14 +40,25 @@ function (FxaClient, $, p) {
     signIn: function (email, password) {
       return this._getClientAsync().then(function (client) {
                 return client.signIn(email, password, { keys: true });
+              })
+             .then(function(accountData) {
+                Session.email = email;
+                Session.sessionToken = accountData.sessionToken;
+                Session.keyFetchToken = accountData.keyFetchToken;
+                Session.unwrapBKey = accountData.unwrapBKey;
+                Session.uid = accountData.uid;
+
+                return accountData;
               });
+
     },
 
     signUp: function (email, password) {
+      var self = this;
       return this._getClientAsync().then(function (client) {
         return client.signUp(email, password, { keys: true })
                .then(function () {
-                  return client.signIn(email, password, { keys: true });
+                  return self.signIn(email, password);
                 });
 
       });
