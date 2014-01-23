@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var Hoek = require('hapi').utils;
-var Boom = require('hapi').error
+var Boom = require('hapi').boom
 
 var DEFAULTS = {
   message: 'Unspecified error',
@@ -82,8 +82,15 @@ module.exports = function(log) {
     }
 
     // Now we can safely boomify it.
-    var b = new Boom(object.code, object.message)
-    Hoek.merge(b.response.payload, object);
+    var b
+    if ( object.code === 500 ) {
+        b = Boom.internal(object.message, null, object.code);
+    }
+    else if ( object.code === 400 ) {
+        b = Boom.badRequest(object.message);
+    }
+    // ToDo: other object.codes???
+    Hoek.merge(b.output.payload, object);
     return b
   }
 

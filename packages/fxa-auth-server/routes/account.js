@@ -45,7 +45,7 @@ module.exports = function (
               .optional()
           }
         },
-        handler: function accountCreate(request) {
+        handler: function accountCreate(request, reply) {
           log.begin('Account.create', request)
           var form = request.payload
           var email = form.email
@@ -149,7 +149,7 @@ module.exports = function (
               function (response) {
                 var account = response.account
                 log.security({ event: 'account-create-success', uid: account.uid })
-                request.reply(
+                reply(
                   {
                     uid: account.uid.toString('hex'),
                     sessionToken: response.sessionToken.data.toString('hex'),
@@ -161,7 +161,7 @@ module.exports = function (
               },
               function (err) {
                 log.security({ event: 'account-create-failure', err: err })
-                request.reply(err)
+                reply(err)
               }
             )
         }
@@ -172,7 +172,7 @@ module.exports = function (
       path: '/account/login',
       config: {
         description: 'login with a password and get a keyFetchToken',
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Account.login', request)
           var form = request.payload
           var authPW = Buffer(form.authPW, 'hex')
@@ -246,7 +246,7 @@ module.exports = function (
             )
             .done(
               function (tokens) {
-                request.reply(
+                reply(
                   {
                     uid: tokens.sessionToken.uid.toString('hex'),
                     sessionToken: tokens.sessionToken.data.toString('hex'),
@@ -257,9 +257,7 @@ module.exports = function (
                   }
                 )
               },
-              function (err) {
-                request.reply(err)
-              }
+              reply
             )
         },
         validate: {
@@ -288,21 +286,19 @@ module.exports = function (
           strategy: 'sessionToken'
         },
         tags: ["account"],
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Account.devices', request)
           var sessionToken = request.auth.credentials
           db.accountDevices(sessionToken.uid)
             .done(
               function (devices) {
-                request.reply(
+                reply(
                   {
                     devices: Object.keys(devices)
                   }
                 )
               },
-              function (err) {
-                request.reply(err)
-              }
+              reply
             )
         },
         response: {
@@ -327,9 +323,8 @@ module.exports = function (
             bundle: isA.String().regex(HEX_STRING)
           }
         },
-        handler: function accountKeys(request) {
+        handler: function accountKeys(request, reply) {
           log.begin('Account.keys', request)
-          var reply = request.reply.bind(request)
           var keyFetchToken = request.auth.credentials
           if (!keyFetchToken.emailVerified) {
             // don't delete the token on use until the account is verified
@@ -357,10 +352,10 @@ module.exports = function (
           strategy: 'sessionToken'
         },
         tags: ["account", "recovery"],
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Account.RecoveryEmailStatus', request)
           var sessionToken = request.auth.credentials
-          request.reply(
+          reply(
             {
               email: sessionToken.email,
               verified: sessionToken.emailVerified
@@ -395,7 +390,7 @@ module.exports = function (
           }
         },
         tags: ["account", "recovery"],
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Account.RecoveryEmailResend', request)
           log.security({ event: 'account-verify-request' })
           var sessionToken = request.auth.credentials
@@ -404,11 +399,9 @@ module.exports = function (
             preferredLang: request.app.preferredLang
           }).done(
             function () {
-              request.reply({})
+              reply({})
             },
-            function (err) {
-              request.reply(err)
-            }
+            reply
           )
         }
       }
@@ -420,7 +413,7 @@ module.exports = function (
         description:
           "Verify a recovery method with this code",
         tags: ["account", "recovery"],
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Account.RecoveryEmailVerify', request)
           var uid = request.payload.uid
           var code = Buffer(request.payload.code, 'hex')
@@ -444,11 +437,9 @@ module.exports = function (
             )
             .done(
               function () {
-                request.reply({})
+                reply({})
               },
-              function (err) {
-                request.reply(err)
-              }
+              reply
             )
         },
         validate: {
@@ -473,9 +464,8 @@ module.exports = function (
             authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
           }
         },
-        handler: function accountReset(request) {
+        handler: function accountReset(request, reply) {
           log.begin('Account.reset', request)
-          var reply = request.reply.bind(request)
           var accountResetToken = request.auth.credentials
           var authPW = Buffer(request.payload.authPW, 'hex')
           var authSalt = crypto.randomBytes(32)
@@ -512,7 +502,7 @@ module.exports = function (
       path: '/account/destroy',
       config: {
         tags: ["account"],
-        handler: function accountDestroy(request) {
+        handler: function accountDestroy(request, reply) {
           log.begin('Account.destroy', request)
           var form = request.payload
           var authPW = Buffer(form.authPW, 'hex')

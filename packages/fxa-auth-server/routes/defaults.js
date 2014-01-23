@@ -65,15 +65,15 @@ module.exports = function (log, P, db, error) {
       method: 'GET',
       path: '/__heartbeat__',
       config: {
-        handler: function heartbeat(request) {
+        handler: function heartbeat(request, reply) {
           log.begin('Defaults.heartbeat', request)
           db.ping()
             .done(
               function () {
-                request.reply({})
+                reply({})
               },
               function (err) {
-                request.reply(err)
+                reply(err)
               }
             )
         }
@@ -83,9 +83,9 @@ module.exports = function (log, P, db, error) {
       method: '*',
       path: '/v0/{p*}',
       config: {
-        handler: function v0(request) {
+        handler: function v0(request, reply) {
           log.begin('Defaults.v0', request)
-          request.reply(error.gone())
+          reply(error.gone())
         }
       }
     }

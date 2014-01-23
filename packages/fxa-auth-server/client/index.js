@@ -231,6 +231,8 @@ Client.prototype.changePassword = function (newPassword) {
     )
 }
 
+// Does this get some keys or does it create an account???
+// I think it just creates a number of keys.
 Client.prototype.keys = function () {
   var o = this.keyFetchToken ? P(null) : this.login()
   return o.then(
