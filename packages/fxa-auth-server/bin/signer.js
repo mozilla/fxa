@@ -30,7 +30,8 @@ process.on('message', function (message) {
       },
       {
         issuer: DOMAIN,
-        issuedAt: new Date(now),
+        // Set issuedAt to 10 seconds ago. Pads for verifier clock skew
+        issuedAt: new Date(now - (10 * 1000)),
         expiresAt: new Date(now + message.duration)
       },
       null,

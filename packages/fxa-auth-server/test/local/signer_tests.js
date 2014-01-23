@@ -220,7 +220,7 @@ test(
         t.deepEqual(payload['public-key'], validKey, 'key, check')
         t.equal(payload.principal.email, email, 'email, check')
         t.equal(payload.iss, config.domain, 'issuer, check')
-        t.equal(payload.exp, payload.iat + duration, 'exp, check')
+        t.equal(payload.exp, payload.iat + duration + 10000, 'exp, check')
         t.end()
       }
     )
