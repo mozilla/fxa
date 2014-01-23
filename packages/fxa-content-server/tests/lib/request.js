@@ -4,28 +4,30 @@
 
 define([
   'intern/node_modules/dojo/node!xmlhttprequest',
-], function (nodeXMLHttpRequest) {
+  'intern/node_modules/dojo/Deferred'
+], function (nodeXMLHttpRequest, Deferred) {
   'use strict';
 
-  function request(uri, method, jsonPayload, cb) {
+  function request(uri, method, jsonPayload) {
+    var dfd = new Deferred();
     var xhr = new nodeXMLHttpRequest.XMLHttpRequest();
     var payload;
 
     xhr.open(method, uri);
     xhr.onerror = function onerror() {
-      cb(xhr.responseText);
+      dfd.resolve(xhr.responseText);
     };
     xhr.onload = function onload() {
       var result;
       try {
         result = JSON.parse(xhr.responseText);
       } catch (e) {
-        return cb(e);
+        return dfd.reject(e);
       }
       if (result.error) {
-        return cb(result.error);
+        return dfd.reject(result.error);
       }
-      cb(null, result);
+      dfd.resolve(result);
     };
 
     if (jsonPayload) {
@@ -34,6 +36,8 @@ define([
     }
 
     xhr.send(payload);
+
+    return dfd.promise;
   }
 
   return request;

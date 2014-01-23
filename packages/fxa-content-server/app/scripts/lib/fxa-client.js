@@ -73,6 +73,12 @@ function (FxaClient, $, p) {
                                      result.accountResetToken);
                         });
               });
+    },
+
+    recoveryEmailResendCode: function (sessionToken) {
+      return this._getClientAsync().then(function (client) {
+                return client.recoveryEmailResendCode(sessionToken);
+              });
     }
   };
 

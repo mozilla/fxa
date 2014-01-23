@@ -48,7 +48,7 @@ define([
           .click()
         .end()
 
-        // Being pushed to the age verification screen is success.
+        // Being pushed to the confirm screen is success.
         .waitForElementById('fxa-confirm-header')
         .end();
     },

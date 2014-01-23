@@ -25,8 +25,6 @@ define([
     name: 'complete_reset_password',
 
     setup: function () {
-      var dfd = new Deferred();
-
       var user = 'signin' + Math.random();
       email = user + '@restmail.net';
 
@@ -34,22 +32,19 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      client.signUp(email, PASSWORD)
+      return client.signUp(email, PASSWORD)
         .then(function () {
           return client.passwordForgotSendCode(email);
         })
         .then(function (result) {
           token = result.passwordForgotToken;
 
-          restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2,
-            function (err, emails) {
+          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2)
+            .then(function (emails) {
               code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
-              dfd.resolve(code);
-            }
-          );
-        }, dfd.reject.bind(dfd));
-
-      return dfd.promise;
+              return code;
+            });
+        });
     },
 
     'open page': function () {
