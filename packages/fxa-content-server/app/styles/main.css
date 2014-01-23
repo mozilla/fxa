@@ -105,7 +105,7 @@ section p {
   width: 100%;
 }
 
-.input-row input {
+.input-row input, .input-row select {
   border: 1px solid #C0C9D0;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -133,15 +133,31 @@ section p {
 }
 
 .input-row select {
+  -webkit-appearance: none;
+     -moz-appearance: none;
+    -moz-user-select: none;
+          appearance: none;
+  background: transparent url(../images/ddarrow_inactive.png) no-repeat right 14px top 50%;
+  background-size: 10px 17px;
+  color: #C0C9D0;
+  height: auto;
+  outline: none;
+  padding: 8px 20px;
+
+  /* Some hackery for Firefox since moz-appearance: none doesn't remove the arrow */
+  text-indent: 0.01px;
+  text-overflow: "";
+
   width: 100%;
 }
 
-.input-row input:focus {
+.input-row input:focus, .input-row select:focus {
   border-color: #6f7a85;
 }
 
-.input-row select {
-  width: 100%;
+.input-row select:focus {
+  background-image: url(../images/ddarrow_active.png);
+  color: #454f59;
 }
 
 .input-row:last-child {
@@ -360,5 +376,13 @@ only screen and (                min-resolution: 2dppx) {
 
   .spinner {
     background-image: url(../images/spinnerlight@2x.png);
+  }
+
+  .input-row select {
+    background-image: url(../images/ddarrow_inactive@2x.png)
+  }
+
+  .input-row select:focus {
+    background-image: url(../images/ddarrow_active@2x.png);
   }
 }
