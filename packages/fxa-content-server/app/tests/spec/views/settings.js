@@ -11,25 +11,31 @@ define([
   'underscore',
   'jquery',
   'views/settings',
+  'lib/fxa-client',
   '../../mocks/router'
 ],
-function (mocha, chai, _, $, View, RouterMock) {
+function (mocha, chai, _, $, View, FxaClient, RouterMock) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
     var view, router, email;
 
-    beforeEach(function () {
+    beforeEach(function (done) {
       email = 'testuser.' + Math.random() + '@testuser.com';
-      document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
-      sessionStorage.removeItem('tooYoung');
-      router = new RouterMock();
-      view = new View({
-        router: router
-      });
-      view.render();
 
-      $('body').append(view.el);
+      var client = new FxaClient();
+      client.signUp(email, 'password')
+        .then(function() {
+          document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+          router = new RouterMock();
+          view = new View({
+            router: router
+          });
+          view.render();
+
+          $('body').append(view.el);
+          done();
+        });
     });
 
     afterEach(function () {
@@ -71,16 +77,21 @@ function (mocha, chai, _, $, View, RouterMock) {
     });
 
     describe('changePassword', function () {
-      it('changes from old to new password', function () {
+      it('changes from old to new password', function (done) {
         $('#old_password').val('password');
         $('#new_password').val('new_password');
+
+        router.on('navigate', function (newPage) {
+          assert.equal(newPage, 'signin');
+          done();
+        });
 
         view.changePassword();
       });
     });
 
     describe('signOut', function () {
-      it('signs the user out', function () {
+      it('signs the user out', function (done) {
         router.on('navigate', function (newPage) {
           assert.equal(newPage, 'signin');
           done();

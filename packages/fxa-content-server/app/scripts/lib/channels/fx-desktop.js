@@ -76,10 +76,10 @@ function (_, Backbone, Session) {
       }
 
       if (response.data) {
-        Session.email = response.data.email;
+        Session.set('email', response.data.email);
         this.router.navigate('settings', { trigger: true });
       } else {
-        delete Session.email;
+        Session.clear();
         this.router.navigate('signup', { trigger: true });
       }
     }, this));

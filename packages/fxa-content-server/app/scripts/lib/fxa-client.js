@@ -43,6 +43,8 @@ function (FxaClient, $, p, Session) {
                 return client.signIn(email, password, { keys: true });
               })
               .then(function (accountData) {
+                // get rid of any old data.
+                Session.clear();
                 Session.set({
                   email: email,
                   uid: accountData.uid,
@@ -72,12 +74,9 @@ function (FxaClient, $, p, Session) {
               .then(function (client) {
                 return client.sessionDestroy(Session.sessionToken);
               })
-              .then(function () {
-                Session.clear('email');
-                Session.clear('uid');
-                Session.clear('unwrapBKey');
-                Session.clear('keyFetchToken');
-                Session.clear('sessionToken');
+              .then(function() {
+                // user's session is gone
+                Session.clear();
               });
     },
 
@@ -92,6 +91,9 @@ function (FxaClient, $, p, Session) {
       return this._getClientAsync()
               .then(function (client) {
                 return client.passwordForgotSendCode(email);
+              })
+              .then(function () {
+                Session.set('email', email);
               });
     },
 
@@ -112,10 +114,9 @@ function (FxaClient, $, p, Session) {
               .then(function (client) {
                 return client.passwordChange(email, oldPassword, newPassword);
               })
-              .then(function (result) {
-                Session.keyFetchToken = result.keyFetchToken;
-
-                return result;
+              .then(function () {
+                // user is signed out on password change.
+                Session.clear();
               });
     },
 
@@ -123,6 +124,9 @@ function (FxaClient, $, p, Session) {
       return this._getClientAsync()
               .then(function (client) {
                 return client.accountDestroy(email, password);
+              })
+              .then(function() {
+                Session.clear();
               });
     },
 

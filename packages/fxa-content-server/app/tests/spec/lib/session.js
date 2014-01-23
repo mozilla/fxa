@@ -61,6 +61,25 @@ function (mocha, chai, _, Session) {
         assert.isUndefined(Session.key6);
       });
     });
+
+    describe('load', function() {
+      it('loads data from localStorage', function() {
+        Session.set({
+          key7: 'value7',
+          key8: 'value8'
+        });
+
+        Session.testRemove('key7');
+        Session.testRemove('key8');
+
+        assert.isUndefined(Session.key7);
+        assert.isUndefined(Session.key8);
+
+        Session.load();
+        assert.equal(Session.key7, 'value7');
+        assert.equal(Session.key8, 'value8');
+      });
+    });
   });
 });
 

@@ -61,8 +61,10 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
     _onResetCompleteSuccess: function () {
       // This information will be displayed on the
       // reset_password_complete screen.
-      Session.service = Url.searchParam('service');
-      Session.redirectTo = Url.searchParam('redirectTo');
+      Session.set({
+        service: Url.searchParam('service'),
+        redirectTo: Url.searchParam('redirectTo')
+      });
       router.navigate('reset_password_complete', { trigger: true });
     },
 

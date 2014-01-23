@@ -58,15 +58,13 @@ function (_, BaseView, Template, FxaClient, Session) {
       var oldPassword = this._getOldPassword();
       var newPassword = this._getNewPassword();
 
-      var client = new FxaClient();
       var self = this;
+      var client = new FxaClient();
       client.changePassword(email, oldPassword, newPassword)
             .then(function () {
-              self.$('.success').show();
-
-              self.$('#new_password').val('');
-              self.$('#old_password').val('').focus();
-              self.enableButtonWhenValid();
+              // user is signed out on password change, make them
+              // sign in again.
+              self.router.navigate('signin', { trigger: true });
             }, function (err) {
               self.displayError(err.msg || err.message);
             });

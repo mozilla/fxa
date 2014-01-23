@@ -8,10 +8,9 @@ define([
   'underscore',
   'views/base',
   'stache!templates/reset_password',
-  'lib/fxa-client',
-  'lib/session'
+  'lib/fxa-client'
 ],
-function (_, BaseView, Template, FxaClient, Session) {
+function (_, BaseView, Template, FxaClient) {
   var View = BaseView.extend({
     template: Template,
     className: 'reset_password',
@@ -43,7 +42,6 @@ function (_, BaseView, Template, FxaClient, Session) {
     },
 
     _onRequestResetSuccess: function () {
-      Session.email = this._getEmail();
       router.navigate('confirm_reset_password', { trigger: true });
     },
 
