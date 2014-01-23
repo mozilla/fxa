@@ -8,28 +8,28 @@
 define([
   'mocha',
   'chai',
-  'underscore',
   'lib/session'
 ],
-function (mocha, chai, _, Session) {
+function (mocha, chai, Session) {
+  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('lib/session', function () {
-    beforeEach(function() {
+    beforeEach(function () {
       Session.clear();
     });
 
-    afterEach(function() {
+    afterEach(function () {
       Session.clear();
     });
 
-    describe('set', function() {
-      it('can take a key value pair', function() {
+    describe('set', function () {
+      it('can take a key value pair', function () {
         Session.set('key', 'value');
         assert.equal(Session.key, 'value');
       });
 
-      it('can take an object', function() {
+      it('can take an object', function () {
         Session.set({
           key2: 'value2',
           key3: 'value3'
@@ -40,8 +40,8 @@ function (mocha, chai, _, Session) {
       });
     });
 
-    describe('clear', function() {
-      it('with a key clears item', function() {
+    describe('clear', function () {
+      it('with a key clears item', function () {
         Session.set({
           key4: 'value4'
         });
@@ -50,7 +50,7 @@ function (mocha, chai, _, Session) {
         assert.isUndefined(Session.key4);
       });
 
-      it('with no key clears all items', function() {
+      it('with no key clears all items', function () {
         Session.set({
           key5: 'value5',
           key6: 'value6'
@@ -62,8 +62,8 @@ function (mocha, chai, _, Session) {
       });
     });
 
-    describe('load', function() {
-      it('loads data from localStorage', function() {
+    describe('load', function () {
+      it('loads data from localStorage', function () {
         Session.set({
           key7: 'value7',
           key8: 'value8'

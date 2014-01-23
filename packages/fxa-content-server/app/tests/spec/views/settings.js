@@ -97,11 +97,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           $('#old_password').val('password');
           $('#new_password').val('new_password');
 
-          router.on('navigate', function (newPage) {
-            assert.equal(newPage, 'signin');
-            done();
-          });
-
+          view.on('password-changed', done);
           view.changePassword();
         });
       });

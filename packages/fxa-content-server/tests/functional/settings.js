@@ -13,6 +13,7 @@ define([
 
   var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
   var SIGNIN_URL = 'http://localhost:3030/signin';
+  var SETTINGS_URL = 'http://localhost:3030/settings';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
@@ -30,7 +31,7 @@ define([
       return client.signUp(email, FIRST_PASSWORD);
     },
 
-    'sign in, then go to settings page, sign out': function () {
+    'sign in for signing out': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
         .waitForElementById('fxa-signin-header')
@@ -47,11 +48,13 @@ define([
 
         .elementByCssSelector('button[type="submit"]')
           .click()
-        .end()
+        .end();
+    },
 
-        // Success is being redirected to the settings screen
+    'go to settings page, sign out': function () {
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
         .waitForElementById('fxa-settings-header')
-        .end()
 
         // sign the user out
         .elementById('signout')
@@ -63,7 +66,7 @@ define([
         .end();
     },
 
-    'sign in, then go to settings page, change password': function () {
+    'sign in for changing password': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
         .waitForElementById('fxa-signin-header')
@@ -80,8 +83,12 @@ define([
 
         .elementByCssSelector('button[type="submit"]')
           .click()
-        .end()
+        .end();
+    },
 
+    'go to settings page, change password': function () {
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
         .waitForElementById('fxa-settings-header')
         .end()
 
@@ -104,7 +111,7 @@ define([
         .end();
     },
 
-    'sign in with new password, then go to settings page, delete account': function () {
+    'sign in with new password': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
         .waitForElementById('fxa-signin-header')
@@ -121,9 +128,12 @@ define([
 
         .elementByCssSelector('button[type="submit"]')
           .click()
-        .end()
+        .end();
+    },
 
-        // Success is being redirected to the settings screen
+    'go to settings page, delete account': function () {
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
         .waitForElementById('fxa-settings-header')
         .end()
 

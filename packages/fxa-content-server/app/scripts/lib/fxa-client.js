@@ -118,13 +118,15 @@ function (FxaClient, $, p, Session) {
     },
 
     changePassword: function (email, oldPassword, newPassword) {
+      var self = this;
       return this._getClientAsync()
               .then(function (client) {
                 return client.passwordChange(email, oldPassword, newPassword);
               })
               .then(function () {
-                // user is signed out on password change.
+                // Clear old info on password change.
                 Session.clear();
+                return self.signIn(email, newPassword);
               });
     },
 

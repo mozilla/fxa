@@ -1,11 +1,13 @@
 <header>
   <h1>{{#t}}Firefox Accounts{{/t}}</h1>
-  <h2 id="fxa-settings-header">{{#t}}Hi,{{/t}} {{ email }}</h2>
+  <h2 id="fxa-settings-header">{{#t}}Manage account{{/t}}</h2>
 </header>
 
 <section>
   <div class="error"></div>
   <div class="success">{{#t}}Password changed{{/t}}</div>
+
+  <p>{{#t}}You are signed in as:{{/t}}<br /> {{ email }}</p>
 
   <form>
     <div class="input-row">

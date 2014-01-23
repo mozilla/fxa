@@ -6,13 +6,12 @@
 
 
 define([
-  'underscore',
   'mocha',
   'chai',
   'jquery',
   'lib/fxa-client'
 ],
-function (_, mocha, chai, $, FxaClientWrapper) {
+function (mocha, chai, $, FxaClientWrapper) {
   /*global beforeEach, describe, it*/
   var assert = chai.assert;
   var email;
