@@ -34,6 +34,7 @@ noscript {
 
 #stage {
   background: #fff url(../images/fox.png) no-repeat left 50% bottom 30px;
+  background-size: 30px 31px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
   -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);;
