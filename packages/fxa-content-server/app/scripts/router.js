@@ -85,9 +85,6 @@ function (
 
       this.currentView = view;
 
-      // Make the stage transparent
-      this.$stage.css({ opacity: 0 });
-
       // render will return false if the view could not be
       // rendered for any reason, including if the view was
       // automatically redirected.
@@ -95,9 +92,8 @@ function (
         // Render the new view
         this.$stage.html(this.currentView.el);
 
-        // Fade the stage back in
-        this.$stage.transition({ opacity: 100 },
-          _.bind(this.currentView.afterVisible, this.currentView));
+        this.$stage.show();
+        this.currentView.afterVisible();
       }
     },
 
