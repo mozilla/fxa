@@ -73,6 +73,10 @@ section p {
   font-size: 18px;
 }
 
+strong.email {
+  display: block;
+}
+
 .error {
   background: #D63920;
   color: #fff;

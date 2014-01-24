@@ -16,7 +16,8 @@ function (BaseView, Template, Session) {
 
     context: function () {
       return {
-        email: Session.email
+        // HTML is written here to simplify the l10n community's job
+        email: '<strong id="confirm-email" class="email">' + Session.email + '</strong>'
       };
     }
   });
