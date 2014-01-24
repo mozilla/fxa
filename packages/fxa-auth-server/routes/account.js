@@ -189,7 +189,7 @@ module.exports = function (
                 .then(
                   function (match) {
                     if (!match) {
-                      throw error.incorrectPassword(emailRecord.email)
+                      throw error.incorrectPassword(emailRecord.email, form.email)
                     }
                     return db.createSessionToken(
                       {
@@ -538,7 +538,7 @@ module.exports = function (
                   .then(
                     function (match) {
                       if (!match) {
-                        throw error.incorrectPassword(emailRecord.email)
+                        throw error.incorrectPassword(emailRecord.email, form.email)
                       }
                       return db.deleteAccount(emailRecord)
                     }

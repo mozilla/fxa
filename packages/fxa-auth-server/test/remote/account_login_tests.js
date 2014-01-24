@@ -12,7 +12,29 @@ TestServer.start(config)
 .then(function main(server) {
 
   test(
-    'the rawEmail is returned in the error on Incorrect Password errors',
+    'the email is returned in the error on Incorrect password errors',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'abcdef'
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function (c) {
+            return Client.login(config.publicUrl, email, password + 'x')
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.code, 400)
+            t.equal(err.errno, 103)
+            t.equal(err.email, email)
+          }
+        )
+    }
+  )
+
+  test(
+    'the email is returned in the error on Incorrect email case errors',
     function (t) {
       var signupEmail = server.uniqueEmail()
       var loginEmail = signupEmail.toUpperCase()
@@ -27,7 +49,7 @@ TestServer.start(config)
           t.fail,
           function (err) {
             t.equal(err.code, 400)
-            t.equal(err.errno, 103)
+            t.equal(err.errno, 120)
             t.equal(err.email, signupEmail)
           }
         )

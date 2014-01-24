@@ -12,26 +12,11 @@ function error(details) {
   return err;
 }
 
-function accountExists(email) {
-  return error({
-    errno: 101,
-    message: 'Account already exists',
-    email: email
-  })
-}
-
 function unknownAccount(email) {
   return error({
     errno: 102,
     message: 'Unknown account',
     email: email
-  })
-}
-
-function incorrectPassword() {
-  return error({
-    errno: 103,
-    message: 'Incorrect password'
   })
 }
 
@@ -51,9 +36,7 @@ function invalidToken() {
 
 module.exports = {
   error: error,
-  accountExists: accountExists,
   unknownAccount: unknownAccount,
-  incorrectPassword: incorrectPassword,
   invalidSignature: invalidSignature,
   invalidToken: invalidToken
 }
