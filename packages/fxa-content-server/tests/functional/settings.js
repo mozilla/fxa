@@ -92,6 +92,13 @@ define([
         .waitForElementById('fxa-settings-header')
         .end()
 
+        // Go to change password screen
+        .elementById('change-password')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-change-password-header')
+
         .elementById('old_password')
           .click()
           .type(FIRST_PASSWORD)
@@ -143,7 +150,7 @@ define([
         .end()
 
         // Go to delete account screen
-        .elementById('delete_account')
+        .elementById('delete-account')
           .click()
         .end()
 
