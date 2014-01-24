@@ -34,6 +34,10 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
       options = options || {};
 
       this.service = Url.searchParam('service');
+
+      // Reset forceAuth flag so users who visit the reset_password screen
+      // see the correct links.
+      Session.set('forceAuth', false);
     },
 
     beforeRender: function () {

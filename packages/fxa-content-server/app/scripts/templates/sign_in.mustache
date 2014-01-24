@@ -1,16 +1,24 @@
 <header>
-  <h1 id="fxa-signin-header">{{#t}}Firefox Accounts{{/t}}</h1>
-
-  <h2>{{#t}}Sign in{{/t}}</h2>
+  {{^forceAuth}}
+    <h2 id="fxa-signin-header">{{#t}}Sign in{{/t}}</h2>
+  {{/forceAuth}}
+  {{#forceAuth}}
+    <h2 id="fxa-force-auth-header">{{#t}}Sign in to continue{{/t}}</h2>
+  {{/forceAuth}}
 </header>
 
 <section>
   <div class="error"></div>
 
   <form>
-    <div class="input-row">
-      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus>
-    </div>
+    {{^forceAuth}}
+      <div class="input-row">
+        <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" autofocus>
+      </div>
+    {{/forceAuth}}
+    {{#forceAuth}}
+      <p>{{ email }}</p>
+    {{/forceAuth}}
 
     <div class="input-row password-row">
       <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required>
@@ -29,8 +37,13 @@
   </form>
 
   <div class="links">
-    <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
-    <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
+    {{^forceAuth}}
+      <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
+      <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
+    {{/forceAuth}}
+    {{#forceAuth}}
+      <a href="/reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
+    {{/forceAuth}}
   </div>
 
   <div class="privacy-links">

@@ -17,21 +17,33 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
     template: SignInTemplate,
     className: 'sign-in',
 
+    initialize: function (options) {
+      options = options || {};
+
+      // forceAuth means a user must sign in as a specific user.
+      Session.set('forceAuth', options.forceAuth || false);
+    },
+
     events: {
-      'submit form': 'signIn',
+      'submit form': BaseView.preventDefaultThen('signIn'),
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
-    signIn: function (event) {
-      event.preventDefault();
+    context: function () {
+      return {
+        email: Session.email,
+        forceAuth: Session.forceAuth
+      };
+    },
 
+    signIn: function () {
       if (! (this.isValid())) {
         return;
       }
 
-      var email = this.$('.email').val();
+      var email = Session.forceAuth ? Session.email : this.$('.email').val();
       var password = this.$('.password').val();
 
       var client = new FxaClient();
@@ -57,17 +69,12 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
     },
 
     _validateEmail: function () {
-      return this._isElementValid('.email');
+      // user cannot fill out email in forceAuth mode
+      return Session.forceAuth || this.isElementValid('.email');
     },
 
     _validatePassword: function () {
-      return this._isElementValid('.password');
-    },
-
-    _isElementValid: function (selector) {
-      var el = this.$(selector);
-      var value = el.val();
-      return value && el[0].validity.valid;
+      return this.isElementValid('.password');
     }
   });
 

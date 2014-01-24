@@ -7,7 +7,6 @@
 define([
   'jquery',
   'backbone',
-  'underscore',
   'views/sign_in',
   'views/sign_up',
   'views/confirm',
@@ -27,7 +26,6 @@ define([
 function (
   $,
   Backbone,
-  _,
   SignInView,
   SignUpView,
   ConfirmView,
@@ -43,9 +41,10 @@ function (
   ChangePasswordView,
   DeleteAccountView
 ) {
-  function showView(View) {
+
+  function showView(View, options) {
     return function () {
-      this.showView(new View());
+      this.showView(new View(options || {}));
     };
   }
 
@@ -65,7 +64,8 @@ function (
       'reset_password': showView(ResetPasswordView),
       'confirm_reset_password': showView(ConfirmResetPasswordView),
       'complete_reset_password': showView(CompleteResetPasswordView),
-      'reset_password_complete': showView(ResetPasswordCompleteView)
+      'reset_password_complete': showView(ResetPasswordCompleteView),
+      'force_auth': showView(SignInView, { forceAuth: true })
     },
 
     initialize: function (options) {

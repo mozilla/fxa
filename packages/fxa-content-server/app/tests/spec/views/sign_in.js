@@ -48,6 +48,35 @@ function (mocha, chai, View) {
       });
     });
   });
+
+  describe('views/sign_in used for /force_auth', function () {
+    var view;
+
+    beforeEach(function () {
+      view = new View({ forceAuth: true });
+      view.render();
+      $('#container').html(view.el);
+    });
+
+    afterEach(function () {
+      view.remove();
+      view.destroy();
+    });
+
+    it('does not allow the email to be edited', function () {
+      assert.equal($('input[type=email]').length, 0);
+    });
+
+    it('user cannot create an account', function () {
+      assert.equal($('a[href="/signup"]').length, 0);
+    });
+
+    it('isValid is successful when the password is filled out', function () {
+      $('.password').val('password');
+      assert.isTrue(view.isValid());
+    });
+  });
+
 });
 
 
