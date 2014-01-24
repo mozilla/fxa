@@ -12,11 +12,8 @@ define([
 ],
 function (BaseView, Template, Session, FxaClient) {
   var View = BaseView.extend({
-    initialize: function (options) {
-      options = options || {};
-
-      this.router = options.router || router;
-    },
+    // user must be authenticated to delete their account
+    mustAuth: true,
 
     template: Template,
     className: 'delete-account',
@@ -27,15 +24,6 @@ function (BaseView, Template, Session, FxaClient) {
       'submit form': 'deleteAccount',
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid'
-    },
-
-    beforeRender: function() {
-      if (! Session.sessionToken) {
-        this.router.navigate('signin', { trigger: true });
-        return false;
-      }
-
-      return true;
     },
 
     deleteAccount: function (event) {

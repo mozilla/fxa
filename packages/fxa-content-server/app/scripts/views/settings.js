@@ -13,11 +13,8 @@ define([
 ],
 function (_, BaseView, Template, FxaClient, Session) {
   var View = BaseView.extend({
-    initialize: function (options) {
-      options = options || {};
-
-      this.router = options.router || router;
-    },
+    // user must be authenticated to see Settings
+    mustAuth: true,
 
     template: Template,
     className: 'settings',
@@ -33,15 +30,6 @@ function (_, BaseView, Template, FxaClient, Session) {
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid',
       'click #signout': 'signOut'
-    },
-
-    beforeRender: function() {
-      if (! Session.sessionToken) {
-        this.router.navigate('signin', { trigger: true });
-        return false;
-      }
-
-      return true;
     },
 
     isValid: function () {

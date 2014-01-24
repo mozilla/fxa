@@ -7,9 +7,10 @@
 define([
   'underscore',
   'backbone',
-  'jquery'
+  'jquery',
+  'lib/session',
 ],
-function(_, Backbone, jQuery) {
+function(_, Backbone, jQuery, Session) {
   var ENTER_BUTTON_CODE = 13;
 
   var BaseView = Backbone.View.extend({
@@ -18,11 +19,19 @@ function(_, Backbone, jQuery) {
 
       this.subviews = [];
       this.translator = options.translator || window.translator;
+      this.router = options.router || window.router;
 
       Backbone.View.call(this, options);
     },
 
     render: function() {
+      // If the user must be authenticated and they are not, send
+      // them to the signin screen.
+      if (this.mustAuth && ! Session.sessionToken) {
+        this.router.navigate('signin', { trigger: true });
+        return false;
+      }
+
       if (! this.beforeRender()) {
         return false;
       }
