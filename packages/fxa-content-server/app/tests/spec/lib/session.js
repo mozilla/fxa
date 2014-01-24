@@ -38,6 +38,11 @@ function (mocha, chai, Session) {
         assert.equal(Session.key2, 'value2');
         assert.equal(Session.key3, 'value3');
       });
+
+      it('will not overwrite items in Session.prototype', function() {
+        Session.set('set', 1);
+        assert.notEqual(Session.set, 1);
+      });
     });
 
     describe('clear', function () {
@@ -60,6 +65,18 @@ function (mocha, chai, Session) {
         assert.isUndefined(Session.key5);
         assert.isUndefined(Session.key6);
       });
+
+      it('will not clear items in Session.prototype', function() {
+        Session.clear('set');
+        assert.isFunction(Session.set);
+      });
+
+      it('will not clear items in DO_NOT_CLEAR', function() {
+        var channel = {};
+        Session.set('channel', channel);
+        Session.clear('channel');
+        assert.strictEqual(Session.channel, channel);
+      });
     });
 
     describe('load', function () {
@@ -78,6 +95,15 @@ function (mocha, chai, Session) {
         Session.load();
         assert.equal(Session.key7, 'value7');
         assert.equal(Session.key8, 'value8');
+      });
+
+      it('does not load up items in DO_NOT_PERSIST', function() {
+        var channel = {};
+        Session.set('channel', channel);
+        Session.persist();
+        Session.clear();
+        Session.load();
+        assert.strictEqual(Session.channel, channel);
       });
     });
   });
