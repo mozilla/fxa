@@ -257,6 +257,48 @@ TestServer.start(config)
   )
 
   test(
+    '/account/create returns a sessionToken',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'ilikepancakes'
+      var client = new Client(config.publicUrl)
+      return client.setupCredentials(email, password)
+        .then(
+          function (c) {
+            return c.api.accountCreate(c.email, c.authPW)
+              .then(
+                function (response) {
+                  t.ok(response.sessionToken, 'has a sessionToken')
+                  t.equal(response.keyFetchToken, undefined, 'no keyFetchToken without keys=true')
+                }
+              )
+          }
+        )
+    }
+  )
+
+  test(
+    '/account/create returns a keyFetchToken when keys=true',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'ilikepancakes'
+      var client = new Client(config.publicUrl)
+      return client.setupCredentials(email, password)
+        .then(
+          function (c) {
+            return c.api.accountCreate(c.email, c.authPW, { keys: true })
+              .then(
+                function (response) {
+                  t.ok(response.sessionToken, 'has a sessionToken')
+                  t.ok(response.keyFetchToken, 'keyFetchToken with keys=true')
+                }
+              )
+          }
+        )
+    }
+  )
+
+  test(
     '/account/create with malformed email address',
     function (t) {
       var email = 'notAnEmailAddress'
