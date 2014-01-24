@@ -81,6 +81,7 @@ The currently-defined error responses are:
 * status code 400, errno 117:  incorrect login method for this account
 * status code 400, errno 118:  incorrect key retrieval method for this account
 * status code 400, errno 119:  incorrect API version for this account
+* status code 400, errno 120:  incorrect email case
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * any status code, errno 999:  unknown error
 
@@ -88,6 +89,7 @@ The follow error responses include additional parameters:
 
 * errno 111:  a `serverTime` parameter giving the current server time in seconds.
 * errno 114:  a `retryAfter` parameter indicating how long the client should wait before re-trying.
+* errno 120:  a `email` parameter indicating the case used to create the account
 * errno 201:  a `retryAfter` parameter indicating how long the client should wait before re-trying.
 
 
@@ -227,6 +229,7 @@ Failing requests may be due to the following errors:
 * status code 400, errno 108:  request body missing required parameters
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 400, errno 120:  incorrect email case
 
 
 ## GET /v1/account/devices
@@ -422,6 +425,7 @@ Failing requests may be due to the following errors:
 * status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 400, errno 120:  incorrect email case
 
 
 ## POST /v1/session/destroy
@@ -713,6 +717,7 @@ Failing requests may be due to the following errors:
 * status code 400, errno 106:  request body was not valid json
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 400, errno 120:  incorrect email case
 
 
 ## POST /v1/password/change/finish

@@ -108,12 +108,20 @@ module.exports = function(log) {
     })
   }
 
-  errors.incorrectPassword = function (email) {
+  errors.incorrectPassword = function (dbEmail, requestEmail) {
+    if (dbEmail !== requestEmail) {
+      return errors.wrap({
+        code: 400,
+        errno: 120,
+        message: 'Incorrect email case',
+        email: dbEmail
+      })
+    }
     return errors.wrap({
       code: 400,
       errno: 103,
       message: 'Incorrect password',
-      email: email
+      email: dbEmail
     })
   }
 
