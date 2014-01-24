@@ -67,14 +67,14 @@ function (FxaClient, $, p, Session) {
 
     },
 
-    signUp: function (email, password) {
+    signUp: function (email, password, customizeSync) {
       var self = this;
       return this._getClientAsync()
               .then(function (client) {
                 return client.signUp(email, password, { keys: true });
               })
               .then(function () {
-                return self.signIn(email, password);
+                return self.signIn(email, password, customizeSync);
               });
     },
 
