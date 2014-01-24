@@ -106,8 +106,13 @@ define([
           .click()
         .end()
 
-        // a better success case is needed!
+        // brittle, but some processing time.
         .wait(2000)
+
+        .elementByCssSelector('.success').isDisplayed()
+          .then(function (isDisplayed) {
+            assert.equal(isDisplayed, true);
+          })
         .end();
     },
 
