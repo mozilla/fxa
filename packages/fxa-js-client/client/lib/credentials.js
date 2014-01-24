@@ -56,7 +56,7 @@ define(['./request', '../../components/sjcl/sjcl', '../../components/p/p', './hk
       var password = sjcl.codec.utf8String.toBits(passwordInput);
 
       result.emailUTF8 = emailInput;
-      result.passwordUtf8 = passwordInput;
+      result.passwordUTF8 = passwordInput;
 
       return pbkdf2.derive(password, email, PBKDF2_ROUNDS, STRETCHED_PASS_LENGTH_BYTES)
         .then(

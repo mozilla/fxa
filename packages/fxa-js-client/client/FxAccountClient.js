@@ -26,20 +26,46 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    * @method signUp
    * @param {String} email Email input
    * @param {String} password Password input
-   * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.service]
+   *   Opaque alphanumeric token to be included in verification links
+   *   @param {String} [options.redirectTo]
+   *   a URL that the client should be redirected to after handling the request
+   *   @param {String} [options.preVerified]
+   *   set email to be verified if possible
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.signUp = function (email, password) {
+  FxAccountClient.prototype.signUp = function (email, password, options) {
     var self = this;
 
     return credentials.setup(email, password)
       .then(
         function (result) {
+          var endpoint = '/account/create';
           var data = {
             email: result.emailUTF8,
             authPW: sjcl.codec.hex.fromBits(result.authPW)
           };
 
-          return self.request.send('/account/create', 'POST', null, data);
+          if (options) {
+            if (options.service) {
+              data.service = options.service;
+            }
+
+            if (options.redirectTo) {
+              data.redirectTo = options.redirectTo;
+            }
+
+            if (options.preVerified) {
+              data.preVerified = options.preVerified;
+            }
+
+            if (options.keys) {
+              endpoint += '?keys=true';
+            }
+          }
+
+          return self.request.send(endpoint, 'POST', null, data);
         }
       );
   };
@@ -86,7 +112,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    * @method verifyCode
    * @param {String} uid Account ID
    * @param {String} code Verification code
-   * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.verifyCode = function(uid, code) {
     return this.request.send('/recovery_email/verify_code', 'POST', null, {
@@ -98,7 +124,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
   /**
    * @method recoveryEmailStatus
    * @param {String} sessionToken sessionToken obtained from signIn
-   * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.recoveryEmailStatus = function(sessionToken) {
     var self = this;
@@ -114,14 +140,30 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    *
    * @method recoveryEmailResendCode
    * @param {String} sessionToken sessionToken obtained from signIn
-   * @return {Promise} A promise that will be fulfilled with `result` of an XHR request
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.service]
+   *   Opaque alphanumeric token to be included in verification links
+   *   @param {String} [options.redirectTo]
+   *   a URL that the client should be redirected to after handling the request
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.recoveryEmailResendCode = function(sessionToken) {
+  FxAccountClient.prototype.recoveryEmailResendCode = function(sessionToken, options) {
     var self = this;
+    var data = {};
+
+    if (options) {
+      if (options.service) {
+        data.service = options.service;
+      }
+
+      if (options.redirectTo) {
+        data.redirectTo = options.redirectTo;
+      }
+    }
 
     return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
-        return self.request.send('/recovery_email/resend_code', 'POST', creds);
+        return self.request.send('/recovery_email/resend_code', 'POST', creds, data);
       });
   };
 
@@ -131,12 +173,29 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    *
    * @method passwordForgotSendCode
    * @param {String} email
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.service]
+   *   Opaque alphanumeric token to be included in verification links
+   *   @param {String} [options.redirectTo]
+   *   a URL that the client should be redirected to after handling the request
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.passwordForgotSendCode = function(email) {
-    return this.request.send('/password/forgot/send_code', 'POST', null, {
+  FxAccountClient.prototype.passwordForgotSendCode = function(email, options) {
+    var data = {
       email: email
-    });
+    };
+
+    if (options) {
+      if (options.service) {
+        data.service = options.service;
+      }
+
+      if (options.redirectTo) {
+        data.redirectTo = options.redirectTo;
+      }
+    }
+
+    return this.request.send('/password/forgot/send_code', 'POST', null, data);
   };
 
   /**
@@ -146,16 +205,32 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    * @method passwordForgotResendCode
    * @param {String} email
    * @param {String} passwordForgotToken
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.service]
+   *   Opaque alphanumeric token to be included in verification links
+   *   @param {String} [options.redirectTo]
+   *   a URL that the client should be redirected to after handling the request
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.passwordForgotResendCode = function(email, passwordForgotToken) {
+  FxAccountClient.prototype.passwordForgotResendCode = function(email, passwordForgotToken, options) {
     var self = this;
+    var data = {
+      email: email
+    };
+
+    if (options) {
+      if (options.service) {
+        data.service = options.service;
+      }
+
+      if (options.redirectTo) {
+        data.redirectTo = options.redirectTo;
+      }
+    }
 
     return hawkCredentials(passwordForgotToken, 'passwordForgotToken',  2 * 32)
       .then(function(creds) {
-        return self.request.send('/password/forgot/resend_code', 'POST', creds, {
-          email: email
-        });
+        return self.request.send('/password/forgot/resend_code', 'POST', creds, data);
       });
   };
 

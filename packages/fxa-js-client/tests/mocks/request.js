@@ -7,7 +7,12 @@ define([], function () {
     signUp: {
       status: 200,
       headers: {},
-      body: '{ "uid": "0577e7a5fbf448e3bc60dacbff5dcd5c" }'
+      body: '{ "uid": "0577e7a5fbf448e3bc60dacbff5dcd5c", "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d"}'
+    },
+    signUpKeys: {
+      status: 200,
+      headers: {},
+      body: '{ "uid": "0577e7a5fbf448e3bc60dacbff5dcd5c", "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d","keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c"  }'
     },
     signIn: {
       status: 200,

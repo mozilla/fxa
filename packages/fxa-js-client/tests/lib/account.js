@@ -28,12 +28,6 @@ define([
 
       function noop(val) { return val; }
 
-      if (!useRemoteServer) {
-        console.log("Running with mocks..");
-      } else {
-        console.log("Running against " + authServerUrl);
-      }
-
       beforeEach(function () {
         var xhr;
 
@@ -51,6 +45,94 @@ define([
         client = new FxAccountClient(authServerUrl, { xhr: xhr });
         mail = new Restmail(mailServerUrl, xhr);
         accountHelper = new AccountHelper(client, mail, respond);
+      });
+
+      /**
+       * Create Account
+       */
+      test('#create account', function () {
+        var email = "test" + Date.now() + "@restmail.net";
+        var password = "iliketurtles";
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function (res) {
+            assert.property(res, 'uid', 'uid should be returned on signUp');
+            assert.property(res, 'sessionToken', 'sessionToken should be returned on signUp');
+            assert.notProperty(res, 'keyFetchToken', 'keyFetchToken should not be returned on signUp');
+          });
+      });
+
+      test('#create account with keys', function () {
+        var email = "test" + Date.now() + "@restmail.net";
+        var password = "iliketurtles";
+        var opts = {
+          keys: true
+        };
+
+        return respond(client.signUp(email, password, opts), RequestMocks.signUpKeys)
+          .then(function (res) {
+            assert.property(res, 'uid', 'uid should be returned on signUp');
+            assert.property(res, 'sessionToken', 'sessionToken should be returned on signUp');
+            assert.property(res, 'keyFetchToken', 'keyFetchToken should be returned on signUp');
+          });
+      });
+
+      test('#create account with service and redirectTo', function () {
+        var email = "test" + Date.now() + "@restmail.net";
+        var password = "iliketurtles";
+        var opts = {
+          service: 'sync',
+          redirectTo: 'https://sync.firefox.com/after_reset'
+        };
+
+        return respond(client.signUp(email, password, opts), RequestMocks.signUp)
+          .then(function (res) {
+            assert.ok(res.uid);
+          });
+      });
+
+      test('#create account with service', function () {
+        var email = "test" + Date.now() + "@restmail.net";
+        var password = "iliketurtles";
+        var opts = {
+          service: 'sync'
+        };
+
+        return respond(client.signUp(email, password, opts), RequestMocks.signUp)
+          .then(function (res) {
+            assert.ok(res.uid);
+          });
+      });
+
+      test('#create account with redirectTo', function () {
+        var email = "test" + Date.now() + "@restmail.net";
+        var password = "iliketurtles";
+        var opts = {
+          service: 'sync'
+        };
+
+        return respond(client.signUp(email, password, opts), RequestMocks.signUp)
+          .then(function (res) {
+            assert.ok(res.uid);
+          });
+      });
+
+      test('#create account emailVerified', function () {
+        var email = "test" + Date.now() + "@restmail.net";
+        var password = "iliketurtles";
+        var opts = {
+          preVerified: true
+        };
+
+        return respond(client.signUp(email, password, opts), RequestMocks.signUp)
+          .then(function (res) {
+            assert.ok(res.uid);
+
+            return respond(client.signIn(email, password), RequestMocks.signIn);
+          })
+          .then(function(res) {
+            assert.equal(res.verified, true, '== account is verified');
+          });
       });
 
       /**

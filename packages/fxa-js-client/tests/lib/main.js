@@ -26,12 +26,6 @@ define([
 
       function noop(val) { return val; }
 
-      if (!useRemoteServer) {
-        console.log("Running with mocks..");
-      } else {
-        console.log("Running against " + authServerUrl);
-      }
-
       beforeEach(function () {
         var xhr;
 
@@ -48,19 +42,6 @@ define([
         }
         client = new FxAccountClient(authServerUrl, { xhr: xhr });
         mail = new Restmail(mailServerUrl, xhr);
-      });
-
-      /**
-       * Create Account
-       */
-      test('#create account', function () {
-        var email = "test" + Date.now() + "@restmail.net";
-        var password = "iliketurtles";
-
-        return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (res) {
-            assert.ok(res.uid);
-          });
       });
 
       /**
