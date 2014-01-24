@@ -47,6 +47,12 @@
     <div class="button-row">
       <button type="submit" disabled>{{#t}}Next{{/t}}</button>
     </div>
+
+    {{#isSync}}
+      <div class="input-row customize-sync-row">
+        <label><input type="checkbox" class="customize-sync"> {{#t}}Customize sync options{{/t}}</label>
+      </div>
+    {{/isSync}}
   </form>
 
   <div class="links">

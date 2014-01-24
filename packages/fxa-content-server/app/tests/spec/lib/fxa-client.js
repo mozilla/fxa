@@ -14,7 +14,7 @@ define([
   'lib/fxa-client'
 ],
 function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
-  /*global beforeEach, describe, it*/
+  /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var email;
   var password = 'password';
@@ -41,6 +41,19 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
         client.signUp(email, password)
           .then(function () {
             assert.equal(channelMock.message, 'login');
+            assert.isUndefined(channelMock.data.customizeSync);
+            done();
+          }, function (err) {
+            assert.fail(err);
+            done();
+          });
+      });
+
+      it('informs browser of customizeSync option', function (done) {
+        client.signUp(email, password, true)
+          .then(function () {
+            assert.equal(channelMock.message, 'login');
+            assert.isTrue(channelMock.data.customizeSync);
             done();
           }, function (err) {
             assert.fail(err);
@@ -57,6 +70,22 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
           })
           .then(function () {
             assert.equal(channelMock.message, 'login');
+            assert.isUndefined(channelMock.data.customizeSync);
+            done();
+          }, function (err) {
+            assert.fail(err);
+            done();
+          });
+      });
+
+      it('informs browser of customizeSync option', function (done) {
+        client.signUp(email, password)
+          .then(function () {
+            return client.signIn(email, password, true);
+          })
+          .then(function () {
+            assert.equal(channelMock.message, 'login');
+            assert.isTrue(channelMock.data.customizeSync);
             done();
           }, function (err) {
             assert.fail(err);
@@ -144,7 +173,7 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
           .then(function () {
             assert.fail('should not be able to signin after account deletion');
             done();
-          }, function (err) {
+          }, function () {
             // positive test to ensure sign in failure case has an assertion
             assert.isTrue(true);
             done();
