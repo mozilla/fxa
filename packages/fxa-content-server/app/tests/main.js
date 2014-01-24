@@ -53,11 +53,14 @@ require([
   '../tests/spec/lib/channels/fx-desktop',
   '../tests/spec/lib/xss',
   '../tests/spec/lib/url',
+  '../tests/spec/lib/session',
   '../tests/spec/lib/fxa-client',
   '../tests/spec/views/base',
   '../tests/spec/views/sign_up',
   '../tests/spec/views/sign_in',
-  '../tests/spec/views/complete_reset_password'
+  '../tests/spec/views/complete_reset_password',
+  '../tests/spec/views/settings',
+  '../tests/spec/views/delete_account'
 ],
 function (Mocha) {
   // Use a mock for the translator

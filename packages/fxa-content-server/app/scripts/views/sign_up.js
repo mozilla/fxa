@@ -113,21 +113,7 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
 
       var client = new FxaClient();
       client.signUp(email, password)
-        .done(_.bind(function (accountData) {
-          // Ugh, kind of sloppy, but the channel is not yet created if the
-          // user (or Selenium tests) access this page directly. do a setTimeout
-          // to allow page initialization to complete, and then get back
-          // to sending the message.
-          setTimeout(function() {
-            Session.channel.send('login', {
-              email: email,
-              uid: accountData.uid,
-              sessionToken: accountData.sessionToken,
-              unwrapBKey: accountData.unwrapBKey,
-              keyFetchToken: accountData.keyFetchToken
-            });
-          }, 100);
-
+        .done(_.bind(function () {
           this.router.navigate('confirm', { trigger: true });
         }, this),
         _.bind(function (err) {

@@ -11,7 +11,6 @@ define([
   'views/sign_in',
   'views/sign_up',
   'views/confirm',
-  'views/settings',
   'views/tos',
   'views/pp',
   'views/cannot_create_account',
@@ -20,6 +19,8 @@ define([
   'views/confirm_reset_password',
   'views/complete_reset_password',
   'views/reset_password_complete',
+  'views/settings',
+  'views/delete_account',
   'transit'
 ],
 function (
@@ -29,7 +30,6 @@ function (
   SignInView,
   SignUpView,
   ConfirmView,
-  SettingsView,
   TosView,
   PpView,
   CannotCreateAccountView,
@@ -37,22 +37,32 @@ function (
   ResetPasswordView,
   ConfirmResetPasswordView,
   CompleteResetPasswordView,
-  ResetPasswordCompleteView) {
+  ResetPasswordCompleteView,
+  SettingsView,
+  DeleteAccountView
+) {
+  function showView(View) {
+    return function () {
+      this.showView(new View());
+    };
+  }
+
   var Router = Backbone.Router.extend({
     routes: {
       '': 'redirectToSignup',
-      'signin': 'showSignIn',
-      'signup': 'showSignUp',
-      'confirm': 'showConfirm',
-      'settings': 'showSettings',
-      'tos': 'showTos',
-      'pp': 'showPp',
-      'cannot_create_account': 'showCannotCreateAccount',
-      'verify_email': 'showCompleteSignUp',
-      'reset_password': 'showResetPassword',
-      'confirm_reset_password': 'showConfirmResetPassword',
-      'complete_reset_password': 'showCompleteResetPassword',
-      'reset_password_complete': 'showResetPasswordComplete'
+      'signin': showView(SignInView),
+      'signup': showView(SignUpView),
+      'confirm': showView(ConfirmView),
+      'settings': showView(SettingsView),
+      'delete_account': showView(DeleteAccountView),
+      'tos': showView(TosView),
+      'pp': showView(PpView),
+      'cannot_create_account': showView(CannotCreateAccountView),
+      'verify_email': showView(CompleteSignUpView),
+      'reset_password': showView(ResetPasswordView),
+      'confirm_reset_password': showView(ConfirmResetPasswordView),
+      'complete_reset_password': showView(CompleteResetPasswordView),
+      'reset_password_complete': showView(ResetPasswordCompleteView)
     },
 
     initialize: function () {
@@ -63,54 +73,6 @@ function (
 
     redirectToSignup: function () {
       this.navigate('/signup', { trigger: true });
-    },
-
-    showSignIn: function () {
-      this.showView(new SignInView());
-    },
-
-    showSignUp: function () {
-      this.showView(new SignUpView());
-    },
-
-    showConfirm: function () {
-      this.showView(new ConfirmView());
-    },
-
-    showSettings: function () {
-      this.showView(new SettingsView());
-    },
-
-    showTos: function () {
-      this.showView(new TosView());
-    },
-
-    showPp: function () {
-      this.showView(new PpView());
-    },
-
-    showCannotCreateAccount: function () {
-      this.showView(new CannotCreateAccountView());
-    },
-
-    showCompleteSignUp: function () {
-      this.showView(new CompleteSignUpView());
-    },
-
-    showResetPassword: function () {
-      this.showView(new ResetPasswordView());
-    },
-
-    showConfirmResetPassword: function () {
-      this.showView(new ConfirmResetPasswordView());
-    },
-
-    showCompleteResetPassword: function () {
-      this.showView(new CompleteResetPasswordView());
-    },
-
-    showResetPasswordComplete: function () {
-      this.showView(new ResetPasswordCompleteView());
     },
 
     showView: function (view) {

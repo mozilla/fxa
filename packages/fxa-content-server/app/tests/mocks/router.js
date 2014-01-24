@@ -19,7 +19,7 @@ define([
       this.page = page;
       this.opts = opts;
 
-      this.trigger('navigate');
+      this.trigger('navigate', page);
     }
   });
 

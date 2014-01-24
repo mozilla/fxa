@@ -37,13 +37,6 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
       var client = new FxaClient();
       client.signIn(email, password)
             .then(function (accountData) {
-              Session.channel.send('login', {
-                email: email,
-                uid: accountData.uid,
-                sessionToken: accountData.sessionToken,
-                unwrapBKey: accountData.unwrapBKey,
-                keyFetchToken: accountData.keyFetchToken
-              });
               if (accountData.verified) {
                 router.navigate('settings', { trigger: true });
               } else {

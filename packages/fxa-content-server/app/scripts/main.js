@@ -70,7 +70,7 @@ function (
 
     // The channel must be initialized after Backbone.history so that the
     // Backbone does not override the page the channel sets.
-    Session.channel = getChannel();
+    Session.set('channel', getChannel());
   });
 
   function getChannel() {
