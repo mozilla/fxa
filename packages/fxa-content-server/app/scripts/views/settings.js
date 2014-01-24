@@ -9,9 +9,10 @@ define([
   'views/base',
   'stache!templates/settings',
   'lib/fxa-client',
-  'lib/session'
+  'lib/session',
+  'lib/password-mixin'
 ],
-function (_, BaseView, Template, FxaClient, Session) {
+function (_, BaseView, Template, FxaClient, Session, PasswordMixin) {
   var View = BaseView.extend({
     // user must be authenticated to see Settings
     mustAuth: true,
@@ -29,7 +30,8 @@ function (_, BaseView, Template, FxaClient, Session) {
       'submit form': 'changePassword',
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid',
-      'click #signout': 'signOut'
+      'click #signout': 'signOut',
+      'change .show-password': 'onPasswordVisibilityChange'
     },
 
     isValid: function () {
@@ -90,6 +92,8 @@ function (_, BaseView, Template, FxaClient, Session) {
             });
     }
   });
+
+  _.extend(View.prototype, PasswordMixin);
 
   return View;
 });
