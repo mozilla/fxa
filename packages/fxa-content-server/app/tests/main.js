@@ -62,7 +62,7 @@ require([
   '../tests/spec/views/complete_reset_password',
   '../tests/spec/views/settings',
   '../tests/spec/views/change_password',
-  '../tests/spec/views/delete_account'
+  '../tests/spec/views/delete_account',
   '../tests/spec/views/confirm',
   '../tests/spec/views/confirm_reset_password'
 ],
