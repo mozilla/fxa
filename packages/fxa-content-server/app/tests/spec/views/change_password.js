@@ -10,7 +10,7 @@ define([
   'chai',
   'underscore',
   'jquery',
-  'views/settings',
+  'views/change_password',
   'lib/fxa-client',
   'lib/session',
   '../../mocks/router'
@@ -18,7 +18,7 @@ define([
 function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
   var assert = chai.assert;
 
-  describe('views/settings', function () {
+  describe('views/change_password', function () {
     var view, router, email;
 
     beforeEach(function () {
@@ -62,14 +62,43 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           });
       });
 
-      describe('signOut', function () {
-        it('signs the user out, redirects to signin page', function (done) {
-          router.on('navigate', function (newPage) {
-            assert.equal(newPage, 'signin');
-            done();
-          });
+      describe('isValid', function () {
+        it('returns true if both old and new passwords are valid and different', function () {
+          $('#old_password').val('password');
+          $('#new_password').val('password2');
 
-          view.signOut();
+          assert.equal(view.isValid(), true);
+        });
+
+        it('returns true if both old and new passwords are valid and the same', function () {
+          $('#old_password').val('password');
+          $('#new_password').val('password');
+
+          assert.equal(view.isValid(), false);
+        });
+
+        it('returns false if old password is too short', function () {
+          $('#old_password').val('passwor');
+          $('#new_password').val('password');
+
+          assert.equal(view.isValid(), false);
+        });
+
+        it('returns false if new password is too short', function () {
+          $('#old_password').val('password');
+          $('#new_password').val('passwor');
+
+          assert.equal(view.isValid(), false);
+        });
+      });
+
+      describe('changePassword', function () {
+        it('changes from old to new password, redirects user to signin', function (done) {
+          $('#old_password').val('password');
+          $('#new_password').val('new_password');
+
+          view.on('password-changed', done);
+          view.changePassword();
         });
       });
     });

@@ -20,6 +20,7 @@ define([
   'views/complete_reset_password',
   'views/reset_password_complete',
   'views/settings',
+  'views/change_password',
   'views/delete_account',
   'transit'
 ],
@@ -39,6 +40,7 @@ function (
   CompleteResetPasswordView,
   ResetPasswordCompleteView,
   SettingsView,
+  ChangePasswordView,
   DeleteAccountView
 ) {
   function showView(View) {
@@ -54,6 +56,7 @@ function (
       'signup': showView(SignUpView),
       'confirm': showView(ConfirmView),
       'settings': showView(SettingsView),
+      'change_password': showView(ChangePasswordView),
       'delete_account': showView(DeleteAccountView),
       'tos': showView(TosView),
       'pp': showView(PpView),

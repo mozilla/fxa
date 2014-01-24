@@ -26,53 +26,7 @@ function (_, BaseView, Template, FxaClient, Session) {
     },
 
     events: {
-      'submit form': 'changePassword',
-      'keyup input': 'enableButtonWhenValid',
-      'change input': 'enableButtonWhenValid',
       'click #signout': 'signOut'
-    },
-
-    isValid: function () {
-      if (! (this.isElementValid('#old_password') &&
-             this.isElementValid('#new_password'))) {
-        return false;
-      }
-
-      // require the passwords to be different
-      return this._getOldPassword() !== this._getNewPassword();
-    },
-
-    changePassword: function (event) {
-      if (event) {
-        event.preventDefault();
-      }
-
-      if (! this.isValid()) {
-        return;
-      }
-
-      var email = Session.email;
-      var oldPassword = this._getOldPassword();
-      var newPassword = this._getNewPassword();
-
-      var self = this;
-      var client = new FxaClient();
-      client.changePassword(email, oldPassword, newPassword)
-            .then(function () {
-              self.$('.success').show();
-              // used for testing.
-              self.trigger('password-changed');
-            }, function (err) {
-              self.displayError(err.msg || err.message);
-            });
-    },
-
-    _getOldPassword: function () {
-      return this.$('#old_password').val();
-    },
-
-    _getNewPassword: function () {
-      return this.$('#new_password').val();
     },
 
     signOut: function (event) {

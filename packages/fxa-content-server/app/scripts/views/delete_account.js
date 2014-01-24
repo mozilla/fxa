@@ -5,12 +5,14 @@
 'use strict';
 
 define([
+  'underscore',
   'views/base',
   'stache!templates/delete_account',
   'lib/session',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'lib/password-mixin'
 ],
-function (BaseView, Template, Session, FxaClient) {
+function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
   var View = BaseView.extend({
     // user must be authenticated to delete their account
     mustAuth: true,
@@ -23,7 +25,8 @@ function (BaseView, Template, Session, FxaClient) {
       'keyup #back': 'backOnEnter',
       'submit form': 'deleteAccount',
       'keyup input': 'enableButtonWhenValid',
-      'change input': 'enableButtonWhenValid'
+      'change input': 'enableButtonWhenValid',
+      'change .show-password': 'onPasswordVisibilityChange'
     },
 
     deleteAccount: function (event) {
@@ -61,6 +64,8 @@ function (BaseView, Template, Session, FxaClient) {
       return this.isElementValid('.password');
     }
   });
+
+  _.extend(View.prototype, PasswordMixin);
 
   return View;
 });

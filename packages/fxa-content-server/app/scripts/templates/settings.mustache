@@ -5,26 +5,19 @@
 
 <section>
   <div class="error"></div>
-  <div class="success">{{#t}}Password changed{{/t}}</div>
 
   <p>{{#t}}You are signed in as:{{/t}}<br /> {{ email }}</p>
 
-  <form>
-    <div class="input-row">
-      <input type="password" class="password" id="old_password" placeholder="{{#t}}Old password{{/t}}" pattern=".{8,}" autofocus required>
-    </div>
-
-    <div class="input-row">
-      <input type="password" class="password" id="new_password" placeholder="{{#t}}New password{{/t}}" pattern=".{8,}" required>
-    </div>
-
-    <div class="button-row">
-      <button type="submit" disabled>{{#t}}Change Password{{/t}}</button>
-    </div>
-  </form>
 
   <div class="links">
-    <a id="signout" class="left" href="#">{{#t}}Sign out{{/t}}</a>
-    <a id="delete_account" class="right" href="/delete_account">{{#t}}Delete account{{/t}}</a>
+    <div>
+      <a id="signout" href="#">{{#t}}Sign out{{/t}}</a>
+    </div>
+    <div>
+      <a id="change-password" href="/change_password">{{#t}}Change password{{/t}}</a>
+    </div>
+    <div>
+      <a id="delete-account" href="/delete_account">{{#t}}Delete account{{/t}}</a>
+    </div>
   </div>
 </section>
