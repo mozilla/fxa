@@ -47,10 +47,10 @@ noscript {
   width: 320px;
 }
 
-
 .js #stage {
-  opacity: 0;
+  display: none;
 }
+
 header h1, header h2 {
   font-family: "Fira Sans", Helvetica, Arial, sans-serif;
   line-height: 1em;
