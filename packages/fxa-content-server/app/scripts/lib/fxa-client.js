@@ -55,10 +55,11 @@ function (FxaClient, $, p, Session) {
                 };
 
                 Session.set(updatedSessionData);
-                try {
+                if (Session.channel) {
                   Session.channel.send('login', updatedSessionData);
-                } catch (e) {
-                  // phantom blows up here.
+                }
+                else if (window.console && window.console.warn) {
+                  console.warn('Session.channel does not exist');
                 }
 
                 return accountData;
@@ -101,6 +102,7 @@ function (FxaClient, $, p, Session) {
                 return client.passwordForgotSendCode(email);
               })
               .then(function () {
+                Session.clear();
                 Session.set('email', email);
               });
     },
