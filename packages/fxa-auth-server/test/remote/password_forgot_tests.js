@@ -85,7 +85,7 @@ TestServer.start(config)
           function () {
             return server.assertLogs(t, {
               'account-create-success': 1,
-              'session-create': 3,
+              'session-create': 4,
               'pwd-reset-request': 1,
               'pwd-reset-verify-success': 1,
               'pwd-reset-verify-failure': 0,

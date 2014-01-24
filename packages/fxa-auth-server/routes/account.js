@@ -78,48 +78,92 @@ module.exports = function (
                         verifyHash: verifyHash
                       }
                     )
+                    .then(
+                      function (account) {
+                        return db.createSessionToken(
+                          {
+                            uid: account.uid,
+                            email: account.email,
+                            emailCode: account.emailCode,
+                            emailVerified: account.emailVerified
+                          }
+                        )
+                        .then(
+                          function (sessionToken) {
+                            log.security({ event: 'session-create' })
+                            if (request.query.keys !== 'true') {
+                              return P({
+                                account: account,
+                                sessionToken: sessionToken
+                              })
+                            }
+                            return password.unwrap(account.wrapWrapKb)
+                              .then(
+                                function (wrapKb) {
+                                  return db.createKeyFetchToken(
+                                    {
+                                      uid: account.uid,
+                                      kA: account.kA,
+                                      wrapKb: wrapKb,
+                                      emailVerified: account.emailVerified
+                                    }
+                                  )
+                                }
+                              )
+                              .then(
+                                function (keyFetchToken) {
+                                  return {
+                                    account: account,
+                                    sessionToken: sessionToken,
+                                    keyFetchToken: keyFetchToken
+                                  }
+                                }
+                              )
+                          }
+                        )
+                      }
+                    )
                   }
                 )
               }
             )
             .then(
-              function (account) {
-                if (!account.emailVerified) {
+              function (response) {
+                if (!response.account.emailVerified) {
                   mailer.sendVerifyCode(
-                    account,
-                    account.emailCode,
+                    response.account,
+                    response.account.emailCode,
                     form.service,
                     form.redirectTo,
                     request.app.preferredLang
                   )
                   .fail(
                     function (err) {
-                      log.error({ op: 'mailer.sendVerifyCode1', err: err })
+                      log.error({ op: 'mailer.sendVerifyCode.1', err: err })
                     }
                   )
                 }
-                return account
-              }
-            )
-            .then(
-              function (account) {
-                log.security({ event: 'account-create-success', uid: account.uid })
-                return account
-              },
-              function (err) {
-                log.security({ event: 'account-create-failure', err: err })
-                throw err
+                return response
               }
             )
             .done(
-              function (account) {
+              function (response) {
+                var account = response.account
+                log.security({ event: 'account-create-success', uid: account.uid })
                 request.reply(
                   {
-                    uid: account.uid.toString('hex')
+                    uid: account.uid.toString('hex'),
+                    sessionToken: response.sessionToken.data.toString('hex'),
+                    keyFetchToken: response.keyFetchToken ?
+                      response.keyFetchToken.data.toString('hex')
+                      : undefined
                   }
                 )
               },
-              request.reply.bind(request)
+              function (err) {
+                log.security({ event: 'account-create-failure', err: err })
+                request.reply(err)
+              }
             )
         }
       }

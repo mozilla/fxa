@@ -88,9 +88,11 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
  */
 ClientApi.prototype.accountCreate = function (email, authPW, options) {
   options = options || {}
+  var url = this.baseURL + '/account/create'
+  if (options.keys) { url += '?keys=true' }
   return this.doRequest(
     'POST',
-    this.baseURL + '/account/create',
+    url,
     null,
     {
       email: email,

@@ -49,7 +49,7 @@ TestServer.start(config)
           function () {
             return server.assertLogs(t, {
               'login-success': 1,
-              'session-create': 1,
+              'session-create': 2,
               'session-destroy': 1,
             })
           }
