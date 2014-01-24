@@ -57,8 +57,7 @@ function (FxaClient, $, p, Session) {
                 Session.set(updatedSessionData);
                 if (Session.channel) {
                   Session.channel.send('login', updatedSessionData);
-                }
-                else if (window.console && window.console.warn) {
+                } else if (window.console && window.console.warn) {
                   console.warn('Session.channel does not exist');
                 }
 
@@ -83,7 +82,7 @@ function (FxaClient, $, p, Session) {
               .then(function (client) {
                 return client.sessionDestroy(Session.sessionToken);
               })
-              .then(function() {
+              .then(function () {
                 // user's session is gone
                 Session.clear();
               });
@@ -137,7 +136,7 @@ function (FxaClient, $, p, Session) {
               .then(function (client) {
                 return client.accountDestroy(email, password);
               })
-              .then(function() {
+              .then(function () {
                 Session.clear();
               });
     },
