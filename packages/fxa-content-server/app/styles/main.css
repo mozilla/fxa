@@ -41,13 +41,16 @@ noscript {
   box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
   margin: 60px auto 0;
   min-height: 550px;
-  opacity: 0;
   /* padding-bottom = 30px (below icon) + 31px (firefox icon) + 40px (above icon) */
   padding: 50px 25px 101px 25px;
   text-align: center;
   width: 320px;
 }
 
+
+.js #stage {
+  opacity: 0;
+}
 header h1, header h2 {
   font-family: "Fira Sans", Helvetica, Arial, sans-serif;
   line-height: 1em;
