@@ -48,14 +48,15 @@ function (_, Backbone, jQuery, Session) {
     getContext: function () {
       var ctx = this.context() || {};
 
-      ctx.t = this.translate;
+      ctx.t = _.bind(this.translate, this);
 
       return ctx;
     },
 
     translate: function () {
+      var self = this;
       return function (text) {
-        return translator.get(text);
+        return translator.get(text, self.getContext());
       };
     },
 
