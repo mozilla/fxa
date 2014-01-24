@@ -8,13 +8,13 @@ define([
   'underscore',
   'backbone',
   'jquery',
-  'lib/session',
+  'lib/session'
 ],
-function(_, Backbone, jQuery, Session) {
+function (_, Backbone, jQuery, Session) {
   var ENTER_BUTTON_CODE = 13;
 
   var BaseView = Backbone.View.extend({
-    constructor: function(options) {
+    constructor: function (options) {
       options = options || {};
 
       this.subviews = [];
@@ -24,7 +24,7 @@ function(_, Backbone, jQuery, Session) {
       Backbone.View.call(this, options);
     },
 
-    render: function() {
+    render: function () {
       // If the user must be authenticated and they are not, send
       // them to the signin screen.
       if (this.mustAuth && ! Session.sessionToken) {
@@ -53,29 +53,29 @@ function(_, Backbone, jQuery, Session) {
       return ctx;
     },
 
-    translate: function() {
-      return function(text) {
+    translate: function () {
+      return function (text) {
         return translator.get(text);
       };
     },
 
-    context: function() {
+    context: function () {
       // Implement in subclasses
     },
 
-    beforeRender: function() {
+    beforeRender: function () {
       // Implement in subclasses. If returns false, then the view is not
       // rendered. Useful if the view must immediately redirect to another
       // view.
       return true;
     },
 
-    afterRender: function() {
+    afterRender: function () {
       // Implement in subclasses
     },
 
     // called after the view is visible.
-    afterVisible: function() {
+    afterVisible: function () {
       // make a huge assumption and say if the device does not have touch,
       // it's a desktop device and autofocus can be applied without
       // hiding part of the screen. The no-touch class is added by modernizr
@@ -88,12 +88,12 @@ function(_, Backbone, jQuery, Session) {
       }
     },
 
-    assign: function(view, selector) {
+    assign: function (view, selector) {
       view.setElement(this.$(selector));
       view.render();
     },
 
-    destroy: function(remove) {
+    destroy: function (remove) {
       if (this.beforeDestroy) {
         this.beforeDestroy();
       }
@@ -108,7 +108,7 @@ function(_, Backbone, jQuery, Session) {
       this.destroySubviews();
     },
 
-    trackSubview: function(view) {
+    trackSubview: function (view) {
       if (!_.contains(this.subviews, view)) {
         this.subviews.push(view);
       }
@@ -116,13 +116,13 @@ function(_, Backbone, jQuery, Session) {
       return view;
     },
 
-    destroySubviews: function() {
+    destroySubviews: function () {
       _.invoke(this.subviews, 'destroy');
 
       this.subviews = [];
     },
 
-    enableButtonWhenValid: function() {
+    enableButtonWhenValid: function () {
       var enabled = this.isValid && this.isValid();
 
       this.$('button[type="submit"]').attr('disabled', !enabled);
@@ -134,7 +134,7 @@ function(_, Backbone, jQuery, Session) {
       return value && el[0].validity.valid;
     },
 
-    displayError: function(msg) {
+    displayError: function (msg) {
       this.$('.spinner').hide();
       this.$('.error').text(this.translator.get(msg));
     },
