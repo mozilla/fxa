@@ -56,7 +56,8 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
     context: function () {
       return {
         service: this.service,
-        isSync: this.service === 'sync'
+        isSync: this.service === 'sync',
+        searchParams: window.location.search
       };
     },
 

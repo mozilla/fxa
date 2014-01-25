@@ -24,6 +24,12 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
+    context: function () {
+      return {
+        searchParams: window.location.search
+      };
+    },
+
     signIn: function (event) {
       event.preventDefault();
 
