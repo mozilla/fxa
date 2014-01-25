@@ -13,7 +13,7 @@ define([
     // test vectors from RFC5869
     suite('hkdf', function () {
 
-      test('#hkdf vector 1', function () {
+      test('#vector 1', function () {
 
         var ikm = sjcl.codec.hex.toBits('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
         var salt = sjcl.codec.hex.toBits('000102030405060708090a0b0c');
@@ -26,7 +26,7 @@ define([
           });
       });
 
-      test('#hkdf vector 2', function () {
+      test('#vector 2', function () {
 
         var ikm = sjcl.codec.hex.toBits('0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b');
         var salt = sjcl.codec.hex.toBits('');

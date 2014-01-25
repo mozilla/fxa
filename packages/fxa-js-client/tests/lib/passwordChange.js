@@ -11,8 +11,9 @@ define([
   'tests/addons/sinonResponder',
   'tests/mocks/request',
   'client/lib/request',
-  'tests/addons/restmail'
-], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Request, Restmail) {
+  'tests/addons/restmail',
+  'tests/addons/accountHelper'
+], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Request, Restmail, AccountHelper) {
 
   with (tdd) {
     suite('passwordChange', function () {
@@ -24,6 +25,7 @@ define([
       var client;
       var respond;
       var mail;
+      var accountHelper;
 
       function noop(val) { return val; }
 
@@ -43,12 +45,13 @@ define([
         }
         client = new FxAccountClient(authServerUrl, { xhr: xhr });
         mail = new Restmail(mailServerUrl, xhr);
+        accountHelper = new AccountHelper(client, mail, respond);
       });
 
       /**
        * Changing the Password
        */
-      test('#passwordChange', function () {
+      test('#basic', function () {
         var user = 'test7' + Date.now();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
@@ -93,10 +96,45 @@ define([
           )
       });
 
+      test('#with incorrect case', function () {
+        var newPassword = 'ilikefoxes';
+        var account;
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (acc) {
+            account = acc;
+            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+
+            return respond(client._passwordChangeStart(incorrectCaseEmail, account.input.password), RequestMocks.passwordChangeStart);
+          })
+          .then(function (oldCreds) {
+
+            return respond(client._passwordChangeFinish(account.input.email, newPassword, oldCreds), RequestMocks.passwordChangeFinish);
+          })
+          .then(function (result) {
+            assert.ok(result, '{}');
+
+            return respond(client.signIn(account.input.email, newPassword), RequestMocks.signIn);
+          })
+          .then(
+          function (res) {
+            assert.ok(res.sessionToken);
+
+            return true;
+          },
+          function (error) {
+            console.log(error);
+            assert.equal(error, null, '== no errors');
+
+            return error;
+          }
+        )
+      });
+
       /**
        * Changing the Password failure
        */
-      test('#passwordChangeFail', function () {
+      test('#changeFailure', function () {
         var user = 'test8' + Date.now();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';

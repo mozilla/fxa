@@ -9,7 +9,7 @@ define([
   'client/lib/hawkCredentials'
 ], function (tdd, assert, sjcl, hawkCredentials) {
   with (tdd) {
-    suite('client hawkCredentials', function () {
+    suite('hawkCredentials', function () {
       test('#client derive hawk credentials', function () {
         var context = 'sessionToken';
         var sessionToken = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf';

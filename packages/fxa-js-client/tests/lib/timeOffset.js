@@ -17,7 +17,7 @@ define([
 ], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail, AccountHelper, Request, hawkCredentials) {
 
   with (tdd) {
-    suite('fxa client', function () {
+    suite('timeOffset', function () {
       var authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000/v1';
       var useRemoteServer = !!config.AUTH_SERVER_URL;
       var mailServerUrl = authServerUrl.match(/^http:\/\/127/) ?
@@ -27,6 +27,7 @@ define([
       var respond;
       var xhr;
       var sessionToken;
+      var accountHelper;
 
       function noop(val) { return val; }
 

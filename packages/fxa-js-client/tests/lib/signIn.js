@@ -15,15 +15,15 @@ define([
 ], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail, AccountHelper) {
 
   with (tdd) {
-    suite('keys', function () {
+    suite('signIn', function () {
       var authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000/v1';
       var useRemoteServer = !!config.AUTH_SERVER_URL;
       var mailServerUrl = authServerUrl.match(/^http:\/\/127/) ?
         'http://127.0.0.1:9001' :
         'http://restmail.net';
       var client;
-      var respond;
       var mail;
+      var respond;
       var accountHelper;
 
       function noop(val) { return val; }
@@ -47,29 +47,55 @@ define([
         accountHelper = new AccountHelper(client, mail, respond);
       });
 
-      /**
-       * Get Account Keys
-       */
-      test('#get', function () {
+      test('#basic', function () {
+        var email = "test" + Date.now() + "@restmail.net";
+        var password = "iliketurtles";
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function () {
+
+            return respond(client.signIn(email, password), RequestMocks.signIn);
+          })
+          .then(function (res) {
+            assert.ok(res.sessionToken);
+          });
+      });
+
+      test('#with keys', function () {
+        var email = "test" + Date.now() + "@restmail.net";
+        var password = "iliketurtles";
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function (res) {
+            return respond(client.signIn(email, password, {keys: true}), RequestMocks.signInWithKeys);
+          })
+          .then(function (res) {
+            assert.ok(res.sessionToken);
+            assert.ok(res.keyFetchToken);
+            assert.ok(res.unwrapBKey);
+            return true;
+          });
+      });
+
+      test('#incorrect email case', function () {
 
         return accountHelper.newVerifiedAccount()
           .then(function (account) {
+            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
 
-            return respond(client.accountKeys(account.signIn.keyFetchToken), RequestMocks.accountKeys)
+            return respond(client.signIn(incorrectCaseEmail, account.input.password), RequestMocks.signIn);
           })
           .then(
-            function(keys) {
-              assert.ok(keys.bundle);
-
-              return true
-            },
-            function(error) {
-              console.log(error);
-              assert.equal(error, null, '== no error occured');
-            }
+          function (res) {
+            assert.property(res, 'sessionToken');
+            return true;
+          },
+          function (res) {
+            assert.notEqual(res.code, 400);
+            assert.notEqual(res.errno, 120);
+          }
         );
       });
-
     });
   }
 });
