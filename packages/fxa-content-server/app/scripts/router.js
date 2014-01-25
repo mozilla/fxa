@@ -75,7 +75,7 @@ function (
     },
 
     redirectToSignup: function () {
-      this.navigate('/signup', { trigger: true });
+      this.navigate('/signup' + window.location.search, { trigger: true });
     },
 
     showView: function (view) {
