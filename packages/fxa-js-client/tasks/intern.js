@@ -26,8 +26,8 @@ module.exports = function (grunt) {
         runType: 'runner',
         config: 'tests/intern_sauce',
         suites: ['tests/all'],
-        sauceUsername: 'gherkin-web',
-        sauceAccessKey: 'de4982ac-cb05-4b9c-8059-385a83de8af4'
+        sauceUsername: 'fxa-client',
+        sauceAccessKey: '863203af-38fd-4f1d-9332-adc8f60f157b'
       }
     }
   });
