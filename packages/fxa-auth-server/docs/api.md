@@ -72,11 +72,10 @@ The currently-defined error responses are:
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
 * status code 429, errno 114:  client has sent too many requests (see [backoff protocol](#backoff-protocol))
-* status code 401, errno 115:  invalid nonce in request signature
+* status code 401, errno 115:  invalid authentication nonce
 * status code 410, errno 116:  endpoint is no longer supported
 * status code 400, errno 117:  incorrect login method for this account
 * status code 400, errno 118:  incorrect key retrieval method for this account
@@ -379,9 +378,9 @@ Failing requests may be due to the following errors:
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 401, errno 115:  invalid authentication nonce
 
 
 ## POST /v1/account/destroy
@@ -422,9 +421,9 @@ Failing requests may be due to the following errors:
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 401, errno 115:  invalid authentication nonce
 * status code 400, errno 120:  incorrect email case
 
 
@@ -463,9 +462,9 @@ Failing requests may be due to the following errors:
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 401, errno 115:  invalid authentication nonce
 
 
 ## GET /v1/recovery_email/status
@@ -557,9 +556,9 @@ Failing requests may be due to the following errors:
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 401, errno 115:  invalid authentication nonce
 
 
 ## POST /v1/recovery_email/verify_code
@@ -671,9 +670,9 @@ Failing requests may be due to the following errors:
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 401, errno 115:  invalid authentication nonce
 
 
 ## POST /v1/password/change/start
@@ -762,9 +761,9 @@ Failing requests may be due to the following errors:
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 401, errno 115:  invalid authentication nonce
 
 
 ## POST /v1/password/forgot/send_code
@@ -872,9 +871,9 @@ Failing requests may be due to the following errors:
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 401, errno 115:  invalid authentication nonce
 
 
 ## POST /v1/password/forgot/verify_code
@@ -920,9 +919,9 @@ Failing requests may be due to the following errors:
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
-* status code 401, errno 115:  invalid authentication nonce
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 401, errno 115:  invalid authentication nonce
 
 
 ## POST /v1/get_random_bytes
