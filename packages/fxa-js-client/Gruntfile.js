@@ -45,5 +45,5 @@ module.exports = function (grunt) {
 
   grunt.registerTask('travis',
     'Test runner task for Travis CI',
-    ['intern:node', 'intern:sauce']);
+    ['build', 'intern:node', 'intern:sauce']);
 };

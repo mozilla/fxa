@@ -14,13 +14,15 @@ module.exports = function (grunt) {
     release: {
       options: {
         branch: 'release',
-        dir: 'build'
+        dir: 'build',
+        tag: '<%= pkg.version %>'
       }
     },
     docs: {
       options: {
         branch: 'gh-pages',
-        dir: 'docs'
+        dir: 'docs',
+        tag: '<%= pkg.version %>-docs'
       }
     }
   });

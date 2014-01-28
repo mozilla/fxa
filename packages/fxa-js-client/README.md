@@ -24,16 +24,6 @@ client.signIn(email, password);
 See [Library Documentation](http://mozilla.github.io/fxa-js-client/classes/FxAccountClient.html) for more.
 
 
-## Build Library
-
-```
-npm install
-npm start
-```
-
-The `build` directory should have `fxa-client.js` and `fxa-client.min.js`.
-
-
 ## Development
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on development and testing.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for details on building, developing, and testing the library.

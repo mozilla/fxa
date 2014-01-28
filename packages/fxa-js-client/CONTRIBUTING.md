@@ -1,5 +1,17 @@
 # Contribution guidelines to fxa-js-client
 
+## Build Library
+
+Note: Java is required to build the library due to a custom SJCL build.
+
+```
+npm install
+npm start
+```
+
+The `build` directory should have `fxa-client.js` and `fxa-client.min.js`.
+
+
 ## Development
 
 `grunt build` - builds the regular and minified version of the library
@@ -8,8 +20,9 @@
 
 `grunt debug` - builds the regular library, runs test, watches for changes. Helpful when you are debugging.
 
-`grunt release` - will prepare a new release of this library.
-After the task, push the repositories in `build` and `docs` directories. Tag it on GitHub using the Releases feature.
+`grunt release` - will prepare a new release of this library with the version in `package.json`.
+ It will create or update the repositories in `build` and `docs`. If the version in `package.json` has not changed,
+ then the tagging will be skipped.
 
 
 ### SJCL Notes
