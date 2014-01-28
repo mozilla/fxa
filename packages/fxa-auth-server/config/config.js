@@ -262,7 +262,7 @@ module.exports = function (fs, path, url, convict) {
       accountResetToken: {
         default: 1000 * 60 * 15
       },
-      passwordFogotToken: {
+      passwordForgotToken: {
         default: 1000 * 60 * 15
       },
       passwordChangeToken: {
