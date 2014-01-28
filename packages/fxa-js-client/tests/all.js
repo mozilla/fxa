@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'tests/lib/signUp',
+  'tests/lib/signIn',
   'tests/lib/main',
   'tests/lib/request',
   'tests/lib/hkdf',
   'tests/lib/credentials',
   'tests/lib/hawkCredentials',
   'tests/lib/passwordChange',
-  'tests/lib/keys',
   'tests/lib/devices',
   'tests/lib/sessionDestroy',
   'tests/lib/certificateSign',

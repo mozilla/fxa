@@ -16,7 +16,7 @@ define([
       return function (returnValue, response) {
         setTimeout(function () {
           self.respond(requests[requestIndex++], response);
-        }, 10);
+        }, 100);
 
         return returnValue;
       }

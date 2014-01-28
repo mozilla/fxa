@@ -15,7 +15,7 @@ define([
 ], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail, AccountHelper) {
 
   with (tdd) {
-    suite('accountDestroy', function () {
+    suite('account', function () {
       var authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000/v1';
       var useRemoteServer = !!config.AUTH_SERVER_URL;
       var mailServerUrl = authServerUrl.match(/^http:\/\/127/) ?
@@ -47,97 +47,6 @@ define([
         accountHelper = new AccountHelper(client, mail, respond);
       });
 
-      /**
-       * Create Account
-       */
-      test('#create account', function () {
-        var email = "test" + Date.now() + "@restmail.net";
-        var password = "iliketurtles";
-
-        return respond(client.signUp(email, password), RequestMocks.signUp)
-          .then(function (res) {
-            assert.property(res, 'uid', 'uid should be returned on signUp');
-            assert.property(res, 'sessionToken', 'sessionToken should be returned on signUp');
-            assert.notProperty(res, 'keyFetchToken', 'keyFetchToken should not be returned on signUp');
-          });
-      });
-
-      test('#create account with keys', function () {
-        var email = "test" + Date.now() + "@restmail.net";
-        var password = "iliketurtles";
-        var opts = {
-          keys: true
-        };
-
-        return respond(client.signUp(email, password, opts), RequestMocks.signUpKeys)
-          .then(function (res) {
-            assert.property(res, 'uid', 'uid should be returned on signUp');
-            assert.property(res, 'sessionToken', 'sessionToken should be returned on signUp');
-            assert.property(res, 'keyFetchToken', 'keyFetchToken should be returned on signUp');
-          });
-      });
-
-      test('#create account with service and redirectTo', function () {
-        var email = "test" + Date.now() + "@restmail.net";
-        var password = "iliketurtles";
-        var opts = {
-          service: 'sync',
-          redirectTo: 'https://sync.firefox.com/after_reset'
-        };
-
-        return respond(client.signUp(email, password, opts), RequestMocks.signUp)
-          .then(function (res) {
-            assert.ok(res.uid);
-          });
-      });
-
-      test('#create account with service', function () {
-        var email = "test" + Date.now() + "@restmail.net";
-        var password = "iliketurtles";
-        var opts = {
-          service: 'sync'
-        };
-
-        return respond(client.signUp(email, password, opts), RequestMocks.signUp)
-          .then(function (res) {
-            assert.ok(res.uid);
-          });
-      });
-
-      test('#create account with redirectTo', function () {
-        var email = "test" + Date.now() + "@restmail.net";
-        var password = "iliketurtles";
-        var opts = {
-          service: 'sync'
-        };
-
-        return respond(client.signUp(email, password, opts), RequestMocks.signUp)
-          .then(function (res) {
-            assert.ok(res.uid);
-          });
-      });
-
-      test('#create account emailVerified', function () {
-        var email = "test" + Date.now() + "@restmail.net";
-        var password = "iliketurtles";
-        var opts = {
-          preVerified: true
-        };
-
-        return respond(client.signUp(email, password, opts), RequestMocks.signUp)
-          .then(function (res) {
-            assert.ok(res.uid);
-
-            return respond(client.signIn(email, password), RequestMocks.signIn);
-          })
-          .then(function(res) {
-            assert.equal(res.verified, true, '== account is verified');
-          });
-      });
-
-      /**
-       * Destroy Account
-       */
       test('#destroy', function () {
         var email;
         var password;
@@ -166,6 +75,98 @@ define([
               return error;
             }
         );
+      });
+
+      test('#keys', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+
+            return respond(client.accountKeys(account.signIn.keyFetchToken), RequestMocks.accountKeys)
+          })
+          .then(
+          function(keys) {
+            assert.ok(keys.bundle);
+
+            return true
+          },
+          function(error) {
+            console.log(error);
+            assert.equal(error, null, '== no error occured');
+          }
+        );
+      });
+
+      test('#destroy with incorrect case', function () {
+        var account;
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (acc) {
+            account = acc;
+            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+
+            return respond(client.accountDestroy(incorrectCaseEmail, account.input.password), RequestMocks.accountDestroy)
+          })
+          .then(
+          function(res) {
+            assert.ok(res, '== got response');
+
+            return respond(client.signIn(account.input.email, account.input.password), RequestMocks.signIn)
+          }
+        ).then(
+          function (res) {
+          },
+          function (error) {
+            assert.ok(error, '== error should happen');
+            assert.equal(error.message, 'Unknown account', '== Account is gone');
+            assert.equal(error.code, 400, '== Correct status code');
+
+            return error;
+          }
+        );
+      });
+
+      /**
+       * Password Reset
+       */
+      test('#reset password', function () {
+        var user = 'test5' + Date.now();
+        var email = user + '@restmail.net';
+        var password = 'iliketurtles';
+        var uid;
+        var passwordForgotToken;
+        var accountResetToken;
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function (result) {
+            uid = result.uid;
+            assert.ok(uid, "uid is returned");
+
+            return respond(client.passwordForgotSendCode(email), RequestMocks.passwordForgotSendCode);
+          })
+          .then(function (result) {
+            passwordForgotToken = result.passwordForgotToken;
+            assert.ok(passwordForgotToken, "passwordForgotToken is returned");
+
+            return respond(mail.wait(user, 2), RequestMocks.resetMail);
+          })
+          .then(function (emails) {
+            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
+            assert.ok(code, "code is returned: " + code);
+
+            return respond(client.passwordForgotVerifyCode(code, passwordForgotToken), RequestMocks.passwordForgotVerifyCode);
+          })
+          .then(function (result) {
+            accountResetToken = result.accountResetToken;
+            var newPassword = 'newturles';
+            assert.ok(accountResetToken, "accountResetToken is returned");
+
+            return respond(client.accountReset(email, newPassword, accountResetToken), RequestMocks.accountReset);
+          })
+          .then(function (result) {
+            assert.ok(result, '{}');
+            return true;
+          })
       });
 
     });

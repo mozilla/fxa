@@ -5,6 +5,11 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
   'use strict';
 
   /**
+   * Constants
+   */
+  var WRONG_CASE_ERROR = 120;
+
+  /**
    * @class FxAccountClient
    * @constructor
    * @param {String} uri Auth Server URI
@@ -98,12 +103,22 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
           }
 
           return self.request.send(endpoint, 'POST', null, data)
-          .then(function(accountData) {
-            if (keys) {
-              accountData.unwrapBKey = sjcl.codec.hex.fromBits(result.unwrapBKey);
-            }
-            return accountData;
-          });
+            .then(
+              function(accountData) {
+                if (keys) {
+                  accountData.unwrapBKey = sjcl.codec.hex.fromBits(result.unwrapBKey);
+                }
+                return accountData;
+              },
+              function(error) {
+                // if incorrect email case error
+                if (error && error.email && error.errno === WRONG_CASE_ERROR) {
+                  return self.signIn(error.email, password);
+                } else {
+                  return error;
+                }
+              }
+            );
         }
       );
   };
@@ -336,7 +351,20 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
           authPW: sjcl.codec.hex.fromBits(result.authPW)
         };
 
-        return self.request.send('/account/destroy', 'POST', null, data);
+        return self.request.send('/account/destroy', 'POST', null, data)
+          .then(
+            function(response) {
+              return response;
+            },
+            function(error) {
+              // if incorrect email case error
+              if (error && error.email && error.errno === WRONG_CASE_ERROR) {
+                return self.accountDestroy(error.email, password);
+              } else {
+                return error;
+              }
+            }
+          );
       }
     );
   };
@@ -414,10 +442,20 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
         };
 
         return self.request.send('/password/change/start', 'POST', null, data)
-          .then(function(passwordData) {
-            passwordData.oldUnwrapBKey = sjcl.codec.hex.fromBits(oldCreds.unwrapBKey);
-          return passwordData;
-        });
+          .then(
+            function(passwordData) {
+              passwordData.oldUnwrapBKey = sjcl.codec.hex.fromBits(oldCreds.unwrapBKey);
+              return passwordData;
+            },
+            function(error) {
+              // if incorrect email case error
+              if (error && error.email && error.errno === WRONG_CASE_ERROR) {
+                return self._passwordChangeStart(error.email, oldPassword);
+              } else {
+                return error;
+              }
+            }
+          );
       });
   };
 
