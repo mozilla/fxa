@@ -74,7 +74,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           $('#old_password').val('password');
           $('#new_password').val('password');
 
-          assert.equal(view.isValid(), false);
+          assert.equal(view.isValid(), true);
         });
 
         it('returns false if old password is too short', function () {
@@ -93,11 +93,23 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
       });
 
       describe('changePassword', function () {
+        it('prints an error message if both passwords are the same', function (done) {
+          $('#old_password').val('password');
+          $('#new_password').val('password');
+
+          view.on('error', function (msg) {
+            assert.equal(msg, 'passwords are the same!');
+            done();
+          });
+
+          view.changePassword();
+        });
+
         it('changes from old to new password, redirects user to signin', function (done) {
           $('#old_password').val('password');
           $('#new_password').val('new_password');
 
-          view.on('password-changed', done);
+          view.on('success', done);
           view.changePassword();
         });
       });

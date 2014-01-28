@@ -25,7 +25,8 @@ function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock, Rou
     beforeEach(function () {
       translator = new Translator();
       translator.set({
-        'the error message': 'a translated error message'
+        'the error message': 'a translated error message',
+        'the success message': 'a translated success message'
       });
 
       router = new RouterMock();
@@ -90,6 +91,25 @@ function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock, Rou
       it('translates and display an error in the .error element', function () {
         view.displayError('the error message');
         assert.equal($('.error').html(), 'a translated error message');
+      });
+
+      it('hides any previously displayed success messages', function () {
+        view.displaySuccess('the success message');
+        view.displayError('the error message');
+        assert.isFalse($('.success').is(':visible'));
+      });
+    });
+
+    describe('displaySuccess', function () {
+      it('translates and display an success in the .success element', function () {
+        view.displaySuccess('the success message');
+        assert.equal($('.success').html(), 'a translated success message');
+      });
+
+      it('hides any previously displayed error messages', function () {
+        view.displayError('the error message');
+        view.displaySuccess('the success message');
+        assert.isFalse($('.error').is(':visible'));
       });
     });
 
