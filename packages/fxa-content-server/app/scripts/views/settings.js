@@ -39,7 +39,7 @@ function (_, BaseView, Template, FxaClient, Session) {
       var self = this;
       client.signOut()
             .then(function () {
-              self.router.navigate('signin', { trigger: true });
+              self.navigate('signin');
             }, function (err) {
               self.displayError(err.msg || err.message);
             });

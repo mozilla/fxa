@@ -45,7 +45,7 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
       var self = this;
       client.deleteAccount(email, password)
             .then(function () {
-              self.router.navigate('signup', { trigger: true });
+              self.navigate('signup');
             })
             .done(null, function (err) {
               self.displayError(err.message);

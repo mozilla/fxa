@@ -41,14 +41,15 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
       var password = this.$('.password').val();
 
       var client = new FxaClient();
+      var self = this;
       client.signIn(email, password)
             .then(function (accountData) {
               if (accountData.verified) {
-                router.navigate('settings', { trigger: true });
+                self.navigate('settings');
               } else {
                 return client.signUpResend()
                   .then(function () {
-                    router.navigate('confirm', { trigger: true });
+                    self.navigate('confirm');
                   });
               }
             })

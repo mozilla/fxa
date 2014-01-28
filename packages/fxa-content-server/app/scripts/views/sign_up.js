@@ -32,14 +32,13 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
 
     initialize: function (options) {
       options = options || {};
-      this.router = options.router || window.router;
 
       this.service = Url.searchParam('service');
     },
 
     beforeRender: function () {
       if (document.cookie.indexOf('tooyoung') > -1) {
-        this.router.navigate('cannot_create_account', { trigger: true });
+        this.navigate('cannot_create_account');
         return false;
       }
 
@@ -115,7 +114,7 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
       // hangs around like a bad smell.
       document.cookie = 'tooyoung=1;';
 
-      this.router.navigate('cannot_create_account', { trigger: true });
+      this.navigate('cannot_create_account');
     },
 
     _createAccount: function () {
@@ -126,7 +125,7 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
       var client = new FxaClient();
       client.signUp(email, password, customizeSync)
         .done(_.bind(function () {
-          this.router.navigate('confirm', { trigger: true });
+          this.navigate('confirm');
         }, this),
         _.bind(function (err) {
           this.displayError(err.message);

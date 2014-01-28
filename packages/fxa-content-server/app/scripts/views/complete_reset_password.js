@@ -67,7 +67,7 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
         service: Url.searchParam('service'),
         redirectTo: Url.searchParam('redirectTo')
       });
-      router.navigate('reset_password_complete', { trigger: true });
+      this.navigate('reset_password_complete');
     },
 
     _onResetCompleteFailure: function (err) {
