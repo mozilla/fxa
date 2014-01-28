@@ -68,14 +68,32 @@ function (
       'reset_password_complete': showView(ResetPasswordCompleteView)
     },
 
-    initialize: function () {
+    initialize: function (options) {
+      options = options || {};
+
+      this.window = options.window || window;
+
       this.$stage = $('#stage');
 
       this.watchAnchors();
     },
 
+    navigate: function (url) {
+      // Only add search parameters if they do not already exist.
+      // Search parameters are added to the URLs because they are sometimes
+      // used to pass state from the browser to the screens. Perhaps we should
+      // take the search parameters on startup, toss them into Session, and
+      // forget about this malarky?
+      if (! /\?/.test(url)) {
+        url = url + this.window.location.search;
+      }
+
+      return Backbone.Router.prototype.navigate.call(
+                            this, url, { trigger: true });
+    },
+
     redirectToSignup: function () {
-      this.navigate('/signup' + window.location.search, { trigger: true });
+      this.navigate('/signup');
     },
 
     showView: function (view) {
@@ -98,6 +116,7 @@ function (
     },
 
     watchAnchors: function () {
+      var self = this;
       $(document).on('click', 'a[href^="/"]', function (event) {
         if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
           event.preventDefault();
@@ -106,10 +125,9 @@ function (
           var url = $(event.target).attr('href').replace(/^\//, '');
 
           // Instruct Backbone to trigger routing events
-          this.navigate(url, { trigger: true });
+          self.navigate(url);
         }
-
-      }.bind(this));
+      });
     }
   });
 

@@ -41,6 +41,10 @@ function (_, Backbone) {
 
     CustomEvent: function(command, data) {
       return data;
+    },
+    location: {
+      href: window.location.href,
+      search: window.location.search
     }
   });
 
