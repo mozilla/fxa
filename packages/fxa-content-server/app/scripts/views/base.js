@@ -28,7 +28,7 @@ function (_, Backbone, jQuery, Session) {
       // If the user must be authenticated and they are not, send
       // them to the signin screen.
       if (this.mustAuth && ! Session.sessionToken) {
-        this.router.navigate('signin', { trigger: true });
+        this.navigate('signin');
         return false;
       }
 
@@ -152,6 +152,13 @@ function (_, Backbone, jQuery, Session) {
       if (event.which === ENTER_BUTTON_CODE) {
         window.history.back();
       }
+    },
+
+    /**
+     * navigate to another screen
+     */
+    navigate: function (page) {
+      this.router.navigate(page, { trigger: true });
     }
   });
 

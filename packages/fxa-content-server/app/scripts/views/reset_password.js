@@ -21,12 +21,6 @@ function (_, BaseView, Template, FxaClient) {
       'change input': 'enableButtonWhenValid'
     },
 
-    context: function () {
-      return {
-        searchParams: window.location.search
-      };
-    },
-
     requestPasswordReset: function (event) {
       event.preventDefault();
 
@@ -48,7 +42,7 @@ function (_, BaseView, Template, FxaClient) {
     },
 
     _onRequestResetSuccess: function () {
-      router.navigate('confirm_reset_password', { trigger: true });
+      this.navigate('confirm_reset_password');
     },
 
     _onRequestResetFailure: function (err) {
