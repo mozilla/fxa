@@ -217,13 +217,16 @@ strong.email {
 }
 
 .links {
-  list-style: none;
   margin-bottom: 20px;
   overflow: auto;
+}
+
+ul.links {
+  list-style: none;
   padding: 0;
 }
 
-.links li {
+ul.links li {
   margin: 12px 0;
   padding: 0;
 }
