@@ -264,11 +264,15 @@ ul.links li {
   position: relative;
 }
 
-.password-row > .password {
+/*
+ * The password class is used instead of type because the field's type can
+ * change from password to text.
+ */
+.password-row .password {
   padding-right: 75px;
 }
 
-.password-row > .password + label {
+.password-row .show-password-label {
   border-left: 1px solid #C0C9D0;
   color: #C0C9D0;
   cursor: pointer;
@@ -288,11 +292,11 @@ ul.links li {
   width: 55px;
 }
 
-.password-row > .password:focus + label {
+.password-row .password:focus + .show-password-label {
   border-color: #6F7A85;
 }
 
-.password-row > .password + label > input[type=checkbox] {
+.password-row .show-password {
   visibility: hidden;
 }
 
