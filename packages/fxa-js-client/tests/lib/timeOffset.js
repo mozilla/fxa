@@ -13,8 +13,9 @@ define([
   'tests/addons/restmail',
   'tests/addons/accountHelper',
   'client/lib/request',
-  'client/lib/hawkCredentials'
-], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail, AccountHelper, Request, hawkCredentials) {
+  'client/lib/hawkCredentials',
+  'client/lib/errors'
+], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail, AccountHelper, Request, hawkCredentials, ERRORS) {
 
   with (tdd) {
     suite('timeOffset', function () {
@@ -67,7 +68,7 @@ define([
           .then(function (res) {
             assert.fail();
           }, function (err) {
-            assert.equal(err.errno, 111);
+            assert.equal(err.errno, ERRORS.INVALID_TIMESTAMP);
           });
       });
 

@@ -1,13 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/hawkCredentials'], function (Request, sjcl, credentials, hawkCredentials) {
+define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/hawkCredentials', './lib/errors'], function (Request, sjcl, credentials, hawkCredentials, ERRORS) {
   'use strict';
-
-  /**
-   * Constants
-   */
-  var WRONG_CASE_ERROR = 120;
 
   /**
    * @class FxAccountClient
@@ -112,7 +107,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
               },
               function(error) {
                 // if incorrect email case error
-                if (error && error.email && error.errno === WRONG_CASE_ERROR) {
+                if (error && error.email && error.errno === ERRORS.INCORRECT_EMAIL_CASE) {
                   return self.signIn(error.email, password);
                 } else {
                   throw error;
@@ -358,7 +353,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
             },
             function(error) {
               // if incorrect email case error
-              if (error && error.email && error.errno === WRONG_CASE_ERROR) {
+              if (error && error.email && error.errno === ERRORS.INCORRECT_EMAIL_CASE) {
                 return self.accountDestroy(error.email, password);
               } else {
                 throw error;
@@ -449,7 +444,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
             },
             function(error) {
               // if incorrect email case error
-              if (error && error.email && error.errno === WRONG_CASE_ERROR) {
+              if (error && error.email && error.errno === ERRORS.INCORRECT_EMAIL_CASE) {
                 return self._passwordChangeStart(error.email, oldPassword);
               } else {
                 throw error;
