@@ -228,6 +228,29 @@ test(
 )
 
 test(
+  'the cert includes a generation number if given',
+  function (t) {
+    var email = 'test@example.com'
+    var duration = 100
+    var generation = 1234
+    signer.enqueue(
+      {
+        email: email,
+        publicKey: validKey,
+        duration: duration,
+        generation: generation
+      },
+      function (err, result) {
+        t.ok(result, 'got cert')
+        var payload = jwcrypto.extractComponents(result.cert).payload
+        t.equal(payload['fxa-generation'], generation, 'generation, check')
+        t.end()
+      }
+    )
+  }
+)
+
+test(
   'teardown',
   function (t) {
     signer.exit(

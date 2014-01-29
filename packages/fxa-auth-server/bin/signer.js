@@ -34,7 +34,10 @@ process.on('message', function (message) {
         issuedAt: new Date(now - (10 * 1000)),
         expiresAt: new Date(now + message.duration)
       },
-      null,
+      {
+        // include additional keys in the cert payload
+        'fxa-generation': message.generation,
+      },
       _privKey,
       function (err, cert) {
         process.send({ err: err, cert: cert})

@@ -9,6 +9,7 @@ module.exports = function (log, inherits, Token) {
     this.email = details.email || null
     this.emailCode = details.emailCode || null
     this.emailVerified = !!details.emailVerified
+    this.verifierSetAt = details.verifierSetAt
   }
   inherits(SessionToken, Token)
 
