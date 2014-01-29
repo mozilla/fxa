@@ -130,13 +130,11 @@ module.exports = function (
             .then(
               function (response) {
                 if (!response.account.emailVerified) {
-                  mailer.sendVerifyCode(
-                    response.account,
-                    response.account.emailCode,
-                    form.service,
-                    form.redirectTo,
-                    request.app.preferredLang
-                  )
+                  mailer.sendVerifyCode(response.account, response.account.emailCode, {
+                    service: form.service,
+                    redirectTo: form.redirectTo,
+                    preferredLang: request.app.preferredLang
+                  })
                   .fail(
                     function (err) {
                       log.error({ op: 'mailer.sendVerifyCode.1', err: err })
@@ -405,12 +403,10 @@ module.exports = function (
           log.begin('Account.RecoveryEmailResend', request)
           log.security({ event: 'account-verify-request' })
           var sessionToken = request.auth.credentials
-          mailer.sendVerifyCode(
-            sessionToken,
-            sessionToken.emailCode,
-            request.payload.service,
-            request.app.preferredLang
-          ).done(
+          mailer.sendVerifyCode(sessionToken, sessionToken.emailCode, {
+            service: request.payload.service,
+            preferredLang: request.app.preferredLang
+          }).done(
             function () {
               request.reply({})
             },

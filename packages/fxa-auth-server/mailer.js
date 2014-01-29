@@ -87,21 +87,30 @@ module.exports = function (config, i18n, log) {
     return d.promise
   }
 
-  Mailer.prototype.sendVerifyCode = function (account, code, service, redirectTo, preferredLang) {
+  // Sends a verification email to the user.
+  //
+  // - account : the account containing account.email and account.uid
+  // - code : the code which proves the user got the email
+  // - opts : object of options:
+  //   - service : the service we came from
+  //   - redirectTo : where to redirect the user once clicked
+  //   - preferredLang : the preferred language of the user
+  Mailer.prototype.sendVerifyCode = function (account, code, opts) {
     log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
     code = code.toString('hex')
+    opts = opts || {}
     var template = templates.verify
     var query = {
       uid: account.uid.toString('hex'),
       code: code
     }
-    if (service) { query.service = service }
-    if (redirectTo) { query.redirectTo = redirectTo }
+    if (opts.service) { query.service = opts.service }
+    if (opts.redirectTo) { query.redirectTo = opts.redirectTo }
 
     var link = this.verificationUrl + '?' + qs.stringify(query)
     var reportLink = this.reportUrl
     var values = {
-      l10n: i18n.localizationContext(preferredLang),
+      l10n: i18n.localizationContext(opts.preferredLang),
       link: link,
       reportLink: reportLink
     }
@@ -114,28 +123,37 @@ module.exports = function (config, i18n, log) {
       headers: {
         'X-Uid': account.uid.toString('hex'),
         'X-Verify-Code': code,
-        'X-Service-ID': service,
+        'X-Service-ID': opts.service,
         'X-Link': link
       }
     }
     return this.send(message)
   }
 
-  Mailer.prototype.sendRecoveryCode = function (token, code, service, redirectTo, preferredLang) {
+  // Sends an account recovery email to the user.
+  //
+  // - token : the token containing token.email and token.data
+  // - code : the code which proves the user got the email
+  // - opts : object of options:
+  //   - service : the service we came from
+  //   - redirectTo : where to redirect the user once clicked
+  //   - preferredLang : the preferred language of the user
+  Mailer.prototype.sendRecoveryCode = function (token, code, opts) {
     log.trace({ op: 'mailer.sendRecoveryCode', email: token.email })
     code = code.toString('hex')
+    opts = opts || {}
     var template = templates.reset
     var query = {
       token: token.data.toString('hex'),
       code: code,
       email: token.email
     }
-    if (service) { query.service = service }
-    if (redirectTo) { query.redirectTo = redirectTo }
+    if (opts.service) { query.service = opts.service }
+    if (opts.redirectTo) { query.redirectTo = opts.redirectTo }
 
     var link = this.passwordResetUrl + '?' + qs.stringify(query)
     var values = {
-      l10n: i18n.localizationContext(preferredLang),
+      l10n: i18n.localizationContext(opts.preferredLang),
       link: link,
       code: code
     }
