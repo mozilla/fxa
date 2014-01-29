@@ -71,7 +71,7 @@ define([
 
     'sign in via force-auth': function () {
       return this.get('remote')
-        .get(require.toUrl(FORCE_AUTH_URL))
+        .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
         .waitForElementById('fxa-force-auth-header')
 
         .elementByCssSelector('form input.password')
@@ -89,7 +89,7 @@ define([
 
     'forgot password via force-auth has a back button': function () {
       return this.get('remote')
-        .get(require.toUrl(FORCE_AUTH_URL))
+        .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
         .waitForElementById('fxa-force-auth-header')
 
         .elementByCssSelector('.reset-password')

@@ -8,9 +8,10 @@
 define([
   'mocha',
   'chai',
-  'views/sign_in'
+  'views/sign_in',
+  '../../mocks/window'
 ],
-function (mocha, chai, View) {
+function (mocha, chai, View, WindowMock) {
   var assert = chai.assert;
 
   describe('views/sign_in', function () {
@@ -49,11 +50,14 @@ function (mocha, chai, View) {
     });
   });
 
-  describe('views/sign_in used for /force_auth', function () {
-    var view;
+  describe('views/sign_in used for /force_auth without email', function () {
+    var view, windowMock;
 
     beforeEach(function () {
-      view = new View({ forceAuth: true });
+      windowMock = new WindowMock;
+      windowMock.location.search = '';
+
+      view = new View({ forceAuth: true, window: windowMock });
       view.render();
       $('#container').html(view.el);
     });
@@ -61,6 +65,37 @@ function (mocha, chai, View) {
     afterEach(function () {
       view.remove();
       view.destroy();
+      windowMock = view = null;
+    });
+
+    it('prints an error message', function() {
+      windowMock.location.search = '';
+
+      assert.notEqual($('.error').text(), '');
+    });
+  });
+
+  describe('views/sign_in used for /force_auth?email="testuser@testuser.com"', function () {
+    var view, windowMock;
+
+    beforeEach(function () {
+      windowMock = new WindowMock;
+      windowMock.location.search = '?email=testuser@testuser.com';
+
+      view = new View({ forceAuth: true, window: windowMock });
+      view.render();
+      $('#container').html(view.el);
+    });
+
+    afterEach(function () {
+      view.remove();
+      view.destroy();
+      windowMock = view = null;
+    });
+
+
+    it('does not print an error message', function () {
+      assert.equal($('.error').text(), '');
     });
 
     it('does not allow the email to be edited', function () {

@@ -10,9 +10,10 @@ define([
   'stache!templates/sign_in',
   'lib/session',
   'lib/fxa-client',
-  'lib/password-mixin'
+  'lib/password-mixin',
+  'lib/url'
 ],
-function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
+function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
   var View = BaseView.extend({
     template: SignInTemplate,
     className: 'sign-in',
@@ -20,8 +21,36 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
     initialize: function (options) {
       options = options || {};
 
-      // forceAuth means a user must sign in as a specific user.
-      Session.set('forceAuth', options.forceAuth || false);
+      this.window = options.window || window;
+
+      // reset any force auth status.
+      Session.set('forceAuth', false);
+
+      if (options.forceAuth) {
+        // forceAuth means a user must sign in as a specific user.
+
+        // kill the user's local session, set forceAuth flag
+        Session.clear();
+        Session.set('forceAuth', true);
+
+        var email = Url.searchParam('email', this.window.location.search);
+        if (email) {
+          Session.set('email', email);
+        }
+      }
+    },
+
+    context: function () {
+      var error = '';
+      if (Session.forceAuth && !Session.email) {
+        error = '/force_auth requres an email';
+      }
+
+      return {
+        email: Session.email,
+        forceAuth: Session.forceAuth,
+        error: error
+      };
     },
 
     events: {
@@ -29,13 +58,6 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin) {
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
-    },
-
-    context: function () {
-      return {
-        email: Session.email,
-        forceAuth: Session.forceAuth
-      };
     },
 
     signIn: function () {
