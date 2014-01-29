@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./hawk', '../../components/p/p'], function (hawk, p) {
+define(['./hawk', '../../components/p/p', './errors'], function (hawk, p, ERRORS) {
   'use strict';
   /* global XMLHttpRequest */
 
@@ -51,7 +51,7 @@ define(['./hawk', '../../components/p/p'], function (hawk, p) {
       var result = JSON.parse(xhr.responseText);
       if (result.error) {
         // Try to recover from a timeskew error
-        if (result.errno === 111 && !retrying) {
+        if (result.errno === ERRORS.INVALID_TIMESTAMP && !retrying) {
           var serverTime = Date.parse(xhr.getResponseHeader('Date'));
           self._localtimeOffsetMsec = serverTime - new Date();
           return self.send(path, method, credentials, jsonPayload, true)

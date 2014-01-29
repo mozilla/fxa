@@ -11,8 +11,9 @@ define([
   'tests/addons/sinonResponder',
   'tests/mocks/request',
   'tests/addons/restmail',
-  'tests/addons/accountHelper'
-], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail, AccountHelper) {
+  'tests/addons/accountHelper',
+  'client/lib/errors'
+], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail, AccountHelper, ERRORS) {
 
   with (tdd) {
     suite('signIn', function () {
@@ -92,7 +93,7 @@ define([
           },
           function (res) {
             assert.notEqual(res.code, 400);
-            assert.notEqual(res.errno, 120);
+            assert.notEqual(res.errno, ERRORS.INCORRECT_EMAIL_CASE);
           }
         );
       });

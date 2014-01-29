@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([], function () {
+define(['client/lib/errors'], function (ERRORS) {
   return {
     signUp: {
       status: 200,
@@ -103,7 +103,7 @@ define([], function () {
     },
     invalidTimestamp: {
       status: 401,
-      body: '{ "errno": 111, "error": "Invalid authentication timestamp" }'
+      body: '{ "errno": ' + ERRORS.INVALID_TIMESTAMP + ', "error": "Invalid authentication timestamp" }'
     }
   };
 });
