@@ -13,10 +13,10 @@
     </div>
 
     <div class="input-row password-row">
-      <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}">
+      <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required>
 
-      <label for="show-password">
-        <span class="show-password-label-text">{{#t}}Show{{/t}}</span>
+      <label for="show-password" class="show-password-label">
+        <div class="show-password-label-text">{{#t}}Show{{/t}}</div>
         <input id="show-password" type="checkbox" class="show-password">
       </label>
 

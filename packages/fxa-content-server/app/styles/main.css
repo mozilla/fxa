@@ -264,20 +264,34 @@ ul.links li {
   position: relative;
 }
 
-.password-row > .password {
+/*
+ * The password class is used instead of type because the field's type can
+ * change from password to text.
+ */
+.password-row input[type='password'] {
   padding-right: 75px;
 }
 
-.password-row > .password + label {
+/**
+ * The addition of right, top, border-radius, and background-color are
+ * all to fix a bug in firefox 29 where the right padding of the password
+ * field is ignored and password text flows under the show/hide button. When
+ * Firefox is fixed, top and right can be set to 0, height set to 44px,
+ * border-radius and background-color removed.
+ *
+ * See https://bugzilla.mozilla.org/show_bug.cgi?id=965237
+ */
+.password-row .show-password-label {
   border-left: 1px solid #C0C9D0;
+  border-radius: 0 5px 5px 0;
   color: #C0C9D0;
   cursor: pointer;
   font-size: 16px;
-  height: 44px;
+  height: 43px;
   line-height: 44px;
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 1px;
+  top: 1px;
   /* it is very easy to accidentally select the text when clicking */
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -286,13 +300,14 @@ ul.links li {
       -ms-user-select: none;
           user-select: none;
   width: 55px;
+  background-color: #fff;
 }
 
-.password-row > .password:focus + label {
+.password-row .password:focus + .show-password-label {
   border-color: #6F7A85;
 }
 
-.password-row > .password + label > input[type=checkbox] {
+.password-row .show-password {
   visibility: hidden;
 }
 
