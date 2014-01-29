@@ -44,13 +44,18 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin) {
       var newPassword = this._getNewPassword();
 
       if (oldPassword === newPassword) {
-        return this.displayError('passwords are the same!');
+        return this.displayError('old and new passwords must be different');
       }
+
+      this.hideError();
 
       var self = this;
       var client = new FxaClient();
       client.changePassword(email, oldPassword, newPassword)
             .then(function () {
+              self.$('.password').val('');
+              self.$('form').hide();
+
               self.displaySuccess();
             }, function (err) {
               self.displayError(err.msg || err.message);

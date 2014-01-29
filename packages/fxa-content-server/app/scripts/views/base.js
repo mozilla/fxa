@@ -142,7 +142,7 @@ function (_, Backbone, jQuery, Session) {
      * will not be updated.
      */
     displaySuccess: function (msg) {
-      this.$('.error').hide();
+      this.hideError();
 
       if (msg) {
         this.$('.success').text(this.translator.get(msg));
@@ -152,6 +152,10 @@ function (_, Backbone, jQuery, Session) {
       this.trigger('success', msg);
     },
 
+    hideSuccess: function () {
+      this.$('.success').hide();
+    },
+
     /**
      * Display an error message
      * @method displayError
@@ -159,7 +163,7 @@ function (_, Backbone, jQuery, Session) {
      * will not be updated.
      */
     displayError: function (msg) {
-      this.$('.success').hide();
+      this.hideSuccess();
       this.$('.spinner').hide();
 
       if (msg) {
@@ -168,6 +172,10 @@ function (_, Backbone, jQuery, Session) {
 
       this.$('.error').show();
       this.trigger('error', msg);
+    },
+
+    hideError: function () {
+      this.$('.error').hide();
     },
 
     back: function (event) {

@@ -98,7 +98,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           $('#new_password').val('password');
 
           view.on('error', function (msg) {
-            assert.equal(msg, 'passwords are the same!');
+            assert.ok(msg);
             done();
           });
 
