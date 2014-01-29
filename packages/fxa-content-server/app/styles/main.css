@@ -221,6 +221,16 @@ strong.email {
   overflow: auto;
 }
 
+ul.links {
+  list-style: none;
+  padding: 0;
+}
+
+ul.links li {
+  margin: 12px 0;
+  padding: 0;
+}
+
 .links a {
   text-decoration: none;
 }
