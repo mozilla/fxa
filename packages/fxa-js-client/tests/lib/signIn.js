@@ -96,6 +96,23 @@ define([
           }
         );
       });
+
+      test('#bad signIn', function () {
+
+          return accountHelper.newVerifiedAccount()
+              .then(function (account) {
+                  return respond(client.signIn(account.input.email, 'wrong password'), RequestMocks.signInFailurePassword);
+              })
+              .then(
+              function (res) {
+                  assert.notProperty(res, 'sessionToken');
+              },
+              function (res) {
+                  assert.equal(res.code, 400);
+                  assert.equal(res.errno, 103);
+              }
+          );
+      });
     });
   }
 });

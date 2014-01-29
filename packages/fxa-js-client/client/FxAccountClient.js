@@ -115,7 +115,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
                 if (error && error.email && error.errno === WRONG_CASE_ERROR) {
                   return self.signIn(error.email, password);
                 } else {
-                  return error;
+                  throw error;
                 }
               }
             );
@@ -361,7 +361,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
               if (error && error.email && error.errno === WRONG_CASE_ERROR) {
                 return self.accountDestroy(error.email, password);
               } else {
-                return error;
+                throw error;
               }
             }
           );
@@ -452,7 +452,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
               if (error && error.email && error.errno === WRONG_CASE_ERROR) {
                 return self._passwordChangeStart(error.email, oldPassword);
               } else {
-                return error;
+                throw error;
               }
             }
           );
