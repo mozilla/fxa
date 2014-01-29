@@ -10,9 +10,10 @@ define([
   'stache!templates/delete_account',
   'lib/session',
   'lib/fxa-client',
-  'lib/password-mixin'
+  'lib/password-mixin',
+  'lib/url'
 ],
-function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
+function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
   var View = BaseView.extend({
     // user must be authenticated to delete their account
     mustAuth: true,
@@ -27,6 +28,12 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin) {
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
+    },
+
+    context: function () {
+      return {
+        isSync: Url.searchParam('service') === 'sync'
+      };
     },
 
     deleteAccount: function (event) {

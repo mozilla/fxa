@@ -10,9 +10,10 @@ define([
   'stache!templates/change_password',
   'lib/fxa-client',
   'lib/session',
-  'lib/password-mixin'
+  'lib/password-mixin',
+  'lib/url'
 ],
-function (_, BaseView, Template, FxaClient, Session, PasswordMixin) {
+function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
   var View = BaseView.extend({
     // user must be authenticated to change password
     mustAuth: true,
@@ -27,6 +28,12 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin) {
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
+    },
+
+    context: function () {
+      return {
+        isSync: Url.searchParam('service') === 'sync'
+      };
     },
 
     isValid: function () {

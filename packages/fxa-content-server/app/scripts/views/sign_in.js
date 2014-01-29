@@ -49,7 +49,8 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
       return {
         email: Session.email,
         forceAuth: Session.forceAuth,
-        error: error
+        error: error,
+        isSync: Url.searchParam('service') === 'sync'
       };
     },
 

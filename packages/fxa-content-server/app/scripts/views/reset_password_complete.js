@@ -9,9 +9,10 @@ define([
   'views/base',
   'stache!templates/reset_password_complete',
   'lib/session',
-  'lib/xss'
+  'lib/xss',
+  'lib/url'
 ],
-function (_, BaseView, Template, Session, Xss) {
+function (_, BaseView, Template, Session, Xss, Url) {
   var View = BaseView.extend({
     template: Template,
     className: 'reset_password_complete',
@@ -19,7 +20,8 @@ function (_, BaseView, Template, Session, Xss) {
     context: function () {
       return {
         email: Session.email,
-        service: Session.service,
+        service: Url.searchParam('service'),
+        isSync: Url.searchParam('service') === 'sync',
         redirectTo: Xss.href(Session.redirectTo)
       };
     }
