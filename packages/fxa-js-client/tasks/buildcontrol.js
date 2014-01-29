@@ -9,7 +9,7 @@ module.exports = function (grunt) {
     options: {
       commit: true,
       push: true,
-      remote: 'git://github.com/mozilla/fxa-js-client.git'
+      remote: 'git@github.com:mozilla/fxa-js-client.git'
     },
     release: {
       options: {
