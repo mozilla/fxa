@@ -135,9 +135,47 @@ function (_, Backbone, jQuery, Session) {
       return value && el[0].validity.valid;
     },
 
+    /**
+     * Display a success message
+     * @method displaySuccess
+     * If msg is not given, the contents of the .success element's text
+     * will not be updated.
+     */
+    displaySuccess: function (msg) {
+      this.hideError();
+
+      if (msg) {
+        this.$('.success').text(this.translator.get(msg));
+      }
+
+      this.$('.success').show();
+      this.trigger('success', msg);
+    },
+
+    hideSuccess: function () {
+      this.$('.success').hide();
+    },
+
+    /**
+     * Display an error message
+     * @method displayError
+     * If msg is not given, the contents of the .error element's text
+     * will not be updated.
+     */
     displayError: function (msg) {
+      this.hideSuccess();
       this.$('.spinner').hide();
-      this.$('.error').text(this.translator.get(msg));
+
+      if (msg) {
+        this.$('.error').text(this.translator.get(msg));
+      }
+
+      this.$('.error').show();
+      this.trigger('error', msg);
+    },
+
+    hideError: function () {
+      this.$('.error').hide();
     },
 
     back: function (event) {

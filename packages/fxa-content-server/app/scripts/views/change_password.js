@@ -23,27 +23,18 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin) {
     events: {
       'click #back': 'back',
       'keyup #back': 'backOnEnter',
-      'submit form': 'changePassword',
+      'submit form': BaseView.preventDefaultThen('changePassword'),
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
     isValid: function () {
-      if (! (this.isElementValid('#old_password') &&
-             this.isElementValid('#new_password'))) {
-        return false;
-      }
-
-      // require the passwords to be different
-      return this._getOldPassword() !== this._getNewPassword();
+      return this.isElementValid('#old_password') &&
+             this.isElementValid('#new_password');
     },
 
-    changePassword: function (event) {
-      if (event) {
-        event.preventDefault();
-      }
-
+    changePassword: function () {
       if (! this.isValid()) {
         return;
       }
@@ -52,13 +43,20 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin) {
       var oldPassword = this._getOldPassword();
       var newPassword = this._getNewPassword();
 
+      if (oldPassword === newPassword) {
+        return this.displayError('old and new passwords must be different');
+      }
+
+      this.hideError();
+
       var self = this;
       var client = new FxaClient();
       client.changePassword(email, oldPassword, newPassword)
             .then(function () {
-              self.$('.success').show();
-              // used for testing.
-              self.trigger('password-changed');
+              self.$('.password').val('');
+              self.$('form').hide();
+
+              self.displaySuccess();
             }, function (err) {
               self.displayError(err.msg || err.message);
             });
