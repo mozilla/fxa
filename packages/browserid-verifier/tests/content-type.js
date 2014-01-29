@@ -53,6 +53,23 @@ describe('content-type tests', function() {
     });
   });
 
+  it('(v2 api) should fail to verify when content-type is not specified', function(done) {
+    request({
+      method: 'post',
+      url: verifier.url(),
+      headers: {}
+    }, function(err, r) {
+      should.not.exist(err);
+      (r.statusCode).should.equal(415);
+      (function() {
+        r.body = JSON.parse(r.body);
+      }).should.not.throw();
+      (r.body.status).should.equal('failure');
+      (r.body.reason).should.startWith('Unsupported Content-Type: none');
+      done();
+    });
+  });
+
   it('(v1 api) should fail to verify when content-type is unsupported', function(done) {
     request({
       method: 'post',
@@ -68,6 +85,23 @@ describe('content-type tests', function() {
       }).should.not.throw();
       (r.body.status).should.equal('failure');
       (r.body.reason).should.startWith('Unsupported Content-Type: text/plain');
+      done();
+    });
+  });
+
+  it('(v1 api) should fail to verify when content-type is not specified', function(done) {
+    request({
+      method: 'post',
+      url: verifier.v1url(),
+      headers: {}
+    }, function(err, r) {
+      should.not.exist(err);
+      (r.statusCode).should.equal(415);
+      (function() {
+        r.body = JSON.parse(r.body);
+      }).should.not.throw();
+      (r.body.status).should.equal('failure');
+      (r.body.reason).should.startWith('Unsupported Content-Type: none');
       done();
     });
   });
