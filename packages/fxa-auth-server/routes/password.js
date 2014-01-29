@@ -183,13 +183,11 @@ module.exports = function (
             )
             .then(
               function (passwordForgotToken) {
-                return mailer.sendRecoveryCode(
-                  passwordForgotToken,
-                  passwordForgotToken.passCode,
-                  request.payload.service,
-                  request.payload.redirectTo,
-                  request.app.preferredLang
-                ).then(
+                return mailer.sendRecoveryCode(passwordForgotToken, passwordForgotToken.passCode, {
+                  service: request.payload.service,
+                  redirectTo: request.payload.redirectTo,
+                  preferredLang: request.app.preferredLang
+                }).then(
                   function() {
                     return passwordForgotToken
                   }
@@ -245,13 +243,11 @@ module.exports = function (
         handler: function (request) {
           log.begin('Password.forgotResend', request)
           var passwordForgotToken = request.auth.credentials
-          mailer.sendRecoveryCode(
-            passwordForgotToken,
-            passwordForgotToken.passCode,
-            request.payload.service,
-            request.payload.redirectTo,
-            request.app.preferredLang
-          ).done(
+          mailer.sendRecoveryCode(passwordForgotToken, passwordForgotToken.passCode, {
+            service: request.payload.service,
+            redirectTo: request.payload.redirectTo,
+            preferredLang: request.app.preferredLang
+          }).done(
             function () {
               request.reply(
                 {
