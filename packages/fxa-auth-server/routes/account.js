@@ -85,7 +85,8 @@ module.exports = function (
                             uid: account.uid,
                             email: account.email,
                             emailCode: account.emailCode,
-                            emailVerified: account.emailVerified
+                            emailVerified: account.emailVerified,
+                            verifierSetAt: account.verifierSetAt
                           }
                         )
                         .then(
@@ -196,7 +197,8 @@ module.exports = function (
                         uid: emailRecord.uid,
                         email: emailRecord.email,
                         emailCode: emailRecord.emailCode,
-                        emailVerified: emailRecord.emailVerified
+                        emailVerified: emailRecord.emailVerified,
+                        verifierSetAt: emailRecord.verifierSetAt
                       }
                     )
                   }

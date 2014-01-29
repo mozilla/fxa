@@ -35,6 +35,7 @@ TestServer.start(config)
             t.equal(typeof(cert), 'string', 'cert exists')
             var payload = jwcrypto.extractComponents(cert).payload
             t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
+            t.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
           }
         )
         .then(

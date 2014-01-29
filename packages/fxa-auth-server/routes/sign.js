@@ -68,7 +68,8 @@ module.exports = function (log, isA, error, signer, domain) {
             {
               email: sessionToken.uid.toString('hex') + '@' + domain,
               publicKey: publicKey,
-              duration: duration
+              duration: duration,
+              generation: sessionToken.verifierSetAt,
             },
             function (err, result) {
               if (err) {
