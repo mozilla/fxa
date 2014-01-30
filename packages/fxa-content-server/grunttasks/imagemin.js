@@ -7,6 +7,9 @@ module.exports = function (grunt) {
 
   grunt.config('imagemin', {
     dist: {
+      options: {
+        cache: false
+      },
       files: [{
         expand: true,
         cwd: '<%= yeoman.app %>/images',
