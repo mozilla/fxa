@@ -110,7 +110,10 @@ function (
         // Render the new view
         this.$stage.html(this.currentView.el);
 
-        this.$stage.show();
+        // explicitly set the display: block using .css. When embedded
+        // in about:accounts, the content is not yet visible and show will
+        // not display the element.
+        this.$stage.css('display', 'block');
         this.currentView.afterVisible();
       }
     },

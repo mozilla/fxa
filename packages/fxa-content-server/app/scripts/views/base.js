@@ -81,11 +81,29 @@ function (_, Backbone, jQuery, Session) {
       // it's a desktop device and autofocus can be applied without
       // hiding part of the screen. The no-touch class is added by modernizr
       if (jQuery('html').hasClass('no-touch')) {
+        // only elements that are visibile can be focused. When embedded in
+        // about:accounts, the content is hidden when the first "focus" is
+        // done. Keep trying to focus until the element is actually focused,
+        // and then stop trying.
+        var autofocusEl = this.$('[autofocus]');
         try {
-          this.$('[autofocus]').get(0).focus();
+          autofocusEl.get(0).focus();
         } catch (e) {
           // IE can blow up if the element is not visible.
         }
+        this.focusInterval = setInterval(function() {
+          if (autofocusEl.is(':focus')) {
+            clearInterval(this.focusInterval);
+            this.focusInterval = null;
+            return;
+          }
+
+          try {
+            autofocusEl.get(0).focus();
+          } catch (e) {
+            // IE can blow up if the element is not visible.
+          }
+        }, 50);
       }
     },
 
@@ -97,6 +115,10 @@ function (_, Backbone, jQuery, Session) {
     destroy: function (remove) {
       if (this.beforeDestroy) {
         this.beforeDestroy();
+      }
+
+      if (this.focusInterval) {
+        clearInterval(this.focusInterval);
       }
 
       if (remove) {
