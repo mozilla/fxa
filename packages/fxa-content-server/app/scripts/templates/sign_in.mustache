@@ -1,19 +1,31 @@
 <header>
-  <h1 id="fxa-signin-header">{{#t}}Firefox Accounts{{/t}}</h1>
-
-  <h2>{{#t}}Sign in{{/t}}</h2>
+  {{^forceAuth}}
+    <h2 id="fxa-signin-header">{{#t}}Sign in{{/t}}</h2>
+  {{/forceAuth}}
+  {{#forceAuth}}
+    <h2 id="fxa-force-auth-header">{{#t}}Sign in to continue{{/t}}</h2>
+  {{/forceAuth}}
 </header>
 
 <section>
-  <div class="error"></div>
+  {{#error}}
+    <div class="error">{{error}}</div>
+  {{/error}}
+  {{^error}}
 
+  <div class="error"></div>
   <form>
-    <div class="input-row">
-      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus>
-    </div>
+    {{^forceAuth}}
+      <div class="input-row">
+        <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus>
+      </div>
+    {{/forceAuth}}
+    {{#forceAuth}}
+      <p>{{ email }}</p>
+    {{/forceAuth}}
 
     <div class="input-row password-row">
-      <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required>
+      <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#forceAuth}}autofocus{{/forceAuth}}>
 
       <label for="show-password" class="show-password-label">
         <div class="show-password-label-text">{{#t}}Show{{/t}}</div>
@@ -29,11 +41,17 @@
   </form>
 
   <div class="links">
-    <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
-    <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
+    {{^forceAuth}}
+      <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
+      <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
+    {{/forceAuth}}
+    {{#forceAuth}}
+      <a href="/reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
+    {{/forceAuth}}
   </div>
 
   <div class="privacy-links">
     {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/tos">Terms of Service</a> and <a id="fxa-pp" href="/legal/pp">Privacy Notice</a> for Firefox online services.{{/t}}
   </div>
+  {{/error}}
 </section>

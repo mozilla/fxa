@@ -8,9 +8,10 @@ define([
   'underscore',
   'views/base',
   'stache!templates/reset_password',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'lib/session'
 ],
-function (_, BaseView, Template, FxaClient) {
+function (_, BaseView, Template, FxaClient, Session) {
   var View = BaseView.extend({
     template: Template,
     className: 'reset_password',
@@ -19,6 +20,15 @@ function (_, BaseView, Template, FxaClient) {
       'submit form': 'requestPasswordReset',
       'keyup input': 'enableButtonWhenValid',
       'change input': 'enableButtonWhenValid'
+    },
+
+    context: function () {
+      return {
+        // forceAuth is used to determine which secondary links to show
+        // If set to true, only a back link is displayed. If false, create
+        // account and sign in links are displayed.
+        forceAuth: Session.forceAuth
+      };
     },
 
     requestPasswordReset: function (event) {
