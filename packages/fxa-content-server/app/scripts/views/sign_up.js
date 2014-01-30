@@ -33,8 +33,6 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
     initialize: function (options) {
       options = options || {};
 
-      this.service = Url.searchParam('service');
-
       // Reset forceAuth flag so users who visit the reset_password screen
       // see the correct links.
       Session.set('forceAuth', false);
@@ -58,8 +56,8 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
 
     context: function () {
       return {
-        service: this.service,
-        isSync: this.service === 'sync'
+        service: Url.searchParam('session'),
+        isSync: Url.searchParam('service') === 'sync'
       };
     },
 

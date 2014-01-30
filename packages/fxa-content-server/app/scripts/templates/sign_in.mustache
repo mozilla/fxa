@@ -25,7 +25,7 @@
     {{/forceAuth}}
 
     <div class="input-row password-row">
-      <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#forceAuth}}autofocus{{/forceAuth}}>
+      <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#forceAuth}}autofocus{{/forceAuth}} {{#isSync}}autocomplete="off"{{/isSync}} />
 
       <label for="show-password" class="show-password-label">
         <div class="show-password-label-text">{{#t}}Show{{/t}}</div>

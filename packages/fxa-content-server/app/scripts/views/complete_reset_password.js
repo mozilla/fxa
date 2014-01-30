@@ -25,6 +25,12 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
+    context: function () {
+      return {
+        isSync: Url.searchParam('service') === 'sync'
+      };
+    },
+
     afterRender: function () {
       this.token = Url.searchParam('token');
       if (! this.token) {
