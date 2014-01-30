@@ -24,7 +24,7 @@
 
     <div class="input-row">
       <select id="fxa-age-year" value="none">
-        <option id="fxa-none" value="none">{{#t}}When were you born?{{/t}}</option>
+        <option id="fxa-none" value="none">{{#t}}Year of birth{{/t}}</option>
         <option id="fxa-1960" value="1960">{{#t}}1960s or earlier{{/t}}</option>
         <option id="fxa-1970" value="1970">{{#t}}1970s{{/t}}</option>
         <option id="fxa-1980" value="1980">{{#t}}1980s{{/t}}</option>
@@ -41,7 +41,7 @@
     </div>
 
     <div class="privacy-links">
-      {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/tos">Terms of Service</a> and <a id="fxa-pp" href="/legal/pp">Privacy Notice</a> for Firefox online services.{{/t}}
+      {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/tos">Terms of Service</a> and <a id="fxa-pp" href="/legal/pp">Privacy Notice</a> of Firefox online services.{{/t}}
     </div>
 
     <div class="button-row">
@@ -50,7 +50,7 @@
 
     {{#isSync}}
       <div class="input-row customize-sync-row">
-        <label><input type="checkbox" class="customize-sync"> {{#t}}Customize sync options{{/t}}</label>
+        <label><input type="checkbox" class="customize-sync"> {{#t}}Choose what to sync{{/t}}</label>
       </div>
     {{/isSync}}
   </form>
