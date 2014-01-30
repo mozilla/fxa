@@ -85,11 +85,12 @@ module.exports = function (grunt) {
     'autoprefixer',
     'concat',
     'cssmin',
-    'uglify',
     'copy:dist',
     // modernizer must come after copy or else the custom
     // modernizr is overwritten with the dev version.
     'modernizr',
+    // uglify overwrites the files in the dist directory.
+    'uglify',
     'rev',
     'usemin'
   ]);
