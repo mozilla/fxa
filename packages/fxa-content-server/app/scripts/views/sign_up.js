@@ -59,6 +59,12 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
       };
     },
 
+    afterRender: function () {
+      // autofocus doesn't seem to work in the context of about:accounts
+      // where it's loaded in an iframe, so try mantually here
+      setTimeout(function() { this.$('input.email')[0].focus(); }, 0);
+    },
+
     onSubmit: function (event) {
       event.preventDefault();
       this.signUp();
