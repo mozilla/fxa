@@ -73,8 +73,6 @@ module.exports = function (grunt) {
     'concurrent:test',
     'autoprefixer',
     'serverproc:test'
-    // XXX Mocha is removed from here, we should do something else that's
-    // awesome instead.
   ]);
 
   grunt.registerTask('build', [
@@ -88,8 +86,10 @@ module.exports = function (grunt) {
     'concat',
     'cssmin',
     'uglify',
-    'modernizr',
     'copy:dist',
+    // modernizer must come after copy or else the custom
+    // modernizr is overwritten with the dev version.
+    'modernizr',
     'rev',
     'usemin'
   ]);

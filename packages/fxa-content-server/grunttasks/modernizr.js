@@ -13,6 +13,27 @@ module.exports = function (grunt) {
       '<%= yeoman.dist %>/styles/{,*/}*.css',
       '!<%= yeoman.dist %>/scripts/vendor/*'
     ],
-    uglify: true
+    extra: {
+      shiv: true,
+      printshiv: false,
+      load: false,
+      mq: false,
+      cssclasses: true
+    },
+    // Based on default settings on http://modernizr.com/download/
+    extensibility: {
+      addtest: false,
+      prefixed: false,
+      teststyles: true,
+      testprops: false,
+      testallprops: false,
+      hasevents: false,
+      prefixes: true,
+      domprefixes: false
+    },
+    tests: ['touch'],
+    // this will be uglified in the build step.
+    uglify: false,
+    parseFiles: true
   });
 };
