@@ -56,7 +56,7 @@ function (_, Backbone, jQuery, Session) {
     translate: function () {
       var self = this;
       return function (text) {
-        return translator.get(text, self.getContext());
+        return self.translator.get(text, self.getContext());
       };
     },
 
@@ -242,6 +242,17 @@ function (_, Backbone, jQuery, Session) {
       }
     };
   };
+
+  /**
+   * gettext is a wrapper that is used for string extraction. The extraction
+   * script looks for gettext(...), and the translator will eventually
+   * translate it. gettext is put onto BaseView instead of
+   * Translator to reduce the number of dependencies in the views.
+   */
+  BaseView.gettext = function(str) {
+    return str;
+  };
+
 
   return BaseView;
 });

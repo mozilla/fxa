@@ -14,6 +14,8 @@ define([
   'lib/xss'
 ],
 function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
+  var gettext = BaseView.gettext;
+
   var CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
@@ -29,12 +31,12 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
     afterRender: function () {
       var uid = Url.searchParam('uid');
       if (! uid) {
-        return this.displayError('no uid specified');
+        return this.displayError(gettext('no uid specified'));
       }
 
       var code = Url.searchParam('code');
       if (! code) {
-        return this.displayError('no code specified');
+        return this.displayError(gettext('no code specified'));
       }
 
       var client = new FxaClient();

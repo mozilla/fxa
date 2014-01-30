@@ -57,7 +57,9 @@
     "connect-fonts-clearsans": "0.0.1",
     "grunt-cli": "0.1.11",
     "grunt-jscs-checker": "~0.3.2",
-    "grunt-contrib-csslint": "~0.2.0"
+    "grunt-contrib-csslint": "~0.2.0",
+    "mkdirp": "~0.3.5",
+    "grunt-po2json": "git://github.com/shane-tomlinson/grunt-po2json.git#f4f2e3a"
   },
   "devDependencies": {
     "awsbox": "0.6.2",
