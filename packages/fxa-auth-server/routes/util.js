@@ -13,8 +13,8 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
       method: 'POST',
       path: '/get_random_bytes',
       config: {
-        handler: function getRandomBytes(request) {
-          request.reply({ data: crypto.randomBytes(32).toString('hex') })
+        handler: function getRandomBytes(request, reply) {
+          reply({ data: crypto.randomBytes(32).toString('hex') })
         }
       }
     },
@@ -22,8 +22,8 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
       method: 'GET',
       path: '/verify_email',
       config: {
-        handler: function (request) {
-          return request.reply.redirect(config.contentServer.url + request.raw.req.url)
+        handler: function (request, reply) {
+          return reply.redirect(config.contentServer.url + request.raw.req.url)
         },
         validate: {
           query: {
@@ -42,8 +42,8 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
       method: 'GET',
       path: '/complete_reset_password',
       config: {
-        handler: function (request) {
-          return request.reply.redirect(config.contentServer.url + request.raw.req.url)
+        handler: function (request, reply) {
+          return reply.redirect(config.contentServer.url + request.raw.req.url)
         },
         validate: {
           query: {

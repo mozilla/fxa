@@ -82,11 +82,11 @@ api.route(
     {
       method: 'GET',
       path: '/mail/{email}',
-      handler: function (request) {
+      handler: function (request, reply) {
         loop(
           request.params.email,
           function (emailData) {
-            request.reply(emailData)
+            reply(emailData)
           }
         )
       }
@@ -94,9 +94,9 @@ api.route(
     {
       method: 'DELETE',
       path: '/mail/{email}',
-      handler: function (request) {
+      handler: function (request, reply) {
         delete users[request.params.email]
-        request.reply()
+        reply()
       }
     }
   ]

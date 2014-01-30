@@ -33,7 +33,7 @@ module.exports = function (
       config: {
         description: "Begin the change password process",
         tags: ["password"],
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Password.changeStart', request)
           log.security({ event: 'pwd-change-request' })
           var form = request.payload
@@ -88,7 +88,7 @@ module.exports = function (
             )
             .done(
               function (tokens) {
-                request.reply(
+                reply(
                   {
                     keyFetchToken: tokens.keyFetchToken.data.toString('hex'),
                     passwordChangeToken: tokens.passwordChangeToken.data.toString('hex'),
@@ -96,9 +96,7 @@ module.exports = function (
                   }
                 )
               },
-              function (err) {
-                request.reply(err)
-              }
+              reply
             )
         },
         validate: {
@@ -117,9 +115,8 @@ module.exports = function (
         auth: {
           strategy: 'passwordChangeToken'
         },
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Password.changeFinish', request)
-          var reply = request.reply.bind(request)
           var passwordChangeToken = request.auth.credentials
           var authPW = Buffer(request.payload.authPW, 'hex')
           var wrapKb = Buffer(request.payload.wrapKb, 'hex')
@@ -171,7 +168,7 @@ module.exports = function (
         description:
           "Request a new 'reset password' code be sent to the recovery email",
         tags: ["password"],
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Password.forgotSend', request)
           var email = request.payload.email
           db.emailRecord(email)
@@ -196,7 +193,7 @@ module.exports = function (
             )
             .done(
               function (passwordForgotToken) {
-                request.reply(
+                reply(
                   {
                     passwordForgotToken: passwordForgotToken.data.toString('hex'),
                     ttl: passwordForgotToken.ttl(),
@@ -205,9 +202,7 @@ module.exports = function (
                   }
                 )
               },
-              function (err) {
-                request.reply(err)
-              }
+              reply
             )
         },
         validate: {
@@ -240,7 +235,7 @@ module.exports = function (
         auth: {
           strategy: 'passwordForgotToken'
         },
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Password.forgotResend', request)
           var passwordForgotToken = request.auth.credentials
           mailer.sendRecoveryCode(passwordForgotToken, passwordForgotToken.passCode, {
@@ -249,7 +244,7 @@ module.exports = function (
             preferredLang: request.app.preferredLang
           }).done(
             function () {
-              request.reply(
+              reply(
                 {
                   passwordForgotToken: passwordForgotToken.data.toString('hex'),
                   ttl: passwordForgotToken.ttl(),
@@ -258,9 +253,7 @@ module.exports = function (
                 }
               )
             },
-            function (err) {
-              request.reply(err)
-            }
+            reply
           )
         },
         validate: {
@@ -293,7 +286,7 @@ module.exports = function (
         auth: {
           strategy: 'passwordForgotToken'
         },
-        handler: function (request) {
+        handler: function (request, reply) {
           log.begin('Password.forgotVerify', request)
           var passwordForgotToken = request.auth.credentials
           var code = Buffer(request.payload.code, 'hex')
@@ -303,15 +296,13 @@ module.exports = function (
             db.forgotPasswordVerified(passwordForgotToken)
               .done(
                 function (accountResetToken) {
-                  request.reply(
+                  reply(
                     {
                       accountResetToken: accountResetToken.data.toString('hex')
                     }
                   )
                 },
-                function (err) {
-                  request.reply(err)
-                }
+                reply
               )
           }
           else {
@@ -319,16 +310,14 @@ module.exports = function (
             failVerifyAttempt(passwordForgotToken)
               .done(
                 function () {
-                  request.reply(
+                  reply(
                     error.invalidVerificationCode({
                       tries: passwordForgotToken.tries,
                       ttl: passwordForgotToken.ttl()
                     })
                   )
                 },
-                function (err) {
-                  request.reply(err)
-                }
+                reply
               )
           }
         },

@@ -9,9 +9,9 @@ module.exports = function (log, serverPublicKey) {
       method: 'GET',
       path: '/.well-known/browserid',
       config: {
-        handler: function wellKnown(request) {
+        handler: function wellKnown(request, reply) {
           log.begin('wellKnown', request)
-          request.reply(
+          reply(
             {
               'public-key': serverPublicKey,
               'authentication': '/.well-known/browserid/sign_in.html',

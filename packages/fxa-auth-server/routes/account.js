@@ -506,7 +506,6 @@ module.exports = function (
           log.begin('Account.destroy', request)
           var form = request.payload
           var authPW = Buffer(form.authPW, 'hex')
-          var reply = request.reply.bind(request)
           db.emailRecord(form.email)
             .then(
               function (emailRecord) {

@@ -17,11 +17,11 @@ module.exports = function (log, P, db, error) {
       method: 'GET',
       path: '/',
       config: {
-        handler: function index(request) {
+        handler: function index(request, reply) {
           log.begin('Defaults.root', request)
 
           function sendReply() {
-            request.reply(
+            reply(
               {
                 version: version,
                 commit: commitHash,
@@ -72,9 +72,7 @@ module.exports = function (log, P, db, error) {
               function () {
                 reply({})
               },
-              function (err) {
-                reply(err)
-              }
+              reply
             )
         }
       }

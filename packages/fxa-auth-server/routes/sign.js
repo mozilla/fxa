@@ -31,36 +31,36 @@ module.exports = function (log, isA, error, signer, domain) {
             duration: isA.Number().integer().min(0).max(24 * HOUR).required()
           }
         },
-        handler: function certificateSign(request) {
+        handler: function certificateSign(request, reply) {
           log.begin('Sign.cert', request)
           var sessionToken = request.auth.credentials
           var publicKey = request.payload.publicKey
           var duration = request.payload.duration
 
           if (!sessionToken.emailVerified) {
-            return request.reply(error.unverifiedAccount())
+            return reply(error.unverifiedAccount())
           }
 
           if (publicKey.algorithm === 'RS') {
             if (!publicKey.n) {
-              return request.reply(error.missingRequestParameter('n'))
+              return reply(error.missingRequestParameter('n'))
             }
             if (!publicKey.e) {
-              return request.reply(error.missingRequestParameter('e'))
+              return reply(error.missingRequestParameter('e'))
             }
           }
           else { // DS
             if (!publicKey.y) {
-              return request.reply(error.missingRequestParameter('y'))
+              return reply(error.missingRequestParameter('y'))
             }
             if (!publicKey.p) {
-              return request.reply(error.missingRequestParameter('p'))
+              return reply(error.missingRequestParameter('p'))
             }
             if (!publicKey.q) {
-              return request.reply(error.missingRequestParameter('q'))
+              return reply(error.missingRequestParameter('q'))
             }
             if (!publicKey.g) {
-              return request.reply(error.missingRequestParameter('g'))
+              return reply(error.missingRequestParameter('g'))
             }
           }
 
@@ -74,15 +74,15 @@ module.exports = function (log, isA, error, signer, domain) {
             function (err, result) {
               if (err) {
                 log.error({ op: 'signer.enqueue', err: err, result: result })
-                request.reply(error.serviceUnavailable())
+                reply(error.serviceUnavailable())
               }
               else if (result && result.err) {
                 // TODO: parse result.err better
                 log.warn({ op: 'signer.enqueue', err: result.err })
-                request.reply(error.wrap(result.err))
+                reply(error.wrap(result.err))
               }
               else {
-                request.reply(result)
+                reply(result)
               }
             }
           )
