@@ -303,7 +303,7 @@ module.exports = function (
         },
         response: {
           schema: {
-            devices: isA.Object()
+            devices: isA.array()
           }
         }
       }

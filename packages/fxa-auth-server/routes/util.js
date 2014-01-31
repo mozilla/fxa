@@ -23,7 +23,7 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
       path: '/verify_email',
       config: {
         handler: function (request, reply) {
-          return reply.redirect(config.contentServer.url + request.raw.req.url)
+          return reply().redirect(config.contentServer.url + request.raw.req.url)
         },
         validate: {
           query: {
@@ -43,7 +43,7 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
       path: '/complete_reset_password',
       config: {
         handler: function (request, reply) {
-          return reply.redirect(config.contentServer.url + request.raw.req.url)
+          return reply().redirect(config.contentServer.url + request.raw.req.url)
         },
         validate: {
           query: {

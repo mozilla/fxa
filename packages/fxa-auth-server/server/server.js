@@ -76,11 +76,46 @@ module.exports = function (path, url, Hapi, toobusy) {
     )
 
     server.pack.require('hapi-auth-hawk', function (err) {
-      server.auth.strategy('sessionToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)) })
-      server.auth.strategy('keyFetchToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)) })
-      server.auth.strategy('accountResetToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)) })
-      server.auth.strategy('passwordForgotToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)) })
-      server.auth.strategy('passwordChangeToken', 'hawk', { getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)) })
+      server.auth.strategy(
+        'sessionToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
+      server.auth.strategy(
+        'keyFetchToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
+      server.auth.strategy(
+        'accountResetToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
+      server.auth.strategy(
+        'passwordForgotToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
+      server.auth.strategy(
+        'passwordChangeToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
     })
 
     server.route(routes)
@@ -203,26 +238,11 @@ module.exports = function (path, url, Hapi, toobusy) {
       function (request, next) {
         var response = request.response
         if (response.isBoom) {
-          // if (!response.payload.errno) {
-          if (!response.errno) {
-            var details = response.output.payload
-            // Hapi will automatically boomifies application-level errors.
-            // Grab the original error back out so we can wrap it.
-            if (response.output.statusCode === 500 && response.output.payload) {
-              details = response.output.payload
-              details.code = details.statusCode
-              delete details.statusCode
-            }
-            response = error.wrap(details)
+          if (!(response instanceof error)) {
+            response = error.translate(response.output.payload)
           }
           if (config.env !== 'prod') {
             response.output.payload.log = request.app.traced
-          }
-          if (response.output.payload.domainThrown) {
-            // node adds the domain which may have cycles and then hapi JSON.stringifies, derp!
-            response.output.payload.domain = undefined
-            response.output.payload.domainEmitter = undefined
-            response.output.payload.domainBound = undefined
           }
           if (response.output.payload.code === 401) {
             log.security({

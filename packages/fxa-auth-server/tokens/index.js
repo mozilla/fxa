@@ -9,7 +9,7 @@ var P = require('../promise')
 var hkdf = require('../crypto/hkdf')
 var butil = require('../crypto/butil')
 
-var error = require('./error')
+var error = require('../error')
 
 module.exports = function (log, lifetimes) {
   lifetimes = lifetimes || {

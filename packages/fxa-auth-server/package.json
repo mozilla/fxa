@@ -32,7 +32,7 @@
   "dependencies": {
     "mysql": "2.0.0",
     "uuid": "1.4.1",
-    "hapi": "2.0.0",
+    "hapi": "2.1.2",
     "hapi-auth-hawk": "1.0.0",
     "hkdf": "0.0.2",
     "compute-cluster": "git://github.com/dannycoates/node-compute-cluster.git#0222a742",

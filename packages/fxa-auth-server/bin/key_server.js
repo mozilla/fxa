@@ -31,7 +31,7 @@ function main() {
   )
   memoryMonitor.start()
 
-  var error = require('../error')(log)
+  var error = require('../error')
   var Token = require('../tokens')(log, config.tokenLifetimes)
   var i18n = require('../i18n')(config.i18n)
 
@@ -53,7 +53,7 @@ function main() {
   var DB = require('../db')(
     config.db.backend,
     log,
-    Token.error,
+    error,
     Token.SessionToken,
     Token.KeyFetchToken,
     Token.AccountResetToken,
