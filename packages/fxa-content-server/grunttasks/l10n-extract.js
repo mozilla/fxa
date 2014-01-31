@@ -23,7 +23,7 @@ module.exports = function (grunt) {
     }
 
     var clientWalker = extract({
-      'input-dir': './app/scripts',
+      'input-dir': path.join(__dirname, '..', 'app', 'scripts'),
       'output-dir': messagesOutputPath,
       'output': 'content-server.pot',
       'join-existing': false,
@@ -36,7 +36,7 @@ module.exports = function (grunt) {
 
     clientWalker.on('end', function() {
       var authWalker = extract({
-        'input-dir': './node_modules/fxa-auth-server/templates',
+        'input-dir': path.join(__dirname, '..', 'node_modules', 'fxa-auth-server', 'templates'),
         'output-dir': messagesOutputPath,
         'output': 'auth-server.pot',
         'join-existing': false,

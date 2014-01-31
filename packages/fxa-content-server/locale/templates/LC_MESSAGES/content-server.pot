@@ -6,7 +6,7 @@ msgstr ""
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2014-01-31 01:52+0000\n"
+"POT-Creation-Date: 2014-01-31 13:41+0000\n"
 "Content-Type: text/plain;\n"
 
 #: app/scripts/templates/sign_up.mustache:13
@@ -66,6 +66,21 @@ msgstr ""
 msgid "no uid specified"
 msgstr ""
 
+#: app/scripts/lib/password-mixin.js:21
+msgid "Hide"
+msgstr ""
+
+#: app/scripts/lib/password-mixin.js:21
+#: app/scripts/templates/change_password.mustache:6
+#: app/scripts/templates/change_password.mustache:9
+#: app/scripts/templates/complete_reset_password.mustache:5
+#: app/scripts/templates/complete_reset_password.mustache:8
+#: app/scripts/templates/delete_account.mustache:7
+#: app/scripts/templates/sign_in.mustache:11
+#: app/scripts/templates/sign_up.mustache:6
+msgid "Show"
+msgstr ""
+
 #: app/scripts/templates/cannot_create_account.mustache:1
 #: app/scripts/templates/change_password.mustache:1
 #: app/scripts/templates/complete_reset_password.mustache:1
@@ -104,16 +119,6 @@ msgstr ""
 
 #: app/scripts/templates/change_password.mustache:4
 msgid "Old password"
-msgstr ""
-
-#: app/scripts/templates/change_password.mustache:6
-#: app/scripts/templates/change_password.mustache:9
-#: app/scripts/templates/complete_reset_password.mustache:5
-#: app/scripts/templates/complete_reset_password.mustache:8
-#: app/scripts/templates/delete_account.mustache:7
-#: app/scripts/templates/sign_in.mustache:11
-#: app/scripts/templates/sign_up.mustache:6
-msgid "Show"
 msgstr ""
 
 #: app/scripts/templates/change_password.mustache:7
