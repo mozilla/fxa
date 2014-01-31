@@ -14,7 +14,6 @@ body {
   color: #424F59;
   font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
-  padding:0 0 0 0;
 }
 
 a {
@@ -34,9 +33,9 @@ noscript {
   background:url(../images/fireFox.png);
   background-size:96px 102px;
   position: relative;
-  z-index: 999;
   margin: 0 auto -50px auto;
   top: -50px;
+  z-index: 999;
 }
 
 #fxa-signup-header.fox-logo {
@@ -445,41 +444,40 @@ ul.links li {
   background-color: #fff;
 }
 
-.password-row>.password:hover {
+.password-row > .password:hover {
     border-color: #414E58;
 }
 
-.password-row>.password+label:hover {
+.password-row .show-password-label:hover {
   background-color: #F3F5F6;
   color: #414E58;
 }
 
-.password-row:hover > .password+label {
+.password-row:hover > .show-password-label {
   border-color: #414E58;
 }
-.password-row>.password:focus+label{
-  border-left-color:#0095DD !important;
-}
 
+/*this one is impossible to do w/o sibling selector
+we may need to add js for IE8*/
 
-.password-row .password:focus + .show-password-label {
-  border-color: #6F7A85;
+.password-row > .password:focus+.show-password-label{
+  border-left-color:#0095DD;
 }
 
 .password-row .show-password {
   visibility: hidden;
 }
 
-.password-row input[type="password"]+label:active {
+.show-password-label:active {
   background:#eaeaea;
 }
 
-.password-row input[type="text"]+label {
+.password-row input[type="text"]+.show-password-label {
   background:#8A9BA8;
   color:#fff;
 }
 
-.password-row input[type="text"]+label:hover {
+.password-row input[type="text"]+.show-password-label:hover {
   background:#8A9BA8;
   color:#fff;
 }
@@ -550,10 +548,6 @@ ul.links li {
   margin-bottom: 40px;
   color: green;
   font-size: 18px;
-}
-
-option {
-  
 }
 
 /* Responsiveness */
