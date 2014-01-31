@@ -15,8 +15,8 @@ define([
     },
 
     setPasswordVisibility: function (isVisible) {
-      var text = isVisible ? 'Hide' : 'Show';
-      this.$('.show-password-label-text').text(text);
+      //var text = isVisible ? 'Hide' : 'Show';
+      //this.$('.show-password-label-text').text(text);
 
       var type = isVisible ? 'text' : 'password';
       this.$('.password').attr('type', type);
