@@ -14,7 +14,7 @@ define([
   'lib/password-mixin'
 ],
 function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
-  var gettext = BaseView.gettext;
+  var t = BaseView.t;
 
   var View = BaseView.extend({
     template: Template,
@@ -36,17 +36,17 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
     afterRender: function () {
       this.token = Url.searchParam('token');
       if (! this.token) {
-        return this.displayError(gettext('no token specified'));
+        return this.displayError(t('no token specified'));
       }
 
       this.code = Url.searchParam('code');
       if (! this.code) {
-        return this.displayError(gettext('no code specified'));
+        return this.displayError(t('no code specified'));
       }
 
       this.email = Url.searchParam('email');
       if (! this.email) {
-        return this.displayError(gettext('no email specified'));
+        return this.displayError(t('no email specified'));
       }
     },
 
@@ -93,7 +93,7 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
       }
 
       if (this._getPassword() !== this._getVPassword()) {
-        this.displayError(gettext('passwords do not match'));
+        this.displayError(t('passwords do not match'));
         return false;
       }
 

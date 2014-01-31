@@ -14,7 +14,7 @@ define([
   'lib/url'
 ],
 function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
-  var gettext = BaseView.gettext;
+  var t = BaseView.t;
 
   var View = BaseView.extend({
     // user must be authenticated to change password
@@ -54,7 +54,7 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
 
       if (oldPassword === newPassword) {
         return this.displayError(
-                    gettext('old and new passwords must be different'));
+                    t('old and new passwords must be different'));
       }
 
       this.hideError();
