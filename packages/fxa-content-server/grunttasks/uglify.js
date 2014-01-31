@@ -2,19 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// grunt task to uglify all the js.
+
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.config('imagemin', {
+  /**
+   * Uglify all of the scripts in the dist directory
+   */
+  grunt.config('uglify', {
     dist: {
-      options: {
-        cache: false
-      },
       files: [{
         expand: true,
-        cwd: '<%= yeoman.app %>/images',
-        src: '{,*/}*.{png,jpg,jpeg}',
-        dest: '<%= yeoman.dist %>/images'
+        cwd: '<%= yeoman.dist %>/scripts',
+        src: '**/*.js',
+        dest: '<%= yeoman.dist %>/scripts'
       }]
     }
   });
