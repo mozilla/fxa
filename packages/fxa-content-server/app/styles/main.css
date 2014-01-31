@@ -28,7 +28,7 @@ noscript {
   margin: 160px 0 0 0;
 }
 
-.foxLogo {
+.fox-logo {
   width:96px;
   height:102px;
   background:url(../images/fireFox.png);
@@ -39,7 +39,7 @@ noscript {
   top: -50px;
 }
 
-#fxa-signup-header.foxLogo {
+#fxa-signup-header.fox-logo {
   animation: longfadein .5s;
   -webkit-animation: movein .5s;
   -moz-animation: movein .5s;
@@ -564,7 +564,7 @@ option {
     background: #fff;
   }
 
-  .foxLogo {
+  .fox-logo {
     width:64px;
     height:68px;
     background:url(../images/fireFox.png);
@@ -598,7 +598,7 @@ only screen and (     -o-min-device-pixel-ratio: 2/1),
 only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 192dpi),
 only screen and (                min-resolution: 2dppx) {
-  .foxLogo {
+  .fox-logo {
     background-image: url(../images/fireFox@2x.png);
   }
 
