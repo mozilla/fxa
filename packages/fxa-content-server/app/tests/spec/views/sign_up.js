@@ -146,14 +146,12 @@ function (mocha, chai, _, $, View, RouterMock) {
       it('pw field set to text when clicked', function () {
         $('.show-password').click();
         assert.equal($('.password').attr('type'), 'text');
-        assert.equal($('.show-password-label-text').text(), 'Hide');
       });
 
       it('pw field set to password when clicked again', function () {
         $('.show-password').click();
         $('.show-password').click();
         assert.equal($('.password').attr('type'), 'password');
-        assert.equal($('.show-password-label-text').text(), 'Show');
       });
     });
   });
