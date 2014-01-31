@@ -17,8 +17,6 @@ const mkdirp         = require('mkdirp');
 const fs             = require('fs');
 const path           = require('path');
 
-const existsSync = fs.existsSync || path.existsSync;
-
 // where to place the json files.
 const jsonOutputPath = path.join(__dirname, '..', 'app', 'i18n');
 
@@ -28,7 +26,7 @@ module.exports = function (grunt) {
 
   // po2json is configured in po2json.js
   grunt.registerTask('l10n-create-json', function () {
-    if (! existsSync(jsonOutputPath)) {
+    if (! fs.existsSync(jsonOutputPath)) {
       mkdirp.sync(jsonOutputPath);
     }
 

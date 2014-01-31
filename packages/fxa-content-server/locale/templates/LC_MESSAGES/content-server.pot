@@ -6,39 +6,64 @@ msgstr ""
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2014-01-27 23:41+0000\n"
+"POT-Creation-Date: 2014-01-31 01:52+0000\n"
 "Content-Type: text/plain;\n"
 
-#: app/scripts/templates/sign_up.mustache:12
+#: app/scripts/templates/sign_up.mustache:13
 msgid "2000"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:13
+#: app/scripts/templates/sign_up.mustache:14
 msgid "2001"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:14
+#: app/scripts/templates/sign_up.mustache:15
 msgid "2002"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:15
+#: app/scripts/templates/sign_up.mustache:16
 msgid "2003"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:16
+#: app/scripts/templates/sign_up.mustache:17
 msgid "2004"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:17
+#: app/scripts/templates/sign_up.mustache:18
 msgid "2005"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:18
+#: app/scripts/templates/sign_up.mustache:19
 msgid "2006"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:19
+#: app/scripts/templates/sign_up.mustache:20
 msgid "2007"
+msgstr ""
+
+#: app/scripts/views/change_password.js:57
+msgid "old and new passwords must be different"
+msgstr ""
+
+#: app/scripts/views/complete_reset_password.js:39
+msgid "no token specified"
+msgstr ""
+
+#: app/scripts/views/complete_reset_password.js:44
+#: app/scripts/views/complete_sign_up.js:39
+msgid "no code specified"
+msgstr ""
+
+#: app/scripts/views/complete_reset_password.js:49
+msgid "no email specified"
+msgstr ""
+
+#: app/scripts/views/complete_reset_password.js:96
+msgid "passwords do not match"
+msgstr ""
+
+#: app/scripts/views/complete_sign_up.js:34
+msgid "no uid specified"
 msgstr ""
 
 #: app/scripts/templates/cannot_create_account.mustache:1
@@ -81,27 +106,35 @@ msgstr ""
 msgid "Old password"
 msgstr ""
 
-#: app/scripts/templates/change_password.mustache:5
-#: app/scripts/templates/change_password.mustache:7
-#: app/scripts/templates/complete_reset_password.mustache:4
-#: app/scripts/templates/complete_reset_password.mustache:6
-#: app/scripts/templates/delete_account.mustache:6
-#: app/scripts/templates/sign_in.mustache:5
-#: app/scripts/templates/sign_up.mustache:5
+#: app/scripts/templates/change_password.mustache:6
+#: app/scripts/templates/change_password.mustache:9
+#: app/scripts/templates/complete_reset_password.mustache:5
+#: app/scripts/templates/complete_reset_password.mustache:8
+#: app/scripts/templates/delete_account.mustache:7
+#: app/scripts/templates/sign_in.mustache:11
+#: app/scripts/templates/sign_up.mustache:6
 msgid "Show"
 msgstr ""
 
-#: app/scripts/templates/change_password.mustache:6
+#: app/scripts/templates/change_password.mustache:7
 msgid "New password"
 msgstr ""
 
-#: app/scripts/templates/change_password.mustache:8
+#: app/scripts/templates/change_password.mustache:10
+#: app/scripts/templates/complete_reset_password.mustache:9
+#: app/scripts/templates/sign_in.mustache:12
+#: app/scripts/templates/sign_up.mustache:7
+msgid "Must be at least 8 characters"
+msgstr ""
+
+#: app/scripts/templates/change_password.mustache:11
 msgid "Change Password"
 msgstr ""
 
-#: app/scripts/templates/change_password.mustache:9
-#: app/scripts/templates/delete_account.mustache:8
+#: app/scripts/templates/change_password.mustache:12
+#: app/scripts/templates/delete_account.mustache:9
 #: app/scripts/templates/pp.mustache:3
+#: app/scripts/templates/reset_password.mustache:8
 #: app/scripts/templates/tos.mustache:3
 msgid "Back"
 msgstr ""
@@ -112,23 +145,17 @@ msgstr ""
 
 #: app/scripts/templates/complete_reset_password.mustache:3
 #: app/scripts/templates/delete_account.mustache:5
-#: app/scripts/templates/sign_in.mustache:4
+#: app/scripts/templates/sign_in.mustache:8
 #: app/scripts/templates/sign_up.mustache:4
 msgid "Password"
 msgstr ""
 
-#: app/scripts/templates/complete_reset_password.mustache:5
+#: app/scripts/templates/complete_reset_password.mustache:6
 msgid "Repeat Password"
 msgstr ""
 
-#: app/scripts/templates/complete_reset_password.mustache:7
-#: app/scripts/templates/sign_in.mustache:6
-#: app/scripts/templates/sign_up.mustache:6
-msgid "Must be at least 8 characters"
-msgstr ""
-
-#: app/scripts/templates/complete_reset_password.mustache:8
-#: app/scripts/templates/sign_up.mustache:21
+#: app/scripts/templates/complete_reset_password.mustache:10
+#: app/scripts/templates/sign_up.mustache:22
 msgid "Next"
 msgstr ""
 
@@ -200,12 +227,12 @@ msgstr ""
 
 #: app/scripts/templates/delete_account.mustache:4
 #: app/scripts/templates/reset_password.mustache:4
-#: app/scripts/templates/sign_in.mustache:3
+#: app/scripts/templates/sign_in.mustache:6
 #: app/scripts/templates/sign_up.mustache:3
 msgid "Email"
 msgstr ""
 
-#: app/scripts/templates/delete_account.mustache:7
+#: app/scripts/templates/delete_account.mustache:8
 msgid "Delete Account"
 msgstr ""
 
@@ -233,12 +260,12 @@ msgstr ""
 
 #: app/scripts/templates/reset_password.mustache:6
 #: app/scripts/templates/sign_in.mustache:2
-#: app/scripts/templates/sign_in.mustache:7
+#: app/scripts/templates/sign_in.mustache:13
 msgid "Sign in"
 msgstr ""
 
 #: app/scripts/templates/reset_password.mustache:7
-#: app/scripts/templates/sign_in.mustache:9
+#: app/scripts/templates/sign_in.mustache:15
 #: app/scripts/templates/sign_up.mustache:2
 msgid "Create an account"
 msgstr ""
@@ -263,42 +290,48 @@ msgstr ""
 msgid "Sign out"
 msgstr ""
 
-#: app/scripts/templates/sign_in.mustache:8
+#: app/scripts/templates/sign_in.mustache:3
+msgid "Sign in to continue"
+msgstr ""
+
+#: app/scripts/templates/sign_in.mustache:14
+#: app/scripts/templates/sign_in.mustache:16
 msgid "Forgot password?"
 msgstr ""
 
-#: app/scripts/templates/sign_in.mustache:10
-#: app/scripts/templates/sign_up.mustache:20
+#: app/scripts/templates/sign_in.mustache:18
+#: app/scripts/templates/sign_up.mustache:21
 msgid ""
-"By proceeding, I agree to the <a id=\"fxa-tos\" href=\"/tos\">Terms of "
-"Service</a> and <a id=\"fxa-pp\" href=\"/pp\">Privacy Notice</a> for Sync."
-msgstr ""
-
-#: app/scripts/templates/sign_up.mustache:7
-msgid "When were you born?"
+"By proceeding, I agree to the <a id=\"fxa-tos\" href=\"/legal/tos\">Terms "
+"of Service</a> and <a id=\"fxa-pp\" href=\"/legal/pp\">Privacy Notice</a> "
+"for Firefox online services."
 msgstr ""
 
 #: app/scripts/templates/sign_up.mustache:8
-msgid "1960s or earlier"
+msgid "When were you born?"
 msgstr ""
 
 #: app/scripts/templates/sign_up.mustache:9
-msgid "1970s"
+msgid "1960s or earlier"
 msgstr ""
 
 #: app/scripts/templates/sign_up.mustache:10
-msgid "1980s"
+msgid "1970s"
 msgstr ""
 
 #: app/scripts/templates/sign_up.mustache:11
+msgid "1980s"
+msgstr ""
+
+#: app/scripts/templates/sign_up.mustache:12
 msgid "1990s"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:22
+#: app/scripts/templates/sign_up.mustache:23
 msgid "Customize sync options"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:24
+#: app/scripts/templates/sign_up.mustache:25
 msgid "Already have an account? Sign in!"
 msgstr ""
 
