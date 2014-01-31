@@ -257,7 +257,7 @@ strong.email {
   -webkit-transition-property: all;
 }
 
-.input-row select:hover option {
+.input-row option {
   background-color:white;
 }
 
