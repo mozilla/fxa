@@ -52,8 +52,8 @@ define(['./hawk', '../../components/p/p', './errors'], function (hawk, p, ERRORS
       if (result.error) {
         // Try to recover from a timeskew error
         if (result.errno === ERRORS.INVALID_TIMESTAMP && !retrying) {
-          var serverTime = Date.parse(xhr.getResponseHeader('Date'));
-          self._localtimeOffsetMsec = serverTime - new Date();
+          var serverTime = result.serverTime;
+          self._localtimeOffsetMsec = (serverTime * 1000) - new Date().getTime();
           return self.send(path, method, credentials, jsonPayload, true)
             .then(deferred.resolve, deferred.reject);
 
