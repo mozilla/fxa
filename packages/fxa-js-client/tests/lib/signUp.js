@@ -78,7 +78,8 @@ define([
       });
 
       test('#create account with service and redirectTo', function () {
-        var email = "test" + Date.now() + "@restmail.net";
+        var user = "test" + Date.now();
+        var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
           service: 'sync',
@@ -88,11 +89,23 @@ define([
         return respond(client.signUp(email, password, opts), RequestMocks.signUp)
           .then(function (res) {
             assert.ok(res.uid);
+            return respond(mail.wait(user), RequestMocks.mailServiceAndRedirect);
+          })
+          .then(function (emails) {
+            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+            var service = emails[0].html.match(/service=([A-Za-z0-9]+)/)[1];
+            var redirectTo = emails[0].html.match(/redirectTo=([A-Za-z0-9]+)/)[1];
+
+            assert.ok(code, 'code is returned');
+            assert.ok(service, 'service is returned');
+            assert.ok(redirectTo, 'redirectTo is returned');
+
           });
       });
 
       test('#create account with service', function () {
-        var email = "test" + Date.now() + "@restmail.net";
+        var user = "test" + Date.now();
+        var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
           service: 'sync'
@@ -101,19 +114,38 @@ define([
         return respond(client.signUp(email, password, opts), RequestMocks.signUp)
           .then(function (res) {
             assert.ok(res.uid);
+            return respond(mail.wait(user), RequestMocks.mailServiceAndRedirect);
+          })
+          .then(function (emails) {
+            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+            var service = emails[0].html.match(/service=([A-Za-z0-9]+)/)[1];
+
+            assert.ok(code, 'code is returned');
+            assert.ok(service, 'service is returned');
+
           });
       });
 
       test('#create account with redirectTo', function () {
-        var email = "test" + Date.now() + "@restmail.net";
+        var user = "test" + Date.now();
+        var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
-          service: 'sync'
+          redirectTo: 'http://sync.firefox.com/after_reset'
         };
 
         return respond(client.signUp(email, password, opts), RequestMocks.signUp)
           .then(function (res) {
             assert.ok(res.uid);
+            return respond(mail.wait(user), RequestMocks.mailServiceAndRedirect);
+          })
+          .then(function (emails) {
+            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+            var redirectTo = emails[0].html.match(/redirectTo=([A-Za-z0-9]+)/)[1];
+
+            assert.ok(code, 'code is returned');
+            assert.ok(redirectTo, 'redirectTo is returned');
+
           });
       });
 

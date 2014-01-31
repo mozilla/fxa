@@ -41,6 +41,10 @@ define(['client/lib/errors'], function (ERRORS) {
       status: 200,
       body: '[{"html":"Mocked code=9001"}]'
     },
+    mailServiceAndRedirect: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001 service=sync redirectTo=http"}]'
+    },
     resetMail: {
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
