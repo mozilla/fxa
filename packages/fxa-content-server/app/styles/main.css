@@ -187,6 +187,11 @@ strong.email {
   outline:none;
   transition-duration: 150ms;
   transition-property: border-color;
+  -moz-transition-duration: 150ms;
+  -moz-transition-property: border-color;
+  -webkit-transition-duration: 150ms;
+  -webkit-transition-property: border-color;
+
 }
 
 .input-row input::-webkit-input-placeholder {
@@ -232,6 +237,10 @@ strong.email {
   border-color: #0095DD;
   transition-duration: 150ms;
   transition-property: border-color;
+  -moz-transition-duration: 150ms;
+  -moz-transition-property: border-color;
+  -webkit-transition-duration: 150ms;
+  -webkit-transition-property: border-color;
 }
 
 
@@ -240,9 +249,13 @@ strong.email {
 .input-row select:hover:active,
 .input-row select:focus {
   background-image: url(../images/ddarrow_active.png);
+  background-color: #F3F5F6;
   transition-duration: 150ms;
   transition-property: all;
-  background-color: #F3F5F6;
+  -moz-transition-duration: 150ms;
+  -moz-transition-property: all;
+  -webkit-transition-duration: 150ms;
+  -webkit-transition-property: all;
 }
 
 .input-row select:hover option {
@@ -289,6 +302,11 @@ strong.email {
   width: 100%;
   transition-property: background-color;
   transition-duration: 150ms;
+  -moz-transition-duration: 150ms;
+  -moz-transition-property: border-color;
+  -webkit-transition-duration: 150ms;
+  -webkit-transition-property: border-color;
+
 }
 
 .button-row a.button {
@@ -302,12 +320,20 @@ strong.email {
   background: #0088CC;
   transition-property: background-color;
   transition-duration: 150ms;
+  -moz-transition-duration: 150ms;
+  -moz-transition-property: border-color;
+  -webkit-transition-duration: 150ms;
+  -webkit-transition-property: border-color;
 }
 
 .button-row button:disabled {
   background: #8A9BA8;
   transition-property: background-color;
   transition-duration: 150ms;
+  -moz-transition-duration: 150ms;
+  -moz-transition-property: border-color;
+  -webkit-transition-duration: 150ms;
+  -webkit-transition-property: border-color;
 }
 
 /* Custom rows */
@@ -355,6 +381,8 @@ ul.links li {
   color: #8A9BA8;
   margin-top: 35px;
   transition-duration:150ms
+  -moz-transition-duration:150ms;
+  -webkit-transition-duration:150px;
 }
 
 .privacy-links + .button-row {
@@ -364,7 +392,9 @@ ul.links li {
 
 .privacy-links:hover a {
   color:#0096DD;
-  transition-duration:150ms
+  transition-duration:150ms;
+  -moz-transition-duration:150ms;
+  -webkit-transition-duration:150px;
 }
 
 .verification-email-message {
