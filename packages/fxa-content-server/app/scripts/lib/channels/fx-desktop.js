@@ -77,7 +77,9 @@ function (_, Backbone, Session) {
 
       if (response.data) {
         Session.set('email', response.data.email);
-        this.router.navigate('settings', { trigger: true });
+        if (! Session.forceAuth) {
+          this.router.navigate('settings', { trigger: true });
+        }
       } else {
         Session.clear();
         this.router.navigate('signup', { trigger: true });
