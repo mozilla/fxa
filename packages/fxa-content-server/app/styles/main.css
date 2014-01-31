@@ -22,6 +22,10 @@ a {
   cursor: pointer; /* Use the correct cursor for anchors without an href */
 }
 
+a:active {
+  outline:none;
+}
+
 noscript {
   color: #f00;
   display: block;
@@ -171,6 +175,7 @@ strong.email {
 
 .graphic-mail {
   background-image: url(../images/graphic_mail.png);
+  padding-bottom:10px;
 }
 
 .input-row {
@@ -264,7 +269,7 @@ strong.email {
 }
 
 .input-row option {
-  background-color:white;
+  background-color: #fff;
 }
 
 
@@ -280,6 +285,7 @@ strong.email {
 .input-row:hover input:focus, .input-row:hover select:focus, .input-row:focus input{
   border-color:#0095DD;
   outline: none;
+  color: #454f59;
 }
 
 .input-row:last-child {
@@ -584,7 +590,9 @@ we may need to add js for IE8*/
     margin: 100px auto 0 auto;
     min-height: none;
     width: 100%;
-  }
+    padding: 0 10px 40px 10px;
+    min-width:300px; 
+}
 
   #stage #legal-header {
     margin:-100px 0 0 0;
