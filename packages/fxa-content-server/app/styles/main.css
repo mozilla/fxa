@@ -107,7 +107,8 @@ header h1 {
 }
 
 header h1 span {
-  display: none;
+  position:relative;
+  left:-9999px;
 }
 
 header h2 {
@@ -549,6 +550,10 @@ option {
     margin: 100px auto 0 auto;
     min-height: none;
     width: 100%;
+  }
+
+  #stage #legal-header {
+    margin:-100px 0 0 0;
   }
 }
 
