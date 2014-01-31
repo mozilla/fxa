@@ -14,6 +14,7 @@ body {
   color: #424F59;
   font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
+  padding-bottom: 20px;
 }
 
 a {
@@ -318,6 +319,9 @@ strong.email {
   text-decoration: none;
 }
 
+.button-row a.button:active,
+.button-row a.button:hover,
+.button-row a.button:focus,
 .button-row button:active,
 .button-row button:hover,
 .button-row button:focus {
