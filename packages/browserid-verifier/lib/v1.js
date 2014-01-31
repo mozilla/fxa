@@ -32,7 +32,7 @@ function verify(req, res) {
     const want_ct = [ 'application/x-www-form-urlencoded', 'application/json' ];
     var reason;
     try {
-      var ct = req.headers['content-type'];
+      var ct = req.headers['content-type'] || 'none';
       if (ct.indexOf(';') !== -1) {
         ct = ct.substr(0, ct.indexOf(';'));
       }

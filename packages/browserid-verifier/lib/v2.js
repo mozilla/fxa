@@ -44,10 +44,10 @@ function validateTrustedIssuers(obj) {
 function verify(req, res) {
   try {
     // content-type must be application/json
-    if (req.headers['content-type'].indexOf('application/json') !== 0) {
+    var ct = req.headers['content-type'] || 'none';
+    if (ct.indexOf('application/json') !== 0) {
       throw {
-        reason: util.format("Unsupported Content-Type: %s (expected application/json)",
-                            req.headers['content-type']),
+        reason: util.format("Unsupported Content-Type: %s (expected application/json)", ct),
         code: 415
       };
     }
