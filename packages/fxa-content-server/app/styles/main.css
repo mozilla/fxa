@@ -6,13 +6,7 @@
 }
 
 html {
-  background-color: #f1f1f1;
-  background-image: -webkit-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
-  background-image:    -moz-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
-  background-image:     -ms-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
-  background-image:      -o-linear-gradient(-90deg, #fefefe 0%, #f1f1f1 100%);
-  background-image:         linear-gradient(-180deg, #fefefe 0%, #f1f1f1 100%);
-  background-repeat: no-repeat;
+  background-color: #f2f2f2;
   height: 100%;
 }
 
@@ -20,7 +14,7 @@ body {
   color: #424F59;
   font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 14px;
-  padding: 75px 0;
+  padding:0 0 0 0;
 }
 
 a {
@@ -34,19 +28,67 @@ noscript {
   margin: 160px 0 0 0;
 }
 
+.foxLogo {
+  width:96px;
+  height:102px;
+  background:url(../images/fireFox.png);
+  background-size:96px 102px;
+  position: relative;
+  z-index: 999;
+  margin: 0 auto -50px auto;
+  top: -50px;
+}
+
+#fxa-signup-header.foxLogo {
+  animation: longfadein .5s;
+  -webkit-animation: movein .5s;
+  -moz-animation: movein .5s;
+}
+
 #stage {
-  background: #fff url(../images/fox.png) no-repeat left 50% bottom 30px;
-  background-size: 30px 31px;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-  -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);;
+  background: #fff;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
   box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
-  margin: 0 auto;
-  min-height: 550px;
-  /* padding-bottom = 30px (below icon) + 31px (firefox icon) + 40px (above icon) */
-  padding: 50px 25px 101px 25px;
+  margin: 100px auto 0 auto;
+  min-height: 50px;
+  padding: 0 40px 40px 40px;
   text-align: center;
-  width: 320px;
+  width: 420px;
+  animation: fadein .5s;
+  -webkit-animation: fadein .5s;
+  -moz-animation: fadein .5s;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@-moz-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@-webkit-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes movein {
+  0%   {left:0px; top:-70px;}
+  100%   {left:0px; top:-50px;}
+}
+
+@-moz-keyframes movein {
+  0%   {left:0px; top:-70px;}
+  100%   {left:0px; top:-50px;}
+}
+
+@-webkit-keyframes movein {
+  0%   {left:0px; top:-70px;}
+  100%   {left:0px; top:-50px;}
 }
 
 .js #stage {
@@ -62,17 +104,34 @@ header h1, header h2 {
 header h1 {
   font-size: 24px;
   font-weight: normal;
-  margin-bottom: 21px;
+}
+
+header h1 span {
+  display: none;
 }
 
 header h2 {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 200;
-  margin-bottom: 40px;
+  margin: 20px 0 30px 0;
+}
+
+#legal-header h2 {
+  text-align: left;
+  margin: 0 0 30px 0;
+  padding:40px 0 0 0;
 }
 
 section p {
   font-size: 18px;
+}
+
+#legal-copy {
+  text-align: left;
+}
+
+#legal-copy p {
+  font-size: 14px;
 }
 
 strong.email {
@@ -115,7 +174,8 @@ strong.email {
 }
 
 .input-row input[type='text'], .input-row input[type='email'], .input-row input[type='password'], .input-row select {
-  border: 1px solid #C0C9D0;
+  border: 1px solid #8A9BA8;
+  box-shadow:0 1px 0 hsla(0,0%,0%,.07) inset;
   -webkit-border-radius: 5px;
   border-radius: 5px;
   color: #454f59;
@@ -123,22 +183,25 @@ strong.email {
   height: 45px;
   padding: 0 20px;
   width: 100%;
+  outline:none;
+  transition-duration: 150ms;
+  transition-property: border-color;
 }
 
 .input-row input::-webkit-input-placeholder {
-   color: #C0C9D0;
+   color: #8A9BA8;
 }
 
 .input-row input:-moz-placeholder { /* Firefox 18- */
-   color: #C0C9D0;
+   color: #8A9BA8;
 }
 
 .input-row input::-moz-placeholder {  /* Firefox 19+ */
-   color: #C0C9D0;
+   color: #8A9BA8;
 }
 
 .input-row input:-ms-input-placeholder {
-   color: #C0C9D0;
+   color: #8A9BA8;
 }
 
 .input-row select {
@@ -148,25 +211,56 @@ strong.email {
           appearance: none;
   background: transparent url(../images/ddarrow_inactive.png) no-repeat right 14px top 50%;
   background-size: 10px 17px;
-  color: #C0C9D0;
+  color: #8A9BA8;
   height: auto;
   outline: none;
-  padding: 8px 20px;
-
+  padding: 10px 20px;
   /* Some hackery for Firefox since moz-appearance: none doesn't remove the arrow */
   text-indent: 0.01px;
   text-overflow: "";
-
   width: 100%;
 }
 
-.input-row input:focus, .input-row select:focus {
-  border-color: #6f7a85;
+.input-row:hover input {
+  border-color: #414E58;
 }
 
+
+
+.input-row input:focus, .input-row select:focus {
+  border-color: #0095DD;
+  transition-duration: 150ms;
+  transition-property: border-color;
+}
+
+
+
+.input-row select:hover,  
+.input-row select:hover:active,
 .input-row select:focus {
   background-image: url(../images/ddarrow_active.png);
-  color: #454f59;
+  transition-duration: 150ms;
+  transition-property: all;
+  background-color: #F3F5F6;
+}
+
+.input-row select:hover option {
+  background-color:white;
+}
+
+
+
+.input-row input:hover,.input-row select:hover,
+.input-row:hover input:hover, .input-row:hover select:hover{
+  border-color:#414E58;
+  outline: none;
+}
+
+
+.input-row input:focus,.input-row select:focus,
+.input-row:hover input:focus, .input-row:hover select:focus, .input-row:focus input{
+  border-color:#0095DD;
+  outline: none;
 }
 
 .input-row:last-child {
@@ -174,8 +268,8 @@ strong.email {
 }
 
 .input-row .input-help {
-  margin-top: 10px;
-  color: #C0C9D0;
+  margin-top: 2px;
+  color: #8A9BA8;
 }
 
 .button-row {
@@ -184,7 +278,7 @@ strong.email {
 }
 
 .button-row button, .button-row a.button {
-  background: #E66000;
+  background: #0092DB;
   border: none;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -192,6 +286,8 @@ strong.email {
   font-size: 24px;
   padding: 15px 0;
   width: 100%;
+  transition-property: background-color;
+  transition-duration: 150ms;
 }
 
 .button-row a.button {
@@ -202,17 +298,22 @@ strong.email {
 .button-row button:active,
 .button-row button:hover,
 .button-row button:focus {
-  background: #FF9500;
+  background: #0088CC;
+  transition-property: background-color;
+  transition-duration: 150ms;
 }
 
 .button-row button:disabled {
-  background: #C0C9D0;
+  background: #8A9BA8;
+  transition-property: background-color;
+  transition-duration: 150ms;
 }
 
 /* Custom rows */
 .input-row-month-day select {
   width: 45%;
 }
+
 
 .description {
   font-size: 18px;
@@ -250,12 +351,19 @@ ul.links li {
 }
 
 .privacy-links, .privacy-links a {
-  color: #C0C9D0;
+  color: #8A9BA8;
   margin-top: 35px;
+  transition-duration:150ms
 }
 
 .privacy-links + .button-row {
   margin-top: 20px;
+}
+
+
+.privacy-links:hover a {
+  color:#0096DD;
+  transition-duration:150ms
 }
 
 .verification-email-message {
@@ -283,10 +391,11 @@ ul.links li {
  *
  * See https://bugzilla.mozilla.org/show_bug.cgi?id=965237
  */
+
 .password-row .show-password-label {
-  border-left: 1px solid #C0C9D0;
-  border-radius: 0 5px 5px 0;
-  color: #C0C9D0;
+  border-left: 1px solid #8A9BA8;
+  border-radius: 0 4px 4px 0;
+  color: #8A9BA8;
   cursor: pointer;
   font-size: 16px;
   height: 43px;
@@ -305,6 +414,23 @@ ul.links li {
   background-color: #fff;
 }
 
+.password-row>.password:hover {
+    border-color: #414E58;
+}
+
+.password-row>.password+label:hover {
+  background-color: #F3F5F6;
+  color: #414E58;
+}
+
+.password-row:hover > .password+label {
+  border-color: #414E58;
+}
+.password-row>.password:focus+label{
+  border-left-color:#0095DD !important;
+}
+
+
 .password-row .password:focus + .show-password-label {
   border-color: #6F7A85;
 }
@@ -313,8 +439,22 @@ ul.links li {
   visibility: hidden;
 }
 
+.password-row input[type="password"]+label:active {
+  background:#eaeaea;
+}
+
+.password-row input[type="text"]+label {
+  background:#8A9BA8;
+  color:#fff;
+}
+
+.password-row input[type="text"]+label:hover {
+  background:#8A9BA8;
+  color:#fff;
+}
+
 .customize-sync-row {
-  color: #C0C9D0;
+  color: #8A9BA8;
   margin-bottom: 20px !important;
 }
 
@@ -381,6 +521,10 @@ ul.links li {
   font-size: 18px;
 }
 
+option {
+  
+}
+
 /* Responsiveness */
 
 /* TODO: Confirm breakpoint sizes */
@@ -389,12 +533,27 @@ ul.links li {
     background: #fff;
   }
 
+  .foxLogo {
+    width:64px;
+    height:68px;
+    background:url(../images/fireFox.png);
+    background-size:64px 68px;
+    position: relative;
+    z-index: 999;
+    margin: 0 auto -50px auto;
+    top: -50px;
+  }
+
   #stage {
     -webkit-box-shadow: none;
     box-shadow: none;
-    margin: 0 auto;
+    margin: 100px auto 0 auto;
     min-height: none;
     width: 100%;
+  }
+
+  #stage #legal-header {
+    margin:-100px 0 0 0;
   }
 }
 
@@ -408,8 +567,8 @@ only screen and (     -o-min-device-pixel-ratio: 2/1),
 only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 192dpi),
 only screen and (                min-resolution: 2dppx) {
-  #stage {
-    background-image: url(../images/fox@2x.png);
+  .foxLogo {
+    background-image: url(../images/fireFox@2x.png);
   }
 
   .graphic-checkbox {
