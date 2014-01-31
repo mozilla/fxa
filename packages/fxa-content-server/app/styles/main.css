@@ -118,7 +118,12 @@ header h2 {
 
 #legal-header h2 {
   margin: 0 0 30px 0;
-  padding: 20px 0 0 0;
+  padding: 0px 0 0 0;
+}
+
+#legal-copy ul, #legal-copy ol {
+  padding-left:20px;
+  margin-left:0;
 }
 
 section p {
