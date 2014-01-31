@@ -117,9 +117,8 @@ header h2 {
 }
 
 #legal-header h2 {
-  text-align: left;
   margin: 0 0 30px 0;
-  padding:40px 0 0 0;
+  padding: 20px 0 0 0;
 }
 
 section p {
@@ -550,10 +549,6 @@ option {
     margin: 100px auto 0 auto;
     min-height: none;
     width: 100%;
-  }
-
-  #stage #legal-header {
-    margin:-100px 0 0 0;
   }
 }
 
