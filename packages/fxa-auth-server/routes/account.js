@@ -35,11 +35,11 @@ module.exports = function (
         tags: ["srp", "account"],
         validate: {
           payload: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
-            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
-            preVerified: isA.Boolean(),
-            service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String()
+            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            preVerified: isA.boolean(),
+            service: isA.string().max(16).alphanum().optional(),
+            redirectTo: isA.string()
               .max(512)
               .regex(validators.domainRegex(redirectDomain))
               .optional()
@@ -262,16 +262,16 @@ module.exports = function (
         },
         validate: {
           payload: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
-            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
           },
         },
         response: {
           schema: {
-            uid: isA.String().regex(HEX_STRING).required(),
-            sessionToken: isA.String().regex(HEX_STRING).required(),
-            keyFetchToken: isA.String().regex(HEX_STRING).optional(),
-            verified: isA.Boolean().required()
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
+            verified: isA.boolean().required()
           }
         }
       }
@@ -320,7 +320,7 @@ module.exports = function (
         tags: ["account"],
         response: {
           schema: {
-            bundle: isA.String().regex(HEX_STRING)
+            bundle: isA.string().regex(HEX_STRING)
           }
         },
         handler: function accountKeys(request, reply) {
@@ -364,8 +364,8 @@ module.exports = function (
         },
         response: {
           schema: {
-            email: isA.String().regex(LAZY_EMAIL).required(),
-            verified: isA.Boolean().required()
+            email: isA.string().regex(LAZY_EMAIL).required(),
+            verified: isA.boolean().required()
           }
         }
       }
@@ -382,8 +382,8 @@ module.exports = function (
         },
         validate: {
           payload: {
-            service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String()
+            service: isA.string().max(16).alphanum().optional(),
+            redirectTo: isA.string()
               .max(512)
               .regex(validators.domainRegex(redirectDomain))
               .optional()
@@ -444,8 +444,8 @@ module.exports = function (
         },
         validate: {
           payload: {
-            uid: isA.String().max(32).regex(HEX_STRING).required(),
-            code: isA.String().min(32).max(32).regex(HEX_STRING).required()
+            uid: isA.string().max(32).regex(HEX_STRING).required(),
+            code: isA.string().min(32).max(32).regex(HEX_STRING).required()
           }
         }
       }
@@ -461,7 +461,7 @@ module.exports = function (
         tags: ["account"],
         validate: {
           payload: {
-            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
           }
         },
         handler: function accountReset(request, reply) {
@@ -536,8 +536,8 @@ module.exports = function (
         },
         validate: {
           payload: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
-            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
           }
         }
       }

@@ -18,17 +18,17 @@ module.exports = function (log, isA, error, signer, domain) {
         tags: ["account"],
         validate: {
           payload: {
-            publicKey: isA.Object({
-              algorithm: isA.String().valid("RS", "DS").required(),
-              n: isA.String(),
-              e: isA.String(),
-              y: isA.String(),
-              p: isA.String(),
-              q: isA.String(),
-              g: isA.String(),
-              version: isA.String()
+            publicKey: isA.object({
+              algorithm: isA.string().valid("RS", "DS").required(),
+              n: isA.string(),
+              e: isA.string(),
+              y: isA.string(),
+              p: isA.string(),
+              q: isA.string(),
+              g: isA.string(),
+              version: isA.string()
             }).required(),
-            duration: isA.Number().integer().min(0).max(24 * HOUR).required()
+            duration: isA.number().integer().min(0).max(24 * HOUR).required()
           }
         },
         handler: function certificateSign(request, reply) {

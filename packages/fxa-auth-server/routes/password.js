@@ -101,8 +101,8 @@ module.exports = function (
         },
         validate: {
           payload: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
-            oldAuthPW: isA.String().min(64).max(64).regex(HEX_STRING).required()
+            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            oldAuthPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
           }
         }
       }
@@ -155,8 +155,8 @@ module.exports = function (
         },
         validate: {
           payload: {
-            authPW: isA.String().min(64).max(64).regex(HEX_STRING).required(),
-            wrapKb: isA.String().min(64).max(64).regex(HEX_STRING).required()
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
+            wrapKb: isA.string().min(64).max(64).regex(HEX_STRING).required()
           }
         }
       }
@@ -207,9 +207,9 @@ module.exports = function (
         },
         validate: {
           payload: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
-            service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String()
+            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            service: isA.string().max(16).alphanum().optional(),
+            redirectTo: isA.string()
               .max(512)
               .regex(validators.domainRegex(redirectDomain))
               .optional()
@@ -217,10 +217,10 @@ module.exports = function (
         },
         response: {
           schema: {
-            passwordForgotToken: isA.String(),
-            ttl: isA.Number(),
-            codeLength: isA.Number(),
-            tries: isA.Number()
+            passwordForgotToken: isA.string(),
+            ttl: isA.number(),
+            codeLength: isA.number(),
+            tries: isA.number()
           }
         }
       }
@@ -258,9 +258,9 @@ module.exports = function (
         },
         validate: {
           payload: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
-            service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String()
+            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            service: isA.string().max(16).alphanum().optional(),
+            redirectTo: isA.string()
               .max(512)
               .regex(validators.domainRegex(redirectDomain))
               .optional()
@@ -268,10 +268,10 @@ module.exports = function (
         },
         response: {
           schema: {
-            passwordForgotToken: isA.String(),
-            ttl: isA.Number(),
-            codeLength: isA.Number(),
-            tries: isA.Number()
+            passwordForgotToken: isA.string(),
+            ttl: isA.number(),
+            codeLength: isA.number(),
+            tries: isA.number()
           }
         }
       }
@@ -323,12 +323,12 @@ module.exports = function (
         },
         validate: {
           payload: {
-            code: isA.String().min(32).max(32).regex(HEX_STRING).required()
+            code: isA.string().min(32).max(32).regex(HEX_STRING).required()
           },
         },
         response: {
           schema: {
-            accountResetToken: isA.String()
+            accountResetToken: isA.string()
           }
         }
       }

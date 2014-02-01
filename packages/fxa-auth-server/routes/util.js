@@ -27,10 +27,10 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
         },
         validate: {
           query: {
-            code: isA.String().max(32).regex(HEX_STRING).required(),
-            uid: isA.String().max(64).regex(HEX_STRING).required(),
-            service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String()
+            code: isA.string().max(32).regex(HEX_STRING).required(),
+            uid: isA.string().max(64).regex(HEX_STRING).required(),
+            service: isA.string().max(16).alphanum().optional(),
+            redirectTo: isA.string()
               .max(512)
               .regex(validators.domainRegex(redirectDomain))
               .optional()
@@ -47,11 +47,11 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
         },
         validate: {
           query: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
-            code: isA.String().max(32).regex(HEX_STRING).required(),
-            token: isA.String().max(64).regex(HEX_STRING).required(),
-            service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String()
+            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            code: isA.string().max(32).regex(HEX_STRING).required(),
+            token: isA.string().max(64).regex(HEX_STRING).required(),
+            service: isA.string().max(16).alphanum().optional(),
+            redirectTo: isA.string()
               .max(512)
               .regex(validators.domainRegex(redirectDomain))
               .optional()
