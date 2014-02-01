@@ -15,7 +15,6 @@ module.exports = function (log, isA, error, signer, domain) {
           strategy: 'sessionToken',
           payload: 'required'
         },
-        tags: ["account"],
         validate: {
           payload: {
             publicKey: isA.object({
@@ -30,63 +29,63 @@ module.exports = function (log, isA, error, signer, domain) {
             }).required(),
             duration: isA.number().integer().min(0).max(24 * HOUR).required()
           }
-        },
-        handler: function certificateSign(request, reply) {
-          log.begin('Sign.cert', request)
-          var sessionToken = request.auth.credentials
-          var publicKey = request.payload.publicKey
-          var duration = request.payload.duration
-
-          if (!sessionToken.emailVerified) {
-            return reply(error.unverifiedAccount())
-          }
-
-          if (publicKey.algorithm === 'RS') {
-            if (!publicKey.n) {
-              return reply(error.missingRequestParameter('n'))
-            }
-            if (!publicKey.e) {
-              return reply(error.missingRequestParameter('e'))
-            }
-          }
-          else { // DS
-            if (!publicKey.y) {
-              return reply(error.missingRequestParameter('y'))
-            }
-            if (!publicKey.p) {
-              return reply(error.missingRequestParameter('p'))
-            }
-            if (!publicKey.q) {
-              return reply(error.missingRequestParameter('q'))
-            }
-            if (!publicKey.g) {
-              return reply(error.missingRequestParameter('g'))
-            }
-          }
-
-          signer.enqueue(
-            {
-              email: sessionToken.uid.toString('hex') + '@' + domain,
-              publicKey: publicKey,
-              duration: duration,
-              generation: sessionToken.verifierSetAt,
-            },
-            function (err, result) {
-              if (err) {
-                log.error({ op: 'signer.enqueue', err: err, result: result })
-                reply(error.serviceUnavailable())
-              }
-              else if (result && result.err) {
-                // TODO: parse result.err better
-                log.warn({ op: 'signer.enqueue', err: result.err })
-                reply(error.wrap(result.err))
-              }
-              else {
-                reply(result)
-              }
-            }
-          )
         }
+      },
+      handler: function certificateSign(request, reply) {
+        log.begin('Sign.cert', request)
+        var sessionToken = request.auth.credentials
+        var publicKey = request.payload.publicKey
+        var duration = request.payload.duration
+
+        if (!sessionToken.emailVerified) {
+          return reply(error.unverifiedAccount())
+        }
+
+        if (publicKey.algorithm === 'RS') {
+          if (!publicKey.n) {
+            return reply(error.missingRequestParameter('n'))
+          }
+          if (!publicKey.e) {
+            return reply(error.missingRequestParameter('e'))
+          }
+        }
+        else { // DS
+          if (!publicKey.y) {
+            return reply(error.missingRequestParameter('y'))
+          }
+          if (!publicKey.p) {
+            return reply(error.missingRequestParameter('p'))
+          }
+          if (!publicKey.q) {
+            return reply(error.missingRequestParameter('q'))
+          }
+          if (!publicKey.g) {
+            return reply(error.missingRequestParameter('g'))
+          }
+        }
+
+        signer.enqueue(
+          {
+            email: sessionToken.uid.toString('hex') + '@' + domain,
+            publicKey: publicKey,
+            duration: duration,
+            generation: sessionToken.verifierSetAt,
+          },
+          function (err, result) {
+            if (err) {
+              log.error({ op: 'signer.enqueue', err: err, result: result })
+              reply(error.serviceUnavailable())
+            }
+            else if (result && result.err) {
+              // TODO: parse result.err better
+              log.warn({ op: 'signer.enqueue', err: result.err })
+              reply(error.wrap(result.err))
+            }
+            else {
+              reply(result)
+            }
+          }
+        )
       }
     }
   ]

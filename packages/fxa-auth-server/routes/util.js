@@ -12,19 +12,14 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
     {
       method: 'POST',
       path: '/get_random_bytes',
-      config: {
-        handler: function getRandomBytes(request, reply) {
-          reply({ data: crypto.randomBytes(32).toString('hex') })
-        }
+      handler: function getRandomBytes(request, reply) {
+        reply({ data: crypto.randomBytes(32).toString('hex') })
       }
     },
     {
       method: 'GET',
       path: '/verify_email',
       config: {
-        handler: function (request, reply) {
-          return reply().redirect(config.contentServer.url + request.raw.req.url)
-        },
         validate: {
           query: {
             code: isA.string().max(32).regex(HEX_STRING).required(),
@@ -36,15 +31,15 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
               .optional()
           }
         }
+      },
+      handler: function (request, reply) {
+        return reply().redirect(config.contentServer.url + request.raw.req.url)
       }
     },
     {
       method: 'GET',
       path: '/complete_reset_password',
       config: {
-        handler: function (request, reply) {
-          return reply().redirect(config.contentServer.url + request.raw.req.url)
-        },
         validate: {
           query: {
             email: isA.string().max(255).regex(LAZY_EMAIL).required(),
@@ -57,6 +52,9 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
               .optional()
           }
         }
+      },
+      handler: function (request, reply) {
+        return reply().redirect(config.contentServer.url + request.raw.req.url)
       }
     }
   ]

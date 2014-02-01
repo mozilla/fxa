@@ -8,35 +8,29 @@ module.exports = function (log, serverPublicKey) {
     {
       method: 'GET',
       path: '/.well-known/browserid',
-      config: {
-        handler: function wellKnown(request, reply) {
-          log.begin('wellKnown', request)
-          reply(
-            {
-              'public-key': serverPublicKey,
-              'authentication': '/.well-known/browserid/sign_in.html',
-              'provisioning': '/.well-known/browserid/provision.html'
-            }
-          )
-        }
+      handler: function wellKnown(request, reply) {
+        log.begin('wellKnown', request)
+        reply(
+          {
+            'public-key': serverPublicKey,
+            'authentication': '/.well-known/browserid/sign_in.html',
+            'provisioning': '/.well-known/browserid/provision.html'
+          }
+        )
       }
     },
     {
       method: 'GET',
       path: '/.well-known/browserid/sign_in.html',
-      config: {
-        handler: {
-          file: './routes/static/sign_in.html'
-        }
+      handler: {
+        file: './routes/static/sign_in.html'
       }
     },
     {
       method: 'GET',
       path: '/.well-known/browserid/provision.html',
-      config: {
-        handler: {
-          file: './routes/static/provision.html'
-        }
+      handler: {
+        file: './routes/static/provision.html'
       }
     }
   ]
