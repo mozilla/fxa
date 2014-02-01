@@ -54,8 +54,8 @@ noscript {
   background: #fff;
   -webkit-border-radius: 5px;
   border-radius: 5px;
-  -webkit-box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.25);
-  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.25);
+  -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
   margin: 100px auto 0 auto;
   min-height: 450px;
   padding: 0 40px 40px 40px;
@@ -82,18 +82,18 @@ noscript {
 }
 
 @keyframes movein {
-  0%   {left: 0px; top: -70px;}
-  100%   {left: 0px; top: -50px;}
+  0%   {left: 0; top: -70px;}
+  100%   {left: 0; top: -50px;}
 }
 
 @-moz-keyframes movein {
-  0%   {left: 0px; top: -70px;}
-  100%   {left: 0px; top: -50px;}
+  0%   {left: 0; top: -70px;}
+  100%   {left: 0; top: -50px;}
 }
 
 @-webkit-keyframes movein {
-  0%   {left: 0px; top: -70px;}
-  100%   {left: 0px; top: -50px;}
+  0%   {left: 0; top: -70px;}
+  100%   {left: 0; top: -50px;}
 }
 
 .js #stage {
@@ -125,7 +125,7 @@ header h2 {
 
 #legal-header h2 {
   margin: 0 0 30px 0;
-  padding: 0 0 0 0;
+  padding: 0;
 }
 
 #legal-copy ul,
@@ -407,7 +407,7 @@ ul.links li {
 .privacy-links a {
   color: #8A9BA8;
   margin-top: 35px;
-  transition-duration: 150ms
+  transition-duration: 150ms;
   -moz-transition-duration: 150ms;
   -webkit-transition-duration: 150ms;
 }
@@ -569,6 +569,13 @@ we may need to add js for IE8*/
 
 .hidden {
   display: none;
+}
+
+.success {
+  background: #5DAE40;
+  color: #fff;
+  margin-bottom: 5px;
+  padding: 5px;
 }
 
 .success {
