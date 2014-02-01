@@ -1,5 +1,6 @@
 /* Border box all the things by default */
-*, *:before, *:after {
+*, *:before,
+*:after {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -23,7 +24,7 @@ a {
 }
 
 a:active {
-  outline:none;
+  outline: none;
 }
 
 noscript {
@@ -33,10 +34,10 @@ noscript {
 }
 
 .fox-logo {
-  width:96px;
-  height:102px;
-  background:url(../images/fireFox.png);
-  background-size:96px 102px;
+  width: 96px;
+  height: 102px;
+  background: url(../images/fireFox.png);
+  background-size: 96px 102px;
   position: relative;
   margin: 0 auto -50px auto;
   top: -50px;
@@ -44,25 +45,25 @@ noscript {
 }
 
 #fxa-signup-header.fox-logo {
-  animation: longfadein .5s;
-  -webkit-animation: movein .5s;
-  -moz-animation: movein .5s;
+  animation: longfadein 0.5s;
+  -webkit-animation: movein 0.5s;
+  -moz-animation: movein 0.5s;
 }
 
 #stage {
   background: #fff;
   -webkit-border-radius: 5px;
   border-radius: 5px;
-  -webkit-box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
-  box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.25);
+  -webkit-box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.25);
   margin: 100px auto 0 auto;
   min-height: 450px;
   padding: 0 40px 40px 40px;
   text-align: center;
   width: 420px;
-  animation: fadein .5s;
-  -webkit-animation: fadein .5s;
-  -moz-animation: fadein .5s;
+  animation: fadein 0.5s;
+  -webkit-animation: fadein 0.5s;
+  -moz-animation: fadein 0.5s;
 }
 
 @keyframes fadein {
@@ -81,25 +82,26 @@ noscript {
 }
 
 @keyframes movein {
-  0%   {left:0px; top:-70px;}
-  100%   {left:0px; top:-50px;}
+  0%   {left: 0px; top: -70px;}
+  100%   {left: 0px; top: -50px;}
 }
 
 @-moz-keyframes movein {
-  0%   {left:0px; top:-70px;}
-  100%   {left:0px; top:-50px;}
+  0%   {left: 0px; top: -70px;}
+  100%   {left: 0px; top: -50px;}
 }
 
 @-webkit-keyframes movein {
-  0%   {left:0px; top:-70px;}
-  100%   {left:0px; top:-50px;}
+  0%   {left: 0px; top: -70px;}
+  100%   {left: 0px; top: -50px;}
 }
 
 .js #stage {
   display: none;
 }
 
-header h1, header h2 {
+header h1,
+header h2 {
   font-family: "Fira Sans", Helvetica, Arial, sans-serif;
   line-height: 1em;
   margin: 0;
@@ -111,8 +113,8 @@ header h1 {
 }
 
 header h1 span {
-  position:relative;
-  left:-9999px;
+  position: relative;
+  left: -9999px;
 }
 
 header h2 {
@@ -123,12 +125,13 @@ header h2 {
 
 #legal-header h2 {
   margin: 0 0 30px 0;
-  padding: 0px 0 0 0;
+  padding: 0 0 0 0;
 }
 
-#legal-copy ul, #legal-copy ol {
-  padding-left:20px;
-  margin-left:0;
+#legal-copy ul,
+#legal-copy ol {
+  padding-left: 20px;
+  margin-left: 0;
 }
 
 section p {
@@ -175,7 +178,7 @@ strong.email {
 
 .graphic-mail {
   background-image: url(../images/graphic_mail.png);
-  padding-bottom:10px;
+  padding-bottom: 10px;
 }
 
 .input-row {
@@ -183,7 +186,10 @@ strong.email {
   width: 100%;
 }
 
-.input-row input[type='text'], .input-row input[type='email'], .input-row input[type='password'], .input-row select {
+.input-row input[type='text'],
+.input-row input[type='email'],
+.input-row input[type='password'],
+.input-row select {
   border: 1px solid #8A9BA8;
   box-shadow: inset 0 1px 1px #f2f2f2;
   -webkit-box-shadow: inset 0 1px 1px #f2f2f2;
@@ -194,14 +200,13 @@ strong.email {
   height: 45px;
   padding: 0 20px;
   width: 100%;
-  outline:none;
+  outline: none;
   transition-duration: 150ms;
   transition-property: border-color;
   -moz-transition-duration: 150ms;
   -moz-transition-property: border-color;
   -webkit-transition-duration: 150ms;
   -webkit-transition-property: border-color;
-
 }
 
 .input-row input::-webkit-input-placeholder {
@@ -243,7 +248,8 @@ strong.email {
 
 
 
-.input-row input:focus, .input-row select:focus {
+.input-row input:focus,
+.input-row select:focus {
   border-color: #0095DD;
   transition-duration: 150ms;
   transition-property: border-color;
@@ -255,7 +261,7 @@ strong.email {
 
 
 
-.input-row select:hover,  
+.input-row select:hover,
 .input-row select:hover:active,
 .input-row select:focus {
   background-image: url(../images/ddarrow_active.png);
@@ -274,16 +280,21 @@ strong.email {
 
 
 
-.input-row input:hover,.input-row select:hover,
-.input-row:hover input:hover, .input-row:hover select:hover{
-  border-color:#414E58;
+.input-row input:hover,
+.input-row select:hover,
+.input-row:hover input:hover,
+.input-row:hover select:hover {
+  border-color: #414E58;
   outline: none;
 }
 
 
-.input-row input:focus,.input-row select:focus,
-.input-row:hover input:focus, .input-row:hover select:focus, .input-row:focus input{
-  border-color:#0095DD;
+.input-row input:focus,
+.input-row select:focus,
+.input-row:hover input:focus,
+.input-row:hover select:focus,
+.input-row:focus input {
+  border-color: #0095DD;
   outline: none;
   color: #454f59;
 }
@@ -302,7 +313,8 @@ strong.email {
   margin-top: 45px;
 }
 
-.button-row button, .button-row a.button {
+.button-row button,
+.button-row a.button {
   background: #0092DB;
   border: none;
   -webkit-border-radius: 5px;
@@ -391,12 +403,13 @@ ul.links li {
   float: right;
 }
 
-.privacy-links, .privacy-links a {
+.privacy-links,
+.privacy-links a {
   color: #8A9BA8;
   margin-top: 35px;
-  transition-duration:150ms
-  -moz-transition-duration:150ms;
-  -webkit-transition-duration:150px;
+  transition-duration: 150ms
+  -moz-transition-duration: 150ms;
+  -webkit-transition-duration: 150ms;
 }
 
 .privacy-links + .button-row {
@@ -405,10 +418,10 @@ ul.links li {
 
 
 .privacy-links:hover a {
-  color:#0096DD;
-  transition-duration:150ms;
-  -moz-transition-duration:150ms;
-  -webkit-transition-duration:150px;
+  color: #0096DD;
+  transition-duration: 150ms;
+  -moz-transition-duration: 150ms;
+  -webkit-transition-duration: 150ms;
 }
 
 .verification-email-message {
@@ -476,7 +489,7 @@ ul.links li {
 we may need to add js for IE8*/
 
 .password-row > .password:focus+.show-password-label{
-  border-left-color:#0095DD;
+  border-left-color: #0095DD;
 }
 
 .password-row .show-password {
@@ -484,17 +497,17 @@ we may need to add js for IE8*/
 }
 
 .show-password-label:active {
-  background:#eaeaea;
+  background: #eaeaea;
 }
 
 .password-row input[type="text"]+.show-password-label {
-  background:#8A9BA8;
-  color:#fff;
+  background: #8A9BA8;
+  color: #fff;
 }
 
 .password-row input[type="text"]+.show-password-label:hover {
-  background:#8A9BA8;
-  color:#fff;
+  background: #8A9BA8;
+  color: #fff;
 }
 
 .customize-sync-row {
@@ -574,10 +587,10 @@ we may need to add js for IE8*/
   }
 
   .fox-logo {
-    width:64px;
-    height:68px;
-    background:url(../images/fireFox.png);
-    background-size:64px 68px;
+    width: 64px;
+    height: 68px;
+    background: url(../images/fireFox.png);
+    background-size: 64px 68px;
     position: relative;
     z-index: 999;
     margin: 0 auto -50px auto;
@@ -591,11 +604,11 @@ we may need to add js for IE8*/
     min-height: none;
     width: 100%;
     padding: 0 10px 40px 10px;
-    min-width:300px; 
+    min-width: 300px;
 }
 
   #stage #legal-header {
-    margin:-100px 0 0 0;
+    margin: -100px 0 0 0;
   }
 }
 
