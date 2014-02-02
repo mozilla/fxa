@@ -19,15 +19,7 @@ module.exports = function (grunt) {
         'universal-selector': 0,
         'zero-units': 0
       },
-      src: ['app/styles/**/*.css']
+      src: ['<%= yeoman.app %>/styles/**/*.css']
     }
-
-    // options: {
-    // },
-    // styles: {
-    //   src: [
-    //     '<%= yeoman.app %>/styles/{,*/}*.js'
-    //   ]
-    // }
   });
 };
