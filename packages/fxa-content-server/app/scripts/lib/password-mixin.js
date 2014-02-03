@@ -7,10 +7,7 @@
 'use strict';
 
 define([
-  'views/base'
-], function (BaseView) {
-  var t = BaseView.t;
-
+], function () {
   return {
     onPasswordVisibilityChange: function (event) {
       var isVisible = this.$(event.target).is(':checked');
