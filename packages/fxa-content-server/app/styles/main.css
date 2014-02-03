@@ -1,9 +1,9 @@
 /* Border box all the things by default */
 *, *:before,
 *:after {
-  -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
-  box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 html {
@@ -34,39 +34,39 @@ noscript {
 }
 
 .fox-logo {
-  width: 96px;
-  height: 102px;
-  background: url(../images/fireFox.png);
+  background: url(/images/firefox.png);
   background-size: 96px 102px;
-  position: relative;
+  height: 102px;
   margin: 0 auto -50px auto;
+  position: relative;
   top: -50px;
+  width: 96px;
   z-index: 999;
 }
 
 #fxa-signup-header.fox-logo {
-  animation: longfadein 0.5s;
   -webkit-animation: movein 0.5s;
-  -moz-animation: movein 0.5s;
+     -moz-animation: movein 0.5s;
+          animation: movein 0.5s;
 }
 
 #stage {
+  -webkit-animation: fadein 0.5s;
+     -moz-animation: fadein 0.5s;
+          animation: fadein 0.5s;
   background: #fff;
   -webkit-border-radius: 5px;
-  border-radius: 5px;
+          border-radius: 5px;
   -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
   margin: 100px auto 0 auto;
   min-height: 450px;
   padding: 0 40px 40px 40px;
   text-align: center;
   width: 420px;
-  animation: fadein 0.5s;
-  -webkit-animation: fadein 0.5s;
-  -moz-animation: fadein 0.5s;
 }
 
-@keyframes fadein {
+@-webkit-keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
@@ -76,12 +76,12 @@ noscript {
     to   { opacity: 1; }
 }
 
-@-webkit-keyframes fadein {
+@keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }
 }
 
-@keyframes movein {
+@-webkit-keyframes movein {
   0%   {left: 0; top: -70px;}
   100%   {left: 0; top: -50px;}
 }
@@ -91,10 +91,11 @@ noscript {
   100%   {left: 0; top: -50px;}
 }
 
-@-webkit-keyframes movein {
+@keyframes movein {
   0%   {left: 0; top: -70px;}
   100%   {left: 0; top: -50px;}
 }
+
 
 .js #stage {
   display: none;
@@ -179,11 +180,11 @@ strong.email {
 }
 
 .graphic-checkbox {
-  background-image: url(../images/graphic_checkbox.png);
+  background-image: url(/images/graphic_checkbox.png);
 }
 
 .graphic-mail {
-  background-image: url(../images/graphic_mail.png);
+  background-image: url(/images/graphic_mail.png);
   padding-bottom: 10px;
 }
 
@@ -197,22 +198,22 @@ strong.email {
 .input-row input[type='password'],
 .input-row select {
   border: 1px solid #8A9BA8;
-  box-shadow: inset 0 1px 1px #f2f2f2;
-  -webkit-box-shadow: inset 0 1px 1px #f2f2f2;
-  border-radius: 5px;
   -webkit-border-radius: 5px;
+          border-radius: 5px;
+  -webkit-box-shadow: inset 0 1px 1px #f2f2f2;
+          box-shadow: inset 0 1px 1px #f2f2f2;
   color: #454f59;
   font-size: 18px;
   height: 45px;
-  padding: 0 20px;
-  width: 100%;
   outline: none;
-  transition-duration: 150ms;
-  transition-property: border-color;
-  -moz-transition-duration: 150ms;
-  -moz-transition-property: border-color;
+  padding: 0 20px;
   -webkit-transition-duration: 150ms;
+     -moz-transition-duration: 150ms;
+          transition-duration: 150ms;
   -webkit-transition-property: border-color;
+     -moz-transition-property: border-color;
+          transition-property: border-color;
+  width: 100%;
 }
 
 .input-row input::-webkit-input-placeholder {
@@ -234,9 +235,8 @@ strong.email {
 .input-row select {
   -webkit-appearance: none;
      -moz-appearance: none;
-    -moz-user-select: none;
           appearance: none;
-  background: transparent url(../images/ddarrow_inactive.png) no-repeat right 14px top 50%;
+  background: transparent url(/images/ddarrow_inactive.png) no-repeat right 14px top 50%;
   background-size: 10px 17px;
   color: #8A9BA8;
   height: auto;
@@ -245,6 +245,7 @@ strong.email {
   /* Some hackery for Firefox since moz-appearance: none doesn't remove the arrow */
   text-indent: 0.01px;
   text-overflow: "";
+  -moz-user-select: none;
   width: 100%;
 }
 
@@ -257,12 +258,12 @@ strong.email {
 .input-row input:focus,
 .input-row select:focus {
   border-color: #0095DD;
-  transition-duration: 150ms;
-  transition-property: border-color;
-  -moz-transition-duration: 150ms;
-  -moz-transition-property: border-color;
   -webkit-transition-duration: 150ms;
+     -moz-transition-duration: 150ms;
+          transition-duration: 150ms;
   -webkit-transition-property: border-color;
+     -moz-transition-property: border-color;
+          transition-property: border-color;
 }
 
 
@@ -270,14 +271,14 @@ strong.email {
 .input-row select:hover,
 .input-row select:hover:active,
 .input-row select:focus {
-  background-image: url(../images/ddarrow_active.png);
+  background-image: url(/images/ddarrow_active.png);
   background-color: #F3F5F6;
-  transition-duration: 150ms;
-  transition-property: all;
-  -moz-transition-duration: 150ms;
-  -moz-transition-property: all;
   -webkit-transition-duration: 150ms;
+     -moz-transition-duration: 150ms;
+          transition-duration: 150ms;
   -webkit-transition-property: all;
+     -moz-transition-property: all;
+          transition-property: all;
 }
 
 .input-row option {
@@ -301,8 +302,8 @@ strong.email {
 .input-row:hover select:focus,
 .input-row:focus input {
   border-color: #0095DD;
-  outline: none;
   color: #454f59;
+  outline: none;
 }
 
 .input-row:last-child {
@@ -310,8 +311,8 @@ strong.email {
 }
 
 .input-row .input-help {
-  margin-top: 2px;
   color: #8A9BA8;
+  margin-top: 2px;
 }
 
 .button-row {
@@ -324,18 +325,17 @@ strong.email {
   background: #0092DB;
   border: none;
   -webkit-border-radius: 5px;
-  border-radius: 5px;
+          border-radius: 5px;
   color: #fff;
   font-size: 24px;
   padding: 15px 0;
-  width: 100%;
-  transition-property: background-color;
-  transition-duration: 150ms;
-  -moz-transition-duration: 150ms;
-  -moz-transition-property: border-color;
   -webkit-transition-duration: 150ms;
-  -webkit-transition-property: border-color;
-
+     -moz-transition-duration: 150ms;
+          transition-duration: 150ms;
+  -webkit-transition-property: background-color;
+     -moz-transition-property: background-color;
+          transition-property: background-color;
+  width: 100%;
 }
 
 .button-row a.button {
@@ -350,22 +350,10 @@ strong.email {
 .button-row button:hover,
 .button-row button:focus {
   background: #0088CC;
-  transition-property: background-color;
-  transition-duration: 150ms;
-  -moz-transition-duration: 150ms;
-  -moz-transition-property: border-color;
-  -webkit-transition-duration: 150ms;
-  -webkit-transition-property: border-color;
 }
 
 .button-row button:disabled {
   background: #8A9BA8;
-  transition-property: background-color;
-  transition-duration: 150ms;
-  -moz-transition-duration: 150ms;
-  -moz-transition-property: border-color;
-  -webkit-transition-duration: 150ms;
-  -webkit-transition-property: border-color;
 }
 
 /* Custom rows */
@@ -413,9 +401,9 @@ ul.links li {
 .privacy-links a {
   color: #8A9BA8;
   margin-top: 35px;
-  transition-duration: 150ms;
-  -moz-transition-duration: 150ms;
   -webkit-transition-duration: 150ms;
+     -moz-transition-duration: 150ms;
+          transition-duration: 150ms;
 }
 
 .privacy-links + .button-row {
@@ -423,11 +411,10 @@ ul.links li {
 }
 
 
-.privacy-links:hover a {
+.privacy-links a:active,
+.privacy-links a:hover,
+.privacy-links a:focus {
   color: #0096DD;
-  transition-duration: 150ms;
-  -moz-transition-duration: 150ms;
-  -webkit-transition-duration: 150ms;
 }
 
 .verification-email-message {
@@ -479,7 +466,7 @@ ul.links li {
 }
 
 .password-row > .password:hover {
-    border-color: #414E58;
+  border-color: #414E58;
 }
 
 .password-row .show-password-label:hover {
@@ -531,17 +518,17 @@ we may need to add js for IE8*/
 
 .spinner {
   -webkit-animation: 0.9s spin infinite linear;
-  -moz-animation: 0.9s spin infinite linear;
-  animation: 0.9s spin infinite linear;
-  background-image: url(../images/spinnerlight.png);
+     -moz-animation: 0.9s spin infinite linear;
+          animation: 0.9s spin infinite linear;
+  background-image: url(/images/spinnerlight.png);
   background-size: 30px 30px;
   display: block;
-  margin: 130px auto 0;
-  width: 30px;
   height: 30px;
+  margin: 130px auto 0;
   overflow: hidden;
   text-indent: 100%;
   white-space: nowrap;
+  width: 30px;
 }
 
 @-webkit-keyframes spin {
@@ -586,24 +573,24 @@ we may need to add js for IE8*/
   }
 
   .fox-logo {
-    width: 64px;
-    height: 68px;
-    background: url(../images/fireFox.png);
+    background: url(/images/firefox.png);
     background-size: 64px 68px;
-    position: relative;
-    z-index: 999;
+    height: 68px;
     margin: 0 auto -50px auto;
+    position: relative;
     top: -50px;
+    width: 64px;
+    z-index: 999;
   }
 
   #stage {
     -webkit-box-shadow: none;
-    box-shadow: none;
+            box-shadow: none;
     margin: 100px auto 0 auto;
     min-height: none;
-    width: 100%;
-    padding: 0 10px 40px 10px;
     min-width: 300px;
+    padding: 0 10px 40px 10px;
+    width: 100%;
 }
 
   #stage #legal-header {
@@ -622,26 +609,26 @@ only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 192dpi),
 only screen and (                min-resolution: 2dppx) {
   .fox-logo {
-    background-image: url(../images/fireFox@2x.png);
+    background-image: url(/images/firefox@2x.png);
   }
 
   .graphic-checkbox {
-    background-image: url(../images/graphic_checkbox@2x.png);
+    background-image: url(/images/graphic_checkbox@2x.png);
   }
 
   .graphic-mail {
-    background-image: url(../images/graphic_mail@2x.png);
+    background-image: url(/images/graphic_mail@2x.png);
   }
 
   .spinner {
-    background-image: url(../images/spinnerlight@2x.png);
+    background-image: url(/images/spinnerlight@2x.png);
   }
 
   .input-row select {
-    background-image: url(../images/ddarrow_inactive@2x.png)
+    background-image: url(/images/ddarrow_inactive@2x.png)
   }
 
   .input-row select:focus {
-    background-image: url(../images/ddarrow_active@2x.png);
+    background-image: url(/images/ddarrow_active@2x.png);
   }
 }

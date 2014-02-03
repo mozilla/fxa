@@ -3,7 +3,7 @@
 }
 
 .graphic-sync-intro {
-  background-image: url(../images/graphic_sync_intro.png);
+  background-image: url(/images/graphic_sync_intro.png);
 }
 
 .description, .button-row {
@@ -20,6 +20,6 @@ only screen and (        min-device-pixel-ratio: 2),
 only screen and (                min-resolution: 192dpi),
 only screen and (                min-resolution: 2dppx) {
   .graphic-sync-intro {
-    background-image: url(../images/graphic_sync_intro@2x.png);
+    background-image: url(/images/graphic_sync_intro@2x.png);
   }
 }
