@@ -60,7 +60,6 @@ module.exports = function (config, i18n, log) {
     this.sender = config.sender
     this.verificationUrl = config.verificationUrl
     this.passwordResetUrl = config.passwordResetUrl
-    this.reportUrl = config.reportUrl
   }
 
   Mailer.prototype.stop = function () {
@@ -108,11 +107,9 @@ module.exports = function (config, i18n, log) {
     if (opts.redirectTo) { query.redirectTo = opts.redirectTo }
 
     var link = this.verificationUrl + '?' + qs.stringify(query)
-    var reportLink = this.reportUrl
     var values = {
       l10n: i18n.localizationContext(opts.preferredLang),
       link: link,
-      reportLink: reportLink
     }
     var message = {
       sender: this.sender,

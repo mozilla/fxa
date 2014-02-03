@@ -194,11 +194,6 @@ module.exports = function (fs, path, url, convict) {
         env: 'RESET_URL',
         arg: 'reset-url'
       },
-      reportUrl: {
-        doc: 'A page where users can report suspicious activity',
-        format: String,
-        default: '#'
-      },
       redirectDomain: {
         doc: 'Domain that mail urls are allowed to redirect to',
         format: String,
