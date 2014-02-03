@@ -94,7 +94,6 @@ TestServer.start(config)
           function (emailData) {
             var link = emailData.headers['x-link']
             var query = url.parse(link, true).query
-            t.ok(/Report it: (\S+)/.exec(emailData.text)[1], 'report link exists')
             t.ok(query.uid, 'uid is in link')
             t.ok(query.code, 'code is in link')
             t.equal(query.redirectTo, options.redirectTo, 'redirectTo is in link')

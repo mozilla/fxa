@@ -1,7 +1,5 @@
 {{gettext "Welcome!"}}
 
-{{gettext "If you didn't sign up for a Firefox Account,"}} {{gettext "Report it:"}} {{{reportLink}}}
-
 {{gettext "Click the following link to verify your email"}}
 {{{link}}}
 
