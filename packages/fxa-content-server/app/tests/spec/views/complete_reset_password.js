@@ -47,7 +47,87 @@ function (mocha, chai, View) {
         assert.equal($('#vpassword').attr('type'), 'password');
       });
     });
+
+    describe('isFormValid', function () {
+      it('returns true if token, code, email, password, vpassword available, password & vpassword valid and the same', function () {
+        view.token = view.code = view.email = "passed_in_on_url";
+        view.$('#password').val('password');
+        view.$('#vpassword').val('password');
+        assert.isTrue(view.isFormValid());
+      });
+
+      it('returns false if token, code, email, password, vpassword available, password & vpassword valid are different', function () {
+        view.token = view.code = view.email = "passed_in_on_url";
+        view.$('#password').val('password');
+        view.$('#vpassword').val('other_password');
+        assert.isFalse(view.isFormValid());
+      });
+
+      it('returns false if token, code, email, password, vpassword available, password invalid', function () {
+        view.token = view.code = view.email = "passed_in_on_url";
+        view.$('#password').val('passwor');
+        view.$('#vpassword').val('password');
+        assert.isFalse(view.isFormValid());
+      });
+
+      it('returns false if token, code, email, password, vpassword available, vpassword invalid', function () {
+        view.token = view.code = view.email = "passed_in_on_url";
+        view.$('#password').val('password');
+        view.$('#vpassword').val('passwor');
+        assert.isFalse(view.isFormValid());
+      });
+
+      it('returns false if email missing', function () {
+        view.token = view.code = "passed_in_on_url";
+        view.$('#password').val('password');
+        view.$('#vpassword').val('password');
+        assert.isFalse(view.isFormValid());
+      });
+
+      it('returns false if code missing', function () {
+        view.token = view.email = "passed_in_on_url";
+        view.$('#password').val('password');
+        view.$('#vpassword').val('password');
+        assert.isFalse(view.isFormValid());
+      });
+
+      it('returns false if token missing', function () {
+        view.code = view.email = "passed_in_on_url";
+        view.$('#password').val('password');
+        view.$('#vpassword').val('password');
+        assert.isFalse(view.isFormValid());
+      });
+    });
+
+    describe('showValidationErrors', function() {
+      it('shows an error if the password is invalid', function (done) {
+        view.$('#password').val('passwor');
+        view.$('#vpassword').val('password');
+
+        view.on('validation_error', function(which, msg) {
+          assert.equal(which, '#password');
+          assert.ok(msg);
+          done();
+        });
+
+        view.showValidationErrors();
+      });
+
+      it('shows an error if the vpassword is invalid', function (done) {
+        view.$('#password').val('password');
+        view.$('#vpassword').val('passwor');
+
+        view.on('validation_error', function(which, msg) {
+          assert.equal(which, '#vpassword');
+          assert.ok(msg);
+          done();
+        });
+
+        view.showValidationErrors();
+      });
+    });
   });
 });
+
 
 

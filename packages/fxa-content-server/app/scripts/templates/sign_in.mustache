@@ -16,7 +16,7 @@
   {{^error}}
 
   <div class="error"></div>
-  <form>
+  <form novalidate>
     {{^forceAuth}}
       <div class="input-row">
         <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus>
@@ -36,7 +36,7 @@
     </div>
 
     <div class="button-row">
-      <button type="submit" disabled>{{#t}}Sign in{{/t}}</button>
+      <button type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
     </div>
   </form>
 

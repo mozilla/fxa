@@ -7,16 +7,17 @@
 define([
   'underscore',
   'views/base',
+  'views/form',
   'stache!templates/change_password',
   'lib/fxa-client',
   'lib/session',
   'lib/password-mixin',
   'lib/url'
 ],
-function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
+function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin, Url) {
   var t = BaseView.t;
 
-  var View = BaseView.extend({
+  var View = FormView.extend({
     // user must be authenticated to change password
     mustAuth: true,
 
@@ -26,9 +27,6 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
     events: {
       'click #back': 'back',
       'keyup #back': 'backOnEnter',
-      'submit form': BaseView.preventDefaultThen('changePassword'),
-      'keyup input': 'enableButtonWhenValid',
-      'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
@@ -38,16 +36,22 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
       };
     },
 
-    isValid: function () {
+    isFormValid: function () {
       return this.isElementValid('#old_password') &&
              this.isElementValid('#new_password');
     },
 
-    changePassword: function () {
-      if (! this.isValid()) {
-        return;
-      }
+    showValidationErrors: function () {
+      this.hideError();
 
+      if (! this.isElementValid('#old_password')) {
+        this.showValidationError('#old_password', t('Valid password required'));
+      } else if (! this.isElementValid('#new_password')) {
+        this.showValidationError('#new_password', t('Valid password required'));
+      }
+    },
+
+    submitForm: function () {
       var email = Session.email;
       var oldPassword = this._getOldPassword();
       var newPassword = this._getNewPassword();

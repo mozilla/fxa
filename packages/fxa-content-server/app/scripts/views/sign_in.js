@@ -7,14 +7,17 @@
 define([
   'underscore',
   'views/base',
+  'views/form',
   'stache!templates/sign_in',
   'lib/session',
   'lib/fxa-client',
   'lib/password-mixin',
   'lib/url'
 ],
-function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
-  var View = BaseView.extend({
+function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
+  var t = BaseView.t;
+
+  var View = FormView.extend({
     template: SignInTemplate,
     className: 'sign-in',
 
@@ -55,17 +58,10 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
     },
 
     events: {
-      'submit form': BaseView.preventDefaultThen('signIn'),
-      'keyup input': 'enableButtonWhenValid',
-      'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
-    signIn: function () {
-      if (! (this.isValid())) {
-        return;
-      }
-
+    submitForm: function () {
       var email = Session.forceAuth ? Session.email : this.$('.email').val();
       var password = this.$('.password').val();
 
@@ -87,8 +83,22 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
             }, this));
     },
 
-    isValid: function () {
-      return this._validateEmail() && this._validatePassword();
+    isFormValid: function () {
+      return !! (this._validateEmail() && this._validatePassword());
+    },
+
+    showValidationErrors: function () {
+      if (! this._validateEmail()) {
+        this.showValidationError('.email', t('Valid email required'));
+      } else if (! this._validatePassword()) {
+        var passwordVal = this.$('.password').val();
+
+        if (! passwordVal) {
+          this.showValidationError('.password', t('Valid password required'));
+        } else {
+          this.showValidationError('.password', t('Must be at least 8 characters'));
+        }
+      }
     },
 
     _validateEmail: function () {

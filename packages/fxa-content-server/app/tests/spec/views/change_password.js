@@ -37,7 +37,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function(done) {
+      it('redirects to signin', function (done) {
         router.on('navigate', function (newPage) {
           assert.equal(newPage, 'signin');
           done();
@@ -54,7 +54,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
 
         var client = new FxaClient();
         client.signUp(email, 'password')
-          .then(function() {
+          .then(function () {
             view.render();
 
             $('body').append(view.el);
@@ -62,37 +62,65 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           });
       });
 
-      describe('isValid', function () {
+      describe('isFormValid', function () {
         it('returns true if both old and new passwords are valid and different', function () {
           $('#old_password').val('password');
           $('#new_password').val('password2');
 
-          assert.equal(view.isValid(), true);
+          assert.equal(view.isFormValid(), true);
         });
 
         it('returns true if both old and new passwords are valid and the same', function () {
           $('#old_password').val('password');
           $('#new_password').val('password');
 
-          assert.equal(view.isValid(), true);
+          assert.equal(view.isFormValid(), true);
         });
 
         it('returns false if old password is too short', function () {
           $('#old_password').val('passwor');
           $('#new_password').val('password');
 
-          assert.equal(view.isValid(), false);
+          assert.equal(view.isFormValid(), false);
         });
 
         it('returns false if new password is too short', function () {
           $('#old_password').val('password');
           $('#new_password').val('passwor');
 
-          assert.equal(view.isValid(), false);
+          assert.equal(view.isFormValid(), false);
         });
       });
 
-      describe('changePassword', function () {
+      describe('showValidationErrors', function() {
+        it('shows an error if the password is invalid', function (done) {
+          view.$('#old_password').val('passwor');
+          view.$('#new_password').val('password');
+
+          view.on('validation_error', function(which, msg) {
+            assert.equal(which, '#old_password');
+            assert.ok(msg);
+            done();
+          });
+
+          view.showValidationErrors();
+        });
+
+        it('shows an error if the new_password is invalid', function (done) {
+          view.$('#old_password').val('password');
+          view.$('#new_password').val('passwor');
+
+          view.on('validation_error', function(which, msg) {
+            assert.equal(which, '#new_password');
+            assert.ok(msg);
+            done();
+          });
+
+          view.showValidationErrors();
+        });
+      });
+
+      describe('submitForm', function () {
         it('prints an error message if both passwords are the same', function (done) {
           $('#old_password').val('password');
           $('#new_password').val('password');
@@ -102,7 +130,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
             done();
           });
 
-          view.changePassword();
+          view.submitForm();
         });
 
         it('changes from old to new password, redirects user to signin', function (done) {
@@ -110,7 +138,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           $('#new_password').val('new_password');
 
           view.on('success', done);
-          view.changePassword();
+          view.submitForm();
         });
       });
     });

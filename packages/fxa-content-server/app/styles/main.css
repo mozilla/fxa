@@ -192,7 +192,38 @@ strong.email {
 .input-row {
   margin-bottom: 15px;
   width: 100%;
+  position: relative;
 }
+
+/* tooltip caret */
+.input-row[title]:before {
+  background: #D63920;
+  content: '.';
+  height: 15px;
+  left: 15px;
+  position: absolute;
+  top: -16px;
+  text-indent: -999px;
+  transform: rotate(45deg);
+  white-space: nowrap;
+  width: 15px;
+  z-index: 4;
+}
+
+/* tooltip */
+.input-row[title]:after {
+  background: #D63920;
+  content: attr(title);
+  color: #fff;
+  left: 3px;
+  padding: 5px;
+  position: absolute;
+  top: -35px;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+
 
 .input-row input[type='text'],
 .input-row input[type='email'],
@@ -208,6 +239,7 @@ strong.email {
   height: 45px;
   outline: none;
   padding: 0 20px;
+  position: relative;
   -webkit-transition-duration: 150ms;
      -moz-transition-duration: 150ms;
           transition-duration: 150ms;
@@ -216,6 +248,7 @@ strong.email {
           transition-property: border-color;
   width: 100%;
 }
+
 
 .input-row input::-webkit-input-placeholder {
    color: #8A9BA8;
@@ -253,7 +286,6 @@ strong.email {
 .input-row:hover input {
   border-color: #424f59;
 }
-
 
 .input-row input:focus,
 .input-row select:focus {
@@ -379,7 +411,8 @@ input:focus ~ .input-help-focused {
   background: #0088CC;
 }
 
-.button-row button:disabled {
+.button-row button:disabled,
+.button-row button.disabled {
   background: #8A9BA8;
   cursor: auto;
 }

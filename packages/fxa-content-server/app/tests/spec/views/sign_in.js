@@ -46,6 +46,52 @@ function (mocha, chai, View, WindowMock) {
         assert.equal($('.password').attr('type'), 'password');
       });
     });
+
+    describe('isFormValid', function () {
+      it('returns true if both email and password are valid', function () {
+        view.$('[type=email]').val('testuser@testuser.com');
+        view.$('[type=password]').val('password');
+        assert.isTrue(view.isFormValid());
+      });
+
+      it('returns false if email is invalid', function () {
+        view.$('[type=email]').val('testuser');
+        view.$('[type=password]').val('password');
+        assert.isFalse(view.isFormValid());
+      });
+
+      it('returns false if password is invalid', function () {
+        view.$('[type=email]').val('testuser@testuser.com');
+        view.$('[type=password]').val('passwor');
+        assert.isFalse(view.isFormValid());
+      });
+    });
+
+    describe('showValidationErrors', function() {
+      it('shows an error if the email is invalid', function (done) {
+        view.$('[type=email]').val('testuser');
+        view.$('[type=password]').val('password');
+
+        view.on('validation_error', function(which, msg) {
+          assert.ok(msg);
+          done();
+        });
+
+        view.showValidationErrors();
+      });
+
+      it('shows an error if the password is invalid', function (done) {
+        view.$('[type=email]').val('testuser@testuser.com');
+        view.$('[type=password]').val('passwor');
+
+        view.on('validation_error', function(which, msg) {
+          assert.ok(msg);
+          done();
+        });
+
+        view.showValidationErrors();
+      });
+    });
   });
 
   describe('views/sign_in used for /force_auth without email', function () {
@@ -104,9 +150,9 @@ function (mocha, chai, View, WindowMock) {
       assert.equal($('a[href="/signup"]').length, 0);
     });
 
-    it('isValid is successful when the password is filled out', function () {
+    it('isFormValid is successful when the password is filled out', function () {
       $('.password').val('password');
-      assert.isTrue(view.isValid());
+      assert.isTrue(view.isFormValid());
     });
   });
 

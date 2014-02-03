@@ -41,20 +41,20 @@ function (mocha, chai, _, $, View, RouterMock) {
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
     });
 
-    describe('isValid', function () {
+    describe('isFormValid', function () {
       it('returns true if email, password, and age are all valid', function () {
         $('.email').val(email);
         $('.password').val('password');
         $('#fxa-age-year').val('1960');
 
-        assert.isTrue(view.isValid());
+        assert.isTrue(view.isFormValid());
       });
 
       it('returns false if email is empty', function () {
         $('.password').val('password');
         $('#fxa-age-year').val('1960');
 
-        assert.isFalse(view.isValid());
+        assert.isFalse(view.isFormValid());
       });
 
       it('returns false if email is not an email address', function () {
@@ -62,14 +62,14 @@ function (mocha, chai, _, $, View, RouterMock) {
         $('.password').val('password');
         $('#fxa-age-year').val('1960');
 
-        assert.isFalse(view.isValid());
+        assert.isFalse(view.isFormValid());
       });
 
       it('returns false if password is empty', function () {
         $('.email').val(email);
         $('#fxa-age-year').val('1960');
 
-        assert.isFalse(view.isValid());
+        assert.isFalse(view.isFormValid());
       });
 
       it('returns false if password is invalid', function () {
@@ -77,18 +77,58 @@ function (mocha, chai, _, $, View, RouterMock) {
         $('.password').val('passwor');
         $('#fxa-age-year').val('1960');
 
-        assert.isFalse(view.isValid());
+        assert.isFalse(view.isFormValid());
       });
 
       it('returns false if age is invalid', function () {
         $('.email').val(email);
         $('.password').val('password');
 
-        assert.isFalse(view.isValid());
+        assert.isFalse(view.isFormValid());
       });
     });
 
-    describe('signUp', function () {
+    describe('showValidationErrors', function() {
+      it('shows an error if the email is invalid', function (done) {
+        view.$('[type=email]').val('testuser');
+        view.$('[type=password]').val('password');
+        view.$('#fxa-age-year').val('1990');
+
+        view.on('validation_error', function(which, msg) {
+          assert.ok(msg);
+          done();
+        });
+
+        view.showValidationErrors();
+      });
+
+      it('shows an error if the password is invalid', function (done) {
+        view.$('[type=email]').val('testuser@testuser.com');
+        view.$('[type=password]').val('passwor');
+        view.$('#fxa-age-year').val('1990');
+
+        view.on('validation_error', function(which, msg) {
+          assert.ok(msg);
+          done();
+        });
+
+        view.showValidationErrors();
+      });
+
+      it('shows an error if no year is selected', function (done) {
+        view.$('[type=email]').val('testuser@testuser.com');
+        view.$('[type=password]').val('passwor');
+
+        view.on('validation_error', function(which, msg) {
+          assert.ok(msg);
+          done();
+        });
+
+        view.showValidationErrors();
+      });
+    });
+
+    describe('submitForm', function () {
       it('sends the user to confirm screen if form filled out, >= 14 years ago', function (done) {
         $('.email').val(email);
         $('.password').val('password');
@@ -100,7 +140,7 @@ function (mocha, chai, _, $, View, RouterMock) {
           assert.equal(router.page, 'confirm');
           done();
         });
-        view.signUp();
+        view.submitForm();
       });
 
       it('sends the user to cannot_create_account screen if user selects <= 13 years ago', function (done) {
@@ -114,7 +154,7 @@ function (mocha, chai, _, $, View, RouterMock) {
           assert.equal(router.page, 'cannot_create_account');
           done();
         });
-        view.signUp();
+        view.submitForm();
       });
 
       it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function (done) {
@@ -124,7 +164,7 @@ function (mocha, chai, _, $, View, RouterMock) {
         var nowYear = (new Date()).getFullYear();
         $('#fxa-age-year').val(nowYear - 13);
 
-        view.signUp();
+        view.submitForm();
         assert.equal(router.page, 'cannot_create_account');
 
         // simulate user re-visiting the /signup page after being rejected
