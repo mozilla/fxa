@@ -80,6 +80,7 @@ module.exports = function (grunt) {
     'clean:dist',
     'useminPrepare',
     'selectconfig:dist',
+    'l10n-create-json',
     'requirejs',
     'concurrent:dist',
     'autoprefixer',

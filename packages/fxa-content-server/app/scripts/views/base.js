@@ -8,9 +8,10 @@ define([
   'underscore',
   'backbone',
   'jquery',
-  'lib/session'
+  'lib/session',
+  'lib/auth-errors'
 ],
-function (_, Backbone, jQuery, Session) {
+function (_, Backbone, jQuery, Session, authErrors) {
   var ENTER_BUTTON_CODE = 13;
 
   var BaseView = Backbone.View.extend({
@@ -56,7 +57,7 @@ function (_, Backbone, jQuery, Session) {
     translate: function () {
       var self = this;
       return function (text) {
-        return translator.get(text, self.getContext());
+        return self.translator.get(text, self.getContext());
       };
     },
 
@@ -181,6 +182,10 @@ function (_, Backbone, jQuery, Session) {
       this.hideSuccess();
       this.$('.spinner').hide();
 
+      if (typeof msg === 'number') {
+        msg = authErrors[msg];
+      }
+
       if (msg) {
         this.$('.error').text(this.translator.get(msg));
       }
@@ -242,6 +247,17 @@ function (_, Backbone, jQuery, Session) {
       }
     };
   };
+
+  /**
+   * t is a wrapper that is used for string extraction. The extraction
+   * script looks for t(...), and the translator will eventually
+   * translate it. t is put onto BaseView instead of
+   * Translator to reduce the number of dependencies in the views.
+   */
+  BaseView.t = function(str) {
+    return str;
+  };
+
 
   return BaseView;
 });

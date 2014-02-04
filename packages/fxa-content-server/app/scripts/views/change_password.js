@@ -14,6 +14,8 @@ define([
   'lib/url'
 ],
 function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
+  var t = BaseView.t;
+
   var View = BaseView.extend({
     // user must be authenticated to change password
     mustAuth: true,
@@ -51,7 +53,8 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
       var newPassword = this._getNewPassword();
 
       if (oldPassword === newPassword) {
-        return this.displayError('old and new passwords must be different');
+        return this.displayError(
+                    t('old and new passwords must be different'));
       }
 
       this.hideError();
@@ -65,7 +68,7 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
 
               self.displaySuccess();
             }, function (err) {
-              self.displayError(err.msg || err.message);
+              self.displayError(err.errno || err.message);
             });
     },
 

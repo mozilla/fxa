@@ -19,11 +19,12 @@ function (mocha, chai, Translator) {
   // translations taken from Persona's db_LB translations.
   var TRANSLATIONS = {
     'There was a problem with your signup link. Has this address already been registered?':
-        '⊥ɥǝɹǝ ʍɐs ɐ dɹoqʅǝɯ ʍıʇɥ ʎonɹ sıƃund ʅıuʞ˙ Hɐs ʇɥıs ɐppɹǝss ɐʅɹǝɐpʎ qǝǝu ɹǝƃısʇǝɹǝp¿',
+      [null, '⊥ɥǝɹǝ ʍɐs ɐ dɹoqʅǝɯ ʍıʇɥ ʎonɹ sıƃund ʅıuʞ˙ Hɐs ʇɥıs ɐppɹǝss ɐʅɹǝɐpʎ qǝǝu ɹǝƃısʇǝɹǝp¿'],
 
-    'Error encountered trying to register: %(email)s.':
-        'Ǝɹɹoɹ ǝuɔonuʇǝɹǝp ʇɹʎıuƃ ʇo ɹǝƃısʇɹɐʇıou: %(email)s˙',
+    'Error encountered trying to register: %(email)s.': [null,
+        'Ǝɹɹoɹ ǝuɔonuʇǝɹǝp ʇɹʎıuƃ ʇo ɹǝƃısʇɹɐʇıou: %(email)s˙'],
 
+    // use one direct translation to prepare for simpler json files.
     '%s, Persona requires cookies to remember you.':
         '%s, Ԁǝɹsouɐ ɹǝbnıɹǝs ɔooʞıǝs ʇo ɹǝɯǝɯqǝɹ ʎon˙'
   };
@@ -72,8 +73,8 @@ function (mocha, chai, Translator) {
               'Ǝɹɹoɹ ǝuɔonuʇǝɹǝp ʇɹʎıuƃ ʇo ɹǝƃısʇɹɐʇıou: testuser@testuser.com˙');
       });
 
-      it('can do interpolation multiple times with an array', function() {
-        var stringToTranslate = 'Hi %s, you have been signed in since %s'
+      it('can do interpolation multiple times with an array', function () {
+        var stringToTranslate = 'Hi %s, you have been signed in since %s';
         var translation = translator.get(stringToTranslate, [
           'testuser@testuser.com', 'noon'
         ]);
@@ -82,8 +83,8 @@ function (mocha, chai, Translator) {
               'Hi testuser@testuser.com, you have been signed in since noon');
       });
 
-      it('can do interpolation multiple times with an object', function() {
-        var stringToTranslate = 'Hi %(email)s, you have been signed in since %(time)s'
+      it('can do interpolation multiple times with an object', function () {
+        var stringToTranslate = 'Hi %(email)s, you have been signed in since %(time)s';
         var translation = translator.get(stringToTranslate, {
           email: 'testuser@testuser.com',
           time: 'noon'
@@ -93,15 +94,15 @@ function (mocha, chai, Translator) {
               'Hi testuser@testuser.com, you have been signed in since noon');
       });
 
-      it('does no replacement on %s and %(name)s if not in context', function() {
-        var stringToTranslate = 'Hi %s, you have been signed in since %(time)s'
+      it('does no replacement on %s and %(name)s if not in context', function () {
+        var stringToTranslate = 'Hi %s, you have been signed in since %(time)s';
         var translation = translator.get(stringToTranslate);
 
         assert.equal(translation, stringToTranslate);
       });
 
-      it('leaves remaining %s if not enough items in context', function() {
-        var stringToTranslate = 'Hi %s, you have been signed in since %s'
+      it('leaves remaining %s if not enough items in context', function () {
+        var stringToTranslate = 'Hi %s, you have been signed in since %s';
         var translation = translator.get(stringToTranslate, ['testuser@testuser.com']);
 
         assert.equal(translation, 'Hi testuser@testuser.com, you have been signed in since %s');

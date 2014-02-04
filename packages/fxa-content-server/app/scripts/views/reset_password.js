@@ -56,7 +56,7 @@ function (_, BaseView, Template, FxaClient, Session) {
     },
 
     _onRequestResetFailure: function (err) {
-      this.displayError(err.message);
+      this.displayError(err.errno || err.message);
     },
 
     _getEmail: function () {

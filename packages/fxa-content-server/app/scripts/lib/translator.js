@@ -5,9 +5,10 @@
 'use strict';
 
 define([
+  'underscore',
   'jquery'
 ],
-function ($) {
+function (_, $) {
   var Translator = function (language) {
     this.language = language;
     this.translations = {};
@@ -33,7 +34,36 @@ function ($) {
      * @method get
      */
     get: function (key, context) {
-      var translation = this.translations[key] || key;
+      var translation = this.translations[key];
+      /**
+       * See http://www.lehman.cuny.edu/cgi-bin/man-cgi?msgfmt+1
+       * and
+       * https://github.com/mikeedwards/po2json/blob/62e17c999a8e95923ffa24fcd5972fc48a3d3ddf/test/fixtures/pl.json#L23-L27
+       *
+       * the .json files appear to be in the format
+       * non-pluralized:
+       * {
+       *  "msgid": [null, "translated string"]
+       * }
+       * pluralized:
+       * {
+       *  "msgid": [
+       *    "untranslated_string_plural",
+       *    "translated - 0 items",
+       *    "translated - 1 item",
+       *    "translated - n items"
+       *  ]
+       * }
+       */
+      if (_.isArray(translation) && translation.length >= 2) {
+        translation = translation[1];
+      }
+
+      translation = $.trim(translation);
+
+      if (! translation) {
+        translation = key;
+      }
 
       return this.interpolate(translation, context);
     },

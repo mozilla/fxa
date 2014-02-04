@@ -49,3 +49,6 @@ app/scripts/processed
 
 ### Local configuration ###
 server/config/local.json
+
+### Localization JSON ###
+app/i18n
