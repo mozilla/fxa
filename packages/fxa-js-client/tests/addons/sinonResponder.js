@@ -12,11 +12,17 @@ define([
     makeMockResponder: function (requests) {
       var self = this;
       var requestIndex = 0;
+      var responseTime = 10;
+
+      // we need to check if IE for slower Sinon responses
+      if (typeof navigator !== 'undefined' && navigator.appName === 'Microsoft Internet Explorer') {
+        responseTime = 200;
+      }
 
       return function (returnValue, response) {
         setTimeout(function () {
           self.respond(requests[requestIndex++], response);
-        }, 100);
+        }, responseTime);
 
         return returnValue;
       }
