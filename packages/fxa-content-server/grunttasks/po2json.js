@@ -43,6 +43,24 @@ module.exports = function (grunt) {
         }
         grunt.log.writeln('locale: %s, filename: %s', locale, filename);
         return locale + '/' + filename;
+      },
+      output_transform: function (data) {
+        // write the first translation only, ignore pluralization.
+        var isArray = function (item) {
+          return Object.prototype.toString.call(item) === '[object Array]';
+        };
+
+        var transformed = {};
+        for (var msgid in data) {
+          var translation = data[msgid];
+          if (isArray(translation) && translation.length >= 2) {
+            translation = translation[1];
+          }
+
+          transformed[msgid] = translation;
+        }
+
+        return transformed;
       }
     },
     all: {
