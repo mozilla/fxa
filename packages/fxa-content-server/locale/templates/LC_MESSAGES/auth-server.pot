@@ -6,7 +6,7 @@ msgstr ""
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2014-01-31 13:41+0000\n"
+"POT-Creation-Date: 2014-02-04 19:52+0000\n"
 "Content-Type: text/plain;\n"
 
 #: node_modules/fxa-auth-server/templates/email/reset.html:1
@@ -26,15 +26,15 @@ msgstr ""
 
 #: node_modules/fxa-auth-server/templates/email/reset.html:4
 #: node_modules/fxa-auth-server/templates/email/reset.txt:3
-#: node_modules/fxa-auth-server/templates/email/verify.html:7
-#: node_modules/fxa-auth-server/templates/email/verify.txt:5
+#: node_modules/fxa-auth-server/templates/email/verify.html:5
+#: node_modules/fxa-auth-server/templates/email/verify.txt:3
 msgid "Thank you,"
 msgstr ""
 
 #: node_modules/fxa-auth-server/templates/email/reset.html:5
 #: node_modules/fxa-auth-server/templates/email/reset.txt:4
-#: node_modules/fxa-auth-server/templates/email/verify.html:8
-#: node_modules/fxa-auth-server/templates/email/verify.txt:6
+#: node_modules/fxa-auth-server/templates/email/verify.html:6
+#: node_modules/fxa-auth-server/templates/email/verify.txt:4
 msgid "The Firefox Accounts Team"
 msgstr ""
 
@@ -45,24 +45,11 @@ msgstr ""
 
 #: node_modules/fxa-auth-server/templates/email/verify.html:3
 #: node_modules/fxa-auth-server/templates/email/verify.txt:2
-msgid "If you didn't sign up for a Firefox Account,"
-msgstr ""
-
-#: node_modules/fxa-auth-server/templates/email/verify.html:4
-msgid "Report it"
-msgstr ""
-
-#: node_modules/fxa-auth-server/templates/email/verify.html:5
-#: node_modules/fxa-auth-server/templates/email/verify.txt:4
 msgid "Click the following link to verify your email"
 msgstr ""
 
-#: node_modules/fxa-auth-server/templates/email/verify.html:6
+#: node_modules/fxa-auth-server/templates/email/verify.html:4
 msgid ""
 "Note: If you are NOT trying to sign into Firefox Sync, please ignore this "
 "email."
-msgstr ""
-
-#: node_modules/fxa-auth-server/templates/email/verify.txt:3
-msgid "Report it:"
 msgstr ""
