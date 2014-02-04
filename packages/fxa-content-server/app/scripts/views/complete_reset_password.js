@@ -79,7 +79,7 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
     },
 
     _onResetCompleteFailure: function (err) {
-      this.displayError(err.message);
+      this.displayError(err.errno || err.message);
     },
 
     isValid: function () {

@@ -68,7 +68,7 @@ function (_, BaseView, Template, FxaClient, Session, PasswordMixin, Url) {
 
               self.displaySuccess();
             }, function (err) {
-              self.displayError(err.msg || err.message);
+              self.displayError(err.errno || err.message);
             });
     },
 

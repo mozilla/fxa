@@ -55,7 +55,7 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
               self.navigate('signup');
             })
             .done(null, function (err) {
-              self.displayError(err.message);
+              self.displayError(err.errno || err.message);
             });
     },
 

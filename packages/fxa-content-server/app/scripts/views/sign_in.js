@@ -83,7 +83,7 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
               }
             })
             .done(null, _.bind(function (err) {
-              this.displayError(err.message);
+              this.displayError(err.errno || err.message);
             }, this));
     },
 

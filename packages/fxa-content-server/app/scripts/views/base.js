@@ -8,9 +8,10 @@ define([
   'underscore',
   'backbone',
   'jquery',
-  'lib/session'
+  'lib/session',
+  'lib/auth-errors'
 ],
-function (_, Backbone, jQuery, Session) {
+function (_, Backbone, jQuery, Session, authErrors) {
   var ENTER_BUTTON_CODE = 13;
 
   var BaseView = Backbone.View.extend({
@@ -180,6 +181,10 @@ function (_, Backbone, jQuery, Session) {
     displayError: function (msg) {
       this.hideSuccess();
       this.$('.spinner').hide();
+
+      if (typeof msg === 'number') {
+        msg = authErrors[msg];
+      }
 
       if (msg) {
         this.$('.error').text(this.translator.get(msg));

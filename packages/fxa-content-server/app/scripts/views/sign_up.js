@@ -129,7 +129,7 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
           this.navigate('confirm');
         }, this),
         _.bind(function (err) {
-          this.displayError(err.message);
+          this.displayError(err.errno || err.message);
         }, this));
     }
 

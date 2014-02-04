@@ -29,29 +29,5 @@ function () {
   t('Please enter an email');
   t('Cannot connect to the internet');
 
-  // strings returned by the auth server
-  t('Unspecified error');
-  t('Unknown credentials');
-  t('Invalid credentials');
-  t('Stale timestamp');
-  t('Invalid nonce');
-  t('Account already exists');
-  t('Unknown account');
-  t('Incorrect email case');
-  t('Incorrect password');
-  t('Unverified account');
-  t('Invalid verification code');
-  t('Invalid JSON in request body');
-  t('Invalid parameter in request body: %(param)s');
-  t('Missing parameter in request body: %(param)s');
-  t('Invalid request signature');
-  t('Invalid authentication token in request signature');
-  t('Invalid timestamp in request signature');
-  t('Invalid nonce in request signature');
-  t('Missing content-length header');
-  t('Request body too large');
-  t('Client has sent too many requests');
-  t('Service unavailable');
-  t('This endpoint is no longer supported');
 });
 
