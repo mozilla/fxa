@@ -24,8 +24,9 @@ function (mocha, chai, Translator) {
     'Error encountered trying to register: %(email)s.': [null,
         'Ǝɹɹoɹ ǝuɔonuʇǝɹǝp ʇɹʎıuƃ ʇo ɹǝƃısʇɹɐʇıou: %(email)s˙'],
 
-    '%s, Persona requires cookies to remember you.': [null,
-        '%s, Ԁǝɹsouɐ ɹǝbnıɹǝs ɔooʞıǝs ʇo ɹǝɯǝɯqǝɹ ʎon˙']
+    // use one direct translation to prepare for simpler json files.
+    '%s, Persona requires cookies to remember you.':
+        '%s, Ԁǝɹsouɐ ɹǝbnıɹǝs ɔooʞıǝs ʇo ɹǝɯǝɯqǝɹ ʎon˙'
   };
 
   describe('lib/translator', function () {

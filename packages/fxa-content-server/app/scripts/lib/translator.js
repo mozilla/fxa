@@ -49,15 +49,17 @@ function (_, $) {
        * {
        *  "msgid": [
        *    "untranslated_string_plural",
-       *    "translated 0 items",
-       *    "translated 1 item",
-       *    "translted multiple items"
+       *    "translated - 0 items",
+       *    "translated - 1 item",
+       *    "translated - n items"
        *  ]
        * }
        */
-      if (_.isArray(translation)) {
+      if (_.isArray(translation) && translation.length >= 2) {
         translation = translation[1];
       }
+
+      translation = $.trim(translation);
 
       if (! translation) {
         translation = key;
