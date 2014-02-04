@@ -19,8 +19,4 @@ notifications:
 node_js:
   - "0.10"
 
-cache:
-  directories:
-    - node_modules
-
 script: grunt travis

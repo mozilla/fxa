@@ -17,6 +17,7 @@ define([
   };
 
   intern.capabilities = {
+    'build': '1',
     'selenium-version': '2.37.0'
   };
 
