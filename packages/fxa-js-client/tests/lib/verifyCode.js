@@ -3,51 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'tests/intern',
   'intern!tdd',
   'intern/chai!assert',
-  'client/FxAccountClient',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest',
-  'tests/addons/sinonResponder',
-  'tests/mocks/request',
-  'tests/addons/restmail'
-], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail) {
+  'tests/addons/environment'
+], function (tdd, assert, Environment) {
 
   with (tdd) {
     suite('fxa client', function () {
-      var authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000/v1';
-      var useRemoteServer = !!config.AUTH_SERVER_URL;
-      var mailServerUrl = authServerUrl.match(/^http:\/\/127/) ?
-                            'http://127.0.0.1:9001' :
-                            'http://restmail.net';
-      var client;
-      var mail;
+      var accountHelper;
       var respond;
-
-      function noop(val) { return val; }
+      var mail;
+      var client;
+      var RequestMocks;
+      var ErrorMocks;
 
       beforeEach(function () {
-        var xhr;
-
-        if (useRemoteServer) {
-          xhr = XHR.XMLHttpRequest;
-          respond = noop;
-        } else {
-          var requests = [];
-          xhr = SinonResponder.useFakeXMLHttpRequest();
-          xhr.onCreate = function (xhr) {
-            requests.push(xhr);
-          };
-          respond = SinonResponder.makeMockResponder(requests);
-        }
-        client = new FxAccountClient(authServerUrl, { xhr: xhr });
-        mail = new Restmail(mailServerUrl, xhr);
+        var env = new Environment();
+        accountHelper = env.accountHelper;
+        respond = env.respond;
+        mail = env.mail;
+        client = env.client;
+        RequestMocks = env.RequestMocks;
+        ErrorMocks = env.ErrorMocks;
       });
 
-      /**
-       * Verify Email
-       */
-      test('#verify email', function () {
+      test('#verifyEmail', function () {
         var user = 'test3' + Date.now();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
@@ -66,12 +46,17 @@ define([
 
             return respond(client.verifyCode(uid, code), RequestMocks.verifyCode);
           })
+          .then(
+            function (result) {
+              assert.ok(result);
+            },
+            function (error) {
+              assert.fail();
+            }
+          )
       });
 
-      /**
-       * Check Verification Status
-       */
-      test('#check verification status', function () {
+      test('#verifyEmailCheckStatus', function () {
         var user = 'test4' + Date.now();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
@@ -109,10 +94,14 @@ define([
             return respond(client.recoveryEmailStatus(sessionToken),
                     RequestMocks.recoveryEmailVerified);
           })
-          .then(function (result) {
-            assert.equal(result.verified, true, "Email should be verified.");
-            return true;
-          })
+          .then(
+            function (result) {
+              assert.equal(result.verified, true, "Email should be verified.");
+            },
+            function (error) {
+              assert.fail();
+            }
+          )
       });
     });
   }

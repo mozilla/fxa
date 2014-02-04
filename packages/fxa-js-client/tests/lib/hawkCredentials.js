@@ -16,12 +16,14 @@ define([
 
         return hawkCredentials(sessionToken, context, 2 * 32)
           .then(
-            function(result) {
-              var id = result.id;
+            function (result) {
               var hmacKey = sjcl.codec.hex.fromBits(result.key);
 
               assert.equal(hmacKey, '9d8f22998ee7f5798b887042466b72d53e56ab0c094388bf65831f702d2febc0', '== hmacKey is equal');
-              assert.equal(id, 'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab', '== id is equal');
+              assert.equal(result.id, 'c0a29dcf46174973da1378696e4c82ae10f723cf4f4d9f75e39f4ae3851595ab', '== id is equal');
+            },
+            function () {
+              assert.fail();
             }
           );
       });

@@ -3,48 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'tests/intern',
   'intern!tdd',
   'intern/chai!assert',
-  'client/FxAccountClient',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest',
-  'tests/addons/sinonResponder',
-  'tests/mocks/request',
-  'tests/addons/restmail',
-  'tests/addons/accountHelper'
-], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail, AccountHelper) {
+  'tests/addons/environment'
+], function (tdd, assert, Environment) {
 
   with (tdd) {
     suite('account', function () {
-      var authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000/v1';
-      var useRemoteServer = !!config.AUTH_SERVER_URL;
-      var mailServerUrl = authServerUrl.match(/^http:\/\/127/) ?
-        'http://127.0.0.1:9001' :
-        'http://restmail.net';
-      var client;
-      var respond;
-      var mail;
-      var accountHelper;
-
-      function noop(val) { return val; }
+       var accountHelper;
+       var respond;
+       var mail;
+       var client;
+       var RequestMocks;
+       var ErrorMocks;
 
       beforeEach(function () {
-        var xhr;
-
-        if (useRemoteServer) {
-          xhr = XHR.XMLHttpRequest;
-          respond = noop;
-        } else {
-          var requests = [];
-          xhr = SinonResponder.useFakeXMLHttpRequest();
-          xhr.onCreate = function (xhr) {
-            requests.push(xhr);
-          };
-          respond = SinonResponder.makeMockResponder(requests);
-        }
-        client = new FxAccountClient(authServerUrl, { xhr: xhr });
-        mail = new Restmail(mailServerUrl, xhr);
-        accountHelper = new AccountHelper(client, mail, respond);
+        var env = new Environment();
+        accountHelper = env.accountHelper;
+        respond = env.respond;
+        mail = env.mail;
+        client = env.client;
+        RequestMocks = env.RequestMocks;
+        ErrorMocks = env.ErrorMocks;
       });
 
       test('#destroy', function () {
@@ -60,19 +40,17 @@ define([
           })
           .then(
             function(res) {
-              assert.ok(res, '== got response');
+              assert.ok(res, 'got response');
 
-              return respond(client.signIn(email, password), RequestMocks.signIn)
+              return respond(client.signIn(email, password), ErrorMocks.accountDoesNotExist)
             }
           ).then(
-            function (res) {
+            function () {
+              assert.fail();
             },
             function (error) {
-              assert.ok(error, '== error should happen');
-              assert.equal(error.message, 'Unknown account', '== Account is gone');
-              assert.equal(error.code, 400, '== Correct status code');
-
-              return error;
+              assert.equal(error.errno, 102, 'Account is gone');
+              assert.equal(error.code, 400, 'Correct status code');
             }
         );
       });
@@ -85,16 +63,13 @@ define([
             return respond(client.accountKeys(account.signIn.keyFetchToken), RequestMocks.accountKeys)
           })
           .then(
-          function(keys) {
-            assert.ok(keys.bundle);
-
-            return true
-          },
-          function(error) {
-            console.log(error);
-            assert.equal(error, null, '== no error occured');
-          }
-        );
+            function(keys) {
+              assert.ok(keys.bundle);
+            },
+            function() {
+              assert.fail();
+            }
+          );
       });
 
       test('#destroy with incorrect case', function () {
@@ -111,17 +86,16 @@ define([
           function(res) {
             assert.ok(res, '== got response');
 
-            return respond(client.signIn(account.input.email, account.input.password), RequestMocks.signIn)
+            return respond(client.signIn(account.input.email, account.input.password), ErrorMocks.accountDoesNotExist)
           }
         ).then(
-          function (res) {
+          function () {
+            assert.fail();
           },
           function (error) {
-            assert.ok(error, '== error should happen');
-            assert.equal(error.message, 'Unknown account', '== Account is gone');
-            assert.equal(error.code, 400, '== Correct status code');
-
-            return error;
+            assert.ok(error);
+            assert.equal(error.errno, 102);
+            assert.equal(error.code, 400, 'Correct status code');
           }
         );
       });
@@ -163,10 +137,14 @@ define([
 
             return respond(client.accountReset(email, newPassword, accountResetToken), RequestMocks.accountReset);
           })
-          .then(function (result) {
-            assert.ok(result, '{}');
-            return true;
-          })
+          .then(
+            function (result) {
+              assert.isNotNull(result);
+            },
+            function() {
+              assert.fail();
+            }
+          )
       });
 
     });

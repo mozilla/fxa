@@ -9,7 +9,7 @@ define([
 ], function (tdd, assert, Environment) {
 
   with (tdd) {
-    suite('recoveryEmail', function () {
+    suite('errors', function () {
       var accountHelper;
       var respond;
       var mail;
@@ -27,33 +27,42 @@ define([
         ErrorMocks = env.ErrorMocks;
       });
 
-      test('#recoveryEmailResendCode', function () {
-        var user;
+      test('#accountUnverified', function () {
 
         return accountHelper.newUnverifiedAccount()
           .then(function (account) {
-            user = account.input.user;
+            var pk = {algorithm: 'RS', n: 'x', e: 'y'};
+            var duration = 1000;
 
-            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken), RequestMocks.recoveryEmailResendCode)
+            return respond(client.certificateSign(account.signIn.sessionToken, pk, duration), ErrorMocks.accountUnverified)
           })
           .then(
-          function(res) {
-            assert.ok(res);
-
-            return respond(mail.wait(user, 2), RequestMocks.resetMail);
-          })
-          .then(
-            function (emails) {
-              // second email, the code is resent.
-              var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
-              assert.ok(code, "code is returned");
-            },
-            function() {
+            function () {
               assert.fail();
+            },
+            function(error) {
+              assert.equal(error.code, 400);
+              assert.equal(error.errno, 104);
             }
           );
       });
 
+      test('#invalidVerificationCode', function () {
+
+        return accountHelper.newUnverifiedAccount()
+          .then(function (account) {
+            return respond(client.verifyCode(account.signUp.uid, 'eb531a64deb628b2baeaceaa8762abf0'), ErrorMocks.invalidVerification)
+          })
+          .then(
+            function () {
+              assert.fail();
+            },
+            function(error) {
+              assert.equal(error.code, 400);
+              assert.equal(error.errno, 105);
+            }
+          );
+      });
     });
   }
 });

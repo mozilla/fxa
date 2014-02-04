@@ -3,54 +3,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'tests/intern',
   'intern!tdd',
   'intern/chai!assert',
-  'client/FxAccountClient',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest',
-  'tests/addons/sinonResponder',
-  'tests/mocks/request',
-  'client/lib/request',
-  'tests/addons/restmail',
-  'tests/addons/accountHelper'
-], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Request, Restmail, AccountHelper) {
+  'tests/addons/environment'
+], function (tdd, assert, Environment) {
 
   with (tdd) {
     suite('passwordChange', function () {
-      var authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000/v1';
-      var useRemoteServer = !!config.AUTH_SERVER_URL;
-      var mailServerUrl = authServerUrl.match(/^http:\/\/127/) ?
-        'http://127.0.0.1:9001' :
-        'http://restmail.net';
-      var client;
+      var accountHelper;
       var respond;
       var mail;
-      var accountHelper;
-
-      function noop(val) { return val; }
+      var client;
+      var RequestMocks;
+      var ErrorMocks;
 
       beforeEach(function () {
-        var xhr;
-
-        if (useRemoteServer) {
-          xhr = XHR.XMLHttpRequest;
-          respond = noop;
-        } else {
-          var requests = [];
-          xhr = SinonResponder.useFakeXMLHttpRequest();
-          xhr.onCreate = function (xhr) {
-            requests.push(xhr);
-          };
-          respond = SinonResponder.makeMockResponder(requests);
-        }
-        client = new FxAccountClient(authServerUrl, { xhr: xhr });
-        mail = new Restmail(mailServerUrl, xhr);
-        accountHelper = new AccountHelper(client, mail, respond);
+        var env = new Environment();
+        accountHelper = env.accountHelper;
+        respond = env.respond;
+        mail = env.mail;
+        client = env.client;
+        RequestMocks = env.RequestMocks;
+        ErrorMocks = env.ErrorMocks;
       });
 
-      /**
-       * Changing the Password
-       */
       test('#basic', function () {
         var user = 'test7' + Date.now();
         var email = user + '@restmail.net';
@@ -84,14 +60,9 @@ define([
           .then(
             function (res) {
               assert.ok(res.sessionToken);
-
-              return true;
             },
-            function (error) {
-              console.log(error);
-              assert.equal(error, null, '== no errors');
-
-              return error;
+            function () {
+              assert.fail();
             }
           )
       });
@@ -117,18 +88,13 @@ define([
             return respond(client.signIn(account.input.email, newPassword), RequestMocks.signIn);
           })
           .then(
-          function (res) {
-            assert.ok(res.sessionToken);
-
-            return true;
-          },
-          function (error) {
-            console.log(error);
-            assert.equal(error, null, '== no errors');
-
-            return error;
-          }
-        )
+            function (res) {
+              assert.ok(res.sessionToken);
+            },
+            function () {
+              assert.fail();
+            }
+          )
       });
 
       /**
@@ -161,21 +127,20 @@ define([
             return respond(client._passwordChangeFinish(email, newPassword, oldCreds), RequestMocks.passwordChangeFinish);
           })
           .then(function (result) {
-            assert.ok(result, '{}');
+            assert.ok(result);
 
-            return respond(client.signIn(email, wrongPassword), RequestMocks.signInFailurePassword);
+            return respond(client.signIn(email, wrongPassword), ErrorMocks.accountIncorrectPassword);
           })
           .then(
-          function (res) {
-          },
-          function (error) {
-            assert.ok(error, '== error should happen');
-            assert.equal(error.message, 'Incorrect password', '== Password is incorrect');
-            assert.equal(error.code, 400, '== Correct status code');
-
-            return error;
-          }
-        )
+            function () {
+              assert.fail();
+            },
+            function (error) {
+              assert.ok(error, '== error should happen');
+              assert.equal(error.message, 'Incorrect password', '== Password is incorrect');
+              assert.equal(error.code, 400, '== Correct status code');
+            }
+          )
       });
     });
   }
