@@ -1,5 +1,6 @@
 /* Border box all the things by default */
-*, *:before,
+*,
+*:before,
 *:after {
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
@@ -19,7 +20,7 @@ body {
 }
 
 a {
-  color: #0096DD;
+  color: #0095dd;
   cursor: pointer; /* Use the correct cursor for anchors without an href */
 }
 
@@ -28,7 +29,7 @@ a:active {
 }
 
 noscript {
-  color: #f00;
+  color: #d63920;
   display: block;
   margin: 160px 0 0 0;
 }
@@ -202,7 +203,7 @@ strong.email {
           border-radius: 5px;
   -webkit-box-shadow: inset 0 1px 1px #f2f2f2;
           box-shadow: inset 0 1px 1px #f2f2f2;
-  color: #454f59;
+  color: #424f59;
   font-size: 18px;
   height: 45px;
   outline: none;
@@ -250,7 +251,7 @@ strong.email {
 }
 
 .input-row:hover input {
-  border-color: #414E58;
+  border-color: #424f59;
 }
 
 
@@ -272,7 +273,7 @@ strong.email {
 .input-row select:hover:active,
 .input-row select:focus {
   background-image: url(/images/ddarrow_active.png);
-  background-color: #F3F5F6;
+  background-color: #f2f2f2;
   -webkit-transition-duration: 150ms;
      -moz-transition-duration: 150ms;
           transition-duration: 150ms;
@@ -291,7 +292,7 @@ strong.email {
 .input-row select:hover,
 .input-row:hover input:hover,
 .input-row:hover select:hover {
-  border-color: #414E58;
+  border-color: #424f59;
   outline: none;
 }
 
@@ -302,7 +303,7 @@ strong.email {
 .input-row:hover select:focus,
 .input-row:focus input {
   border-color: #0095DD;
-  color: #454f59;
+  color: #424f59;
   outline: none;
 }
 
@@ -322,7 +323,7 @@ strong.email {
 
 .button-row button,
 .button-row a.button {
-  background: #0092DB;
+  background: #0095dd;
   border: none;
   -webkit-border-radius: 5px;
           border-radius: 5px;
@@ -414,7 +415,7 @@ ul.links li {
 .privacy-links a:active,
 .privacy-links a:hover,
 .privacy-links a:focus {
-  color: #0096DD;
+  color: #0095dd;
 }
 
 .verification-email-message {
@@ -466,16 +467,16 @@ ul.links li {
 }
 
 .password-row > .password:hover {
-  border-color: #414E58;
+  border-color: #424f59;
 }
 
 .password-row .show-password-label:hover {
-  background-color: #F3F5F6;
-  color: #414E58;
+  background-color: #f2f2f2;
+  color: #424f59;
 }
 
 .password-row:hover > .show-password-label {
-  border-color: #414E58;
+  border-color: #424f59;
 }
 
 /*this one is impossible to do w/o sibling selector
@@ -490,7 +491,7 @@ we may need to add js for IE8*/
 }
 
 .show-password-label:active {
-  background: #eaeaea;
+  background: #f2f2f2;
 }
 
 .password-row input[type="text"]+.show-password-label {
