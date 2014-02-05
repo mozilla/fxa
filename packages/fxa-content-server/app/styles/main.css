@@ -1,5 +1,6 @@
 /* Border box all the things by default */
-*, *:before,
+*,
+*:before,
 *:after {
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
@@ -327,6 +328,7 @@ strong.email {
   -webkit-border-radius: 5px;
           border-radius: 5px;
   color: #fff;
+  cursor: pointer;
   font-size: 24px;
   padding: 15px 0;
   -webkit-transition-duration: 150ms;
@@ -354,6 +356,7 @@ strong.email {
 
 .button-row button:disabled {
   background: #8A9BA8;
+  cursor: auto;
 }
 
 /* Custom rows */
