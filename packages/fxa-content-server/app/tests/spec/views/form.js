@@ -26,7 +26,7 @@ function (mocha, chai, jQuery, FormView, Template) {
         // overridden in tests.
         formIsValid: false,
 
-        isFormValid: function () {
+        isValid: function () {
           return this.formIsValid;
         },
 
@@ -34,7 +34,7 @@ function (mocha, chai, jQuery, FormView, Template) {
           this.validationErrorsShown = true;
         },
 
-        submitForm: function () {
+        submit: function () {
           this.formSubmitted = true;
         }
       });
@@ -54,13 +54,13 @@ function (mocha, chai, jQuery, FormView, Template) {
     });
 
     describe('enableSubmitIfValid', function () {
-      it('enables submit button if isFormValid returns true', function () {
+      it('enables submit button if isValid returns true', function () {
         view.formIsValid = true;
         view.enableSubmitIfValid();
         assert.isFalse(view.$('button').hasClass('disabled'));
       });
 
-      it('disabled submit button if isFormValid returns false', function () {
+      it('disabled submit button if isValid returns false', function () {
         view.formIsValid = false;
         view.enableSubmitIfValid();
         assert.isTrue(view.$('button').hasClass('disabled'));
@@ -68,13 +68,13 @@ function (mocha, chai, jQuery, FormView, Template) {
     });
 
     describe('validateAndSubmit', function () {
-      it('submits form if isFormValid returns true', function () {
+      it('submits form if isValid returns true', function () {
         view.formIsValid = true;
         view.validateAndSubmit();
         assert.isTrue(view.formSubmitted);
       });
 
-      it('shows validation errors if isFormValid returns false', function () {
+      it('shows validation errors if isValid returns false', function () {
         view.formIsValid = false;
         view.validateAndSubmit();
         assert.isTrue(view.validationErrorsShown);
@@ -82,15 +82,15 @@ function (mocha, chai, jQuery, FormView, Template) {
     });
 
     describe('showValidationError', function () {
-      it('sets the title of the nearest input-row', function() {
+      it('sets the title of the nearest tooltip', function() {
         view.showValidationError('#focusMe', 'this is an error');
-        assert.equal(view.$('.input-row').attr('title'), 'this is an error');
+        assert.equal(view.$('.tooltip').attr('title'), 'this is an error');
       });
 
-      it('removes the title of the nearest input-row when changed', function() {
+      it('removes the title of the nearest tooltip when changed', function() {
         view.showValidationError('#focusMe', 'this is an error');
         $('#focusMe').trigger('keydown');
-        assert.equal(view.$('.input-row').attr('title'), null);
+        assert.equal(view.$('.tooltip').attr('title'), null);
       });
 
       it('focuses the invalid element', function (done) {

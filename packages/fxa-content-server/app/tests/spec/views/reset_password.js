@@ -34,19 +34,19 @@ function (mocha, chai, View, WindowMock) {
       });
     });
 
-    describe('isFormValid', function () {
+    describe('isValid', function () {
       it('returns true if email address is entered', function () {
         view.$('input[type=email]').val('testuser@testuser.com');
-        assert.isTrue(view.isFormValid());
+        assert.isTrue(view.isValid());
       });
 
       it('returns false if email address is empty', function () {
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if email address is invalid', function () {
         view.$('input[type=email]').val('testuser');
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
     });
 

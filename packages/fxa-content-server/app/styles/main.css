@@ -192,26 +192,36 @@ strong.email {
 .input-row {
   margin-bottom: 15px;
   width: 100%;
+}
+
+.tooltip {
   position: relative;
 }
 
 /* tooltip caret */
-.input-row[title]:before {
+.tooltip[title]:before,
+.tooltip[title]::before {
   background: #D63920;
   content: '.';
   height: 15px;
   left: 15px;
   position: absolute;
-  top: -16px;
   text-indent: -999px;
+  top: -16px;
   transform: rotate(45deg);
   white-space: nowrap;
   width: 15px;
   z-index: 4;
 }
 
+.tooltip-below[title]:before,
+.tooltip-below[title]::before {
+  top: 102%;
+}
+
 /* tooltip */
-.input-row[title]:after {
+.tooltip[title]:after,
+.tooltip[title]::after {
   background: #D63920;
   content: attr(title);
   color: #fff;
@@ -223,6 +233,10 @@ strong.email {
   z-index: 5;
 }
 
+.tooltip-below[title]:after,
+.tooltip-below[title]::after {
+  top: calc(102% + 8px);
+}
 
 
 .input-row input[type='text'],
@@ -239,7 +253,6 @@ strong.email {
   height: 45px;
   outline: none;
   padding: 0 20px;
-  position: relative;
   -webkit-transition-duration: 150ms;
      -moz-transition-duration: 150ms;
           transition-duration: 150ms;

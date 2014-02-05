@@ -6,7 +6,6 @@
 
 define([
   'underscore',
-  'views/base',
   'views/form',
   'stache!templates/delete_account',
   'lib/session',
@@ -14,9 +13,7 @@ define([
   'lib/password-mixin',
   'lib/url'
 ],
-function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Url) {
-  var t = BaseView.t;
-
+function (_, FormView, Template, Session, FxaClient, PasswordMixin, Url) {
   var View = FormView.extend({
     // user must be authenticated to delete their account
     mustAuth: true,
@@ -36,7 +33,7 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Ur
       };
     },
 
-    submitForm: function () {
+    submit: function () {
       var email = this.$('.email').val();
       var password = this.$('.password').val();
 
@@ -49,26 +46,6 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Ur
             .done(null, function (err) {
               self.displayError(err.errno || err.message);
             });
-    },
-
-    isFormValid: function () {
-      return this._validateEmail() && this._validatePassword();
-    },
-
-    showValidationErrors: function () {
-      if (! this._validateEmail()) {
-        this.showValidationError('.email', t('Valid email required'));
-      } else if (! this._validatePassword()) {
-        this.showValidationError('.password', t('Valid password required'));
-      }
-    },
-
-    _validateEmail: function () {
-      return this.isElementValid('.email');
-    },
-
-    _validatePassword: function () {
-      return this.isElementValid('.password');
     }
   });
 

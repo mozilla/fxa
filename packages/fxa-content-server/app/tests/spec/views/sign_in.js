@@ -47,23 +47,23 @@ function (mocha, chai, View, WindowMock) {
       });
     });
 
-    describe('isFormValid', function () {
+    describe('isValid', function () {
       it('returns true if both email and password are valid', function () {
         view.$('[type=email]').val('testuser@testuser.com');
         view.$('[type=password]').val('password');
-        assert.isTrue(view.isFormValid());
+        assert.isTrue(view.isValid());
       });
 
       it('returns false if email is invalid', function () {
         view.$('[type=email]').val('testuser');
         view.$('[type=password]').val('password');
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if password is invalid', function () {
         view.$('[type=email]').val('testuser@testuser.com');
         view.$('[type=password]').val('passwor');
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
     });
 
@@ -150,9 +150,9 @@ function (mocha, chai, View, WindowMock) {
       assert.equal($('a[href="/signup"]').length, 0);
     });
 
-    it('isFormValid is successful when the password is filled out', function () {
+    it('isValid is successful when the password is filled out', function () {
       $('.password').val('password');
-      assert.isTrue(view.isFormValid());
+      assert.isTrue(view.isValid());
     });
   });
 

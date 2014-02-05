@@ -36,25 +36,10 @@ function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin, Ur
       };
     },
 
-    isFormValid: function () {
-      return this.isElementValid('#old_password') &&
-             this.isElementValid('#new_password');
-    },
-
-    showValidationErrors: function () {
-      this.hideError();
-
-      if (! this.isElementValid('#old_password')) {
-        this.showValidationError('#old_password', t('Valid password required'));
-      } else if (! this.isElementValid('#new_password')) {
-        this.showValidationError('#new_password', t('Valid password required'));
-      }
-    },
-
-    submitForm: function () {
+    submit: function () {
       var email = Session.email;
-      var oldPassword = this._getOldPassword();
-      var newPassword = this._getNewPassword();
+      var oldPassword = this.$('#old_password').val();
+      var newPassword = this.$('#new_password').val();
 
       if (oldPassword === newPassword) {
         return this.displayError(
@@ -74,14 +59,6 @@ function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin, Ur
             }, function (err) {
               self.displayError(err.errno || err.message);
             });
-    },
-
-    _getOldPassword: function () {
-      return this.$('#old_password').val();
-    },
-
-    _getNewPassword: function () {
-      return this.$('#new_password').val();
     }
   });
 

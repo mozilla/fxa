@@ -62,33 +62,33 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           });
       });
 
-      describe('isFormValid', function () {
+      describe('isValid', function () {
         it('returns true if both old and new passwords are valid and different', function () {
           $('#old_password').val('password');
           $('#new_password').val('password2');
 
-          assert.equal(view.isFormValid(), true);
+          assert.equal(view.isValid(), true);
         });
 
         it('returns true if both old and new passwords are valid and the same', function () {
           $('#old_password').val('password');
           $('#new_password').val('password');
 
-          assert.equal(view.isFormValid(), true);
+          assert.equal(view.isValid(), true);
         });
 
         it('returns false if old password is too short', function () {
           $('#old_password').val('passwor');
           $('#new_password').val('password');
 
-          assert.equal(view.isFormValid(), false);
+          assert.equal(view.isValid(), false);
         });
 
         it('returns false if new password is too short', function () {
           $('#old_password').val('password');
           $('#new_password').val('passwor');
 
-          assert.equal(view.isFormValid(), false);
+          assert.equal(view.isValid(), false);
         });
       });
 
@@ -98,7 +98,6 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           view.$('#new_password').val('password');
 
           view.on('validation_error', function(which, msg) {
-            assert.equal(which, '#old_password');
             assert.ok(msg);
             done();
           });
@@ -111,7 +110,6 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           view.$('#new_password').val('passwor');
 
           view.on('validation_error', function(which, msg) {
-            assert.equal(which, '#new_password');
             assert.ok(msg);
             done();
           });
@@ -120,7 +118,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
         });
       });
 
-      describe('submitForm', function () {
+      describe('submit', function () {
         it('prints an error message if both passwords are the same', function (done) {
           $('#old_password').val('password');
           $('#new_password').val('password');
@@ -130,7 +128,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
             done();
           });
 
-          view.submitForm();
+          view.submit();
         });
 
         it('changes from old to new password, redirects user to signin', function (done) {
@@ -138,7 +136,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           $('#new_password').val('new_password');
 
           view.on('success', done);
-          view.submitForm();
+          view.submit();
         });
       });
     });

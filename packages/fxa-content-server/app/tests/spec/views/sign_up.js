@@ -41,50 +41,50 @@ function (mocha, chai, _, $, View, RouterMock) {
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
     });
 
-    describe('isFormValid', function () {
+    describe('isValid', function () {
       it('returns true if email, password, and age are all valid', function () {
-        $('.email').val(email);
-        $('.password').val('password');
+        view.$('[type=email]').val(email);
+        view.$('[type=password]').val('password');
         $('#fxa-age-year').val('1960');
 
-        assert.isTrue(view.isFormValid());
+        assert.isTrue(view.isValid());
       });
 
       it('returns false if email is empty', function () {
-        $('.password').val('password');
+        $('[type=password]').val('password');
         $('#fxa-age-year').val('1960');
 
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if email is not an email address', function () {
-        $('.email').val('testuser');
-        $('.password').val('password');
+        $('[type=email]').val('testuser');
+        $('[type=password]').val('password');
         $('#fxa-age-year').val('1960');
 
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if password is empty', function () {
-        $('.email').val(email);
+        $('[type=email]').val(email);
         $('#fxa-age-year').val('1960');
 
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if password is invalid', function () {
-        $('.email').val(email);
-        $('.password').val('passwor');
+        $('[type=email]').val(email);
+        $('[type=password]').val('passwor');
         $('#fxa-age-year').val('1960');
 
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if age is invalid', function () {
-        $('.email').val(email);
-        $('.password').val('password');
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
 
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
     });
 
@@ -128,10 +128,10 @@ function (mocha, chai, _, $, View, RouterMock) {
       });
     });
 
-    describe('submitForm', function () {
+    describe('submit', function () {
       it('sends the user to confirm screen if form filled out, >= 14 years ago', function (done) {
-        $('.email').val(email);
-        $('.password').val('password');
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
 
         var nowYear = (new Date()).getFullYear();
         $('#fxa-age-year').val(nowYear - 14);
@@ -140,12 +140,12 @@ function (mocha, chai, _, $, View, RouterMock) {
           assert.equal(router.page, 'confirm');
           done();
         });
-        view.submitForm();
+        view.submit();
       });
 
       it('sends the user to cannot_create_account screen if user selects <= 13 years ago', function (done) {
-        $('.email').val(email);
-        $('.password').val('password');
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
 
         var nowYear = (new Date()).getFullYear();
         $('#fxa-age-year').val(nowYear - 13);
@@ -154,17 +154,17 @@ function (mocha, chai, _, $, View, RouterMock) {
           assert.equal(router.page, 'cannot_create_account');
           done();
         });
-        view.submitForm();
+        view.submit();
       });
 
       it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function (done) {
-        $('.email').val(email);
-        $('.password').val('password');
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
 
         var nowYear = (new Date()).getFullYear();
         $('#fxa-age-year').val(nowYear - 13);
 
-        view.submitForm();
+        view.submit();
         assert.equal(router.page, 'cannot_create_account');
 
         // simulate user re-visiting the /signup page after being rejected
@@ -191,7 +191,7 @@ function (mocha, chai, _, $, View, RouterMock) {
       it('pw field set to password when clicked again', function () {
         $('.show-password').click();
         $('.show-password').click();
-        assert.equal($('.password').attr('type'), 'password');
+        assert.equal($('[type=password]').attr('type'), 'password');
       });
     });
   });

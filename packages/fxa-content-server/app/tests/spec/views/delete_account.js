@@ -62,26 +62,26 @@ function (mocha, chai, $, View, FxaClient, Session, RouterMock) {
           });
       });
 
-      describe('isFormValid', function () {
+      describe('isValid', function () {
         it('returns true if email and password are filled out', function () {
           $('form input[type=email]').val(email);
           $('form input[type=password]').val(password);
 
-          assert.equal(view.isFormValid(), true);
+          assert.equal(view.isValid(), true);
         });
 
         it('returns false if not an email', function () {
           $('form input[type=email]').val('notanemail');
           $('form input[type=password]').val(password);
 
-          assert.equal(view.isFormValid(), false);
+          assert.equal(view.isValid(), false);
         });
 
         it('returns false if password is too short', function () {
           $('form input[type=email]').val(email);
           $('form input[type=password]').val('passwor');
 
-          assert.equal(view.isFormValid(), false);
+          assert.equal(view.isValid(), false);
         });
       });
 
@@ -111,7 +111,7 @@ function (mocha, chai, $, View, FxaClient, Session, RouterMock) {
         });
       });
 
-      describe('submitForm', function () {
+      describe('submit', function () {
         it('deletes the users account, redirect to signup', function (done) {
           $('form input[type=email]').val(email);
           $('form input[type=password]').val(password);
@@ -121,7 +121,7 @@ function (mocha, chai, $, View, FxaClient, Session, RouterMock) {
             done();
           });
 
-          view.submitForm();
+          view.submit();
         });
       });
 

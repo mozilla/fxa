@@ -48,26 +48,20 @@ function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixi
       }
     },
 
-    isFormValid: function () {
+    isValidEnd: function () {
       return !! (this.token &&
                  this.code &&
                  this.email &&
-                 this.isElementValid('#password') &&
-                 this.isElementValid('#vpassword') &&
                  this._getPassword() === this._getVPassword());
     },
 
-    showValidationErrors: function () {
-      if (! this.isElementValid('#password')) {
-        this.showValidationError('#password', t('Valid password required'));
-      } else if (! this.isElementValid('#vpassword')) {
-        this.showValidationError('#vpassword', t('Valid password required'));
-      } else if (this._getPassword() !== this._getVPassword()) {
+    showValidationErrorsEnd: function () {
+      if (this._getPassword() !== this._getVPassword()) {
         this.displayError(t('passwords do not match'));
       }
     },
 
-    submitForm: function () {
+    submit: function () {
       var password = this._getPassword();
 
       var client = new FxaClient();

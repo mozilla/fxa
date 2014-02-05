@@ -48,54 +48,54 @@ function (mocha, chai, View) {
       });
     });
 
-    describe('isFormValid', function () {
+    describe('isValid', function () {
       it('returns true if token, code, email, password, vpassword available, password & vpassword valid and the same', function () {
-        view.token = view.code = view.email = "passed_in_on_url";
+        view.token = view.code = view.email = 'passed_in_on_url';
         view.$('#password').val('password');
         view.$('#vpassword').val('password');
-        assert.isTrue(view.isFormValid());
+        assert.isTrue(view.isValid());
       });
 
       it('returns false if token, code, email, password, vpassword available, password & vpassword valid are different', function () {
-        view.token = view.code = view.email = "passed_in_on_url";
+        view.token = view.code = view.email = 'passed_in_on_url';
         view.$('#password').val('password');
         view.$('#vpassword').val('other_password');
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if token, code, email, password, vpassword available, password invalid', function () {
-        view.token = view.code = view.email = "passed_in_on_url";
+        view.token = view.code = view.email = 'passed_in_on_url';
         view.$('#password').val('passwor');
         view.$('#vpassword').val('password');
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if token, code, email, password, vpassword available, vpassword invalid', function () {
-        view.token = view.code = view.email = "passed_in_on_url";
+        view.token = view.code = view.email = 'passed_in_on_url';
         view.$('#password').val('password');
         view.$('#vpassword').val('passwor');
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if email missing', function () {
-        view.token = view.code = "passed_in_on_url";
+        view.token = view.code = 'passed_in_on_url';
         view.$('#password').val('password');
         view.$('#vpassword').val('password');
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if code missing', function () {
-        view.token = view.email = "passed_in_on_url";
+        view.token = view.email = 'passed_in_on_url';
         view.$('#password').val('password');
         view.$('#vpassword').val('password');
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
 
       it('returns false if token missing', function () {
-        view.code = view.email = "passed_in_on_url";
+        view.code = view.email = 'passed_in_on_url';
         view.$('#password').val('password');
         view.$('#vpassword').val('password');
-        assert.isFalse(view.isFormValid());
+        assert.isFalse(view.isValid());
       });
     });
 
@@ -105,7 +105,6 @@ function (mocha, chai, View) {
         view.$('#vpassword').val('password');
 
         view.on('validation_error', function(which, msg) {
-          assert.equal(which, '#password');
           assert.ok(msg);
           done();
         });
@@ -118,7 +117,6 @@ function (mocha, chai, View) {
         view.$('#vpassword').val('passwor');
 
         view.on('validation_error', function(which, msg) {
-          assert.equal(which, '#vpassword');
           assert.ok(msg);
           done();
         });

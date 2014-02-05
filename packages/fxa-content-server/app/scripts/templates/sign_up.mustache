@@ -8,21 +8,23 @@
   <div class="error"></div>
 
   <form novalidate>
-    <div class="input-row">
+    <div class="input-row tooltip">
       <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus required />
     </div>
 
     <div class="input-row password-row">
-      <input type="password" class="password" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} />
-      <input id="show-password" type="checkbox" class="show-password" aria-controls="password" />
-      <label for="show-password" class="show-password-label">
-        {{#t}}Show{{/t}}
-      </label>
+      <div class="tooltip tooltip-below">
+        <input type="password" class="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} />
+        <input id="show-password" type="checkbox" class="show-password" aria-controls="password" />
+        <label for="show-password" class="show-password-label">
+          {{#t}}Show{{/t}}
+        </label>
+      </div>
 
       <div class="input-help input-help-focused">{{#t}}Must be at least 8 characters{{/t}}</div>
     </div>
 
-    <div class="input-row">
+    <div class="input-row tooltip">
       <select id="fxa-age-year" value="none">
         <option id="fxa-none" value="none">{{#t}}Year of birth{{/t}}</option>
         <option id="fxa-1990" value="1990">{{#t}}1990 or earlier{{/t}}</option>

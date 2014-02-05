@@ -61,42 +61,22 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Ur
       };
     },
 
-    submitForm: function () {
+    isValidEnd: function () {
+      return this._validateYear();
+    },
+
+    showValidationErrorsEnd: function () {
+      if (! this._validateYear()) {
+        this.showValidationError('#fxa-age-year', t('Year of birth required'));
+      }
+    },
+
+    submit: function () {
       if (! this._isUserOldEnough()) {
         return this._cannotCreateAccount();
       }
 
       this._createAccount();
-    },
-
-    isFormValid: function () {
-      return !! (this._validateEmail() &&
-                  this._validatePassword() &&
-                  this._validateYear());
-    },
-
-    showValidationErrors: function () {
-      if (! this._validateEmail()) {
-        this.showValidationError('.email', t('Valid email required'));
-      } else if (! this._validatePassword()) {
-        var passwordVal = this.$('.password').val();
-
-        if (! passwordVal) {
-          this.showValidationError('.password', t('Valid password required'));
-        } else {
-          this.showValidationError('.password', t('Must be at least 8 characters'));
-        }
-      } else if (! this._validateYear()) {
-        this.showValidationError('#fxa-age-year', t('Year of birth required'));
-      }
-    },
-
-    _validateEmail: function () {
-      return this.isElementValid('.email');
-    },
-
-    _validatePassword: function () {
-      return this.isElementValid('.password');
     },
 
     _validateYear: function () {

@@ -6,15 +6,12 @@
 
 define([
   'underscore',
-  'views/base',
   'views/form',
   'stache!templates/reset_password',
   'lib/fxa-client',
   'lib/session'
 ],
-function (_, BaseView, FormView, Template, FxaClient, Session) {
-  var t = BaseView.t;
-
+function (_, FormView, Template, FxaClient, Session) {
   var View = FormView.extend({
     template: Template,
     className: 'reset_password',
@@ -28,8 +25,8 @@ function (_, BaseView, FormView, Template, FxaClient, Session) {
       };
     },
 
-    submitForm: function () {
-      var email = this._getEmail();
+    submit: function () {
+      var email = this.$('.email').val();
 
       var client = new FxaClient();
       client.passwordReset(email)
@@ -38,30 +35,12 @@ function (_, BaseView, FormView, Template, FxaClient, Session) {
 
     },
 
-    isFormValid: function () {
-      return !! this._validateEmail();
-    },
-
-    showValidationErrors: function () {
-      if (! this._validateEmail()) {
-        this.showValidationError('.email', t('Valid email required'));
-      }
-    },
-
     _onRequestResetSuccess: function () {
       this.navigate('confirm_reset_password');
     },
 
     _onRequestResetFailure: function (err) {
       this.displayError(err.errno || err.message);
-    },
-
-    _getEmail: function () {
-      return this.$('.email').val();
-    },
-
-    _validateEmail: function () {
-      return this.isElementValid('.email');
     }
   });
 

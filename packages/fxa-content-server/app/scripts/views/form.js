@@ -4,11 +4,13 @@
 
 /**
  * Generic module to use if a view is a form. This module provides a common
- * way to do form validation and invalid element reporting. The module
- * expects consumers to provide strategies for three functions:
- * - isFormValid
- * - showValidationErrors
- * - submitForm
+ * way to do form validation and invalid element reporting. Descendent modules
+ * can provide strategies for the following functions:
+ * - isValidStart (optional)
+ * - isValidEnd (optional)
+ * - showValidationErrorsStart (optional)
+ * - showValidationErrorsEnd (optional)
+ * - submit (required)
  *
  * See documentation for an explanation of each.
  */
@@ -17,9 +19,12 @@
 
 define([
   'underscore',
+  'jquery',
   'views/base'
 ],
-function (_, BaseView) {
+function (_, $, BaseView) {
+  var t = BaseView.t;
+
   var FormView = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);
@@ -35,31 +40,66 @@ function (_, BaseView) {
     },
 
     enableSubmitIfValid: function () {
-      var enabled = this.isFormValid();
+      var enabled = this.isValid();
 
       var submitButton = this.$('button[type="submit"]');
       submitButton[enabled ? 'removeClass' : 'addClass']('disabled');
     },
 
     validateAndSubmit: function () {
-      if (this.isFormValid()) {
-        this.submitForm();
+      if (this.isValid()) {
+        this.submit();
       } else {
         this.showValidationErrors();
       }
     },
 
     /**
-     * Descendent views must override!
+     * Checks whether the form is valid. Checks the validitity of each
+     * form element. If any elements are invalid, returns false.
      *
-     * Check to see whether all input elements in the form are valid. Does
-     * not display any errors. If all input elements are valid, the submit
-     * button will be enabled.
+     * No errors are displayed.
      *
-     * @return true if all inputs are valid, false otw.
+     * Descendent views can override isValidStart or isValidEnd to perform
+     * view specific checks.
      */
-    isFormValid: function () {
-      // override in child views.
+    isValid: function () {
+      if (! this.isValidStart()) {
+        return false;
+      }
+
+      var inputEls = this.$('input');
+      for (var i = 0, length = inputEls.length; i < length; ++i) {
+        var el = inputEls[i];
+        if (! this.isElementValid(el)) {
+          return false;
+        }
+      }
+
+      return this.isValidEnd();
+    },
+
+    /**
+     * Check form for validity.  isValidStart is run before
+     * input elements are checked. Descendent views only need to
+     * override to do any form specific checks that cannot be
+     * handled by the generic handlers.
+     *
+     * @return true if form is valid, false otw.
+     */
+    isValidStart: function () {
+      return true;
+    },
+
+    /**
+     * Check form for validity.  isValidEnd is run after
+     * input elements are checked. Descendent views only need to
+     * override to do any form specific checks that cannot be
+     * handled by the generic handlers.
+     *
+     * @return true if form is valid, false otw.
+     */
+    isValidEnd: function () {
       return true;
     },
 
@@ -69,17 +109,90 @@ function (_, BaseView) {
     isElementValid: function (selector) {
       var el = this.$(selector);
       var value = el.val();
-      return value && el[0].validity.valid;
+      var isValid = !!(value && el[0].validity.valid);
+      return isValid;
     },
 
     /**
-     * Descendent views must override!
+     * Display form validation errors.
      *
-     * Display any form validation errors to the user. Only called if
-     * isFormValid returns false.
+     * Descendent views can override showValidationErrorsStart
+     * or showValidationErrorsEnd to display view specific messages.
      */
     showValidationErrors: function () {
-      // override in child views to show any validation errors.
+      this.hideError();
+
+      if (this.showValidationErrorsStart()) {
+        // only one message at a time.
+        return;
+      }
+
+      var inputEls = this.$('input');
+      for (var i = 0, length = inputEls.length; i < length; ++i) {
+        var el = inputEls[i];
+        if (! this.isElementValid(el)) {
+          var fieldType = this.getElementType(el);
+
+          if (fieldType === 'email') {
+            this.showEmailValidationError(el);
+          } else if (fieldType === 'password') {
+            this.showPasswordValidationError(el);
+          }
+
+          // only one message at a time.
+          return;
+        }
+      }
+
+      this.showValidationErrorsEnd();
+    },
+
+    getElementType: function(el) {
+      var fieldType = $(el).attr('type');
+
+      // text fields with the password class are treated as passwords.
+      // These are password fields that have been converted to text
+      // fields when the user clicked on 'show'
+      if (fieldType === 'text' && $(el).hasClass('password')) {
+        fieldType = 'password';
+      }
+
+      return fieldType;
+    },
+
+    /**
+     * Display form validition errors.  isValidStart is run before
+     * input element validation errors are displayed. Descendent
+     * views only need to override to show any form specific
+     * validation errors that are not handled by the generic handlers.
+     *
+     * @return true if a validation error is displayed.
+     */
+    showValidationErrorsStart: function () {
+    },
+
+    /**
+     * Display form validition errors.  isValidEnd is run after
+     * input element validation errors are displayed. Descendent
+     * views only need to override to show any form specific
+     * validation errors that are not handled by the generic handlers.
+     *
+     * @return true if a validation error is displayed.
+     */
+    showValidationErrorsEnd: function () {
+    },
+
+    showEmailValidationError: function (which) {
+      this.showValidationError(which, t('Valid email required'));
+    },
+
+    showPasswordValidationError: function (which) {
+      var passwordVal = this.$(which).val();
+
+      var msg = passwordVal ? t('Must be at least 8 characters')
+                            : t('Valid password required');
+
+      this.showValidationError(which, msg);
     },
 
     /**
@@ -87,15 +200,15 @@ function (_, BaseView) {
      */
     showValidationError: function (which, message) {
       var invalidEl = this.$(which);
-      var tooltipEl = invalidEl.closest('.input-row');
+      var tooltipEl = invalidEl.closest('.tooltip');
       tooltipEl.attr('title', message);
 
       // keyboard input for input/select elements.
-      invalidEl.one('keydown', function() {
+      invalidEl.one('keydown', function () {
         tooltipEl.attr('title', null);
       });
       // handle selecting an option with the mouse for select elements
-      invalidEl.find('option').one('click', function() {
+      invalidEl.find('option').one('click', function () {
         tooltipEl.attr('title', null);
       });
 
@@ -112,9 +225,9 @@ function (_, BaseView) {
     /**
      * Descendent views must override!
      *
-     * Submit form data to the server. Only called if isFormValid returns true
+     * Submit form data to the server. Only called if isValid returns true
      */
-    submitForm: function () {
+    submit: function () {
       // override in child views to submit data to backend.
     }
   });
