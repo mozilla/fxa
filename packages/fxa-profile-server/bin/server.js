@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const logger = require('../lib/logging').getLogger('fxa.bin.server');
-const server = require('../lib/server');
+const server = require('../lib/server').create();
 
 server.start(function() {
-  logger.info('Server started at: ', server.info.uri);
+  logger.info('Server started at:', server.info.uri);
 });

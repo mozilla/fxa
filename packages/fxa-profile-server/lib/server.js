@@ -4,19 +4,27 @@
 
 const Hapi = require('hapi');
 
-const config = require('./config');
+const config = require('./config').root();
+const logger = require('./logging').getLogger('fxa.server');
 
-const server = Hapi.createServer(
-  config.get('server.host'),
-  config.get('server.port')
-);
+exports.create = function createServer() {
+  var server = Hapi.createServer(
+    config.server.host,
+    config.server.port
+  );
 
-server.route({
-  method: 'GET',
-  path: '/',
-  handler: function(req, reply) {
-    reply('fxa profiles!');
-  }
-});
+  server.route(require('./routing'));
 
-module.exports = server;
+  // response logging
+  server.on('response', function(req) {
+    logger.info(
+      '%s %s - %d (%dms)',
+      req.method.toUpperCase(),
+      req.path,
+      req.response.statusCode,
+      Date.now() - req.info.received
+    );
+  });
+
+  return server;
+};

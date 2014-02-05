@@ -5,6 +5,43 @@
 const convict = require('convict');
 
 const config = convict({
+  db: {
+    driver: {
+      env: 'DB',
+      format: ['mysql', 'memory'],
+      default: 'memory'
+    }
+  },
+  logging: {
+    formatters: {
+      doc: 'http://seanmonstar.github.io/intel/#formatters',
+      default: {
+        console: {
+          format: '%(name)s.%(levelname)s: %(message)s',
+          colorize: true
+        }
+      }
+    },
+    handlers: {
+      doc: 'http://seanmonstar.github.io/intel/#handlers',
+      default: {
+        console: {
+          class: 'intel/handlers/console',
+          formatter: 'console'
+        }
+      }
+    },
+    loggers: {
+      doc: 'http://seanmonstar.github.io/intel/#logging',
+      default: {
+        fxa: {
+          handlers: ['console'],
+          level: 0,
+          propagate: false
+        }
+      }
+    }
+  },
   server: {
     host: {
       env: 'HOST',

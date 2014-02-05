@@ -9,6 +9,7 @@
     "test": "mocha --check-globals"
   },
   "dependencies": {
+    "bluebird": "1.0.0",
     "convict": "0.4.2",
     "hapi": "2.1.2",
     "intel": "0.4.0"
