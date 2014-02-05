@@ -64,16 +64,13 @@ define([
             return respond(client.certificateSign(account.signIn.sessionToken, publicKey, duration), RequestMocks.certificateSign)
           })
           .then(
-          function(res) {
-            assert.ok(res, '== got response');
-
-            return true
-          },
-          function(error) {
-            console.log(error);
-            assert.equal(error, null, '== no error occured');
-          }
-        );
+            function(res) {
+              assert.property(res, 'cert', 'got cert');
+            },
+            function(error) {
+              assert.isNull(error);
+            }
+          );
       });
 
     });
