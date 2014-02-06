@@ -255,7 +255,6 @@ strong.email {
 }
 
 
-
 .input-row input:focus,
 .input-row select:focus {
   border-color: #0095DD;
@@ -306,6 +305,18 @@ strong.email {
   color: #424f59;
   outline: none;
 }
+
+/**
+ * Firefox show a focus ring around the selected text.
+ * See issue https://github.com/mozilla/fxa-content-server/issues/459
+ * and the solution at:
+ * http://stackoverflow.com/questions/19468372/how-to-remove-dashed-border-of-select-box-in-firefox#answer-19468615
+ */
+.input-row select:-moz-focusring {
+  color: transparent !important; /* !important must be added or else the browser ignores the request */
+  text-shadow: 0 0 0 #424F59 !important;
+}
+
 
 .input-row:last-child {
   margin-bottom: 0;
