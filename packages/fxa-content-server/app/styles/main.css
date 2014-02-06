@@ -316,6 +316,20 @@ strong.email {
   margin-top: 2px;
 }
 
+.input-row .input-help-focused {
+  opacity: 0;
+  -webkit-transition-duration: 750ms;
+     -moz-transition-duration: 750ms;
+          transition-duration: 750ms;
+  -webkit-transition-property: opacity;
+     -moz-transition-property: opacity;
+          transition-property: opacity;
+}
+
+input:focus ~ .input-help-focused {
+  opacity: 1;
+}
+
 .button-row {
   margin-bottom: 20px;
   margin-top: 45px;
