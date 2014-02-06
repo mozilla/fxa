@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var fs = require('fs')
-var path = require('path')
-var util = require('util')
-var child_process = require('child_process')
-
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../../client')
