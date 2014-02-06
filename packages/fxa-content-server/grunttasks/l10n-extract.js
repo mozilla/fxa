@@ -36,11 +36,13 @@ module.exports = function (grunt) {
 
     clientWalker.on('end', function() {
       var authWalker = extract({
-        'input-dir': path.join(__dirname, '..', 'node_modules', 'fxa-auth-server', 'templates'),
+        'input-dir': path.join(__dirname, '..', 'server'),
         'output-dir': messagesOutputPath,
         'output': 'auth-server.pot',
         'join-existing': false,
+        'keyword': 't',
         parsers: {
+          '.js': 'javascript',
           '.txt': 'handlebars',
           '.html': 'handlebars'
         }

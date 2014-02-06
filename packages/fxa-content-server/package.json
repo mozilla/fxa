@@ -7,7 +7,8 @@
     "postinstall": "bower install",
     "test": "intern-runner config=tests/intern",
     "test-browser": "intern-runner config=tests/intern_browser",
-    "test-remote": "intern-runner config=tests/intern_sauce"
+    "test-remote": "intern-runner config=tests/intern_sauce",
+    "test-server": "intern-client config=tests/intern_server"
   },
   "repository": {
     "type": "git",
@@ -60,13 +61,15 @@
     "grunt-contrib-csslint": "~0.2.0",
     "mkdirp": "~0.3.5",
     "grunt-po2json": "git://github.com/shane-tomlinson/grunt-po2json.git#c1a7406",
-    "jsxgettext-recursive": "0.0.2"
+    "jsxgettext-recursive": "0.0.3",
+    "handlebars": "~1.3.0"
   },
   "devDependencies": {
     "awsbox": "0.6.2",
     "intern-geezer": "1.3.2",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror",
-    "fxa-auth-server": "git://github.com/mozilla/fxa-auth-server.git"
+    "fxa-auth-server": "git://github.com/mozilla/fxa-auth-server.git",
+    "request": "~2.33.0"
   },
   "engines": {
     "node": ">=0.8.0"
