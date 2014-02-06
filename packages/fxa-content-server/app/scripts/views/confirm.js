@@ -23,16 +23,18 @@ function (BaseView, Template, Session, FxaClient) {
     },
 
     events: {
-      'click': BaseView.preventDefaultThen('resend')
+      'click #resend': BaseView.preventDefaultThen('resend')
     },
 
     resend: function () {
       var self = this;
+      self.trigger('resending');
+
       var client = new FxaClient();
       client.signUpResend()
             .then(function () {
-              self.$('.success').show();
               self.trigger('resent');
+              self.$('.success').show();
             }, function (err) {
               self.displayError(err.errno || err.message);
             });
