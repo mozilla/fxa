@@ -15,78 +15,77 @@ module.exports = function (log, isA, error, signer, domain) {
           strategy: 'sessionToken',
           payload: 'required'
         },
-        tags: ["account"],
         validate: {
           payload: {
-            publicKey: isA.Object({
-              algorithm: isA.String().valid("RS", "DS").required(),
-              n: isA.String(),
-              e: isA.String(),
-              y: isA.String(),
-              p: isA.String(),
-              q: isA.String(),
-              g: isA.String(),
-              version: isA.String()
+            publicKey: isA.object({
+              algorithm: isA.string().valid("RS", "DS").required(),
+              n: isA.string(),
+              e: isA.string(),
+              y: isA.string(),
+              p: isA.string(),
+              q: isA.string(),
+              g: isA.string(),
+              version: isA.string()
             }).required(),
-            duration: isA.Number().integer().min(0).max(24 * HOUR).required()
+            duration: isA.number().integer().min(0).max(24 * HOUR).required()
           }
-        },
-        handler: function certificateSign(request) {
-          log.begin('Sign.cert', request)
-          var sessionToken = request.auth.credentials
-          var publicKey = request.payload.publicKey
-          var duration = request.payload.duration
-
-          if (!sessionToken.emailVerified) {
-            return request.reply(error.unverifiedAccount())
-          }
-
-          if (publicKey.algorithm === 'RS') {
-            if (!publicKey.n) {
-              return request.reply(error.missingRequestParameter('n'))
-            }
-            if (!publicKey.e) {
-              return request.reply(error.missingRequestParameter('e'))
-            }
-          }
-          else { // DS
-            if (!publicKey.y) {
-              return request.reply(error.missingRequestParameter('y'))
-            }
-            if (!publicKey.p) {
-              return request.reply(error.missingRequestParameter('p'))
-            }
-            if (!publicKey.q) {
-              return request.reply(error.missingRequestParameter('q'))
-            }
-            if (!publicKey.g) {
-              return request.reply(error.missingRequestParameter('g'))
-            }
-          }
-
-          signer.enqueue(
-            {
-              email: sessionToken.uid.toString('hex') + '@' + domain,
-              publicKey: publicKey,
-              duration: duration,
-              generation: sessionToken.verifierSetAt,
-            },
-            function (err, result) {
-              if (err) {
-                log.error({ op: 'signer.enqueue', err: err, result: result })
-                request.reply(error.serviceUnavailable())
-              }
-              else if (result && result.err) {
-                // TODO: parse result.err better
-                log.warn({ op: 'signer.enqueue', err: result.err })
-                request.reply(error.wrap(result.err))
-              }
-              else {
-                request.reply(result)
-              }
-            }
-          )
         }
+      },
+      handler: function certificateSign(request, reply) {
+        log.begin('Sign.cert', request)
+        var sessionToken = request.auth.credentials
+        var publicKey = request.payload.publicKey
+        var duration = request.payload.duration
+
+        if (!sessionToken.emailVerified) {
+          return reply(error.unverifiedAccount())
+        }
+
+        if (publicKey.algorithm === 'RS') {
+          if (!publicKey.n) {
+            return reply(error.missingRequestParameter('n'))
+          }
+          if (!publicKey.e) {
+            return reply(error.missingRequestParameter('e'))
+          }
+        }
+        else { // DS
+          if (!publicKey.y) {
+            return reply(error.missingRequestParameter('y'))
+          }
+          if (!publicKey.p) {
+            return reply(error.missingRequestParameter('p'))
+          }
+          if (!publicKey.q) {
+            return reply(error.missingRequestParameter('q'))
+          }
+          if (!publicKey.g) {
+            return reply(error.missingRequestParameter('g'))
+          }
+        }
+
+        signer.enqueue(
+          {
+            email: sessionToken.uid.toString('hex') + '@' + domain,
+            publicKey: publicKey,
+            duration: duration,
+            generation: sessionToken.verifierSetAt,
+          },
+          function (err, result) {
+            if (err) {
+              log.error({ op: 'signer.enqueue', err: err, result: result })
+              reply(error.serviceUnavailable())
+            }
+            else if (result && result.err) {
+              // TODO: parse result.err better
+              log.warn({ op: 'signer.enqueue', err: result.err })
+              reply(error.wrap(result.err))
+            }
+            else {
+              reply(result)
+            }
+          }
+        )
       }
     }
   ]

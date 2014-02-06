@@ -9,25 +9,21 @@ module.exports = function (log, isA, error, db) {
       method: 'POST',
       path: '/session/destroy',
       config: {
-        description: "Destroys this session.",
-        tags: ["session"],
         auth: {
           strategy: 'sessionToken'
-        },
-        handler: function (request) {
-          log.begin('Session.destroy', request)
-          var sessionToken = request.auth.credentials
-          log.security({ event: 'session-destroy' })
-          db.deleteSessionToken(sessionToken)
-            .done(
-              function () {
-                request.reply({})
-              },
-              function (err) {
-                request.reply(err)
-              }
-            )
         }
+      },
+      handler: function (request, reply) {
+        log.begin('Session.destroy', request)
+        var sessionToken = request.auth.credentials
+        log.security({ event: 'session-destroy' })
+        db.deleteSessionToken(sessionToken)
+          .done(
+            function () {
+              reply({})
+            },
+            reply
+          )
       }
     }
   ]

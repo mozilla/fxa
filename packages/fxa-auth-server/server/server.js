@@ -61,33 +61,6 @@ module.exports = function (path, url, Hapi, toobusy) {
       config.listen.host,
       config.listen.port,
       {
-        auth: {
-          sessionToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db))
-          },
-          keyFetchToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db))
-          },
-          accountResetToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db))
-          },
-          passwordForgotToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db))
-          },
-          passwordChangeToken: {
-            scheme: 'hawk',
-            hawk: hawkOptions,
-            getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db))
-          }
-        },
         cors: {
           additionalExposedHeaders: ['Timestamp']
         },
@@ -101,6 +74,49 @@ module.exports = function (path, url, Hapi, toobusy) {
         }
       }
     )
+
+    server.pack.require('hapi-auth-hawk', function (err) {
+      server.auth.strategy(
+        'sessionToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
+      server.auth.strategy(
+        'keyFetchToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
+      server.auth.strategy(
+        'accountResetToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
+      server.auth.strategy(
+        'passwordForgotToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
+      server.auth.strategy(
+        'passwordChangeToken',
+        'hawk',
+        {
+          getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)),
+          hawk: hawkOptions
+        }
+      )
+    })
 
     server.route(routes)
 
@@ -122,7 +138,6 @@ module.exports = function (path, url, Hapi, toobusy) {
         if (toobusy()) {
           exit = error.serviceUnavailable()
         }
-        log.begin('server.onRequest', request);
         log.trace({ op: 'server.onRequest', rid: request.id, path: request.path })
         next(exit)
       }
@@ -194,7 +209,7 @@ module.exports = function (path, url, Hapi, toobusy) {
     server.ext(
       'onPreResponse',
       function (request, next) {
-        var res = request.response()
+        var res = request.response
         // error responses don't have `header`
         if (res.header) {
           res.header('Strict-Transport-Security', 'max-age=10886400')
@@ -207,7 +222,7 @@ module.exports = function (path, url, Hapi, toobusy) {
     server.ext(
       'onPreResponse',
       function (request, next) {
-        var res = request.response()
+        var res = request.response
         // error responses don't have `header`
         if (res.header) {
           res.header('Timestamp', '' + Math.floor(Date.now() / 1000))
@@ -219,30 +234,18 @@ module.exports = function (path, url, Hapi, toobusy) {
     server.ext(
       'onPreResponse',
       function (request, next) {
-        var response = request.response()
+        var response = request.response
         if (response.isBoom) {
-          if (!response.response.payload.errno) {
-            var details = response.response.payload
-            // Hapi will automatically boomifies application-level errors.
-            // Grab the original error back out so we can wrap it.
-            if (response.response.code === 500 && response.data) {
-              details = response.data
-            }
-            response = error.wrap(details)
+          if (!(response instanceof error)) {
+            response = error.translate(response.output.payload)
           }
           if (config.env !== 'prod') {
-            response.response.payload.log = request.app.traced
+            response.output.payload.log = request.app.traced
           }
-          if (response.response.payload.domainThrown) {
-            // node adds the domain which may have cycles and then hapi JSON.stringifies, derp!
-            response.response.payload.domain = undefined
-            response.response.payload.domainEmitter = undefined
-            response.response.payload.domainBound = undefined
-          }
-          if (response.response.payload.code === 401) {
+          if (response.output.payload.code === 401) {
             log.security({
               event: 'auth-failure',
-              err: response.response.payload
+              err: response.output.payload
             });
           }
           log.error(
@@ -250,7 +253,7 @@ module.exports = function (path, url, Hapi, toobusy) {
               op: 'server.onPreResponse',
               rid: request.id,
               path: request.path,
-              err: response.response.payload
+              err: response.output.payload
             }
           )
         }
@@ -260,7 +263,7 @@ module.exports = function (path, url, Hapi, toobusy) {
               op: 'server.onPreResponse',
               rid: request.id,
               path: request.path,
-              response: response.raw
+              response: response.source
             }
           )
         }
@@ -276,7 +279,7 @@ module.exports = function (path, url, Hapi, toobusy) {
             op: 'server.response',
             rid: request.id,
             path: request.path,
-            code: request.response()._code,
+            code: request.response._code,
             t: Date.now() - request.info.received
           }
         )

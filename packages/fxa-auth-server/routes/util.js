@@ -12,51 +12,49 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
     {
       method: 'POST',
       path: '/get_random_bytes',
-      config: {
-        handler: function getRandomBytes(request) {
-          request.reply({ data: crypto.randomBytes(32).toString('hex') })
-        }
+      handler: function getRandomBytes(request, reply) {
+        reply({ data: crypto.randomBytes(32).toString('hex') })
       }
     },
     {
       method: 'GET',
       path: '/verify_email',
       config: {
-        handler: function (request) {
-          return request.reply.redirect(config.contentServer.url + request.raw.req.url)
-        },
         validate: {
           query: {
-            code: isA.String().max(32).regex(HEX_STRING).required(),
-            uid: isA.String().max(64).regex(HEX_STRING).required(),
-            service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String()
+            code: isA.string().max(32).regex(HEX_STRING).required(),
+            uid: isA.string().max(64).regex(HEX_STRING).required(),
+            service: isA.string().max(16).alphanum().optional(),
+            redirectTo: isA.string()
               .max(512)
               .regex(validators.domainRegex(redirectDomain))
               .optional()
           }
         }
+      },
+      handler: function (request, reply) {
+        return reply().redirect(config.contentServer.url + request.raw.req.url)
       }
     },
     {
       method: 'GET',
       path: '/complete_reset_password',
       config: {
-        handler: function (request) {
-          return request.reply.redirect(config.contentServer.url + request.raw.req.url)
-        },
         validate: {
           query: {
-            email: isA.String().max(255).regex(LAZY_EMAIL).required(),
-            code: isA.String().max(32).regex(HEX_STRING).required(),
-            token: isA.String().max(64).regex(HEX_STRING).required(),
-            service: isA.String().max(16).alphanum().optional(),
-            redirectTo: isA.String()
+            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            code: isA.string().max(32).regex(HEX_STRING).required(),
+            token: isA.string().max(64).regex(HEX_STRING).required(),
+            service: isA.string().max(16).alphanum().optional(),
+            redirectTo: isA.string()
               .max(512)
               .regex(validators.domainRegex(redirectDomain))
               .optional()
           }
         }
+      },
+      handler: function (request, reply) {
+        return reply().redirect(config.contentServer.url + request.raw.req.url)
       }
     }
   ]
