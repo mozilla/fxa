@@ -65,7 +65,9 @@ require([
   '../tests/spec/views/change_password',
   '../tests/spec/views/delete_account',
   '../tests/spec/views/confirm',
-  '../tests/spec/views/confirm_reset_password'
+  '../tests/spec/views/confirm_reset_password',
+  '../tests/spec/views/tos',
+  '../tests/spec/views/pp'
 ],
 function (Mocha) {
   // Use a mock for the translator

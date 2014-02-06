@@ -6,12 +6,19 @@
 
 define([
   'views/base',
-  'stache!templates/tos'
+  'stache!templates/tos',
+  'lib/session'
 ],
-function (BaseView, TosTemplate) {
-  var TosView = BaseView.extend({
-    template: TosTemplate,
+function (BaseView, Template, Session) {
+  var View = BaseView.extend({
+    template: Template,
     className: 'tos',
+
+    context: function () {
+      return {
+        canGoBack: Session.canGoBack
+      };
+    },
 
     events: {
       'click #fxa-tos-back': 'back',
@@ -19,6 +26,6 @@ function (BaseView, TosTemplate) {
     }
   });
 
-  return TosView;
+  return View;
 });
 
