@@ -138,8 +138,6 @@ module.exports = function (path, url, Hapi, toobusy) {
         if (toobusy()) {
           exit = error.serviceUnavailable()
         }
-        log.begin('---   ' + request.id + '   ---', request);
-        log.begin('=== server.onRequest ===', request);
         log.trace({ op: 'server.onRequest', rid: request.id, path: request.path })
         next(exit)
       }
