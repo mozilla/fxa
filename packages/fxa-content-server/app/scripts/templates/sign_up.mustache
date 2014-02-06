@@ -14,9 +14,9 @@
 
     <div class="input-row password-row">
       <input type="password" class="password" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} />
+      <input id="show-password" type="checkbox" class="show-password" aria-controls="password" />
       <label for="show-password" class="show-password-label">
-        <div class="show-password-label-text">{{#t}}Show{{/t}}</div>
-        <input id="show-password" type="checkbox" class="show-password" aria-controls="password">
+        {{#t}}Show{{/t}}
       </label>
 
       <div class="input-help input-help-focused">{{#t}}Must be at least 8 characters{{/t}}</div>
