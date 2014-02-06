@@ -204,11 +204,12 @@ strong.email {
   background: #D63920;
   content: '.';
   height: 15px;
-  left: 15px;
+  left: 12px;
   position: absolute;
   text-indent: -999px;
   top: -16px;
-  transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
   white-space: nowrap;
   width: 15px;
   z-index: 4;
@@ -226,16 +227,18 @@ strong.email {
   content: attr(title);
   color: #fff;
   left: 3px;
-  padding: 5px;
+  padding: 7px 12px;
   position: absolute;
-  top: -35px;
+  top: -42px;
   white-space: nowrap;
   z-index: 5;
 }
 
 .tooltip-below[title]:after,
 .tooltip-below[title]::after {
-  top: calc(102% + 8px);
+  top: -webkit-calc(102% + 8px);
+  top:    -moz-calc(102% + 8px);
+  top:         calc(102% + 8px);
 }
 
 
@@ -349,6 +352,15 @@ strong.email {
   border-color: #0095DD;
   color: #424f59;
   outline: none;
+}
+
+.input-row input[type='text'].invalid,
+.input-row input[type='email'].invalid,
+.input-row input[type='password'].invalid,
+.input-row input[type='text'].invalid + .show-password-label,
+.input-row input[type='password'].invalid + .show-password-label,
+.input-row select.invalid {
+  border-color: #D63920;
 }
 
 /**

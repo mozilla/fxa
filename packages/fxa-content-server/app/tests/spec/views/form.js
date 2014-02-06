@@ -12,7 +12,7 @@ define([
   'views/form',
   'stache!templates/test_template'
 ],
-function (mocha, chai, jQuery, FormView, Template) {
+function (mocha, chai, $, FormView, Template) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -42,13 +42,13 @@ function (mocha, chai, jQuery, FormView, Template) {
       view = new View({});
 
       view.render();
-      jQuery('body').append(view.el);
+      $('body').append(view.el);
     });
 
     afterEach(function () {
       if (view) {
         view.destroy();
-        jQuery(view.el).remove();
+        $(view.el).remove();
         view = null;
       }
     });
@@ -98,6 +98,22 @@ function (mocha, chai, jQuery, FormView, Template) {
           done();
         });
         view.showValidationError('#focusMe', 'this is an error');
+      });
+
+      it('adds invalid class to the invalid element', function () {
+        view.showValidationError('#focusMe', 'this is an error');
+        assert.isTrue(view.$('#focusMe').hasClass('invalid'));
+      });
+
+      it('invalid class is removed as soon as element is valid again', function () {
+        // element is required, has no value
+        view.showValidationError('#focusMe', 'Field is required');
+        assert.isTrue(view.$('#focusMe').hasClass('invalid'));
+
+        // add a value
+        $('#focusMe').val('heyya!');
+        view.$('#focusMe').trigger('keydown');
+        assert.isFalse(view.$('#focusMe').hasClass('invalid'));
       });
     });
 

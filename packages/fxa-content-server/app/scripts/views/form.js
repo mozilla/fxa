@@ -147,7 +147,7 @@ function (_, $, BaseView) {
       this.showValidationErrorsEnd();
     },
 
-    getElementType: function(el) {
+    getElementType: function (el) {
       var fieldType = $(el).attr('type');
 
       // text fields with the password class are treated as passwords.
@@ -201,25 +201,28 @@ function (_, $, BaseView) {
     showValidationError: function (which, message) {
       var invalidEl = this.$(which);
       var tooltipEl = invalidEl.closest('.tooltip');
-      tooltipEl.attr('title', message);
+      tooltipEl.attr('title', this.translator.get(message));
+
+      function removeTooltip() {
+        invalidEl.removeClass('invalid');
+        tooltipEl.removeAttr('title');
+      }
 
       // keyboard input for input/select elements.
-      invalidEl.one('keydown', function () {
-        tooltipEl.attr('title', null);
-      });
+      invalidEl.one('keydown', removeTooltip);
       // handle selecting an option with the mouse for select elements
-      invalidEl.find('option').one('click', function () {
-        tooltipEl.attr('title', null);
-      });
+      invalidEl.find('option').one('click', removeTooltip);
+
 
       try {
-        invalidEl.get(0).focus();
+        invalidEl.addClass('invalid').get(0).focus();
       } catch (e) {
         // IE can blow up if the element is not visible.
       }
 
       // used for testing
       this.trigger('validation_error', which, message);
+
     },
 
     /**
