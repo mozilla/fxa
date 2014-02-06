@@ -88,16 +88,12 @@ function (_, Backbone, jQuery, Session, authErrors) {
         // and then stop trying.
         var autofocusEl = this.$('[autofocus]');
 
+        var self = this;
         var attemptFocus = function () {
           if (autofocusEl.is(':focus')) {
             return;
           }
-          try {
-            autofocusEl.get(0).focus();
-          } catch (e) {
-            // IE can blow up if the element is not visible.
-          }
-
+          self.focus(autofocusEl);
           setTimeout(attemptFocus, 50);
         };
 
@@ -217,6 +213,17 @@ function (_, Backbone, jQuery, Session, authErrors) {
      */
     navigate: function (page) {
       this.router.navigate(page, { trigger: true });
+    },
+
+    /**
+     * Safely focus an element
+     */
+    focus: function (which) {
+      try {
+        this.$(which).get(0).focus();
+      } catch (e) {
+        // IE can blow up if the element is not visible.
+      }
     }
   });
 
@@ -254,7 +261,7 @@ function (_, Backbone, jQuery, Session, authErrors) {
    * translate it. t is put onto BaseView instead of
    * Translator to reduce the number of dependencies in the views.
    */
-  BaseView.t = function(str) {
+  BaseView.t = function (str) {
     return str;
   };
 

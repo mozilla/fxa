@@ -10,8 +10,22 @@ define([
 ], function () {
   return {
     onPasswordVisibilityChange: function (event) {
-      var isVisible = this.$(event.target).is(':checked');
+      var target = this.$(event.target);
+      var isVisible = target.is(':checked');
       this.setPasswordVisibility(isVisible);
+
+      // focus the element and place the cursor at
+      // the end of the element's input
+      //
+      // for docs on aria-controls, see
+      // http://www.w3.org/TR/wai-aria/states_and_properties#aria-controls
+      var controlsSelector = '#' + target.attr('aria-controls');
+
+      // place the cursor at the end of the input when the element is focused.
+      this.$(controlsSelector).one('focus', function () {
+        this.selectionStart = this.selectionEnd = this.value.length;
+      });
+      this.focus(controlsSelector);
     },
 
     setPasswordVisibility: function (isVisible) {
