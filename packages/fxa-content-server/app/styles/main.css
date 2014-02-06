@@ -316,6 +316,20 @@ strong.email {
   margin-top: 2px;
 }
 
+.input-row .input-help-focused {
+  opacity: 0;
+  -webkit-transition-duration: 750ms;
+     -moz-transition-duration: 750ms;
+          transition-duration: 750ms;
+  -webkit-transition-property: opacity;
+     -moz-transition-property: opacity;
+          transition-property: opacity;
+}
+
+input:focus ~ .input-help-focused {
+  opacity: 1;
+}
+
 .button-row {
   margin-bottom: 20px;
   margin-top: 45px;
@@ -472,37 +486,57 @@ ul.links li {
   border-color: #424f59;
 }
 
-.password-row .show-password-label:hover {
-  background-color: #f2f2f2;
-  color: #424f59;
+.show-password-label {
+  border-color: #424f59;
 }
 
-.password-row:hover > .show-password-label {
-  border-color: #424f59;
+/**
+ * The checkboxes are keyboard accessible, the label is placed as a sibling
+ * to the checkbox. The checkbox cannot be hidden or set to `display: none` or
+ * else it is impossible to focus the element using the keyboard. Instead, we
+ * give it an absolute position and set its opacity to 0. Whenever tabbed to
+ * using the keyboard, the label acts as if the mouse were hovering over the
+ * label.
+ */
+.show-password {
+  position: absolute;
+  opacity: 0;
+}
+
+.show-password-label:hover,
+.show-password-label:active,
+.show-password-label:focus,
+.show-password:focus + .show-password-label,
+.show-password:active + .show-password-label,
+.show-password:focus + .show-password-label {
+  background: #f2f2f2;
+  color: #424f59;
+  outline: none;
 }
 
 /*this one is impossible to do w/o sibling selector
 we may need to add js for IE8*/
 
-.password-row > .password:focus+.show-password-label{
+.password:focus ~ .show-password-label{
   border-left-color: #0095DD;
 }
 
-.password-row .show-password {
-  visibility: hidden;
-}
-
-.show-password-label:active {
-  background: #f2f2f2;
-}
-
-.password-row input[type="text"]+.show-password-label {
+input[type="text"] ~ .show-password-label {
   background: #8A9BA8;
   color: #fff;
 }
 
-.password-row input[type="text"]+.show-password-label:hover {
-  background: #8A9BA8;
+/**
+ * Hover over the show password label in its dark state
+ */
+input[type="text"] ~ .show-password:focus + .show-password-label,
+input[type="text"] ~ .show-password:focus + .show-password-label,
+input[type="text"] ~ .show-password:focus + .show-password-label,
+input[type="text"] ~ .show-password-label:focus,
+input[type="text"] ~ .show-password-label:active,
+input[type="text"] ~ .show-password-label:hover {
+  /*background: #f2f2f2;*/
+  background: #9AABB8;
   color: #fff;
 }
 

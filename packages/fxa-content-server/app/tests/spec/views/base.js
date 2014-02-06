@@ -123,6 +123,18 @@ function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock, Rou
       });
     });
 
+    describe('focus', function () {
+      it('focuses an element', function (done) {
+        // wekbit fails unless focusing another element first.
+        $('#otherElement').focus();
+
+        view.$('#focusMe').one('focus', function () {
+          done();
+        });
+        view.focus('#focusMe');
+      });
+    });
+
     describe('BaseView.preventDefaultThen', function () {
       it('can take the name of a function as the name of the event handler', function (done) {
         view.eventHandler = function (event) {
