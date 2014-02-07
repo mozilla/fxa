@@ -16,6 +16,8 @@ define([
     name: 'mocha tests',
 
     'run the mocha tests': function () {
+      // timeout after 120 seconds
+      this.timeout = 120000;
 
       return this.get('remote')
         .get(require.toUrl(url))

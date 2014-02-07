@@ -16,6 +16,23 @@ define([
   '../../mocks/router'
 ],
 function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock, RouterMock) {
+  function requiresFocus(callback, done) {
+    if (document.hasFocus && document.hasFocus()) {
+      callback();
+    } else {
+      var message =
+          'Cannot check for focus - document does not have focus.\n' +
+          'If this is in PhantomJS, Travis-CI, Sauce Labs, or Opera, this is expected.\n' +
+          'Otherwise, try focusing the test document instead of \n' +
+          'another window or dev tools.';
+
+      console.warn(message);
+      if (done) {
+        done();
+      }
+    }
+  }
+
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -65,51 +82,55 @@ function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock, Rou
       });
 
       it('focuses descendent element containing `autofocus` if html has `no-touch` class', function () {
-        jQuery('html').addClass('no-touch');
+        requiresFocus(function () {
+          jQuery('html').addClass('no-touch');
 
-        var handlerCalled = false;
-        jQuery('#focusMe').on('focus', function () {
-          handlerCalled = true;
+          var handlerCalled = false;
+          jQuery('#focusMe').on('focus', function () {
+            handlerCalled = true;
+          });
+          view.afterVisible();
+
+          assert.isTrue(handlerCalled);
         });
-        view.afterVisible();
-
-        assert.isTrue(handlerCalled);
       });
 
       it('does not focus descendent element containing `autofocus` if html does not have `no-touch` class', function () {
-        var handlerCalled = false;
-        jQuery('#focusMe').on('focus', function () {
-          handlerCalled = true;
-        });
-        view.afterVisible();
+        requiresFocus(function () {
+          var handlerCalled = false;
+          jQuery('#focusMe').on('focus', function () {
+            handlerCalled = true;
+          });
+          view.afterVisible();
 
-        assert.isFalse(handlerCalled);
+          assert.isFalse(handlerCalled);
+        });
       });
     });
 
     describe('displayError', function () {
       it('translates and display an error in the .error element', function () {
         view.displayError('the error message');
-        assert.equal($('.error').html(), 'a translated error message');
+        assert.equal(view.$('.error').html(), 'a translated error message');
       });
 
       it('hides any previously displayed success messages', function () {
         view.displaySuccess('the success message');
         view.displayError('the error message');
-        assert.isFalse($('.success').is(':visible'));
+        assert.isFalse(view.$('.success').is(':visible'));
       });
     });
 
     describe('displaySuccess', function () {
       it('translates and display an success in the .success element', function () {
         view.displaySuccess('the success message');
-        assert.equal($('.success').html(), 'a translated success message');
+        assert.equal(view.$('.success').html(), 'a translated success message');
       });
 
       it('hides any previously displayed error messages', function () {
         view.displayError('the error message');
         view.displaySuccess('the success message');
-        assert.isFalse($('.error').is(':visible'));
+        assert.isFalse(view.$('.error').is(':visible'));
       });
     });
 
@@ -125,13 +146,15 @@ function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock, Rou
 
     describe('focus', function () {
       it('focuses an element', function (done) {
-        // wekbit fails unless focusing another element first.
-        $('#otherElement').focus();
+        requiresFocus(function () {
+          // wekbit fails unless focusing another element first.
+          $('#otherElement').focus();
 
-        view.$('#focusMe').one('focus', function () {
-          done();
-        });
-        view.focus('#focusMe');
+          view.$('#focusMe').one('focus', function () {
+            done();
+          });
+          view.focus('#focusMe');
+        }, done);
       });
     });
 
