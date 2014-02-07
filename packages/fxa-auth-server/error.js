@@ -6,6 +6,7 @@ var inherits = require('util').inherits
 
 var DEFAULTS = {
   code: 500,
+  error: 'Internal Server Error',
   errno: 999,
   message: 'Unspecified error',
   info: 'https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format'
@@ -23,6 +24,7 @@ function AppError(options, extra) {
     payload: {
       code: options.code || DEFAULTS.code,
       errno: this.errno,
+      error: options.error || DEFAULTS.error,
       message: this.message,
       info: options.info || DEFAULTS.info
     },
@@ -67,6 +69,7 @@ AppError.translate = function (payload) {
     error = new AppError({
       message: payload.message,
       code: payload.statusCode,
+      error: payload.error,
       errno: payload.errno,
       info: payload.info
     })
@@ -80,6 +83,7 @@ AppError.accountExists = function (email) {
   return new AppError(
     {
       code: 400,
+      error: 'Bad Request',
       errno: 101,
       message: 'Account already exists'
     },
@@ -93,6 +97,7 @@ AppError.unknownAccount = function (email) {
   return new AppError(
     {
       code: 400,
+      error: 'Bad Request',
       errno: 102,
       message: 'Unknown account'
     },
@@ -107,6 +112,7 @@ AppError.incorrectPassword = function (dbEmail, requestEmail) {
     return new AppError(
       {
         code: 400,
+        error: 'Bad Request',
         errno: 120,
         message: 'Incorrect email case'
       },
@@ -118,6 +124,7 @@ AppError.incorrectPassword = function (dbEmail, requestEmail) {
   return new AppError(
     {
       code: 400,
+      error: 'Bad Request',
       errno: 103,
       message: 'Incorrect password'
     },
@@ -130,6 +137,7 @@ AppError.incorrectPassword = function (dbEmail, requestEmail) {
 AppError.unverifiedAccount = function () {
   return new AppError({
     code: 400,
+    error: 'Bad Request',
     errno: 104,
     message: 'Unverified account'
   })
@@ -139,6 +147,7 @@ AppError.invalidVerificationCode = function (details) {
   return new AppError(
     {
       code: 400,
+      error: 'Bad Request',
       errno: 105,
       message: 'Invalid verification code'
     },
@@ -149,6 +158,7 @@ AppError.invalidVerificationCode = function (details) {
 AppError.invalidRequestBody = function () {
   return new AppError({
     code: 400,
+    error: 'Bad Request',
     errno: 106,
     message: 'Invalid JSON in request body'
   })
@@ -158,6 +168,7 @@ AppError.invalidRequestParameter = function (validation) {
   return new AppError(
     {
       code: 400,
+      error: 'Bad Request',
       errno: 107,
       message: 'Invalid parameter in request body'
     },
@@ -171,6 +182,7 @@ AppError.missingRequestParameter = function (param) {
   return new AppError(
     {
       code: 400,
+      error: 'Bad Request',
       errno: 108,
       message: 'Missing parameter in request body' + (param ? ': ' + param : '')
     },
@@ -183,6 +195,7 @@ AppError.missingRequestParameter = function (param) {
 AppError.invalidSignature = function (message) {
   return new AppError({
     code: 401,
+    error: 'Unauthorized',
     errno: 109,
     message: message || 'Invalid request signature'
   })
@@ -191,6 +204,7 @@ AppError.invalidSignature = function (message) {
 AppError.invalidToken = function () {
   return new AppError({
     code: 401,
+    error: 'Unauthorized',
     errno: 110,
     message: 'Invalid authentication token in request signature'
   })
@@ -200,6 +214,7 @@ AppError.invalidTimestamp = function () {
   return new AppError(
     {
       code: 401,
+      error: 'Unauthorized',
       errno: 111,
       message: 'Invalid timestamp in request signature'
     },
@@ -212,6 +227,7 @@ AppError.invalidTimestamp = function () {
 AppError.invalidNonce = function () {
   return new AppError({
     code: 401,
+    error: 'Unauthorized',
     errno: 115,
     message: 'Invalid nonce in request signature'
   })
@@ -220,6 +236,7 @@ AppError.invalidNonce = function () {
 AppError.missingContentLength = function () {
   return new AppError({
     code: 411,
+    error: 'Length Required',
     errno: 112,
     message: 'Missing content-length header'
   })
@@ -228,6 +245,7 @@ AppError.missingContentLength = function () {
 AppError.requestBodyTooLarge = function () {
   return new AppError({
     code: 413,
+    error: 'Request Entity Too Large',
     errno: 113,
     message: 'Request body too large'
   })
@@ -237,6 +255,7 @@ AppError.tooManyRequests = function () {
   return new AppError(
     {
       code: 429,
+      error: 'Too Many Requests',
       errno: 114,
       message: 'Client has sent too many requests'
     },
@@ -250,6 +269,7 @@ AppError.serviceUnavailable = function () {
   return new AppError(
     {
       code: 503,
+      error: 'Service Unavailable',
       errno: 201,
       message: 'Service unavailable'
     },
@@ -262,6 +282,7 @@ AppError.serviceUnavailable = function () {
 AppError.gone = function () {
   return new AppError({
     code: 410,
+    error: 'Gone',
     errno: 116,
     message: 'This endpoint is no longer supported'
   })
