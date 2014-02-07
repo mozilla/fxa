@@ -49,7 +49,7 @@ define(['./hawk', '../../components/p/p', './errors'], function (hawk, p, ERRORS
     };
     xhr.onload = function onload() {
       var result = JSON.parse(xhr.responseText);
-      if (result.error) {
+      if (result.error || result.errno) {
         // Try to recover from a timeskew error
         if (result.errno === ERRORS.INVALID_TIMESTAMP && !retrying) {
           var serverTime = result.serverTime;

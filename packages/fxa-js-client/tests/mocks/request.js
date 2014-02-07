@@ -19,6 +19,11 @@ define(['client/lib/errors'], function (ERRORS) {
       headers: {},
       body: '{"uid":"9c8e5cf6915949c1b063b88fa0c53d05","verified":true,"sessionToken":"6544062365c5ebee16e3c5e15448139851583b5f5f7b6bd6d4a37bac41665e8a"}'
     },
+    signInUnknownUser: {
+      status: 400,
+      headers: {},
+      body: '{"code":400,"message":"Unknown account","errno":102}'
+    },
     signInFailurePassword: {
       status: 400,
       headers: {},

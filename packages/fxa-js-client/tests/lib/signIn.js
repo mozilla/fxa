@@ -114,6 +114,21 @@ define([
               }
           );
       });
+
+      test('#unknown user', function () {
+
+        var password = "iliketurtles";
+        return respond(client.signIn("unknown@unknown.com", password), RequestMocks.signInUnknownUser)
+            .then(
+            function (res) {
+              assert.fail();
+            },
+            function (res) {
+              assert.equal(res.code, 400);
+              assert.equal(res.errno, ERRORS.UNKNOWN_USER);
+            }
+          );
+      });
     });
   }
 });

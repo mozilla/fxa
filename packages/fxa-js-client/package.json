@@ -1,6 +1,6 @@
 {
   "name": "fxa-js-client",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "private": true,
   "description": "Web client that talks to the Firefox Accounts API server",
   "author": "Mozilla",
