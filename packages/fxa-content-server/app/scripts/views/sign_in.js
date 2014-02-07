@@ -6,15 +6,15 @@
 
 define([
   'underscore',
-  'views/base',
+  'views/form',
   'stache!templates/sign_in',
   'lib/session',
   'lib/fxa-client',
   'lib/password-mixin',
   'lib/url'
 ],
-function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
-  var View = BaseView.extend({
+function (_, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
+  var View = FormView.extend({
     template: SignInTemplate,
     className: 'sign-in',
 
@@ -55,17 +55,10 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
     },
 
     events: {
-      'submit form': BaseView.preventDefaultThen('signIn'),
-      'keyup input': 'enableButtonWhenValid',
-      'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
-    signIn: function () {
-      if (! (this.isValid())) {
-        return;
-      }
-
+    submit: function () {
       var email = Session.forceAuth ? Session.email : this.$('.email').val();
       var password = this.$('.password').val();
 
@@ -85,19 +78,6 @@ function (_, BaseView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
             .done(null, _.bind(function (err) {
               this.displayError(err.errno || err.message);
             }, this));
-    },
-
-    isValid: function () {
-      return this._validateEmail() && this._validatePassword();
-    },
-
-    _validateEmail: function () {
-      // user cannot fill out email in forceAuth mode
-      return Session.forceAuth || this.isElementValid('.email');
-    },
-
-    _validatePassword: function () {
-      return this.isElementValid('.password');
     }
   });
 

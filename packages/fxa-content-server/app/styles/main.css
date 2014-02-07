@@ -122,7 +122,7 @@ header h1 span {
 header h2 {
   font-size: 24px;
   font-weight: 200;
-  margin: 20px 0 30px 0;
+  margin: 20px 0 32px 0;
 }
 
 #legal-header h2 {
@@ -194,6 +194,57 @@ strong.email {
   width: 100%;
 }
 
+.tooltip {
+  position: relative;
+}
+
+/* tooltip caret */
+.tooltip[title]:before,
+.tooltip[title]::before {
+  background: #D63920;
+  content: '.';
+  height: 16px;
+  left: 12px;
+  position: absolute;
+  text-indent: -999px;
+  top: -12px;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+  white-space: nowrap;
+  width: 16px;
+  z-index: 4;
+}
+
+.tooltip-below[title]:before,
+.tooltip-below[title]::before {
+  top: -webkit-calc(100% - 4px);
+  top:    -moz-calc(100% - 4px);
+  top:         calc(100% - 4px);
+}
+
+/* tooltip */
+.tooltip[title]:after,
+.tooltip[title]::after {
+  background: #D63920;
+  border-radius: 1px;
+  content: attr(title);
+  color: #fff;
+  left: 3px;
+  padding: 5px 12px;
+  position: absolute;
+  top: -32px;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.tooltip-below[title]:after,
+.tooltip-below[title]::after {
+  top: -webkit-calc(102% + 2px);
+  top:    -moz-calc(102% + 2px);
+  top:         calc(102% + 2px);
+}
+
+
 .input-row input[type='text'],
 .input-row input[type='email'],
 .input-row input[type='password'],
@@ -216,6 +267,7 @@ strong.email {
           transition-property: border-color;
   width: 100%;
 }
+
 
 .input-row input::-webkit-input-placeholder {
    color: #8A9BA8;
@@ -253,7 +305,6 @@ strong.email {
 .input-row:hover input {
   border-color: #424f59;
 }
-
 
 .input-row input:focus,
 .input-row select:focus {
@@ -304,6 +355,15 @@ strong.email {
   border-color: #0095DD;
   color: #424f59;
   outline: none;
+}
+
+.input-row input[type='text'].invalid,
+.input-row input[type='email'].invalid,
+.input-row input[type='password'].invalid,
+.input-row input[type='text'].invalid ~ .show-password-label,
+.input-row input[type='password'].invalid ~ .show-password-label,
+.input-row select.invalid {
+  border-color: #D63920;
 }
 
 /**
@@ -379,7 +439,8 @@ input:focus ~ .input-help-focused {
   background: #0088CC;
 }
 
-.button-row button:disabled {
+.button-row button:disabled,
+.button-row button.disabled {
   background: #8A9BA8;
   cursor: auto;
 }

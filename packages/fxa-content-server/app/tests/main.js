@@ -58,16 +58,18 @@ require([
   '../tests/spec/lib/translator',
   '../tests/spec/lib/router',
   '../tests/spec/views/base',
+  '../tests/spec/views/form',
   '../tests/spec/views/sign_up',
   '../tests/spec/views/sign_in',
-  '../tests/spec/views/complete_reset_password',
   '../tests/spec/views/settings',
   '../tests/spec/views/change_password',
   '../tests/spec/views/delete_account',
   '../tests/spec/views/confirm',
-  '../tests/spec/views/confirm_reset_password',
   '../tests/spec/views/tos',
-  '../tests/spec/views/pp'
+  '../tests/spec/views/pp',
+  '../tests/spec/views/reset_password',
+  '../tests/spec/views/confirm_reset_password',
+  '../tests/spec/views/complete_reset_password'
 ],
 function (Mocha) {
   // Use a mock for the translator

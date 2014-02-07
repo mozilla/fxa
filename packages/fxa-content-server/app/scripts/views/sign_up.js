@@ -7,13 +7,16 @@
 define([
   'underscore',
   'views/base',
+  'views/form',
   'stache!templates/sign_up',
   'lib/session',
   'lib/fxa-client',
   'lib/password-mixin',
   'lib/url'
 ],
-function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
+function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Url) {
+  var t = BaseView.t;
+
   var now = new Date();
 
   // If COPPA says 13, why 14 here? To make UX simpler, we only ask
@@ -26,7 +29,7 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
   // To avoid letting the 12 year old in, add an extra year.
   var TOO_YOUNG_YEAR = now.getFullYear() - 14;
 
-  var View = BaseView.extend({
+  var View = FormView.extend({
     template: Template,
     className: 'sign-up',
 
@@ -48,9 +51,6 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
     },
 
     events: {
-      'submit form': 'onSubmit',
-      'keyup form': 'enableButtonWhenValid',
-      'change form': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
@@ -61,35 +61,22 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
       };
     },
 
-    onSubmit: function (event) {
-      event.preventDefault();
-      this.signUp();
+    isValidEnd: function () {
+      return this._validateYear();
     },
 
-    signUp: function () {
-      if (! (this.isValid())) {
-        return;
+    showValidationErrorsEnd: function () {
+      if (! this._validateYear()) {
+        this.showValidationError('#fxa-age-year', t('Year of birth required'));
       }
+    },
 
+    submit: function () {
       if (! this._isUserOldEnough()) {
         return this._cannotCreateAccount();
       }
 
       this._createAccount();
-    },
-
-    isValid: function () {
-      return !! (this._validateEmail() &&
-                  this._validatePassword() &&
-                  this._validateYear());
-    },
-
-    _validateEmail: function () {
-      return this.isElementValid('.email');
-    },
-
-    _validatePassword: function () {
-      return this.isElementValid('.password');
     },
 
     _validateYear: function () {

@@ -8,12 +8,12 @@
 <section>
   <div class="error"></div>
 
-  <form>
-    <div class="input-row">
+  <form novalidate>
+    <div class="input-row tooltip">
       <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus>
     </div>
 
-    <div class="input-row password-row">
+    <div class="input-row password-row tooltip tooltip-below">
       <input type="password" class="password" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} />
 
       <input id="show-password" type="checkbox" class="show-password" aria-controls="password" />
@@ -24,7 +24,7 @@
     </div>
 
     <div class="button-row">
-      <button type="submit" disabled>{{#t}}Delete Account{{/t}}</button>
+      <button type="submit" class="disabled">{{#t}}Delete Account{{/t}}</button>
     </div>
   </form>
 

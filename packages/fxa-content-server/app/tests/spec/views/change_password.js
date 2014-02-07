@@ -37,7 +37,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function(done) {
+      it('redirects to signin', function (done) {
         router.on('navigate', function (newPage) {
           assert.equal(newPage, 'signin');
           done();
@@ -54,7 +54,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
 
         var client = new FxaClient();
         client.signUp(email, 'password')
-          .then(function() {
+          .then(function () {
             view.render();
 
             $('body').append(view.el);
@@ -92,7 +92,33 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
         });
       });
 
-      describe('changePassword', function () {
+      describe('showValidationErrors', function() {
+        it('shows an error if the password is invalid', function (done) {
+          view.$('#old_password').val('passwor');
+          view.$('#new_password').val('password');
+
+          view.on('validation_error', function(which, msg) {
+            assert.ok(msg);
+            done();
+          });
+
+          view.showValidationErrors();
+        });
+
+        it('shows an error if the new_password is invalid', function (done) {
+          view.$('#old_password').val('password');
+          view.$('#new_password').val('passwor');
+
+          view.on('validation_error', function(which, msg) {
+            assert.ok(msg);
+            done();
+          });
+
+          view.showValidationErrors();
+        });
+      });
+
+      describe('submit', function () {
         it('prints an error message if both passwords are the same', function (done) {
           $('#old_password').val('password');
           $('#new_password').val('password');
@@ -102,7 +128,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
             done();
           });
 
-          view.changePassword();
+          view.submit();
         });
 
         it('changes from old to new password, redirects user to signin', function (done) {
@@ -110,7 +136,7 @@ function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
           $('#new_password').val('new_password');
 
           view.on('success', done);
-          view.changePassword();
+          view.submit();
         });
       });
     });

@@ -135,18 +135,6 @@ function (_, Backbone, jQuery, Session, authErrors) {
       this.subviews = [];
     },
 
-    enableButtonWhenValid: function () {
-      var enabled = this.isValid && this.isValid();
-
-      this.$('button[type="submit"]').attr('disabled', !enabled);
-    },
-
-    isElementValid: function (selector) {
-      var el = this.$(selector);
-      var value = el.val();
-      return value && el[0].validity.valid;
-    },
-
     /**
      * Display a success message
      * @method displaySuccess

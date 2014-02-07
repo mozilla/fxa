@@ -46,6 +46,52 @@ function (mocha, chai, View, WindowMock) {
         assert.equal($('.password').attr('type'), 'password');
       });
     });
+
+    describe('isValid', function () {
+      it('returns true if both email and password are valid', function () {
+        view.$('[type=email]').val('testuser@testuser.com');
+        view.$('[type=password]').val('password');
+        assert.isTrue(view.isValid());
+      });
+
+      it('returns false if email is invalid', function () {
+        view.$('[type=email]').val('testuser');
+        view.$('[type=password]').val('password');
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns false if password is invalid', function () {
+        view.$('[type=email]').val('testuser@testuser.com');
+        view.$('[type=password]').val('passwor');
+        assert.isFalse(view.isValid());
+      });
+    });
+
+    describe('showValidationErrors', function() {
+      it('shows an error if the email is invalid', function (done) {
+        view.$('[type=email]').val('testuser');
+        view.$('[type=password]').val('password');
+
+        view.on('validation_error', function(which, msg) {
+          assert.ok(msg);
+          done();
+        });
+
+        view.showValidationErrors();
+      });
+
+      it('shows an error if the password is invalid', function (done) {
+        view.$('[type=email]').val('testuser@testuser.com');
+        view.$('[type=password]').val('passwor');
+
+        view.on('validation_error', function(which, msg) {
+          assert.ok(msg);
+          done();
+        });
+
+        view.showValidationErrors();
+      });
+    });
   });
 
   describe('views/sign_in used for /force_auth without email', function () {

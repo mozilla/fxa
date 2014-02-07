@@ -7,23 +7,21 @@
 define([
   'underscore',
   'views/base',
+  'views/form',
   'stache!templates/complete_reset_password',
   'lib/fxa-client',
   'lib/session',
   'lib/url',
   'lib/password-mixin'
 ],
-function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
+function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixin) {
   var t = BaseView.t;
 
-  var View = BaseView.extend({
+  var View = FormView.extend({
     template: Template,
     className: 'complete_reset_password',
 
     events: {
-      'submit form': 'submit',
-      'keyup input': 'enableButtonWhenValid',
-      'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
@@ -50,16 +48,20 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
       }
     },
 
-    submit: function (event) {
-      event.preventDefault();
+    isValidEnd: function () {
+      return !! (this.token &&
+                 this.code &&
+                 this.email &&
+                 this._getPassword() === this._getVPassword());
+    },
 
-      if (! (this.token &&
-             this.code &&
-             this.email &&
-             this._validatePasswords())) {
-        return;
+    showValidationErrorsEnd: function () {
+      if (this._getPassword() !== this._getVPassword()) {
+        this.displayError(t('passwords do not match'));
       }
+    },
 
+    submit: function () {
       var password = this._getPassword();
 
       var client = new FxaClient();
@@ -80,24 +82,6 @@ function (_, BaseView, Template, FxaClient, Session, Url, PasswordMixin) {
 
     _onResetCompleteFailure: function (err) {
       this.displayError(err.errno || err.message);
-    },
-
-    isValid: function () {
-      return this.isElementValid('#password') &&
-             this.isElementValid('#vpassword');
-    },
-
-    _validatePasswords: function () {
-      if (! this.isValid()) {
-        return false;
-      }
-
-      if (this._getPassword() !== this._getVPassword()) {
-        this.displayError(t('passwords do not match'));
-        return false;
-      }
-
-      return true;
     },
 
     _getPassword: function () {

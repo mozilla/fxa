@@ -6,15 +6,15 @@
 
 define([
   'underscore',
-  'views/base',
+  'views/form',
   'stache!templates/delete_account',
   'lib/session',
   'lib/fxa-client',
   'lib/password-mixin',
   'lib/url'
 ],
-function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
-  var View = BaseView.extend({
+function (_, FormView, Template, Session, FxaClient, PasswordMixin, Url) {
+  var View = FormView.extend({
     // user must be authenticated to delete their account
     mustAuth: true,
 
@@ -24,9 +24,6 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
     events: {
       'click #back': 'back',
       'keyup #back': 'backOnEnter',
-      'submit form': 'deleteAccount',
-      'keyup input': 'enableButtonWhenValid',
-      'change input': 'enableButtonWhenValid',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
@@ -36,15 +33,7 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
       };
     },
 
-    deleteAccount: function (event) {
-      if (event) {
-        event.preventDefault();
-      }
-
-      if (! (this.isValid())) {
-        return;
-      }
-
+    submit: function () {
       var email = this.$('.email').val();
       var password = this.$('.password').val();
 
@@ -57,18 +46,6 @@ function (_, BaseView, Template, Session, FxaClient, PasswordMixin, Url) {
             .done(null, function (err) {
               self.displayError(err.errno || err.message);
             });
-    },
-
-    isValid: function () {
-      return this._validateEmail() && this._validatePassword();
-    },
-
-    _validateEmail: function () {
-      return this.isElementValid('.email');
-    },
-
-    _validatePassword: function () {
-      return this.isElementValid('.password');
     }
   });
 
