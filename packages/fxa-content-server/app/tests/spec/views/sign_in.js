@@ -69,7 +69,7 @@ function (mocha, chai, View, WindowMock) {
     it('prints an error message', function() {
       windowMock.location.search = '';
 
-      assert.notEqual($('.error').text(), '');
+      assert.notEqual(view.$('.error').text(), '');
     });
   });
 
@@ -93,7 +93,7 @@ function (mocha, chai, View, WindowMock) {
 
 
     it('does not print an error message', function () {
-      assert.equal($('.error').text(), '');
+      assert.equal(view.$('.error').text(), '');
     });
 
     it('does not allow the email to be edited', function () {

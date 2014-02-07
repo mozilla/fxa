@@ -66,6 +66,17 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
     });
 
     describe('signIn', function () {
+      it('signin with unknown user should call errorback', function (done) {
+        client.signIn('unknown@unknown.com', 'password')
+          .then(function (info) {
+            assert.isTrue(false, 'unknown user cannot sign in');
+            done();
+          }, function (err) {
+            assert.isTrue(true);
+            done();
+          });
+      });
+
       it('signs a user in with email/password', function (done) {
         client.signUp(email, password)
           .then(function () {

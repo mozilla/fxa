@@ -4,5 +4,6 @@
 
 define(['mocha'], function(Mocha) {
   Mocha.setup('bdd');
+  Mocha.timeout(5000);
 });
 
