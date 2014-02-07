@@ -13,25 +13,12 @@ define([
   'lib/translator',
   'stache!templates/test_template',
   '../../mocks/dom-event',
-  '../../mocks/router'
+  '../../mocks/router',
+  '../../lib/helpers'
 ],
-function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock, RouterMock) {
-  function requiresFocus(callback, done) {
-    if (document.hasFocus && document.hasFocus()) {
-      callback();
-    } else {
-      var message =
-          'Cannot check for focus - document does not have focus.\n' +
-          'If this is in PhantomJS, Travis-CI, Sauce Labs, or Opera, this is expected.\n' +
-          'Otherwise, try focusing the test document instead of \n' +
-          'another window or dev tools.';
-
-      console.warn(message);
-      if (done) {
-        done();
-      }
-    }
-  }
+function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock,
+          RouterMock, TestHelpers) {
+  var requiresFocus = TestHelpers.requiresFocus;
 
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;

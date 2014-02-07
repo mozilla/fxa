@@ -10,9 +10,10 @@ define([
   'chai',
   'jquery',
   'views/form',
-  'stache!templates/test_template'
+  'stache!templates/test_template',
+  '../../lib/helpers'
 ],
-function (mocha, chai, $, FormView, Template) {
+function (mocha, chai, $, FormView, Template, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -94,10 +95,12 @@ function (mocha, chai, $, FormView, Template) {
       });
 
       it('focuses the invalid element', function (done) {
-        view.$('#focusMe').on('focus', function () {
-          done();
-        });
-        view.showValidationError('#focusMe', 'this is an error');
+        TestHelpers.requiresFocus(function () {
+          view.$('#focusMe').on('focus', function () {
+            done();
+          });
+          view.showValidationError('#focusMe', 'this is an error');
+        }, done);
       });
 
       it('adds invalid class to the invalid element', function () {
