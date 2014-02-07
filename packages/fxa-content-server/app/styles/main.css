@@ -360,8 +360,8 @@ strong.email {
 .input-row input[type='text'].invalid,
 .input-row input[type='email'].invalid,
 .input-row input[type='password'].invalid,
-.input-row input[type='text'].invalid + .show-password-label,
-.input-row input[type='password'].invalid + .show-password-label,
+.input-row input[type='text'].invalid ~ .show-password-label,
+.input-row input[type='password'].invalid ~ .show-password-label,
 .input-row select.invalid {
   border-color: #D63920;
 }
