@@ -7,6 +7,7 @@
 define([
   'jquery',
   'backbone',
+  'lib/session',
   'views/sign_in',
   'views/sign_up',
   'views/confirm',
@@ -26,6 +27,7 @@ define([
 function (
   $,
   Backbone,
+  Session,
   SignInView,
   SignUpView,
   ConfirmView,
@@ -99,6 +101,12 @@ function (
     showView: function (view) {
       if (this.currentView) {
         this.currentView.destroy();
+        Session.set('canGoBack', true);
+      } else {
+        // user can only go back if there is a screen to go back to.
+        // this is used for the TOS/PP pages where there is no
+        // back button if the user browses there directly.
+        Session.set('canGoBack', false);
       }
 
       this.currentView = view;

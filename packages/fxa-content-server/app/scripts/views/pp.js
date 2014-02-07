@@ -6,12 +6,19 @@
 
 define([
   'views/base',
-  'stache!templates/pp'
+  'stache!templates/pp',
+  'lib/session'
 ],
-function (BaseView, PpTemplate) {
-  var PpView = BaseView.extend({
-    template: PpTemplate,
+function (BaseView, Template, Session) {
+  var View = BaseView.extend({
+    template: Template,
     className: 'pp',
+
+    context: function () {
+      return {
+        canGoBack: Session.canGoBack
+      };
+    },
 
     events: {
       'click #fxa-pp-back': 'back',
@@ -19,6 +26,6 @@ function (BaseView, PpTemplate) {
     }
   });
 
-  return PpView;
+  return View;
 });
 
