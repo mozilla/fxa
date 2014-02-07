@@ -25,5 +25,9 @@ module.exports = function (log, inherits, Token) {
     return Token.createTokenFromHexData(SessionToken, string, details || {})
   }
 
+  SessionToken.prototype.lastAuthAt = function () {
+    return Math.floor(this.createdAt / 1000)
+  }
+
   return SessionToken
 }

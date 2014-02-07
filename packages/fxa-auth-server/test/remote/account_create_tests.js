@@ -23,6 +23,7 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
+            t.ok(client.authAt, 'authAt was set')
           }
         )
         .then(

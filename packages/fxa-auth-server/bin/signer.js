@@ -37,6 +37,7 @@ process.on('message', function (message) {
       {
         // include additional keys in the cert payload
         'fxa-generation': message.generation,
+        'fxa-lastAuthAt': message.lastAuthAt
       },
       _privKey,
       function (err, cert) {

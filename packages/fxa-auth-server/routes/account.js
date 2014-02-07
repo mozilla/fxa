@@ -151,7 +151,8 @@ module.exports = function (
                   sessionToken: response.sessionToken.data.toString('hex'),
                   keyFetchToken: response.keyFetchToken ?
                     response.keyFetchToken.data.toString('hex')
-                    : undefined
+                    : undefined,
+                  authAt: response.sessionToken.lastAuthAt()
                 }
               )
             },
@@ -177,7 +178,8 @@ module.exports = function (
             uid: isA.string().regex(HEX_STRING).required(),
             sessionToken: isA.string().regex(HEX_STRING).required(),
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-            verified: isA.boolean().required()
+            verified: isA.boolean().required(),
+            authAt: isA.number().integer()
           }
         }
       },
@@ -262,7 +264,8 @@ module.exports = function (
                   keyFetchToken: tokens.keyFetchToken ?
                     tokens.keyFetchToken.data.toString('hex')
                     : undefined,
-                  verified: tokens.sessionToken.emailVerified
+                  verified: tokens.sessionToken.emailVerified,
+                  authAt: tokens.sessionToken.lastAuthAt()
                 }
               )
             },

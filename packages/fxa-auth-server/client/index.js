@@ -11,6 +11,7 @@ var tokens = require('../tokens')({ trace: function () {}})
 
 function Client(origin) {
   this.uid = null
+  this.authAt = 0
   this.api = new ClientApi(origin)
   this.email = null
   this.emailVerified = false
@@ -116,6 +117,7 @@ Client.prototype.create = function () {
   .then(
     function (a) {
       this.uid = a.uid
+      this.authAt = a.authAt
       return this
     }.bind(this)
   )
@@ -145,6 +147,7 @@ Client.prototype.auth = function () {
         this.sessionToken = data.sessionToken
         this.keyFetchToken = data.keyFetchToken
         this.emailVerified = data.verified
+        this.authAt = data.authAt
         return this
       }.bind(this)
     )
