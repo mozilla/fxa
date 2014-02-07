@@ -25,7 +25,6 @@ env:
 before_script:
   - "mysql -e 'DROP DATABASE IF EXISTS test;'"
   - "mysql -e 'CREATE DATABASE test;'"
-  - ./scripts/gen_keys.js
 
 before_install:
   - sudo apt-get install libgmp3-dev

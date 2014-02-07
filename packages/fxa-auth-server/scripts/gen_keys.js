@@ -31,11 +31,10 @@ const secretKeyFile = config.get('secretKeyFile')
 require("jwcrypto/lib/algs/rs")
 
 try {
-  assert(! fs.existsSync(pubKeyFile), "public key file: [" + pubKeyFile + "] already exists")
-  assert(! fs.existsSync(secretKeyFile), "secret key file: [" + secretKeyFile + "] already exists")
+  var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile)
+  assert(!keysExist, "keys already exists")
 } catch(e) {
-  console.error("Error: " + e.message)
-  process.exit(1)
+  process.exit()
 }
 
 console.log("Generating keypair. (install libgmp if this takes more than a second)")

@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "./scripts/tap-coverage.js test/local test/remote",
+    "test": "./scripts/gen_keys.js && ./scripts/tap-coverage.js test/local test/remote",
     "start": "scripts/start-local.sh",
     "test-mysql": "DB_BACKEND=mysql npm test",
     "test-all": "npm run test-quick && npm run test-mysql && grunt",
