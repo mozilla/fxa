@@ -42,124 +42,124 @@ module.exports = function (
         }
       },
       handler: function accountCreate(request, reply) {
-          log.begin('Account.create', request)
-          var form = request.payload
-          var email = form.email
-          var authSalt = crypto.randomBytes(32)
-          var authPW = Buffer(form.authPW, 'hex')
+        log.begin('Account.create', request)
+        var form = request.payload
+        var email = form.email
+        var authSalt = crypto.randomBytes(32)
+        var authPW = Buffer(form.authPW, 'hex')
 
-          db.accountExists(email)
-            .then(
-              function (exists) {
-                if (exists) {
-                  throw error.accountExists(email)
-                }
-                var password = new Password(authPW, authSalt, verifierVersion)
-                return password.verifyHash()
-                .then(
-                  function (verifyHash) {
-                    return db.createAccount(
-                      {
-                        uid: uuid.v4('binary'),
-                        email: email,
-                        emailCode: crypto.randomBytes(16),
-                        emailVerified: form.preVerified || false,
-                        kA: crypto.randomBytes(32),
-                        wrapWrapKb: crypto.randomBytes(32),
-                        devices: {},
-                        accountResetToken: null,
-                        passwordForgotToken: null,
-                        authSalt: authSalt,
-                        verifierVersion: password.version,
-                        verifyHash: verifyHash
-                      }
-                    )
-                    .then(
-                      function (account) {
-                        return db.createSessionToken(
-                          {
-                            uid: account.uid,
-                            email: account.email,
-                            emailCode: account.emailCode,
-                            emailVerified: account.emailVerified,
-                            verifierSetAt: account.verifierSetAt
-                          }
-                        )
-                        .then(
-                          function (sessionToken) {
-                            log.security({ event: 'session-create' })
-                            if (request.query.keys !== 'true') {
-                              return P({
-                                account: account,
-                                sessionToken: sessionToken
-                              })
-                            }
-                            return password.unwrap(account.wrapWrapKb)
-                              .then(
-                                function (wrapKb) {
-                                  return db.createKeyFetchToken(
-                                    {
-                                      uid: account.uid,
-                                      kA: account.kA,
-                                      wrapKb: wrapKb,
-                                      emailVerified: account.emailVerified
-                                    }
-                                  )
-                                }
-                              )
-                              .then(
-                                function (keyFetchToken) {
-                                  return {
-                                    account: account,
-                                    sessionToken: sessionToken,
-                                    keyFetchToken: keyFetchToken
-                                  }
-                                }
-                              )
-                          }
-                        )
-                      }
-                    )
-                  }
-                )
+        db.accountExists(email)
+          .then(
+            function (exists) {
+              if (exists) {
+                throw error.accountExists(email)
               }
-            )
-            .then(
-              function (response) {
-                if (!response.account.emailVerified) {
-                  mailer.sendVerifyCode(response.account, response.account.emailCode, {
-                    service: form.service,
-                    redirectTo: form.redirectTo,
-                    preferredLang: request.app.preferredLang
-                  })
-                  .fail(
-                    function (err) {
-                      log.error({ op: 'mailer.sendVerifyCode.1', err: err })
+              var password = new Password(authPW, authSalt, verifierVersion)
+              return password.verifyHash()
+              .then(
+                function (verifyHash) {
+                  return db.createAccount(
+                    {
+                      uid: uuid.v4('binary'),
+                      email: email,
+                      emailCode: crypto.randomBytes(16),
+                      emailVerified: form.preVerified || false,
+                      kA: crypto.randomBytes(32),
+                      wrapWrapKb: crypto.randomBytes(32),
+                      devices: {},
+                      accountResetToken: null,
+                      passwordForgotToken: null,
+                      authSalt: authSalt,
+                      verifierVersion: password.version,
+                      verifyHash: verifyHash
+                    }
+                  )
+                  .then(
+                    function (account) {
+                      return db.createSessionToken(
+                        {
+                          uid: account.uid,
+                          email: account.email,
+                          emailCode: account.emailCode,
+                          emailVerified: account.emailVerified,
+                          verifierSetAt: account.verifierSetAt
+                        }
+                      )
+                      .then(
+                        function (sessionToken) {
+                          log.security({ event: 'session-create' })
+                          if (request.query.keys !== 'true') {
+                            return P({
+                              account: account,
+                              sessionToken: sessionToken
+                            })
+                          }
+                          return password.unwrap(account.wrapWrapKb)
+                            .then(
+                              function (wrapKb) {
+                                return db.createKeyFetchToken(
+                                  {
+                                    uid: account.uid,
+                                    kA: account.kA,
+                                    wrapKb: wrapKb,
+                                    emailVerified: account.emailVerified
+                                  }
+                                )
+                              }
+                            )
+                            .then(
+                              function (keyFetchToken) {
+                                return {
+                                  account: account,
+                                  sessionToken: sessionToken,
+                                  keyFetchToken: keyFetchToken
+                                }
+                              }
+                            )
+                        }
+                      )
                     }
                   )
                 }
-                return response
-              }
-            )
-            .done(
-              function (response) {
-                var account = response.account
-                log.security({ event: 'account-create-success', uid: account.uid })
-                reply(
-                  {
-                    uid: account.uid.toString('hex'),
-                    sessionToken: response.sessionToken.data.toString('hex'),
-                    keyFetchToken: response.keyFetchToken ?
-                      response.keyFetchToken.data.toString('hex')
-                      : undefined
+              )
+            }
+          )
+          .then(
+            function (response) {
+              if (!response.account.emailVerified) {
+                mailer.sendVerifyCode(response.account, response.account.emailCode, {
+                  service: form.service,
+                  redirectTo: form.redirectTo,
+                  preferredLang: request.app.preferredLang
+                })
+                .fail(
+                  function (err) {
+                    log.error({ op: 'mailer.sendVerifyCode.1', err: err })
                   }
                 )
-              },
-              function (err) {
-                log.security({ event: 'account-create-failure', err: err })
-                reply(err)
               }
-            )
+              return response
+            }
+          )
+          .done(
+            function (response) {
+              var account = response.account
+              log.security({ event: 'account-create-success', uid: account.uid })
+              reply(
+                {
+                  uid: account.uid.toString('hex'),
+                  sessionToken: response.sessionToken.data.toString('hex'),
+                  keyFetchToken: response.keyFetchToken ?
+                    response.keyFetchToken.data.toString('hex')
+                    : undefined
+                }
+              )
+            },
+            function (err) {
+              log.security({ event: 'account-create-failure', err: err })
+              reply(err)
+            }
+          )
       }
     },
     {

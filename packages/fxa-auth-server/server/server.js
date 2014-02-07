@@ -138,7 +138,7 @@ module.exports = function (path, url, Hapi, toobusy) {
         if (toobusy()) {
           exit = error.serviceUnavailable()
         }
-        log.trace({ op: 'server.onRequest', rid: request.id, path: request.path })
+        log.begin('server.onRequest', request)
         next(exit)
       }
     )
@@ -268,7 +268,8 @@ module.exports = function (path, url, Hapi, toobusy) {
           )
         }
         next(response)
-    })
+      }
+    )
 
     // Log a trace at the end of the response.
     server.on(
