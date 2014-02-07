@@ -16,12 +16,6 @@ function (BaseView, PpTemplate) {
     events: {
       'click #fxa-pp-back': 'back',
       'keyup #fxa-pp-back': 'backOnEnter'
-    },
-
-    afterRender: function () {
-      // The user may be scrolled part way down the page
-      // on screen transition. Force them to the top of the page.
-      window.scrollTo(0, 0);
     }
   });
 

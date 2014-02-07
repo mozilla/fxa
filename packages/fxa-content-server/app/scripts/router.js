@@ -115,6 +115,10 @@ function (
         // not display the element.
         this.$stage.css('display', 'block');
         this.currentView.afterVisible();
+
+        // The user may be scrolled part way down the page
+        // on screen transition. Force them to the top of the page.
+        this.window.scrollTo(0, 0);
       }
     },
 
