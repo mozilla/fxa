@@ -122,7 +122,7 @@ header h1 span {
 header h2 {
   font-size: 24px;
   font-weight: 200;
-  margin: 20px 0 30px 0;
+  margin: 20px 0 32px 0;
 }
 
 #legal-header h2 {
@@ -203,42 +203,45 @@ strong.email {
 .tooltip[title]::before {
   background: #D63920;
   content: '.';
-  height: 15px;
+  height: 16px;
   left: 12px;
   position: absolute;
   text-indent: -999px;
-  top: -16px;
+  top: -12px;
   -webkit-transform: rotate(45deg);
           transform: rotate(45deg);
   white-space: nowrap;
-  width: 15px;
+  width: 16px;
   z-index: 4;
 }
 
 .tooltip-below[title]:before,
 .tooltip-below[title]::before {
-  top: 102%;
+  top: -webkit-calc(100% - 4px);
+  top:    -moz-calc(100% - 4px);
+  top:         calc(100% - 4px);
 }
 
 /* tooltip */
 .tooltip[title]:after,
 .tooltip[title]::after {
   background: #D63920;
+  border-radius: 1px;
   content: attr(title);
   color: #fff;
   left: 3px;
-  padding: 7px 12px;
+  padding: 5px 12px;
   position: absolute;
-  top: -42px;
+  top: -32px;
   white-space: nowrap;
   z-index: 5;
 }
 
 .tooltip-below[title]:after,
 .tooltip-below[title]::after {
-  top: -webkit-calc(102% + 8px);
-  top:    -moz-calc(102% + 8px);
-  top:         calc(102% + 8px);
+  top: -webkit-calc(102% + 2px);
+  top:    -moz-calc(102% + 2px);
+  top:         calc(102% + 2px);
 }
 
 
