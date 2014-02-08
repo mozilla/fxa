@@ -50,7 +50,7 @@ define([
 
         return hawkCredentials(sessionToken, 'sessionToken', 2 * 32)
           .then(function (creds) {
-            return respond(request.send('/recovery_email/status', 'GET', creds, null, true), RequestMocks.invalidTimestamp);
+            return respond(request.send('/recovery_email/status', 'GET', creds, null, {retrying: true}), RequestMocks.invalidTimestamp);
           })
           .then(
             function () {
@@ -67,7 +67,7 @@ define([
 
         return hawkCredentials(sessionToken, 'sessionToken', 2 * 32)
           .then(function (creds) {
-            return respond(request.send('/recovery_email/status', 'GET', creds, null, false), RequestMocks.recoveryEmailUnverified);
+            return respond(request.send('/recovery_email/status', 'GET', creds, null, {retrying: false}), RequestMocks.recoveryEmailUnverified);
           })
           .then(
             function (res) {
