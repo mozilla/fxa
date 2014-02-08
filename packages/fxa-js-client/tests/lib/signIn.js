@@ -3,49 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'tests/intern',
   'intern!tdd',
   'intern/chai!assert',
-  'client/FxAccountClient',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest',
-  'tests/addons/sinonResponder',
-  'tests/mocks/request',
-  'tests/addons/restmail',
-  'tests/addons/accountHelper',
-  'client/lib/errors'
-], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Restmail, AccountHelper, ERRORS) {
+  'tests/addons/environment'
+], function (tdd, assert, Environment) {
 
   with (tdd) {
     suite('signIn', function () {
-      var authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000/v1';
-      var useRemoteServer = !!config.AUTH_SERVER_URL;
-      var mailServerUrl = authServerUrl.match(/^http:\/\/127/) ?
-        'http://127.0.0.1:9001' :
-        'http://restmail.net';
-      var client;
-      var mail;
-      var respond;
       var accountHelper;
-
-      function noop(val) { return val; }
+      var respond;
+      var client;
+      var RequestMocks;
+      var ErrorMocks;
 
       beforeEach(function () {
-        var xhr;
-
-        if (useRemoteServer) {
-          xhr = XHR.XMLHttpRequest;
-          respond = noop;
-        } else {
-          var requests = [];
-          xhr = SinonResponder.useFakeXMLHttpRequest();
-          xhr.onCreate = function (xhr) {
-            requests.push(xhr);
-          };
-          respond = SinonResponder.makeMockResponder(requests);
-        }
-        client = new FxAccountClient(authServerUrl, { xhr: xhr });
-        mail = new Restmail(mailServerUrl, xhr);
-        accountHelper = new AccountHelper(client, mail, respond);
+        var env = new Environment();
+        accountHelper = env.accountHelper;
+        respond = env.respond;
+        client = env.client;
+        RequestMocks = env.RequestMocks;
+        ErrorMocks = env.ErrorMocks;
       });
 
       test('#basic', function () {
@@ -57,9 +34,14 @@ define([
 
             return respond(client.signIn(email, password), RequestMocks.signIn);
           })
-          .then(function (res) {
-            assert.ok(res.sessionToken);
-          });
+          .then(
+            function (res) {
+              assert.ok(res.sessionToken);
+            },
+            function () {
+              assert.fail();
+            }
+          );
       });
 
       test('#with keys', function () {
@@ -70,12 +52,16 @@ define([
           .then(function (res) {
             return respond(client.signIn(email, password, {keys: true}), RequestMocks.signInWithKeys);
           })
-          .then(function (res) {
-            assert.ok(res.sessionToken);
-            assert.ok(res.keyFetchToken);
-            assert.ok(res.unwrapBKey);
-            return true;
-          });
+          .then(
+            function (res) {
+              assert.ok(res.sessionToken);
+              assert.ok(res.keyFetchToken);
+              assert.ok(res.unwrapBKey);
+            },
+            function () {
+              assert.fail();
+            }
+          );
       });
 
       test('#incorrect email case', function () {
@@ -89,44 +75,27 @@ define([
           .then(
           function (res) {
             assert.property(res, 'sessionToken');
-            return true;
           },
-          function (res) {
-            assert.notEqual(res.code, 400);
-            assert.notEqual(res.errno, ERRORS.INCORRECT_EMAIL_CASE);
+          function () {
+            assert.fail();
           }
         );
       });
 
-      test('#bad signIn', function () {
+      test('#incorrectPassword', function () {
 
           return accountHelper.newVerifiedAccount()
               .then(function (account) {
-                  return respond(client.signIn(account.input.email, 'wrong password'), RequestMocks.signInFailurePassword);
+                  return respond(client.signIn(account.input.email, 'wrong password'), ErrorMocks.accountIncorrectPassword);
               })
               .then(
-              function (res) {
-                  assert.notProperty(res, 'sessionToken');
+              function () {
+                assert.fail();
               },
               function (res) {
-                  assert.equal(res.code, 400);
-                  assert.equal(res.errno, 103);
+                assert.equal(res.code, 400);
+                assert.equal(res.errno, 103);
               }
-          );
-      });
-
-      test('#unknown user', function () {
-
-        var password = "iliketurtles";
-        return respond(client.signIn("unknown@unknown.com", password), RequestMocks.signInUnknownUser)
-            .then(
-            function (res) {
-              assert.fail();
-            },
-            function (res) {
-              assert.equal(res.code, 400);
-              assert.equal(res.errno, ERRORS.UNKNOWN_USER);
-            }
           );
       });
     });

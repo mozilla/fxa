@@ -24,6 +24,9 @@ define([
               assert.equal(quickStretchedPW, 'e4e8889bd8bd61ad6de6b95c059d56e7b50dacdaf62bd84644af7e2add84345d', '== quickStretchedPW is equal');
               assert.equal(authPW, '247b675ffb4c46310bc87e26d712153abe5e1c90ef00a4784594f97ef54f2375', '== authPW is equal');
               assert.equal(unwrapBKey, 'de6a2648b78284fcb9ffa81ba95803309cfba7af583c01a8a1a63e567234dd28', '== unwrapBkey is equal');
+            },
+            function() {
+              assert.fail();
             }
           );
       });

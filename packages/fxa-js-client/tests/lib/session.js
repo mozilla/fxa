@@ -9,46 +9,32 @@ define([
 ], function (tdd, assert, Environment) {
 
   with (tdd) {
-    suite('recoveryEmail', function () {
+    suite('session', function () {
       var accountHelper;
       var respond;
-      var mail;
       var client;
       var RequestMocks;
-      var ErrorMocks;
 
       beforeEach(function () {
         var env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
-        mail = env.mail;
         client = env.client;
         RequestMocks = env.RequestMocks;
-        ErrorMocks = env.ErrorMocks;
       });
 
-      test('#recoveryEmailResendCode', function () {
-        var user;
+      test('#destroy', function () {
 
-        return accountHelper.newUnverifiedAccount()
+        return accountHelper.newVerifiedAccount()
           .then(function (account) {
-            user = account.input.user;
 
-            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken), RequestMocks.recoveryEmailResendCode)
+            return respond(client.sessionDestroy(account.signIn.sessionToken), RequestMocks.sessionDestroy)
           })
           .then(
-          function(res) {
-            assert.ok(res);
-
-            return respond(mail.wait(user, 2), RequestMocks.resetMail);
-          })
-          .then(
-            function (emails) {
-              // second email, the code is resent.
-              var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
-              assert.ok(code, "code is returned");
+            function(res) {
+              assert.ok(res, 'got response');
             },
-            function() {
+            function(error) {
               assert.fail();
             }
           );
