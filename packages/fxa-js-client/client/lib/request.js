@@ -43,7 +43,12 @@ define(['./hawk', '../../components/p/p', './errors'], function (hawk, p, ERRORS
       payload = JSON.stringify(jsonPayload);
     }
 
-    xhr.open(method, uri);
+    try {
+      xhr.open(method, uri);
+    } catch (e) {
+      deferred.reject({ error: 'Unknown error', message: e.toString(), errno: 999 });
+    }
+
     xhr.onerror = function onerror() {
       deferred.reject(xhr.responseText);
     };
