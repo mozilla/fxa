@@ -58,21 +58,6 @@ function (
   WebChannel,
   FxDesktopChannel
 ) {
-  window.router = new Router();
-
-  // IE8 does not support window.navigator.language. Set a default of English.
-  window.translator = new Translator(window.navigator.language || 'en');
-
-  // Don't start backbone until we have our translations
-  translator.fetch(function () {
-    // Get the party started
-    Backbone.history.start({ pushState: true });
-
-    // The channel must be initialized after Backbone.history so that the
-    // Backbone does not override the page the channel sets.
-    Session.set('channel', getChannel());
-  });
-
   function getChannel() {
     var context = Url.searchParam('context');
     var channel;
@@ -88,6 +73,37 @@ function (
     channel.init();
     return channel;
   }
+
+  function setSessionValueFromUrl(name) {
+    var value = Url.searchParam(name);
+    if (value) {
+      Session.set(name, value);
+    } else {
+      Session.clear(name);
+    }
+  }
+
+  function initSessionFromUrl() {
+    setSessionValueFromUrl('service');
+    setSessionValueFromUrl('redirectTo');
+  }
+
+  window.router = new Router();
+
+  // IE8 does not support window.navigator.language. Set a default of English.
+  window.translator = new Translator(window.navigator.language || 'en');
+
+  initSessionFromUrl();
+
+  // Don't start backbone until we have our translations
+  translator.fetch(function () {
+    // Get the party started
+    Backbone.history.start({ pushState: true });
+
+    // The channel must be initialized after Backbone.history so that the
+    // Backbone does not override the page the channel sets.
+    Session.set('channel', getChannel());
+  });
 });
 
 

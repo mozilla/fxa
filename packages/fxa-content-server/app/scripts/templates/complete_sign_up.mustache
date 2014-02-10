@@ -14,7 +14,7 @@
     {{#redirectTo}}
       <p>{{#t}}You are now ready to use %(service)s{{/t}}</p>
 
-      <a href="{{ redirectTo }}" autofocus>{{#t}}Continue{{/t}}</a>
+      <a id="redirectTo" href="{{ redirectTo }}" autofocus>{{#t}}Continue{{/t}}</a>
     {{/redirectTo}}
     {{^redirectTo}}
       <p>{{#t}}Your account is ready!{{/t}}</p>

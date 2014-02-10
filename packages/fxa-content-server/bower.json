@@ -15,7 +15,8 @@
     "requirejs-text": "~2.0.10",
     "mocha": "~1.16.2",
     "chai": "~1.8.1",
-    "p": "https://github.com/rkatic/p.git"
+    "p": "https://github.com/rkatic/p.git",
+    "sinon": "http://sinonjs.org/releases/sinon-1.7.1.js"
   },
   "devDependencies": {}
 }

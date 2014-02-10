@@ -21,8 +21,6 @@ function (_, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
     initialize: function (options) {
       options = options || {};
 
-      this.window = options.window || window;
-
       // reset any force auth status.
       Session.set('forceAuth', false);
 
@@ -50,7 +48,7 @@ function (_, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
         email: Session.email,
         forceAuth: Session.forceAuth,
         error: error,
-        isSync: Url.searchParam('service') === 'sync'
+        isSync: Session.service === 'sync'
       };
     },
 

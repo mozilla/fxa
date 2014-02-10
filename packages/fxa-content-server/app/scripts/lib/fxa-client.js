@@ -69,18 +69,38 @@ function (FxaClient, $, p, Session) {
 
     signUp: function (email, password, customizeSync) {
       var self = this;
+      var service = Session.service;
+      var redirectTo = Session.redirectTo;
       return this._getClientAsync()
               .then(function (client) {
-                return client.signUp(email, password, { keys: true });
+                return client.signUp(email, password, {
+                  keys: true,
+                  service: service,
+                  redirectTo: redirectTo
+                });
               })
               .then(function () {
                 return self.signIn(email, password, customizeSync);
+              })
+              .then(function () {
+                // signIn clears the Session. Restore service and redirectTo
+                // in case the user clicks on the "resend" link and a new
+                // email must be sent.
+                Session.set({
+                  service: service,
+                  redirectTo: redirectTo
+                });
               });
     },
 
     signUpResend: function () {
       return this._getClientAsync().then(function (client) {
-                return client.recoveryEmailResendCode(Session.sessionToken);
+                return client.recoveryEmailResendCode(
+                  Session.sessionToken,
+                  {
+                    service: Session.service,
+                    redirectTo: Session.redirectTo
+                  });
               });
     },
 
@@ -103,12 +123,24 @@ function (FxaClient, $, p, Session) {
     },
 
     passwordReset: function (email) {
+      var service = Session.service;
+      var redirectTo = Session.redirectTo;
+
       return this._getClientAsync()
               .then(function (client) {
-                return client.passwordForgotSendCode(email);
+                return client.passwordForgotSendCode(email, {
+                  service: service,
+                  redirectTo: redirectTo
+                });
               })
               .then(function (result) {
                 Session.clear();
+
+                // The user may resend the password reset email, in which case
+                // we have to keep around some state so the email can be
+                // resent.
+                Session.set('service', service);
+                Session.set('redirectTo', redirectTo);
                 Session.set('email', email);
                 Session.set('passwordForgotToken', result.passwordForgotToken);
               });
@@ -116,8 +148,17 @@ function (FxaClient, $, p, Session) {
 
     passwordResetResend: function () {
       return this._getClientAsync().then(function (client) {
+                // the linters complain if this is defined in the call to
+                // passwordForgotResendCode
+                var options = {
+                  service: Session.service,
+                  redirectTo: Session.redirectTo
+                };
                 return client.passwordForgotResendCode(
-                            Session.email, Session.passwordForgotToken);
+                            Session.email,
+                            Session.passwordForgotToken,
+                            options
+                );
               });
     },
 
