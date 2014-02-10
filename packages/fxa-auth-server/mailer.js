@@ -121,7 +121,8 @@ module.exports = function (config, i18n, log) {
         'X-Uid': account.uid.toString('hex'),
         'X-Verify-Code': code,
         'X-Service-ID': opts.service,
-        'X-Link': link
+        'X-Link': link,
+        'Content-Language': opts.preferredLang || i18n.defaultLang
       }
     }
     return this.send(message)
@@ -162,7 +163,8 @@ module.exports = function (config, i18n, log) {
       html: template.html(values),
       headers: {
         'X-Recovery-Code': code,
-        'X-Link': link
+        'X-Link': link,
+        'Content-Language': opts.preferredLang || i18n.defaultLang
       }
     }
     return this.send(message)
