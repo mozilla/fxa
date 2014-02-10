@@ -14,7 +14,7 @@
     "requireLineFeedAtFileEnd": true,
     "requireSpaceAfterKeywords": ["if", "else", "for", "while", "do", "switch", "return"],
     "requireSpaceBeforeBinaryOperators": ["+", "-", "/", "*", "=", "==", "===", "!=", "!=="],
-    "validateQuoteMarks": true,
+    "validateQuoteMarks": "'",
     "validateJSDoc": {
         "checkParamNames": true,
         "checkRedundantParams": true,
