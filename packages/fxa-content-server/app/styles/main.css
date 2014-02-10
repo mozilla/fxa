@@ -130,6 +130,10 @@ header h2 {
   padding: 0;
 }
 
+#legal-header h3 {
+    font-size: 12px;
+}
+
 #legal-copy ul,
 #legal-copy ol {
   padding-left: 20px;
@@ -685,9 +689,9 @@ input[type="text"] ~ .show-password-label:hover {
     background: url(/images/firefox.png);
     background-size: 64px 68px;
     height: 68px;
-    margin: 0 auto -50px auto;
+    margin: 0 auto;
     position: relative;
-    top: -50px;
+    top:0;
     width: 64px;
     z-index: 999;
   }
@@ -695,16 +699,13 @@ input[type="text"] ~ .show-password-label:hover {
   #stage {
     -webkit-box-shadow: none;
             box-shadow: none;
-    margin: 100px auto 0 auto;
+    margin: 10px auto;
     min-height: none;
     min-width: 300px;
     padding: 0 10px 40px 10px;
     width: 100%;
 }
 
-  #stage #legal-header {
-    margin: -100px 0 0 0;
-  }
 }
 
 /* Retina */
