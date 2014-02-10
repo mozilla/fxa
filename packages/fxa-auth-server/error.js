@@ -14,7 +14,7 @@ var DEFAULTS = {
 
 var TOO_LARGE = /^Payload (?:content length|size) greater than maximum allowed/
 
-function AppError(options, extra) {
+function AppError(options, extra, headers) {
   //Error.call(this, )
   this.message = options.message || DEFAULTS.message
   this.isBoom = true
@@ -28,7 +28,7 @@ function AppError(options, extra) {
       message: this.message,
       info: options.info || DEFAULTS.info
     },
-    headers: {}
+    headers: headers || {}
   }
   var keys = Object.keys(extra || {})
   for (var i = 0; i < keys.length; i++) {
@@ -251,7 +251,10 @@ AppError.requestBodyTooLarge = function () {
   })
 }
 
-AppError.tooManyRequests = function () {
+AppError.tooManyRequests = function (retryAfter) {
+  if (!retryAfter) {
+    retryAfter = 30;
+  }
   return new AppError(
     {
       code: 429,
@@ -260,12 +263,18 @@ AppError.tooManyRequests = function () {
       message: 'Client has sent too many requests'
     },
     {
-      retryAfter: 30
+      retryAfter: retryAfter
+    },
+    {
+      'retry-after': retryAfter
     }
   )
 }
 
-AppError.serviceUnavailable = function () {
+AppError.serviceUnavailable = function (retryAfter) {
+  if (!retryAfter) {
+    retryAfter = 30;
+  }
   return new AppError(
     {
       code: 503,
@@ -274,7 +283,10 @@ AppError.serviceUnavailable = function () {
       message: 'Service unavailable'
     },
     {
-      retryAfter: 30
+      retryAfter: retryAfter
+    },
+    {
+      'retry-after': retryAfter
     }
   )
 }
