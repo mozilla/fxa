@@ -72,5 +72,7 @@ module.exports = function (config) {
     return l10n
   }
 
+  abideObj.defaultLang = config.defaultLang
+
   return abideObj
 }
