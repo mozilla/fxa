@@ -5,18 +5,21 @@
 module.exports = function (grunt) {
   'use strict';
 
-  // show elapsed time at the end
-  require('time-grunt')(grunt);
-  // load all grunt tasks
-  require('load-grunt-tasks')(grunt);
-
-  grunt.initConfig({
-    pkg: grunt.file.readJSON('./package.json')
+  grunt.config('mochaTest', {
+    test: {
+      options: {
+        ui: 'bdd'
+      },
+      src: [
+        'test/**/*.js',
+        '!test/lib/**'
+      ]
+    }
   });
 
-  grunt.loadTasks('tasks');
-
-  grunt.registerTask('default', [
-    'test'
+  grunt.registerTask('test', [
+    'mochaTest',
+    'lint',
+    'copyright'
   ]);
 };

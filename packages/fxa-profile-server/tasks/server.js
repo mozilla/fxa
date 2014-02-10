@@ -2,9 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = {
-  method: 'GET',
-  handler: function profileGet(req, reply) {
-    reply('profiles');
-  }
+module.exports = function (grunt) {
+  'use strict';
+
+  grunt.config('nodemon', {
+    dev: {
+      script: 'bin/server.js'
+    }
+  });
+  grunt.registerTask('server', ['nodemon:dev']);
 };

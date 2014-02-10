@@ -5,8 +5,8 @@
   "description": "Firefox Accounts Profile service.",
   "main": "index.js",
   "scripts": {
-    "start": "node bin/server.js",
-    "test": "mocha --check-globals"
+    "start": "grunt server",
+    "test": "grunt test"
   },
   "dependencies": {
     "bluebird": "1.0.0",
@@ -23,7 +23,9 @@
     "jshint-stylish": "~0.1.5",
     "load-grunt-tasks": "~0.3.0",
     "mocha": "1.x",
-    "time-grunt": "~0.2.9"
+    "time-grunt": "~0.2.9",
+    "grunt-nodemon": "~0.2.0",
+    "grunt-mocha-test": "~0.9.0"
   },
   "repo": "mozilla/fxa-profile-server",
   "author": "Sean McArthur <sean.monstar@gmail.com>",
