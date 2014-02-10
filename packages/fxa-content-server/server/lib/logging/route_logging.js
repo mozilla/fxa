@@ -19,6 +19,8 @@ expressLogger.format('dev_fxa', ':method :url :status :response-time');
 
 
 module.exports = function () {
+  'use strict';
+
   return expressLogger({
     format: config.get('route_log_format'),
     stream: {

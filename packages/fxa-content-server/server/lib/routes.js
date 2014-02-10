@@ -6,6 +6,8 @@ const config = require('./configuration');
 const path = require('path');
 
 module.exports = function(app) {
+  'use strict';
+
   // handle password reset links
   app.get('/v1/complete_reset_password', function(req, res) {
     res.redirect(req.originalUrl.slice(3));
@@ -28,5 +30,4 @@ module.exports = function(app) {
     req.url = '/';
     next();
   });
-
 };

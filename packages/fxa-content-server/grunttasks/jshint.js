@@ -17,6 +17,7 @@ module.exports = function (grunt) {
     all: [
       '<%= yeoman.app %>/scripts/{,*/}*.js',
       '!<%= yeoman.app %>/scripts/vendor/*',
+      'server/**/*.js',
       'tests/{,*/}*.js'
     ]
   });
