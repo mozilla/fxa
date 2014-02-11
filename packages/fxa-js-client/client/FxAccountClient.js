@@ -33,6 +33,8 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    *   a URL that the client should be redirected to after handling the request
    *   @param {String} [options.preVerified]
    *   set email to be verified if possible
+   *   @param {String} [options.lang]
+   *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signUp = function (email, password, options) {
@@ -46,6 +48,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
             email: result.emailUTF8,
             authPW: sjcl.codec.hex.fromBits(result.authPW)
           };
+          var requestOpts = {};
 
           if (options) {
             if (options.service) {
@@ -63,9 +66,14 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
             if (options.keys) {
               endpoint += '?keys=true';
             }
+
+            if (options.lang) {
+              requestOpts.headers = {};
+              requestOpts.headers['Accept-Language'] = options.lang;
+            }
           }
 
-          return self.request.send(endpoint, 'POST', null, data);
+          return self.request.send(endpoint, 'POST', null, data, requestOpts);
         }
       );
   };
@@ -155,11 +163,14 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    *   Opaque alphanumeric token to be included in verification links
    *   @param {String} [options.redirectTo]
    *   a URL that the client should be redirected to after handling the request
+   *   @param {String} [options.lang]
+   *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.recoveryEmailResendCode = function(sessionToken, options) {
     var self = this;
     var data = {};
+    var requestOpts = {};
 
     if (options) {
       if (options.service) {
@@ -169,11 +180,17 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
       if (options.redirectTo) {
         data.redirectTo = options.redirectTo;
       }
+
+      if (options.lang) {
+        requestOpts.headers = {
+          'Accept-Langauge': options.lang
+        };
+      }
     }
 
     return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
-        return self.request.send('/recovery_email/resend_code', 'POST', creds, data);
+        return self.request.send('/recovery_email/resend_code', 'POST', creds, data, requestOpts);
       });
   };
 
@@ -188,12 +205,15 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    *   Opaque alphanumeric token to be included in verification links
    *   @param {String} [options.redirectTo]
    *   a URL that the client should be redirected to after handling the request
+   *   @param {String} [options.lang]
+   *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.passwordForgotSendCode = function(email, options) {
     var data = {
       email: email
     };
+    var requestOpts = {};
 
     if (options) {
       if (options.service) {
@@ -203,9 +223,15 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
       if (options.redirectTo) {
         data.redirectTo = options.redirectTo;
       }
+
+      if (options.lang) {
+        requestOpts.headers = {
+          'Accept-Langauge': options.lang
+        };
+      }
     }
 
-    return this.request.send('/password/forgot/send_code', 'POST', null, data);
+    return this.request.send('/password/forgot/send_code', 'POST', null, data, requestOpts);
   };
 
   /**
@@ -220,6 +246,8 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
    *   Opaque alphanumeric token to be included in verification links
    *   @param {String} [options.redirectTo]
    *   a URL that the client should be redirected to after handling the request
+   *   @param {String} [options.lang]
+   *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.passwordForgotResendCode = function(email, passwordForgotToken, options) {
@@ -227,6 +255,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
     var data = {
       email: email
     };
+    var requestOpts = {};
 
     if (options) {
       if (options.service) {
@@ -236,11 +265,17 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
       if (options.redirectTo) {
         data.redirectTo = options.redirectTo;
       }
+
+      if (options.lang) {
+        requestOpts.headers = {
+          'Accept-Langauge': options.lang
+        };
+      }
     }
 
     return hawkCredentials(passwordForgotToken, 'passwordForgotToken',  2 * 32)
       .then(function(creds) {
-        return self.request.send('/password/forgot/resend_code', 'POST', creds, data);
+        return self.request.send('/password/forgot/resend_code', 'POST', creds, data, requestOpts);
       });
   };
 

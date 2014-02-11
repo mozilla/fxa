@@ -41,6 +41,10 @@ define(['client/lib/errors'], function (ERRORS) {
       status: 200,
       body: '[{"html":"Mocked code=9001"}]'
     },
+    mailSignUpLang: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001","headers": {"content-language": "it-CH" }}]'
+    },
     mailServiceAndRedirect: {
       status: 200,
       body: '[{"html":"Mocked code=9001 service=sync redirectTo=http"}]'
@@ -48,6 +52,10 @@ define(['client/lib/errors'], function (ERRORS) {
     resetMail: {
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
+    },
+    resetMailLang: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"content-language": "it-CH" }}]'
     },
     recoveryEmailUnverified: {
       status: 200,
