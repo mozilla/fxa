@@ -19,6 +19,7 @@ Static server that hosts Firefox Account sign up, sign in, email verification, e
 ## Development Setup
 
 ```
+cp server/config/local.json-dist server/config/local.json
 npm install
 npm start
 ```
