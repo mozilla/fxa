@@ -17,6 +17,8 @@ define([
 function (FxaClient, $, p, Session) {
   var client;
 
+  var language = navigator.browserLanguage || navigator.language;
+
   function FxaClientWrapper() {
     // nothing to do here.
   }
@@ -76,9 +78,10 @@ function (FxaClient, $, p, Session) {
                 return client.signUp(email, password, {
                   keys: true,
                   service: service,
-                  redirectTo: redirectTo
+                  redirectTo: redirectTo,
+                  lang: language
                 });
-              })
+            })
               .then(function () {
                 return self.signIn(email, password, customizeSync);
               })
@@ -99,7 +102,8 @@ function (FxaClient, $, p, Session) {
                   Session.sessionToken,
                   {
                     service: Session.service,
-                    redirectTo: Session.redirectTo
+                    redirectTo: Session.redirectTo,
+                    lang: language
                   });
               });
     },
@@ -130,7 +134,8 @@ function (FxaClient, $, p, Session) {
               .then(function (client) {
                 return client.passwordForgotSendCode(email, {
                   service: service,
-                  redirectTo: redirectTo
+                  redirectTo: redirectTo,
+                  lang: language
                 });
               })
               .then(function (result) {
@@ -152,7 +157,8 @@ function (FxaClient, $, p, Session) {
                 // passwordForgotResendCode
                 var options = {
                   service: Session.service,
-                  redirectTo: Session.redirectTo
+                  redirectTo: Session.redirectTo,
+                  lang: language
                 };
                 return client.passwordForgotResendCode(
                             Session.email,
