@@ -1,0 +1,9 @@
+{
+  "logging": {
+    "loggers": {
+      "fxa": {
+        "level": "NONE"
+      }
+    }
+  }
+}

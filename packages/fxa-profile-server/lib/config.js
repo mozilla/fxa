@@ -2,15 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const fs = require('fs');
+const path = require('path');
+
 const convict = require('convict');
 
-const config = convict({
+const conf = convict({
   db: {
     driver: {
       env: 'DB',
       format: ['mysql', 'memory'],
       default: 'memory'
     }
+  },
+  env: {
+    arg: 'node-env',
+    doc: 'The current node.js environment',
+    env: 'NODE_ENV',
+    format: ['dev', 'test', 'stage', 'prod'],
+    default: 'dev'
   },
   logging: {
     formatters: {
@@ -55,6 +65,11 @@ const config = convict({
   }
 });
 
-config.validate();
+var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json');
+var files = (envConfig + ',' + process.env.CONFIG_FILES)
+  .split(',').filter(fs.existsSync);
+conf.loadFile(files);
 
-module.exports = config;
+conf.validate();
+
+module.exports = conf;
