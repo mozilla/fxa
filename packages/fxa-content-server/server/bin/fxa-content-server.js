@@ -30,6 +30,8 @@ const STATIC_DIRECTORY =
 const VIEWS_ROOT = path.join(__dirname, '..', 'views');
 
 function makeApp() {
+  'use strict';
+
   var app = express();
 
   app.use(helmet.xframe('deny'));
@@ -63,15 +65,17 @@ if (isMain) {
 }
 
 function listen(theApp) {
+  'use strict';
+
   app = theApp || app;
   if (config.get('use_https')) {
     // Development only... Ops runs this behind nginx
     port = 443;
     app.listen(443);
     app.on('error', function(e) {
-      if ('EACCES' == e.code) {
+      if ('EACCES' === e.code) {
         console.error('Permission Denied, maybe you should run this with sudo?');
-      } else if ('EADDRINUSE' == e.code) {
+      } else if ('EADDRINUSE' === e.code) {
         console.error('Unable to listen for connections, this service might already be running?');
       }
       throw e;
