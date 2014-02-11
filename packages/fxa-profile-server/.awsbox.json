@@ -1,0 +1,14 @@
+{
+	"processes": [
+		"bin/server.js"
+	],
+	"env": {
+		"CONFIG_FILES": "$HOME/code/config/awsbox.json,$HOME/config.json"
+	},
+	"hooks": {
+		"postcreate": "scripts/awsbox/post_create.sh"
+	},
+	"packages": [
+		"mysql-server"
+	]
+}
