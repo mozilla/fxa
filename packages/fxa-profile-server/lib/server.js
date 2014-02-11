@@ -43,7 +43,12 @@ exports.create = function createServer() {
 
   server.on('request', function(req, evt, tags) {
     if (tags.error && util.isError(evt.data)) {
-      logger.error('%s', evt.data);
+      if (evt.data.isBoom && evt.data.output.statusCode < 500) {
+        // a 4xx error, so its not our fault. not an ERROR level log
+        logger.warn('4xx response: %s', evt.data.message);
+      } else {
+        logger.error('%s', evt.data);
+      }
     }
   });
 
