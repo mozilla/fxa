@@ -183,7 +183,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
 
       if (options.lang) {
         requestOpts.headers = {
-          'Accept-Langauge': options.lang
+          'Accept-Language': options.lang
         };
       }
     }
@@ -226,7 +226,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
 
       if (options.lang) {
         requestOpts.headers = {
-          'Accept-Langauge': options.lang
+          'Accept-Language': options.lang
         };
       }
     }
@@ -268,7 +268,7 @@ define(['./lib/request', '../components/sjcl/sjcl', './lib/credentials', './lib/
 
       if (options.lang) {
         requestOpts.headers = {
-          'Accept-Langauge': options.lang
+          'Accept-Language': options.lang
         };
       }
     }
