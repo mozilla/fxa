@@ -55,6 +55,29 @@ function (mocha, chai, View, FxaClient, RouterMock) {
                 });
 
       });
+
+      it('resend only occurs when clicking on #resend', function (done) {
+        var client = new FxaClient();
+        var email = 'user' + Math.random() + '@testuser.com';
+
+        client.signUp(email, 'password')
+              .then(function () {
+                 var count = 0;
+                 view.on('resending', function () {
+                   count++;
+                 });
+
+
+                 view.$('section').click();
+                 assert.equal(count, 0);
+
+                 view.$('#resend').click();
+                 assert.equal(count, 1);
+
+                 done();
+              });
+
+      });
     });
 
   });

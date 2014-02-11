@@ -23,11 +23,13 @@ function (BaseView, Template, Session, FxaClient) {
     },
 
     events: {
-      'click': BaseView.preventDefaultThen('resend')
+      'click #resend': BaseView.preventDefaultThen('resend')
     },
 
     resend: function () {
       var self = this;
+      self.trigger('resending');
+
       var client = new FxaClient();
       client.passwordResetResend()
             .then(function () {
