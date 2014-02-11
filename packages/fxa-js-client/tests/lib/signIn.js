@@ -73,29 +73,48 @@ define([
             return respond(client.signIn(incorrectCaseEmail, account.input.password), RequestMocks.signIn);
           })
           .then(
-          function (res) {
-            assert.property(res, 'sessionToken');
-          },
-          function () {
-            assert.fail();
-          }
-        );
+            function (res) {
+              assert.property(res, 'sessionToken');
+            },
+            function () {
+              assert.fail();
+            }
+          );
+      });
+
+      test('#incorrect email case with skipCaseError', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+
+            return respond(client.signIn(incorrectCaseEmail, account.input.password, {skipCaseError: true}), ErrorMocks.incorrectEmailCase);
+          })
+          .then(
+            function () {
+              assert.fail();
+            },
+            function (res) {
+              assert.equal(res.code, 400);
+              assert.equal(res.errno, 120);
+            }
+          );
       });
 
       test('#incorrectPassword', function () {
 
-          return accountHelper.newVerifiedAccount()
-              .then(function (account) {
-                  return respond(client.signIn(account.input.email, 'wrong password'), ErrorMocks.accountIncorrectPassword);
-              })
-              .then(
-              function () {
-                assert.fail();
-              },
-              function (res) {
-                assert.equal(res.code, 400);
-                assert.equal(res.errno, 103);
-              }
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            return respond(client.signIn(account.input.email, 'wrong password'), ErrorMocks.accountIncorrectPassword);
+          })
+          .then(
+            function () {
+              assert.fail();
+            },
+            function (res) {
+              assert.equal(res.code, 400);
+              assert.equal(res.errno, 103);
+            }
           );
       });
     });

@@ -42,6 +42,7 @@ define(['./hawk', '../../components/p/p', './errors'], function (hawk, p, ERRORS
     var uri = this.baseUri + path;
     var payload;
     var self = this;
+    options = options || {};
 
     if (jsonPayload) {
       payload = JSON.stringify(jsonPayload);
@@ -64,7 +65,7 @@ define(['./hawk', '../../components/p/p', './errors'], function (hawk, p, ERRORS
 
       if (result.errno) {
         // Try to recover from a timeskew error and not already tried
-        if (result.errno === ERRORS.INVALID_TIMESTAMP && options && !options.retrying) {
+        if (result.errno === ERRORS.INVALID_TIMESTAMP && !options.retrying) {
           var serverTime = result.serverTime;
           self._localtimeOffsetMsec = (serverTime * 1000) - new Date().getTime();
 
