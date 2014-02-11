@@ -62,7 +62,7 @@ module.exports = function (path, url, Hapi, toobusy) {
       config.listen.port,
       {
         cors: {
-          additionalExposedHeaders: ['Timestamp']
+          additionalExposedHeaders: ['Timestamp', 'Accept-Language']
         },
         files: {
           relativeTo: path.dirname(__dirname)
