@@ -12,13 +12,21 @@ module.exports = function (grunt) {
     },
     grunt: [
       'Gruntfile.js',
-      'grunttasks/{,*/}*.js'
+      'grunttasks/*.js'
     ],
-    all: [
-      '<%= yeoman.app %>/scripts/{,*/}*.js',
-      '!<%= yeoman.app %>/scripts/vendor/*',
-      'server/**/*.js',
-      'tests/{,*/}*.js'
+    app: {
+      options: {
+        jshintrc: '<%= yeoman.app %>/.jshintrc'
+      },
+      src: [
+        '<%= yeoman.app %>/**/*.js',
+        '!<%= yeoman.app %>/bower_components/**',
+        '!<%= yeoman.app %>/scripts/vendor/**',
+        '!<%= yeoman.app %>/tests/**'
+      ]
+    },
+    tests: [
+      '<%= yeoman.tests %>/**/*.js'
     ]
   });
 };

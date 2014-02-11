@@ -7,6 +7,7 @@ module.exports = function (grunt) {
 
   grunt.config('yeoman', {
     app: 'app',
-    dist: 'dist'
+    dist: 'dist',
+    tests: 'tests'
   });
 };
