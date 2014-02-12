@@ -7,6 +7,8 @@ module.exports = function (grunt) {
 
   grunt.config('yeoman', {
     app: 'app',
-    dist: 'dist'
+    dist: 'dist',
+    server: 'fxa-auth-server',
+    tests: 'tests'
   });
 };
