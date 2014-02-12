@@ -41,40 +41,45 @@ function main() {
 
   var Server = require('../server')
   var server = null
+
   // TODO: send to the SMTP server directly. In the future this may change
   // to another process that we send an http request to.
-  var mailer = require('../mailer')(config.smtp, i18n, log)
+  require('../mailer')(config.smtp, i18n, log)
+    .then(
+      function(mailer) {
+        // server public key
+        var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
 
-  // server public key
-  var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
-
-  // databases
-  var DB = require('../db')(
-    config.db.backend,
-    log,
-    error,
-    Token.SessionToken,
-    Token.KeyFetchToken,
-    Token.AccountResetToken,
-    Token.PasswordForgotToken,
-    Token.PasswordChangeToken
-  )
-
-  DB.connect(config[config.db.backend])
-    .done(
-      function (db) {
-        var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, config)
-        server = Server.create(log, error, config, routes, db, i18n)
-
-        server.start(
-          function () {
-            log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
-          }
+        // databases
+        var DB = require('../db')(
+          config.db.backend,
+          log,
+          error,
+          Token.SessionToken,
+          Token.KeyFetchToken,
+          Token.AccountResetToken,
+          Token.PasswordForgotToken,
+          Token.PasswordChangeToken
         )
-      },
-      function (err) {
-        log.error({ op: 'DB.connect', err: err.message })
-        process.exit(1)
+
+        DB.connect(config[config.db.backend])
+          .done(
+            function (db) {
+              var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, config)
+              server = Server.create(log, error, config, routes, db, i18n)
+
+              server.start(
+                function () {
+                  log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
+                }
+              )
+            },
+            function (err) {
+              log.error({ op: 'DB.connect', err: err.message })
+              process.exit(1)
+            }
+          )
+
       }
     )
 

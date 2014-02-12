@@ -170,5 +170,5 @@ module.exports = function (config, i18n, log) {
     return this.send(message)
   }
 
-  return new Mailer(config)
+  return P(new Mailer(config))
 }
