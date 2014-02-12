@@ -3,6 +3,7 @@ import os
 import hmac
 import json
 import math
+import time
 import random
 import hashlib
 import urlparse
@@ -66,6 +67,8 @@ def HKDF(secret, salt, info, size, hashmod=hashlib.sha256):
 
 class HawkAuth(AuthBase):
 
+    timeskew = 0
+
     def __init__(self, server_url, tokendata, tokentype):
         self.server_url = server_url
         keyInfo = 'identity.mozilla.com/picl/v1/' + tokentype
@@ -85,6 +88,7 @@ class HawkAuth(AuthBase):
             payloadStr = 'hawk.1.payload\napplication/json\n'
             payloadStr += req.body + '\n'
             params['hash'] = b64encode(hashlib.sha256(payloadStr).digest())
+        params["ts"] = str(int(time.time()) + self.timeskew)
         hawkauthlib.sign_request(req, id, self.authKey, params=params)
         return req
 
@@ -92,7 +96,6 @@ class HawkAuth(AuthBase):
 class LoadTest(TestCase):
 
     server_url = 'http://api-accounts.loadtest.lcip.org'
-    #server_url = 'http://127.0.0.1:9000/'
 
     def makeurl(self, path):
         return urlparse.urljoin(self.server_url, path)
@@ -227,7 +230,10 @@ class LoadTest(TestCase):
 
     def _req_GET(self, url, auth=None):
         url = self.makeurl(url)
-        return self.session.get(url, auth=auth)
+        res = self.session.get(url, auth=auth)
+        if self._maybe_adjust_timeskew(res):
+            res = self.session.get(url, auth=auth)
+        return res
 
     def _req_POST(self, url, payload, auth=None):
         url = self.makeurl(url)
@@ -235,4 +241,19 @@ class LoadTest(TestCase):
         headers = {
             'Content-Type': 'application/json',
         }
-        return self.session.post(url, data=data, auth=auth, headers=headers)
+        res = self.session.post(url, data=data, auth=auth, headers=headers)
+        if self._maybe_adjust_timeskew(res):
+            res = self.session.post(url, data=data, auth=auth, headers=headers)
+        return res
+
+    def _maybe_adjust_timeskew(self, res):
+        if res.status_code != 401:
+            return False
+        try:
+            err = res.json()
+        except Exception:
+            return False
+        if err.get("errno", 0) != 111:
+            return False
+        HawkAuth.timeskew = err["serverTime"] - int(time.time())
+        return True
