@@ -1,0 +1,16 @@
+{
+	"db": {
+		"driver": "mysql"
+	},
+	"mysql": {
+		"user": "fxa"
+	},
+	"logging": {
+		"loggers": {
+			"fxa": {
+				"handlers": ["file"],
+				"level": "info"
+			}
+		}
+	}
+}

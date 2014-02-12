@@ -29,6 +29,9 @@ const conf = convict({
         console: {
           format: '%(name)s.%(levelname)s: %(message)s',
           colorize: true
+        },
+        json: {
+          format: '%O'
         }
       }
     },
@@ -38,6 +41,11 @@ const conf = convict({
         console: {
           class: 'intel/handlers/console',
           formatter: 'console'
+        },
+        file: {
+          class: 'intel/handlers/file',
+          formatter: 'json',
+          file: path.join(__dirname, '..', 'var', 'log', 'fxa.log')
         }
       }
     },
@@ -47,7 +55,7 @@ const conf = convict({
         fxa: {
           handlers: ['console'],
           handleExceptions: true,
-          level: 0,
+          level: 'ALL',
           propagate: false
         }
       }

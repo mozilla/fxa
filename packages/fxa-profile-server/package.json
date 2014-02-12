@@ -27,7 +27,8 @@
     "jshint-stylish": "~0.1.5",
     "load-grunt-tasks": "~0.3.0",
     "mocha": "1.x",
-    "time-grunt": "~0.2.9"
+    "time-grunt": "~0.2.9",
+    "awsbox": "~0.7.0"
   },
   "repo": "mozilla/fxa-profile-server",
   "author": "Sean McArthur <sean.monstar@gmail.com>",
