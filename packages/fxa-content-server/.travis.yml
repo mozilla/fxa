@@ -10,7 +10,7 @@ env:
 install:
 # install everything for full dev in the fxa-content-server.
   - npm install --silent
-# install the resrouces necessary for the auth server.
+# install the resources necessary for the auth server.
   - cd node_modules/fxa-auth-server
   - npm install --silent
   - node ./scripts/gen_keys.js
