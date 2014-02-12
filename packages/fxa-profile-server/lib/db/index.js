@@ -31,7 +31,7 @@ function proxy(method) {
     var args = arguments;
     return withDriver().then(function(driver) {
       return driver[method].apply(driver, args);
-    }).fail(function(err) {
+    }).catch(function(err) {
       logger.error(err);
       throw err;
     });
