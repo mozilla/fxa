@@ -52,6 +52,7 @@ function createSchema(client, options) {
         });
       });
     });
+  return d.promise;
 }
 
 MysqlStore.connect = function mysqlConnect(options) {
