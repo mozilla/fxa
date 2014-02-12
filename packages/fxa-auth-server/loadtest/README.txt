@@ -12,7 +12,9 @@ To run them, you will need the following dependencies:
 
 Then do the following:
 
-  $> make build     # installs local environment with all dependencies
-  $> make test      # runs a single test, to check that everything's working
-  $> make bench     # runs a much longer higher-concurrency test.
+  $> make build       # installs local environment with all dependencies
+  $> make test        # runs a single test, to check that everything's working
+  $> make bench       # runs a longer, higher-concurrency test.
+  $> make megabench   # runs a really-long, really-high-concurrent test
+                      # using http://loads.services.mozilla.com
 
