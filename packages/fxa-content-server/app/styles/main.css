@@ -28,6 +28,10 @@ a:active {
   outline: none;
 }
 
+a.no-underline {
+  text-decoration: none;
+}
+
 noscript {
   color: #d63920;
   display: block;
@@ -170,6 +174,13 @@ strong.email {
 
 .success {
   background: #5FAD47;
+  display: none;
+}
+
+/**
+ * complete is like success, but without the associated styles.
+ */
+.complete {
   display: none;
 }
 

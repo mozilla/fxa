@@ -11,9 +11,10 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/url',
-  'lib/xss'
+  'lib/xss',
+  'lib/strings'
 ],
-function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
+function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss, Strings) {
   var t = BaseView.t;
 
   var CompleteSignUpView = BaseView.extend({
@@ -21,10 +22,16 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
     className: 'complete_sign_up',
 
     context: function () {
+      var service = Session.service;
+
+      if (Session.redirectTo) {
+        service = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+          Xss.href(Session.redirectTo), Session.service
+        ]);
+      }
+
       return {
-        email: Session.email,
-        service: Session.service,
-        redirectTo: Xss.href(Session.redirectTo)
+        service: service
       };
     },
 
@@ -47,15 +54,12 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss) {
               // TODO - we could go to a "sign_up_complete" screen here.
               self.$('#fxa-complete-sign-up-success').show();
 
-              self.$('h2.success').show();
-              self.$('h2.failure').hide();
+              self.$('.complete').show();
               self.trigger('verify_code_complete');
             })
             .then(null, function (err) {
               self.displayError(err.errno || err.message);
 
-              self.$('h2.success').hide();
-              self.$('h2.failure').show();
               self.trigger('verify_code_complete');
             });
     }

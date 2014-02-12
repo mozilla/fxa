@@ -62,6 +62,7 @@ require([
   '../tests/spec/lib/fxa-client',
   '../tests/spec/lib/translator',
   '../tests/spec/lib/router',
+  '../tests/spec/lib/strings',
   '../tests/spec/views/base',
   '../tests/spec/views/form',
   '../tests/spec/views/sign_up',
