@@ -46,6 +46,7 @@ const conf = convict({
       default: {
         fxa: {
           handlers: ['console'],
+          handleExceptions: true,
           level: 0,
           propagate: false
         }
