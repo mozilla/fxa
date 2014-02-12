@@ -11,10 +11,9 @@ define([
   'stache!templates/change_password',
   'lib/fxa-client',
   'lib/session',
-  'lib/password-mixin',
-  'lib/url'
+  'lib/password-mixin'
 ],
-function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin, Url) {
+function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -32,7 +31,7 @@ function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin, Ur
 
     context: function () {
       return {
-        isSync: Url.searchParam('service') === 'sync'
+        isSync: Session.service === 'sync'
       };
     },
 
