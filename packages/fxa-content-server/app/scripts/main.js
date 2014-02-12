@@ -90,8 +90,10 @@ function (
 
   window.router = new Router();
 
-  // IE8 does not support window.navigator.language. Set a default of English.
-  window.translator = new Translator(window.navigator.language || 'en');
+  // IE uses navigator.browserLanguage, all others user navigator.language.
+  var language = window.navigator.browserLanguage || window.navigator.language || 'en';
+
+  window.translator = new Translator(language);
 
   initSessionFromUrl();
 
