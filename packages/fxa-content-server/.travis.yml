@@ -7,6 +7,10 @@ env:
     # please get your own free key if you want to test yourself
     - SAUCE_USERNAME: intern-example-ci
     - SAUCE_ACCESS_KEY: 89ac3089-17b3-4e9b-aaf3-c475b27fa441
+    
+before_install:
+  - sudo apt-get install libgmp3-dev
+
 install:
 # install the auth server. Only include prod resources to speed up the build.
   - git clone git://github.com/mozilla/fxa-auth-server.git
