@@ -8,6 +8,7 @@ const path = require('path');
 const assert = require('insist');
 
 const Server = require('./lib/server');
+const db = require('../lib/db');
 
 /*global describe,before,it*/
 
@@ -35,6 +36,10 @@ describe('/avatar', function() {
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 200);
+
+      return db.getProfile('1');
+    }).then(function(profile) {
+      assert.equal(profile.avatar, avatarUrl);
     }).done(done);
   });
 
@@ -47,13 +52,17 @@ describe.skip('/avatar/upload', function() {
     var imagePath = path.join(__dirname, 'lib', 'firefox.png');
     var imageData = fs.readFileSync(imagePath).toString();
     Server.api.post({
-      url: '/avatar',
+      url: '/avatar/upload',
       payload: imageData,
       headers: {
-        'content-type': 'image/png'
+        'content-type': 'image/png',
+        authorization: 'userid 2'
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 200);
+      return db.getProfile('2');
+    }).then(function(profile) {
+      assert(profile.avatar);
     }).done(done);
   });
 
@@ -63,8 +72,8 @@ describe('/users/{userId}', function() {
 
   var userid = require('crypto').randomBytes(8).toString('hex');
   before(function(done) {
-    require('../lib/db').createProfile({
-      id: userid,
+    db.createProfile({
+      uid: userid,
       avatar: {
         url: avatarUrl
       }

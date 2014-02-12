@@ -11,8 +11,9 @@
   "dependencies": {
     "bluebird": "1.0.0",
     "convict": "0.4.2",
-    "hapi": "2.1.2",
-    "intel": "0.5.0"
+    "hapi": "2.2.0",
+    "intel": "0.5.0",
+    "mysql": "2.0.1"
   },
   "devDependencies": {
     "grunt": "~0.4.2",

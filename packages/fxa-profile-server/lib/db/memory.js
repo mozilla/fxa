@@ -8,8 +8,8 @@ const Promise = require('../promise');
  * MemoryStore structure:
  * MemoryStore = {
  *   profiles: {
- *     id: {
- *       id: <id>
+ *     <uid>: {
+ *       uid: <id>
  *       avatar: <url>
  *     }
  *   }
@@ -22,6 +22,10 @@ function MemoryStore() {
   this.profiles = {};
 }
 
+MemoryStore.connect = function memoryConnect() {
+  return Promise.resolve(new MemoryStore());
+};
+
 MemoryStore.prototype = {
   profileExists: function profileExists(id) {
     return this.getProfile(id).then(function(user) {
@@ -29,7 +33,7 @@ MemoryStore.prototype = {
     });
   },
   createProfile: function createProfile(profile) {
-    this.profiles[profile.id] = profile;
+    this.profiles[profile.uid] = profile;
     return Promise.resolve(true);
   },
   getProfile: function getProfile(id) {

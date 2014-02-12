@@ -53,6 +53,37 @@ const conf = convict({
       }
     }
   },
+  mysql: {
+    createSchema: {
+      env: 'CREATE_MYSQL_SCHEMA',
+      default: true
+    },
+    user: {
+      default: 'root',
+      env: 'MYSQL_USERNAME'
+    },
+    password: {
+      default: '',
+      env: 'MYSQL_PASSWORD'
+    },
+    database: {
+      default: 'fxa',
+      env: 'MYSQL_DATABASE'
+    },
+    host: {
+      default: '127.0.0.1',
+      env: 'MYSQL_HOST'
+    },
+    port: {
+      default: '3306',
+      env: 'MYSQL_PORT'
+    }
+  },
+  publicUrl: {
+    format: 'url',
+    env: 'PUBLIC_URL',
+    default: 'http://localhost:1111'
+  },
   server: {
     host: {
       env: 'HOST',

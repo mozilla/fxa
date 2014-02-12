@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS profiles (
+  uid BINARY(16) PRIMARY KEY,
+  avatar VARCHAR(255)
+) ENGINE=InnoDB;

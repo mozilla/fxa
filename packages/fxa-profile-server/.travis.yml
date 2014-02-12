@@ -11,3 +11,11 @@ notifications:
       - 'irc.mozilla.org#fxa'
     use_notice: false
     skip_join: false
+
+env:
+  - NODE_ENV=test DB=memory
+  - NODE_ENV=test DB=mysql
+
+before_script:
+  - "mysql -e 'DROP DATABASE IF EXISTS fxa;'"
+  - "mysql -e 'CREATE DATABASE fxa;'"

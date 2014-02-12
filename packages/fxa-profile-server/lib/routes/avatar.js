@@ -19,10 +19,10 @@ module.exports = {
     var id = req.auth.credentials;
     db.profileExists(id).then(function(exists) {
       if (!exists) {
-        return db.createProfile({ id: id });
+        return db.createProfile({ uid: id });
       }
     }).then(function() {
-      return db.setAvatar(id, req.params.url);
+      return db.setAvatar(id, req.payload.url);
     }).done(function() {
       reply({});
     }, reply);
