@@ -35,7 +35,9 @@ function (mocha, chai, $, ChannelMock, testHelpers,
       Session.set('channel', channelMock);
       email = 'testuser' + Math.random() + '@testuser.com';
 
-      client = new FxaClientWrapper();
+      client = new FxaClientWrapper({
+        language: 'it-CH'
+      });
       client._getClientAsync()
               .then(function (_realClient) {
                 realClient = _realClient;
@@ -67,7 +69,8 @@ function (mocha, chai, $, ChannelMock, testHelpers,
             assert.isTrue(realClient.signUp.calledWith(email, password, {
               keys: true,
               service: 'sync',
-              redirectTo: 'https://sync.firefox.com'
+              redirectTo: 'https://sync.firefox.com',
+              lang: 'it-CH'
             }));
 
             done();
@@ -105,7 +108,8 @@ function (mocha, chai, $, ChannelMock, testHelpers,
                     Session.sessionToken,
                     {
                       service: 'sync',
-                      redirectTo: 'https://sync.firefox.com'
+                      redirectTo: 'https://sync.firefox.com',
+                      lang: 'it-CH'
                     }
                 ));
 
@@ -175,7 +179,8 @@ function (mocha, chai, $, ChannelMock, testHelpers,
                     email,
                     {
                       service: 'sync',
-                      redirectTo: 'https://sync.firefox.com'
+                      redirectTo: 'https://sync.firefox.com',
+                      lang: 'it-CH'
                     }
                 ));
             return client.passwordResetResend();
@@ -187,7 +192,8 @@ function (mocha, chai, $, ChannelMock, testHelpers,
                     Session.passwordForgotToken,
                     {
                       service: 'sync',
-                      redirectTo: 'https://sync.firefox.com'
+                      redirectTo: 'https://sync.firefox.com',
+                      lang: 'it-CH'
                     }
                 ));
             done();

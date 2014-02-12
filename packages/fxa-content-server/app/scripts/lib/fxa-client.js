@@ -17,10 +17,13 @@ define([
 function (FxaClient, $, p, Session) {
   var client;
 
-  var language = navigator.browserLanguage || navigator.language;
-
-  function FxaClientWrapper() {
-    // nothing to do here.
+  function FxaClientWrapper(options) {
+    options = options || {};
+    // IE uses navigator.browserLanguage, all others user navigator.language.
+    var language = options.language ||
+                   navigator.browserLanguage ||
+                   navigator.language;
+    this.language = language;
   }
 
   FxaClientWrapper.prototype = {
@@ -79,9 +82,9 @@ function (FxaClient, $, p, Session) {
                   keys: true,
                   service: service,
                   redirectTo: redirectTo,
-                  lang: language
+                  lang: self.language
                 });
-            })
+              })
               .then(function () {
                 return self.signIn(email, password, customizeSync);
               })
@@ -97,13 +100,14 @@ function (FxaClient, $, p, Session) {
     },
 
     signUpResend: function () {
+      var self = this;
       return this._getClientAsync().then(function (client) {
                 return client.recoveryEmailResendCode(
                   Session.sessionToken,
                   {
                     service: Session.service,
                     redirectTo: Session.redirectTo,
-                    lang: language
+                    lang: self.language
                   });
               });
     },
@@ -127,6 +131,7 @@ function (FxaClient, $, p, Session) {
     },
 
     passwordReset: function (email) {
+      var self = this;
       var service = Session.service;
       var redirectTo = Session.redirectTo;
 
@@ -135,7 +140,7 @@ function (FxaClient, $, p, Session) {
                 return client.passwordForgotSendCode(email, {
                   service: service,
                   redirectTo: redirectTo,
-                  lang: language
+                  lang: self.language
                 });
               })
               .then(function (result) {
@@ -152,13 +157,14 @@ function (FxaClient, $, p, Session) {
     },
 
     passwordResetResend: function () {
+      var self = this;
       return this._getClientAsync().then(function (client) {
                 // the linters complain if this is defined in the call to
                 // passwordForgotResendCode
                 var options = {
                   service: Session.service,
                   redirectTo: Session.redirectTo,
-                  lang: language
+                  lang: self.language
                 };
                 return client.passwordForgotResendCode(
                             Session.email,
