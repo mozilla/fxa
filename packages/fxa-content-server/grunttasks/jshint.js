@@ -22,8 +22,7 @@ module.exports = function (grunt) {
         '<%= yeoman.app %>/**/*.js',
         '!<%= yeoman.app %>/bower_components/**',
         '!<%= yeoman.app %>/scripts/vendor/**',
-        '!<%= yeoman.app %>/tests/**',
-        '!fxa-auth-server/**'
+        '!<%= yeoman.app %>/tests/**'
       ]
     },
     tests: [
