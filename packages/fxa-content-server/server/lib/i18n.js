@@ -38,13 +38,13 @@ module.exports = function (config) {
 
 
   // Export the parseAcceptLanguage() function as-is.
-  abideObj.parseAcceptLanguage = function(header) {
+  abideObj.parseAcceptLanguage = function (header) {
     return abide.parseAcceptLanguage(header);
   };
 
 
   // Export the bestLanguage() function, but using defaults from the config.
-  abideObj.bestLanguage = function(accepted, supported) {
+  abideObj.bestLanguage = function (accepted, supported) {
     if (!supported) {
       supported = config.supportedLanguages;
     }
@@ -54,14 +54,14 @@ module.exports = function (config) {
   // A new function to get a stand-alone 'localization context'
   // This gives us the properties that i18n-abide attaches to the request
   // object, without actually having to be an express app.
-  abideObj.localizationContext = function(acceptLang) {
+  abideObj.localizationContext = function (acceptLang) {
     var fakeReq = {headers: {}};
-    var fakeResp = {locals: function(){}};
+    var fakeResp = {locals: function () {}};
     if (acceptLang) {
       fakeReq.headers['accept-language'] = acceptLang;
     }
     var callWasSynchronous = false;
-    abideObj(fakeReq, fakeResp, function() { callWasSynchronous = true });
+    abideObj(fakeReq, fakeResp, function () { callWasSynchronous = true; });
     if (!callWasSynchronous) {
       throw new Error('uh-oh, the call to i18n-abide was not synchronous!');
     }
@@ -75,4 +75,4 @@ module.exports = function (config) {
   };
 
   return abideObj;
-}
+};

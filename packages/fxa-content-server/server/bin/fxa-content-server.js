@@ -13,7 +13,6 @@ if (isMain) {
   process.chdir(path.dirname(__dirname));
 }
 
-var util = require('util');
 var helmet = require('helmet');
 var express = require('express');
 var connect_fonts = require('connect-fonts');
@@ -27,7 +26,6 @@ var routeLogging = require('../lib/logging/route_logging');
 
 var STATIC_DIRECTORY =
               path.join(__dirname, '..', '..', config.get('static_directory'));
-var VIEWS_ROOT = path.join(__dirname, '..', 'views');
 
 function makeApp() {
   'use strict';
@@ -72,7 +70,7 @@ function listen(theApp) {
     // Development only... Ops runs this behind nginx
     port = 443;
     app.listen(443);
-    app.on('error', function(e) {
+    app.on('error', function (e) {
       if ('EACCES' === e.code) {
         console.error('Permission Denied, maybe you should run this with sudo?');
       } else if ('EADDRINUSE' === e.code) {
