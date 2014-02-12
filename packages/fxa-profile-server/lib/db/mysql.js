@@ -11,7 +11,7 @@ const SCHEMA = require('fs').readFileSync(__dirname + '/schema.sql').toString();
 const PROFILE_GET_QUERY = 'SELECT * FROM profiles WHERE uid=?';
 const PROFILE_EXISTS_QUERY = 'SELECT uid FROM profiles WHERE uid=?';
 const PROFILE_CREATE_QUERY = 'INSERT INTO profiles (uid, avatar) VALUES (?, ?)';
-const AVATAR_SET_QUERY = 'UPDATE profiles (avatar) VALUES (?) WHERE uid=?';
+const AVATAR_SET_QUERY = 'UPDATE profiles SET avatar=? WHERE uid=?';
 
 function MysqlStore(options) {
   this._connection = mysql.createConnection(options);
@@ -86,7 +86,21 @@ MysqlStore.prototype = {
   },
   getProfile: function getProfile(id) {
     var defer = Promise.defer();
-    this._connection.query(PROFILE_GET_QUERY, [id], defer.callback);
+    this._connection.query(PROFILE_GET_QUERY, [id], function(err, rows) {
+      if (err) {
+        return defer.reject(err);
+      }
+      var result = rows[0];
+      if (result) {
+
+        defer.resolve({
+          uid: result.uid,
+          avatar: result.avatar
+        });
+      } else {
+        defer.resolve();
+      }
+    });
     return defer.promise;
   },
   setAvatar: function setAvatar(uid, url) {

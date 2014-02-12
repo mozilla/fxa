@@ -74,9 +74,7 @@ describe('/users/{userId}', function() {
   before(function(done) {
     db.createProfile({
       uid: userid,
-      avatar: {
-        url: avatarUrl
-      }
+      avatar: avatarUrl
     }).done(function() {
       done();
     }, done);

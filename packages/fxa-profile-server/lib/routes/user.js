@@ -18,7 +18,12 @@ module.exports = {
       if (!profile) {
         throw Boom.notFound();
       }
-      return profile;
+      return {
+        uid: profile.uid,
+        avatar: {
+          url: profile.avatar
+        }
+      };
     }).done(reply, reply);
   }
 };
