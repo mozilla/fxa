@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const convict = require('convict');
-const fs = require('fs');
-const path = require('path');
+var convict = require('convict');
+var fs = require('fs');
+var path = require('path');
 
 var conf = module.exports = convict({
   port: {
@@ -101,6 +101,38 @@ var conf = module.exports = convict({
     doc: 'Max age of the STS directive, in seconds',
     format: Number,
     default: 180 * 24 * 60 * 60            // 180 days
+  },
+  template_path: {
+    doc: 'The location of server-rendered templates',
+    default: path.resolve(__dirname, '..', 'templates')
+  },
+  i18n: {
+    defaultLang: {
+      format: String,
+      default: 'en'
+    },
+    debugLang: {
+      format: String,
+      default: 'it-CH'
+    },
+    supportedLanguages: {
+      doc: 'List of languages this deployment should detect and display localized strings.',
+      format: Array,
+      default: ['en', 'it-CH'],
+      env: 'I18N_SUPPORTED_LANGUAGES'
+    },
+    translationDirectory: {
+      doc: 'The directory where per-locale .json files containing translations reside',
+      format: String,
+      default: 'app/i18n/',
+      env: 'I18N_TRANSLATION_DIR'
+    },
+    translationType: {
+      doc: 'The file format used for the translations',
+      format: String,
+      default: 'key-value-json',
+      env: 'I18N_TRANSLATION_TYPE'
+    }
   }
 });
 

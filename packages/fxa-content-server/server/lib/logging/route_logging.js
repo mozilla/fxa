@@ -4,9 +4,9 @@
 
 // Middleware to log the requests
 
-const logger = require('intel').getLogger('server.requests');
-const expressLogger = require('express').logger;
-const config = require('../configuration');
+var logger = require('intel').getLogger('server.requests');
+var expressLogger = require('express').logger;
+var config = require('../configuration');
 
 /**
  * Enhances connect logger middleware - custom formats.
