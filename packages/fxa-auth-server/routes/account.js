@@ -378,6 +378,7 @@ module.exports = function (
         var sessionToken = request.auth.credentials
         mailer.sendVerifyCode(sessionToken, sessionToken.emailCode, {
           service: request.payload.service,
+          redirectTo: request.payload.redirectTo,
           preferredLang: request.app.preferredLang
         }).done(
           function () {
