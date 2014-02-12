@@ -13,8 +13,8 @@ var exec = require('child_process').exec;
  */
 
 if (!process.env.AWS_ID || ! process.env.AWS_SECRET) {
-  console.log("You haven't defined AWS_ID and AWS_SECRET in the environment");
-  console.log("Get these values from the amazon web console and try again.");
+  console.log('You haven\'t defined AWS_ID and AWS_SECRET in the environment');
+  console.log('Get these values from the amazon web console and try again.');
   process.exit(1);
 }
 
@@ -42,7 +42,7 @@ if (['create', 'deploy'].indexOf(process.argv[2]) !== -1) {
   if (process.env.PICL_DEPLOYMENT_HOSTNAME) {
     options.u = scheme + process.env.PICL_DEPLOYMENT_HOSTNAME;
   } else if (options.n) {
-    var domain = process.env.PICL_DEPLOYMENT_DOMAIN || ".dev.lcip.org";
+    var domain = process.env.PICL_DEPLOYMENT_DOMAIN || '.dev.lcip.org';
     options.u = scheme + options.n + domain;
   }
 
@@ -58,18 +58,18 @@ if (['create', 'deploy'].indexOf(process.argv[2]) !== -1) {
     options.x = process.env.PICL_EPHEMERAL_CONFIG;
   }
 
-  cmd += " create --ssl=force";
+  cmd += ' create --ssl=force';
 
   Object.keys(options).forEach(function(opt) {
-    cmd += " -" + opt;
-    cmd += typeof options[opt] === 'string' ? " " + options[opt] : "";
+    cmd += ' -' + opt;
+    cmd += typeof options[opt] === 'string' ? ' ' + options[opt] : '';
   });
 } else {
   // Otherwise, pass through args to awsbox
-  cmd += " " + process.argv.slice(2).join(' ');
+  cmd += ' ' + process.argv.slice(2).join(' ');
 }
 
-console.log("awsbox cmd: " + cmd);
+console.log('awsbox cmd: ' + cmd);
 var cp = exec(cmd, function(err) {
   if (err) {
     process.exit(err.code);
