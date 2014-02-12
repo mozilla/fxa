@@ -19,8 +19,9 @@ function (_, Backbone, jQuery, Session, authErrors) {
       options = options || {};
 
       this.subviews = [];
-      this.translator = options.translator || window.translator;
-      this.router = options.router || window.router;
+      this.window = options.window || window;
+      this.translator = options.translator || this.window.translator;
+      this.router = options.router || this.window.router;
 
       Backbone.View.call(this, options);
     },

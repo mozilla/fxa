@@ -11,10 +11,9 @@ define([
   'stache!templates/sign_up',
   'lib/session',
   'lib/fxa-client',
-  'lib/password-mixin',
-  'lib/url'
+  'lib/password-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Url) {
+function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin) {
   var t = BaseView.t;
 
   var now = new Date();
@@ -56,8 +55,8 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Ur
 
     context: function () {
       return {
-        service: Url.searchParam('session'),
-        isSync: Url.searchParam('service') === 'sync'
+        service: Session.service,
+        isSync: Session.service === 'sync'
       };
     },
 

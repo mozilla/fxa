@@ -12,7 +12,11 @@ define([
 ],
 function (_, Backbone) {
   function WindowMock() {
-    // nothing to do here.
+    this.translator = window.translator;
+    this.location = {
+      href: window.location.href,
+      search: window.location.search
+    };
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {
@@ -41,10 +45,6 @@ function (_, Backbone) {
 
     CustomEvent: function(command, data) {
       return data;
-    },
-    location: {
-      href: window.location.href,
-      search: window.location.search
     }
   });
 

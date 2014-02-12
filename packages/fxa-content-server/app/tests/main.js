@@ -18,7 +18,8 @@ require.config({
     modernizr: '../bower_components/modernizr/modernizr',
     mocha: '../bower_components/mocha/mocha',
     chai: '../bower_components/chai/chai',
-    p: '../bower_components/p/p'
+    p: '../bower_components/p/p',
+    sinon: '../bower_components/sinon/index'
   },
   shim: {
     underscore: {
@@ -39,6 +40,9 @@ require.config({
         'jquery'
       ],
       exports: 'jQuery.fn.transition'
+    },
+    sinon: {
+      exports: 'sinon'
     }
   },
   stache: {
@@ -48,6 +52,7 @@ require.config({
 
 require([
   'mocha',
+  'lib/translator',
   '../tests/setup',
   '../tests/spec/lib/channels/web',
   '../tests/spec/lib/channels/fx-desktop',
@@ -60,6 +65,7 @@ require([
   '../tests/spec/views/base',
   '../tests/spec/views/form',
   '../tests/spec/views/sign_up',
+  '../tests/spec/views/complete_sign_up',
   '../tests/spec/views/sign_in',
   '../tests/spec/views/settings',
   '../tests/spec/views/change_password',
@@ -69,15 +75,12 @@ require([
   '../tests/spec/views/pp',
   '../tests/spec/views/reset_password',
   '../tests/spec/views/confirm_reset_password',
-  '../tests/spec/views/complete_reset_password'
+  '../tests/spec/views/complete_reset_password',
+  '../tests/spec/views/reset_password_complete'
 ],
-function (Mocha) {
-  // Use a mock for the translator
-  window.translator = {
-    get: function (key) {
-      return key;
-    }
-  };
+function (Mocha, Translator) {
+  // The translator is expected to be on the window object.
+  window.translator = new Translator();
 
   var runner = Mocha.run();
 

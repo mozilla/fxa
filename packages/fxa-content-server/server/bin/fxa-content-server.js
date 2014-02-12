@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path');
+var path = require('path');
 
 // This can't possibly be best way to librar-ify this module.
 var isMain = process.argv[1] === __filename;
@@ -13,21 +13,19 @@ if (isMain) {
   process.chdir(path.dirname(__dirname));
 }
 
-const util = require('util');
-const helmet = require('helmet');
-const express = require('express');
-const connect_fonts = require('connect-fonts');
-const firasans = require('connect-fonts-firasans');
-const clearsans = require('connect-fonts-clearsans');
+var helmet = require('helmet');
+var express = require('express');
+var connect_fonts = require('connect-fonts');
+var firasans = require('connect-fonts-firasans');
+var clearsans = require('connect-fonts-clearsans');
 
-const config = require('../lib/configuration');
-const routes = require('../lib/routes');
+var config = require('../lib/configuration');
+var routes = require('../lib/routes');
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
-const routeLogging = require('../lib/logging/route_logging');
+var routeLogging = require('../lib/logging/route_logging');
 
-const STATIC_DIRECTORY =
+var STATIC_DIRECTORY =
               path.join(__dirname, '..', '..', config.get('static_directory'));
-const VIEWS_ROOT = path.join(__dirname, '..', 'views');
 
 function makeApp() {
   'use strict';
@@ -72,7 +70,7 @@ function listen(theApp) {
     // Development only... Ops runs this behind nginx
     port = 443;
     app.listen(443);
-    app.on('error', function(e) {
+    app.on('error', function (e) {
       if ('EACCES' === e.code) {
         console.error('Permission Denied, maybe you should run this with sudo?');
       } else if ('EADDRINUSE' === e.code) {

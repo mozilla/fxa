@@ -6,7 +6,7 @@ msgstr ""
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2014-02-04 19:52+0000\n"
+"POT-Creation-Date: 2014-02-12 00:53+0000\n"
 "Content-Type: text/plain;\n"
 
 #: app/scripts/templates/sign_up.mustache:10
@@ -77,29 +77,52 @@ msgstr ""
 msgid "2007"
 msgstr ""
 
-#: app/scripts/views/change_password.js:57
+#: app/scripts/views/change_password.js:46
 msgid "old and new passwords must be different"
 msgstr ""
 
-#: app/scripts/views/complete_reset_password.js:39
+#: app/scripts/views/complete_reset_password.js:37
 msgid "no token specified"
 msgstr ""
 
-#: app/scripts/views/complete_reset_password.js:44
+#: app/scripts/views/complete_reset_password.js:42
 #: app/scripts/views/complete_sign_up.js:39
 msgid "no code specified"
 msgstr ""
 
-#: app/scripts/views/complete_reset_password.js:49
+#: app/scripts/views/complete_reset_password.js:47
 msgid "no email specified"
 msgstr ""
 
-#: app/scripts/views/complete_reset_password.js:96
+#: app/scripts/views/complete_reset_password.js:60
 msgid "passwords do not match"
 msgstr ""
 
 #: app/scripts/views/complete_sign_up.js:34
 msgid "no uid specified"
+msgstr ""
+
+#: app/scripts/views/form.js:186
+#: app/scripts/lib/strings.js:18
+msgid "Valid email required"
+msgstr ""
+
+#: app/scripts/views/form.js:192
+#: app/scripts/lib/strings.js:23
+#: app/scripts/templates/change_password.mustache:10
+#: app/scripts/templates/complete_reset_password.mustache:9
+#: app/scripts/templates/sign_up.mustache:7
+msgid "Must be at least 8 characters"
+msgstr ""
+
+#: app/scripts/views/form.js:193
+#: app/scripts/lib/strings.js:19
+msgid "Valid password required"
+msgstr ""
+
+#: app/scripts/views/sign_up.js:70
+#: app/scripts/lib/strings.js:24
+msgid "Year of birth required"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:16
@@ -179,14 +202,6 @@ msgstr ""
 msgid "This endpoint is no longer supported"
 msgstr ""
 
-#: app/scripts/lib/strings.js:18
-msgid "Valid email required"
-msgstr ""
-
-#: app/scripts/lib/strings.js:19
-msgid "Valid password required"
-msgstr ""
-
 #: app/scripts/lib/strings.js:20
 msgid "Invalid password"
 msgstr ""
@@ -197,18 +212,6 @@ msgstr ""
 
 #: app/scripts/lib/strings.js:22
 msgid "Invalid email or password"
-msgstr ""
-
-#: app/scripts/lib/strings.js:23
-#: app/scripts/templates/change_password.mustache:10
-#: app/scripts/templates/complete_reset_password.mustache:9
-#: app/scripts/templates/sign_in.mustache:12
-#: app/scripts/templates/sign_up.mustache:7
-msgid "Must be at least 8 characters"
-msgstr ""
-
-#: app/scripts/lib/strings.js:24
-msgid "Year of birth required"
 msgstr ""
 
 #: app/scripts/lib/strings.js:26
@@ -431,7 +434,7 @@ msgid "Sign out"
 msgstr ""
 
 #: app/scripts/templates/sign_in.mustache:2
-#: app/scripts/templates/sign_in.mustache:13
+#: app/scripts/templates/sign_in.mustache:12
 msgid "Sign in"
 msgstr ""
 
@@ -439,16 +442,16 @@ msgstr ""
 msgid "Sign in to continue"
 msgstr ""
 
-#: app/scripts/templates/sign_in.mustache:14
-#: app/scripts/templates/sign_in.mustache:16
+#: app/scripts/templates/sign_in.mustache:13
+#: app/scripts/templates/sign_in.mustache:15
 msgid "Forgot password?"
 msgstr ""
 
-#: app/scripts/templates/sign_in.mustache:15
+#: app/scripts/templates/sign_in.mustache:14
 msgid "Create an account"
 msgstr ""
 
-#: app/scripts/templates/sign_in.mustache:18
+#: app/scripts/templates/sign_in.mustache:17
 #: app/scripts/templates/sign_up.mustache:27
 msgid ""
 "By proceeding, I agree to the <a id=\"fxa-tos\" href=\"/legal/terms\">Terms "

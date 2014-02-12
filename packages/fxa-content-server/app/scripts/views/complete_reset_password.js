@@ -27,7 +27,7 @@ function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixi
 
     context: function () {
       return {
-        isSync: Url.searchParam('service') === 'sync'
+        isSync: Session.service === 'sync'
       };
     },
 
@@ -71,12 +71,6 @@ function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixi
     },
 
     _onResetCompleteSuccess: function () {
-      // This information will be displayed on the
-      // reset_password_complete screen.
-      Session.set({
-        service: Url.searchParam('service'),
-        redirectTo: Url.searchParam('redirectTo')
-      });
       this.navigate('reset_password_complete');
     },
 

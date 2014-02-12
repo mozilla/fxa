@@ -10,40 +10,72 @@ define([
   'chai',
   'jquery',
   '../../mocks/channel',
+  '../../lib/helpers',
   'lib/session',
   'lib/fxa-client'
 ],
-function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
+// FxaClientWrapper is the object that is used in
+// fxa-content-server views. It wraps FxaClient to
+// take care of some app-specific housekeeping.
+function (mocha, chai, $, ChannelMock, testHelpers,
+              Session, FxaClientWrapper) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var email;
   var password = 'password';
   var client;
+  var realClient;
   var channelMock;
 
 
   describe('lib/fxa-client', function () {
-    beforeEach(function () {
+    beforeEach(function (done) {
       channelMock = new ChannelMock();
       Session.clear();
       Session.set('channel', channelMock);
-      client = new FxaClientWrapper();
       email = 'testuser' + Math.random() + '@testuser.com';
+
+      client = new FxaClientWrapper({
+        language: 'it-CH'
+      });
+      client._getClientAsync()
+              .then(function (_realClient) {
+                realClient = _realClient;
+                // create spies that can be used to check
+                // parameters that are passed to the FxaClient
+                testHelpers.addFxaClientSpy(realClient);
+                done();
+              });
     });
 
     afterEach(function () {
       Session.clear();
       channelMock = null;
+
+      // return the client to its original state.
+      testHelpers.removeFxaClientSpy(realClient);
     });
 
     describe('signUp/signUpResend', function () {
-      it('signs up a user with email/password', function (done) {
+      it('signUp signs up a user with email/password', function (done) {
+        Session.set('service', 'sync');
+        Session.set('redirectTo', 'https://sync.firefox.com');
+
         client.signUp(email, password)
           .then(function () {
             assert.equal(channelMock.message, 'login');
             assert.isUndefined(channelMock.data.customizeSync);
+
+            assert.isTrue(realClient.signUp.calledWith(email, password, {
+              keys: true,
+              service: 'sync',
+              redirectTo: 'https://sync.firefox.com',
+              lang: 'it-CH'
+            }));
+
             done();
-          }, function (err) {
+          })
+          .then(null, function (err) {
             assert.fail(err);
             done();
           });
@@ -52,13 +84,38 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
       it('informs browser of customizeSync option', function (done) {
         client.signUp(email, password, true)
           .then(function () {
-            assert.equal(channelMock.message, 'login');
             assert.isTrue(channelMock.data.customizeSync);
+
+            done();
+          })
+          .then(null, function (err) {
+            assert.fail(err);
+            done();
+          });
+      });
+
+      it('signUpResend resends the validation email', function (done) {
+        Session.set('service', 'sync');
+        Session.set('redirectTo', 'https://sync.firefox.com');
+
+        client.signUp(email, password)
+          .then(function () {
             return client.signUpResend();
           })
           .then(function () {
+            assert.isTrue(
+                realClient.recoveryEmailResendCode.calledWith(
+                    Session.sessionToken,
+                    {
+                      service: 'sync',
+                      redirectTo: 'https://sync.firefox.com',
+                      lang: 'it-CH'
+                    }
+                ));
+
             done();
-          }, function (err) {
+          })
+          .then(null, function (err) {
             assert.fail(err);
             done();
           });
@@ -69,7 +126,7 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
       it('signin with unknown user should call errorback', function (done) {
         client.signIn('unknown@unknown.com', 'password')
           .then(function (info) {
-            assert.isTrue(false, 'unknown user cannot sign in');
+            assert.fail('unknown user cannot sign in');
             done();
           }, function (err) {
             assert.isTrue(true);
@@ -112,19 +169,36 @@ function (mocha, chai, $, ChannelMock, Session, FxaClientWrapper) {
       it('requests a password reset', function (done) {
         client.signUp(email, password)
           .then(function () {
-            return client.signIn(email, password);
-          })
-          .then(function () {
+            Session.set('service', 'sync');
+            Session.set('redirectTo', 'https://sync.firefox.com');
             return client.passwordReset(email);
           })
           .then(function () {
+            assert.isTrue(
+                realClient.passwordForgotSendCode.calledWith(
+                    email,
+                    {
+                      service: 'sync',
+                      redirectTo: 'https://sync.firefox.com',
+                      lang: 'it-CH'
+                    }
+                ));
             return client.passwordResetResend();
           })
           .then(function () {
-            // positive test to ensure success case has an assertion
-            assert.isTrue(true);
+            assert.isTrue(
+                realClient.passwordForgotResendCode.calledWith(
+                    email,
+                    Session.passwordForgotToken,
+                    {
+                      service: 'sync',
+                      redirectTo: 'https://sync.firefox.com',
+                      lang: 'it-CH'
+                    }
+                ));
             done();
-          }, function (err) {
+          })
+          .then(null, function (err) {
             assert.fail(err);
             done();
           });

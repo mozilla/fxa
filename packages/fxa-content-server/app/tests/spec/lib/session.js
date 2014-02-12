@@ -21,6 +21,10 @@ function (mocha, chai, Session) {
 
     afterEach(function () {
       Session.clear();
+      // Since Session is a singleton and channel is not cleared, attaching
+      // the mock Session.channel can interfere with other tests, depending
+      // on the ordering of the tests.
+      delete Session.channel;
     });
 
     describe('set', function () {
