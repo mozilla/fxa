@@ -59,7 +59,7 @@ define([
           })
           .then(
             function (res) {
-              assert.ok(res.sessionToken);
+              assert.property(res, 'sessionToken');
             },
             function () {
               assert.fail();
@@ -89,7 +89,7 @@ define([
           })
           .then(
             function (res) {
-              assert.ok(res.sessionToken);
+              assert.property(res, 'sessionToken');
             },
             function () {
               assert.fail();
@@ -136,7 +136,7 @@ define([
               assert.fail();
             },
             function (error) {
-              assert.ok(error, '== error should happen');
+              assert.ok(error);
               assert.equal(error.message, 'Incorrect password', '== Password is incorrect');
               assert.equal(error.code, 400, '== Correct status code');
             }

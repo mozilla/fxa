@@ -84,7 +84,7 @@ define([
           })
           .then(
           function(res) {
-            assert.ok(res, '== got response');
+            assert.ok(res);
 
             return respond(client.signIn(account.input.email, account.input.password), ErrorMocks.accountDoesNotExist)
           }
@@ -145,6 +145,83 @@ define([
               assert.fail();
             }
           )
+      });
+
+      test('#passwordForgotSendCode with service and redirectTo', function () {
+        var account;
+        var opts = {
+          service: 'sync',
+          redirectTo: 'http://sync.firefox.com/after_reset'
+        };
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (acc) {
+            account = acc;
+
+            return respond(client.passwordForgotSendCode(account.input.email, opts), RequestMocks.passwordForgotSendCode)
+          })
+          .then(function (result) {
+            assert.ok(result.passwordForgotToken);
+
+            return respond(mail.wait(account.input.user, 2), RequestMocks.resetMailWithServiceAndRedirect);
+          })
+          .then(function (emails) {
+            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/);
+            assert.ok(code, 'code found');
+            var service = emails[1].html.match(/service=([A-Za-z0-9]+)/);
+            assert.ok(service, 'service found');
+            var redirectTo = emails[1].html.match(/redirectTo=([A-Za-z0-9]+)/);
+            assert.ok(redirectTo, 'redirectTo found');
+
+            assert.ok(code[1], 'code is returned');
+            assert.equal(service[1], 'sync', 'service is returned');
+            assert.equal(redirectTo[1], 'http', 'redirectTo is returned');
+          })
+      });
+
+      test('#passwordForgotResendCode with service and redirectTo', function () {
+        var account;
+        var passwordForgotToken;
+        var opts = {
+          service: 'sync',
+          redirectTo: 'http://sync.firefox.com/after_reset'
+        };
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (acc) {
+            account = acc;
+
+            return respond(client.passwordForgotSendCode(account.input.email, opts), RequestMocks.passwordForgotSendCode)
+          })
+          .then(function (result) {
+            assert.ok(result.passwordForgotToken);
+            passwordForgotToken = result.passwordForgotToken;
+
+            return respond(mail.wait(account.input.user, 2), RequestMocks.resetMailWithServiceAndRedirect);
+          })
+          .then(function (res) {
+            assert.ok(res);
+
+            return respond(client.passwordForgotResendCode(account.input.email, passwordForgotToken, opts),
+              RequestMocks.passwordForgotResendCode)
+          })
+          .then(function (result) {
+            assert.ok(result.passwordForgotToken);
+
+            return respond(mail.wait(account.input.user, 3), RequestMocks.resetMailResendWithServiceAndRedirect);
+          })
+          .then(function (emails) {
+            var code = emails[2].html.match(/code=([A-Za-z0-9]+)/);
+            assert.ok(code, 'code found');
+            var service = emails[2].html.match(/service=([A-Za-z0-9]+)/);
+            assert.ok(service, 'service found');
+            var redirectTo = emails[2].html.match(/redirectTo=([A-Za-z0-9]+)/);
+            assert.ok(redirectTo, 'redirectTo found');
+
+            assert.ok(code[1], 'code is returned');
+            assert.equal(service[1], 'sync', 'service is returned');
+            assert.equal(redirectTo[1], 'http', 'redirectTo is returned');
+          })
       });
 
     });
