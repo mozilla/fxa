@@ -8,6 +8,12 @@ const path = require('path');
 const convict = require('convict');
 
 const conf = convict({
+  api: {
+    version: {
+      doc: 'Version number prepended to API routes',
+      default: 0
+    }
+  },
   db: {
     driver: {
       env: 'DB',
