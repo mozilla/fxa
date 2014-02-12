@@ -100,6 +100,27 @@ define([
         );
       });
 
+      test('#destroy with incorrect case with skipCaseError', function () {
+        var account;
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (acc) {
+            account = acc;
+            var incorrectCaseEmail = account.input.email.charAt(0).toUpperCase() + account.input.email.slice(1);
+
+            return respond(client.accountDestroy(incorrectCaseEmail, account.input.password, {skipCaseError: true}), ErrorMocks.incorrectEmailCase)
+          })
+          .then(
+            function () {
+              assert.fail();
+            },
+            function (res) {
+              assert.equal(res.code, 400);
+              assert.equal(res.errno, 120);
+            }
+          );
+      });
+
       /**
        * Password Reset
        */

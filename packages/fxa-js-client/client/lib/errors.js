@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 define([], function () {
   return {
-    UNKNOWN_USER: 102,
     INVALID_TIMESTAMP: 111,
     INCORRECT_EMAIL_CASE: 120
   };

@@ -126,9 +126,9 @@ define([], function () {
     },
     // status code 503, errno 201: service temporarily unavailable to due high load (see backoff protocol)
     temporarilyUnavailable: {
-      status: 400,
+      status: 503,
       headers: {},
-      body: '{"code":400, "errno": 120}'
+      body: '{"code":503, "errno": 201}'
     },
     // any status code, errno 999: unknown error
     unknownError: {
