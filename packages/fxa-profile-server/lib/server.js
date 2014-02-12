@@ -40,6 +40,12 @@ exports.create = function createServer() {
 
   server.route(require('./routing'));
 
+  server.pack.require('lout', function(err) {
+    if (err) {
+      throw err;
+    }
+  });
+
 
   server.on('request', function(req, evt, tags) {
     if (tags.error && util.isError(evt.data)) {

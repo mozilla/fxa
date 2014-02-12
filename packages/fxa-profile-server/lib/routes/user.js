@@ -13,6 +13,14 @@ module.exports = {
       userId: Joi.string().required()
     }
   },
+  response: {
+    schema: {
+      uid: Joi.string().required(),
+      avatar: Joi.object({
+        url: Joi.string()
+      })
+    }
+  },
   handler: function userGet(req, reply) {
     db.getProfile(req.params.userId).then(function(profile) {
       if (!profile) {
