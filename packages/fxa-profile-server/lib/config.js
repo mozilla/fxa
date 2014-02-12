@@ -30,6 +30,11 @@ const conf = convict({
           format: '%(name)s.%(levelname)s: %(message)s',
           colorize: true
         },
+        'console_with_time': {
+          format: '[%(date)s] %(name)s.%(levelname)s: %(message)s',
+          datefmt: '%Y-%m-%d %H:%M:%S.%L',
+          colorize: true
+        },
         json: {
           format: '%O'
         }
@@ -41,11 +46,6 @@ const conf = convict({
         console: {
           class: 'intel/handlers/console',
           formatter: 'console'
-        },
-        file: {
-          class: 'intel/handlers/file',
-          formatter: 'json',
-          file: path.join(__dirname, '..', 'var', 'log', 'fxa.log')
         }
       }
     },

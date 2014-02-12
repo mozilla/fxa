@@ -1,16 +1,20 @@
 {
-	"db": {
-		"driver": "mysql"
-	},
-	"mysql": {
-		"user": "fxa"
-	},
-	"logging": {
-		"loggers": {
-			"fxa": {
-				"handlers": ["file"],
-				"level": "info"
-			}
-		}
-	}
+  "db": {
+    "driver": "mysql"
+  },
+  "mysql": {
+    "user": "fxa"
+  },
+  "logging": {
+    "handlers": {
+      "console": {
+        "formatter": "console_with_time"
+      }
+    },
+    "loggers": {
+      "fxa": {
+        "level": "debug"
+      }
+    }
+  }
 }
