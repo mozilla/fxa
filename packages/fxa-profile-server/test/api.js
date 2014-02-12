@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -13,6 +14,10 @@ const db = require('../lib/db');
 /*global describe,before,it*/
 
 var avatarUrl = 'http://example.domain/path/img.png';
+
+function userid() {
+  return crypto.randomBytes(8).toString('hex');
+}
 
 describe('/avatar', function() {
 
@@ -27,17 +32,18 @@ describe('/avatar', function() {
   });
 
   it('should be able to post a url', function(done) {
+    var uid = userid();
     var imageData = { url: avatarUrl };
     Server.api.post({
       url: '/avatar',
       payload: JSON.stringify(imageData),
       headers: {
-        authorization: 'userid 1'
+        authorization: 'userid ' + uid
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 200);
 
-      return db.getProfile('1');
+      return db.getProfile(uid);
     }).then(function(profile) {
       assert.equal(profile.avatar, avatarUrl);
     }).done(done);
@@ -70,10 +76,10 @@ describe.skip('/avatar/upload', function() {
 
 describe('/users/{userId}', function() {
 
-  var userid = require('crypto').randomBytes(8).toString('hex');
+  var uid = userid();
   before(function(done) {
     db.createProfile({
-      uid: userid,
+      uid: uid,
       avatar: avatarUrl
     }).done(function() {
       done();
@@ -81,7 +87,7 @@ describe('/users/{userId}', function() {
   });
 
   it('should return a profile', function(done) {
-    Server.api.get('/users/' + userid).then(function(res) {
+    Server.api.get('/users/' + uid).then(function(res) {
       assert.equal(res.statusCode, 200);
       assert.equal(JSON.parse(res.payload).avatar.url, avatarUrl);
     }).done(done);

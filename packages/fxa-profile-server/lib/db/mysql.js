@@ -81,7 +81,7 @@ MysqlStore.prototype = {
   createProfile: function createProfile(profile) {
     var defer = Promise.defer();
     this._connection.query(PROFILE_CREATE_QUERY,
-        [profile.uid, profile.avatar], defer.callback);
+      [profile.uid, profile.avatar], defer.callback);
     return defer.promise;
   },
   getProfile: function getProfile(id) {
@@ -104,12 +104,13 @@ MysqlStore.prototype = {
     return defer.promise;
   },
   setAvatar: function setAvatar(uid, url) {
+    var conn = this._connection;
     return this.profileExists(uid).then(function(exists) {
       if (!exists) {
         throw new Error('User (' + uid + ') does not exist');
       }
       var defer = Promise.defer();
-      this._connection.query(AVATAR_SET_QUERY, [url, uid], defer.callback);
+      conn.query(AVATAR_SET_QUERY, [url, uid], defer.callback);
       return defer.promise;
     });
   }

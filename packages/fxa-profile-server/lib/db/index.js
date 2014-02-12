@@ -30,6 +30,7 @@ function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function(driver) {
+      logger.verbose('proxied', method, [].slice.call(args));
       return driver[method].apply(driver, args);
     }).catch(function(err) {
       logger.error(err);
@@ -37,7 +38,7 @@ function proxy(method) {
     });
   };
 }
-Object.keys(memory.prototype).forEach(function(key) {
+Object.keys(mysql.prototype).forEach(function(key) {
   exports[key] = proxy(key);
 });
 
