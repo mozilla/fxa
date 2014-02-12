@@ -51,16 +51,6 @@ TestServer.start(config)
             t.deepEqual(keys.kA, kA, 'kA is preserved')
           }
         )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'login-success': 2,
-              'pwd-change-request': 1,
-              'pwd-reset-success': 1,
-              'auth-failure': 0
-            })
-          }
-        )
     }
   )
 

@@ -56,16 +56,6 @@ TestServer.start(config)
             t.equal(status.verified, false, 'account not verified')
           }
         )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'account-create-success': 1,
-              'account-verify-failure': 1,
-              'account-verify-request': 0,
-              'account-verify-success': 0
-            })
-          }
-        )
     }
   )
 

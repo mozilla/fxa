@@ -162,35 +162,22 @@ module.exports = function (path, url, Hapi, toobusy) {
       }
     )
 
-    // Construct source-ip-address chain for logging security messages.
     server.ext(
       'onPreHandler',
       function (request, next) {
+        // Construct source-ip-address chain for logging security messages.
         var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
         xff.push(request.info.remoteAddress)
         // Remove empty items from the list, in case of badly-formed header.
         request.app.remoteAddressChain = xff.filter(function(x){ return x});
-        next()
-      }
-    )
 
-    // Select user's preferred language via the accept-language header.
-    server.ext(
-      'onPreHandler',
-      function (request, next) {
+        // Select user's preferred language via the accept-language header.
         var acceptLanguage = request.headers['accept-language']
         if (acceptLanguage) {
           var accepted = i18n.parseAcceptLanguage(acceptLanguage)
           request.app.preferredLang = i18n.bestLanguage(accepted)
         }
-        next()
-      }
-    )
 
-    // Log a trace to mark that we're entering the handler.
-    server.ext(
-      'onPreHandler',
-      function (request, next) {
         log.trace(
           {
             op: 'server.onPreHandler',
@@ -205,85 +192,20 @@ module.exports = function (path, url, Hapi, toobusy) {
       }
     )
 
-    // Ensure that we have a Strict-Transport-Security header.
-    server.ext(
-      'onPreResponse',
-      function (request, next) {
-        var res = request.response
-        // error responses don't have `header`
-        if (res.header) {
-          res.header('Strict-Transport-Security', 'max-age=10886400')
-        }
-        next()
-      }
-    )
-
-    // Ensure that errors are reported in our custom error format.
-    server.ext(
-      'onPreResponse',
-      function (request, next) {
-        var res = request.response
-        // error responses don't have `header`
-        if (res.header) {
-          res.header('Timestamp', '' + Math.floor(Date.now() / 1000))
-        }
-        next()
-      }
-    )
-
     server.ext(
       'onPreResponse',
       function (request, next) {
         var response = request.response
         if (response.isBoom) {
-          if (!(response instanceof error)) {
-            response = error.translate(response.output.payload)
-          }
+          response = error.translate(response)
           if (config.env !== 'prod') {
-            response.output.payload.log = request.app.traced
+            response.backtrace(request.app.traced)
           }
-          if (response.output.payload.code === 401) {
-            log.security({
-              event: 'auth-failure',
-              err: response.output.payload
-            });
-          }
-          log.error(
-            {
-              op: 'server.onPreResponse',
-              rid: request.id,
-              path: request.path,
-              err: response.output.payload
-            }
-          )
         }
-        else {
-          log.trace(
-            {
-              op: 'server.onPreResponse',
-              rid: request.id,
-              path: request.path,
-              response: response.source
-            }
-          )
-        }
+        response.header('Strict-Transport-Security', 'max-age=10886400')
+        response.header('Timestamp', '' + Math.floor(Date.now() / 1000))
+        log.summary(request, response)
         next(response)
-      }
-    )
-
-    // Log a trace at the end of the response.
-    server.on(
-      'response',
-      function (request) {
-        log.info(
-          {
-            op: 'server.response',
-            rid: request.id,
-            path: request.path,
-            code: request.response._code,
-            t: Date.now() - request.info.received
-          }
-        )
       }
     )
 

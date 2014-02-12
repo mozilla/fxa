@@ -128,13 +128,6 @@ TestServer.start(config)
             return d.promise
           }
         )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'auth-failure': 1
-            })
-          }
-        )
     }
   )
 
@@ -219,13 +212,6 @@ TestServer.start(config)
               }
             )
             return d.promise
-          }
-        )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'auth-failure': 1
-            })
           }
         )
     }

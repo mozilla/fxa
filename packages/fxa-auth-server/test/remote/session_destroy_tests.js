@@ -45,15 +45,6 @@ TestServer.start(config)
             t.equal(err.errno, 110, 'session is invalid')
           }
         )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'login-success': 1,
-              'session-create': 2,
-              'session-destroy': 1,
-            })
-          }
-        )
     }
   )
 
