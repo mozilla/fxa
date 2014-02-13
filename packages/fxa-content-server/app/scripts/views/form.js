@@ -20,9 +20,10 @@
 define([
   'underscore',
   'jquery',
-  'views/base'
+  'views/base',
+  'views/tooltip'
 ],
-function (_, $, BaseView) {
+function (_, $, BaseView, Tooltip) {
   var t = BaseView.t;
 
   var FormView = BaseView.extend({
@@ -200,19 +201,15 @@ function (_, $, BaseView) {
      */
     showValidationError: function (which, message) {
       var invalidEl = this.$(which);
-      var tooltipEl = invalidEl.closest('.tooltip');
-      tooltipEl.attr('title', this.translator.get(message));
 
-      function removeTooltip() {
+      var tooltip = new Tooltip({
+        message: message,
+        invalidEl: invalidEl
+      }).on('destroyed', function () {
         invalidEl.removeClass('invalid');
-        tooltipEl.removeAttr('title');
-      }
+      }).render();
 
-      // keyboard input for input/select elements.
-      invalidEl.one('keydown', removeTooltip);
-      // handle selecting an option with the mouse for select elements
-      invalidEl.find('option').one('click', removeTooltip);
-
+      this.trackSubview(tooltip);
 
       try {
         invalidEl.addClass('invalid').get(0).focus();
@@ -222,7 +219,6 @@ function (_, $, BaseView) {
 
       // used for testing
       this.trigger('validation_error', which, message);
-
     },
 
     /**

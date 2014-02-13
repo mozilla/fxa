@@ -120,12 +120,20 @@ function (_, Backbone, jQuery, Session, authErrors) {
       }
 
       this.destroySubviews();
+      this.trigger('destroyed');
     },
 
     trackSubview: function (view) {
       if (!_.contains(this.subviews, view)) {
         this.subviews.push(view);
+        view.on('destroyed', _.bind(this.untrackSubview, this, view));
       }
+
+      return view;
+    },
+
+    untrackSubview: function (view) {
+      this.subviews = _.without(this.subviews, view);
 
       return view;
     },

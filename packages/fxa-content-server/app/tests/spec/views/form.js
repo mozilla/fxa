@@ -83,15 +83,9 @@ function (mocha, chai, $, FormView, Template, TestHelpers) {
     });
 
     describe('showValidationError', function () {
-      it('sets the title of the nearest tooltip', function() {
+      it('creates a tooltip', function() {
         view.showValidationError('#focusMe', 'this is an error');
-        assert.equal(view.$('.tooltip').attr('title'), 'this is an error');
-      });
-
-      it('removes the title of the nearest tooltip when changed', function() {
-        view.showValidationError('#focusMe', 'this is an error');
-        $('#focusMe').trigger('keydown');
-        assert.equal(view.$('.tooltip').attr('title'), null);
+        assert.ok($('.tooltip').length);
       });
 
       it('focuses the invalid element', function (done) {

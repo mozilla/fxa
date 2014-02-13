@@ -9,12 +9,12 @@
   <div class="error"></div>
 
   <form novalidate>
-    <div class="input-row tooltip">
+    <div class="input-row">
       <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus>
     </div>
 
-    <div class="input-row password-row tooltip tooltip-below">
-      <input type="password" class="password" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} />
+    <div class="input-row password-row">
+      <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} />
 
       <input id="show-password" type="checkbox" class="show-password" aria-controls="password" />
       <label for="show-password" class="show-password-label">
