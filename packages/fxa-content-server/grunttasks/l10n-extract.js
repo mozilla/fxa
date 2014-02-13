@@ -25,7 +25,7 @@ module.exports = function (grunt) {
     var clientWalker = extract({
       'input-dir': path.join(__dirname, '..', 'app', 'scripts'),
       'output-dir': messagesOutputPath,
-      'output': 'content-server.pot',
+      'output': 'client.pot',
       'join-existing': false,
       'keyword': 't',
       parsers: {
@@ -38,7 +38,7 @@ module.exports = function (grunt) {
       var authWalker = extract({
         'input-dir': path.join(__dirname, '..', 'server'),
         'output-dir': messagesOutputPath,
-        'output': 'auth-server.pot',
+        'output': 'server.pot',
         'join-existing': false,
         'keyword': 't',
         parsers: {

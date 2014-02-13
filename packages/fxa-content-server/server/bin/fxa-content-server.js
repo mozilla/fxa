@@ -51,7 +51,9 @@ function makeApp() {
 
   routes(app);
 
-  app.use(express.static(STATIC_DIRECTORY));
+  // woraround for reserved word bug:
+  // https://github.com/marijnh/acorn/issues/85
+  app.use(express['static'](STATIC_DIRECTORY));
   return app;
 }
 
