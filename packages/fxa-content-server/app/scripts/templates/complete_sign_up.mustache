@@ -1,23 +1,20 @@
 <header>
-  <h1 id='fxa-complete-sign-up-header' class="fox-logo"><span>{{#t}}Firefox Accounts{{/t}}</span></h1>
+  <h1 class="fox-logo"><span>{{#t}}Firefox Accounts{{/t}}</span></h1>
 
-  <h2 class="success hidden">{{#t}}Email verified{{/t}}</h2>
-  <h2 class="failure">{{#t}}Email not verified{{/t}}</h2>
+  <h2 id="fxa-complete-sign-up-header" class="complete">{{#t}}Account verified{{/t}}</h2>
 </header>
 
 <section>
   <div class="error"></div>
 
-  <div id="fxa-complete-sign-up-success" class="hidden">
+  <div id="fxa-complete-sign-up-ready" class="complete">
     <div class="graphic graphic-checkbox">{{#t}}Success{{/t}}</div>
 
-    {{#redirectTo}}
-      <p>{{#t}}You are now ready to use %(service)s{{/t}}</p>
-
-      <a id="redirectTo" href="{{ redirectTo }}" autofocus>{{#t}}Continue{{/t}}</a>
-    {{/redirectTo}}
-    {{^redirectTo}}
+    {{#service}}
+    <p>{{#t}}You are now ready to use %(service)s.{{/t}}</p>
+    {{/service}}
+    {{^service}}
       <p>{{#t}}Your account is ready!{{/t}}</p>
-    {{/redirectTo}}
+    {{/service}}
   </div>
 </section>

@@ -6,9 +6,10 @@
 
 define([
   'underscore',
-  'jquery'
+  'jquery',
+  'lib/strings'
 ],
-function (_, $) {
+function (_, $, Strings) {
   var Translator = function (language) {
     this.language = language;
     this.translations = {};
@@ -68,30 +69,7 @@ function (_, $) {
       return this.interpolate(translation, context);
     },
 
-    /**
-     * Replace instances of %s and %(name)s with their corresponding values in
-     * the context
-     * @method interpolate
-     */
-    interpolate: function (string, context) {
-      if (! context) {
-        context = [];
-      }
-
-      var interpolated = string.replace(/\%s/g, function (match) {
-        // boot out non arrays and arrays with not enough items.
-        if (! (context.shift && context.length > 0)) {
-          return match;
-        }
-        return context.shift();
-      });
-
-      interpolated = interpolated.replace(/\%\(([a-zA-Z]+)\)s/g, function (match, name) {
-        return name in context ? context[name] : match;
-      });
-
-      return interpolated;
-    }
+    interpolate: Strings.interpolate
   };
 
   return Translator;
