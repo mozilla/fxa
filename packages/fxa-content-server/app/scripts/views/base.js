@@ -144,6 +144,10 @@ function (_, Backbone, jQuery, Session, authErrors) {
       this.subviews = [];
     },
 
+    isSubviewTracked: function (view) {
+      return _.indexOf(this.subviews, view) > -1;
+    },
+
     /**
      * Display a success message
      * @method displaySuccess
