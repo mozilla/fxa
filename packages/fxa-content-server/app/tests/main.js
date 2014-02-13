@@ -63,6 +63,7 @@ require([
   '../tests/spec/lib/translator',
   '../tests/spec/lib/router',
   '../tests/spec/lib/strings',
+  '../tests/spec/lib/auth-errors',
   '../tests/spec/views/base',
   '../tests/spec/views/tooltip',
   '../tests/spec/views/form',

@@ -9,28 +9,41 @@ define([
   'mocha',
   'chai',
   'views/sign_in',
-  '../../mocks/window'
+  'lib/session',
+  'lib/fxa-client',
+  '../../mocks/window',
+  '../../mocks/router'
 ],
-function (mocha, chai, View, WindowMock) {
+function (mocha, chai, View, Session, FxaClient, WindowMock, RouterMock) {
   var assert = chai.assert;
 
   describe('views/sign_in', function () {
-    var view;
+    var view, email, router;
 
     beforeEach(function () {
-      view = new View();
+      Session.clear();
+      email = 'testuser.' + Math.random() + '@testuser.com';
+      router = new RouterMock();
+      view = new View({
+        router: router
+      });
       view.render();
       $('#container').html(view.el);
     });
 
     afterEach(function () {
+      Session.clear();
       view.remove();
       view.destroy();
     });
 
-    describe('constructor creates it', function () {
-      it('is drawn', function () {
+    describe('render', function () {
+      it('prefills email if one is stored in Session (user comes from signup with existing account)', function () {
+        Session.set('prefillEmail', 'testuser@testuser.com');
+        view.render();
+
         assert.ok($('#fxa-signin-header').length);
+        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
       });
     });
 
@@ -64,6 +77,54 @@ function (mocha, chai, View, WindowMock) {
         view.$('[type=email]').val('testuser@testuser.com');
         view.$('[type=password]').val('passwor');
         assert.isFalse(view.isValid());
+      });
+    });
+
+    describe('submit', function () {
+      it('signs the user in on success', function (done) {
+        var password = 'password';
+        var client = new FxaClient();
+        client.signUp(email, password)
+              .then(function () {
+                $('[type=email]').val(email);
+                $('[type=password]').val(password);
+
+                router.on('navigate', function () {
+                  assert.equal(router.page, 'confirm');
+                  done();
+                });
+                view.submit();
+              })
+              .then(null, function(err) {
+                assert.fail(String(err));
+                done();
+              });
+      });
+
+      it('show incorrect password message on incorrect password', function (done) {
+        var client = new FxaClient();
+        client.signUp(email, 'password')
+              .then(function () {
+                $('[type=email]').val(email);
+                $('[type=password]').val('incorrect');
+
+                view.on('error', function (msg) {
+                  assert.ok(msg.indexOf('Incorrect') > -1);
+                  done();
+                });
+                view.submit();
+              });
+      });
+
+      it('shows message allowing the user to sign up if user enters unknown account', function (done) {
+        $('[type=email]').val(email);
+        $('[type=password]').val('incorrect');
+
+        view.on('error', function (msg) {
+          assert.ok(msg.indexOf('/signup') > -1);
+          done();
+        });
+        view.submit();
       });
     });
 

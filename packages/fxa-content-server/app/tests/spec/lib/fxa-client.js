@@ -12,13 +12,14 @@ define([
   '../../mocks/channel',
   '../../lib/helpers',
   'lib/session',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'lib/auth-errors'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (mocha, chai, $, ChannelMock, testHelpers,
-              Session, FxaClientWrapper) {
+              Session, FxaClientWrapper, AuthErrors) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var email;
@@ -120,6 +121,38 @@ function (mocha, chai, $, ChannelMock, testHelpers,
             done();
           });
       });
+
+      it('signUp existing user attempts to sign the user in', function (done) {
+        client.signUp(email, password)
+          .then(function () {
+            return client.signUp(email, password);
+          })
+          .then(function () {
+            assert.isTrue(realClient.signIn.called);
+            done();
+          })
+          .then(null, function (err) {
+            assert.fail(err);
+            done();
+          });
+      });
+
+      it('signUp existing user with incorrect password returns ' +
+              'incorrect password error', function (done) {
+        client.signUp(email, password)
+          .then(function () {
+            return client.signUp(email, 'incorrect');
+          })
+          .then(function () {
+            assert.fail('incorrect password should not lead to success');
+            done();
+          })
+          .then(null, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+            done();
+          });
+      });
+
     });
 
     describe('signIn', function () {

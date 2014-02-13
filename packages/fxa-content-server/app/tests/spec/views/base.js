@@ -106,6 +106,18 @@ function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         view.displayError('the error message');
         assert.isFalse(view.$('.success').is(':visible'));
       });
+
+      it('removes HTML from error messages', function () {
+        view.displayError('an error message<div>with html</div>');
+        assert.equal(view.$('.error').html(), 'an error message&lt;div&gt;with html&lt;/div&gt;');
+      });
+    });
+
+    describe('displayErrorUnsafe', function () {
+      it('allows HTML in error messages', function () {
+        view.displayErrorUnsafe('an error message<div>with html</div>');
+        assert.equal(view.$('.error').html(), 'an error message<div>with html</div>');
+      });
     });
 
     describe('displaySuccess', function () {

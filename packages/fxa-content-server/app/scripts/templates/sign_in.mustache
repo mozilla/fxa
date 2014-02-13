@@ -19,7 +19,7 @@
   <form novalidate>
     {{^forceAuth}}
       <div class="input-row">
-        <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus>
+        <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}}>
       </div>
     {{/forceAuth}}
     {{#forceAuth}}
@@ -27,7 +27,7 @@
     {{/forceAuth}}
 
     <div class="input-row password-row">
-      <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#forceAuth}}autofocus{{/forceAuth}} {{#isSync}}autocomplete="off"{{/isSync}} />
+      <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#email}}autofocus{{/email}} {{#isSync}}autocomplete="off"{{/isSync}} />
 
       <input id="show-password" type="checkbox" class="show-password" aria-controls="password" />
       <label for="show-password" class="show-password-label">
