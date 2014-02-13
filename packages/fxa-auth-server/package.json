@@ -30,7 +30,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "mysql": "2.0.0",
+    "mysql": "2.0.1",
     "uuid": "1.4.1",
     "hapi": "2.2.0",
     "hapi-auth-hawk": "1.0.0",
