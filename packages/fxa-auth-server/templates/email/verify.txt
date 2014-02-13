@@ -1,7 +1,0 @@
-{{gettext "Welcome!"}}
-
-{{gettext "Click the following link to verify your email"}}
-{{{link}}}
-
-{{gettext "Thank you,"}}
-{{gettext "The Firefox Accounts Team"}}
