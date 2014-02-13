@@ -103,7 +103,8 @@ noscript {
 }
 
 header h1,
-header h2 {
+header h2,
+header h3 {
   font-family: "Fira Sans", Helvetica, Arial, sans-serif;
   line-height: 1em;
   margin: 0;
