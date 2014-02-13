@@ -251,6 +251,29 @@ test(
 )
 
 test(
+  'the cert includes lastAuthAt when given',
+  function (t) {
+    var email = 'test@example.com'
+    var duration = 100
+    var lastAuthAt = Math.floor(Date.now() / 1000)
+    signer.enqueue(
+      {
+        email: email,
+        publicKey: validKey,
+        duration: duration,
+        lastAuthAt: lastAuthAt
+      },
+      function (err, result) {
+        t.ok(result, 'got cert')
+        var payload = jwcrypto.extractComponents(result.cert).payload
+        t.equal(payload['fxa-lastAuthAt'], lastAuthAt, 'lastAuthAt, check')
+        t.end()
+      }
+    )
+  }
+)
+
+test(
   'teardown',
   function (t) {
     signer.exit(

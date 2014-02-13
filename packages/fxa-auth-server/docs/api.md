@@ -171,9 +171,12 @@ Successful requests will produce a "200 OK" response with the account's unique i
 {
   "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
   "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
-  "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c"
+  "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
+  "authAt": 1392144866
 }
 ```
+
+* authAt - authentication time for the session (seconds since epoch)
 
 Failing requests may be due to the following errors:
 
@@ -215,9 +218,12 @@ Successful requests will produce a "200 OK" and a json body. `keyFetchToken` wil
   "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
   "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d",
   "keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c",
-  "verified": true
+  "verified": true,
+  "authAt": 1392144866
 }
 ```
+
+* authAt - authentication time for the session (seconds since epoch)
 
 Failing requests may be due to the following errors:
 
@@ -659,6 +665,11 @@ Successful requests will produce a "200 OK" response with the signed identity ce
   "cert": "eyJhbGciOiJEUzI1NiJ9.eyJwdWJsaWMta2V5Ijp7ImFsZ29yaXRobSI6IlJTIiwibiI6IjU3NjE1NTUwOTM3NjU1NDk2MDk4MjAyMjM2MDYyOTA3Mzg5ODMyMzI0MjUyMDY2Mzc4OTA0ODUyNDgyMjUzODg1MTA3MzQzMTY5MzI2OTEyNDkxNjY5NjQxNTQ3NzQ1OTM3NzAxNzYzMTk1NzQ3NDI1NTEyNjU5NjM2MDgwMzYzNjE3MTc1MzMzNjY5MzEyNTA2OTk1MzMyNDMiLCJlIjoiNjU1MzcifSwicHJpbmNpcGFsIjp7ImVtYWlsIjoiZm9vQGV4YW1wbGUuY29tIn0sImlhdCI6MTM3MzM5MjE4OTA5MywiZXhwIjoxMzczMzkyMjM5MDkzLCJpc3MiOiIxMjcuMC4wLjE6OTAwMCJ9.l5I6WSjsDIwCKIz_9d3juwHGlzVcvI90T2lv2maDlr8bvtMglUKFFWlN_JEzNyPBcMDrvNmu5hnhyN7vtwLu3Q"
 }
 ```
+
+The signed certificate includes these additional claims:
+
+* fxa-generation - a number that increases each time the user's password is changed
+* fxa-lastAuthAt - authentication time for this session (seconds since epoch)
 
 Failing requests may be due to the following errors:
 

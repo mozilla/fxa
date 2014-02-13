@@ -70,6 +70,7 @@ module.exports = function (log, isA, error, signer, domain) {
             publicKey: publicKey,
             duration: duration,
             generation: sessionToken.verifierSetAt,
+            lastAuthAt: sessionToken.lastAuthAt()
           },
           function (err, result) {
             if (err) {

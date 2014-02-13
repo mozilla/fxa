@@ -79,6 +79,7 @@ TestServer.start(config)
         .then(
           function (x) {
             client = x
+            t.ok(client.authAt, 'authAt was set')
             t.ok(client.uid, 'got a uid')
             t.equal(client.emailVerified, true, 'email is verified')
             return client.keys()
