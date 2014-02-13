@@ -42,7 +42,7 @@ module.exports = function (
           message: 'unexpected pool id: ' + id
         })
       }
-    })
+    }.bind(this))
   }
 
   // this will connect to mysql, create the database
