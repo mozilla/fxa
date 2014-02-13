@@ -16,5 +16,8 @@
         "level": "debug"
       }
     }
+  },
+  "uploads": {
+    "dir": "/home/app/var/uploads"
   }
 }

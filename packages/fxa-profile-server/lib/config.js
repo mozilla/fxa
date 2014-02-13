@@ -108,6 +108,20 @@ const conf = convict({
       format: 'port',
       default: 1111
     }
+  },
+  uploads: {
+    dir: {
+      doc: 'Directory to store user uploads in.', //eek!
+      default: path.join(__dirname, '..', 'uploads')
+    },
+    url: {
+      doc: 'Domain to serve uploaded avatars from',
+      default: ''
+    },
+    route: {
+      doc: 'Path to download an uploaded avatar',
+      default: '/a'
+    }
   }
 });
 
@@ -115,6 +129,10 @@ var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json');
 var files = (envConfig + ',' + process.env.CONFIG_FILES)
   .split(',').filter(fs.existsSync);
 conf.loadFile(files);
+
+if (conf.get('uploads.url') === conf.default('uploads.url')) {
+  conf.set('uploads.url', conf.get('publicUrl'));
+}
 
 conf.validate();
 

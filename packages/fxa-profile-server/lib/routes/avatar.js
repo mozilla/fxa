@@ -6,22 +6,20 @@ const Joi = require('hapi').types;
 
 const db = require('../db');
 
+const URL_REGEX = /^https?:\/\/.+/;
+
 module.exports = {
   auth: {
     strategy: 'userid'
   },
   validate: {
     payload: {
-      url: Joi.string().required()
+      url: Joi.string().regex(URL_REGEX).required()
     }
   },
   handler: function avatarPost(req, reply) {
     var id = req.auth.credentials;
-    db.profileExists(id).then(function(exists) {
-      if (!exists) {
-        return db.createProfile({ uid: id });
-      }
-    }).then(function() {
+    db.getOrCreateProfile(id).then(function() {
       return db.setAvatar(id, req.payload.url);
     }).done(function() {
       reply({});

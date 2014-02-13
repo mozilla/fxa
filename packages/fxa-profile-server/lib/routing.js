@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const version = require('./config').get('api.version');
+const config = require('./config').root();
+const version = config.api.version;
 
 function v(url) {
   return '/v' + version + url;
@@ -27,5 +28,16 @@ module.exports = [
     method: 'POST',
     path: v('/avatar/upload'),
     config: require('./routes/upload')
+  },
+  {
+    method: 'GET',
+    path: config.uploads.route + '/{hash}',
+    handler: {
+      directory: {
+        index: false,
+        listing: false,
+        path: config.uploads.dir
+      }
+    }
   }
 ];

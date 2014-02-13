@@ -39,6 +39,16 @@ MemoryStore.prototype = {
   getProfile: function getProfile(id) {
     return Promise.resolve(this.profiles[id]);
   },
+  getOrCreateProfile: function getOrCreateProfile(id) {
+    var db = this;
+    return db.profileExists(id).then(function(exists) {
+      if (!exists) {
+        return db.createProfile({ uid: id });
+      }
+    }).then(function() {
+      return db.getProfile(id);
+    });
+  },
   setAvatar: function setAvatar(userId, url) {
     if (!this.profiles[userId]) {
       return Promise.reject(new Error('User (' + userId + ') does not exist'));

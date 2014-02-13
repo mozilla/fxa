@@ -19,3 +19,5 @@ rm -rf identity-pubkeys
 cat >> /home/ec2-user/.ssh/authorized_keys << EOF
 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAvyIb/9pablSz0Bf46dpKfWfxyL1Ui5Ypo1LOdmesUYxW4kUE3eQpc7bAPP8wVEFUixQR908p94M1FORICzc8mrOG/0l8Vu+B86kYML+Z0Rjtjn+NDXyY8BUKhGapTLnyZh7BiV5RlUN/JBUYtIYzj1Y5yS58LdbFdhzt7MQmcBklfwkN7fzbpf/E1Fv5CcWnr0TvFsz8wSueoh0vepiHKVYgym3HnUTqnF8opUL3i4mrKftZi0PPg4t6YxIgu8ZKj8yGin0eNtwJhjE3dO9WBXGDYcLv8Ps7Ny9chymeJljRJ/QNtJXt6XxLGZdagehTjj3/uz14WEGr7i5bZJRjjw== trink@mozilla.com
 EOF
+
+mkdir -p /home/app/var/uploads

@@ -6,6 +6,7 @@ const Boom = require('hapi').error;
 const Joi = require('hapi').types;
 
 const db = require('../db');
+const config = require('../config');
 
 module.exports = {
   validate: {
@@ -26,10 +27,18 @@ module.exports = {
       if (!profile) {
         throw Boom.notFound();
       }
+
+      var url = profile.avatar;
+      if (url.indexOf('http') !== 0) {
+        // then it's a hash and we serve the url ourselves
+        url = config.get('uploads.url')
+          + config.get('uploads.route')
+          + '/' + url;
+      }
       return {
-        uid: profile.uid,
+        uid: profile.uid.toString(),
         avatar: {
-          url: profile.avatar
+          url: url
         }
       };
     }).done(reply, reply);

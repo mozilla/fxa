@@ -103,6 +103,16 @@ MysqlStore.prototype = {
     });
     return defer.promise;
   },
+  getOrCreateProfile: function getOrCreateProfile(id) {
+    var db = this;
+    return db.profileExists(id).then(function(exists) {
+      if (!exists) {
+        return db.createProfile({ uid: id });
+      }
+    }).then(function() {
+      return db.getProfile(id);
+    });
+  },
   setAvatar: function setAvatar(uid, url) {
     var conn = this._connection;
     return this.profileExists(uid).then(function(exists) {
