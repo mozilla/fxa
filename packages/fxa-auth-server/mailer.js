@@ -10,7 +10,7 @@ var P = require('./promise')
 var handlebars = require("handlebars")
 var request = require('request')
 
-module.exports = function (config, i18n, log) {
+module.exports = function (config, log) {
   // A map of all the different emails we send. The templates are retrieved from
   // the 'fxa-content-server'.
   //
@@ -111,7 +111,7 @@ module.exports = function (config, i18n, log) {
     code = code.toString('hex')
     opts = opts || {}
 
-    var lang = opts.preferredLang || i18n.defaultLang
+    var lang = opts.preferredLang || config.defaultLang
     lang = lang in templates ? lang : 'en'
 
     var template = templates[lang].verify
@@ -156,7 +156,7 @@ module.exports = function (config, i18n, log) {
     log.trace({ op: 'mailer.sendRecoveryCode', email: token.email })
     code = code.toString('hex')
     opts = opts || {}
-    var lang = opts.preferredLang || i18n.defaultLang
+    var lang = opts.preferredLang || config.defaultLang
     lang = lang in templates ? lang : 'en'
     var template = templates[lang].reset
     var query = {
