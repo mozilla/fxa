@@ -70,13 +70,19 @@ module.exports = function (fs, path, url, convict) {
           doc: "The maximum number of connections to create at once.",
           default: 100,
           format: 'nat',
-          env: 'CONNECTION_LIMIT'
+          env: 'MYSQL_CONNECTION_LIMIT'
         },
         waitForConnections: {
           doc: "Determines the pool's action when no connections are available and the limit has been reached.",
           default: true,
           format: Boolean,
-          env: 'WAIT_FOR_CONNECTIONS'
+          env: 'MYSQL_WAIT_FOR_CONNECTIONS'
+        },
+        queueLimit: {
+          doc: "Determines the maximum size of the pool's waiting-for-connections queue.",
+          default: 100,
+          format: 'nat',
+          env: 'MYSQL_QUEUE_LIMIT'
         }
       },
       slave : {
@@ -111,6 +117,12 @@ module.exports = function (fs, path, url, convict) {
           default: true,
           format: Boolean,
           env: 'SLAVE_WAIT_FOR_CONNECTIONS'
+        },
+        queueLimit: {
+          doc: "Determines the maximum size of the pool's waiting-for-connections queue.",
+          default: 100,
+          format: 'nat',
+          env: 'SLAVE_QUEUE_LIMIT'
         }
       }
     },
