@@ -939,7 +939,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.getMasterConnection = function() {
     var d = P.defer()
     this.poolCluster.getConnection('MASTER', function(err, connection) {
-      if (err) return d.reject(err)
+      if (err) {
+        log.error( { op: 'MySql.getMasterConnection', err: err } )
+        return d.reject(error.serviceUnavailable())
+      }
       d.resolve(connection)
     })
     return d.promise
@@ -949,7 +952,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.getSlaveConnection = function() {
     var d = P.defer()
     this.poolCluster.getConnection('SLAVE*', function(err, connection) {
-      if (err) return d.reject(err)
+      if (err) {
+        log.error( { op: 'MySql.getSlaveConnection', err: err } )
+        return d.reject(error.serviceUnavailable())
+      }
       d.resolve(connection)
     })
     return d.promise
