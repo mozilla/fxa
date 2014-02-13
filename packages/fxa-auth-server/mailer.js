@@ -8,58 +8,69 @@ var qs = require('querystring')
 var nodemailer = require('nodemailer')
 var P = require('./promise')
 var handlebars = require("handlebars")
+var request = require('request')
 
 module.exports = function (config, i18n, log) {
+  // A map of all the different emails we send. The templates are retrieved from
+  // the 'fxa-content-server'.
+  //
+  // The map is populated by 'lang' then 'type'.
+  // e.g.
+  //     templates['en']['reset']
+  //     templates['it-CH']['verify']
+  //
+  // We read the languages from config.i18n.supportedLanguages and
+  // the types are currently 'verify' and 'reset'.
+  var templates = {}
 
-  function loadTemplate (name) {
-    return fs.readFileSync(path.join(config.templatePath, name))
+  var types = [ 'verify', 'reset' ]
+  function fetchTemplates() {
+    var p = P.defer()
+
+    var remaining = config.i18n.supportedLanguages.length * types.length;
+    config.i18n.supportedLanguages.forEach(function(lang) {
+      // somewhere to store the templates
+      templates[lang] = templates[lang] || {}
+
+      types.forEach(function(type) {
+        var opts = {
+          uri : config.contentServer.url + '/template/' + lang + '/' + type,
+          json : true,
+        }
+        request(opts, function(err, res, body) {
+          templates[lang][type] = body
+
+          // compile the templates
+          templates[lang][type].html = handlebars.compile(templates[lang][type].html)
+          templates[lang][type].text = handlebars.compile(templates[lang][type].text)
+
+          remaining -= 1
+          if ( remaining === 0 ) {
+            p.resolve()
+          }
+        })
+      })
+    })
+    return p.promise
   }
 
-  // Make the 'gettext' function available in the templates.
-  handlebars.registerHelper('gettext', function(string) {
-    if (this.l10n) {
-      return this.l10n.gettext(string)
-    }
-    return string
-  })
 
-  // a map of all the different emails we send
-  var templates = {
-    verify: {
-      subject: 'Confirm email address for your Firefox Account',
-      text: loadTemplate('verify.txt'),
-      html: loadTemplate('verify.html')
-    },
-    reset: {
-      subject: 'Reset password for your Firefox Account',
-      text: loadTemplate('reset.txt'),
-      html: loadTemplate('reset.html')
-    }
-  }
-
-  // now turn file contents into compiled templates
-  Object.keys(templates).forEach(function(type) {
-    templates[type].text = handlebars.compile(templates[type].text.toString())
-    templates[type].html = handlebars.compile(templates[type].html.toString())
-  })
-
-
-  function Mailer(config) {
+  function Mailer(smtp) {
     var options = {
-      host: config.host,
-      secureConnection: config.secure,
-      port: config.port
+      host: config.smtp.host,
+      secureConnection: config.smtp.secure,
+      port: config.smtp.port
     }
-    if (config.user && config.password) {
+    if (config.smtp.user && config.smtp.password) {
       options.auth = {
-        user: config.user,
-        pass: config.password
+        user: config.smtp.user,
+        pass: config.smtp.password
       }
     }
     this.mailer = nodemailer.createTransport('SMTP', options)
-    this.sender = config.sender
-    this.verificationUrl = config.verificationUrl
-    this.passwordResetUrl = config.passwordResetUrl
+    this.sender = config.smtp.sender
+    this.verificationUrl = config.smtp.verificationUrl
+    this.passwordResetUrl = config.smtp.passwordResetUrl
   }
 
   Mailer.prototype.stop = function () {
@@ -68,6 +79,7 @@ module.exports = function (config, i18n, log) {
 
   Mailer.prototype.send = function (message) {
     log.trace({ op: 'mailer.send', email: message && message.to })
+
     var d = P.defer()
     this.mailer.sendMail(
       message,
@@ -98,7 +110,11 @@ module.exports = function (config, i18n, log) {
     log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
     code = code.toString('hex')
     opts = opts || {}
-    var template = templates.verify
+
+    var lang = opts.preferredLang || i18n.defaultLang
+    lang = lang in templates ? lang : 'en'
+
+    var template = templates[lang].verify
     var query = {
       uid: account.uid.toString('hex'),
       code: code
@@ -108,13 +124,13 @@ module.exports = function (config, i18n, log) {
 
     var link = this.verificationUrl + '?' + qs.stringify(query)
     var values = {
-      l10n: i18n.localizationContext(opts.preferredLang),
       link: link,
     }
+
     var message = {
       sender: this.sender,
       to: account.email,
-      subject: values.l10n.gettext(template.subject),
+      subject: template.subject,
       text: template.text(values),
       html: template.html(values),
       headers: {
@@ -122,7 +138,7 @@ module.exports = function (config, i18n, log) {
         'X-Verify-Code': code,
         'X-Service-ID': opts.service,
         'X-Link': link,
-        'Content-Language': opts.preferredLang || i18n.defaultLang
+        'Content-Language': lang,
       }
     }
     return this.send(message)
@@ -140,7 +156,9 @@ module.exports = function (config, i18n, log) {
     log.trace({ op: 'mailer.sendRecoveryCode', email: token.email })
     code = code.toString('hex')
     opts = opts || {}
-    var template = templates.reset
+    var lang = opts.preferredLang || i18n.defaultLang
+    lang = lang in templates ? lang : 'en'
+    var template = templates[lang].reset
     var query = {
       token: token.data.toString('hex'),
       code: code,
@@ -151,24 +169,28 @@ module.exports = function (config, i18n, log) {
 
     var link = this.passwordResetUrl + '?' + qs.stringify(query)
     var values = {
-      l10n: i18n.localizationContext(opts.preferredLang),
       link: link,
       code: code
     }
     var message = {
       sender: this.sender,
       to: token.email,
-      subject: values.l10n.gettext(template.subject),
+      subject: template.subject,
       text: template.text(values),
       html: template.html(values),
       headers: {
         'X-Recovery-Code': code,
         'X-Link': link,
-        'Content-Language': opts.preferredLang || i18n.defaultLang
+        'Content-Language': lang,
       }
     }
     return this.send(message)
   }
 
-  return P(new Mailer(config))
+  // fetch the templates first, then resolve the new Mailer
+  var p = P.defer()
+  fetchTemplates().then(function() {
+    return p.resolve(new Mailer(config.smtp))
+  })
+  return p.promise
 }

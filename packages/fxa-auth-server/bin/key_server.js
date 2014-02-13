@@ -44,7 +44,7 @@ function main() {
 
   // TODO: send to the SMTP server directly. In the future this may change
   // to another process that we send an http request to.
-  require('../mailer')(config.smtp, i18n, log)
+  require('../mailer')(config, i18n, log)
     .then(
       function(mailer) {
         // server public key
