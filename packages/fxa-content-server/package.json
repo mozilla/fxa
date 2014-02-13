@@ -24,7 +24,7 @@
     "connect-cachify": "0.0.15",
     "convict": "0.4.0",
     "express": "3.3.4",
-    "i18n-abide": "0.0.14",
+    "i18n-abide": "0.0.17",
     "jwcrypto": "0.4.3",
     "intel": "0.4.0",
     "helmet": "0.1.2",

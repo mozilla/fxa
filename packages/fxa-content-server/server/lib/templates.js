@@ -19,7 +19,7 @@ function loadTemplate (name) {
 // Make the 'gettext' function available in the templates.
 handlebars.registerHelper('t', function(string) {
   if (this.l10n) {
-    return this.l10n.gettext(string);
+    return this.l10n.format(this.l10n.gettext(string), this);
   }
   return string;
 });
@@ -53,7 +53,7 @@ module.exports = function (lang, type) {
   var values = {
     l10n: l10n,
     link: '{{{link}}}',
-    code: '{{{code}}}'
+    email: '{{{email}}}'
   };
 
   return {
