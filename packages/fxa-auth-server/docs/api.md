@@ -176,7 +176,7 @@ Successful requests will produce a "200 OK" response with the account's unique i
 }
 ```
 
-* authAt - seconds since epoch
+* authAt - authentication time for the session (seconds since epoch)
 
 Failing requests may be due to the following errors:
 
@@ -223,7 +223,7 @@ Successful requests will produce a "200 OK" and a json body. `keyFetchToken` wil
 }
 ```
 
-* authAt - seconds since epoch
+* authAt - authentication time for the session (seconds since epoch)
 
 Failing requests may be due to the following errors:
 
@@ -669,7 +669,7 @@ Successful requests will produce a "200 OK" response with the signed identity ce
 The signed certificate includes these additional claims:
 
 * fxa-generation - a number that increases each time the user's password is changed
-* fxa-lastAuthAt - authentication time (seconds since epoch) for this session
+* fxa-lastAuthAt - authentication time for this session (seconds since epoch)
 
 Failing requests may be due to the following errors:
 
