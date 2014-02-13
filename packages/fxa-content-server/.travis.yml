@@ -12,18 +12,17 @@ before_install:
   - sudo apt-get install libgmp3-dev
 
 install:
-# install the auth server. Only include prod resources to speed up the build.
-  - git clone git://github.com/mozilla/fxa-auth-server.git
-  - cd fxa-auth-server
-  - npm install
+# install everything for full dev in the fxa-content-server.
+  - npm install --silent
+# install the resources necessary for the auth server.
+  - cd node_modules/fxa-auth-server
+  - npm install --silent
   - node ./scripts/gen_keys.js
   - npm start &
-# install everything for full dev in the fxa-content-server.
-  - cd ..
-  - npm install
+  - cd ../..
 # for local developers, grunt-cli is installed globally.
 # We have to install it for travis.
-  - npm install grunt-cli
+  - npm install --silent grunt-cli
 # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
   - npm start &
