@@ -130,6 +130,10 @@ strong.email {
   display: block;
 }
 
+.allcaps {
+  text-transform: uppercase;
+}
+
 .error,
 .success {
   background: #D63920;
