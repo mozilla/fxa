@@ -40,7 +40,6 @@ module.exports = function (
       },
       handler: function (request, reply) {
         log.begin('Password.changeStart', request)
-        log.security({ event: 'pwd-change-request' })
         var form = request.payload
         var oldAuthPW = Buffer(form.oldAuthPW, 'hex')
 
@@ -151,7 +150,6 @@ module.exports = function (
           )
           .then(
             function () {
-              log.security({ event: 'pwd-reset-success' })
               return {}
             }
           )
@@ -187,7 +185,6 @@ module.exports = function (
         db.emailRecord(email)
           .then(
             function (emailRecord) {
-              log.security({ event: 'pwd-reset-request' })
               return db.createPasswordForgotToken(emailRecord)
             }
           )
@@ -301,7 +298,6 @@ module.exports = function (
         var code = Buffer(request.payload.code, 'hex')
         if (butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
             passwordForgotToken.ttl() > 0) {
-          log.security({ event: 'pwd-reset-verify-success' })
           db.forgotPasswordVerified(passwordForgotToken)
             .done(
               function (accountResetToken) {
@@ -315,7 +311,6 @@ module.exports = function (
             )
         }
         else {
-          log.security({ event: 'pwd-reset-verify-failure' })
           failVerifyAttempt(passwordForgotToken)
             .done(
               function () {

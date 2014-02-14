@@ -81,19 +81,6 @@ TestServer.start(config)
             t.equal(client.kB.length, 32, 'kB exists, has the right length')
           }
         )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'account-create-success': 1,
-              'session-create': 4,
-              'pwd-reset-request': 1,
-              'pwd-reset-verify-success': 1,
-              'pwd-reset-verify-failure': 0,
-              'pwd-reset-success': 1,
-              'pwd-reset-failure': 0
-            })
-          }
-        )
     }
   )
 
@@ -190,14 +177,6 @@ TestServer.start(config)
           },
           function (err) {
             t.equal(err.message, 'Invalid authentication token in request signature', 'token is now invalid')
-          }
-        )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'pwd-reset-verify-failure': 3,
-              'pwd-reset-success': 0
-            })
           }
         )
     }

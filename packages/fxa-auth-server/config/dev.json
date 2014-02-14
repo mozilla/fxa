@@ -9,7 +9,7 @@
     "maxLag": 0
   },
   "log": {
-    "level": "trace"
+    "level": "info"
   },
   "verifierVersion": 0
 }

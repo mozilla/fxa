@@ -28,61 +28,57 @@ function unbuffer(object) {
       object[keys[i]] = x.toString('hex')
     }
   }
+  return object
 }
 
 Overdrive.prototype.trace = function () {
-  if (this._level <= Logger.TRACE) {
-    var arg0 = arguments[0]
-    if (typeof(arg0) === 'object') {
-      unbuffer(arg0)
-      var request = Domain.active && Domain.active.members[0]
-      arg0.rid = arg0.rid || (request && request.id)
-      if (request) {
-        request.app.traced.push(arg0)
-      }
+  // TODO if this is a performance burden reintroduce the level check
+  // otherwise this is valuable data for debugging in the log.summary
+  var arg0 = arguments[0]
+  if (typeof(arg0) === 'object') {
+    unbuffer(arg0)
+    var request = Domain.active && Domain.active.members[0]
+    arg0.rid = arg0.rid || (request && request.id)
+    if (request) {
+      request.app.traced.push(arg0)
     }
   }
+
   return Logger.prototype.trace.apply(this, arguments)
 }
 
+Overdrive.prototype.summary = function (request, response) {
+  var payload = request.payload || {}
+  var query = request.query || {}
+  var line = {
+    op: 'request.summary',
+    code: (response.isBoom) ? response.output.statusCode : response.statusCode,
+    errno: response.errno || 0,
+    rid: request.id,
+    path: request.path,
+    lang: request.app.preferredLang,
+    agent: request.headers['user-agent'],
+    remoteAddressChain: request.app.remoteAddressChain,
+    t: Date.now() - request.info.received
+  }
+  line.uid = (request.auth && request.auth.credentials) ?
+    request.auth.credentials.uid :
+    payload.uid || query.uid
+  line.service = payload.service || query.service
+  line.redirectTo = payload.redirectTo || query.redirectTo
+  line.keys = query.keys
+  if (!line.uid) {
+    line.email = payload.email || query.email
+  }
 
-// Log a security-related event.
-// These get annotated with as much info as we can about the request,
-// e.g. the originating IP and target user account.  The basic structure
-// of the logged object is:
-//
-//   {
-//      security: true,
-//      event: <name-of-event>,
-//      remoteAddressChain: [<client ip>, <proxy1>, ..., <proxyN>],
-//      rid: <request-id>,
-//      uid: <target-account-uid>,
-//      <event-specific-fields>
-//   }
-//
-Overdrive.prototype.security = function (info) {
-  var request = Domain.active && Domain.active.members[0]
-  info.security = true
-  if (!info.event) {
-    this.error({ op: 'log.security', msg: 'missing event name', err: info })
-    info.event = 'unknown'
+  if (line.code >= 500) {
+    line.trace = request.app.traced
+    line.stack = response.stack
+    this.error(unbuffer(line), response.message)
   }
-  if (request) {
-    info.remoteAddressChain = request.app.remoteAddressChain;
-    if (!info.rid) {
-        info.rid = request.id;
-    }
-    if (!info.uid) {
-      // Intuit the target account uid as best we can.
-      if (request.auth && request.auth.credentials) {
-        info.uid = request.auth.credentials.uid
-      } else if (request.payload && request.payload.uid) {
-        info.uid = request.payload.uid
-      }
-    }
+  else {
+    this.info(unbuffer(line))
   }
-  unbuffer(info)
-  return this.info(info)
 }
 
 module.exports = function (level) {

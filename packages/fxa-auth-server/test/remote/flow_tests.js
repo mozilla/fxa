@@ -52,14 +52,6 @@ TestServer.start(config)
             t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
           }
         )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'account-create-success': 1,
-              'login-success': 1
-            })
-          }
-        )
     }
   )
 
@@ -101,14 +93,6 @@ TestServer.start(config)
         .then(
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
-          }
-        )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'login-success': 1,
-              'auth-failure': 0
-            })
           }
         )
     }

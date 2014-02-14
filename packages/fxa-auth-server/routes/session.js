@@ -16,7 +16,6 @@ module.exports = function (log, isA, error, db) {
       handler: function (request, reply) {
         log.begin('Session.destroy', request)
         var sessionToken = request.auth.credentials
-        log.security({ event: 'session-destroy' })
         db.deleteSessionToken(sessionToken)
           .done(
             function () {

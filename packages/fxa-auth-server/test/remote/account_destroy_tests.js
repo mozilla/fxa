@@ -41,15 +41,6 @@ TestServer.start(config)
             t.equal(err.message, 'Unknown account', 'account destroyed')
           }
         )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'login-success': 1,
-              'account-destroy': 1,
-              'auth-failure': 0
-            })
-          }
-        )
     }
   )
 

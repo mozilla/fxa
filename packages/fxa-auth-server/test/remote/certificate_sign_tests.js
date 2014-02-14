@@ -39,14 +39,6 @@ TestServer.start(config)
             t.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
           }
         )
-        .then(
-          function () {
-            return server.assertLogs(t, {
-              'account-create-success': 1,
-              'login-success': 1
-            })
-          }
-        )
     }
   )
 
