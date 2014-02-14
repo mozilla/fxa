@@ -145,6 +145,25 @@ function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       });
     });
 
+    describe('trackSubview/untrackSubview', function () {
+      it('trackSubview tracks a subview, untrackSubview untracks the subview', function () {
+        var subview = new BaseView();
+        view.trackSubview(subview);
+        assert.isTrue(view.isSubviewTracked(subview));
+
+        view.untrackSubview(subview);
+        assert.isFalse(view.isSubviewTracked(subview));
+      });
+
+      it('subview is automatically untracked when destroyed', function () {
+        var subview = new BaseView();
+        view.trackSubview(subview);
+
+        subview.destroy();
+        assert.isFalse(view.isSubviewTracked(subview));
+      });
+    });
+
     describe('BaseView.preventDefaultThen', function () {
       it('can take the name of a function as the name of the event handler', function (done) {
         view.eventHandler = function (event) {

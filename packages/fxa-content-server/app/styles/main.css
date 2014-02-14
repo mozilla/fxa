@@ -181,42 +181,12 @@ strong.email {
 .input-row {
   margin-bottom: 15px;
   width: 100%;
-}
-
-.tooltip {
   position: relative;
 }
 
-/* tooltip caret */
-.tooltip[title]:before,
-.tooltip[title]::before {
-  background: #D63920;
-  content: '.';
-  height: 16px;
-  left: 12px;
-  position: absolute;
-  text-indent: -999px;
-  top: -12px;
-  -webkit-transform: rotate(45deg);
-          transform: rotate(45deg);
-  white-space: nowrap;
-  width: 16px;
-  z-index: 4;
-}
-
-.tooltip-below[title]:before,
-.tooltip-below[title]::before {
-  top: -webkit-calc(100% - 4px);
-  top:    -moz-calc(100% - 4px);
-  top:         calc(100% - 4px);
-}
-
-/* tooltip */
-.tooltip[title]:after,
-.tooltip[title]::after {
+.tooltip {
   background: #D63920;
   border-radius: 1px;
-  content: attr(title);
   color: #fff;
   left: 3px;
   padding: 5px 12px;
@@ -226,11 +196,34 @@ strong.email {
   z-index: 5;
 }
 
-.tooltip-below[title]:after,
-.tooltip-below[title]::after {
-  top: -webkit-calc(102% + 2px);
-  top:    -moz-calc(102% + 2px);
-  top:         calc(102% + 2px);
+/* tooltip caret */
+.tooltip:before,
+.tooltip::before {
+  background: #D63920;
+  content: '.';
+  height: 16px;
+  left: 12px;
+  position: absolute;
+  text-indent: -999px;
+  top: 21px;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+  white-space: nowrap;
+  width: 16px;
+  /**
+   * The z-index must be -1 or else the caret is
+   * displayed on top of the tooltip text
+   */
+  z-index: -1;
+}
+
+/**
+ * these are caret's attached to tooltips that hang below the
+ * input element. The tooltip's top is set via JS.
+ */
+.tooltip-below:before,
+.tooltip-below::before {
+  top: -7px;
 }
 
 
