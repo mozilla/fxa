@@ -165,7 +165,7 @@ module.exports = function (path, url, Hapi, toobusy) {
     server.ext(
       'onPreHandler',
       function (request, next) {
-        // Construct source-ip-address chain for logging security messages.
+        // Construct source-ip-address chain for logging.
         var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
         xff.push(request.info.remoteAddress)
         // Remove empty items from the list, in case of badly-formed header.

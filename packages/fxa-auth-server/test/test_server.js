@@ -6,8 +6,6 @@ var cp = require('child_process')
 var crypto = require('crypto')
 var P = require('../promise')
 var request = require('request')
-var split = require('binary-split')
-var through = require('through')
 var mailbox = require('./mailbox')
 
 function TestServer(config, printLogs) {
@@ -15,7 +13,6 @@ function TestServer(config, printLogs) {
   this.server = null
   this.mail = null
   this.mailbox = mailbox(config.smtp.api.host, config.smtp.api.port)
-  this.logs = {}
 }
 
 function waitLoop(testServer, url, cb) {
@@ -54,29 +51,11 @@ TestServer.prototype.start = function () {
     'node',
     ['./key_server_stub.js'],
     {
-      cwd: __dirname
+      cwd: __dirname,
+      stdio: this.printLogs ? 'pipe' : 'ignore'
     }
   )
-  this.server.stderr
-    .pipe(split())
-    .pipe(
-      through(
-        function (data) {
-          try {
-            this.emit('data', JSON.parse(data))
-          }
-          catch (e) {}
-        }
-      )
-    )
-    .on(
-      'data',
-      function (json) {
-        var name = json.event ? json.event : json.op
-        var count = this.logs[name] || 0
-        this.logs[name] = ++count
-      }.bind(this)
-    )
+
   if (this.printLogs) {
     this.server.stdout.on('data', process.stdout.write.bind(process.stdout))
     this.server.stderr.on('data', process.stderr.write.bind(process.stderr))
@@ -87,30 +66,14 @@ TestServer.prototype.start = function () {
     'node',
     ['./mail_helper_stub.js'],
     {
-      cwd: __dirname
+      cwd: __dirname,
+      stdio: this.printLogs ? 'pipe' : 'ignore'
     }
   )
   if (this.printLogs) {
     this.mail.stdout.on('data', process.stdout.write.bind(process.stdout))
     this.mail.stderr.on('data', process.stderr.write.bind(process.stderr))
   }
-}
-
-TestServer.prototype.assertLogs = function (t, spec) {
-  if (!this.server) { return P() }
-  var keys = Object.keys(spec)
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i]
-    var expected = spec[key]
-    var actual = this.logs[key]
-    if (!expected) {
-      t.ok(!actual, 'no log output for ' + key)
-    } else {
-      t.equal(actual, expected, 'correct log output for ' + key)
-    }
-  }
-  this.logs = {}
-  return P()
 }
 
 TestServer.prototype.stop = function () {
