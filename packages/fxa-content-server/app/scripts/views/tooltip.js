@@ -49,6 +49,12 @@ define([
 
     beforeDestroy: function () {
       displayedTooltip = null;
+
+      // ditch the events we manually added to reduce interference
+      // between tooltips.
+      var invalidEl = this.invalidEl;
+      invalidEl.off('keydown change', this._destroy);
+      invalidEl.find('option').off('click', this._destroy);
     },
 
     setPosition: function () {
@@ -71,11 +77,11 @@ define([
 
       // destroy the tooltip any time the user
       // interacts with the invalid element.
-      var destroy = _.bind(this.destroy, this, true);
+      this._destroy = _.bind(this.destroy, this, true);
       // keyboard input for input/select elements.
-      invalidEl.one('keydown', destroy);
+      invalidEl.one('keydown change', this._destroy);
       // handle selecting an option with the mouse for select elements
-      invalidEl.find('option').one('click', destroy);
+      invalidEl.find('option').one('click', this._destroy);
     }
   });
 
