@@ -720,6 +720,16 @@ input[type="text"] ~ .show-password-label:hover {
     width: 100%;
   }
 
+  @-webkit-keyframes movein {
+    0% {left: 0; top: -20px;}
+    100% {left: 0; top: 0;}
+  }
+
+  @-moz-keyframes movein {
+    0% {left: 0; top: -20px;}
+    100% {left: 0; top: 0;}
+  }
+
   @keyframes movein {
     0% {left: 0; top: -20px;}
     100% {left: 0; top: 0;}
