@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var crypto = require('crypto')
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../../client')
@@ -119,8 +120,8 @@ TestServer.start(config)
                 } else {
                   t.equal(body.errno, 111, 'invalid auth timestamp')
                   var now = +new Date() / 1000
-                  t.ok(body.serverTime > now - 5, 'includes current time')
-                  t.ok(body.serverTime < now + 5, 'includes current time')
+                  t.ok(body.serverTime > now - 60, 'includes current time')
+                  t.ok(body.serverTime < now + 60, 'includes current time')
                   d.resolve()
                 }
               }
@@ -138,6 +139,7 @@ TestServer.start(config)
       var password = 'allyourbasearebelongtous'
       var url = null
       var client = null
+      var nonce = crypto.randomBytes(4).toString('hex')
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
@@ -157,7 +159,7 @@ TestServer.start(config)
             var method = 'GET'
             var verify = {
               credentials: token,
-              nonce: 'abcdef'
+              nonce: nonce
             }
             var headers = {
               Authorization: hawk.client.header(url, method, verify).field
@@ -189,7 +191,7 @@ TestServer.start(config)
             var method = 'GET'
             var verify = {
               credentials: token,
-              nonce: 'abcdef'
+              nonce: nonce
             }
             var headers = {
               Authorization: hawk.client.header(url, method, verify).field
@@ -260,8 +262,8 @@ TestServer.start(config)
                   d.reject(err)
                 } else {
                   var now = +new Date() / 1000
-                  t.ok(res.headers.timestamp > now - 5, 'has timestamp header')
-                  t.ok(res.headers.timestamp < now + 5, 'has timestamp header')
+                  t.ok(res.headers.timestamp > now - 60, 'has timestamp header')
+                  t.ok(res.headers.timestamp < now + 60, 'has timestamp header')
                   d.resolve()
                 }
               }
