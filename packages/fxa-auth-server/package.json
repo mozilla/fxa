@@ -1,0 +1,38 @@
+{
+  "name": "fxa-oauth-server",
+  "version": "0.0.0",
+  "description": "Firefox Accounts OAuth2 server.",
+  "main": "index.js",
+  "scripts": {
+    "start": "grunt server",
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mozilla/fxa-oauth-server"
+  },
+  "author": "",
+  "license": "MPLv2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-oauth-server/issues"
+  },
+  "dependencies": {
+    "hapi": "~2.3.0",
+    "convict": "~0.4.2",
+    "intel": "~0.5.1"
+  },
+  "devDependencies": {
+    "awsbox": "~0.7.0",
+    "grunt": "~0.4.2",
+    "grunt-cli": "~0.1.13",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-copyright": "~0.1.0",
+    "grunt-jscs-checker": "~0.3.2",
+    "grunt-nodemon": "~0.2.0",
+    "grunt-mocha-test": "~0.9.0",
+    "insist": "0.x",
+    "jshint-stylish": "~0.1.5",
+    "load-grunt-tasks": "~0.3.0",
+    "time-grunt": "~0.2.9"
+  }
+}
