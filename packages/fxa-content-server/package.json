@@ -61,10 +61,10 @@
     "jshint": "0.9.1",
     "jshint-stylish": "~0.1.4",
     "jsxgettext-recursive": "0.0.3",
-    "jwcrypto": "0.4.3",
     "load-grunt-tasks": "0.2.1",
     "mkdirp": "~0.3.5",
-    "time-grunt": "~0.1.1"
+    "time-grunt": "~0.1.1",
+    "grunt-copyright": "~0.1.0"
   },
   "devDependencies": {
     "awsbox": "0.6.2",
