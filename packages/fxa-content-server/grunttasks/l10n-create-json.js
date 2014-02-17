@@ -4,15 +4,6 @@
 
 // grunt task convert translated .po files to .json
 
-/**
- * This script takes care of compiling locale specific json files.
- *
- * Process used:
- * 1) checkout or update browserid locale repo under ~root/locale directory
- * 2) compile .po files into .json files located at
- *        ~root/resources/static/i18n
- */
-
 const mkdirp         = require('mkdirp');
 const fs             = require('fs');
 const path           = require('path');
