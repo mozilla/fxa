@@ -60,6 +60,7 @@ module.exports = function (app) {
     '/confirm',
     '/settings',
     '/change_password',
+    '/legal',
     '/legal/terms',
     '/legal/privacy',
     '/cannot_create_account',

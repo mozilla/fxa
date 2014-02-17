@@ -6,6 +6,7 @@ define([
   './functional/sign_in',
   './functional/sign_up',
   './functional/complete_sign_up',
+  './functional/legal',
   './functional/tos',
   './functional/pp',
   './functional/confirm',
