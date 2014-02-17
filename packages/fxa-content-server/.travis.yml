@@ -7,7 +7,7 @@ env:
     # please get your own free key if you want to test yourself
     - SAUCE_USERNAME: intern-example-ci
     - SAUCE_ACCESS_KEY: 89ac3089-17b3-4e9b-aaf3-c475b27fa441
-    
+
 before_install:
   - sudo apt-get install libgmp3-dev
 
@@ -20,9 +20,6 @@ install:
   - node ./scripts/gen_keys.js
   - npm start &
   - cd ../..
-# for local developers, grunt-cli is installed globally.
-# We have to install it for travis.
-  - npm install --silent grunt-cli
 # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
   - npm start &

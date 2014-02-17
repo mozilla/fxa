@@ -7,7 +7,7 @@ module.exports = function (grunt) {
 
   var path = require('path');
 
-  var CONFIG_ROOT = path.join(__dirname, 'server', 'config');
+  var CONFIG_ROOT = path.join(__dirname, '..', 'server', 'config');
   var TARGET_TO_CONFIG = {
     app: path.join(CONFIG_ROOT, 'local.json'),
     test: path.join(CONFIG_ROOT, 'local.json'),
