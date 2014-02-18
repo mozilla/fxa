@@ -1,0 +1,13 @@
+train-02
+  * added `fxa-lastAuthAt` to signed certificates #547
+  * load test enhancements
+  * fixed redirectTo bug in /recovery_email/resend_code #563
+  * updated mysql module from 2.0.0 to 2.0.1
+  * improved mysql error handling #566
+  * implemented new request logging convention #565
+  * fixed remote test timing issue #512
+  * more comprehensive email address validation #573
+  * added CHANGELOG :)
+
+train-01
+  * all the things
