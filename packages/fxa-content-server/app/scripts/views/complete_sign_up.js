@@ -58,7 +58,7 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss, Str
               self.trigger('verify_code_complete');
             })
             .then(null, function (err) {
-              self.displayError(err.errno || err.message);
+              self.displayError(err);
 
               self.trigger('verify_code_complete');
             });

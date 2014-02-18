@@ -36,7 +36,7 @@ function (BaseView, Template, Session, FxaClient) {
               self.trigger('resent');
               self.$('.success').show();
             }, function (err) {
-              self.displayError(err.errno || err.message);
+              self.displayError(err);
             });
     }
 

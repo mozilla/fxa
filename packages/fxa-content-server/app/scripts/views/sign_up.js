@@ -131,7 +131,7 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Au
             var msg = t('Account already exists. <a href="/signin">Sign in</a>');
             return self.displayErrorUnsafe(msg);
           }
-          self.displayError(err.errno || err.message);
+          self.displayError(err);
         });
     }
 
