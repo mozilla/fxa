@@ -64,7 +64,8 @@
     "jsxgettext-recursive": "0.0.3",
     "load-grunt-tasks": "0.2.1",
     "mkdirp": "~0.3.5",
-    "time-grunt": "~0.1.1"
+    "time-grunt": "~0.1.1",
+    "grunt-todo": "~0.1.2"
   },
   "devDependencies": {
     "awsbox": "0.6.2",

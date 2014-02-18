@@ -29,8 +29,8 @@ define([
 
     'open email verification link': function () {
 
-      // TODO - get the REAL token and UID, either programatically or from
-      // the email
+      // TODO - (Issue #561) get the REAL token and UID, either programmatically
+      // or from the email
       var token = 'token';
       var uid = 'uid';
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + token;

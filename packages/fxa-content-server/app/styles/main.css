@@ -682,7 +682,7 @@ input[type="text"] ~ .show-password-label:hover {
   }
 }
 
-/* TODO: These need further consideration */
+/* TODO: (Issue #558) These need further consideration */
 
 .hidden {
   display: none;
@@ -690,7 +690,7 @@ input[type="text"] ~ .show-password-label:hover {
 
 /* Responsiveness */
 
-/* TODO: Confirm breakpoint sizes */
+/* TODO: (Issue #559) Confirm breakpoint sizes */
 @media only screen and (max-width: 500px) {
   html {
     background: #fff;

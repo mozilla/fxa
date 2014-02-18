@@ -51,7 +51,7 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss, Str
       var client = new FxaClient();
       client.verifyCode(uid, code)
             .then(function () {
-              // TODO - we could go to a "sign_up_complete" screen here.
+              // TODO - (Issue #557) we could go to a "sign_up_complete" screen here.
               self.$('#fxa-complete-sign-up-success').show();
 
               self.$('.complete').show();
