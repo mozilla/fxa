@@ -73,6 +73,18 @@ function (mocha, chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
         // no data from session_status signifies no user is signed in.
         dispatchEvent('session_status');
       });
+
+      it('does not redirect the user if a route is present in the path', function (done) {
+        channel.window.location.pathname = '/signin';
+
+        channel.on('session_status', function () {
+          assert.notEqual(routerMock.page, 'signup');
+          done();
+        });
+
+        // no data from session_status signifies no user is signed in.
+        dispatchEvent('session_status');
+      });
     });
 
     describe('send', function () {
