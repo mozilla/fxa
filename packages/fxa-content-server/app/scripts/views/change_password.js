@@ -56,7 +56,7 @@ function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin) {
 
               self.displaySuccess();
             }, function (err) {
-              self.displayError(err.errno || err.message);
+              self.displayError(err);
             });
     }
   });

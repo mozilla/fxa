@@ -60,13 +60,52 @@ function () {
 
   return {
     /**
-     * Convert a numeric code or string type to a message
+     * Convert an error, a numeric code or string type to a message
      */
-    toMessage: function (code) {
-      if (typeof code === 'string') {
-        code = this.toCode(code);
+    toMessage: function (err) {
+      var code;
+
+      // already a number
+      if (typeof err === 'number') {
+        code = err;
+      // error from backend
+      } else if (typeof err.errno === 'number') {
+        code = err.errno;
+      // error from backend that only has a message. Print the message.
+      } else if (err.message) {
+        return err.message;
+      // probably a string. Try to convert it.
+      } else {
+        code = this.toCode(err);
       }
-      return CODE_TO_MESSAGES[code];
+
+      return CODE_TO_MESSAGES[code] || err;
+    },
+
+    /**
+     * Fetch the translation context out of the server error.
+     */
+    toContext: function (err) {
+      // For data returned by backend, see
+      // https://github.com/mozilla/fxa-auth-server/blob/master/error.js
+      try {
+        if (this.is(err, 'INVALID_PARAMETER')) {
+          return {
+            param: err.validation.keys
+          };
+        } else if (this.is(err, 'MISSING_PARAMETER')) {
+          return {
+            param: err.param
+          };
+        }
+      } catch(e) {
+        // handle invalid/unexpected data from the backend.
+        if (window.console && console.error) {
+          console.error('Error in auth-errors.js->toContext: %s', String(e));
+        }
+      }
+
+      return {};
     },
 
     /**

@@ -175,16 +175,15 @@ function (_, Backbone, jQuery, Session, authErrors) {
      * If msg is not given, the contents of the .error element's text
      * will not be updated.
      */
-    displayError: function (msg) {
+    displayError: function (err) {
       this.hideSuccess();
       this.$('.spinner').hide();
 
-      if (typeof msg === 'number') {
-        msg = authErrors.toMessage(msg);
-      }
+      var msg = authErrors.toMessage(err);
+      var context = authErrors.toContext(err);
 
       if (msg) {
-        this.$('.error').text(this.translator.get(msg));
+        this.$('.error').text(this.translator.get(msg, context));
       }
 
       this.$('.error').show();
@@ -200,11 +199,14 @@ function (_, Backbone, jQuery, Session, authErrors) {
      * If msg is not given, the contents of the .error element's text
      * will not be updated.
      */
-    displayErrorUnsafe: function (msg) {
-      this.displayError(msg);
+    displayErrorUnsafe: function (err) {
+      this.displayError(err);
+
+      var msg = authErrors.toMessage(err);
+      var context = authErrors.toContext(err);
 
       if (msg) {
-        this.$('.error').html(this.translator.get(msg));
+        this.$('.error').html(this.translator.get(msg, context));
       }
     },
 

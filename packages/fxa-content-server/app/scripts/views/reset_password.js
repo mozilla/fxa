@@ -40,7 +40,7 @@ function (_, FormView, Template, FxaClient, Session) {
     },
 
     _onRequestResetFailure: function (err) {
-      this.displayError(err.errno || err.message);
+      this.displayError(err);
     }
   });
 

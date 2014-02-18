@@ -43,7 +43,7 @@ function (_, FormView, Template, Session, FxaClient, PasswordMixin) {
               self.navigate('signup');
             })
             .done(null, function (err) {
-              self.displayError(err.errno || err.message);
+              self.displayError(err);
             });
     }
   });

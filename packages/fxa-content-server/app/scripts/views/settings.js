@@ -41,7 +41,7 @@ function (_, BaseView, Template, FxaClient, Session) {
             .then(function () {
               self.navigate('signin');
             }, function (err) {
-              self.displayError(err.errno || err.message);
+              self.displayError(err);
             });
     }
   });

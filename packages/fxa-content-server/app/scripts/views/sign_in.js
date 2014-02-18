@@ -91,7 +91,7 @@ function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMix
                 return self.displayErrorUnsafe(msg);
               }
 
-              this.displayError(err.errno || err.message);
+              this.displayError(err);
             }, this));
     }
   });

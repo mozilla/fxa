@@ -75,7 +75,7 @@ function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixi
     },
 
     _onResetCompleteFailure: function (err) {
-      this.displayError(err.errno || err.message);
+      this.displayError(err);
     },
 
     _getPassword: function () {
