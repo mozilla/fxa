@@ -15,7 +15,8 @@ function (_, Backbone) {
     this.translator = window.translator;
     this.location = {
       href: window.location.href,
-      search: window.location.search
+      search: window.location.search,
+      pathname: '/',
     };
   }
 

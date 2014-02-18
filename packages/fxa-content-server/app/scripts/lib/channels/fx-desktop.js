@@ -70,19 +70,25 @@ function (_, Backbone, Session) {
 
   function findInitialPage() {
     /*jshint validthis: true*/
+
     this.send('session_status', {}, _.bind(function (err, response) {
+      // Don't perform any redirection if a pathname is present
+      var hasPathName = this.window.location.pathname !== '/';
+
       if (err) {
         return;
       }
 
       if (response.data) {
         Session.set('email', response.data.email);
-        if (! Session.forceAuth) {
+        if (!Session.forceAuth && !hasPathName) {
           this.router.navigate('settings', { trigger: true });
         }
       } else {
         Session.clear();
-        this.router.navigate('signup', { trigger: true });
+        if (!hasPathName) {
+          this.router.navigate('signup', { trigger: true });
+        }
       }
     }, this));
   }
