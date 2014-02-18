@@ -14,6 +14,12 @@ from requests.auth import AuthBase
 
 from loads import TestCase
 
+# Parameters to affect the proportion of various reqs in the loadtest.
+
+ACCOUNT_CREATE_PERCENT = 20  # percent of runs that should create a new account
+ACCOUNT_DELETE_PERCENT = 10  # percent of runs that should delete the account
+SIGN_REQS_MIN = 10   # range for number of key-sign requests per run
+SIGN_REQS_MAX = 100
 
 # Error constants used by the fxa-auth-server API.
 
@@ -114,45 +120,32 @@ class LoadTest(TestCase):
         super(LoadTest, self).tearDown()
 
     def test_auth_server(self):
-        self._pick_user_and_authenticate()
-        self._fetch_keys()
-        self._fetch_random_bytes()
-        for i in xrange(random.randint(10, 100)):
-            self._sign_public_key()
-
-    def _pick_user_and_authenticate(self):
-        email = self._pick_user()
-        if "new" in email:
+        # Authenticate as a new or existing user.
+        if random.randint(0, 100) < ACCOUNT_CREATE_PERCENT:
             self._authenticate_as_new_user()
         else:
             self._authenticate_as_existing_user()
+        # Fetch keys and make some number of signing requests.
+        self._fetch_keys()
+        self._fetch_random_bytes()
+        num_sign_reqs = random.randint(SIGN_REQS_MIN, SIGN_REQS_MAX)
+        for i in xrange(num_sign_reqs):
+            self._sign_public_key()
+        # Teardown the session, and maybe the whole account.
+        self._destroy_session()
+        if random.randint(0, 100) < ACCOUNT_DELETE_PERCENT:
+            self._destroy_account()
 
-    def _pick_user(self):
-        # User emails look like this:
-        #
-        #    loads-<id>-(old|new)@restmail.net
-        #
-        # The components mean:
-        #    * id:   randomly-generated id
-        #    * old:  we expect this account to already exist
-        #    * new:  we expect this account to not exist
-        #
-        # We want 2 new-user signups per 10 existing-account logins.
-        #
-        status = random.choice((['new'] * 2) + (['old'] * 10))
-        if status == 'old':
-            id = str(random.randint(1, 999))
-        else:
-            id = uniq()
-        email = "loads-%s-%s@restmail.lcip.org" % (id, status)
+    def _setup_credentials(self, email):
         self.credentials['email'] = email
         self.credentials['authPW'] = hashlib.sha256(email).hexdigest()
-        return email
 
     def _authenticate_as_new_user(self):
         # Authenticate as a brand-new user account.
         # Assume it doesn't exist, try to create the account.
         # But it's not big deal if it happens to already exist.
+        email = "loads-%s-new@restmail.lcip.org" % (uniq(),)
+        self._setup_credentials(email)
         res = self._create_account()
         if res.status_code != 200:
             self.assertEqual(res.status_code, 400)
@@ -167,6 +160,8 @@ class LoadTest(TestCase):
         # We select from a small pool of known accounts, creating it
         # if it does not exist.  This should mean that all the accounts
         # are created quickly at the start of the loadtest run.
+        email = "loads-%s-old@restmail.lcip.org" % (random.randint(1, 999),)
+        self._setup_credentials(email)
         res = self._start_session()
         if res.status_code != 200:
             self.assertEqual(res.status_code, 400)
@@ -222,6 +217,20 @@ class LoadTest(TestCase):
             'duration': 1000,
         }
         res = self._req_POST('/v1/certificate/sign', payload, auth=auth)
+        self.assertEqual(res.status_code, 200)
+        return res
+
+    def _destroy_session(self):
+        auth = self.makehawkauth(self.tokens['session'], 'sessionToken')
+        res = self._req_POST('/v1/session/destroy', payload={}, auth=auth)
+        self.assertEqual(res.status_code, 200)
+        return res
+
+    def _destroy_account(self):
+        res = self._req_POST('/v1/account/destroy', {
+            'email': self.credentials['email'],
+            'authPW': self.credentials['authPW'],
+        })
         self.assertEqual(res.status_code, 200)
         return res
 
