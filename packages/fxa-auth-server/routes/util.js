@@ -4,7 +4,6 @@
 
 var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
-var LAZY_EMAIL = validators.LAZY_EMAIL
 
 module.exports = function (log, crypto, isA, config, redirectDomain) {
 
@@ -42,7 +41,7 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
       config: {
         validate: {
           query: {
-            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            email: validators.email().required(),
             code: isA.string().max(32).regex(HEX_STRING).required(),
             token: isA.string().max(64).regex(HEX_STRING).required(),
             service: isA.string().max(16).alphanum().optional(),

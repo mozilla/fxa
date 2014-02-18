@@ -4,7 +4,6 @@
 
 var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
-var LAZY_EMAIL = validators.LAZY_EMAIL
 
 var crypto = require('crypto')
 var Password = require('../crypto/password')
@@ -33,7 +32,7 @@ module.exports = function (
       config: {
         validate: {
           payload: {
-            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            email: validators.email().required(),
             oldAuthPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
           }
         }
@@ -162,7 +161,7 @@ module.exports = function (
       config: {
         validate: {
           payload: {
-            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: isA.string()
               .max(512)
@@ -230,7 +229,7 @@ module.exports = function (
         },
         validate: {
           payload: {
-            email: isA.string().max(255).regex(LAZY_EMAIL).required(),
+            email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: isA.string()
               .max(512)
