@@ -51,10 +51,32 @@ module.exports = function (app) {
     });
   });
 
-  app.get(/\/[^.]*$/, function (req, res, next) {
-    // setting the url to / will use the correct index.html for either dev or
-    // prod mode.
-    req.url = '/';
-    next();
+  // an array is used instead of a regexp simply because the regexp
+  // became too long. One route is created for each item.
+  var FRONTEND_ROUTES = [
+    '/',
+    '/signin',
+    '/signup',
+    '/confirm',
+    '/settings',
+    '/change_password',
+    '/legal/terms',
+    '/legal/privacy',
+    '/cannot_create_account',
+    '/verify_email',
+    '/reset_password',
+    '/confirm_reset_password',
+    '/complete_reset_password',
+    '/reset_password_complete',
+    '/force_auth'
+  ];
+
+  FRONTEND_ROUTES.forEach(function (route) {
+    app.get(route, function (req, res, next) {
+      // setting the url to / will use the correct index.html for either dev or
+      // prod mode.
+      req.url = '/';
+      next();
+    });
   });
 };

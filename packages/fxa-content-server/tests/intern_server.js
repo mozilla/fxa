@@ -11,7 +11,7 @@ define([
   intern.webdriver = {};
   intern.environments = [];
   intern.functionalSuites = [];
-  intern.suites = [ 'tests/server/templates' ];
+  intern.suites = [ 'tests/server/templates', 'tests/server/routes' ];
 
   return intern;
 });
