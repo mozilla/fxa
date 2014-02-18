@@ -146,6 +146,10 @@ strong.email {
   display: none;
 }
 
+.error a {
+  color: #fff;
+}
+
 .success {
   background: #5FAD47;
   display: none;

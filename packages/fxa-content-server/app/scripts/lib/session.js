@@ -14,7 +14,7 @@ define([
 
   // channel is initialized on app startup
   // and should not be saved to localStorage
-  var DO_NOT_PERSIST = ['channel'];
+  var DO_NOT_PERSIST = ['channel', 'password', 'error'];
 
   // channel should not be cleared from memory or else fxa-client.js
   // will blow up when sending the login message.

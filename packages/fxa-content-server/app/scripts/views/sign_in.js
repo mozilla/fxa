@@ -6,14 +6,18 @@
 
 define([
   'underscore',
+  'views/base',
   'views/form',
   'stache!templates/sign_in',
   'lib/session',
   'lib/fxa-client',
   'lib/password-mixin',
-  'lib/url'
+  'lib/url',
+  'lib/auth-errors'
 ],
-function (_, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
+function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url, AuthErrors) {
+  var t = BaseView.t;
+
   var View = FormView.extend({
     template: SignInTemplate,
     className: 'sign-in',
@@ -33,19 +37,24 @@ function (_, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
 
         var email = Url.searchParam('email', this.window.location.search);
         if (email) {
-          Session.set('email', email);
+          // email indicates the signed in email. Use forceEmail to avoid
+          // collisions across sessions.
+          Session.set('forceEmail', email);
         }
       }
     },
 
     context: function () {
       var error = '';
-      if (Session.forceAuth && !Session.email) {
+      if (Session.forceAuth && !Session.forceEmail) {
         error = '/force_auth requres an email';
       }
 
+      var email = (Session.forceAuth && Session.forceEmail) ||
+                   Session.prefillEmail;
+
       return {
-        email: Session.email,
+        email: email,
         forceAuth: Session.forceAuth,
         error: error,
         isSync: Session.service === 'sync'
@@ -57,7 +66,7 @@ function (_, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
     },
 
     submit: function () {
-      var email = Session.forceAuth ? Session.email : this.$('.email').val();
+      var email = Session.forceAuth ? Session.forceEmail : this.$('.email').val();
       var password = this.$('.password').val();
 
       var client = new FxaClient();
@@ -74,6 +83,14 @@ function (_, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url) {
               }
             })
             .done(null, _.bind(function (err) {
+              if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+                // email indicates the signed in email. Use prefillEmail
+                // to avoid collisions across sessions.
+                Session.set('prefillEmail', email);
+                var msg = t('Unknown account. <a href="/signup">Sign up</a>');
+                return self.displayErrorUnsafe(msg);
+              }
+
               this.displayError(err.errno || err.message);
             }, this));
     }

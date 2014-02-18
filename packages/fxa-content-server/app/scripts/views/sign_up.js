@@ -11,9 +11,10 @@ define([
   'stache!templates/sign_up',
   'lib/session',
   'lib/fxa-client',
-  'lib/password-mixin'
+  'lib/password-mixin',
+  'lib/auth-errors'
 ],
-function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin) {
+function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, AuthErrors) {
   var t = BaseView.t;
 
   var now = new Date();
@@ -55,6 +56,7 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin) {
 
     context: function () {
       return {
+        email: Session.prefillEmail,
         service: Session.service,
         isSync: Session.service === 'sync'
       };
@@ -109,14 +111,28 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin) {
       var password = this.$('.password').val();
       var customizeSync = this.$('.customize-sync').is(':checked');
 
+      var self = this;
       var client = new FxaClient();
       client.signUp(email, password, customizeSync)
-        .done(_.bind(function () {
-          this.navigate('confirm');
-        }, this),
-        _.bind(function (err) {
-          this.displayError(err.errno || err.message);
-        }, this));
+        .then(function (accountData) {
+          // this means a user successfully signed in with an already
+          // existing account and should be sent on their merry way.
+          if (accountData.verified) {
+            self.navigate('settings');
+          } else {
+            self.navigate('confirm');
+          }
+        })
+        .then(null, function (err) {
+          // account already exists, and the user
+          // entered a bad password they should sign in insted.
+          if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+            Session.set('prefillEmail', email);
+            var msg = t('Account already exists. <a href="/signin">Sign in</a>');
+            return self.displayErrorUnsafe(msg);
+          }
+          self.displayError(err.errno || err.message);
+        });
     }
 
   });

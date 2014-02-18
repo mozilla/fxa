@@ -31,11 +31,31 @@ define([
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
+      var self = this;
       return client.signUp(email, PASSWORD)
         .then(function (result) {
           accountData = result;
           return result;
+        })
+        .then(function () {
+          // clear localStorage to avoid pollution from other tests.
+          return self.get('remote')
+            .get(require.toUrl(PAGE_URL))
+            /*jshint evil:true*/
+            .waitForElementById('fxa-signin-header')
+            .eval('localStorage.clear();');
         });
+    },
+
+    teardown: function () {
+      // clear localStorage to avoid polluting other tests.
+      // Without the clear, /signup tests fail because of the info stored
+      // in prefillEmail
+      return this.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        /*jshint evil:true*/
+        .waitForElementById('fxa-signin-header')
+        .eval('localStorage.clear();');
     },
 
     'sign in unverified': function () {
@@ -99,6 +119,45 @@ define([
             .waitForElementById('fxa-settings-header')
             .end();
         });
+    },
+
+    'sign in with an unknown account allows the user to sign up': function () {
+
+      var self = this;
+      var email = 'unknown@testuser.com';
+
+      return self.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .waitForElementById('fxa-signin-header')
+
+        .elementByCssSelector('input[type=email]')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('input[type=password]')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        // The error area shows a link to /signup
+        .waitForElementByCssSelector('.error a[href="/signup"]')
+        .elementByCssSelector('.error a[href="/signup"]')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-signup-header')
+        .elementByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            // check the email address was written
+            assert.equal(resultText, email);
+          })
+        .end();
     }
   });
 });

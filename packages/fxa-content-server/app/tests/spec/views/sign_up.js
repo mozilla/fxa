@@ -11,9 +11,11 @@ define([
   'underscore',
   'jquery',
   'views/sign_up',
+  'lib/session',
+  'lib/fxa-client',
   '../../mocks/router'
 ],
-function (mocha, chai, _, $, View, RouterMock) {
+function (mocha, chai, _, $, View, Session, FxaClient, RouterMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -21,9 +23,9 @@ function (mocha, chai, _, $, View, RouterMock) {
     var view, router, email;
 
     beforeEach(function () {
+      Session.clear();
       email = 'testuser.' + Math.random() + '@testuser.com';
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
-      sessionStorage.removeItem('tooYoung');
       router = new RouterMock();
       view = new View({
         router: router
@@ -34,11 +36,21 @@ function (mocha, chai, _, $, View, RouterMock) {
     });
 
     afterEach(function () {
+      Session.clear();
       view.remove();
       view.destroy();
       view = null;
       router = null;
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+    });
+
+    describe('render', function () {
+      it('prefills email if one is stored in Session (user comes from signin with new account)', function () {
+        Session.set('prefillEmail', 'testuser@testuser.com');
+        view.render();
+
+        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+      });
     });
 
     describe('isValid', function () {
@@ -180,6 +192,44 @@ function (mocha, chai, _, $, View, RouterMock) {
         });
         revisitView.render();
       });
+
+      it('signs user in if they enter already existing account with correct password', function (done) {
+        var password = 'password';
+        var client = new FxaClient();
+        client.signUp(email, password)
+              .then(function () {
+                $('[type=email]').val(email);
+                $('[type=password]').val(password);
+
+                var nowYear = (new Date()).getFullYear();
+                $('#fxa-age-year').val(nowYear - 14);
+
+                router.on('navigate', function () {
+                  assert.equal(router.page, 'confirm');
+                  done();
+                });
+                view.submit();
+              });
+      });
+
+      it('shows message allowing the user to sign in if user enters existing account with incorrect password', function (done) {
+        var client = new FxaClient();
+        client.signUp(email, 'password')
+              .then(function () {
+                $('[type=email]').val(email);
+                $('[type=password]').val('incorrect');
+
+                var nowYear = (new Date()).getFullYear();
+                $('#fxa-age-year').val(nowYear - 14);
+
+                view.on('error', function (msg) {
+                  assert.ok(msg.indexOf('/signin') > -1);
+                  done();
+                });
+                view.submit();
+              });
+      });
+
     });
 
     describe('updatePasswordVisibility', function () {

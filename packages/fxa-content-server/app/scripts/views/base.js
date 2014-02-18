@@ -170,7 +170,7 @@ function (_, Backbone, jQuery, Session, authErrors) {
     },
 
     /**
-     * Display an error message
+     * Display an error message.
      * @method displayError
      * If msg is not given, the contents of the .error element's text
      * will not be updated.
@@ -180,7 +180,7 @@ function (_, Backbone, jQuery, Session, authErrors) {
       this.$('.spinner').hide();
 
       if (typeof msg === 'number') {
-        msg = authErrors[msg];
+        msg = authErrors.toMessage(msg);
       }
 
       if (msg) {
@@ -189,6 +189,23 @@ function (_, Backbone, jQuery, Session, authErrors) {
 
       this.$('.error').show();
       this.trigger('error', msg);
+    },
+
+    /**
+     * Display an error message that may contain HTML. Marked unsafe
+     * because msg could contain XSS. Use with caution and never
+     * with unsanitized user generated content.
+     *
+     * @method displayErrorUnsafe
+     * If msg is not given, the contents of the .error element's text
+     * will not be updated.
+     */
+    displayErrorUnsafe: function (msg) {
+      this.displayError(msg);
+
+      if (msg) {
+        this.$('.error').html(this.translator.get(msg));
+      }
     },
 
     hideError: function () {

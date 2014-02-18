@@ -9,11 +9,11 @@
 
   <form novalidate>
     <div class="input-row">
-      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus required />
+      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}} required />
     </div>
 
     <div class="input-row password-row">
-      <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} />
+      <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} {{#email}}autofocus{{/email}} />
       <input id="show-password" type="checkbox" class="show-password" aria-controls="password" />
       <label for="show-password" class="show-password-label">
         {{#t}}Show{{/t}}

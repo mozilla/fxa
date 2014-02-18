@@ -12,9 +12,10 @@ define([
   'fxaClient',
   'jquery',
   'p',
-  'lib/session'
+  'lib/session',
+  'lib/auth-errors'
 ],
-function (FxaClient, $, p, Session) {
+function (FxaClient, $, p, Session, AuthErrors) {
   var client;
 
   function FxaClientWrapper(options) {
@@ -85,10 +86,19 @@ function (FxaClient, $, p, Session) {
                   lang: self.language
                 });
               })
+              .then(null, function (err) {
+                // if the account already exists, swallow the error and
+                // attempt to sign the user in instead.
+                if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
+                  return;
+                }
+
+                throw err;
+              })
               .then(function () {
                 return self.signIn(email, password, customizeSync);
               })
-              .then(function () {
+              .then(function (accountData) {
                 // signIn clears the Session. Restore service and redirectTo
                 // in case the user clicks on the "resend" link and a new
                 // email must be sent.
@@ -96,6 +106,8 @@ function (FxaClient, $, p, Session) {
                   service: service,
                   redirectTo: redirectTo
                 });
+
+                return accountData;
               });
     },
 
