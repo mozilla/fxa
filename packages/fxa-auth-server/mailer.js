@@ -125,6 +125,7 @@ module.exports = function (config, log) {
     var link = this.verificationUrl + '?' + qs.stringify(query)
     var values = {
       link: link,
+      email: account.email
     }
 
     var message = {
@@ -170,6 +171,7 @@ module.exports = function (config, log) {
     var link = this.passwordResetUrl + '?' + qs.stringify(query)
     var values = {
       link: link,
+      email: token.email,
       code: code
     }
     var message = {
