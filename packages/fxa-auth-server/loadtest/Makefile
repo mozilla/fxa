@@ -18,16 +18,17 @@ clean:
 
 # Run a single test from the local machine, for sanity-checking.
 test:
-	./bin/loads-runner --hits=1 --users=1 loadtests.LoadTest.test_auth_server --server-url=$(SERVER_URL)
+	./bin/loads-runner --config=./config/test.ini --server-url=$(SERVER_URL) loadtests.LoadTest.test_auth_server
 
 # Run a fuller bench suite from the local machine.
 bench:
-	./bin/loads-runner --users=20 --duration=300 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_auth_server --server-url=$(SERVER_URL)
+	./bin/loads-runner --config=./config/bench.ini --server-url=$(SERVER_URL) loadtests.LoadTest.test_auth_server
 
 # Run a full bench, by submitting to broker in AWS.
 megabench:
-	./bin/loads-runner --broker=tcp://loads.services.mozilla.com:7780 --users=20 --duration=1800 --agents=5 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_auth_server --detach --server-url=$(SERVER_URL)
+	./bin/loads-runner --config=./config/megabench.ini --server-url=$(SERVER_URL) loadtests.LoadTest.test_auth_server
+	#./bin/loads-runner --broker=tcp://loads.services.mozilla.com:7780 --users=20 --duration=1800 --agents=5 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_auth_server --detach --server-url=$(SERVER_URL)
 
 # Purge any currently-running loadtest runs.
 purge:
-	./bin/loads-runner --purge-broker
+	./bin/loads-runner --config=./config/megabench.ini --purge-broker
