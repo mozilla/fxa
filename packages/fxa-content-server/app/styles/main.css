@@ -383,7 +383,14 @@ strong.email {
           transition-property: opacity;
 }
 
-input:focus ~ .input-help-focused {
+/**
+ * The label:active and :focus selectors are added
+ * to eliminate flicker when the user holds the mouse
+ * key down over top of teh "show/hide" password button.
+ */
+input:focus ~ .input-help-focused,
+label:active ~ .input-help-focused,
+label:focus ~ .input-help-focused {
   opacity: 1;
 }
 
