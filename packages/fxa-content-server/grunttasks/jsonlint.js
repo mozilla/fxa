@@ -18,8 +18,8 @@ module.exports = function (grunt) {
         '!<%= yeoman.app %>/bower_components/**',
         '!<%= yeoman.app %>/scripts/vendor/**',
         '!<%= yeoman.app %>/tests/**',
-        '!node_modules/**',
-        '!<%= yeoman.server %>/**'
+        '!<%= yeoman.server %>/**',
+        '!node_modules/**'
       ]
     }
   });

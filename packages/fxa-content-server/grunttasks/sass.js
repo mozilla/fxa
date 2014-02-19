@@ -5,10 +5,12 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('test', [
-    'clean:server',
-    'css',
-    'concurrent:test',
-    'serverproc:test'
-  ]);
+  grunt.config('sass', {
+    styles: {
+      files: {
+        '<%= yeoman.app %>/styles/main.css': '<%= yeoman.app %>/styles/main.scss',
+        '<%= yeoman.app %>/styles/sync.css': '<%= yeoman.app %>/styles/sync.scss'
+      }
+    }
+  });
 };

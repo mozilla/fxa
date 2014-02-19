@@ -11,7 +11,7 @@ module.exports = function (grunt) {
     },
     html: [
       '<%= yeoman.app %>/index.html',
-      '<%= yeoman.app %>/sync/*.html',
+      '<%= yeoman.app %>/sync/*.html'
     ]
   });
 

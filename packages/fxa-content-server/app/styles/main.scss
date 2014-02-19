@@ -1,4 +1,6 @@
-/* Border box all the things by default */
+@import "variables";
+
+// Border box all the things by default
 *,
 *:before,
 *:after {
@@ -8,19 +10,19 @@
 }
 
 html {
-  background-color: #f2f2f2;
+  background-color: $html-background-color;
   height: 100%;
 }
 
 body {
-  color: #424F59;
-  font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: $text-color;
+  font-family: $default-font-family;
   font-size: 14px;
   padding-bottom: 20px;
 }
 
 a {
-  color: #0095dd;
+  color: $link-color;
   cursor: pointer; /* Use the correct cursor for anchors without an href */
 }
 
@@ -29,7 +31,7 @@ a:active {
 }
 
 a:focus {
-  outline: 1px dotted #0095dd;
+  outline: 1px dotted $link-color;
 }
 
 
@@ -38,7 +40,7 @@ a.no-underline {
 }
 
 noscript {
-  color: #d63920;
+  color: $error-text-color;
   display: block;
   margin: 160px 0 0 0;
 }
@@ -64,7 +66,7 @@ noscript {
   -webkit-animation: fadein 0.5s;
      -moz-animation: fadein 0.5s;
           animation: fadein 0.5s;
-  background: #fff;
+  background: $stage-background-color;
   -webkit-border-radius: 5px;
           border-radius: 5px;
   -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
@@ -83,7 +85,7 @@ noscript {
 header h1,
 header h2,
 header h3 {
-  font-family: "Fira Sans", Helvetica, Arial, sans-serif;
+  font-family: $header-font-family;
   line-height: 1em;
   margin: 0;
 }
@@ -94,8 +96,8 @@ header h1 {
 }
 
 header h1 span {
-  position: relative;
   left: -9999px;
+  position: relative;
 }
 
 header h2 {
@@ -110,13 +112,13 @@ header h2 {
 }
 
 #legal-header h3 {
-    font-size: 12px;
+  font-size: 12px;
 }
 
 #legal-copy ul,
 #legal-copy ol {
-  padding-left: 20px;
   margin-left: 0;
+  padding-left: 20px;
 }
 
 section p {
@@ -141,10 +143,13 @@ strong.email {
 
 .error,
 .success {
-  background: #D63920;
-  color: #fff;
+  color: $message-text-color;
   margin-bottom: 5px;
   padding: 5px;
+}
+
+.error {
+  background: $error-background-color;
 }
 
 .error:empty {
@@ -152,17 +157,15 @@ strong.email {
 }
 
 .error a {
-  color: #fff;
+  color: $message-text-color;
 }
 
 .success {
-  background: #5FAD47;
+  background: $success-background-color;
   display: none;
 }
 
-/**
- * complete is like success, but without the associated styles.
- */
+// complete is like success, but without the associated styles.
 .complete {
   display: none;
 }
@@ -194,9 +197,9 @@ strong.email {
 }
 
 .tooltip {
-  background: #D63920;
+  background: $error-background-color;
   border-radius: 1px;
-  color: #fff;
+  color: $message-text-color;
   left: 3px;
   padding: 5px 12px;
   position: absolute;
@@ -208,7 +211,7 @@ strong.email {
 /* tooltip caret */
 .tooltip:before,
 .tooltip::before {
-  background: #D63920;
+  background: $error-background-color;
   content: '.';
   height: 16px;
   left: 12px;
@@ -240,11 +243,11 @@ strong.email {
 .input-row input[type='email'],
 .input-row input[type='password'],
 .input-row select {
-  border: 1px solid #8A9BA8;
+  border: 1px solid $input-row-border-color;
   -webkit-border-radius: 5px;
           border-radius: 5px;
-  -webkit-box-shadow: inset 0 1px 1px #f2f2f2;
-          box-shadow: inset 0 1px 1px #f2f2f2;
+  -webkit-box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
+          box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
   color: #424f59;
   font-size: 18px;
   height: 45px;
@@ -261,32 +264,33 @@ strong.email {
 
 
 .input-row input::-webkit-input-placeholder {
-   color: #8A9BA8;
+   color: $input-placeholder-color;
 }
 
 .input-row input:-moz-placeholder { /* Firefox 18- */
-   color: #8A9BA8;
+   color: $input-placeholder-color;
 }
 
 .input-row input::-moz-placeholder {  /* Firefox 19+ */
-   color: #8A9BA8;
+   color: $input-placeholder-color;
 }
 
 .input-row input:-ms-input-placeholder {
-   color: #8A9BA8;
+   color: $input-placeholder-color;
 }
 
 .input-row select {
+  // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
   background: transparent url(/images/ddarrow_inactive.png) no-repeat right 14px top 50%;
   background-size: 10px 17px;
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   height: auto;
   outline: none;
   padding: 10px 20px;
-  /* Some hackery for Firefox since moz-appearance: none doesn't remove the arrow */
+  // Some hackery for Firefox since moz-appearance: none doesn't remove the arrow
   text-indent: 0.01px;
   text-overflow: "";
   -moz-user-select: none;
@@ -294,12 +298,12 @@ strong.email {
 }
 
 .input-row:hover input {
-  border-color: #424f59;
+  border-color: $input-border-color;
 }
 
 .input-row input:focus,
 .input-row select:focus {
-  border-color: #0095DD;
+  border-color: $input-row-focus-border-color;
   -webkit-transition-duration: 150ms;
      -moz-transition-duration: 150ms;
           transition-duration: 150ms;
@@ -314,7 +318,7 @@ strong.email {
 .input-row select:hover:active,
 .input-row select:focus {
   background-image: url(/images/ddarrow_active.png);
-  background-color: #f2f2f2;
+  background-color: $html-background-color;
   -webkit-transition-duration: 150ms;
      -moz-transition-duration: 150ms;
           transition-duration: 150ms;
@@ -324,7 +328,7 @@ strong.email {
 }
 
 .input-row option {
-  background-color: #fff;
+  background-color: $stage-background-color;
 }
 
 
@@ -333,7 +337,7 @@ strong.email {
 .input-row select:hover,
 .input-row:hover input:hover,
 .input-row:hover select:hover {
-  border-color: #424f59;
+  border-color: $input-row-hover-border-color;
   outline: none;
 }
 
@@ -343,8 +347,8 @@ strong.email {
 .input-row:hover input:focus,
 .input-row:hover select:focus,
 .input-row:focus input {
-  border-color: #0095DD;
-  color: #424f59;
+  border-color: $input-row-focus-border-color;
+  color: $text-color;
   outline: none;
 }
 
@@ -354,7 +358,7 @@ strong.email {
 .input-row input[type='text'].invalid ~ .show-password-label,
 .input-row input[type='password'].invalid ~ .show-password-label,
 .input-row select.invalid {
-  border-color: #D63920;
+  border-color: $error-background-color;
 }
 
 /**
@@ -365,7 +369,7 @@ strong.email {
  */
 .input-row select:-moz-focusring {
   color: transparent !important; /* !important must be added or else the browser ignores the request */
-  text-shadow: 0 0 0 #424F59 !important;
+  text-shadow: 0 0 0 $input-row-hover-border-color !important;
 }
 
 
@@ -374,7 +378,7 @@ strong.email {
 }
 
 .input-row .input-help {
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   margin-top: 2px;
 }
 
@@ -406,11 +410,11 @@ label:focus ~ .input-help-focused {
 
 .button-row button,
 .button-row a.button {
-  background: #0095dd;
+  background: $button-background-color;
   border: none;
   -webkit-border-radius: 5px;
           border-radius: 5px;
-  color: #fff;
+  color: $message-text-color;
   cursor: pointer;
   font-size: 24px;
   padding: 15px 0;
@@ -434,12 +438,12 @@ label:focus ~ .input-help-focused {
 .button-row button:active,
 .button-row button:hover,
 .button-row button:focus {
-  background: #0088CC;
+  background: $button-background-hover-color;
 }
 
 .button-row button:disabled,
 .button-row button.disabled {
-  background: #8A9BA8;
+  background: $button-background-disabled-color;
   cursor: auto;
 }
 
@@ -488,7 +492,7 @@ ul.links li {
 
 .privacy-links,
 .privacy-links a {
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   margin-top: 35px;
   -webkit-transition-duration: 150ms;
      -moz-transition-duration: 150ms;
@@ -503,7 +507,7 @@ ul.links li {
 .privacy-links a:active,
 .privacy-links a:hover,
 .privacy-links a:focus {
-  color: #0095dd;
+  color: $link-color;
 }
 
 .verification-email-message {
@@ -533,9 +537,10 @@ ul.links li {
  */
 
 .password-row .show-password-label {
-  border-left: 1px solid #8A9BA8;
+  background-color: $stage-background-color;
+  border-left: 1px solid $input-row-border-color;
   border-radius: 0 4px 4px 0;
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   cursor: pointer;
   font-size: 16px;
   height: 43px;
@@ -543,7 +548,7 @@ ul.links li {
   position: absolute;
   right: 1px;
   top: 1px;
-  /* it is very easy to accidentally select the text when clicking */
+  // it is very easy to accidentally select the text when clicking
   -webkit-touch-callout: none;
   -webkit-user-select: none;
    -khtml-user-select: none;
@@ -551,15 +556,14 @@ ul.links li {
       -ms-user-select: none;
           user-select: none;
   width: 55px;
-  background-color: #fff;
 }
 
 .password-row > .password:hover {
-  border-color: #424f59;
+  border-color: $input-border-color;
 }
 
 .show-password-label {
-  border-color: #424f59;
+  border-color: $input-border-color;
 }
 
 /**
@@ -571,8 +575,8 @@ ul.links li {
  * label.
  */
 .show-password {
-  position: absolute;
   opacity: 0;
+  position: absolute;
 }
 
 .show-password-label:hover,
@@ -581,39 +585,38 @@ ul.links li {
 .show-password:focus + .show-password-label,
 .show-password:active + .show-password-label,
 .show-password:focus + .show-password-label {
-  background: #f2f2f2;
-  color: #424f59;
+  background: $html-background-color;
+  color: $text-color;
   outline: none;
 }
 
-/*this one is impossible to do w/o sibling selector
+/* this one is impossible to do w/o sibling selector
 we may need to add js for IE8*/
 
 .password:focus ~ .show-password-label{
-  border-left-color: #0095DD;
+  border-left-color: $input-row-focus-border-color;
 }
 
 input[type="text"] ~ .show-password-label {
-  background: #8A9BA8;
-  color: #fff;
+  background: $button-background-disabled-color;
+  color: $message-text-color;
 }
 
 /**
  * Hover over the show password label in its dark state
  */
 input[type="text"] ~ .show-password:focus + .show-password-label,
-input[type="text"] ~ .show-password:focus + .show-password-label,
-input[type="text"] ~ .show-password:focus + .show-password-label,
+input[type="text"] ~ .show-password:active + .show-password-label,
+input[type="text"] ~ .show-password:hover + .show-password-label,
 input[type="text"] ~ .show-password-label:focus,
 input[type="text"] ~ .show-password-label:active,
 input[type="text"] ~ .show-password-label:hover {
-  /*background: #f2f2f2;*/
-  background: #9AABB8;
-  color: #fff;
+  background: $show-password-background-color;
+  color: $message-text-color;
 }
 
 .customize-sync-row {
-  color: #8A9BA8;
+  color: $input-placeholder-color;
   margin-bottom: 20px !important;
 }
 
@@ -640,148 +643,12 @@ input[type="text"] ~ .show-password-label:hover {
   width: 30px;
 }
 
-
-/* Keyframes */
-
-@-webkit-keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@-moz-keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@-webkit-keyframes movein {
-  0%   {left: 0; top: -70px;}
-  100%   {left: 0; top: -50px;}
-}
-
-@-moz-keyframes movein {
-  0%   {left: 0; top: -70px;}
-  100%   {left: 0; top: -50px;}
-}
-
-@keyframes movein {
-  0%   {left: 0; top: -70px;}
-  100%   {left: 0; top: -50px;}
-}
-
-@-webkit-keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(365deg);
-  }
-}
-
-@-moz-keyframes spin {
-  from {
-    -moz-transform: rotate(0deg);
-  }
-  to {
-    -moz-transform: rotate(365deg);
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(365deg);
-  }
-}
-
 /* TODO: (Issue #558) These need further consideration */
 
 .hidden {
   display: none;
 }
 
-/* Responsiveness */
 
-/* TODO: (Issue #559) Confirm breakpoint sizes */
-@media only screen and (max-width: 500px) {
-  html {
-    background: #fff;
-  }
-
-  .fox-logo {
-    background: url(/images/firefox.png);
-    background-size: 64px 68px;
-    height: 68px;
-    margin: 0 auto;
-    position: relative;
-    top:0;
-    width: 64px;
-    z-index: 999;
-  }
-
-  #stage {
-    -webkit-box-shadow: none;
-            box-shadow: none;
-    margin: 10px auto;
-    min-height: none;
-    min-width: 300px;
-    padding: 0 10px 40px 10px;
-    width: 100%;
-  }
-
-  @-webkit-keyframes movein {
-    0% {left: 0; top: -20px;}
-    100% {left: 0; top: 0;}
-  }
-
-  @-moz-keyframes movein {
-    0% {left: 0; top: -20px;}
-    100% {left: 0; top: 0;}
-  }
-
-  @keyframes movein {
-    0% {left: 0; top: -20px;}
-    100% {left: 0; top: 0;}
-  }
-}
-
-/* Retina */
-
-@media
-only screen and (-webkit-min-device-pixel-ratio: 2),
-only screen and (   min--moz-device-pixel-ratio: 2),
-only screen and (   -moz-min-device-pixel-ratio: 2),
-only screen and (     -o-min-device-pixel-ratio: 2/1),
-only screen and (        min-device-pixel-ratio: 2),
-only screen and (                min-resolution: 192dpi),
-only screen and (                min-resolution: 2dppx) {
-  .fox-logo {
-    background-image: url(/images/firefox@2x.png);
-  }
-
-  .graphic-checkbox {
-    background-image: url(/images/graphic_checkbox@2x.png);
-  }
-
-  .graphic-mail {
-    background-image: url(/images/graphic_mail@2x.png);
-  }
-
-  .spinner {
-    background-image: url(/images/spinnerlight@2x.png);
-  }
-
-  .input-row select {
-    background-image: url(/images/ddarrow_inactive@2x.png)
-  }
-
-  .input-row select:focus {
-    background-image: url(/images/ddarrow_active@2x.png);
-  }
-}
+@import "keyframes";
+@import "media_queries";

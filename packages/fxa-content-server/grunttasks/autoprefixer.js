@@ -7,14 +7,14 @@ module.exports = function (grunt) {
 
   grunt.config('autoprefixer', {
     options: {
-      browsers: ['last 1 version']
+      browsers: ['> 1%', 'last 5 versions', 'ff >= 16', 'Explorer >= 8']
     },
     dist: {
       files: [{
         expand: true,
-        cwd: '.tmp/styles/',
+        cwd: '<%= yeoman.app %>/styles/',
         src: '{,*/}*.css',
-        dest: '.tmp/styles/'
+        dest: '<%= yeoman.app %>/styles/'
       }]
     }
   });

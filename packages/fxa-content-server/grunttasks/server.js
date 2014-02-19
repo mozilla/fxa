@@ -13,8 +13,8 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:server',
       'selectconfig:app',
+      'css',
       'concurrent:server',
-      'autoprefixer',
       'serverproc:app'
     ]);
   });

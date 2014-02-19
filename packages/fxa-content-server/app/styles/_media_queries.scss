@@ -1,0 +1,79 @@
+/* Responsiveness */
+
+/* TODO: (Issue #559) Confirm breakpoint sizes */
+@media only screen and (max-width: 500px) {
+  html {
+    background: #fff;
+  }
+
+  .fox-logo {
+    background: url(/images/firefox.png);
+    background-size: 64px 68px;
+    height: 68px;
+    margin: 0 auto;
+    position: relative;
+    top:0;
+    width: 64px;
+    z-index: 999;
+  }
+
+  #stage {
+    -webkit-box-shadow: none;
+            box-shadow: none;
+    margin: 10px auto;
+    min-height: none;
+    min-width: 300px;
+    padding: 0 10px 40px 10px;
+    width: 100%;
+  }
+
+  @-webkit-keyframes movein {
+    0% {left: 0; top: -20px;}
+    100% {left: 0; top: 0;}
+  }
+
+  @-moz-keyframes movein {
+    0% {left: 0; top: -20px;}
+    100% {left: 0; top: 0;}
+  }
+
+  @keyframes movein {
+    0% {left: 0; top: -20px;}
+    100% {left: 0; top: 0;}
+  }
+}
+
+/* Retina */
+
+@media
+only screen and (-webkit-min-device-pixel-ratio: 2),
+only screen and (   min--moz-device-pixel-ratio: 2),
+only screen and (   -moz-min-device-pixel-ratio: 2),
+only screen and (     -o-min-device-pixel-ratio: 2/1),
+only screen and (        min-device-pixel-ratio: 2),
+only screen and (                min-resolution: 192dpi),
+only screen and (                min-resolution: 2dppx) {
+  .fox-logo {
+    background-image: url(/images/firefox@2x.png);
+  }
+
+  .graphic-checkbox {
+    background-image: url(/images/graphic_checkbox@2x.png);
+  }
+
+  .graphic-mail {
+    background-image: url(/images/graphic_mail@2x.png);
+  }
+
+  .spinner {
+    background-image: url(/images/spinnerlight@2x.png);
+  }
+
+  .input-row select {
+    background-image: url(/images/ddarrow_inactive@2x.png)
+  }
+
+  .input-row select:focus {
+    background-image: url(/images/ddarrow_active@2x.png);
+  }
+}
