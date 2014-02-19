@@ -155,6 +155,23 @@ function (mocha, chai, _, $, View, Session, FxaClient, RouterMock) {
         view.submit();
       });
 
+      it('submits form if user presses enter on the year', function (done) {
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+
+        var nowYear = (new Date()).getFullYear();
+        $('#fxa-age-year').val(nowYear - 14);
+
+        router.on('navigate', function () {
+          assert.equal(router.page, 'confirm');
+          done();
+        });
+
+        // submit using the enter key
+        var e = jQuery.Event('keydown', { which: 13 });
+        $('#fxa-age-year').trigger(e);
+      });
+
       it('sends the user to cannot_create_account screen if user selects <= 13 years ago', function (done) {
         $('[type=email]').val(email);
         $('[type=password]').val('password');
