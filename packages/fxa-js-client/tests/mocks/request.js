@@ -53,6 +53,14 @@ define(['client/lib/errors'], function (ERRORS) {
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
     },
+    resetMailWithServiceAndRedirect: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=http"}]'
+    },
+    resetMailResendWithServiceAndRedirect: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=http"}, {"html":"Mocked code=9001 service=sync redirectTo=http"}]'
+    },
     resetMailLang: {
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"content-language": "it-CH" }}]'
@@ -70,6 +78,10 @@ define(['client/lib/errors'], function (ERRORS) {
       body: '{}'
     },
     passwordForgotSendCode: {
+      status: 200,
+      body: '{"passwordForgotToken":"e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f19103","ttl":900,"tries":3}'
+    },
+    passwordForgotResendCode: {
       status: 200,
       body: '{"passwordForgotToken":"e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f19103","ttl":900,"tries":3}'
     },

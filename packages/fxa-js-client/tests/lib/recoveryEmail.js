@@ -54,6 +54,45 @@ define([
           );
       });
 
+      test('#recoveryEmailResendCode with service and redirectTo', function () {
+        var user;
+        var opts = {
+          service: 'sync',
+          redirectTo: 'https://sync.firefox.com/after_reset'
+        };
+
+        return accountHelper.newUnverifiedAccount()
+          .then(function (account) {
+            user = account.input.user;
+
+            return respond(client.recoveryEmailResendCode(account.signIn.sessionToken, opts), RequestMocks.recoveryEmailResendCode)
+          })
+          .then(
+          function(res) {
+            assert.ok(res);
+
+            return respond(mail.wait(user, 2), RequestMocks.resetMailWithServiceAndRedirect);
+          })
+          .then(
+          function (emails) {
+            // second email, the code is resent.
+            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/);
+            assert.ok(code, 'code found');
+            var service = emails[1].html.match(/service=([A-Za-z0-9]+)/);
+            assert.ok(service, 'service found');
+            var redirectTo = emails[1].html.match(/redirectTo=([A-Za-z0-9]+)/);
+            assert.ok(redirectTo, 'redirectTo found');
+
+            assert.ok(code[1], 'code is returned');
+            assert.equal(service[1], 'sync', 'service is returned');
+            assert.equal(redirectTo[1], 'http', 'redirectTo is returned');
+          },
+          function() {
+            assert.fail();
+          }
+        );
+      });
+
     });
   }
 });
