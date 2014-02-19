@@ -51,7 +51,8 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Au
     },
 
     events: {
-      'change .show-password': 'onPasswordVisibilityChange'
+      'change .show-password': 'onPasswordVisibilityChange',
+      'keydown #fxa-age-year': 'submitOnEnter'
     },
 
     context: function () {
@@ -60,6 +61,12 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Au
         service: Session.service,
         isSync: Session.service === 'sync'
       };
+    },
+
+    submitOnEnter: function (event) {
+      if (event.which === 13) {
+        this.validateAndSubmit();
+      }
     },
 
     isValidEnd: function () {
