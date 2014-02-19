@@ -12,7 +12,7 @@ module.exports = function (grunt) {
         // `name` and `out` are set by grunt-usemin
         baseUrl: '<%= yeoman.app %>/scripts',
         optimize: 'none',
-        // TODO: Figure out how to make sourcemaps work with grunt-usemin
+        // TODO: (Issue #560) Figure out how to make sourcemaps work with grunt-usemin
         // https://github.com/yeoman/grunt-usemin/issues/30
         //generateSourceMaps: true,
         // required to support SourceMaps

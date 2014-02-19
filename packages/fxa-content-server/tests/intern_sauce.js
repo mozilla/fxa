@@ -16,7 +16,7 @@ define([
     //{ browserName: 'iphone', version: '6.0', platform: 'OS X 10.8' },
     //{ browserName: 'android', version: '4.0', platform: 'Linux' },
 
-    // TODO No IE support yet
+    // TODO (Issue #562) No IE support yet
     //{ browserName: 'internet explorer', version: '11', platform: 'Windows 8.1' },
     //{ browserName: 'internet explorer', version: '10', platform: 'Windows 8' },
     //{ browserName: 'internet explorer', version: '9', platform: 'Windows 7' },
