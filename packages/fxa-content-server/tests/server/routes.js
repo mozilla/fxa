@@ -26,6 +26,7 @@ define([
     '/confirm': 200,
     '/settings': 200,
     '/change_password': 200,
+    '/legal': 200,
     '/legal/terms': 200,
     '/legal/privacy': 200,
     '/cannot_create_account': 200,
