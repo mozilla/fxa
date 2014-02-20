@@ -35,7 +35,7 @@ module.exports = function (grunt) {
         var matches = /^locale\/([^\/]+)\/LC_MESSAGES\/(.*)$/.exec(file);
         var locale = matches[1];
         var filename = matches[2];
-        if (filename === 'content-server.po') {
+        if (filename === 'server.po') {
           filename = 'messages.json';
         } else {
           // get rid of the .po extension, replace with .json
