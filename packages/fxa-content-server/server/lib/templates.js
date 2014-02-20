@@ -18,7 +18,12 @@ function loadTemplate (name) {
 
 // Make the 'gettext' function available in the templates.
 handlebars.registerHelper('t', function(string) {
-  if (this.l10n) {
+  if (this.gettext && string.fn) {
+    // translate a view template from res.render. There is
+    // some funky stuff going on here, string has an fn
+    // from where the actual string is accesed.
+    return this.format(this.gettext(string.fn()), this);
+  } else if (this.l10n) {
     return this.l10n.format(this.l10n.gettext(string), this);
   }
   return string;

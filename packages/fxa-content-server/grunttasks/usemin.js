@@ -19,7 +19,10 @@ module.exports = function (grunt) {
     options: {
       assetsDirs: ['<%= yeoman.dist %>']
     },
-    html: ['<%= yeoman.dist %>/{,*/}*.html'],
+    html: [
+      '<%= yeoman.dist %>/{,*/}*.html',
+      '<%= yeoman.page_template_dist %>/*.html'
+    ],
     css: ['<%= yeoman.dist %>/styles/{,*/}*.css']
   });
 };

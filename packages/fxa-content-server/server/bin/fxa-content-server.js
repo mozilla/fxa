@@ -15,6 +15,8 @@ if (isMain) {
 
 var helmet = require('helmet');
 var express = require('express');
+var handlebars = require('handlebars');
+var consolidate = require('consolidate');
 var connect_fonts = require('connect-fonts');
 var firasans = require('connect-fonts-firasans');
 var clearsans = require('connect-fonts-clearsans');
@@ -24,13 +26,29 @@ var routes = require('../lib/routes');
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
 var routeLogging = require('../lib/logging/route_logging');
 
+var fourOhFour = require('../lib/404');
+
+var i18n = require('../lib/i18n')(config.get('i18n'));
+
 var STATIC_DIRECTORY =
               path.join(__dirname, '..', '..', config.get('static_directory'));
+
+var PAGE_TEMPLATE_DIRECTORY =
+              path.join(config.get('page_template_root'), config.get('page_template_subdirectory'));
+console.log('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY)
 
 function makeApp() {
   'use strict';
 
   var app = express();
+
+  app.engine('html', consolidate.handlebars);
+  app.set('view engine', 'html');
+  app.set('views', PAGE_TEMPLATE_DIRECTORY);
+
+  // i18n adds metadata to a request to help
+  // with translating templates on the server.
+  app.use(i18n);
 
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());
@@ -54,6 +72,10 @@ function makeApp() {
   // woraround for reserved word bug:
   // https://github.com/marijnh/acorn/issues/85
   app.use(express['static'](STATIC_DIRECTORY));
+
+  // it's a four-oh-four not found.
+  app.use(fourOhFour);
+
   return app;
 }
 

@@ -17,6 +17,7 @@ define([
   './functional/robots_txt',
   './functional/settings',
   './functional/force_auth',
+  './functional/404',
   './functional/mocha'
 ], function () {
   'use strict';

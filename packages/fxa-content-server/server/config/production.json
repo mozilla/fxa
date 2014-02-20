@@ -1,4 +1,5 @@
 {
   "env": "production",
-  "static_directory": "dist"
+  "static_directory": "dist",
+  "page_template_subdirectory": "dist"
 }

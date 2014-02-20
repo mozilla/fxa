@@ -24,6 +24,7 @@
     "connect-fonts": "0.0.12",
     "connect-fonts-clearsans": "0.0.1",
     "connect-fonts-firasans": "0.0.2",
+    "consolidate": "0.10.0",
     "convict": "0.4.0",
     "express": "3.3.4",
     "grunt": "~0.4.1",
