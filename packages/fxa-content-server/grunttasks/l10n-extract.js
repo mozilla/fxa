@@ -53,6 +53,9 @@ module.exports = function (grunt) {
       });
     });
 
+    grunt.task.run([
+      'l10n-merge'
+    ]);
   });
 };
 
