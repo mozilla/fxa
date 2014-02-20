@@ -811,7 +811,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   // BATCH
 
   var RESET_ACCOUNT = 'UPDATE accounts' +
-    ' SET verifyHash = ?, authSalt = ?, wrapWrapKb = ?, verifierSetAt = ? ' +
+    ' SET verifyHash = ?, authSalt = ?, wrapWrapKb = ?, verifierSetAt = ?,' +
+    ' verifierVersion = ?' +
     ' WHERE uid = ?'
 
   MySql.prototype.resetAccount = function (accountResetToken, data) {
@@ -845,6 +846,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
             data.authSalt,
             data.wrapWrapKb,
             Date.now(),
+            data.verifierVersion,
             accountResetToken.uid
           ],
           function (err) {
