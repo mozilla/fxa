@@ -143,7 +143,7 @@ module.exports = function (fs, path, url, convict) {
     contentServer: {
       url: {
         doc: "The url of the corresponding fxa-content-server instance",
-        default: 'http://127.0.0.1:3030',
+        default: 'http://127.0.0.1:9001',
         env: 'CONTENT_SERVER_URL'
       }
     },
