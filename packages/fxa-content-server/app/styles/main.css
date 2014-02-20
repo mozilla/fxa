@@ -28,6 +28,11 @@ a:active {
   outline: none;
 }
 
+a:focus {
+  outline: 1px dotted #0095dd;
+}
+
+
 a.no-underline {
   text-decoration: none;
 }
@@ -451,6 +456,8 @@ label:focus ~ .input-help-focused {
 .links {
   margin-bottom: 20px;
   overflow: auto;
+  /* the 1px of padding allows the :focus outline on anchors to show. */
+  padding: 1px;
 }
 
 ul.links {
