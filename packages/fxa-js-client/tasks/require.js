@@ -13,6 +13,10 @@ module.exports = function (grunt) {
       wrap: {
         startFile: 'config/start.frag',
         endFile: 'config/end.frag'
+      },
+      paths: {
+        sjcl: 'components/sjcl/sjcl',
+        p: 'components/p/p'
       }
     },
     prod: {

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['../../components/sjcl/sjcl', './hkdf'], function (sjcl, hkdf) {
+define(['sjcl', './hkdf'], function (sjcl, hkdf) {
   'use strict';
 
   var PREFIX_NAME = 'identity.mozilla.com/picl/v1/';
