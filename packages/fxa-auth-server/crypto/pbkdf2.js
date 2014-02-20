@@ -14,7 +14,7 @@ var P = require('../promise')
 function derive(input, salt, iterations, len) {
   var password = sjcl.codec.hex.toBits(input.toString('hex'))
   var saltBits = sjcl.codec.hex.toBits(salt.toString('hex'))
-  var result = sjcl.misc.pbkdf2(password, saltBits, iterations, len, sjcl.misc.hmac)
+  var result = sjcl.misc.pbkdf2(password, saltBits, iterations, len * 8, sjcl.misc.hmac)
 
   return P(Buffer(sjcl.codec.hex.fromBits(result), 'hex'))
 }
