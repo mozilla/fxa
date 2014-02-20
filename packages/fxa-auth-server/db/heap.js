@@ -308,6 +308,7 @@ module.exports = function (
     account.verifyHash = data.verifyHash
     account.wrapWrapKb = data.wrapWrapKb
     account.authSalt = data.authSalt
+    account.verifierVersion = data.verifierVersion
     account.devices = {}
     account.accountResetToken = null
     account.passwordForgotToken = null

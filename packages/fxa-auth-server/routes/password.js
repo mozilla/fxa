@@ -138,7 +138,8 @@ module.exports = function (
                             {
                               verifyHash: verifyHash,
                               authSalt: authSalt,
-                              wrapWrapKb: wrapWrapKb
+                              wrapWrapKb: wrapWrapKb,
+                              verifierVersion: password.version
                             }
                           )
                         }

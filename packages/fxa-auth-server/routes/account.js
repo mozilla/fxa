@@ -433,7 +433,8 @@ module.exports = function (
                 {
                   authSalt: authSalt,
                   verifyHash: verifyHash,
-                  wrapWrapKb: crypto.randomBytes(32)
+                  wrapWrapKb: crypto.randomBytes(32),
+                  verifierVersion: password.version
                 }
               )
             }
