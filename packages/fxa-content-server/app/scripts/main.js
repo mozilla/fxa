@@ -91,7 +91,7 @@ function (
   window.router = new Router();
 
   // IE uses navigator.browserLanguage, all others user navigator.language.
-  var language = window.navigator.browserLanguage || window.navigator.language || 'en';
+  var language = window.navigator.browserLanguage || window.navigator.language || 'en-US';
 
   window.translator = new Translator(language);
 

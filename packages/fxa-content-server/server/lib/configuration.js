@@ -24,8 +24,6 @@ var conf = module.exports = convict({
       default: '1 day'
     }
   },
-  default_lang: 'en-US',
-  debug_lang: 'it-CH',
   disable_locale_check: {
     doc: 'Skip checking for gettext .mo files for supported locales',
     default: false
@@ -63,13 +61,6 @@ var conf = module.exports = convict({
       format: 'port',
       default: 8125
     }
-  },
-  translation_directory: 'static/i18n',
-  supported_languages: {
-    doc: 'List of languages this deployment should detect and display localized strings.',
-    format: Array,
-    default: [ 'en-US' ],
-    env: 'SUPPORTED_LANGUAGES'
   },
   route_log_format: {
     format: [ 'default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny' ],

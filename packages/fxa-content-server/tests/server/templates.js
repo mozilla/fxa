@@ -13,7 +13,7 @@ define([
   var serverUrl = config.get('public_url');
 
   var emailTemplates = {
-    '/en/reset': {
+    '/en-US/reset': {
       subject: /Reset Password/,
       text: /Reset password/,
       html: /Reset password/
@@ -23,7 +23,7 @@ define([
       text: /pɹoʍssad ʇǝsǝᴚ/,
       html: /pɹoʍssad ʇǝsǝᴚ/
     },
-    '/en/verify': {
+    '/en-US/verify': {
       subject: /Confirm/,
       text: /Verify/,
       html: /Verify/

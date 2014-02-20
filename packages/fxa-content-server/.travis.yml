@@ -22,6 +22,7 @@ install:
   - cd ../..
 # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
+  - grunt po2json
   - npm start &
 # now run the tests!
 script: grunt lint && npm run-script test-server && npm run-script test-remote
