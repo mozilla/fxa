@@ -16,10 +16,17 @@ module.exports = function (grunt) {
       src: [
         '**/*.json',
         '!<%= yeoman.app %>/bower_components/**',
+        '!<%= yeoman.app %>/i18n/**',
         '!<%= yeoman.app %>/scripts/vendor/**',
         '!<%= yeoman.app %>/tests/**',
+        '!<%= yeoman.dist %>/**',
         '!<%= yeoman.server %>/**',
         '!node_modules/**'
+      ]
+    },
+    i18n: {
+      src: [
+        '<%= yeoman.app %>/i18n/**/*.json'
       ]
     }
   });

@@ -9,7 +9,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('lint', [
     'jshint',
-    'jsonlint',
+    'jsonlint:app',
     'jscs'
   ]);
 };
