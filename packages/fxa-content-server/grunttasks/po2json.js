@@ -10,8 +10,6 @@ const path = require('path');
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.loadNpmTasks('grunt-po2json');
-
   grunt.config('po2json', {
     options: {
       format: 'raw',
