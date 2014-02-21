@@ -1,6 +1,5 @@
 /* Responsiveness */
 
-/* TODO: (Issue #559) Confirm breakpoint sizes */
 @media only screen and (max-width: 500px) {
   html {
     background: #fff;
@@ -12,7 +11,7 @@
     height: 68px;
     margin: 0 auto;
     position: relative;
-    top:0;
+    top: 0;
     width: 64px;
     z-index: 999;
   }
@@ -27,9 +26,10 @@
     width: 100%;
   }
 
-  .privacy-links, .links + .privacy-links {
-    margin: 10px auto;
+  .privacy-links,
+  .links + .privacy-links {
     font-size: 12px;
+    margin: 10px auto;
     max-width: 340px;
   }
 
@@ -43,59 +43,75 @@
   }
 
   @-webkit-keyframes movein {
-    0% {left: 0; top: -20px;}
-    100% {left: 0; top: 0;}
+    0% {
+      left: 0;
+      top: -20px;
+    }
+    100% {
+      left: 0;
+      top: 0;
+    }
   }
 
   @-moz-keyframes movein {
-    0% {left: 0; top: -20px;}
-    100% {left: 0; top: 0;}
+    0% {
+      left: 0;
+      top: -20px;
+    }
+    100% {
+      left: 0;
+      top: 0;
+    }
   }
 
   @keyframes movein {
-    0% {left: 0; top: -20px;}
-    100% {left: 0; top: 0;}
+    0% {
+      left: 0;
+      top: -20px;
+    }
+    100% {
+      left: 0;
+      top: 0;
+    }
   }
 }
 
 @media only screen and (max-height: 480px) and (max-width: 320px) {
-  
   .fox-logo {
-      height: 0;
-      width: 0;
-    }
+    height: 0;
+    width: 0;
+  }
 
   header h2 {
-      font-size:20px;
-      font-weight:200;
-      padding:10px 0 20px 0;
-      margin:0;
+    font-size: 20px;
+    font-weight: 200;
+    margin: 0;
+    padding: 10px 0 20px 0;
   }
 
   #stage {
     background-image: url(/images/firefox.png);
     background-position: center bottom;
-    background-repeat:no-repeat;
+    background-repeat: no-repeat;
     background-size: 30px auto;
     margin: 0 auto;
-    min-height:0;
-    min-width:270px;
-    padding:0 0 30px 0;
-    width:270px;
+    min-height: 0;
+    min-width: 270px;
+    padding: 0 0 30px 0;
+    width: 270px;
   }
-
 }
 
 /* Retina */
 
 @media
-only screen and (-webkit-min-device-pixel-ratio: 2),
-only screen and (   min--moz-device-pixel-ratio: 2),
-only screen and (   -moz-min-device-pixel-ratio: 2),
-only screen and (     -o-min-device-pixel-ratio: 2/1),
-only screen and (        min-device-pixel-ratio: 2),
-only screen and (                min-resolution: 192dpi),
-only screen and (                min-resolution: 2dppx) {
+    only screen and (-webkit-min-device-pixel-ratio: 2),
+    only screen and (   min--moz-device-pixel-ratio: 2),
+    only screen and (   -moz-min-device-pixel-ratio: 2),
+    only screen and (     -o-min-device-pixel-ratio: 2/1),
+    only screen and (        min-device-pixel-ratio: 2),
+    only screen and (                min-resolution: 192dpi),
+    only screen and (                min-resolution: 2dppx) {
   .fox-logo {
     background-image: url(/images/firefox@2x.png);
   }
