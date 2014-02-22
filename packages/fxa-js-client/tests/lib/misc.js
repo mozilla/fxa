@@ -28,9 +28,7 @@ define([
             function(res) {
               assert.property(res, 'data');
             },
-            function() {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 

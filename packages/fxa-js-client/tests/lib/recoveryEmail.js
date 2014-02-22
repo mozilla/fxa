@@ -48,9 +48,7 @@ define([
               var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
               assert.ok(code, "code is returned");
             },
-            function() {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -87,9 +85,7 @@ define([
             assert.equal(service[1], 'sync', 'service is returned');
             assert.equal(redirectTo[1], 'http', 'redirectTo is returned');
           },
-          function() {
-            assert.fail();
-          }
+          assert.notOk
         );
       });
 

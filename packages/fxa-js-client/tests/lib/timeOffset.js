@@ -39,9 +39,7 @@ define([
               sessionToken = account.signIn.sessionToken;
               assert.ok(sessionToken);
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -73,9 +71,7 @@ define([
             function (res) {
               assert.ok(res);
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -86,9 +82,7 @@ define([
             function (res) {
               assert.ok(res);
             },
-            function (error) {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 

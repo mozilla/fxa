@@ -61,9 +61,7 @@ define([
             function (res) {
               assert.property(res, 'sessionToken');
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           )
       });
 
@@ -91,9 +89,7 @@ define([
             function (res) {
               assert.property(res, 'sessionToken');
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           )
       });
 

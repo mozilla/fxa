@@ -44,9 +44,7 @@ define([
             function(res) {
               assert.property(res, 'cert', 'got cert');
             },
-            function() {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
