@@ -16,7 +16,7 @@ define([
   };
 
   intern.capabilities = {
-    'selenium-version': '2.37.0'
+    'selenium-version': '2.39.0'
   };
 
   intern.environments = [
