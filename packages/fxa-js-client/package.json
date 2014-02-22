@@ -1,15 +1,16 @@
 {
   "name": "fxa-js-client",
   "version": "0.1.11",
-  "private": true,
   "description": "Web client that talks to the Firefox Accounts API server",
   "author": "Mozilla",
   "license": "MPL 2.0",
   "scripts": {
     "start": "grunt",
     "test": "grunt test",
-    "postinstall": "bower install && grunt sjcl"
+    "setup": "npm install && bower install && grunt sjcl"
   },
+  "main": "client/node/index.js",
+  "files": ["client/", "LICENSE"],
   "readmeFilename": "README.md",
   "homepage": "https://github.com/mozilla/fxa-js-client",
   "engines": {
@@ -22,7 +23,11 @@
   "bugs": {
     "url": "https://github.com/mozilla/fxa-js-client/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "p-promise": "~0.2.5",
+    "sjcl-full": "~1.0.0",
+    "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
+  },
   "devDependencies": {
     "bower": "~1.2.7",
     "grunt": "~0.4.2",
@@ -38,7 +43,6 @@
     "grunt-jscs-checker": "~0.3.2",
     "grunt-open": "~0.2.2",
     "intern": "~1.4.0",
-    "load-grunt-tasks": "~0.2.0",
-    "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
+    "load-grunt-tasks": "~0.2.0"
   }
 }
