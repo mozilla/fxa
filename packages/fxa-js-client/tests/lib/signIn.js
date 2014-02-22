@@ -38,9 +38,7 @@ define([
             function (res) {
               assert.ok(res.sessionToken);
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -58,9 +56,7 @@ define([
               assert.ok(res.keyFetchToken);
               assert.ok(res.unwrapBKey);
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -76,9 +72,7 @@ define([
             function (res) {
               assert.property(res, 'sessionToken');
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 

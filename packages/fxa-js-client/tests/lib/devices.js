@@ -37,9 +37,7 @@ define([
             function(res) {
               assert.property(res, 'devices');
             },
-            function() {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 

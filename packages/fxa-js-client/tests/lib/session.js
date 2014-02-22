@@ -34,9 +34,7 @@ define([
             function(res) {
               assert.ok(res, 'got response');
             },
-            function(error) {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 

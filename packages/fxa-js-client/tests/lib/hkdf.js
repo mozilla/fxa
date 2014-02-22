@@ -25,9 +25,7 @@ define([
               assert.equal(sjcl.codec.hex.fromBits(result).length, 84);
               assert.equal(sjcl.codec.hex.fromBits(result), '3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865');
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -43,9 +41,7 @@ define([
               assert.equal(sjcl.codec.hex.fromBits(result).length, 84);
               assert.equal(sjcl.codec.hex.fromBits(result), '8da4e775a563c18f715f802a063c5a31b8a11f5c5ee1879ec3454e5f3c738d2d9d201395faa4b61a96c8');
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 

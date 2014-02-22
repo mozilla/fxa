@@ -50,9 +50,7 @@ define([
             function (result) {
               assert.ok(result);
             },
-            function (error) {
-              assert.fail();
-            }
+            assert.notOk
           )
       });
 
@@ -98,9 +96,7 @@ define([
             function (result) {
               assert.equal(result.verified, true, "Email should be verified.");
             },
-            function (error) {
-              assert.fail();
-            }
+            assert.notOk
           )
       });
     });

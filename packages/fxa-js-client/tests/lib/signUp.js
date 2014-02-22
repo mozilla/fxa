@@ -38,9 +38,7 @@ define([
               assert.property(res, 'sessionToken', 'sessionToken should be returned on signUp');
               assert.notProperty(res, 'keyFetchToken', 'keyFetchToken should not be returned on signUp');
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -58,9 +56,7 @@ define([
               assert.property(res, 'sessionToken', 'sessionToken should be returned on signUp');
               assert.property(res, 'keyFetchToken', 'keyFetchToken should be returned on signUp');
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -89,9 +85,7 @@ define([
               assert.ok(redirectTo, 'redirectTo is returned');
 
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -116,9 +110,7 @@ define([
               assert.ok(code, 'code is returned');
               assert.ok(service, 'service is returned');
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -144,9 +136,7 @@ define([
               assert.ok(redirectTo, 'redirectTo is returned');
 
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 

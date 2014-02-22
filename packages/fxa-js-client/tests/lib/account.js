@@ -66,9 +66,7 @@ define([
             function(keys) {
               assert.ok(keys.bundle);
             },
-            function() {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -162,9 +160,7 @@ define([
             function (result) {
               assert.isNotNull(result);
             },
-            function() {
-              assert.fail();
-            }
+            assert.notOk
           )
       });
 

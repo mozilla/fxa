@@ -43,9 +43,7 @@ define([
               assert.property(emails[0], 'headers');
               assert.equal(emails[0].headers['content-language'], 'it-CH');
             },
-            function (err) {
-              assert.fail();
-            }
+            assert.notOk
           );
       });
 
@@ -74,9 +72,7 @@ define([
               assert.property(emails[1], 'headers');
               assert.equal(emails[1].headers['content-language'], 'it-CH');
             },
-            function (e) {
-              assert.fail();
-            }
+            assert.notOk
           )
       });
 
@@ -103,9 +99,7 @@ define([
               assert.property(emails[1], 'headers');
               assert.equal(emails[1].headers['content-language'], 'it-CH');
             },
-            function () {
-              assert.fail();
-            }
+            assert.notOk
           )
       });
 
