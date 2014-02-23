@@ -10,7 +10,7 @@
     "setup": "npm install && bower install && grunt sjcl"
   },
   "main": "node/index.js",
-  "files": ["client/", "LICENSE"],
+  "files": ["node/", "client/", "LICENSE"],
   "readmeFilename": "README.md",
   "homepage": "https://github.com/mozilla/fxa-js-client",
   "engines": {
