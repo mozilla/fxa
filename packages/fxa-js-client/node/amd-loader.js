@@ -10,21 +10,20 @@ module.exports = function amdload(absoluteFilename, map) {
     // Store this so we can put it back later.
     var oldDefine = global.define;
 
-    define.amd = true;
-    var map = map || {}, loaded = {}, dirs = [], exported;
-
-    return amdrequire(absoluteFilename);
+    map = map || {};
+    var loaded = {}, dirs = [], exported;
 
     /**
      * These two functions operate as a pair
      */
-    function define(deps, factory) {
+    var define = function define(deps, factory) {
         // Load all dependencies
         var modules = deps.map(amdrequire);
         // Capture the exported value
         exported = factory.apply(null, modules);
-    }
-    function amdrequire(filepath) {
+    };
+    define.amd = true;
+    var amdrequire = function amdrequire(filepath) {
         // Return real node modules if we have them mapped
         if (filepath in map) {
             return require(map[filepath]);
@@ -59,5 +58,7 @@ module.exports = function amdload(absoluteFilename, map) {
 
         // return value captured by define()
         return loaded[fullpath];
-    }
-}
+    };
+
+    return amdrequire(absoluteFilename);
+};

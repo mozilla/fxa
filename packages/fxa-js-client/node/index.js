@@ -9,8 +9,6 @@ var map = {
 
 var FxAccountClient = amd(__dirname + '/../client/FxAccountClient.js', map);
 
-module.exports = NodeFxAccountClient;
-util.inherits(NodeFxAccountClient, FxAccountClient);
 function NodeFxAccountClient(uri, config) {
     if (!(this instanceof FxAccountClient)) {
         return new NodeFxAccountClient(uri, config);
@@ -30,3 +28,6 @@ function NodeFxAccountClient(uri, config) {
 
     FxAccountClient.call(this, uri, config);
 }
+
+module.exports = NodeFxAccountClient;
+util.inherits(NodeFxAccountClient, FxAccountClient);
