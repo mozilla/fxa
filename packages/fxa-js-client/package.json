@@ -9,7 +9,7 @@
     "test": "grunt test",
     "setup": "npm install && bower install && grunt sjcl"
   },
-  "main": "client/node/index.js",
+  "main": "node/index.js",
   "files": ["client/", "LICENSE"],
   "readmeFilename": "README.md",
   "homepage": "https://github.com/mozilla/fxa-js-client",

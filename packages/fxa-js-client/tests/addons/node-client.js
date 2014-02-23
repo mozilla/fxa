@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-  'intern/node_modules/dojo/node!../../client/node/index.js'
+  'intern/node_modules/dojo/node!../../node/index.js'
 ], function (FxAccountClient) {
 
   return FxAccountClient;

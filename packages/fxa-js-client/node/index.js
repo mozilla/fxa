@@ -7,7 +7,7 @@ var map = {
     p: 'p-promise'
 };
 
-var FxAccountClient = amd(__dirname + '/../FxAccountClient.js', map);
+var FxAccountClient = amd(__dirname + '/../client/FxAccountClient.js', map);
 
 module.exports = NodeFxAccountClient;
 util.inherits(NodeFxAccountClient, FxAccountClient);
