@@ -140,6 +140,7 @@ TestServer.start(config)
       var url = null
       var client = null
       var nonce = crypto.randomBytes(4).toString('hex')
+      var now = Date.now() / 1000
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
@@ -159,7 +160,8 @@ TestServer.start(config)
             var method = 'GET'
             var verify = {
               credentials: token,
-              nonce: nonce
+              nonce: nonce,
+              timestamp: now
             }
             var headers = {
               Authorization: hawk.client.header(url, method, verify).field
@@ -186,12 +188,11 @@ TestServer.start(config)
         .then(
           function (token) {
             var d = P.defer()
-            var hawk = require('hawk')
-            var request = require('request')
             var method = 'GET'
             var verify = {
               credentials: token,
-              nonce: nonce
+              nonce: nonce,
+              timestamp: now
             }
             var headers = {
               Authorization: hawk.client.header(url, method, verify).field
@@ -209,7 +210,38 @@ TestServer.start(config)
                 } else {
                   t.equal(res.statusCode, 401, 'duplicate nonce is rejected')
                   t.equal(body.errno, 115, 'duplicate nonce is rejected')
-                  d.resolve()
+                  d.resolve(token)
+                }
+              }
+            )
+            return d.promise
+          }
+        )
+        .then(
+          function (token) {
+            var d = P.defer()
+            var method = 'GET'
+            var verify = {
+              credentials: token,
+              nonce: nonce,
+              timestamp: now + 1
+            }
+            var headers = {
+              Authorization: hawk.client.header(url, method, verify).field
+            }
+            request(
+              {
+                method: method,
+                url: url,
+                headers: headers,
+                json: true
+              },
+              function (err, res, body) {
+                if (err) {
+                  d.reject(err)
+                } else {
+                  t.equal(res.statusCode, 200, 'fresh timestamp is accepted')
+                  d.resolve(token)
                 }
               }
             )
