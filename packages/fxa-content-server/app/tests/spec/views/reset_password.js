@@ -6,26 +6,33 @@
 
 
 define([
-  'mocha',
   'chai',
   'views/reset_password',
-  '../../mocks/window'
+  'lib/fxa-client',
+  '../../mocks/window',
+  '../../mocks/router'
 ],
-function (mocha, chai, View, WindowMock) {
+function (chai, View, FxaClient, WindowMock, RouterMock) {
   var assert = chai.assert;
 
   describe('views/reset_password', function () {
-    var view;
+    var view, router;
 
     beforeEach(function () {
-      view = new View();
+
+      router = new RouterMock();
+      view = new View({
+        router: router
+      });
       view.render();
+
       $('#container').html(view.el);
     });
 
     afterEach(function () {
       view.remove();
       view.destroy();
+      view = router = null;
     });
 
     describe('constructor creates it', function () {
@@ -50,16 +57,46 @@ function (mocha, chai, View, WindowMock) {
       });
     });
 
-    describe('showValidationErrors', function() {
+    describe('showValidationErrors', function () {
       it('shows an error if the email is invalid', function (done) {
         view.$('[type=email]').val('testuser');
 
-        view.on('validation_error', function(which, msg) {
+        view.on('validation_error', function (which, msg) {
           assert.ok(msg);
           done();
         });
 
         view.showValidationErrors();
+      });
+    });
+
+    describe('submit with valid input', function () {
+      it('submits the email address', function (done) {
+        var email = 'testuser.' + Math.random() + '@testuser.com';
+        var client = new FxaClient();
+        client.signUp(email, 'password')
+              .then(function () {
+                view.$('input[type=email]').val(email);
+
+                router.on('navigate', function () {
+                  assert.equal(router.page, 'confirm_reset_password');
+                  done();
+                });
+
+                view.submit();
+              });
+      });
+    });
+
+    describe('submit with unknown email address', function () {
+      it('shows an error message', function (done) {
+        view.$('input[type=email]').val('unknown@testuser.com');
+
+        view.on('error', function () {
+          done();
+        });
+
+        view.submit();
       });
     });
   });

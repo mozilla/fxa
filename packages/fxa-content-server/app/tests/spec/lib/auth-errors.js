@@ -8,11 +8,10 @@
 
 
 define([
-  'mocha',
   'chai',
   'lib/auth-errors'
 ],
-function (mocha, chai, AuthErrors) {
+function (chai, AuthErrors) {
   /*global describe, it*/
   var assert = chai.assert;
 

@@ -7,6 +7,7 @@
 
 var url = require('url');
 var dns = require('dns');
+var config = require('./configuration');
 
 module.exports = function (fxAccountUrl, templates) {
 
@@ -52,6 +53,17 @@ module.exports = function (fxAccountUrl, templates) {
       });
     });
 
+    // front end mocha tests
+    if (config.get('env') === 'development') {
+      app.get('/tests/index.html', function (req, res) {
+        var checkCoverage = 'coverage' in req.query &&
+                                req.query['coverage'] !== 'false';
+        return res.render('mocha', {
+          check_coverage: checkCoverage
+        });
+      });
+    }
+
     // an array is used instead of a regexp simply because the regexp
     // became too long. One route is created for each item.
     var FRONTEND_ROUTES = [
@@ -75,8 +87,8 @@ module.exports = function (fxAccountUrl, templates) {
 
     FRONTEND_ROUTES.forEach(function (route) {
       app.get(route, function (req, res, next) {
-        // setting the url to / will use the correct index.html for either dev or
-        // prod mode.
+        // setting the url to / will use the correct
+        // index.html for either dev or prod mode.
         req.url = '/';
         next();
       });

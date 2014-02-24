@@ -6,7 +6,6 @@
 
 
 define([
-  'mocha',
   'chai',
   'underscore',
   'jquery',
@@ -15,7 +14,7 @@ define([
   'lib/fxa-client',
   '../../mocks/router'
 ],
-function (mocha, chai, _, $, View, Session, FxaClient, RouterMock) {
+function (chai, _, $, View, Session, FxaClient, RouterMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 

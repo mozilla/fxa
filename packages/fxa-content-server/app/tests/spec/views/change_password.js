@@ -6,7 +6,6 @@
 
 
 define([
-  'mocha',
   'chai',
   'underscore',
   'jquery',
@@ -15,7 +14,7 @@ define([
   'lib/session',
   '../../mocks/router'
 ],
-function (mocha, chai, _, $, View, FxaClient, Session, RouterMock) {
+function (chai, _, $, View, FxaClient, Session, RouterMock) {
   var assert = chai.assert;
 
   describe('views/change_password', function () {

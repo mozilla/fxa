@@ -9,7 +9,7 @@ define([
 ], function (registerSuite, assert, require) {
   'use strict';
 
-  var url = 'http://localhost:3030/tests/index.html';
+  var url = 'http://localhost:3030/tests/index.html?coverage';
   var bodyText;
 
   registerSuite({
@@ -42,6 +42,27 @@ define([
             }
             assert.equal(text, '0');
           })
+        .end()
+
+        // check for code coverage now.
+
+
+        // check for the grand total
+        .waitForElementByCssSelector('.grand-total .rs')
+        .elementByCssSelector('.grand-total .rs')
+        .text()
+          .then(function (text) {
+            text = text.replace('%', '').trim();
+            var covered = parseFloat(text);
+            assert.ok(covered > 90, 'not enough code coverage!');
+          })
+        .end()
+
+        // any individual failures?
+        .elementsByCssSelector('.bl-error .bl-file a')
+        .then(function(elements) {
+          assert.equal(elements.length, 0, 'all modules have sufficient coverage');
+        })
         .end();
 
     }

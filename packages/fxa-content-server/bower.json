@@ -16,7 +16,8 @@
     "mocha": "~1.16.2",
     "chai": "~1.8.1",
     "p": "https://github.com/rkatic/p.git",
-    "sinon": "http://sinonjs.org/releases/sinon-1.7.1.js"
+    "sinon": "http://sinonjs.org/releases/sinon-1.7.1.js",
+    "blanket": "~1.1.5"
   },
   "devDependencies": {}
 }

@@ -2,8 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-define([], function() {
-  mocha.setup('bdd');
-  mocha.timeout(5000);
-});
+// Code coverage analysis test!
 
+module.exports = function (grunt) {
+  'use strict';
+
+  grunt.registerTask('coverage', [
+    'blanket_mocha'
+  ]);
+};

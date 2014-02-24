@@ -46,6 +46,8 @@ function (_, Backbone) {
 
     CustomEvent: function(command, data) {
       return data;
+    },
+    scrollTo: function(x, y) {
     }
   });
 

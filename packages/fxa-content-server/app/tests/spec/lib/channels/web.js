@@ -6,11 +6,10 @@
 
 
 define([
-  'mocha',
   'chai',
   'lib/channels/web'
 ],
-function (mocha, chai, WebChannel) {
+function (chai, WebChannel) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var channel;

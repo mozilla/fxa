@@ -32,17 +32,18 @@ function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixi
     },
 
     afterRender: function () {
-      this.token = Url.searchParam('token');
+      var search = this.window.location.search;
+      this.token = Url.searchParam('token', search);
       if (! this.token) {
         return this.displayError(t('no token specified'));
       }
 
-      this.code = Url.searchParam('code');
+      this.code = Url.searchParam('code', search);
       if (! this.code) {
         return this.displayError(t('no code specified'));
       }
 
-      this.email = Url.searchParam('email');
+      this.email = Url.searchParam('email', search);
       if (! this.email) {
         return this.displayError(t('no email specified'));
       }

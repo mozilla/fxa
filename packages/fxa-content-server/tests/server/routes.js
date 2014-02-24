@@ -36,6 +36,8 @@ define([
     '/complete_reset_password': 200,
     '/reset_password_complete': 200,
     '/force_auth': 200,
+    '/tests/index.html': 200,
+    '/tests/index.html?coverage': 200,
     '/non_existent': 404
   };
 

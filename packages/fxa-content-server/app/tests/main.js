@@ -5,28 +5,24 @@
 'use strict';
 
 require.config({
-  baseUrl: '../scripts',
+  baseUrl: '/scripts',
   paths: {
-    jquery: '../bower_components/jquery/jquery',
-    backbone: '../bower_components/backbone/backbone',
-    underscore: '../bower_components/underscore/underscore',
-    fxaClient: '../bower_components/fxa-js-client/fxa-client',
-    text: '../bower_components/requirejs-text/text',
-    mustache: '../bower_components/mustache/mustache',
-    stache: '../bower_components/requirejs-mustache/stache',
-    transit: '../bower_components/jquery.transit/jquery.transit',
-    modernizr: '../bower_components/modernizr/modernizr',
-    mocha: '../bower_components/mocha/mocha',
-    chai: '../bower_components/chai/chai',
-    p: '../bower_components/p/p',
-    sinon: '../bower_components/sinon/index'
+    jquery: '/bower_components/jquery/jquery',
+    backbone: '/bower_components/backbone/backbone',
+    underscore: '/bower_components/underscore/underscore',
+    fxaClient: '/bower_components/fxa-js-client/fxa-client',
+    text: '/bower_components/requirejs-text/text',
+    mustache: '/bower_components/mustache/mustache',
+    stache: '/bower_components/requirejs-mustache/stache',
+    transit: '/bower_components/jquery.transit/jquery.transit',
+    modernizr: '/bower_components/modernizr/modernizr',
+    chai: '/bower_components/chai/chai',
+    p: '/bower_components/p/p',
+    sinon: '/bower_components/sinon/index'
   },
   shim: {
     underscore: {
       exports: '_'
-    },
-    mocha: {
-      exports: 'mocha'
     },
     backbone: {
       deps: [
@@ -51,7 +47,6 @@ require.config({
 });
 
 require([
-  'mocha',
   'lib/translator',
   '../tests/setup',
   '../tests/spec/lib/channels/web',
@@ -81,11 +76,11 @@ require([
   '../tests/spec/views/complete_reset_password',
   '../tests/spec/views/reset_password_complete'
 ],
-function (Mocha, Translator) {
+function (Translator) {
   // The translator is expected to be on the window object.
   window.translator = new Translator();
 
-  var runner = Mocha.run();
+  var runner = mocha.run();
 
   runner.on('end', function () {
     // This is our hook to the Selenium tests that run

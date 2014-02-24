@@ -6,7 +6,6 @@
 
 
 define([
-  'mocha',
   'chai',
   'jquery',
   'views/base',
@@ -16,7 +15,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (mocha, chai, jQuery, BaseView, Translator, Template, DOMEventMock,
+function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
           RouterMock, TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
 

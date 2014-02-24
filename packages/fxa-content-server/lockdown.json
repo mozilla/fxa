@@ -53,9 +53,6 @@
   "asn1": {
     "0.1.11": "559be18376d08a4ec4dbe80877d27818639b2df7"
   },
-  "ass": {
-    "0.0.4": "c7a7fa483ddcf5c332c94e495b7b5f7469162bb3"
-  },
   "assert-plus": {
     "0.1.2": "d93ffdbb67ac5507779be316a7d65146417beef8"
   },
@@ -75,33 +72,20 @@
   "awsbox": {
     "0.6.2": "4d35b870f8b3dfc80611df0c7d5431aed595204f"
   },
-  "awsboxen": {
-    "0.5.2": "d2eb558f8996b159b57c911f0b8ced1b89a856d0"
-  },
   "awssum": {
-    "1.1.0": "e010144aa516af78eca01352aab9203b816611bb",
-    "1.2.0": "6bf4336594185d76d06d9f515b13b7c874d56a04"
+    "1.1.0": "e010144aa516af78eca01352aab9203b816611bb"
   },
   "awssum-amazon": {
-    "1.1.0": "ea9ed3f7116044563bb0b14d47b2f38a684bac47",
-    "1.3.0": "230788d0f9f91d987169d72502298cb4cc0f57a4"
-  },
-  "awssum-amazon-cloudformation": {
-    "1.2.1": "e7672690a9e20bc71ec27d304eb7b3679d7daa59"
+    "1.1.0": "ea9ed3f7116044563bb0b14d47b2f38a684bac47"
   },
   "awssum-amazon-ec2": {
-    "1.3.2": "fb29a8dffaf6647440b93c64a1868317b4cc856c",
     "1.4.0": "87c06ed89452436b4aa812cdbb42714800931d83"
-  },
-  "awssum-amazon-elb": {
-    "1.0.0": "6962e553635da77a6785c8529b48dbd0105cfb28"
   },
   "awssum-amazon-route53": {
     "1.0.3": "85d1e6aeb22de14ed03e110cc887e482d0362aac",
     "1.1.0": "069fd7718779613e8fcd06ca5ec197c3182b41a9"
   },
   "base64-js": {
-    "0.0.2": "024f0f72afa25b75f9c0ee73cd4f55ec1bed9784",
     "0.0.6": "7b859f79f0bbbd55867ba67a7fab397e24a20947"
   },
   "bigint": {
@@ -116,15 +100,9 @@
   "binary": {
     "0.3.0": "9f60553bc5ce8c3386f3b553cff47462adecaa79"
   },
-  "binary-split": {
-    "0.1.1": "8327184c9f1c4c8e3c06f72bbdcdb4a8e9c756dc"
-  },
   "bindings": {
     "1.1.0": "f3cc4deec19fe31f255864eb1e6ffad857266ef0",
     "1.1.1": "951f7ae010302ffc50b265b124032017ed2bf6f3"
-  },
-  "blanket": {
-    "1.1.6": "ff93783dfe08b4f8baa790cd46948f5f3c6fd152"
   },
   "block-stream": {
     "0.0.7": "9088ab5ae1e861f4d81b176b4a8046080703deed"
@@ -138,9 +116,6 @@
   "boom": {
     "0.4.2": "7a636e9ded4efcefb19cef4947a3c67dfaee911b",
     "2.2.0": "f5e9502793e9ba777cfae502f71f6fa04d746912"
-  },
-  "bops": {
-    "0.0.6": "082d1d55fa01e60dbdc2ebc2dba37f659554cf3a"
   },
   "bower": {
     "1.2.8": "f63c0804a267d5ffaf2fd3fd488367e73dce202f"
@@ -167,20 +142,11 @@
   "buffer-crc32": {
     "0.2.1": "be3e5382fc02b6d6324956ac1af98aa98b08534c"
   },
-  "buffer-equal": {
-    "0.0.0": "4a68196ac33522daa17ec99858b302a636b62cf1"
-  },
   "buffers": {
     "0.1.1": "b24579c3bed4d6d396aeee6d9a8ae7f5482ab7bb"
   },
-  "bunker": {
-    "0.1.2": "c88992464a8e2a6ede86930375f92b58077ef97c"
-  },
   "bunyan": {
     "0.22.1": "020c383bed625af5c6c8834dd8c4aca0dd0f765c"
-  },
-  "burrito": {
-    "0.2.12": "d0d6e6ac81d5e99789c6fa4accb0b0031ea54f6b"
   },
   "bytes": {
     "0.2.0": "aad33ec14e3dc2ca74e8e7d451f9ba053ad4f7a0"
@@ -206,12 +172,8 @@
   "character-parser": {
     "1.0.2": "55384d6afcf8c6b9dd483e8347646a790e4545e7"
   },
-  "charm": {
-    "0.1.2": "06c21eed1a1b06aeb67553cdc53e23274bac2296"
-  },
   "cheerio": {
-    "0.10.8": "ece5ad0c8baa9b9adc87394bbdb1c68bc4552ba0",
-    "0.12.4": "c199626e9e1eb0d4233a91a4793e7f8aaa69a18b"
+    "0.10.8": "ece5ad0c8baa9b9adc87394bbdb1c68bc4552ba0"
   },
   "cheerio-select": {
     "0.0.3": "3f2420114f3ccb0b1b075c245ccfaae5d617a388"
@@ -251,7 +213,8 @@
     "0.6.1": "fa68a14f6a945d54dbbe50d8cdb3320e9e3b1a06",
     "1.1.1": "50d1651868ae60eccff0a2d9f34595376bc6b041",
     "1.2.0": "fd5713bfa153c7d6cc599378a5ab4c45c535029e",
-    "1.3.2": "8a8f30ec670a6fdd64af52f1914b907d79ead5b5"
+    "1.3.2": "8a8f30ec670a6fdd64af52f1914b907d79ead5b5",
+    "2.0.0": "d1b86f901f8b64bd941bdeadaf924530393be928"
   },
   "commondir": {
     "0.0.1": "89f00fdcd51b519c578733fec563e6a6da7f5be2"
@@ -355,14 +318,8 @@
   "decompress-zip": {
     "0.0.4": "c562431f76af8970afaf50226e42e1c47a57b086"
   },
-  "deep-equal": {
-    "0.0.0": "99679d3bbd047156fcd450d3d01eeb9068691e83"
-  },
   "deep-extend": {
     "0.2.8": "6d2893a805286e46d8243137c32fb991b50f4299"
-  },
-  "deep-is": {
-    "0.1.2": "9ced65ea0bc0b09f42a6d79c1b1903f9d913cc18"
   },
   "deflate-js": {
     "0.2.3": "f85abb58ebc5151a306147473d57c3e4f7e4426b"
@@ -382,17 +339,11 @@
     "1.0.7": "24bbb001c4a7d5522169e7cabdb2c2814ed91cf4",
     "1.0.8": "343276308ec991b7bc82267ed55bc1411f971666"
   },
-  "difflet": {
-    "0.2.6": "ab23b31f5649b6faa8e3d2acbd334467365ca6fa"
-  },
   "directmail": {
     "0.1.6": "21add6a35cf70e6050b3aee1a816c88149937748"
   },
   "dkim-signer": {
     "0.1.0": "c57c29b238029fbb08622afc2729ad596bcb417b"
-  },
-  "docopt": {
-    "0.4.0": "3d2ec9240c0929146b694692f45bcbf135301905"
   },
   "dojo": {
     "1.9.1": "c5cd9435d025d93e083ae822250f5f7d6dd685ff"
@@ -467,9 +418,6 @@
   },
   "eyes": {
     "0.1.8": "62cf120234c683785d902348a800ef3e0cc20bc0"
-  },
-  "falafel": {
-    "0.1.6": "3084cf3d41b59d15c813be6f259557fdc82b0660"
   },
   "faye-websocket": {
     "0.4.4": "c14c5b3bf14d7417ffbfd990c0a7495cd9f337bc"
@@ -572,6 +520,9 @@
   "grunt-autoprefixer": {
     "0.7.1": "e9ac2371c23547a881b4b51706f6c2ecbc4c960f"
   },
+  "grunt-blanket-mocha": {
+    "0.4.0": "23facb79982c4489c7eb5a5fabb66177f4f9851f"
+  },
   "grunt-bower-install": {
     "0.5.0": "bd9d73f07dc2aaf5bca71134cc6f48802b4de10a"
   },
@@ -633,7 +584,8 @@
     "0.6.1": "3f56adb7da06e814795ee2415b0ebe5fb8903ebb"
   },
   "grunt-lib-phantomjs": {
-    "0.3.1": "4215feabb81b8d393005b0e784501f20aee70532"
+    "0.3.1": "4215feabb81b8d393005b0e784501f20aee70532",
+    "0.4.0": "b78fa18adf1075617bc915ba5563dd7f3c9731ec"
   },
   "grunt-mocha": {
     "0.4.0": "7d349309390da6f6f84282299f56effec325dea8"
@@ -717,7 +669,6 @@
   },
   "htmlparser2": {
     "2.6.0": "b28564ea9d1ba56a104ace6a7b0fdda2f315836f",
-    "3.1.4": "72cbe7d5d56c01acf61fcf7b933331f4e45b36f0",
     "3.3.0": "cc70d05a59f6542e43f0e685c982e14c924a9efe"
   },
   "http-browserify": {
@@ -830,11 +781,7 @@
   "keypress": {
     "0.1.0": "4a3188d4291b66b4f65edb99f806aa9ae293592a"
   },
-  "lazysmtp": {
-    "0.0.8": "*"
-  },
   "load-grunt-tasks": {
-    "0.2.1": "19df82abb7fab7ec70ecc5222ce7a301a843dace",
     "0.3.0": "d5273e3d8689019b31d9cdd42e168399d3b45605"
   },
   "lockdown": {
@@ -845,6 +792,7 @@
     "1.0.1": "57945732498d92310e5bd4b1ff4f273a79e6c9fc",
     "1.2.1": "ed47b16e46f06b2b40309b68e9163c17e93ea304",
     "1.3.1": "a4663b53686b895ff074e2ba504dfb76a8e2b770",
+    "2.3.0": "dfbdac99cf87a59a022c474730570d8716c267dd",
     "2.4.1": "5b7723034dda4d262e5a46fb2c58d7cc22f71420"
   },
   "lodash._basebind": {
@@ -913,9 +861,6 @@
   "mailcomposer": {
     "0.2.8": "bcb4d84aea08ea6f4c007f927c0ad214986370cc"
   },
-  "mailparser": {
-    "0.4.0": "5bbe975af3d98ac01dc0d0fced61ea79a7e99eb8"
-  },
   "map-stream": {
     "0.1.0": "e56aa94c4c8055a16404a0674b78f215f7c8e194"
   },
@@ -949,7 +894,8 @@
   },
   "mocha": {
     "1.12.1": "5212e3f5914eef8c0888ae344e6a7dd2e5ac294a",
-    "1.13.0": "8d8fa4e310b94cc6efeb3ed26aeca96dea93307c"
+    "1.13.0": "8d8fa4e310b94cc6efeb3ed26aeca96dea93307c",
+    "1.14.0": "713db6dc5000191a9d0358195d0908790ecb6157"
   },
   "moment": {
     "1.7.2": "e66be344be2e9ec1d12f1e16a8ca49bf63417f4f"
@@ -1191,11 +1137,7 @@
   },
   "rimraf": {
     "2.0.3": "f50a2965e7144e9afd998982f15df706730f56a9",
-    "2.1.4": "5a6eb62eeda068f51ede50f29b3e5cd22f3d9bb2",
     "2.2.6": "c59597569b14d956ad29cacc42bdddf5f0ea4f4c"
-  },
-  "runforcover": {
-    "0.0.2": "344f057d8d45d33aebc6cc82204678f69c4857cc"
   },
   "sauce-connect-launcher": {
     "0.1.11": "71ac88bdab7bd8396a3f7d9feb165a4e457c3ecd"
@@ -1230,9 +1172,6 @@
   },
   "simplesmtp": {
     "0.3.21": "79aa14d72a915bb5853ff53a8a44b0823fbe1a8f"
-  },
-  "sjcl": {
-    "1.0.0": "47f3b7c7d87aa58e14f89f5fbc0b44613a129af7"
   },
   "slash": {
     "0.1.1": "e3b93c40a94a547a246367b71b8c31a793521a65"
@@ -1280,16 +1219,11 @@
   "symbol": {
     "0.1.0": "4483f1cd7348dea59bb6c110c95880032c7e73df"
   },
-  "tap": {
-    "0.4.8": "eb04f3f74ae0c4201bbf778e32a5cfb18d261ef0"
-  },
   "tar": {
     "0.1.19": "fe45941799e660ce1ea52d875d37481b4bf13eac"
   },
   "temp": {
-    "0.4.0": "671ad63d57be0fe9d7294664b3fc400636678a60",
-    "0.5.1": "77ab19c79aa7b593cbe4fac2441768cad987b8df",
-    "0.6.0": "6b13df5cddf370f2e3a606ca40f202c419173f07"
+    "0.4.0": "671ad63d57be0fe9d7294664b3fc400636678a60"
   },
   "tempfile": {
     "0.1.2": "81d4e51f35856592f3b51d568135791af3b038e0"
@@ -1323,9 +1257,6 @@
     "0.0.16": "704ea0513c15375389ef5b6dde865730528f2245",
     "0.0.23": "de874aa5e974a85f0a32cdfdbd74663cb3bd9c74"
   },
-  "to-utf8": {
-    "0.0.1": "d17aea72ff2fba39b9e43601be7b3ff72e089852"
-  },
   "toobusy": {
     "0.2.4": "d97a3ee760b2462388e15f8526579b4b64bb193d"
   },
@@ -1340,16 +1271,13 @@
     "2.0.1": "352131dfceb93a7532dc7535a4f142510435a394"
   },
   "traverse": {
-    "0.3.9": "717b8f220cc0bb7b44e40514c22b2e8bbc70d8b9",
-    "0.5.2": "e203c58d5f7f0e37db6e74c0acb929bb09b61d85",
-    "0.6.6": "cbdf560fd7b9af632502fed40f918c157ea97137"
+    "0.3.9": "717b8f220cc0bb7b44e40514c22b2e8bbc70d8b9"
   },
   "tunnel-agent": {
     "0.3.0": "ad681b68f5321ad2827c4cfb1b7d5df2cfe942ee"
   },
   "uglify-js": {
     "1.0.6": "f0d3aafd463f26a437b9ebc19f4947ab7e8078aa",
-    "1.1.1": "ee71a97c4cefd06a1a9b20437f34118982aa035b",
     "1.2.6": "d354b2d3c1cf10ebc18fa78c11a28bdd9ce1580d",
     "1.3.3": "ddd3e98aa27f5f47e589cfb3f95cddba26096190",
     "2.2.5": "a6e02a70d839792b9780488b7b8b184c095c99c7",

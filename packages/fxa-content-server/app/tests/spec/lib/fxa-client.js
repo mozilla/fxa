@@ -6,7 +6,6 @@
 
 
 define([
-  'mocha',
   'chai',
   'jquery',
   '../../mocks/channel',
@@ -18,7 +17,7 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (mocha, chai, $, ChannelMock, testHelpers,
+function (chai, $, ChannelMock, testHelpers,
               Session, FxaClientWrapper, AuthErrors) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;

@@ -29,18 +29,13 @@ function (_, FormView, Template, FxaClient, Session) {
       var email = this.$('.email').val();
 
       var client = new FxaClient();
+      var self = this;
       client.passwordReset(email)
-            .done(this._onRequestResetSuccess.bind(this),
-                  this._onRequestResetFailure.bind(this));
-
-    },
-
-    _onRequestResetSuccess: function () {
-      this.navigate('confirm_reset_password');
-    },
-
-    _onRequestResetFailure: function (err) {
-      this.displayError(err);
+              .then(function() {
+                self.navigate('confirm_reset_password');
+              }, function (err) {
+                self.displayError(err);
+              });
     }
   });
 

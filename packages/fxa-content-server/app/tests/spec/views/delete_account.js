@@ -6,7 +6,6 @@
 
 
 define([
-  'mocha',
   'chai',
   'jquery',
   'views/delete_account',
@@ -14,7 +13,7 @@ define([
   'lib/session',
   '../../mocks/router'
 ],
-function (mocha, chai, $, View, FxaClient, Session, RouterMock) {
+function (chai, $, View, FxaClient, Session, RouterMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
