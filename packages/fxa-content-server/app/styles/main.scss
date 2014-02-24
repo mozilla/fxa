@@ -47,12 +47,12 @@ noscript {
 
 .fox-logo {
   background: url(/images/firefox.png);
-  background-size: 96px 102px;
-  height: 102px;
-  margin: 0 auto -50px auto;
+  background-size: 80px 85px;
+  height: 85px;
+  margin: 0 auto -40px auto;
   position: relative;
-  top: -50px;
-  width: 96px;
+  top: -40px;
+  width: 80px;
   z-index: 999;
 }
 
@@ -71,7 +71,7 @@ noscript {
           border-radius: 5px;
   -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
           box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
-  margin: 100px auto 0 auto;
+  margin: 80px auto 0 auto;
   min-height: 450px;
   padding: 0 40px 40px 40px;
   text-align: center;
@@ -113,6 +113,7 @@ header h2 {
 
 #legal-header h3 {
   font-size: 12px;
+  padding:5px 0 10px;
 }
 
 #legal-copy ul,
