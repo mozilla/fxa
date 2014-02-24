@@ -6,7 +6,7 @@ var HEX_STRING = require('../routes/validators').HEX_STRING
 
 module.exports = function (path, url, Hapi, toobusy) {
 
-  function create(log, error, config, routes, db, noncedb, i18n) {
+  function create(log, error, config, routes, db, i18n) {
 
     // Hawk needs to calculate request signatures based on public URL,
     // not the local URL to which it is bound.
@@ -18,25 +18,19 @@ module.exports = function (path, url, Hapi, toobusy) {
     var hawkOptions = {
       host: publicURL.hostname,
       port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol],
-      timestampSkewSec: 60,
+
+      // We're seeing massive clock skew in deployed clients, and it's
+      // making auth harder than it needs to be.  This effectively disables
+      // the timestamp checks by setting it to a humongous value.
+      timestampSkewSec: 20 * 365 * 24 * 60 * 60,  // 20 years, +/- a few days
+
       nonceFunc: function nonceCheck(nonce, ts, cb) {
-        var maxValidTime = (+ts) + hawkOptions.timestampSkewSec
-        var ttl = Math.ceil(maxValidTime - (Date.now() / 1000))
-        // Don't bother storing if it's outside the timestamp window.
-        // We return successfully, but the check inside hawk lib will fail.
-        if (ttl <= 0 || ttl > 2*hawkOptions.timestampSkewSec) {
-          return cb()
-        }
-        // Remember the unique ts+nonce combination for future checks.
-        noncedb.checkAndSetNonce(ts + ":" + nonce, ttl)
-               .done(
-                 function() {
-                   cb()
-                 },
-                 function(err) {
-                   cb(err)
-                 }
-               )
+        // Since we've disabled timestamp checks, there's not much point
+        // keeping a nonce cache.  Instead we use this as an opportunity
+        // to report on the clock skew values seen in the wild.
+        var skew = (Date.now() / 1000) - (+ts)
+        log.info({ op: 'server.nonceFunc', skew: skew })
+        return cb()
       }
     }
 
