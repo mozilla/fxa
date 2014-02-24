@@ -10,7 +10,8 @@ module.exports = function (grunt) {
     copyright: {
       files: [
         "**/*.js",
-        "!node_modules/**"
+        "!node_modules/**",
+        "!sandbox/**"
       ],
       options: {
         pattern: "This Source Code Form is subject to the terms of the Mozilla Public"
@@ -21,6 +22,7 @@ module.exports = function (grunt) {
         "**/*.js",
         "**/*.json",
         "!node_modules/**",
+        "!sandbox/**",
         "!web/**"
       ],
       options: {
