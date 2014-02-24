@@ -33,11 +33,14 @@ module.exports = function (config, log) {
       templates[lang] = templates[lang] || {}
 
       types.forEach(function(type) {
+        // read the *.json file
         var opts = {
-          uri : config.contentServer.url + '/template/' + lang + '/' + type,
+          uri : config.templateServer.url + '/template/' + lang + '/' + type,
           json : true,
         }
         request(opts, function(err, res, body) {
+          if (err) return log.warn({ op: 'mailer.fetchTemplates', err: err })
+
           templates[lang][type] = body
 
           // compile the templates

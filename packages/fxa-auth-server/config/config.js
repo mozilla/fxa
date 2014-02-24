@@ -147,6 +147,13 @@ module.exports = function (fs, path, url, convict) {
         env: 'CONTENT_SERVER_URL'
       }
     },
+    templateServer: {
+      url: {
+        doc: "The url of the corresponding template server instance (currently the same as the fxa-content-server)",
+        default: 'http://127.0.0.1:3030',
+        env: 'TEMPLATE_SERVER_URL'
+      }
+    },
     smtp: {
       api: {
         host: {

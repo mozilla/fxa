@@ -2,6 +2,9 @@
   "contentServer": {
     "url": "http://127.0.0.1:9001"
   },
+  "templateServer": {
+    "url": "http://127.0.0.1:9001"
+  },
   "smtp": {
     "host": "127.0.0.1",
     "port": 9999,

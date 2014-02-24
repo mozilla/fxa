@@ -122,7 +122,7 @@ var remaining = langs.length
 langs.forEach(function(lang) {
   types.forEach(function(type) {
     var opts = {
-      uri : config.contentServer.url + '/template/' + lang + '/' + type,
+      uri : config.templateServer.url + '/template/' + lang + '/' + type,
       json : true,
     }
     request(opts, function(err, res, body) {
