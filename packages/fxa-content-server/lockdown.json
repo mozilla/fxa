@@ -105,7 +105,7 @@
     "0.0.7": "9088ab5ae1e861f4d81b176b4a8046080703deed"
   },
   "bluebird": {
-    "0.11.5-0": "15e028b3d8169e85a60e590721cd1d4f23617813"
+    "1.0.5": "ef7d5f01bb741938a7cac5b4fb6cfc0622759b9e"
   },
   "boolbase": {
     "1.0.0": "68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
@@ -293,6 +293,9 @@
     "1.0.2-1.2.3": "b0220c02de98617433b72851cf47de3df2cdbee9",
     "1.0.4-1.2.3": "4c12b101bddbb8880c2356da6e454459a5eb8b75"
   },
+  "dbug": {
+    "0.2.0": "e3ab9e9ff67ffa295b3655671fc40215440c815e"
+  },
   "debug": {
     "0.7.4": "06e1ea8082c2cb14e39806e22e2f6f757f92af39"
   },
@@ -450,7 +453,7 @@
     "0.0.7": "eea3033f0c3728139de7b57ab1b0d6d89c353c63"
   },
   "fxa-auth-server": {
-    "0.0.0": "*"
+    "0.0.3": "*"
   },
   "gaze": {
     "0.4.3": "e538f4ff5e4fe648f473a97e1ebb253d2de127b5"
@@ -564,7 +567,7 @@
     "0.4.1": "5d270b0394115158d8bb074f58e21ab7d653058c"
   },
   "grunt-po2json": {
-    "0.2.0": "265091b9ac6e200fda67fa4a8a72835411b31a2b"
+    "0.2.0": "*"
   },
   "grunt-preprocess": {
     "3.0.1": "fec3bac68e552afcc6040fb2f3f6670c7fdf8fbd"
@@ -669,7 +672,7 @@
     "0.3.5": "a78be064ac9abf168147c02169a931d9a483a9f6"
   },
   "intel": {
-    "0.4.0": "cfa42f66d7ea3a948bf5ee2c90862b62e1fa0eff"
+    "0.5.2": "b9d55030e73180a0ed317539ee5e152eb0327c4e"
   },
   "intern-geezer": {
     "1.3.2": "f509564c998efead42bbbde1168e24ab7a2a5d7d"
@@ -735,8 +738,8 @@
     "0.2.2": "d595eb199b37930cecd1f2c52820847e80e48ae7"
   },
   "jwcrypto": {
-    "0.4.3": "b48ef3db136b09df0933bfa09c717fd738b56038",
-    "0.4.4": "acc75cb25aa1b038b71c49b4b054589035804d17"
+    "0.4.4": "acc75cb25aa1b038b71c49b4b054589035804d17",
+    "0.5.0": "e5f923a5579d086a4e5600a47a7d53e9898eea71"
   },
   "kew": {
     "0.1.7": "0a32a817ff1a9b3b12b8c9bacf4bc4d679af8e72"
@@ -876,7 +879,7 @@
     "0.0.5": "15eac759479884df1131d6de56bce20b654f5391"
   },
   "mysql": {
-    "2.0.1": "8d849488ee176d34e31d6200d66c47f6dea4dd16"
+    "2.1.0": "8fef3fe6a8f00b05629c9b84c4a4b07ba0003f6e"
   },
   "nan": {
     "0.6.0": "a54ebe59717b467c77425302bd7c17574c887aaa",
@@ -1123,12 +1126,6 @@
   "simplesmtp": {
     "0.3.21": "79aa14d72a915bb5853ff53a8a44b0823fbe1a8f"
   },
-  "sjcl": {
-    "0.0.1": "*"
-  },
-  "sjcl-codec-bytes": {
-    "0.0.0": "*"
-  },
   "slash": {
     "0.1.1": "e3b93c40a94a547a246367b71b8c31a793521a65"
   },
@@ -1143,7 +1140,7 @@
     "0.1.32": "c8b6c167797ba4740a8ea33252162ff08591b266"
   },
   "stack-trace": {
-    "0.0.7": "c72e089744fc3659f508cdce3621af5634ec0fff"
+    "0.0.8": "8a9c30543ed9697f77739c67b053d8b030d86f3e"
   },
   "stream-combiner": {
     "0.0.4": "4d5e433c185261dde623ca3f44c586bcf5c4ad14"
@@ -1152,7 +1149,7 @@
     "0.2.0": "ded266556319c8b0e222812b9cf3b26fa7d947de"
   },
   "strftime": {
-    "0.6.2": "da4c12073cebee3cd60f4821940cc27b19d348a1"
+    "0.8.0": "01a3db1d2b01ea05ccd30c5d675f45f11a538fb4"
   },
   "string_decoder": {
     "0.10.25-1": "f387babd95d23a2bb73b1fbf2cb3efab6f78baab"
@@ -1168,6 +1165,9 @@
   },
   "svgo": {
     "0.3.7": "18e6bbfd9f70b84b5fe88e6656d84402c71ae7a0"
+  },
+  "symbol": {
+    "0.1.0": "4483f1cd7348dea59bb6c110c95880032c7e73df"
   },
   "tar": {
     "0.1.19": "fe45941799e660ce1ea52d875d37481b4bf13eac"
