@@ -18,9 +18,8 @@ function main() {
   memoryMonitor.on(
     'mem',
     function (usage) {
-      log.info(
+      log.stat(
         {
-          op: 'stat',
           stat: 'mem',
           rss: usage.rss,
           heapTotal: usage.heapTotal,
