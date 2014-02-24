@@ -9,6 +9,7 @@
     "test": "test"
   },
   "scripts": {
+    "preinstall": "./scripts/lockdown",
     "test": "./scripts/gen_keys.js && ./scripts/tap-coverage.js test/local test/remote",
     "start": "scripts/start-local.sh",
     "test-mysql": "DB_BACKEND=mysql npm test",
@@ -45,7 +46,8 @@
     "nodemailer": "0.6.0",
     "then-redis": "0.3.10",
     "i18n-abide": "0.0.16",
-    "scrypt-hash": "1.1.8"
+    "scrypt-hash": "1.1.8",
+    "lockdown": "0.0.5"
   },
   "devDependencies": {
     "awsbox": "0.6.2",
