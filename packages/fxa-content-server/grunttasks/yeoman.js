@@ -9,6 +9,8 @@ module.exports = function (grunt) {
     app: 'app',
     dist: 'dist',
     server: 'fxa-auth-server',
+    page_template_src: 'server/templates/pages/src',
+    page_template_dist: 'server/templates/pages/dist',
     tests: 'tests',
     tmp: '.tmp'
   });

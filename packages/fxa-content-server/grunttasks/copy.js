@@ -7,21 +7,34 @@ module.exports = function (grunt) {
 
   grunt.config('copy', {
     dist: {
-      files: [{
-        expand: true,
-        dot: true,
-        cwd: '<%= yeoman.app %>',
-        dest: '<%= yeoman.dist %>',
-        src: [
-          '*.{ico,png,txt}',
-          '.htaccess',
-          'images/{,*/}*.{webp,gif}',
-          'styles/fonts/{,*/}*.*',
-          'bower_components/{,*/}{,*/}*.*',
-          'i18n/{,*/}{,*/}*.*',
-          'sync/*.html'
-        ]
-      }]
+      files: [
+        {
+          // static resources.
+          expand: true,
+          dot: true,
+          cwd: '<%= yeoman.app %>',
+          dest: '<%= yeoman.dist %>',
+          src: [
+            '*.{ico,png,txt}',
+            '.htaccess',
+            'images/{,*/}*.{webp,gif}',
+            'styles/fonts/{,*/}*.*',
+            'bower_components/{,*/}{,*/}*.*',
+            'i18n/{,*/}{,*/}*.*',
+            'sync/*.html'
+          ]
+        }, {
+          // server side rendered templates. Copied so embedded js/css
+          // links can be updated to use minified versions.
+          expand: true,
+          dot: true,
+          cwd: '<%= yeoman.page_template_src %>',
+          dest: '<%= yeoman.page_template_dist %>',
+          src: [
+            '*.html'
+          ]
+        }
+      ]
     },
     styles: {
       expand: true,

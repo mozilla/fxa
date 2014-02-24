@@ -97,6 +97,15 @@ var conf = module.exports = convict({
     doc: 'The location of server-rendered templates',
     default: path.resolve(__dirname, '..', 'templates')
   },
+  page_template_root: {
+    doc: 'The root path of server-rendered page templates',
+    default: path.resolve(__dirname, '..', 'templates', 'pages')
+  },
+  page_template_subdirectory: {
+    doc: 'Subdirectory of page_template_root for server-rendered page templates',
+    format: ['src', 'dist'],
+    default: 'src'
+  },
   i18n: {
     defaultLang: {
       format: String,
