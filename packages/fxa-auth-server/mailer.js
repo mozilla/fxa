@@ -12,7 +12,8 @@ var request = require('request')
 
 module.exports = function (config, log) {
   // A map of all the different emails we send. The templates are retrieved from
-  // the 'fxa-content-server'.
+  // (1) the local `templates/`
+  // (2) the 'fxa-content-server'
   //
   // The map is populated by 'lang' then 'type'.
   // e.g.
@@ -22,9 +23,12 @@ module.exports = function (config, log) {
   // We read the languages from config.i18n.supportedLanguages and
   // the types are currently 'verify' and 'reset'.
   var templates = {}
-
   var types = [ 'verify', 'reset' ]
-  function fetchTemplates() {
+
+  // This function reads the local templates first so that we can startup
+  // without depending on an external service. Once read, we will resolve
+  // the promise so the caller can continue.
+  function readLocalTemplates() {
     var p = P.defer()
 
     var remaining = config.i18n.supportedLanguages.length * types.length;
@@ -34,6 +38,40 @@ module.exports = function (config, log) {
 
       types.forEach(function(type) {
         // read the *.json file
+        var filename = path.join(__dirname, 'templates', lang + '_' + type + '.json')
+        fs.readFile(filename, { encoding : 'utf8' }, function(err, data) {
+          if (err) {
+            log.warn({ op: 'mailer.readLocalTemplates', err: err })
+          }
+          else {
+            templates[lang][type] = JSON.parse(data)
+
+            // compile the templates
+            templates[lang][type].html = handlebars.compile(templates[lang][type].html)
+            templates[lang][type].text = handlebars.compile(templates[lang][type].text)
+          }
+
+          // whether we errored or not, count down so we know when to resolve
+          remaining -= 1
+          if ( remaining === 0 ) {
+            p.resolve()
+          }
+        })
+      })
+    })
+
+    return p.promise
+  }
+
+  function fetchTemplates() {
+    var p = P.defer()
+
+    var remaining = config.i18n.supportedLanguages.length * types.length;
+    config.i18n.supportedLanguages.forEach(function(lang) {
+      // somewhere to store the templates
+      templates[lang] = templates[lang] || {}
+
+      types.forEach(function(type) {
         var opts = {
           uri : config.templateServer.url + '/template/' + lang + '/' + type,
           json : true,
@@ -194,7 +232,18 @@ module.exports = function (config, log) {
 
   // fetch the templates first, then resolve the new Mailer
   var p = P.defer()
-  fetchTemplates().then(function() {
+  readLocalTemplates().then(function() {
+    // Now that the local templates have been read in, we can now read them from the
+    // fxa-content-server for any updates.
+    fetchTemplates().then(
+      function() {
+        log.info({ op: 'mailer.fetchTemplates', msg : 'All ok' })
+      },
+      function(err) {
+        log.error({ op: 'mailer.fetchTemplates', err: err })
+      }
+    )
+
     return p.resolve(new Mailer(config.smtp))
   })
   return p.promise
