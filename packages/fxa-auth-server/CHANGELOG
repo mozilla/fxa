@@ -1,3 +1,13 @@
+train-03
+  * upgrade hapi to 2.4.0
+  * fixed password reset account lockout bug #575
+  * upgrade mysql to 2.1.0
+  * added mysql stat log lines
+  * default mysql pools to 10 connections instead of 100
+  * improved mysql connection error handling #581
+  * check and cache ts+nonce pairs, not just plain nonces #584
+  * disable HAWK timestamp checking in authentication #585
+
 train-02
   * added `fxa-lastAuthAt` to signed certificates #547
   * load test enhancements
