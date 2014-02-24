@@ -60,27 +60,11 @@ function main() {
     Token.PasswordChangeToken
   )
 
-  var noncedb = require('../noncedb')(
-    config,
-    log
-  )
   DB.connect(config[config.db.backend])
-    .then(
-      function (db) {
-        return noncedb.connect()
-                      .then(function(ndb) { return [db, ndb] })
-      },
-      function (err) {
-        log.error({ op: 'noncedb.connect', err: err })
-        process.exit(1)
-      }
-    )
     .done(
-      function (backends) {
-        var db = backends[0]
-        var noncedb = backends[1]
+      function (db) {
         var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, config)
-        server = Server.create(log, error, config, routes, db, noncedb, i18n)
+        server = Server.create(log, error, config, routes, db, i18n)
 
         server.start(
           function () {
