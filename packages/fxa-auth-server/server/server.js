@@ -22,10 +22,13 @@ module.exports = function (path, url, Hapi, toobusy) {
       nonceFunc: function nonceCheck(nonce, ts, cb) {
         var maxValidTime = (+ts) + hawkOptions.timestampSkewSec
         var ttl = Math.ceil(maxValidTime - (Date.now() / 1000))
-        if (ttl <= 0) {
+        // Don't bother storing if it's outside the timestamp window.
+        // We return successfully, but the check inside hawk lib will fail.
+        if (ttl <= 0 || ttl > 2*hawkOptions.timestampSkewSec) {
           return cb()
         }
-        noncedb.checkAndSetNonce(nonce, ttl)
+        // Remember the unique ts+nonce combination for future checks.
+        noncedb.checkAndSetNonce(ts + ":" + nonce, ttl)
                .done(
                  function() {
                    cb()
