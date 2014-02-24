@@ -18,31 +18,54 @@ module.exports = function (
 
   // make a pool of connections that we can draw from
   function MySql(options) {
-    this.poolCluster = mysql.createPoolCluster()
+
+    // poolCluster will remove the pool after `removeNodeErrorCount` errors.
+    // We don't ever want to remove a pool because we only have one pool
+    // for writing and reading each. Connection errors are mostly out of our
+    // control for automatic recovery so monitoring of 503s is critical.
+    // Since `removeNodeErrorCount` is Infinity `canRetry` must be false
+    // to prevent inifinite retry attempts.
+    this.poolCluster = mysql.createPoolCluster(
+      {
+        removeNodeErrorCount: Infinity,
+        canRetry: false
+      }
+    )
 
     // Use separate pools for master and slave connections.
     this.poolCluster.add('MASTER', options.master)
     this.poolCluster.add('SLAVE', options.slave)
 
-    // The PoolCluster removes a pool if it gives to many connection errors.
-    // We require them to be long-lived, so automatically re-create a pool
-    // if it happens to get removed.
-    this.poolCluster.on('remove', function(id) {
-      log.error({
-        op: 'MySql.onRemovePool',
-        message: 'pool removed due to excessive errors: ' + id
-      })
-      if (id === 'MASTER') {
-        this.poolCluster.add('MASTER', options.master)
-      } else if (id === 'SLAVE') {
-        this.poolCluster.add('SLAVE', options.slave)
-      } else {
-        log.warn({
-          op: 'MySql.onRemovePool',
-          message: 'unexpected pool id: ' + id
-        })
+    this.statInterval = setInterval(
+      reportStats.bind(this),
+      options.statInterval || 15000
+    )
+    this.statInterval.unref()
+  }
+
+  function reportStats() {
+    var nodes = Object.keys(this.poolCluster._nodes).map(
+      function (name) {
+        return this.poolCluster._nodes[name]
+      }.bind(this)
+    )
+    var stats = nodes.reduce(
+      function (totals, node) {
+        totals.errors += node.errorCount
+        totals.connections += node.pool._allConnections.length
+        totals.queue += node.pool._connectionQueue.length
+        totals.free += node.pool._freeConnections.length
+        return totals
+      },
+      {
+        stat: 'mysql',
+        errors: 0,
+        connections: 0,
+        queue: 0,
+        free: 0
       }
-    }.bind(this))
+    )
+    log.stat(stats)
   }
 
   // this will connect to mysql, create the database
@@ -124,6 +147,7 @@ module.exports = function (
 
   MySql.prototype.close = function () {
     this.poolCluster.end()
+    clearInterval(this.statInterval)
     return P()
   }
 
@@ -937,30 +961,31 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
-  // helper functions
-  MySql.prototype.getMasterConnection = function() {
+  MySql.prototype.getConnection = function (name) {
     var d = P.defer()
-    this.poolCluster.getConnection('MASTER', function(err, connection) {
+    var self = this
+    var retry = true
+    function gotConnection(err, connection) {
       if (err) {
-        log.error( { op: 'MySql.getMasterConnection', err: err } )
+        log.error( { op: 'MySql.getConnection', name: name, err: err } )
+        if (retry) {
+          retry = false
+          return self.poolCluster.getConnection(name, gotConnection)
+        }
         return d.reject(error.serviceUnavailable())
       }
       d.resolve(connection)
-    })
+    }
+    this.poolCluster.getConnection(name, gotConnection)
     return d.promise
   }
 
-  // helper functions
+  MySql.prototype.getMasterConnection = function() {
+    return this.getConnection('MASTER')
+  }
+
   MySql.prototype.getSlaveConnection = function() {
-    var d = P.defer()
-    this.poolCluster.getConnection('SLAVE*', function(err, connection) {
-      if (err) {
-        log.error( { op: 'MySql.getSlaveConnection', err: err } )
-        return d.reject(error.serviceUnavailable())
-      }
-      d.resolve(connection)
-    })
-    return d.promise
+    return this.getConnection('SLAVE*')
   }
 
   function beginTransaction(client) {

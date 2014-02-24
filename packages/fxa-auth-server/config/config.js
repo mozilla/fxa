@@ -68,7 +68,7 @@ module.exports = function (fs, path, url, convict) {
         },
         connectionLimit: {
           doc: "The maximum number of connections to create at once.",
-          default: 100,
+          default: 10,
           format: 'nat',
           env: 'MYSQL_CONNECTION_LIMIT'
         },
@@ -108,7 +108,7 @@ module.exports = function (fs, path, url, convict) {
         },
         connectionLimit: {
           doc: "The maximum number of connections to create at once.",
-          default: 100,
+          default: 10,
           format: 'nat',
           env: 'SLAVE_CONNECTION_LIMIT'
         },

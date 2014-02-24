@@ -47,6 +47,11 @@ Overdrive.prototype.trace = function () {
   return Logger.prototype.trace.apply(this, arguments)
 }
 
+Overdrive.prototype.stat = function (stats) {
+  stats.op = 'stat'
+  this.info(stats)
+}
+
 Overdrive.prototype.summary = function (request, response) {
   var payload = request.payload || {}
   var query = request.query || {}
