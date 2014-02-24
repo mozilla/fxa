@@ -583,7 +583,7 @@ ul.links li {
 .show-password-label:hover,
 .show-password-label:active,
 .show-password-label:focus,
-.show-password:focus + .show-password-label,
+.show-password:hover + .show-password-label,
 .show-password:active + .show-password-label,
 .show-password:focus + .show-password-label {
   background: $html-background-color;
