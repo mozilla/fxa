@@ -66,6 +66,10 @@ module.exports = function (grunt) {
     all: {
       src: ['locale/**/*.po'],
       dest: '<%= yeoman.app %>/i18n'
+    },
+    template: {
+      src: ['locale/**/*.pot'],
+      dest: '<%= yeoman.tmp %>/i18n'
     }
   });
 };
