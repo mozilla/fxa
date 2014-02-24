@@ -22,13 +22,15 @@ var firasans = require('connect-fonts-firasans');
 var clearsans = require('connect-fonts-clearsans');
 
 var config = require('../lib/configuration');
-var routes = require('../lib/routes');
+var i18n = require('../lib/i18n')(config.get('i18n'));
+var templates = require('../lib/templates')(config.get('template_path'), i18n);
+var routes = require('../lib/routes')(config.get('fxaccount_url'), templates);
+
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
 var routeLogging = require('../lib/logging/route_logging');
 
 var fourOhFour = require('../lib/404');
 
-var i18n = require('../lib/i18n')(config.get('i18n'));
 
 var STATIC_DIRECTORY =
               path.join(__dirname, '..', '..', config.get('static_directory'));
