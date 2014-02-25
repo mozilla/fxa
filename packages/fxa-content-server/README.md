@@ -97,6 +97,7 @@ edit `server/config/*.json` on your deployed instance.
 * `grunt test` - run local Intern tests.
 * `grunt server` - run a local server running on port 3030 with development resources.
 * `grunt server:dist` - run a local server running on port 3030 with production resources. Production resources will be built as part of the task.
+* `grunt version` - stamp a new version. Updates the version number and creates a new CHANGELOG.md
 
 ## Servers
 
