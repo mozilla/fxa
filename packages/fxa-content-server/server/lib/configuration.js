@@ -109,7 +109,7 @@ var conf = module.exports = convict({
   i18n: {
     defaultLang: {
       format: String,
-      default: 'en'
+      default: 'en-US'
     },
     debugLang: {
       format: String,
@@ -118,7 +118,7 @@ var conf = module.exports = convict({
     supportedLanguages: {
       doc: 'List of languages this deployment should detect and display localized strings.',
       format: Array,
-      default: ['en', 'it-CH'],
+      default: ['en-US', 'it-CH'],
       env: 'I18N_SUPPORTED_LANGUAGES'
     },
     translationDirectory: {

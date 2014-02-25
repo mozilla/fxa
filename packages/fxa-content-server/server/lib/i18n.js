@@ -28,7 +28,7 @@ module.exports = function (config) {
   // stateful object with helper methods.
   var abideObj = abide.abide(
     {
-      default_lang: config.defaultLang,
+      default_lang: abide.localeFrom(config.defaultLang),
       debug_lang: config.debugLang,
       supported_languages: config.supportedLanguages,
       translation_directory: config.translationDirectory,
