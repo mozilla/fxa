@@ -2,80 +2,85 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2014-02-19 21:13+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2014-02-25 08:42+0000\n"
+"Last-Translator: Matjaž <m@owca.info>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: sl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain;\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
+"n%100==4 ? 2 : 3);\n"
+"X-Generator: Pootle 2.5.0\n"
+"X-POOTLE-MTIME: 1393317773.0\n"
 
 #: app/scripts/templates/sign_up.mustache:11
 msgid "1991"
-msgstr ""
+msgstr "1991"
 
 #: app/scripts/templates/sign_up.mustache:12
 msgid "1992"
-msgstr ""
+msgstr "1992"
 
 #: app/scripts/templates/sign_up.mustache:13
 msgid "1993"
-msgstr ""
+msgstr "1993"
 
 #: app/scripts/templates/sign_up.mustache:14
 msgid "1994"
-msgstr ""
+msgstr "1994"
 
 #: app/scripts/templates/sign_up.mustache:15
 msgid "1995"
-msgstr ""
+msgstr "1995"
 
 #: app/scripts/templates/sign_up.mustache:16
 msgid "1996"
-msgstr ""
+msgstr "1996"
 
 #: app/scripts/templates/sign_up.mustache:17
 msgid "1997"
-msgstr ""
+msgstr "1997"
 
 #: app/scripts/templates/sign_up.mustache:18
 msgid "1998"
-msgstr ""
+msgstr "1998"
 
 #: app/scripts/templates/sign_up.mustache:19
 msgid "1999"
-msgstr ""
+msgstr "1999"
 
 #: app/scripts/templates/sign_up.mustache:20
 msgid "2000"
-msgstr ""
+msgstr "2000"
 
 #: app/scripts/templates/sign_up.mustache:21
 msgid "2001"
-msgstr ""
+msgstr "2001"
 
 #: app/scripts/templates/sign_up.mustache:22
 msgid "2002"
-msgstr ""
+msgstr "2002"
 
 #: app/scripts/templates/sign_up.mustache:23
 msgid "2003"
-msgstr ""
+msgstr "2003"
 
 #: app/scripts/templates/sign_up.mustache:24
 msgid "2004"
-msgstr ""
+msgstr "2004"
 
 #: app/scripts/templates/sign_up.mustache:25
 msgid "2005"
-msgstr ""
+msgstr "2005"
 
 #: app/scripts/templates/sign_up.mustache:26
 msgid "2006"
-msgstr ""
+msgstr "2006"
 
 #: app/scripts/templates/sign_up.mustache:27
 msgid "2007"
-msgstr ""
+msgstr "2007"
 
 #: app/scripts/views/change_password.js:45
 msgid "old and new passwords must be different"
