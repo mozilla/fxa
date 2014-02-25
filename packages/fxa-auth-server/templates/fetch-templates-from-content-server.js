@@ -8,7 +8,7 @@ var config = require('../config').root()
 console.log(config)
 console.log(config.i18n.supportedLanguages)
 
-// This list is from fxa-content-server/locale/* (minus README.md, templates/ and linux/)
+// This list is from fxa-content-server/locale/* (minus README.md, templates/, linux/ and win32/).
 //
 // The reason we do this is because if we were to read our own config, it wouldn't
 // be what is running in production and is actually used. Therefore, for now, we need
@@ -109,7 +109,6 @@ var langs = [
   'uk',
   'ur',
   'vi',
-  'win32',
   'xh',
   'zh-CN',
   'zh-TW',
@@ -127,7 +126,6 @@ langs.forEach(function(lang) {
     }
     request(opts, function(err, res, body) {
       console.log('Fetched lang=%s, type=%s', lang, type)
-      console.log(body)
 
       var filename = lang + '_' + type + '.json'
       console.log('Saving %s', filename)
