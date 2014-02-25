@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-19 21:13+0000\n"
-"PO-Revision-Date: 2014-02-25 08:45+0000\n"
+"PO-Revision-Date: 2014-02-25 09:18+0000\n"
 "Last-Translator: Matjaž <m@owca.info>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sl\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3);\n"
 "X-Generator: Pootle 2.5.0\n"
-"X-POOTLE-MTIME: 1393317934.0\n"
+"X-POOTLE-MTIME: 1393319893.0\n"
 
 #: app/scripts/templates/sign_up.mustache:11
 msgid "1991"
@@ -85,7 +85,7 @@ msgstr "2007"
 
 #: app/scripts/views/change_password.js:45
 msgid "old and new passwords must be different"
-msgstr ""
+msgstr "staro in novo geslo ne smeta biti enaki"
 
 #: app/scripts/views/complete_reset_password.js:37
 msgid "no token specified"
@@ -170,7 +170,7 @@ msgstr ""
 
 #: app/scripts/lib/auth-errors.js:47
 msgid "Incorrect password"
-msgstr ""
+msgstr "Napačno geslo"
 
 #: app/scripts/lib/auth-errors.js:48
 msgid "Unverified account"
