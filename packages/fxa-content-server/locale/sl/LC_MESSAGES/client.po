@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-19 21:13+0000\n"
-"PO-Revision-Date: 2014-02-25 09:18+0000\n"
+"PO-Revision-Date: 2014-02-25 16:15+0000\n"
 "Last-Translator: Matjaž <m@owca.info>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sl\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3);\n"
 "X-Generator: Pootle 2.5.0\n"
-"X-POOTLE-MTIME: 1393319893.0\n"
+"X-POOTLE-MTIME: 1393344923.0\n"
 
 #: app/scripts/templates/sign_up.mustache:11
 msgid "1991"
@@ -158,7 +158,7 @@ msgstr ""
 #: app/scripts/lib/auth-errors.js:44
 #: app/scripts/lib/strings.js:25
 msgid "Account already exists"
-msgstr ""
+msgstr "Račun že obstaja"
 
 #: app/scripts/lib/auth-errors.js:45
 msgid "Unknown account"
