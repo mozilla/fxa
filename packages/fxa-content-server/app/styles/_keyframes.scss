@@ -1,50 +1,22 @@
 /* Keyframes */
 
-@-webkit-keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-@-moz-keyframes fadein {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
 @keyframes fadein {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@-webkit-keyframes movein {
-  0%   {left: 0; top: -60px;}
-  100%   {left: 0; top: -40px;}
-}
-
-@-moz-keyframes movein {
-  0%   {left: 0; top: -60px;}
-  100%   {left: 0; top: -40px;}
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes movein {
-  0%   {left: 0; top: -60px;}
-  100%   {left: 0; top: -40px;}
-}
-
-@-webkit-keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg);
+  0% {
+    left: 0;
+    top: -60px;
   }
-  to {
-    -webkit-transform: rotate(360deg);
-  }
-}
-
-@-moz-keyframes spin {
-  from {
-    -moz-transform: rotate(0deg);
-  }
-  to {
-    -moz-transform: rotate(360deg);
+  100% {
+    left: 0;
+    top: -40px;
   }
 }
 
