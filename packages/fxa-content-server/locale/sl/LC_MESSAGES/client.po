@@ -1,6 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-19 21:13+0000\n"
 "PO-Revision-Date: 2014-02-25 08:45+0000\n"
 "Last-Translator: Matjaž <m@owca.info>\n"
@@ -107,18 +108,21 @@ msgstr ""
 msgid "no uid specified"
 msgstr ""
 
-#: app/scripts/views/form.js:187 app/scripts/lib/strings.js:18
+#: app/scripts/views/form.js:187
+#: app/scripts/lib/strings.js:18
 msgid "Valid email required"
 msgstr ""
 
-#: app/scripts/views/form.js:193 app/scripts/lib/strings.js:23
+#: app/scripts/views/form.js:193
+#: app/scripts/lib/strings.js:23
 #: app/scripts/templates/change_password.mustache:10
 #: app/scripts/templates/complete_reset_password.mustache:9
 #: app/scripts/templates/sign_up.mustache:8
 msgid "Must be at least 8 characters"
 msgstr ""
 
-#: app/scripts/views/form.js:194 app/scripts/lib/strings.js:19
+#: app/scripts/views/form.js:194
+#: app/scripts/lib/strings.js:19
 msgid "Valid password required"
 msgstr ""
 
@@ -126,7 +130,8 @@ msgstr ""
 msgid "Unknown account. <a href=\"/signup\">Sign up</a>"
 msgstr ""
 
-#: app/scripts/views/sign_up.js:71 app/scripts/lib/strings.js:24
+#: app/scripts/views/sign_up.js:71
+#: app/scripts/lib/strings.js:24
 msgid "Year of birth required"
 msgstr ""
 
@@ -150,7 +155,8 @@ msgstr ""
 msgid "Invalid nonce in request signature"
 msgstr ""
 
-#: app/scripts/lib/auth-errors.js:44 app/scripts/lib/strings.js:25
+#: app/scripts/lib/auth-errors.js:44
+#: app/scripts/lib/strings.js:25
 msgid "Account already exists"
 msgstr ""
 
@@ -264,8 +270,7 @@ msgid "Cannot create account"
 msgstr ""
 
 #: app/scripts/templates/cannot_create_account.mustache:3
-msgid ""
-"You must meet certain age requirements to create a Firefox&nbsp;Account."
+msgid "You must meet certain age requirements to create a Firefox&nbsp;Account."
 msgstr ""
 
 #: app/scripts/templates/cannot_create_account.mustache:4
@@ -389,8 +394,7 @@ msgid "Delete account"
 msgstr ""
 
 #: app/scripts/templates/delete_account.mustache:3
-msgid ""
-"Are you sure you want to delete your account? This action cannot be undone."
+msgid "Are you sure you want to delete your account? This action cannot be undone."
 msgstr ""
 
 #: app/scripts/templates/delete_account.mustache:4
@@ -404,7 +408,8 @@ msgstr ""
 msgid "Delete Account"
 msgstr ""
 
-#: app/scripts/templates/pp.mustache:2 app/scripts/templates/tos.mustache:2
+#: app/scripts/templates/pp.mustache:2
+#: app/scripts/templates/tos.mustache:2
 msgid "Firefox cloud services"
 msgstr ""
 
@@ -454,8 +459,8 @@ msgstr ""
 #: app/scripts/templates/sign_up.mustache:28
 msgid ""
 "By proceeding, I agree to the <a id=\"fxa-tos\" href=\"/legal/terms\">Terms "
-"of Service</a> and <a id=\"fxa-pp\" href=\"/legal/privacy\">Privacy Notice</"
-"a> of Firefox cloud services."
+"of Service</a> and <a id=\"fxa-pp\" href=\"/legal/privacy\">Privacy "
+"Notice</a> of Firefox cloud services."
 msgstr ""
 
 #: app/scripts/templates/sign_up.mustache:2
