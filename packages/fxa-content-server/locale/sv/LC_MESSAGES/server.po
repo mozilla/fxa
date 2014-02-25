@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-02-19 21:13+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: sv\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Translate Toolkit 1.10.0-rc1\n"
+
+#: server/templates/email/reset.html:1
+#: server/templates/email/reset.html:2
+#: server/templates/email/reset.txt:1
+#: server/templates/email/verify.html:1
+#: server/templates/email/verify.html:2
+#: server/templates/email/verify.txt:1
+msgid "Firefox Accounts"
+msgstr ""
+
+#: server/templates/email/reset.html:3
+#: server/templates/email/reset.txt:2
+msgid "A request to reset the password for %(email)s has been made."
+msgstr ""
+
+#: server/templates/email/reset.html:4
+msgid "Reset password"
+msgstr ""
+
+#: server/templates/email/reset.html:5
+#: server/templates/email/reset.txt:4
+#: server/templates/email/verify.html:5
+#: server/templates/email/verify.txt:4
+msgid "If you received this email in error, no action is required."
+msgstr ""
+
+#: server/templates/email/reset.txt:3
+msgid "Reset password:"
+msgstr ""
+
+#: server/templates/email/verify.html:3
+#: server/templates/email/verify.txt:2
+msgid ""
+"Congratulations! %(email)s, you are seconds away from verifying your "
+"Firefox Account."
+msgstr ""
+
+#: server/templates/email/verify.html:4
+msgid "Verify"
+msgstr ""
+
+#: server/templates/email/verify.txt:3
+msgid "Verify:"
+msgstr ""
+
+#: server/lib/templates.js:30
+msgid "Confirm Your Account"
+msgstr ""
+
+#: server/lib/templates.js:35
+msgid "Reset Password Request"
+msgstr ""
