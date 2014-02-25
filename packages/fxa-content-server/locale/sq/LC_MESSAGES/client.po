@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2014-02-19 21:13+0000\n"
-"PO-Revision-Date: 2014-02-25 15:17+0200\n"
+"PO-Revision-Date: 2014-02-25 17:52+0200\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -84,16 +84,16 @@ msgstr "fjalëkalimi i vjetër dhe ai i ri duhet të jenë të ndryshëm"
 
 #: app/scripts/views/complete_reset_password.js:37
 msgid "no token specified"
-msgstr ""
+msgstr "nuk është përcaktuar token"
 
 #: app/scripts/views/complete_reset_password.js:42
 #: app/scripts/views/complete_sign_up.js:47
 msgid "no code specified"
-msgstr ""
+msgstr "nuk është pëcaktuar kod"
 
 #: app/scripts/views/complete_reset_password.js:47
 msgid "no email specified"
-msgstr ""
+msgstr "nuk është përcaktuar email"
 
 #: app/scripts/views/complete_reset_password.js:60
 msgid "passwords do not match"
@@ -140,11 +140,11 @@ msgstr "Gabim i papritur"
 
 #: app/scripts/lib/auth-errors.js:41
 msgid "Invalid authentication token in request signature"
-msgstr ""
+msgstr "Token i pavlefshëm mirëfilltësimi te nënshkrim kërkese"
 
 #: app/scripts/lib/auth-errors.js:42
 msgid "Invalid timestamp in request signature"
-msgstr ""
+msgstr "Vulë e pavlefshme kohore te nënshkrim kërkese"
 
 #: app/scripts/lib/auth-errors.js:43
 msgid "Invalid nonce in request signature"
@@ -181,11 +181,11 @@ msgstr "JSON i pavlefshëm te lënda e kërkesës"
 
 #: app/scripts/lib/auth-errors.js:51
 msgid "Invalid parameter in request body: %(param)s"
-msgstr ""
+msgstr "Parametër i pavlefshëm te lënda e kërkesës: %(param)s"
 
 #: app/scripts/lib/auth-errors.js:52
 msgid "Missing parameter in request body: %(param)s"
-msgstr ""
+msgstr "Mungon parametër te lënda e kërkesës: %(param)s"
 
 #: app/scripts/lib/auth-errors.js:53
 msgid "Invalid request signature"
@@ -193,7 +193,7 @@ msgstr "Nënshkrim i pavlefshëm kërkese"
 
 #: app/scripts/lib/auth-errors.js:54
 msgid "Missing content-length header"
-msgstr ""
+msgstr "Mungon krye gjatësie lënde"
 
 #: app/scripts/lib/auth-errors.js:55
 msgid "Request body too large"
@@ -209,7 +209,7 @@ msgstr "Shërbimi nuk po punon"
 
 #: app/scripts/lib/auth-errors.js:58
 msgid "This endpoint is no longer supported"
-msgstr ""
+msgstr "Kjo pikë mbarimi nuk mbulohet më"
 
 #: app/scripts/lib/strings.js:20
 msgid "Invalid password"
@@ -364,7 +364,7 @@ msgstr "Email-i u Dërgua"
 
 #: app/scripts/templates/confirm.mustache:4
 msgid "A verification link has been sent&nbsp;to: %(email)s"
-msgstr ""
+msgstr "Një lidhje verifikimi sapo u dërgua&nbsp;te: %(email)s"
 
 #: app/scripts/templates/confirm.mustache:5
 #: app/scripts/templates/confirm_reset_password.mustache:5
