@@ -4,9 +4,7 @@
 *,
 *:before,
 *:after {
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 html {
@@ -57,20 +55,14 @@ noscript {
 }
 
 #fxa-signup-header.fox-logo {
-  -webkit-animation: movein 0.5s;
-     -moz-animation: movein 0.5s;
-          animation: movein 0.5s;
+  animation: movein 0.5s;
 }
 
 #stage {
-  -webkit-animation: fadein 0.5s;
-     -moz-animation: fadein 0.5s;
-          animation: fadein 0.5s;
+  animation: fadein 0.5s;
   background: $stage-background-color;
-  -webkit-border-radius: 5px;
-          border-radius: 5px;
-  -webkit-box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
-          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  border-radius: 5px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
   margin: 80px auto 0 auto;
   min-height: 450px;
   padding: 0 40px 40px 40px;
@@ -219,14 +211,10 @@ strong.email {
   position: absolute;
   text-indent: -999px;
   top: 21px;
-  -webkit-transform: rotate(45deg);
-          transform: rotate(45deg);
+  transform: rotate(45deg);
   white-space: nowrap;
   width: 16px;
-  /**
-   * The z-index must be -1 or else the caret is
-   * displayed on top of the tooltip text
-   */
+  // The z-index must be -1 or else the caret is displayed on top of the tooltip text
   z-index: -1;
 }
 
@@ -245,21 +233,15 @@ strong.email {
 .input-row input[type='password'],
 .input-row select {
   border: 1px solid $input-row-border-color;
-  -webkit-border-radius: 5px;
-          border-radius: 5px;
-  -webkit-box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
-          box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
   color: #424f59;
   font-size: 18px;
   height: 45px;
   outline: none;
   padding: 0 20px;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
-  -webkit-transition-property: border-color;
-     -moz-transition-property: border-color;
-          transition-property: border-color;
+  transition-duration: 150ms;
+  transition-property: border-color;
   width: 100%;
 }
 
@@ -305,12 +287,8 @@ strong.email {
 .input-row input:focus,
 .input-row select:focus {
   border-color: $input-row-focus-border-color;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
-  -webkit-transition-property: border-color;
-     -moz-transition-property: border-color;
-          transition-property: border-color;
+  transition-duration: 150ms;
+  transition-property: border-color;
 }
 
 
@@ -320,12 +298,8 @@ strong.email {
 .input-row select:focus {
   background-image: url(/images/ddarrow_active.png);
   background-color: $html-background-color;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
-  -webkit-transition-property: all;
-     -moz-transition-property: all;
-          transition-property: all;
+  transition-duration: 150ms;
+  transition-property: all;
 }
 
 .input-row option {
@@ -385,12 +359,8 @@ strong.email {
 
 .input-row .input-help-focused {
   opacity: 0;
-  -webkit-transition-duration: 750ms;
-     -moz-transition-duration: 750ms;
-          transition-duration: 750ms;
-  -webkit-transition-property: opacity;
-     -moz-transition-property: opacity;
-          transition-property: opacity;
+  transition-duration: 750ms;
+  transition-property: opacity;
 }
 
 /**
@@ -413,18 +383,13 @@ label:focus ~ .input-help-focused {
 .button-row a.button {
   background: $button-background-color;
   border: none;
-  -webkit-border-radius: 5px;
-          border-radius: 5px;
+  border-radius: 5px;
   color: $message-text-color;
   cursor: pointer;
   font-size: 24px;
   padding: 15px 0;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
-  -webkit-transition-property: background-color;
-     -moz-transition-property: background-color;
-          transition-property: background-color;
+  transition-duration: 150ms;
+  transition-property: background-color;
   width: 100%;
 }
 
@@ -495,9 +460,7 @@ ul.links li {
 .privacy-links a {
   color: $input-placeholder-color;
   margin-top: 35px;
-  -webkit-transition-duration: 150ms;
-     -moz-transition-duration: 150ms;
-          transition-duration: 150ms;
+  transition-duration: 150ms;
 }
 
 .privacy-links + .button-row {
@@ -551,11 +514,7 @@ ul.links li {
   top: 1px;
   // it is very easy to accidentally select the text when clicking
   -webkit-touch-callout: none;
-  -webkit-user-select: none;
-   -khtml-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+  user-select: none;
   width: 55px;
 }
 
@@ -630,9 +589,7 @@ input[type="text"] ~ .show-password-label:hover {
 }
 
 .spinner {
-  -webkit-animation: 0.9s spin infinite linear;
-     -moz-animation: 0.9s spin infinite linear;
-          animation: 0.9s spin infinite linear;
+  animation: 0.9s spin infinite linear;
   background-image: url(/images/spinnerlight.png);
   background-size: 30px 30px;
   display: block;

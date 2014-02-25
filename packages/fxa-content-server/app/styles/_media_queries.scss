@@ -17,8 +17,7 @@
   }
 
   #stage {
-    -webkit-box-shadow: none;
-            box-shadow: none;
+    box-shadow: none;
     margin: 10px auto;
     min-height: none;
     min-width: 300px;
@@ -40,28 +39,6 @@
   .button-row button,
   .button-row a.button {
     padding: 10px 0;
-  }
-
-  @-webkit-keyframes movein {
-    0% {
-      left: 0;
-      top: -20px;
-    }
-    100% {
-      left: 0;
-      top: 0;
-    }
-  }
-
-  @-moz-keyframes movein {
-    0% {
-      left: 0;
-      top: -20px;
-    }
-    100% {
-      left: 0;
-      top: 0;
-    }
   }
 
   @keyframes movein {
