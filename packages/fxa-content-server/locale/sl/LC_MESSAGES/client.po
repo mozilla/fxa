@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2014-02-19 21:13+0000\n"
-"PO-Revision-Date: 2014-02-25 08:42+0000\n"
+"PO-Revision-Date: 2014-02-25 08:45+0000\n"
 "Last-Translator: Matjaž <m@owca.info>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sl\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 0 : n%100==2 ? 1 : n%100==3 || "
 "n%100==4 ? 2 : 3);\n"
 "X-Generator: Pootle 2.5.0\n"
-"X-POOTLE-MTIME: 1393317773.0\n"
+"X-POOTLE-MTIME: 1393317934.0\n"
 
 #: app/scripts/templates/sign_up.mustache:11
 msgid "1991"
@@ -297,7 +297,7 @@ msgstr ""
 
 #: app/scripts/templates/change_password.mustache:7
 msgid "New password"
-msgstr ""
+msgstr "Novo geslo"
 
 #: app/scripts/templates/change_password.mustache:11
 msgid "Change Password"
