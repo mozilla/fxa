@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2014-02-19 21:13+0000\n"
-"PO-Revision-Date: 2014-02-25 10:02+0000\n"
+"PO-Revision-Date: 2014-02-25 10:03+0000\n"
 "Last-Translator: Michael <michael.koehler1@gmx.de>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: de\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Pootle 2.5.0\n"
-"X-POOTLE-MTIME: 1393322536.0\n"
+"X-POOTLE-MTIME: 1393322596.0\n"
 
 #: app/scripts/templates/sign_up.mustache:11
 msgid "1991"
@@ -207,7 +207,7 @@ msgstr "Dienst nicht verfügbar"
 
 #: app/scripts/lib/auth-errors.js:58
 msgid "This endpoint is no longer supported"
-msgstr "Dieser Endpunkt wird nicht mehr unterstützt"
+msgstr "Dieser Endpunkt wird nicht mehr unterstützt."
 
 #: app/scripts/lib/strings.js:20
 msgid "Invalid password"
