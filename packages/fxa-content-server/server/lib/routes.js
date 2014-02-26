@@ -7,7 +7,45 @@
 
 var url = require('url');
 var dns = require('dns');
+var path = require('path');
+var fs = require('fs');
 var config = require('./configuration');
+var logger = require('intel').getLogger('server.routes');
+
+/**
+ * Steal a concept from Persona and load routes from definition
+ * files in the `routes` subdirectory. Each definition must contain
+ * 3 attributes, method, path and process.
+ * method is one of `GET`, `POST`, etc.
+ * path is a string or regular expression that express uses to match a route.
+ * process is a function that is called with req and res to handle the route.
+ */
+function isValidRoute(route) {
+  return !! route.method && route.path && route.process;
+}
+
+function loadRouteDefinitions(routesPath) {
+  var routes = [];
+
+  fs.readdirSync(routesPath).forEach(function (file) {
+    // skip files that don't have a .js suffix or start with a dot
+    if (path.extname(file) !== '.js' || /^\./.test(file)) {
+      return logger.info('route definition not loaded: %s', file);
+    }
+
+    var route = require(path.join(routesPath, file));
+    if (! isValidRoute(route)) {
+      return logger.error('route definition invalid: %s', file);
+    }
+
+    routes.push(route);
+  });
+
+  return routes;
+}
+
+var routesPath = path.join(__dirname, 'routes');
+var routes = loadRouteDefinitions(routesPath);
 
 module.exports = function (fxAccountUrl, templates) {
 
@@ -57,7 +95,7 @@ module.exports = function (fxAccountUrl, templates) {
     if (config.get('env') === 'development') {
       app.get('/tests/index.html', function (req, res) {
         var checkCoverage = 'coverage' in req.query &&
-                                req.query['coverage'] !== 'false';
+                                req.query.coverage !== 'false';
         return res.render('mocha', {
           check_coverage: checkCoverage
         });
@@ -95,10 +133,14 @@ module.exports = function (fxAccountUrl, templates) {
       });
     });
 
-
     app.get('/', function(req, res) {
       res.render('index');
+    });
+
+    routes.forEach(function (route) {
+      app[route.method](route.path, route.process);
     });
   };
 
 };
+

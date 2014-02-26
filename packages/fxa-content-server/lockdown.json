@@ -108,7 +108,8 @@
     "0.0.7": "9088ab5ae1e861f4d81b176b4a8046080703deed"
   },
   "bluebird": {
-    "1.0.5": "ef7d5f01bb741938a7cac5b4fb6cfc0622759b9e"
+    "1.0.5": "ef7d5f01bb741938a7cac5b4fb6cfc0622759b9e",
+    "1.0.7": "55b97e965b3f9ca6f2b3cb1fd432e1830fb00ed1"
   },
   "boolbase": {
     "1.0.0": "68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"

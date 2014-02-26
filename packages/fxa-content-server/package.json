@@ -22,6 +22,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL 2.0",
   "dependencies": {
+    "bluebird": "1.0.7",
     "bower": "1.2.8",
     "connect-cachify": "0.0.15",
     "connect-fonts": "0.0.12",

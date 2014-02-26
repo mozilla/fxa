@@ -40,6 +40,7 @@ define([
     '/force_auth': 200,
     '/tests/index.html': 200,
     '/tests/index.html?coverage': 200,
+    '/ver.json': 200,
     '/non_existent': 404
   };
 
