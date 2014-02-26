@@ -6,14 +6,16 @@
 
 
 define([
-  'mocha',
   'chai',
   'underscore',
   'backbone',
   'router',
-  '../../mocks/window'
+  'views/sign_in',
+  'views/sign_up',
+  'lib/session',
+  '../../mocks/window',
 ],
-function (mocha, chai, _, Backbone, Router, WindowMock) {
+function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -22,6 +24,8 @@ function (mocha, chai, _, Backbone, Router, WindowMock) {
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
+
+      $('#container').html('<div id="stage"></div>');
 
       windowMock = new WindowMock();
       router = new Router({
@@ -38,22 +42,60 @@ function (mocha, chai, _, Backbone, Router, WindowMock) {
     afterEach(function () {
       windowMock = router = navigateUrl = navigateOptions = null;
       Backbone.Router.prototype.navigate = origNavigate;
+      $('#container').empty();
     });
 
     describe('navigate', function () {
-      it('Tells the router to havigate to a page', function () {
+      it('Tells the router to navigate to a page', function () {
         windowMock.location.search = '';
-        router.navigate('signin');
-        assert.equal(navigateUrl, 'signin');
+        router.navigate('/signin');
+        assert.equal(navigateUrl, '/signin');
         assert.deepEqual(navigateOptions, { trigger: true });
       });
 
       it('preserves window search parameters across screen transition',
         function () {
         windowMock.location.search = '?context=fx_desktop_v1';
-        router.navigate('forgot');
-        assert.equal(navigateUrl, 'forgot?context=fx_desktop_v1');
+        router.navigate('/forgot');
+        assert.equal(navigateUrl, '/forgot?context=fx_desktop_v1');
         assert.deepEqual(navigateOptions, { trigger: true });
+      });
+    });
+
+    describe('redirectToSignup', function () {
+      it('go to the signup page', function () {
+        windowMock.location.search = '';
+        router.redirectToSignup();
+        assert.equal(navigateUrl, '/signup');
+        assert.deepEqual(navigateOptions, { trigger: true });
+      });
+    });
+
+    describe('showView, then another showView', function () {
+      var signInView, signUpView;
+
+      beforeEach(function () {
+        signInView = new SignInView({});
+        signUpView = new SignUpView({});
+        Session.clear();
+      });
+
+      afterEach(function() {
+        signInView = signUpView = null;
+        Session.clear();
+      });
+
+      it('shows a view, then shows the new view', function () {
+        router.showView(signInView);
+        assert.ok($('#fxa-signin-header').length);
+        // session was cleared in beforeEach, simulating a user
+        // visiting their first page. The user cannot go back.
+        assert.equal(Session.canGoBack, false);
+
+        router.showView(signUpView);
+        assert.ok($('#fxa-signup-header').length);
+        // if there is a back button, it can be shown now.
+        assert.equal(Session.canGoBack, true);
       });
     });
   });

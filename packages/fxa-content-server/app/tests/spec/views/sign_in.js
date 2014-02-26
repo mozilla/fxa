@@ -6,7 +6,6 @@
 
 
 define([
-  'mocha',
   'chai',
   'views/sign_in',
   'lib/session',
@@ -14,7 +13,7 @@ define([
   '../../mocks/window',
   '../../mocks/router'
 ],
-function (mocha, chai, View, Session, FxaClient, WindowMock, RouterMock) {
+function (chai, View, Session, FxaClient, WindowMock, RouterMock) {
   var assert = chai.assert;
 
   describe('views/sign_in', function () {

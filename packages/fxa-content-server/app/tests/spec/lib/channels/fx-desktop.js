@@ -6,14 +6,13 @@
 
 
 define([
-  'mocha',
   'chai',
   '/tests/mocks/window.js',
   '/tests/mocks/router.js',
   'lib/session',
   'lib/channels/fx-desktop'
 ],
-function (mocha, chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
+function (chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var channel;

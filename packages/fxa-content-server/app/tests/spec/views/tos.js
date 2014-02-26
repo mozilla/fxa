@@ -6,12 +6,11 @@
 
 
 define([
-  'mocha',
   'chai',
   'views/tos',
   'lib/session'
 ],
-function (mocha, chai, View, Session) {
+function (chai, View, Session) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 

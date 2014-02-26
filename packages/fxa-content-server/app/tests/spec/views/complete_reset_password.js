@@ -6,18 +6,23 @@
 
 
 define([
-  'mocha',
   'chai',
-  'views/complete_reset_password'
+  'views/complete_reset_password',
+  '../../mocks/window'
 ],
-function (mocha, chai, View) {
+function (chai, View, WindowMock) {
   var assert = chai.assert;
 
   describe('views/complete_reset_password', function () {
-    var view;
+    var view, windowMock;
 
     beforeEach(function () {
-      view = new View();
+      windowMock = new WindowMock();
+
+      view = new View({
+        window: windowMock
+      });
+
       view.render();
       $('#container').html(view.el);
     });
@@ -25,11 +30,38 @@ function (mocha, chai, View) {
     afterEach(function () {
       view.remove();
       view.destroy();
+      view = windowMock = null;
     });
 
     describe('constructor creates it', function () {
       it('is drawn', function () {
         assert.ok($('#fxa-complete-reset-password-header').length);
+      });
+    });
+
+    describe('render', function () {
+      it('shows an error if the token is missing', function (done) {
+        windowMock.location.search = '?code=code&email=testuser@testuser.com';
+        view.on('error', function () {
+          done();
+        });
+        view.render();
+      });
+
+      it('shows an error if the code is missing', function (done) {
+        windowMock.location.search = '?token=token&email=testuser@testuser.com';
+        view.on('error', function () {
+          done();
+        });
+        view.render();
+      });
+
+      it('shows an error if the email is missing', function (done) {
+        windowMock.location.search = '?token=token&code=code';
+        view.on('error', function () {
+          done();
+        });
+        view.render();
       });
     });
 
@@ -122,6 +154,24 @@ function (mocha, chai, View) {
         });
 
         view.showValidationErrors();
+      });
+    });
+
+    describe('submit', function() {
+      it('shows an error if passwords are the same', function (done) {
+        view.$('#password').val('password1');
+        view.$('#vpassword').val('password2');
+
+        view.on('error', function() {
+          done();
+        });
+
+        view.submit();
+      });
+
+      it('submits if passwords are the same', function () {
+        view.$('[type=password]').val('password');
+        view.submit();
       });
     });
   });

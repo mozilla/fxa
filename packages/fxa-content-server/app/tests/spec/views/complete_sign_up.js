@@ -6,7 +6,6 @@
 
 
 define([
-  'mocha',
   'chai',
   'views/complete_sign_up',
   'lib/session',
@@ -14,7 +13,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (mocha, chai, View, Session, FxaClientWrapper,
+function (chai, View, Session, FxaClientWrapper,
                 WindowMock, testHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;

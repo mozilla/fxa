@@ -6,13 +6,12 @@
 
 
 define([
-  'mocha',
   'chai',
   'underscore',
   'lib/xss',
   'lib/constants'
 ],
-function (mocha, chai, _, XSS, Constants) {
+function (chai, _, XSS, Constants) {
   var assert = chai.assert;
   var channel;
 

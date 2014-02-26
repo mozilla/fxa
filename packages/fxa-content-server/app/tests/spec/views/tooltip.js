@@ -6,12 +6,11 @@
 
 
 define([
-  'mocha',
   'chai',
   'jquery',
   'views/tooltip'
 ],
-function (mocha, chai, $, Tooltip) {
+function (chai, $, Tooltip) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 

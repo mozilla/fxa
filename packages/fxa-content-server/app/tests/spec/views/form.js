@@ -6,14 +6,13 @@
 
 
 define([
-  'mocha',
   'chai',
   'jquery',
   'views/form',
   'stache!templates/test_template',
   '../../lib/helpers'
 ],
-function (mocha, chai, $, FormView, Template, TestHelpers) {
+function (chai, $, FormView, Template, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 

@@ -8,11 +8,10 @@
 
 
 define([
-  'mocha',
   'chai',
   'lib/translator'
 ],
-function (mocha, chai, Translator) {
+function (chai, Translator) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
 

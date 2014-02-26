@@ -6,13 +6,12 @@
 
 
 define([
-  'mocha',
   'chai',
   'views/confirm',
   'lib/fxa-client',
   '../../mocks/router'
 ],
-function (mocha, chai, View, FxaClient, RouterMock) {
+function (chai, View, FxaClient, RouterMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
