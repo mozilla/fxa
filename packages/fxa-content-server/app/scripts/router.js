@@ -9,6 +9,7 @@ define([
   'backbone',
   'lib/session',
   'views/sign_in',
+  'views/sign_in_complete',
   'views/sign_up',
   'views/confirm',
   'views/legal',
@@ -30,6 +31,7 @@ function (
   Backbone,
   Session,
   SignInView,
+  SignInCompleteView,
   SignUpView,
   ConfirmView,
   LegalView,
@@ -56,6 +58,7 @@ function (
     routes: {
       '': 'redirectToSignup',
       'signin': showView(SignInView),
+      'signin_complete': showView(SignInCompleteView),
       'signup': showView(SignUpView),
       'confirm': showView(ConfirmView),
       'settings': showView(SettingsView),

@@ -69,6 +69,7 @@ module.exports = function (fxAccountUrl, templates) {
     var FRONTEND_ROUTES = [
       '/',
       '/signin',
+      '/signin_complete',
       '/signup',
       '/confirm',
       '/settings',

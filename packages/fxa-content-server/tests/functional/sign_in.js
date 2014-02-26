@@ -114,8 +114,8 @@ define([
               .click()
             .end()
 
-            // success is setting the settings screen.
-            .waitForElementById('fxa-settings-header')
+            // success is seeing the sign-in-complete screen.
+            .waitForElementById('fxa-sign-in-complete-header')
             .end();
         });
     },
