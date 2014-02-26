@@ -65,7 +65,6 @@ require([
   '../tests/spec/views/sign_up',
   '../tests/spec/views/complete_sign_up',
   '../tests/spec/views/sign_in',
-  '../tests/spec/views/sign_in_complete',
   '../tests/spec/views/settings',
   '../tests/spec/views/change_password',
   '../tests/spec/views/delete_account',
@@ -75,7 +74,7 @@ require([
   '../tests/spec/views/reset_password',
   '../tests/spec/views/confirm_reset_password',
   '../tests/spec/views/complete_reset_password',
-  '../tests/spec/views/reset_password_complete'
+  '../tests/spec/views/ready'
 ],
 function (Translator) {
   // The translator is expected to be on the window object.

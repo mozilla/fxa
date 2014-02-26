@@ -7,14 +7,14 @@
 
 define([
   'chai',
-  'views/reset_password_complete',
+  'views/ready',
   'lib/session'
 ],
 function (chai, View, Session) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
-  describe('views/reset_password_complete', function () {
+  describe('views/ready', function () {
     var view;
 
     beforeEach(function () {
@@ -32,10 +32,25 @@ function (chai, View, Session) {
     });
 
     describe('render', function () {
-      it('renders', function () {
+      it('renders with correct header for reset_password type', function () {
+        view.type = 'reset_password';
         view.render();
 
         assert.ok(view.$('#fxa-reset-password-complete-header').length);
+      });
+
+      it('renders with correct header for sign_in type', function () {
+        view.type = 'sign_in';
+        view.render();
+
+        assert.ok(view.$('#fxa-sign-in-complete-header').length);
+      });
+
+      it('renders with correct header for sign_up type', function () {
+        view.type = 'sign_up';
+        view.render();
+
+        assert.ok(view.$('#fxa-sign-up-complete-header').length);
       });
 
       it('shows redirectTo link and service name if available', function () {

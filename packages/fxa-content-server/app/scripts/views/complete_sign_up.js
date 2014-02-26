@@ -8,32 +8,15 @@ define([
   'underscore',
   'views/base',
   'stache!templates/complete_sign_up',
-  'lib/session',
   'lib/fxa-client',
-  'lib/url',
-  'lib/xss',
-  'lib/strings'
+  'lib/url'
 ],
-function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss, Strings) {
+function (_, BaseView, CompleteSignUpTemplate, FxaClient, Url) {
   var t = BaseView.t;
 
   var CompleteSignUpView = BaseView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
-
-    context: function () {
-      var service = Session.service;
-
-      if (Session.redirectTo) {
-        service = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-          Xss.href(Session.redirectTo), Session.service
-        ]);
-      }
-
-      return {
-        service: service
-      };
-    },
 
     afterRender: function () {
       var searchParams = this.window.location.search;
@@ -51,10 +34,8 @@ function (_, BaseView, CompleteSignUpTemplate, Session, FxaClient, Url, Xss, Str
       var client = new FxaClient();
       client.verifyCode(uid, code)
             .then(function () {
-              // TODO - (Issue #557) we could go to a "sign_up_complete" screen here.
-              self.$('#fxa-complete-sign-up-success').show();
+              self.navigate('signup_complete');
 
-              self.$('.complete').show();
               self.trigger('verify_code_complete');
             })
             .then(null, function (err) {

@@ -71,6 +71,7 @@ module.exports = function (fxAccountUrl, templates) {
       '/signin',
       '/signin_complete',
       '/signup',
+      '/signup_complete',
       '/confirm',
       '/settings',
       '/change_password',

@@ -48,8 +48,10 @@ define([
 
           return self.get('remote')
             .get(require.toUrl(url))
-            .waitForElementById('fxa-complete-sign-up-header')
 
+            // a successful user is immediately redirected to the
+            // sign-up-complete page.
+            .waitForElementById('fxa-sign-up-complete-header')
             .end();
         });
     }
