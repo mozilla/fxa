@@ -16,6 +16,9 @@ module.exports = function (
   PasswordChangeToken
   ) {
 
+  // http://dev.mysql.com/doc/refman/5.5/en/error-messages-server.html
+  var LOCK_ERRNOS = [ 1205, 1206, 1213, 1689 ]
+
   // make a pool of connections that we can draw from
   function MySql(options) {
 
@@ -153,14 +156,18 @@ module.exports = function (
 
   MySql.prototype.ping = function () {
     return this.getConnection('MASTER')
-      .then(function(con) {
-        var d = P.defer()
-        con.ping(function (err) {
-          con.release()
-          return err ? d.reject(err) : d.resolve()
-        })
-        return d.promise
-      })
+      .then(
+        function(connection) {
+          var d = P.defer()
+          connection.ping(
+            function (err) {
+              connection.release()
+              return err ? d.reject(err) : d.resolve()
+            }
+          )
+          return d.promise
+        }
+      )
   }
 
   // CREATE
@@ -265,7 +272,7 @@ module.exports = function (
     ' (tokenId, tokenData, uid, createdAt)' +
     ' VALUES (?, ?, ?, ?)'
 
-  MySql.prototype.createAccountResetToken = function (token /* authToken|passwordForgotToken */) {
+  MySql.prototype.createAccountResetToken = function (token) {
     log.trace({ op: 'MySql.createAccountResetToken', uid: token && token.uid })
 
     return AccountResetToken.create(token)
@@ -294,7 +301,12 @@ module.exports = function (
     ' VALUES (?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createPasswordForgotToken = function (emailRecord) {
-    log.trace({ op: 'MySql.createPasswordForgotToken', uid: emailRecord && emailRecord.uid })
+    log.trace(
+      {
+        op: 'MySql.createPasswordForgotToken',
+        uid: emailRecord && emailRecord.uid
+      }
+    )
 
     return PasswordForgotToken.create(emailRecord)
       .then(
@@ -438,7 +450,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       )
   }
 
-  var PASSWORD_CHANGE_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt, a.verifierSetAt ' +
+  var PASSWORD_CHANGE_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt, a.verifierSetAt' +
     ' FROM passwordChangeTokens t, accounts a' +
     ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
@@ -521,7 +533,12 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
     ' SET tries = ? WHERE tokenId = ?'
 
   MySql.prototype.updatePasswordForgotToken = function (passwordForgotToken) {
-    log.trace({ op: 'MySql.udatePasswordForgotToken', uid: passwordForgotToken && passwordForgotToken.uid })
+    log.trace(
+      {
+        op: 'MySql.udatePasswordForgotToken',
+        uid: passwordForgotToken && passwordForgotToken.uid
+      }
+    )
 
     return this.write(
       UPDATE_PASSWORD_FORGOT_TOKEN,
@@ -642,7 +659,12 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
     ' WHERE uid = ?'
 
   MySql.prototype.resetAccount = function (accountResetToken, data) {
-    log.trace({ op: 'MySql.resetAccount', uid: accountResetToken && accountResetToken.uid })
+    log.trace(
+      {
+        op: 'MySql.resetAccount',
+        uid: accountResetToken && accountResetToken.uid
+      }
+    )
 
     return this.transaction(
       function (connection) {
@@ -653,7 +675,11 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
           'passwordChangeTokens',
           'passwordForgotTokens'
         ]
-        var queries = deleteFromTablesWhereUid(connection, tables, accountResetToken.uid)
+        var queries = deleteFromTablesWhereUid(
+          connection,
+          tables,
+          accountResetToken.uid
+        )
         queries.push(
           query(
             connection,
@@ -686,7 +712,12 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   }
 
   MySql.prototype.forgotPasswordVerified = function (passwordForgotToken) {
-    log.trace({ op: 'MySql.forgotPasswordVerified', uid: passwordForgotToken && passwordForgotToken.uid })
+    log.trace(
+      {
+        op: 'MySql.forgotPasswordVerified',
+        uid: passwordForgotToken && passwordForgotToken.uid
+      }
+    )
 
     return this.transaction(
       function (connection) {
@@ -725,19 +756,6 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
     )
   }
 
-  function query(connection, sql, params) {
-    var d = P.defer()
-    connection.query(
-      sql,
-      params || [],
-      function (err, results) {
-        if (err) { return d.reject(err) }
-        d.resolve(results)
-      }
-    )
-    return d.promise
-  }
-
   MySql.prototype.singleQuery = function (poolName, sql, params) {
     return this.getConnection(poolName)
       .then(
@@ -758,41 +776,46 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   }
 
   MySql.prototype.transaction = function (fn) {
-    return this.getConnection('MASTER')
-      .then(
-        function (connection) {
-          return query(connection, 'BEGIN')
-            .then(
-              function () {
-                return fn(connection)
-              }
-            )
-            .then(
-              function (result) {
-                return query(connection, 'COMMIT')
-                  .then(
-                    function () {
-                      connection.release()
-                      return result
-                    }
-                  )
-              }
-            )
-            .then(
-              function (result) { return result },
-              function (err) {
-                log.error({ op: 'MySql.transaction', err: err })
-                return query(connection, 'ROLLBACK')
-                  .then(
-                    function () {
-                      connection.release()
-                      throw err
-                    }
-                  )
-              }
-            )
-        }
-      )
+    return retryable(
+      function () {
+        return this.getConnection('MASTER')
+          .then(
+            function (connection) {
+              return query(connection, 'BEGIN')
+                .then(
+                  function () {
+                    return fn(connection)
+                  }
+                )
+                .then(
+                  function (result) {
+                    return query(connection, 'COMMIT')
+                      .then(function () { return result })
+                  }
+                )
+                .then(
+                  function (result) { return result },
+                  function (err) {
+                    log.error({ op: 'MySql.transaction', err: err })
+                    return query(connection, 'ROLLBACK')
+                      .then(function () { throw err })
+                  }
+                )
+                .then(
+                  function (result) {
+                    connection.release()
+                    return result
+                  },
+                  function (err) {
+                    connection.release()
+                    throw err
+                  }
+                )
+            }
+          )
+      }.bind(this),
+      LOCK_ERRNOS
+    )
   }
 
   MySql.prototype.read = function (sql, param) {
@@ -804,21 +827,34 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   }
 
   MySql.prototype.getConnection = function (name) {
+    return retryable(connect.bind(this, name), [201])
+  }
+
+  function connect(name) {
     var d = P.defer()
-    var self = this
-    var retry = true
-    function gotConnection(err, connection) {
-      if (err) {
-        log.error( { op: 'MySql.getConnection', name: name, err: err } )
-        if (retry) {
-          retry = false
-          return self.poolCluster.getConnection(name, gotConnection)
+    this.poolCluster.getConnection(
+      name,
+      function (err, connection) {
+        if (err) {
+          log.error({ op: 'MySql.connection', err: err })
+          return d.reject(error.serviceUnavailable())
         }
-        return d.reject(error.serviceUnavailable())
+        d.resolve(connection)
       }
-      d.resolve(connection)
-    }
-    this.poolCluster.getConnection(name, gotConnection)
+    )
+    return d.promise
+  }
+
+  function query(connection, sql, params) {
+    var d = P.defer()
+    connection.query(
+      sql,
+      params || [],
+      function (err, results) {
+        if (err) { return d.reject(err) }
+        d.resolve(results)
+      }
+    )
     return d.promise
   }
 
@@ -828,6 +864,20 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         return query(connection, 'DELETE FROM ' + table + ' WHERE uid = ?', uid)
       }
     )
+  }
+
+  function retryable(fn, errnos) {
+    function success(result) {
+      return result
+    }
+    function failure(err) {
+      log.error({ op: 'MySql.retryable', err: err })
+      if (errnos.indexOf(err.errno) === -1) {
+        throw err
+      }
+      return fn()
+    }
+    return fn().then(success, failure)
   }
 
   return MySql
