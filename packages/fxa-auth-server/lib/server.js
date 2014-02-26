@@ -6,6 +6,7 @@ const util = require('util');
 
 const Hapi = require('hapi');
 
+const AppError = require('./error');
 const config = require('./config').root();
 const logger = require('./logging').getLogger('fxa.server');
 
@@ -17,8 +18,16 @@ exports.create = function createServer() {
 
   server.route(require('./routing'));
 
+  server.ext('onPreResponse', function onPreResponse(request, next) {
+    var response = request.response;
+    if (response.isBoom) {
+      response = AppError.translate(response);
+    }
+    next(response);
+  });
+
   // error response logging
-  server.on('request', function(req, evt, tags) {
+  server.on('request', function onRequest(req, evt, tags) {
     if (tags.error && util.isError(evt.data)) {
       var err = evt.data;
       if (err.isBoom && err.output.statusCode < 500) {
@@ -31,7 +40,7 @@ exports.create = function createServer() {
   });
 
   // response logging
-  server.on('response', function(req) {
+  server.on('response', function onResponse(req) {
     logger.info(
       '%s %s - %d (%dms)',
       req.method.toUpperCase(),

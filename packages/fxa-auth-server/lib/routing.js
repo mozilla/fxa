@@ -7,5 +7,15 @@ module.exports = [
     method: 'GET',
     path: '/',
     config: require('./routes/root')
+  },
+  {
+    method: 'GET',
+    path: '/oauth/authorization',
+    config: require('./routes/authorization')
+  },
+  {
+    method: 'POST',
+    path: '/oauth/token',
+    config: require('./routes/token')
   }
 ];

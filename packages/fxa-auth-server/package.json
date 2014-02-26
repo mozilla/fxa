@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "grunt server",
-    "test": "grunt test"
+    "test": "grunt test --node-env=test"
   },
   "repository": {
     "type": "git",
@@ -17,9 +17,12 @@
     "url": "https://github.com/mozilla/fxa-oauth-server/issues"
   },
   "dependencies": {
-    "hapi": "~2.3.0",
-    "convict": "~0.4.2",
-    "intel": "~0.5.1"
+    "hapi": "2.6.0",
+    "convict": "0.4.2",
+    "intel": "0.5.2",
+    "bluebird": "1.0.5",
+    "mysql": "2.1.0",
+    "browserid-verify": "0.1.2"
   },
   "devDependencies": {
     "awsbox": "~0.7.0",
@@ -33,6 +36,8 @@
     "insist": "0.x",
     "jshint-stylish": "~0.1.5",
     "load-grunt-tasks": "~0.3.0",
-    "time-grunt": "~0.2.9"
+    "time-grunt": "~0.2.9",
+    "nock": "^0.27.2",
+    "jwcrypto": "^0.5.0"
   }
 }
