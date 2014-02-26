@@ -536,13 +536,9 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
 
   MySql.prototype.deleteAccount = function (authToken) {
     log.trace({ op: 'MySql.deleteAccount', uid: authToken && authToken.uid })
-    var con
-    return this.getMasterConnection()
-      .then(function(newCon) {
-        con = newCon
-        return beginTransaction(con)
-      })
-      .then(function() {
+
+    return this.transaction(
+      function (connection) {
         var tables = [
           'sessionTokens',
           'keyFetchTokens',
@@ -551,17 +547,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
           'passwordForgotTokens',
           'accounts'
         ]
-        var all = [];
-        tables.forEach(function(tablename) {
-          all.push(deleteFromTableUsingUid(con, tablename, authToken.uid))
-        })
-        return P.all(all)
-      })
-      .then(function() {
-        return commitTransaction(con).then(function() {
-          con.release()
-        })
-      })
+        var queries = deleteFromTablesWhereUid(connection, tables, authToken.uid)
+        return P.all(queries)
+      }
+    )
   }
 
   var DELETE_SESSION_TOKEN = 'DELETE FROM sessionTokens WHERE tokenId = ?'
@@ -654,13 +643,9 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
 
   MySql.prototype.resetAccount = function (accountResetToken, data) {
     log.trace({ op: 'MySql.resetAccount', uid: accountResetToken && accountResetToken.uid })
-    var con
-    return this.getMasterConnection()
-      .then(function(newCon) {
-        con = newCon
-        return beginTransaction(con)
-      })
-      .then(function() {
+
+    return this.transaction(
+      function (connection) {
         var tables = [
           'sessionTokens',
           'keyFetchTokens',
@@ -668,36 +653,25 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
           'passwordChangeTokens',
           'passwordForgotTokens'
         ]
-        var all = [];
-        tables.forEach(function(tablename) {
-          all.push(deleteFromTableUsingUid(con, tablename, accountResetToken.uid))
-        })
-        return P.all(all)
-      })
-      .then(function() {
-        var d = P.defer()
-        con.query(
-          RESET_ACCOUNT,
-          [
-            data.verifyHash,
-            data.authSalt,
-            data.wrapWrapKb,
-            Date.now(),
-            data.verifierVersion,
-            accountResetToken.uid
-          ],
-          function (err) {
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
+        var queries = deleteFromTablesWhereUid(connection, tables, accountResetToken.uid)
+        queries.push(
+          query(
+            connection,
+            RESET_ACCOUNT,
+            [
+              data.verifyHash,
+              data.authSalt,
+              data.wrapWrapKb,
+              Date.now(),
+              data.verifierVersion,
+              accountResetToken.uid
+            ]
+          )
         )
-        return d.promise
-      })
-      .then(function() {
-          return commitTransaction(con).then(function() {
-            con.release()
-          })
-      })
+
+        return P.all(queries)
+      }
+    )
   }
 
   var VERIFY_EMAIL = 'UPDATE accounts SET emailVerified = true WHERE uid = ?'
@@ -714,71 +688,109 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.forgotPasswordVerified = function (passwordForgotToken) {
     log.trace({ op: 'MySql.forgotPasswordVerified', uid: passwordForgotToken && passwordForgotToken.uid })
 
-    var con
-    var accountResetToken
-
-    return this.getMasterConnection()
-      .then(function(thisCon) {
-        con = thisCon
-        return beginTransaction(con)
-      })
-      .then(function() {
+    return this.transaction(
+      function (connection) {
         return AccountResetToken.create(passwordForgotToken)
-      })
-      .then(function(newAccountResetToken) {
-        accountResetToken = newAccountResetToken
-        var d = P.defer()
-        con.query(
-          DELETE_PASSWORD_FORGOT_TOKEN,
-          [passwordForgotToken.tokenId],
-          function (err) {
-            if (err) return d.reject(err)
-            d.resolve()
-          }
-        )
-        return d.promise
-      })
-      .then(function() {
-        var d = P.defer()
-        con.query(
-          CREATE_ACCOUNT_RESET_TOKEN,
-          [
-            accountResetToken.tokenId,
-            accountResetToken.data,
-            accountResetToken.uid,
-            accountResetToken.createdAt
-          ],
-          function (err) {
-            if (err) return d.reject(err)
-            d.resolve(accountResetToken)
-          }
-        )
-        return d.promise
-      })
-      .then(function(newAccountResetToken) {
-          accountResetToken = newAccountResetToken
-          return commitTransaction(con).then(function() {
-            con.release()
-            return accountResetToken
-          })
-      })
+          .then(
+            function (accountResetToken) {
+              var queries = []
+              queries.push(
+                query(
+                  connection,
+                  DELETE_PASSWORD_FORGOT_TOKEN,
+                  [passwordForgotToken.tokenId]
+                )
+              )
+              queries.push(
+                query(
+                  connection,
+                  CREATE_ACCOUNT_RESET_TOKEN,
+                  [
+                    accountResetToken.tokenId,
+                    accountResetToken.data,
+                    accountResetToken.uid,
+                    accountResetToken.createdAt
+                  ]
+                )
+              )
+              return P.all(queries)
+                .then(
+                  function () {
+                    return accountResetToken
+                  }
+                )
+            }
+          )
+      }
+    )
+  }
+
+  function query(connection, sql, params) {
+    var d = P.defer()
+    connection.query(
+      sql,
+      params || [],
+      function (err, results) {
+        if (err) { return d.reject(err) }
+        d.resolve(results)
+      }
+    )
+    return d.promise
   }
 
   MySql.prototype.singleQuery = function (poolName, sql, params) {
     return this.getConnection(poolName)
       .then(
         function (connection) {
-          var d = P.defer()
-          connection.query(
-            sql,
-            params,
-            function (err, results) {
-              connection.release()
-              if (err) { return d.reject(err) }
-              d.resolve(results)
-            }
-          )
-          return d.promise
+          return query(connection, sql, params)
+            .then(
+              function (result) {
+                connection.release()
+                return result
+              },
+              function (err) {
+                connection.release()
+                throw err
+              }
+            )
+        }
+      )
+  }
+
+  MySql.prototype.transaction = function (fn) {
+    return this.getConnection('MASTER')
+      .then(
+        function (connection) {
+          return query(connection, 'BEGIN')
+            .then(
+              function () {
+                return fn(connection)
+              }
+            )
+            .then(
+              function (result) {
+                return query(connection, 'COMMIT')
+                  .then(
+                    function () {
+                      connection.release()
+                      return result
+                    }
+                  )
+              }
+            )
+            .then(
+              function (result) { return result },
+              function (err) {
+                log.error({ op: 'MySql.transaction', err: err })
+                return query(connection, 'ROLLBACK')
+                  .then(
+                    function () {
+                      connection.release()
+                      throw err
+                    }
+                  )
+              }
+            )
         }
       )
   }
@@ -810,47 +822,12 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
     return d.promise
   }
 
-  MySql.prototype.getMasterConnection = function() {
-    return this.getConnection('MASTER')
-  }
-
-  function beginTransaction(client) {
-    var d = P.defer()
-    client.query('BEGIN', function(err, con) {
-      if (err) return d.reject(err)
-      d.resolve(con)
-    })
-    return d.promise
-  }
-
-  function commitTransaction(client) {
-    var d = P.defer()
-    client.query('COMMIT', function(err) {
-      if (err) {
-        client.query('ROLLBACK', function() {
-          d.reject(err)
-        })
-        return
-      }
-      d.resolve()
-    })
-    return d.promise
-  }
-
-  function deleteFromTableUsingUid(client, table, uid) {
-    var d = P.defer()
-
-    var sql = 'DELETE FROM ' + table + ' WHERE uid = ?'
-    client.query(
-      sql,
-      [uid],
-      function(err, res) {
-        if (err) return d.reject(err)
-        d.resolve(res)
+  function deleteFromTablesWhereUid(connection, tables, uid) {
+    return tables.map(
+      function (table) {
+        return query(connection, 'DELETE FROM ' + table + ' WHERE uid = ?', uid)
       }
     )
-
-    return d.promise
   }
 
   return MySql
