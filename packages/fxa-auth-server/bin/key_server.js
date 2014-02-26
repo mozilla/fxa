@@ -41,12 +41,14 @@ function main() {
 
   var Server = require('../server')
   var server = null
+  var mailer = null
 
   // TODO: send to the SMTP server directly. In the future this may change
   // to another process that we send an http request to.
   require('../mailer')(config, log)
     .then(
-      function(mailer) {
+      function(m) {
+        mailer = m
         // server public key
         var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
 
