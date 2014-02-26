@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 module.exports = function (grunt) {
   'use strict';
 
@@ -12,11 +16,10 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerMultiTask('localeschema', 'Create a schema', function () {
+  grunt.registerMultiTask('localeschema', 'Create a JSON schema file from the template .pot file.', function () {
     this.files.forEach(function (file) {
       var src = file.orig.src[0];
       var dest = file.dest;
-
       var schema = createSchema(src);
 
       grunt.file.write(dest, JSON.stringify(schema, null, 2));
