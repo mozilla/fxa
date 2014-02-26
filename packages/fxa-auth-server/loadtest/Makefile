@@ -26,8 +26,7 @@ bench:
 
 # Run a full bench, by submitting to broker in AWS.
 megabench:
-	./bin/loads-runner --config=./config/megabench.ini --server-url=$(SERVER_URL) loadtests.LoadTest.test_auth_server
-	#./bin/loads-runner --broker=tcp://loads.services.mozilla.com:7780 --users=20 --duration=1800 --agents=5 --include-file=./loadtests.py --python-dep=hawkauthlib loadtests.LoadTest.test_auth_server --detach --server-url=$(SERVER_URL)
+	./bin/loads-runner --config=./config/megabench.ini --user-id=$(USER) --server-url=$(SERVER_URL) loadtests.LoadTest.test_auth_server
 
 # Purge any currently-running loadtest runs.
 purge:
