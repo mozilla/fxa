@@ -152,7 +152,7 @@ module.exports = function (
   }
 
   MySql.prototype.ping = function () {
-    return this.getMasterConnection()
+    return this.getConnection('MASTER')
       .then(function(con) {
         var d = P.defer()
         con.ping(function (err) {
@@ -180,33 +180,28 @@ module.exports = function (
     data.normalizedEmail = data.email
     data.createdAt = data.verifierSetAt = Date.now()
 
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          CREATE_ACCOUNT,
-          [
-            data.uid,
-            data.normalizedEmail,
-            data.email,
-            data.emailCode,
-            data.emailVerified,
-            data.kA,
-            data.wrapWrapKb,
-            data.authSalt,
-            data.verifierVersion,
-            data.verifyHash,
-            data.verifierSetAt,
-            data.createdAt
-          ],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(data)
-          }
-        )
-        return d.promise
-      })
+    return this.write(
+      CREATE_ACCOUNT,
+      [
+        data.uid,
+        data.normalizedEmail,
+        data.email,
+        data.emailCode,
+        data.emailVerified,
+        data.kA,
+        data.wrapWrapKb,
+        data.authSalt,
+        data.verifierVersion,
+        data.verifyHash,
+        data.verifierSetAt,
+        data.createdAt
+      ]
+    )
+    .then(
+      function () {
+        return data
+      }
+    )
   }
 
   var CREATE_SESSION_TOKEN = 'INSERT INTO sessionTokens' +
@@ -216,31 +211,25 @@ module.exports = function (
   MySql.prototype.createSessionToken = function (authToken) {
     log.trace({ op: 'MySql.createSessionToken', uid: authToken && authToken.uid })
 
-    var con
-
-    return this.getMasterConnection()
-      .then(function(thisCon) {
-        con = thisCon
-        return SessionToken.create(authToken)
-      })
-      .then(function(sessionToken) {
-        var d = P.defer()
-        con.query(
-          CREATE_SESSION_TOKEN,
-          [
-            sessionToken.tokenId,
-            sessionToken.data,
-            sessionToken.uid,
-            sessionToken.createdAt
-          ],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(sessionToken)
-          }
-        )
-        return d.promise
-      })
+    return SessionToken.create(authToken)
+      .then(
+        function (sessionToken) {
+          return this.write(
+            CREATE_SESSION_TOKEN,
+            [
+              sessionToken.tokenId,
+              sessionToken.data,
+              sessionToken.uid,
+              sessionToken.createdAt
+            ]
+          )
+          .then(
+            function () {
+              return sessionToken
+            }
+          )
+        }.bind(this)
+      )
   }
 
   var CREATE_KEY_FETCH_TOKEN = 'INSERT INTO keyFetchTokens' +
@@ -249,31 +238,27 @@ module.exports = function (
 
   MySql.prototype.createKeyFetchToken = function (authToken) {
     log.trace({ op: 'MySql.createKeyFetchToken', uid: authToken && authToken.uid })
-    var con
-    return this.getMasterConnection()
-      .then(function(thisCon) {
-        con = thisCon
-        return KeyFetchToken.create(authToken)
-      })
-      .then(function (keyFetchToken) {
-        var d = P.defer()
-        con.query(
-          CREATE_KEY_FETCH_TOKEN,
-          [
-            keyFetchToken.tokenId,
-            keyFetchToken.authKey,
-            keyFetchToken.uid,
-            keyFetchToken.keyBundle,
-            keyFetchToken.createdAt
-          ],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(keyFetchToken)
-          }
-        )
-        return d.promise
-      }.bind(this))
+
+    return KeyFetchToken.create(authToken)
+      .then(
+        function (keyFetchToken) {
+          return this.write(
+            CREATE_KEY_FETCH_TOKEN,
+            [
+              keyFetchToken.tokenId,
+              keyFetchToken.authKey,
+              keyFetchToken.uid,
+              keyFetchToken.keyBundle,
+              keyFetchToken.createdAt
+            ]
+          )
+          .then(
+            function () {
+              return keyFetchToken
+            }
+          )
+        }.bind(this)
+      )
   }
 
   var CREATE_ACCOUNT_RESET_TOKEN = 'REPLACE INTO accountResetTokens' +
@@ -282,30 +267,26 @@ module.exports = function (
 
   MySql.prototype.createAccountResetToken = function (token /* authToken|passwordForgotToken */) {
     log.trace({ op: 'MySql.createAccountResetToken', uid: token && token.uid })
-    var con
-    return this.getMasterConnection()
-      .then(function(thisCon) {
-        con = thisCon
-        return AccountResetToken.create(token)
-      })
-      .then(function (accountResetToken) {
-        var d = P.defer()
-        con.query(
-          CREATE_ACCOUNT_RESET_TOKEN,
-          [
-            accountResetToken.tokenId,
-            accountResetToken.data,
-            accountResetToken.uid,
-            accountResetToken.createdAt
-          ],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(accountResetToken)
-          }
-        )
-        return d.promise
-      }.bind(this))
+
+    return AccountResetToken.create(token)
+      .then(
+        function (accountResetToken) {
+          return this.write(
+            CREATE_ACCOUNT_RESET_TOKEN,
+            [
+              accountResetToken.tokenId,
+              accountResetToken.data,
+              accountResetToken.uid,
+              accountResetToken.createdAt
+            ]
+          )
+          .then(
+            function () {
+              return accountResetToken
+            }
+          )
+        }.bind(this)
+      )
   }
 
   var CREATE_PASSWORD_FORGOT_TOKEN = 'REPLACE INTO passwordForgotTokens' +
@@ -314,32 +295,28 @@ module.exports = function (
 
   MySql.prototype.createPasswordForgotToken = function (emailRecord) {
     log.trace({ op: 'MySql.createPasswordForgotToken', uid: emailRecord && emailRecord.uid })
-    var con
-    return this.getMasterConnection()
-      .then(function(thisCon) {
-        con = thisCon
-        return PasswordForgotToken.create(emailRecord)
-      })
-      .then(function (passwordForgotToken) {
-        var d = P.defer()
-        con.query(
-          CREATE_PASSWORD_FORGOT_TOKEN,
-          [
-            passwordForgotToken.tokenId,
-            passwordForgotToken.data,
-            passwordForgotToken.uid,
-            passwordForgotToken.passCode,
-            passwordForgotToken.createdAt,
-            passwordForgotToken.tries
-          ],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(passwordForgotToken)
-          }
-        )
-        return d.promise
-      })
+
+    return PasswordForgotToken.create(emailRecord)
+      .then(
+        function (passwordForgotToken) {
+          return this.write(
+            CREATE_PASSWORD_FORGOT_TOKEN,
+            [
+              passwordForgotToken.tokenId,
+              passwordForgotToken.data,
+              passwordForgotToken.uid,
+              passwordForgotToken.passCode,
+              passwordForgotToken.createdAt,
+              passwordForgotToken.tries
+            ]
+          )
+          .then(
+            function () {
+              return passwordForgotToken
+            }
+          )
+        }.bind(this)
+      )
   }
 
   var CREATE_PASSWORD_CHANGE_TOKEN = 'REPLACE INTO passwordChangeTokens' +
@@ -348,30 +325,26 @@ module.exports = function (
 
   MySql.prototype.createPasswordChangeToken = function (data) {
     log.trace({ op: 'MySql.createPasswordChangeToken', uid: data && data.uid })
-    var con
-    return this.getMasterConnection()
-      .then(function(thisCon) {
-        con = thisCon
-        return PasswordChangeToken.create(data)
-      })
-      .then(function (passwordChangeToken) {
-        var d = P.defer()
-        con.query(
-          CREATE_PASSWORD_CHANGE_TOKEN,
-          [
-            passwordChangeToken.tokenId,
-            passwordChangeToken.data,
-            passwordChangeToken.uid,
-            passwordChangeToken.createdAt
-          ],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(passwordChangeToken)
-          }
-        )
-        return d.promise
-      })
+
+    return PasswordChangeToken.create(data)
+      .then(
+        function (passwordChangeToken) {
+          return this.write(
+            CREATE_PASSWORD_CHANGE_TOKEN,
+            [
+              passwordChangeToken.tokenId,
+              passwordChangeToken.data,
+              passwordChangeToken.uid,
+              passwordChangeToken.createdAt
+            ]
+          )
+          .then(
+            function () {
+              return passwordChangeToken
+            }
+          )
+        }.bind(this)
+      )
   }
 
   // READ
@@ -381,20 +354,12 @@ module.exports = function (
   MySql.prototype.accountExists = function (email) {
     log.trace({ op: 'MySql.accountExists', email: email })
 
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          ACCOUNT_EXISTS,
-          [email],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(!!results.length)
-          }
-        )
-      return d.promise
-      })
+    return this.read(ACCOUNT_EXISTS, email)
+      .then(
+        function (results) {
+          return !!results.length
+        }
+      )
   }
 
   var ACCOUNT_DEVICES = 'SELECT tokenId FROM sessionTokens WHERE uid = ?'
@@ -402,51 +367,24 @@ module.exports = function (
   MySql.prototype.accountDevices = function (uid) {
     log.trace({ op: 'MySql.accountDevices', uid: uid })
 
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          ACCOUNT_DEVICES,
-          [uid],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(results)
-          }
-        )
-        return d.promise
-      })
+    return this.read(ACCOUNT_DEVICES, uid)
   }
 
-var SESSION_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt,' +
-  ' a.emailVerified, a.email, a.emailCode, a.verifierSetAt' +
-  ' FROM sessionTokens t, accounts a' +
-  ' WHERE t.tokenId = ? AND t.uid = a.uid'
+  var SESSION_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt,' +
+    ' a.emailVerified, a.email, a.emailCode, a.verifierSetAt' +
+    ' FROM sessionTokens t, accounts a' +
+    ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
   MySql.prototype.sessionToken = function (id) {
     log.trace({ op: 'MySql.sessionToken', id: id })
 
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          SESSION_TOKEN,
-          [id],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.invalidToken())
-            var result = results[0]
-            SessionToken.fromHex(result.tokenData, result)
-              .done(
-                function (sessionToken) {
-                  return d.resolve(sessionToken)
-                }
-              )
-          }
-        )
-        return d.promise
-      })
+    return this.read(SESSION_TOKEN, id)
+      .then(
+        function (results) {
+          if (!results.length) { throw error.invalidToken() }
+          return SessionToken.fromHex(results[0].tokenData, results[0])
+        }
+      )
   }
 
 var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
@@ -457,27 +395,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.keyFetchToken = function (id) {
     log.trace({ op: 'MySql.keyFetchToken', id: id })
 
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          KEY_FETCH_TOKEN,
-          [id],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.invalidToken())
-            var result = results[0]
-            KeyFetchToken.fromId(id, result)
-              .done(
-                function (keyFetchToken) {
-                  return d.resolve(keyFetchToken)
-                }
-              )
-          }
-        )
-        return d.promise
-      })
+    return this.read(KEY_FETCH_TOKEN, id)
+      .then(
+        function (results) {
+          if (!results.length) { throw error.invalidToken() }
+          return KeyFetchToken.fromId(id, results[0])
+        }
+      )
   }
 
   var ACCOUNT_RESET_TOKEN = 'SELECT t.uid, t.tokenData, t.createdAt,' +
@@ -488,24 +412,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.accountResetToken = function (id) {
     log.trace({ op: 'MySql.accountResetToken', id: id })
 
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          ACCOUNT_RESET_TOKEN,
-          [id],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.invalidToken())
-            d.resolve(results[0])
-          }
-        )
-        return d.promise
-      })
-      .then(function(result) {
-        return AccountResetToken.fromHex(result.tokenData, result)
-      })
+    return this.read(ACCOUNT_RESET_TOKEN, id)
+      .then(
+        function (results) {
+          if (!results.length) { throw error.invalidToken() }
+          return AccountResetToken.fromHex(results[0].tokenData, results[0])
+        }
+      )
   }
 
   var PASSWORD_FORGOT_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt,' +
@@ -516,27 +429,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.passwordForgotToken = function (id) {
     log.trace({ op: 'MySql.passwordForgotToken', id: id })
 
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          PASSWORD_FORGOT_TOKEN,
-          [id],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.invalidToken())
-            var result = results[0]
-            PasswordForgotToken.fromHex(result.tokenData, result)
-              .done(
-                function (passwordForgotToken) {
-                  return d.resolve(passwordForgotToken)
-                }
-              )
-          }
-        )
-        return d.promise
-      })
+    return this.read(PASSWORD_FORGOT_TOKEN, id)
+      .then(
+        function (results) {
+          if (!results.length) { throw error.invalidToken() }
+          return PasswordForgotToken.fromHex(results[0].tokenData, results[0])
+        }
+      )
   }
 
   var PASSWORD_CHANGE_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt, a.verifierSetAt ' +
@@ -546,27 +445,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.passwordChangeToken = function (id) {
     log.trace({ op: 'MySql.passwordChangeToken', id: id })
 
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          PASSWORD_CHANGE_TOKEN,
-          [id],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.invalidToken())
-            var result = results[0]
-            PasswordChangeToken.fromHex(result.tokenData, result)
-              .done(
-                function (passwordChangeToken) {
-                  return d.resolve(passwordChangeToken)
-                }
-              )
-          }
-        )
-        return d.promise
-      })
+    return this.read(PASSWORD_CHANGE_TOKEN, id)
+      .then(
+        function (results) {
+          if (!results.length) { throw error.invalidToken() }
+          return PasswordChangeToken.fromHex(results[0].tokenData, results[0])
+        }
+      )
   }
 
   var EMAIL_RECORD = 'SELECT uid, email, normalizedEmail, emailVerified, emailCode,' +
@@ -577,34 +462,26 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.emailRecord = function (email) {
     log.trace({ op: 'MySql.emailRecord', email: email })
 
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          EMAIL_RECORD,
-          [email],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.unknownAccount(email))
-            var result = results[0]
-            return d.resolve({
-              uid: result.uid,
-              email: result.email,
-              normalizedEmail: result.normalizedEmail,
-              emailCode: result.emailCode,
-              emailVerified: !!result.emailVerified,
-              kA: result.kA,
-              wrapWrapKb: result.wrapWrapKb,
-              verifierVersion: result.verifierVersion,
-              verifyHash: result.verifyHash,
-              authSalt: result.authSalt,
-              verifierSetAt: result.verifierSetAt
-            })
+    return this.read(EMAIL_RECORD, email)
+      .then(
+        function (results) {
+          if (!results.length) { throw error.unknownAccount(email) }
+          var result = results[0]
+          return {
+            uid: result.uid,
+            email: result.email,
+            normalizedEmail: result.normalizedEmail,
+            emailCode: result.emailCode,
+            emailVerified: !!result.emailVerified,
+            kA: result.kA,
+            wrapWrapKb: result.wrapWrapKb,
+            verifierVersion: result.verifierVersion,
+            verifyHash: result.verifyHash,
+            authSalt: result.authSalt,
+            verifierSetAt: result.verifierSetAt
           }
-        )
-        return d.promise
-      })
+        }
+      )
   }
 
   var ACCOUNT = 'SELECT email, normalizedEmail, emailCode, emailVerified, kA,' +
@@ -615,35 +492,27 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
 
     log.trace({ op: 'MySql.account', uid: uid })
 
-    return this.getSlaveConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          ACCOUNT,
-          [uid],
-          function (err, results) {
-            con.release()
-            if (err) return d.reject(err)
-            if (!results.length) return d.reject(error.unknownAccount())
-            var result = results[0]
-            return d.resolve({
-              uid: uid,
-              email: result.email,
-              normalizedEmail: result.normalizedEmail,
-              emailCode: result.emailCode,
-              emailVerified: !!result.emailVerified,
-              kA: result.kA,
-              wrapWrapKb: result.wrapWrapKb,
-              verifierVersion: result.verifierVersion,
-              verifyHash: result.verifyHash,
-              authSalt: result.authSalt,
-              verifierSetAt: result.verifierSetAt,
-              createdAt: result.createdAt
-            })
+    return this.read(ACCOUNT, uid)
+      .then(
+        function (results) {
+          if (!results.length) { throw error.unknownAccount() }
+          var result = results[0]
+          return {
+            uid: uid,
+            email: result.email,
+            normalizedEmail: result.normalizedEmail,
+            emailCode: result.emailCode,
+            emailVerified: !!result.emailVerified,
+            kA: result.kA,
+            wrapWrapKb: result.wrapWrapKb,
+            verifierVersion: result.verifierVersion,
+            verifyHash: result.verifyHash,
+            authSalt: result.authSalt,
+            verifierSetAt: result.verifierSetAt,
+            createdAt: result.createdAt
           }
-        )
-        return d.promise
-      })
+        }
+      )
   }
 
   // UPDATE
@@ -654,20 +523,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.updatePasswordForgotToken = function (passwordForgotToken) {
     log.trace({ op: 'MySql.udatePasswordForgotToken', uid: passwordForgotToken && passwordForgotToken.uid })
 
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          UPDATE_PASSWORD_FORGOT_TOKEN,
-          [passwordForgotToken.tries, passwordForgotToken.tokenId],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
-        )
-        return d.promise
-      })
+    return this.write(
+      UPDATE_PASSWORD_FORGOT_TOKEN,
+      [
+        passwordForgotToken.tries,
+        passwordForgotToken.tokenId
+      ]
+    )
   }
 
   // DELETE
@@ -712,20 +574,11 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         uid: sessionToken && sessionToken.uid
       }
     )
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          DELETE_SESSION_TOKEN,
-          [sessionToken.tokenId],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
-        )
-        return d.promise
-      })
+
+    return this.write(
+      DELETE_SESSION_TOKEN,
+      [sessionToken.tokenId]
+    )
   }
 
   var DELETE_KEY_FETCH_TOKEN = 'DELETE FROM keyFetchTokens WHERE tokenId = ?'
@@ -738,20 +591,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         uid: keyFetchToken && keyFetchToken.uid
       }
     )
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          DELETE_KEY_FETCH_TOKEN,
-          [keyFetchToken.tokenId],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
-        )
-        return d.promise
-      })
+    return this.write(
+      DELETE_KEY_FETCH_TOKEN,
+      [keyFetchToken.tokenId]
+    )
   }
 
   var DELETE_ACCOUNT_RESET_TOKEN = 'DELETE FROM accountResetTokens WHERE tokenId = ?'
@@ -764,20 +607,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         uid: accountResetToken && accountResetToken.uid
       }
     )
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          DELETE_ACCOUNT_RESET_TOKEN,
-          [accountResetToken.tokenId],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
-        )
-        return d.promise
-      })
+    return this.write(
+      DELETE_ACCOUNT_RESET_TOKEN,
+      [accountResetToken.tokenId]
+    )
   }
 
   var DELETE_PASSWORD_FORGOT_TOKEN = 'DELETE FROM passwordForgotTokens WHERE tokenId = ?'
@@ -790,20 +623,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         uid: passwordForgotToken && passwordForgotToken.uid
       }
     )
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          DELETE_PASSWORD_FORGOT_TOKEN,
-          [passwordForgotToken.tokenId],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
-        )
-        return d.promise
-      })
+    return this.write(
+      DELETE_PASSWORD_FORGOT_TOKEN,
+      [passwordForgotToken.tokenId]
+    )
   }
 
   var DELETE_PASSWORD_CHANGE_TOKEN = 'DELETE FROM passwordChangeTokens WHERE tokenId = ?'
@@ -816,20 +639,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
         uid: passwordChangeToken && passwordChangeToken.uid
       }
     )
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          DELETE_PASSWORD_CHANGE_TOKEN,
-          [passwordChangeToken.tokenId],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
-        )
-        return d.promise
-      })
+    return this.write(
+      DELETE_PASSWORD_CHANGE_TOKEN,
+      [passwordChangeToken.tokenId]
+    )
   }
 
   // BATCH
@@ -892,20 +705,10 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   MySql.prototype.verifyEmail = function (account) {
     log.trace({ op: 'MySql.verifyEmail', uid: account && account.uid })
 
-    return this.getMasterConnection()
-      .then(function(con) {
-        var d = P.defer()
-        con.query(
-          VERIFY_EMAIL,
-          [account.uid],
-          function (err) {
-            con.release()
-            if (err) return d.reject(err)
-            d.resolve(true)
-          }
-        )
-        return d.promise
-      })
+    return this.write(
+      VERIFY_EMAIL,
+      [account.uid]
+    )
   }
 
   MySql.prototype.forgotPasswordVerified = function (passwordForgotToken) {
@@ -961,6 +764,33 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       })
   }
 
+  MySql.prototype.singleQuery = function (poolName, sql, params) {
+    return this.getConnection(poolName)
+      .then(
+        function (connection) {
+          var d = P.defer()
+          connection.query(
+            sql,
+            params,
+            function (err, results) {
+              connection.release()
+              if (err) { return d.reject(err) }
+              d.resolve(results)
+            }
+          )
+          return d.promise
+        }
+      )
+  }
+
+  MySql.prototype.read = function (sql, param) {
+    return this.singleQuery('SLAVE*', sql, [param])
+  }
+
+  MySql.prototype.write = function (sql, params) {
+    return this.singleQuery('MASTER', sql, params)
+  }
+
   MySql.prototype.getConnection = function (name) {
     var d = P.defer()
     var self = this
@@ -982,10 +812,6 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
 
   MySql.prototype.getMasterConnection = function() {
     return this.getConnection('MASTER')
-  }
-
-  MySql.prototype.getSlaveConnection = function() {
-    return this.getConnection('SLAVE*')
   }
 
   function beginTransaction(client) {
