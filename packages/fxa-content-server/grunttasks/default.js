@@ -8,9 +8,10 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.registerTask('default', [
+    'l10n-create-json',
     'lint',
+    'copyright',
     'test',
-    'build',
-    'copyright'
+    'build'
   ]);
 };
