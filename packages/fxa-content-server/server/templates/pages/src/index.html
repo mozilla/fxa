@@ -6,7 +6,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Firefox Accounts</title>
+        <title>{{#t}}Firefox Accounts{{/t}}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -25,15 +25,17 @@
         <![endif]-->
         <div id="stage">
           <!-- this will be overwritten if JS is enabled -->
-          <!-- TODO - (Issue #556) this needs to be translated on the server -->
           <noscript>
-            Firefox Accounts requires JavaScript.
+            {{#t}}Firefox Accounts requires JavaScript.{{/t}}
           </noscript>
 
         </div>
 
-        <!-- build:js /scripts/main.js -->
+        <!-- no build declaration, main.js build
+             is done by requirejs and not concat.
+             rev/usemin will still replace the URL
+             with a cache aware URL.
+         -->
         <script data-main="/scripts/main" src="/bower_components/requirejs/require.js"></script>
-        <!-- endbuild -->
     </body>
 </html>

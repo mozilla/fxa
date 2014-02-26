@@ -563,7 +563,7 @@
     "0.8.0": "6bd52325dcce1d995dbbf648030c59e1a606acda"
   },
   "grunt-contrib-uglify": {
-    "0.2.0": "feca69e0fb53cb4088068089df3d3b119c56fc72"
+    "0.3.2": "865b00ae0d11d1f5fafca3967c9b099f8929684b"
   },
   "grunt-contrib-watch": {
     "0.5.2": "9bb73392aeeda093792cd82d67675b0a84b51adf"
@@ -615,7 +615,7 @@
     "0.1.2": "fce3afaedb8a944edbd6dce5667cc6b9fc30313d"
   },
   "grunt-usemin": {
-    "0.1.10": "70a2591ea34a56368bac4490a61c5ce65fc176cf"
+    "2.0.2": "35a7786581ad4454c98706fb044ea92c952f1a9b"
   },
   "grunt-z-schema": {
     "0.1.0": "4fd3f205ce684cd7baa6964ecbcc004b60ee9804"
@@ -1281,7 +1281,11 @@
     "1.2.6": "d354b2d3c1cf10ebc18fa78c11a28bdd9ce1580d",
     "1.3.3": "ddd3e98aa27f5f47e589cfb3f95cddba26096190",
     "2.2.5": "a6e02a70d839792b9780488b7b8b184c095c99c7",
-    "2.3.6": "fa0984770b428b7a9b2a8058f46355d14fef211a"
+    "2.3.6": "fa0984770b428b7a9b2a8058f46355d14fef211a",
+    "2.4.12": "2354d9659f85330c1e3e2910f8acd77fe14bb4a8"
+  },
+  "uglify-to-browserify": {
+    "1.0.2": "6e0924d6bda6b5afe349e39a6d632850a0f882b7"
   },
   "uid2": {
     "0.0.2": "107fb155c82c1136620797ed4c88cf2b08f6aab8"

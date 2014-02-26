@@ -67,7 +67,6 @@ module.exports = function (fxAccountUrl, templates) {
     // an array is used instead of a regexp simply because the regexp
     // became too long. One route is created for each item.
     var FRONTEND_ROUTES = [
-      '/',
       '/signin',
       '/signin_complete',
       '/signup',
@@ -93,6 +92,11 @@ module.exports = function (fxAccountUrl, templates) {
         req.url = '/';
         next();
       });
+    });
+
+
+    app.get('/', function(req, res) {
+      res.render('index');
     });
   };
 
