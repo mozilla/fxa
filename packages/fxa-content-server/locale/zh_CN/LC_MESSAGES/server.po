@@ -3,14 +3,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-19 21:13+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2014-02-25 15:33+0000\n"
+"Last-Translator: Shen <steekid@icloud.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Translate Toolkit 1.10.0-rc1\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Pootle 2.5.0\n"
+"X-POOTLE-MTIME: 1393342433.0\n"
 
 #: server/templates/email/reset.html:1
 #: server/templates/email/reset.html:2
@@ -19,47 +21,47 @@ msgstr ""
 #: server/templates/email/verify.html:2
 #: server/templates/email/verify.txt:1
 msgid "Firefox Accounts"
-msgstr ""
+msgstr "Firefox 账号"
 
 #: server/templates/email/reset.html:3
 #: server/templates/email/reset.txt:2
 msgid "A request to reset the password for %(email)s has been made."
-msgstr ""
+msgstr "重置密码请求已发送到 %(email)s 。"
 
 #: server/templates/email/reset.html:4
 msgid "Reset password"
-msgstr ""
+msgstr "重置密码"
 
 #: server/templates/email/reset.html:5
 #: server/templates/email/reset.txt:4
 #: server/templates/email/verify.html:5
 #: server/templates/email/verify.txt:4
 msgid "If you received this email in error, no action is required."
-msgstr ""
+msgstr "如果您没有要求重置密码而收到此信，不需要进行任何操作。"
 
 #: server/templates/email/reset.txt:3
 msgid "Reset password:"
-msgstr ""
+msgstr "重置密码："
 
 #: server/templates/email/verify.html:3
 #: server/templates/email/verify.txt:2
 msgid ""
 "Congratulations! %(email)s, you are seconds away from verifying your "
 "Firefox Account."
-msgstr ""
+msgstr "可喜可贺！只要再用几秒钟的时间就可以验证您的 Firefox 账号了。"
 
 #: server/templates/email/verify.html:4
 msgid "Verify"
-msgstr ""
+msgstr "验证"
 
 #: server/templates/email/verify.txt:3
 msgid "Verify:"
-msgstr ""
+msgstr "验证："
 
 #: server/lib/templates.js:30
 msgid "Confirm Your Account"
-msgstr ""
+msgstr "确认您的账号"
 
 #: server/lib/templates.js:35
 msgid "Reset Password Request"
-msgstr ""
+msgstr "重置密码请求"
