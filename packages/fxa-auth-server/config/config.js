@@ -142,9 +142,16 @@ module.exports = function (fs, path, url, convict) {
     },
     contentServer: {
       url: {
-        doc: "The url of the correspoding fxa-content-server instance",
+        doc: "The url of the corresponding fxa-content-server instance",
         default: 'http://127.0.0.1:3030',
         env: 'CONTENT_SERVER_URL'
+      }
+    },
+    templateServer: {
+      url: {
+        doc: "The url of the corresponding template server instance (currently the same as the fxa-content-server)",
+        default: 'http://127.0.0.1:3030',
+        env: 'TEMPLATE_SERVER_URL'
       }
     },
     smtp: {
@@ -210,10 +217,6 @@ module.exports = function (fs, path, url, convict) {
         doc: 'Domain that mail urls are allowed to redirect to',
         format: String,
         default: 'firefox.com'
-      },
-      templatePath: {
-        doc: 'path to the email template directory',
-        default: path.resolve(__dirname, '../templates/email')
       }
     },
     redis: {

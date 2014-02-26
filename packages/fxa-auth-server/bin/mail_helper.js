@@ -77,6 +77,45 @@ function loop(email, cb) {
   cb(mail)
 }
 
+var template = {
+  'en' : {
+    verify : {
+      subject : 'Confirm Your Account',
+      html : '<p>Welcome.<br>Firefox Accounts<br><br>Congratulations! {{{email}}}, you are seconds away from verifying your Firefox Account.<br>Verify: {{{link}}}<br><br>If you received this email in error, no action is required.</p>',
+      text : 'Welcome.\n\nFirefox Accounts\n\nCongratulations! {{{email}}}, you are seconds away from verifying your Firefox Account.\nVerify: {{{link}}}\n\nIf you received this email in error, no action is required.',
+    },
+    reset : {
+      subject : 'Reset Password Request',
+      html : '<p>Firefox Accounts<br><br>A request to reset the password for {{{email}}} has been made.\nReset password: {{{link}}}<br><br>If you received this email in error, no action is required.</p>',
+      text : 'Firefox Accounts\n\nA request to reset the password for {{{email}}} has been made.\nReset password: {{{link}}}\n\nIf you received this email in error, no action is required.\n',
+    },
+  },
+  'en-AU' : {
+    verify : {
+      subject : 'Confirm Your Account',
+      html : '<p>GDay<br>Firefox Accounts<br><br>Congratulations! {{{email}}}, you are seconds away from verifying your Firefox Account.<br>Verify: {{{link}}}<br><br>If you received this email in error, no action is required.</p>',
+      text : 'GDay\n\nFirefox Accounts\n\nCongratulations! {{{email}}}, you are seconds away from verifying your Firefox Account.\nVerify: {{{link}}}\n\nIf you received this email in error, no action is required.',
+    },
+    reset : {
+      subject : 'Reset Password Request',
+      html : '<p>Firefox Accounts<br><br>A request to reset the password for {{{email}}} has been made.\nReset password: {{{link}}}<br><br>If you received this email in error, no action is required.</p>',
+      text : 'Firefox Accounts\n\nA request to reset the password for {{{email}}} has been made.\nReset password: {{{link}}}\n\nIf you received this email in error, no action is required.\n',
+    },
+  },
+  'it-CH' : {
+    verify : {
+      subject : 'ʇunoɔɔ∀ ɹno⅄ ɯɹıɟuoↃ',
+      html : '<p>sʇunoɔɔ∀ xoɟǝɹıℲ<br><br>.ʇunoɔɔ∀ xoɟǝɹıℲ ɹnoʎ ƃuıʎɟıɹǝʌ ɯoɹɟ ʎaʍa spuoɔǝs ǝɹa noʎ ´{{{email}}} ¡suoıʇaʅnʇaɹƃuoↃ<br>:ʎɟıɹǝɅ {{{link}}}<br><br>.pǝɹınbǝɹ sı uoıʇɔa ou ´ɹoɹɹǝ uı ʅıaɯǝ sıɥʇ pǝʌıǝɔǝɹ noʎ ɟI</p>',
+      text : 'sʇunoɔɔ∀ xoɟǝɹıℲ\n\n.ʇunoɔɔ∀ xoɟǝɹıℲ ɹnoʎ ƃuıʎɟıɹǝʌ ɯoɹɟ ʎaʍa spuoɔǝs ǝɹa noʎ ´{{{email}}} ¡suoıʇaʅnʇaɹƃuoↃ\n:ʎɟıɹǝɅ {{{link}}}\n\n.pǝɹınbǝɹ sı uoıʇɔa ou ´ɹoɹɹǝ uı ʅıaɯǝ sıɥʇ pǝʌıǝɔǝɹ noʎ ɟI\n',
+    },
+    reset : {
+      subject : 'ʇsǝnbǝᴚ pɹoʍssaԀ ʇǝsǝᴚ',
+      html : '<p>sʇunoɔɔ∀ xoɟǝɹıℲ<br><br>.ǝpaɯ uǝǝq saɥ {{{email}}} ɹoɟ pɹoʍssad ǝɥʇ ʇǝsǝɹ oʇ ʇsǝnbǝɹ ∀<br>:pɹoʍssad ʇǝsǝᴚ {{{link}}}<br><br>.pǝɹınbǝɹ sı uoıʇɔa ou ´ɹoɹɹǝ uı ʅıaɯǝ sıɥʇ pǝʌıǝɔǝɹ noʎ ɟI</p>',
+      text : 'sʇunoɔɔ∀ xoɟǝɹıℲ\n\n.ǝpaɯ uǝǝq saɥ {{{email}}} ɹoɟ pɹoʍssad ǝɥʇ ʇǝsǝɹ oʇ ʇsǝnbǝɹ ∀\n:pɹoʍssad ʇǝsǝᴚ {{{link}}}\n\n.pǝɹınbǝɹ sı uoıʇɔa ou ´ɹoɹɹǝ uı ʅıaɯǝ sıɥʇ pǝʌıǝɔǝɹ noʎ ɟI',
+    },
+  }
+}
+
 api.route(
   [
     {
@@ -97,6 +136,26 @@ api.route(
       handler: function (request, reply) {
         delete users[request.params.email]
         reply()
+      }
+    },
+    {
+      method: 'GET',
+      path: '/template/{lang}/{type}',
+      handler: function (request, reply) {
+        var lang = request.params.lang
+        var type = request.params.type
+        // request.log('Looking for template: lang=' + lang + ', type=' + type)
+
+        // default to 'en' if we don't know this lang
+        if ( !template[lang] ) {
+          lang = 'en'
+        }
+
+        if ( template[lang][type] ) {
+          // request.log('Found template lang=' + lang + ', type=' + type)
+          return reply(template[lang][type])
+        }
+        reply({}).code(404);
       }
     }
   ]
