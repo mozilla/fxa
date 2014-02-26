@@ -13,6 +13,7 @@ define([
 ],
 function (_, Backbone, jQuery, Session, authErrors) {
   var ENTER_BUTTON_CODE = 13;
+  var DEFAULT_TITLE = window.document.title;
 
   var BaseView = Backbone.View.extend({
     constructor: function (options) {
@@ -44,7 +45,23 @@ function (_, Backbone, jQuery, Session, authErrors) {
 
       this.afterRender();
 
+      this.setTitleFromView();
+
       return this;
+    },
+
+    setTitleFromView: function () {
+      var title = DEFAULT_TITLE;
+      var titleText = this.$('h1').text();
+      var subText = this.$('h2').text();
+
+      if (titleText && subText) {
+        title = titleText + ': ' + subText;
+      } else if (titleText) {
+        title = titleText;
+      }
+
+      this.window.document.title = title;
     },
 
     getContext: function () {
@@ -281,10 +298,11 @@ function (_, Backbone, jQuery, Session, authErrors) {
    * translate it. t is put onto BaseView instead of
    * Translator to reduce the number of dependencies in the views.
    */
-  BaseView.t = function (str) {
+  function t(str) {
     return str;
-  };
+  }
 
+  BaseView.t = t;
 
   return BaseView;
 });

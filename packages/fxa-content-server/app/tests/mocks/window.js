@@ -18,6 +18,10 @@ function (_, Backbone) {
       search: window.location.search,
       pathname: '/',
     };
+
+    this.document = {
+      title: window.document.title
+    };
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {
@@ -47,6 +51,7 @@ function (_, Backbone) {
     CustomEvent: function(command, data) {
       return data;
     },
+
     scrollTo: function(x, y) {
     }
   });
