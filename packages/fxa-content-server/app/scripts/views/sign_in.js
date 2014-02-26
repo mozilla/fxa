@@ -74,7 +74,7 @@ function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMix
       client.signIn(email, password)
             .then(function (accountData) {
               if (accountData.verified) {
-                self.navigate('settings');
+                self.navigate('signin_complete');
               } else {
                 return client.signUpResend()
                   .then(function () {

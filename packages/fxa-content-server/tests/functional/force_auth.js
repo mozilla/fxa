@@ -15,7 +15,6 @@ define([
 
   var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
   var EMAIL_SERVER_ROOT = 'http://127.0.0.1:9001';
-  var SIGNIN_URL = 'http://localhost:3030/signin';
   var FORCE_AUTH_URL = 'http://localhost:3030/force_auth';
   var PASSWORD = 'password';
   var user;
@@ -45,30 +44,6 @@ define([
         });
     },
 
-    'sign in': function () {
-      return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .elementByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .elementByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        // success is setting the settings screen.
-        .waitForElementById('fxa-settings-header')
-        .end();
-    },
-
     'sign in via force-auth': function () {
       return this.get('remote')
         .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
@@ -83,7 +58,7 @@ define([
           .click()
         .end()
 
-        .waitForElementById('fxa-settings-header')
+        .waitForElementById('fxa-sign-in-complete-header')
         .end();
     },
 
