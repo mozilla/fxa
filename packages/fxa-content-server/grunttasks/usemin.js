@@ -6,13 +6,26 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.config('useminPrepare', {
-    options: {
-      dest: '<%= yeoman.dist %>'
+    client_rendered: {
+      dest: '<%= yeoman.dist %>',
+      src: [
+        '<%= yeoman.app %>/{,*/}*.html',
+        '!<%= yeoman.app %>/tests/{,*/}*.html'
+      ],
+      type: 'html'
     },
-    html: [
-      '<%= yeoman.app %>/index.html',
-      '<%= yeoman.app %>/sync/*.html'
-    ]
+    server_rendered: {
+      options: {
+        // root must be specified or else useminPrepare uses the template
+        // directory as the root from where to search for assets.
+        root: '<%= yeoman.app %>',
+        type: 'html'
+      },
+      dest: '<%= yeoman.dist %>',
+      src: [
+        '<%= yeoman.page_template_src %>/{,*/}*.html'
+      ],
+    }
   });
 
   grunt.config('usemin', {

@@ -6,6 +6,20 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.config('copy', {
+    server_templates: {
+      files: [{
+        // server side rendered templates. Copied so requirejs can
+        // replace the require script tag and embedded js/css
+        // links can be updated to use minified versions.
+        expand: true,
+        dot: true,
+        cwd: '<%= yeoman.page_template_src %>',
+        dest: '<%= yeoman.page_template_dist %>',
+        src: [
+          '*.html'
+        ]
+      }]
+    },
     dist: {
       files: [
         {
@@ -19,19 +33,11 @@ module.exports = function (grunt) {
             '.htaccess',
             'images/{,*/}*.{webp,gif}',
             'styles/fonts/{,*/}*.*',
-            'bower_components/{,*/}{,*/}*.*',
+            // only modernizr is left unbundled in main.js. It should be
+            // the only thing copied over.
+            'bower_components/modernizr/modernizr.js',
             'i18n/{,*/}{,*/}*.*',
             'sync/*.html'
-          ]
-        }, {
-          // server side rendered templates. Copied so embedded js/css
-          // links can be updated to use minified versions.
-          expand: true,
-          dot: true,
-          cwd: '<%= yeoman.page_template_src %>',
-          dest: '<%= yeoman.page_template_dist %>',
-          src: [
-            '*.html'
           ]
         }
       ]
