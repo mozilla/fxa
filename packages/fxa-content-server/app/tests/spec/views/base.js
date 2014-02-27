@@ -13,17 +13,18 @@ define([
   'stache!templates/test_template',
   '../../mocks/dom-event',
   '../../mocks/router',
+  '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
-          RouterMock, TestHelpers) {
+          RouterMock, WindowMock, TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
 
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/base', function () {
-    var view, router;
+    var view, router, windowMock;
 
     beforeEach(function () {
       translator = new Translator();
@@ -33,13 +34,16 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       });
 
       router = new RouterMock();
+      windowMock = new WindowMock();
+
       var View = BaseView.extend({
         template: Template
       });
 
       view = new View({
         translator: translator,
-        router: router
+        router: router,
+        window: windowMock
       });
 
       view.render();
@@ -50,8 +54,7 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       if (view) {
         view.destroy();
         jQuery(view.el).remove();
-        view = null;
-        router = null;
+        view = router = windowMock = null;
       }
     });
 
@@ -59,6 +62,30 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       it('renders the template without attaching it to the body', function () {
         // render is called in beforeEach
         assert.ok(jQuery('#focusMe').length);
+      });
+
+      it('updates the page title with the embedded h1 and h2 tags', function () {
+        view.template = function () {
+          return '<h1>Main title</h1><h2>Sub title</h2>';
+        };
+        view.render();
+        assert.equal(windowMock.document.title, 'Main title: Sub title');
+      });
+
+      it('updates the page title with the embedded h1 tag if no h2 tag', function () {
+        view.template = function () {
+          return '<h1>Title only</h1>';
+        };
+        view.render();
+        assert.equal(windowMock.document.title, 'Title only');
+      });
+
+      it('updates the page title with the startup page title if no h1 or h2 tag', function () {
+        view.template = function () {
+          return '<div>no titles anywhere</div>';
+        };
+        view.render();
+        assert.equal(windowMock.document.title, 'Firefox Accounts Unit Tests');
       });
     });
 
