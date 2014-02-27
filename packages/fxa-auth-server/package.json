@@ -47,7 +47,8 @@
     "then-redis": "0.3.10",
     "i18n-abide": "0.0.16",
     "scrypt-hash": "1.1.8",
-    "lockdown": "0.0.5"
+    "lockdown": "0.0.5",
+    "request": "2.31.0"
   },
   "devDependencies": {
     "awsbox": "0.6.2",
@@ -61,7 +62,6 @@
     "grunt": "~0.4.2",
     "ass": "0.0.4",
     "sjcl": "1.0.0",
-    "request": "2.31.0",
     "binary-split": "0.1.1",
     "through": "2.3.4",
     "grunt-copyright": "~0.1.0"
