@@ -47,12 +47,20 @@ module.exports = function (
         var authSalt = crypto.randomBytes(32)
         var authPW = Buffer(form.authPW, 'hex')
 
-        db.accountExists(email)
+        db.emailRecord(email)
           .then(
-            function (exists) {
-              if (exists) {
-                throw error.accountExists(email)
-              }
+            function (emailRecord) {
+              // account exists
+              if (emailRecord.emailVerified) { throw error.accountExists(email) }
+              return db.deleteAccount(emailRecord)
+            },
+            function (err) {
+              // unknown account
+              if (err.errno !== 102) { throw err }
+            }
+          )
+          .then(
+            function () {
               var password = new Password(authPW, authSalt, verifierVersion)
               return password.verifyHash()
               .then(
