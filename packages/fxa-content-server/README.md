@@ -109,3 +109,4 @@ edit `server/config/*.json` on your deployed instance.
 ## License
 
 MPL 2.0
+
