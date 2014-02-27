@@ -394,7 +394,7 @@ TestServer.start(config)
       var email = server.uniqueEmail()
       var email2 = email.toUpperCase()
       var password = 'abcdef'
-      return Client.create(config.publicUrl, email, password, server.mailbox)
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
             return Client.create(config.publicUrl, email2, password, server.mailbox)
@@ -405,6 +405,26 @@ TestServer.start(config)
           function (err) {
             t.equal(err.code, 400)
             t.equal(err.errno, 101, 'Account already exists')
+          }
+        )
+    }
+  )
+
+  test(
+    're-signup against an unverified email',
+    function (t) {
+      var email = server.uniqueEmail()
+      var email2 = email.toUpperCase()
+      var password = 'abcdef'
+      return Client.create(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function (c) {
+            return Client.createAndVerify(config.publicUrl, email2, password, server.mailbox)
+          }
+        )
+        .then(
+          function (client) {
+            t.ok(client.uid, 'account created')
           }
         )
     }
