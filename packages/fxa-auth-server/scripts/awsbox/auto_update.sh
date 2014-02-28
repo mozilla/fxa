@@ -16,7 +16,7 @@ git fetch origin
 
 if [ `$CURCOMMIT master` != `$CURCOMMIT origin/master` ]; then
   echo "DROP DATABASE fxa;" | mysql -u root
-  echo "CREATE DATABASE fxa;" | mysql -u root
+  echo "CREATE DATABASE fxa CHARACTER SET utf8 COLLATE utf8_unicode_ci;" | mysql -u root
   echo "GRANT ALL ON fxa.* TO 'fxa'@'localhost';" | mysql -u root
   git branch -f master origin/master
   /usr/local/bin/node ../post-update.js
