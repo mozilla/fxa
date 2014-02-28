@@ -99,17 +99,16 @@ module.exports = function (config, log) {
           try {
             var html = handlebars.compile(body.html)
             var text = handlebars.compile(body.text)
+            // all good, so save each field
+            templates[lang][type] = body
+            templates[lang][type].html = html
+            templates[lang][type].text = text
           }
           catch (err) {
             log.warn({ op: 'mailer.fetchTemplates', err: err })
             checkRemaining()
             return;
           }
-
-          // all good, so save each field
-          templates[lang][type] = body
-          templates[lang][type].html = html
-          templates[lang][type].text = text
 
           checkRemaining()
         })
@@ -176,9 +175,9 @@ module.exports = function (config, log) {
     opts = opts || {}
 
     var lang = opts.preferredLang || config.defaultLang
-    lang = lang in templates ? lang : 'en'
+    lang = lang in templates ? lang : 'en-US'
 
-    var template = templates[lang].verify
+    var template = templates[lang].verify || templates[config.defaultLang].verify
     var query = {
       uid: account.uid.toString('hex'),
       code: code
@@ -222,8 +221,8 @@ module.exports = function (config, log) {
     code = code.toString('hex')
     opts = opts || {}
     var lang = opts.preferredLang || config.defaultLang
-    lang = lang in templates ? lang : 'en'
-    var template = templates[lang].reset
+    lang = lang in templates ? lang : 'en-US'
+    var template = templates[lang].reset || templates[config.defaultLang].reset
     var query = {
       token: token.data.toString('hex'),
       code: code,

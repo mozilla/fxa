@@ -78,7 +78,7 @@ function loop(email, cb) {
 }
 
 var template = {
-  'en' : {
+  'en-US' : {
     verify : {
       subject : 'Confirm Your Account',
       html : '<p>Welcome.<br>Firefox Accounts<br><br>Congratulations! {{{email}}}, you are seconds away from verifying your Firefox Account.<br>Verify: {{{link}}}<br><br>If you received this email in error, no action is required.</p>',

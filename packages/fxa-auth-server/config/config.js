@@ -247,12 +247,12 @@ module.exports = function (fs, path, url, convict) {
     i18n: {
       defaultLang: {
         format: String,
-        default: "en"
+        default: "en-US"
       },
       supportedLanguages: {
         doc: "List of languages this deployment should detect and display localized strings.",
         format: Array,
-        default: ['en', 'en-AU', 'it-CH'],
+        default: ['en-US', 'es-MX'],
         env: 'I18N_SUPPORTED_LANGUAGES'
       },
       translationDirectory: {
