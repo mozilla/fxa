@@ -255,6 +255,25 @@ function (chai, $, ChannelMock, testHelpers,
             done();
           });
       });
+
+      it('resolves to success on XHR failure', function (done) {
+        client.signUp(email, password)
+          .then(function () {
+            return client.signOut();
+          })
+          .then(function () {
+            // user has no session, this will cause an XHR error.
+            return client.signOut();
+          })
+          .then(function () {
+            // positive test to ensure success case has an assertion
+            assert.isTrue(true);
+            done();
+          }, function (err) {
+            assert.fail(err);
+            done();
+          });
+      });
     });
 
     describe('changePassword', function () {

@@ -132,6 +132,11 @@ function (FxaClient, $, p, Session, AuthErrors) {
               .then(function () {
                 // user's session is gone
                 Session.clear();
+              }, function() {
+                // Clear the session, even on failure. Everything is A-OK.
+                // See issue #616
+                // - https://github.com/mozilla/fxa-content-server/issues/616
+                Session.clear();
               });
     },
 
