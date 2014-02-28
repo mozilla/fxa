@@ -13,6 +13,7 @@ define([
   '../../mocks/router'
 ],
 function (chai, View, FxaClient, WindowMock, RouterMock) {
+  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/reset_password', function () {
@@ -33,6 +34,7 @@ function (chai, View, FxaClient, WindowMock, RouterMock) {
       view.remove();
       view.destroy();
       view = router = null;
+      $('#container').empty();
     });
 
     describe('constructor creates it', function () {
@@ -101,4 +103,34 @@ function (chai, View, FxaClient, WindowMock, RouterMock) {
     });
   });
 
+  describe('views/reset_password with email specified as query param', function () {
+    var view, windowMock;
+
+    beforeEach(function () {
+      windowMock = new WindowMock();
+      windowMock.location.search = '?email=testuser@testuser.com';
+
+      view = new View({
+        window: windowMock
+      });
+      view.render();
+
+      $('#container').html(view.el);
+    });
+
+    afterEach(function () {
+      view.remove();
+      view.destroy();
+      view = windowMock = null;
+      $('#container').empty();
+    });
+
+    it('pre-fills email address', function () {
+      assert.equal(view.$('.email').val(), 'testuser@testuser.com');
+    });
+
+    it('removes the back button - the user probably browsed here directly', function () {
+      assert.equal(view.$('#back').length, 0);
+    });
+  });
 });

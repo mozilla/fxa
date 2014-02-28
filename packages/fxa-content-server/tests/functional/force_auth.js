@@ -62,7 +62,7 @@ define([
         .end();
     },
 
-    'forgot password via force-auth has a back button': function () {
+    'forgot password via force-auth goes directly to confirm email screen': function () {
       return this.get('remote')
         .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
         .waitForElementById('fxa-force-auth-header')
@@ -71,11 +71,7 @@ define([
           .click()
         .end()
 
-        .elementById('back')
-          .click()
-        .end()
-
-        .waitForElementById('fxa-force-auth-header')
+        .waitForElementById('fxa-confirm-reset-password-header')
         .end();
     }
 

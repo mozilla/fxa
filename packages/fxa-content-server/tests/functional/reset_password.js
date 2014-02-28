@@ -28,7 +28,6 @@ define([
     },
 
     'open page': function () {
-
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
         .waitForElementById('fxa-reset-password-header')
@@ -36,6 +35,28 @@ define([
         .elementByCssSelector('form input.email')
           .click()
           .type(email)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-confirm-reset-password-header')
+        .end();
+    },
+
+    'open page with email on query params': function () {
+      var url = PAGE_URL + '?email=' + email;
+      return this.get('remote')
+        .get(require.toUrl(url))
+        .waitForElementById('fxa-reset-password-header')
+
+        .elementByCssSelector('form input.email')
+          .getAttribute('value')
+          .then(function (resultText) {
+            // email address should be pre-filled from the query param.
+            assert.equal(resultText, email);
+          })
         .end()
 
         .elementByCssSelector('button[type="submit"]')
