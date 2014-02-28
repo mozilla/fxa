@@ -67,6 +67,13 @@ module.exports = function (config, log) {
     var p = P.defer()
 
     var remaining = config.i18n.supportedLanguages.length * types.length;
+
+    function checkRemaining() {
+      if ( remaining === 0 ) {
+        p.resolve()
+      }
+    }
+
     config.i18n.supportedLanguages.forEach(function(lang) {
       // somewhere to store the templates
       templates[lang] = templates[lang] || {}
@@ -79,16 +86,32 @@ module.exports = function (config, log) {
         request(opts, function(err, res, body) {
           if (err) return log.warn({ op: 'mailer.fetchTemplates', err: err })
 
-          templates[lang][type] = body
+          remaining -= 1
+
+          // only compile the templates and save this one if subject, html and text are all defined
+          if ( !body.subject || !body.html || !body.text ) {
+            log.warn({ op: 'mailer.fetchTemplates', err: 'subject/text/html not all given for this language ' + lang })
+            checkRemaining()
+            return;
+          }
 
           // compile the templates
-          templates[lang][type].html = handlebars.compile(templates[lang][type].html)
-          templates[lang][type].text = handlebars.compile(templates[lang][type].text)
-
-          remaining -= 1
-          if ( remaining === 0 ) {
-            p.resolve()
+          try {
+            var html = handlebars.compile(body.html)
+            var text = handlebars.compile(body.text)
           }
+          catch (err) {
+            log.warn({ op: 'mailer.fetchTemplates', err: err })
+            checkRemaining()
+            return;
+          }
+
+          // all good, so save each field
+          templates[lang][type] = body
+          templates[lang][type].html = html
+          templates[lang][type].text = text
+
+          checkRemaining()
         })
       })
     })
