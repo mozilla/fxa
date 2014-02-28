@@ -62,6 +62,7 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
       });
 
       it('returns false if email is empty', function () {
+        $('[type=email]').val('');
         $('[type=password]').val('password');
         $('#fxa-age-year').val('1960');
 
@@ -74,6 +75,131 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
         $('#fxa-age-year').val('1960');
 
         assert.isFalse(view.isValid());
+      });
+
+      it('returns false if email contain one part TLD', function () {
+        $('[type=email]').val('a@b');
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns true if email contain two part TLD', function () {
+        $('[type=email]').val('a@b.c');
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isTrue(view.isValid());
+      });
+
+      it('returns true if email contain three part TLD', function () {
+        $('[type=email]').val('a@b.c.d');
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isTrue(view.isValid());
+      });
+
+      it('returns false if local side of email === 0 chars', function () {
+        var email = '@testuser.com';
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns false if local side of email > 64 chars', function () {
+        var email = '';
+        do {
+          email += 'a';
+        } while (email.length < 65);
+
+        email += '@testuser.com';
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns true if local side of email === 64 chars', function () {
+        var email = '';
+        do {
+          email += 'a';
+        } while (email.length < 64);
+
+        email += '@testuser.com';
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isTrue(view.isValid());
+      });
+
+      it('returns false if domain side of email === 0 chars', function () {
+        var email = 'testuser@';
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns false if domain side of email > 255 chars', function () {
+        var domain = 'testuser.com';
+        do {
+          domain += 'a';
+        } while (domain.length < 256);
+
+        var email = 'testuser@' + domain;
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns true if domain side of email === 254 chars', function () {
+        var domain = 'testuser.com';
+        do {
+          domain += 'a';
+        } while (domain.length < 254);
+        var email = 'a@' + domain;
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isTrue(view.isValid());
+      });
+
+      it('returns false total length > 256 chars', function () {
+        var domain = 'testuser.com';
+        do {
+          domain += 'a';
+        } while (domain.length < 254);
+
+        // ab@ + 254 characters = 257 chars
+        var email = 'ab@' + domain;
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns true if total length === 256 chars', function () {
+        var email = 'testuser@testuser.com';
+        do {
+          email += 'a';
+        } while (email.length < 256);
+
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        $('#fxa-age-year').val('1960');
+
+        assert.isTrue(view.isValid());
       });
 
       it('returns false if password is empty', function () {
