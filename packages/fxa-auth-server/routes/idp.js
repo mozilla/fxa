@@ -8,6 +8,12 @@ module.exports = function (log, serverPublicKey) {
     {
       method: 'GET',
       path: '/.well-known/browserid',
+      config: {
+        cache: {
+          privacy: 'public',
+          expiresIn: 10000
+        }
+      },
       handler: function wellKnown(request, reply) {
         log.begin('wellKnown', request)
         reply(
