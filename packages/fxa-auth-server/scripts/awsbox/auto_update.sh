@@ -21,3 +21,5 @@ if [ `$CURCOMMIT master` != `$CURCOMMIT origin/master` ]; then
   git branch -f master origin/master
   /usr/local/bin/node ../post-update.js
 fi
+
+rm -rf /home/app/tmp/*
