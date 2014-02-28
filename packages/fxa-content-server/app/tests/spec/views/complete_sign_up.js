@@ -94,23 +94,6 @@ function (chai, View, Session, FxaClientWrapper,
 
         view.render();
       });
-
-      it('shows redirectTo button if redirectTo is available', function () {
-        windowMock.location.search = '?code=code&uid=uid';
-        Session.set('redirectTo', 'https://sync.firefox.com');
-        view.render();
-
-        assert.equal(view.$('#redirectTo').length, 1);
-      });
-
-      it('does not show redirectTo button if redirectTo is not available',
-         function () {
-        windowMock.location.search = '?code=code&uid=uid';
-        view.render();
-
-        assert.equal(view.$('#redirectTo').length, 0);
-      });
-
     });
   });
 });

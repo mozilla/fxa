@@ -24,6 +24,7 @@ define([
     '/signin': 200,
     '/signin_complete': 200,
     '/signup': 200,
+    '/signup_complete': 200,
     '/confirm': 200,
     '/settings': 200,
     '/change_password': 200,

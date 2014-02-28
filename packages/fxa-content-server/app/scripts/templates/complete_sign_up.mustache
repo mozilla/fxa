@@ -1,19 +1,8 @@
 <header>
   <h1 class="fox-logo"><span>{{#t}}Firefox Accounts{{/t}}</span></h1>
-  <h2 id="fxa-complete-sign-up-header" class="complete">{{#t}}Account verified{{/t}}</h2>
+  <h2 id="fxa-complete-sign-up-header">{{#t}}Completing sign up{{/t}}</h2>
 </header>
 
 <section>
   <div class="error"></div>
-
-  <div id="fxa-complete-sign-up-ready" class="complete">
-    <div class="graphic graphic-checkbox">{{#t}}Success{{/t}}</div>
-
-    {{#service}}
-    <p>{{#t}}You are now ready to use %(service)s.{{/t}}</p>
-    {{/service}}
-    {{^service}}
-      <p>{{#t}}Your account is ready!{{/t}}</p>
-    {{/service}}
-  </div>
 </section>

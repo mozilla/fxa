@@ -2,12 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Handle sign_in_complete, sign_up_complete,
+ * and reset_password_complete.
+ * Prints a message to the user that says
+ * "All ready! You can go visit {{ service }}"
+ */
+
 'use strict';
 
 define([
   'underscore',
   'views/base',
-  'stache!templates/sign_in_complete',
+  'stache!templates/ready',
   'lib/session',
   'lib/xss',
   'lib/strings'
@@ -15,7 +22,13 @@ define([
 function (_, BaseView, Template, Session, Xss, Strings) {
   var View = BaseView.extend({
     template: Template,
-    className: 'sign_in_complete',
+    className: 'reset_password_complete',
+
+    initialize: function (options) {
+      options = options || {};
+
+      this.type = options.type;
+    },
 
     context: function () {
       var service = Session.service;
@@ -27,8 +40,15 @@ function (_, BaseView, Template, Session, Xss, Strings) {
       }
 
       return {
-        service: service
+        service: service,
+        signIn: this.is('sign_in'),
+        signUp: this.is('sign_up'),
+        resetPassword: this.is('reset_password')
       };
+    },
+
+    is: function (type) {
+      return this.type === type;
     }
   });
 
