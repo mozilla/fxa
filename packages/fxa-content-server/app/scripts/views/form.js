@@ -207,7 +207,7 @@ function (_, $, BaseView, Tooltip) {
       var domainLength = parts[1] && parts[1].length;
 
       // Original regexp from:
-      //  http://blog.gerv.net/2011/05/html5_email_email_regexp/
+      //  http://blog.gerv.net/2011/05/html5_email_address_regexp/
       // Modified to require at least a 2 part tld and remove the
       // length checks, which are done later.
       // IETF spec: http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
