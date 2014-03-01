@@ -140,27 +140,8 @@ module.exports = function (path, url, Hapi, toobusy) {
       }
     )
 
-    // Log some helpful details for debugging authentication problems.
     server.ext(
       'onPreAuth',
-      function (request, next) {
-        if (request.headers.authorization) {
-          log.trace(
-            {
-              op: 'server.onPreAuth',
-              rid: request.id,
-              path: request.path,
-              auth: request.headers.authorization,
-              type: request.headers['content-type'] || ''
-            }
-          )
-        }
-        next()
-      }
-    )
-
-    server.ext(
-      'onPreHandler',
       function (request, next) {
         // Construct source-ip-address chain for logging.
         var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
@@ -174,17 +155,18 @@ module.exports = function (path, url, Hapi, toobusy) {
           var accepted = i18n.parseAcceptLanguage(acceptLanguage)
           request.app.preferredLang = i18n.bestLanguage(accepted)
         }
-
-        log.trace(
-          {
-            op: 'server.onPreHandler',
-            rid: request.id,
-            path: request.path,
-            auth: request.auth.isAuthenticated,
-            uid: request.auth.credentials ? request.auth.credentials.uid : null,
-            payload: request.payload
-          }
-        )
+        if (request.headers.authorization) {
+          // Log some helpful details for debugging authentication problems.
+          log.trace(
+            {
+              op: 'server.onPreAuth',
+              rid: request.id,
+              path: request.path,
+              auth: request.headers.authorization,
+              type: request.headers['content-type'] || ''
+            }
+          )
+        }
         next()
       }
     )
