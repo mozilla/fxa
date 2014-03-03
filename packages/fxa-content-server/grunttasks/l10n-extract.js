@@ -15,7 +15,7 @@ const messagesOutputPath = path.join(__dirname, '..', 'locale', 'templates', 'LC
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('l10n-extract', function () {
+  grunt.registerTask('l10n-extract', 'Extract strings from templates for localization.', function () {
     var done = this.async();
 
     if (! fs.existsSync(messagesOutputPath)) {

@@ -9,7 +9,7 @@ const path = require('path');
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('l10n-merge', function () {
+  grunt.registerTask('l10n-merge', 'Merge extracted strings with .PO files.', function () {
     var done = this.async();
     grunt.util.spawn({
       cmd: path.resolve(__dirname, '..', 'scripts', 'merge_po.sh'),

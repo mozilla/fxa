@@ -18,7 +18,7 @@ const localePath = path.join(__dirname, '..', 'locale');
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('l10n-fetch-strings', function () {
+  grunt.registerTask('l10n-fetch-strings', 'Fetch localized strings from the localization repo.', function () {
     var done = this.async();
 
     if (! fs.existsSync(localePath)) {

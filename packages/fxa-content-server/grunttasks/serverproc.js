@@ -7,7 +7,7 @@ module.exports = function (grunt) {
 
   var runServer = require('../scripts/run_locally');
 
-  grunt.registerTask('serverproc', function () {
+  grunt.registerTask('serverproc', 'Start the server. ** Use `grunt server:<target>` instead **.', function () {
     runServer(this.async());
   });
 };
