@@ -6,34 +6,38 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.config('modernizr', {
-    devFile: '<%= yeoman.app %>/bower_components/modernizr/modernizr.js',
-    outputFile: '<%= yeoman.dist %>/bower_components/modernizr/modernizr.js',
-    files: [
-      '<%= yeoman.dist %>/scripts/{,*/}*.js',
-      '<%= yeoman.dist %>/styles/{,*/}*.css',
-      '!<%= yeoman.dist %>/scripts/vendor/*'
-    ],
-    extra: {
-      shiv: true,
-      printshiv: false,
-      load: false,
-      mq: false,
-      cssclasses: true
-    },
-    // Based on default settings on http://modernizr.com/download/
-    extensibility: {
-      addtest: false,
-      prefixed: false,
-      teststyles: true,
-      testprops: false,
-      testallprops: false,
-      hasevents: false,
-      prefixes: true,
-      domprefixes: false
-    },
-    tests: ['touch'],
-    // this will be uglified in the build step.
-    uglify: false,
-    parseFiles: true
+    dist: {
+      devFile: '<%= yeoman.app %>/bower_components/modernizr/modernizr.js',
+      outputFile: '<%= yeoman.dist %>/bower_components/modernizr/modernizr.js',
+      files: {
+        src: [
+          '<%= yeoman.dist %>/scripts/**/*.js',
+          '<%= yeoman.dist %>/styles/**/**.css',
+          '!<%= yeoman.dist %>/scripts/vendor/*'
+        ]
+      },
+      extra: {
+        shiv: true,
+        printshiv: false,
+        load: false,
+        mq: false,
+        cssclasses: true
+      },
+      // Based on default settings on http://modernizr.com/download/
+      extensibility: {
+        addtest: false,
+        prefixed: false,
+        teststyles: true,
+        testprops: false,
+        testallprops: false,
+        hasevents: false,
+        prefixes: true,
+        domprefixes: false
+      },
+      tests: ['touch'],
+      // this will be uglified in the build step.
+      uglify: false,
+      parseFiles: true
+    }
   });
 };
