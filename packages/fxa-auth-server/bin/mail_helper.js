@@ -146,9 +146,9 @@ api.route(
         var type = request.params.type
         // request.log('Looking for template: lang=' + lang + ', type=' + type)
 
-        // default to 'en' if we don't know this lang
+        // default to 'en-US' if we don't know this lang
         if ( !template[lang] ) {
-          lang = 'en'
+          lang = 'en-US'
         }
 
         if ( template[lang][type] ) {
