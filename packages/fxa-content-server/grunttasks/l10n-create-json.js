@@ -16,7 +16,7 @@ module.exports = function (grunt) {
   'use strict';
 
   // po2json is configured in po2json.js
-  grunt.registerTask('l10n-create-json', function () {
+  grunt.registerTask('l10n-create-json', 'Create localized string bundles for the client.', function () {
     if (! fs.existsSync(jsonOutputPath)) {
       mkdirp.sync(jsonOutputPath);
     }

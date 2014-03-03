@@ -5,7 +5,7 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('server', function (target) {
+  grunt.registerTask('server', 'Start the server after performing necessary build.', function (target) {
     if (target === 'dist') {
       return grunt.task.run(['build', 'serverproc:dist']);
     }

@@ -15,7 +15,7 @@ module.exports = function (grunt) {
     dist: path.join(CONFIG_ROOT, 'production.json')
   };
 
-  grunt.registerTask('selectconfig', function(target) {
+  grunt.registerTask('selectconfig', 'Select configuration files for the running environment.', function(target) {
     if (! target) {
       target = 'app';
     }
