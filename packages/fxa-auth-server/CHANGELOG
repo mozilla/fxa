@@ -1,3 +1,10 @@
+train-04
+  * added `lockdown` for stable dependencies #19
+  * refactored mysql.js #588
+  * allow repeat signup against unverified emails #593
+  * added cache-control to /.well-known/browserid #597
+  * collect loggable data before authentication #601
+
 train-03
   * upgrade hapi to 2.4.0
   * fixed password reset account lockout bug #575
