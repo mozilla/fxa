@@ -8,7 +8,7 @@ module.exports = function (grunt) {
   grunt.config('jshint', {
     config: {
       options: {jshintrc: '.jshintrc'},
-      src: ['Gruntfile.js', 'config/**/*.js']
+      src: ['Gruntfile.js', 'tasks/*.js', 'config/**/*.js', 'node/**/*.js']
     },
     app: {
       options: {jshintrc: 'client/.jshintrc'},

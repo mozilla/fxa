@@ -5,7 +5,7 @@
 Note: Java is required to build the library due to a custom SJCL build.
 
 ```
-npm install
+npm run-script setup
 npm start
 ```
 

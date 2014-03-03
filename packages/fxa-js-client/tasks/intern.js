@@ -13,6 +13,13 @@ module.exports = function (grunt) {
         suites: ['tests/all']
       }
     },
+    native_node: {
+      options: {
+        config: 'tests/intern_native_node',
+        reporters: ['console'],
+        suites: ['tests/all']
+      }
+    },
     // local browser
     browser: {
       options: {
