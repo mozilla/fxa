@@ -105,7 +105,7 @@ header h2 {
 
 #legal-header h3 {
   font-size: 12px;
-  padding:5px 0 10px;
+  padding: 5px 0 10px;
 }
 
 #legal-copy ul,
@@ -164,7 +164,7 @@ strong.email {
 }
 
 .graphic {
-  background-repeat: none;
+  background-repeat: no-repeat;
   background-size: 150px 130px;
   height: 130px;
   margin: 0 auto;
@@ -276,7 +276,7 @@ strong.email {
   // Some hackery for Firefox since moz-appearance: none doesn't remove the arrow
   text-indent: 0.01px;
   text-overflow: "";
-  -moz-user-select: none;
+  user-select: none;
   width: 100%;
 }
 

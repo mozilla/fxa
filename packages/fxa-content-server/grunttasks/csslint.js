@@ -9,11 +9,15 @@ module.exports = function (grunt) {
     strict: {
       options: {
         'box-model': 0,
+        'box-sizing': 0,
         'compatible-vendor-prefixes': 0,
+        'duplicate-background-images': 0,
         'errors': 0,
         'ids': 0,
         'import': 2,
-        'important': 1,
+        'important': 0,
+        'outline-none': 0,
+        'overqualified-elements': 0,
         'qualified-headings': 0,
         'unique-headings': 0,
         'universal-selector': 0,
