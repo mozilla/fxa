@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "p-promise": "~0.2.5",
-    "sjcl-full": "~1.0.0",
+    "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "devDependencies": {

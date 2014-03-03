@@ -21,7 +21,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('test',
     'Run tests via node',
-    ['intern:node']);
+    ['intern:node', 'intern:native_node']);
 
   grunt.registerTask('lint',
     'Alias for jshint and jscs tasks',

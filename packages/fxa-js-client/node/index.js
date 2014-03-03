@@ -3,7 +3,7 @@ var util = require('util');
 var amd = require('./amd-loader');
 
 var map = {
-    sjcl: 'sjcl-full',
+    sjcl: 'sjcl',
     p: 'p-promise'
 };
 
