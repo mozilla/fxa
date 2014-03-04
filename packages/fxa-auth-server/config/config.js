@@ -252,7 +252,7 @@ module.exports = function (fs, path, url, convict) {
       supportedLanguages: {
         doc: "List of languages this deployment should detect and display localized strings.",
         format: Array,
-        default: ['en-US', 'es-MX'],
+        default: ['en-US', 'it-CH'],
         env: 'I18N_SUPPORTED_LANGUAGES'
       },
       translationDirectory: {

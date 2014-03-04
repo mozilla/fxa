@@ -90,18 +90,6 @@ var template = {
       text : 'Firefox Accounts\n\nA request to reset the password for {{{email}}} has been made.\nReset password: {{{link}}}\n\nIf you received this email in error, no action is required.\n',
     },
   },
-  'en-AU' : {
-    verify : {
-      subject : 'Confirm Your Account',
-      html : '<p>GDay<br>Firefox Accounts<br><br>Congratulations! {{{email}}}, you are seconds away from verifying your Firefox Account.<br>Verify: {{{link}}}<br><br>If you received this email in error, no action is required.</p>',
-      text : 'GDay\n\nFirefox Accounts\n\nCongratulations! {{{email}}}, you are seconds away from verifying your Firefox Account.\nVerify: {{{link}}}\n\nIf you received this email in error, no action is required.',
-    },
-    reset : {
-      subject : 'Reset Password Request',
-      html : '<p>Firefox Accounts<br><br>A request to reset the password for {{{email}}} has been made.\nReset password: {{{link}}}<br><br>If you received this email in error, no action is required.</p>',
-      text : 'Firefox Accounts\n\nA request to reset the password for {{{email}}} has been made.\nReset password: {{{link}}}\n\nIf you received this email in error, no action is required.\n',
-    },
-  },
   'it-CH' : {
     verify : {
       subject : 'ʇunoɔɔ∀ ɹno⅄ ɯɹıɟuoↃ',
