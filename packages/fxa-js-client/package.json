@@ -7,10 +7,15 @@
   "scripts": {
     "start": "grunt",
     "test": "grunt test",
-    "setup": "npm install && bower install && grunt sjcl"
+    "setup": "npm install && bower install && grunt sjcl",
+    "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md"
   },
   "main": "node/index.js",
-  "files": ["node/", "client/", "LICENSE"],
+  "files": [
+    "node/",
+    "client/",
+    "LICENSE"
+  ],
   "readmeFilename": "README.md",
   "homepage": "https://github.com/mozilla/fxa-js-client",
   "engines": {
