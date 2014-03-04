@@ -47,7 +47,7 @@ define(['client/lib/errors'], function (ERRORS) {
     },
     mailServiceAndRedirect: {
       status: 200,
-      body: '[{"html":"Mocked code=9001 service=sync redirectTo=http"}]'
+      body: '[{"html":"Mocked code=9001 service=sync redirectTo=https"}]'
     },
     resetMail: {
       status: 200,
@@ -55,11 +55,11 @@ define(['client/lib/errors'], function (ERRORS) {
     },
     resetMailWithServiceAndRedirect: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=http"}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https"}]'
     },
     resetMailResendWithServiceAndRedirect: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=http"}, {"html":"Mocked code=9001 service=sync redirectTo=http"}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001 service=sync redirectTo=https"}, {"html":"Mocked code=9001 service=sync redirectTo=https"}]'
     },
     resetMailLang: {
       status: 200,

@@ -168,7 +168,7 @@ define([
         var account;
         var opts = {
           service: 'sync',
-          redirectTo: 'http://sync.firefox.com/after_reset'
+          redirectTo: 'https://sync.firefox.com/after_reset'
         };
 
         return accountHelper.newVerifiedAccount()
@@ -192,7 +192,7 @@ define([
 
             assert.ok(code[1], 'code is returned');
             assert.equal(service[1], 'sync', 'service is returned');
-            assert.equal(redirectTo[1], 'http', 'redirectTo is returned');
+            assert.equal(redirectTo[1], 'https', 'redirectTo is returned');
           })
       });
 
@@ -201,7 +201,7 @@ define([
         var passwordForgotToken;
         var opts = {
           service: 'sync',
-          redirectTo: 'http://sync.firefox.com/after_reset'
+          redirectTo: 'https://sync.firefox.com/after_reset'
         };
 
         return accountHelper.newVerifiedAccount()
@@ -237,7 +237,7 @@ define([
 
             assert.ok(code[1], 'code is returned');
             assert.equal(service[1], 'sync', 'service is returned');
-            assert.equal(redirectTo[1], 'http', 'redirectTo is returned');
+            assert.equal(redirectTo[1], 'https', 'redirectTo is returned');
           })
       });
 
