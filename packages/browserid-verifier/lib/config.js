@@ -43,7 +43,7 @@ function loadConf() {
         format: Object,
         default: {
           dev: {
-            format: "%(name).%(levelname)s: %(message)s",
+            format: "%(name)s.%(levelname)s: %(message)s",
             colorize: true
           },
           prod: {
