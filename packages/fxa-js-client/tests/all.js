@@ -17,7 +17,6 @@ define([
   'tests/lib/account',
   'tests/lib/recoveryEmail',
   'tests/lib/misc',
-  'tests/lib/timeOffset',
   'tests/lib/errors',
   'tests/lib/headerLang'
 ], function () {});
