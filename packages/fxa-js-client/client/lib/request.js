@@ -54,32 +54,36 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
       deferred.reject({ error: 'Unknown error', message: e.toString(), errno: 999 });
     }
 
-    xhr.onerror = function onerror() {
-      deferred.reject(xhr.responseText);
-    };
-    xhr.onload = function onload() {
-      var result = xhr.responseText;
-      try {
-        result = JSON.parse(xhr.responseText);
-      } catch (e) { }
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        var result = xhr.responseText;
+        try {
+          result = JSON.parse(xhr.responseText);
+        } catch (e) { }
 
-      if (result.errno) {
-        // Try to recover from a timeskew error and not already tried
-        if (result.errno === ERRORS.INVALID_TIMESTAMP && !options.retrying) {
-          var serverTime = result.serverTime;
-          self._localtimeOffsetMsec = (serverTime * 1000) - new Date().getTime();
+        if (result.errno) {
+          // Try to recover from a timeskew error and not already tried
+          if (result.errno === ERRORS.INVALID_TIMESTAMP && !options.retrying) {
+            var serverTime = result.serverTime;
+            self._localtimeOffsetMsec = (serverTime * 1000) - new Date().getTime();
 
-          // add to options that the request is retrying
-          options.retrying = true;
+            // add to options that the request is retrying
+            options.retrying = true;
 
-          return self.send(path, method, credentials, jsonPayload, options)
-            .then(deferred.resolve, deferred.reject);
+            return self.send(path, method, credentials, jsonPayload, options)
+              .then(deferred.resolve, deferred.reject);
 
-        } else {
+          } else {
+            return deferred.reject(result);
+          }
+        }
+
+        if (typeof xhr.status === 'undefined' || xhr.status !== 200) {
           return deferred.reject(result);
         }
+
+        deferred.resolve(result);
       }
-      deferred.resolve(result);
     };
 
     // calculate Hawk header if credentials are supplied

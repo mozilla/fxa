@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
   <style>
@@ -92,11 +93,17 @@
 See Console....
 
 <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="../build/fxa-client.js"></script>
+<script src="../../build/fxa-client.js"></script>
 <script>
-  var email = 'example' + Date.now() + '@example.com';
+  var email = 'example' + new Date().getTime() + '@example.com';
   var password = 'allyourbasearebelongtous';
-  var server = 'http://127.0.0.1:9000';
+
+  /**
+   * Server URL, adjust this to test with a proxy.
+   */
+  var server = 'http://localhost:9000';
+  // Proxy:
+  // var server = 'http://localhost:9133';
   var client = new FxAccountClient(server);
 
   // Set Email value

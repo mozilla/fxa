@@ -26,7 +26,7 @@ define([
       });
 
       test('#signUp', function () {
-        var user = "test" + Date.now();
+        var user = "test" + new Date().getTime();
         var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {

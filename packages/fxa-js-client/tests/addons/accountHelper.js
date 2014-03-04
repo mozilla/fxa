@@ -15,7 +15,7 @@ define([
   }
 
   AccountHelper.prototype.newVerifiedAccount = function () {
-    var user = 'testHelp1' + Date.now();
+    var user = 'testHelp1' + new Date().getTime();
     var email = user + "@restmail.net";
     var password = "iliketurtles";
     var respond = this.respond;
@@ -56,7 +56,7 @@ define([
   };
 
   AccountHelper.prototype.newUnverifiedAccount = function () {
-    var user = 'testHelp2' + Date.now();
+    var user = 'testHelp2' + new Date().getTime();
     var email = user + "@restmail.net";
     var password = "iliketurtles";
     var respond = this.respond;

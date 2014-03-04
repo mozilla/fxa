@@ -28,7 +28,7 @@ define([
       });
 
       test('#basic', function () {
-        var email = "test" + Date.now() + "@restmail.net";
+        var email = "test" + new Date().getTime() + "@restmail.net";
         var password = "iliketurtles";
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
@@ -43,7 +43,7 @@ define([
       });
 
       test('#withKeys', function () {
-        var email = "test" + Date.now() + "@restmail.net";
+        var email = "test" + new Date().getTime() + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
           keys: true
@@ -61,7 +61,7 @@ define([
       });
 
       test('#create account with service and redirectTo', function () {
-        var user = "test" + Date.now();
+        var user = "test" + new Date().getTime();
         var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
@@ -90,7 +90,7 @@ define([
       });
 
       test('#withService', function () {
-        var user = "test" + Date.now();
+        var user = "test" + new Date().getTime();
         var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
@@ -115,7 +115,7 @@ define([
       });
 
       test('#withRedirectTo', function () {
-        var user = "test" + Date.now();
+        var user = "test" + new Date().getTime();
         var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
@@ -141,7 +141,7 @@ define([
       });
 
       test('#preVerified', function () {
-        var email = "test" + Date.now() + "@restmail.net";
+        var email = "test" + new Date().getTime() + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
           preVerified: true

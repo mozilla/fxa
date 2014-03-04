@@ -79,7 +79,7 @@ define(['sjcl'], function (sjcl) {
         return result;
       }
 
-      if (hawk.crypto.algorithms.indexOf(credentials.algorithm) === -1) {
+      if (hawk.utils.baseIndexOf(hawk.crypto.algorithms, credentials.algorithm) === -1) {
         result.err = 'Unknown algorithm';
         return result;
       }
@@ -464,6 +464,18 @@ define(['sjcl'], function (sjcl) {
       }
 
       return result.join('');
+    },
+
+    baseIndexOf: function(array, value, fromIndex) {
+      var index = (fromIndex || 0) - 1,
+        length = array ? array.length : 0;
+
+      while (++index < length) {
+        if (array[index] === value) {
+          return index;
+        }
+      }
+      return -1;
     },
 
     parseUri: function (input) {

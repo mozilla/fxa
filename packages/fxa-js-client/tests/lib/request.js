@@ -5,36 +5,45 @@
 define([
   'intern!tdd',
   'intern/chai!assert',
+  'tests/addons/environment',
   'client/lib/request',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest',
-  'tests/addons/sinonResponder',
-  'tests/mocks/request'
-], function (tdd, assert, Request, XHR, SinonResponder, RequestMocks) {
+  'tests/addons/sinonResponder'
+], function (tdd, assert, Environment, Request, SinonResponder) {
   with (tdd) {
     suite('request module', function () {
-      var client;
-      var requests;
-      var baseUri = 'http://127.0.0.1:9000';
+      var RequestMocks;
+      var request;
+      var env;
 
       beforeEach(function () {
-        var xhr = SinonResponder.useFakeXMLHttpRequest();
-        requests = [];
-
-        xhr.onCreate = function (xhr) {
-          requests.push(xhr);
-        };
-
-        client = new Request(baseUri, xhr);
+        env = new Environment();
+        RequestMocks = env.RequestMocks;
+        request = new Request(env.authServerUrl, env.xhr);
       });
 
-      test('#heartbeat (async)', function () {
-        var heartbeatRequest =  client.send("/__heartbeat__", "GET")
-          .then(function (res) {
-            assert.ok(res);
-          });
-        SinonResponder.respond(requests[0], RequestMocks.heartbeat);
+      test('#heartbeat', function () {
+        var heartbeatRequest = env.respond(request.send("/__heartbeat__", "GET"), RequestMocks.heartbeat)
+          .then(
+            function (res) {
+              assert.ok(res);
+            },
+            assert.notOk
+          );
 
         return heartbeatRequest;
+      });
+
+      test('#error', function () {
+        request = new Request('http://', env.xhr);
+
+        request.send("/", "GET")
+          .then(
+            assert.notOk,
+            function () {
+              assert.ok(true);
+            }
+          );
+
       });
     });
   }

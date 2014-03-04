@@ -8,8 +8,6 @@ define([
 ], function (Sinon, P) {
 
   return {
-    useFakeXMLHttpRequest: Sinon.useFakeXMLHttpRequest,
-
     makeMockResponder: function (requests) {
       var self = this;
       var requestIndex = 0;
