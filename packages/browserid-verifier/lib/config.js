@@ -36,6 +36,45 @@ function loadConf() {
       default: false,
       env: "INSECURE_SSL"
     },
+    logging: {
+      formatters: {
+        doc: "Formatters for intel loggers.",
+        env: 'LOG_FORMATTERS',
+        format: Object,
+        default: {
+          dev: {
+            format: "%(name).%(levelname)s: %(message)s",
+            colorize: true
+          },
+          prod: {
+            format: '%O'
+          }
+        }
+      },
+      handlers: {
+        doc: 'Handlers deliver log messages to different destinations',
+        format: Object,
+        default: {
+          console: {
+            "class": "intel/handlers/console",
+            "formatter": "dev"
+          }
+        }
+      },
+      loggers: {
+        doc: 'intel Loggers',
+        format: Object,
+        default: {
+          bid: {
+            level: "DEBUG",
+            handlers: ["console"],
+            propagate: false,
+            handleExceptions: true,
+            exitOnError: false
+          }
+        }
+      }
+    }
   });
 
   // load environment dependent configuration
@@ -52,7 +91,7 @@ function loadConf() {
   module.exports = conf;
 
   process.nextTick(function() {
-    require('./log').debug("current configuration:", conf.get());
+    require('./log').getLogger('bid.config').debug("current configuration:", conf.get());
   });
 }
 
