@@ -27,7 +27,7 @@ exports.path = '/ver.json';
 
 function getCommitHashFromVersionJson() {
   return Promise.attempt(function () {
-    var configFile = path.join(__dirname, '..', 'config', 'version.json');
+    var configFile = path.join(__dirname, '..', '..', '..', 'config', 'version.json')
     if (fs.existsSync(configFile)) {
       var commitHash;
       try {
