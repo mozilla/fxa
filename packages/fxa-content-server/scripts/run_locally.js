@@ -18,10 +18,10 @@ module.exports = function (done) {
   var fabPath = path.join(BIN_ROOT, 'fxa-content-server.js');
   var fxaccntbridge = spawn('node', [fabPath]);
   fxaccntbridge.stdout.on('data', function(data) {
-    console.log('fxa-content-server:', data.toString('utf8').trim());
+    console.log(data.toString('utf8').trim());
   });
   fxaccntbridge.stderr.on('data', function(data) {
-    console.log('fxa-content-server err:', data.toString('utf8').trim());
+    console.error(data.toString('utf8').trim());
   });
   fxaccntbridge.on('exit', function (code, signal) {
     console.log('fxa-content-server killed, existing');

@@ -13,6 +13,16 @@ if (isMain) {
   process.chdir(path.dirname(__dirname));
 }
 
+// set up common formatting for all loggers
+var intel = require('intel');
+intel.basicConfig({
+  format: {
+    format: '[%(date)s] %(name)s.%(levelname)s: %(message)s',
+    datefmt: '%Y-%m-%dT%H:%M:%S.%LZ'
+  }
+});
+var logger = require('intel').getLogger('server.main');
+
 var helmet = require('helmet');
 var express = require('express');
 var handlebars = require('handlebars');
@@ -31,13 +41,13 @@ var routeLogging = require('../lib/logging/route_logging');
 
 var fourOhFour = require('../lib/404');
 
-
 var STATIC_DIRECTORY =
-              path.join(__dirname, '..', '..', config.get('static_directory'));
+  path.join(__dirname, '..', '..', config.get('static_directory'));
 
 var PAGE_TEMPLATE_DIRECTORY =
-              path.join(config.get('page_template_root'), config.get('page_template_subdirectory'));
-console.log('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY)
+  path.join(config.get('page_template_root'), config.get('page_template_subdirectory'));
+
+logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
 function makeApp() {
   'use strict';
@@ -98,9 +108,9 @@ function listen(theApp) {
     app.listen(443);
     app.on('error', function (e) {
       if ('EACCES' === e.code) {
-        console.error('Permission Denied, maybe you should run this with sudo?');
+        logger.error('Permission Denied, maybe you should run this with sudo?');
       } else if ('EADDRINUSE' === e.code) {
-        console.error('Unable to listen for connections, this service might already be running?');
+        logger.error('Unable to listen for connections, this service might already be running?');
       }
       throw e;
     });
@@ -109,7 +119,7 @@ function listen(theApp) {
     app.listen(port, '0.0.0.0');
   }
   if (isMain) {
-    console.log('Firefox Account Content server listening on port', port);
+    logger.info('Firefox Account Content server listening on port', port);
   }
   return true;
 }
