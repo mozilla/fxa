@@ -19,7 +19,7 @@ define([
   registerSuite({
     name: 'sign_up',
 
-    setup: function () {
+    beforeEach: function () {
       // clear localStorage to avoid pollution from other tests.
       return this.get('remote')
         .get(require.toUrl(url))
@@ -165,7 +165,7 @@ define([
         .end();
     },
 
-    'sign up with an known account and wrong password allows the user to sign in': function () {
+    'sign up with a verified account and wrong password allows the user to sign in': function () {
 
       var self = this;
       var email = 'signup' + Math.random() + '@example.com';
@@ -175,7 +175,7 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return client.signUp(email, password)
+      return client.signUp(email, password, { preVerified: true })
         .then(function () {
           return self.get('remote')
             .get(require.toUrl(url))
@@ -214,6 +214,58 @@ define([
             .waitForElementById('fxa-signin-header')
             .elementByCssSelector('input[type=email]')
               .getAttribute('value')
+              .then(function (resultText) {
+                // check the email address was written
+                assert.equal(resultText, email);
+              })
+            .end();
+        });
+    },
+
+    'sign up with an unverified account and different password re-signs up user': function () {
+
+      var self = this;
+      var email = 'signup' + Math.random() + '@example.com';
+      var password = '12345678';
+
+      var client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+
+      return client.signUp(email, password)
+        .then(function () {
+          return self.get('remote')
+            .get(require.toUrl(url))
+            .waitForElementById('fxa-signup-header')
+
+            .elementByCssSelector('input[type=email]')
+              .click()
+              .type(email)
+            .end()
+
+            .elementByCssSelector('input[type=password]')
+              .click()
+              .type('different_password')
+            .end()
+
+            .elementByCssSelector('#fxa-age-year')
+              .click()
+            .end()
+
+            .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
+              .buttonDown()
+              .buttonUp()
+              .click()
+            .end()
+
+            .elementByCssSelector('button[type="submit"]')
+              .click()
+            .end()
+
+            // Being pushed to the confirmation screen is success.
+            .waitForElementById('fxa-confirm-header')
+            .elementById('confirm-email')
+              .text()
               .then(function (resultText) {
                 // check the email address was written
                 assert.equal(resultText, email);

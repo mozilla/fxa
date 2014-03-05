@@ -4,7 +4,6 @@
     "0.5.0": "cd12727a4e3a85d1e862611b349c9e3c6b7e0452"
   },
   "CSSwhat": {
-    "0.4.2": "7291585b71c5707ee7f49bbf3e9ae413ea715ff5",
     "0.4.5": "85d7b2799ff3d98055353c802949e39913e16a62"
   },
   "JSONSelect": {
@@ -135,7 +134,6 @@
     "0.0.7": "9088ab5ae1e861f4d81b176b4a8046080703deed"
   },
   "bluebird": {
-    "1.0.5": "ef7d5f01bb741938a7cac5b4fb6cfc0622759b9e",
     "1.0.7": "55b97e965b3f9ca6f2b3cb1fd432e1830fb00ed1"
   },
   "boolbase": {
@@ -143,7 +141,7 @@
   },
   "boom": {
     "0.4.2": "7a636e9ded4efcefb19cef4947a3c67dfaee911b",
-    "2.2.0": "f5e9502793e9ba777cfae502f71f6fa04d746912"
+    "2.2.1": "6a24027608e4e42d1e119f628578fb5d1886e035"
   },
   "bops": {
     "0.0.6": "082d1d55fa01e60dbdc2ebc2dba37f659554cf3a"
@@ -411,7 +409,7 @@
     "0.4.0": "3d2ec9240c0929146b694692f45bcbf135301905"
   },
   "dojo": {
-    "1.9.1": "c5cd9435d025d93e083ae822250f5f7d6dd685ff"
+    "1.9.3": "9f430f82c344aab7952236f626629cebd49aad20"
   },
   "domelementtype": {
     "1.1.1": "7887acbda7614bb0a3dbe1b5e394f77a8ed297cf"
@@ -535,7 +533,7 @@
     "0.0.7": "eea3033f0c3728139de7b57ab1b0d6d89c353c63"
   },
   "fxa-auth-server": {
-    "0.0.3": "*"
+    "0.0.4": "*"
   },
   "gaze": {
     "0.4.3": "e538f4ff5e4fe648f473a97e1ebb253d2de127b5"
@@ -560,7 +558,6 @@
     "3.1.21": "d29e0a055dea5138f4d07ed40e8982e83c2066cd",
     "3.2.3": "e313eeb249c7affaa5c475286b0e115b59839467",
     "3.2.7": "275f39a0eee805694790924f36eac38e1db6d802",
-    "3.2.8": "5506f4311721bcc618c7d8dba144188750307073",
     "3.2.9": "56af2289aa43d07d7702666480373eb814d91d40"
   },
   "globule": {
@@ -772,7 +769,7 @@
     "0.5.2": "b9d55030e73180a0ed317539ee5e152eb0327c4e"
   },
   "intern-geezer": {
-    "1.4.0": "3ded5d724f54fdd07670dfa56f01163e4504f930"
+    "1.5.0": "40f25e6368ad52b7bed0fd340151ecf0ca040aec"
   },
   "intersect": {
     "0.0.3": "c1a4a5e5eac6ede4af7504cc07e0ada7bc9f4920"
@@ -1013,7 +1010,7 @@
   "negotiator": {
     "0.2.8": "adfd207a3875c4d37095729c2e7c283c5ba2ee72",
     "0.3.0": "706d692efeddf574d57ea9fb1ab89a4fa7ee8f60",
-    "0.4.1": "7806f0041eca5b05bb00758d8ad7611ff18f357c"
+    "0.4.2": "8c43ea7e4c40ddfe40c3c0234c4ef77500b8fd37"
   },
   "next-tick": {
     "0.1.0": "1912cce8eb9b697d640fbba94f8f00dec3b94259"
@@ -1130,7 +1127,7 @@
     "0.2.3": "1c9302e6f41941fa4d345792a99092ff88829239"
   },
   "postcss": {
-    "0.3.3": "9377e5c46949dee78aac75a6a04e57fd10e06e9d"
+    "0.3.4": "783190bbe815aa791ed67e5d2bdcd4a7f43f3071"
   },
   "preprocess": {
     "2.0.0": "d3eef72dbd2b1bc18cd8beeeb5895afa3c87d134"
@@ -1187,7 +1184,6 @@
     "1.1.7": "a28da23cb4330106a0d45e86065e0fc3b79d263e"
   },
   "readable-stream": {
-    "1.0.26": "12a9c4415f6a85374abe18b7831ba52d43105766",
     "1.0.26-2": "7883b21c63c1ce9373adfb1c23aa78c2906fa062",
     "1.1.11": "76ae0d88df2ac36c59e7c205e0cafc81c57bc07d"
   },
@@ -1281,10 +1277,9 @@
   },
   "sntp": {
     "0.2.4": "fb885f18b0f3aad189f824862536bceeec750900",
-    "1.0.2": "b3a08dc138e64beb0e8df8322ad690b8acc740bf"
+    "1.0.3": "73efcadf01609e662f650ec2bd92bc3a9fa7d8a7"
   },
   "source-map": {
-    "0.1.32": "c8b6c167797ba4740a8ea33252162ff08591b266",
     "0.1.33": "c659297a73af18c073b0aa2e7cc91e316b5c570c"
   },
   "split": {

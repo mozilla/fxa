@@ -73,18 +73,25 @@ function (FxaClient, $, p, Session, AuthErrors) {
 
     },
 
-    signUp: function (email, password, customizeSync) {
+    signUp: function (email, password, options) {
+      options = options || {};
       var self = this;
       var service = Session.service;
       var redirectTo = Session.redirectTo;
       return this._getClientAsync()
               .then(function (client) {
-                return client.signUp(email, password, {
+                var signUpOptions = {
                   keys: true,
                   service: service,
                   redirectTo: redirectTo,
                   lang: self.language
-                });
+                };
+
+                if (options.preVerified) {
+                  signUpOptions.preVerified = true;
+                }
+
+                return client.signUp(email, password, signUpOptions);
               })
               .then(null, function (err) {
                 // if the account already exists, swallow the error and
@@ -96,7 +103,7 @@ function (FxaClient, $, p, Session, AuthErrors) {
                 throw err;
               })
               .then(function () {
-                return self.signIn(email, password, customizeSync);
+                return self.signIn(email, password, options.customizeSync);
               })
               .then(function (accountData) {
                 // signIn clears the Session. Restore service and redirectTo
@@ -132,7 +139,7 @@ function (FxaClient, $, p, Session, AuthErrors) {
               .then(function () {
                 // user's session is gone
                 Session.clear();
-              }, function() {
+              }, function () {
                 // Clear the session, even on failure. Everything is A-OK.
                 // See issue #616
                 // - https://github.com/mozilla/fxa-content-server/issues/616

@@ -82,7 +82,7 @@ function (chai, $, ChannelMock, testHelpers,
       });
 
       it('informs browser of customizeSync option', function (done) {
-        client.signUp(email, password, true)
+        client.signUp(email, password, { customizeSync: true })
           .then(function () {
             assert.isTrue(channelMock.data.customizeSync);
 
@@ -136,9 +136,9 @@ function (chai, $, ChannelMock, testHelpers,
           });
       });
 
-      it('signUp existing user with incorrect password returns ' +
+      it('signUp existing verified user with incorrect password returns ' +
               'incorrect password error', function (done) {
-        client.signUp(email, password)
+        client.signUp(email, password, { preVerified: true })
           .then(function () {
             return client.signUp(email, 'incorrect');
           })
@@ -148,6 +148,23 @@ function (chai, $, ChannelMock, testHelpers,
           })
           .then(null, function (err) {
             assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+            done();
+          });
+      });
+
+      it('signUp existing unverified user with different password signs ' +
+              'user up again', function (done) {
+        client.signUp(email, password)
+          .then(function () {
+            return client.signUp(email, 'different_password');
+          })
+          .then(function () {
+            assert.isTrue(realClient.signUp.called);
+            assert.isTrue(realClient.signIn.called);
+            done();
+          })
+          .then(null, function (err) {
+            assert.fail(err);
             done();
           });
       });

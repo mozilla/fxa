@@ -354,9 +354,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
               });
       });
 
-      it('shows message allowing the user to sign in if user enters existing account with incorrect password', function (done) {
+      it('shows message allowing the user to sign in if user enters existing verified account with incorrect password', function (done) {
         var client = new FxaClient();
-        client.signUp(email, 'password')
+        client.signUp(email, 'password', { preVerified: true })
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val('incorrect');
@@ -366,6 +366,24 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
 
                 view.on('error', function (msg) {
                   assert.ok(msg.indexOf('/signin') > -1);
+                  done();
+                });
+                view.submit();
+              });
+      });
+
+      it('re-signs up unverified user with new password', function (done) {
+        var client = new FxaClient();
+        client.signUp(email, 'password')
+              .then(function () {
+                $('[type=email]').val(email);
+                $('[type=password]').val('incorrect');
+
+                var nowYear = (new Date()).getFullYear();
+                $('#fxa-age-year').val(nowYear - 14);
+
+                router.on('navigate', function () {
+                  assert.equal(router.page, 'confirm');
                   done();
                 });
                 view.submit();
