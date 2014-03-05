@@ -83,7 +83,7 @@ define([
 
             assert.ok(code[1], 'code is returned');
             assert.equal(service[1], 'sync', 'service is returned');
-            assert.equal(redirectTo[1], 'http', 'redirectTo is returned');
+            assert.equal(redirectTo[1], 'https', 'redirectTo is returned');
           },
           assert.notOk
         );
