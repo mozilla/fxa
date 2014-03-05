@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const
-fs = require('fs'),
 express = require('express'),
 http = require('http'),
 toobusy = require('toobusy'),
@@ -80,6 +79,14 @@ app.use(express.urlencoded({ limit: "10kb" }));
 app.post('/verify', v1api);
 app.post('/', v1api);
 app.post('/v2', v2api);
+
+function wrongMethod(req, res) {
+  return res.send(405);
+}
+
+['/verify', '/', '/v2'].forEach(function(route) {
+  app.get(route, wrongMethod);
+});
 
 server.listen(config.get('port'), config.get('ip'), function() {
   log.info("running on http://" +

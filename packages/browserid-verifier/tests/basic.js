@@ -49,6 +49,17 @@ describe('basic verifier test', function() {
     });
   });
 
+  it('should return 405 for GET requests', function(done) {
+    request({
+      method: 'get',
+      url: verifier.url()
+    }, function(err, r) {
+      should.not.exist(err);
+      (r.statusCode).should.equal(405);
+      done();
+    });
+  });
+
   it('test servers should stop', function(done) {
     idp.stop(function(e) {
       verifier.stop(function(e1) {
