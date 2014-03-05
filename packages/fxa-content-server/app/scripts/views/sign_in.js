@@ -47,7 +47,7 @@ function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMix
     context: function () {
       var error = '';
       if (Session.forceAuth && !Session.forceEmail) {
-        error = '/force_auth requres an email';
+        error = t('/force_auth requires an email');
       }
 
       var email = (Session.forceAuth && Session.forceEmail) ||
@@ -62,7 +62,8 @@ function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMix
     },
 
     events: {
-      'change .show-password': 'onPasswordVisibilityChange'
+      'change .show-password': 'onPasswordVisibilityChange',
+      'click a[href="/confirm_reset_password"]': 'resetPasswordNow'
     },
 
     submit: function () {
@@ -93,6 +94,34 @@ function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMix
 
               this.displayError(err);
             }, this));
+    },
+
+    resetPasswordNow: function (event) {
+      if (event) {
+        // prevent the default anchor hanlder (router.js->watchAnchors)
+        // from sending the user to the confirm_reset_password page.
+        // The redirection for this action is taken care of after
+        // the request is submitted.
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      // Only force auth has the ability to submit a password reset
+      // request from here. See issue #549
+      if (! Session.forceAuth) {
+        console.error('resetPasswordNow can only be called from /force_auth');
+        return;
+      }
+
+      var email = Session.forceEmail;
+      var client = new FxaClient();
+      var self = this;
+      client.passwordReset(email)
+              .then(function () {
+                self.navigate('confirm_reset_password');
+              }, function (err) {
+                self.displayError(err);
+              });
     }
   });
 
@@ -100,4 +129,3 @@ function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMix
 
   return View;
 });
-
