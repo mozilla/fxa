@@ -43,6 +43,19 @@ function (chai, View, Session) {
 
       assert.equal($('#fxa-tos-back').length, 0);
     });
+
+    it('fetches translated text from the backend', function (done) {
+      Session.set('language', 'en-US');
+      view.on('ready', function() {
+        // there is currently an error in the tos/pp repo where the tos
+        // is under the pp dir, and the pp us under the tos dir.
+        assert.ok(view.$('#mozilla-privacy-policy').length);
+        /*assert.ok(view.$('#terms-of-service').length);*/
+
+        done();
+      });
+      view.render();
+    });
   });
 });
 

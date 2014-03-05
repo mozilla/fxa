@@ -57,3 +57,7 @@ app/i18n
 
 ### Strings
 locale/*/*/*.po
+
+### Translated TOS/PP partial templates ###
+server/templates/terms
+server/templates/privacy
