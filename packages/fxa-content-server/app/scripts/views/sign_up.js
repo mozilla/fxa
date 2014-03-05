@@ -120,7 +120,7 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Au
 
       var self = this;
       var client = new FxaClient();
-      client.signUp(email, password, customizeSync)
+      client.signUp(email, password, { customizeSync: customizeSync })
         .then(function (accountData) {
           // this means a user successfully signed in with an already
           // existing account and should be sent on their merry way.
