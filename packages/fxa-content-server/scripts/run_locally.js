@@ -17,14 +17,10 @@ module.exports = function (done) {
 
   var fabPath = path.join(BIN_ROOT, 'fxa-content-server.js');
   var fxaccntbridge = spawn('node', [fabPath]);
-  fxaccntbridge.stdout.on('data', function(data) {
-    console.log(data.toString('utf8').trim());
-  });
-  fxaccntbridge.stderr.on('data', function(data) {
-    console.error(data.toString('utf8').trim());
-  });
+  fxaccntbridge.stdout.pipe(process.stdout);
+  fxaccntbridge.stderr.pipe(process.stderr);
   fxaccntbridge.on('exit', function (code, signal) {
-    console.log('fxa-content-server killed, existing');
+    console.log('fxa-content-server killed, exiting');
     if (done) {
       done(code);
     } else {
