@@ -44,6 +44,14 @@ function (chai, AuthErrors) {
               message: 'this has no errno'
             }), 'this has no errno');
       });
+
+      it('converts an empty error message from the backend to service unavailable', function () {
+        assert.equal(AuthErrors.toMessage(''), 'Service unavailable');
+      });
+
+      it('converts a missing error from the backend to service unavailable', function () {
+        assert.equal(AuthErrors.toMessage(), 'Service unavailable');
+      });
     });
 
     describe('toContext', function () {
