@@ -54,7 +54,7 @@ function (
 
   var Router = Backbone.Router.extend({
     routes: {
-      '': 'redirectToSignup',
+      '(/)': 'redirectToSignup',
       'signin(/)': showView(SignInView),
       'signin_complete(/)': showView(ReadyView, { type: 'sign_in' }),
       'signup(/)': showView(SignUpView),

@@ -50,9 +50,7 @@ define([
 
   pages.forEach(function (path) {
     suite['visit page ' + url + path] = visitFn(path);
-    if (path !== '') {
-      suite['visit page ' + url + path + '/'] = visitFn(path + '/');
-    }
+    suite['visit page ' + url + path + '/'] = visitFn(path + '/');
   });
 
   registerSuite(suite);
