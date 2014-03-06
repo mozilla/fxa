@@ -17,6 +17,11 @@ module.exports = function (grunt) {
       'imagemin',
       'svgmin',
       'htmlmin'
+    ],
+    lint: [
+      'jshint',
+      'jsonlint:app',
+      'jscs'
     ]
   });
 };
