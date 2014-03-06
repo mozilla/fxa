@@ -43,7 +43,7 @@ define([
     return function () {
       return this.get('remote')
         .get(require.toUrl(url + path))
-        .waitForElementById('stage')
+        .waitForElementByCssSelector('#stage > div')
         .end();
     };
   };
