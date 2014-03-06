@@ -21,7 +21,7 @@
     margin: 10px auto;
     min-height: none;
     min-width: 300px;
-    padding: 0 10px 40px 10px;
+    padding: 0 10px;
     width: 100%;
   }
 
@@ -78,6 +78,58 @@
     width: 270px;
   }
 }
+
+@media only screen and (orientation:landscape) and (max-height:480px) {
+  html {
+    background: $stage-background-color;
+  }
+
+  #stage {
+    background-image: url(/images/firefox.png);
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: 30px auto;
+    box-shadow: none;
+    margin: 10px auto;
+    min-height: none;
+    min-width: 300px;
+    max-width:400px;
+    padding: 0 10px 40px 10px;
+    width: 100%;
+  }
+
+  .fox-logo {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    top: 0;
+    width: 0;
+  }
+
+  header h2 {
+    font-size: 20px;
+    font-weight: 200;
+    margin: 0 auto;
+    padding: 10px 0 20px 0;
+  }
+
+  .privacy-links,
+  .links + .privacy-links {
+    font-size: 12px;
+    margin: 10px auto;
+    max-width: 340px;
+  }
+
+  .button-row {
+    margin-top: 20px;
+  }
+
+  .button-row button,
+  .button-row a.button {
+    padding: 10px 0;
+  }
+}
+
 
 /* Retina */
 
