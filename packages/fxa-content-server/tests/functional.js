@@ -18,6 +18,7 @@ define([
   './functional/settings',
   './functional/force_auth',
   './functional/404',
+  './functional/pages',
   './functional/mocha'
 ], function () {
   'use strict';
