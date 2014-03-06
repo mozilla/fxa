@@ -13,6 +13,7 @@ module.exports = function (grunt) {
   grunt.config('po2json', {
     options: {
       format: 'raw',
+      fuzzy: true,
       /*jshint camelcase: false*/
       output_filename: function (file) {
 
