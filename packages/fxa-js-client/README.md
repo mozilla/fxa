@@ -7,7 +7,7 @@ Web client that talks to the Firefox Accounts API server
 
 [__Download Library__](https://github.com/mozilla/fxa-js-client/releases)
 
-Install using [Bower](http://bower.io/): `bower install git://github.com/mozilla/fxa-js-client`
+Install using [Bower](http://bower.io/): `bower install fxa-js-client`
 
 Install using [npm](http://npmjs.org/): `npm install fxa-js-client`
 
