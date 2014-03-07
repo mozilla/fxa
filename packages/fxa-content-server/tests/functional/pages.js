@@ -43,16 +43,14 @@ define([
     return function () {
       return this.get('remote')
         .get(require.toUrl(url + path))
-        .waitForElementById('stage')
+        .waitForElementByCssSelector('#stage > div')
         .end();
     };
   };
 
   pages.forEach(function (path) {
     suite['visit page ' + url + path] = visitFn(path);
-    if (path !== '') {
-      suite['visit page ' + url + path + '/'] = visitFn(path + '/');
-    }
+    suite['visit page ' + url + path + '/'] = visitFn(path + '/');
   });
 
   registerSuite(suite);
