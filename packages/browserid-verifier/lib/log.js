@@ -4,6 +4,4 @@
 
 module.exports = require('intel');
 
-module.exports.basicConfig({
-  format: "%(levelname)s: %(message)s"
-});
+module.exports.config(require('./config').get('logging'));

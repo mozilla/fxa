@@ -6,7 +6,7 @@ const
 express = require('express'),
 http = require('http'),
 toobusy = require('toobusy'),
-log = require('./log'),
+log = require('./log').getLogger('bid.server'),
 config = require('./config'),
 v1api = require('./v1'),
 v2api = require('./v2');

@@ -96,7 +96,7 @@ Verifier.prototype.start = function(cb) {
 
     var m;
     // figure out the bound port
-    if ((m = /^INFO: running on (http:\/\/.*)$/m.exec(line))) {
+    if ((m = /running on (http:\/\/.*)$/m.exec(line))) {
       self._url = m[1];
       if (cb) {
         cb(null, m[1]);
@@ -132,7 +132,7 @@ Verifier.prototype.stop = function(cb) {
   }
   this.process.kill('SIGINT');
   this.process.on('exit', function(code) {
-    cb(code === 0 ? null : "non-zero exit code: " + code);
+    cb(!code ? null : "non-zero exit code: " + code);
   });
 };
 

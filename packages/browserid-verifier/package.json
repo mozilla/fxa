@@ -15,7 +15,7 @@
     "async": "0.2.9",
     "express": "3.4.4",
     "toobusy": "0.2.4",
-    "intel": "0.3.1",
+    "intel": "0.5.2",
     "convict": "0.4.1",
     "underscore": "1.5.2",
     "optimist": "0.6.0"
