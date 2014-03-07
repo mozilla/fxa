@@ -4,9 +4,7 @@
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",
-    "preinstall": "./scripts/lockdown",
     "postinstall": "bower install;cp node_modules/grunt-blanket-mocha/support/* app/bower_components/blanket/src",
-    "lockdown": "./node_modules/.bin/lockdown-relock",
     "test": "intern-runner config=tests/intern",
     "test-browser": "intern-runner config=tests/intern_browser",
     "test-remote": "intern-runner config=tests/intern_sauce",
