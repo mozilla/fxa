@@ -185,9 +185,16 @@ strong.email {
 
 .input-row {
   margin-bottom: 15px;
-  width: 100%;
   position: relative;
+  width: 100%;
+
+  button,
+  input,
+  select {
+    font-family: $default-font-family;
+  }
 }
+
 
 .tooltip {
   background: $error-background-color;
@@ -386,6 +393,7 @@ label:focus ~ .input-help-focused {
   border-radius: 5px;
   color: $message-text-color;
   cursor: pointer;
+  font-family: $default-font-family;
   font-size: 24px;
   padding: 15px 0;
   transition-duration: 150ms;
