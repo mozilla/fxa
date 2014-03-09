@@ -12,7 +12,8 @@ var config = require('../config').root()
 console.log(config)
 console.log(config.i18n.supportedLanguages)
 
-// This list is from fxa-content-server/locale/* (minus README.md, templates/, linux/ and win32/).
+// This list is from fxa-content-server/locale/* (minus README.md, templates/, linux/ and win32/)
+// and includes the debug language it-CH.
 //
 // The reason we do this is because if we were to read our own config, it wouldn't
 // be what is running in production and is actually used. Therefore, for now, we need
@@ -21,6 +22,8 @@ console.log(config.i18n.supportedLanguages)
 // So, when running fxa-content-server, you need to have all of these set up in
 // the fxa-content-server/server/config/local.json.
 var langs = [
+  'it-CH',
+
   'af',
   'an',
   'ar',

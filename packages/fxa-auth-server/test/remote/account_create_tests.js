@@ -149,54 +149,54 @@ TestServer.start(config)
     }
   )
 
-  // test(
-  //   'create account allows localization of emails',
-  //   function (t) {
-  //     var email = server.uniqueEmail()
-  //     var password = 'allyourbasearebelongtous'
-  //     var client = null
-  //     return Client.create(config.publicUrl, email, password)
-  //       .then(
-  //         function (x) {
-  //           client = x
-  //         }
-  //       )
-  //       .then(
-  //         function () {
-  //           return server.mailbox.waitForEmail(email)
-  //         }
-  //       )
-  //       .then(
-  //         function (emailData) {
-  //           t.assert(emailData.text.indexOf('Welcome') !== -1, 'is en')
-  //           t.assert(emailData.text.indexOf('GDay') === -1, 'not en-AU')
-  //           return client.destroyAccount()
-  //         }
-  //       )
-  //       .then(
-  //         function () {
-  //           return Client.create(config.publicUrl, email, password, { lang: 'en-AU' })
-  //         }
-  //       )
-  //       .then(
-  //         function (x) {
-  //           client = x
-  //         }
-  //       )
-  //       .then(
-  //         function () {
-  //           return server.mailbox.waitForEmail(email)
-  //         }
-  //       )
-  //       .then(
-  //         function (emailData) {
-  //           t.assert(emailData.text.indexOf('Welcome') === -1, 'not en')
-  //           t.assert(emailData.text.indexOf('GDay') !== -1, 'is en-AU')
-  //           return client.destroyAccount()
-  //         }
-  //       )
-  //   }
-  // )
+  test(
+    'create account allows localization of emails',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (x) {
+            client = x
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            t.assert(emailData.text.indexOf('Verify') !== -1, 'is en-US')
+            t.assert(emailData.text.indexOf('ʎɟıɹǝɅ') === -1, 'not it-CH')
+            return client.destroyAccount()
+          }
+        )
+        .then(
+          function () {
+            return Client.create(config.publicUrl, email, password, { lang: 'it-CH' })
+          }
+        )
+        .then(
+          function (x) {
+            client = x
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            t.assert(emailData.text.indexOf('Verify') === -1, 'not en-US')
+            t.assert(emailData.text.indexOf('ʎɟıɹǝɅ') !== -1, 'is it-CH')
+            return client.destroyAccount()
+          }
+        )
+    }
+  )
 
   test(
     'Unknown account should not exist',
