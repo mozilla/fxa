@@ -72,9 +72,7 @@ Overdrive.prototype.summary = function (request, response) {
   line.service = payload.service || query.service
   line.redirectTo = payload.redirectTo || query.redirectTo
   line.keys = query.keys
-  if (!line.uid) {
-    line.email = payload.email || query.email
-  }
+  line.email = payload.email || query.email
 
   if (line.code >= 500) {
     line.trace = request.app.traced
