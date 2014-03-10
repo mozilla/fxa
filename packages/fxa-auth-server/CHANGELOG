@@ -1,3 +1,8 @@
+train-05
+  * fixed some i18n issues #611
+  * use npm shrinkwrap #603
+  * don't send verify emails to verified accounts #609
+
 train-04
   * added `lockdown` for stable dependencies #19
   * refactored mysql.js #588
