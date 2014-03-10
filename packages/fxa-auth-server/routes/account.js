@@ -369,6 +369,9 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailResend', request)
         var sessionToken = request.auth.credentials
+        if (sessionToken.emailVerified) {
+          return reply({})
+        }
         mailer.sendVerifyCode(sessionToken, sessionToken.emailCode, {
           service: request.payload.service,
           redirectTo: request.payload.redirectTo,
