@@ -43,31 +43,31 @@ noscript {
   margin: 160px 0 0 0;
 }
 
-.fox-logo {
+#fox-logo {
   background: url(/images/firefox.png);
   background-size: 80px 85px;
   height: 85px;
-  margin: 0 auto -40px auto;
+  margin: 0 auto;
   position: relative;
-  top: -40px;
+  top:40px;
   width: 80px;
   z-index: 999;
 }
 
-#fxa-signup-header.fox-logo {
-  animation: movein 0.5s;
-}
-
 #stage {
-  animation: fadein 0.5s;
+  animation: fadein 1s;
   background: $stage-background-color;
   border-radius: 5px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
-  margin: 80px auto 0 auto;
+  margin: -5px auto 0 auto;
   min-height: 450px;
-  padding: 0 40px 40px 40px;
+  padding: 60px 40px 40px 40px;
   text-align: center;
   width: 420px;
+}
+
+#stage.in-content {
+  margin-top:85px;
 }
 
 .js #stage {
@@ -84,7 +84,8 @@ header h3 {
 
 header h1 {
   font-size: 24px;
-  font-weight: normal;
+  font-weight: 200;
+  margin: 0 0 32px 0;
 }
 
 header h1 span {
@@ -95,7 +96,6 @@ header h1 span {
 header h2 {
   font-size: 24px;
   font-weight: 200;
-  margin: 20px 0 32px 0;
 }
 
 #legal-header h2 {
