@@ -17,5 +17,7 @@ env:
   - NODE_ENV=test DB=mysql
 
 before_script:
+  - "mysql -NBe 'select version()'"
+  - sudo apt-get install libgmp3-dev
   - "mysql -e 'DROP DATABASE IF EXISTS fxa_oauth;'"
   - "mysql -e 'CREATE DATABASE fxa_oauth;'"
