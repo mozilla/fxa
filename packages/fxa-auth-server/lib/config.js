@@ -8,11 +8,30 @@ const path = require('path');
 const convict = require('convict');
 
 const conf = convict({
+  browserid: {
+    issuer: {
+      doc: 'We only accept assertions from this issuer',
+      env: 'ISSUER',
+      default: 'accounts.firefox.com'
+    },
+    verificationUrl: {
+      doc: 'URL to the remote verifier we will use for fxa-assertions',
+      format: 'url',
+      env: 'VERIFICATION_URL',
+      default: 'https://verifier.accounts.firefox.com/v2'
+    }
+  },
   db: {
     driver: {
       env: 'DB',
       format: ['mysql', 'memory'],
       default: 'memory'
+    }
+  },
+  encrypt: {
+    hashAlg: {
+      doc: 'Hash algorithm for storing secrets/codes/tokens.',
+      default: 'sha256'
     }
   },
   env: {
@@ -21,6 +40,13 @@ const conf = convict({
     env: 'NODE_ENV',
     format: ['dev', 'test', 'stage', 'prod'],
     default: 'dev'
+  },
+  expiration: {
+    code: {
+      doc: 'Clients must trade codes for tokens before they expire',
+      format: 'duration',
+      default: 1000 * 60 * 15
+    }
   },
   logging: {
     formatters: {
@@ -75,7 +101,7 @@ const conf = convict({
       env: 'MYSQL_PASSWORD'
     },
     database: {
-      default: 'fxa',
+      default: 'fxa_oauth',
       env: 'MYSQL_DATABASE'
     },
     host: {
@@ -101,6 +127,24 @@ const conf = convict({
       env: 'PORT',
       format: 'port',
       default: 9001
+    }
+  },
+  unique: {
+    clientSecret: {
+      doc: 'Bytes of generated client_secrets',
+      default: 32
+    },
+    code: {
+      doc: 'Bytes of generated codes',
+      default: 32
+    },
+    id: {
+      doc: 'Bytes of generated DB ids',
+      default: 16
+    },
+    token: {
+      doc: 'Bytes of generated tokens',
+      default: 32
     }
   }
 });
