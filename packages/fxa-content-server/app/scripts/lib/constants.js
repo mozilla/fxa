@@ -10,7 +10,9 @@ define([], function () {
     // IE8 has the shortest total length at 2083 bytes and 2048 characters
     // for GET requests.
     // See http://support.microsoft.com/kb/q208427
-    URL_MAX_LENGTH: 2048
+    URL_MAX_LENGTH: 2048,
+
+    FX_DESKTOP_CONTEXT: 'fx_desktop_v1'
   };
 });
 
