@@ -13,9 +13,12 @@ define([
   }
 
   ChannelMock.prototype = {
-    send: function(message, data) {
+    send: function(message, data, done) {
       this.message = message;
       this.data = data;
+      if (done) {
+        done();
+      }
     }
   };
 
