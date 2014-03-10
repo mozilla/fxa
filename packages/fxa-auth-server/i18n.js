@@ -2,77 +2,61 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+module.exports = function (supportedLanguages, defaultLanguage) {
 
-/*  Helper API for dealing with internationalization/localization.
- *
- *  This is a hacky little wrapper around the i18n-abide module, to give
- *  it a nice API for use outside the context of an express app.  If it
- *  works out OK, we should propse the API changes upstream and get rid
- *  of this module.
- *
- */
-
-
-module.exports = function (config) {
-
-  var abide = require('i18n-abide')
-
-  // Configure i18n-abide for loading gettext templates.
-  // This causes it to process the configuration settings, parse the
-  // message files for each language, etc.
-  //
-  // It actually returns an express application with all that state
-  // bundled into a function; we're going to hide that fact with a
-  // bit of a wrapper API, returning the function as if it were a
-  // stateful object with helper methods.
-  var abideObj = abide.abide(
-    {
-      default_lang: config.defaultLang,
-      supported_languages: config.supportedLanguages,
-      translation_directory: config.translationDirectory,
-      translation_type: config.translationType
+  function qualityCmp(a, b) {
+    if (a.quality === b.quality) {
+      return 0
+    } else if (a.quality < b.quality) {
+      return 1
+    } else {
+      return -1
     }
-  )
-
-
-  // Export the parseAcceptLanguage() function as-is.
-  abideObj.parseAcceptLanguage = function(header) {
-    return abide.parseAcceptLanguage(header)
   }
 
-
-  // Export the bestLanguage() function, but using defaults from the config.
-  abideObj.bestLanguage = function(accepted, supported) {
-    if (!supported) {
-      supported = config.supportedLanguages
+  function parseAcceptLanguage(header) {
+    // pl,fr-FR;q=0.3,en-US;q=0.1
+    if (! header || ! header.split) {
+      return []
     }
-    return abide.bestLanguage(accepted, supported)
+    var rawLanguages = header.split(',')
+    var languages = rawLanguages.map(
+      function(rawLanguage) {
+        var parts = rawLanguage.split(';')
+        var q = 1
+        if (parts.length > 1 && parts[1].indexOf('q=') === 0) {
+          var qval = parseFloat(parts[1].split('=')[1])
+          if (isNaN(qval) === false) {
+            q = qval
+          }
+        }
+        return { lang: parts[0].trim(), quality: q }
+      }
+    )
+    languages.sort(qualityCmp)
+    return languages
   }
 
-  // A new function to get a stand-alone 'localization context'
-  // This gives us the properties that i18n-abide attaches to the request
-  // object, without actually having to be an express app.
-  abideObj.localizationContext = function(acceptLang) {
-    var fakeReq = {headers: {}}
-    var fakeResp = {locals: function(){}}
-    if (acceptLang) {
-      fakeReq.headers['accept-language'] = acceptLang
+  function bestLanguage(languages, supportedLanguages, defaultLanguage) {
+    var lower = supportedLanguages.map(function(l) { return l.toLowerCase() })
+    for(var i=0; i < languages.length; i++) {
+      var lq = languages[i]
+      if (lower.indexOf(lq.lang.toLowerCase()) !== -1) {
+        return lq.lang
+      } else if (lower.indexOf(lq.lang.split('-')[0].toLowerCase()) !== -1) {
+        return lq.lang.split('-')[0]
+      }
     }
-    var callWasSynchronous = false;
-    abideObj(fakeReq, fakeResp, function() { callWasSynchronous = true })
-    if (!callWasSynchronous) {
-      throw new Error('uh-oh, the call to i18n-abide was not synchronous!')
-    }
-    var l10n = {}
-    l10n.lang = fakeReq.lang
-    l10n.lang_dir = fakeReq.lang_dir
-    l10n.locale = fakeReq.locale
-    l10n.gettext = fakeReq.gettext.bind(fakeReq)
-    l10n.format = fakeReq.format.bind(fakeReq)
-    return l10n
+    return defaultLanguage
   }
 
-  abideObj.defaultLang = config.defaultLang
-
-  return abideObj
+  return {
+    language: function (header) {
+      return bestLanguage(
+        parseAcceptLanguage(header),
+        supportedLanguages,
+        defaultLanguage
+      ).toLowerCase()
+    }
+  }
 }

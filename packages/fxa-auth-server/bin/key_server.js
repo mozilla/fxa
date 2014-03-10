@@ -45,8 +45,8 @@ function main() {
 
   // TODO: send to the SMTP server directly. In the future this may change
   // to another process that we send an http request to.
-  require('../mailer')(config, log)
-    .then(
+  require('../mailer')(config.smtp, config.i18n.defaultLanguage, config.templateServer, log)
+    .done(
       function(m) {
         mailer = m
         // server public key
@@ -68,7 +68,7 @@ function main() {
           .done(
             function (db) {
               var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, config)
-              server = Server.create(log, error, config, routes, db, i18n)
+              server = Server.create(log, error, config, routes, db)
 
               server.start(
                 function () {

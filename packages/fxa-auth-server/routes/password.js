@@ -196,7 +196,7 @@ module.exports = function (
                 {
                   service: request.payload.service,
                   redirectTo: request.payload.redirectTo,
-                  preferredLang: request.app.preferredLang
+                  acceptLanguage: request.app.acceptLanguage
                 }
               )
               .then(
@@ -256,7 +256,7 @@ module.exports = function (
           {
             service: request.payload.service,
             redirectTo: request.payload.redirectTo,
-            preferredLang: request.app.preferredLang
+            acceptLanguage: request.app.acceptLanguage
           }
         )
         .done(
