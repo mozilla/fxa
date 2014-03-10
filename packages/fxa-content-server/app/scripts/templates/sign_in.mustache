@@ -1,11 +1,9 @@
 <header>
-  <h1 class="fox-logo"><span>{{#t}}Firefox Accounts{{/t}}</span></h1>
-
   {{^forceAuth}}
-    <h2 id="fxa-signin-header">{{#t}}Sign in{{/t}}</h2>
+    <h1 id="fxa-signin-header">{{#t}}Sign in{{/t}}</h1>
   {{/forceAuth}}
   {{#forceAuth}}
-    <h2 id="fxa-force-auth-header">{{#t}}Sign in to continue{{/t}}</h2>
+    <h1 id="fxa-force-auth-header">{{#t}}Sign in to continue{{/t}}</h1>
   {{/forceAuth}}
 </header>
 

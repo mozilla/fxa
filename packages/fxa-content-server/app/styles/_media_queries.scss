@@ -5,11 +5,11 @@
     background: #fff;
   }
 
-  .fox-logo {
+  #fox-logo {
     background: url(/images/firefox.png);
     background-size: 64px 68px;
     height: 68px;
-    margin: 0 auto;
+    margin: 10px auto 0 auto;
     position: relative;
     top: 0;
     width: 64px;
@@ -54,7 +54,7 @@
 }
 
 @media only screen and (max-height: 480px) and (max-width: 320px) {
-  .fox-logo {
+  #fox-logo {
     height: 0;
     width: 0;
   }
@@ -98,7 +98,7 @@
     width: 100%;
   }
 
-  .fox-logo {
+  #fox-logo {
     height: 0;
     margin: 0;
     padding: 0;
@@ -141,7 +141,7 @@
     only screen and (        min-device-pixel-ratio: 2),
     only screen and (                min-resolution: 192dpi),
     only screen and (                min-resolution: 2dppx) {
-  .fox-logo {
+  #fox-logo {
     background-image: url(/images/firefox@2x.png);
   }
 
