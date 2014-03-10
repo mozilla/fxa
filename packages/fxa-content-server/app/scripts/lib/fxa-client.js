@@ -63,7 +63,15 @@ function (FxaClient, $, p, Session, AuthErrors) {
 
                 Session.set(updatedSessionData);
                 if (Session.channel) {
-                  Session.channel.send('login', updatedSessionData);
+                  var defer = p.defer();
+                  Session.channel.send('login', updatedSessionData, function (err) {
+                    if (err) {
+                      defer.reject(err);
+                    } else {
+                      defer.resolve(accountData);
+                    }
+                  });
+                  return defer.promise;
                 } else if (window.console && window.console.warn) {
                   console.warn('Session.channel does not exist');
                 }
