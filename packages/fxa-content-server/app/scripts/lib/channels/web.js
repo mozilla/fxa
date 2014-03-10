@@ -16,7 +16,10 @@ define(function () {
     },
     teardown: function () {
     },
-    send: function () {
+    send: function (command, data, done) {
+      if (done) {
+        done();
+      }
     }
   };
 

@@ -43,6 +43,7 @@ require.config({
 require([
   'backbone',
   'router',
+  'lib/constants',
   'lib/translator',
   'lib/session',
   'lib/url',
@@ -52,6 +53,7 @@ require([
 function (
   Backbone,
   Router,
+  Constants,
   Translator,
   Session,
   Url,
@@ -62,7 +64,7 @@ function (
     var context = Url.searchParam('context');
     var channel;
 
-    if (context === 'fx_desktop_v1') {
+    if (context === Constants.FX_DESKTOP_CONTEXT) {
       // Firefox for desktop native=>FxA glue code.
       channel = new FxDesktopChannel();
     } else {
@@ -86,6 +88,7 @@ function (
   function initSessionFromUrl() {
     setSessionValueFromUrl('service');
     setSessionValueFromUrl('redirectTo');
+    setSessionValueFromUrl('context');
   }
 
   window.router = new Router();

@@ -9,13 +9,14 @@ define([
   'views/base',
   'views/form',
   'stache!templates/sign_in',
+  'lib/constants',
   'lib/session',
   'lib/fxa-client',
   'lib/password-mixin',
   'lib/url',
   'lib/auth-errors'
 ],
-function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMixin, Url, AuthErrors) {
+function (_, BaseView, FormView, SignInTemplate, Constants, Session, FxaClient, PasswordMixin, Url, AuthErrors) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -75,7 +76,11 @@ function (_, BaseView, FormView, SignInTemplate, Session, FxaClient, PasswordMix
       client.signIn(email, password)
             .then(function (accountData) {
               if (accountData.verified) {
-                self.navigate('signin_complete');
+                // Don't switch to settings if we're trying to log in to
+                // Firefox. Firefox will show its own landing page
+                if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
+                  self.navigate('signin_complete');
+                }
               } else {
                 return client.signUpResend()
                   .then(function () {
