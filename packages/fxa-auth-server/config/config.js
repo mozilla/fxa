@@ -245,27 +245,9 @@ module.exports = function (fs, path, url, convict) {
       }
     },
     i18n: {
-      defaultLang: {
+      defaultLanguage: {
         format: String,
         default: "en-US"
-      },
-      supportedLanguages: {
-        doc: "List of languages this deployment should detect and display localized strings.",
-        format: Array,
-        default: ['en-US', 'it-CH'],
-        env: 'I18N_SUPPORTED_LANGUAGES'
-      },
-      translationDirectory: {
-        doc: "The directory where per-locale .json files containing translations reside",
-        format: String,
-        default: "resources/i18n/",
-        env: "I18N_TRANSLATION_DIR"
-      },
-      translationType: {
-        doc: "The file format used for the translations",
-        format: String,
-        default: "key-value-json",
-        env: "I18N_TRANSLATION_TYPE"
       }
     },
     tokenLifetimes: {

@@ -6,7 +6,7 @@ var HEX_STRING = require('../routes/validators').HEX_STRING
 
 module.exports = function (path, url, Hapi, toobusy) {
 
-  function create(log, error, config, routes, db, i18n) {
+  function create(log, error, config, routes, db) {
 
     // Hawk needs to calculate request signatures based on public URL,
     // not the local URL to which it is bound.
@@ -147,14 +147,10 @@ module.exports = function (path, url, Hapi, toobusy) {
         var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
         xff.push(request.info.remoteAddress)
         // Remove empty items from the list, in case of badly-formed header.
-        request.app.remoteAddressChain = xff.filter(function(x){ return x});
+        request.app.remoteAddressChain = xff.filter(function(x){ return x })
 
-        // Select user's preferred language via the accept-language header.
-        var acceptLanguage = request.headers['accept-language']
-        if (acceptLanguage) {
-          var accepted = i18n.parseAcceptLanguage(acceptLanguage)
-          request.app.preferredLang = i18n.bestLanguage(accepted)
-        }
+        request.app.acceptLanguage = request.headers['accept-language']
+
         if (request.headers.authorization) {
           // Log some helpful details for debugging authentication problems.
           log.trace(

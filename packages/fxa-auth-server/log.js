@@ -61,7 +61,7 @@ Overdrive.prototype.summary = function (request, response) {
     errno: response.errno || 0,
     rid: request.id,
     path: request.path,
-    lang: request.app.preferredLang,
+    lang: request.app.acceptLanguage,
     agent: request.headers['user-agent'],
     remoteAddressChain: request.app.remoteAddressChain,
     t: Date.now() - request.info.received

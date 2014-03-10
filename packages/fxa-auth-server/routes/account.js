@@ -136,7 +136,7 @@ module.exports = function (
                 mailer.sendVerifyCode(response.account, response.account.emailCode, {
                   service: form.service,
                   redirectTo: form.redirectTo,
-                  preferredLang: request.app.preferredLang
+                  acceptLanguage: request.app.acceptLanguage
                 })
                 .fail(
                   function (err) {
@@ -372,7 +372,7 @@ module.exports = function (
         mailer.sendVerifyCode(sessionToken, sessionToken.emailCode, {
           service: request.payload.service,
           redirectTo: request.payload.redirectTo,
-          preferredLang: request.app.preferredLang
+          acceptLanguage: request.app.acceptLanguage
         }).done(
           function () {
             reply({})

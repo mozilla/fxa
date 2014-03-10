@@ -10,7 +10,19 @@ var P = require('./promise')
 var handlebars = require("handlebars")
 var request = require('request')
 
-module.exports = function (config, log) {
+module.exports = function (smtpConfig, defaultLanguage, templateServer, log) {
+
+  function templateLanguages() {
+    var dir = fs.readdirSync(path.join(__dirname, 'templates'))
+    var languages = {}
+    for (var i = 0; i < dir.length; i++) {
+      var languageMatch = /(\S+)_(?:reset|verify)\.json$/.exec(dir[i])
+      if (languageMatch) {
+        languages[languageMatch[1]] = true
+      }
+    }
+    return Object.keys(languages)
+  }
   // A map of all the different emails we send. The templates are retrieved from
   // (1) the local `templates/`
   // (2) the 'fxa-content-server'
@@ -20,25 +32,19 @@ module.exports = function (config, log) {
   //     templates['en']['reset']
   //     templates['it-CH']['verify']
   //
-  // We read the languages from config.i18n.supportedLanguages and
-  // the types are currently 'verify' and 'reset'.
   var templates = {}
   var types = [ 'verify', 'reset' ]
+  var supportedLanguages = templateLanguages()
+  var i18n = require('./i18n')(supportedLanguages, defaultLanguage)
 
-  // This function reads the local templates first so that we can startup
-  // without depending on an external service. Once read, we will resolve
-  // the promise so the caller can continue.
   function readLocalTemplates() {
     var p = P.defer()
-
-    var remaining = config.i18n.supportedLanguages.length * types.length;
-    config.i18n.supportedLanguages.forEach(function(lang) {
-      // somewhere to store the templates
+    var remaining = supportedLanguages.length * types.length
+    supportedLanguages.forEach(function(language) {
+      var lang = language.toLowerCase()
       templates[lang] = templates[lang] || {}
-
       types.forEach(function(type) {
-        // read the *.json file
-        var filename = path.join(__dirname, 'templates', lang + '_' + type + '.json')
+        var filename = path.join(__dirname, 'templates', language + '_' + type + '.json')
         fs.readFile(filename, { encoding : 'utf8' }, function(err, data) {
           if (err) {
             log.warn({ op: 'mailer.readLocalTemplates', err: err })
@@ -46,12 +52,10 @@ module.exports = function (config, log) {
           else {
             templates[lang][type] = JSON.parse(data)
 
-            // compile the templates
             templates[lang][type].html = handlebars.compile(templates[lang][type].html)
             templates[lang][type].text = handlebars.compile(templates[lang][type].text)
           }
 
-          // whether we errored or not, count down so we know when to resolve
           remaining -= 1
           if ( remaining === 0 ) {
             p.resolve()
@@ -66,7 +70,7 @@ module.exports = function (config, log) {
   function fetchTemplates() {
     var p = P.defer()
 
-    var remaining = config.i18n.supportedLanguages.length * types.length;
+    var remaining = supportedLanguages.length * types.length
 
     function checkRemaining() {
       if ( remaining === 0 ) {
@@ -74,13 +78,14 @@ module.exports = function (config, log) {
       }
     }
 
-    config.i18n.supportedLanguages.forEach(function(lang) {
+    supportedLanguages.forEach(function(language) {
+      var lang = language.toLowerCase()
       // somewhere to store the templates
       templates[lang] = templates[lang] || {}
 
       types.forEach(function(type) {
         var opts = {
-          uri : config.templateServer.url + '/template/' + lang + '/' + type,
+          uri : templateServer.url + '/template/' + language + '/' + type,
           json : true,
         }
         request(opts, function(err, res, body) {
@@ -118,22 +123,22 @@ module.exports = function (config, log) {
   }
 
 
-  function Mailer(smtp) {
+  function Mailer(config) {
     var options = {
-      host: config.smtp.host,
-      secureConnection: config.smtp.secure,
-      port: config.smtp.port
+      host: config.host,
+      secureConnection: config.secure,
+      port: config.port
     }
-    if (config.smtp.user && config.smtp.password) {
+    if (config.user && config.password) {
       options.auth = {
-        user: config.smtp.user,
-        pass: config.smtp.password
+        user: config.user,
+        pass: config.password
       }
     }
     this.mailer = nodemailer.createTransport('SMTP', options)
-    this.sender = config.smtp.sender
-    this.verificationUrl = config.smtp.verificationUrl
-    this.passwordResetUrl = config.smtp.passwordResetUrl
+    this.sender = config.sender
+    this.verificationUrl = config.verificationUrl
+    this.passwordResetUrl = config.passwordResetUrl
   }
 
   Mailer.prototype.stop = function () {
@@ -168,16 +173,16 @@ module.exports = function (config, log) {
   // - opts : object of options:
   //   - service : the service we came from
   //   - redirectTo : where to redirect the user once clicked
-  //   - preferredLang : the preferred language of the user
+  //   - acceptLanguage : the preferred language of the user
   Mailer.prototype.sendVerifyCode = function (account, code, opts) {
     log.trace({ op: 'mailer.sendVerifyCode', email: account.email, uid: account.uid })
     code = code.toString('hex')
     opts = opts || {}
 
-    var lang = opts.preferredLang || config.defaultLang
-    lang = lang in templates ? lang : 'en-US'
+    var lang = i18n.language(opts.acceptLanguage)
+    lang = lang in templates ? lang : 'en-us'
 
-    var template = templates[lang].verify || templates[config.defaultLang].verify
+    var template = templates[lang].verify || templates[defaultLanguage].verify
     var query = {
       uid: account.uid.toString('hex'),
       code: code
@@ -215,14 +220,14 @@ module.exports = function (config, log) {
   // - opts : object of options:
   //   - service : the service we came from
   //   - redirectTo : where to redirect the user once clicked
-  //   - preferredLang : the preferred language of the user
+  //   - acceptLanguage : the preferred language of the user
   Mailer.prototype.sendRecoveryCode = function (token, code, opts) {
     log.trace({ op: 'mailer.sendRecoveryCode', email: token.email })
     code = code.toString('hex')
     opts = opts || {}
-    var lang = opts.preferredLang || config.defaultLang
-    lang = lang in templates ? lang : 'en-US'
-    var template = templates[lang].reset || templates[config.defaultLang].reset
+    var lang = i18n.language(opts.acceptLanguage)
+    lang = lang in templates ? lang : 'en-us'
+    var template = templates[lang].reset || templates[defaultLanguage].reset
     var query = {
       token: token.data.toString('hex'),
       code: code,
@@ -253,11 +258,10 @@ module.exports = function (config, log) {
   }
 
   // fetch the templates first, then resolve the new Mailer
-  var p = P.defer()
-  readLocalTemplates().then(function() {
+  return readLocalTemplates().then(function() {
     // Now that the local templates have been read in, we can now read them from the
     // fxa-content-server for any updates.
-    fetchTemplates().then(
+    fetchTemplates().done(
       function() {
         log.info({ op: 'mailer.fetchTemplates', msg : 'All ok' })
       },
@@ -265,8 +269,6 @@ module.exports = function (config, log) {
         log.error({ op: 'mailer.fetchTemplates', err: err })
       }
     )
-
-    return p.resolve(new Mailer(config.smtp))
+    return new Mailer(smtpConfig)
   })
-  return p.promise
 }
