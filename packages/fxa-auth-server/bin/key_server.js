@@ -32,7 +32,6 @@ function main() {
 
   var error = require('../error')
   var Token = require('../tokens')(log, config.tokenLifetimes)
-  var i18n = require('../i18n')(config.i18n)
 
   // signer compute-cluster
   var CC = require('compute-cluster')
