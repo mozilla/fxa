@@ -18,7 +18,7 @@ define([
 
   // channel should not be cleared from memory or else fxa-client.js
   // will blow up when sending the login message.
-  var DO_NOT_CLEAR = ['channel'];
+  var DO_NOT_CLEAR = ['channel', 'context'];
 
   function Session() {
     this.load();
