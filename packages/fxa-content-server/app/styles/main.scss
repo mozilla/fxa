@@ -517,13 +517,14 @@ ul.links li {
   font-size: 16px;
   height: 43px;
   line-height: 44px;
+  min-width: 55px;
+  padding: 0 7px;
   position: absolute;
   right: 1px;
   top: 1px;
   // it is very easy to accidentally select the text when clicking
   -webkit-touch-callout: none;
   user-select: none;
-  width: 55px;
 }
 
 .password-row > .password:hover {
