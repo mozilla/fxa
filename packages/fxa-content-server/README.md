@@ -29,7 +29,7 @@ npm start
 ### Setup
 There is quite a bit of setup to do before you can test this service, which is non-optimal, but for now:
 
-  * Set up saucelabs credentials (we have an opensource account: `SAUCE_USERNAME=intern-example-ci` `SAUCE_ACCESS_KEY=89ac3089-17b3-4e9b-aaf3-c475b27fa441`)
+  * Set up saucelabs credentials (we have an opensource account: `SAUCE_USERNAME=fxa-content` `SAUCE_ACCESS_KEY=ee5354a4-3d5e-47a0-84b0-0b7aaa12a720`)
   * PhantomJS: `phantomjs --webdriver=4444` (see [Prerequisites](#prerequisites))
   * Run the Firefox Content Server locally: `npm start`
   * Run an instance of the [fxa-auth-server](https://github.com/mozilla/fxa-auth-server) at 127.0.0.1:9000.
@@ -37,8 +37,8 @@ There is quite a bit of setup to do before you can test this service, which is n
 e.g. in shell form:
 
 ```
-export SAUCE_USERNAME=intern-example-ci
-export SAUCE_ACCESS_KEY=89ac3089-17b3-4e9b-aaf3-c475b27fa441
+export SAUCE_USERNAME=fxa-content
+export SAUCE_ACCESS_KEY=ee5354a4-3d5e-47a0-84b0-0b7aaa12a720
 phantomjs --webdriver=4444 &
 cd fxa-auth-server
 npm start &
