@@ -58,7 +58,7 @@ define([
           .click()
         .end()
 
-        .waitForElementById('fxa-sign-in-complete-header')
+        .waitForElementById('fxa-settings-header')
         .end();
     },
 
