@@ -11,10 +11,8 @@ module.exports = function (grunt) {
         pattern: /This Source Code Form is subject to the terms of the Mozilla Public/
       },
       src: [
-        '**/*.js',
-        '!<%= yeoman.app %>/bower_components/**',
-        '!<%= yeoman.dist %>/**',
-        '!node_modules/**'
+        '{,<%= yeoman.app %>/**/,grunttasks/**/,scripts/**/,server/**/,tests/**/}*.js',
+        '!<%= yeoman.app %>/bower_components/**'
       ]
     }
   });

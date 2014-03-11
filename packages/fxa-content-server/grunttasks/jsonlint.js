@@ -14,14 +14,11 @@ module.exports = function (grunt) {
     },
     app: {
       src: [
-        '**/*.json',
+        '{,<%= yeoman.app %>/**/}*.json',
         '!<%= yeoman.app %>/bower_components/**',
         '!<%= yeoman.app %>/i18n/**',
         '!<%= yeoman.app %>/scripts/vendor/**',
-        '!<%= yeoman.app %>/tests/**',
-        '!<%= yeoman.dist %>/**',
-        '!<%= yeoman.server %>/**',
-        '!node_modules/**'
+        '!<%= yeoman.app %>/tests/**'
       ]
     },
     i18n: {
