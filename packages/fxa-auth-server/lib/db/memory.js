@@ -31,6 +31,7 @@ const unique = require('../unique');
  *   },
  *   tokens: {
  *     <token>: {
+ *       token: <string>,
  *       clientId: <client_id>,
  *       userId: <user_id>,
  *       type: <string>,
@@ -62,6 +63,9 @@ function clone(obj) {
 }
 
 MemoryStore.prototype = {
+  ping: function ping() {
+    return Promise.resolve();
+  },
   registerClient: function registerClient(client) {
     logger.debug('registerClient', client.name);
     client.id = unique.id();

@@ -10,6 +10,11 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: '/__heartbeat__',
+    config: require('./routes/heartbeat')
+  },
+  {
+    method: 'GET',
     path: '/oauth/authorization',
     config: require('./routes/authorization')
   },

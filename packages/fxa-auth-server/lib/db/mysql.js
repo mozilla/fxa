@@ -79,6 +79,19 @@ const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
 
 MysqlStore.prototype = {
 
+  ping: function ping() {
+    logger.debug('ping');
+    var d = Promise.defer();
+    this._connection.ping(function(err) {
+      if (err) {
+        logger.error('ping:', err);
+        return d.reject(err);
+      }
+      d.resolve();
+    });
+    return d.promise;
+  },
+
   registerClient: function registerClient(client) {
     logger.debug('registerClient: %s', client.name);
     var d = Promise.defer();
