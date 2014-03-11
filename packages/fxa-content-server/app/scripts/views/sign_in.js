@@ -79,7 +79,7 @@ function (_, BaseView, FormView, SignInTemplate, Constants, Session, FxaClient, 
                 // Don't switch to settings if we're trying to log in to
                 // Firefox. Firefox will show its own landing page
                 if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
-                  self.navigate('signin_complete');
+                  self.navigate('settings');
                 }
               } else {
                 return client.signUpResend()
