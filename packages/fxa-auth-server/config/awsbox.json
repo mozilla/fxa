@@ -1,4 +1,5 @@
 {
+  "env": "dev",
   "db": {
     "backend": "mysql"
   },
