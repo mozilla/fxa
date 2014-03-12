@@ -22,98 +22,108 @@ var fs = require('fs');
 var path = require('path');
 var logger = require('intel').getLogger('route.get-terms-privacy');
 var Promise = require('bluebird');
+var config = require('../configuration');
 
-var TOS_ROOT_PATH = path.join(__dirname, '..', '..', 'templates', 'terms');
-var PP_ROOT_PATH = path.join(__dirname, '..', '..', 'templates', 'privacy');
+var PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dist');
+var TOS_ROOT_PATH = path.join(PAGE_TEMPLATE_DIRECTORY, 'terms');
+var PP_ROOT_PATH = path.join(PAGE_TEMPLATE_DIRECTORY, 'privacy');
 
-var DEFAULT_LANG = 'en-US';
+var DEFAULT_LANG = config.get('i18n.defaultLang');
 
-exports.method = 'get';
 
-// Match (allow for optional trailing slash):
-// * /legal/terms
-// * /<locale>/legal/terms
-// * /legal/privacy
-// * /<locale>/legal/privacy
-exports.path = /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
+module.exports = function verRoute (i18n) {
 
-function getRoot(type) {
-  return type === 'terms' ? TOS_ROOT_PATH : PP_ROOT_PATH;
-}
+  var route = {};
+  route.method = 'get';
 
-function normalizeLanguage(lang) {
-  // filenames have a '-' in them, browsers report with a '_'.
-  return lang.replace(/_/g, '-');
-}
+  // Match (allow for optional trailing slash):
+  // * /legal/terms
+  // * /<locale>/legal/terms
+  // * /legal/privacy
+  // * /<locale>/legal/privacy
+  route.path = /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
 
-var resolverCache = {};
-function getTemplate(type, lang, done) {
-  lang = normalizeLanguage(lang);
-  var templatePath = path.join(getRoot(type), lang + '.html');
-
-  // cache the promises to avoid multiple concurrent checks for
-  // the same template due to async calls to the file system.
-  if (resolverCache[templatePath]) {
-    return resolverCache[templatePath].promise;
+  function getRoot(type) {
+    return type === 'terms' ? TOS_ROOT_PATH : PP_ROOT_PATH;
   }
 
-  var resolver = Promise.defer();
-  resolverCache[templatePath] = resolver;
+  var templateCache = {};
+  function getTemplate(type, lang) {
+    var templatePath = path.join(getRoot(type), lang + '.html');
+    var resolver = Promise.defer();
 
-  fs.exists(templatePath, function (exists) {
-    if (! exists) {
-      if (lang === DEFAULT_LANG) {
-        var err = new Error(type + ' missing `' + DEFAULT_LANG + '` template');
-        return resolver.reject(err);
-      }
-
-      return resolver.resolve(null);
+    // cache the promises to avoid multiple concurrent checks for
+    // the same template due to async calls to the file system.
+    if (templateCache[templatePath]) {
+      resolver.resolve(templateCache[templatePath]);
+      return resolver.promise;
     }
 
-    fs.readFile(templatePath, 'utf8', function(err, data) {
-      if (err) {
-        return resolver.reject(err);
+    fs.exists(templatePath, function (exists) {
+      if (! exists) {
+        var bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
+
+        if (lang === DEFAULT_LANG) {
+          var err = new Error(type + ' missing `' + DEFAULT_LANG + '` template: ' + templatePath);
+          return resolver.reject(err);
+        } else if (lang !== bestLang) {
+          logger.warn('`%s` does not exist, trying `%s`', lang, bestLang);
+          return resolver.resolve(getTemplate(type, bestLang));
+        }
+
+
+        templateCache[templatePath] = null;
+        return resolver.resolve(null);
       }
 
-      resolver.resolve(data);
+      fs.readFile(templatePath, 'utf8', function(err, data) {
+        if (err) {
+          return resolver.reject(err);
+        }
+
+        templateCache[templatePath] = data;
+        resolver.resolve(data);
+      });
     });
-  });
 
-  return resolver.promise;
-}
-
-exports.process = function (req, res) {
-  var lang = req.params[0];
-  var page = req.params[1];
-
-  if (! lang) {
-    // abide should put a lang on the request, if not, use the default.
-    return res.redirect(getRedirectURL(req.lang || DEFAULT_LANG, page));
+    return resolver.promise;
   }
 
-  getTemplate(page, lang)
-    .then(function (template) {
-      if ( ! template) {
-        logger.warn('%s->`%s` does not exist, redirecting to `%s`',
-                           page, lang, DEFAULT_LANG);
-        return res.redirect(getRedirectURL(DEFAULT_LANG, page));
-      }
+  route.process = function (req, res) {
+    var lang = req.params[0];
+    var page = req.params[1];
 
-      res.format({
-        'text/partial': function () {
-          res.send(template);
-        },
-        'text/html': function () {
-          res.render(page, { body: template });
+    if (! lang) {
+      // abide should put a lang on the request, if not, use the default.
+      return res.redirect(getRedirectURL(req.lang || DEFAULT_LANG, page));
+    }
+
+    getTemplate(page, lang)
+      .then(function (template) {
+        if (! template) {
+          logger.warn('%s->`%s` does not exist, redirecting to `%s`',
+                             page, lang, DEFAULT_LANG);
+          return res.redirect(getRedirectURL(DEFAULT_LANG, page));
         }
+
+        res.format({
+          'text/partial': function () {
+            res.send(template);
+          },
+          'text/html': function () {
+            res.render(page, { body: template });
+          }
+        });
+      }, function(err) {
+        logger.error(err);
+        return res.send(500, 'uh oh: ' + String(err));
       });
-    }, function(err) {
-      logger.error(err);
-      return res.send(500, 'uh oh: ' + String(err));
-    });
-};
+  };
 
-function getRedirectURL(lang, page) {
-  return lang + '/legal/' + page;
+  function getRedirectURL(lang, page) {
+    return lang + '/legal/' + page;
+  }
+
+  return route;
+
 }
-

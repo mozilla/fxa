@@ -17,20 +17,22 @@
         <!-- endbuild -->
     </head>
     <body>
+        <!--[if lt IE 8]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <div id="fox-logo"></div>
+        <div id="stage">
+          <header id="legal-header">
+            <h3>{{#t}}Firefox cloud services{{/t}}</h3>
+            <h1 id="fxa-tos-header">{{#t}}Terms of Service{{/t}}</h1>
+          </header>
 
-      <div id="stage">
-        <header id="legal-header">
-          <h1 class="fox-logo"><span>{{#t}}Firefox Accounts{{/t}}</span></h1>
-          <h3>{{#t}}Firefox cloud services{{/t}}</h3>
-          <h2 id="fxa-tos-header">{{#t}}Terms of Service{{/t}}</h2>
-        </header>
-
-        <section>
-          <article id="legal-copy">
-            {{{ body }}}
-          </article>
-        </section>
-      </div>
+          <section>
+            <article id="legal-copy">
+              {{{ body }}}
+            </article>
+          </section>
+        </div>
 
     </body>
 </html>

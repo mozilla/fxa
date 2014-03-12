@@ -53,7 +53,7 @@ define([
     return function () {
       return this.get('remote')
         .get(require.toUrl(url + path))
-        .waitForElementByCssSelector('#stage > div')
+        .waitForElementByCssSelector('#stage header')
         .end();
     };
   };

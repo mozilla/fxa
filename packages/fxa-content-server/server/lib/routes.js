@@ -13,9 +13,7 @@ var config = require('./configuration');
 var logger = require('intel').getLogger('server.routes');
 
 /**
- * Steal a concept from Persona and load routes from definition
- * files in the `routes` subdirectory. Each definition must contain
- * 3 attributes, method, path and process.
+ * Each route has 3 attributes: method, path and process.
  * method is one of `GET`, `POST`, etc.
  * path is a string or regular expression that express uses to match a route.
  * process is a function that is called with req and res to handle the route.
@@ -24,30 +22,15 @@ function isValidRoute(route) {
   return !! route.method && route.path && route.process;
 }
 
-function loadRouteDefinitions(routesPath) {
-  var routes = [];
+module.exports = function (config, templates, i18n) {
 
-  fs.readdirSync(routesPath).forEach(function (file) {
-    // skip files that don't have a .js suffix or start with a dot
-    if (path.extname(file) !== '.js' || /^\./.test(file)) {
-      return logger.info('route definition not loaded: %s', file);
-    }
+  var ver = require('./routes/get-ver.json');
+  var termsPrivacy = require('./routes/get-terms-privacy')(i18n);
 
-    var route = require(path.join(routesPath, file));
-    if (! isValidRoute(route)) {
-      return logger.error('route definition invalid: %s', file);
-    }
-
-    routes.push(route);
-  });
-
-  return routes;
-}
-
-var routesPath = path.join(__dirname, 'routes');
-var routes = loadRouteDefinitions(routesPath);
-
-module.exports = function (config, templates) {
+  var routes = [
+    ver,
+    termsPrivacy
+  ];
 
   var authServerHost = url.parse(config.get('fxaccount_url')).hostname;
 
@@ -119,6 +102,9 @@ module.exports = function (config, templates) {
     });
 
     routes.forEach(function (route) {
+      if (! isValidRoute(route)) {
+        return logger.error('route definition invalid: ', route);
+      }
       app[route.method](route.path, route.process);
     });
   };

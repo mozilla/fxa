@@ -21,9 +21,9 @@ module.exports = function (grunt) {
     tmp: TEMP_DIR,
     // Translated TOS/PP agreements.
     tos_pp_repo_dest: TOS_PP_REPO_ROOT,
-    tos_md_src: TOS_PP_REPO_ROOT + '/firefox_online_services_ToS/',
-    tos_html_dest: TEMPLATE_ROOT + '/terms',
-    pp_md_src: TOS_PP_REPO_ROOT + '/firefox_online_services_PrivacyNotice/',
-    pp_html_dest: TEMPLATE_ROOT + '/privacy'
+    tos_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_ToS/',
+    tos_html_dest: TEMPLATE_ROOT + '/pages/dist/terms',
+    pp_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_PrivacyNotice/',
+    pp_html_dest: TEMPLATE_ROOT + '/pages/dist/privacy'
   });
 };
