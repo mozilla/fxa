@@ -54,3 +54,6 @@ server/config/local.json
 
 ### Localization JSON ###
 app/i18n
+
+### Strings
+locales/*/*/*.po

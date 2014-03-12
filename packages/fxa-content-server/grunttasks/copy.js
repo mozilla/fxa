@@ -6,6 +6,16 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.config('copy', {
+    strings: {
+      files: [{
+        expand: true,
+        cwd: '<%= yeoman.strings_src %>',
+        dest: '<%= yeoman.strings_dist %>',
+        src: [
+          '**/*.po'
+        ]
+      }]
+    },
     server_templates: {
       files: [{
         // server side rendered templates. Copied so requirejs can
