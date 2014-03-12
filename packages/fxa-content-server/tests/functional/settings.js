@@ -143,41 +143,41 @@ define([
         .end();
     },
 
-    // 'go to settings page, delete account': function () {
-    //   return this.get('remote')
-    //     .get(require.toUrl(SETTINGS_URL))
-    //     .waitForElementById('fxa-settings-header')
-    //     .end()
+    'go to settings page, delete account': function () {
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
+        .waitForElementById('fxa-settings-header')
+        .end()
 
-    //     // Go to delete account screen
-    //     .elementById('delete-account')
-    //       .click()
-    //     .end()
+        // Go to delete account screen
+        .elementById('delete-account')
+          .click()
+        .end()
 
-    //     // success is going to the delete account page
-    //     .waitForElementById('fxa-delete-account-header')
-    //     .end()
+        // success is going to the delete account page
+        .waitForElementById('fxa-delete-account-header')
+        .end()
 
-    //     // fill out username/password
-    //     .elementByCssSelector('form input.email')
-    //       .click()
-    //       .type(email)
-    //     .end()
+        // fill out username/password
+        .elementByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
 
-    //     .elementByCssSelector('form input.password')
-    //       .click()
-    //       .type(SECOND_PASSWORD)
-    //     .end()
+        .elementByCssSelector('form input.password')
+          .click()
+          .type(SECOND_PASSWORD)
+        .end()
 
-    //     // delete account
-    //     .elementByCssSelector('button[type="submit"]')
-    //       .click()
-    //     .end()
+        // delete account
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
 
-    //     // success is going to the signup page
-    //     .waitForElementById('fxa-signup-header')
-    //     .end();
-    // }
+        // success is going to the signup page
+        .waitForElementById('fxa-signup-header')
+        .end();
+    }
 
   });
 });

@@ -16,9 +16,9 @@ define([
     'v1/verify_email',
     '',
     'signin',
-    'signin_complete',,
+    'signin_complete',
     'signup',
-    'signup_complete',,
+    'signup_complete',
     'cannot_create_account',
     'verify_email',
     'confirm',
@@ -32,6 +32,7 @@ define([
     'complete_reset_password',
     'reset_password_complete',
     'force_auth',
+    'delete_account',
     'non_existent'
   ];
 
