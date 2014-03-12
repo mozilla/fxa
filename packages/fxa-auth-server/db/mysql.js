@@ -77,67 +77,94 @@ module.exports = function (
   function createSchema(options) {
     log.trace( { op: 'MySql.createSchema' } )
 
-    var d = P.defer()
-
-    // To create the schema we need to switch multipleStatements on
-    // as well as connecting without a database name, but switching to it
-    // once it has been created.
-    options.master.multipleStatements = true
+    // To create the database, we need to connect without a database name.
+    // Once it has been created, we switch to it.
     var database = options.master.database
     delete options.master.database
 
+    // To create the schema we need to switch multipleStatements on
+    options.master.multipleStatements = true
+
     var client = mysql.createConnection(options.master)
 
-    log.trace( { op: 'MySql.createSchema:CreateDatabase' } )
-    client.query(
-      'CREATE DATABASE IF NOT EXISTS ' + database + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci',
-      function (err) {
-        if (err) {
-          log.error({ op: 'MySql.createSchema:CreateDatabase', err: err.message })
-          return d.reject(err)
-        }
-        log.trace( { op: 'MySql.createSchema : changing user' } )
-        client.changeUser(
-          {
-            user     : options.master.user,
-            password : options.master.password,
-            database : database
-          },
-          function (err) {
-            if (err) {
-              log.error({ op: 'MySql.createSchema:ChangeUser', err: err.message })
-              return d.reject(err)
-            }
-            log.trace( { op: 'MySql.createSchema:MakingTheSchema' } )
-            client.query(
-              schema,
-              function (err) {
-                if (err) {
-                  log.trace( { op: 'MySql.createSchema:ClosingTheClient', err: err.message } )
-                  return d.reject(err)
-                }
-                client.end(
-                  function (err) {
-                    if (err) {
-                      log.error({ op: 'MySql.createSchema:End', err: err.message })
-                      return d.reject(err)
-                    }
-
-                    // put these options back
-                    options.master.database = database
-                    delete options.master.multipleStatements
-
-                    // create the mysql class
-                    d.resolve(new MySql(options))
-                  }
-                )
-              }
-            )
+    function createDatabase() {
+      var d = P.defer()
+      log.trace( { op: 'MySql.createSchema:CreateDatabase' } )
+      client.query(
+        'CREATE DATABASE IF NOT EXISTS ' + database + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci',
+        function (err) {
+          if (err) {
+            log.error({ op: 'MySql.createSchema:CreateDatabase', err: err.message })
+            return d.reject(err)
           }
-        )
-      }
-    )
-    return d.promise
+          d.resolve()
+        }
+      )
+      return d.promise
+    }
+
+    function changeUser() {
+      var d = P.defer()
+      log.trace( { op: 'MySql.createSchema:ChangeUser' } )
+      client.changeUser(
+        {
+          user     : options.master.user,
+          password : options.master.password,
+          database : database
+        },
+        function (err) {
+          if (err) {
+            log.error({ op: 'MySql.createSchema:ChangeUser', err: err.message })
+            return d.reject(err)
+          }
+          d.resolve()
+        }
+      )
+      return d.promise
+    }
+
+    function makeSchema() {
+      var d = P.defer()
+      log.trace( { op: 'MySql.createSchema:MakingTheSchema' } )
+      client.query(
+        schema,
+        function (err) {
+          if (err) {
+            log.trace( { op: 'MySql.createSchema:MakingTheSchema', err: err.message } )
+            return d.reject(err)
+          }
+          d.resolve()
+        }
+      )
+      return d.promise
+    }
+
+    function closeAndReconnect() {
+      var d = P.defer()
+      log.trace( { op: 'MySql.createSchema:CloseAndReconnect' } )
+      client.end(
+        function (err) {
+          if (err) {
+            log.error({ op: 'MySql.createSchema:Closed', err: err.message })
+            return d.reject(err)
+          }
+
+          // put these options back
+          options.master.database = database
+          delete options.master.multipleStatements
+
+          // create the mysql class
+          log.trace( { op: 'MySql.createSchema:ResolvingWithNewClient' } )
+          d.resolve(new MySql(options))
+        }
+      )
+      return d.promise
+    }
+
+    return createDatabase()
+      .then(changeUser)
+      .then(makeSchema)
+      .then(closeAndReconnect)
   }
 
   // this will be called from outside this file
