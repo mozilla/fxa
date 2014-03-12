@@ -52,10 +52,6 @@ module.exports = function (grunt) {
         done();
       });
     });
-
-    grunt.task.run([
-      'l10n-merge'
-    ]);
   });
 };
 

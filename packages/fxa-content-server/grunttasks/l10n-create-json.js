@@ -22,7 +22,7 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      'l10n-fetch-strings',
+      'copy:strings',
       'po2json'
     ]);
   });

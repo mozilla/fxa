@@ -7,8 +7,12 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2014-02-19 21:13+0000\n"
+"POT-Creation-Date: 2014-03-12 19:50+0000\n"
 
+#: server/templates/pages/src/404.html:1
+#: server/templates/pages/src/index.html:1
+#: server/templates/pages/dist/404.html:1
+#: server/templates/pages/dist/index.html:1
 #: server/templates/email/reset.html:1
 #: server/templates/email/reset.html:2
 #: server/templates/email/reset.txt:1
@@ -16,6 +20,28 @@ msgstr ""
 #: server/templates/email/verify.html:2
 #: server/templates/email/verify.txt:1
 msgid "Firefox Accounts"
+msgstr ""
+
+#: server/templates/pages/src/404.html:2
+#: server/templates/pages/dist/404.html:2
+msgid "Page not found"
+msgstr ""
+
+#: server/templates/pages/src/404.html:3
+#: server/templates/pages/dist/404.html:3
+msgid ""
+"The page you requested is not found. We've been notified and will fix any "
+"links that may be broken."
+msgstr ""
+
+#: server/templates/pages/src/404.html:4
+#: server/templates/pages/dist/404.html:4
+msgid "Home"
+msgstr ""
+
+#: server/templates/pages/src/index.html:2
+#: server/templates/pages/dist/index.html:2
+msgid "Firefox Accounts requires JavaScript."
 msgstr ""
 
 #: server/templates/email/reset.html:3
@@ -53,10 +79,10 @@ msgstr ""
 msgid "Verify:"
 msgstr ""
 
-#: server/lib/templates.js:30
+#: server/lib/templates.js:35
 msgid "Confirm Your Account"
 msgstr ""
 
-#: server/lib/templates.js:35
+#: server/lib/templates.js:40
 msgid "Reset Password Request"
 msgstr ""
