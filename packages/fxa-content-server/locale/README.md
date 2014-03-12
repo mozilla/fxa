@@ -10,12 +10,28 @@ After you've added new strings to source, you'll need to extract them and update
 
     grunt extract-l10n
 
-This will also update the other locales with any new strings.
+## Updating the l10n repo
+
+After extracting new strings, you'll have to update the l10n repo so that localizers can begin translation.
+
+First, check out the l10n repo from github:
+
+  git clone https://github.com/mozilla/fxa-content-server-l10n.git
+
+Then copy the .pot files to that repo:
+
+  cp -r locale/templates/ ../fxa-content-server-l10n/locale/templates/
+
+Then run `merge_po.sh` from within fxa-content-server-l10n:
+
+  ./scripts/merge_po.sh locale
+
+Commit the merged .po files to master and enjoy.
 
 ## Updating translations
 
-Translators will update the `.po` files in this repo directly. To convert the new translations into JSON for the app to use, run:
+Translators will update the `.po` files in the l10n repo, which are downloaded as a bower dependency. To convert the new translations into JSON for the app to use, run:
 
-    grunt po2json
+    grunt l10n-create-json
 
 The JSON is not included under version control– they're regenerated on each deployment.

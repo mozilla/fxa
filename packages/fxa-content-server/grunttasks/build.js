@@ -10,7 +10,6 @@ module.exports = function (grunt) {
     'clean:dist',
     'useminPrepare',
     'selectconfig:dist',
-    'copy:strings',
     'l10n-create-json',
     // server templates are needed for requirejs to replace the require script
     'copy:server_templates',
