@@ -121,6 +121,7 @@ module.exports = function (fxAccountUrl, templates) {
       '/confirm_reset_password',
       '/complete_reset_password',
       '/reset_password_complete',
+      '/delete_account',
       '/force_auth'
     ];
 
