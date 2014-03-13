@@ -39,8 +39,8 @@ module.exports = function (crypto, P, hkdf, butil, error) {
     return deriveBundleKeys(key, keyInfo, payload.length)
       .then(
         function (keys) {
-          var ciphertext = butil.xorBuffers(payload, keys[1])
-          var hmac = crypto.createHmac(HASH_ALGORITHM, keys[0])
+          var ciphertext = butil.xorBuffers(payload, keys.xorKey);
+          var hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
           hmac.update(ciphertext)
           var mac = hmac.digest()
           return Buffer.concat([ciphertext, mac]).toString('hex')
@@ -58,13 +58,13 @@ module.exports = function (crypto, P, hkdf, butil, error) {
     return deriveBundleKeys(key, keyInfo, ciphertext.length)
       .then(
         function (keys) {
-          var hmac = crypto.createHmac(HASH_ALGORITHM, keys[0])
+          var hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
           hmac.update(ciphertext)
           var mac = hmac.digest()
           if (!butil.buffersAreEqual(mac, expectedHmac)) {
             throw error.invalidSignature()
           }
-          return butil.xorBuffers(ciphertext, keys[1])
+          return butil.xorBuffers(ciphertext, keys.xorKey);
         }
       )
   }
@@ -76,9 +76,8 @@ module.exports = function (crypto, P, hkdf, butil, error) {
     return hkdf(key, keyInfo, null, 32 + payloadSize)
       .then(
         function (keyMaterial) {
-          var hmacKey = keyMaterial.slice(0, 32)
-          var xorKey = keyMaterial.slice(32)
-          return [hmacKey, xorKey]
+          return { hmacKey: keyMaterial.slice(0, 32),
+                   xorKey: keyMaterial.slice(32) };
         }
       )
   }
