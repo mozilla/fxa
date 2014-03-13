@@ -38,25 +38,30 @@ The currently-defined error responses are:
 
 ## API Endpoints
 
-- [GET /oauth/authorization][authorization]
+- [POST /oauth/authorization][authorization]
 - [POST /oauth/token][token]
 
-### GET /oauth/authorization
+### POST /oauth/authorization
+
+This endpoint should be used by the fxa-content-server, requesting that
+we supply a short-lived code (currently 15 minutes) that will be sent
+back to the client. This code will be traded for a token at the
+[token][] endpoint.
 
 #### Request Parameters
 
 - `client_id`: The id returned from client registration.
 - `assertion`: A FxA assertion for the signed-in user.
+- `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
-- `state`: Optional. If supplied, will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
 
 #### Response
 
 A valid request will cause a 302 redirect to the `redirect_uri`, with the following query parameters included:
 
 - `code`: A string that the client will trade with the [token][] endpoint. Codes have a configurable expiration value, default is 15 minutes.
-- `state`: Optional. If supplied above, will be the same value.
+- `state`: The same value as was passed as a request parameter.
 
 Example:
 
@@ -65,6 +70,11 @@ https://example.domain/path?foo=bar&code=asdfqwerty&state=zxcvasdf
 ```
 
 ### POST /oauth/token
+
+After having received a [code][], the client sends that code (most
+likely a server-side request) to this endpoint, to receive a
+longer-lived token that can be used to access attached services for a
+particular user.
 
 #### Request Parameters
 
@@ -77,7 +87,7 @@ https://example.domain/path?foo=bar&code=asdfqwerty&state=zxcvasdf
 A valid request will return a JSON response with these properties:
 
 - `access_token`: A string that can be used for authorized requests to service providers.
-- `scopes`: An array of scopes that this token has permission for. May differ from requested scopes, since user can deny permissions.
+- `scope`: A string of space-separated permissions that this token has. May differ from requested scopes, since user can deny permissions.
 - `token_type`: A string representing the token type. Currently will always be "bearer".
 
 Example:
@@ -90,5 +100,5 @@ Example:
 }
 ```
 
-[authorization]: #get-oauthauthorization
+[authorization]: #post-oauthauthorization
 [token]: #post-oauthtoken
