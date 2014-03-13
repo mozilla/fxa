@@ -51,17 +51,6 @@ module.exports = function (fxAccountUrl, templates) {
 
   var authServerHost = url.parse(fxAccountUrl).hostname;
 
-
-  // Use a DNS lookup to get the ip address of the auth-server
-  function authServerIpAsync(cb) {
-    dns.lookup(authServerHost, function (err, address) {
-      if (err) {
-        return cb(err);
-      }
-      return cb(null, address);
-    });
-  }
-
   return function (app) {
     // handle password reset links
     app.get('/v1/complete_reset_password', function (req, res) {
@@ -80,15 +69,7 @@ module.exports = function (fxAccountUrl, templates) {
     });
 
     app.get('/template/:lang/:type', function (req, res) {
-      authServerIpAsync(function (err, address) {
-        if (err) {
-          return res.send(500, err);
-        } else if (req.ip !== address) {
-          // Only the configured auth-server is allowed to get our templates
-          return res.send(403, 'Forbidden');
-        }
-        res.json(templates(req.params.lang, req.params.type));
-      });
+      res.json(templates(req.params.lang, req.params.type));
     });
 
     // front end mocha tests
