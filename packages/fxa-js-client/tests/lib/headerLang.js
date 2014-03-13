@@ -30,7 +30,7 @@ define([
         var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
-          lang: 'it-CH;'
+          lang: 'it-ch;'
         };
 
         return respond(client.signUp(email, password, opts), RequestMocks.signUp)
@@ -41,7 +41,7 @@ define([
           .then(
             function (emails) {
               assert.property(emails[0], 'headers');
-              assert.equal(emails[0].headers['content-language'], 'it-CH');
+              assert.equal(emails[0].headers['content-language'], 'it-ch');
             },
             assert.notOk
           );
@@ -70,7 +70,7 @@ define([
           .then(
             function (emails) {
               assert.property(emails[1], 'headers');
-              assert.equal(emails[1].headers['content-language'], 'it-CH');
+              assert.equal(emails[1].headers['content-language'], 'it-ch');
             },
             assert.notOk
           )
@@ -97,7 +97,7 @@ define([
           .then(
             function (emails) {
               assert.property(emails[1], 'headers');
-              assert.equal(emails[1].headers['content-language'], 'it-CH');
+              assert.equal(emails[1].headers['content-language'], 'it-ch');
             },
             assert.notOk
           )
