@@ -1,15 +1,13 @@
 <header>
   <h1 id="fxa-delete-account-header">{{#t}}Delete account{{/t}}</h1>
-  <h3>{{#t}}Are you sure you want to delete your account? This action cannot be undone.{{/t}}</h3>
 </header>
 
 <section>
   <div class="error"></div>
 
   <form novalidate>
-    <div class="input-row">
-      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" autofocus>
-    </div>
+    <p>{{#t}}Are you sure you want to delete your account? This action cannot be undone.{{/t}}</p>
+    <p class="prefill">{{ email }}</p>
 
     <div class="input-row password-row">
       <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} />
@@ -22,7 +20,7 @@
     </div>
 
     <div class="button-row">
-      <button type="submit" class="disabled">{{#t}}Delete Account{{/t}}</button>
+      <button type="submit" class="disabled">{{#t}}Delete account{{/t}}</button>
     </div>
   </form>
 

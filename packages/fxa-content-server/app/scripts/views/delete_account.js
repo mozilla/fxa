@@ -28,14 +28,14 @@ function (_, FormView, Template, Session, FxaClient, PasswordMixin) {
 
     context: function () {
       return {
-        isSync: Session.service === 'sync'
+        isSync: Session.service === 'sync',
+        email: Session.email
       };
     },
 
     submit: function () {
-      var email = this.$('.email').val();
+      var email = this.context().email;
       var password = this.$('.password').val();
-
       var client = new FxaClient();
       var self = this;
       client.deleteAccount(email, password)
