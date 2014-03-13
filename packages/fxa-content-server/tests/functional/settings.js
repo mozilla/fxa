@@ -158,12 +158,6 @@ define([
         .waitForElementById('fxa-delete-account-header')
         .end()
 
-        // fill out username/password
-        .elementByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
         .elementByCssSelector('form input.password')
           .click()
           .type(SECOND_PASSWORD)

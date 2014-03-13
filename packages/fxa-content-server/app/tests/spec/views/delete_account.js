@@ -62,41 +62,24 @@ function (chai, $, View, FxaClient, Session, RouterMock) {
       });
 
       describe('isValid', function () {
-        it('returns true if email and password are filled out', function () {
-          $('form input[type=email]').val(email);
+        it('returns true if password is filled out', function () {
           $('form input[type=password]').val(password);
 
           assert.equal(view.isValid(), true);
         });
 
-        it('returns false if not an email', function () {
-          $('form input[type=email]').val('notanemail');
-          $('form input[type=password]').val(password);
-
-          assert.equal(view.isValid(), false);
-        });
-
         it('returns false if password is too short', function () {
-          $('form input[type=email]').val(email);
           $('form input[type=password]').val('passwor');
 
           assert.equal(view.isValid(), false);
         });
+
+        it('displays user email in session', function () {
+          assert.equal($('.prefill').text(), email);
+        });
       });
 
       describe('showValidationErrors', function() {
-        it('shows an error if the email is invalid', function (done) {
-          view.$('[type=email]').val('testuser');
-          view.$('[type=password]').val('password');
-
-          view.on('validation_error', function(which, msg) {
-            assert.ok(msg);
-            done();
-          });
-
-          view.showValidationErrors();
-        });
-
         it('shows an error if the password is invalid', function (done) {
           view.$('[type=email]').val('testuser@testuser.com');
           view.$('[type=password]').val('passwor');

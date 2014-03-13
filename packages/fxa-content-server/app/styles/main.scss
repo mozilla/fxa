@@ -118,6 +118,11 @@ section p {
   font-size: 18px;
 }
 
+section p.prefill {
+  color: $input-placeholder-color;
+  margin-top: 24px;
+}
+
 #legal-copy {
   text-align: left;
 }
