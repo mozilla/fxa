@@ -605,14 +605,14 @@ input[type="text"] ~ .show-password-label:hover {
 .spinner {
   animation: 0.9s spin infinite linear;
   background-image: url(/images/spinnerlight.png);
-  background-size: 30px 30px;
+  background-size: 36px 36px;
   display: block;
-  height: 30px;
+  height: 36px;
   margin: 130px auto 0;
   overflow: hidden;
   text-indent: 100%;
   white-space: nowrap;
-  width: 30px;
+  width: 36px;
 }
 
 /* TODO: (Issue #558) These need further consideration */
