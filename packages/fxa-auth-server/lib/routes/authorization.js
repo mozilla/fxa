@@ -44,6 +44,7 @@ module.exports = {
         .max(256),
       state: Joi.string()
         .max(256)
+        .required()
     }
   },
   handler: function authorizationEndpoint(req, reply) {

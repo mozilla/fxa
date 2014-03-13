@@ -114,7 +114,7 @@ describe('/oauth', function() {
       it('is required', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION
+          url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION
         }).then(function(res) {
           assertRequestParam(res.result, 'client_id');
         }).done(done, done);
@@ -123,7 +123,7 @@ describe('/oauth', function() {
       it('succeeds if passed', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
+          url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
             '&client_id=' + clientId
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
@@ -136,7 +136,7 @@ describe('/oauth', function() {
 
       it('is required', function(done) {
         Server.get({
-          url: '/oauth/authorization?client_id=' + clientId
+          url: '/oauth/authorization?state=1&client_id=' + clientId
         }).then(function(res) {
           assertRequestParam(res.result, 'assertion');
         }).done(done, done);
@@ -145,7 +145,7 @@ describe('/oauth', function() {
       it('succeeds if passed', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
+          url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
             '&client_id=' + clientId
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
@@ -155,7 +155,7 @@ describe('/oauth', function() {
       it('errors correctly if invalid', function(done) {
         mockAssertion().reply(400, '{"status":"failure"}');
         Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
+          url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
             '&client_id=' + clientId
         }).then(function(res) {
           assert.equal(res.result.code, 400);
@@ -169,7 +169,7 @@ describe('/oauth', function() {
       it('is optional', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
+          url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
             '&client_id=' + clientId + '&redirect_uri=' + client.redirectUri
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
@@ -179,8 +179,8 @@ describe('/oauth', function() {
       it('must be same as registered redirect', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION + '&client_id='
-            + clientId + '&redirect_uri=http://derp.herp'
+          url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION
+            + '&client_id=' + clientId + '&redirect_uri=http://derp.herp'
         }).then(function(res) {
           assert.equal(res.result.code, 400);
           assert.equal(res.result.message, 'Incorrect redirect_uri');
@@ -189,7 +189,16 @@ describe('/oauth', function() {
     });
 
     describe('?state', function() {
-      it('is returned if passed', function(done) {
+      it('is required', function(done) {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        Server.get({
+          url: '/oauth/authorization?&assertion=' + AN_ASSERTION +
+            '&client_id=' + clientId
+        }).then(function(res) {
+          assertRequestParam(res.result, 'state');
+        }).done(done, done);
+      });
+      it('is returned', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.get({
           url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
@@ -205,8 +214,8 @@ describe('/oauth', function() {
       it('is optional', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.get({
-          url: '/oauth/authorization?scope=1&assertion=' + AN_ASSERTION +
-            '&client_id=' + clientId
+          url: '/oauth/authorization?state=1&scope=1&assertion='
+            + AN_ASSERTION + '&client_id=' + clientId
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
         }).done(done, done);
@@ -218,7 +227,7 @@ describe('/oauth', function() {
         it('should redirect to the redirect_uri', function(done) {
           mockAssertion().reply(200, VERIFY_GOOD);
           Server.get({
-            url: '/oauth/authorization?assertion=' + AN_ASSERTION +
+            url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
               '&client_id=' + clientId + '&redirect_uri=' + client.redirectUri
           }).then(function(res) {
             assert.equal(res.statusCode, 302);
@@ -324,7 +333,7 @@ describe('/oauth', function() {
         db.registerClient(client2).then(function() {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.get({
-            url: '/oauth/authorization?assertion=' + AN_ASSERTION +
+            url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
               '&client_id=' + client2.id.toString('hex')
           }).then(function(res) {
             return url.parse(res.headers.location, true).query.code;
@@ -356,7 +365,7 @@ describe('/oauth', function() {
         }
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
+          url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
             '&client_id=' + clientId
         }).then(function(res) {
           return url.parse(res.headers.location, true).query.code;
@@ -380,7 +389,7 @@ describe('/oauth', function() {
       it('should return a correct response', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
         Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
+          url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
             '&client_id=' + clientId + '&scope=foo%20bar%20bar'
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
