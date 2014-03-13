@@ -53,6 +53,7 @@ Overdrive.prototype.stat = function (stats) {
 }
 
 Overdrive.prototype.summary = function (request, response) {
+  if (request.method === 'options') { return }
   var payload = request.payload || {}
   var query = request.query || {}
   var line = {
