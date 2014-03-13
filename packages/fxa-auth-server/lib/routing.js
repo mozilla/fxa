@@ -14,7 +14,7 @@ module.exports = [
     config: require('./routes/heartbeat')
   },
   {
-    method: 'GET',
+    method: 'POST',
     path: '/oauth/authorization',
     config: require('./routes/authorization')
   },
