@@ -398,7 +398,7 @@ describe('/oauth', function() {
           assert(res.result.access_token);
           assert.equal(res.result.access_token.length,
             config.get('unique.token') * 2);
-          assert.deepEqual(res.result.scopes, ['foo', 'bar']);
+          assert.equal(res.result.scope, 'foo bar');
         }).done(done, done);
       });
     });
