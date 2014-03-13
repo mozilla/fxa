@@ -14,7 +14,7 @@ define([
         var context = 'sessionToken';
         var sessionToken = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf';
 
-        return hawkCredentials(sessionToken, context, 2 * 32)
+        return hawkCredentials(sessionToken, context, 3 * 32)
           .then(
             function (result) {
               var hmacKey = sjcl.codec.hex.fromBits(result.key);

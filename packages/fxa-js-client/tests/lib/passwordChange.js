@@ -33,6 +33,7 @@ define([
         var password = 'iliketurtles';
         var newPassword = 'ilikefoxes';
         var uid;
+        var oldCreds;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function (result) {
@@ -48,9 +49,14 @@ define([
           .then(function () {
             return respond(client._passwordChangeStart(email, password), RequestMocks.passwordChangeStart);
           })
-          .then(function (oldCreds) {
+          .then(function (credentials) {
+            oldCreds = credentials;
 
-            return respond(client._passwordChangeFinish(email, newPassword, oldCreds), RequestMocks.passwordChangeFinish);
+            return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
+          })
+          .then(function (keys) {
+
+            return respond(client._passwordChangeFinish(email, newPassword, oldCreds, keys), RequestMocks.passwordChangeFinish);
           })
           .then(function (result) {
             assert.ok(result, '{}');
@@ -61,13 +67,16 @@ define([
             function (res) {
               assert.property(res, 'sessionToken');
             },
-            assert.notOk
+            function (err) {
+              throw err;
+            }
           )
       });
 
       test('#with incorrect case', function () {
         var newPassword = 'ilikefoxes';
         var account;
+        var oldCreds;
 
         return accountHelper.newVerifiedAccount()
           .then(function (acc) {
@@ -76,9 +85,15 @@ define([
 
             return respond(client._passwordChangeStart(incorrectCaseEmail, account.input.password), RequestMocks.passwordChangeStart);
           })
-          .then(function (oldCreds) {
+          .then(function (credentials) {
 
-            return respond(client._passwordChangeFinish(account.input.email, newPassword, oldCreds), RequestMocks.passwordChangeFinish);
+            oldCreds = credentials;
+
+            return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
+          })
+          .then(function (keys) {
+
+            return respond(client._passwordChangeFinish(account.input.email, newPassword, oldCreds, keys), RequestMocks.passwordChangeFinish);
           })
           .then(function (result) {
             assert.ok(result, '{}');
@@ -89,7 +104,9 @@ define([
             function (res) {
               assert.property(res, 'sessionToken');
             },
-            assert.notOk
+            function (err) {
+              throw err;
+            }
           )
       });
 
@@ -125,6 +142,7 @@ define([
         var newPassword = 'ilikefoxes';
         var wrongPassword = '12345678';
         var uid;
+        var oldCreds;
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function (result) {
@@ -140,9 +158,14 @@ define([
           .then(function () {
             return respond(client._passwordChangeStart(email, password), RequestMocks.passwordChangeStart);
           })
-          .then(function (oldCreds) {
+          .then(function (credentials) {
+            oldCreds = credentials
 
-            return respond(client._passwordChangeFinish(email, newPassword, oldCreds), RequestMocks.passwordChangeFinish);
+            return respond(client._passwordChangeKeys(oldCreds), RequestMocks.accountKeys);
+          })
+          .then(function (keys) {
+
+            return respond(client._passwordChangeFinish(email, newPassword, oldCreds, keys), RequestMocks.passwordChangeFinish);
           })
           .then(function (result) {
             assert.ok(result);
