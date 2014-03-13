@@ -1,3 +1,4 @@
+-- create all tables
 
 CREATE TABLE IF NOT EXISTS accounts (
   uid BINARY(16) PRIMARY KEY,
@@ -54,3 +55,5 @@ CREATE TABLE IF NOT EXISTS passwordChangeTokens (
   createdAt BIGINT UNSIGNED NOT NULL,
   INDEX session_uid (uid)
 ) ENGINE=InnoDB;
+
+UPDATE dbMetadata SET value = '2' WHERE name = 'schema-patch-level';
