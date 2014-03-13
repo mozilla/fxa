@@ -43,7 +43,7 @@ define(['client/lib/errors'], function (ERRORS) {
     },
     mailSignUpLang: {
       status: 200,
-      body: '[{"html":"Mocked code=9001","headers": {"content-language": "it-CH" }}]'
+      body: '[{"html":"Mocked code=9001","headers": {"content-language": "it-ch" }}]'
     },
     mailServiceAndRedirect: {
       status: 200,
@@ -63,7 +63,7 @@ define(['client/lib/errors'], function (ERRORS) {
     },
     resetMailLang: {
       status: 200,
-      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"content-language": "it-CH" }}]'
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001","headers": {"content-language": "it-ch" }}]'
     },
     recoveryEmailUnverified: {
       status: 200,
