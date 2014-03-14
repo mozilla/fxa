@@ -8,6 +8,7 @@ define([
   'tests/lib/verifyCode',
   'tests/lib/request',
   'tests/lib/hkdf',
+  'tests/lib/unbundle',
   'tests/lib/credentials',
   'tests/lib/hawkCredentials',
   'tests/lib/passwordChange',

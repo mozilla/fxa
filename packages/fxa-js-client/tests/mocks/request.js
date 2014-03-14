@@ -12,7 +12,7 @@ define(['client/lib/errors'], function (ERRORS) {
     signUpKeys: {
       status: 200,
       headers: {},
-      body: '{ "uid": "0577e7a5fbf448e3bc60dacbff5dcd5c", "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d","keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c"  }'
+      body: '{ "uid": "0577e7a5fbf448e3bc60dacbff5dcd5c", "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130"  }'
     },
     signIn: {
       status: 200,
@@ -27,7 +27,7 @@ define(['client/lib/errors'], function (ERRORS) {
     signInWithKeys: {
       status: 200,
       headers: {},
-      body: '{"uid": "4c352927cd4f4a4aa03d7d1893d950b8", "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d","keyFetchToken": "7d1893d950b8cd69856a2ec81cbfd7d1893d950b3362df9e56a2ec81cbf19d5c","verified": true, "unwrapBKey": "deadbeef"}'
+      body: '{"uid": "5d576e2cd3604981a8c05f6ea67fce5b", "sessionToken": "9c1fe2a0643ce23aa1b44afbe30e28d33e5726558cab215314980fc85875684f","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130","verified": true, "unwrapBKey": "1117fc77fca3e2181f7ae6dd2a63aa69cd4058afa102a4439315c71a2f94dc99"}'
     },
     heartbeat: {
       status: 200,
@@ -91,7 +91,7 @@ define(['client/lib/errors'], function (ERRORS) {
     },
     passwordChangeStart: {
       status: 200,
-      body: '{ "keyFetchToken": "fa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad", "passwordChangeToken": "0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215b", "verified": true }'
+      body: '{ "keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130", "passwordChangeToken": "0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215b", "verified": true }'
     },
     passwordChangeFinish: {
       status: 200,
@@ -111,7 +111,7 @@ define(['client/lib/errors'], function (ERRORS) {
     },
     accountKeys: {
       status: 200,
-      body: '{ "bundle": "d486e79c9f3214b0010fe31bfb50fa6c12e1d093f7770c81c6b1c19c7ee375a6558dd1ab38dbc5eba37bc3cfbd6ac040c0208a48ca4f777688a1017e98cedcc1c36ba9c4595088d28dcde5af04ae2215bce907aa6e74dd68481e3edc6315d47efa6c7b6536e8c0adff9ca426805e9479607b7c105050f1391dffed2a9826b8ad"}'
+      body: '{ "bundle": "7f1a9633560774251a2d317b4539e04bcb14a767ec92e3b3f4d438fdad984831f6d1e1b0d93c23d312bf0859270dc8c0e6ebcae4c499f3a604881fc57683459b01cdfd04757835b0334a80728ce40cf50dce32bb365d8a0ac868bb747bf8aca4"}'
     },
     accountDevices: {
       status: 200,

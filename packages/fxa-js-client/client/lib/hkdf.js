@@ -23,11 +23,11 @@ define(['sjcl', 'p'], function (sjcl, P) {
     // compute the PRK
     var prk = mac.digest();
 
-    var buffers = [];
     // hash length is 32 because only sjcl.hash.sha256 is used at this moment
     var hashLength = 32;
     var num_blocks = Math.ceil(length / hashLength);
     var prev = sjcl.codec.hex.toBits('');
+    var output = '';
 
     for (var i = 0; i < num_blocks; i++) {
       var hmac = new sjcl.misc.hmac(prk, sjcl.hash.sha256);
@@ -40,15 +40,10 @@ define(['sjcl', 'p'], function (sjcl, P) {
       hmac.update(input);
 
       prev = hmac.digest();
-      buffers.push(prev);
+      output += sjcl.codec.hex.fromBits(prev);
     }
 
-    var output = buffers[0];
-    if (buffers.length > 1) {
-      output = sjcl.bitArray.concat.apply(null, buffers);
-    }
-
-    var truncated = sjcl.bitArray.clamp(output, length * 8);
+    var truncated = sjcl.bitArray.clamp(sjcl.codec.hex.toBits(output), length * 8);
 
     return P(truncated);
   }

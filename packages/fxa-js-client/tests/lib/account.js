@@ -59,12 +59,12 @@ define([
 
         return accountHelper.newVerifiedAccount()
           .then(function (account) {
-
-            return respond(client.accountKeys(account.signIn.keyFetchToken), RequestMocks.accountKeys)
+            return respond(client.accountKeys(account.signIn.keyFetchToken, account.signIn.unwrapBKey), RequestMocks.accountKeys)
           })
           .then(
             function(keys) {
-              assert.ok(keys.bundle);
+              assert.property(keys, 'kA');
+              assert.property(keys, 'kB');
             },
             assert.notOk
           );

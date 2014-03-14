@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./hawk', 'p', './errors'], function (hawk, p, ERRORS) {
+define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
   'use strict';
   /* global XMLHttpRequest */
 
@@ -37,7 +37,7 @@ define(['./hawk', 'p', './errors'], function (hawk, p, ERRORS) {
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   Request.prototype.send = function request(path, method, credentials, jsonPayload, options) {
-    var deferred = p.defer();
+    var deferred = P.defer();
     var xhr = new this.xhr();
     var uri = this.baseUri + path;
     var payload;

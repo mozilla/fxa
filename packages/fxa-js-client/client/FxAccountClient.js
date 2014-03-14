@@ -1,7 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./lib/request', 'sjcl', './lib/credentials', './lib/hawkCredentials', './lib/errors'], function (Request, sjcl, credentials, hawkCredentials, ERRORS) {
+define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredentials', './lib/errors'],
+  function (Request, sjcl, P, credentials, hawkCredentials, ERRORS) {
   'use strict';
 
   /**
@@ -339,14 +340,33 @@ define(['./lib/request', 'sjcl', './lib/credentials', './lib/hawkCredentials', '
    *
    * @method accountKeys
    * @param {String} keyFetchToken
-   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   * @param {String} oldUnwrapBKey
+   * @return {Promise} A promise that will be fulfilled with JSON of {kA, kB}  of the key bundle
    */
-  FxAccountClient.prototype.accountKeys = function(keyFetchToken) {
+  FxAccountClient.prototype.accountKeys = function(keyFetchToken, oldUnwrapBKey) {
     var self = this;
 
-    return hawkCredentials(keyFetchToken, 'keyFetchToken',  2 * 32)
+    return hawkCredentials(keyFetchToken, 'keyFetchToken',  3 * 32)
       .then(function(creds) {
-        return self.request.send('/account/keys', 'GET', creds);
+        var bundleKey = sjcl.codec.hex.fromBits(creds.bundleKey);
+
+        return self.request.send('/account/keys', 'GET', creds)
+          .then(
+            function(payload) {
+
+              return credentials.unbundleKeyFetchResponse(bundleKey, payload.bundle);
+              });
+      })
+      .then(function(keys) {
+        return {
+          kB: sjcl.codec.hex.fromBits(
+            credentials.xor(
+              sjcl.codec.hex.toBits(keys.wrapKB),
+              sjcl.codec.hex.toBits(oldUnwrapBKey)
+            )
+          ),
+          kA: keys.kA
+        };
       });
   };
 
@@ -383,30 +403,30 @@ define(['./lib/request', 'sjcl', './lib/credentials', './lib/hawkCredentials', '
 
     return credentials.setup(email, password)
       .then(
-      function (result) {
-        var data = {
-          email: result.emailUTF8,
-          authPW: sjcl.codec.hex.fromBits(result.authPW)
-        };
+        function (result) {
+          var data = {
+            email: result.emailUTF8,
+            authPW: sjcl.codec.hex.fromBits(result.authPW)
+          };
 
-        return self.request.send('/account/destroy', 'POST', null, data)
-          .then(
-            function(response) {
-              return response;
-            },
-            function(error) {
-              // if incorrect email case error
-              if (error && error.email && error.errno === ERRORS.INCORRECT_EMAIL_CASE && !options.skipCaseError) {
-                options.skipCaseError = true;
+          return self.request.send('/account/destroy', 'POST', null, data)
+            .then(
+              function(response) {
+                return response;
+              },
+              function(error) {
+                // if incorrect email case error
+                if (error && error.email && error.errno === ERRORS.INCORRECT_EMAIL_CASE && !options.skipCaseError) {
+                  options.skipCaseError = true;
 
-                return self.accountDestroy(error.email, password, options);
-              } else {
-                throw error;
+                  return self.accountDestroy(error.email, password, options);
+                } else {
+                  throw error;
+                }
               }
-            }
-          );
-      }
-    );
+            );
+        }
+      );
   };
 
   /**
@@ -460,10 +480,17 @@ define(['./lib/request', 'sjcl', './lib/credentials', './lib/hawkCredentials', '
     var self = this;
 
     return self._passwordChangeStart(email, oldPassword)
-      .then(function (oldCreds) {
+      .then(function (credentials) {
 
-        return self._passwordChangeFinish(email, newPassword, oldCreds);
+        var oldCreds = credentials;
+
+        return self._passwordChangeKeys(oldCreds)
+          .then(function (keys) {
+
+            return self._passwordChangeFinish(email, newPassword, oldCreds, keys);
+        });
       });
+
   };
 
   /**
@@ -512,35 +539,43 @@ define(['./lib/request', 'sjcl', './lib/credentials', './lib/hawkCredentials', '
   /**
    * Second step to change the password.
    *
+   * @method _passwordChangeKeys
+   * @private
+   * @param {Object} oldCreds This object should consists of `oldUnwrapBKey`, `keyFetchToken` and `passwordChangeToken`.
+   * @return {Promise} A promise that will be fulfilled with JSON of `xhr.responseText`
+   */
+  FxAccountClient.prototype._passwordChangeKeys = function(oldCreds) {
+
+    return this.accountKeys(oldCreds.keyFetchToken, oldCreds.oldUnwrapBKey);
+  };
+
+  /**
+   * Third step to change the password.
+   *
    * @method _passwordChangeFinish
    * @private
    * @param {String} email
    * @param {String} newPassword
-   * @param {Object} oldCreds This object should consists of `oldUnwrapBKey` and `passwordChangeToken`.
+   * @param {Object} oldCreds This object should consists of `oldUnwrapBKey`, `keyFetchToken` and `passwordChangeToken`.
    * @return {Promise} A promise that will be fulfilled with JSON of `xhr.responseText`
    */
-  FxAccountClient.prototype._passwordChangeFinish = function(email, newPassword, oldCreds) {
+  FxAccountClient.prototype._passwordChangeFinish = function(email, newPassword, oldCreds, keys) {
     var self = this;
-    var wrapKb;
-    var authPW;
+    var p1 = credentials.setup(email, newPassword);
+    var p2 = hawkCredentials(oldCreds.passwordChangeToken, 'passwordChangeToken',  2 * 32);
 
-    return credentials.setup(email, newPassword)
-      .then(function(newCreds) {
-        wrapKb = sjcl.codec.hex.fromBits(
-          credentials.wrap(
-            sjcl.codec.hex.toBits(oldCreds.oldUnwrapBKey),
+    return P.all([p1, p2])
+      .spread(function(newCreds, hawkCreds) {
+        var newWrapKb = sjcl.codec.hex.fromBits(
+          credentials.xor(
+            sjcl.codec.hex.toBits(keys.kB),
             newCreds.unwrapBKey
           )
         );
 
-        authPW = sjcl.codec.hex.fromBits(newCreds.authPW);
-
-        return hawkCredentials(oldCreds.passwordChangeToken, 'passwordChangeToken',  2 * 32);
-      }).then(function(hawkCreds) {
-
         return self.request.send('/password/change/finish', 'POST', hawkCreds, {
-          wrapKb: wrapKb,
-          authPW: authPW
+          wrapKb: newWrapKb,
+          authPW: sjcl.codec.hex.fromBits(newCreds.authPW)
         });
       });
   };
