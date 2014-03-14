@@ -7,8 +7,9 @@ define([
   'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient) {
+  'app/bower_components/fxa-js-client/fxa-client',
+  'app/scripts/lib/constants'
+], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants) {
   'use strict';
 
   var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
@@ -51,9 +52,26 @@ define([
         .end();
     },
 
+    'go to settings page from the desktop context, make sure the user cannot sign out': function () {
+      return this.get('remote')
+        // Temporary solution to force the correct context.
+        // TODO: (Issue #742) Refactor functional tests to not share state between tests
+        .get(require.toUrl(SETTINGS_URL + '?context=' + Constants.FX_DESKTOP_CONTEXT))
+        .waitForElementById('fxa-settings-header')
+
+        // make sure the sign out element doesn't exist
+        .hasElementById('signout')
+          .then(function(hasElement) {
+            assert(!hasElement);
+          })
+        .end();
+    },
+
     'go to settings page, sign out': function () {
       return this.get('remote')
-        .get(require.toUrl(SETTINGS_URL))
+        // Temporary solution to force the correct context.
+        // TODO: (Issue #742) Refactor functional tests to not share state between tests
+        .get(require.toUrl(SETTINGS_URL + '?context=none'))
         .waitForElementById('fxa-settings-header')
 
         // sign the user out

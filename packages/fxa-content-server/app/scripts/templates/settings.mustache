@@ -9,9 +9,11 @@
 
 
   <ul class="links">
-    <li>
-      <a id="signout" href="#">{{#t}}Sign out{{/t}}</a>
-    </li>
+    {{#showSignOut}}
+      <li>
+        <a id="signout" href="#">{{#t}}Sign out{{/t}}</a>
+      </li>
+    {{/showSignOut}}
     <li>
       <a id="change-password" href="/change_password">{{#t}}Change password{{/t}}</a>
     </li>

@@ -8,8 +8,9 @@
 'use strict';
 
 define([
-  'underscore'
-], function (_) {
+  'underscore',
+  'lib/constants'
+], function (_, Constants) {
   var NAMESPACE = '__fxa_session';
 
   // channel is initialized on app startup
@@ -104,6 +105,12 @@ define([
         delete this[key];
         this.persist();
       }
+    },
+
+    // Convenience functions for data stored in session
+
+    isDesktopContext: function () {
+      return this.get('context') === Constants.FX_DESKTOP_CONTEXT;
     },
 
     // BEGIN TEST API
