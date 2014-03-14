@@ -11,6 +11,8 @@ module.exports = function (grunt) {
     server: 'fxa-auth-server',
     page_template_src: 'server/templates/pages/src',
     page_template_dist: 'server/templates/pages/dist',
+    strings_src: 'app/bower_components/fxa-content-server-l10n/locale',
+    strings_dist: 'locale',
     tests: 'tests',
     tmp: '.tmp'
   });
