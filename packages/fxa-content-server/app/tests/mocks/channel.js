@@ -9,16 +9,32 @@
 define([
 ], function() {
   function ChannelMock() {
-    // nothing to do here.
+    this.canLinkAccountOk = true;
+    this.messageCount = {};
   }
 
   ChannelMock.prototype = {
     send: function(message, data, done) {
       this.message = message;
       this.data = data;
-      if (done) {
-        done();
+      if (!this.messageCount[message]) {
+        this.messageCount[message] = 0;
       }
+      this.messageCount[message] += 1;
+      switch (message)
+      {
+      case 'can_link_account':
+        this.onCanLinkAccount(data, done);
+        break;
+      default:
+        if (done) {
+          done();
+        }
+      }
+    },
+
+    onCanLinkAccount: function(data, done) {
+      done(null, { data: { ok: this.canLinkAccountOk } });
     }
   };
 

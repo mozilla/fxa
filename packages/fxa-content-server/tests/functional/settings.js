@@ -86,7 +86,15 @@ define([
 
         .elementByCssSelector('button[type="submit"]')
           .click()
-        .end();
+        .end()
+        // We need to wait for the sign in to finish. When the desktop context
+        // this will manifest itself in the "too many retries" error being
+        // shown, which signals the desktop channel didn't get a response.
+        .waitForVisibleByCssSelector('#stage .error')
+        .elementByCssSelector('#stage .error').isDisplayed()
+        .then(function (isDisplayed) {
+          assert.equal(isDisplayed, true);
+        });
     },
 
     'go to settings page from the desktop context, make sure the user cannot sign out': function () {

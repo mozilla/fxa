@@ -159,6 +159,36 @@ function (chai, $, ChannelMock, testHelpers,
 
     });
 
+    describe('signUp when another user has previously signed in to browser and user accepts', function () {
+      it('sends verifiedCanLinkAccount along with the login message', function () {
+        return client.signUp(email, password)
+          .then(function() {
+            // check that login was the last message sent over the channel
+            assert.equal(channelMock.message, 'login');
+            // check can_link_account was called once
+            assert.equal(channelMock.messageCount['can_link_account'], 1);
+            // and it includes that it has already verified that it is allowed to link
+            assert.isTrue(channelMock.data.verifiedCanLinkAccount);
+            assert.isTrue(realClient.signIn.calledWith(trim(email)))
+          })
+      });
+    });
+
+    describe('signUp when another user has previously signed in to browser and user rejects', function () {
+      it('throws a USER_CANCELED_LOGIN error', function () {
+        // simulate the user rejecting
+        channelMock.canLinkAccountOk = false;
+        return client.signUp(email, password)
+          .then(function() {
+            assert.fail('should throw USER_CANCELED_LOGIN');
+          }, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
+            // check can_link_account was called once
+            assert.equal(channelMock.messageCount['can_link_account'], 1);
+          });
+      });
+    });
+
     describe('signIn', function () {
       it('signin with unknown user should call errorback', function () {
         return client.signIn('unknown@unknown.com', 'password')
@@ -184,7 +214,7 @@ function (chai, $, ChannelMock, testHelpers,
       it('informs browser of customizeSync option', function () {
         return client.signUp(email, password)
           .then(function () {
-            return client.signIn(email, password, true);
+            return client.signIn(email, password, { customizeSync: true });
           })
           .then(function () {
             assert.equal(channelMock.message, 'login');
@@ -192,6 +222,58 @@ function (chai, $, ChannelMock, testHelpers,
           });
       });
 
+    });
+
+    describe('signIn with verifiedCanLinkAccount=true option', function () {
+      it('sends verifiedCanLinkAccount along with the login message', function () {
+        return realClient.signUp(trim(email), password)
+          .then(function() {
+            return client.signIn(email, password, { verifiedCanLinkAccount: true });
+          })
+          .then(function() {
+            // check that login was the last message sent over the channel
+            assert.equal(channelMock.message, 'login');
+            // check can_link_account was called zero times
+            assert.isUndefined(channelMock.messageCount['can_link_account']);
+            // and it includes that it has already verified that it is allowed to link
+            assert.isTrue(channelMock.data.verifiedCanLinkAccount);
+            assert.isTrue(realClient.signIn.calledWith(trim(email)))
+          })
+      });
+    });
+
+
+    describe('signIn when another user has previously signed in to browser and user accepts', function () {
+      it('sends verifiedCanLinkAccount along with the login message', function () {
+        return realClient.signUp(trim(email), password)
+          .then(function() {
+            return client.signIn(email, password);
+          })
+          .then(function() {
+            // check that login was the last message sent over the channel
+            assert.equal(channelMock.message, 'login');
+            // check can_link_account was called once
+            assert.equal(channelMock.messageCount['can_link_account'], 1);
+            // and it includes that it has already verified that it is allowed to link
+            assert.isTrue(channelMock.data.verifiedCanLinkAccount);
+            assert.isTrue(realClient.signIn.calledWith(trim(email)))
+          })
+      });
+    });
+
+    describe('signIn when another user has previously signed in to browser and user rejects', function () {
+      it('throws a USER_CANCELED_LOGIN error', function () {
+        // simulate the user rejecting
+        channelMock.canLinkAccountOk = false;
+        return client.signIn(email, password)
+          .then(function() {
+            assert.fail('should throw USER_CANCELED_LOGIN');
+          }, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
+            // check can_link_account was called once
+            assert.equal(channelMock.messageCount['can_link_account'], 1);
+          });
+      });
     });
 
     describe('passwordReset/passwordResetResend', function () {
