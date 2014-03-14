@@ -56,4 +56,4 @@ server/config/local.json
 app/i18n
 
 ### Strings
-locales/*/*/*.po
+locale/*/*/*.po
