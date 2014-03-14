@@ -16,6 +16,7 @@ module.exports = function (
   signer,
   db,
   mailer,
+  notifier,
   config
   ) {
   var isProduction = config.env === 'prod'
@@ -30,6 +31,7 @@ module.exports = function (
     error,
     db,
     mailer,
+    notifier,
     config.smtp.redirectDomain,
     config.verifierVersion,
     isProduction

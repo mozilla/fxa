@@ -66,7 +66,12 @@ function main() {
         DB.connect(config[config.db.backend])
           .done(
             function (db) {
-              var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, config)
+
+              // notifier for account events.
+              // XXX TODO: replace this with an external process e.g. heka
+              var notifier = require('../notifier')(config)
+
+              var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, notifier, config)
               server = Server.create(log, error, config, routes, db)
 
               server.start(

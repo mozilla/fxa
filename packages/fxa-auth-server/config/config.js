@@ -264,6 +264,11 @@ module.exports = function (fs, path, url, convict) {
     verifierVersion: {
       doc: 'verifer version for new and changed passwords',
       default: 1
+    },
+    snsTopicArn: {
+      doc: 'Amazon SNS topic on which to send account event notifications',
+      format: String,
+      default: ''
     }
   })
 

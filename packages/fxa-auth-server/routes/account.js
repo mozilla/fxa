@@ -17,6 +17,7 @@ module.exports = function (
   error,
   db,
   mailer,
+  notifier,
   redirectDomain,
   verifierVersion,
   isProduction
@@ -473,9 +474,11 @@ module.exports = function (
         log.begin('Account.destroy', request)
         var form = request.payload
         var authPW = Buffer(form.authPW, 'hex')
+        var uid = null;
         db.emailRecord(form.email)
           .then(
             function (emailRecord) {
+              uid = emailRecord.uid
               var password = new Password(
                 authPW,
                 emailRecord.authSalt,
@@ -495,6 +498,9 @@ module.exports = function (
           )
           .then(
             function () {
+              // send async notification of account delete event.
+              // XXX TODO: replace this with downstream app e.g. heka
+              notifier.publish({ event: 'delete', uid: uid })
               return {}
             }
           )
