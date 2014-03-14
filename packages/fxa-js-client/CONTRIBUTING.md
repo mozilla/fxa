@@ -41,6 +41,7 @@ This library uses [The Intern](https://github.com/theintern/intern/wiki) testing
 
 `grunt intern:sauce` - Run tests on SauceLabs.
 
+`node_modules/.bin/intern-client  config=tests/intern auth_server=LOCAL` - run the tests against the local fxa-auth-server
 
 ## Documentation
 
