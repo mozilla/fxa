@@ -116,7 +116,7 @@ define(['./request', 'sjcl', 'p', './hkdf', './pbkdf2'], function (Request, sjcl
             hmac.update(ciphertext);
 
             if (!sjcl.bitArray.equal(hmac.digest(), expectedHmac)) {
-              throw 'Bad HMac';
+              throw new Error('Bad HMac');
             }
 
             var keyAWrapB = self.xor(sjcl.bitArray.bitSlice(bitBundle, 0, 8 * 64), keys.xorKey);
