@@ -279,7 +279,8 @@ strong.email {
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
-  background: transparent url(/images/ddarrow_inactive.png) no-repeat right 14px top 50%;
+  background: transparent url(/images/ddarrow_inactive.png) right 14px top 50%;
+  background-repeat: no-repeat;
   background-size: 10px 17px;
   color: $input-placeholder-color;
   height: auto;
