@@ -93,21 +93,28 @@ function (
 
   window.router = new Router();
 
-  // IE uses navigator.browserLanguage, all others user navigator.language.
-  var language = window.navigator.browserLanguage || window.navigator.language || 'en-US';
-
-  window.translator = new Translator(language);
-
   initSessionFromUrl();
 
-  // Don't start backbone until we have our translations
-  translator.fetch(function () {
-    // Get the party started
-    Backbone.history.start({ pushState: true });
+  // Don't start backbone until we have our config and translations
+  $.getJSON('/config', function (config) {
 
-    // The channel must be initialized after Backbone.history so that the
-    // Backbone does not override the page the channel sets.
-    Session.set('channel', getChannel());
+    Session.set('config', config);
+
+    // IE uses navigator.browserLanguage, all others user navigator.language.
+    var language = window.navigator.browserLanguage || window.navigator.language || 'en-US';
+
+    window.translator = new Translator(language,
+                                       config.i18n.supportedLanguages,
+                                       config.i18n.defaultLanguage);
+
+    translator.fetch(function () {
+      // Get the party started
+      Backbone.history.start({ pushState: true });
+
+      // The channel must be initialized after Backbone.history so that the
+      // Backbone does not override the page the channel sets.
+      Session.set('channel', getChannel());
+    });
   });
 });
 

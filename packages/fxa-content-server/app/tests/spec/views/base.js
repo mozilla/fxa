@@ -27,7 +27,7 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
     var view, router, windowMock;
 
     beforeEach(function () {
-      translator = new Translator();
+      translator = new Translator('en-US', ['en-US']);
       translator.set({
         'the error message': 'a translated error message',
         'the success message': 'a translated success message'

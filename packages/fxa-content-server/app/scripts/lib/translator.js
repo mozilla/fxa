@@ -10,8 +10,22 @@ define([
   'lib/strings'
 ],
 function (_, $, Strings) {
-  var Translator = function (language) {
-    this.language = language;
+
+  var bestLanguage = function (language, supportedLanguages, defaultLanguage) {
+    var lower = supportedLanguages.map(function(l) {
+      return l.toLowerCase();
+    });
+
+    if (lower.indexOf(language.toLowerCase()) !== -1) {
+      return language;
+    } else if (lower.indexOf(language.split('-')[0].toLowerCase()) !== -1) {
+      return language.split('-')[0];
+    }
+    return defaultLanguage;
+  };
+
+  var Translator = function (language, supportedLanguages, defaultLanguage) {
+    this.language = bestLanguage(language, supportedLanguages, defaultLanguage);
     this.translations = {};
   };
 
@@ -19,6 +33,8 @@ function (_, $, Strings) {
     set: function (translations) {
       this.translations = translations;
     },
+
+
 
     // Fetches our JSON translation file
     fetch: function (done) {

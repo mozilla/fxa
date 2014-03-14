@@ -33,7 +33,7 @@ function (chai, Translator) {
 
     beforeEach(function () {
       // Bringing back the David Bowie's Labrynth
-      translator = new Translator('db-LB');
+      translator = new Translator('db-LB', ['db-LB']);
       translator.set(TRANSLATIONS);
     });
 

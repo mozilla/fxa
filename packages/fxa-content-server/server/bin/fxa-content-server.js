@@ -34,7 +34,7 @@ var clearsans = require('connect-fonts-clearsans');
 var config = require('../lib/configuration');
 var i18n = require('../lib/i18n')(config.get('i18n'));
 var templates = require('../lib/templates')(config.get('template_path'), i18n);
-var routes = require('../lib/routes')(config.get('fxaccount_url'), templates);
+var routes = require('../lib/routes')(config, templates);
 
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
 var routeLogging = require('../lib/logging/route_logging');
