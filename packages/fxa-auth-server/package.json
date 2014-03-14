@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "An identity provider for PiCL services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
