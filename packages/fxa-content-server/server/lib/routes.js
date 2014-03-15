@@ -47,9 +47,9 @@ function loadRouteDefinitions(routesPath) {
 var routesPath = path.join(__dirname, 'routes');
 var routes = loadRouteDefinitions(routesPath);
 
-module.exports = function (fxAccountUrl, templates) {
+module.exports = function (config, templates) {
 
-  var authServerHost = url.parse(fxAccountUrl).hostname;
+  var authServerHost = url.parse(config.get('fxaccount_url')).hostname;
 
   return function (app) {
     // handle password reset links
@@ -59,7 +59,8 @@ module.exports = function (fxAccountUrl, templates) {
 
     app.get('/config', function (req, res) {
       res.json({
-        fxaccountUrl: fxAccountUrl
+        fxaccountUrl: config.get('fxaccount_url'),
+        i18n: config.get('i18n')
       });
     });
 

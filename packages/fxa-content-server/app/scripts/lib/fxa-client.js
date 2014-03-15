@@ -33,6 +33,9 @@ function (FxaClient, $, p, Session, AuthErrors) {
 
       if (client) {
         defer.resolve(client);
+      } else if (Session.config && Session.config.fxaccountUrl) {
+        client = new FxaClient(Session.config.fxaccountUrl);
+        defer.resolve(client);
       } else {
         $.getJSON('/config', function (data) {
           client = new FxaClient(data.fxaccountUrl);

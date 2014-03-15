@@ -78,7 +78,7 @@ require([
 ],
 function (Translator) {
   // The translator is expected to be on the window object.
-  window.translator = new Translator();
+  window.translator = new Translator('en-US', ['en-US']);
 
   var runner = mocha.run();
 
