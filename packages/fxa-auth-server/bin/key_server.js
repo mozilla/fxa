@@ -8,6 +8,7 @@ var config = require('../config').root()
 function main() {
   var log = require('../log')(config.log.level)
 
+  log.event('config', config)
   if (config.env !== 'prod') {
     log.info(config, "starting config")
   }
@@ -66,12 +67,7 @@ function main() {
         DB.connect(config[config.db.backend])
           .done(
             function (db) {
-
-              // notifier for account events.
-              // XXX TODO: replace this with an external process e.g. heka
-              var notifier = require('../notifier')(config)
-
-              var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, notifier, config)
+              var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, config)
               server = Server.create(log, error, config, routes, db)
 
               server.start(

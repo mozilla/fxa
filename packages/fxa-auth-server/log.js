@@ -47,6 +47,14 @@ Overdrive.prototype.trace = function () {
   return Logger.prototype.trace.apply(this, arguments)
 }
 
+Overdrive.prototype.event = function (name, data) {
+  var e = {
+    event: name,
+    data: unbuffer(data)
+  }
+  process.stdout.write(JSON.stringify(e) + '\n')
+}
+
 Overdrive.prototype.stat = function (stats) {
   stats.op = 'stat'
   this.info(stats)
