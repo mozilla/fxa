@@ -22,7 +22,8 @@ function (_, BaseView, Template, FxaClient, Session) {
     context: function () {
       return {
         // HTML is written here to simplify the l10n community's job
-        email: '<strong id="email" class="email">' + Session.email + '</strong>'
+        email: '<strong id="email" class="email">' + Session.email + '</strong>',
+        showSignOut: !Session.isDesktopContext()
       };
     },
 

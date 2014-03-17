@@ -54,7 +54,7 @@ function (
 
   var Router = Backbone.Router.extend({
     routes: {
-      '(/)': 'redirectToSignup',
+      '(/)': 'redirectToSignupOrSettings',
       'signin(/)': showView(SignInView),
       'signin_complete(/)': showView(ReadyView, { type: 'sign_in' }),
       'signup(/)': showView(SignUpView),
@@ -99,8 +99,12 @@ function (
                             this, url, { trigger: true });
     },
 
-    redirectToSignup: function () {
-      this.navigate('/signup');
+    redirectToSignupOrSettings: function () {
+      if (Session.sessionToken) {
+        this.navigate('/settings');
+      } else {
+        this.navigate('/signup');
+      }
     },
 
     showView: function (view) {

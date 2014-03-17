@@ -14,8 +14,9 @@ define([
   'views/sign_up',
   'lib/session',
   '../../mocks/window',
+  'lib/constants'
 ],
-function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock) {
+function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock, Constants) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -55,18 +56,27 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
 
       it('preserves window search parameters across screen transition',
         function () {
-        windowMock.location.search = '?context=fx_desktop_v1';
+        windowMock.location.search = '?context=' + Constants.FX_DESKTOP_CONTEXT;
         router.navigate('/forgot');
-        assert.equal(navigateUrl, '/forgot?context=fx_desktop_v1');
+        assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_CONTEXT);
         assert.deepEqual(navigateOptions, { trigger: true });
       });
     });
 
-    describe('redirectToSignup', function () {
+    describe('redirectToSignupOrSettings', function () {
       it('go to the signup page', function () {
         windowMock.location.search = '';
-        router.redirectToSignup();
+        Session.set('sessionToken', null);
+        router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/signup');
+        assert.deepEqual(navigateOptions, { trigger: true });
+      });
+
+      it('go to the settings page', function () {
+        windowMock.location.search = '';
+        Session.set('sessionToken', 'abc123');
+        router.redirectToSignupOrSettings();
+        assert.equal(navigateUrl, '/settings');
         assert.deepEqual(navigateOptions, { trigger: true });
       });
     });
