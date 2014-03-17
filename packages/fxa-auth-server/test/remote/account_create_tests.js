@@ -414,12 +414,17 @@ TestServer.start(config)
     're-signup against an unverified email',
     function (t) {
       var email = server.uniqueEmail()
-      var email2 = email.toUpperCase()
       var password = 'abcdef'
       return Client.create(config.publicUrl, email, password, server.mailbox)
         .then(
-          function (c) {
-            return Client.createAndVerify(config.publicUrl, email2, password, server.mailbox)
+          function () {
+            // delete the first verification email
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function () {
+            return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
           }
         )
         .then(
