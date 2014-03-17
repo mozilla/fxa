@@ -52,7 +52,7 @@ function (chai, _, $, View, FxaClient, Session, RouterMock) {
         email = 'testuser.' + Math.random() + '@testuser.com';
 
         var client = new FxaClient();
-        client.signUp(email, 'password')
+        client.signUp(email, 'password', {preVerified: true})
           .then(function () {
             view.render();
 

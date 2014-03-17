@@ -28,7 +28,7 @@ define([
       var client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-      return client.signUp(email, FIRST_PASSWORD);
+      return client.signUp(email, FIRST_PASSWORD, {preVerified: true});
     },
 
     'sign in for signing out': function () {
