@@ -105,7 +105,7 @@ function (
 
     window.translator = new Translator(language,
                                        config.i18n.supportedLanguages,
-                                       config.i18n.defaultLanguage);
+                                       config.i18n.defaultLang);
 
     translator.fetch(function () {
       // Get the party started
