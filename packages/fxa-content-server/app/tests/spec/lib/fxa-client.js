@@ -295,7 +295,7 @@ function (chai, $, ChannelMock, testHelpers,
 
     describe('changePassword', function () {
       it('changes the user\'s password', function (done) {
-        client.signUp(email, password)
+        client.signUp(email, password, {preVerified: true})
           .then(function () {
             return client.changePassword(email, password, 'new_password');
           })
