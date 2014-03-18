@@ -24,7 +24,7 @@ module.exports = function (grunt) {
       dest: '<%= yeoman.dist %>',
       src: [
         '<%= yeoman.page_template_src %>/{,*/}*.html'
-      ],
+      ]
     }
   });
 

@@ -52,6 +52,7 @@
     "grunt-jsonlint": "1.0.4",
     "grunt-mocha": "0.4.10",
     "grunt-modernizr": "0.5.1",
+    "grunt-nsp-shrinkwrap": "0.0.2",
     "grunt-po2json": "git://github.com/shane-tomlinson/grunt-po2json.git#c1a7406",
     "grunt-requirejs": "0.4.1",
     "grunt-rev": "0.1.0",
