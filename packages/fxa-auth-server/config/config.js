@@ -45,6 +45,16 @@ module.exports = function (fs, path, url, convict) {
         default: true,
         env: 'CREATE_MYSQL_SCHEMA'
       },
+      patchKey : {
+        doc: 'The name of the row in the dbMetadata table which stores the patch level',
+        default: 'schema-patch-level',
+        format: String
+      },
+      patchLevel : {
+        doc: 'The patch level the database should be set to for this release',
+        default: 2,
+        format: 'nat'
+      },
       master: {
         user: {
           default: 'root',
