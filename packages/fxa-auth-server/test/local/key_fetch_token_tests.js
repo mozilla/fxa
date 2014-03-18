@@ -49,6 +49,27 @@ test(
 
 
 test(
+  're-creation from id works',
+  function (t) {
+    var token = null;
+    return KeyFetchToken.create(ACCOUNT)
+      .then(
+        function (x) {
+          token = x
+          return KeyFetchToken.fromId(token.tokenId, token);
+        }
+      )
+      .then(
+        function (x) {
+          t.equal(x.tokenId, token.tokenId, 'should have same id')
+          t.equal(x.authKey, token.authKey, 'should have same authKey')
+        }
+      )
+  }
+)
+
+
+test(
   'bundle / unbundle of keys works',
   function (t) {
     var token = null;
@@ -70,6 +91,43 @@ test(
         function (ub) {
           t.deepEqual(ub.kA, kA)
           t.deepEqual(ub.wrapKb, wrapKb)
+        }
+      )
+  }
+)
+
+
+test(
+  'bundle / unbundle of keys only works with correct token',
+  function (t) {
+    var token1 = null;
+    var token2 = null;
+    var kA = crypto.randomBytes(32)
+    var wrapKb = crypto.randomBytes(32)
+    return KeyFetchToken.create(ACCOUNT)
+      .then(
+        function (x) {
+          token1 = x
+          return KeyFetchToken.create(ACCOUNT)
+        }
+      )
+      .then(
+        function (x) {
+          token2 = x
+          return token1.bundleKeys(kA, wrapKb)
+        }
+      )
+      .then(
+        function (b) {
+          return token2.unbundleKeys(b)
+        }
+      )
+      .then(
+        function (ub) {
+          t.fail('was able to unbundle using wrong token')
+        },
+        function (err) {
+          t.equal(err.errno, 109, 'expected an invalidSignature error')
         }
       )
   }

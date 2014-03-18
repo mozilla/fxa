@@ -12,6 +12,12 @@ var config = require('../../config').root()
 process.env.CONFIG_FILES = path.join(__dirname, '../config/account_tests.json')
 var config = require('../../config').root()
 
+var publicKey = {
+  "algorithm":"RS",
+  "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
+  "e":"65537"
+}
+
 TestServer.start(config)
 .then(function main(server) {
 
@@ -21,11 +27,6 @@ TestServer.start(config)
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
-      var publicKey = {
-        "algorithm":"RS",
-        "n":"4759385967235610503571494339196749614544606692567785790953934768202714280652973091341316862993582789079872007974809511698859885077002492642203267408776123",
-        "e":"65537"
-      }
       var duration = 1000 * 60 * 60 * 24
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
@@ -41,6 +42,31 @@ TestServer.start(config)
             t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
             t.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
             t.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
+          }
+        )
+    }
+  )
+
+  test(
+    'certificate sign requires a verified account',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      var duration = 1000 * 60 * 60 * 24
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (c) {
+            client = c
+            return client.sign(publicKey, duration)
+          }
+        )
+        .then(
+          function (cert) {
+            t.fail('should not be able to sign with unverified account')
+          },
+          function (err) {
+            t.equal(err.errno, 104, 'should get an unverifiedAccount error')
           }
         )
     }
@@ -96,6 +122,46 @@ TestServer.start(config)
           t.fail,
           function (err) {
             t.equal(err.code, 400, 'missing publicKey arguments (e)')
+            // missing publicKey arguments (n)
+            return client.sign({ algorithm: 'RS', e: 'x' }, 1000)
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.code, 400, 'missing publicKey arguments (n)')
+            // missing publicKey arguments (y)
+            return client.sign({ algorithm: 'DS', p: 'p', q: 'q', g: 'g' }, 1000)
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.code, 400, 'missing publicKey arguments (y)')
+            // missing publicKey arguments (p)
+            return client.sign({ algorithm: 'DS', y: 'y', q: 'q', g: 'g' }, 1000)
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.code, 400, 'missing publicKey arguments (p)')
+            // missing publicKey arguments (q)
+            return client.sign({ algorithm: 'DS', y: 'y', p: 'p', g: 'g' }, 1000)
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.code, 400, 'missing publicKey arguments (q)')
+            // missing publicKey arguments (g)
+            return client.sign({ algorithm: 'DS', y: 'y', p: 'p', q: 'q' }, 1000)
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.code, 400, 'missing publicKey arguments (g)')
             // invalid algorithm
             return client.sign({ algorithm: 'NSA' }, 1000)
           }

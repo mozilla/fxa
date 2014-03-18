@@ -62,13 +62,13 @@ Client.create = function (origin, email, password, options) {
     )
 }
 
-Client.login = function (origin, email, password) {
+Client.login = function (origin, email, password, opts) {
   var c = new Client(origin)
 
   return c.setupCredentials(email, password)
     .then(
       function (c) {
-        return c.auth()
+        return c.auth(opts)
       }
     )
 }
@@ -139,13 +139,13 @@ Client.prototype.stringify = function () {
   return JSON.stringify(this)
 }
 
-Client.prototype.auth = function () {
-  return this.api.accountLoginAndGetKeys(this.email, this.authPW)
+Client.prototype.auth = function (opts) {
+  return this.api.accountLogin(this.email, this.authPW, opts)
     .then(
       function (data) {
         this.uid = data.uid
         this.sessionToken = data.sessionToken
-        this.keyFetchToken = data.keyFetchToken
+        this.keyFetchToken = data.keyFetchToken || null
         this.emailVerified = data.verified
         this.authAt = data.authAt
         return this
@@ -153,8 +153,8 @@ Client.prototype.auth = function () {
     )
 }
 
-Client.prototype.login = function () {
-  return this.auth()
+Client.prototype.login = function (opts) {
+  return this.auth(opts)
 }
 
 Client.prototype.destroySession = function () {

@@ -326,6 +326,27 @@ TestServer.start(config)
           t.fail,
           function (err) {
             t.equal(err.code, 400, 'malformed email is rejected')
+            return Client.create(config.publicUrl, 'me@example..com', pwd)
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.code, 400, 'malformed email is rejected')
+            return Client.create(config.publicUrl, 'me@example-.com', pwd)
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.code, 400, 'malformed email is rejected')
+            return Client.create(config.publicUrl, 'me@example.-com', pwd)
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.code, 400, 'malformed email is rejected')
           }
         )
     }
