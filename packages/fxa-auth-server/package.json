@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "NODE_ENV=dev ./scripts/gen_keys.js && NODE_ENV=dev ./scripts/tap-coverage.js test/local test/remote",
-    "start": "NODE_ENV=dev scripts/start-local.sh",
+    "start": "NODE_ENV=dev scripts/start-local.sh 2>&1 | bunyan -o short",
     "test-mysql": "DB_BACKEND=mysql npm test",
     "test-all": "npm run test-quick && npm run test-mysql && grunt",
     "test-quick": "npm run tq",
@@ -45,7 +45,10 @@
     "nodemailer": "0.6.1",
     "then-redis": "0.3.10",
     "scrypt-hash": "1.1.8",
-    "request": "2.34.0"
+    "request": "2.34.0",
+    "binary-split": "0.1.2",
+    "through": "2.3.4",
+    "aws-sdk": "2.0.0-rc11"
   },
   "devDependencies": {
     "awsbox": "0.7.0",
@@ -59,8 +62,6 @@
     "grunt": "~0.4.2",
     "ass": "0.0.4",
     "sjcl": "1.0.0",
-    "binary-split": "0.1.2",
-    "through": "2.3.4",
     "grunt-copyright": "~0.1.0"
   }
 }

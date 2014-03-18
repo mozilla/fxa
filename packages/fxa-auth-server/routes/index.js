@@ -32,7 +32,8 @@ module.exports = function (
     mailer,
     config.smtp.redirectDomain,
     config.verifierVersion,
-    isProduction
+    isProduction,
+    config.domain
   )
   var password = require('./password')(
     log,

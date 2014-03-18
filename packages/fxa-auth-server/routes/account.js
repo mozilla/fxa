@@ -19,7 +19,8 @@ module.exports = function (
   mailer,
   redirectDomain,
   verifierVersion,
-  isProduction
+  isProduction,
+  domain
   ) {
 
   var routes = [
@@ -491,11 +492,12 @@ module.exports = function (
                     return db.deleteAccount(emailRecord)
                   }
                 )
-            }
-          )
-          .then(
-            function () {
-              return {}
+                .then(
+                  function () {
+                    log.event('delete', { uid: emailRecord.uid.toString('hex') + '@' + domain })
+                    return {}
+                  }
+                )
             }
           )
           .done(reply, reply)
