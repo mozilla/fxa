@@ -95,6 +95,21 @@ AppError.translate = function (response) {
 
 // Helper functions for creating particular response types.
 
+AppError.dbIncorrectPatchLevel = function (level, levelRequired) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Server Startup',
+      errno: 100,
+      message: 'Incorrect Database Patch Level'
+    },
+    {
+      level: level,
+      levelRequired: levelRequired
+    }
+  )
+}
+
 AppError.accountExists = function (email) {
   return new AppError(
     {
