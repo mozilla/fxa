@@ -18,6 +18,11 @@ define([
 function (FxaClient, $, p, Session, AuthErrors) {
   var client;
 
+  // IE 8 doesn't support String.prototype.trim
+  function trim(str) {
+    return str && str.replace(/^\s+|\s+$/g, '');
+  }
+
   function FxaClientWrapper(options) {
     options = options || {};
     // IE uses navigator.browserLanguage, all others user navigator.language.
@@ -46,7 +51,8 @@ function (FxaClient, $, p, Session, AuthErrors) {
       return defer.promise;
     },
 
-    signIn: function (email, password, customizeSync) {
+    signIn: function (originalEmail, password, customizeSync) {
+      var email = trim(originalEmail);
       return this._getClientAsync()
               .then(function (client) {
                 return client.signIn(email, password, { keys: true });
@@ -84,8 +90,9 @@ function (FxaClient, $, p, Session, AuthErrors) {
 
     },
 
-    signUp: function (email, password, options) {
+    signUp: function (originalEmail, password, options) {
       options = options || {};
+      var email = trim(originalEmail);
       var self = this;
       var service = Session.service;
       var redirectTo = Session.redirectTo;
@@ -165,10 +172,11 @@ function (FxaClient, $, p, Session, AuthErrors) {
               });
     },
 
-    passwordReset: function (email) {
+    passwordReset: function (originalEmail) {
       var self = this;
       var service = Session.service;
       var redirectTo = Session.redirectTo;
+      var email = trim(originalEmail);
 
       return this._getClientAsync()
               .then(function (client) {
@@ -209,7 +217,8 @@ function (FxaClient, $, p, Session, AuthErrors) {
               });
     },
 
-    completePasswordReset: function (email, newPassword, token, code) {
+    completePasswordReset: function (originalEmail, newPassword, token, code) {
+      var email = trim(originalEmail);
       return this._getClientAsync()
               .then(function (client) {
                 return client.passwordForgotVerifyCode(code, token);
@@ -221,7 +230,8 @@ function (FxaClient, $, p, Session, AuthErrors) {
               });
     },
 
-    changePassword: function (email, oldPassword, newPassword) {
+    changePassword: function (originalEmail, oldPassword, newPassword) {
+      var email = trim(originalEmail);
       var self = this;
       return this._getClientAsync()
               .then(function (client) {
@@ -234,7 +244,8 @@ function (FxaClient, $, p, Session, AuthErrors) {
               });
     },
 
-    deleteAccount: function (email, password) {
+    deleteAccount: function (originalEmail, password) {
+      var email = trim(originalEmail);
       return this._getClientAsync()
               .then(function (client) {
                 return client.accountDestroy(email, password);

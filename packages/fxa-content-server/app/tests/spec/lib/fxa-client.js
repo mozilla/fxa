@@ -27,13 +27,16 @@ function (chai, $, ChannelMock, testHelpers,
   var realClient;
   var channelMock;
 
+  function trim(str) {
+    return str && str.replace(/^\s+|\s+$/g, '');
+  }
 
   describe('lib/fxa-client', function () {
     beforeEach(function (done) {
       channelMock = new ChannelMock();
       Session.clear();
       Session.set('channel', channelMock);
-      email = 'testuser' + Math.random() + '@testuser.com';
+      email = ' testuser' + Math.random() + '@testuser.com ';
 
       client = new FxaClientWrapper({
         language: 'it-CH'
@@ -66,7 +69,7 @@ function (chai, $, ChannelMock, testHelpers,
             assert.equal(channelMock.message, 'login');
             assert.isUndefined(channelMock.data.customizeSync);
 
-            assert.isTrue(realClient.signUp.calledWith(email, password, {
+            assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
               service: 'sync',
               redirectTo: 'https://sync.firefox.com',
@@ -189,6 +192,7 @@ function (chai, $, ChannelMock, testHelpers,
             return client.signIn(email, password);
           })
           .then(function () {
+            assert.isTrue(realClient.signIn.calledWith(trim(email)));
             assert.equal(channelMock.message, 'login');
             assert.isUndefined(channelMock.data.customizeSync);
             done();
@@ -212,6 +216,7 @@ function (chai, $, ChannelMock, testHelpers,
             done();
           });
       });
+
     });
 
     describe('passwordReset/passwordResetResend', function () {
@@ -225,7 +230,7 @@ function (chai, $, ChannelMock, testHelpers,
           .then(function () {
             assert.isTrue(
                 realClient.passwordForgotSendCode.calledWith(
-                    email,
+                    trim(email),
                     {
                       service: 'sync',
                       redirectTo: 'https://sync.firefox.com',
@@ -237,7 +242,7 @@ function (chai, $, ChannelMock, testHelpers,
           .then(function () {
             assert.isTrue(
                 realClient.passwordForgotResendCode.calledWith(
-                    email,
+                    trim(email),
                     Session.passwordForgotToken,
                     {
                       service: 'sync',
@@ -300,6 +305,7 @@ function (chai, $, ChannelMock, testHelpers,
             return client.changePassword(email, password, 'new_password');
           })
           .then(function () {
+            assert.isTrue(realClient.passwordChange.calledWith(trim(email)));
             // user is automatically re-authenticated with their new password
             assert.equal(channelMock.message, 'login');
             done();
@@ -317,6 +323,7 @@ function (chai, $, ChannelMock, testHelpers,
             return client.deleteAccount(email, password);
           })
           .then(null, function (err) {
+            assert.isTrue(realClient.accountDestroy.calledWith(trim(email)));
             // this test is necessary because errors in deleteAccount
             // should not be propagated to the final done's error
             // handler
