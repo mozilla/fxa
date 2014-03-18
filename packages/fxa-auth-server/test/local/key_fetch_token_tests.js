@@ -49,6 +49,27 @@ test(
 
 
 test(
+  're-creation from id works',
+  function (t) {
+    var token = null;
+    return KeyFetchToken.create(ACCOUNT)
+      .then(
+        function (x) {
+          token = x
+          return KeyFetchToken.fromId(token.tokenId, token);
+        }
+      )
+      .then(
+        function (x) {
+          t.equal(x.tokenId, token.tokenId, 'should have same id')
+          t.equal(x.authKey, token.authKey, 'should have same authKey')
+        }
+      )
+  }
+)
+
+
+test(
   'bundle / unbundle of keys works',
   function (t) {
     var token = null;
