@@ -8,7 +8,6 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.registerTask('lint', [
-    'validate-shrinkwrap',
     'jshint',
     'jsonlint:app',
     'jscs'
