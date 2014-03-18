@@ -11,7 +11,7 @@
 define([
   'fxaClient',
   'jquery',
-  'p',
+  'p-promise',
   'lib/session',
   'lib/auth-errors'
 ],

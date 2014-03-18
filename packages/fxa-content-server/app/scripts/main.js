@@ -15,7 +15,7 @@ require.config({
     stache: '../bower_components/requirejs-mustache/stache',
     transit: '../bower_components/jquery.transit/jquery.transit',
     modernizr: '../bower_components/modernizr/modernizr',
-    p: '../bower_components/p/p'
+    'p-promise': '../bower_components/p/p'
   },
   shim: {
     underscore: {

@@ -17,7 +17,7 @@ require.config({
     transit: '/bower_components/jquery.transit/jquery.transit',
     modernizr: '/bower_components/modernizr/modernizr',
     chai: '/bower_components/chai/chai',
-    p: '/bower_components/p/p',
+    'p-promise': '/bower_components/p/p',
     sinon: '/bower_components/sinon/index'
   },
   shim: {
