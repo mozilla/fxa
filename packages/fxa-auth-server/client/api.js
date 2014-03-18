@@ -107,22 +107,13 @@ ClientApi.prototype.accountCreate = function (email, authPW, options) {
   )
 }
 
-ClientApi.prototype.accountLogin = function (email, authPW) {
+ClientApi.prototype.accountLogin = function (email, authPW, opts) {
+  if (!opts) {
+    opts = { keys: true }
+  }
   return this.doRequest(
     'POST',
-    this.baseURL + '/account/login',
-    null,
-    {
-      email: email,
-      authPW: authPW.toString('hex')
-    }
-  )
-}
-
-ClientApi.prototype.accountLoginAndGetKeys = function (email, authPW) {
-  return this.doRequest(
-    'POST',
-    this.baseURL + '/account/login?keys=true',
+    this.baseURL + '/account/login' + (opts.keys ? '?keys=true' : ''),
     null,
     {
       email: email,

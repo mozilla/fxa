@@ -77,6 +77,24 @@ TestServer.start(config)
     }
   )
 
+  test(
+    'No keyFetchToken without keys=true',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'abcdef'
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function (c) {
+            return Client.login(config.publicUrl, email, password, { keys: false })
+          }
+        )
+        .then(
+          function (c) {
+            t.equal(c.keyFetchToken, null, 'should not have keyFetchToken')
+          }
+        )
+    }
+  )
 
   test(
     'teardown',
