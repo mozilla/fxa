@@ -26,7 +26,7 @@ function set(arr) {
 
 module.exports = {
   validate: {
-    query: {
+    payload: {
       /*jshint camelcase: false*/
       client_id: Joi.string()
         .length(config.get('unique.id') * 2) // hex = bytes*2
@@ -44,33 +44,34 @@ module.exports = {
         .max(256),
       state: Joi.string()
         .max(256)
+        .required()
     }
   },
   handler: function authorizationEndpoint(req, reply) {
     Promise.all([
-      verify(req.query.assertion).then(function(userid) {
+      verify(req.payload.assertion).then(function(userid) {
         if (!userid) {
           throw AppError.invalidAssertion();
         }
         return Buffer(userid, 'hex');
       }),
-      db.getClient(Buffer(req.query.client_id, 'hex')).then(function(client) {
+      db.getClient(Buffer(req.payload.client_id, 'hex')).then(function(client) {
         if (!client) {
-          logger.debug('client_id="%s" not found', req.query.client_id);
-          throw AppError.unknownClient(req.query.client_id);
+          logger.debug('client_id="%s" not found', req.payload.client_id);
+          throw AppError.unknownClient(req.payload.client_id);
         } else if (!client.whitelisted) {
-          logger.error('client_id="%s" not whitelisted', req.query.client_id);
+          logger.error('client_id="%s" not whitelisted', req.payload.client_id);
           // TODO: implement external clients so we can remove this
           throw Hapi.error.notImplemented();
         }
 
-        if (!req.query.redirect_uri) {
-          req.query.redirect_uri = client.redirectUri;
+        if (!req.payload.redirect_uri) {
+          req.payload.redirect_uri = client.redirectUri;
         }
-        if (req.query.redirect_uri !== client.redirectUri) {
+        if (req.payload.redirect_uri !== client.redirectUri) {
           logger.debug('redirect_uri [%s] does not match registered [%s]',
-            req.query.redirect_uri, client.redirectUri);
-          throw AppError.incorrectRedirect(req.query.redirect_uri);
+            req.payload.redirect_uri, client.redirectUri);
+          throw AppError.incorrectRedirect(req.payload.redirect_uri);
         }
 
         return client;
@@ -78,16 +79,16 @@ module.exports = {
     ])
     .spread(function(userid, client) {
       // make scope a set
-      var scope = req.query.scope ? set(req.query.scope.split(' ')) : [];
+      var scope = req.payload.scope ? set(req.payload.scope.split(' ')) : [];
       return db.generateCode(client.id, userid, scope);
     })
     .done(function(code) {
       // for now, since we only use whitelisted clients, we can just
       // redirect right away with a code
-      logger.debug('redirecting with code to %s', req.query.redirect_uri);
-      var redirect = url.parse(req.query.redirect_uri, true);
-      if (req.query.state) {
-        redirect.query.state = req.query.state;
+      logger.debug('redirecting with code to %s', req.payload.redirect_uri);
+      var redirect = url.parse(req.payload.redirect_uri, true);
+      if (req.payload.state) {
+        redirect.query.state = req.payload.state;
       }
       redirect.query.code = code.toString('hex');
       delete redirect.search;

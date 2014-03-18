@@ -72,6 +72,27 @@ function genAssertion(email) {
   });
 }
 
+
+var client;
+var secret = unique.secret().toString('hex');
+var clientId;
+var AN_ASSERTION;
+
+function authParams(params) {
+  var defaults = {
+    assertion: AN_ASSERTION,
+    client_id: clientId,
+    state: '1',
+    scope: 'a'
+  };
+
+  params = params || {};
+  for (var key in params) {
+    defaults[key] = params[key];
+  }
+  return defaults;
+}
+
 function assertRequestParam(result, param) {
   assert.equal(result.code, 400);
   assert.equal(result.message, 'Invalid request parameter');
@@ -79,12 +100,8 @@ function assertRequestParam(result, param) {
   assert.equal(result.validation.keys[0], param);
 }
 
-describe('/oauth', function() {
 
-  var client;
-  var secret = unique.secret().toString('hex');
-  var clientId;
-  var AN_ASSERTION;
+describe('/oauth', function() {
   before(function(done) {
 
     Promise.all([
@@ -113,8 +130,11 @@ describe('/oauth', function() {
 
       it('is required', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams({
+            client_id: undefined
+          })
         }).then(function(res) {
           assertRequestParam(res.result, 'client_id');
         }).done(done, done);
@@ -122,9 +142,9 @@ describe('/oauth', function() {
 
       it('succeeds if passed', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
-            '&client_id=' + clientId
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams()
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
         }).done(done, done);
@@ -135,8 +155,11 @@ describe('/oauth', function() {
     describe('?assertion', function() {
 
       it('is required', function(done) {
-        Server.get({
-          url: '/oauth/authorization?client_id=' + clientId
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams({
+            assertion: undefined
+          })
         }).then(function(res) {
           assertRequestParam(res.result, 'assertion');
         }).done(done, done);
@@ -144,9 +167,9 @@ describe('/oauth', function() {
 
       it('succeeds if passed', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
-            '&client_id=' + clientId
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams()
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
         }).done(done, done);
@@ -154,9 +177,9 @@ describe('/oauth', function() {
 
       it('errors correctly if invalid', function(done) {
         mockAssertion().reply(400, '{"status":"failure"}');
-        Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
-            '&client_id=' + clientId
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams()
         }).then(function(res) {
           assert.equal(res.result.code, 400);
           assert.equal(res.result.message, 'Invalid assertion');
@@ -168,9 +191,11 @@ describe('/oauth', function() {
     describe('?redirect_uri', function() {
       it('is optional', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
-            '&client_id=' + clientId + '&redirect_uri=' + client.redirectUri
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams({
+            redirect_uri: client.redirectUri
+          })
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
         }).done(done, done);
@@ -178,9 +203,11 @@ describe('/oauth', function() {
 
       it('must be same as registered redirect', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION + '&client_id='
-            + clientId + '&redirect_uri=http://derp.herp'
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams({
+            redirect_uri: 'http://herp.derp'
+          })
         }).then(function(res) {
           assert.equal(res.result.code, 400);
           assert.equal(res.result.message, 'Incorrect redirect_uri');
@@ -189,14 +216,27 @@ describe('/oauth', function() {
     });
 
     describe('?state', function() {
-      it('is returned if passed', function(done) {
+      it('is required', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.get({
-          url: '/oauth/authorization?state=1&assertion=' + AN_ASSERTION +
-            '&client_id=' + clientId
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams({
+            state: undefined
+          })
+        }).then(function(res) {
+          assertRequestParam(res.result, 'state');
+        }).done(done, done);
+      });
+      it('is returned', function(done) {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams({
+            state: 'aa'
+          })
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
-          assert.equal(url.parse(res.headers.location, true).query.state, 1);
+          assert.equal(url.parse(res.headers.location, true).query.state, 'aa');
         }).done(done, done);
       });
     });
@@ -204,9 +244,11 @@ describe('/oauth', function() {
     describe('?scope', function() {
       it('is optional', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.get({
-          url: '/oauth/authorization?scope=1&assertion=' + AN_ASSERTION +
-            '&client_id=' + clientId
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams({
+            scope: undefined
+          })
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
         }).done(done, done);
@@ -217,9 +259,9 @@ describe('/oauth', function() {
       describe('with a whitelisted client', function() {
         it('should redirect to the redirect_uri', function(done) {
           mockAssertion().reply(200, VERIFY_GOOD);
-          Server.get({
-            url: '/oauth/authorization?assertion=' + AN_ASSERTION +
-              '&client_id=' + clientId + '&redirect_uri=' + client.redirectUri
+          Server.post({
+            url: '/oauth/authorization',
+            payload: authParams()
           }).then(function(res) {
             assert.equal(res.statusCode, 302);
             var loc = url.parse(res.headers.location, true);
@@ -323,9 +365,11 @@ describe('/oauth', function() {
         };
         db.registerClient(client2).then(function() {
           mockAssertion().reply(200, VERIFY_GOOD);
-          return Server.get({
-            url: '/oauth/authorization?assertion=' + AN_ASSERTION +
-              '&client_id=' + client2.id.toString('hex')
+          return Server.post({
+            url: '/oauth/authorization',
+            payload: authParams({
+              client_id: client2.id.toString('hex')
+            })
           }).then(function(res) {
             return url.parse(res.headers.location, true).query.code;
           });
@@ -355,9 +399,9 @@ describe('/oauth', function() {
           _done.apply(this, arguments);
         }
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
-            '&client_id=' + clientId
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams()
         }).then(function(res) {
           return url.parse(res.headers.location, true).query.code;
         }).delay(60).then(function(code) {
@@ -379,9 +423,11 @@ describe('/oauth', function() {
     describe('response', function() {
       it('should return a correct response', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.get({
-          url: '/oauth/authorization?assertion=' + AN_ASSERTION +
-            '&client_id=' + clientId + '&scope=foo%20bar%20bar'
+        Server.post({
+          url: '/oauth/authorization',
+          payload: authParams({
+            scope: 'foo bar bar'
+          })
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
           return Server.post({
@@ -398,7 +444,7 @@ describe('/oauth', function() {
           assert(res.result.access_token);
           assert.equal(res.result.access_token.length,
             config.get('unique.token') * 2);
-          assert.deepEqual(res.result.scopes, ['foo', 'bar']);
+          assert.equal(res.result.scope, 'foo bar');
         }).done(done, done);
       });
     });

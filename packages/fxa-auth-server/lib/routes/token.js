@@ -34,8 +34,8 @@ module.exports = {
   response: {
     schema: {
       access_token: Joi.string().required(),
-      scopes: Joi.array(),
-      token_type: Joi.string().valid('bearer')
+      scope: Joi.string().required(),
+      token_type: Joi.string().valid('bearer').required()
     }
   },
   handler: function tokenEndpoint(req, reply) {
@@ -79,7 +79,7 @@ module.exports = {
       reply({
         access_token: token.token.toString('hex'),
         token_type: token.type,
-        scopes: token.scope
+        scope: token.scope.join(' ')
       });
     }, reply);
   }
