@@ -164,10 +164,7 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: isA.string()
-              .max(512)
-              .regex(validators.domainRegex(redirectDomain))
-              .optional()
+            redirectTo: validators.domain(redirectDomain).optional()
           },
         },
         response: {
@@ -232,10 +229,7 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: isA.string()
-              .max(512)
-              .regex(validators.domainRegex(redirectDomain))
-              .optional()
+            redirectTo: validators.domain(redirectDomain).optional()
           },
         },
         response: {

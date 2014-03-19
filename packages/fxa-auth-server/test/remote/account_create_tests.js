@@ -461,14 +461,15 @@ TestServer.start(config)
     function (t) {
       var api = new Client.Api(config.publicUrl)
       var email = server.uniqueEmail()
+      var authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
       var options = {
         redirectTo: 'http://accounts.firefox.com.evil.us'
       }
-      return api.accountCreate(email, '123456', options)
+      return api.accountCreate(email, authPW, options)
       .then(
         t.fail,
         function (err) {
-          t.equal(err.code, 400, 'bad redirectTo rejected')
+          t.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )
       .then(
@@ -479,7 +480,39 @@ TestServer.start(config)
       .then(
         t.fail,
         function (err) {
-          t.equal(err.code, 400, 'bad redirectTo rejected')
+          t.equal(err.errno, 107, 'bad redirectTo rejected')
+        }
+      )
+    }
+  )
+
+  test(
+    'another invalid redirectTo',
+    function (t) {
+      var api = new Client.Api(config.publicUrl)
+      var email = server.uniqueEmail()
+      var authPW = '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
+      var options = {
+        redirectTo: 'https://www.fake.com/.firefox.com'
+      }
+      return api.accountCreate(email, authPW, options)
+      .then(
+        t.fail,
+        function (err) {
+          t.equal(err.errno, 107, 'bad redirectTo rejected')
+        }
+      )
+      .then(
+        function () {
+          return api.passwordForgotSendCode(email, {
+            redirectTo: 'https://fakefirefox.com'
+          })
+        }
+      )
+      .then(
+        t.fail,
+        function (err) {
+          t.equal(err.errno, 107, 'bad redirectTo rejected')
         }
       )
     }

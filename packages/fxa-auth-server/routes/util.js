@@ -24,10 +24,7 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
             code: isA.string().max(32).regex(HEX_STRING).required(),
             uid: isA.string().max(32).regex(HEX_STRING).required(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: isA.string()
-              .max(512)
-              .regex(validators.domainRegex(redirectDomain))
-              .optional()
+            redirectTo: validators.domain(redirectDomain).optional()
           }
         }
       },
@@ -45,10 +42,7 @@ module.exports = function (log, crypto, isA, config, redirectDomain) {
             code: isA.string().max(32).regex(HEX_STRING).required(),
             token: isA.string().max(64).regex(HEX_STRING).required(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: isA.string()
-              .max(512)
-              .regex(validators.domainRegex(redirectDomain))
-              .optional()
+            redirectTo: validators.domain(redirectDomain).optional()
           }
         }
       },

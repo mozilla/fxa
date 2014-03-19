@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var url = require('url')
 var punycode = require('punycode')
 var isA = require('hapi').types
 
@@ -21,7 +22,7 @@ module.exports.email = function() {
   email._tests.push({ func: function(value, state, options) {
     if (value !== undefined && value !== null) {
       if (module.exports.isValidEmailAddress(value)) {
-        return null;
+        return null
       }
     }
     return {
@@ -89,9 +90,30 @@ module.exports.isValidEmailAddress = function(value) {
   return true
 }
 
-// Match any subdomain of the given hostname.
+module.exports.domain = function (base) {
+  var domain = isA.string().max(512)
+  if (!base) { return domain }
+  domain._tests.push(
+    {
+      func: function(value, state, options) {
+        if (value !== undefined && value !== null) {
+          if (module.exports.isValidDomain(value, base)) {
+            return null
+          }
+        }
+        return {
+          type: 'validators.domain',
+          context: { key: '<root>' },
+          path: state.path
+        }
+      }
+    }
+  )
+  return domain
+}
 
-module.exports.domainRegex = function (hostname) {
-	if (!hostname) { return new RegExp() }
-	return new RegExp('^https?:\\/\\/\\S+\\.' + hostname.replace('.', '\\.') + '(?:\\/\\S*)*$')
+module.exports.isValidDomain = function (redirect, base) {
+  var parsed = url.parse(redirect)
+  var regex = new RegExp('(?:\\.|^)' + base.replace('.', '\\.') + '$')
+  return regex.test(parsed.hostname)
 }
