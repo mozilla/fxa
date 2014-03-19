@@ -3,9 +3,6 @@ language: node_js
 node_js:
  - 0.10
 
-services:
- - redis-server
-
 notifications:
   email:
     - zcarter@mozilla.com
@@ -20,7 +17,7 @@ notifications:
     skip_join: false
 
 env:
-  - DB_BACKEND=mysql REDIS_HOST=localhost
+  - DB_BACKEND=mysql
 
 before_script:
   - "mysql -e 'DROP DATABASE IF EXISTS test;'"

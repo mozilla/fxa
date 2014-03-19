@@ -219,24 +219,6 @@ module.exports = function (fs, path, url, convict) {
         default: 'firefox.com'
       }
     },
-    redis: {
-      host: {
-        default: '',
-        env: 'REDIS_HOST'
-      },
-      port: {
-        default: 6379,
-        env: 'REDIS_PORT'
-      },
-      database: {
-        default: 0,
-        env: 'REDIS_DATABASE'
-      },
-      password: {
-        default: '',
-        env: 'REDIS_PASSWORD'
-      }
-    },
     toobusy: {
       maxLag: {
         doc: "Max event-loop lag before toobusy reports failure",
