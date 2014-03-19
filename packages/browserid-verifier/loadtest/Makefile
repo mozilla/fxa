@@ -5,6 +5,7 @@ SERVER_URL = https://verifier.stage.mozaws.net
 # Build virtualenv, to ensure we have all the dependencies.
 build:
 	virtualenv --no-site-packages ./venv
+	./venv/bin/pip install pexpect
 	./venv/bin/pip install gevent
 	./venv/bin/pip install https://github.com/mozilla-services/loads/archive/master.zip
 	./venv/bin/pip install PyBrowserID
