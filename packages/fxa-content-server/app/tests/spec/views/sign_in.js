@@ -16,9 +16,10 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, View, Session, FxaClient,
-  WindowMock, RouterMock, testHelpers) {
+  WindowMock, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/sign_in', function () {
     var view, email, router;
@@ -93,14 +94,14 @@ function (chai, $, View, Session, FxaClient,
                 $('[type=password]').val(password);
 
                 router.on('navigate', function () {
-                  assert.equal(router.page, 'confirm');
-                  done();
+                  wrapAssertion(function () {
+                    assert.equal(router.page, 'confirm');
+                  }, done);
                 });
                 view.submit();
               })
               .then(null, function (err) {
-                assert.fail(String(err));
-                done();
+                done(new Error(err));
               });
       });
 
@@ -112,8 +113,9 @@ function (chai, $, View, Session, FxaClient,
                 $('[type=password]').val('incorrect');
 
                 view.on('error', function (msg) {
-                  assert.ok(msg.indexOf('Incorrect') > -1);
-                  done();
+                  wrapAssertion(function () {
+                    assert.ok(msg.indexOf('Incorrect') > -1);
+                  }, done);
                 });
                 view.submit();
               });
@@ -124,8 +126,9 @@ function (chai, $, View, Session, FxaClient,
         $('[type=password]').val('incorrect');
 
         view.on('error', function (msg) {
-          assert.ok(msg.indexOf('/signup') > -1);
-          done();
+          wrapAssertion(function () {
+            assert.ok(msg.indexOf('/signup') > -1);
+          }, done);
         });
         view.submit();
       });
@@ -137,8 +140,9 @@ function (chai, $, View, Session, FxaClient,
         view.$('[type=password]').val('password');
 
         view.on('validation_error', function (which, msg) {
-          assert.ok(msg);
-          done();
+          wrapAssertion(function () {
+            assert.ok(msg);
+          }, done);
         });
 
         view.showValidationErrors();
@@ -149,8 +153,9 @@ function (chai, $, View, Session, FxaClient,
         view.$('[type=password]').val('passwor');
 
         view.on('validation_error', function (which, msg) {
-          assert.ok(msg);
-          done();
+          wrapAssertion(function () {
+            assert.ok(msg);
+          }, done);
         });
 
         view.showValidationErrors();
@@ -160,21 +165,20 @@ function (chai, $, View, Session, FxaClient,
     describe('resetPasswordNow', function () {
       var client;
 
-      beforeEach(function (done) {
+      beforeEach(function () {
         var clientWrapper = new FxaClient();
-        clientWrapper._getClientAsync()
+        return clientWrapper._getClientAsync()
                 .then(function (_client) {
                   client = _client;
                   // create spies that can be used to check
                   // parameters that are passed to the Fxaclient
-                  testHelpers.addFxaClientSpy(client);
-                  done();
+                  TestHelpers.addFxaClientSpy(client);
                 });
       });
 
       afterEach(function () {
         // return the client to its original state.
-        testHelpers.removeFxaClientSpy(client);
+        TestHelpers.removeFxaClientSpy(client);
       });
 
       it('only works from /force_auth', function () {
@@ -264,19 +268,18 @@ function (chai, $, View, Session, FxaClient,
               Session.set('forceAuth', true);
               Session.set('forceEmail', email);
               router.on('navigate', function () {
-                assert.equal(router.page, 'confirm_reset_password');
+                wrapAssertion(function () {
+                  assert.equal(router.page, 'confirm_reset_password');
 
-                assert.isTrue(event.isDefaultPrevented());
-                assert.isTrue(event.isPropagationStopped());
-
-                done();
+                  assert.isTrue(event.isDefaultPrevented());
+                  assert.isTrue(event.isPropagationStopped());
+                }, done);
               });
 
               view.resetPasswordNow(event);
             })
             .then(null, function (err) {
-              assert.fail(String(err));
-              done();
+              done(new Error(err));
             });
     });
   });

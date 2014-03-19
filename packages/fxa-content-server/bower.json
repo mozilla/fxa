@@ -13,7 +13,7 @@
     "requirejs-mustache": "https://github.com/jfparadis/requirejs-mustache.git#5fb8c0a3e8560526e8f9617a689e2924a8532d0a",
     "mustache": "0.7.3",
     "requirejs-text": "2.0.10",
-    "mocha": "1.16.2",
+    "mocha": "1.18.2",
     "chai": "1.8.1",
     "p": "https://github.com/rkatic/p.git#c6a451ef6080f10f9c31489c127ca3b291d0bc5a",
     "sinon": "http://sinonjs.org/releases/sinon-1.7.1.js",

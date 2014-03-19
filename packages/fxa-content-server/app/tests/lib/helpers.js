@@ -47,9 +47,19 @@ define([
     }
   }
 
+  function wrapAssertion(fn, done) {
+    try {
+      fn();
+    } catch (e) {
+      done(e);
+    }
+    done();
+  }
+
   return {
     requiresFocus: requiresFocus,
     addFxaClientSpy: addFxaClientSpy,
-    removeFxaClientSpy: removeFxaClientSpy
+    removeFxaClientSpy: removeFxaClientSpy,
+    wrapAssertion: wrapAssertion
   };
 });

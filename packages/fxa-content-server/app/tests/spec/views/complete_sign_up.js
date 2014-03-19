@@ -14,14 +14,15 @@ define([
   '../../lib/helpers'
 ],
 function (chai, View, Session, FxaClientWrapper,
-                WindowMock, testHelpers) {
+                WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/complete_sign_up', function () {
     var view, windowMock, client;
 
-    beforeEach(function (done) {
+    beforeEach(function () {
       Session.clear();
 
       windowMock = new WindowMock();
@@ -30,13 +31,12 @@ function (chai, View, Session, FxaClientWrapper,
       });
       $('#container').html(view.el);
       var clientWrapper = new FxaClientWrapper();
-      clientWrapper._getClientAsync()
+      return clientWrapper._getClientAsync()
               .then(function (_client) {
                 client = _client;
                 // create spies that can be used to check
                 // parameters that are passed to the Fxaclient
-                testHelpers.addFxaClientSpy(client);
-                done();
+                TestHelpers.addFxaClientSpy(client);
               });
     });
 
@@ -48,7 +48,7 @@ function (chai, View, Session, FxaClientWrapper,
       view = windowMock = null;
 
       // return the client to its original state.
-      testHelpers.removeFxaClientSpy(client);
+      TestHelpers.removeFxaClientSpy(client);
     });
 
     describe('constructor creates it', function () {
@@ -64,10 +64,10 @@ function (chai, View, Session, FxaClientWrapper,
         windowMock.location.search = '?code=code';
 
         view.on('error', function (msg) {
-          assert.ok(msg);
-          assert.isFalse(client.verifyCode.called);
-
-          done();
+          wrapAssertion(function() {
+            assert.ok(msg);
+            assert.isFalse(client.verifyCode.called);
+          }, done);
         });
         view.render();
       });
@@ -76,10 +76,10 @@ function (chai, View, Session, FxaClientWrapper,
         windowMock.location.search = '?uid=uid';
 
         view.on('error', function (msg) {
-          assert.ok(msg);
-          assert.isFalse(client.verifyCode.called);
-
-          done();
+          wrapAssertion(function() {
+            assert.ok(msg);
+            assert.isFalse(client.verifyCode.called);
+          }, done);
         });
         view.render();
       });
@@ -88,8 +88,9 @@ function (chai, View, Session, FxaClientWrapper,
         windowMock.location.search = '?code=code&uid=uid';
 
         view.on('verify_code_complete', function () {
-          assert.isTrue(client.verifyCode.called);
-          done();
+          wrapAssertion(function() {
+            assert.isTrue(client.verifyCode.called);
+          }, done);
         });
 
         view.render();

@@ -12,10 +12,12 @@ define([
   'views/change_password',
   'lib/fxa-client',
   'lib/session',
-  '../../mocks/router'
+  '../../mocks/router',
+  '../../lib/helpers'
 ],
-function (chai, _, $, View, FxaClient, Session, RouterMock) {
+function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
   var assert = chai.assert;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/change_password', function () {
     var view, router, email;
@@ -38,8 +40,9 @@ function (chai, _, $, View, FxaClient, Session, RouterMock) {
     describe('with no session', function () {
       it('redirects to signin', function (done) {
         router.on('navigate', function (newPage) {
-          assert.equal(newPage, 'signin');
-          done();
+          wrapAssertion(function () {
+            assert.equal(newPage, 'signin');
+          }, done);
         });
 
         var isRendered = view.render();
@@ -97,8 +100,9 @@ function (chai, _, $, View, FxaClient, Session, RouterMock) {
           view.$('#new_password').val('password');
 
           view.on('validation_error', function(which, msg) {
-            assert.ok(msg);
-            done();
+            wrapAssertion(function () {
+              assert.ok(msg);
+            }, done);
           });
 
           view.showValidationErrors();
@@ -109,8 +113,9 @@ function (chai, _, $, View, FxaClient, Session, RouterMock) {
           view.$('#new_password').val('passwor');
 
           view.on('validation_error', function(which, msg) {
-            assert.ok(msg);
-            done();
+            wrapAssertion(function () {
+              assert.ok(msg);
+            }, done);
           });
 
           view.showValidationErrors();
@@ -123,8 +128,9 @@ function (chai, _, $, View, FxaClient, Session, RouterMock) {
           $('#new_password').val('password');
 
           view.on('error', function (msg) {
-            assert.ok(msg);
-            done();
+            wrapAssertion(function () {
+              assert.ok(msg);
+            }, done);
           });
 
           view.submit();

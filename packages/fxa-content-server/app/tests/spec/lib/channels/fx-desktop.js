@@ -10,12 +10,14 @@ define([
   '/tests/mocks/window.js',
   '/tests/mocks/router.js',
   'lib/session',
-  'lib/channels/fx-desktop'
+  'lib/channels/fx-desktop',
+  '/tests/lib/helpers.js'
 ],
-function (chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
+function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var channel;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('lib/channel/fx-desktop', function () {
     var windowMock;
@@ -54,8 +56,9 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
     describe('init', function () {
       it('sends the user to the settings page if signed in', function (done) {
         channel.on('session_status', function () {
-          assert.equal(routerMock.page, 'settings');
-          done();
+          wrapAssertion(function () {
+            assert.equal(routerMock.page, 'settings');
+          }, done);
         });
 
         dispatchEvent('session_status', {
@@ -65,8 +68,9 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
 
       it('sends the user to the signup page if not signed in', function (done) {
         channel.on('session_status', function () {
-          assert.equal(routerMock.page, 'signup');
-          done();
+          wrapAssertion(function () {
+            assert.equal(routerMock.page, 'signup');
+          }, done);
         });
 
         // no data from session_status signifies no user is signed in.
@@ -77,8 +81,9 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
         channel.window.location.pathname = '/signin';
 
         channel.on('session_status', function () {
-          assert.notEqual(routerMock.page, 'signup');
-          done();
+          wrapAssertion(function () {
+            assert.notEqual(routerMock.page, 'signup');
+          }, done);
         });
 
         // no data from session_status signifies no user is signed in.
@@ -95,8 +100,9 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
       it('retries sending until a response is received from the browser',
         function (done) {
         channel.send('wait-for-response', { key: 'value' }, function (err) {
-          assert.isNull(err);
-          done();
+          wrapAssertion(function () {
+            assert.isNull(err);
+          }, done);
         });
 
         setTimeout(function () {
@@ -108,9 +114,9 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel) {
 
       it('times out if browser does not respond', function (done) {
         channel.send('wait-for-response', { key: 'value' }, function (err) {
-          assert.equal(String(err), 'Error: too many retries');
-
-          done();
+          wrapAssertion(function () {
+            assert.equal(String(err), 'Error: too many retries');
+          }, done);
         });
       });
 

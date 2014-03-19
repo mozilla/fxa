@@ -11,11 +11,13 @@ define([
   'views/delete_account',
   'lib/fxa-client',
   'lib/session',
-  '../../mocks/router'
+  '../../mocks/router',
+  '../../lib/helpers'
 ],
-function (chai, $, View, FxaClient, Session, RouterMock) {
+function (chai, $, View, FxaClient, Session, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/delete_account', function () {
     var view, router, email, password = 'password';
@@ -38,8 +40,9 @@ function (chai, $, View, FxaClient, Session, RouterMock) {
     describe('with no session', function () {
       it('redirects to signin', function (done) {
         router.on('navigate', function (newPage) {
-          assert.equal(newPage, 'signin');
-          done();
+          wrapAssertion(function() {
+            assert.equal(newPage, 'signin');
+          }, done);
         });
 
         var isRendered = view.render();
@@ -48,16 +51,15 @@ function (chai, $, View, FxaClient, Session, RouterMock) {
     });
 
     describe('with session', function () {
-      beforeEach(function (done) {
+      beforeEach(function () {
         email = 'testuser.' + Math.random() + '@testuser.com';
 
         var client = new FxaClient();
-        client.signUp(email, 'password')
+        return client.signUp(email, 'password')
           .then(function () {
             view.render();
 
             $('body').append(view.el);
-            done();
           });
       });
 
@@ -85,8 +87,9 @@ function (chai, $, View, FxaClient, Session, RouterMock) {
           view.$('[type=password]').val('passwor');
 
           view.on('validation_error', function(which, msg) {
-            assert.ok(msg);
-            done();
+            wrapAssertion(function() {
+              assert.ok(msg);
+            }, done);
           });
 
           view.showValidationErrors();
@@ -99,8 +102,9 @@ function (chai, $, View, FxaClient, Session, RouterMock) {
           $('form input[type=password]').val(password);
 
           router.on('navigate', function (newPage) {
-            assert.equal(newPage, 'signup');
-            done();
+            wrapAssertion(function() {
+              assert.equal(newPage, 'signup');
+            }, done);
           });
 
           view.submit();

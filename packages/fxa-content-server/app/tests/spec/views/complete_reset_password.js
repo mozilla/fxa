@@ -8,10 +8,12 @@
 define([
   'chai',
   'views/complete_reset_password',
-  '../../mocks/window'
+  '../../mocks/window',
+  '../../lib/helpers'
 ],
-function (chai, View, WindowMock) {
+function (chai, View, WindowMock, TestHelpers) {
   var assert = chai.assert;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/complete_reset_password', function () {
     var view, windowMock;
@@ -137,8 +139,9 @@ function (chai, View, WindowMock) {
         view.$('#vpassword').val('password');
 
         view.on('validation_error', function(which, msg) {
-          assert.ok(msg);
-          done();
+          wrapAssertion(function() {
+            assert.ok(msg);
+          }, done);
         });
 
         view.showValidationErrors();
@@ -149,8 +152,9 @@ function (chai, View, WindowMock) {
         view.$('#vpassword').val('passwor');
 
         view.on('validation_error', function(which, msg) {
-          assert.ok(msg);
-          done();
+          wrapAssertion(function() {
+            assert.ok(msg);
+          }, done);
         });
 
         view.showValidationErrors();
