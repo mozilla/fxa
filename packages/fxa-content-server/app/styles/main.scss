@@ -141,9 +141,12 @@ strong.email {
 
 .error,
 .success {
+  border-radius: 3px;
   color: $message-text-color;
   margin-bottom: 5px;
   padding: 5px;
+  position: relative;
+  top:-15px
 }
 
 .error {
