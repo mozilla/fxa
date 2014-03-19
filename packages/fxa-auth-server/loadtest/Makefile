@@ -1,14 +1,13 @@
-SERVER_URL = http://api-accounts.loadtest.lcip.org
+SERVER_URL = https://api-accounts.stage.mozaws.net
 
 .PHONY: build test bench
 
 # Build virtualenv, to ensure we have all the dependencies.
 build:
 	virtualenv --no-site-packages .
-	./bin/pip install cython
-	CYTHON=`pwd`/bin/cython ./bin/pip install https://github.com/surfly/gevent/archive/1.0rc2.tar.gz
+	./bin/pip install gevent
+	./bin/pip install pexpect
 	./bin/pip install https://github.com/mozilla-services/loads/archive/master.zip
-	./bin/pip install 'pyzmq < 14.0'
 	./bin/pip install 'hawkauthlib'
 	rm -rf ./local  # ubuntu, why you create this useless folder?
 

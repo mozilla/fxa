@@ -101,7 +101,7 @@ class HawkAuth(AuthBase):
 
 class LoadTest(TestCase):
 
-    server_url = 'http://api-accounts.loadtest.lcip.org'
+    server_url = 'https://api-accounts.stage.mozaws.net'
 
     def makeurl(self, path):
         return urlparse.urljoin(self.server_url, path)
