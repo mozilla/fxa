@@ -88,12 +88,15 @@ define([
             return respond(client._passwordChangeFinish(email, newPassword, oldCreds, keys), RequestMocks.passwordChangeFinish);
           })
           .then(function (result) {
-            var req = requests[requests.length-1];
-            var args = JSON.parse(req.requestBody);
-            var expectedNewWrapKB = sjcl.codec.hex.fromBits(
-              credentials.xor(sjcl.codec.hex.toBits(kB),
-                              sjcl.codec.hex.toBits(newUnwrapBKey)));
-            assert.equal(args.wrapKb, expectedNewWrapKB);
+            // currently only available for mocked requests (issue #103)
+            if (requests) {
+              var req = requests[requests.length-1];
+              var args = JSON.parse(req.requestBody);
+              var expectedNewWrapKB = sjcl.codec.hex.fromBits(
+                credentials.xor(sjcl.codec.hex.toBits(kB),
+                                sjcl.codec.hex.toBits(newUnwrapBKey)));
+              assert.equal(args.wrapKb, expectedNewWrapKB);
+            }
             assert.ok(result, '{}');
 
             return respond(client.signIn(email, newPassword), RequestMocks.signIn);
