@@ -12,10 +12,12 @@ define([
   'views/settings',
   'lib/fxa-client',
   'lib/session',
-  '../../mocks/router'
+  '../../mocks/router',
+  '../../lib/helpers'
 ],
-function (chai, _, $, View, FxaClient, Session, RouterMock) {
+function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
   var assert = chai.assert;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/settings', function () {
     var view, router, email;
@@ -38,8 +40,9 @@ function (chai, _, $, View, FxaClient, Session, RouterMock) {
     describe('with no session', function () {
       it('redirects to signin', function(done) {
         router.on('navigate', function (newPage) {
-          assert.equal(newPage, 'signin');
-          done();
+          wrapAssertion(function() {
+            assert.equal(newPage, 'signin');
+          }, done);
         });
 
         var isRendered = view.render();
@@ -48,24 +51,24 @@ function (chai, _, $, View, FxaClient, Session, RouterMock) {
     });
 
     describe('with session', function () {
-      beforeEach(function (done) {
+      beforeEach(function () {
         email = 'testuser.' + Math.random() + '@testuser.com';
 
         var client = new FxaClient();
-        client.signUp(email, 'password')
+        return client.signUp(email, 'password')
           .then(function() {
             view.render();
 
             $('body').append(view.el);
-            done();
           });
       });
 
       describe('signOut', function () {
         it('signs the user out, redirects to signin page', function (done) {
           router.on('navigate', function (newPage) {
-            assert.equal(newPage, 'signin');
-            done();
+            wrapAssertion(function() {
+              assert.equal(newPage, 'signin');
+            }, done);
           });
 
           view.signOut();

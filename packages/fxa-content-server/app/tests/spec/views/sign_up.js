@@ -12,11 +12,13 @@ define([
   'views/sign_up',
   'lib/session',
   'lib/fxa-client',
-  '../../mocks/router'
+  '../../mocks/router',
+  '../../lib/helpers'
 ],
-function (chai, _, $, View, Session, FxaClient, RouterMock) {
+function (chai, _, $, View, Session, FxaClient, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/sign_up', function () {
     var view, router, email;
@@ -232,8 +234,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
         view.$('#fxa-age-year').val('1990');
 
         view.on('validation_error', function(which, msg) {
-          assert.ok(msg);
-          done();
+          wrapAssertion(function () {
+            assert.ok(msg);
+          }, done);
         });
 
         view.showValidationErrors();
@@ -245,8 +248,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
         view.$('#fxa-age-year').val('1990');
 
         view.on('validation_error', function(which, msg) {
-          assert.ok(msg);
-          done();
+          wrapAssertion(function () {
+            assert.ok(msg);
+          }, done);
         });
 
         view.showValidationErrors();
@@ -257,8 +261,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
         view.$('[type=password]').val('passwor');
 
         view.on('validation_error', function(which, msg) {
-          assert.ok(msg);
-          done();
+          wrapAssertion(function () {
+            assert.ok(msg);
+          }, done);
         });
 
         view.showValidationErrors();
@@ -274,8 +279,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
         $('#fxa-age-year').val(nowYear - 14);
 
         router.on('navigate', function () {
-          assert.equal(router.page, 'confirm');
-          done();
+          wrapAssertion(function () {
+            assert.equal(router.page, 'confirm');
+          }, done);
         });
         view.submit();
       });
@@ -288,8 +294,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
         $('#fxa-age-year').val(nowYear - 14);
 
         router.on('navigate', function () {
-          assert.equal(router.page, 'confirm');
-          done();
+          wrapAssertion(function () {
+            assert.equal(router.page, 'confirm');
+          }, done);
         });
 
         // submit using the enter key
@@ -305,8 +312,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
         $('#fxa-age-year').val(nowYear - 13);
 
         router.on('navigate', function () {
-          assert.equal(router.page, 'cannot_create_account');
-          done();
+          wrapAssertion(function () {
+            assert.equal(router.page, 'cannot_create_account');
+          }, done);
         });
         view.submit();
       });
@@ -325,8 +333,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
         var revisitRouter = new RouterMock();
 
         revisitRouter.on('navigate', function () {
-          assert.equal(revisitRouter.page, 'cannot_create_account');
-          done();
+          wrapAssertion(function () {
+            assert.equal(revisitRouter.page, 'cannot_create_account');
+          }, done);
         });
 
         var revisitView = new View({
@@ -347,8 +356,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
                 $('#fxa-age-year').val(nowYear - 14);
 
                 router.on('navigate', function () {
-                  assert.equal(router.page, 'confirm');
-                  done();
+                  wrapAssertion(function () {
+                    assert.equal(router.page, 'confirm');
+                  }, done);
                 });
                 view.submit();
               });
@@ -365,8 +375,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
                 $('#fxa-age-year').val(nowYear - 14);
 
                 view.on('error', function (msg) {
-                  assert.ok(msg.indexOf('/signin') > -1);
-                  done();
+                  wrapAssertion(function () {
+                    assert.ok(msg.indexOf('/signin') > -1);
+                  }, done);
                 });
                 view.submit();
               });
@@ -383,8 +394,9 @@ function (chai, _, $, View, Session, FxaClient, RouterMock) {
                 $('#fxa-age-year').val(nowYear - 14);
 
                 router.on('navigate', function () {
-                  assert.equal(router.page, 'confirm');
-                  done();
+                  wrapAssertion(function () {
+                    assert.equal(router.page, 'confirm');
+                  }, done);
                 });
                 view.submit();
               });

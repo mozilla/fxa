@@ -19,6 +19,7 @@ define([
 function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
           RouterMock, WindowMock, TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
@@ -162,8 +163,9 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
     describe('navigate', function () {
       it('navigates to a page', function (done) {
         router.on('navigate', function (newPage) {
-          assert.equal(newPage, 'signin');
-          done();
+          wrapAssertion(function() {
+            assert.equal(newPage, 'signin');
+          }, done);
         });
         view.navigate('signin');
       });
@@ -205,8 +207,9 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
     describe('BaseView.preventDefaultThen', function () {
       it('can take the name of a function as the name of the event handler', function (done) {
         view.eventHandler = function (event) {
-          assert.isTrue(event.isDefaultPrevented());
-          done();
+          wrapAssertion(function() {
+            assert.isTrue(event.isDefaultPrevented());
+          }, done);
         };
 
         var backboneHandler = BaseView.preventDefaultThen('eventHandler');
@@ -215,8 +218,9 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
 
       it('can take a function as the event handler', function (done) {
         function eventHandler(event) {
-          assert.isTrue(event.isDefaultPrevented());
-          done();
+          wrapAssertion(function() {
+            assert.isTrue(event.isDefaultPrevented());
+          }, done);
         }
 
         var backboneHandler = BaseView.preventDefaultThen(eventHandler);

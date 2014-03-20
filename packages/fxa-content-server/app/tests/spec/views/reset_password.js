@@ -10,11 +10,13 @@ define([
   'views/reset_password',
   'lib/fxa-client',
   '../../mocks/window',
-  '../../mocks/router'
+  '../../mocks/router',
+  '../../lib/helpers'
 ],
-function (chai, View, FxaClient, WindowMock, RouterMock) {
+function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
+  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/reset_password', function () {
     var view, router;
@@ -64,8 +66,9 @@ function (chai, View, FxaClient, WindowMock, RouterMock) {
         view.$('[type=email]').val('testuser');
 
         view.on('validation_error', function (which, msg) {
-          assert.ok(msg);
-          done();
+          wrapAssertion(function() {
+            assert.ok(msg);
+          }, done);
         });
 
         view.showValidationErrors();
@@ -81,8 +84,9 @@ function (chai, View, FxaClient, WindowMock, RouterMock) {
                 view.$('input[type=email]').val(email);
 
                 router.on('navigate', function () {
-                  assert.equal(router.page, 'confirm_reset_password');
-                  done();
+                  wrapAssertion(function() {
+                    assert.equal(router.page, 'confirm_reset_password');
+                  }, done);
                 });
 
                 view.submit();

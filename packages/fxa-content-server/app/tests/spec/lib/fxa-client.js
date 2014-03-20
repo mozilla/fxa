@@ -32,7 +32,7 @@ function (chai, $, ChannelMock, testHelpers,
   }
 
   describe('lib/fxa-client', function () {
-    beforeEach(function (done) {
+    beforeEach(function () {
       channelMock = new ChannelMock();
       Session.clear();
       Session.set('channel', channelMock);
@@ -41,13 +41,12 @@ function (chai, $, ChannelMock, testHelpers,
       client = new FxaClientWrapper({
         language: 'it-CH'
       });
-      client._getClientAsync()
+      return client._getClientAsync()
               .then(function (_realClient) {
                 realClient = _realClient;
                 // create spies that can be used to check
                 // parameters that are passed to the FxaClient
                 testHelpers.addFxaClientSpy(realClient);
-                done();
               });
     });
 
@@ -60,11 +59,11 @@ function (chai, $, ChannelMock, testHelpers,
     });
 
     describe('signUp/signUpResend', function () {
-      it('signUp signs up a user with email/password', function (done) {
+      it('signUp signs up a user with email/password', function () {
         Session.set('service', 'sync');
         Session.set('redirectTo', 'https://sync.firefox.com');
 
-        client.signUp(email, password)
+        return client.signUp(email, password)
           .then(function () {
             assert.equal(channelMock.message, 'login');
             assert.isUndefined(channelMock.data.customizeSync);
@@ -75,33 +74,21 @@ function (chai, $, ChannelMock, testHelpers,
               redirectTo: 'https://sync.firefox.com',
               lang: 'it-CH'
             }));
-
-            done();
-          })
-          .then(null, function (err) {
-            assert.fail(err);
-            done();
           });
       });
 
-      it('informs browser of customizeSync option', function (done) {
-        client.signUp(email, password, { customizeSync: true })
+      it('informs browser of customizeSync option', function () {
+        return client.signUp(email, password, { customizeSync: true })
           .then(function () {
             assert.isTrue(channelMock.data.customizeSync);
-
-            done();
-          })
-          .then(null, function (err) {
-            assert.fail(err);
-            done();
           });
       });
 
-      it('signUpResend resends the validation email', function (done) {
+      it('signUpResend resends the validation email', function () {
         Session.set('service', 'sync');
         Session.set('redirectTo', 'https://sync.firefox.com');
 
-        client.signUp(email, password)
+        return client.signUp(email, password)
           .then(function () {
             return client.signUpResend();
           })
@@ -115,79 +102,58 @@ function (chai, $, ChannelMock, testHelpers,
                       lang: 'it-CH'
                     }
                 ));
-
-            done();
-          })
-          .then(null, function (err) {
-            assert.fail(err);
-            done();
           });
       });
 
-      it('signUp existing user attempts to sign the user in', function (done) {
-        client.signUp(email, password)
+      it('signUp existing user attempts to sign the user in', function () {
+        return client.signUp(email, password)
           .then(function () {
             return client.signUp(email, password);
           })
           .then(function () {
             assert.isTrue(realClient.signIn.called);
-            done();
-          })
-          .then(null, function (err) {
-            assert.fail(err);
-            done();
           });
       });
 
       it('signUp existing verified user with incorrect password returns ' +
-              'incorrect password error', function (done) {
-        client.signUp(email, password, { preVerified: true })
+              'incorrect password error', function () {
+        return client.signUp(email, password, { preVerified: true })
           .then(function () {
             return client.signUp(email, 'incorrect');
           })
           .then(function () {
-            assert.fail('incorrect password should not lead to success');
-            done();
-          })
-          .then(null, function (err) {
+            throw new Error('incorrect password should not lead to success');
+          }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
-            done();
           });
       });
 
       it('signUp existing unverified user with different password signs ' +
-              'user up again', function (done) {
-        client.signUp(email, password)
+              'user up again', function () {
+        return client.signUp(email, password)
           .then(function () {
             return client.signUp(email, 'different_password');
           })
           .then(function () {
             assert.isTrue(realClient.signUp.called);
             assert.isTrue(realClient.signIn.called);
-            done();
-          })
-          .then(null, function (err) {
-            assert.fail(err);
-            done();
           });
       });
 
     });
 
     describe('signIn', function () {
-      it('signin with unknown user should call errorback', function (done) {
-        client.signIn('unknown@unknown.com', 'password')
+      it('signin with unknown user should call errorback', function () {
+        return client.signIn('unknown@unknown.com', 'password')
           .then(function (info) {
             assert.fail('unknown user cannot sign in');
-            done();
           }, function (err) {
             assert.isTrue(true);
-            done();
           });
       });
 
-      it('signs a user in with email/password', function (done) {
-        client.signUp(email, password)
+      it('signs a user in with email/password', function () {
+        return client.signUp(email, password)
           .then(function () {
             return client.signIn(email, password);
           })
@@ -195,33 +161,25 @@ function (chai, $, ChannelMock, testHelpers,
             assert.isTrue(realClient.signIn.calledWith(trim(email)));
             assert.equal(channelMock.message, 'login');
             assert.isUndefined(channelMock.data.customizeSync);
-            done();
-          }, function (err) {
-            assert.fail(err);
-            done();
           });
       });
 
-      it('informs browser of customizeSync option', function (done) {
-        client.signUp(email, password)
+      it('informs browser of customizeSync option', function () {
+        return client.signUp(email, password)
           .then(function () {
             return client.signIn(email, password, true);
           })
           .then(function () {
             assert.equal(channelMock.message, 'login');
             assert.isTrue(channelMock.data.customizeSync);
-            done();
-          }, function (err) {
-            assert.fail(err);
-            done();
           });
       });
 
     });
 
     describe('passwordReset/passwordResetResend', function () {
-      it('requests a password reset', function (done) {
-        client.signUp(email, password)
+      it('requests a password reset', function () {
+        return client.signUp(email, password)
           .then(function () {
             Session.set('service', 'sync');
             Session.set('redirectTo', 'https://sync.firefox.com');
@@ -250,11 +208,6 @@ function (chai, $, ChannelMock, testHelpers,
                       lang: 'it-CH'
                     }
                 ));
-            done();
-          })
-          .then(null, function (err) {
-            assert.fail(err);
-            done();
           });
       });
     });
@@ -263,44 +216,28 @@ function (chai, $, ChannelMock, testHelpers,
     });
 
     describe('signOut', function () {
-      it('signs the user out', function (done) {
-        client.signUp(email, password)
+      it('signs the user out', function () {
+        return client.signUp(email, password)
           .then(function () {
             return client.signOut();
-          })
-          .then(function () {
-            // positive test to ensure success case has an assertion
-            assert.isTrue(true);
-            done();
-          }, function (err) {
-            assert.fail(err);
-            done();
           });
       });
 
-      it('resolves to success on XHR failure', function (done) {
-        client.signUp(email, password)
+      it('resolves to success on XHR failure', function () {
+        return client.signUp(email, password)
           .then(function () {
             return client.signOut();
           })
           .then(function () {
             // user has no session, this will cause an XHR error.
             return client.signOut();
-          })
-          .then(function () {
-            // positive test to ensure success case has an assertion
-            assert.isTrue(true);
-            done();
-          }, function (err) {
-            assert.fail(err);
-            done();
           });
       });
     });
 
     describe('changePassword', function () {
-      it('changes the user\'s password', function (done) {
-        client.signUp(email, password, {preVerified: true})
+      it('changes the user\'s password', function () {
+        return client.signUp(email, password, {preVerified: true})
           .then(function () {
             return client.changePassword(email, password, 'new_password');
           })
@@ -308,17 +245,13 @@ function (chai, $, ChannelMock, testHelpers,
             assert.isTrue(realClient.passwordChange.calledWith(trim(email)));
             // user is automatically re-authenticated with their new password
             assert.equal(channelMock.message, 'login');
-            done();
-          }, function (err) {
-            assert.fail(err);
-            done();
           });
       });
     });
 
     describe('deleteAccount', function () {
-      it('deletes the user\'s account', function (done) {
-        client.signUp(email, password)
+      it('deletes the user\'s account', function () {
+        return client.signUp(email, password)
           .then(function () {
             return client.deleteAccount(email, password);
           })
@@ -327,19 +260,16 @@ function (chai, $, ChannelMock, testHelpers,
             // this test is necessary because errors in deleteAccount
             // should not be propagated to the final done's error
             // handler
-            assert.fail('unexpected failure: ' + err.message);
-            done();
+            done(new Error('unexpected failure: ' + err.message));
           })
           .then(function () {
             return client.signIn(email, password);
           })
           .then(function () {
-            assert.fail('should not be able to signin after account deletion');
-            done();
+            throw new Error('should not be able to signin after account deletion');
           }, function () {
             // positive test to ensure sign in failure case has an assertion
             assert.isTrue(true);
-            done();
           });
       });
     });
