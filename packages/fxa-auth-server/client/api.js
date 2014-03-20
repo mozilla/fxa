@@ -348,6 +348,19 @@ ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
     )
 }
 
+ClientApi.prototype.sessionStatus = function (sessionTokenHex) {
+  return tokens.SessionToken.fromHex(sessionTokenHex)
+    .then(
+      function (token) {
+        return this.doRequest(
+          'GET',
+          this.baseURL + '/session/status',
+          token
+        )
+      }.bind(this)
+    )
+}
+
 ClientApi.heartbeat = function (origin) {
   return (new ClientApi(origin)).doRequest('GET', origin + '/__heartbeat__')
 }
