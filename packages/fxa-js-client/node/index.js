@@ -29,5 +29,7 @@ function NodeFxAccountClient(uri, config) {
     FxAccountClient.call(this, uri, config);
 }
 
+NodeFxAccountClient.VERSION = FxAccountClient.VERSION;
+
 module.exports = NodeFxAccountClient;
 util.inherits(NodeFxAccountClient, FxAccountClient);

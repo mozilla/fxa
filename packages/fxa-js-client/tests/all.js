@@ -19,5 +19,6 @@ define([
   'tests/lib/recoveryEmail',
   'tests/lib/misc',
   'tests/lib/errors',
-  'tests/lib/headerLang'
+  'tests/lib/headerLang',
+  'tests/lib/uriVersion'
 ], function () {});

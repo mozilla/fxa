@@ -14,15 +14,15 @@ define(['intern/lib/args'], function (args) {
   if (args.auth_server) {
     server = args.auth_server;
     if (server === 'LOCAL') {
-      server = 'http://127.0.0.1:9000/v1';
+      server = 'http://127.0.0.1:9000';
     }
 
     if (server === 'DEV') {
-      server = 'https://api-accounts.dev.lcip.org/v1';
+      server = 'https://api-accounts.dev.lcip.org';
     }
 
     if (server === 'LATEST') {
-      server = 'https://api-accounts-latest.dev.lcip.org/v1';
+      server = 'https://api-accounts-latest.dev.lcip.org';
     }
     console.log("Running against " + server);
   } else {
