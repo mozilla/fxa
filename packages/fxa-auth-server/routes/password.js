@@ -319,6 +319,31 @@ module.exports = function (
             )
         }
       }
+    },
+    {
+      method: 'GET',
+      path: '/password/forgot/status',
+      config: {
+        auth: {
+          strategy: 'passwordForgotToken'
+        },
+        response: {
+          schema: {
+            tries: isA.number(),
+            ttl: isA.number()
+          }
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Password.forgotStatus', request)
+        var passwordForgotToken = request.auth.credentials
+        reply(
+          {
+            tries: passwordForgotToken.tries,
+            ttl: passwordForgotToken.ttl()
+          }
+        )
+      }
     }
   ]
 

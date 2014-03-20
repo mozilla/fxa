@@ -130,6 +130,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [POST /v1/password/forgot/send_code](#post-v1passwordforgotsend_code)
     * [POST /v1/password/forgot/resend_code (:lock: passwordForgotToken)](#post-v1passwordforgotresend_code)
     * [POST /v1/password/forgot/verify_code (:lock: passwordForgotToken)](#post-v1passwordforgotverify_code)
+    * [GET /v1/password/forgot/status (:lock: passwordForgotToken)](#get-v1passwordforgotstatus)
 
 * Miscellaneous
     * [POST /v1/get_random_bytes](#post-v1get_random_bytes)
@@ -932,6 +933,44 @@ Failing requests may be due to the following errors:
 * status code 401, errno 111:  invalid authentication timestamp
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 401, errno 115:  invalid authentication nonce
+
+
+## GET /v1/password/forgot/status
+
+:lock: HAWK-authenticated with the passwordForgotToken.
+
+Returns the status for the passwordForgotToken. If the request returns a success response, the token has not yet been consumed. When the token is consumed by a successful reset or expires you can expect to get a 401 HTTP status code with an errno of 110.
+
+### Request
+
+___Headers___
+
+The request must include a Hawk header that authenticates the request using a `passwordForgotToken` received from `/v1/password/forgot/send_code`.
+
+```sh
+curl -v \
+-X GET \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/password/forgot/status \
+```
+
+
+### Response
+
+Successful requests will produce a "200 OK" response with the tries and ttl in the JSON body object:
+
+```json
+{ "tries": 3, "ttl": 420 }
+```
+
+Failing requests may be due to the following errors:
+
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
 * status code 401, errno 115:  invalid authentication nonce
 
 
