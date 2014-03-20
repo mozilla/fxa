@@ -164,7 +164,7 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.domain(redirectDomain).optional()
+            redirectTo: validators.redirectTo(redirectDomain).optional()
           },
         },
         response: {
@@ -229,7 +229,7 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.domain(redirectDomain).optional()
+            redirectTo: validators.redirectTo(redirectDomain).optional()
           },
         },
         response: {

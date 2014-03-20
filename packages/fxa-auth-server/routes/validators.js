@@ -90,30 +90,30 @@ module.exports.isValidEmailAddress = function(value) {
   return true
 }
 
-module.exports.domain = function (base) {
-  var domain = isA.string().max(512)
-  if (!base) { return domain }
-  domain._tests.push(
+module.exports.redirectTo = function (base) {
+  var redirectTo = isA.string().max(512)
+  if (!base) { return redirectTo }
+  var regex = new RegExp('(?:\\.|^)' + base.replace('.', '\\.') + '$')
+  redirectTo._tests.push(
     {
       func: function(value, state, options) {
         if (value !== undefined && value !== null) {
-          if (module.exports.isValidDomain(value, base)) {
+          if (module.exports.isValidUrl(value, regex)) {
             return null
           }
         }
         return {
-          type: 'validators.domain',
+          type: 'validators.redirectTo',
           context: { key: '<root>' },
           path: state.path
         }
       }
     }
   )
-  return domain
+  return redirectTo
 }
 
-module.exports.isValidDomain = function (redirect, base) {
+module.exports.isValidUrl = function (redirect, regex) {
   var parsed = url.parse(redirect)
-  var regex = new RegExp('(?:\\.|^)' + base.replace('.', '\\.') + '$')
-  return regex.test(parsed.hostname)
+  return regex.test(parsed.hostname) && /^https?:$/.test(parsed.protocol)
 }

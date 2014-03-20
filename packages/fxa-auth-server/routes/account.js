@@ -34,7 +34,7 @@ module.exports = function (
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.boolean(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.domain(redirectDomain).optional()
+            redirectTo: validators.redirectTo(redirectDomain).optional()
           }
         }
       },
@@ -357,7 +357,7 @@ module.exports = function (
         validate: {
           payload: {
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.domain(redirectDomain).optional()
+            redirectTo: validators.redirectTo(redirectDomain).optional()
           }
         }
       },
