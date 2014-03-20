@@ -44,7 +44,6 @@ module.exports = function (grunt) {
           // get rid of the .po extension, replace with .json
           filename = path.basename(filename, '.po') + '.json';
         }
-        grunt.log.writeln('locale: %s, filename: %s', locale, filename);
         return locale + '/' + filename;
       },
       output_transform: function (data) {
@@ -67,11 +66,11 @@ module.exports = function (grunt) {
       }
     },
     all: {
-      src: ['locale/**/*.po'],
+      src: ['<%= yeoman.strings_dist %>/**/*.po'],
       dest: '<%= yeoman.app %>/i18n'
     },
     template: {
-      src: ['locale/**/*.pot'],
+      src: ['<%= yeoman.strings_dist %>/**/*.pot'],
       dest: '<%= yeoman.tmp %>/i18n'
     }
   });
