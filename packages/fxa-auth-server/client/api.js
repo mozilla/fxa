@@ -307,7 +307,7 @@ ClientApi.prototype.passwordForgotResendCode = function (passwordForgotTokenHex,
 }
 
 ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex, code) {
-    return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
+  return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
     .then(
       function (token) {
         return this.doRequest(
@@ -317,6 +317,19 @@ ClientApi.prototype.passwordForgotVerifyCode = function (passwordForgotTokenHex,
           {
             code: code
           }
+        )
+      }.bind(this)
+    )
+}
+
+ClientApi.prototype.passwordForgotStatus = function (passwordForgotTokenHex) {
+  return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex)
+    .then(
+      function (token) {
+        return this.doRequest(
+          'GET',
+          this.baseURL + '/password/forgot/status',
+          token
         )
       }.bind(this)
     )

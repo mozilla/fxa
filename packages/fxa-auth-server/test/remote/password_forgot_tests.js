@@ -231,6 +231,45 @@ TestServer.start(config)
   )
 
   test(
+    'password forgot status with valid token',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'something'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (c) {
+            return c.forgotPassword()
+              .then(
+                function () {
+                  return c.api.passwordForgotStatus(c.passwordForgotToken)
+                }
+              )
+              .then(
+                function (x) {
+                  t.equal(x.tries, 3, 'three tries remaining')
+                  t.ok(x.ttl > 0 && x.ttl < (60*60), 'ttl is ok')
+                }
+              )
+          }
+        )
+    }
+  )
+
+  test(
+    'password forgot status with invalid token',
+    function (t) {
+      var client = new Client(config.publicUrl)
+      return client.api.passwordForgotStatus('0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF')
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.errno, 110, 'invalid token')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
