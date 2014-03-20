@@ -40,7 +40,6 @@ module.exports = function (grunt) {
           // get rid of the .po extension, replace with .json
           filename = path.basename(filename, '.po') + '.json';
         }
-        grunt.verbose.writeln('locale: %s, filename: %s', locale, filename);
         return locale + '/' + filename;
       },
       output_transform: function (data) {
