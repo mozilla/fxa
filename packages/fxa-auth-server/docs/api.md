@@ -114,6 +114,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [POST /v1/account/login](#post-v1accountlogin)
 
 * Session
+    * [GET /v1/session/status (:lock: sessionToken)](#get-v1sessionstatus)
     * [POST /v1/session/destroy (:lock: sessionToken)](#post-v1sessiondestroy)
 
 * Recovery Email
@@ -431,6 +432,44 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 * status code 401, errno 115:  invalid authentication nonce
 * status code 400, errno 120:  incorrect email case
+
+
+## GET /v1/session/status
+
+:lock: HAWK-authenticated with the sessionToken.
+
+The request will return a success response as long as the token is valid.
+
+### Request
+
+___Headers___
+
+The request must include a Hawk header that authenticates the request using a `sessionToken` received from `/v1/account/create` or `/v1/account/login`.
+
+```sh
+curl -v \
+-X GET \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+-H 'Authorization: Hawk id="d4c5b1e3f5791ef83896c27519979b93a45e6d0da34c7509c5632ac35b28b48d", ts="1373391043", nonce="ohQjqb", hash="vBODPWhDhiRWM4tmI9qp+np+3aoqEFzdGuGk0h7bh9w=", mac="LAnpP3P2PXelC6hUoUaHP72nCqY5Iibaa3eeiGBqIIU="' \
+https://api-accounts.dev.lcip.org/v1/session/status \
+```
+
+
+### Response
+
+Successful requests will produce a "200 OK" response with an empty JSON body object:
+
+```json
+{}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 401, errno 109:  invalid request signature
+* status code 401, errno 110:  invalid authentication token
+* status code 401, errno 111:  invalid authentication timestamp
+* status code 401, errno 115:  invalid authentication nonce
 
 
 ## POST /v1/session/destroy

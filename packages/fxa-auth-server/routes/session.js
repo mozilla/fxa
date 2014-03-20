@@ -24,6 +24,19 @@ module.exports = function (log, isA, error, db) {
             reply
           )
       }
+    },
+    {
+      method: 'GET',
+      path: '/session/status',
+      config: {
+        auth: {
+          strategy: 'sessionToken'
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Session.status', request)
+        reply({})
+      }
     }
   ]
 

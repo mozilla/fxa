@@ -52,6 +52,44 @@ TestServer.start(config)
   )
 
   test(
+    'session status with valid token',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'testx'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function (c) {
+            return c.login()
+              .then(
+                function () {
+                  return c.api.sessionStatus(c.sessionToken)
+                }
+              )
+          }
+        )
+        .then(
+          function (x) {
+            t.deepEqual(x, {}, 'good status')
+          }
+        )
+    }
+  )
+
+  test(
+    'session status with invalid token',
+    function (t) {
+      var client = new Client(config.publicUrl)
+      return client.api.sessionStatus('0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF')
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.errno, 110, 'invalid token')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
