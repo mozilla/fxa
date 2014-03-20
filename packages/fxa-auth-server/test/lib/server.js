@@ -4,6 +4,7 @@
 
 const Promise = require('../../lib/promise');
 const Server = require('../../lib/server');
+const version = require('../../lib/config').get('api.version');
 
 function request(options) {
   var server = Server.create();
@@ -30,3 +31,14 @@ exports.get = function get(options) {
   options.method = 'GET';
   return request(options);
 };
+
+var api = {};
+Object.keys(exports).forEach(function(key) {
+  api[key] = function api(options) {
+    options = opts(options);
+    options.url = '/v' + version + options.url;
+    return exports[key](options);
+  };
+});
+
+exports.api = api;

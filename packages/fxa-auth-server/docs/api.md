@@ -5,8 +5,14 @@
 ### URL Structure
 
 ```
-https://<server-url>/oauth/<api-endpoint>
+https://<server-url>/v1/<api-endpoint>
 ```
+
+Note that:
+
+- All API access must be over HTTPS
+- The URL embeds a version identifier "v1"; future revisions of this API may introduce new version numbers.
+- The base URL of the server may be configured on a per-client basis
 
 ### Errors
 
@@ -38,10 +44,10 @@ The currently-defined error responses are:
 
 ## API Endpoints
 
-- [POST /oauth/authorization][authorization]
-- [POST /oauth/token][token]
+- [POST /v1/authorization][authorization]
+- [POST /v1/token][token]
 
-### POST /oauth/authorization
+### POST /v1/authorization
 
 This endpoint should be used by the fxa-content-server, requesting that
 we supply a short-lived code (currently 15 minutes) that will be sent
@@ -69,7 +75,7 @@ Example:
 https://example.domain/path?foo=bar&code=asdfqwerty&state=zxcvasdf
 ```
 
-### POST /oauth/token
+### POST /v1/token
 
 After having received a [code][], the client sends that code (most
 likely a server-side request) to this endpoint, to receive a
@@ -100,5 +106,5 @@ Example:
 }
 ```
 
-[authorization]: #post-oauthauthorization
-[token]: #post-oauthtoken
+[authorization]: #post-v1authorization
+[token]: #post-v1token

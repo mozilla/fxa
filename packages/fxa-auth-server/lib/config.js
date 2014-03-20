@@ -8,6 +8,12 @@ const path = require('path');
 const convict = require('convict');
 
 const conf = convict({
+  api: {
+    version: {
+      doc: 'Number part of versioned endpoints - ex: /v1/token',
+      default: 1
+    }
+  },
   browserid: {
     issuer: {
       doc: 'We only accept assertions from this issuer',

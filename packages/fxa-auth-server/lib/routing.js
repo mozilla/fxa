@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const version = require('./config').get('api.version');
+
+function v(url) {
+  return '/v' + version + url;
+}
+
 module.exports = [
   {
     method: 'GET',
@@ -15,12 +21,12 @@ module.exports = [
   },
   {
     method: 'POST',
-    path: '/oauth/authorization',
+    path: v('/authorization'),
     config: require('./routes/authorization')
   },
   {
     method: 'POST',
-    path: '/oauth/token',
+    path: v('/token'),
     config: require('./routes/token')
   }
 ];

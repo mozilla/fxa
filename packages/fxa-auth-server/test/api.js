@@ -101,7 +101,7 @@ function assertRequestParam(result, param) {
 }
 
 
-describe('/oauth', function() {
+describe('/v1', function() {
   before(function(done) {
 
     Promise.all([
@@ -130,8 +130,8 @@ describe('/oauth', function() {
 
       it('is required', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams({
             client_id: undefined
           })
@@ -142,8 +142,8 @@ describe('/oauth', function() {
 
       it('succeeds if passed', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams()
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
@@ -155,8 +155,8 @@ describe('/oauth', function() {
     describe('?assertion', function() {
 
       it('is required', function(done) {
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams({
             assertion: undefined
           })
@@ -167,8 +167,8 @@ describe('/oauth', function() {
 
       it('succeeds if passed', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams()
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
@@ -177,8 +177,8 @@ describe('/oauth', function() {
 
       it('errors correctly if invalid', function(done) {
         mockAssertion().reply(400, '{"status":"failure"}');
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams()
         }).then(function(res) {
           assert.equal(res.result.code, 400);
@@ -191,8 +191,8 @@ describe('/oauth', function() {
     describe('?redirect_uri', function() {
       it('is optional', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams({
             redirect_uri: client.redirectUri
           })
@@ -203,8 +203,8 @@ describe('/oauth', function() {
 
       it('must be same as registered redirect', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams({
             redirect_uri: 'http://herp.derp'
           })
@@ -218,8 +218,8 @@ describe('/oauth', function() {
     describe('?state', function() {
       it('is required', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams({
             state: undefined
           })
@@ -229,8 +229,8 @@ describe('/oauth', function() {
       });
       it('is returned', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams({
             state: 'aa'
           })
@@ -244,8 +244,8 @@ describe('/oauth', function() {
     describe('?scope', function() {
       it('is optional', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams({
             scope: undefined
           })
@@ -259,8 +259,8 @@ describe('/oauth', function() {
       describe('with a whitelisted client', function() {
         it('should redirect to the redirect_uri', function(done) {
           mockAssertion().reply(200, VERIFY_GOOD);
-          Server.post({
-            url: '/oauth/authorization',
+          Server.api.post({
+            url: '/authorization',
             payload: authParams()
           }).then(function(res) {
             assert.equal(res.statusCode, 302);
@@ -281,15 +281,15 @@ describe('/oauth', function() {
   describe('/token', function() {
 
     it('disallows GET', function(done) {
-      Server.get('/oauth/token').then(function(res) {
+      Server.api.get('/token').then(function(res) {
         assert.equal(res.statusCode, 404);
       }).done(done, done);
     });
 
     describe('?client_id', function() {
       it('is required', function(done) {
-        Server.post({
-          url: '/oauth/token',
+        Server.api.post({
+          url: '/token',
           payload: {
             client_secret: secret,
             code: unique.code().toString('hex')
@@ -302,8 +302,8 @@ describe('/oauth', function() {
 
     describe('?client_secret', function() {
       it('is required', function(done) {
-        Server.post({
-          url: '/oauth/token',
+        Server.api.post({
+          url: '/token',
           payload: {
             client_id: clientId,
             code: unique.code().toString('hex')
@@ -314,8 +314,8 @@ describe('/oauth', function() {
       });
 
       it('must match server-stored secret', function(done) {
-        Server.post({
-          url: '/oauth/token',
+        Server.api.post({
+          url: '/token',
           payload: {
             client_id: clientId,
             client_secret: unique.secret().toString('hex'),
@@ -330,8 +330,8 @@ describe('/oauth', function() {
 
     describe('?code', function() {
       it('is required', function(done) {
-        Server.post({
-          url: '/oauth/token',
+        Server.api.post({
+          url: '/token',
           payload: {
             client_id: clientId,
             client_secret: secret
@@ -342,8 +342,8 @@ describe('/oauth', function() {
       });
 
       it('must match an existing code', function(done) {
-        Server.post({
-          url: '/oauth/token',
+        Server.api.post({
+          url: '/token',
           payload: {
             client_id: clientId,
             client_secret: secret,
@@ -365,8 +365,8 @@ describe('/oauth', function() {
         };
         db.registerClient(client2).then(function() {
           mockAssertion().reply(200, VERIFY_GOOD);
-          return Server.post({
-            url: '/oauth/authorization',
+          return Server.api.post({
+            url: '/authorization',
             payload: authParams({
               client_id: client2.id.toString('hex')
             })
@@ -374,8 +374,8 @@ describe('/oauth', function() {
             return url.parse(res.headers.location, true).query.code;
           });
         }).then(function(code) {
-          return Server.post({
-            url: '/oauth/token',
+          return Server.api.post({
+            url: '/token',
             payload: {
               // client is trying to use client2's code
               client_id: clientId,
@@ -399,14 +399,14 @@ describe('/oauth', function() {
           _done.apply(this, arguments);
         }
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams()
         }).then(function(res) {
           return url.parse(res.headers.location, true).query.code;
         }).delay(60).then(function(code) {
-          return Server.post({
-            url: '/oauth/token',
+          return Server.api.post({
+            url: '/token',
             payload: {
               client_id: clientId,
               client_secret: secret,
@@ -423,15 +423,15 @@ describe('/oauth', function() {
     describe('response', function() {
       it('should return a correct response', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.post({
-          url: '/oauth/authorization',
+        Server.api.post({
+          url: '/authorization',
           payload: authParams({
             scope: 'foo bar bar'
           })
         }).then(function(res) {
           assert.equal(res.statusCode, 302);
-          return Server.post({
-            url: '/oauth/token',
+          return Server.api.post({
+            url: '/token',
             payload: {
               client_id: clientId,
               client_secret: secret,
