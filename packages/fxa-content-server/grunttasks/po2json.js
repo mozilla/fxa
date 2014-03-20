@@ -6,6 +6,7 @@
 // .po files are expected to already be downloaded.
 
 const path = require('path');
+const i18n = require('i18n-abide');
 
 module.exports = function (grunt) {
   'use strict';
@@ -32,7 +33,10 @@ module.exports = function (grunt) {
          * content-server.po should have an output filename of messages.json
          */
         var matches = /^locale\/([^\/]+)\/LC_MESSAGES\/(.*)$/.exec(file);
-        var locale = matches[1].replace(/-/g, '_');
+
+        // In order to make sure the locale is in a form that i18n-abide expects
+        // we convert it from locale to langauge back to locale.
+        var locale = i18n.localeFrom(i18n.languageFrom(matches[1]));
         var filename = matches[2];
         if (filename === 'server.po') {
           filename = 'messages.json';
