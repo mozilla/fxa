@@ -9,7 +9,7 @@ Services ecosystem.
 
 [Overview](/docs/overview.md)
 
-[Detailed design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol)
+[Detailed design document](https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol)
 
 [Detailed API spec](/docs/api.md)
 
