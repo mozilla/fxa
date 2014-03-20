@@ -7,9 +7,7 @@
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('lint', [
-    'jshint',
-    'jsonlint:app',
-    'jscs'
+  grunt.registerTask('lint', 'lint all the things', [
+    'concurrent:lint'
   ]);
 };
