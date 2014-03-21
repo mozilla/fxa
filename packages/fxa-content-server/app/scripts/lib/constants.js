@@ -12,7 +12,10 @@ define([], function () {
     // See http://support.microsoft.com/kb/q208427
     URL_MAX_LENGTH: 2048,
 
-    FX_DESKTOP_CONTEXT: 'fx_desktop_v1'
+    FX_DESKTOP_CONTEXT: 'fx_desktop_v1',
+
+    SIGNUP_RESEND_MAX_TRIES: 3,
+    PASSWORD_RESET_RESEND_MAX_TRIES: 3
   };
 });
 
