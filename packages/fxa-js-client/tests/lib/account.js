@@ -241,6 +241,47 @@ define([
           })
       });
 
+      test('#passwordForgotStatus', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (result) {
+
+            return respond(client.passwordForgotSendCode(result.input.email), RequestMocks.passwordForgotSendCode);
+          })
+          .then(function (result) {
+
+            return respond(client.passwordForgotStatus(result.passwordForgotToken), RequestMocks.passwordForgotStatus)
+          })
+          .then(
+            function (result) {
+              assert.equal(result.tries, 3);
+              assert.property(result, 'ttl');
+            },
+            assert.notOk
+          )
+      });
+
+      test('#passwordForgotStatus error with a false token', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (result) {
+
+            return respond(client.passwordForgotSendCode(result.input.email), RequestMocks.passwordForgotSendCode);
+          })
+          .then(function () {
+            var fakeToken = 'e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f10000';
+
+            return respond(client.passwordForgotStatus(fakeToken), ErrorMocks.invalidAuthToken)
+          })
+          .then(
+            assert.notOk,
+            function (err) {
+              assert.equal(err.code, 401);
+              assert.equal(err.errno, 110);
+            }
+          )
+      });
+
     });
   }
 });

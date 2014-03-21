@@ -314,6 +314,23 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
   };
 
   /**
+   * Returns the status for the passwordForgotToken.
+   * If the request returns a success response, the token has not yet been consumed.
+
+   * @method passwordForgotStatus
+   * @param {String} passwordForgotToken
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.passwordForgotStatus = function(passwordForgotToken) {
+    var self = this;
+
+    return hawkCredentials(passwordForgotToken, 'passwordForgotToken',  2 * 32)
+      .then(function(creds) {
+        return self.request.send('/password/forgot/status', 'GET', creds);
+      });
+  };
+
+  /**
    * The API returns reset result to the client.
    * HAWK-authenticated with accountResetToken
    *
@@ -450,6 +467,22 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
     return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
         return self.request.send('/session/destroy', 'POST', creds);
+      });
+  };
+
+  /**
+   * Responds successfully if the session status is valid, requires the sessionToken.
+   *
+   * @method sessionStatus
+   * @param {String} sessionToken User session token
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.sessionStatus = function(sessionToken) {
+    var self = this;
+
+    return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
+      .then(function(creds) {
+        return self.request.send('/session/status', 'GET', creds);
       });
   };
 
