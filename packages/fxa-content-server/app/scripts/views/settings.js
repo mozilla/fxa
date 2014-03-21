@@ -9,9 +9,10 @@ define([
   'views/base',
   'stache!templates/settings',
   'lib/fxa-client',
-  'lib/session'
+  'lib/session',
+  'lib/constants'
 ],
-function (_, BaseView, Template, FxaClient, Session) {
+function (_, BaseView, Template, FxaClient, Session, Constants) {
   var View = BaseView.extend({
     // user must be authenticated to see Settings
     mustAuth: true,
@@ -23,7 +24,7 @@ function (_, BaseView, Template, FxaClient, Session) {
       return {
         // HTML is written here to simplify the l10n community's job
         email: '<strong id="email" class="email">' + Session.email + '</strong>',
-        showSignOut: !Session.isDesktopContext()
+        showSignOut: Session.get('sessionTokenContext') !== Constants.FX_DESKTOP_CONTEXT
       };
     },
 

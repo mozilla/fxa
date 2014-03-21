@@ -67,6 +67,7 @@ function (FxaClient, $, p, Session, AuthErrors) {
                   unwrapBKey: accountData.unwrapBKey,
                   keyFetchToken: accountData.keyFetchToken,
                   sessionToken: accountData.sessionToken,
+                  sessionTokenContext: Session.context,
                   customizeSync: customizeSync
                 };
 

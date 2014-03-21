@@ -52,26 +52,11 @@ define([
         .end();
     },
 
-    'go to settings page from the desktop context, make sure the user cannot sign out': function () {
-      return this.get('remote')
-        // Temporary solution to force the correct context.
-        // TODO: (Issue #742) Refactor functional tests to not share state between tests
-        .get(require.toUrl(SETTINGS_URL + '?context=' + Constants.FX_DESKTOP_CONTEXT))
-        .waitForElementById('fxa-settings-header')
-
-        // make sure the sign out element doesn't exist
-        .hasElementById('signout')
-          .then(function(hasElement) {
-            assert(!hasElement);
-          })
-        .end();
-    },
-
     'go to settings page, sign out': function () {
       return this.get('remote')
         // Temporary solution to force the correct context.
         // TODO: (Issue #742) Refactor functional tests to not share state between tests
-        .get(require.toUrl(SETTINGS_URL + '?context=none'))
+        .get(require.toUrl(SETTINGS_URL))
         .waitForElementById('fxa-settings-header')
 
         // sign the user out
@@ -81,6 +66,42 @@ define([
 
         // success is going to the signin page
         .waitForElementById('fxa-signin-header')
+        .end();
+    },
+
+    'sign in to desktop context for signing out': function () {
+      return this.get('remote')
+        .get(require.toUrl(SIGNIN_URL + '?context=' + Constants.FX_DESKTOP_CONTEXT))
+        .waitForElementById('fxa-signin-header')
+
+        .elementByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('form input.password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end();
+    },
+
+    'go to settings page from the desktop context, make sure the user cannot sign out': function () {
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
+        .waitForElementById('fxa-settings-header')
+        // make sure the sign out element doesn't exist
+        .hasElementById('signout')
+          .then(function(hasElement) {
+            assert(!hasElement);
+          })
+        // Clear out the session since we didn't sign out. This isn't ideal since it implies too much
+        // knowledge of the implementation of the Session module but it guarantees that we don't
+        // break the other tests.
+        .eval('sessionStorage.clear(); localStorage.clear();') // jshint ignore:line
         .end();
     },
 
