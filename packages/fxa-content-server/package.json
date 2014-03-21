@@ -69,13 +69,13 @@
     "jsxgettext-recursive": "0.0.3",
     "load-grunt-tasks": "0.4.0",
     "mkdirp": "0.3.5",
+    "request": "2.34.0",
     "time-grunt": "0.2.10"
   },
   "devDependencies": {
     "awsbox": "0.7.0",
     "fxa-auth-server": "git://github.com/mozilla/fxa-auth-server.git",
     "intern-geezer": "1.5.0",
-    "request": "2.34.0",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {
