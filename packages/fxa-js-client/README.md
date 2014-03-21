@@ -1,7 +1,7 @@
 fxa-js-client
 =======
 
-[![Build Status](https://travis-ci.org/mozilla/fxa-js-client.png?branch=master)](https://travis-ci.org/mozilla/fxa-js-client)
+[![Build Status](https://travis-ci.org/mozilla/fxa-js-client.svg?branch=master)](https://travis-ci.org/mozilla/fxa-js-client)
 
 Web client that talks to the Firefox Accounts API server
 
