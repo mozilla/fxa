@@ -12,13 +12,14 @@ define([
   '../../lib/helpers',
   'lib/session',
   'lib/fxa-client',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/constants'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, ChannelMock, testHelpers,
-              Session, FxaClientWrapper, AuthErrors) {
+              Session, FxaClientWrapper, AuthErrors, Constants) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var email;
@@ -102,6 +103,22 @@ function (chai, $, ChannelMock, testHelpers,
                       lang: 'it-CH'
                     }
                 ));
+          });
+      });
+
+      it('signUpResend still shows success after max tries', function () {
+        var triesLeft = Constants.SIGNUP_RESEND_MAX_TRIES;
+
+        return client.signUp(email, password)
+          .then(function () {
+            // exhaust all tries
+            for (var i = 0; i < triesLeft; i++) {
+              client.signUpResend();
+            }
+            return client.signUpResend();
+          })
+          .then(function (result) {
+            assert.ok(result);
           });
       });
 
@@ -208,6 +225,25 @@ function (chai, $, ChannelMock, testHelpers,
                       lang: 'it-CH'
                     }
                 ));
+          });
+      });
+
+      it('passwordResetResend still shows success after max tries', function () {
+        var triesLeft = Constants.PASSWORD_RESET_RESEND_MAX_TRIES;
+
+        return client.signUp(email, password)
+          .then(function () {
+            return client.passwordReset(email);
+          })
+          .then(function () {
+            // exhaust all tries
+            for (var i = 0; i < triesLeft; i++) {
+              client.passwordResetResend();
+            }
+            return client.passwordResetResend();
+          })
+          .then(function (result) {
+            assert.ok(result);
           });
       });
     });

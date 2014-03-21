@@ -13,10 +13,13 @@ define([
   'jquery',
   'p-promise',
   'lib/session',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/constants'
 ],
-function (FxaClient, $, p, Session, AuthErrors) {
+function (FxaClient, $, p, Session, AuthErrors, Constants) {
   var client;
+  var signUpResendCount = 0;
+  var passwordResetResendCount = 0;
 
   // IE 8 doesn't support String.prototype.trim
   function trim(str) {
@@ -96,6 +99,10 @@ function (FxaClient, $, p, Session, AuthErrors) {
       var self = this;
       var service = Session.service;
       var redirectTo = Session.redirectTo;
+
+      // ensure resend works again
+      signUpResendCount = 0;
+
       return this._getClientAsync()
               .then(function (client) {
                 var signUpOptions = {
@@ -138,15 +145,24 @@ function (FxaClient, $, p, Session, AuthErrors) {
 
     signUpResend: function () {
       var self = this;
-      return this._getClientAsync().then(function (client) {
-                return client.recoveryEmailResendCode(
-                  Session.sessionToken,
-                  {
-                    service: Session.service,
-                    redirectTo: Session.redirectTo,
-                    lang: self.language
-                  });
-              });
+      return this._getClientAsync()
+        .then(function (client) {
+          if (signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
+            var defer = p.defer();
+            defer.resolve(true);
+            return defer.promise;
+          } else {
+            signUpResendCount++;
+          }
+
+          return client.recoveryEmailResendCode(
+            Session.sessionToken,
+            {
+              service: Session.service,
+              redirectTo: Session.redirectTo,
+              lang: self.language
+            });
+        });
     },
 
     signOut: function () {
@@ -178,6 +194,9 @@ function (FxaClient, $, p, Session, AuthErrors) {
       var redirectTo = Session.redirectTo;
       var email = trim(originalEmail);
 
+      // ensure resend works again
+      passwordResetResendCount = 0;
+
       return this._getClientAsync()
               .then(function (client) {
                 return client.passwordForgotSendCode(email, {
@@ -201,20 +220,28 @@ function (FxaClient, $, p, Session, AuthErrors) {
 
     passwordResetResend: function () {
       var self = this;
-      return this._getClientAsync().then(function (client) {
-                // the linters complain if this is defined in the call to
-                // passwordForgotResendCode
-                var options = {
-                  service: Session.service,
-                  redirectTo: Session.redirectTo,
-                  lang: self.language
-                };
-                return client.passwordForgotResendCode(
-                            Session.email,
-                            Session.passwordForgotToken,
-                            options
-                );
-              });
+      return this._getClientAsync()
+        .then(function (client) {
+          if (passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
+            var defer = p.defer();
+            defer.resolve(true);
+            return defer.promise;
+          } else {
+            passwordResetResendCount++;
+          }
+          // the linters complain if this is defined in the call to
+          // passwordForgotResendCode
+          var options = {
+            service: Session.service,
+            redirectTo: Session.redirectTo,
+            lang: self.language
+          };
+          return client.passwordForgotResendCode(
+                   Session.email,
+                   Session.passwordForgotToken,
+                   options
+                 );
+        });
     },
 
     completePasswordReset: function (originalEmail, newPassword, token, code) {
