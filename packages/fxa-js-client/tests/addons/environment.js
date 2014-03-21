@@ -15,7 +15,7 @@ define([
 
   function Environment() {
     var self = this;
-    this.authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000/v1';
+    this.authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000';
     // if 'auth_server' is part of the Intern arguments then using a remote server
     this.useRemoteServer = !!config.AUTH_SERVER_URL;
     this.mailServerUrl = this.authServerUrl.match(/^http:\/\/127/) ?

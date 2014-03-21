@@ -5,6 +5,9 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
   function (Request, sjcl, P, credentials, hawkCredentials, ERRORS) {
   'use strict';
 
+  var VERSION = 'v1';
+  var uriVersionRegExp = new RegExp('/' + VERSION + '$');
+
   /**
    * @class FxAccountClient
    * @constructor
@@ -19,9 +22,14 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
     if (typeof config === 'undefined') {
       config = {};
     }
+    if (!uriVersionRegExp.test(uri)) {
+      uri = uri + '/' + VERSION;
+    }
 
     this.request = new Request(uri, config.xhr, { localtimeOffsetMsec: config.localtimeOffsetMsec });
   }
+
+  FxAccountClient.VERSION = VERSION;
 
   /**
    * @method signUp
