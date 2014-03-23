@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var path = require('path')
+var fs = require('fs')
 var mysql = require('mysql');
-var schema = require('fs').readFileSync(__dirname + '/schema.sql', { encoding: 'utf8'})
 
 module.exports = function (
   P,
@@ -71,81 +72,37 @@ module.exports = function (
     log.stat(stats)
   }
 
-  // this will connect to mysql, create the database
-  // then create the schema, prior to returning an
-  // instance of MySql
-  function createSchema(options) {
-    log.trace( { op: 'MySql.createSchema' } )
-
-    var d = P.defer()
-
-    // To create the schema we need to switch multipleStatements on
-    // as well as connecting without a database name, but switching to it
-    // once it has been created.
-    options.master.multipleStatements = true
-    var database = options.master.database
-    delete options.master.database
-
-    var client = mysql.createConnection(options.master)
-
-    log.trace( { op: 'MySql.createSchema:CreateDatabase' } )
-    client.query(
-      'CREATE DATABASE IF NOT EXISTS ' + database + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci',
-      function (err) {
-        if (err) {
-          log.error({ op: 'MySql.createSchema:CreateDatabase', err: err.message })
-          return d.reject(err)
-        }
-        log.trace( { op: 'MySql.createSchema : changing user' } )
-        client.changeUser(
-          {
-            user     : options.master.user,
-            password : options.master.password,
-            database : database
-          },
-          function (err) {
-            if (err) {
-              log.error({ op: 'MySql.createSchema:ChangeUser', err: err.message })
-              return d.reject(err)
-            }
-            log.trace( { op: 'MySql.createSchema:MakingTheSchema' } )
-            client.query(
-              schema,
-              function (err) {
-                if (err) {
-                  log.trace( { op: 'MySql.createSchema:ClosingTheClient', err: err.message } )
-                  return d.reject(err)
-                }
-                client.end(
-                  function (err) {
-                    if (err) {
-                      log.error({ op: 'MySql.createSchema:End', err: err.message })
-                      return d.reject(err)
-                    }
-
-                    // put these options back
-                    options.master.database = database
-                    delete options.master.multipleStatements
-
-                    // create the mysql class
-                    d.resolve(new MySql(options))
-                  }
-                )
-              }
-            )
-          }
-        )
-      }
-    )
-    return d.promise
-  }
-
   // this will be called from outside this file
   MySql.connect = function(options) {
-    if (options.createSchema) {
-      return createSchema(options)
-    }
-    return P(new MySql(options))
+    // check that the database patch level is what we expect (or one above)
+    var mysql = new MySql(options)
+
+    return mysql.read("SELECT value FROM dbMetadata WHERE name = ?", options.patchKey)
+      .then(
+        function (results) {
+          if (!results.length) { throw error.dbIncorrectPatchLevel() }
+          var patchLevel = +results[0].value
+          if ( patchLevel !== options.patchLevel && patchLevel !== options.patchLevel + 1 ) {
+            throw error.dbIncorrectPatchLevel(patchLevel, options.patchLevel)
+          }
+          log.trace({
+            op: 'MySql.connect',
+            patchLevel: patchLevel,
+            patchLevelRequired: options.patchLevel
+          })
+          return mysql
+        },
+        function(err) {
+          console.log(err)
+          // If this error means that dbMetadata does not exist, assume patch level 2 for now
+          if ( err.code === 'ER_NO_SUCH_TABLE' ) {
+            // for now, this is ok
+            return mysql
+          }
+          // re-throw so the caller gets the problem
+          throw err
+        }
+      )
   }
 
   MySql.prototype.close = function () {

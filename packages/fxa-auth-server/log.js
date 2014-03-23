@@ -93,12 +93,13 @@ Overdrive.prototype.summary = function (request, response) {
   }
 }
 
-module.exports = function (level) {
+module.exports = function (level, name) {
   var logStreams = [{ stream: process.stderr, level: level }]
+  name = name || 'fxa-auth-server'
 
   var log = new Overdrive(
     {
-      name: 'fxa-auth-server',
+      name: name,
       streams: logStreams
     }
   )

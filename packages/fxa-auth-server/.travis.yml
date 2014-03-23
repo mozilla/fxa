@@ -20,8 +20,7 @@ env:
   - DB_BACKEND=mysql
 
 before_script:
-  - "mysql -e 'DROP DATABASE IF EXISTS test;'"
-  - "mysql -e 'CREATE DATABASE test;'"
+  - "mysql -e 'DROP DATABASE IF EXISTS fxa;'"
 
 before_install:
   - sudo apt-get install libgmp3-dev
