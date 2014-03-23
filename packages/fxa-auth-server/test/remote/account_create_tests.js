@@ -7,6 +7,7 @@ var TestServer = require('../test_server')
 var path = require('path')
 var crypto = require('crypto')
 var Client = require('../../client')
+var P = require('../../promise')
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/account_tests.json')
 var config = require('../../config').root()
@@ -286,69 +287,29 @@ TestServer.start(config)
     '/account/create with a variety of malformed email addresses',
     function (t) {
       var pwd = '123456'
-      return Client.create(config.publicUrl, 'notAnEmailAddress', pwd)
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400, 'malformed email is rejected')
-            return Client.create(config.publicUrl, '\n@example.com', pwd)
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400, 'malformed email is rejected')
-            return Client.create(config.publicUrl, 'me@hello world.com', pwd)
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400, 'malformed email is rejected')
-            return Client.create(config.publicUrl, 'me@hello+world.com', pwd)
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400, 'malformed email is rejected')
-            return Client.create(config.publicUrl, 'me@.example', pwd)
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400, 'malformed email is rejected')
-            return Client.create(config.publicUrl, 'me@example.com-', pwd)
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400, 'malformed email is rejected')
-            return Client.create(config.publicUrl, 'me@example..com', pwd)
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400, 'malformed email is rejected')
-            return Client.create(config.publicUrl, 'me@example-.com', pwd)
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400, 'malformed email is rejected')
-            return Client.create(config.publicUrl, 'me@example.-com', pwd)
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.code, 400, 'malformed email is rejected')
-          }
-        )
+
+      var emails = [
+        'notAnEmailAddress',
+        '\n@example.com',
+        'me@hello world.com',
+        'me@hello+world.com',
+        'me@.example',
+        'me@example.com-',
+        'me@example..com',
+        'me@example-.com',
+        'me@example.-com',
+      ]
+      emails.forEach(function(email, i) {
+        emails[i] = Client.create(config.publicUrl, email, pwd)
+          .then(
+            t.fail,
+            function (err) {
+              t.equal(err.code, 400, 'http 400 : malformed email is rejected')
+            }
+          )
+      })
+
+      return P.all(emails)
     }
   )
 
@@ -356,56 +317,28 @@ TestServer.start(config)
     '/account/create with a variety of unusual but valid email addresses',
     function (t) {
       var pwd = '123456'
-      return Client.create(config.publicUrl, 'a+b+c@example.com', pwd)
-        .then(
-          function (c) {
-            return c.destroyAccount()
-          },
-          function (err) {
-            t.equal(err.errno, 101, 'unusual email is not invalid')
-          }
-        )
-        .then(
-          function () {
-            return Client.create(config.publicUrl, '#!?-@t-e-s-t.c-o-m', pwd)
-          }
-        )
-        .then(
-          function (c) {
-            return c.destroyAccount()
-          },
-          function (err) {
-            t.equal(err.errno, 101, 'unusual email is not invalid')
-          }
-        )
-        .then(
-          function () {
-            var email = String.fromCharCode(1234) + '@example.com'
-            return Client.create(config.publicUrl, email, pwd)
-          }
-        )
-        .then(
-          function (c) {
-            return c.destroyAccount()
-          },
-          function (err) {
-            t.equal(err.errno, 101, 'unusual email is not invalid')
-          }
-        )
-        .then(
-          function () {
-            var email = 'test@' + String.fromCharCode(5678) + '.com'
-            return Client.create(config.publicUrl, email, pwd)
-          }
-        )
-        .then(
-          function (c) {
-            return c.destroyAccount()
-          },
-          function (err) {
-            t.equal(err.errno, 101, 'unusual email is not invalid')
-          }
-        )
+
+      var emails = [
+        'a+b+c@example.com',
+        '#!?-@t-e-s-t.c-o-m',
+        String.fromCharCode(1234) + '@example.com',
+        'test@' + String.fromCharCode(5678) + '.com',
+      ]
+
+      emails.forEach(function(email, i) {
+        emails[i] = Client.create(config.publicUrl, email, pwd)
+          .then(
+            function(c) {
+              t.pass('Email ' + email + ' is valid')
+              return c.destroyAccount()
+            },
+            function (err) {
+              t.fail('Email address ' + email + " should have been allowed, but it wasn't")
+            }
+          )
+      })
+
+      return P.all(emails)
     }
   )
 
