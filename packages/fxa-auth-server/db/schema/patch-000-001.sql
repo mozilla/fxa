@@ -1,7 +1,7 @@
 -- Create the 'dbMetadata' table.
 -- Note: This should be the only thing in this initial patch.
 
-CREATE TABLE IF NOT EXISTS dbMetadata (
+CREATE TABLE dbMetadata (
   name VARCHAR(255) NOT NULL PRIMARY KEY,
   value VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB;

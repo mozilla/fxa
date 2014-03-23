@@ -77,26 +77,32 @@ module.exports = function (
     // check that the database patch level is what we expect (or one above)
     var mysql = new MySql(options)
 
-    var d = P.defer()
-    mysql.read("SELECT value FROM dbMetadata WHERE name = ?", options.patchKey)
+    return mysql.read("SELECT value FROM dbMetadata WHERE name = ?", options.patchKey)
       .then(
         function (results) {
           if (!results.length) { throw error.dbIncorrectPatchLevel() }
           var patchLevel = +results[0].value
           if ( patchLevel !== options.patchLevel && patchLevel !== options.patchLevel + 1 ) {
-            return d.reject(error.dbIncorrectPatchLevel(patchLevel, options.patchLevel))
+            throw error.dbIncorrectPatchLevel(patchLevel, options.patchLevel)
           }
           log.trace({
             op: 'MySql.connect',
             patchLevel: patchLevel,
             patchLevelRequired: options.patchLevel
           })
-          d.resolve(mysql)
+          return mysql
         },
-        d.reject
+        function(err) {
+          console.log(err)
+          // If this error means that dbMetadata does not exist, assume patch level 2 for now
+          if ( err.code === 'ER_NO_SUCH_TABLE' ) {
+            // for now, this is ok
+            return mysql
+          }
+          // re-throw so the caller gets the problem
+          throw err
+        }
       )
-
-    return d.promise
   }
 
   MySql.prototype.close = function () {
