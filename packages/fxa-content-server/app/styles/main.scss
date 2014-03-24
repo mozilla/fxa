@@ -257,6 +257,8 @@ strong.email {
   padding: 0 20px;
   transition-duration: 150ms;
   transition-property: border-color;
+  /*kills inset shadow on ios browsers*/
+  -webkit-appearance:none;
   width: 100%;
 }
 
