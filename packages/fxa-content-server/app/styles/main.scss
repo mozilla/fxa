@@ -282,7 +282,7 @@ strong.email {
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
-  background: transparent url(/images/ddarrow_inactive.png) right 14px top 50%;
+  background: $stage-background-color url(/images/ddarrow_inactive.png) right 14px top 50%;
   background-repeat: no-repeat;
   background-size: 10px 17px;
   color: $input-placeholder-color;
@@ -322,8 +322,6 @@ strong.email {
   background-color: $stage-background-color;
 }
 
-
-
 .input-row input:hover,
 .input-row select:hover,
 .input-row:hover input:hover,
@@ -362,7 +360,6 @@ strong.email {
   color: transparent !important; /* !important must be added or else the browser ignores the request */
   text-shadow: 0 0 0 $input-row-hover-border-color !important;
 }
-
 
 .input-row:last-child {
   margin-bottom: 0;
@@ -428,6 +425,11 @@ label:focus ~ .input-help-focused {
 .button-row button.disabled {
   background: $button-background-disabled-color;
   cursor: auto;
+}
+
+button::-moz-focus-inner { 
+  border: 0;
+  padding: 0;
 }
 
 /* Custom rows */
