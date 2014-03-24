@@ -1,3 +1,17 @@
+train-07
+  * improve concurrent duplicate request handling #626
+  * improved test coverage #628
+  * added SNS account delete notifier #629
+  * added fxa-verifiedEmail to the signed certificate #630
+  * removed dependency on redis #634
+  * added db_patcher for db migrations #643
+  * improved redirectTo domain validation
+  * updated readme design doc link #616
+  * added /password/forgot/status endpoint #636
+  * added /session/status endpoint #637
+  * exit key_server when stdout is piped and the other process exits
+  * improved mysql connection error handling
+
 train-06
   * stop logging OPTIONS requests #619
   * fixed /verify_email uid parameter validation
