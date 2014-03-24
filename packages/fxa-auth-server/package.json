@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "NODE_ENV=dev node ./bin/db_patcher.js && NODE_ENV=dev ./scripts/gen_keys.js && NODE_ENV=dev ./scripts/tap-coverage.js test/local test/remote",
+    "test": "NODE_ENV=dev node ./bin/db_patcher.js 2>/dev/null && NODE_ENV=dev ./scripts/gen_keys.js && NODE_ENV=dev ./scripts/tap-coverage.js test/local test/remote",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1 | bunyan -o short",
     "test-mysql": "DB_BACKEND=mysql npm test",
     "test-all": "npm run test-quick && npm run test-mysql && grunt",

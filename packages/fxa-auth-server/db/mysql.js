@@ -789,7 +789,16 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   }
 
   MySql.prototype.getConnection = function (name) {
-    return retryable(connect.bind(this, name), [201])
+    return retryable(
+      connect.bind(this, name),
+      [1040, 'ECONNREFUSED', 'ETIMEDOUT', 'ECONNRESET']
+    )
+    .then(
+      null,
+      function (err) {
+        throw error.serviceUnavailable()
+      }
+    )
   }
 
   function connect(name) {
@@ -799,7 +808,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
       function (err, connection) {
         if (err) {
           log.error({ op: 'MySql.connection', err: err })
-          return d.reject(error.serviceUnavailable())
+          return d.reject(err)
         }
         d.resolve(connection)
       }
