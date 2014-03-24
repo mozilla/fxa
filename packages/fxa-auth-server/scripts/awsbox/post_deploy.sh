@@ -10,4 +10,8 @@ else
     nohup /usr/bin/circusd --daemon /home/app/circus.ini > /home/app/circusd.log 2>&1 &
 fi
 
+echo "Patching database if needed ..."
+
+node /home/app/code/bin/db_patcher.js
+
 echo "DONE"
