@@ -29,8 +29,9 @@ var schemaDir = path.join(__dirname, '..', 'db', 'schema')
 var patches = {};
 var files = fs.readdirSync(schemaDir)
 files.forEach(function(filename) {
-  var m, from, to
-  if ( m = filename.match(/^patch-(\d+)-(\d+)\.sql$/) ) {
+  var from, to
+  var m = filename.match(/^patch-(\d+)-(\d+)\.sql$/)
+  if (m) {
     from = parseInt(m[1], 10)
     to = parseInt(m[2], 10)
     patches[from] = patches[from] || {}
