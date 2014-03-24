@@ -104,6 +104,15 @@ module.exports = function (level, name) {
     }
   )
 
+  process.stdout.on(
+    'error',
+    function (err) {
+      if (err.code === 'EPIPE') {
+        log.emit('error', err)
+      }
+    }
+  )
+
   Object.keys(console).forEach(
     function (key) {
       console[key] = function () {

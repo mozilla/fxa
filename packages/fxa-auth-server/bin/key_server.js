@@ -86,24 +86,24 @@ function main() {
     )
 
   process.on(
-    'SIGINT',
-    function () {
-      memoryMonitor.stop()
-      mailer.stop()
-      server.stop(
-        function () {
-          process.exit()
-        }
-      )
-    }
-  )
-  process.on(
     'uncaughtException',
     function (err) {
       log.fatal(err)
       process.exit(8)
     }
   )
+  process.on('SIGINT', shutdown)
+  log.on('error', shutdown)
+
+  function shutdown() {
+    memoryMonitor.stop()
+    mailer.stop()
+    server.stop(
+      function () {
+        process.exit()
+      }
+    )
+  }
 }
 
 if (!fs.existsSync(config.publicKeyFile)) {
