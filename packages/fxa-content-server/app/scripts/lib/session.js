@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Session saves session information about the user. Data is automatically
-// saved to localStorage and automatically loaded from localStorage on startup.
+// saved to sessionStorage and automatically loaded from sessionStorage on startup.
 
 'use strict';
 
@@ -14,12 +14,15 @@ define([
   var NAMESPACE = '__fxa_session';
 
   // channel is initialized on app startup
-  // and should not be saved to localStorage
+  // and should not be saved to sessionStorage
   var DO_NOT_PERSIST = ['channel', 'password', 'error'];
 
   // channel should not be cleared from memory or else fxa-client.js
   // will blow up when sending the login message.
   var DO_NOT_CLEAR = ['channel', 'context'];
+
+  // these keys will be persisted to localStorage so that they live between browser sessions
+  var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext'];
 
   function Session() {
     this.load();
@@ -27,17 +30,27 @@ define([
 
   Session.prototype = {
     /**
-     * Load info from localStorage
+     * Load info from sessionStorage
      * @method load
      */
     load: function () {
       var values = {};
+
+      // Try parsing sessionStorage values
       try {
-        values = JSON.parse(localStorage.getItem(NAMESPACE));
-        this.set(values);
+        values = _.extend(values, JSON.parse(sessionStorage.getItem(NAMESPACE)));
       } catch (e) {
         // ignore the parse error.
       }
+
+      // Try parsing localStorage values
+      try {
+        values = _.extend(values, JSON.parse(localStorage.getItem(NAMESPACE)));
+      } catch (e) {
+        // ignore the parse error.
+      }
+
+      this.set(values);
     },
 
     /**
@@ -61,20 +74,26 @@ define([
     },
 
     /**
-     * Persist data to localStorage
+     * Persist data to sessionStorage or localStorage
      * @method persist
-     * Note: items in DO_NOT_PERSIST are not saved to localStorage
+     * Note: items in DO_NOT_PERSIST are not saved to sessionStorage
      */
     persist: function () {
-      // items on the blacklist do not get saved to localStorage.
-      var toSave = {};
+      // items on the blacklist do not get saved to sessionStorage.
+      var toSaveToSessionStorage = {};
+      var toSaveToLocalStorage = {};
       _.each(this, function (value, key) {
         if (DO_NOT_PERSIST.indexOf(key) === -1) {
-          toSave[key] = value;
+          if (PERSIST_TO_LOCAL_STORAGE.indexOf(key) >= 0) {
+            toSaveToLocalStorage[key] = value;
+          } else {
+            toSaveToSessionStorage[key] = value;
+          }
         }
       });
 
-      localStorage.setItem(NAMESPACE, JSON.stringify(toSave));
+      localStorage.setItem(NAMESPACE, JSON.stringify(toSaveToLocalStorage));
+      sessionStorage.setItem(NAMESPACE, JSON.stringify(toSaveToSessionStorage));
     },
 
     /**
@@ -115,7 +134,7 @@ define([
 
     // BEGIN TEST API
     /**
-     * Remove an item from memory but not localStorage. Used to test .load
+     * Remove an item from memory but not sessionStorage. Used to test .load
      * @method testRemove
      * @private
      */

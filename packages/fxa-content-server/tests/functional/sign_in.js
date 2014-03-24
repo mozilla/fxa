@@ -42,7 +42,7 @@ define([
             .get(require.toUrl(PAGE_URL))
             /*jshint evil:true*/
             .waitForElementById('fxa-signin-header')
-            .eval('localStorage.clear();');
+            .eval('sessionStorage.clear(); localStorage.clear();');
         });
     },
 
@@ -54,7 +54,7 @@ define([
         .get(require.toUrl(PAGE_URL))
         /*jshint evil:true*/
         .waitForElementById('fxa-signin-header')
-        .eval('localStorage.clear();');
+        .eval('sessionStorage.clear(); localStorage.clear();');
     },
 
     'sign in unverified': function () {

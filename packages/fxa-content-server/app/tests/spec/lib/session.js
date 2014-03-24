@@ -82,8 +82,18 @@ function (chai, Session) {
       });
     });
 
+    describe('persist', function () {
+      it('will persist keys in PERSIST_TO_LOCAL_STORAGE to localStorage', function () {
+        Session.set('sessionToken', 'abc123');
+
+        var localStorageValues = JSON.parse(localStorage.getItem('__fxa_session'));
+
+        assert.equal(Session.sessionToken, localStorageValues.sessionToken);
+      });
+    });
+
     describe('load', function () {
-      it('loads data from localStorage', function () {
+      it('loads data from sessionStorage', function () {
         Session.set({
           key7: 'value7',
           key8: 'value8'
