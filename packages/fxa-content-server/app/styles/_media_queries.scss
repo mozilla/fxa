@@ -5,6 +5,10 @@
     background: #fff;
   }
 
+  #about-mozilla {
+    display: none;
+  }
+
   #fox-logo {
     background: url(/images/firefox.png);
     background-size: 64px 68px;
@@ -54,6 +58,11 @@
 }
 
 @media only screen and (max-height: 480px) and (max-width: 320px) {
+  
+  #about-mozilla {
+    display: none;
+  }
+
   #fox-logo {
     height: 0;
     width: 0;
@@ -82,6 +91,10 @@
 @media only screen and (orientation:landscape) and (max-height:480px) {
   html {
     background: $stage-background-color;
+  }
+
+  #about-mozilla {
+    display: none;
   }
 
   #stage {
@@ -163,5 +176,9 @@
 
   .input-row select:focus {
     background-image: url(/images/ddarrow_active@2x.png);
+  }
+
+  #about-mozilla {
+    background-image: url(/images/mozilla@2x.png)
   }
 }
