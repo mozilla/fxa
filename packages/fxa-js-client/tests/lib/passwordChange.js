@@ -32,7 +32,7 @@ define([
       });
 
       test('#basic', function () {
-        var user = 'test7' + Date.now();
+        var user = 'test7' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var newPassword = 'ilikefoxes';
@@ -174,7 +174,7 @@ define([
        * Changing the Password failure
        */
       test('#changeFailure', function () {
-        var user = 'test8' + Date.now();
+        var user = 'test8' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var newPassword = 'ilikefoxes';

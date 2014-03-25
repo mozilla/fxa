@@ -47,7 +47,8 @@
     "grunt-copyright": "~0.1.0",
     "grunt-jscs-checker": "~0.4.0",
     "grunt-open": "~0.2.2",
-    "intern": "~1.5.0",
-    "load-grunt-tasks": "~0.2.0"
+    "intern-geezer": "~1.5.0",
+    "load-grunt-tasks": "~0.2.0",
+    "http-proxy": "~1.0.2"
   }
 }

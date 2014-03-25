@@ -26,7 +26,7 @@ define([
       });
 
       test('#basic', function () {
-        var email = "test" + Date.now() + "@restmail.net";
+        var email = "test" + new Date().getTime() + "@restmail.net";
         var password = "iliketurtles";
 
         return respond(client.signUp(email, password), RequestMocks.signUp)
@@ -43,7 +43,7 @@ define([
       });
 
       test('#with keys', function () {
-        var email = "test" + Date.now() + "@restmail.net";
+        var email = "test" + new Date().getTime() + "@restmail.net";
         var password = "iliketurtles";
 
         return respond(client.signUp(email, password), RequestMocks.signUp)

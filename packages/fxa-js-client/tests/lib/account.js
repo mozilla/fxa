@@ -123,7 +123,7 @@ define([
        * Password Reset
        */
       test('#reset password', function () {
-        var user = 'test5' + Date.now();
+        var user = 'test5' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var uid;

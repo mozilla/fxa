@@ -6,12 +6,13 @@ define([
   'tests/intern',
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest',
   'tests/addons/sinonResponder',
+  'tests/addons/sinon',
   'client/FxAccountClient',
   'tests/addons/restmail',
   'tests/addons/accountHelper',
   'tests/mocks/request',
   'tests/mocks/errors'
-], function (config, XHR, SinonResponder, FxAccountClient, Restmail, AccountHelper, RequestMocks, ErrorMocks) {
+], function (config, XHR, SinonResponder, Sinon, FxAccountClient, Restmail, AccountHelper, RequestMocks, ErrorMocks) {
 
   function Environment() {
     var self = this;
@@ -30,7 +31,7 @@ define([
     } else {
       this.requests = [];
       // switch to the fake XHR
-      this.xhr = SinonResponder.useFakeXMLHttpRequest();
+      this.xhr = Sinon.useFakeXMLHttpRequest();
       this.xhr.onCreate = function (xhr) {
         self.requests.push(xhr);
       };

@@ -45,7 +45,7 @@ define(['intern/lib/args'], function (args) {
   functionalSuites: [ ],
   AUTH_SERVER_URL: server,
 
-  excludeInstrumentation: /(?:.)\//
+  excludeInstrumentation: /./
 
   };
 
