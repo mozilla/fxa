@@ -1,5 +1,5 @@
 {
-  "fxaccount_url": "https://api-accounts.dev.lcip.org/v1",
+  "fxaccount_url": "https://api-accounts.dev.lcip.org",
   "static_directory": "dist",
   "page_template_subdirectory": "dist",
   "i18n": {
