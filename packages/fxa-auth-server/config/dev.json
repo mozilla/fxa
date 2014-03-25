@@ -9,7 +9,8 @@
     "host": "127.0.0.1",
     "port": 9999,
     "secure": false,
-    "sender": "no-reply@example.com"
+    "sender": "no-reply@example.com",
+    "resendBlackoutPeriod": 0
   },
   "toobusy": {
     "maxLag": 0

@@ -21,6 +21,7 @@ TestServer.start(config)
       var email = Math.random() + "@example.com"
       var password = 'ok'
       var client = null
+      t.ok(true) // this silences log output. with no assertions tap dumps logs
       return Client.create(config.publicUrl, email, password, { preVerified: false })
         .then(
           function (c) {
