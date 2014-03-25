@@ -107,6 +107,8 @@ function (
                                        config.i18n.supportedLanguages,
                                        config.i18n.defaultLang);
 
+    Session.set('language', window.translator.language);
+
     translator.fetch(function () {
       // Get the party started
       Backbone.history.start({ pushState: true });
