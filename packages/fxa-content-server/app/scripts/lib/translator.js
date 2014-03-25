@@ -12,7 +12,7 @@ define([
 function (_, $, Strings) {
 
   var bestLanguage = function (language, supportedLanguages, defaultLanguage) {
-    var lower = supportedLanguages.map(function(l) {
+    var lower = _.map(supportedLanguages, function (l) {
       return l.toLowerCase();
     });
 
