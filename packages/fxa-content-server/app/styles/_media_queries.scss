@@ -19,7 +19,7 @@
   #stage {
     box-shadow: none;
     margin: 10px auto;
-    min-height: none;
+    min-height: 0;
     min-width: 300px;
     padding: 0 10px;
     width: 100%;
@@ -91,7 +91,7 @@
     background-size: 30px auto;
     box-shadow: none;
     margin: 10px auto;
-    min-height: none;
+    min-height: 0;
     min-width: 300px;
     max-width:400px;
     padding: 0 10px 40px 10px;
