@@ -84,6 +84,8 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
         });
       }
 
+      // Protip: add `.delay(msToDelay)` to synthesize
+      // server lag.
       return defer.promise;
     },
 

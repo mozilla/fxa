@@ -8,11 +8,10 @@ define([
   'underscore',
   'views/form',
   'stache!templates/reset_password',
-  'lib/fxa-client',
   'lib/session',
   'lib/url'
 ],
-function (_, FormView, Template, FxaClient, Session, Url) {
+function (_, FormView, Template, Session, Url) {
   var View = FormView.extend({
     template: Template,
     className: 'reset_password',
@@ -57,14 +56,11 @@ function (_, FormView, Template, FxaClient, Session, Url) {
     submit: function () {
       var email = this.$('.email').val();
 
-      var client = new FxaClient();
       var self = this;
-      client.passwordReset(email)
-              .then(function () {
-                self.navigate('confirm_reset_password');
-              }, function (err) {
-                self.displayError(err);
-              });
+      return this.fxaClient.passwordReset(email)
+                  .then(function () {
+                    self.navigate('confirm_reset_password');
+                  });
     }
   });
 

@@ -9,10 +9,9 @@ define([
   'views/form',
   'stache!templates/delete_account',
   'lib/session',
-  'lib/fxa-client',
   'lib/password-mixin'
 ],
-function (_, FormView, Template, Session, FxaClient, PasswordMixin) {
+function (_, FormView, Template, Session, PasswordMixin) {
   var View = FormView.extend({
     // user must be authenticated to delete their account
     mustAuth: true,
@@ -36,15 +35,11 @@ function (_, FormView, Template, Session, FxaClient, PasswordMixin) {
     submit: function () {
       var email = this.context().email;
       var password = this.$('.password').val();
-      var client = new FxaClient();
       var self = this;
-      client.deleteAccount(email, password)
-            .then(function () {
-              self.navigate('signup');
-            })
-            .done(null, function (err) {
-              self.displayError(err);
-            });
+      return this.fxaClient.deleteAccount(email, password)
+                .then(function () {
+                  self.navigate('signup');
+                });
     }
   });
 

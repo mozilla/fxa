@@ -98,6 +98,7 @@ function (chai, $, View, Session, FxaClient,
                     assert.equal(router.page, 'confirm');
                   }, done);
                 });
+
                 view.submit();
               })
               .then(null, function (err) {
@@ -105,19 +106,18 @@ function (chai, $, View, Session, FxaClient,
               });
       });
 
-      it('show incorrect password message on incorrect password', function (done) {
+      it('rejects promise with incorrect password message on incorrect password', function () {
         var client = new FxaClient();
-        client.signUp(email, 'password')
+        return client.signUp(email, 'password')
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val('incorrect');
-
-                view.on('error', function (msg) {
-                  wrapAssertion(function () {
-                    assert.ok(msg.indexOf('Incorrect') > -1);
-                  }, done);
-                });
-                view.submit();
+                return view.submit();
+              })
+              .then(function () {
+                assert.fail();
+              }, function (err) {
+                assert.ok(err.message.indexOf('Incorrect') > -1);
               });
       });
 
@@ -130,6 +130,7 @@ function (chai, $, View, Session, FxaClient,
             assert.ok(msg.indexOf('/signup') > -1);
           }, done);
         });
+
         view.submit();
       });
     });

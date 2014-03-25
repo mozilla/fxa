@@ -9,12 +9,11 @@ define([
   'views/base',
   'views/form',
   'stache!templates/complete_reset_password',
-  'lib/fxa-client',
   'lib/session',
   'lib/url',
   'lib/password-mixin'
 ],
-function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixin) {
+function (_, BaseView, FormView, Template, Session, Url, PasswordMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -65,10 +64,9 @@ function (_, BaseView, FormView, Template, FxaClient, Session, Url, PasswordMixi
     submit: function () {
       var password = this._getPassword();
 
-      var client = new FxaClient();
-      client.completePasswordReset(this.email, password, this.token, this.code)
-            .done(_.bind(this._onResetCompleteSuccess, this),
-                  _.bind(this._onResetCompleteFailure, this));
+      return this.fxaClient.completePasswordReset(this.email, password, this.token, this.code)
+                .done(_.bind(this._onResetCompleteSuccess, this),
+                      _.bind(this._onResetCompleteFailure, this));
     },
 
     _onResetCompleteSuccess: function () {

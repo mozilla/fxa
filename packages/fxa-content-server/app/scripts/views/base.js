@@ -189,8 +189,11 @@ function (_, Backbone, jQuery, Session, authErrors) {
     /**
      * Display an error message.
      * @method displayError
-     * If msg is not given, the contents of the .error element's text
-     * will not be updated.
+     * @param {string} err - If err is not given, the contents of the
+     *   `.error` element's text will not be updated.
+     *
+     * @return {string} translated error text (if available), untranslated
+     *   error text otw.
      */
     displayError: function (err) {
       this.hideSuccess();
@@ -198,13 +201,16 @@ function (_, Backbone, jQuery, Session, authErrors) {
 
       var msg = authErrors.toMessage(err);
       var context = authErrors.toContext(err);
+      var translated = this.translator.get(msg, context);
 
       if (msg) {
-        this.$('.error').text(this.translator.get(msg, context));
+        this.$('.error').text(translated);
       }
 
       this.$('.error').show();
       this.trigger('error', msg);
+
+      return translated;
     },
 
     /**
@@ -213,18 +219,20 @@ function (_, Backbone, jQuery, Session, authErrors) {
      * with unsanitized user generated content.
      *
      * @method displayErrorUnsafe
-     * If msg is not given, the contents of the .error element's text
-     * will not be updated.
+     * @param {string} err - If err is not given, the contents of the
+     *   `.error` element's text will not be updated.
+     *
+     * @return {string} translated error text (if available), untranslated
+     *   error text otw.
      */
     displayErrorUnsafe: function (err) {
-      this.displayError(err);
+      var translated = this.displayError(err);
 
-      var msg = authErrors.toMessage(err);
-      var context = authErrors.toContext(err);
-
-      if (msg) {
-        this.$('.error').html(this.translator.get(msg, context));
+      if (translated) {
+        this.$('.error').html(translated);
       }
+
+      return translated;
     },
 
     hideError: function () {

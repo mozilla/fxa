@@ -9,11 +9,10 @@ define([
   'views/base',
   'views/form',
   'stache!templates/change_password',
-  'lib/fxa-client',
   'lib/session',
   'lib/password-mixin'
 ],
-function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -48,16 +47,13 @@ function (_, BaseView, FormView, Template, FxaClient, Session, PasswordMixin) {
       this.hideError();
 
       var self = this;
-      var client = new FxaClient();
-      client.changePassword(email, oldPassword, newPassword)
-            .then(function () {
-              self.$('.password').val('');
-              self.$('form').hide();
+      return this.fxaClient.changePassword(email, oldPassword, newPassword)
+                .then(function () {
+                  self.$('.password').val('');
+                  self.$('form').hide();
 
-              self.displaySuccess();
-            }, function (err) {
-              self.displayError(err);
-            });
+                  self.displaySuccess();
+                });
     }
   });
 

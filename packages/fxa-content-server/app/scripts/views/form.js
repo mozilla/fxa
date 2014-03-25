@@ -10,7 +10,9 @@
  * - isValidEnd (optional)
  * - showValidationErrorsStart (optional)
  * - showValidationErrorsEnd (optional)
+ * - beforeSubmit (optional)
  * - submit (required)
+ * - afterSubmit (optional)
  *
  * See documentation for an explanation of each.
  */
@@ -20,15 +22,19 @@
 define([
   'underscore',
   'jquery',
+  'p-promise',
   'views/base',
-  'views/tooltip'
+  'views/tooltip',
+  'lib/fxa-client'
 ],
-function (_, $, BaseView, Tooltip) {
+function (_, $, p, BaseView, Tooltip, FxaClient) {
   var t = BaseView.t;
 
   var FormView = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);
+
+      this.fxaClient = new FxaClient();
 
       // attach events of the descendent view and this view.
       this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
@@ -41,18 +47,78 @@ function (_, $, BaseView, Tooltip) {
     },
 
     enableSubmitIfValid: function () {
-      var enabled = this.isValid();
+      // the change event can be called after the form is already
+      // submitted if the user presses "enter" in the form. If the
+      // form is in the midst of being submitted, bail out now.
+      if (this.isSubmitting()) {
+        return;
+      }
 
-      var submitButton = this.$('button[type="submit"]');
-      submitButton[enabled ? 'removeClass' : 'addClass']('disabled');
+      if (this.isValid()) {
+        this.enableForm();
+      } else {
+        this.disableForm();
+      }
     },
 
+    disableForm: function () {
+      this.$('button[type=submit]').addClass('disabled').attr('disabled', 'disabled');
+    },
+
+    enableForm: function () {
+      this.$('button[type=submit]').removeClass('disabled').removeAttr('disabled');
+    },
+
+    /**
+     * Validate and if valid, submit the form.
+     *
+     * If the form is valid, three functions are run in series using
+     * a promise chain: beforeSubmit, submit, and afterSubmit.
+     *
+     * By default, beforeSubmit and afterSubmit are used to prevent
+     * multiple concurrent form submissions. This behavior can
+     * be overridden in subclasses.
+     *
+     * Form submission is prevented if beforeSubmit resolves to false.
+     *
+     * Functions can return a promise to allow for asynchronous operations.
+     *
+     * If a function throws an error or returns a rejected promise,
+     * displayError will display the error to the user.
+     *
+     * @method validateAndSubmit
+     * @return {promise}
+     */
     validateAndSubmit: function () {
-      if (this.isValid()) {
-        this.submit();
-      } else {
-        this.showValidationErrors();
-      }
+      return p()
+        .then(_.bind(function () {
+          if (! this.isValid()) {
+            // Validation error is surfaced for testing.
+            throw this.showValidationErrors();
+          } else {
+            return p().then(_.bind(this.beforeSubmit, this))
+                    .then(_.bind(function (shouldSubmit) {
+                      // submission is opt out, not opt in.
+                      if (shouldSubmit !== false) {
+                        return p().then(_.bind(function () {
+                            // submitting flag is used to disable
+                            // re-enabling the form's submit button
+                            // while in the midst of a submit.
+                            this.submitting = true;
+                          }, this))
+                          .then(_.bind(this.submit, this))
+                          .then(_.bind(function () {
+                            this.submitting = false;
+                          }, this));
+                      }
+                    }, this))
+                    .then(_.bind(this.afterSubmit, this))
+                    .then(null, _.bind(function (err) {
+                      // surface returned message for testing.
+                      throw this.displayError(err);
+                    }, this));
+          }
+        }, this));
     },
 
     /**
@@ -142,9 +208,9 @@ function (_, $, BaseView, Tooltip) {
           var fieldType = this.getElementType(el);
 
           if (fieldType === 'email') {
-            this.showEmailValidationError(el);
+            return this.showEmailValidationError(el);
           } else if (fieldType === 'password') {
-            this.showPasswordValidationError(el);
+            return this.showPasswordValidationError(el);
           }
 
           // only one message at a time.
@@ -223,7 +289,7 @@ function (_, $, BaseView, Tooltip) {
     },
 
     showEmailValidationError: function (which) {
-      this.showValidationError(which, t('Valid email required'));
+      return this.showValidationError(which, t('Valid email required'));
     },
 
     showPasswordValidationError: function (which) {
@@ -232,7 +298,7 @@ function (_, $, BaseView, Tooltip) {
       var msg = passwordVal ? t('Must be at least 8 characters')
                             : t('Valid password required');
 
-      this.showValidationError(which, msg);
+      return this.showValidationError(which, msg);
     },
 
     /**
@@ -258,15 +324,56 @@ function (_, $, BaseView, Tooltip) {
 
       // used for testing
       this.trigger('validation_error', which, message);
+
+      return message;
     },
 
     /**
-     * Descendent views must override!
+     * Descendent views can override.
+     *
+     * Descendent views may want to override this to allow multiple form
+     * submissions or to disable form submissions. Return false or a
+     * promise that resolves to false to prevent form submission.
+     *
+     * @return {promise || boolean || none} Reture a promise if
+     *   beforeSubmit is an asynchronous operation.
+     */
+    beforeSubmit: function () {
+      this.disableForm();
+    },
+
+    /**
+     * Descendent views should override.
      *
      * Submit form data to the server. Only called if isValid returns true
+     * and beforeSubmit does not return false.
+     *
+     * @return {promise || none} Return a promise if submit is
+     *   an asynchronous operation.
      */
     submit: function () {
-      // override in child views to submit data to backend.
+    },
+
+    /**
+     * Descendent views can override.
+     *
+     * Descendent views may want to override this to allow
+     * multiple form submissions.
+     *
+     * @return {promise || none} Return a promise if afterSubmit is
+     *   an asynchronous operation.
+     */
+    afterSubmit: function () {
+      this.enableForm();
+    },
+
+    /**
+     * Check if the form is currently being submitted
+     *
+     * @return {boolean} true if form is being submitted, false otw.
+     */
+    isSubmitting: function () {
+      return this.submitting;
     }
   });
 

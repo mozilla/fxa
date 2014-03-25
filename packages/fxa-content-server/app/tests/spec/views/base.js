@@ -124,8 +124,10 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
 
     describe('displayError', function () {
       it('translates and display an error in the .error element', function () {
-        view.displayError('the error message');
-        assert.equal(view.$('.error').html(), 'a translated error message');
+        var msg = view.displayError('the error message');
+        var expected = 'a translated error message';
+        assert.equal(view.$('.error').html(), expected);
+        assert.equal(msg, expected);
       });
 
       it('hides any previously displayed success messages', function () {
@@ -142,8 +144,10 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
 
     describe('displayErrorUnsafe', function () {
       it('allows HTML in error messages', function () {
-        view.displayErrorUnsafe('an error message<div>with html</div>');
-        assert.equal(view.$('.error').html(), 'an error message<div>with html</div>');
+        var msg = view.displayErrorUnsafe('an error message<div>with html</div>');
+        var expected = 'an error message<div>with html</div>';
+        assert.equal(view.$('.error').html(), expected);
+        assert.equal(msg, expected);
       });
     });
 
