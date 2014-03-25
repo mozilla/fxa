@@ -28,10 +28,11 @@ var PAGE_TEMPLATE_DIRECTORY = path.join(config.get('page_template_root'), 'dist'
 var TOS_ROOT_PATH = path.join(PAGE_TEMPLATE_DIRECTORY, 'terms');
 var PP_ROOT_PATH = path.join(PAGE_TEMPLATE_DIRECTORY, 'privacy');
 
-var DEFAULT_LANG = config.get('i18n.defaultLang');
-
 
 module.exports = function verRoute (i18n) {
+
+  var DEFAULT_LANG = config.get('i18n.defaultLang');
+  var DEFAULT_LOCALE = i18n.localeFrom(DEFAULT_LANG);
 
   var route = {};
   route.method = 'get';
@@ -49,7 +50,9 @@ module.exports = function verRoute (i18n) {
 
   var templateCache = {};
   function getTemplate(type, lang) {
-    var templatePath = path.join(getRoot(type), lang + '.html');
+    // Filenames are normalized to locale, not language.
+    var locale = i18n.localeFrom(lang);
+    var templatePath = path.join(getRoot(type), locale + '.html');
     var resolver = Promise.defer();
 
     // cache the promises to avoid multiple concurrent checks for
@@ -63,11 +66,11 @@ module.exports = function verRoute (i18n) {
       if (! exists) {
         var bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
 
-        if (lang === DEFAULT_LANG) {
-          var err = new Error(type + ' missing `' + DEFAULT_LANG + '` template: ' + templatePath);
+        if (locale === DEFAULT_LOCALE) {
+          var err = new Error(type + ' missing `' + DEFAULT_LOCALE + '` template: ' + templatePath);
           return resolver.reject(err);
         } else if (lang !== bestLang) {
-          logger.warn('`%s` does not exist, trying `%s`', lang, bestLang);
+          logger.warn('`%s` does not exist, trying next best `%s`', lang, bestLang);
           return resolver.resolve(getTemplate(type, bestLang));
         }
 
