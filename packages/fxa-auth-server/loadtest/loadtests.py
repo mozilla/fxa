@@ -127,6 +127,7 @@ class LoadTest(TestCase):
             self._authenticate_as_existing_user()
         # Fetch keys and make some number of signing requests.
         self._fetch_keys()
+        self._fetch_session_status()
         self._fetch_random_bytes()
         num_sign_reqs = random.randint(SIGN_REQS_MIN, SIGN_REQS_MAX)
         for i in xrange(num_sign_reqs):
@@ -201,6 +202,12 @@ class LoadTest(TestCase):
     def _fetch_keys(self):
         auth = self.makehawkauth(self.tokens['keyfetch'], 'keyFetchToken')
         res = self._req_GET('/v1/account/keys', auth=auth)
+        self.assertEqual(res.status_code, 200)
+        return res
+
+    def _fetch_session_status(self):
+        auth = self.makehawkauth(self.tokens['session'], 'sessionToken')
+        res = self._req_GET('/v1/session/status', auth=auth)
         self.assertEqual(res.status_code, 200)
         return res
 
