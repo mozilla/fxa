@@ -14,6 +14,7 @@ define([
       var respond;
       var client;
       var RequestMocks;
+      var ErrorMocks;
 
       beforeEach(function () {
         var env = new Environment();
@@ -21,6 +22,7 @@ define([
         respond = env.respond;
         client = env.client;
         RequestMocks = env.RequestMocks;
+        ErrorMocks = env.ErrorMocks;
       });
 
       test('#destroy', function () {
@@ -36,6 +38,38 @@ define([
             },
             assert.notOk
           );
+      });
+
+      test('#status', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+
+            return respond(client.sessionStatus(account.signIn.sessionToken), RequestMocks.sessionStatus)
+          })
+          .then(
+            function(res) {
+              assert.isNotNull(res);
+            },
+            assert.notOk
+          );
+      });
+
+      test('#status error with a false token', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function () {
+            var fakeToken = 'e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f10000';
+
+            return respond(client.passwordForgotStatus(fakeToken), ErrorMocks.invalidAuthToken)
+          })
+          .then(
+          assert.notOk,
+          function (err) {
+            assert.equal(err.code, 401);
+            assert.equal(err.errno, 110);
+          }
+        )
       });
 
     });

@@ -85,6 +85,10 @@ define(['client/lib/errors'], function (ERRORS) {
       status: 200,
       body: '{"passwordForgotToken":"e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f19103","ttl":900,"tries":3}'
     },
+    passwordForgotStatus: {
+      status: 200,
+      body: '{ "tries": 3, "ttl": 420 }'
+    },
     passwordForgotVerifyCode: {
       status: 200,
       body: '{"accountResetToken":"50a2052498d538a5d3918847751c8d5077294fd637dbf20d27f2f5f854cbcf4f"}'
@@ -102,6 +106,10 @@ define(['client/lib/errors'], function (ERRORS) {
       body: '{}'
     },
     sessionDestroy: {
+      status: 200,
+      body: '{}'
+    },
+    sessionStatus: {
       status: 200,
       body: '{}'
     },
