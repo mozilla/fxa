@@ -20,7 +20,8 @@ module.exports = function (
   redirectDomain,
   verifierVersion,
   isProduction,
-  domain
+  domain,
+  resendBlackoutPeriod
   ) {
 
   var routes = [
@@ -364,7 +365,8 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.RecoveryEmailResend', request)
         var sessionToken = request.auth.credentials
-        if (sessionToken.emailVerified) {
+        if (sessionToken.emailVerified ||
+            Date.now() - sessionToken.verifierSetAt < resendBlackoutPeriod) {
           return reply({})
         }
         mailer.sendVerifyCode(sessionToken, sessionToken.emailCode, {

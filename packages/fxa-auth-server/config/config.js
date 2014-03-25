@@ -227,6 +227,10 @@ module.exports = function (fs, path, url, convict) {
         doc: 'Domain that mail urls are allowed to redirect to',
         format: String,
         default: 'firefox.com'
+      },
+      resendBlackoutPeriod: {
+        doc: 'Blackout period for resending verification emails',
+        default: 1000 * 60 * 10
       }
     },
     toobusy: {
