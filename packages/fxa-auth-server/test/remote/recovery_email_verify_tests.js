@@ -93,26 +93,6 @@ TestServer.start(config)
             t.equal(query.service, options.service, 'service is in link')
           }
         )
-        .then(
-          function () {
-            return client.requestVerifyEmail()
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function (emailData) {
-            var link = emailData.headers['x-link']
-            var query = url.parse(link, true).query
-            t.ok(query.uid, 'uid is in resend link')
-            t.ok(query.code, 'code is in resend link')
-            t.equal(query.redirectTo, options.redirectTo, 'redirectTo is in resend link')
-            t.equal(query.service, options.service, 'service is in resend link')
-          }
-        )
     }
   )
 
