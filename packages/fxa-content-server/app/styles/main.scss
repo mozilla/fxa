@@ -43,6 +43,27 @@ noscript {
   margin: 160px 0 0 0;
 }
 
+#about-mozilla {
+  background-image: url(/images/mozilla.png);
+  background-size: 69px 19px;
+  cursor: pointer;
+  height: 19px;
+  opacity: .5;
+  position: absolute;
+  right: 12px;
+  transition: opacity 150ms;
+  top: 12px;
+  width: 69px;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus {
+    outline-color: $html-background-color;
+  }
+}
+
 #fox-logo {
   background: url(/images/firefox.png);
   background-size: 80px 85px;
@@ -628,7 +649,6 @@ input[type="text"] ~ .show-password-label:hover {
 .hidden {
   display: none;
 }
-
 
 @import "keyframes";
 @import "media_queries";
