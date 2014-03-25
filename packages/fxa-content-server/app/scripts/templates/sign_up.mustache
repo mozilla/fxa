@@ -11,7 +11,7 @@
     </div>
 
     <div class="input-row password-row">
-      <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#isSync}}autocomplete="off"{{/isSync}} {{#email}}autofocus{{/email}} />
+      <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autocomplete="off" {{#email}}autofocus{{/email}} />
       <input id="show-password" type="checkbox" class="show-password" aria-controls="password" />
       <label for="show-password" class="show-password-label">
         {{#t}}Show{{/t}}
