@@ -44,6 +44,7 @@ app.use(function(req, res, next) {
 toobusy.maxLag(70 /* XXX: config */);
 app.use(function(req, res, next) {
   if (toobusy()) {
+    log.warn("too busy");
     res.json({ status: "failure", reason: "too busy"}, 503);
   } else {
     next();
