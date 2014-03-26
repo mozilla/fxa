@@ -43,7 +43,8 @@ module.exports = function (config, templates, i18n) {
     app.get('/config', function (req, res) {
       res.json({
         fxaccountUrl: config.get('fxaccount_url'),
-        i18n: config.get('i18n')
+        i18n: config.get('i18n'),
+        oauthUrl: config.get('oauth_url')
       });
     });
 
