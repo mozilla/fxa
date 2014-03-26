@@ -12,8 +12,7 @@ define([
   'lib/session'
 ],
 function (_, Backbone, Session) {
-  var MAX_RETRIES = 10;
-  var RETRY_INTERVAL_MS = 1000;
+  var SEND_TIMEOUT_LENGTH_MS = 1000;
 
   function noOp() {
     // Nothing to do here.
@@ -30,19 +29,12 @@ function (_, Backbone, Session) {
     });
   }
 
-  function retryIfNoResponse(outstandingRequest) {
+  function errorIfNoResponse(outstandingRequest) {
     /*jshint validthis: true*/
     outstandingRequest.timeout = setTimeout(_.bind(function () {
       // only called if the request has not been responded to.
-      outstandingRequest.retriesCompleted++;
-      if (outstandingRequest.retriesCompleted > MAX_RETRIES) {
-        return outstandingRequest.done(new Error('too many retries'));
-      }
-
-      this.send(outstandingRequest.command,
-                outstandingRequest.data,
-                outstandingRequest.done);
-    }, this), this.retryInterval);
+      outstandingRequest.done(new Error('too many retries'));
+    }, this), this.sendTimeoutLength);
   }
 
   function receiveMessage(event) {
@@ -108,7 +100,7 @@ function (_, Backbone, Session) {
       this.window.addEventListener(
               'message', _.bind(receiveMessage, this), false);
 
-      this.retryInterval = options.retryInterval || RETRY_INTERVAL_MS;
+      this.sendTimeoutLength = options.sendTimeoutLength || SEND_TIMEOUT_LENGTH_MS;
       this.router = options.router || window.router;
 
       findInitialPage.call(this);
@@ -130,7 +122,6 @@ function (_, Backbone, Session) {
         // and none of the other data needs to be updated.
         outstanding = this.outstandingRequests[command] = {
           done: done,
-          retriesCompleted: 0,
           command: command,
           data: data
         };
@@ -148,7 +139,7 @@ function (_, Backbone, Session) {
         return done && done(e);
       }
 
-      retryIfNoResponse.call(this, outstanding);
+      errorIfNoResponse.call(this, outstanding);
     }
   });
 

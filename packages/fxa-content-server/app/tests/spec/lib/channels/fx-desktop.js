@@ -43,7 +43,7 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) 
       channel.init({
         router: routerMock,
         window: windowMock,
-        retryInterval: 10
+        sendTimeoutLength: 10
       });
     });
 
@@ -97,20 +97,6 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) 
         assert.isTrue(windowMock.dispatchedEvents['test-command']);
       });
 
-      it('retries sending until a response is received from the browser',
-        function (done) {
-        channel.send('wait-for-response', { key: 'value' }, function (err) {
-          wrapAssertion(function () {
-            assert.isNull(err);
-          }, done);
-        });
-
-        setTimeout(function () {
-          // This is a bit of a hackity hack because we are not using
-          // the real event system.
-          dispatchEvent('wait-for-response');
-        }, 50);
-      });
 
       it('times out if browser does not respond', function (done) {
         channel.send('wait-for-response', { key: 'value' }, function (err) {
