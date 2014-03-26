@@ -65,10 +65,12 @@ define([
       var tooltipEl = this.$el;
       var invalidEl = this.invalidEl;
       if (invalidEl.hasClass('tooltip-below')) {
-        tooltipEl.addClass('tooltip-below');
+        tooltipEl.addClass('tooltip-below fade-up-tt');
         tooltipEl.css({
           top: invalidEl.outerHeight() + 4  // magic number alert.
         });
+      } else {
+        tooltipEl.addClass('fade-down-tt');
       }
     },
 
