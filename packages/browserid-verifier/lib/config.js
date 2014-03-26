@@ -36,6 +36,14 @@ function loadConf() {
       default: false,
       env: "INSECURE_SSL"
     },
+    toobusy: {
+      maxLag: {
+        doc: "Max event-loop lag before toobusy reports failure",
+        format: Number,
+        default: 70,
+        env: 'TOOBUSY_MAX_LAG'
+      }
+    },
     logging: {
       formatters: {
         doc: "Formatters for intel loggers.",

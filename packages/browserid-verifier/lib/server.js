@@ -41,7 +41,7 @@ app.use(function(req, res, next) {
 });
 
 // return 503 when the server is too busy
-toobusy.maxLag(70 /* XXX: config */);
+toobusy.maxLag(config.get("toobusy.maxLag"));
 app.use(function(req, res, next) {
   if (toobusy()) {
     log.warn("too busy");
