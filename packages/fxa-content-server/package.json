@@ -4,7 +4,7 @@
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",
-    "postinstall": "bower install --config.interactive=false -s; cp node_modules/grunt-blanket-mocha/support/* app/bower_components/blanket/src; grunt validate-shrinkwrap",
+    "postinstall": "bower install --config.interactive=false -s; cp node_modules/grunt-blanket-mocha/support/* app/bower_components/blanket/src",
     "test": "intern-runner config=tests/intern",
     "test-browser": "intern-runner config=tests/intern_browser",
     "test-remote": "intern-runner config=tests/intern_sauce",
