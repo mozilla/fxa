@@ -225,6 +225,17 @@ strong.email {
 }
 
 
+.fade-down-tt {
+  animation-name: fade-down-tt;
+  animation-duration: .5s;
+}
+
+
+.fade-up-tt {
+  animation-name: fade-up-tt;
+  animation-duration: .5s;
+}
+
 .tooltip {
   background: $error-background-color;
   border-radius: 1px;
