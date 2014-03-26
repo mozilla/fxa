@@ -25,4 +25,4 @@ install:
   - grunt l10n-create-json
   - npm start &
 # now run the tests!
-script: grunt lint && npm run-script test-server && npm run-script test-remote
+script: grunt validate-shrinkwrap && grunt lint && npm run-script test-server && npm run-script test-remote
