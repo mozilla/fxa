@@ -187,7 +187,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                   return;
                 }
 
-                throw err;
+                throw new Error(err);
               })
               .then(function () {
                 var signInOptions = {

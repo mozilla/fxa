@@ -51,16 +51,15 @@ function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
     });
 
     describe('with session', function () {
-      beforeEach(function (done) {
+      beforeEach(function () {
         email = 'testuser.' + Math.random() + '@testuser.com';
 
         var client = new FxaClient();
-        client.signUp(email, 'password', {preVerified: true})
+        return client.signUp(email, 'password', {preVerified: true})
           .then(function () {
             view.render();
 
             $('body').append(view.el);
-            done();
           });
       });
 
