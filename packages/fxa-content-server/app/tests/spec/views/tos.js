@@ -19,6 +19,7 @@ function (chai, View, Session) {
 
     beforeEach(function () {
       Session.clear();
+      Session.set('language', 'en-US');
       view = new View({});
     });
 
@@ -45,7 +46,6 @@ function (chai, View, Session) {
     });
 
     it('fetches translated text from the backend', function (done) {
-      Session.set('language', 'en-US');
       view.on('ready', function() {
         assert.ok(view.$('#terms-of-service').length);
         done();
