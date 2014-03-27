@@ -19,5 +19,11 @@ notifications:
 node_js:
   - "0.10"
 
+# blacklist
+branches:
+  except:
+    - release
+    - /^.*-docs$/
+
 install: npm run-script setup
 script: grunt travis
