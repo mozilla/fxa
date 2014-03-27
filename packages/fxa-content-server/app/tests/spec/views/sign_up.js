@@ -52,6 +52,14 @@ function (chai, _, $, View, Session, FxaClient, RouterMock, TestHelpers) {
 
         assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
       });
+
+      it('shows choose what to sync checkbox when service is sync even after session is cleared', function () {
+        Session.set('service', 'sync');
+        Session.clear();
+        view.render();
+
+        assert.equal(view.$('.customize-sync-row').length, 1);
+      });
     });
 
     describe('isValid', function () {
