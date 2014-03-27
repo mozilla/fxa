@@ -4064,6 +4064,24 @@
         }
       }
     },
+    "grunt-marked": {
+      "version": "0.1.0",
+      "from": "grunt-marked@",
+      "dependencies": {
+        "marked": {
+          "version": "0.3.1",
+          "from": "marked@~0.3.1"
+        },
+        "async": {
+          "version": "0.2.10",
+          "from": "async@~0.2.10"
+        },
+        "highlight.js": {
+          "version": "8.0.0",
+          "from": "highlight.js@~8.0.0"
+        }
+      }
+    },
     "grunt-mocha": {
       "version": "0.4.10",
       "from": "https://registry.npmjs.org/grunt-mocha/-/grunt-mocha-0.4.10.tgz",

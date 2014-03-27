@@ -25,8 +25,17 @@ define([
     'settings',
     'change_password',
     'legal',
+    // legal are all redirected to the language detected
+    // by sniffing headers, barring that, using en-US as
+    // the fallback.
     'legal/terms',
     'legal/privacy',
+    // invalid-locale should be redirected to en-US
+    'invalid-locale/legal/terms',
+    'invalid-locale/legal/privacy',
+    // yay!
+    'en-US/legal/terms',
+    'en-US/legal/privacy',
     'reset_password',
     'confirm_reset_password',
     'complete_reset_password',
@@ -44,7 +53,7 @@ define([
     return function () {
       return this.get('remote')
         .get(require.toUrl(url + path))
-        .waitForElementByCssSelector('#stage > div')
+        .waitForElementByCssSelector('#stage header')
         .end();
     };
   };

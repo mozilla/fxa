@@ -19,6 +19,7 @@ function (chai, View, Session) {
 
     beforeEach(function () {
       Session.clear();
+      Session.set('language', 'en-US');
       view = new View({});
     });
 
@@ -42,6 +43,14 @@ function (chai, View, Session) {
       $('#container').html(view.el);
 
       assert.equal($('#fxa-tos-back').length, 0);
+    });
+
+    it('fetches translated text from the backend', function (done) {
+      view.on('ready', function() {
+        assert.ok(view.$('#terms-of-service').length);
+        done();
+      });
+      view.render();
     });
   });
 });

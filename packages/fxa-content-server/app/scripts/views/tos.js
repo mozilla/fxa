@@ -5,11 +5,15 @@
 'use strict';
 
 define([
+  'jquery',
   'views/base',
   'stache!templates/tos',
-  'lib/session'
+  'lib/session',
+  'lib/strings'
 ],
-function (BaseView, Template, Session) {
+function ($, BaseView, Template, Session, Strings) {
+  var t = BaseView.t;
+
   var View = BaseView.extend({
     template: Template,
     className: 'tos',
@@ -18,6 +22,28 @@ function (BaseView, Template, Session) {
       return {
         canGoBack: Session.canGoBack
       };
+    },
+
+    afterRender: function () {
+      var self = this;
+      $.ajax({
+        url: Strings.interpolate('/%s/legal/terms', [Session.language]),
+        accepts: {
+          text: 'text/partial'
+        },
+        dataType: 'text'
+      })
+      .done(function(template) {
+        self.$('#legal-copy').html(template);
+        self.$('.hidden').removeClass('hidden');
+      })
+      .fail(function() {
+        self.displayError(t('Could not get Terms of Service'));
+        self.$('.hidden').removeClass('hidden');
+      })
+      .always(function() {
+        self.trigger('ready');
+      });
     },
 
     events: {

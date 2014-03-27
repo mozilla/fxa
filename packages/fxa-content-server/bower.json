@@ -18,7 +18,8 @@
     "p": "https://github.com/rkatic/p.git#c6a451ef6080f10f9c31489c127ca3b291d0bc5a",
     "sinon": "http://sinonjs.org/releases/sinon-1.7.1.js",
     "fxa-content-server-l10n": "https://github.com/mozilla/fxa-content-server-l10n.git",
-    "blanket": "1.1.5"
+    "blanket": "1.1.5",
+    "tos-pp": "https://github.com/mozilla/legal-docs.git"
   },
   "devDependencies": {}
 }

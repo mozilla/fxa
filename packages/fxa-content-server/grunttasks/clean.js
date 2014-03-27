@@ -6,6 +6,15 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.config('clean', {
+    tos_pp: {
+      files: [{
+        dot: true,
+        src: [
+          '<%= yeoman.pp_html_dest %>',
+          '<%= yeoman.tos_html_dest %>'
+        ]
+      }]
+    },
     dist: {
       files: [{
         dot: true,
@@ -17,6 +26,13 @@ module.exports = function (grunt) {
         ]
       }]
     },
-    server: '.tmp'
+    app: {
+      files: [{
+        dot: true,
+        src: [
+          '<%= yeoman.tmp %>/*'
+        ]
+      }]
+    }
   });
 };

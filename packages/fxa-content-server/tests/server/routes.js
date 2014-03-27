@@ -39,7 +39,9 @@ define([
     '/tests/index.html': 200,
     '/tests/index.html?coverage': 200,
     '/ver.json': 200,
-    '/non_existent': 404
+    '/non_existent': 404,
+    '/legal/non_existent': 404,
+    '/en-US/legal/non_existent': 404
   };
 
   function routeTest(route, expectedStatusCode) {

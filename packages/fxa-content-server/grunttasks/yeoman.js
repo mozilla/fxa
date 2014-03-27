@@ -5,15 +5,25 @@
 module.exports = function (grunt) {
   'use strict';
 
+  var TEMP_DIR = '.tmp';
+  var TEMPLATE_ROOT = 'server/templates';
+  var TOS_PP_REPO_ROOT = 'app/bower_components/tos-pp';
+
   grunt.config('yeoman', {
     app: 'app',
     dist: 'dist',
     server: 'fxa-auth-server',
-    page_template_src: 'server/templates/pages/src',
-    page_template_dist: 'server/templates/pages/dist',
+    page_template_src: TEMPLATE_ROOT + '/pages/src',
+    page_template_dist: TEMPLATE_ROOT + '/pages/dist',
     strings_src: 'app/bower_components/fxa-content-server-l10n/locale',
     strings_dist: 'locale',
     tests: 'tests',
-    tmp: '.tmp'
+    tmp: TEMP_DIR,
+    // Translated TOS/PP agreements.
+    tos_pp_repo_dest: TOS_PP_REPO_ROOT,
+    tos_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_ToS/',
+    tos_html_dest: TEMPLATE_ROOT + '/pages/dist/terms',
+    pp_md_src: TOS_PP_REPO_ROOT + '/firefox_cloud_services_PrivacyNotice/',
+    pp_html_dest: TEMPLATE_ROOT + '/pages/dist/privacy'
   });
 };

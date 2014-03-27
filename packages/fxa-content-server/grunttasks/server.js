@@ -11,8 +11,9 @@ module.exports = function (grunt) {
     }
 
     grunt.task.run([
-      'clean:server',
+      'clean:app',
       'selectconfig:app',
+      'l10n-generate-tos-pp:app',
       'css',
       'concurrent:server',
       'serverproc:app'
