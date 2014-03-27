@@ -12,7 +12,8 @@ module.exports = function (grunt) {
 
   function rename(destPath, destFile) {
     // Normalize the filenames to use the locale name.
-    return path.join(destPath, i18n.localeFrom(destFile));
+    var lang = destFile.replace('.md', '');
+    return path.join(destPath, i18n.localeFrom(lang) + '.html');
   }
 
   grunt.config('marked', {
@@ -27,7 +28,6 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.pp_md_src %>',
           src: ['**/*.md'],
           dest: '<%= yeoman.pp_html_dest %>',
-          ext: '.html',
           rename: rename
         },
         {
@@ -35,7 +35,6 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.tos_md_src %>',
           src: ['**/*.md'],
           dest: '<%= yeoman.tos_html_dest %>',
-          ext: '.html',
           rename: rename
         }
       ]
