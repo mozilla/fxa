@@ -1,2 +1,2 @@
--- drop the dbMetadata table
-DROP TABLE dbMetadata;
+-- -- drop the dbMetadata table
+-- DROP TABLE dbMetadata;
