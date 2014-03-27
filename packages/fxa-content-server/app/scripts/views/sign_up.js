@@ -137,6 +137,9 @@ function (_, BaseView, FormView, Template, Session, FxaClient, PasswordMixin, Au
             Session.set('prefillEmail', email);
             var msg = t('Account already exists. <a href="/signin">Sign in</a>');
             return self.displayErrorUnsafe(msg);
+          } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+            // if user canceled login, just stop
+            return;
           }
           self.displayError(err);
         });

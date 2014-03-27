@@ -32,7 +32,8 @@ function () {
     REQUEST_TOO_LARGE: 113,
     THROTTLED: 114,
     SERVICE_UNAVAILABLE: 201,
-    ENDPOINT_NOT_SUPPORTED: 116
+    ENDPOINT_NOT_SUPPORTED: 116,
+    USER_CANCELED_LOGIN: 1001 // local only error code for when user cancels desktop login
   };
 
   var CODE_TO_MESSAGES = {

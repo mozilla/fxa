@@ -36,6 +36,39 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
   }
 
   FxaClientWrapper.prototype = {
+    // If there exists a channel, this will send a message over the channel to determine
+    // whether we should cancel the login to sync or not based on Desktop specific
+    // checks and dialogs. It throws an error with message='USER_CANCELED_LOGIN' and
+    // errno=1001 if that's the case.
+    _checkForDesktopSyncRelinkWarning: function (email) {
+      var defer = p.defer();
+      if (Session.channel) {
+        Session.channel.send('can_link_account', { email: email }, function (err, response) {
+          if (err) {
+            console.error('_checkForDesktopSyncRelinkWarning failed with', err);
+            // If the browser doesn't implement this command, then it will handle
+            // prompting the relink warning after sign in completes. This can likely
+            // be changed to 'reject' after Fx31 hits nightly, because all browsers
+            // will likely support 'can_link_account'
+            defer.resolve();
+          } else {
+            if (response && response.data && !response.data.ok) {
+              var errorMessage = 'USER_CANCELED_LOGIN';
+              var error = new Error(errorMessage);
+              error.errno = AuthErrors.toCode(errorMessage);
+              defer.reject(error);
+            } else {
+              defer.resolve();
+            }
+          }
+        });
+      } else {
+        // if no channel to desktop, there's nothing to check
+        defer.resolve();
+      }
+      return defer.promise;
+    },
+
     _getClientAsync: function () {
       var defer = p.defer();
 
@@ -54,9 +87,27 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       return defer.promise;
     },
 
-    signIn: function (originalEmail, password, customizeSync) {
+    signIn: function (originalEmail, password, options) {
       var email = trim(originalEmail);
-      return this._getClientAsync()
+      var self = this;
+      options = options || {};
+
+      // dummy promise to allow us to branch
+      var defer = p.defer();
+      defer.resolve();
+
+      return defer.promise
+              .then(function() {
+                // If we already verified in signUp that we can link with
+                // the desktop, don't do it again. Otherwise,
+                // make the call over to the Desktop code to ask if
+                // we can allow the linking.
+                if (!options.verifiedCanLinkAccount) {
+                  return self._checkForDesktopSyncRelinkWarning(email);
+                }
+                return;
+              })
+              .then(self._getClientAsync)
               .then(function (client) {
                 return client.signIn(email, password, { keys: true });
               })
@@ -71,12 +122,16 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                   keyFetchToken: accountData.keyFetchToken,
                   sessionToken: accountData.sessionToken,
                   sessionTokenContext: Session.context,
-                  customizeSync: customizeSync
+                  customizeSync: options.customizeSync
                 };
 
                 Session.set(updatedSessionData);
                 if (Session.channel) {
                   var defer = p.defer();
+                  // Skipping the relink warning is only relevant to the channel
+                  // communication with the Desktop browser. It may have been
+                  // done during a sign up flow.
+                  updatedSessionData.verifiedCanLinkAccount = true;
                   Session.channel.send('login', updatedSessionData, function (err) {
                     if (err) {
                       defer.reject(err);
@@ -100,11 +155,15 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       var self = this;
       var service = Session.service;
       var redirectTo = Session.redirectTo;
-
       // ensure resend works again
       signUpResendCount = 0;
 
-      return this._getClientAsync()
+      // We need to check for the relink warning here *before*
+      // we do the account creation. Otherwise, the user may
+      // cancel later in the relink warning during sign in,
+      // but still have an account created for her.
+      return this._checkForDesktopSyncRelinkWarning(email)
+              .then(this._getClientAsync)
               .then(function (client) {
                 var signUpOptions = {
                   keys: true,
@@ -129,7 +188,11 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                 throw err;
               })
               .then(function () {
-                return self.signIn(email, password, options.customizeSync);
+                var signInOptions = {
+                  customizeSync: options.customizeSync,
+                  verifiedCanLinkAccount: true // skip the warning, beacuse we already triggered it above
+                };
+                return self.signIn(email, password, signInOptions);
               })
               .then(function (accountData) {
                 // signIn clears the Session. Restore service and redirectTo

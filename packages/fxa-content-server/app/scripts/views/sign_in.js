@@ -95,8 +95,10 @@ function (_, BaseView, FormView, SignInTemplate, Constants, Session, FxaClient, 
                 Session.set('prefillEmail', email);
                 var msg = t('Unknown account. <a href="/signup">Sign up</a>');
                 return self.displayErrorUnsafe(msg);
+              } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+                // if user canceled login, just stop
+                return;
               }
-
               this.displayError(err);
             }, this));
     },
