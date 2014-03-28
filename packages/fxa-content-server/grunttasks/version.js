@@ -13,7 +13,13 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.registerTask('version', [
-    'bump-only',
+    'bump-only:minor',
+    'changelog',
+    'bump-commit'
+  ]);
+
+  grunt.registerTask('version:patch', [
+    'bump-only:patch',
     'changelog',
     'bump-commit'
   ]);
