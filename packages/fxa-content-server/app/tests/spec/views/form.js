@@ -8,37 +8,56 @@
 define([
   'chai',
   'jquery',
+  'p-promise',
   'views/form',
   'stache!templates/test_template',
   '../../lib/helpers'
 ],
-function (chai, $, FormView, Template, TestHelpers) {
+function (chai, $, p, FormView, Template, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/form', function () {
     var view;
 
+    var View = FormView.extend({
+      template: Template,
+
+      // overridden in tests.
+      formIsValid: false,
+      isFormSubmitted: false,
+
+      isValid: function () {
+        return this.formIsValid;
+      },
+
+      showValidationErrors: function () {
+        return 'invalid form';
+      },
+
+      submit: function () {
+        this.isFormSubmitted = true;
+      }
+    });
+
+    function testErrorDisplayed(expectedMessage) {
+      return view.validateAndSubmit()
+          .then(function () {
+            // success callback should not be called on failure.
+            assert.fail();
+          }, function (err) {
+            assert.equal(err, expectedMessage);
+          });
+    }
+
+    function testFormSubmitted() {
+      return view.validateAndSubmit()
+                  .then(function () {
+                    assert.isTrue(view.isFormSubmitted);
+                  });
+    }
+
     beforeEach(function () {
-      var View = FormView.extend({
-        template: Template,
-
-        // overridden in tests.
-        formIsValid: false,
-
-        isValid: function () {
-          return this.formIsValid;
-        },
-
-        showValidationErrors: function () {
-          this.validationErrorsShown = true;
-        },
-
-        submit: function () {
-          this.formSubmitted = true;
-        }
-      });
-
       view = new View({});
 
       view.render();
@@ -70,15 +89,82 @@ function (chai, $, FormView, Template, TestHelpers) {
     describe('validateAndSubmit', function () {
       it('submits form if isValid returns true', function () {
         view.formIsValid = true;
-        view.validateAndSubmit();
-        assert.isTrue(view.formSubmitted);
+        return testFormSubmitted();
       });
 
       it('shows validation errors if isValid returns false', function () {
         view.formIsValid = false;
-        view.validateAndSubmit();
-        assert.isTrue(view.validationErrorsShown);
+        return testErrorDisplayed('invalid form');
       });
+
+      it('displays error message if beforeSubmit throws an error', function () {
+        view.formIsValid = true;
+        view.beforeSubmit = function () {
+          throw 'an error message';
+        };
+
+        return testErrorDisplayed('an error message');
+      });
+
+      it('beforeSubmit can return a false to stop form submission', function () {
+        view.formIsValid = true;
+        view.beforeSubmit = function () {
+          return false;
+        };
+
+        return view.validateAndSubmit()
+                    .then(function () {
+                      assert.isFalse(view.isFormSubmitted);
+                    });
+      });
+
+      it('beforeSubmit can return a promise for asynchronous operations', function () {
+        view.formIsValid = true;
+        view.beforeSubmit = function () {
+          return p().delay(10);
+        };
+
+        return testFormSubmitted();
+      });
+
+      it('displays error message if submit throws an error', function () {
+        view.formIsValid = true;
+        view.submit = function () {
+          throw 'an error message';
+        };
+
+        return testErrorDisplayed('an error message');
+      });
+
+      it('submit can return a promise for asynchronous operations', function () {
+        view.formIsValid = true;
+        view.submit = function () {
+          return p().then(function () {
+            view.isFormSubmitted = true;
+          }).delay(10);
+        };
+
+        return testFormSubmitted();
+      });
+
+      it('displays error message if afterSubmit throws an error', function () {
+        view.formIsValid = true;
+        view.afterSubmit = function () {
+          throw 'an error message';
+        };
+
+        return testErrorDisplayed('an error message');
+      });
+
+      it('afterSubmit can return a promise for asynchronous operations', function () {
+        view.formIsValid = true;
+        view.afterSubmit = function () {
+          return p().delay(10);
+        };
+
+        return testFormSubmitted();
+      });
+
     });
 
     describe('showValidationError', function () {

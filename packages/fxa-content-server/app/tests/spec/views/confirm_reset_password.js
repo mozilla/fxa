@@ -39,7 +39,7 @@ function (chai, View, FxaClient, RouterMock) {
       });
     });
 
-    describe('resend', function () {
+    describe('submit', function () {
       it('resends the confirmation email', function (done) {
         var client = new FxaClient();
         var email = 'user' + Math.random() + '@testuser.com';
@@ -49,22 +49,24 @@ function (chai, View, FxaClient, RouterMock) {
                 return client.passwordReset(email);
               })
               .then(function () {
-                   view.on('resent', done);
-                  view.resend();
-                });
+                view.on('resent', done);
+                view.submit();
+              });
 
       });
+    });
 
-      it('resend only occurs when clicking on #resend', function () {
+    describe('validateAndSubmit', function () {
+      it('only called after click on #resend', function () {
         var client = new FxaClient();
         var email = 'user' + Math.random() + '@testuser.com';
 
         return client.signUp(email, 'password')
                .then(function () {
                  var count = 0;
-                 view.on('resending', function () {
+                 view.validateAndSubmit = function() {
                    count++;
-                 });
+                 };
 
                  view.$('section').click();
                  assert.equal(count, 0);

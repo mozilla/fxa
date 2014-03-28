@@ -85,39 +85,32 @@ function (chai, $, View, Session, FxaClient,
     });
 
     describe('submit', function () {
-      it('signs the user in on success', function (done) {
+      it('signs the user in on success', function () {
         var password = 'password';
         var client = new FxaClient();
-        client.signUp(email, password)
+        return client.signUp(email, password)
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val(password);
-
-                router.on('navigate', function () {
-                  wrapAssertion(function () {
-                    assert.equal(router.page, 'confirm');
-                  }, done);
-                });
-                view.submit();
+                return view.submit()
               })
-              .then(null, function (err) {
-                done(new Error(err));
+              .then(function () {
+                assert.equal(router.page, 'confirm');
               });
       });
 
-      it('show incorrect password message on incorrect password', function (done) {
+      it('rejects promise with incorrect password message on incorrect password', function () {
         var client = new FxaClient();
-        client.signUp(email, 'password')
+        return client.signUp(email, 'password')
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val('incorrect');
-
-                view.on('error', function (msg) {
-                  wrapAssertion(function () {
-                    assert.ok(msg.indexOf('Incorrect') > -1);
-                  }, done);
-                });
-                view.submit();
+                return view.submit();
+              })
+              .then(function () {
+                assert.fail();
+              }, function (err) {
+                assert.ok(err.message.indexOf('Incorrect') > -1);
               });
       });
 
@@ -130,7 +123,8 @@ function (chai, $, View, Session, FxaClient,
             assert.ok(msg.indexOf('/signup') > -1);
           }, done);
         });
-        view.submit();
+
+        return view.submit();
       });
     });
 
@@ -257,29 +251,36 @@ function (chai, $, View, Session, FxaClient,
       assert.isTrue(view.isValid());
     });
 
-    it('forgot password request redirects directly to confirm_reset_password', function (done) {
+    it('forgot password request redirects directly to confirm_reset_password', function () {
       var password = 'password';
       var client = new FxaClient();
       var event = $.Event('click');
-      client.signUp(email, password)
+      return client.signUp(email, password)
             .then(function () {
               // the call to client.signUp clears Session.
               // These fields are reset to complete the test.
               Session.set('forceAuth', true);
               Session.set('forceEmail', email);
-              router.on('navigate', function () {
-                wrapAssertion(function () {
-                  assert.equal(router.page, 'confirm_reset_password');
 
-                  assert.isTrue(event.isDefaultPrevented());
-                  assert.isTrue(event.isPropagationStopped());
-                }, done);
-              });
-
-              view.resetPasswordNow(event);
+              return view.resetPasswordNow(event);
             })
-            .then(null, function (err) {
-              done(new Error(err));
+            .then(function () {
+              assert.equal(router.page, 'confirm_reset_password');
+
+              assert.isTrue(event.isDefaultPrevented());
+              assert.isTrue(event.isPropagationStopped());
+            });
+    });
+
+    it('only one forget password request at a time', function () {
+      var event = $.Event('click');
+
+      view.submitting = true;
+      return view.resetPasswordNow(event)
+            .then(function () {
+              assert.fail('unexpected success');
+            }, function (err) {
+              assert.equal(err.message, 'submitting already in progress');
             });
     });
   });
