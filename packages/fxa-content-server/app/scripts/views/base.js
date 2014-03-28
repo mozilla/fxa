@@ -188,6 +188,22 @@ function (_, Backbone, jQuery, Session, authErrors) {
 
     /**
      * Display an error message.
+     * @method translateError
+     * @param {string} err - an error object
+     *
+     * @return {string} translated error text (if available), untranslated
+     *   error text otw.
+     */
+    translateError: function (err) {
+      var msg = authErrors.toMessage(err);
+      var context = authErrors.toContext(err);
+      var translated = this.translator.get(msg, context);
+
+      return translated;
+    },
+
+    /**
+     * Display an error message.
      * @method displayError
      * @param {string} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
@@ -199,16 +215,14 @@ function (_, Backbone, jQuery, Session, authErrors) {
       this.hideSuccess();
       this.$('.spinner').hide();
 
-      var msg = authErrors.toMessage(err);
-      var context = authErrors.toContext(err);
-      var translated = this.translator.get(msg, context);
+      var translated = this.translateError(err);
 
-      if (msg) {
+      if (translated) {
         this.$('.error').text(translated);
       }
 
       this.$('.error').show();
-      this.trigger('error', msg);
+      this.trigger('error', translated);
 
       return translated;
     },
@@ -226,11 +240,17 @@ function (_, Backbone, jQuery, Session, authErrors) {
      *   error text otw.
      */
     displayErrorUnsafe: function (err) {
-      var translated = this.displayError(err);
+      this.hideSuccess();
+      this.$('.spinner').hide();
+
+      var translated = this.translateError(err);
 
       if (translated) {
         this.$('.error').html(translated);
       }
+
+      this.$('.error').show();
+      this.trigger('error', translated);
 
       return translated;
     },
