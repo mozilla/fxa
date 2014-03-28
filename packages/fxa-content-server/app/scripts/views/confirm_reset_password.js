@@ -8,9 +8,10 @@ define([
   'views/form',
   'views/base',
   'stache!templates/confirm_reset_password',
-  'lib/session'
+  'lib/session',
+  'lib/constants'
 ],
-function (FormView, BaseView, Template, Session) {
+function (FormView, BaseView, Template, Session, Constants) {
   var View = FormView.extend({
     template: Template,
     className: 'confirm-reset-password',
@@ -25,6 +26,25 @@ function (FormView, BaseView, Template, Session) {
     events: {
       // validateAndSubmit is used to prevent multiple concurrent submissions.
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
+    },
+
+    afterRender: function () {
+      var self = this;
+      var interval = setInterval(function () {
+        self.fxaClient.isPasswordResetComplete()
+          .then(function (complete) {
+            if (complete) {
+              var email = Session.email;
+              clearInterval(interval);
+              Session.clear();
+              Session.set('prefillEmail', email);
+              self.navigate('signin');
+            }
+          }, function (err) {
+            // an unexpected error occurred
+            console.error(err);
+          });
+      }, Constants.RESET_PASSWORD_POLL_INTERVAL);
     },
 
     submit: function () {

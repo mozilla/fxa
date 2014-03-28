@@ -365,6 +365,36 @@ function (chai, $, ChannelMock, testHelpers,
       });
     });
 
+    describe('isPasswordResetComplete', function () {
+      it('password status incomplete', function () {
+        var token;
+        return client.signUp(email, password, {preVerified: true})
+          .then(function () {
+            return client.passwordReset(email);
+          })
+          .then(function () {
+            return client.isPasswordResetComplete();
+          })
+          .then(function (complete) {
+            // cache the token so it's not cleared after the password change
+            token = Session.passwordForgotToken;
+            assert.ok(Session.passwordForgotToken);
+            assert.isTrue(realClient.passwordForgotStatus.calledWith(Session.passwordForgotToken));
+            assert.isFalse(complete);
+
+            // change password to force password reset to return true
+            return client.changePassword(email, password, 'new_password');
+          })
+          .then(function (complete) {
+            Session.set('passwordForgotToken', token);
+            return client.isPasswordResetComplete();
+          })
+          .then(function (complete) {
+            assert.isTrue(complete);
+          });
+      });
+    });
+
     describe('deleteAccount', function () {
       it('deletes the user\'s account', function () {
         return client.signUp(email, password)

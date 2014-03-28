@@ -333,6 +333,23 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
               });
     },
 
+    isPasswordResetComplete: function () {
+      var token = Session.passwordForgotToken;
+      return this._getClientAsync()
+        .then(function (client) {
+          return client.passwordForgotStatus(token);
+        })
+        .then(function () {
+          // if the request succeeds, the password reset hasn't completed
+          return false;
+        }, function (err) {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            return true;
+          }
+          throw err;
+        });
+    },
+
     changePassword: function (originalEmail, oldPassword, newPassword) {
       var email = trim(originalEmail);
       var self = this;
