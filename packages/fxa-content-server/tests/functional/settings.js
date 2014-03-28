@@ -18,6 +18,7 @@ define([
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
+  var THIRD_PASSWORD = 'new_new_password';
   var email;
 
   registerSuite({
@@ -190,6 +191,41 @@ define([
         .end();
     },
 
+    'visit settings page with an invalid sessionToken': function() {
+      var client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+
+      // Changing the password invalidates the current sessionToken
+      client.passwordChange(email, SECOND_PASSWORD, THIRD_PASSWORD);
+
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
+        // Expect to get redirected to sign in since the sessionToken is invalid
+        .waitForElementById('fxa-signin-header')
+        .end();
+    },
+
+    'sign in for delete': function () {
+      return this.get('remote')
+        .get(require.toUrl(SIGNIN_URL))
+        .waitForElementById('fxa-signin-header')
+
+        .elementByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('form input.password')
+          .click()
+          .type(THIRD_PASSWORD)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end();
+    },
+
     'go to settings page, delete account': function () {
       return this.get('remote')
         .get(require.toUrl(SETTINGS_URL))
@@ -207,7 +243,7 @@ define([
 
         .elementByCssSelector('form input.password')
           .click()
-          .type(SECOND_PASSWORD)
+          .type(THIRD_PASSWORD)
         .end()
 
         // delete account
@@ -219,6 +255,5 @@ define([
         .waitForElementById('fxa-signup-header')
         .end();
     }
-
   });
 });

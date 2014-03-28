@@ -346,8 +346,14 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
               .then(function () {
                 Session.clear();
               });
-    }
+    },
 
+    sessionStatus: function (sessionToken) {
+      return this._getClientAsync()
+              .then(function (client) {
+                return client.sessionStatus(sessionToken);
+              });
+    }
   };
 
   return FxaClientWrapper;
