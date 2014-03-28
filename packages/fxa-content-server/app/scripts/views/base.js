@@ -9,9 +9,10 @@ define([
   'backbone',
   'jquery',
   'lib/session',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/fxa-client'
 ],
-function (_, Backbone, jQuery, Session, authErrors) {
+function (_, Backbone, jQuery, Session, authErrors, FxaClient) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
 
@@ -28,10 +29,8 @@ function (_, Backbone, jQuery, Session, authErrors) {
     },
 
     render: function () {
-      // If the user must be authenticated and they are not, send
-      // them to the signin screen.
-      if (this.mustAuth && ! Session.sessionToken) {
-        this.navigate('signin');
+      // Check if this view requires authentication.
+      if (this.mustAuth && !this.isSignedIn()) {
         return false;
       }
 
@@ -48,6 +47,32 @@ function (_, Backbone, jQuery, Session, authErrors) {
       this.setTitleFromView();
 
       return this;
+    },
+
+    // Checks if the user is signed in. Triggers a redirect if the user isn't signed in
+    // or the sessionToken is invalid.
+    isSignedIn: function() {
+      // Check if the user is signed in.
+      if (Session.sessionToken) {
+        // Validate session token
+        new FxaClient().sessionStatus(Session.sessionToken)
+        .then(function() {
+          // Success: session is valid. Do nothing.
+        }, _.bind(function(err) {
+          // Error: redirect to sign in when the token is invalid. Doing nothing
+          // on all other errors. May want to treat all errors as failure.
+          if (authErrors.is(err, 'INVALID_TOKEN')) {
+            this.navigate('signin', true);
+          }
+        }, this));
+
+        return true;
+
+      // User isn't signed in. Redirect.
+      } else {
+        this.navigate('signin');
+        return false;
+      }
     },
 
     setTitleFromView: function () {

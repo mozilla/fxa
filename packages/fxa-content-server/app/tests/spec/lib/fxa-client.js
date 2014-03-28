@@ -309,6 +309,18 @@ function (chai, $, ChannelMock, testHelpers,
           });
       });
     });
+
+    describe('sessionStatus', function () {
+      it('checks sessionStatus', function () {
+        return client.signUp(email, password)
+          .then(function () {
+            return client.sessionStatus(Session.sessionToken);
+          })
+          .then(function (err) {
+            assert.isTrue(realClient.sessionStatus.calledWith(Session.sessionToken));
+          });
+      });
+    });
   });
 });
 
