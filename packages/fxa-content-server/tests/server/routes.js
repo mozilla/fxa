@@ -10,7 +10,8 @@ define([
 ], function (registerSuite, assert, config, request) {
   'use strict';
 
-  var serverUrl = config.get('public_url');
+  var httpsUrl = config.get('public_url');
+  var httpUrl = httpsUrl.replace(config.get('port'), config.get('http_port'));
 
   var suite = {
     name: 'front end routes'
@@ -45,10 +46,19 @@ define([
   };
 
   function routeTest(route, expectedStatusCode) {
-    suite['#get ' + route] = function () {
+    suite['#https get ' + httpsUrl + route] = function () {
       var dfd = this.async(1000);
 
-      request(serverUrl + route, dfd.callback(function (err, res) {
+      request(httpsUrl + route, dfd.callback(function (err, res) {
+        assert.equal(res.statusCode, expectedStatusCode);
+      }, dfd.reject.bind(dfd)));
+    };
+
+    // test to ensure http->https redirection works as expected.
+    suite['#http get ' + httpUrl + route] = function () {
+      var dfd = this.async(1000);
+
+      request(httpUrl + route, dfd.callback(function (err, res) {
         assert.equal(res.statusCode, expectedStatusCode);
       }, dfd.reject.bind(dfd)));
     };
