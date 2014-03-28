@@ -84,8 +84,8 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
         });
       }
 
-      // Protip: add `.delay(msToDelay)` to synthesize
-      // server lag.
+      // Protip: add `.delay(msToDelay)` to do a dirty
+      // synthication of server lag for manual testing.
       return defer.promise;
     },
 

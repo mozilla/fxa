@@ -5,13 +5,13 @@
 'use strict';
 
 define([
+  'views/form',
   'views/base',
   'stache!templates/confirm_reset_password',
-  'lib/session',
-  'lib/fxa-client'
+  'lib/session'
 ],
-function (BaseView, Template, Session, FxaClient) {
-  var View = BaseView.extend({
+function (FormView, BaseView, Template, Session) {
+  var View = FormView.extend({
     template: Template,
     className: 'confirm-reset-password',
 
@@ -23,20 +23,17 @@ function (BaseView, Template, Session, FxaClient) {
     },
 
     events: {
-      'click #resend': BaseView.preventDefaultThen('resend')
+      // validateAndSubmit is used to prevent multiple concurrent submissions.
+      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    resend: function () {
+    submit: function () {
       var self = this;
-      self.trigger('resending');
 
-      var client = new FxaClient();
-      client.passwordResetResend()
+      this.fxaClient.passwordResetResend()
             .then(function () {
-              self.$('.success').show();
               self.trigger('resent');
-            }, function (err) {
-              self.displayError(err);
+              self.displaySuccess();
             });
     }
 

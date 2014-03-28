@@ -6,14 +6,14 @@
 
 define([
   'underscore',
+  'views/form',
   'views/base',
   'stache!templates/settings',
-  'lib/fxa-client',
   'lib/session',
   'lib/constants'
 ],
-function (_, BaseView, Template, FxaClient, Session, Constants) {
-  var View = BaseView.extend({
+function (_, FormView, BaseView, Template, Session, Constants) {
+  var View = FormView.extend({
     // user must be authenticated to see Settings
     mustAuth: true,
 
@@ -29,22 +29,16 @@ function (_, BaseView, Template, FxaClient, Session, Constants) {
     },
 
     events: {
-      'click #signout': 'signOut'
+      // validateAndSubmit is used to prevent multiple concurrent submissions.
+      'click #signout': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    signOut: function (event) {
-      if (event) {
-        event.preventDefault();
-      }
-
-      var client = new FxaClient();
+    submit: function () {
       var self = this;
-      client.signOut()
-            .then(function () {
-              self.navigate('signin');
-            }, function (err) {
-              self.displayError(err);
-            });
+      return this.fxaClient.signOut()
+              .then(function () {
+                self.navigate('signin');
+              });
     }
   });
 

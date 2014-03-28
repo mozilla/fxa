@@ -90,35 +90,45 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
      * @return {promise}
      */
     validateAndSubmit: function () {
+      var self = this;
+
+      function submitForm() {
+        // `submitting` flag is used to prevent multiple
+        // form submissions.
+        self.submitting = true;
+
+        return p().then(_.bind(self.beforeSubmit, self))
+                .then(function (shouldSubmit) {
+                  // submission is opt out, not opt in.
+                  if (shouldSubmit !== false) {
+                    return self.submit();
+                  }
+                })
+                .then(_.bind(self.afterSubmit, self))
+                .then(function () {
+                  self.submitting = false;
+                }, function (err) {
+                  self.submitting = false;
+
+                  // surface returned message for testing.
+                  throw self.displayError(err);
+                });
+      }
+
       return p()
-        .then(_.bind(function () {
-          if (! this.isValid()) {
+        .then(function () {
+          if (self.isSubmitting()) {
+            // already submitting, get outta here.
+            throw new Error('submitting already in progress');
+          } else if (! self.isValid()) {
             // Validation error is surfaced for testing.
-            throw this.showValidationErrors();
+            throw self.showValidationErrors();
           } else {
-            return p().then(_.bind(this.beforeSubmit, this))
-                    .then(_.bind(function (shouldSubmit) {
-                      // submission is opt out, not opt in.
-                      if (shouldSubmit !== false) {
-                        return p().then(_.bind(function () {
-                            // submitting flag is used to disable
-                            // re-enabling the form's submit button
-                            // while in the midst of a submit.
-                            this.submitting = true;
-                          }, this))
-                          .then(_.bind(this.submit, this))
-                          .then(_.bind(function () {
-                            this.submitting = false;
-                          }, this));
-                      }
-                    }, this))
-                    .then(_.bind(this.afterSubmit, this))
-                    .then(null, _.bind(function (err) {
-                      // surface returned message for testing.
-                      throw this.displayError(err);
-                    }, this));
+            // all good, do the beforeSubmit, submit, and afterSubmit chain.
+            return submitForm();
           }
-        }, this));
+        });
+
     },
 
     /**

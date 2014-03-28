@@ -63,7 +63,7 @@ function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
           });
       });
 
-      describe('signOut', function () {
+      describe('submit', function () {
         it('signs the user out, redirects to signin page', function (done) {
           router.on('navigate', function (newPage) {
             wrapAssertion(function() {
@@ -71,7 +71,7 @@ function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
             }, done);
           });
 
-          view.signOut();
+          view.submit();
         });
       });
     });
