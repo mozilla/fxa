@@ -294,6 +294,32 @@ module.exports = function (
     },
     {
       method: 'GET',
+      path: '/account/status',
+      config: {
+        validate: {
+          query: {
+            uid: isA.string().min(32).max(32).regex(HEX_STRING).required()
+          }
+        }
+      },
+      handler: function (request, reply) {
+        var uid = Buffer(request.query.uid, 'hex')
+        db.account(uid)
+          .done(
+            function () {
+              reply({ exists: true })
+            },
+            function (err) {
+              if (err.errno === 102) {
+                return reply({ exists: false })
+              }
+              reply(err)
+            }
+          )
+      }
+    },
+    {
+      method: 'GET',
       path: '/account/keys',
       config: {
         auth: {
