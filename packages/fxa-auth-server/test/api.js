@@ -110,6 +110,7 @@ describe('/v1', function() {
       }),
       db.registerClient({
         name: 'Mocha',
+        imageUri: 'https://example.domain/logo',
         redirectUri: 'https://example.domain/return?foo=bar',
         whitelisted: true,
         secret: secret
@@ -361,6 +362,7 @@ describe('/v1', function() {
           name: 'client2',
           secret: secret2,
           redirectUri: 'https://example.domain',
+          imageUri: 'https://example.foo.domain/logo.png',
           whitelisted: true
         };
         db.registerClient(client2).then(function() {
@@ -445,6 +447,19 @@ describe('/v1', function() {
           assert.equal(res.result.access_token.length,
             config.get('unique.token') * 2);
           assert.equal(res.result.scope, 'foo bar');
+        }).done(done, done);
+      });
+    });
+  });
+
+  describe('/client/:id', function() {
+    describe('response', function() {
+      it('should return the correct response', function(done) {
+        Server.api.get('/client/' + clientId)
+        .then(function(res) {
+          assert.equal(res.statusCode, 200);
+          var body = res.result;
+          assert.equal(body.name, client.name);
         }).done(done, done);
       });
     });

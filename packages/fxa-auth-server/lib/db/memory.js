@@ -15,6 +15,7 @@ const unique = require('../unique');
  *       id: <id>,
  *       secret: <string>,
  *       name: <string>,
+ *       imageUri: <string>,
  *       redirectUri: <string>,
  *       whitelisted: <boolean>,
  *       createdAt: <timestamp>
