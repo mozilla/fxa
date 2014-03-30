@@ -105,6 +105,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 
 * Account
     * [POST /v1/account/create](#post-v1accountcreate)
+    * [GET  /v1/account/status](#get-v1accountstatus)
     * [GET  /v1/account/devices (:lock: sessionToken)](#get-v1accountdevices)
     * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-v1accountkeys)
     * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
@@ -158,7 +159,7 @@ ___Parameters___
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-https://api-accounts.dev.lcip.org/v1/account/create?keys=true \
+"https://api-accounts.dev.lcip.org/v1/account/create?keys=true" \
 -d '{
   "email": "me@example.com",
   "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
@@ -188,6 +189,33 @@ Failing requests may be due to the following errors:
 * status code 400, errno 108:  request body missing required parameters
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+
+
+## GET /v1/account/status
+
+Gets the status of an account
+
+### Request
+
+```sh
+curl -v "https://api-accounts.dev.lcip.org/v1/account/status?uid=4c352927cd4f4a4aa03d7d1893d950b8"
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with the account status provided in the JSON body:
+
+```json
+{
+  "exists": true
+}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 107:  request query contains invalid parameters
+* status code 400, errno 108:  request query missing required parameters
+
 
 ## POST /v1/account/login
 
