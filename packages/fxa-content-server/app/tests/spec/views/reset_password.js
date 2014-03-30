@@ -90,6 +90,9 @@ function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
                 });
 
                 view.submit();
+              })
+              .then(null, function (err) {
+                done(new Error(err.toString()));
               });
       });
     });
