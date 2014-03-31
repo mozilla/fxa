@@ -249,6 +249,8 @@ function (_, Backbone, jQuery, Session, authErrors, FxaClient) {
       this.$('.error').show();
       this.trigger('error', translated);
 
+      this._isErrorVisible = true;
+
       return translated;
     },
 
@@ -277,11 +279,18 @@ function (_, Backbone, jQuery, Session, authErrors, FxaClient) {
       this.$('.error').show();
       this.trigger('error', translated);
 
+      this._isErrorVisible = true;
+
       return translated;
     },
 
     hideError: function () {
       this.$('.error').hide();
+      this._isErrorVisible = false;
+    },
+
+    isErrorVisible: function () {
+      return !!this._isErrorVisible;
     },
 
     back: function (event) {
@@ -314,6 +323,28 @@ function (_, Backbone, jQuery, Session, authErrors, FxaClient) {
       } catch (e) {
         // IE can blow up if the element is not visible.
       }
+    },
+
+    /**
+     * Invoke the specified handler with the given event. Handler
+     * can either be a function or a string. If a string, looks for
+     * the handler on `this`.
+     *
+     * @method invokeHandler
+     */
+    invokeHandler: function (handler, event) {
+      // convert a name to a function.
+      if (typeof handler === 'string') {
+        handler = this[handler];
+
+        if (typeof handler !== 'function') {
+          console.warn(handler + ' is an invalid function name');
+        }
+      }
+
+      if (typeof handler === 'function') {
+        return handler.call(this, event);
+      }
     }
   });
 
@@ -328,20 +359,7 @@ function (_, Backbone, jQuery, Session, authErrors, FxaClient) {
   BaseView.preventDefaultThen = function (handler) {
     return function (event) {
       event.preventDefault();
-
-      // convert a name to a function.
-      if (typeof handler === 'string') {
-        handler = this[handler];
-
-        if (typeof handler !== 'function') {
-          console.warn(handler +
-                ' is an invalid function name to use with preventDefaultThen');
-        }
-      }
-
-      if (typeof handler === 'function') {
-        return handler.call(this, event);
-      }
+      return this.invokeHandler(handler, event);
     };
   };
 

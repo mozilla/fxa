@@ -45,7 +45,7 @@ function (chai, p, View, RouterMock) {
 
         return view.fxaClient.signUp(email, 'password')
               .then(function () {
-                 return view.submit();
+                return view.submit();
               })
               .then(function () {
                 assert.isTrue(view.$('.success').is(':visible'));

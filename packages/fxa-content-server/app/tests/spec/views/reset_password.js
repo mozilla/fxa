@@ -75,22 +75,16 @@ function (chai, View, WindowMock, RouterMock, TestHelpers) {
     });
 
     describe('submit with valid input', function () {
-      it('submits the email address', function (done) {
+      it('submits the email address', function () {
         var email = 'testuser.' + Math.random() + '@testuser.com';
-        view.fxaClient.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
               .then(function () {
                 view.$('input[type=email]').val(email);
 
-                router.on('navigate', function () {
-                  wrapAssertion(function() {
-                    assert.equal(router.page, 'confirm_reset_password');
-                  }, done);
-                });
-
-                view.submit();
+                return view.submit();
               })
-              .then(null, function (err) {
-                done(new Error(err.toString()));
+              .then(function () {
+                assert.equal(router.page, 'confirm_reset_password');
               });
       });
     });
