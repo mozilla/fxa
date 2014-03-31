@@ -10,17 +10,21 @@ define([
 ], function() {
   function ChannelMock() {
     this.canLinkAccountOk = true;
-    this.messageCount = {};
+    this._messageCount = {};
   }
 
   ChannelMock.prototype = {
+    getMessageCount: function(message) {
+      return this._messageCount[message] || 0;
+    },
+
     send: function(message, data, done) {
       this.message = message;
       this.data = data;
-      if (!this.messageCount[message]) {
-        this.messageCount[message] = 0;
+      if (!this._messageCount[message]) {
+        this._messageCount[message] = 0;
       }
-      this.messageCount[message] += 1;
+      this._messageCount[message] += 1;
       switch (message)
       {
       case 'can_link_account':

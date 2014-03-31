@@ -166,7 +166,7 @@ function (chai, $, ChannelMock, testHelpers,
             // check that login was the last message sent over the channel
             assert.equal(channelMock.message, 'login');
             // check can_link_account was called once
-            assert.equal(channelMock.messageCount['can_link_account'], 1);
+            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
             // and it includes that it has already verified that it is allowed to link
             assert.isTrue(channelMock.data.verifiedCanLinkAccount);
             assert.isTrue(realClient.signIn.calledWith(trim(email)))
@@ -184,7 +184,7 @@ function (chai, $, ChannelMock, testHelpers,
           }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
             // check can_link_account was called once
-            assert.equal(channelMock.messageCount['can_link_account'], 1);
+            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
           });
       });
     });
@@ -234,7 +234,7 @@ function (chai, $, ChannelMock, testHelpers,
             // check that login was the last message sent over the channel
             assert.equal(channelMock.message, 'login');
             // check can_link_account was called zero times
-            assert.isUndefined(channelMock.messageCount['can_link_account']);
+            assert.equal(channelMock.getMessageCount('can_link_account'), 0);
             // and it includes that it has already verified that it is allowed to link
             assert.isTrue(channelMock.data.verifiedCanLinkAccount);
             assert.isTrue(realClient.signIn.calledWith(trim(email)))
@@ -253,7 +253,7 @@ function (chai, $, ChannelMock, testHelpers,
             // check that login was the last message sent over the channel
             assert.equal(channelMock.message, 'login');
             // check can_link_account was called once
-            assert.equal(channelMock.messageCount['can_link_account'], 1);
+            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
             // and it includes that it has already verified that it is allowed to link
             assert.isTrue(channelMock.data.verifiedCanLinkAccount);
             assert.isTrue(realClient.signIn.calledWith(trim(email)))
@@ -271,7 +271,7 @@ function (chai, $, ChannelMock, testHelpers,
           }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
             // check can_link_account was called once
-            assert.equal(channelMock.messageCount['can_link_account'], 1);
+            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
           });
       });
     });
