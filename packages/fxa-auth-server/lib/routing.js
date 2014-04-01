@@ -25,6 +25,11 @@ module.exports = [
     config: require('./routes/client')
   },
   {
+    method: 'GET',
+    path: v('/authorization'),
+    config: require('./routes/redirect')
+  },
+  {
     method: 'POST',
     path: v('/authorization'),
     config: require('./routes/authorization')
