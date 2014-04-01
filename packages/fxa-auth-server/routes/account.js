@@ -21,7 +21,8 @@ module.exports = function (
   verifierVersion,
   isProduction,
   domain,
-  resendBlackoutPeriod
+  resendBlackoutPeriod,
+  customs
   ) {
 
   var routes = [
@@ -45,8 +46,8 @@ module.exports = function (
         var email = form.email
         var authSalt = crypto.randomBytes(32)
         var authPW = Buffer(form.authPW, 'hex')
-
-        db.emailRecord(email)
+        customs.check(email, 'accountCreate')
+          .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
               // account exists
@@ -187,8 +188,10 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.login', request)
         var form = request.payload
+        var email = form.email
         var authPW = Buffer(form.authPW, 'hex')
-        db.emailRecord(form.email)
+        customs.check(email, 'accountLogin')
+          .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
               var password = new Password(
@@ -200,7 +203,12 @@ module.exports = function (
               .then(
                 function (match) {
                   if (!match) {
-                    throw error.incorrectPassword(emailRecord.email, form.email)
+                    return customs.flag(email)
+                      .then(
+                        function () {
+                          throw error.incorrectPassword(emailRecord.email, email)
+                        }
+                      )
                   }
                   return db.createSessionToken(
                     {
@@ -395,16 +403,25 @@ module.exports = function (
             Date.now() - sessionToken.verifierSetAt < resendBlackoutPeriod) {
           return reply({})
         }
-        mailer.sendVerifyCode(sessionToken, sessionToken.emailCode, {
-          service: request.payload.service,
-          redirectTo: request.payload.redirectTo,
-          acceptLanguage: request.app.acceptLanguage
-        }).done(
-          function () {
-            reply({})
-          },
-          reply
-        )
+        customs.check(sessionToken.email, 'recoveryEmailResendCode')
+          .then(
+            mailer.sendVerifyCode.bind(
+              mailer,
+              sessionToken,
+              sessionToken.emailCode,
+              {
+                service: request.payload.service,
+                redirectTo: request.payload.redirectTo,
+                acceptLanguage: request.app.acceptLanguage
+              }
+            )
+          )
+          .done(
+            function () {
+              reply({})
+            },
+            reply
+          )
       }
     },
     {

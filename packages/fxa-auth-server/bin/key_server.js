@@ -67,7 +67,17 @@ function main() {
         DB.connect(config[config.db.backend])
           .done(
             function (db) {
-              var routes = require('../routes')(log, error, serverPublicKey, signer, db, mailer, config)
+              var customs = require('../customs')(log)
+              var routes = require('../routes')(
+                log,
+                error,
+                serverPublicKey,
+                signer,
+                db,
+                mailer,
+                config,
+                customs
+              )
               server = Server.create(log, error, config, routes, db)
 
               server.start(

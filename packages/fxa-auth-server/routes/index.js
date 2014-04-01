@@ -16,7 +16,8 @@ module.exports = function (
   signer,
   db,
   mailer,
-  config
+  config,
+  customs
   ) {
   var isProduction = config.env === 'prod'
   var defaults = require('./defaults')(log, P, db, error)
@@ -34,7 +35,8 @@ module.exports = function (
     config.verifierVersion,
     isProduction,
     config.domain,
-    config.smtp.resendBlackoutPeriod
+    config.smtp.resendBlackoutPeriod,
+    customs
   )
   var password = require('./password')(
     log,
@@ -43,7 +45,8 @@ module.exports = function (
     db,
     config.smtp.redirectDomain,
     mailer,
-    config.verifierVersion
+    config.verifierVersion,
+    customs
   )
   var session = require('./session')(log, isA, error, db)
   var sign = require('./sign')(log, isA, error, signer, config.domain)

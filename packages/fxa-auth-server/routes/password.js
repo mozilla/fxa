@@ -16,7 +16,8 @@ module.exports = function (
   db,
   redirectDomain,
   mailer,
-  verifierVersion
+  verifierVersion,
+  customs
   ) {
 
   function failVerifyAttempt(passwordForgotToken) {
@@ -179,7 +180,8 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Password.forgotSend', request)
         var email = request.payload.email
-        db.emailRecord(email)
+        customs.check(email, 'passwordForgotSendCode')
+          .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
               return db.createPasswordForgotToken(emailRecord)
@@ -244,28 +246,32 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Password.forgotResend', request)
         var passwordForgotToken = request.auth.credentials
-        mailer.sendRecoveryCode(
-          passwordForgotToken,
-          passwordForgotToken.passCode,
-          {
-            service: request.payload.service,
-            redirectTo: request.payload.redirectTo,
-            acceptLanguage: request.app.acceptLanguage
-          }
-        )
-        .done(
-          function () {
-            reply(
+        customs.check(passwordForgotToken.email , 'passwordForgotResendCode')
+          .then(
+            mailer.sendRecoveryCode.bind(
+              mailer,
+              passwordForgotToken,
+              passwordForgotToken.passCode,
               {
-                passwordForgotToken: passwordForgotToken.data.toString('hex'),
-                ttl: passwordForgotToken.ttl(),
-                codeLength: passwordForgotToken.passCode.length,
-                tries: passwordForgotToken.tries
+                service: request.payload.service,
+                redirectTo: request.payload.redirectTo,
+                acceptLanguage: request.app.acceptLanguage
               }
             )
-          },
-          reply
-        )
+          )
+          .done(
+            function () {
+              reply(
+                {
+                  passwordForgotToken: passwordForgotToken.data.toString('hex'),
+                  ttl: passwordForgotToken.ttl(),
+                  codeLength: passwordForgotToken.passCode.length,
+                  tries: passwordForgotToken.tries
+                }
+              )
+            },
+            reply
+          )
       }
     },
     {
