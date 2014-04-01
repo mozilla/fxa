@@ -7,11 +7,12 @@
 
 define([
   'chai',
+  'p-promise',
   'views/confirm_reset_password',
   'lib/fxa-client',
   '../../mocks/router'
 ],
-function (chai, View, FxaClient, RouterMock) {
+function (chai, p, View, FxaClient, RouterMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -40,22 +41,35 @@ function (chai, View, FxaClient, RouterMock) {
     });
 
     describe('submit', function () {
-      it('resends the confirmation email', function (done) {
+      it('resends the confirmation email, shows success message', function () {
         var client = new FxaClient();
         var email = 'user' + Math.random() + '@testuser.com';
 
-        client.signUp(email, 'password')
+        return client.signUp(email, 'password')
               .then(function () {
                 return client.passwordReset(email);
               })
               .then(function () {
-                view.on('resent', done);
-                view.submit();
+                return view.submit();
               })
-              .then(null, function (err) {
-                done(new Error(err));
+              .then(function () {
+                assert.isTrue(view.$('.success').is(':visible'));
               });
+      });
 
+      it('displays error messages if there is a problem', function () {
+        view.fxaClient.passwordResetResend = function () {
+          return p().then(function () {
+            throw new Error('synthesized error from auth server');
+          });
+        };
+
+        return view.submit()
+              .then(function () {
+                assert.fail();
+              }, function (err) {
+                assert.equal(err.message, 'synthesized error from auth server');
+              });
       });
     });
 

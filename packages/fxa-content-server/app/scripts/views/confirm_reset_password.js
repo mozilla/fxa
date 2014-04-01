@@ -30,11 +30,10 @@ function (FormView, BaseView, Template, Session) {
     submit: function () {
       var self = this;
 
-      this.fxaClient.passwordResetResend()
-            .then(function () {
-              self.trigger('resent');
-              self.displaySuccess();
-            });
+      return this.fxaClient.passwordResetResend()
+              .then(function () {
+                self.displaySuccess();
+              });
     }
 
   });
