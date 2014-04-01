@@ -67,7 +67,7 @@ function main() {
         DB.connect(config[config.db.backend])
           .done(
             function (db) {
-              var customs = require('../customs')(log)
+              var customs = require('../customs')(log, error)
               var routes = require('../routes')(
                 log,
                 error,
