@@ -81,7 +81,7 @@ var conf = module.exports = convict({
   oauth_url: {
     doc: 'The url of the Firefox Account OAuth server',
     format: 'url',
-    default: 'http://127.0.0.1:9001/v1',
+    default: 'http://127.0.0.1:9010/v1',
     env: 'FXA_OAUTH_URL'
   },
   static_directory: {
