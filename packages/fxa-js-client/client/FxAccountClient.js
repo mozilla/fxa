@@ -455,6 +455,18 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
   };
 
   /**
+   * Gets the status of an account
+   *
+   * @method accountStatus
+   * @param {String} uid User account id
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.accountStatus = function(uid) {
+
+    return this.request.send('/account/status?uid=' + uid, 'GET');
+  };
+
+  /**
    * Destroys this session, by invalidating the sessionToken.
    *
    * @method sessionDestroy

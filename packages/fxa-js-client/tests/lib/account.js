@@ -282,6 +282,44 @@ define([
           )
       });
 
+      test('#accountStatus', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (result) {
+
+            return respond(client.accountStatus(result.signIn.uid), RequestMocks.accountStatus);
+          })
+          .then(
+            function (res) {
+              assert.equal(res.exists, true);
+            },
+            assert.notOk
+          )
+      });
+
+      test('#accountStatus with wrong uid', function () {
+
+        return respond(client.accountStatus('00047f01e387498e8ccc7fede1a74000'), RequestMocks.accountStatusFalse)
+          .then(
+            function (res) {
+              assert.equal(res.exists, false);
+            },
+            assert.notOk
+        )
+      });
+
+      test('#accountStatus with no uid', function () {
+
+        return respond(client.accountStatus(), ErrorMocks.requestInvalidParams)
+          .then(
+            assert.notOk,
+            function(error) {
+              assert.equal(error.code, 400);
+              assert.equal(error.errno, 107);
+            }
+          )
+      });
+
     });
   }
 });
