@@ -738,6 +738,7 @@ The signed certificate includes these additional claims:
 
 * fxa-generation - a number that increases each time the user's password is changed
 * fxa-lastAuthAt - authentication time for this session (seconds since epoch)
+* fxa-verifiedEmail - the user's verified recovery email address
 
 Failing requests may be due to the following errors:
 
