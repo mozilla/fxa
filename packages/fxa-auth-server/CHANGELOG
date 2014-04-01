@@ -1,3 +1,7 @@
+train-08
+  * added /account/status #656
+  * added basic email rate limiting #664
+
 train-07
   * improve concurrent duplicate request handling #626
   * improved test coverage #628
