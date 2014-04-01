@@ -99,7 +99,8 @@ function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
 
     describe('submit with unknown email address', function () {
       it('rejects the promise', function () {
-        view.$('input[type=email]').val('unknown@testuser.com');
+        var email = 'unknown' + Math.random() + '@testuser.com';
+        view.$('input[type=email]').val(email);
 
         return view.submit()
                   .then(function () {
@@ -111,6 +112,7 @@ function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
                   });
       });
     });
+
   });
 
   describe('views/reset_password with email specified as query param', function () {
