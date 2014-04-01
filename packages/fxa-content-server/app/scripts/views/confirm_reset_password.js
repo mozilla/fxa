@@ -36,6 +36,8 @@ function (_, FormView, BaseView, Template, Session, Constants, authErrors) {
     },
 
     afterRender: function () {
+      var bounceGraphic = this.$el.find('.graphic');
+      bounceGraphic.addClass('pulse');
       var self = this;
       return self.fxaClient.isPasswordResetComplete()
         .then(function (isComplete) {
