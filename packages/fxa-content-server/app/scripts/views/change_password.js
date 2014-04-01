@@ -41,7 +41,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin) {
 
       if (oldPassword === newPassword) {
         return this.displayError(
-                    t('old and new passwords must be different'));
+                    t('Your new password must be different'));
       }
 
       this.hideError();
