@@ -31,13 +31,13 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, Url) {
       var uid = Url.searchParam('uid', searchParams);
       if (! uid) {
         completeElChildren.show();
-        return this.displayError(t('no uid specified'));
+        return this.displayError(t('No uid specified'));
       }
 
       var code = Url.searchParam('code', searchParams);
       if (! code) {
         completeElChildren.show();
-        return this.displayError(t('no code specified'));
+        return this.displayError(t('No code specified'));
       }
 
       var self = this;
