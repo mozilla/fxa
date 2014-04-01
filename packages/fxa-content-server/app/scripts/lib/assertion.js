@@ -9,9 +9,9 @@ define([
   'jwcrypto',
   'lib/fxa-client'
 ],
-function (P, jwcrypto, FxAClient) {
+function (P, jwcrypto, FxaClient) {
 
-  var client = new FxAClient();
+  var client = new FxaClient();
   // cert takes duration in seconds, assertion takes milliseconds. O_o
   var CERT_DURATION_S = 60 * 60 * 6; // 6hrs
   var ASSERTION_DURATION_MS = 1000 * 60 * 5; // 5mins
@@ -32,7 +32,7 @@ function (P, jwcrypto, FxAClient) {
   }
 
   function certificate(audience) {
-    //XXX: check for a valid cert in localStorage first?
+    //TODO: check for a valid cert in localStorage first?
     return keyPair().then(function (kp) {
       // while certSign is going over the wire, we can also sign the
       // assertion here on the machine

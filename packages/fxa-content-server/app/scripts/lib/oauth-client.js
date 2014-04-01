@@ -9,9 +9,10 @@ define([
   'p',
   'lib/session',
 ],
-function ($, p, Session) {
+function ($, P, Session) {
   var oauthUrl;
 
+  var GET_CLIENT = '/v1/client/';
   var GET_CODE = '/v1/authorization';
 
   function OAuthClient(options) {
@@ -25,7 +26,7 @@ function ($, p, Session) {
 
   OAuthClient.prototype = {
     _getOauthUrl: function _getOauthUrl() {
-      var defer = p.defer();
+      var defer = P.defer();
       if (oauthUrl) {
         defer.resolve(oauthUrl);
       } else if (Session.config && Session.config.oauthUrl) {
@@ -46,7 +47,14 @@ function ($, p, Session) {
       return this._getOauthUrl().then(function (url) {
         return $.post(url + GET_CODE, params);
       });
+    },
+
+    getClientInfo: function getClientInfo(id) {
+      return this._getOauthUrl().then(function (url) {
+        return $.get(url + GET_CLIENT + id);
+      });
     }
+
   };
 
   return OAuthClient;
