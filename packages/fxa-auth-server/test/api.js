@@ -127,6 +127,24 @@ describe('/v1', function() {
 
   describe('/authorization', function() {
 
+    describe('GET', function() {
+      it('redirects with all query params', function(done) {
+        Server.api.get('/authorization?client_id=123&state=321&scope=1')
+        .then(function(res) {
+          assert.equal(res.statusCode, 302);
+          var redirect = url.parse(res.headers.location, true);
+
+          assert.equal(redirect.query.client_id, '123');
+          assert.equal(redirect.query.state, '321');
+          assert.equal(redirect.query.scope, '1');
+
+          var target = url.parse(config.get('contentUrl'), true);
+          assert.equal(redirect.pathname, target.pathname);
+          assert.equal(redirect.host, target.host);
+        }).done(done, done);
+      });
+    });
+
     describe('?client_id', function() {
 
       it('is required', function(done) {

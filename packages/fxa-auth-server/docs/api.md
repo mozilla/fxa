@@ -44,9 +44,11 @@ The currently-defined error responses are:
 
 ## API Endpoints
 
-- [GET /v1/client/:id][client]
+
+- [GET /v1/authorization][redirect]
 - [POST /v1/authorization][authorization]
 - [POST /v1/token][token]
+- [GET /v1/client/:id][client]
 
 ### GET /v1/client/:id
 
@@ -60,7 +62,7 @@ about a client to show in its user interface.
 Example:
 
 ```
-https://oauth.account.firefox.com/v1/client/5901bd09376fadaa076afacef5251b6a
+https://oauth.accounts.firefox.com/v1/client/5901bd09376fadaa076afacef5251b6a
 ```
 
 #### Response
@@ -79,6 +81,11 @@ Example:
 }
 ```
 
+### GET /v1/authorization
+
+This endpoint starts the OAuth flow. A client redirects the user agent
+to this url. This endpoint will then redirect to the appropriate
+content-server page.
 
 ### POST /v1/authorization
 
@@ -139,5 +146,6 @@ Example:
 }
 ```
 
+[redirect]: #get-v1authorization
 [authorization]: #post-v1authorization
 [token]: #post-v1token
