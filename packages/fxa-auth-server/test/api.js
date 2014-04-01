@@ -146,7 +146,8 @@ describe('/v1', function() {
           url: '/authorization',
           payload: authParams()
         }).then(function(res) {
-          assert.equal(res.statusCode, 302);
+          assert.equal(res.statusCode, 200);
+          assert(res.result.redirect);
         }).done(done, done);
       });
 
@@ -171,7 +172,8 @@ describe('/v1', function() {
           url: '/authorization',
           payload: authParams()
         }).then(function(res) {
-          assert.equal(res.statusCode, 302);
+          assert.equal(res.statusCode, 200);
+          assert(res.result.redirect);
         }).done(done, done);
       });
 
@@ -197,7 +199,8 @@ describe('/v1', function() {
             redirect_uri: client.redirectUri
           })
         }).then(function(res) {
-          assert.equal(res.statusCode, 302);
+          assert.equal(res.statusCode, 200);
+          assert(res.result.redirect);
         }).done(done, done);
       });
 
@@ -235,8 +238,8 @@ describe('/v1', function() {
             state: 'aa'
           })
         }).then(function(res) {
-          assert.equal(res.statusCode, 302);
-          assert.equal(url.parse(res.headers.location, true).query.state, 'aa');
+          assert.equal(res.statusCode, 200);
+          assert.equal(url.parse(res.result.redirect, true).query.state, 'aa');
         }).done(done, done);
       });
     });
@@ -250,7 +253,8 @@ describe('/v1', function() {
             scope: undefined
           })
         }).then(function(res) {
-          assert.equal(res.statusCode, 302);
+          assert.equal(res.statusCode, 200);
+          assert(res.result.redirect);
         }).done(done, done);
       });
     });
@@ -263,8 +267,8 @@ describe('/v1', function() {
             url: '/authorization',
             payload: authParams()
           }).then(function(res) {
-            assert.equal(res.statusCode, 302);
-            var loc = url.parse(res.headers.location, true);
+            assert.equal(res.statusCode, 200);
+            var loc = url.parse(res.result.redirect, true);
             var expected = url.parse(client.redirectUri, true);
             assert.equal(loc.protocol, expected.protocol);
             assert.equal(loc.host, expected.host);
@@ -371,7 +375,7 @@ describe('/v1', function() {
               client_id: client2.id.toString('hex')
             })
           }).then(function(res) {
-            return url.parse(res.headers.location, true).query.code;
+            return url.parse(res.result.redirect, true).query.code;
           });
         }).then(function(code) {
           return Server.api.post({
@@ -403,7 +407,7 @@ describe('/v1', function() {
           url: '/authorization',
           payload: authParams()
         }).then(function(res) {
-          return url.parse(res.headers.location, true).query.code;
+          return url.parse(res.result.redirect, true).query.code;
         }).delay(60).then(function(code) {
           return Server.api.post({
             url: '/token',
@@ -429,13 +433,13 @@ describe('/v1', function() {
             scope: 'foo bar bar'
           })
         }).then(function(res) {
-          assert.equal(res.statusCode, 302);
+          assert.equal(res.statusCode, 200);
           return Server.api.post({
             url: '/token',
             payload: {
               client_id: clientId,
               client_secret: secret,
-              code: url.parse(res.headers.location, true).query.code
+              code: url.parse(res.result.redirect, true).query.code
             }
           });
         }).then(function(res) {

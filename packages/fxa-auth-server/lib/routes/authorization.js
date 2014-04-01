@@ -47,6 +47,11 @@ module.exports = {
         .required()
     }
   },
+  response: {
+    schema: {
+      redirect: Joi.string().required(),
+    }
+  },
   handler: function authorizationEndpoint(req, reply) {
     Promise.all([
       verify(req.payload.assertion).then(function(userid) {
@@ -93,7 +98,8 @@ module.exports = {
       redirect.query.code = code.toString('hex');
       delete redirect.search;
       delete redirect.path;
-      reply().redirect(url.format(redirect));
+
+      reply({ redirect: url.format(redirect) });
     }, reply);
   }
 };

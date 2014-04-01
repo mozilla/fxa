@@ -64,15 +64,17 @@ back to the client. This code will be traded for a token at the
 
 #### Response
 
-A valid request will cause a 302 redirect to the `redirect_uri`, with the following query parameters included:
+A valid request will return a 200 response, with JSON containing the `redirect` to follow. It will include the following query parameters:
 
 - `code`: A string that the client will trade with the [token][] endpoint. Codes have a configurable expiration value, default is 15 minutes.
 - `state`: The same value as was passed as a request parameter.
 
 Example:
 
-```
-https://example.domain/path?foo=bar&code=asdfqwerty&state=zxcvasdf
+```js
+{
+  "redirect": "https://example.domain/path?foo=bar&code=asdfqwerty&state=zxcvasdf"
+}
 ```
 
 ### POST /v1/token
