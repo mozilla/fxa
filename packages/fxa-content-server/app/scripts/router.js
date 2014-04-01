@@ -22,8 +22,7 @@ define([
   'views/ready',
   'views/settings',
   'views/change_password',
-  'views/delete_account',
-  'transit'
+  'views/delete_account'
 ],
 function (
   $,
