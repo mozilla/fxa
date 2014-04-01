@@ -5,13 +5,14 @@
 'use strict';
 
 define([
+  'underscore',
   'views/form',
   'views/base',
   'stache!templates/confirm_reset_password',
   'lib/session',
   'lib/constants'
 ],
-function (FormView, BaseView, Template, Session, Constants) {
+function (_, FormView, BaseView, Template, Session, Constants) {
   var View = FormView.extend({
     template: Template,
     className: 'confirm-reset-password',
@@ -28,23 +29,32 @@ function (FormView, BaseView, Template, Session, Constants) {
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
+    beforeDestroy: function () {
+      if (this._timeout) {
+        this.window.clearTimeout(this._timeout);
+      }
+    },
+
     afterRender: function () {
       var self = this;
-      var interval = setInterval(function () {
-        self.fxaClient.isPasswordResetComplete()
-          .then(function (complete) {
-            if (complete) {
-              var email = Session.email;
-              clearInterval(interval);
-              Session.clear();
-              Session.set('prefillEmail', email);
-              self.navigate('signin');
-            }
-          }, function (err) {
-            // an unexpected error occurred
-            console.error(err);
-          });
-      }, Constants.RESET_PASSWORD_POLL_INTERVAL);
+      return self.fxaClient.isPasswordResetComplete()
+        .then(function (isComplete) {
+          if (isComplete) {
+            var email = Session.email;
+            Session.clear();
+            Session.set('prefillEmail', email);
+            self.navigate('signin');
+          } else {
+            var retryCB = _.bind(self.afterRender, self);
+            self._timeout = self.window.setTimeout(retryCB,
+                              Constants.RESET_PASSWORD_POLL_INTERVAL);
+          }
+
+          return isComplete;
+        }, function (err) {
+          // an unexpected error occurred
+          console.error(err);
+        });
     },
 
     submit: function () {
