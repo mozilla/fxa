@@ -44,8 +44,41 @@ The currently-defined error responses are:
 
 ## API Endpoints
 
+- [GET /v1/client/:id][client]
 - [POST /v1/authorization][authorization]
 - [POST /v1/token][token]
+
+### GET /v1/client/:id
+
+This endpoint is for the fxa-content-server to retreive information
+about a client to show in its user interface.
+
+#### Request Parameters
+
+- `id`: The `client_id` of a client asking for permission.
+
+Example:
+
+```
+https://oauth.account.firefox.com/v1/client/5901bd09376fadaa076afacef5251b6a
+```
+
+#### Response
+
+A valid 200 response will be a JSON blob with the following properties:
+
+- `name`: A string name of the client.
+- `imageUri`: A url to a logo or image that represents the client.
+
+Example:
+
+```js
+{
+  "name": "Where's My Fox",
+  "imageUri": "https://mozilla.org/firefox.png"
+}
+```
+
 
 ### POST /v1/authorization
 

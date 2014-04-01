@@ -20,6 +20,11 @@ module.exports = [
     config: require('./routes/heartbeat')
   },
   {
+    method: 'GET',
+    path: v('/client/{id}'),
+    config: require('./routes/client')
+  },
+  {
     method: 'POST',
     path: v('/authorization'),
     config: require('./routes/authorization')

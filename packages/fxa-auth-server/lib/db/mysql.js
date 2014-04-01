@@ -65,8 +65,8 @@ MysqlStore.connect = function mysqlConnect(options) {
 };
 
 const QUERY_CLIENT_REGISTER =
-  'INSERT INTO clients (id, name, secret, redirectUri, whitelisted) VALUES ' +
-  '(?, ?, ?, ?, ?);';
+  'INSERT INTO clients (id, name, imageUri, secret, redirectUri, whitelisted)' +
+  'VALUES (?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
   'INSERT INTO codes (clientId, userId, scope, code) VALUES ' +
@@ -98,7 +98,14 @@ MysqlStore.prototype = {
     var hash = encrypt.hash(client.secret);
     var id = unique.id();
     this._connection.query(QUERY_CLIENT_REGISTER,
-      [id, client.name, hash, client.redirectUri, client.whitelisted],
+      [
+        id,
+        client.name,
+        client.imageUri,
+        hash,
+        client.redirectUri,
+        client.whitelisted
+      ],
       function(err) {
         if (err) {
           logger.error('registerClient:', err);
