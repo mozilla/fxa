@@ -18,7 +18,7 @@ const conf = convict({
     issuer: {
       doc: 'We only accept assertions from this issuer',
       env: 'ISSUER',
-      default: 'accounts.firefox.com'
+      default: 'api.accounts.firefox.com'
     },
     verificationUrl: {
       doc: 'URL to the remote verifier we will use for fxa-assertions',

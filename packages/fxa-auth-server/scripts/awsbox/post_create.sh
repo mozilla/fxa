@@ -5,8 +5,8 @@ echo "Setting up mysql"
 sudo /sbin/chkconfig mysqld on
 sudo /sbin/service mysqld start
 echo "CREATE USER 'fxa'@'localhost';" | mysql -u root
-echo "CREATE DATABASE fxa;" | mysql -u root
-echo "GRANT ALL ON fxa.* to 'fxa'@'localhost';" | mysql -u root
+echo "CREATE DATABASE fxa_oauth;" | mysql -u root
+echo "GRANT ALL ON fxa_oauth.* to 'fxa'@'localhost';" | mysql -u root
 
 echo "Installing identity team public keys"
 
