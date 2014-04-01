@@ -32,7 +32,6 @@ function (FormView, BaseView, Template, Session) {
 
       return this.fxaClient.signUpResend()
               .then(function () {
-                self.trigger('resent');
                 self.displaySuccess();
               });
     }
