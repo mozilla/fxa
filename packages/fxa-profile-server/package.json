@@ -11,10 +11,11 @@
   "dependencies": {
     "bluebird": "1.0.0",
     "convict": "0.4.2",
-    "hapi": "2.2.0",
-    "intel": "0.5.1",
+    "hapi": "3.1.0",
     "lout": "2.0.1",
-    "mysql": "2.0.1"
+    "intel": "0.5.2",
+    "mysql": "2.0.1",
+    "request": "2.34.0"
   },
   "devDependencies": {
     "awsbox": "~0.7.0",
@@ -29,7 +30,7 @@
     "jshint-stylish": "~0.1.5",
     "load-grunt-tasks": "~0.3.0",
     "mocha": "1.x",
-    "rimraf": "~2.2.6",
+    "nock": "~0.27.3",
     "time-grunt": "~0.2.9"
   },
   "repo": "mozilla/fxa-profile-server",

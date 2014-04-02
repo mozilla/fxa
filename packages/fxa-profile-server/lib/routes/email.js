@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (grunt) {
-  'use strict';
-
-  grunt.config('jscs', {
-    app: [
-      '<%= mainJsFiles %>'
-    ],
-    options: {
-      config: '.jscs.json'
-    }
-  });
+module.exports = {
+  auth: {
+    strategy: 'oauth',
+    scope: ['profile', 'profile:email']
+  },
+  handler: function email(req, reply) {
+    reply({
+      email: req.auth.credentials.email
+    });
+  }
 };
+

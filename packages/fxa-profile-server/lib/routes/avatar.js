@@ -10,7 +10,8 @@ const URL_REGEX = /^https?:\/\/.+/;
 
 module.exports = {
   auth: {
-    strategy: 'userid'
+    strategy: 'oauth',
+    scope: ['profile', 'profile:avatar']
   },
   validate: {
     payload: {
@@ -18,7 +19,7 @@ module.exports = {
     }
   },
   handler: function avatarPost(req, reply) {
-    var id = req.auth.credentials;
+    var id = req.auth.credentials.user;
     db.getOrCreateProfile(id).then(function() {
       return db.setAvatar(id, req.payload.url);
     }).done(function() {

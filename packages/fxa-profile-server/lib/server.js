@@ -9,6 +9,7 @@ const Boom = Hapi.error;
 
 const config = require('./config').root();
 const logger = require('./logging').getLogger('fxa.server');
+const request = require('./request');
 
 exports.create = function createServer() {
   var server = Hapi.createServer(
@@ -16,36 +17,40 @@ exports.create = function createServer() {
     config.server.port
   );
 
-  server.auth.scheme('userid', function() {
+  server.auth.scheme('oauth', function() {
     return {
-      authenticate: function(request, reply) {
-        var auth = request.headers.authorization;
-        if (!auth || auth.indexOf('userid ') !== 0) {
-          return reply(Boom.unauthorized('userid not provided'));
+      authenticate: function(req, reply) {
+        var auth = req.headers.authorization;
+        var url = config.oauth.url + '/verify';
+        logger.verbose('checking auth', auth);
+        if (!auth || auth.indexOf('Bearer') !== 0) {
+          return reply(Boom.unauthorized('Bearer token not provided'));
         }
-
-        var id = auth.split(' ')[1];
-        if (!id) {
-          return reply(Boom.unauthorized('userid not provided'));
-        }
-
-        reply(null, {
-          credentials: id
+        var token = auth.split(' ')[1];
+        request.post({
+          url: url,
+          json: {
+            token: token
+          }
+        }, function(err, resp, body) {
+          if (err) {
+            return reply(err);
+          }
+          if (body.code >= 400) {
+            return reply(Boom.unauthorized(body.message));
+          }
+          logger.verbose('Token valid', body);
+          reply(null, {
+            credentials: body
+          });
         });
       }
     };
   });
 
-  server.auth.strategy('userid', 'userid');
+  server.auth.strategy('oauth', 'oauth');
 
   server.route(require('./routing'));
-
-  server.pack.require('lout', function(err) {
-    if (err) {
-      throw err;
-    }
-  });
-
 
   server.on('request', function(req, evt, tags) {
     if (tags.error && util.isError(evt.data)) {

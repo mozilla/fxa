@@ -3,44 +3,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
 const url = require('url');
 
 const assert = require('insist');
+const nock = require('nock');
 
 const config = require('../lib/config');
 const db = require('../lib/db');
 const Server = require('./lib/server');
 
-/*global describe,before,it,after*/
+/*global describe,before,it*/
 
+const USERID = crypto.randomBytes(16).toString('hex');
+const TOKEN_GOOD = JSON.stringify({
+  user: USERID,
+  scope: ['profile'],
+  email: 'user@example.domain'
+});
 var avatarUrl = 'http://example.domain/path/img.png';
 
-function userid() {
-  return crypto.randomBytes(8).toString('hex');
+function token() {
+  return crypto.randomBytes(32).toString('hex');
 }
 
-describe('/users/{userId}', function() {
-
-  var uid = userid();
-  before(function(done) {
-    db.createProfile({
-      uid: uid,
-      avatar: avatarUrl
-    }).done(function() {
-      done();
-    }, done);
-  });
-
-  it('should return a profile', function(done) {
-    Server.api.get('/users/' + uid).then(function(res) {
-      assert.equal(res.statusCode, 200);
-      assert.equal(JSON.parse(res.payload).avatar.url, avatarUrl);
-    }).done(done);
-  });
-
-});
+function mockToken() {
+  var parts = url.parse(config.get('oauth.url'));
+  return nock(parts.protocol + '//' + parts.host).post(parts.path + '/verify');
+}
 
 describe('/avatar', function() {
 
@@ -55,31 +44,33 @@ describe('/avatar', function() {
   });
 
   it('should be able to post a url', function(done) {
-    var uid = userid();
+    mockToken().reply(200, TOKEN_GOOD);
+    var tok = token();
     var imageData = { url: avatarUrl };
     Server.api.post({
       url: '/avatar',
       payload: JSON.stringify(imageData),
       headers: {
-        authorization: 'userid ' + uid
+        authorization: 'Bearer ' + tok
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 200);
 
-      return db.getProfile(uid);
+      return db.getProfile(USERID);
     }).then(function(profile) {
       assert.equal(profile.avatar, avatarUrl);
     }).done(done);
   });
 
   it('should fail if is not a url', function(done) {
-    var uid = userid();
+    var uid = token();
+    mockToken().reply(200, TOKEN_GOOD);
     var imageData = { url: 'blah' };
     Server.api.post({
       url: '/avatar',
       payload: JSON.stringify(imageData),
       headers: {
-        authorization: 'userid ' + uid
+        authorization: 'Bearer ' + uid
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 400);
@@ -88,44 +79,48 @@ describe('/avatar', function() {
 
 });
 
-describe('/avatar/upload', function() {
+describe.skip('/avatar/upload', function() {
 
-  before(function() {
-    fs.mkdirSync(config.get('uploads.dir'));
+
+});
+
+describe('/email', function() {
+  var uid = token();
+  before(function(done) {
+    db.createProfile({
+      uid: uid,
+      avatar: avatarUrl
+    }).done(function() {
+      done();
+    }, done);
   });
 
-  it('should be able to post image binary', function(done) {
-    var uid = userid();
-    var imagePath = path.join(__dirname, 'lib', 'firefox.png');
-    var imageData = fs.readFileSync(imagePath);
+  it('should return an email', function(done) {
+    mockToken().reply(200, TOKEN_GOOD);
     Server.api.post({
-      url: '/avatar/upload',
-      payload: imageData,
+      url: '/email',
       headers: {
-        'content-type': 'image/png',
-        authorization: 'userid ' + uid
+        authorization: 'Bearer ' + uid
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 200);
-
-      return Server.api.get('/users/' + uid);
-    }).then(function(res) {
-      var profile = res.result;
-      var u = url.parse(profile.avatar.url);
-      assert.equal(u.host, url.parse(config.get('uploads.url')).host);
-      return u.path;
-    }).then(function(avatarUrl) {
-      return Server.get(avatarUrl);
-    }).then(function(res) {
-      assert.deepEqual(res.rawPayload, imageData,
-        'returned image should equal sent image');
+      assert.equal(JSON.parse(res.payload).email, 'user@example.domain');
     }).done(done);
   });
 
-  after(function() {
-    var rimraf = require('rimraf');
-    rimraf.sync(config.get('uploads.dir'));
+  it('should NOT return a profile if wrong scope', function(done) {
+    mockToken().reply(200, JSON.stringify({
+      user: USERID,
+      scope: ['foo', 'bar']
+    }));
+    Server.api.post({
+      url: '/email',
+      headers: {
+        authorization: 'Bearer ' + uid
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 403);
+    }).done(done);
   });
-
 });
 
