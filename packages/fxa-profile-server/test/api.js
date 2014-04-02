@@ -33,21 +33,21 @@ function mockToken() {
 
 describe('/avatar', function() {
 
-  it('should require authentication', function(done) {
+  it('should require authentication', function() {
     var imageData = { url: avatarUrl };
-    Server.api.post({
+    return Server.api.post({
       url: '/avatar',
       payload: JSON.stringify(imageData)
     }).then(function(res) {
       assert.equal(res.statusCode, 401);
-    }).done(done);
+    });
   });
 
-  it('should be able to post a url', function(done) {
+  it('should be able to post a url', function() {
     mockToken().reply(200, TOKEN_GOOD);
     var tok = token();
     var imageData = { url: avatarUrl };
-    Server.api.post({
+    return Server.api.post({
       url: '/avatar',
       payload: JSON.stringify(imageData),
       headers: {
@@ -59,14 +59,14 @@ describe('/avatar', function() {
       return db.getProfile(USERID);
     }).then(function(profile) {
       assert.equal(profile.avatar, avatarUrl);
-    }).done(done);
+    });
   });
 
-  it('should fail if is not a url', function(done) {
+  it('should fail if is not a url', function() {
     var uid = token();
     mockToken().reply(200, TOKEN_GOOD);
     var imageData = { url: 'blah' };
-    Server.api.post({
+    return Server.api.post({
       url: '/avatar',
       payload: JSON.stringify(imageData),
       headers: {
@@ -74,7 +74,7 @@ describe('/avatar', function() {
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 400);
-    }).done(done);
+    });
   });
 
 });
@@ -86,18 +86,16 @@ describe.skip('/avatar/upload', function() {
 
 describe('/email', function() {
   var uid = token();
-  before(function(done) {
-    db.createProfile({
+  before(function() {
+    return db.createProfile({
       uid: uid,
       avatar: avatarUrl
-    }).done(function() {
-      done();
-    }, done);
+    });
   });
 
-  it('should return an email', function(done) {
+  it('should return an email', function() {
     mockToken().reply(200, TOKEN_GOOD);
-    Server.api.post({
+    return Server.api.post({
       url: '/email',
       headers: {
         authorization: 'Bearer ' + uid
@@ -105,22 +103,22 @@ describe('/email', function() {
     }).then(function(res) {
       assert.equal(res.statusCode, 200);
       assert.equal(JSON.parse(res.payload).email, 'user@example.domain');
-    }).done(done);
+    });
   });
 
-  it('should NOT return a profile if wrong scope', function(done) {
+  it('should NOT return a profile if wrong scope', function() {
     mockToken().reply(200, JSON.stringify({
       user: USERID,
       scope: ['foo', 'bar']
     }));
-    Server.api.post({
+    return Server.api.post({
       url: '/email',
       headers: {
         authorization: 'Bearer ' + uid
       }
     }).then(function(res) {
       assert.equal(res.statusCode, 403);
-    }).done(done);
+    });
   });
 });
 
