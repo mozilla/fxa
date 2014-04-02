@@ -10,9 +10,10 @@ define([
   'views/base',
   'stache!templates/confirm_reset_password',
   'lib/session',
-  'lib/constants'
+  'lib/constants',
+  'lib/auth-errors'
 ],
-function (_, FormView, BaseView, Template, Session, Constants) {
+function (_, FormView, BaseView, Template, Session, Constants, authErrors) {
   var View = FormView.extend({
     template: Template,
     className: 'confirm-reset-password',
@@ -62,6 +63,13 @@ function (_, FormView, BaseView, Template, Session, Constants) {
       return this.fxaClient.passwordResetResend()
               .then(function () {
                 self.displaySuccess();
+              }, function (err) {
+                if (authErrors.is(err, 'INVALID_TOKEN')) {
+                  return self.navigate('reset_password');
+                }
+
+                // unexpected error, rethrow for display.
+                throw err;
               });
     }
 

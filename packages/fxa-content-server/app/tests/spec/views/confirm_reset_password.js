@@ -8,12 +8,13 @@
 define([
   'chai',
   'p-promise',
+  'lib/auth-errors',
   'views/confirm_reset_password',
   'lib/session',
   '../../mocks/router',
   '../../mocks/window'
 ],
-function (chai, p, View, Session, RouterMock, WindowMock) {
+function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -95,7 +96,20 @@ function (chai, p, View, Session, RouterMock, WindowMock) {
               });
       });
 
-      it('displays error messages if there is a problem', function () {
+      it('redirects to `/reset_password` if the resend token is invalid', function () {
+        view.fxaClient.passwordResetResend = function () {
+          return p().then(function () {
+            throw authErrors.toError('INVALID_TOKEN', 'Invalid token');
+          });
+        };
+
+        return view.submit()
+              .then(function () {
+                assert.equal(routerMock.page, 'reset_password');
+              });
+      });
+
+      it('displays other error messages if there is a problem', function () {
         view.fxaClient.passwordResetResend = function () {
           return p().then(function () {
             throw new Error('synthesized error from auth server');

@@ -8,9 +8,10 @@ define([
   'views/form',
   'views/base',
   'stache!templates/confirm',
-  'lib/session'
+  'lib/session',
+  'lib/auth-errors'
 ],
-function (FormView, BaseView, Template, Session) {
+function (FormView, BaseView, Template, Session, authErrors) {
   var View = FormView.extend({
     template: Template,
     className: 'confirm',
@@ -32,6 +33,13 @@ function (FormView, BaseView, Template, Session) {
       return this.fxaClient.signUpResend()
               .then(function () {
                 self.displaySuccess();
+              }, function (err) {
+                if (authErrors.is(err, 'INVALID_TOKEN')) {
+                  return self.navigate('signup');
+                }
+
+                // unexpected error, rethrow for display.
+                throw err;
               });
     }
 

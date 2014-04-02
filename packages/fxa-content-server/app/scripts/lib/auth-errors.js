@@ -121,6 +121,15 @@ function () {
     },
 
     /**
+     * Synthesize an error of the given type with the supplied message.
+     */
+    toError: function (type, message) {
+      var err = new Error(message);
+      err.errno = this.toCode(type);
+      return err;
+    },
+
+    /**
      * Check if an error is of the given type
      */
     is: function (error, type) {
