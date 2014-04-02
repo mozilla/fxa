@@ -18,14 +18,10 @@ function (chai, View, Session) {
     var view;
 
     beforeEach(function () {
-      Session.clear();
-
       view = new View({});
     });
 
     afterEach(function () {
-      Session.clear();
-
       view.remove();
       view.destroy();
       view = null;

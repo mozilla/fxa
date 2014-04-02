@@ -145,6 +145,23 @@ define([
         this[key] = null;
         delete this[key];
       }
+    },
+
+    /**
+     * Clear everything, for testing.
+     * @method testClear
+     * @private
+     */
+    testClear: function () {
+      for (var key in this) {
+        if (this.hasOwnProperty(key)) {
+          this[key] = null;
+          delete this[key];
+        }
+      }
+
+      sessionStorage.clear();
+      localStorage.clear();
     }
     // END TEST API
   };

@@ -87,12 +87,10 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
       beforeEach(function () {
         signInView = new SignInView({});
         signUpView = new SignUpView({});
-        Session.clear();
       });
 
       afterEach(function() {
         signInView = signUpView = null;
-        Session.clear();
       });
 
       it('shows a view, then shows the new view', function () {

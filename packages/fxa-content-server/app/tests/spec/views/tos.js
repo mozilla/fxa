@@ -18,7 +18,6 @@ function (chai, View, Session) {
     var view, router;
 
     beforeEach(function () {
-      Session.clear();
       Session.set('language', 'en-US');
       view = new View({});
     });
@@ -26,7 +25,6 @@ function (chai, View, Session) {
     afterEach(function () {
       view.remove();
       view.destroy();
-      Session.clear();
     });
 
     it('Back button displayed if Session.canGoBack is true', function () {

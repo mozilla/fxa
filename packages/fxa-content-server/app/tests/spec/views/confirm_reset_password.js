@@ -9,10 +9,9 @@ define([
   'chai',
   'p-promise',
   'views/confirm_reset_password',
-  'lib/fxa-client',
   '../../mocks/router'
 ],
-function (chai, p, View, FxaClient, RouterMock) {
+function (chai, p, View, RouterMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -42,12 +41,11 @@ function (chai, p, View, FxaClient, RouterMock) {
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message', function () {
-        var client = new FxaClient();
         var email = 'user' + Math.random() + '@testuser.com';
 
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
               .then(function () {
-                return client.passwordReset(email);
+                return view.fxaClient.passwordReset(email);
               })
               .then(function () {
                 return view.submit();
@@ -75,10 +73,9 @@ function (chai, p, View, FxaClient, RouterMock) {
 
     describe('validateAndSubmit', function () {
       it('only called after click on #resend', function () {
-        var client = new FxaClient();
         var email = 'user' + Math.random() + '@testuser.com';
 
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
                .then(function () {
                  var count = 0;
                  view.validateAndSubmit = function() {

@@ -35,7 +35,6 @@ function (chai, $, ChannelMock, testHelpers,
   describe('lib/fxa-client', function () {
     beforeEach(function () {
       channelMock = new ChannelMock();
-      Session.clear();
       Session.set('channel', channelMock);
       email = ' testuser' + Math.random() + '@testuser.com ';
 
@@ -52,7 +51,6 @@ function (chai, $, ChannelMock, testHelpers,
     });
 
     afterEach(function () {
-      Session.clear();
       channelMock = null;
 
       // return the client to its original state.

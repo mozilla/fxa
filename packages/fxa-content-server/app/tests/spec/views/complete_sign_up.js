@@ -8,13 +8,11 @@
 define([
   'chai',
   'views/complete_sign_up',
-  'lib/session',
   'lib/fxa-client',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, View, Session, FxaClientWrapper,
-                WindowMock, TestHelpers) {
+function (chai, View, FxaClientWrapper, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -23,15 +21,13 @@ function (chai, View, Session, FxaClientWrapper,
     var view, windowMock, client;
 
     beforeEach(function () {
-      Session.clear();
-
       windowMock = new WindowMock();
       view = new View({
         window: windowMock
       });
       $('#container').html(view.el);
       var clientWrapper = new FxaClientWrapper();
-      return clientWrapper._getClientAsync()
+      return view.fxaClient._getClientAsync()
               .then(function (_client) {
                 client = _client;
                 // create spies that can be used to check
@@ -41,8 +37,6 @@ function (chai, View, Session, FxaClientWrapper,
     });
 
     afterEach(function () {
-      Session.clear();
-
       view.remove();
       view.destroy();
       view = windowMock = null;

@@ -18,6 +18,12 @@ define([
 ],
 function (FxaClient, $, p, Session, AuthErrors, Constants) {
   var client;
+
+  /**
+   * NOTE: Views create their own FxaClientWrapper. These are
+   * kept as global state so the counts are shared across wrappers.
+   * The counts can be reset by calling `FxaClientWrapper.testClear();`
+   */
   var signUpResendCount = 0;
   var passwordResetResendCount = 0;
 
@@ -358,6 +364,15 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                 return client.sessionStatus(sessionToken);
               });
     }
+  };
+
+  /**
+   * Reset global state - for testing.
+   * @method testClear
+   */
+  FxaClientWrapper.testClear = function () {
+    signUpResendCount = 0;
+    passwordResetResendCount = 0;
   };
 
   return FxaClientWrapper;
