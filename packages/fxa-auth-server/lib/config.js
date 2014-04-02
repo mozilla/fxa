@@ -27,6 +27,10 @@ const conf = convict({
       default: 'https://verifier.accounts.firefox.com/v2'
     }
   },
+  clients: {
+    doc: 'Some pre-defined clients that will be inserted into the DB',
+    default: []
+  },
   contentUrl: {
     doc: 'URL to UI page in fxa-content-server that starts OAuth flow',
     format: 'url',

@@ -68,8 +68,13 @@ MemoryStore.prototype = {
     return Promise.resolve();
   },
   registerClient: function registerClient(client) {
-    logger.debug('registerClient', client.name);
-    client.id = unique.id();
+    if (client.id) {
+      logger.debug('registerClient: client already has ID?', client.id);
+      client.id = Buffer(client.id, 'hex');
+    } else {
+      client.id = unique.id();
+    }
+    logger.debug('registerClient', client.name, client.id.toString('hex'));
     client.createdAt = new Date();
     this.clients[client.id] = client;
     client.secret = encrypt.hash(client.secret);
