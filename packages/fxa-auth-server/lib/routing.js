@@ -38,5 +38,10 @@ module.exports = [
     method: 'POST',
     path: v('/token'),
     config: require('./routes/token')
+  },
+  {
+    method: 'POST',
+    path: v('/verify'),
+    config: require('./routes/verify')
   }
 ];

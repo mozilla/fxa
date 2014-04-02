@@ -13,13 +13,6 @@ const verify = require('browserid-verify')({
 
 const HEX_STRING = /^[0-9a-f]+$/;
 
-function parseCert(assertion) {
-  // format of an assertion is:
-  // alg.cert.certSig.assertion.assertionSig
-  // we want cert
-  return JSON.parse(Buffer(assertion.split('.')[1], 'base64'));
-}
-
 module.exports = function verifyAssertion(assertion) {
   var d = Promise.defer();
   verify(assertion, config.get('publicUrl'), function(err, email, res) {
@@ -28,33 +21,35 @@ module.exports = function verifyAssertion(assertion) {
       return d.reject(err);
     }
 
-    if (res && res.status === 'okay') {
-      var parts = email.split('@');
-      var allowedIssuer = config.get('browserid.issuer');
-      if (parts.length === 2 && parts[1] === allowedIssuer) {
-        var cert;
-        try {
-          cert = parseCert(assertion);
-        } catch (ex) {
-          return d.reject(ex);
-        }
-
-        if (cert && cert.iss && cert.iss === allowedIssuer) {
-          var uid = parts[0];
-          //sanity check the uid
-          if (uid.length === 32 && HEX_STRING.test(uid)) {
-            return d.resolve(uid);
-          }
-          logger.verbose('invalidAssertion: uid not a 32-char hex string', uid);
-        }
-        logger.verbose('invalidAssertion cert', cert);
-      }
-      logger.verbose('invalidAssertion email', email);
+    function error(msg, val) {
+      logger.verbose('invalidAssertion:', msg, val);
+      d.reject(AppError.invalidAssertion());
     }
-    logger.verbose('invalidAssertion response', res);
 
-    // if we havent returned a resolution yet, INVALID
-    d.reject(AppError.invalidAssertion());
+    if (!res || res.status !== 'okay') {
+      return error('non-okay response', res);
+    }
+    var parts = email.split('@');
+    var allowedIssuer = config.get('browserid.issuer');
+    if (parts.length !== 2 || parts[1] !== allowedIssuer) {
+      return error('invalid email', email);
+    }
+    if (res.issuer !== allowedIssuer) {
+      return error('invalid issuer', res.issuer);
+    }
+    var uid = parts[0];
+    //sanity check the uid
+    if (uid.length !== 32 && HEX_STRING.test(uid)) {
+      return error('uid not a 32-char hex string', uid);
+    }
+
+    var claims = res.idpClaims;
+    if (!claims || !claims['fxa-verifiedEmail']) {
+      return error('incorrect idpClaims', claims);
+    }
+
+    claims.uid = uid;
+    return d.resolve(claims);
   });
   return d.promise;
 };

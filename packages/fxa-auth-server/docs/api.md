@@ -39,7 +39,8 @@ The currently-defined error responses are:
 - 400, 105: unknown code
 - 400, 106: incorrect code
 - 400, 107: expired code
-- 400, 108: invalid request parameter
+- 400, 108: invalid token
+- 400, 109: invalid request parameter
 - 500, 999: internal server error
 
 ## API Endpoints
@@ -49,6 +50,7 @@ The currently-defined error responses are:
 - [POST /v1/authorization][authorization]
 - [POST /v1/token][token]
 - [GET /v1/client/:id][client]
+- [POST /v1/verify][verify]
 
 ### GET /v1/client/:id
 
@@ -148,6 +150,32 @@ Example:
 }
 ```
 
+### POST /v1/verify
+
+Attached services can post tokens to this endpoint to learn about which
+user and scopes are permitted for the token.
+
+#### Request Parameters
+
+- `token`: A token string received from a client
+
+#### Response
+
+A valid request will return JSON with these properties:
+
+- `user`: The uid of the respective user.
+- `scopes`: An array of scopes allowed for this token.
+
+Example:
+
+```js
+{
+  "user": "5901bd09376fadaa076afacef5251b6a",
+  "scopes": ["profile:email", "profile:avatar"]
+}
+```
+
 [redirect]: #get-v1authorization
 [authorization]: #post-v1authorization
 [token]: #post-v1token
+[verify]: #post-v1verify

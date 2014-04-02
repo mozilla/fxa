@@ -21,9 +21,14 @@ require('jwcrypto/lib/algs/ds');
 /*jshint camelcase: false*/
 
 const USERID = unique.id().toString('hex');
+const VEMAIL = 'user@example.domain';
 const VERIFY_GOOD = JSON.stringify({
   status: 'okay',
-  email: USERID + '@' + config.get('browserid.issuer')
+  email: USERID + '@' + config.get('browserid.issuer'),
+  issuer: config.get('browserid.issuer'),
+  idpClaims: {
+    'fxa-verifiedEmail': VEMAIL
+  }
 });
 
 function mockAssertion() {
@@ -59,6 +64,7 @@ function genAssertion(email) {
         issuer: config.get('browserid.issuer'),
         issuedAt: new Date()
       }, {
+        'fxa-verifiedEmail': VEMAIL
       },
       idp.secretKey),
       assertionSign({}, {
@@ -485,6 +491,45 @@ describe('/v1', function() {
         }).done(done, done);
       });
     });
+  });
+
+  describe('/verify', function() {
+
+    describe('response', function() {
+      it('should return the correct response', function(done) {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            scope: 'profile'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          return Server.api.post({
+            url: '/token',
+            payload: {
+              client_id: clientId,
+              client_secret: secret,
+              code: url.parse(res.result.redirect, true).query.code
+            }
+          });
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          return Server.api.post({
+            url: '/verify',
+            payload: {
+              token: res.result.access_token
+            }
+          });
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assert.equal(res.result.user, USERID);
+          assert.equal(res.result.scope[0], 'profile');
+          assert.equal(res.result.email, VEMAIL);
+        }).done(done, done);
+      });
+    });
+
   });
 
 });

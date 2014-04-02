@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS codes (
   FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
   userId BINARY(16) NOT NULL,
   INDEX codes_user_id(userId),
+  email VARCHAR(256) NOT NULL,
   scope VARCHAR(256) NOT NULL,
   createdAt TIMESTAMP NOT NULL
 ) ENGINE=InnoDB;
@@ -26,6 +27,7 @@ CREATE TABLE IF NOT EXISTS tokens (
   FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
   userId BINARY(16) NOT NULL,
   INDEX tokens_user_id(userId),
+  email VARCHAR(256) NOT NULL,
   type VARCHAR(16) NOT NULL,
   scope VARCHAR(256) NOT NULL,
   createdAt TIMESTAMP NOT NULL

@@ -78,10 +78,11 @@ MemoryStore.prototype = {
   getClient: function getClient(id) {
     return Promise.resolve(this.clients[id]);
   },
-  generateCode: function generateCode(clientId, userId, scope) {
+  generateCode: function generateCode(clientId, userId, email, scope) {
     var code = {};
     code.clientId = clientId;
     code.userId = userId;
+    code.email = email;
     code.scope = scope;
     code.createdAt = new Date();
     var _code = unique.code();
@@ -102,6 +103,7 @@ MemoryStore.prototype = {
       var token = {};
       token.clientId = code.clientId;
       token.userId = code.userId;
+      token.email = code.email;
       token.scope = code.scope;
       token.createdAt = new Date();
       token.type = 'bearer';
@@ -112,6 +114,9 @@ MemoryStore.prototype = {
       ret.token = _token;
       return ret;
     });
+  },
+  getToken: function getToken(token) {
+    return Promise.resolve(this.tokens[encrypt.hash(token).toString('hex')]);
   }
 };
 
