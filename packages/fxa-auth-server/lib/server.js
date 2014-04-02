@@ -13,7 +13,10 @@ const logger = require('./logging').getLogger('fxa.server');
 exports.create = function createServer() {
   var server = Hapi.createServer(
     config.server.host,
-    config.server.port
+    config.server.port,
+    {
+      cors: true
+    }
   );
 
   server.route(require('./routing'));
