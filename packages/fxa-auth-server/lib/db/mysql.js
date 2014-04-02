@@ -94,10 +94,16 @@ MysqlStore.prototype = {
   },
 
   registerClient: function registerClient(client) {
-    logger.debug('registerClient: %s', client.name);
+    var id;
+    if (client.id) {
+      logger.debug('registerClient: client already has ID?', client.id);
+      id = Buffer(client.id, 'hex');
+    } else {
+      id = unique.id();
+    }
+    logger.debug('registerClient', client.name, id.toString('hex'));
     var d = Promise.defer();
     var hash = encrypt.hash(client.secret);
-    var id = unique.id();
     this._connection.query(QUERY_CLIENT_REGISTER,
       [
         id,

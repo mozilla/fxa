@@ -9,6 +9,28 @@ const logger = require('../logging').getLogger('fxa.db');
 const mysql = require('./mysql');
 const memory = require('./memory');
 
+function preClients(store) {
+  var clients = config.get('clients');
+  if (clients && clients.length) {
+    logger.debug('Loading pre-defined clients',
+      JSON.stringify(clients, null, 2));
+    return Promise.all(clients.map(function(c) {
+      c.id = Buffer(c.id, 'hex');
+      c.secret = Buffer(c.secret, 'hex');
+      return store.getClient(c.id).then(function(client) {
+        if (client) {
+          logger.debug('Client %s exists, skipping', c.id.toString('hex'));
+        } else {
+          return store.registerClient(c);
+        }
+      });
+    })).then(function() {
+      return store;
+    });
+  }
+  return store;
+}
+
 var driver;
 function withDriver() {
   if (driver) {
@@ -23,14 +45,15 @@ function withDriver() {
   return p.then(function(store) {
     logger.debug('connected to [%s] store', config.get('db.driver'));
     return driver = store;
-  });
+  }).then(preClients);
 }
+
 
 function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function(driver) {
-      logger.verbose('proxied', method, [].slice.call(args));
+      logger.verbose('proxying', method, [].slice.call(args));
       return driver[method].apply(driver, args);
     }).catch(function(err) {
       logger.error(err);
