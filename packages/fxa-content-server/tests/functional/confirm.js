@@ -49,11 +49,11 @@ define([
 
         // Being pushed to the confirmation screen is success.
         .waitForElementById('fxa-confirm-header')
-        .elementById('confirm-email')
+        .elementByCssSelector('.verification-email-message')
           .text()
           .then(function (resultText) {
             // check the email address was written
-            assert.equal(resultText, email);
+            assert.ok(resultText.indexOf(email) > -1);
           })
         .end()
 
