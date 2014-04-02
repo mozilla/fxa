@@ -15,11 +15,6 @@ module.exports = [
     config: require('./routes/root')
   },
   {
-    method: 'GET',
-    path: v('/users/{userId}'),
-    config: require('./routes/user')
-  },
-  {
     method: 'POST',
     path: v('/avatar'),
     config: require('./routes/avatar')
@@ -30,14 +25,8 @@ module.exports = [
     config: require('./routes/upload')
   },
   {
-    method: 'GET',
-    path: config.uploads.route + '/{hash}',
-    handler: {
-      directory: {
-        index: false,
-        listing: false,
-        path: config.uploads.dir
-      }
-    }
+    method: 'POST',
+    path: v('/email'),
+    config: require('./routes/email')
   }
 ];

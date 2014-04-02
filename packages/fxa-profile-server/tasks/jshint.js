@@ -10,13 +10,8 @@ module.exports = function (grunt) {
       jshintrc: '.jshintrc',
       reporter: require('jshint-stylish')
     },
-    grunt: [
-      'Gruntfile.js',
-      'tasks/{,*/}*.js'
-    ],
     app: [
-      '**/*.js',
-      '!node_modules/**'
+      '<%= mainJsFiles %>'
     ]
   });
 };

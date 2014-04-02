@@ -93,6 +93,13 @@ const conf = convict({
       env: 'MYSQL_PORT'
     }
   },
+  oauth: {
+    url: {
+      doc: 'URL of fxa-oauth-server',
+      format: 'url',
+      default: 'http://127.0.0.1:9010/v1'
+    }
+  },
   publicUrl: {
     format: 'url',
     env: 'PUBLIC_URL',

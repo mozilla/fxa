@@ -50,7 +50,8 @@ function stream(readable) {
 
 module.exports = {
   auth: {
-    strategy: 'userid'
+    strategy: 'oauth',
+    scope: ['profile', 'profile:avatar']
   },
   payload: {
     allow: 'image/png', // other types later. this a POC

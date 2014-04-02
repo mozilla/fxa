@@ -11,7 +11,9 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
 
   grunt.initConfig({
-    pkg: grunt.file.readJSON('./package.json')
+    pkg: grunt.file.readJSON('./package.json'),
+    // .js files for JSHint, JSCS, etc.
+    mainJsFiles: '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/}*.js'
   });
 
   grunt.loadTasks('tasks');
