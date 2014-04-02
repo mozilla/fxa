@@ -178,7 +178,7 @@ function (chai, $, ChannelMock, testHelpers,
         channelMock.canLinkAccountOk = false;
         return client.signUp(email, password)
           .then(function() {
-            assert.fail('should throw USER_CANCELED_LOGIN');
+            assert(false, 'should throw USER_CANCELED_LOGIN');
           }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
             // check can_link_account was called once
@@ -191,7 +191,7 @@ function (chai, $, ChannelMock, testHelpers,
       it('signin with unknown user should call errorback', function () {
         return client.signIn('unknown@unknown.com', 'password')
           .then(function (info) {
-            assert.fail('unknown user cannot sign in');
+            assert(false, 'unknown user cannot sign in');
           }, function (err) {
             assert.isTrue(true);
           });
@@ -265,7 +265,7 @@ function (chai, $, ChannelMock, testHelpers,
         channelMock.canLinkAccountOk = false;
         return client.signIn(email, password)
           .then(function() {
-            assert.fail('should throw USER_CANCELED_LOGIN');
+            assert(false, 'should throw USER_CANCELED_LOGIN');
           }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
             // check can_link_account was called once

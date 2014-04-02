@@ -102,7 +102,7 @@ function (chai, View, WindowMock, RouterMock, TestHelpers) {
 
         return view.submit()
                   .then(function () {
-                    assert.fail('unexpected success');
+                    assert(false, 'unexpected success');
                   }, function (err) {
                     // Turn that frown upside down.
                     // Error is expected.

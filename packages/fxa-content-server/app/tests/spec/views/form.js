@@ -44,7 +44,7 @@ function (chai, $, p, FormView, Template, TestHelpers) {
       return view.validateAndSubmit()
           .then(function () {
             // success callback should not be called on failure.
-            assert.fail();
+            assert(false, 'unexpected success');
           }, function (err) {
             assert.equal(err, expectedMessage);
           });

@@ -64,7 +64,7 @@ function (chai, p, View, RouterMock) {
 
         return view.submit()
               .then(function () {
-                assert.fail();
+                assert(false, 'unexpected success');
               }, function (err) {
                 assert.equal(err.message, 'synthesized error from auth server');
               });
