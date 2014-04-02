@@ -138,7 +138,7 @@ const conf = convict({
     port: {
       env: 'PORT',
       format: 'port',
-      default: 9001
+      default: 9010
     }
   },
   unique: {

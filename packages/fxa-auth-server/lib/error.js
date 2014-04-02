@@ -140,11 +140,20 @@ AppError.expiredCode = function mismatchCode(code, expiredAt) {
   });
 };
 
-AppError.invalidRequestParameter = function invalidRequestParameter(val) {
+AppError.invalidToken = function invalidToken() {
   return new AppError({
     code: 400,
     error: 'Bad Request',
     errno: 108,
+    message: 'Invalid token'
+  });
+};
+
+AppError.invalidRequestParameter = function invalidRequestParameter(val) {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 109,
     message: 'Invalid request parameter'
   }, {
     validation: val

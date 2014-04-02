@@ -69,11 +69,12 @@ const QUERY_CLIENT_REGISTER =
   'VALUES (?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
-  'INSERT INTO codes (clientId, userId, scope, code) VALUES ' +
-  '(?, ?, ?, ?)';
-const QUERY_TOKEN_INSERT =
-  'INSERT INTO tokens (clientId, userId, scope, type, token) VALUES ' +
+  'INSERT INTO codes (clientId, userId, email, scope, code) VALUES ' +
   '(?, ?, ?, ?, ?)';
+const QUERY_TOKEN_INSERT =
+  'INSERT INTO tokens (clientId, userId, email, scope, type, token) VALUES ' +
+  '(?, ?, ?, ?, ?, ?)';
+const QUERY_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
 
@@ -129,12 +130,12 @@ MysqlStore.prototype = {
     });
     return d.promise;
   },
-  generateCode: function generateCode(clientId, userId, scope) {
+  generateCode: function generateCode(clientId, userId, email, scope) {
     var code = unique.code();
     var hash = encrypt.hash(code);
     var d = Promise.defer();
     this._connection.query(QUERY_CODE_INSERT,
-      [clientId, userId, scope.join(' '), hash],
+      [clientId, userId, email, scope.join(' '), hash],
       function(err) {
         if (err) {
           return d.reject(err);
@@ -173,6 +174,7 @@ MysqlStore.prototype = {
     var t = {
       clientId: code.clientId,
       userId: code.userId,
+      email: code.email,
       scope: code.scope,
       type: 'bearer'
     };
@@ -182,7 +184,7 @@ MysqlStore.prototype = {
       var hash = encrypt.hash(_token);
       var d = Promise.defer();
       conn.query(QUERY_TOKEN_INSERT,
-        [t.clientId, t.userId, t.scope.join(' '), t.type, hash],
+        [t.clientId, t.userId, t.email, t.scope.join(' '), t.type, hash],
         function(err) {
           if (err) {
             logger.error('generateToken:', err);
@@ -193,6 +195,22 @@ MysqlStore.prototype = {
         });
       return d.promise;
     });
+  },
+
+  getToken: function getToken(token) {
+    var d = Promise.defer();
+    this._connection.query(QUERY_TOKEN_FIND, [encrypt.hash(token)],
+      function(err, rows) {
+        if (err) {
+          logger.error('getToken:', err);
+          return d.reject(err);
+        }
+        var t = rows[0];
+        t.scope = t.scope.split(' ');
+        d.resolve(t);
+      });
+
+    return d.promise;
   }
 
 };

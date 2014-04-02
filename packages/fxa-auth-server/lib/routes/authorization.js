@@ -54,11 +54,11 @@ module.exports = {
   },
   handler: function authorizationEndpoint(req, reply) {
     Promise.all([
-      verify(req.payload.assertion).then(function(userid) {
-        if (!userid) {
+      verify(req.payload.assertion).then(function(claims) {
+        if (!claims) {
           throw AppError.invalidAssertion();
         }
-        return Buffer(userid, 'hex');
+        return claims;
       }),
       db.getClient(Buffer(req.payload.client_id, 'hex')).then(function(client) {
         if (!client) {
@@ -82,10 +82,15 @@ module.exports = {
         return client;
       })
     ])
-    .spread(function(userid, client) {
+    .spread(function(claims, client) {
       // make scope a set
       var scope = req.payload.scope ? set(req.payload.scope.split(' ')) : [];
-      return db.generateCode(client.id, userid, scope);
+      return db.generateCode(
+        client.id,
+        Buffer(claims.uid, 'hex'),
+        claims['fxa-verifiedEmail'],
+        scope
+      );
     })
     .done(function(code) {
       // for now, since we only use whitelisted clients, we can just
