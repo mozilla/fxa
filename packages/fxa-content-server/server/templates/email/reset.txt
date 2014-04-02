@@ -1,6 +1,6 @@
-{{t "Firefox Accounts"}}
+{{t "Are you sure?"}}
 
-{{t "A request to reset the password for %(email)s has been made."}}
+{{t "Please confirm that you'd like to reset the password for %(email)s."}}
 {{t "Reset password:"}} {{{link}}}
 
 {{t "If you received this email in error, no action is required."}}
