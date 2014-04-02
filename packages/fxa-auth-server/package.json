@@ -4,7 +4,7 @@
   "description": "Firefox Accounts OAuth2 server.",
   "main": "index.js",
   "scripts": {
-    "start": "grunt server",
+    "start": "grunt server --node-env=dev",
     "test": "grunt test --node-env=test"
   },
   "repository": {
