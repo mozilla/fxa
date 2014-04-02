@@ -3,13 +3,15 @@
   "description": "A simple tasklist app that demonstrates Persona Sign-In",
   "version": "0.0.1",
   "author": {
-    "name" : "Mozilla",
-    "url" : "https://mozilla.org/"
+    "name": "Mozilla",
+    "url": "https://mozilla.org/"
   },
-  "licenses" : [{
-    "type": "MPL 2.0",
-    "url": "https://mozilla.org/MPL/2.0/"
-  }],
+  "licenses": [
+    {
+      "type": "MPL 2.0",
+      "url": "https://mozilla.org/MPL/2.0/"
+    }
+  ],
   "homepage": "http://123done.org/",
   "bugs": "https://github.com/mozilla/123done/issues",
   "repository": {
@@ -24,7 +26,8 @@
     "redis": "0.7.1",
     "postprocess": "0.2.4",
     "connect-fonts": "0.0.9-alpha8",
-    "connect-fonts-drsugiyama": "0.0.1"
+    "connect-fonts-drsugiyama": "0.0.1",
+    "request": "^2.34.0"
   },
   "engines": {
     "node": ">=0.8.0"
