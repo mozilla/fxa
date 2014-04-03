@@ -17,6 +17,9 @@
       }
     }
   },
+  "oauth": {
+    "url": "https://api-accounts.dev.lcip.org"
+  },
   "uploads": {
     "dir": "/home/app/var/uploads"
   }
