@@ -36,10 +36,10 @@ function (P, jwcrypto, FxaClient) {
     return keyPair().then(function (kp) {
       // while certSign is going over the wire, we can also sign the
       // assertion here on the machine
-      return P.all(
+      return P.all([
         client.certificateSign(kp.publicKey.toSimpleObject(), CERT_DURATION_S),
         assertion(kp.secretKey, audience)
-      );
+      ]);
     });
   }
 
@@ -59,7 +59,7 @@ function (P, jwcrypto, FxaClient) {
 
   function bundle(audience) {
     return certificate(audience).spread(function (cert, ass) {
-      return jwcrypto.cert.bundle([cert], ass);
+      return jwcrypto.cert.bundle([cert.cert], ass);
     });
   }
 
