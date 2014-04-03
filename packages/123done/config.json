@@ -4,5 +4,5 @@
   "redirect_uri": "http://127.0.0.1:8080/api/oauth",
   "signin_uri": "http://127.0.0.1:3030/oauth/signin",
   "oauth_uri": "http://127.0.0.1:9010/v1",
-  "scopes": "user:email"
+  "scopes": "profile"
 }
