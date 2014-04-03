@@ -14,18 +14,6 @@ function (chai, Session) {
   var assert = chai.assert;
 
   describe('lib/session', function () {
-    beforeEach(function () {
-      Session.clear();
-    });
-
-    afterEach(function () {
-      Session.clear();
-      // Since Session is a singleton and channel is not cleared, attaching
-      // the mock Session.channel can interfere with other tests, depending
-      // on the ordering of the tests.
-      delete Session.channel;
-    });
-
     describe('set', function () {
       it('can take a key value pair', function () {
         Session.set('key', 'value');

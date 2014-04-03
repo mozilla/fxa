@@ -8,12 +8,11 @@
 define([
   'chai',
   'views/reset_password',
-  'lib/fxa-client',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
+function (chai, View, WindowMock, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -78,8 +77,7 @@ function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
     describe('submit with valid input', function () {
       it('submits the email address', function (done) {
         var email = 'testuser.' + Math.random() + '@testuser.com';
-        var client = new FxaClient();
-        client.signUp(email, 'password')
+        view.fxaClient.signUp(email, 'password')
               .then(function () {
                 view.$('input[type=email]').val(email);
 
@@ -104,7 +102,7 @@ function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
 
         return view.submit()
                   .then(function () {
-                    assert.fail('unexpected success');
+                    assert(false, 'unexpected success');
                   }, function (err) {
                     // Turn that frown upside down.
                     // Error is expected.

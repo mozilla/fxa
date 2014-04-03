@@ -48,6 +48,8 @@ require.config({
 
 require([
   'lib/translator',
+  'lib/session',
+  'lib/fxa-client',
   '../tests/setup',
   '../tests/spec/lib/channels/web',
   '../tests/spec/lib/channels/fx-desktop',
@@ -76,9 +78,23 @@ require([
   '../tests/spec/views/complete_reset_password',
   '../tests/spec/views/ready'
 ],
-function (Translator) {
+function (Translator, Session, FxaClientWrapper) {
+
   // The translator is expected to be on the window object.
   window.translator = new Translator('en-US', ['en-US']);
+
+  /**
+   * Ensure session state does not pollute other tests
+   */
+  beforeEach(function () {
+    Session.testClear();
+    FxaClientWrapper.testClear();
+  });
+
+  afterEach(function () {
+    Session.testClear();
+    FxaClientWrapper.testClear();
+  });
 
   var runner = mocha.run();
 

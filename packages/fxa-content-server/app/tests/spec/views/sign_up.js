@@ -11,11 +11,10 @@ define([
   'jquery',
   'views/sign_up',
   'lib/session',
-  'lib/fxa-client',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, View, Session, FxaClient, RouterMock, TestHelpers) {
+function (chai, _, $, View, Session, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -24,7 +23,6 @@ function (chai, _, $, View, Session, FxaClient, RouterMock, TestHelpers) {
     var view, router, email;
 
     beforeEach(function () {
-      Session.clear();
       email = 'testuser.' + Math.random() + '@testuser.com';
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
       router = new RouterMock();
@@ -37,7 +35,6 @@ function (chai, _, $, View, Session, FxaClient, RouterMock, TestHelpers) {
     });
 
     afterEach(function () {
-      Session.clear();
       view.remove();
       view.destroy();
       view = null;
@@ -354,8 +351,7 @@ function (chai, _, $, View, Session, FxaClient, RouterMock, TestHelpers) {
 
       it('signs user in if they enter already existing account with correct password', function (done) {
         var password = 'password';
-        var client = new FxaClient();
-        client.signUp(email, password)
+        view.fxaClient.signUp(email, password)
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val(password);
@@ -373,8 +369,7 @@ function (chai, _, $, View, Session, FxaClient, RouterMock, TestHelpers) {
       });
 
       it('shows message allowing the user to sign in if user enters existing verified account with incorrect password', function (done) {
-        var client = new FxaClient();
-        client.signUp(email, 'password', { preVerified: true })
+        view.fxaClient.signUp(email, 'password', { preVerified: true })
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val('incorrect');
@@ -392,8 +387,7 @@ function (chai, _, $, View, Session, FxaClient, RouterMock, TestHelpers) {
       });
 
       it('re-signs up unverified user with new password', function (done) {
-        var client = new FxaClient();
-        client.signUp(email, 'password')
+        view.fxaClient.signUp(email, 'password')
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val('incorrect');

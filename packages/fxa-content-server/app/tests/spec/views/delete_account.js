@@ -9,12 +9,10 @@ define([
   'chai',
   'jquery',
   'views/delete_account',
-  'lib/fxa-client',
-  'lib/session',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, View, FxaClient, Session, RouterMock, TestHelpers) {
+function (chai, $, View, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -23,7 +21,6 @@ function (chai, $, View, FxaClient, Session, RouterMock, TestHelpers) {
     var view, router, email, password = 'password';
 
     beforeEach(function () {
-      Session.clear();
       router = new RouterMock();
       view = new View({
         router: router
@@ -54,8 +51,7 @@ function (chai, $, View, FxaClient, Session, RouterMock, TestHelpers) {
       beforeEach(function () {
         email = 'testuser.' + Math.random() + '@testuser.com';
 
-        var client = new FxaClient();
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
           .then(function () {
             view.render();
 

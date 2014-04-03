@@ -10,13 +10,11 @@ define([
   'jquery',
   'views/sign_in',
   'lib/session',
-  'lib/fxa-client',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, View, Session, FxaClient,
-  WindowMock, RouterMock, TestHelpers) {
+function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -25,7 +23,6 @@ function (chai, $, View, Session, FxaClient,
     var view, email, router;
 
     beforeEach(function () {
-      Session.clear();
       email = 'testuser.' + Math.random() + '@testuser.com';
       router = new RouterMock();
       view = new View({
@@ -36,7 +33,6 @@ function (chai, $, View, Session, FxaClient,
     });
 
     afterEach(function () {
-      Session.clear();
       view.remove();
       view.destroy();
     });
@@ -87,8 +83,7 @@ function (chai, $, View, Session, FxaClient,
     describe('submit', function () {
       it('signs the user in on success', function () {
         var password = 'password';
-        var client = new FxaClient();
-        return client.signUp(email, password)
+        return view.fxaClient.signUp(email, password)
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val(password);
@@ -100,15 +95,14 @@ function (chai, $, View, Session, FxaClient,
       });
 
       it('rejects promise with incorrect password message on incorrect password', function () {
-        var client = new FxaClient();
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val('incorrect');
                 return view.submit();
               })
               .then(function () {
-                assert.fail();
+                assert(false, 'unexpected success');
               }, function (err) {
                 assert.ok(err.message.indexOf('Incorrect') > -1);
               });
@@ -160,8 +154,7 @@ function (chai, $, View, Session, FxaClient,
       var client;
 
       beforeEach(function () {
-        var clientWrapper = new FxaClient();
-        return clientWrapper._getClientAsync()
+        return view.fxaClient._getClientAsync()
                 .then(function (_client) {
                   client = _client;
                   // create spies that can be used to check
@@ -253,9 +246,8 @@ function (chai, $, View, Session, FxaClient,
 
     it('forgot password request redirects directly to confirm_reset_password', function () {
       var password = 'password';
-      var client = new FxaClient();
       var event = $.Event('click');
-      return client.signUp(email, password)
+      return view.fxaClient.signUp(email, password)
             .then(function () {
               // the call to client.signUp clears Session.
               // These fields are reset to complete the test.
@@ -278,7 +270,7 @@ function (chai, $, View, Session, FxaClient,
       view.submitting = true;
       return view.resetPasswordNow(event)
             .then(function () {
-              assert.fail('unexpected success');
+              assert(false, 'unexpected success');
             }, function (err) {
               assert.equal(err.message, 'submitting already in progress');
             });

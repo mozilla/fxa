@@ -6,15 +6,16 @@
 
 define([
   'underscore',
+  'views/form',
   'views/base',
   'stache!templates/complete_sign_up',
   'lib/fxa-client',
   'lib/url'
 ],
-function (_, BaseView, CompleteSignUpTemplate, FxaClient, Url) {
+function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, Url) {
   var t = BaseView.t;
 
-  var CompleteSignUpView = BaseView.extend({
+  var CompleteSignUpView = FormView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
 
@@ -40,17 +41,16 @@ function (_, BaseView, CompleteSignUpTemplate, FxaClient, Url) {
       }
 
       var self = this;
-      var client = new FxaClient();
-      client.verifyCode(uid, code)
+      this.fxaClient.verifyCode(uid, code)
             .then(function () {
               self.navigate('signup_complete');
 
               self.trigger('verify_code_complete');
             })
             .then(null, function (err) {
-              
+
               self.displayError(err);
-              
+
               completeElChildren.show();
               self.trigger('verify_code_complete');
             });
