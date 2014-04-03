@@ -45,7 +45,7 @@ function (P, jwcrypto, FxaClient) {
 
   function assertion(secretKey, audience) {
     var d = P.defer();
-    jwcrypto.assertion.sign({}, {
+    jwcrypto.assertion.sign(jwcrypto, {}, {
       audience: audience,
       expiresAt: Date.now() + ASSERTION_DURATION_MS
     }, secretKey, function (err, ass) {

@@ -3,8 +3,7 @@ define(function(require,module,exports){
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var jwcrypto = require("./jwcrypto"),
-      utils = require("./utils"),
+var utils = require("./utils"),
     version = require("./version");
 
 var SERIALIZER = {};
@@ -61,7 +60,7 @@ function extractAssertionParamsFrom(params) {
 }
 
 
-exports.sign = function(payload, assertionParams, secretKey, cb) {
+exports.sign = function(jwcrypto, payload, assertionParams, secretKey, cb) {
   var allParams = {};
   utils.copyInto(payload, allParams);
   serializeAssertionParamsInto(assertionParams, allParams);
@@ -69,7 +68,7 @@ exports.sign = function(payload, assertionParams, secretKey, cb) {
   jwcrypto.sign(allParams, secretKey, cb);
 };
 
-exports.verify = function(signedObject, publicKey, now, cb) {
+exports.verify = function(jwcrypto, signedObject, publicKey, now, cb) {
   jwcrypto.verify(signedObject, publicKey, function(err, payload) {
     if (err) return cb(err);
 
