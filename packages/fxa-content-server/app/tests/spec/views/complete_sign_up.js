@@ -8,11 +8,10 @@
 define([
   'chai',
   'views/complete_sign_up',
-  'lib/fxa-client',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, View, FxaClientWrapper, WindowMock, TestHelpers) {
+function (chai, View, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -26,7 +25,6 @@ function (chai, View, FxaClientWrapper, WindowMock, TestHelpers) {
         window: windowMock
       });
       $('#container').html(view.el);
-      var clientWrapper = new FxaClientWrapper();
       return view.fxaClient._getClientAsync()
               .then(function (_client) {
                 client = _client;
