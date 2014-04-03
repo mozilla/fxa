@@ -23,6 +23,7 @@ define([
   var email;
   var code;
   var token;
+  var client;
 
   registerSuite({
     name: 'reset_password same browser flow',
@@ -30,7 +31,7 @@ define([
     setup: function () {
       user = 'signin' + Math.random();
       email = user + '@restmail.net';
-      var client = new FxaClient(AUTH_SERVER_ROOT, {
+      client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
       return client.signUp(email, PASSWORD, { preVerified: true });
@@ -157,6 +158,46 @@ define([
         .end()
 
         .waitForElementById('fxa-confirm-reset-password-header')
+        .end();
+    }
+  });
+
+
+  registerSuite({
+    name: 'confirm_password page transition',
+
+    setup: function () {
+      var user = 'signin' + Math.random();
+      email = user + '@restmail.net';
+
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+
+      return client.signUp(email, PASSWORD, { preVerified: true });
+    },
+
+    'page transitions after completion': function () {
+      return this.get('remote')
+        .get(require.toUrl(RESET_PAGE_URL))
+        .waitForElementById('fxa-reset-password-header')
+
+        .elementByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-confirm-reset-password-header')
+          .then(function () {
+            return client.passwordChange(email, PASSWORD, 'newpassword');
+          })
+        .end()
+
+        .waitForElementById('fxa-signin-header')
         .end();
     }
   });

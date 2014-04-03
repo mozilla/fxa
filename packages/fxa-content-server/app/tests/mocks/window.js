@@ -53,6 +53,18 @@ function (_, Backbone) {
     },
 
     scrollTo: function(x, y) {
+    },
+
+    setTimeout: function (callback, timeoutMS) {
+      this._isTimeoutSet = true;
+      return 'timeout';
+    },
+
+    isTimeoutSet: function () {
+      return !!this._isTimeoutSet;
+    },
+
+    clearTimeout: function (timeout) {
     }
   });
 

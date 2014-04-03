@@ -25,7 +25,7 @@ define([
         .get(require.toUrl(url))
         /*jshint evil:true*/
         .waitForElementById('fxa-signup-header')
-        .eval('sessionStorage.clear(); localStorage.clear();');
+        .safeEval('sessionStorage.clear(); localStorage.clear();');
     },
 
     teardown: function () {
@@ -34,7 +34,7 @@ define([
         .get(require.toUrl(url))
         /*jshint evil:true*/
         .waitForElementById('fxa-signup-header')
-        .eval('sessionStorage.clear(); localStorage.clear();');
+        .safeEval('sessionStorage.clear(); localStorage.clear();');
     },
 
     'sign up': function () {

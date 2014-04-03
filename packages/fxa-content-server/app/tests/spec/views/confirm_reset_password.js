@@ -9,19 +9,26 @@ define([
   'chai',
   'p-promise',
   'views/confirm_reset_password',
-  '../../mocks/router'
+  'lib/session',
+  '../../mocks/router',
+  '../../mocks/window'
 ],
-function (chai, p, View, RouterMock) {
+function (chai, p, View, Session, RouterMock, WindowMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/confirm_reset_password', function () {
-    var view, router;
+    var view, routerMock, windowMock;
 
     beforeEach(function () {
-      router = new RouterMock();
+      routerMock = new RouterMock();
+      windowMock = new WindowMock();
+
+      Session.set('email', 'testuser@testuser.com');
+
       view = new View({
-        router: router
+        router: routerMock,
+        window: windowMock
       });
       view.render();
 
@@ -33,9 +40,42 @@ function (chai, p, View, RouterMock) {
       view.destroy();
     });
 
-    describe('constructor creates it', function () {
-      it('is drawn', function () {
+    describe('constructor', function () {
+      it('draws view', function () {
         assert.ok($('#fxa-confirm-reset-password-header').length);
+      });
+    });
+
+    describe('afterRender', function () {
+      it('polls to check if user has verified, if not, retry', function () {
+        view.fxaClient.isPasswordResetComplete = function () {
+          return p().then(function () {
+              return false;
+            });
+        };
+
+        return view.afterRender()
+           .then(function (isComplete) {
+             assert.isFalse(isComplete);
+             assert.isTrue(windowMock.isTimeoutSet());
+           });
+      });
+
+      it('redirects to signin if user has verified', function () {
+        view.fxaClient.isPasswordResetComplete = function () {
+          return p().then(function () {
+            return true;
+          });
+        };
+
+        return view.afterRender()
+           .then(function (isComplete) {
+             assert.isTrue(isComplete);
+             assert.equal(routerMock.page, 'signin');
+             // session.email is used to pre-fill the email on
+             // the signin page.
+             assert.equal(Session.prefillEmail, 'testuser@testuser.com');
+           });
       });
     });
 

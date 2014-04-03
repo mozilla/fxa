@@ -5,12 +5,14 @@
 'use strict';
 
 define([
+  'underscore',
   'views/form',
   'views/base',
   'stache!templates/confirm_reset_password',
-  'lib/session'
+  'lib/session',
+  'lib/constants'
 ],
-function (FormView, BaseView, Template, Session) {
+function (_, FormView, BaseView, Template, Session, Constants) {
   var View = FormView.extend({
     template: Template,
     className: 'confirm-reset-password',
@@ -25,6 +27,34 @@ function (FormView, BaseView, Template, Session) {
     events: {
       // validateAndSubmit is used to prevent multiple concurrent submissions.
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
+    },
+
+    beforeDestroy: function () {
+      if (this._timeout) {
+        this.window.clearTimeout(this._timeout);
+      }
+    },
+
+    afterRender: function () {
+      var self = this;
+      return self.fxaClient.isPasswordResetComplete()
+        .then(function (isComplete) {
+          if (isComplete) {
+            var email = Session.email;
+            Session.clear();
+            Session.set('prefillEmail', email);
+            self.navigate('signin');
+          } else {
+            var retryCB = _.bind(self.afterRender, self);
+            self._timeout = self.window.setTimeout(retryCB,
+                              Constants.RESET_PASSWORD_POLL_INTERVAL);
+          }
+
+          return isComplete;
+        }, function (err) {
+          // an unexpected error occurred
+          console.error(err);
+        });
     },
 
     submit: function () {
