@@ -14,9 +14,11 @@ define([
   'lib/session',
   'lib/password-mixin',
   'lib/url',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/oauth-client',
+  'lib/assertion'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors) {
+function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors, OAuthClient, assertion) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -43,6 +45,29 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
           Session.set('forceEmail', email);
         }
       }
+
+      // Extract oAuth search params
+      this.oAuth = options.oAuth;
+      if (this.oAuth) {
+        this.oAuthClientID = Url.searchParam('client_id', this.window.location.search);
+        this.oAuthScope = Url.searchParam('scope', this.window.location.search);
+        this.oAuthState = Url.searchParam('state', this.window.location.search);
+
+        this.oAuthClient = new OAuthClient();
+
+        this.oAuthClient.getClientInfo(this.oAuthClientID).then(_.bind(function(result) {
+          this.service = result.name;
+          this.serviceName = result.name;
+
+          this.render();
+        }, this))
+        .fail(function(xhr) {
+          // TODO: Should we redirect somewhere on failure?
+          console.error('fail', xhr);
+        });
+      } else {
+        this.service = Session.service;
+      }
     },
 
     context: function () {
@@ -58,7 +83,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         email: email,
         forceAuth: Session.forceAuth,
         error: error,
-        isSync: Session.service === 'sync'
+        isSync: this.service === 'sync',
+        service: this.service,
+        serviceName: this.serviceName
       };
     },
 
@@ -75,9 +102,25 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       return this.fxaClient.signIn(email, password)
         .then(function (accountData) {
           if (accountData.verified) {
+            if (self.oAuth) {
+              assertion(Session.config.oauthUrl).then(function(ass) {
+                console.log("ASS", ass);
+
+                self.oAuthClient.getCode({
+                  assertion: ass,
+                  client_id: self.oAuthClientID,
+                  scope: self.oAuthScope,
+                  state: self.oAuthState
+                }).then(function(result) {
+                  console.log("lets do this thing", result);
+                });
+              }).fail(function(error) {
+                console.error("FAIL", error);
+              });
+            }
             // Don't switch to settings if we're trying to log in to
             // Firefox. Firefox will show its own landing page
-            if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
+            else if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
               self.navigate('settings');
             }
           } else {
@@ -107,7 +150,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       var self = this;
       return p().then(function () {
         if (event) {
-          // prevent the default anchor hanlder (router.js->watchAnchors)
+          // prevent the default anchor handler (router.js->watchAnchors)
           // from sending the user to the confirm_reset_password page.
           // The redirection for this action is taken care of after
           // the request is submitted.

@@ -72,7 +72,8 @@ function (
       'confirm_reset_password(/)': showView(ConfirmResetPasswordView),
       'complete_reset_password(/)': showView(CompleteResetPasswordView),
       'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
-      'force_auth(/)': showView(SignInView, { forceAuth: true })
+      'force_auth(/)': showView(SignInView, { forceAuth: true }),
+      'oauth/signin(/)': showView(SignInView, { oAuth: true })
     },
 
     initialize: function (options) {

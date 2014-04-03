@@ -86,7 +86,8 @@ module.exports = function (config, templates, i18n) {
       '/complete_reset_password',
       '/reset_password_complete',
       '/delete_account',
-      '/force_auth'
+      '/force_auth',
+      '/oauth/signin'
     ];
 
     FRONTEND_ROUTES.forEach(function (route) {

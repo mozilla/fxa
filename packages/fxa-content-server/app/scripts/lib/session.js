@@ -21,7 +21,7 @@ define([
   // will blow up when sending the login message.
   // Don't clear service because the signup page needs that state
   //  even when user credentials are cleared.
-  var DO_NOT_CLEAR = ['channel', 'context', 'service'];
+  var DO_NOT_CLEAR = ['channel', 'context', 'service', 'config'];
 
   // these keys will be persisted to localStorage so that they live between browser sessions
   var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext'];

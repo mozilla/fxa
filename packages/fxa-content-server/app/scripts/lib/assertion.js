@@ -5,8 +5,8 @@
 'use strict';
 
 define([
-  'p',
-  'jwcrypto',
+  'p-promise',
+  'vendor/jwcrypto',
   'lib/fxa-client'
 ],
 function (P, jwcrypto, FxaClient) {
@@ -20,7 +20,7 @@ function (P, jwcrypto, FxaClient) {
     var d = P.defer();
     // for DSA-128 reasons, see http://goo.gl/uAjE41
     jwcrypto.generateKeypair({
-      algorithm: 'DSA',
+      algorithm: 'DS',
       keysize: 128
     }, function (err, keypair) {
       if (err) {
@@ -37,7 +37,7 @@ function (P, jwcrypto, FxaClient) {
       // while certSign is going over the wire, we can also sign the
       // assertion here on the machine
       return P.all(
-        client.certificateSign(kp.publicKey, CERT_DURATION_S),
+        client.certificateSign(kp.publicKey.toSimpleObject(), CERT_DURATION_S),
         assertion(kp.secretKey, audience)
       );
     });

@@ -1,6 +1,13 @@
 <header>
   {{^forceAuth}}
-    <h1 id="fxa-signin-header">{{#t}}Sign in{{/t}}</h1>
+    <h1 id="fxa-signin-header">
+      {{#serviceName}}
+        {{#t}}Sign in to %(serviceName)s{{/t}}
+      {{/serviceName}}
+      {{^serviceName}}
+        {{#t}}Sign in{{/t}}
+      {{/serviceName}}
+    </h1>
   {{/forceAuth}}
   {{#forceAuth}}
     <h1 id="fxa-force-auth-header">{{#t}}Sign in to continue{{/t}}</h1>
