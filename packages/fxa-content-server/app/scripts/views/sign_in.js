@@ -52,6 +52,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         this.oAuthClientID = Url.searchParam('client_id', this.window.location.search);
         this.oAuthScope = Url.searchParam('scope', this.window.location.search);
         this.oAuthState = Url.searchParam('state', this.window.location.search);
+        this.oAuthRedirectUri = Url.searchParam('redirect_uri', this.window.location.search);
 
         this.oAuthClient = new OAuthClient();
 
@@ -110,9 +111,11 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
                   assertion: ass,
                   client_id: self.oAuthClientID,
                   scope: self.oAuthScope,
-                  state: self.oAuthState
+                  state: self.oAuthState,
+                  redirect_uri: self.oAuthRedirectUri
                 }).then(function(result) {
                   console.log("lets do this thing", result);
+                  window.location = result.redirect;
                 });
               }).fail(function(error) {
                 console.error("FAIL", error);
