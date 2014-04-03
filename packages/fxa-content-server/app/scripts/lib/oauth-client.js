@@ -6,7 +6,7 @@
 
 define([
   'jquery',
-  'p',
+  'p-promise',
   'lib/session',
 ],
 function ($, P, Session) {
