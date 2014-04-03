@@ -132,12 +132,12 @@ const conf = convict({
   publicUrl: {
     format: 'url',
     env: 'PUBLIC_URL',
-    default: 'http://localhost:9010'
+    default: 'http://127.0.0.1:9010'
   },
   server: {
     host: {
       env: 'HOST',
-      default: 'localhost'
+      default: '127.0.0.1'
     },
     port: {
       env: 'PORT',
