@@ -13,7 +13,6 @@ require.config({
     text: '../bower_components/requirejs-text/text',
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
-    transit: '../bower_components/jquery.transit/jquery.transit',
     modernizr: '../bower_components/modernizr/modernizr',
     'p-promise': '../bower_components/p/p'
   },
@@ -27,12 +26,6 @@ require.config({
         'jquery'
       ],
       exports: 'Backbone'
-    },
-    transit: {
-      deps: [
-        'jquery'
-      ],
-      exports: 'jQuery.fn.transition'
     }
   },
   stache: {
