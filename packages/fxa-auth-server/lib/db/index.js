@@ -16,7 +16,6 @@ function preClients(store) {
       JSON.stringify(clients, null, 2));
     return Promise.all(clients.map(function(c) {
       c.id = Buffer(c.id, 'hex');
-      c.secret = Buffer(c.secret, 'hex');
       return store.getClient(c.id).then(function(client) {
         if (client) {
           logger.debug('Client %s exists, skipping', c.id.toString('hex'));
