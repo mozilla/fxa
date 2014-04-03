@@ -3,4 +3,4 @@
 {{t "Please confirm that you'd like to reset the password for %(email)s."}}
 {{t "Reset password:"}} {{{link}}}
 
-{{t "If you received this email in error, no action is required."}}
+{{t "This is an automated email; if you received it in error, no action is required. For more information, please visit https://support.mozilla.org"}}
