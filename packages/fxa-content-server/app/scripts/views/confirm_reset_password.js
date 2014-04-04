@@ -19,8 +19,7 @@ function (_, FormView, BaseView, Template, Session, Constants) {
 
     context: function () {
       return {
-        // HTML is written here to simplify the l10n community's job
-        email: '<strong id="confirm-email" class="email">' + Session.email + '</strong>'
+        email: Session.email
       };
     },
 
