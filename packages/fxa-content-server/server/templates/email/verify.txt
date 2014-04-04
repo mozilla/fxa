@@ -1,6 +1,6 @@
-{{t "Firefox Accounts"}}
+{{t "Congratulations!"}}
 
-{{t "Congratulations! %(email)s, you are seconds away from verifying your Firefox Account."}}
+{{t "%(email)s, you're one click away from verifying your Firefox Account."}}
 {{t "Verify:"}} {{{link}}}
 
-{{t "If you received this email in error, no action is required."}}
+{{t "This is an automated email; if you received it in error, no action is required. For more information, please visit https://support.mozilla.org"}}
