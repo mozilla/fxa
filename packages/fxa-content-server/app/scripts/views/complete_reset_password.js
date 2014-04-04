@@ -34,17 +34,17 @@ function (_, BaseView, FormView, Template, Session, Url, PasswordMixin) {
       var search = this.window.location.search;
       this.token = Url.searchParam('token', search);
       if (! this.token) {
-        return this.displayError(t('no token specified'));
+        return this.displayError(t('No token specified'));
       }
 
       this.code = Url.searchParam('code', search);
       if (! this.code) {
-        return this.displayError(t('no code specified'));
+        return this.displayError(t('No code specified'));
       }
 
       this.email = Url.searchParam('email', search);
       if (! this.email) {
-        return this.displayError(t('no email specified'));
+        return this.displayError(t('No email specified'));
       }
     },
 
@@ -57,7 +57,7 @@ function (_, BaseView, FormView, Template, Session, Url, PasswordMixin) {
 
     showValidationErrorsEnd: function () {
       if (this._getPassword() !== this._getVPassword()) {
-        this.displayError(t('passwords do not match'));
+        this.displayError(t('Passwords do not match'));
       }
     },
 
