@@ -122,26 +122,7 @@ $(document).ready(function() {
 
     // upon click of signin button call navigator.id.request()
     $('button').click(function(ev) {
-      ev.preventDefault();
-
-      // disable the sign-in button when a user clicks it, it will be
-      // re-enabled when the assertion passed into onlogin is verified,
-      // or if the user cancels the dialog.
-      $("button").attr('disabled', 'disabled').css('opacity', '0.5');
-      navigator.id.request({
-        termsOfService: '/tos.txt',
-        privacyPolicy: '/pp.txt',
-        siteName: "123done",
-        backgroundColor: "#cdd7d9",
-        allowRedirect: true,
-// XXX: we need SSL to display a siteLogo in dialog. Must get certificates.
-// siteLogo: "/img/logo100.png",
-        oncancel: function() {
-          // when the user cancels the persona dialog, let's re-enable the
-          // sign-in button
-          $("button").removeAttr('disabled').css('opacity', '1');
-        }
-      });
+      window.location = '/login';
     });
 
     // upon click of logout link navigator.id.logout()
