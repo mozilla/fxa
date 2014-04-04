@@ -50,12 +50,12 @@
     </div>
 
     <div class="button-row">
-      <button type="submit" class="disabled">{{#t}}Next{{/t}}</button>
+      <button id="submit-btn" type="submit" class="disabled">{{#t}}Next{{/t}}</button>
     </div>
 
     {{#isSync}}
       <div class="input-row customize-sync-row">
-        <label><input type="checkbox" class="customize-sync"> {{#t}}Choose what to sync{{/t}}</label>
+        <label><input id="customize-sync" type="checkbox" class="customize-sync"> {{#t}}Choose what to sync{{/t}}</label>
       </div>
     {{/isSync}}
   </form>
