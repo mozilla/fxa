@@ -47,11 +47,19 @@ module.exports = function(app, db) {
         console.log(err, res, body);
         req.session.scopes = body.scopes;
         req.session.token_type = body.token_type;
+        var token = req.session.token = body.access_token;
 
         // store the bearer token
         db.set(code, body.access_token);
 
-        // TODO get the email/avatar from the profile server
+        request.post({
+          uri: config.profile_uri + '/email',
+          headers: {
+            Authorization: 'Bearer ' + token
+          }
+        }, function (err, r, body) {
+          console.log(err, r, body);
+        });
 
         res.send(200);
       });
