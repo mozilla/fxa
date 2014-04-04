@@ -8,10 +8,11 @@
 define([
   'chai',
   'p-promise',
+  'lib/auth-errors',
   'views/confirm',
   '../../mocks/router'
 ],
-function (chai, p, View, RouterMock) {
+function (chai, p, authErrors, View, RouterMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -53,7 +54,20 @@ function (chai, p, View, RouterMock) {
 
       });
 
-      it('displays error messages if there is a problem', function () {
+      it('redirects to `/signup` if the resend token is invalid', function () {
+        view.fxaClient.signUpResend = function () {
+          return p().then(function () {
+            throw authErrors.toError('INVALID_TOKEN', 'Invalid token');
+          });
+        };
+
+        return view.submit()
+              .then(function () {
+                assert.equal(router.page, 'signup');
+              });
+      });
+
+      it('displays other error messages if there is a problem', function () {
         view.fxaClient.signUpResend = function () {
           return p().then(function () {
             throw new Error('synthesized error from auth server');
