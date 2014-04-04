@@ -80,7 +80,7 @@ function genAssertion(email) {
 
 
 var client;
-var secret = unique.secret().toString('hex');
+var secret;
 var clientId;
 var AN_ASSERTION;
 
@@ -114,15 +114,10 @@ describe('/v1', function() {
       genAssertion(USERID + config.get('browserid.issuer')).then(function(ass) {
         AN_ASSERTION = ass;
       }),
-      db.registerClient({
-        name: 'Mocha',
-        imageUri: 'https://example.domain/logo',
-        redirectUri: 'https://example.domain/return?foo=bar',
-        whitelisted: true,
-        secret: secret
-      }).then(function(c) {
-        client = c;
-        clientId = client.id.toString('hex');
+      db.ping().then(function() {
+        client = config.get('clients')[0];
+        clientId = client.id;
+        secret = client.secret;
       })
     ]).done(function() { done(); }, done);
   });
