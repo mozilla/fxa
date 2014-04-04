@@ -1,0 +1,252 @@
+*, *:before, *:after {
+  -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+ }
+
+body {
+    background: #F2F2F2;
+    color: #424f59;
+    font-family: 'Open Sans', sans-serif;
+    font-size:85%;
+}
+
+a {
+    color: #0095dd;
+    text-decoration: none;
+}
+
+.container {
+    margin: 0 auto;
+    max-width:960px;
+    min-width:320px;
+    padding:0 20px;
+}
+
+
+#header-main {
+	margin: 0;
+    background: #fff;
+    padding: 10px 0;
+    box-shadow: 0px 2px 2px #ccc;
+    position: fixed;
+    top:0;
+    width:100%;
+}
+
+#header-main h1 {
+    line-height: 1em;
+    margin:0;
+    font-size:24px;
+}
+
+.title {
+    position: relative;
+    top: -8px;
+    margin: 0 0 0 10px;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight:lighter;
+
+}
+
+#footer-main {
+    background: url(../img/grad@2x.png) repeat-x #304050;
+    background-size: 5px 20px;
+    color: #fff;
+    padding:10px 0 0 0;
+    position: fixed;
+    bottom:0;
+    width:100%;
+}
+
+#footer-main p {
+    font-size: .8em;
+    text-align: center;
+}
+
+.logo {
+	width:36px;
+	height:35px;
+	background: url(../img/logo@2x.png) no-repeat center center;
+	background-size: 36px 34px;
+	position: relative;
+    margin:5px auto 0 auto;
+    display:inline-block;
+}
+
+div.logo {
+    display: block;
+    background-size: 26px 25px;
+}
+
+.todo {
+}
+
+.todo h3 {
+    margin:0;
+}
+
+.todo .container {
+    background: #fff;
+    box-shadow: 0px 2px 2px #ccc;
+    border-radius: 3px;
+    padding:40px;
+    margin: 84px auto;
+
+}
+
+#addform {
+    width:100%;
+    margin: 0 0 5px 0;
+}
+
+ul#todolist {
+    margin: 0;
+    padding: 0;
+}
+
+ul#donelist {
+    margin: 0;
+    padding: 0;
+}
+
+#todolist li {
+    list-style: none;
+    padding: 15px 50px;
+    box-shadow: 0px 2px 2px #ccc;
+    margin: 0 0 5px 0;
+    border-radius: 2px;
+    border: 1px solid #8a9ba8;
+    cursor: pointer;
+    background: url(../img/todo-item@2x.png) no-repeat 16px center;
+    background-size: 20px 20px;
+    background-color: #fff;
+}
+
+#todolist li:hover {
+    background-image: url(../img/todo-item-hover@2x.png);
+    background-color: #eee;
+}
+
+#todolist li.done {
+    background-image: url(../img/todo-item-done@2x.png);
+}
+
+#todolist li.can-delete:hover {
+    background-image: url(../img/todo-item-clear@2x.png);
+}
+
+.todo input {
+    padding: 8px 20px;
+}
+
+.todo input {
+
+}
+#donelist {
+    display: block;
+}
+
+#donelistwrapper h3 {
+    display: none;
+}
+
+.todo input[type='text'] {
+    border:1px solid #8a9ba8;
+    border-top-left-radius:2px;
+    border-bottom-left-radius:2px;
+    margin:0;
+    float:left;
+    width:85%;
+    box-shadow: 0px 1px 1px #eee inset;
+
+}
+
+.todo input[type='text']:hover,
+.todo input[type='submit']:hover
+ {
+    border-color:  #424F59;
+}
+
+.todo input[type='text']:focus,
+.todo input[type='submit']:focus
+ {
+    border-color:  #0095DD;
+    outline:none;
+}
+
+.todo input[type='submit'] {
+    border: 1px solid #8a9ba8;
+    border-left:none;
+    background: #fff;
+    border-top-right-radius:2px;
+    border-bottom-right-radius:2px;
+    margin:0;
+    width:15%;
+
+} 
+
+@media only screen and (max-width: 960px) {
+    .container {
+        width:96%;
+        margin: 0 auto;
+    }
+}
+
+
+
+@media only screen and (max-width: 640px) {
+
+    .todo input[type='text'] { 
+        width:80%;
+    }
+
+    .todo input[type='submit'] { 
+        width:20%;
+    }
+
+}
+
+@media only screen and (max-width: 500px) {
+
+    body {
+        background: #fff;
+    }
+
+    #header-main {
+        box-shadow: none;    
+        background: #F2F2F2;
+    }
+
+    .todo .container {
+        width:100%;
+        padding: 10px;
+        box-shadow: none;
+    }
+
+
+
+}
+
+
+
+
+
+
+
+@media
+    only screen and (-webkit-min-device-pixel-ratio: 2),
+    only screen and ( min--moz-device-pixel-ratio: 2),
+    only screen and ( -moz-min-device-pixel-ratio: 2),
+    only screen and ( -o-min-device-pixel-ratio: 2/1),
+    only screen and ( min-device-pixel-ratio: 2),
+    only screen and ( min-resolution: 192dpi),
+    only screen and ( min-resolution: 2dppx) {
+
+#logo {
+	background-image: url(../img/logo@2x.png);
+}
+
+
+}

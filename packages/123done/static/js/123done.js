@@ -50,6 +50,7 @@ $(document).ready(function() {
       if (email) {
         $('#addform').css('display', 'block');
         $('#todolist').css('display', 'block');
+        $('#donelist').css('display', 'block');
       } else {
         $('#signinhere').css('display', 'block');
       }

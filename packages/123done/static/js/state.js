@@ -39,7 +39,8 @@
       return field.val('').focus();
     }
     // create a new element, set its value, and append it
-    todo.append($('<li>').attr('when', new Date().getTime()).text(field.val()));
+    todo.prepend($('<li>').attr('when', new Date().getTime()).text(field.val()));
+    todo.children(':first-child').hide().slideDown(200);
     // clear and refocus the input field
     field.val('').focus();
     State.save();
@@ -51,14 +52,43 @@
     var t = $(ev.target);
     if (t.is('li')) {
       if (t.hasClass('done')) {
-        t.remove();
+        t.slideUp(200);
+        setTimeout(function(){
+          t.remove()
+          showHideDone();
+        },200)
       } else {
-        t.addClass('done');
+        done(t);
+        $('#donelistwrapper h3').show();
       }
       State.save();
     };
     ev.preventDefault();
   });
+
+  //sort done items
+
+  function done(t) {
+
+    t.prependTo('ul#donelist');
+     t.addClass('done');
+        t.mouseout(function(){
+          t.addClass('can-delete');
+        });
+
+  };
+
+  function showHideDone() {
+    var num = $('#donelist li').length;
+    if (num > 0) {
+      $('#donelistwrapper h3').show();
+    } else {
+      $('#donelistwrapper h3').hide();
+    }
+
+
+    console.log(num);
+  }
 
   // state mangement:
   // * when you are not signed in, we use local storage
@@ -103,7 +133,7 @@
     for (var i = 0; i < a.length; i++) {
       var li = $("<li/>").text(a[i].v);
       if (a[i].done) li.addClass('done');
-      todo.append(li);
+      todo.prepend(li);
     }
   }
 
