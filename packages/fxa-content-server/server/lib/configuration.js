@@ -8,9 +8,16 @@ var path = require('path');
 
 var conf = module.exports = convict({
   port: {
+    doc: 'HTTPS port for local dev',
     format: 'port',
     default: 3030,
     env: 'PORT'
+  },
+  http_port: {
+    doc: 'HTTP port for local dev',
+    format: 'port',
+    default: 3080,
+    env: 'HTTP_PORT'
   },
   cachify_prefix: {
     doc: 'The prefix for cachify hashes in URLs',

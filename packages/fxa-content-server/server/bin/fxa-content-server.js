@@ -25,7 +25,6 @@ var logger = require('intel').getLogger('server.main');
 
 var helmet = require('helmet');
 var express = require('express');
-var handlebars = require('handlebars');
 var consolidate = require('consolidate');
 var connect_fonts = require('connect-fonts');
 var firasans = require('connect-fonts-firasans');
@@ -94,10 +93,6 @@ function makeApp() {
 var app,
     port;
 
-if (isMain) {
-  app = makeApp();
-}
-
 function listen(theApp) {
   'use strict';
 
@@ -124,8 +119,43 @@ function listen(theApp) {
   return true;
 }
 
+function makeHttpRedirectApp () {
+  'use strict';
+
+  var redirectProtocol = config.get('use_https') ? 'https://' : 'http://';
+  var redirectPort = port === 443 ? '' : ':' + port;
+
+  var httpApp = express();
+  httpApp.get('*', function (req, res) {
+    var redirectTo = redirectProtocol + req.host + redirectPort + req.url;
+
+    res.redirect(301, redirectTo);
+  });
+
+  return httpApp;
+}
+
+function listenHttpRedirectApp(httpApp) {
+  'use strict';
+  var httpPort = config.get('use_https') ? 80 : config.get('http_port');
+
+  httpApp.listen(httpPort, '0.0.0.0');
+  if (isMain) {
+    logger.info('Firefox Account HTTP redirect server listening on port', httpPort);
+  }
+}
+
 if (isMain) {
-  listen();
+  app = makeApp();
+  listen(app);
+
+  var httpApp = makeHttpRedirectApp();
+  listenHttpRedirectApp(httpApp);
 } else {
-  module.exports = {listen: listen, makeApp: makeApp};
+  module.exports = {
+    listen: listen,
+    makeApp: makeApp,
+    makeHttpRedirectApp: makeHttpRedirectApp,
+    listenHttpRedirectApp: listenHttpRedirectApp
+  };
 }
