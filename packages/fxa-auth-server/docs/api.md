@@ -310,7 +310,6 @@ Successful requests will produce a "200 OK" response with the device details pro
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
@@ -357,7 +356,6 @@ for info on how to extract `kA|wrapKb` from the bundle.
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 104:  attempt to operate on an unverified account
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
@@ -407,7 +405,6 @@ Successful requests will produce a "200 OK" response with empty JSON body:
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 106:  request body was not valid json
 * status code 400, errno 107:  request body contains invalid parameters
 * status code 400, errno 108:  request body missing required parameters
@@ -531,7 +528,6 @@ Successful requests will produce a "200 OK" response with an empty JSON body:
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 106:  request body was not valid json
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
@@ -578,7 +574,6 @@ Successful requests will produce a "200 OK" response with the account email and 
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
 * status code 401, errno 111:  invalid authentication timestamp
@@ -625,7 +620,6 @@ Successful requests will produce a "200 OK" response with an empty JSON body:
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 106:  request body was not valid json
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
@@ -742,7 +736,6 @@ The signed certificate includes these additional claims:
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 104:  attempt to operate on an unverified account
 * status code 400, errno 106:  request body was not valid json
 * status code 400, errno 107:  request body contains invalid parameters
@@ -834,7 +827,6 @@ Successful requests will produce a "200 OK" response with an empty JSON body:
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 106:  request body was not valid json
 * status code 400, errno 107:  request body contains invalid parameters
 * status code 400, errno 108:  request body missing required parameters
@@ -991,7 +983,6 @@ Successful requests will produce a "200 OK" response with accountResetToken in t
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 105:  invalid verification code
 * status code 400, errno 106:  request body was not valid json
 * status code 400, errno 107:  request body contains invalid parameters
