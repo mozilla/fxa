@@ -23,10 +23,11 @@ define([
   'underscore',
   'jquery',
   'p-promise',
+  'lib/validate',
   'views/base',
   'views/tooltip'
 ],
-function (_, $, p, BaseView, Tooltip) {
+function (_, $, p, Validate, BaseView, Tooltip) {
   var t = BaseView.t;
 
   /**
@@ -336,29 +337,7 @@ function (_, $, p, BaseView, Tooltip) {
      */
     validateEmail: function (selector) {
       var email = this.$(selector).val();
-      if (typeof(email) !== 'string') {
-        return false;
-      }
-
-      var parts = email.split('@');
-
-      var localLength = parts[0] && parts[0].length;
-      var domainLength = parts[1] && parts[1].length;
-
-      // Original regexp from:
-      //  http://blog.gerv.net/2011/05/html5_email_address_regexp/
-      // Modified to require at least a 2 part tld and remove the
-      // length checks, which are done later.
-      // IETF spec: http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
-      // NOTE: this does *NOT* allow internationalized domain names.
-      return (/^[\w.!#$%&'*+\-\/=?\^`{|}~]+@[a-z\d][a-z\d\-]*(?:\.[a-z\d][a-z\d\-]*)+$/i).test(email) &&
-             // total email allwed to be 256 bytes long
-             email.length <= 256 &&
-             // local side only allowed to be 64 bytes long
-             1 <= localLength && localLength <= 64 &&
-             // domain side allowed to be up to 255 bytes long which
-             // doesn't make much sense unless the local side has 0 length;
-             3 <= domainLength && domainLength <= 255;
+      return Validate.isEmailValid(email);
     },
 
     showEmailValidationError: function (which) {

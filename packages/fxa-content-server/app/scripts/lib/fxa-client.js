@@ -329,8 +329,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
               });
     },
 
-    isPasswordResetComplete: function () {
-      var token = Session.passwordForgotToken;
+    isPasswordResetComplete: function (token) {
       return this._getClientAsync()
         .then(function (client) {
           return client.passwordForgotStatus(token);

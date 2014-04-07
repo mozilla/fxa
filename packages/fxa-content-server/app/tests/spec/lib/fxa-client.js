@@ -389,21 +389,19 @@ function (chai, $, ChannelMock, testHelpers,
             return client.passwordReset(email);
           })
           .then(function () {
-            return client.isPasswordResetComplete();
+            assert.ok(Session.passwordForgotToken);
+            token = Session.passwordForgotToken;
+            return client.isPasswordResetComplete(token);
           })
           .then(function (complete) {
             // cache the token so it's not cleared after the password change
-            token = Session.passwordForgotToken;
-            assert.ok(Session.passwordForgotToken);
-            assert.isTrue(realClient.passwordForgotStatus.calledWith(Session.passwordForgotToken));
             assert.isFalse(complete);
 
             // change password to force password reset to return true
             return client.changePassword(email, password, 'new_password');
           })
           .then(function (complete) {
-            Session.set('passwordForgotToken', token);
-            return client.isPasswordResetComplete();
+            return client.isPasswordResetComplete(token);
           })
           .then(function (complete) {
             assert.isTrue(complete);

@@ -39,7 +39,7 @@ function (_, FormView, BaseView, Template, Session, Constants, authErrors) {
       var bounceGraphic = this.$el.find('.graphic');
       bounceGraphic.addClass('pulse');
       var self = this;
-      return self.fxaClient.isPasswordResetComplete()
+      return self.fxaClient.isPasswordResetComplete(Session.passwordForgotToken)
         .then(function (isComplete) {
           if (isComplete) {
             var email = Session.email;
