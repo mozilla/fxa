@@ -47,8 +47,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       }
 
       // Extract oAuth search params
-      this.oAuth = options.oAuth;
-      if (this.oAuth) {
+      // QUESTION: Should we extract the oauth logic out into another view (subclass)?
+      this.isOAuth = options.isOAuth;
+      if (this.isOAuth) {
         this.oAuthClientID = Url.searchParam('client_id', this.window.location.search);
         this.oAuthScope = Url.searchParam('scope', this.window.location.search);
         this.oAuthState = Url.searchParam('state', this.window.location.search);
@@ -57,14 +58,17 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         this.oAuthClient = new OAuthClient();
 
         this.oAuthClient.getClientInfo(this.oAuthClientID).then(_.bind(function(result) {
+          // QUESTION: Is it safe to store these in the Session?
           this.service = result.name;
+          // QUESTION: Do we store the friendly name separately or just rely on a mapping with
+          // fallback?
           this.serviceName = result.name;
 
           this.render();
         }, this))
         .fail(function(xhr) {
-          // TODO: Should we redirect somewhere on failure?
-          console.error('fail', xhr);
+          // QUESTION: What should we do when getting client info fails?
+          console.error('oauthClient.getClientInfo FAILED', xhr);
         });
       } else {
         this.service = Session.service;
@@ -103,10 +107,10 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       return this.fxaClient.signIn(email, password)
         .then(function (accountData) {
           if (accountData.verified) {
-            if (self.oAuth) {
+            // If this is oauth then create an assertion and pass it along to the oauth server
+            if (self.isOAuth) {
               assertion(Session.config.oauthUrl).then(function(ass) {
-                console.log("ASS", ass);
-
+                /* jshint camelcase: false */
                 self.oAuthClient.getCode({
                   assertion: ass,
                   client_id: self.oAuthClientID,
@@ -114,17 +118,23 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
                   state: self.oAuthState,
                   redirect_uri: self.oAuthRedirectUri
                 }).then(function(result) {
-                  console.log("lets do this thing", result);
+                  // Redirect to the returned URL
                   window.location = result.redirect;
+                }).fail(function(error) {
+                  // QUESTION: What should we do when getting a code fails?
+                  console.error('oAuthClient.getCode FAIL', error);
                 });
               }).fail(function(error) {
-                console.error("FAIL", error);
+                // QUESTION: What should we do when creating an assertion fails?
+                console.error('assertion FAIL', error);
               });
-            }
+
             // Don't switch to settings if we're trying to log in to
             // Firefox. Firefox will show its own landing page
-            else if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
+            } else if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
               self.navigate('settings');
+            } else {
+              // This is the desktop context so don't do anything
             }
           } else {
             return self.fxaClient.signUpResend()
