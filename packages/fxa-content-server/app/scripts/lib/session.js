@@ -94,8 +94,17 @@ define([
         }
       });
 
-      localStorage.setItem(NAMESPACE, JSON.stringify(toSaveToLocalStorage));
-      sessionStorage.setItem(NAMESPACE, JSON.stringify(toSaveToSessionStorage));
+      // Wrap browser storage access in a try/catch block because some browsers
+      // (Firefox, Chrome) except when trying to access browser storage and
+      // cookies are disabled.
+      try {
+        localStorage.setItem(NAMESPACE, JSON.stringify(toSaveToLocalStorage));
+        sessionStorage.setItem(NAMESPACE, JSON.stringify(toSaveToSessionStorage));
+
+      } catch(e) {
+        // some browsers disable access to browser storage
+        // if cookies are disabled.
+      }
     },
 
     /**

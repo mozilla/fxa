@@ -312,12 +312,12 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient) {
         event.preventDefault();
       }
 
-      window.history.back();
+      this.window.history.back();
     },
 
     backOnEnter: function (event) {
       if (event.which === ENTER_BUTTON_CODE) {
-        window.history.back();
+        this.window.history.back();
       }
     },
 

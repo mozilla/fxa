@@ -26,10 +26,12 @@ module.exports = function (config, templates, i18n) {
 
   var ver = require('./routes/get-ver.json');
   var termsPrivacy = require('./routes/get-terms-privacy')(i18n);
+  var configRoute = require('./routes/get-config');
 
   var routes = [
     ver,
-    termsPrivacy
+    termsPrivacy,
+    configRoute
   ];
 
   var authServerHost = url.parse(config.get('fxaccount_url')).hostname;
@@ -38,13 +40,6 @@ module.exports = function (config, templates, i18n) {
     // handle password reset links
     app.get('/v1/complete_reset_password', function (req, res) {
       res.redirect(req.originalUrl.slice(3));
-    });
-
-    app.get('/config', function (req, res) {
-      res.json({
-        fxaccountUrl: config.get('fxaccount_url'),
-        i18n: config.get('i18n')
-      });
     });
 
     // handle email verification links
@@ -85,7 +80,8 @@ module.exports = function (config, templates, i18n) {
       '/complete_reset_password',
       '/reset_password_complete',
       '/delete_account',
-      '/force_auth'
+      '/force_auth',
+      '/cookies_disabled'
     ];
 
     FRONTEND_ROUTES.forEach(function (route) {

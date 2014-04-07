@@ -37,9 +37,9 @@ function (_, $, Strings) {
     // Fetches our JSON translation file
     fetch: function (done) {
       $.ajax({ dataType: 'json', url: '/i18n/' + this.language.replace(/-/, '_') + '/client.json' })
-        .done(function (data) {
+        .done(_.bind(function (data) {
           this.translations = data;
-        }.bind(this))
+        }, this))
         .always(done);
     },
 

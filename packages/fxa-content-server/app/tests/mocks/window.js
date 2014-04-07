@@ -12,6 +12,8 @@ define([
 ],
 function (_, Backbone) {
   function WindowMock() {
+    var self = this;
+
     this.translator = window.translator;
     this.location = {
       href: window.location.href,
@@ -21,6 +23,12 @@ function (_, Backbone) {
 
     this.document = {
       title: window.document.title
+    };
+
+    this.history = {
+      back: function () {
+        self.history.back.called = true;
+      }
     };
   }
 
@@ -65,6 +73,10 @@ function (_, Backbone) {
     },
 
     clearTimeout: function (timeout) {
+    },
+
+    navigator: {
+      language: 'en-US'
     }
   });
 

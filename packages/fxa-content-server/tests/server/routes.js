@@ -42,7 +42,8 @@ define([
     '/ver.json': 200,
     '/non_existent': 404,
     '/legal/non_existent': 404,
-    '/en-US/legal/non_existent': 404
+    '/en-US/legal/non_existent': 404,
+    '/cookies_disabled': 200
   };
 
   function routeTest(route, expectedStatusCode) {

@@ -54,6 +54,7 @@ require([
   '../tests/spec/lib/router',
   '../tests/spec/lib/strings',
   '../tests/spec/lib/auth-errors',
+  '../tests/spec/lib/app-start',
   '../tests/spec/views/base',
   '../tests/spec/views/tooltip',
   '../tests/spec/views/form',
@@ -69,7 +70,8 @@ require([
   '../tests/spec/views/reset_password',
   '../tests/spec/views/confirm_reset_password',
   '../tests/spec/views/complete_reset_password',
-  '../tests/spec/views/ready'
+  '../tests/spec/views/ready',
+  '../tests/spec/views/cookies_disabled'
 ],
 function (Translator, Session, FxaClientWrapper) {
 
