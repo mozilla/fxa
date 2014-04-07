@@ -29,9 +29,10 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
       view = new View({
         router: router
       });
-      view.render();
-
-      $('#container').append(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').append(view.el);
+          });
     });
 
     afterEach(function () {
@@ -45,17 +46,19 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
     describe('render', function () {
       it('prefills email if one is stored in Session (user comes from signin with new account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
-        view.render();
-
-        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+            });
       });
 
       it('shows choose what to sync checkbox when service is sync even after session is cleared', function () {
         Session.set('service', 'sync');
         Session.clear();
-        view.render();
-
-        assert.equal(view.$('.customize-sync-row').length, 1);
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.customize-sync-row').length, 1);
+            });
       });
     });
 
@@ -324,7 +327,7 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
         view.submit();
       });
 
-      it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function (done) {
+      it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function () {
         $('[type=email]').val(email);
         $('[type=password]').val('password');
 
@@ -336,17 +339,14 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
 
         // simulate user re-visiting the /signup page after being rejected
         var revisitRouter = new RouterMock();
-
-        revisitRouter.on('navigate', function () {
-          wrapAssertion(function () {
-            assert.equal(revisitRouter.page, 'cannot_create_account');
-          }, done);
-        });
-
         var revisitView = new View({
           router: revisitRouter
         });
-        revisitView.render();
+
+        return revisitView.render()
+            .then(function () {
+              assert.equal(revisitRouter.page, 'cannot_create_account');
+            });
       });
 
       it('signs user in if they enter already existing account with correct password', function (done) {

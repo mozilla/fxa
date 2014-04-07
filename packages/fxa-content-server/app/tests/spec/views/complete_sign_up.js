@@ -46,46 +46,42 @@ function (chai, View, WindowMock, TestHelpers) {
     describe('constructor creates it', function () {
       it('is drawn', function () {
         windowMock.location.search = '?uid=uid&code=code';
-        view.render();
-        assert.ok($('#fxa-complete-sign-up-header').length);
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('#fxa-complete-sign-up-header').length);
+            });
       });
     });
 
     describe('afterRender', function () {
-      it('shows an error if uid is not available on the URL', function (done) {
+      it('shows an error if uid is not available on the URL', function () {
         windowMock.location.search = '?code=code';
 
-        view.on('error', function (msg) {
-          wrapAssertion(function() {
-            assert.ok(msg);
-            assert.isFalse(client.verifyCode.called);
-          }, done);
-        });
-        view.render();
+        return view.render()
+            .then(function () {
+              assert.isFalse(client.verifyCode.called);
+              assert.ok(view.$('.error').text());
+            });
       });
 
-      it('throws an error if code is not available on the URL', function (done) {
+      it('throws an error if code is not available on the URL', function () {
         windowMock.location.search = '?uid=uid';
 
-        view.on('error', function (msg) {
-          wrapAssertion(function() {
-            assert.ok(msg);
-            assert.isFalse(client.verifyCode.called);
-          }, done);
-        });
-        view.render();
+        return view.render()
+            .then(function () {
+              assert.isFalse(client.verifyCode.called);
+              assert.ok(view.$('.error').text());
+            });
       });
 
-      it('attempts to complete verification if code and uid are available', function (done) {
+      it('attempts to complete verification if code and uid are available', function () {
         windowMock.location.search = '?code=code&uid=uid';
 
-        view.on('verify_code_complete', function () {
-          wrapAssertion(function() {
-            assert.isTrue(client.verifyCode.called);
-          }, done);
-        });
+        return view.render()
+            .then(function () {
+              assert.isTrue(client.verifyCode.called);
+            });
 
-        view.render();
       });
     });
   });

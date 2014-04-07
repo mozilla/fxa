@@ -24,9 +24,10 @@ function (chai, p, authErrors, View, RouterMock) {
       view = new View({
         router: router
       });
-      view.render();
-
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {

@@ -71,8 +71,10 @@ function (chai, $, p, FormView, Template, TestHelpers) {
     beforeEach(function () {
       view = new View({});
 
-      view.render();
-      $('body').append(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -221,8 +223,11 @@ function (chai, $, p, FormView, Template, TestHelpers) {
 
     describe('showValidationError', function () {
       it('creates a tooltip', function() {
+        view.on('validation_error', function (done) {
+          assert.ok(view.$('.tooltip').length);
+          done();
+        });
         view.showValidationError('#focusMe', 'this is an error');
-        assert.ok($('.tooltip').length);
       });
 
       it('focuses the invalid element', function (done) {
@@ -239,15 +244,22 @@ function (chai, $, p, FormView, Template, TestHelpers) {
         assert.isTrue(view.$('#focusMe').hasClass('invalid'));
       });
 
-      it('invalid class is removed as soon as element is valid again', function () {
+      it('invalid class is removed as soon as element is valid again', function (done) {
+        view.on('validation_error', function () {
+          assert.isTrue(view.$('#focusMe').hasClass('invalid'));
+
+          // add a value, causing the validation error to be removed.
+          $('#focusMe').val('heyya!');
+          view.$('#focusMe').trigger('keydown');
+        });
+
+        view.on('validation_error_removed', function () {
+          assert.isFalse(view.$('#focusMe').hasClass('invalid'));
+          done();
+        });
+
         // element is required, has no value
         view.showValidationError('#focusMe', 'Field is required');
-        assert.isTrue(view.$('#focusMe').hasClass('invalid'));
-
-        // add a value
-        $('#focusMe').val('heyya!');
-        view.$('#focusMe').trigger('keydown');
-        assert.isFalse(view.$('#focusMe').hasClass('invalid'));
       });
     });
 

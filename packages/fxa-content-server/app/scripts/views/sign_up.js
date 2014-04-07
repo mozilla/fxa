@@ -45,8 +45,6 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
         this.navigate('cannot_create_account');
         return false;
       }
-
-      return true;
     },
 
     events: {

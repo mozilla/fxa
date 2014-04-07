@@ -24,10 +24,9 @@ define([
   'jquery',
   'p-promise',
   'views/base',
-  'views/tooltip',
-  'lib/fxa-client'
+  'views/tooltip'
 ],
-function (_, $, p, BaseView, Tooltip, FxaClient) {
+function (_, $, p, BaseView, Tooltip) {
   var t = BaseView.t;
 
   /**
@@ -48,8 +47,6 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
   var FormView = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);
-
-      this.fxaClient = new FxaClient();
 
       // attach events of the descendent view and this view.
       this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
@@ -398,9 +395,16 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
       var tooltip = new Tooltip({
         message: message,
         invalidEl: invalidEl
-      }).on('destroyed', function () {
+      });
+
+      var self = this;
+      tooltip.on('destroyed', function () {
         invalidEl.removeClass('invalid');
-      }).render();
+        self.trigger('validation_error_removed', which);
+      }).render().then(function () {
+        // used for testing
+        self.trigger('validation_error', which, message);
+      });
 
       this.trackSubview(tooltip);
 
@@ -409,9 +413,6 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
       } catch (e) {
         // IE can blow up if the element is not visible.
       }
-
-      // used for testing
-      this.trigger('validation_error', which, message);
 
       return message;
     },

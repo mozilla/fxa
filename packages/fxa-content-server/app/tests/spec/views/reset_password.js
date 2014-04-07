@@ -26,9 +26,10 @@ function (chai, View, WindowMock, RouterMock, TestHelpers) {
       view = new View({
         router: router
       });
-      view.render();
-
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -117,9 +118,10 @@ function (chai, View, WindowMock, RouterMock, TestHelpers) {
       view = new View({
         window: windowMock
       });
-      view.render();
-
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {

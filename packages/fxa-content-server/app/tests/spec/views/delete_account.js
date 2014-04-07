@@ -18,12 +18,12 @@ function (chai, $, View, RouterMock, TestHelpers) {
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/delete_account', function () {
-    var view, router, email, password = 'password';
+    var view, routerMock, email, password = 'password';
 
     beforeEach(function () {
-      router = new RouterMock();
+      routerMock = new RouterMock();
       view = new View({
-        router: router
+        router: routerMock
       });
     });
 
@@ -31,19 +31,15 @@ function (chai, $, View, RouterMock, TestHelpers) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      router = null;
+      routerMock = null;
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function (done) {
-        router.on('navigate', function (newPage) {
-          wrapAssertion(function() {
-            assert.equal(newPage, 'signin');
-          }, done);
-        });
-
-        var isRendered = view.render();
-        assert.isFalse(isRendered);
+      it('redirects to signin', function () {
+        return view.render()
+            .then(function () {
+              assert.equal(routerMock.page, 'signin');
+            });
       });
     });
 
@@ -53,8 +49,9 @@ function (chai, $, View, RouterMock, TestHelpers) {
 
         return view.fxaClient.signUp(email, 'password')
           .then(function () {
-            view.render();
-
+            return view.render();
+          })
+          .then(function () {
             $('body').append(view.el);
           });
       });
@@ -93,17 +90,14 @@ function (chai, $, View, RouterMock, TestHelpers) {
       });
 
       describe('submit', function () {
-        it('deletes the users account, redirect to signup', function (done) {
+        it('deletes the users account, redirect to signup', function () {
           $('form input[type=email]').val(email);
           $('form input[type=password]').val(password);
 
-          router.on('navigate', function (newPage) {
-            wrapAssertion(function() {
-              assert.equal(newPage, 'signup');
-            }, done);
-          });
-
-          view.submit();
+          return view.submit()
+              .then(function () {
+                assert.equal(routerMock.page, 'signup');
+              });
         });
       });
 
