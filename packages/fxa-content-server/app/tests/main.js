@@ -56,6 +56,7 @@ require([
   '../tests/spec/lib/session',
   '../tests/spec/lib/fxa-client',
   '../tests/spec/lib/oauth-client',
+  '../tests/spec/lib/assertion',
   '../tests/spec/lib/translator',
   '../tests/spec/lib/router',
   '../tests/spec/lib/strings',
