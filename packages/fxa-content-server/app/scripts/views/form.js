@@ -30,6 +30,21 @@ define([
 function (_, $, p, BaseView, Tooltip, FxaClient) {
   var t = BaseView.t;
 
+  /**
+   * Called if `keypress` or `change` is fired on the form. If the
+   * form has changed, call the specified handler.
+   */
+  function ifFormValuesChanged(handler) {
+    return function (event) {
+      var oldValues = this._formValuesBeforeUpdate;
+      var newValues = this.getFormValues();
+
+      if (! _.isEqual(oldValues, newValues)) {
+        return this.invokeHandler(handler, event);
+      }
+    };
+  }
+
   var FormView = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);
@@ -42,8 +57,45 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
 
     events: {
       'submit form': BaseView.preventDefaultThen('validateAndSubmit'),
-      'keyup form': 'enableSubmitIfValid',
-      'change form': 'enableSubmitIfValid'
+      // Save the values before the new key has been entered into the form.
+      // The values are saved and used in ifFormValuesChanged to decide whether
+      // to enable the form.
+      'keydown form': 'saveFormValues',
+      'keyup form': ifFormValuesChanged('enableSubmitIfValid'),
+      'change form': ifFormValuesChanged('enableSubmitIfValid')
+    },
+
+    /**
+     * Save form values that are used to compare against in keyup or change.
+     * Called in keydown before keypress has been written to input element.
+     *
+     * @method saveFormValues.
+     */
+    saveFormValues: function () {
+      this._formValuesBeforeUpdate = this.getFormValues();
+    },
+
+    /**
+     * Get the current form values. Does not fetch the value of elements with
+     * the `data-novalue` attribute.
+     *
+     * @method getFormValues
+     */
+    getFormValues: function () {
+      var values = {};
+      var inputEls = this.$('input,textarea,select');
+
+      for (var i = 0, length = inputEls.length; i < length; ++i) {
+        var el = $(inputEls[i]);
+        // elements that have data-novalue (like password show fields)
+        // are not added to the values.
+        if (typeof el.attr('data-novalue') === 'undefined') {
+          var name = el.attr('name') || el.attr('id');
+          values[name] = el.val();
+        }
+      }
+
+      return values;
     },
 
     enableSubmitIfValid: function () {
@@ -54,7 +106,9 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
         return;
       }
 
+
       if (this.isValid()) {
+        this.hideError();
         this.enableForm();
       } else {
         this.disableForm();
@@ -62,11 +116,18 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
     },
 
     disableForm: function () {
-      this.$('button[type=submit]').addClass('disabled').attr('disabled', 'disabled');
+      this.$('button[type=submit]').addClass('disabled');
+      this._isFormEnabled = false;
     },
 
     enableForm: function () {
-      this.$('button[type=submit]').removeClass('disabled').removeAttr('disabled');
+      this.$('button[type=submit]').removeClass('disabled');
+      this._isFormEnabled = true;
+    },
+
+    _isFormEnabled: true,
+    isFormEnabled: function () {
+      return !!this._isFormEnabled;
     },
 
     /**
@@ -76,8 +137,9 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
      * a promise chain: beforeSubmit, submit, and afterSubmit.
      *
      * By default, beforeSubmit and afterSubmit are used to prevent
-     * multiple concurrent form submissions. This behavior can
-     * be overridden in subclasses.
+     * multiple concurrent form submissions. The form is disbled in
+     * beforeSubmit, and if no error is displayed, the form is re-enabled
+     * in afterSubmit. This behavior can be overridden in subclasses.
      *
      * Form submission is prevented if beforeSubmit resolves to false.
      *
@@ -93,10 +155,6 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
       var self = this;
 
       function submitForm() {
-        // `submitting` flag is used to prevent multiple
-        // form submissions.
-        self.submitting = true;
-
         return p().then(_.bind(self.beforeSubmit, self))
                 .then(function (shouldSubmit) {
                   // submission is opt out, not opt in.
@@ -104,31 +162,51 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
                     return self.submit();
                   }
                 })
-                .then(_.bind(self.afterSubmit, self))
-                .then(function () {
-                  self.submitting = false;
-                }, function (err) {
-                  self.submitting = false;
-
+                .then(null, function (err) {
                   // surface returned message for testing.
                   throw self.displayError(err);
-                });
+                })
+                .then(_.bind(self.afterSubmit, self));
       }
 
+      if (self.isSubmitting()) {
+        return p()
+          .then(function () {
+            // already submitting, get outta here.
+            throw new Error('submit already in progress');
+          });
+      }
+
+      self._isSubmitting = true;
       return p()
         .then(function () {
-          if (self.isSubmitting()) {
-            // already submitting, get outta here.
-            throw new Error('submitting already in progress');
-          } else if (! self.isValid()) {
+          if (! self.isValid()) {
             // Validation error is surfaced for testing.
             throw self.showValidationErrors();
-          } else {
-            // all good, do the beforeSubmit, submit, and afterSubmit chain.
-            return submitForm();
           }
-        });
+        })
+        .then(function () {
+          // the form enabled check is done after the validation check
+          // so that the form's `submit` handler is triggered and validation
+          // error tooltips are displayed, even if the form is disabled.
+          if (! self.isFormEnabled()) {
+            return p()
+              .then(function () {
+                // form is disabled, get outta here.
+                throw new Error('form is disabled');
+              });
+          }
 
+          // all good, do the beforeSubmit, submit, and afterSubmit chain.
+          return submitForm();
+        })
+        .then(function () {
+          self._isSubmitting = false;
+        }, function (err) {
+          self._isSubmitting = false;
+
+          throw err;
+        });
     },
 
     /**
@@ -374,7 +452,13 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
      *   an asynchronous operation.
      */
     afterSubmit: function () {
-      this.enableForm();
+      // some views may display an error without throwing an exception.
+      // Check if the form is valid and no errors are visible before
+      // re-enabling the form. The user must modify the form for it to
+      // be re-enabled.
+      if (! this.isErrorVisible()) {
+        this.enableForm();
+      }
     },
 
     /**
@@ -383,7 +467,7 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
      * @return {boolean} true if form is being submitted, false otw.
      */
     isSubmitting: function () {
-      return this.submitting;
+      return this._isSubmitting;
     }
   });
 

@@ -122,12 +122,16 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       });
     });
 
-    describe('displayError', function () {
+    describe('displayError/isErrorVisible/hideError', function () {
       it('translates and display an error in the .error element', function () {
         var msg = view.displayError('the error message');
         var expected = 'a translated error message';
         assert.equal(view.$('.error').html(), expected);
         assert.equal(msg, expected);
+
+        assert.isTrue(view.isErrorVisible());
+        view.hideError();
+        assert.isFalse(view.isErrorVisible());
       });
 
       it('hides any previously displayed success messages', function () {
@@ -148,6 +152,10 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         var expected = 'an error message<div>with html</div>';
         assert.equal(view.$('.error').html(), expected);
         assert.equal(msg, expected);
+
+        assert.isTrue(view.isErrorVisible());
+        view.hideError();
+        assert.isFalse(view.isErrorVisible());
       });
     });
 

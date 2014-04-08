@@ -32,7 +32,7 @@ function (chai, $, p, FormView, Template, TestHelpers) {
       },
 
       showValidationErrors: function () {
-        return 'invalid form';
+        return this.showValidationError('body', 'invalid form');
       },
 
       submit: function () {
@@ -41,6 +41,17 @@ function (chai, $, p, FormView, Template, TestHelpers) {
     });
 
     function testErrorDisplayed(expectedMessage) {
+      return view.validateAndSubmit()
+          .then(function () {
+            // success callback should not be called on failure.
+            assert(false, 'unexpected success');
+          }, function (err) {
+            assert.equal(err, expectedMessage);
+            assert.isTrue(view.isErrorVisible());
+          });
+    }
+
+    function testValidationErrorDisplayed(expectedMessage) {
       return view.validateAndSubmit()
           .then(function () {
             // success callback should not be called on failure.
@@ -79,6 +90,13 @@ function (chai, $, p, FormView, Template, TestHelpers) {
         assert.isFalse(view.$('button').hasClass('disabled'));
       });
 
+      it('hides errors if isValid returns true', function () {
+        view.displayError('this is an error');
+        view.formIsValid = true;
+        view.enableSubmitIfValid();
+        assert.isFalse(view.$('.error').is(':visible'));
+      });
+
       it('disabled submit button if isValid returns false', function () {
         view.formIsValid = false;
         view.enableSubmitIfValid();
@@ -94,16 +112,42 @@ function (chai, $, p, FormView, Template, TestHelpers) {
 
       it('shows validation errors if isValid returns false', function () {
         view.formIsValid = false;
-        return testErrorDisplayed('invalid form');
+        return testValidationErrorDisplayed('invalid form');
       });
 
-      it('displays error message if beforeSubmit throws an error', function () {
+      it('only allows one submit at a time', function () {
+        view.formIsValid = true;
+        view.validateAndSubmit();
+        return view.validateAndSubmit()
+                  .then(function () {
+                    assert(false, 'unexpected success');
+                  }, function (err) {
+                    assert.equal(err.message, 'submit already in progress');
+                  });
+
+      });
+
+      it('does not submit if form is disabled', function () {
+        view.formIsValid = true;
+        view.disableForm();
+        return view.validateAndSubmit()
+                  .then(function () {
+                    assert(false, 'unexpected success');
+                  }, function (err) {
+                    assert.equal(err.message, 'form is disabled');
+                  });
+      });
+
+      it('displays error message and does not disable form if beforeSubmit throws an error', function () {
         view.formIsValid = true;
         view.beforeSubmit = function () {
           throw 'an error message';
         };
 
-        return testErrorDisplayed('an error message');
+        return testErrorDisplayed('an error message')
+                  .then(function () {
+                    assert.isTrue(view.isFormEnabled());
+                  });
       });
 
       it('beforeSubmit can return a false to stop form submission', function () {
@@ -127,13 +171,16 @@ function (chai, $, p, FormView, Template, TestHelpers) {
         return testFormSubmitted();
       });
 
-      it('displays error message if submit throws an error', function () {
+      it('displays error message and does not re-enable form if submit throws an error', function () {
         view.formIsValid = true;
         view.submit = function () {
           throw 'an error message';
         };
 
-        return testErrorDisplayed('an error message');
+        return testErrorDisplayed('an error message')
+                  .then(function () {
+                    assert.isFalse(view.isFormEnabled());
+                  });
       });
 
       it('submit can return a promise for asynchronous operations', function () {
@@ -147,13 +194,18 @@ function (chai, $, p, FormView, Template, TestHelpers) {
         return testFormSubmitted();
       });
 
-      it('displays error message if afterSubmit throws an error', function () {
+      it('override afterSubmit to prevent form from being re-enabled - afterSubmit errors are not displayed', function () {
         view.formIsValid = true;
         view.afterSubmit = function () {
-          throw 'an error message';
+          // do not re-enable form.
+          throw new Error('error that is not displayed');
         };
 
-        return testErrorDisplayed('an error message');
+        return view.validateAndSubmit()
+                  .then(null, function(err) {
+                    assert.equal(err.message, 'error that is not displayed');
+                    assert.isFalse(view.isFormEnabled());
+                  });
       });
 
       it('afterSubmit can return a promise for asynchronous operations', function () {
@@ -199,6 +251,17 @@ function (chai, $, p, FormView, Template, TestHelpers) {
       });
     });
 
+    describe('getFormValues', function () {
+      it('gets the value of form fields that do not have the `data-novalue` attribute', function () {
+        view.$('#focusMe').val('the value');
+        view.$('#otherElement').val('another value');
+
+        var values = view.getFormValues();
+        assert.equal(values.focusMe, 'the value');
+        assert.equal(values.otherElement, 'another value');
+        assert.isUndefined(values.novalue);
+      });
+    });
   });
 });
 

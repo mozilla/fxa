@@ -87,7 +87,7 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val(password);
-                return view.submit()
+                return view.submit();
               })
               .then(function () {
                 assert.equal(router.page, 'confirm');
@@ -174,6 +174,7 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
         assert.isFalse(client.passwordForgotSendCode.called);
       });
     });
+
   });
 
   describe('missing email address when calling /force_auth', function () {
@@ -267,13 +268,13 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
     it('only one forget password request at a time', function () {
       var event = $.Event('click');
 
-      view.submitting = true;
+      view.resetPasswordNow(event);
       return view.resetPasswordNow(event)
-            .then(function () {
-              assert(false, 'unexpected success');
-            }, function (err) {
-              assert.equal(err.message, 'submitting already in progress');
-            });
+              .then(function () {
+                assert(false, 'unexpected success');
+              }, function (err) {
+                assert.equal(err.message, 'submit already in progress');
+              });
     });
   });
 
