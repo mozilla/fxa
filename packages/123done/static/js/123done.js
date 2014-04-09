@@ -35,11 +35,17 @@ $(document).ready(function() {
     function updateUI(email) {
       $("ul.loginarea li").css('display', 'none');
       if (email) {
+        console.log(email);
         $('#loggedin span').text(email);
         $('#loggedin').css('display', 'block');
+        $("#splash").hide();
+        $("#lists").slideDown(500);
       } else {
         $('#loggedin span').text('');
         $('#loggedout').css('display', 'block');
+        $("#splash").show();
+        $("#lists").hide();
+
       }
       $("button").removeAttr('disabled').css('opacity', '1');
     }
@@ -68,11 +74,8 @@ $(document).ready(function() {
         loginAssertion = assertion;
 
         // display spinner
-        $("section.todo ul").css('display', 'none');
-        $("section.todo form").css('display', 'none');
-        $("ul.loginarea li").css('display', 'none');
-        $(".loginarea .loading").css('display', 'block');
-        $(".todo .loading").css('display', 'block');
+        $("#splash").hide();
+        $("#lists").show();
 
         verifyAssertion(assertion, function(r) {
           loggedInEmail = r.email;
@@ -90,9 +93,13 @@ $(document).ready(function() {
       },
       // onlogout will be called any time the user logs out
       onlogout: function() {
+
         loggedInEmail = null;
         updateUI(loggedInEmail);
         updateListArea(loggedInEmail);
+
+        $("#splash").show();
+        $("#lists").hide();
 
         // clear items from the dom at logout
         $("#todolist > li").remove();
@@ -121,7 +128,7 @@ $(document).ready(function() {
     });
 
     // upon click of signin button call navigator.id.request()
-    $('button').click(function(ev) {
+    $('button.sign-in-button').click(function(ev) {
       ev.preventDefault();
 
       // disable the sign-in button when a user clicks it, it will be
@@ -145,7 +152,7 @@ $(document).ready(function() {
     });
 
     // upon click of logout link navigator.id.logout()
-    $("#loggedin a").click(function(ev) {
+    $("#logout").click(function(ev) {
       ev.preventDefault();
       navigator.id.logout();
     });

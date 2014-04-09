@@ -8,30 +8,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="firefox-accounts" content="supported">
   <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Alegreya+Sans:100,300' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="bower_components/normalize-css/normalize.css" type="text/css">
   <link rel="stylesheet" href="css/main.css" type="text/css">
   <script src="bower_components/modernizr/modernizr.js"></script>
 </head>
 
 <body>
+
+  <div id='splash'>
+    <header>
+      <img src="img/transparent-logo.png" id="splash-logo" alt="123done-logo" width='72' height ='70'>
+      <h1>123 Done</h1>
+      <h2>The First Step to Greatness</h2>
+      <button class="btn btn-large btn-info btn-persona sign-in-button" type="submit">Get Started</button>
+    </header>
+    <section>
+      <div class="container">
+        <div class="two-col clearfix">
+          <div class="left-col">
+            <h3>Make Todo Lists</h3>
+            <p>With 123 Done, you can make and manage beautiful, world-class todo lists.</p>
+          </div>
+          <div class="right-col"><img src="img/list@2x.png"="123done-logo"></div>
+        </div>
+        <div class="two-col clearfix">
+          <div class="left-col"><img src="img/growth@2x.png"="123done-logo"></div>
+          <div class="right-col">
+            <h3>Discover Yourself</h3>
+            <p>Explore patterns in the way you work and improve your routines.</p>
+          </div>
+        </div>
+        <div class="two-col clearfix">
+          <div class="right-col">
+            <h3>Do The Impossible</h3>
+            <p>Achieve your dreams.</p>
+          </div>
+          <div class="right-col"><img src="img/rocket@2x.png"="123done-logo"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="lists">
   <header id="header-main">
     <div class="container">
       <h1><span class="logo"></span><span class="title">123Done</span></h1>
+      <button id="logout">logout</button>
     </div>
   </header>
-
   <section class="todo">
     <div class="container">
-    
-    <div class="preroll">
-       <ul id="signinhere" style="font-size: 15pt">
-      <p>Sign in to get started making todo lists!</p>
-      <button class="btn btn-large btn-info btn-persona" type="submit">
-       <i class="icon-persona-large"></i> &nbsp;Sign in with your email
-     </button>
-   </ul>
-    </div>
 
+      <div class="preroll">
+       <ul id="signinhere" style="font-size: 15pt">
+        <p>Sign in to get started making todo lists!</p>
+      </ul>
+    </div>
+    
     <h3>To Do:</h3>
     <form class="form-inline clearfix" id="addform" action="#" method="post">
       <div>
@@ -40,14 +74,15 @@
         <input class="btn" id="addtask" type="submit" value="Add">
       </div>
     </form>
-   <ul id="todolist">
+    <ul id="todolist">
       <div id="donelistwrapper">
-      <h3>Done:</h3>
-     <ul id="donelist"></ul>
-     </div>
-   </ul>
-</div>
-</section>
+        <h3>Done:</h3>
+        <ul id="donelist"></ul>
+      </div>
+    </ul>
+  </div>
+  </section>
+  </div>
 
 <footer id="footer-main">
   <div class="container">
