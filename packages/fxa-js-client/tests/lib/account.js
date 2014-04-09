@@ -310,14 +310,9 @@ define([
 
       test('#accountStatus with no uid', function () {
 
-        return respond(client.accountStatus(), ErrorMocks.requestInvalidParams)
-          .then(
-            assert.notOk,
-            function(error) {
-              assert.equal(error.code, 400);
-              assert.equal(error.errno, 107);
-            }
-          )
+        assert.throws(function() {
+          client.accountStatus();
+        });
       });
 
     });
