@@ -8,6 +8,12 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
   var VERSION = 'v1';
   var uriVersionRegExp = new RegExp('/' + VERSION + '$');
 
+  function required(val, name) {
+    if (!val) {
+      throw new Error('Missing ' + name);
+    }
+  }
+
   /**
    * @class FxAccountClient
    * @constructor
@@ -48,6 +54,9 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    */
   FxAccountClient.prototype.signUp = function (email, password, options) {
     var self = this;
+
+    required(email, 'email');
+    required(password, 'password');
 
     return credentials.setup(email, password)
       .then(
@@ -103,6 +112,9 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
     var self = this;
     options = options || {};
 
+    required(email, 'email');
+    required(password, 'password');
+
     return credentials.setup(email, password)
       .then(
         function (result) {
@@ -146,6 +158,9 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.verifyCode = function(uid, code) {
+    required(uid, 'uid');
+    required(code, 'verify code');
+
     return this.request.send('/recovery_email/verify_code', 'POST', null, {
       uid: uid,
       code: code
@@ -159,6 +174,7 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    */
   FxAccountClient.prototype.recoveryEmailStatus = function(sessionToken) {
     var self = this;
+    required(sessionToken, 'sessionToken');
 
     return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
@@ -184,6 +200,8 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
     var self = this;
     var data = {};
     var requestOpts = {};
+
+    required(sessionToken, 'sessionToken');
 
     if (options) {
       if (options.service) {
@@ -228,6 +246,8 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
     };
     var requestOpts = {};
 
+    required(email, 'email');
+
     if (options) {
       if (options.service) {
         data.service = options.service;
@@ -270,6 +290,9 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
     };
     var requestOpts = {};
 
+    required(email, 'email');
+    required(passwordForgotToken, 'passwordForgotToken');
+
     if (options) {
       if (options.service) {
         data.service = options.service;
@@ -304,6 +327,8 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    */
   FxAccountClient.prototype.passwordForgotVerifyCode = function(code, passwordForgotToken) {
     var self = this;
+    required(code, 'reset code');
+    required(passwordForgotToken, 'passwordForgotToken');
 
     return hawkCredentials(passwordForgotToken, 'passwordForgotToken',  2 * 32)
       .then(function(creds) {
@@ -324,6 +349,8 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
   FxAccountClient.prototype.passwordForgotStatus = function(passwordForgotToken) {
     var self = this;
 
+    required(passwordForgotToken, 'passwordForgotToken');
+
     return hawkCredentials(passwordForgotToken, 'passwordForgotToken',  2 * 32)
       .then(function(creds) {
         return self.request.send('/password/forgot/status', 'GET', creds);
@@ -343,6 +370,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
   FxAccountClient.prototype.accountReset = function(email, newPassword, accountResetToken) {
     var self = this;
     var authPW;
+
+    required(email, 'email');
+    required(newPassword, 'new password');
+    required(accountResetToken, 'accountResetToken');
 
     return credentials.setup(email, newPassword)
       .then(
@@ -370,6 +401,9 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    */
   FxAccountClient.prototype.accountKeys = function(keyFetchToken, oldUnwrapBKey) {
     var self = this;
+
+    required(keyFetchToken, 'keyFetchToken');
+    required(oldUnwrapBKey, 'oldUnwrapBKey');
 
     return hawkCredentials(keyFetchToken, 'keyFetchToken',  3 * 32)
       .then(function(creds) {
@@ -405,6 +439,8 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
   FxAccountClient.prototype.accountDevices = function(sessionToken) {
     var self = this;
 
+    required(sessionToken, 'sessionToken');
+
     return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
         return self.request.send('/account/devices', 'GET', creds);
@@ -425,6 +461,9 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
   FxAccountClient.prototype.accountDestroy = function(email, password, options) {
     var self = this;
     options = options || {};
+
+    required(email, 'email');
+    required(password, 'password');
 
     return credentials.setup(email, password)
       .then(
@@ -462,6 +501,7 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.accountStatus = function(uid) {
+    required(uid, 'uid');
 
     return this.request.send('/account/status?uid=' + uid, 'GET');
   };
@@ -475,6 +515,8 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    */
   FxAccountClient.prototype.sessionDestroy = function(sessionToken) {
     var self = this;
+
+    required(sessionToken, 'sessionToken');
 
     return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
@@ -491,6 +533,8 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    */
   FxAccountClient.prototype.sessionStatus = function(sessionToken) {
     var self = this;
+
+    required(sessionToken, 'sessionToken');
 
     return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
@@ -514,6 +558,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
       duration: duration
     };
 
+    required(sessionToken, 'sessionToken');
+    required(publicKey, 'publicKey');
+    required(duration, 'duration');
+
     return hawkCredentials(sessionToken, 'sessionToken',  2 * 32)
       .then(function(creds) {
         return self.request.send('/certificate/sign', 'POST', creds, data);
@@ -531,6 +579,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    */
   FxAccountClient.prototype.passwordChange = function(email, oldPassword, newPassword) {
     var self = this;
+
+    required(email, 'email');
+    required(oldPassword, 'old password');
+    required(newPassword, 'new password');
 
     return self._passwordChangeStart(email, oldPassword)
       .then(function (credentials) {
@@ -562,6 +614,9 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
     var self = this;
     options = options || {};
 
+    required(email, 'email');
+    required(oldPassword, 'old password');
+
     return credentials.setup(email, oldPassword)
       .then(function (oldCreds) {
         var data = {
@@ -589,6 +644,13 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
       });
   };
 
+  function checkCreds(creds) {
+    required(creds, 'credentials');
+    required(creds.oldUnwrapBKey, 'credentials.oldUnwrapBKey');
+    required(creds.keyFetchToken, 'credentials.keyFetchToken');
+    required(creds.passwordChangeToken, 'credentials.passwordChangeToken');
+  }
+
   /**
    * Second step to change the password.
    *
@@ -598,6 +660,7 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    * @return {Promise} A promise that will be fulfilled with JSON of `xhr.responseText`
    */
   FxAccountClient.prototype._passwordChangeKeys = function(oldCreds) {
+    checkCreds(oldCreds);
 
     return this.accountKeys(oldCreds.keyFetchToken, oldCreds.oldUnwrapBKey);
   };
@@ -614,6 +677,13 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    */
   FxAccountClient.prototype._passwordChangeFinish = function(email, newPassword, oldCreds, keys) {
     var self = this;
+
+    required(email, 'email');
+    required(newPassword, 'new password');
+    checkCreds(oldCreds);
+    required(keys, 'keys');
+    required(keys.kB, 'keys.kB');
+
     var p1 = credentials.setup(email, newPassword);
     var p2 = hawkCredentials(oldCreds.passwordChangeToken, 'passwordChangeToken',  2 * 32);
 
