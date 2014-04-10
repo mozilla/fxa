@@ -27,6 +27,11 @@ function (FormView, BaseView, Template, Session, authErrors) {
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
+    afterRender: function() {
+      var graphic = this.$el.find('.graphic');
+      graphic.addClass('pulse');
+    },
+
     submit: function () {
       var self = this;
 

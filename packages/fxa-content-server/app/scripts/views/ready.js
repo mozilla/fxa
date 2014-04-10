@@ -47,6 +47,11 @@ function (_, BaseView, Template, Session, Xss, Strings) {
       };
     },
 
+    afterRender: function() {
+      var graphic = this.$el.find('.graphic');
+      graphic.addClass('pulse');
+    },
+
     is: function (type) {
       return this.type === type;
     }

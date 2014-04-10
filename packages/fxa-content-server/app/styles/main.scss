@@ -32,7 +32,6 @@ a:focus {
   outline: 1px dotted $link-color;
 }
 
-
 a.no-underline {
   text-decoration: none;
 }
@@ -69,6 +68,7 @@ noscript {
   background-size: 80px 85px;
   height: 85px;
   margin: 0 auto;
+  opacity: 0;
   position: relative;
   top:40px;
   width: 80px;
@@ -76,7 +76,6 @@ noscript {
 }
 
 #stage {
-  animation: fadein 1s;
   background: $stage-background-color;
   border-radius: 5px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
@@ -205,6 +204,7 @@ strong.email {
 
 .graphic-mail {
   background-image: url(/images/graphic_mail.png);
+  margin-bottom: 25px;
   padding-bottom: 10px;
 }
 
@@ -218,18 +218,6 @@ strong.email {
   select {
     font-family: $default-font-family;
   }
-}
-
-
-.fade-down-tt {
-  animation-name: fade-down-tt;
-  animation-duration: .5s;
-}
-
-
-.fade-up-tt {
-  animation-name: fade-up-tt;
-  animation-duration: .5s;
 }
 
 .tooltip {
@@ -270,7 +258,6 @@ strong.email {
   top: -7px;
 }
 
-
 .input-row input[type='text'],
 .input-row input[type='email'],
 .input-row input[type='password'],
@@ -289,7 +276,6 @@ strong.email {
   -webkit-appearance:none;
   width: 100%;
 }
-
 
 .input-row input::-webkit-input-placeholder {
    color: $input-placeholder-color;
@@ -337,8 +323,6 @@ strong.email {
   transition-property: border-color;
 }
 
-
-
 .input-row select:hover,
 .input-row select:hover:active,
 .input-row select:focus {
@@ -359,7 +343,6 @@ strong.email {
   border-color: $input-row-hover-border-color;
   outline: none;
 }
-
 
 .input-row input:focus,
 .input-row select:focus,
@@ -515,7 +498,6 @@ ul.links li {
 .privacy-links + .button-row {
   margin-top: 20px;
 }
-
 
 .privacy-links a:active,
 .privacy-links a:hover,

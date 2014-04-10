@@ -136,6 +136,16 @@ function (
         // on screen transition. Force them to the top of the page.
         this.window.scrollTo(0, 0);
       }
+
+      this.$logo = $('#fox-logo');
+      var name = this.currentView.el.className;
+
+      if (name === 'sign-in' || name === 'sign-up') {
+        this.$logo.addClass('fade-down-logo');
+      }
+
+      this.$logo.css('opacity', 1);
+        
     },
 
     watchAnchors: function () {
