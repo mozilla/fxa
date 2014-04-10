@@ -3,7 +3,7 @@
 ## A BrowserID verification server
 
 This repository contains a flexible BrowserID verification server authored in
-Node.JS.
+Node.JS which uses the [local verification library](https://github.com/mozilla/browserid-local-verify).
 
 ## Getting Started
 
