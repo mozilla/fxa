@@ -265,6 +265,23 @@ module.exports = function (fs, path, url, convict) {
       doc: 'Amazon SNS topic on which to send account event notifications',
       format: String,
       default: ''
+    },
+    bounces: {
+      region: {
+        doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',
+        format: String,
+        default: ''
+      },
+      bounceQueueUrl: {
+        doc: 'The bounce queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+        format: String,
+        default: '',
+      },
+      complaintQueueUrl: {
+        doc: 'The complaint queue URL to use (should include https://sqs.<region>.amazonaws.com/<account-id>/<queue-name>)',
+        format: String,
+        default: '',
+      }
     }
   })
 

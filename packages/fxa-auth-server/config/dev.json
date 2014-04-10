@@ -18,5 +18,8 @@
   "log": {
     "level": "info"
   },
-  "verifierVersion": 0
+  "verifierVersion": 0,
+  "bounces": {
+    "region": "us-east-1"
+  }
 }
