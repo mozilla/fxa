@@ -11,6 +11,7 @@ util = require('util');
 
 var verifier = new Verifier({
   httpTimeout: config.get('httpTimeout'),
+  allowURLOmission: config.get('allowURLOmission'),
   insecureSSL: config.get('insecureSSL')
 });
 
