@@ -31,10 +31,11 @@ function (_, Backbone, Session) {
 
   function errorIfNoResponse(outstandingRequest) {
     /*jshint validthis: true*/
-    outstandingRequest.timeout = setTimeout(_.bind(function () {
+    outstandingRequest.timeout = setTimeout(function () {
       // only called if the request has not been responded to.
-      outstandingRequest.done(new Error('too many retries'));
-    }, this), this.sendTimeoutLength);
+      console.error('no response from browser');
+      outstandingRequest.done(new Error('Unexpected error'));
+    }, this.sendTimeoutLength);
   }
 
   function receiveMessage(event) {
