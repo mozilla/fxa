@@ -86,7 +86,7 @@ function (
       this.watchAnchors();
     },
 
-    navigate: function (url) {
+    navigate: function (url, options) {
       // Only add search parameters if they do not already exist.
       // Search parameters are added to the URLs because they are sometimes
       // used to pass state from the browser to the screens. Perhaps we should
@@ -96,16 +96,13 @@ function (
         url = url + this.window.location.search;
       }
 
-      return Backbone.Router.prototype.navigate.call(
-                            this, url, { trigger: true });
+      options = options || { trigger: true };
+      return Backbone.Router.prototype.navigate.call(this, url, options);
     },
 
     redirectToSignupOrSettings: function () {
-      if (Session.sessionToken) {
-        this.navigate('/settings');
-      } else {
-        this.navigate('/signup');
-      }
+      var url = Session.sessionToken ? '/settings' : '/signup';
+      this.navigate(url, { trigger: true, replace: true });
     },
 
     showView: function (viewToShow) {
