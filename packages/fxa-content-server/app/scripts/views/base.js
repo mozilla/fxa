@@ -63,7 +63,6 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient) {
             return false;
           }
 
-          // only do the rendering if shouldRender returns false.
           return p().then(function () {
             self.destroySubviews();
 
@@ -91,17 +90,6 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient) {
       return true;
     },
 
-    beforeRender: function () {
-      // Implement in subclasses. If returns false, or if returns a promise
-      // that resolves to false, then the view is not rendered.
-      // Useful if the view must immediately redirect to another view.
-    },
-
-    afterRender: function () {
-      // Implement in subclasses
-    },
-
-
     setTitleFromView: function () {
       var title = DEFAULT_TITLE;
       var titleText = this.$('h1').text();
@@ -124,15 +112,25 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient) {
       return ctx;
     },
 
-    context: function () {
-      // Implement in subclasses
-    },
-
     translate: function () {
       var self = this;
       return function (text) {
         return self.translator.get(text, self.getContext());
       };
+    },
+
+    context: function () {
+      // Implement in subclasses
+    },
+
+    beforeRender: function () {
+      // Implement in subclasses. If returns false, or if returns a promise
+      // that resolves to false, then the view is not rendered.
+      // Useful if the view must immediately redirect to another view.
+    },
+
+    afterRender: function () {
+      // Implement in subclasses
     },
 
     // called after the view is visible.
