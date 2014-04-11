@@ -44,6 +44,12 @@ module.exports = function (log) {
         data.Messages = data.Messages || []
         for (var i = 0; i < data.Messages.length; i++) {
           // yes, delete the message before processing. zero $&%@s given
+          // why?
+          // 1. if they're malformed we don't want them anyway
+          // 2. bounces aren't super critical
+          //   a. its ok if we don't handle them all perfectly
+          //   b. so we can be more lax in our handling
+          //   c. and use a simple event mechanism
           var msg = data.Messages[i]
           this.sqs.deleteMessage(
             {

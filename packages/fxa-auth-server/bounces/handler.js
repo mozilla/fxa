@@ -12,7 +12,7 @@ module.exports = function (db, log) {
     log.error({ op: 'databaseError', email: email, err: err })
   }
 
-  function checkRecord(record) {
+  function deleteAccountIfUnverified(record) {
     if (!record.emailVerified) {
       db.deleteAccount(record)
         .done(
@@ -35,7 +35,7 @@ module.exports = function (db, log) {
       log.info({ op: 'handleBounce', email: email, bounce: !!message.bounce })
       db.emailRecord(email)
         .done(
-          checkRecord,
+          deleteAccountIfUnverified,
           gotError.bind(null, email)
         )
     }

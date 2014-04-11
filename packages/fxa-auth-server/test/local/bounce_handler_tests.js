@@ -11,7 +11,7 @@ var log = {
 }
 
 test(
-  'deletes account when bounce is permanent and emails is not verified',
+  'deletes account when bounce is permanent and email is not verified',
   function (t) {
     var foo = 'foo@restmail.net'
     var uid = '123'
@@ -44,7 +44,7 @@ test(
 )
 
 test(
-  'does not delete account when bounce is permanent and emails is verified',
+  'does not delete account when bounce is permanent and email is verified',
   function (t) {
     var foo = 'foo@restmail.net'
     var uid = '123'
@@ -104,7 +104,7 @@ test(
 )
 
 test(
-  'deletes account when complaint is abuse and emails is not verified',
+  'deletes account when complaint is abuse and email is not verified',
   function (t) {
     var foo = 'foo@restmail.net'
     var uid = '123'
@@ -137,7 +137,7 @@ test(
 )
 
 test(
-  'does not delete account when complaint is abuse and emails is verified',
+  'does not delete account when complaint is abuse and email is verified',
   function (t) {
     var foo = 'foo@restmail.net'
     var uid = '123'
