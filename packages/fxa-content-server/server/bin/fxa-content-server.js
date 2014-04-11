@@ -26,9 +26,6 @@ var logger = require('intel').getLogger('server.main');
 var helmet = require('helmet');
 var express = require('express');
 var consolidate = require('consolidate');
-var connect_fonts = require('connect-fonts');
-var firasans = require('connect-fonts-firasans');
-var clearsans = require('connect-fonts-clearsans');
 
 var config = require('../lib/configuration');
 var i18n = require('../lib/i18n')(config.get('i18n'));
@@ -65,13 +62,6 @@ function makeApp() {
   app.use(helmet.iexss());
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
   app.disable('x-powered-by');
-
-  app.use(connect_fonts.setup({
-    fonts: [ firasans, clearsans ],
-    allow_origin: [ config.get('public_url') ],
-    max_age: config.get('font_max_age_ms'),
-    compress: true
-  }));
 
   app.use(routeLogging());
   app.use(express.cookieParser());
