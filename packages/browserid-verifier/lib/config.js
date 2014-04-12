@@ -56,11 +56,11 @@ function loadConf() {
         env: 'LOG_FORMATTERS',
         format: Object,
         default: {
-          dev: {
-            format: "%(name)s.%(levelname)s: %(message)s",
+          pretty: {
+            format: "[%(date)s] %(name)s.%(levelname)s: %(message)s",
             colorize: true
           },
-          prod: {
+          json: {
             format: '%O'
           }
         }
@@ -71,7 +71,12 @@ function loadConf() {
         default: {
           console: {
             "class": "intel/handlers/console",
-            "formatter": "dev"
+            "formatter": "pretty"
+          },
+          summary: {
+            "class": "intel/handlers/file",
+            "file": "summary.log",
+            "formatter": "json"
           }
         }
       },
@@ -85,6 +90,10 @@ function loadConf() {
             propagate: false,
             handleExceptions: true,
             exitOnError: false
+          },
+          'bid.summary': {
+            level: 'INFO',
+            handlers: ['summary'] // will propagate to console as well
           }
         }
       }

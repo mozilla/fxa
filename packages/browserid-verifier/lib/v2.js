@@ -54,6 +54,7 @@ function verify(req, res) {
     }
 
     req.body = req.body || {};
+    res._summary.rp = req.body.audience;
 
     // assertion and audience are required
     [ 'assertion', 'audience' ].forEach(function(field) {
@@ -77,9 +78,11 @@ function verify(req, res) {
     }, function (err, r) {
       var reqTime = new Date() - startTime;
       log.info('assertion_verification_time', reqTime);
+      res._summary.assertion_verification_time = reqTime;
 
       if (err) {
         log.info("assertion_failure");
+        res._summary.error = err;
         res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
         log.info('verify', {
           result: 'failure',
@@ -102,6 +105,7 @@ function verify(req, res) {
   } catch(err) {
     var reason = err.reason ? err.reason : err.toString();
 
+    res._summary.error = err;
     log.info('verify', {
       result: 'failure',
       reason: reason,

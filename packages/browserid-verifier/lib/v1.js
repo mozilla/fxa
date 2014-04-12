@@ -28,6 +28,8 @@ function verify(req, res) {
   var forceIssuer = req.query.experimental_forceIssuer ? req.query.experimental_forceIssuer : req.body.experimental_forceIssuer;
   var allowUnverified = req.query.experimental_allowUnverified ? req.query.experimental_allowUnverified : req.body.experimental_allowUnverified;
 
+  res._summary.rp = audience;
+
   if (!(assertion && audience)) {
     // why couldn't we extract these guys?  Is it because the request parameters weren't encoded as we expect? GH-643
     const want_ct = [ 'application/x-www-form-urlencoded', 'application/json' ];
@@ -48,6 +50,7 @@ function verify(req, res) {
         reason: reason,
         rp: audience
       });
+      res._summary.error = e;
       return res.json({ status: "failure", reason: reason}, 415);
     }
     reason = util.format("missing %s parameter", assertion ? "audience" : "assertion");
@@ -56,6 +59,7 @@ function verify(req, res) {
       reason: reason,
       rp: audience
     });
+    res._summary.error = reason;
     return res.json({ status: "failure", reason: reason}, 400);
   }
 
@@ -73,9 +77,11 @@ function verify(req, res) {
   }, function (err, r) {
     var reqTime = new Date() - startTime;
     log.info('assertion_verification_time', reqTime);
+    res._summary.assertion_verification_time = reqTime;
 
     if (err) {
       log.info("assertion_failure");
+      res._summary.error = err;
       res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
       log.info('verify', {
         result: 'failure',

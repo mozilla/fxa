@@ -7,6 +7,7 @@ express = require('express'),
 http = require('http'),
 toobusy = require('toobusy'),
 log = require('./log').getLogger('bid.server'),
+summary = require('./summary'),
 config = require('./config'),
 v1api = require('./v1'),
 v2api = require('./v2');
@@ -73,6 +74,9 @@ app.use(function(req, res, next) {
   res.setHeader('Connection', "close");
   next();
 });
+
+// log summary - GH24
+app.use(summary());
 
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ limit: "10kb" }));
