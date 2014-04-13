@@ -23,6 +23,8 @@ function verify(req, res) {
   req.query = req.query || {};
   req.body = req.body || {};
 
+  res._summary.api = 1;
+
   var assertion = req.query.assertion ? req.query.assertion : req.body.assertion;
   var audience = req.query.audience ? req.query.audience : req.body.audience;
   var forceIssuer = req.query.experimental_forceIssuer ? req.query.experimental_forceIssuer : req.body.experimental_forceIssuer;
