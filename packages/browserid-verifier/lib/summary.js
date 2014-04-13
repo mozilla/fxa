@@ -8,7 +8,6 @@ logger = require('./log').getLogger('bid.summary');
 
 var logSummaryInfo = {
   v: 1, // log format version
-  op: 'verifier.summary',
   host: os.hostname()
 };
 
