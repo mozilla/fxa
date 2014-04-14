@@ -27,7 +27,8 @@
     "postprocess": "0.2.4",
     "connect-fonts": "0.0.9-alpha8",
     "connect-fonts-drsugiyama": "0.0.1",
-    "request": "2.34.0"
+    "request": "2.34.0",
+    "bower": "*"
   },
   "engines": {
     "node": ">=0.8.0"
@@ -39,6 +40,7 @@
     "awsbox": "0.7.0"
   },
   "scripts": {
+    "postinstall": "bower install --config.interactive=false -s",
     "start": "node server.js"
   }
 }
