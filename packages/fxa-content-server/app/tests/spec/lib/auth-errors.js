@@ -46,11 +46,15 @@ function (chai, AuthErrors) {
       });
 
       it('converts an empty error message from the backend to service unavailable', function () {
-        assert.equal(AuthErrors.toMessage(''), 'Service unavailable');
+        assert.equal(AuthErrors.toMessage(''), 'System unavailable, try again soon');
       });
 
       it('converts a missing error from the backend to service unavailable', function () {
-        assert.equal(AuthErrors.toMessage(), 'Service unavailable');
+        assert.equal(AuthErrors.toMessage(), 'System unavailable, try again soon');
+      });
+
+      it('converts SERVER_BUSY error correctly', function () {
+        assert.equal(AuthErrors.toMessage(AuthErrors.toError('SERVER_BUSY')), 'Server busy, try again soon');
       });
     });
 
