@@ -34,83 +34,11 @@ require.config({
 });
 
 require([
-  'backbone',
-  'router',
-  'lib/constants',
-  'lib/translator',
-  'lib/session',
-  'lib/url',
-  'lib/channels/web',
-  'lib/channels/fx-desktop'
+  './lib/app-start'
 ],
-function (
-  Backbone,
-  Router,
-  Constants,
-  Translator,
-  Session,
-  Url,
-  WebChannel,
-  FxDesktopChannel
-) {
-  function getChannel() {
-    var context = Url.searchParam('context');
-    var channel;
-
-    if (context === Constants.FX_DESKTOP_CONTEXT) {
-      // Firefox for desktop native=>FxA glue code.
-      channel = new FxDesktopChannel();
-    } else {
-      // default to the web channel that doesn't do anything yet.
-      channel = new WebChannel();
-    }
-
-    channel.init();
-    return channel;
-  }
-
-  function setSessionValueFromUrl(name) {
-    var value = Url.searchParam(name);
-    if (value) {
-      Session.set(name, value);
-    } else {
-      Session.clear(name);
-    }
-  }
-
-  function initSessionFromUrl() {
-    setSessionValueFromUrl('service');
-    setSessionValueFromUrl('redirectTo');
-    setSessionValueFromUrl('context');
-  }
-
-  window.router = new Router();
-
-  initSessionFromUrl();
-
-  // Don't start backbone until we have our config and translations
-  $.getJSON('/config', function (config) {
-
-    Session.set('config', config);
-
-    // IE uses navigator.browserLanguage, all others user navigator.language.
-    var language = window.navigator.browserLanguage || window.navigator.language || 'en-US';
-
-    window.translator = new Translator(language,
-                                       config.i18n.supportedLanguages,
-                                       config.i18n.defaultLang);
-
-    Session.set('language', window.translator.language);
-
-    translator.fetch(function () {
-      // Get the party started
-      Backbone.history.start({ pushState: true });
-
-      // The channel must be initialized after Backbone.history so that the
-      // Backbone does not override the page the channel sets.
-      Session.set('channel', getChannel());
-    });
-  });
+function (AppStart) {
+  var appStart = new AppStart();
+  appStart.startApp();
 });
 
 
