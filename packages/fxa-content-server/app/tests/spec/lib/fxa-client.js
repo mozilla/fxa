@@ -36,11 +36,10 @@ function (chai, $, ChannelMock, testHelpers,
     beforeEach(function () {
       channelMock = new ChannelMock();
       Session.set('channel', channelMock);
+      Session.set('language', 'it-CH');
       email = ' testuser' + Math.random() + '@testuser.com ';
 
-      client = new FxaClientWrapper({
-        language: 'it-CH'
-      });
+      client = new FxaClientWrapper();
       return client._getClientAsync()
               .then(function (_realClient) {
                 realClient = _realClient;

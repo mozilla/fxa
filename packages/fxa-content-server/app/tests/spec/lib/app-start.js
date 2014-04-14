@@ -17,7 +17,7 @@ function (chai, AppStart, Session, WindowMock, RouterMock, HistoryMock) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
 
-  describe('lib/start-app', function () {
+  describe('lib/app-start', function () {
     var windowMock;
     var routerMock;
     var historyMock;
@@ -39,7 +39,10 @@ function (chai, AppStart, Session, WindowMock, RouterMock, HistoryMock) {
       it('start starts the app', function () {
         return appStart.startApp()
                     .then(function () {
-                      assert.equal(Session.language, 'en-US');
+                      // language will be chosen by the backend depending
+                      // on the user's Accept-Language headers and could
+                      // be different for everybody.
+                      assert.ok(Session.language);
                       assert.ok(Session.config);
                       assert.ok(Session.channel);
 

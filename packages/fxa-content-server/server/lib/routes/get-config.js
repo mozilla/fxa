@@ -6,18 +6,31 @@
 
 var config = require('../configuration');
 
-exports.method = 'get';
-exports.path = '/config';
+module.exports = function(i18n) {
+  var route = {};
 
-exports.process = function(req, res) {
-  // charset must be set on json responses.
-  res.charset = 'utf8';
-  res.json({
-    // The `__cookies_check` cookie is set in client code
-    // to see if cookies are enabled. If cookies are disabled,
-    // the `__cookie_check` cookie will not arrive.
-    cookiesEnabled: !!req.cookies['__cookie_check'],
-    fxaccountUrl: config.get('fxaccount_url'),
-    i18n: config.get('i18n')
-  });
+  route.method = 'get';
+  route.path = '/config';
+
+  route.process = function(req, res) {
+    // Let any intermediaries know that /config can vary based
+    // on the accept-language. This will also be useful if client.json
+    // gains long lived cache-control headers.
+    res.set('Vary', 'accept-language');
+
+    // charset must be set on json responses.
+    res.charset = 'utf8';
+
+    res.json({
+      // The `__cookies_check` cookie is set in client code
+      // to see if cookies are enabled. If cookies are disabled,
+      // the `__cookie_check` cookie will not arrive.
+      cookiesEnabled: !!req.cookies['__cookie_check'],
+      fxaccountUrl: config.get('fxaccount_url'),
+      // req.locale is set by abide in a previous middleware.
+      language: req.locale
+    });
+  };
+
+  return route;
 };

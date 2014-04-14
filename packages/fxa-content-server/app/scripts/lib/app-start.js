@@ -87,8 +87,12 @@ function (
   Start.prototype = {
     startApp: function () {
       initSessionFromUrl();
-      return this.initializeConfig()
-        .then(_.bind(this.initializeL10n, this))
+
+      // fetch both config and translations in parallel to speed up load.
+      return p.all([
+          this.initializeConfig(),
+          this.initializeL10n()
+        ])
         .then(_.bind(this.allResourcesReady, this));
     },
 
@@ -101,25 +105,15 @@ function (
       this._config = config;
       this._configLoader.useConfig(config);
       Session.set('config', config);
+      Session.set('language', config.language);
     },
 
     initializeL10n: function () {
       var deferred = p.defer();
 
-      // IE uses navigator.browserLanguage, all others user navigator.language.
-      var language = this._window.navigator.browserLanguage ||
-                     this._window.navigator.language ||
-                     'en-US';
+      var translator = this._window.translator = new Translator();
 
-      var translator = this._window.translator = new Translator(language,
-                                         this._config.i18n.supportedLanguages,
-                                         this._config.i18n.defaultLang);
-
-      Session.set('language', translator.language);
-
-      translator.fetch(function () {
-        deferred.resolve();
-      });
+      translator.fetch(_.bind(deferred.resolve, deferred));
 
       return deferred.promise;
     },
@@ -146,6 +140,3 @@ function (
 
   return Start;
 });
-
-
-
