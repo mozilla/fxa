@@ -36,7 +36,7 @@
     "hiredis": "0.1.14"
   },
   "devDependencies": {
-    "awsbox": "0.4.5"
+    "awsbox": "0.7.0"
   },
   "scripts": {
     "start": "node server.js"
