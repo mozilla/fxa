@@ -22,8 +22,7 @@ function (_, FormView, BaseView, Template, Session, Constants) {
 
     context: function () {
       return {
-        // HTML is written here to simplify the l10n community's job
-        email: '<strong id="email" class="email">' + Session.email + '</strong>',
+        email: Session.email,
         showSignOut: Session.get('sessionTokenContext') !== Constants.FX_DESKTOP_CONTEXT
       };
     },
