@@ -43,6 +43,7 @@ function validateTrustedIssuers(obj) {
 }
 
 function verify(req, res) {
+  res._summary.api = 2;
   try {
     // content-type must be application/json
     var ct = req.headers['content-type'] || 'none';
