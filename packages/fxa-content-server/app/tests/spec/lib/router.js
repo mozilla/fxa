@@ -64,20 +64,20 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
     });
 
     describe('redirectToSignupOrSettings', function () {
-      it('go to the signup page', function () {
+      it('replaces current page with the signup page if there is no sessionToken', function () {
         windowMock.location.search = '';
         Session.set('sessionToken', null);
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/signup');
-        assert.deepEqual(navigateOptions, { trigger: true });
+        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
       });
 
-      it('go to the settings page', function () {
+      it('replaces the current page with the settings page if there is a sessionToken', function () {
         windowMock.location.search = '';
         Session.set('sessionToken', 'abc123');
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/settings');
-        assert.deepEqual(navigateOptions, { trigger: true });
+        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
       });
     });
 
