@@ -8,6 +8,7 @@ module.exports = function (grunt) {
   grunt.config('sass', {
     styles: {
       files: {
+        '<%= yeoman.app %>/styles/fonts.css': '<%= yeoman.app %>/styles/fonts.scss',
         '<%= yeoman.app %>/styles/main.css': '<%= yeoman.app %>/styles/main.scss',
         '<%= yeoman.app %>/styles/sync.css': '<%= yeoman.app %>/styles/sync.scss'
       }

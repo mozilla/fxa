@@ -1,0 +1,40 @@
+@font-face {
+  font-family: 'Fira Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-regular.eot');
+  src: local('Fira Sans'),
+       local('FiraSans'),
+       url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-regular.eot#') format('embedded-opentype'),
+       url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-regular.woff') format('woff'),
+       url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-regular.ttf') format('truetype'),
+       url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-regular.svg#Fira Sans') format('svg');
+}
+
+@font-face {
+  font-family: 'Fira Sans';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-light.eot');
+  src: local('Fira Sans Light'),
+       local('FiraSansLight'),
+       url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-light.eot#') format('embedded-opentype'),
+       url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-light.woff') format('woff'),
+       url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-light.ttf') format('truetype'),
+       url('/bower_components/connect-fonts-firasans/fonts/latin/firasans-light.svg#Fira Sans') format('svg');
+}
+
+@font-face {
+  font-family: 'Clear Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/bower_components/connect-fonts-clearsans/fonts/latin/clearsans-regular.eot');
+  src: local('Clear Sans'),
+       local('ClearSans'),
+       url('/bower_components/connect-fonts-clearsans/fonts/latin/clearsans-regular.eot#') format('embedded-opentype'),
+       url('/bower_components/connect-fonts-clearsans/fonts/latin/clearsans-regular.woff') format('woff'),
+       url('/bower_components/connect-fonts-clearsans/fonts/latin/clearsans-regular.ttf') format('truetype'),
+       url('/bower_components/connect-fonts-clearsans/fonts/latin/clearsans-regular.svg#Clear Sans') format('svg');
+}
+
+

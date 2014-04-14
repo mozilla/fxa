@@ -46,6 +46,7 @@ module.exports = function (grunt) {
             // only modernizr is left unbundled in main.js. It should be
             // the only thing copied over.
             'bower_components/modernizr/modernizr.js',
+            'bower_components/**/*.{woff,eot,ttf,svg,ofl}',
             'i18n/{,*/}{,*/}*.*',
             'sync/*.html'
           ]
