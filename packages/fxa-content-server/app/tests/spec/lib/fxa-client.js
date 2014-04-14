@@ -426,8 +426,34 @@ function (chai, $, ChannelMock, testHelpers,
           .then(function () {
             return client.sessionStatus(Session.sessionToken);
           })
-          .then(function (err) {
+          .then(function () {
             assert.isTrue(realClient.sessionStatus.calledWith(Session.sessionToken));
+          });
+      });
+    });
+
+    describe('isSignedIn', function () {
+      it('resolves to false if no sessionToken passed in', function () {
+        return client.isSignedIn()
+            .then(function (isSignedIn) {
+              assert.isFalse(isSignedIn);
+            });
+      });
+
+      it('resolves to false if invalid sessionToken passed in', function () {
+        return client.isSignedIn('not a real token')
+            .then(function (isSignedIn) {
+              assert.isFalse(isSignedIn);
+            });
+      });
+
+      it('resolves to true with a valid sessionToken', function () {
+        return client.signUp(email, password)
+          .then(function () {
+            return client.isSignedIn(Session.sessionToken);
+          })
+          .then(function (isSignedIn) {
+            assert.isTrue(isSignedIn);
           });
       });
     });

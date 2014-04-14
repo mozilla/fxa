@@ -47,8 +47,10 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         window: windowMock
       });
 
-      view.render();
-      jQuery('body').append(view.el);
+      return view.render()
+          .then(function () {
+            jQuery('body').append(view.el);
+          });
     });
 
     afterEach(function () {
@@ -69,24 +71,30 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         view.template = function () {
           return '<h1>Main title</h1><h2>Sub title</h2>';
         };
-        view.render();
-        assert.equal(windowMock.document.title, 'Main title: Sub title');
+        return view.render()
+            .then(function () {
+              assert.equal(windowMock.document.title, 'Main title: Sub title');
+            });
       });
 
       it('updates the page title with the embedded h1 tag if no h2 tag', function () {
         view.template = function () {
           return '<h1>Title only</h1>';
         };
-        view.render();
-        assert.equal(windowMock.document.title, 'Title only');
+        return view.render()
+            .then(function () {
+              assert.equal(windowMock.document.title, 'Title only');
+            });
       });
 
       it('updates the page title with the startup page title if no h1 or h2 tag', function () {
         view.template = function () {
           return '<div>no titles anywhere</div>';
         };
-        view.render();
-        assert.equal(windowMock.document.title, 'Firefox Accounts Unit Tests');
+        return view.render()
+            .then(function () {
+              assert.equal(windowMock.document.title, 'Firefox Accounts Unit Tests');
+            });
       });
     });
 

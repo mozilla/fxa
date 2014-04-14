@@ -380,6 +380,27 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
               .then(function (client) {
                 return client.sessionStatus(sessionToken);
               });
+    },
+
+    isSignedIn: function (sessionToken) {
+      // Check if the user is signed in.
+      if (! sessionToken) {
+        return p(false);
+      }
+
+        // Validate session token
+      return this.sessionStatus(sessionToken)
+        .then(function() {
+          return true;
+        }, function(err) {
+          // the only error that we expect is INVALID_TOKEN,
+          // rethrow all others.
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            return false;
+          }
+
+          throw err;
+        });
     }
   };
 

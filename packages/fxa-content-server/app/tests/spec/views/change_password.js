@@ -19,12 +19,12 @@ function (chai, _, $, View, RouterMock, TestHelpers) {
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/change_password', function () {
-    var view, router, email;
+    var view, routerMock, email;
 
     beforeEach(function () {
-      router = new RouterMock();
+      routerMock = new RouterMock();
       view = new View({
-        router: router
+        router: routerMock
       });
     });
 
@@ -32,19 +32,15 @@ function (chai, _, $, View, RouterMock, TestHelpers) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      router = null;
+      routerMock = null;
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function (done) {
-        router.on('navigate', function (newPage) {
-          wrapAssertion(function () {
-            assert.equal(newPage, 'signin');
-          }, done);
-        });
-
-        var isRendered = view.render();
-        assert.isFalse(isRendered);
+      it('redirects to signin', function () {
+        return view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'signin');
+          });
       });
     });
 
@@ -54,9 +50,10 @@ function (chai, _, $, View, RouterMock, TestHelpers) {
 
         return view.fxaClient.signUp(email, 'password', {preVerified: true})
           .then(function () {
-            view.render();
-
-            $('body').append(view.el);
+            return view.render()
+              .then(function () {
+                $('body').append(view.el);
+              });
           });
       });
 

@@ -28,8 +28,10 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
       view = new View({
         router: router
       });
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -40,10 +42,11 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
     describe('render', function () {
       it('prefills email if one is stored in Session (user comes from signup with existing account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
-        view.render();
-
-        assert.ok($('#fxa-signin-header').length);
-        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+        return view.render()
+            .then(function () {
+              assert.ok($('#fxa-signin-header').length);
+              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+            });
       });
     });
 
@@ -185,8 +188,10 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
       windowMock.location.search = '';
 
       view = new View({ forceAuth: true, window: windowMock });
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -216,8 +221,10 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
         window: windowMock,
         router: router
       });
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {

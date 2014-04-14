@@ -31,9 +31,10 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
         router: routerMock,
         window: windowMock
       });
-      view.render();
-
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {

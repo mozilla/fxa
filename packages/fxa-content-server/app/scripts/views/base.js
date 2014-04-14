@@ -8,11 +8,12 @@ define([
   'underscore',
   'backbone',
   'jquery',
+  'p-promise',
   'lib/session',
   'lib/auth-errors',
   'lib/fxa-client'
 ],
-function (_, Backbone, jQuery, Session, authErrors, FxaClient) {
+function (_, Backbone, jQuery, p, Session, authErrors, FxaClient) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
 
@@ -25,54 +26,68 @@ function (_, Backbone, jQuery, Session, authErrors, FxaClient) {
       this.translator = options.translator || this.window.translator;
       this.router = options.router || this.window.router;
 
+      this.fxaClient = new FxaClient();
+
       Backbone.View.call(this, options);
     },
 
+    /**
+     * Render the view - Rendering is done asynchronously.
+     *
+     * Two functions can be overridden to perform data validation:
+     * * beforeRender - called before rendering occurs. Can be used
+     *   to perform data validation. Return a promise to
+     *   perform an asynchronous check. Return false or a promise
+     *   that resolves to false to prevent rendering.
+     * * afterRender - called after the rendering occurs. Can be used
+     *   to print an error message after the view is already rendered.
+     */
     render: function () {
-      // Check if this view requires authentication.
-      if (this.mustAuth && !this.isSignedIn()) {
-        return false;
-      }
+      var self = this;
+      return p()
+        .then(function () {
+          return self.isUserAuthorized();
+        })
+        .then(function (isUserAuthorized) {
+          if (! isUserAuthorized) {
+            // user is not authorized, make them sign in.
+            self.navigate('signin', true);
+            return false;
+          }
 
-      if (! this.beforeRender()) {
-        return false;
-      }
+          return self.beforeRender();
+        })
+        .then(function (shouldRender) {
+          // rendering is opt out.
+          if (shouldRender === false) {
+            return false;
+          }
 
-      this.destroySubviews();
+          return p().then(function () {
+            self.destroySubviews();
 
-      this.$el.html(this.template(this.getContext()));
+            self.$el.html(self.template(self.getContext()));
+          })
+          .then(_.bind(self.afterRender, self))
+          .then(function () {
+            self.setTitleFromView();
 
-      this.afterRender();
-
-      this.setTitleFromView();
-
-      return this;
+            return true;
+          });
+        });
     },
 
-    // Checks if the user is signed in. Triggers a redirect if the user isn't signed in
-    // or the sessionToken is invalid.
-    isSignedIn: function() {
-      // Check if the user is signed in.
-      if (Session.sessionToken) {
-        // Validate session token
-        new FxaClient().sessionStatus(Session.sessionToken)
-        .then(function() {
-          // Success: session is valid. Do nothing.
-        }, _.bind(function(err) {
-          // Error: redirect to sign in when the token is invalid. Doing nothing
-          // on all other errors. May want to treat all errors as failure.
-          if (authErrors.is(err, 'INVALID_TOKEN')) {
-            this.navigate('signin', true);
-          }
-        }, this));
-
-        return true;
-
-      // User isn't signed in. Redirect.
-      } else {
-        this.navigate('signin');
-        return false;
+    /**
+     * Checks if the user is authorized to view the page. Currently
+     * the only check is if the user is signed in and the page requires
+     * authentication, but this could be extended to other types of
+     * authorization as well.
+     */
+    isUserAuthorized: function() {
+      if (this.mustAuth) {
+        return this.fxaClient.isSignedIn(Session.sessionToken);
       }
+      return true;
     },
 
     setTitleFromView: function () {
@@ -109,10 +124,9 @@ function (_, Backbone, jQuery, Session, authErrors, FxaClient) {
     },
 
     beforeRender: function () {
-      // Implement in subclasses. If returns false, then the view is not
-      // rendered. Useful if the view must immediately redirect to another
-      // view.
-      return true;
+      // Implement in subclasses. If returns false, or if returns a promise
+      // that resolves to false, then the view is not rendered.
+      // Useful if the view must immediately redirect to another view.
     },
 
     afterRender: function () {

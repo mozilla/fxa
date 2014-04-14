@@ -41,7 +41,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, Url) {
       }
 
       var self = this;
-      this.fxaClient.verifyCode(uid, code)
+      return this.fxaClient.verifyCode(uid, code)
             .then(function () {
               self.navigate('signup_complete');
 

@@ -94,16 +94,20 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
       });
 
       it('shows a view, then shows the new view', function () {
-        router.showView(signInView);
-        assert.ok($('#fxa-signin-header').length);
-        // session was cleared in beforeEach, simulating a user
-        // visiting their first page. The user cannot go back.
-        assert.equal(Session.canGoBack, false);
+        return router.showView(signInView)
+            .then(function () {
+              assert.ok($('#fxa-signin-header').length);
 
-        router.showView(signUpView);
-        assert.ok($('#fxa-signup-header').length);
-        // if there is a back button, it can be shown now.
-        assert.equal(Session.canGoBack, true);
+              // session was cleared in beforeEach, simulating a user
+              // visiting their first page. The user cannot go back.
+              assert.equal(Session.canGoBack, false);
+              return router.showView(signUpView);
+            })
+            .then(function () {
+              assert.ok($('#fxa-signup-header').length);
+              // if there is a back button, it can be shown now.
+              assert.equal(Session.canGoBack, true);
+            });
       });
     });
   });

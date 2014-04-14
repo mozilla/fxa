@@ -25,8 +25,10 @@ function (chai, View, WindowMock, TestHelpers) {
         window: windowMock
       });
 
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -42,28 +44,28 @@ function (chai, View, WindowMock, TestHelpers) {
     });
 
     describe('render', function () {
-      it('shows an error if the token is missing', function (done) {
+      it('shows an error if the token is missing', function () {
         windowMock.location.search = '?code=code&email=testuser@testuser.com';
-        view.on('error', function () {
-          done();
-        });
-        view.render();
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('.error').text());
+            });
       });
 
-      it('shows an error if the code is missing', function (done) {
+      it('shows an error if the code is missing', function () {
         windowMock.location.search = '?token=token&email=testuser@testuser.com';
-        view.on('error', function () {
-          done();
-        });
-        view.render();
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('.error').text());
+            });
       });
 
-      it('shows an error if the email is missing', function (done) {
+      it('shows an error if the email is missing', function () {
         windowMock.location.search = '?token=token&code=code';
-        view.on('error', function () {
-          done();
-        });
-        view.render();
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('.error').text());
+            });
       });
     });
 
