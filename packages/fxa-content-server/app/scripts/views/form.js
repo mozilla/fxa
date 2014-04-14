@@ -35,10 +35,12 @@ function (_, $, p, BaseView, Tooltip) {
    */
   function ifFormValuesChanged(handler) {
     return function (event) {
-      var oldValues = this._formValuesBeforeUpdate;
+      // oldValues will be `undefined` the first time through.
+      var oldValues = this._previousFormValues;
       var newValues = this.getFormValues();
 
       if (! _.isEqual(oldValues, newValues)) {
+        this._previousFormValues = newValues;
         return this.invokeHandler(handler, event);
       }
     };
@@ -54,22 +56,8 @@ function (_, $, p, BaseView, Tooltip) {
 
     events: {
       'submit form': BaseView.preventDefaultThen('validateAndSubmit'),
-      // Save the values before the new key has been entered into the form.
-      // The values are saved and used in ifFormValuesChanged to decide whether
-      // to enable the form.
-      'keydown form': 'saveFormValues',
       'keyup form': ifFormValuesChanged('enableSubmitIfValid'),
       'change form': ifFormValuesChanged('enableSubmitIfValid')
-    },
-
-    /**
-     * Save form values that are used to compare against in keyup or change.
-     * Called in keydown before keypress has been written to input element.
-     *
-     * @method saveFormValues.
-     */
-    saveFormValues: function () {
-      this._formValuesBeforeUpdate = this.getFormValues();
     },
 
     /**

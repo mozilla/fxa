@@ -128,6 +128,82 @@ define([
         .end();
     },
 
+    'sign in, try to change password with an incorrect old password': function () {
+      return this.get('remote')
+        .get(require.toUrl(SIGNIN_URL))
+        .waitForElementById('fxa-signin-header')
+
+        .elementByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('form input.password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-settings-header')
+        .end()
+
+        // Go to change password screen
+        .elementById('change-password')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-change-password-header')
+
+        .elementById('old_password')
+          .click()
+          .type('INCORRECT')
+        .end()
+
+        .elementById('new_password')
+          .click()
+          .type(SECOND_PASSWORD)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        // brittle, but some processing time.
+        .wait(2000)
+
+        .elementByCssSelector('.error').isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isTrue(isDisplayed);
+          })
+        .end()
+
+        // click the show button, the error should not be hidden.
+        .elementByCssSelector('[for=show-old-password]')
+          .click()
+        .end()
+
+        .elementByCssSelector('.error').isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isTrue(isDisplayed);
+          })
+        .end()
+
+        // Change form so that it is valid, error should be hidden.
+        .elementById('old_password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .elementByCssSelector('.error').isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isFalse(isDisplayed);
+          })
+        .end();
+    },
+
     'sign in, change password, sign in with new password': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
