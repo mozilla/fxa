@@ -1,3 +1,9 @@
+train-10
+  * added email_bouncer.js for processing SES email bounces #678
+
+train-09
+  * noop
+
 train-08
   * added /account/status #656
   * added basic email rate limiting #664
