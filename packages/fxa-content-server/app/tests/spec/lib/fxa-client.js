@@ -76,6 +76,22 @@ function (chai, $, ChannelMock, testHelpers,
           });
       });
 
+      it('a throttled signUp returns a THROTTLED error', function () {
+        return client.signUp(email, password)
+          .then(function () {
+            return client.signUp(email, password);
+          })
+          .then(function () {
+            return client.signUp(email, password);
+          })
+          .then(function () {
+            return client.signUp(email, password);
+          })
+          .then(null, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
+          });
+      });
+
       it('informs browser of customizeSync option', function () {
         return client.signUp(email, password, { customizeSync: true })
           .then(function () {
