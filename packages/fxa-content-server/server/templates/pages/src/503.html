@@ -9,14 +9,14 @@
         <title>{{#t}}Firefox Accounts{{/t}}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
-        <link rel="stylesheet" href="/latin/firasans-regular,firasans-light,clearsans-regular/fonts.css">
         <!-- build:css(.tmp) /styles/main.css -->
         <link rel="stylesheet" href="/bower_components/normalize-css/normalize.css">
+        <link rel="stylesheet" href="/styles/fonts.css">
         <link rel="stylesheet" href="/styles/main.css">
         <!-- endbuild -->
     </head>
     <body>
-        <div id="fox-logo"></div>
+        <div id="fox-logo" class="static"></div>
         <div id="stage">
           <header>
             <h1 id="fxa-503-header">{{#t}}Server busy, try again soon{{/t}}</h1>
@@ -27,7 +27,7 @@
           </section>
 
           <div class="button-row">
-            <a href="/signup" class="button" id="fxa-503-home">{{#t}}Home{{/t}}</a>
+            <a href="/" class="button" id="fxa-503-home">{{#t}}Home{{/t}}</a>
           </div>
         </div>
     </body>

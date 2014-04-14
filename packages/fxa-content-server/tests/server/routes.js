@@ -39,8 +39,11 @@ define([
     '/force_auth': 200,
     '/tests/index.html': 200,
     '/tests/index.html?coverage': 200,
+    '/500.html': 200,
+    '/503.html': 200,
     '/ver.json': 200,
     '/non_existent': 404,
+    '/boom': 500,
     '/legal/non_existent': 404,
     '/en-US/legal/non_existent': 404,
     '/cookies_disabled': 200

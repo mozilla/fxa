@@ -36,6 +36,7 @@ var routes = require('../lib/routes')(config, templates, i18n);
 var routeLogging = require('../lib/logging/route_logging');
 
 var fourOhFour = require('../lib/404');
+var serverErrorHandler = require('../lib/500');
 
 var STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
@@ -76,6 +77,9 @@ function makeApp() {
 
   // it's a four-oh-four not found.
   app.use(fourOhFour);
+
+  // server error!
+  app.use(serverErrorHandler);
 
   return app;
 }

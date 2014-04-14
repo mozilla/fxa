@@ -4,18 +4,22 @@
 
 'use strict';
 
-// It's a 500 system unavailable response.
+var logger = require('intel').getLogger('route.500');
 
-module.exports = function (req, res, next) {
+// It's a 500 server error response.
+
+module.exports = function(err, req, res, next) {
   res.status(500);
+
+  logger.error(err);
 
   if (req.accepts('html')) {
     return res.render('500');
   }
 
   if (req.accepts('json')) {
-    return res.send({ error: 'System unavailable, try again soon' });
+    return res.send({ error: res.gettext('System unavailable, try again soon') });
   }
 
-  res.type('txt').send('System unavailable, try again soon');
+  res.type('txt').send(res.gettext('System unavailable, try again soon'));
 };

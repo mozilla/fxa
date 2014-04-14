@@ -19,6 +19,7 @@ module.exports = function (grunt) {
     'concurrent:dist',
     'concat',
     'cssmin',
+    'static-pages',
     'copy:dist',
     // modernizer must come after copy or else the custom
     // modernizr is overwritten with the dev version.
