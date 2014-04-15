@@ -66,7 +66,7 @@ module.exports.isValidEmailAddress = function(value) {
     }
   }
   // The domain portion can't begin with a dot or a dash.
-  if (domain[0] === '.' || domain[i] === '-') {
+  if (domain[0] === '.' || domain[0] === '-') {
     return false
   }
   // The domain portion must be a valid punycode domain.
