@@ -19,6 +19,7 @@ define([
 function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, EphemeralMessages) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
+  var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
 
   // Share one ephemeral messages across all views. View can be
   // intialized with an ephemeralMessages for testing.
@@ -240,12 +241,21 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
         this.$('.success').text(this.translator.get(msg));
       }
 
-      this.$('.success').show();
+      this.$('.success').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
       this.trigger('success', msg);
+      this._isSuccessVisible = true;
     },
 
     hideSuccess: function () {
-      this.$('.success').hide();
+      this.$('.success').slideUp(EPHEMERAL_MESSAGE_ANIMATION_MS);
+      this._isSuccessVisible = false;
+    },
+
+    /**
+     * Return true if the success message is visible
+     */
+    isSuccessVisible: function () {
+      return !!this._isSuccessVisible;
     },
 
     /**
@@ -283,7 +293,7 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
         this.$('.error').text(translated);
       }
 
-      this.$('.error').show();
+      this.$('.error').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
       this.trigger('error', translated);
 
       this._isErrorVisible = true;
@@ -313,7 +323,7 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
         this.$('.error').html(translated);
       }
 
-      this.$('.error').show();
+      this.$('.error').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
       this.trigger('error', translated);
 
       this._isErrorVisible = true;
@@ -322,7 +332,7 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
     },
 
     hideError: function () {
-      this.$('.error').hide();
+      this.$('.error').slideUp(EPHEMERAL_MESSAGE_ANIMATION_MS);
       this._isErrorVisible = false;
     },
 
@@ -376,8 +386,9 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
      * the handler on `this`.
      *
      * @method invokeHandler
+     * @param {string || function} handler.
      */
-    invokeHandler: function (handler, event) {
+    invokeHandler: function (handler/*, args...*/) {
       // convert a name to a function.
       if (typeof handler === 'string') {
         handler = this[handler];
@@ -388,7 +399,15 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
       }
 
       if (typeof handler === 'function') {
-        return handler.call(this, event);
+        var args = [].slice.call(arguments, 1);
+
+        // If an `arguments` type object was passed in as the first item,
+        // then use that as the arguments list. Otherwise, use all arguments.
+        if (_.isArguments(args[0])) {
+          args = args[0];
+        }
+
+        return handler.apply(this, args);
       }
     },
 

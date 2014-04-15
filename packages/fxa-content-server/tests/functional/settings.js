@@ -109,8 +109,15 @@ define([
         .elementByCssSelector('button[type="submit"]')
           .click()
         .end()
+
+        // Add an explicit timeout while waiting for the browser channel to
+        // timeout and the progress-indicator to be taken away.
+        // Without the explicit timeout, the implicit timeout kicks in while
+        // waiting for `#stage .error` and the test fails.
+        .wait(4000)
+
         // We need to wait for the sign in to finish. When the desktop context
-        // this will manifest itself in the "too many retries" error being
+        // this will manifest itself in the "Unexpected Error" error being
         // shown, which signals the desktop channel didn't get a response.
         .waitForVisibleByCssSelector('#stage .error')
         .elementByCssSelector('#stage .error').isDisplayed()
@@ -123,7 +130,7 @@ define([
         // make sure the sign out element doesn't exist
         .hasElementById('signout')
           .then(function(hasElement) {
-            assert(!hasElement);
+            assert.isFalse(hasElement);
           })
         .end();
     },

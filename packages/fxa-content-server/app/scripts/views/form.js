@@ -25,31 +25,93 @@ define([
   'p-promise',
   'lib/validate',
   'views/base',
-  'views/tooltip'
+  'views/tooltip',
+  'views/button_progress_indicator'
 ],
-function (_, $, p, Validate, BaseView, Tooltip) {
+function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
   var t = BaseView.t;
 
   /**
-   * Called if `keypress` or `change` is fired on the form. If the
-   * form has changed, call the specified handler.
+   * Decorator that checks whether the form has changed, and if so, call
+   * the specified handler.
+   * Called if `keypress` or `change` is fired on the form.
    */
   function ifFormValuesChanged(handler) {
-    return function (event) {
+    return function () {
       // oldValues will be `undefined` the first time through.
       var oldValues = this._previousFormValues;
       var newValues = this.getFormValues();
 
       if (! _.isEqual(oldValues, newValues)) {
         this._previousFormValues = newValues;
-        return this.invokeHandler(handler, event);
+        return this.invokeHandler(handler, arguments);
       }
     };
   }
 
+  /**
+   * Decorator to only allow one form submission.
+   */
+  function allowOnlyOneSubmit(handler) {
+    return function () {
+      var self = this;
+      var args = arguments;
+
+      if (self.isSubmitting()) {
+        return p()
+          .then(function () {
+            // already submitting, get outta here.
+            throw new Error('submit already in progress');
+          });
+      }
+
+      self._isSubmitting = true;
+      return p()
+          .then(function () {
+            return self.invokeHandler(handler, args);
+          })
+          .then(function (value) {
+            self._isSubmitting = false;
+            return value;
+          }, function (err) {
+            self._isSubmitting = false;
+
+            throw err;
+          });
+    };
+  }
+
+  /**
+   * Decorator to show a button progress indicator during
+   * asynchronous operations
+   */
+  function showButtonProgressIndicator(handler) {
+    return function () {
+      var self = this;
+      var args = arguments;
+
+      self._buttonProgressIndicator.start(self.$('button[type=submit]'));
+
+      return p()
+          .then(function () {
+            return self.invokeHandler(handler, args);
+          })
+          .then(function (value) {
+            self._buttonProgressIndicator.done();
+            return value;
+          }, function(err) {
+            self._buttonProgressIndicator.done();
+            throw err;
+          });
+    };
+  }
+
+
   var FormView = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);
+
+      this._buttonProgressIndicator = new ButtonProgressIndicator();
 
       // attach events of the descendent view and this view.
       this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
@@ -84,7 +146,7 @@ function (_, $, p, Validate, BaseView, Tooltip) {
       return values;
     },
 
-    //when a user begins typing in an input, grab the placeholder, 
+    //when a user begins typing in an input, grab the placeholder,
     // put it in a label and then unbind the event
     // this is done to prevent user confustion about multiple password inputs
     togglePlaceholderPattern: function() {
@@ -151,33 +213,9 @@ function (_, $, p, Validate, BaseView, Tooltip) {
      * @method validateAndSubmit
      * @return {promise}
      */
-    validateAndSubmit: function () {
+    validateAndSubmit: allowOnlyOneSubmit(function () {
       var self = this;
 
-      function submitForm() {
-        return p().then(_.bind(self.beforeSubmit, self))
-                .then(function (shouldSubmit) {
-                  // submission is opt out, not opt in.
-                  if (shouldSubmit !== false) {
-                    return self.submit();
-                  }
-                })
-                .then(null, function (err) {
-                  // surface returned message for testing.
-                  throw self.displayError(err);
-                })
-                .then(_.bind(self.afterSubmit, self));
-      }
-
-      if (self.isSubmitting()) {
-        return p()
-          .then(function () {
-            // already submitting, get outta here.
-            throw new Error('submit already in progress');
-          });
-      }
-
-      self._isSubmitting = true;
       return p()
         .then(function () {
           if (! self.isValid()) {
@@ -198,16 +236,26 @@ function (_, $, p, Validate, BaseView, Tooltip) {
           }
 
           // all good, do the beforeSubmit, submit, and afterSubmit chain.
-          return submitForm();
-        })
-        .then(function () {
-          self._isSubmitting = false;
-        }, function (err) {
-          self._isSubmitting = false;
-
-          throw err;
+          return self._submitForm();
         });
-    },
+    }),
+
+    _submitForm: showButtonProgressIndicator(function () {
+      var self = this;
+      return p()
+          .then(_.bind(self.beforeSubmit, self))
+          .then(function (shouldSubmit) {
+            // submission is opt out, not opt in.
+            if (shouldSubmit !== false) {
+              return self.submit();
+            }
+          })
+          .then(null, function (err) {
+            // surface returned message for testing.
+            throw self.displayError(err);
+          })
+          .then(_.bind(self.afterSubmit, self));
+    }),
 
     /**
      * Checks whether the form is valid. Checks the validitity of each
@@ -452,7 +500,6 @@ function (_, $, p, Validate, BaseView, Tooltip) {
       return this._isSubmitting;
     }
   });
-
 
   return FormView;
 });

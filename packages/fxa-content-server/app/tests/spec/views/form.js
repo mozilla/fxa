@@ -96,7 +96,7 @@ function (chai, $, p, FormView, Template, TestHelpers) {
         view.displayError('this is an error');
         view.formIsValid = true;
         view.enableSubmitIfValid();
-        assert.isFalse(view.$('.error').is(':visible'));
+        assert.isFalse(view.isErrorVisible());
       });
 
       it('disabled submit button if isValid returns false', function () {

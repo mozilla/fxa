@@ -20,6 +20,8 @@ define([
   var email;
   var client;
 
+  var ANIMATION_DELAY_MS = 500;
+
   function clearBrowserStorage() {
     /*jshint validthis: true*/
     return this.get('remote')
@@ -122,6 +124,11 @@ define([
           .type(FIRST_PASSWORD)
         .end()
 
+        // Since the test is to see if the error is hidden,
+        // .waitForVisibleByClass cannot be used. We want the opposite of
+        // .waitForVisibleByClass.
+        .wait(ANIMATION_DELAY_MS)
+
         .elementByCssSelector('.error').isDisplayed()
           .then(function (isDisplayed) {
             assert.isFalse(isDisplayed);
@@ -171,9 +178,15 @@ define([
           .click()
         .end()
 
+        .waitForVisibleById('fxa-settings-header')
+
+        // For whatever reason, .waitForVisibleByClassName completes
+        // but the .isDisplayed() check fails. With the .wait, no such
+        // error.
+        .wait(ANIMATION_DELAY_MS)
         .waitForVisibleByClassName('success')
 
-        .elementByCssSelector('.success').isDisplayed()
+        .elementByClassName('success').isDisplayed()
           .then(function (isDisplayed) {
             assert.equal(isDisplayed, true);
           })
