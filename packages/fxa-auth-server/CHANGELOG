@@ -1,5 +1,6 @@
 train-10
   * added email_bouncer.js for processing SES email bounces #678
+  * fixed an email validation bug #681
 
 train-09
   * noop
