@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-node ./bin/db_patcher.js
 node ./scripts/gen_keys.js
 node ./node_modules/fxa-customs-server/bin/customs_server.js &
 CS=$!

@@ -89,16 +89,6 @@ module.exports = function (
             patchLevelRequired: options.patchLevel
           })
           return mysql
-        },
-        function(err) {
-          console.log(err)
-          // If this error means that dbMetadata does not exist, assume patch level 2 for now
-          if ( err.code === 'ER_NO_SUCH_TABLE' ) {
-            // for now, this is ok
-            return mysql
-          }
-          // re-throw so the caller gets the problem
-          throw err
         }
       )
   }

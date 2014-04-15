@@ -26,6 +26,18 @@ module.exports = function (
       PasswordChangeToken
     )
   }
+  else if (backend === 'httpdb') {
+    return require('./httpdb')(
+      P,
+      log,
+      error,
+      SessionToken,
+      KeyFetchToken,
+      AccountResetToken,
+      PasswordForgotToken,
+      PasswordChangeToken
+    )
+  }
   else {
     return require('./heap')(
       P,
