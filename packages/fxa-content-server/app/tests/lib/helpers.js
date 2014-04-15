@@ -56,10 +56,24 @@ define([
     done();
   }
 
+  function createRandomHexString(length) {
+    var str = '';
+    var lettersToChooseFrom = 'abcdefABCDEF01234567890';
+    var numberOfPossibilities = lettersToChooseFrom.length;
+
+    for (var i = 0; i < length; ++i) {
+      var indexToUse = Math.floor(Math.random() * numberOfPossibilities);
+      str += lettersToChooseFrom.charAt(indexToUse);
+    }
+
+    return str;
+  }
+
   return {
     requiresFocus: requiresFocus,
     addFxaClientSpy: addFxaClientSpy,
     removeFxaClientSpy: removeFxaClientSpy,
-    wrapAssertion: wrapAssertion
+    wrapAssertion: wrapAssertion,
+    createRandomHexString: createRandomHexString
   };
 });

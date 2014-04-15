@@ -10,10 +10,11 @@ define([
   'views/form',
   'stache!templates/complete_reset_password',
   'lib/session',
-  'lib/url',
-  'lib/password-mixin'
+  'lib/password-mixin',
+  'lib/validate',
+  'lib/auth-errors'
 ],
-function (_, BaseView, FormView, Template, Session, Url, PasswordMixin) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, authErrors) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -21,38 +22,58 @@ function (_, BaseView, FormView, Template, Session, Url, PasswordMixin) {
     className: 'complete_reset_password',
 
     events: {
-      'change .show-password': 'onPasswordVisibilityChange'
+      'change .show-password': 'onPasswordVisibilityChange',
+      'click #resend': BaseView.preventDefaultThen('resendResetEmail')
+    },
+
+    // beforeRender is asynchronous and returns a promise. Only render
+    // after beforeRender has finished its business.
+    beforeRender: function () {
+      try {
+        this.importSearchParam('token');
+        this.importSearchParam('code');
+        this.importSearchParam('email');
+      } catch(e) {
+        // This is an invalid link. Abort and show an error message
+        // before doing any more checks.
+        return true;
+      }
+
+      if (! this._doesLinkValidate()) {
+        // One or more parameters fails validation. Abort and show an
+        // error message before doing any more checks.
+        return true;
+      }
+
+      var self = this;
+      return this.fxaClient.isPasswordResetComplete(this.token)
+         .then(function (isComplete) {
+            self._isLinkExpired = isComplete;
+            return true;
+          });
+    },
+
+    _doesLinkValidate: function () {
+      return Validate.isTokenValid(this.token) &&
+             Validate.isCodeValid(this.code) &&
+             Validate.isEmailValid(this.email);
     },
 
     context: function () {
+      var doesLinkValidate = this._doesLinkValidate();
+      var isLinkExpired = this._isLinkExpired;
+
+      // damaged and expired links have special messages.
       return {
-        isSync: Session.service === 'sync'
+        isSync: Session.service === 'sync',
+        isLinkDamaged: ! doesLinkValidate,
+        isLinkExpired: isLinkExpired,
+        isLinkValid: doesLinkValidate && ! isLinkExpired
       };
     },
 
-    afterRender: function () {
-      var search = this.window.location.search;
-      this.token = Url.searchParam('token', search);
-      if (! this.token) {
-        return this.displayError(t('No token specified'));
-      }
-
-      this.code = Url.searchParam('code', search);
-      if (! this.code) {
-        return this.displayError(t('No code specified'));
-      }
-
-      this.email = Url.searchParam('email', search);
-      if (! this.email) {
-        return this.displayError(t('No email specified'));
-      }
-    },
-
     isValidEnd: function () {
-      return !! (this.token &&
-                 this.code &&
-                 this.email &&
-                 this._getPassword() === this._getVPassword());
+      return this._getPassword() === this._getVPassword();
     },
 
     showValidationErrorsEnd: function () {
@@ -64,17 +85,20 @@ function (_, BaseView, FormView, Template, Session, Url, PasswordMixin) {
     submit: function () {
       var password = this._getPassword();
 
+      var self = this;
       return this.fxaClient.completePasswordReset(this.email, password, this.token, this.code)
-                .done(_.bind(this._onResetCompleteSuccess, this),
-                      _.bind(this._onResetCompleteFailure, this));
-    },
+          .then(function () {
+            self.navigate('reset_password_complete');
+          }, function (err) {
+            if (authErrors.is(err, 'INVALID_TOKEN')) {
+              // The token has expired since the first check, re-render to
+              // show a screen that allows the user to receive a new link.
+              return self.render();
+            }
 
-    _onResetCompleteSuccess: function () {
-      this.navigate('reset_password_complete');
-    },
-
-    _onResetCompleteFailure: function (err) {
-      this.displayError(err);
+            // all other errors are unexpected, bail.
+            throw err;
+          });
     },
 
     _getPassword: function () {
@@ -83,6 +107,16 @@ function (_, BaseView, FormView, Template, Session, Url, PasswordMixin) {
 
     _getVPassword: function () {
       return this.$('#vpassword').val();
+    },
+
+    resendResetEmail: function () {
+      var self = this;
+      return this.fxaClient.passwordReset(this.email)
+              .then(function () {
+                self.navigate('confirm_reset_password');
+              }, function (err) {
+                self.displayError(err);
+              });
     }
   });
 

@@ -1,7 +1,21 @@
+{{#isLinkDamaged}}
 <header>
-  <h1 id="fxa-complete-sign-up-header">{{#t}}Completing sign up{{/t}}</h1>
+  <h1 id="fxa-verification-link-damaged-header">{{#t}}Verification link damaged{{/t}}</h1>
 </header>
 
 <section>
-  <div class="error"></div>
+  <p>
+    {{#t}}The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.{{/t}}
+  </p>
 </section>
+{{/isLinkDamaged}}
+
+{{#error}}
+<header>
+  <h1 id="fxa-verification-error-header">{{#t}}Verification error{{/t}}</h1>
+</header>
+
+<section>
+  <div class="error">{{error}}</div>
+</section>
+{{/error}}

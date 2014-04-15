@@ -55,6 +55,7 @@ require([
   '../tests/spec/lib/strings',
   '../tests/spec/lib/auth-errors',
   '../tests/spec/lib/app-start',
+  '../tests/spec/lib/validate',
   '../tests/spec/views/base',
   '../tests/spec/views/tooltip',
   '../tests/spec/views/form',

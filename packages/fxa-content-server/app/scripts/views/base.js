@@ -11,9 +11,11 @@ define([
   'p-promise',
   'lib/session',
   'lib/auth-errors',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'lib/url',
+  'lib/strings'
 ],
-function (_, Backbone, jQuery, p, Session, authErrors, FxaClient) {
+function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
 
@@ -358,6 +360,19 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient) {
 
       if (typeof handler === 'function') {
         return handler.call(this, event);
+      }
+    },
+
+    /**
+     * Import an item from the URL search parameters into the current context
+     */
+    importSearchParam: function (itemName) {
+      var search = this.window.location.search;
+      this[itemName] = Url.searchParam(itemName, search);
+
+      if (! this[itemName]) {
+        var err = Strings.interpolate(t('missing search parameter: %(itemName)s'), { itemName: itemName });
+        throw new Error(err);
       }
     }
   });

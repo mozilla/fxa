@@ -10,52 +10,65 @@ define([
   'views/base',
   'stache!templates/complete_sign_up',
   'lib/fxa-client',
-  'lib/url'
+  'lib/auth-errors',
+  'lib/validate'
 ],
-function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, Url) {
-  var t = BaseView.t;
-
+function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, authErrors, Validate) {
   var CompleteSignUpView = FormView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
 
-    afterRender: function () {
-
-      var completeEl = this.$el;
-      var completeElHeight = completeEl.height();
-      var completeElChildren = completeEl.children();
-      completeElChildren.hide();
-      completeEl.height(completeElHeight);
-
-      var searchParams = this.window.location.search;
-      var uid = Url.searchParam('uid', searchParams);
-      if (! uid) {
-        completeElChildren.show();
-        return this.displayError(t('No uid specified'));
+    beforeRender: function () {
+      try {
+        this.importSearchParam('uid');
+        this.importSearchParam('code');
+      } catch(e) {
+        // This is an invalid link. Abort and show an error message
+        // before doing any more checks.
+        return true;
       }
 
-      var code = Url.searchParam('code', searchParams);
-      if (! code) {
-        completeElChildren.show();
-        return this.displayError(t('No code specified'));
+      if (! this._doesLinkValidate()) {
+        // One or more parameters fails validation. Abort and show an
+        // error message before doing any more checks.
+        return true;
       }
 
       var self = this;
-      return this.fxaClient.verifyCode(uid, code)
-            .then(function () {
-              self.navigate('signup_complete');
+      return this.fxaClient.verifyCode(this.uid, this.code)
+          .then(function () {
+            self.navigate('signup_complete');
+            return false;
+          })
+          .then(null, function (err) {
+            if (authErrors.is(err, 'UNKNOWN_ACCOUNT') ||
+                authErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
+                authErrors.is(err, 'INVALID_PARAMETER')) {
+              // These errors show a link damaged screen
+              self._isLinkDamaged = true;
+            } else {
+              // all other errors show the standard error box.
+              self._error = self.translateError(err);
+            }
+            return true;
+          });
+    },
 
-              self.trigger('verify_code_complete');
-            })
-            .then(null, function (err) {
+    _doesLinkValidate: function () {
+      return Validate.isUidValid(this.uid) &&
+             Validate.isCodeValid(this.code) &&
+             ! this._isLinkDamaged;
+    },
 
-              self.displayError(err);
+    context: function () {
+      var doesLinkValidate = this._doesLinkValidate();
 
-              completeElChildren.show();
-              self.trigger('verify_code_complete');
-            });
+      return {
+        // If the link is invalid, print a special error message.
+        isLinkDamaged: ! doesLinkValidate,
+        error: this._error
+      };
     }
-
   });
 
   return CompleteSignUpView;
