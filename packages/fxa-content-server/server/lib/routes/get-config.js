@@ -13,6 +13,9 @@ module.exports = function(i18n) {
   route.path = '/config';
 
   route.process = function(req, res) {
+    // `language` and `cookiesEnabled` are dynamic so don't cache.
+    res.header('Cache-Control', 'no-cache, max-age=0');
+
     // Let any intermediaries know that /config can vary based
     // on the accept-language. This will also be useful if client.json
     // gains long lived cache-control headers.
