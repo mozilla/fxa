@@ -28,7 +28,7 @@ module.exports = function (log) {
       {
         QueueUrl: url,
         AttributeNames: [],
-        MaxNumberOfMessages: 100,
+        MaxNumberOfMessages: 10,
         WaitTimeSeconds: 20
       },
       function (err, data) {
