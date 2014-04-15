@@ -2,7 +2,7 @@
   "author": "Lloyd <lloyd@hilaiel.com> (http://lloyd.io)",
   "name": "browserid-verifier",
   "description": "A node.js verification server for BrowserID assertions.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "repository": {
     "url": "https://github.com/mozilla/browserid-verifier"
   },
