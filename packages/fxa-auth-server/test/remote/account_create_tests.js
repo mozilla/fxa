@@ -303,6 +303,7 @@ TestServer.start(config)
       var pwd = '123456'
 
       var emails = [
+        'tim@tim-example.net',
         'a+b+c@example.com',
         '#!?-@t-e-s-t.c-o-m',
         String.fromCharCode(1234) + '@example.com',
