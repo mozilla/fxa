@@ -45,7 +45,7 @@ module.exports.bufferize = function bufferize(object, inplace) {
   var copy = inplace ? object : {}
   for (var i = 0; i < keys.length; i++) {
     var x = object[keys[i]]
-    copy[keys[i]] = (typeof(x) == 'string' && HEX.test(x)) ? Buffer(x, 'hex') : x
+    copy[keys[i]] = (typeof(x) === 'string' && HEX.test(x)) ? Buffer(x, 'hex') : x
   }
   return copy
 }

@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "NODE_ENV=dev scripts/test-local.sh",
+    "test": "NODE_ENV=dev scripts/test-local.sh && grunt",
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1 | bunyan -o short",
     "test-mysql": "DB_BACKEND=mysql CUSTOMS_SERVER_URL=http://127.0.0.1:7000 npm test",
     "test-httpdb": "DB_BACKEND=httpdb npm test",
