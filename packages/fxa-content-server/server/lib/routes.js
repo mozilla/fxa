@@ -24,14 +24,11 @@ function isValidRoute(route) {
 
 module.exports = function (config, templates, i18n) {
 
-  var ver = require('./routes/get-ver.json');
-  var termsPrivacy = require('./routes/get-terms-privacy')(i18n);
-  var configRoute = require('./routes/get-config');
-
   var routes = [
-    ver,
-    termsPrivacy,
-    configRoute
+    require('./routes/get-ver.json'),
+    require('./routes/get-terms-privacy')(i18n),
+    require('./routes/get-config')(i18n),
+    require('./routes/get-client.json')(i18n)
   ];
 
   var authServerHost = url.parse(config.get('fxaccount_url')).hostname;

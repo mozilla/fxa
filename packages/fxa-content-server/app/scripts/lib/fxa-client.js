@@ -32,13 +32,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     return str && str.replace(/^\s+|\s+$/g, '');
   }
 
-  function FxaClientWrapper(options) {
-    options = options || {};
-    // IE uses navigator.browserLanguage, all others user navigator.language.
-    var language = options.language ||
-                   navigator.browserLanguage ||
-                   navigator.language;
-    this.language = language;
+  function FxaClientWrapper() {
   }
 
   FxaClientWrapper.prototype = {
@@ -177,7 +171,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                   keys: true,
                   service: service,
                   redirectTo: redirectTo,
-                  lang: self.language
+                  lang: Session.language
                 };
 
                 if (options.preVerified) {
@@ -216,7 +210,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     },
 
     signUpResend: function () {
-      var self = this;
       return this._getClientAsync()
         .then(function (client) {
           if (signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
@@ -232,7 +225,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
             {
               service: Session.service,
               redirectTo: Session.redirectTo,
-              lang: self.language
+              lang: Session.language
             });
         });
     },
@@ -261,7 +254,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     },
 
     passwordReset: function (originalEmail) {
-      var self = this;
       var service = Session.service;
       var redirectTo = Session.redirectTo;
       var email = trim(originalEmail);
@@ -274,7 +266,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                 return client.passwordForgotSendCode(email, {
                   service: service,
                   redirectTo: redirectTo,
-                  lang: self.language
+                  lang: Session.language
                 });
               })
               .then(function (result) {
@@ -291,7 +283,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     },
 
     passwordResetResend: function () {
-      var self = this;
       return this._getClientAsync()
         .then(function (client) {
           if (passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
@@ -306,7 +297,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
           var options = {
             service: Session.service,
             redirectTo: Session.redirectTo,
-            lang: self.language
+            lang: Session.language
           };
           return client.passwordForgotResendCode(
                    Session.email,

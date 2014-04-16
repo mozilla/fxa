@@ -40,5 +40,3 @@ function (AppStart) {
   var appStart = new AppStart();
   appStart.startApp();
 });
-
-
