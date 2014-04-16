@@ -26,4 +26,5 @@ before_install:
   - sudo apt-get install libgmp3-dev
 
 script:
+  - npm test
   - grunt validate-shrinkwrap
