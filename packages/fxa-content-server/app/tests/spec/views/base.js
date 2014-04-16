@@ -10,14 +10,15 @@ define([
   'jquery',
   'views/base',
   'lib/translator',
+  'lib/ephemeral-messages',
   'stache!templates/test_template',
   '../../mocks/dom-event',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
-          RouterMock, WindowMock, TestHelpers) {
+function (chai, jQuery, BaseView, Translator, EphemeralMessages,
+          Template, DOMEventMock, RouterMock, WindowMock, TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -25,7 +26,7 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
   var assert = chai.assert;
 
   describe('views/base', function () {
-    var view, router, windowMock;
+    var view, router, windowMock, ephemeralMessages;
 
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
@@ -37,6 +38,8 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       router = new RouterMock();
       windowMock = new WindowMock();
 
+      ephemeralMessages = new EphemeralMessages();
+
       var View = BaseView.extend({
         template: Template
       });
@@ -44,7 +47,8 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       view = new View({
         translator: translator,
         router: router,
-        window: windowMock
+        window: windowMock,
+        ephemeralMessages: ephemeralMessages
       });
 
       return view.render()
@@ -94,6 +98,34 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         return view.render()
             .then(function () {
               assert.equal(windowMock.document.title, 'Firefox Accounts Unit Tests');
+            });
+      });
+
+      it('shows one time success messages', function () {
+        ephemeralMessages.set('success', 'success message');
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.success').text(), 'success message');
+
+              return view.render();
+            })
+            .then(function () {
+              // it's a one time message, no success message this time.
+              assert.equal(view.$('.success').text(), '');
+            });
+      });
+
+      it('shows one time error messages', function () {
+        ephemeralMessages.set('error', 'error message');
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.error').text(), 'error message');
+
+              return view.render();
+            })
+            .then(function () {
+              // it's a one time message, no error message this time.
+              assert.equal(view.$('.error').text(), '');
             });
       });
     });

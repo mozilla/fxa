@@ -56,7 +56,9 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin) {
                   self.$('.password').val('');
                   self.$('form').hide();
 
-                  self.displaySuccess();
+                  self.navigate('settings', {
+                    success: t('Password changed')
+                  });
                 });
     }
   });
