@@ -125,7 +125,7 @@ test(
     var message = {
       complaint: {
         complaintFeedbackType: 'abuse',
-        complaintRecipients: [
+        complainedRecipients: [
           {
             emailAddress: foo
           }
@@ -157,7 +157,7 @@ test(
     var message = {
       complaint: {
         complaintFeedbackType: 'abuse',
-        complaintRecipients: [
+        complainedRecipients: [
           {
             emailAddress: foo
           }
@@ -183,7 +183,7 @@ test(
     var message = {
       complaint: {
         complaintFeedbackType: 'not-spam',
-        complaintRecipients: [
+        complainedRecipients: [
           {
             emailAddress: foo
           }
