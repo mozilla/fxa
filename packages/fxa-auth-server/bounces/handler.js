@@ -28,7 +28,7 @@ module.exports = function (db, log) {
       recipients = message.bounce.bouncedRecipients
     }
     else if (message.complaint && message.complaint.complaintFeedbackType === 'abuse') {
-      recipients = message.complaint.complaintRecipients
+      recipients = message.complaint.complainedRecipients
     }
     for (var i = 0; i < recipients.length; i++) {
       var email = recipients[i].emailAddress
