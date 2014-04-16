@@ -55,6 +55,7 @@
     "grunt-requirejs": "0.4.1",
     "grunt-rev": "0.1.0",
     "grunt-sass": "0.11.0",
+    "grunt-text-replace": "0.3.11",
     "grunt-todo": "0.2.0",
     "grunt-usemin": "2.0.2",
     "grunt-z-schema": "0.1.0",
