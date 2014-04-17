@@ -257,6 +257,42 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       });
     });
 
+    describe('BaseView.cancelEventThen', function () {
+      it('can take the name of a function as the name of the event handler', function (done) {
+        view.eventHandler = function (event) {
+          wrapAssertion(function() {
+            assert.isTrue(event.isDefaultPrevented());
+            assert.isTrue(event.isPropagationStopped());
+          }, done);
+        };
+
+        var backboneHandler = BaseView.cancelEventThen('eventHandler');
+        backboneHandler.call(view, new DOMEventMock());
+      });
+
+      it('can take a function as the event handler', function (done) {
+        function eventHandler(event) {
+          wrapAssertion(function() {
+            assert.isTrue(event.isDefaultPrevented());
+            assert.isTrue(event.isPropagationStopped());
+          }, done);
+        }
+
+        var backboneHandler = BaseView.cancelEventThen(eventHandler);
+        backboneHandler.call(view, new DOMEventMock());
+      });
+
+      it('can take no arguments at all', function () {
+        var backboneHandler = BaseView.cancelEventThen();
+
+        var eventMock = new DOMEventMock();
+        backboneHandler.call(view, eventMock);
+
+        assert.isTrue(eventMock.isDefaultPrevented());
+        assert.isTrue(eventMock.isPropagationStopped());
+      });
+    });
+
     describe('importSearchParam', function () {
       it('imports an item from the url\'s search parameters, if available', function () {
         windowMock.location.search = '?item=value';
