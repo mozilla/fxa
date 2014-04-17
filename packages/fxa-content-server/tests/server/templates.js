@@ -14,22 +14,22 @@ define([
 
   var emailTemplates = {
     '/en-US/reset': {
-      subject: /Reset Password/,
+      subject: /Reset your password/,
       text: /Reset password/,
       html: /Reset password/
     },
     '/it-CH/reset': {
-      subject: /pɹoʍssaԀ ʇǝsǝᴚ/,
+      subject: /pɹoʍssad ɹnoʎ ʇǝsǝᴚ/,
       text: /pɹoʍssad ʇǝsǝᴚ/,
       html: /pɹoʍssad ʇǝsǝᴚ/
     },
     '/en-US/verify': {
-      subject: /Confirm/,
+      subject: /Verify/,
       text: /Verify/,
       html: /Verify/
     },
     '/it-CH/verify': {
-      subject: /ɯɹıɟuoↃ/,
+      subject: /ʇunoɔɔa ɹnoʎ ʎɟıɹǝɅ/,
       text: /ʎɟıɹǝɅ/,
       html: /ʎɟıɹǝɅ/
     }

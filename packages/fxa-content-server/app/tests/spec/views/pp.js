@@ -18,7 +18,6 @@ function (chai, View, Session) {
     var view, router;
 
     beforeEach(function () {
-      Session.clear();
       Session.set('language', 'en-US');
       view = new View({});
     });
@@ -26,31 +25,33 @@ function (chai, View, Session) {
     afterEach(function () {
       view.remove();
       view.destroy();
-      Session.clear();
     });
 
     it('Back button displayed if Session.canGoBack is true', function () {
       Session.set('canGoBack', true);
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
 
-      assert.ok($('#fxa-pp-back').length);
+            assert.ok($('#fxa-pp-back').length);
+          });
     });
 
     it('Back button not displayed if Session.canGoBack is false', function () {
       Session.set('canGoBack', false);
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
 
-      assert.equal($('#fxa-pp-back').length, 0);
+            assert.equal($('#fxa-pp-back').length, 0);
+          });
     });
 
-    it('fetches translated text from the backend', function (done) {
-      view.on('ready', function() {
-        assert.ok(view.$('#mozilla-privacy-policy').length);
-        done();
-      });
-      view.render();
+    it('fetches ?? translated text from the backend', function () {
+      return view.render()
+        .then(function() {
+          assert.ok(view.$('#fxa-pp-header').length);
+        });
     });
   });
 });

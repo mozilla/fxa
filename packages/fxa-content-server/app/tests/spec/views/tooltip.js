@@ -33,31 +33,38 @@ function (chai, $, Tooltip) {
 
     describe('render', function () {
       it('renders and attaches the tooltip', function () {
-        tooltip.render();
-        assert.equal(tooltip.$el.text(), 'this is a tooltip');
-        assert.equal($('.tooltip').length, 1);
+        return tooltip.render()
+            .then(function () {
+              assert.equal(tooltip.$el.text(), 'this is a tooltip');
+              assert.equal($('.tooltip').length, 1);
+            });
       });
 
       it('only one tooltip can be rendered at a time', function () {
-        tooltip.render();
-
         var tooltip2 = new Tooltip({
           message: 'this is a second tooltip',
           invalidEl: '#focusMe'
         });
-        tooltip2.render();
-        assert.equal($('.tooltip').length, 1);
+
+        return tooltip.render()
+            .then(function () {
+              return tooltip2.render();
+            })
+            .then(function () {
+              assert.equal($('.tooltip').length, 1);
+            });
       });
     });
 
-    describe('self destructs', function () {
+    describe('self destruct', function () {
       it('when invalid element is changed', function (done) {
-        tooltip.render();
         tooltip.once('destroyed', function () {
           done();
         });
 
-        $('#focusMe').trigger('keydown');
+        tooltip.render().then(function () {
+          $('#focusMe').trigger('keydown');
+        });
       });
     });
   });

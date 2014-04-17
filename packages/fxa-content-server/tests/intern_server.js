@@ -14,7 +14,9 @@ define([
   intern.suites = [
     'tests/server/templates',
     'tests/server/routes',
-    'tests/server/ver.json.js'
+    'tests/server/ver.json.js',
+    'tests/server/cookies_disabled',
+    'tests/server/l10n'
   ];
 
   return intern;

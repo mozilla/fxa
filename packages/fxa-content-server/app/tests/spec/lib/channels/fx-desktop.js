@@ -101,7 +101,7 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) 
       it('times out if browser does not respond', function (done) {
         channel.send('wait-for-response', { key: 'value' }, function (err) {
           wrapAssertion(function () {
-            assert.equal(String(err), 'Error: too many retries');
+            assert.equal(String(err), 'Error: Unexpected error');
           }, done);
         });
       });

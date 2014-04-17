@@ -35,13 +35,11 @@ function (chai, $, ChannelMock, testHelpers,
   describe('lib/fxa-client', function () {
     beforeEach(function () {
       channelMock = new ChannelMock();
-      Session.clear();
       Session.set('channel', channelMock);
+      Session.set('language', 'it-CH');
       email = ' testuser' + Math.random() + '@testuser.com ';
 
-      client = new FxaClientWrapper({
-        language: 'it-CH'
-      });
+      client = new FxaClientWrapper();
       return client._getClientAsync()
               .then(function (_realClient) {
                 realClient = _realClient;
@@ -52,7 +50,6 @@ function (chai, $, ChannelMock, testHelpers,
     });
 
     afterEach(function () {
-      Session.clear();
       channelMock = null;
 
       // return the client to its original state.
@@ -75,6 +72,22 @@ function (chai, $, ChannelMock, testHelpers,
               redirectTo: 'https://sync.firefox.com',
               lang: 'it-CH'
             }));
+          });
+      });
+
+      it('a throttled signUp returns a THROTTLED error', function () {
+        return client.signUp(email, password)
+          .then(function () {
+            return client.signUp(email, password);
+          })
+          .then(function () {
+            return client.signUp(email, password);
+          })
+          .then(function () {
+            return client.signUp(email, password);
+          })
+          .then(null, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
           });
       });
 
@@ -180,7 +193,7 @@ function (chai, $, ChannelMock, testHelpers,
         channelMock.canLinkAccountOk = false;
         return client.signUp(email, password)
           .then(function() {
-            assert.fail('should throw USER_CANCELED_LOGIN');
+            assert(false, 'should throw USER_CANCELED_LOGIN');
           }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
             // check can_link_account was called once
@@ -193,7 +206,7 @@ function (chai, $, ChannelMock, testHelpers,
       it('signin with unknown user should call errorback', function () {
         return client.signIn('unknown@unknown.com', 'password')
           .then(function (info) {
-            assert.fail('unknown user cannot sign in');
+            assert(false, 'unknown user cannot sign in');
           }, function (err) {
             assert.isTrue(true);
           });
@@ -267,7 +280,7 @@ function (chai, $, ChannelMock, testHelpers,
         channelMock.canLinkAccountOk = false;
         return client.signIn(email, password)
           .then(function() {
-            assert.fail('should throw USER_CANCELED_LOGIN');
+            assert(false, 'should throw USER_CANCELED_LOGIN');
           }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
             // check can_link_account was called once
@@ -367,6 +380,34 @@ function (chai, $, ChannelMock, testHelpers,
       });
     });
 
+    describe('isPasswordResetComplete', function () {
+      it('password status incomplete', function () {
+        var token;
+        return client.signUp(email, password, {preVerified: true})
+          .then(function () {
+            return client.passwordReset(email);
+          })
+          .then(function () {
+            assert.ok(Session.passwordForgotToken);
+            token = Session.passwordForgotToken;
+            return client.isPasswordResetComplete(token);
+          })
+          .then(function (complete) {
+            // cache the token so it's not cleared after the password change
+            assert.isFalse(complete);
+
+            // change password to force password reset to return true
+            return client.changePassword(email, password, 'new_password');
+          })
+          .then(function (complete) {
+            return client.isPasswordResetComplete(token);
+          })
+          .then(function (complete) {
+            assert.isTrue(complete);
+          });
+      });
+    });
+
     describe('deleteAccount', function () {
       it('deletes the user\'s account', function () {
         return client.signUp(email, password)
@@ -398,7 +439,7 @@ function (chai, $, ChannelMock, testHelpers,
           .then(function () {
             return client.sessionStatus(Session.sessionToken);
           })
-          .then(function (err) {
+          .then(function () {
             assert.isTrue(realClient.sessionStatus.calledWith(Session.sessionToken));
           });
       });
@@ -425,6 +466,31 @@ function (chai, $, ChannelMock, testHelpers,
       });
     });
 
+    describe('isSignedIn', function () {
+      it('resolves to false if no sessionToken passed in', function () {
+        return client.isSignedIn()
+            .then(function (isSignedIn) {
+              assert.isFalse(isSignedIn);
+            });
+      });
+
+      it('resolves to false if invalid sessionToken passed in', function () {
+        return client.isSignedIn('not a real token')
+            .then(function (isSignedIn) {
+              assert.isFalse(isSignedIn);
+            });
+      });
+
+      it('resolves to true with a valid sessionToken', function () {
+        return client.signUp(email, password)
+          .then(function () {
+            return client.isSignedIn(Session.sessionToken);
+          })
+          .then(function (isSignedIn) {
+            assert.isTrue(isSignedIn);
+          });
+      });
+    });
   });
 });
 

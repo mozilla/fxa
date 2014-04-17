@@ -12,7 +12,7 @@
 
     <div class="input-row password-row">
       <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autocomplete="off" {{#email}}autofocus{{/email}} />
-      <input id="show-password" type="checkbox" class="show-password" aria-controls="password" />
+      <input id="show-password" type="checkbox" class="show-password" aria-controls="password" data-novalue />
       <label for="show-password" class="show-password-label">
         {{#t}}Show{{/t}}
       </label>
@@ -50,12 +50,12 @@
     </div>
 
     <div class="button-row">
-      <button type="submit" class="disabled">{{#t}}Next{{/t}}</button>
+      <button id="submit-btn" type="submit" class="disabled">{{#t}}Next{{/t}}</button>
     </div>
 
     {{#isSync}}
       <div class="input-row customize-sync-row">
-        <label><input type="checkbox" class="customize-sync"> {{#t}}Choose what to sync{{/t}}</label>
+        <label><input id="customize-sync" type="checkbox" class="customize-sync"> {{#t}}Choose what to sync{{/t}}</label>
       </div>
     {{/isSync}}
   </form>

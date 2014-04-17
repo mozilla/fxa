@@ -8,11 +8,11 @@
 define([
   'chai',
   'p-promise',
+  'lib/auth-errors',
   'views/confirm',
-  'lib/fxa-client',
   '../../mocks/router'
 ],
-function (chai, p, View, FxaClient, RouterMock) {
+function (chai, p, authErrors, View, RouterMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -24,9 +24,10 @@ function (chai, p, View, FxaClient, RouterMock) {
       view = new View({
         router: router
       });
-      view.render();
-
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -42,12 +43,11 @@ function (chai, p, View, FxaClient, RouterMock) {
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message', function () {
-        var client = new FxaClient();
         var email = 'user' + Math.random() + '@testuser.com';
 
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
               .then(function () {
-                 return view.submit();
+                return view.submit();
               })
               .then(function () {
                 assert.isTrue(view.$('.success').is(':visible'));
@@ -55,7 +55,20 @@ function (chai, p, View, FxaClient, RouterMock) {
 
       });
 
-      it('displays error messages if there is a problem', function () {
+      it('redirects to `/signup` if the resend token is invalid', function () {
+        view.fxaClient.signUpResend = function () {
+          return p().then(function () {
+            throw authErrors.toError('INVALID_TOKEN', 'Invalid token');
+          });
+        };
+
+        return view.submit()
+              .then(function () {
+                assert.equal(router.page, 'signup');
+              });
+      });
+
+      it('displays other error messages if there is a problem', function () {
         view.fxaClient.signUpResend = function () {
           return p().then(function () {
             throw new Error('synthesized error from auth server');
@@ -64,7 +77,7 @@ function (chai, p, View, FxaClient, RouterMock) {
 
         return view.submit()
               .then(function () {
-                assert.fail();
+                assert(false, 'unexpected success');
               }, function (err) {
                 assert.equal(err.message, 'synthesized error from auth server');
               });
@@ -73,10 +86,9 @@ function (chai, p, View, FxaClient, RouterMock) {
 
     describe('validateAndSubmit', function () {
       it('only called after click on #resend', function () {
-        var client = new FxaClient();
         var email = 'user' + Math.random() + '@testuser.com';
 
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
                .then(function () {
                  var count = 0;
                  view.validateAndSubmit = function() {

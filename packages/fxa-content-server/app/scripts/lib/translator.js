@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Translate `en` strings into a language suitable for the user.
+// Translated strings are fetched from the server. The translation
+// is chosen on the backend based on the user's `Accept-Language`
+// headers.
 'use strict';
 
 define([
@@ -11,21 +15,7 @@ define([
 ],
 function (_, $, Strings) {
 
-  var bestLanguage = function (language, supportedLanguages, defaultLanguage) {
-    var lower = _.map(supportedLanguages, function (l) {
-      return l.toLowerCase();
-    });
-
-    if (lower.indexOf(language.toLowerCase()) !== -1) {
-      return language;
-    } else if (lower.indexOf(language.split('-')[0].toLowerCase()) !== -1) {
-      return language.split('-')[0];
-    }
-    return defaultLanguage;
-  };
-
-  var Translator = function (language, supportedLanguages, defaultLanguage) {
-    this.language = bestLanguage(language, supportedLanguages, defaultLanguage);
+  var Translator = function () {
     this.translations = {};
   };
 
@@ -36,10 +26,11 @@ function (_, $, Strings) {
 
     // Fetches our JSON translation file
     fetch: function (done) {
-      $.ajax({ dataType: 'json', url: '/i18n/' + this.language.replace(/-/, '_') + '/client.json' })
+      var self = this;
+      $.ajax({ dataType: 'json', url: '/i18n/client.json' })
         .done(function (data) {
-          this.translations = data;
-        }.bind(this))
+          self.translations = data;
+        })
         .always(done);
     },
 

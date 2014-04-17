@@ -25,11 +25,7 @@ var logger = require('intel').getLogger('server.main');
 
 var helmet = require('helmet');
 var express = require('express');
-var handlebars = require('handlebars');
 var consolidate = require('consolidate');
-var connect_fonts = require('connect-fonts');
-var firasans = require('connect-fonts-firasans');
-var clearsans = require('connect-fonts-clearsans');
 
 var config = require('../lib/configuration');
 var i18n = require('../lib/i18n')(config.get('i18n'));
@@ -40,6 +36,7 @@ var routes = require('../lib/routes')(config, templates, i18n);
 var routeLogging = require('../lib/logging/route_logging');
 
 var fourOhFour = require('../lib/404');
+var serverErrorHandler = require('../lib/500');
 
 var STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
@@ -67,13 +64,6 @@ function makeApp() {
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
   app.disable('x-powered-by');
 
-  app.use(connect_fonts.setup({
-    fonts: [ firasans, clearsans ],
-    allow_origin: [ config.get('public_url') ],
-    max_age: config.get('font_max_age_ms'),
-    compress: true
-  }));
-
   app.use(routeLogging());
   app.use(express.cookieParser());
   app.use(express.bodyParser());
@@ -88,15 +78,14 @@ function makeApp() {
   // it's a four-oh-four not found.
   app.use(fourOhFour);
 
+  // server error!
+  app.use(serverErrorHandler);
+
   return app;
 }
 
 var app,
     port;
-
-if (isMain) {
-  app = makeApp();
-}
 
 function listen(theApp) {
   'use strict';
@@ -124,8 +113,43 @@ function listen(theApp) {
   return true;
 }
 
+function makeHttpRedirectApp () {
+  'use strict';
+
+  var redirectProtocol = config.get('use_https') ? 'https://' : 'http://';
+  var redirectPort = port === 443 ? '' : ':' + port;
+
+  var httpApp = express();
+  httpApp.get('*', function (req, res) {
+    var redirectTo = redirectProtocol + req.host + redirectPort + req.url;
+
+    res.redirect(301, redirectTo);
+  });
+
+  return httpApp;
+}
+
+function listenHttpRedirectApp(httpApp) {
+  'use strict';
+  var httpPort = config.get('use_https') ? 80 : config.get('http_port');
+
+  httpApp.listen(httpPort, '0.0.0.0');
+  if (isMain) {
+    logger.info('Firefox Account HTTP redirect server listening on port', httpPort);
+  }
+}
+
 if (isMain) {
-  listen();
+  app = makeApp();
+  listen(app);
+
+  var httpApp = makeHttpRedirectApp();
+  listenHttpRedirectApp(httpApp);
 } else {
-  module.exports = {listen: listen, makeApp: makeApp};
+  module.exports = {
+    listen: listen,
+    makeApp: makeApp,
+    makeHttpRedirectApp: makeHttpRedirectApp,
+    listenHttpRedirectApp: listenHttpRedirectApp
+  };
 }

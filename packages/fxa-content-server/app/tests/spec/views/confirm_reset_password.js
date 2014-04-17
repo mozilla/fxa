@@ -8,25 +8,33 @@
 define([
   'chai',
   'p-promise',
+  'lib/auth-errors',
   'views/confirm_reset_password',
-  'lib/fxa-client',
-  '../../mocks/router'
+  'lib/session',
+  '../../mocks/router',
+  '../../mocks/window'
 ],
-function (chai, p, View, FxaClient, RouterMock) {
+function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/confirm_reset_password', function () {
-    var view, router;
+    var view, routerMock, windowMock;
 
     beforeEach(function () {
-      router = new RouterMock();
-      view = new View({
-        router: router
-      });
-      view.render();
+      routerMock = new RouterMock();
+      windowMock = new WindowMock();
 
-      $('#container').html(view.el);
+      Session.set('email', 'testuser@testuser.com');
+
+      view = new View({
+        router: routerMock,
+        window: windowMock
+      });
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -34,20 +42,52 @@ function (chai, p, View, FxaClient, RouterMock) {
       view.destroy();
     });
 
-    describe('constructor creates it', function () {
-      it('is drawn', function () {
+    describe('constructor', function () {
+      it('draws view', function () {
         assert.ok($('#fxa-confirm-reset-password-header').length);
+      });
+    });
+
+    describe('afterRender', function () {
+      it('polls to check if user has verified, if not, retry', function () {
+        view.fxaClient.isPasswordResetComplete = function () {
+          return p().then(function () {
+              return false;
+            });
+        };
+
+        return view.afterRender()
+           .then(function (isComplete) {
+             assert.isFalse(isComplete);
+             assert.isTrue(windowMock.isTimeoutSet());
+           });
+      });
+
+      it('redirects to signin if user has verified', function () {
+        view.fxaClient.isPasswordResetComplete = function () {
+          return p().then(function () {
+            return true;
+          });
+        };
+
+        return view.afterRender()
+           .then(function (isComplete) {
+             assert.isTrue(isComplete);
+             assert.equal(routerMock.page, 'signin');
+             // session.email is used to pre-fill the email on
+             // the signin page.
+             assert.equal(Session.prefillEmail, 'testuser@testuser.com');
+           });
       });
     });
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message', function () {
-        var client = new FxaClient();
         var email = 'user' + Math.random() + '@testuser.com';
 
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
               .then(function () {
-                return client.passwordReset(email);
+                return view.fxaClient.passwordReset(email);
               })
               .then(function () {
                 return view.submit();
@@ -57,7 +97,20 @@ function (chai, p, View, FxaClient, RouterMock) {
               });
       });
 
-      it('displays error messages if there is a problem', function () {
+      it('redirects to `/reset_password` if the resend token is invalid', function () {
+        view.fxaClient.passwordResetResend = function () {
+          return p().then(function () {
+            throw authErrors.toError('INVALID_TOKEN', 'Invalid token');
+          });
+        };
+
+        return view.submit()
+              .then(function () {
+                assert.equal(routerMock.page, 'reset_password');
+              });
+      });
+
+      it('displays other error messages if there is a problem', function () {
         view.fxaClient.passwordResetResend = function () {
           return p().then(function () {
             throw new Error('synthesized error from auth server');
@@ -66,7 +119,7 @@ function (chai, p, View, FxaClient, RouterMock) {
 
         return view.submit()
               .then(function () {
-                assert.fail();
+                assert(false, 'unexpected success');
               }, function (err) {
                 assert.equal(err.message, 'synthesized error from auth server');
               });
@@ -75,10 +128,9 @@ function (chai, p, View, FxaClient, RouterMock) {
 
     describe('validateAndSubmit', function () {
       it('only called after click on #resend', function () {
-        var client = new FxaClient();
         var email = 'user' + Math.random() + '@testuser.com';
 
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
                .then(function () {
                  var count = 0;
                  view.validateAndSubmit = function() {

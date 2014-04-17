@@ -8,12 +8,11 @@
 define([
   'chai',
   'views/reset_password',
-  'lib/fxa-client',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
+function (chai, View, WindowMock, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -27,9 +26,10 @@ function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
       view = new View({
         router: router
       });
-      view.render();
-
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -76,23 +76,16 @@ function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
     });
 
     describe('submit with valid input', function () {
-      it('submits the email address', function (done) {
+      it('submits the email address', function () {
         var email = 'testuser.' + Math.random() + '@testuser.com';
-        var client = new FxaClient();
-        client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
               .then(function () {
                 view.$('input[type=email]').val(email);
 
-                router.on('navigate', function () {
-                  wrapAssertion(function() {
-                    assert.equal(router.page, 'confirm_reset_password');
-                  }, done);
-                });
-
-                view.submit();
+                return view.submit();
               })
-              .then(null, function (err) {
-                done(new Error(err.toString()));
+              .then(function () {
+                assert.equal(router.page, 'confirm_reset_password');
               });
       });
     });
@@ -104,7 +97,7 @@ function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
 
         return view.submit()
                   .then(function () {
-                    assert.fail('unexpected success');
+                    assert(false, 'unexpected success');
                   }, function (err) {
                     // Turn that frown upside down.
                     // Error is expected.
@@ -125,9 +118,10 @@ function (chai, View, FxaClient, WindowMock, RouterMock, TestHelpers) {
       view = new View({
         window: windowMock
       });
-      view.render();
-
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {

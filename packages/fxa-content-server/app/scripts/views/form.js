@@ -23,18 +23,33 @@ define([
   'underscore',
   'jquery',
   'p-promise',
+  'lib/validate',
   'views/base',
-  'views/tooltip',
-  'lib/fxa-client'
+  'views/tooltip'
 ],
-function (_, $, p, BaseView, Tooltip, FxaClient) {
+function (_, $, p, Validate, BaseView, Tooltip) {
   var t = BaseView.t;
+
+  /**
+   * Called if `keypress` or `change` is fired on the form. If the
+   * form has changed, call the specified handler.
+   */
+  function ifFormValuesChanged(handler) {
+    return function (event) {
+      // oldValues will be `undefined` the first time through.
+      var oldValues = this._previousFormValues;
+      var newValues = this.getFormValues();
+
+      if (! _.isEqual(oldValues, newValues)) {
+        this._previousFormValues = newValues;
+        return this.invokeHandler(handler, event);
+      }
+    };
+  }
 
   var FormView = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);
-
-      this.fxaClient = new FxaClient();
 
       // attach events of the descendent view and this view.
       this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
@@ -42,8 +57,31 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
 
     events: {
       'submit form': BaseView.preventDefaultThen('validateAndSubmit'),
-      'keyup form': 'enableSubmitIfValid',
-      'change form': 'enableSubmitIfValid'
+      'keyup form': ifFormValuesChanged('enableSubmitIfValid'),
+      'change form': ifFormValuesChanged('enableSubmitIfValid')
+    },
+
+    /**
+     * Get the current form values. Does not fetch the value of elements with
+     * the `data-novalue` attribute.
+     *
+     * @method getFormValues
+     */
+    getFormValues: function () {
+      var values = {};
+      var inputEls = this.$('input,textarea,select');
+
+      for (var i = 0, length = inputEls.length; i < length; ++i) {
+        var el = $(inputEls[i]);
+        // elements that have data-novalue (like password show fields)
+        // are not added to the values.
+        if (typeof el.attr('data-novalue') === 'undefined') {
+          var name = el.attr('name') || el.attr('id');
+          values[name] = el.val();
+        }
+      }
+
+      return values;
     },
 
     enableSubmitIfValid: function () {
@@ -54,7 +92,9 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
         return;
       }
 
+
       if (this.isValid()) {
+        this.hideError();
         this.enableForm();
       } else {
         this.disableForm();
@@ -62,11 +102,18 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
     },
 
     disableForm: function () {
-      this.$('button[type=submit]').addClass('disabled').attr('disabled', 'disabled');
+      this.$('button[type=submit]').addClass('disabled');
+      this._isFormEnabled = false;
     },
 
     enableForm: function () {
-      this.$('button[type=submit]').removeClass('disabled').removeAttr('disabled');
+      this.$('button[type=submit]').removeClass('disabled');
+      this._isFormEnabled = true;
+    },
+
+    _isFormEnabled: true,
+    isFormEnabled: function () {
+      return !!this._isFormEnabled;
     },
 
     /**
@@ -76,8 +123,9 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
      * a promise chain: beforeSubmit, submit, and afterSubmit.
      *
      * By default, beforeSubmit and afterSubmit are used to prevent
-     * multiple concurrent form submissions. This behavior can
-     * be overridden in subclasses.
+     * multiple concurrent form submissions. The form is disbled in
+     * beforeSubmit, and if no error is displayed, the form is re-enabled
+     * in afterSubmit. This behavior can be overridden in subclasses.
      *
      * Form submission is prevented if beforeSubmit resolves to false.
      *
@@ -93,10 +141,6 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
       var self = this;
 
       function submitForm() {
-        // `submitting` flag is used to prevent multiple
-        // form submissions.
-        self.submitting = true;
-
         return p().then(_.bind(self.beforeSubmit, self))
                 .then(function (shouldSubmit) {
                   // submission is opt out, not opt in.
@@ -104,31 +148,51 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
                     return self.submit();
                   }
                 })
-                .then(_.bind(self.afterSubmit, self))
-                .then(function () {
-                  self.submitting = false;
-                }, function (err) {
-                  self.submitting = false;
-
+                .then(null, function (err) {
                   // surface returned message for testing.
                   throw self.displayError(err);
-                });
+                })
+                .then(_.bind(self.afterSubmit, self));
       }
 
+      if (self.isSubmitting()) {
+        return p()
+          .then(function () {
+            // already submitting, get outta here.
+            throw new Error('submit already in progress');
+          });
+      }
+
+      self._isSubmitting = true;
       return p()
         .then(function () {
-          if (self.isSubmitting()) {
-            // already submitting, get outta here.
-            throw new Error('submitting already in progress');
-          } else if (! self.isValid()) {
+          if (! self.isValid()) {
             // Validation error is surfaced for testing.
             throw self.showValidationErrors();
-          } else {
-            // all good, do the beforeSubmit, submit, and afterSubmit chain.
-            return submitForm();
           }
-        });
+        })
+        .then(function () {
+          // the form enabled check is done after the validation check
+          // so that the form's `submit` handler is triggered and validation
+          // error tooltips are displayed, even if the form is disabled.
+          if (! self.isFormEnabled()) {
+            return p()
+              .then(function () {
+                // form is disabled, get outta here.
+                throw new Error('form is disabled');
+              });
+          }
 
+          // all good, do the beforeSubmit, submit, and afterSubmit chain.
+          return submitForm();
+        })
+        .then(function () {
+          self._isSubmitting = false;
+        }, function (err) {
+          self._isSubmitting = false;
+
+          throw err;
+        });
     },
 
     /**
@@ -273,29 +337,7 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
      */
     validateEmail: function (selector) {
       var email = this.$(selector).val();
-      if (typeof(email) !== 'string') {
-        return false;
-      }
-
-      var parts = email.split('@');
-
-      var localLength = parts[0] && parts[0].length;
-      var domainLength = parts[1] && parts[1].length;
-
-      // Original regexp from:
-      //  http://blog.gerv.net/2011/05/html5_email_address_regexp/
-      // Modified to require at least a 2 part tld and remove the
-      // length checks, which are done later.
-      // IETF spec: http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
-      // NOTE: this does *NOT* allow internationalized domain names.
-      return (/^[\w.!#$%&'*+\-\/=?\^`{|}~]+@[a-z\d][a-z\d\-]*(?:\.[a-z\d][a-z\d\-]*)+$/i).test(email) &&
-             // total email allwed to be 256 bytes long
-             email.length <= 256 &&
-             // local side only allowed to be 64 bytes long
-             1 <= localLength && localLength <= 64 &&
-             // domain side allowed to be up to 255 bytes long which
-             // doesn't make much sense unless the local side has 0 length;
-             3 <= domainLength && domainLength <= 255;
+      return Validate.isEmailValid(email);
     },
 
     showEmailValidationError: function (which) {
@@ -320,9 +362,16 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
       var tooltip = new Tooltip({
         message: message,
         invalidEl: invalidEl
-      }).on('destroyed', function () {
+      });
+
+      var self = this;
+      tooltip.on('destroyed', function () {
         invalidEl.removeClass('invalid');
-      }).render();
+        self.trigger('validation_error_removed', which);
+      }).render().then(function () {
+        // used for testing
+        self.trigger('validation_error', which, message);
+      });
 
       this.trackSubview(tooltip);
 
@@ -331,9 +380,6 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
       } catch (e) {
         // IE can blow up if the element is not visible.
       }
-
-      // used for testing
-      this.trigger('validation_error', which, message);
 
       return message;
     },
@@ -374,7 +420,13 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
      *   an asynchronous operation.
      */
     afterSubmit: function () {
-      this.enableForm();
+      // some views may display an error without throwing an exception.
+      // Check if the form is valid and no errors are visible before
+      // re-enabling the form. The user must modify the form for it to
+      // be re-enabled.
+      if (! this.isErrorVisible()) {
+        this.enableForm();
+      }
     },
 
     /**
@@ -383,7 +435,7 @@ function (_, $, p, BaseView, Tooltip, FxaClient) {
      * @return {boolean} true if form is being submitted, false otw.
      */
     isSubmitting: function () {
-      return this.submitting;
+      return this._isSubmitting;
     }
   });
 

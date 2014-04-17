@@ -18,22 +18,49 @@ define([
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
-  var THIRD_PASSWORD = 'new_new_password';
   var email;
+  var client;
+
 
   registerSuite({
     name: 'settings',
 
-    'sign up': function () {
+    beforeEach: function () {
       email = 'signin' + Math.random() + '@example.com';
 
-      var client = new FxaClient(AUTH_SERVER_ROOT, {
+      client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-      return client.signUp(email, FIRST_PASSWORD, {preVerified: true});
+
+      var self = this;
+      return client.signUp(email, FIRST_PASSWORD, { preVerified: true })
+               .then(function () {
+                  return self.get('remote')
+                    .get(require.toUrl(SIGNIN_URL))
+                    .waitForElementById('fxa-signin-header')
+                    // Clear out the session. This isn't ideal since
+                    // it implies too much knowledge of the implementation
+                    // of the Session module but it guarantees that we don't
+                    // break the other tests.
+                    .safeEval('sessionStorage.clear(); localStorage.clear();') // jshint ignore:line
+                    .end();
+
+                });
     },
 
-    'sign in for signing out': function () {
+    teardown: function () {
+      return this.get('remote')
+        .get(require.toUrl(SIGNIN_URL))
+        .waitForElementById('fxa-signin-header')
+        // Clear out the session. This isn't ideal since
+        // it implies too much knowledge of the implementation
+        // of the Session module but it guarantees that we don't
+        // break the other tests.
+        .safeEval('sessionStorage.clear(); localStorage.clear();') // jshint ignore:line
+        .end();
+    },
+
+    'sign in, go to settings, sign out': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
         .waitForElementById('fxa-signin-header')
@@ -50,14 +77,8 @@ define([
 
         .elementByCssSelector('button[type="submit"]')
           .click()
-        .end();
-    },
+        .end()
 
-    'go to settings page, sign out': function () {
-      return this.get('remote')
-        // Temporary solution to force the correct context.
-        // TODO: (Issue #742) Refactor functional tests to not share state between tests
-        .get(require.toUrl(SETTINGS_URL))
         .waitForElementById('fxa-settings-header')
 
         // sign the user out
@@ -70,7 +91,7 @@ define([
         .end();
     },
 
-    'sign in to desktop context for signing out': function () {
+    'sign in to desktop context, go to settings, no way to sign out': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL + '?context=' + Constants.FX_DESKTOP_CONTEXT))
         .waitForElementById('fxa-signin-header')
@@ -95,11 +116,8 @@ define([
         .elementByCssSelector('#stage .error').isDisplayed()
         .then(function (isDisplayed) {
           assert.equal(isDisplayed, true);
-        });
-    },
+        })
 
-    'go to settings page from the desktop context, make sure the user cannot sign out': function () {
-      return this.get('remote')
         .get(require.toUrl(SETTINGS_URL))
         .waitForElementById('fxa-settings-header')
         // make sure the sign out element doesn't exist
@@ -107,14 +125,10 @@ define([
           .then(function(hasElement) {
             assert(!hasElement);
           })
-        // Clear out the session since we didn't sign out. This isn't ideal since it implies too much
-        // knowledge of the implementation of the Session module but it guarantees that we don't
-        // break the other tests.
-        .eval('sessionStorage.clear(); localStorage.clear();') // jshint ignore:line
         .end();
     },
 
-    'sign in for changing password': function () {
+    'sign in, try to change password with an incorrect old password': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
         .waitForElementById('fxa-signin-header')
@@ -131,12 +145,84 @@ define([
 
         .elementByCssSelector('button[type="submit"]')
           .click()
+        .end()
+
+        .waitForElementById('fxa-settings-header')
+        .end()
+
+        // Go to change password screen
+        .elementById('change-password')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-change-password-header')
+
+        .elementById('old_password')
+          .click()
+          .type('INCORRECT')
+        .end()
+
+        .elementById('new_password')
+          .click()
+          .type(SECOND_PASSWORD)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        // brittle, but some processing time.
+        .wait(2000)
+
+        .elementByCssSelector('.error').isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isTrue(isDisplayed);
+          })
+        .end()
+
+        // click the show button, the error should not be hidden.
+        .elementByCssSelector('[for=show-old-password]')
+          .click()
+        .end()
+
+        .elementByCssSelector('.error').isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isTrue(isDisplayed);
+          })
+        .end()
+
+        // Change form so that it is valid, error should be hidden.
+        .elementById('old_password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .elementByCssSelector('.error').isDisplayed()
+          .then(function (isDisplayed) {
+            assert.isFalse(isDisplayed);
+          })
         .end();
     },
 
-    'go to settings page, change password': function () {
+    'sign in, change password, sign in with new password': function () {
       return this.get('remote')
-        .get(require.toUrl(SETTINGS_URL))
+        .get(require.toUrl(SIGNIN_URL))
+        .waitForElementById('fxa-signin-header')
+
+        .elementByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('form input.password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
         .waitForElementById('fxa-settings-header')
         .end()
 
@@ -168,11 +254,8 @@ define([
           .then(function (isDisplayed) {
             assert.equal(isDisplayed, true);
           })
-        .end();
-    },
+        .end()
 
-    'sign in with new password': function () {
-      return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
         .waitForElementById('fxa-signin-header')
 
@@ -191,22 +274,20 @@ define([
         .end();
     },
 
-    'visit settings page with an invalid sessionToken': function() {
-      var client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-
+    'visit settings page with an invalid sessionToken redirects to signin': function() {
       // Changing the password invalidates the current sessionToken
-      client.passwordChange(email, SECOND_PASSWORD, THIRD_PASSWORD);
-
-      return this.get('remote')
-        .get(require.toUrl(SETTINGS_URL))
-        // Expect to get redirected to sign in since the sessionToken is invalid
-        .waitForElementById('fxa-signin-header')
-        .end();
+      var self = this;
+      client.passwordChange(email, FIRST_PASSWORD, SECOND_PASSWORD)
+          .then(function () {
+            return self.get('remote')
+              .get(require.toUrl(SETTINGS_URL))
+              // Expect to get redirected to sign in since the sessionToken is invalid
+              .waitForElementById('fxa-signin-header')
+              .end();
+          });
     },
 
-    'sign in for delete': function () {
+    'sign in, delete account': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
         .waitForElementById('fxa-signin-header')
@@ -218,21 +299,18 @@ define([
 
         .elementByCssSelector('form input.password')
           .click()
-          .type(THIRD_PASSWORD)
+          .type(FIRST_PASSWORD)
         .end()
 
         .elementByCssSelector('button[type="submit"]')
           .click()
-        .end();
-    },
+        .end()
 
-    'go to settings page, delete account': function () {
-      return this.get('remote')
-        .get(require.toUrl(SETTINGS_URL))
         .waitForElementById('fxa-settings-header')
         .end()
 
         // Go to delete account screen
+        .waitForElementById('delete-account')
         .elementById('delete-account')
           .click()
         .end()
@@ -243,7 +321,7 @@ define([
 
         .elementByCssSelector('form input.password')
           .click()
-          .type(THIRD_PASSWORD)
+          .type(FIRST_PASSWORD)
         .end()
 
         // delete account

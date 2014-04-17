@@ -104,6 +104,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       var password = this.$('.password').val();
 
       var self = this;
+
       return this.fxaClient.signIn(email, password)
         .then(function (accountData) {
           if (accountData.verified) {
@@ -180,17 +181,17 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
 
         // If the user is already making a request, ban submission.
         if (self.isSubmitting()) {
-          throw new Error('submitting already in progress');
+          throw new Error('submit already in progress');
         }
 
         var email = Session.forceEmail;
-        self.submitting = true;
+        self._isSubmitting = true;
         return self.fxaClient.passwordReset(email)
                 .then(function () {
-                  self.submitting = false;
+                  self._isSubmitting = false;
                   self.navigate('confirm_reset_password');
                 }, function (err) {
-                  self.submitting = false;
+                  self._isSubmitting = false;
                   self.displayError(err);
                 });
       });

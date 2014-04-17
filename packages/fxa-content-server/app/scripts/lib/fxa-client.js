@@ -18,6 +18,12 @@ define([
 ],
 function (FxaClient, $, p, Session, AuthErrors, Constants) {
   var client;
+
+  /**
+   * NOTE: Views create their own FxaClientWrapper. These are
+   * kept as global state so the counts are shared across wrappers.
+   * The counts can be reset by calling `FxaClientWrapper.testClear();`
+   */
   var signUpResendCount = 0;
   var passwordResetResendCount = 0;
 
@@ -26,13 +32,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     return str && str.replace(/^\s+|\s+$/g, '');
   }
 
-  function FxaClientWrapper(options) {
-    options = options || {};
-    // IE uses navigator.browserLanguage, all others user navigator.language.
-    var language = options.language ||
-                   navigator.browserLanguage ||
-                   navigator.language;
-    this.language = language;
+  function FxaClientWrapper() {
   }
 
   FxaClientWrapper.prototype = {
@@ -171,7 +171,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                   keys: true,
                   service: service,
                   redirectTo: redirectTo,
-                  lang: self.language
+                  lang: Session.language
                 };
 
                 if (options.preVerified) {
@@ -187,11 +187,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                   return;
                 }
 
-                if (err instanceof Error) {
-                  throw err;
-                } else {
-                  throw new Error(err);
-                }
+                throw err;
               })
               .then(function () {
                 var signInOptions = {
@@ -214,7 +210,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     },
 
     signUpResend: function () {
-      var self = this;
       return this._getClientAsync()
         .then(function (client) {
           if (signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
@@ -230,7 +225,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
             {
               service: Session.service,
               redirectTo: Session.redirectTo,
-              lang: self.language
+              lang: Session.language
             });
         });
     },
@@ -259,7 +254,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     },
 
     passwordReset: function (originalEmail) {
-      var self = this;
       var service = Session.service;
       var redirectTo = Session.redirectTo;
       var email = trim(originalEmail);
@@ -272,7 +266,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                 return client.passwordForgotSendCode(email, {
                   service: service,
                   redirectTo: redirectTo,
-                  lang: self.language
+                  lang: Session.language
                 });
               })
               .then(function (result) {
@@ -289,7 +283,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     },
 
     passwordResetResend: function () {
-      var self = this;
       return this._getClientAsync()
         .then(function (client) {
           if (passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
@@ -304,7 +297,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
           var options = {
             service: Session.service,
             redirectTo: Session.redirectTo,
-            lang: self.language
+            lang: Session.language
           };
           return client.passwordForgotResendCode(
                    Session.email,
@@ -325,6 +318,22 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                            newPassword,
                            result.accountResetToken);
               });
+    },
+
+    isPasswordResetComplete: function (token) {
+      return this._getClientAsync()
+        .then(function (client) {
+          return client.passwordForgotStatus(token);
+        })
+        .then(function () {
+          // if the request succeeds, the password reset hasn't completed
+          return false;
+        }, function (err) {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            return true;
+          }
+          throw err;
+        });
     },
 
     changePassword: function (originalEmail, oldPassword, newPassword) {
@@ -367,7 +376,37 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
               .then(function (client) {
                 return client.sessionStatus(sessionToken);
               });
+    },
+
+    isSignedIn: function (sessionToken) {
+      // Check if the user is signed in.
+      if (! sessionToken) {
+        return p(false);
+      }
+
+        // Validate session token
+      return this.sessionStatus(sessionToken)
+        .then(function() {
+          return true;
+        }, function(err) {
+          // the only error that we expect is INVALID_TOKEN,
+          // rethrow all others.
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            return false;
+          }
+
+          throw err;
+        });
     }
+  };
+
+  /**
+   * Reset global state - for testing.
+   * @method testClear
+   */
+  FxaClientWrapper.testClear = function () {
+    signUpResendCount = 0;
+    passwordResetResendCount = 0;
   };
 
   return FxaClientWrapper;

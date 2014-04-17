@@ -42,7 +42,7 @@ define([
             .get(require.toUrl(PAGE_URL))
             /*jshint evil:true*/
             .waitForElementById('fxa-signin-header')
-            .eval('sessionStorage.clear(); localStorage.clear();');
+            .safeEval('sessionStorage.clear(); localStorage.clear();');
         });
     },
 
@@ -54,7 +54,7 @@ define([
         .get(require.toUrl(PAGE_URL))
         /*jshint evil:true*/
         .waitForElementById('fxa-signin-header')
-        .eval('sessionStorage.clear(); localStorage.clear();');
+        .safeEval('sessionStorage.clear(); localStorage.clear();');
     },
 
     'sign in unverified': function () {
@@ -78,11 +78,11 @@ define([
         .end()
 
         .waitForElementById('fxa-confirm-header')
-        .elementById('confirm-email')
+        .elementByCssSelector('.verification-email-message')
           .text()
           .then(function (resultText) {
             // check the email address was written
-            assert.equal(resultText, email);
+            assert.ok(resultText.indexOf(email) > -1);
           })
         .end();
     },

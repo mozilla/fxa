@@ -10,23 +10,21 @@ define([
   'underscore',
   'jquery',
   'views/change_password',
-  'lib/fxa-client',
-  'lib/session',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
+function (chai, _, $, View, RouterMock, TestHelpers) {
+  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/change_password', function () {
-    var view, router, email;
+    var view, routerMock, email;
 
     beforeEach(function () {
-      Session.clear();
-      router = new RouterMock();
+      routerMock = new RouterMock();
       view = new View({
-        router: router
+        router: routerMock
       });
     });
 
@@ -34,19 +32,15 @@ function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      router = null;
+      routerMock = null;
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function (done) {
-        router.on('navigate', function (newPage) {
-          wrapAssertion(function () {
-            assert.equal(newPage, 'signin');
-          }, done);
-        });
-
-        var isRendered = view.render();
-        assert.isFalse(isRendered);
+      it('redirects to signin', function () {
+        return view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'signin');
+          });
       });
     });
 
@@ -54,12 +48,12 @@ function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
       beforeEach(function () {
         email = 'testuser.' + Math.random() + '@testuser.com';
 
-        var client = new FxaClient();
-        return client.signUp(email, 'password', {preVerified: true})
+        return view.fxaClient.signUp(email, 'password', {preVerified: true})
           .then(function () {
-            view.render();
-
-            $('body').append(view.el);
+            return view.render()
+              .then(function () {
+                $('body').append(view.el);
+              });
           });
       });
 

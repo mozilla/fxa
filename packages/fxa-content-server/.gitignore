@@ -49,6 +49,10 @@ test/temp
 ### Pre-processed files that become part of the build ###
 app/scripts/processed
 
+### Pre-processed error pages
+app/500.html
+app/503.html
+
 ### Local configuration ###
 server/config/local.json
 

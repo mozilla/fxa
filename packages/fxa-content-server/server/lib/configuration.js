@@ -8,9 +8,16 @@ var path = require('path');
 
 var conf = module.exports = convict({
   port: {
+    doc: 'HTTPS port for local dev',
     format: 'port',
     default: 3030,
     env: 'PORT'
+  },
+  http_port: {
+    doc: 'HTTP port for local dev',
+    format: 'port',
+    default: 3080,
+    env: 'HTTP_PORT'
   },
   cachify_prefix: {
     doc: 'The prefix for cachify hashes in URLs',
@@ -189,6 +196,13 @@ if (conf.has('http_proxy.host')) {
 if (conf.has('http_proxy.port')) {
   process.env.HTTP_PROXY_PORT = conf.get('http_proxy.port');
   process.env.HTTPS_PROXY_PORT = conf.get('http_proxy.port');
+}
+
+// Ensure that supportedLanguages includes defaultLang.
+var defaultLang = conf.get('i18n.defaultLang');
+var supportedLanguages = conf.get('i18n.supportedLanguages');
+if (supportedLanguages.indexOf(defaultLang) === -1) {
+  throw new Error('Configuration error: defaultLang (' + defaultLang + ') is missing from supportedLanguages');
 }
 
 // validate the configuration based on the above specification

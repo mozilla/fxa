@@ -31,7 +31,10 @@ function () {
     MISSING_CONTENT_LENGTH_HEADER: 112,
     REQUEST_TOO_LARGE: 113,
     THROTTLED: 114,
-    SERVICE_UNAVAILABLE: 201,
+    // If the auth server is unavailable, it will not respond.
+    // Use a client side only code.
+    SERVICE_UNAVAILABLE: 998,
+    SERVER_BUSY: 201,
     ENDPOINT_NOT_SUPPORTED: 116,
     USER_CANCELED_LOGIN: 1001 // local only error code for when user cancels desktop login
   };
@@ -54,8 +57,9 @@ function () {
     109: t('Invalid request signature'),
     112: t('Missing content-length header'),
     113: t('Request body too large'),
-    114: t('Client has sent too many requests'),
-    201: t('Service unavailable'),
+    114: t('Attempt limit exceeded. Try again later.'),
+    998: t('System unavailable, try again soon'),
+    201: t('Server busy, try again soon'),
     116: t('This endpoint is no longer supported')
   };
 
@@ -118,6 +122,15 @@ function () {
      */
     toCode: function (type) {
       return ERROR_TO_CODE[type];
+    },
+
+    /**
+     * Synthesize an error of the given type with the supplied message.
+     */
+    toError: function (type, message) {
+      var err = new Error(message);
+      err.errno = this.toCode(type);
+      return err;
     },
 
     /**

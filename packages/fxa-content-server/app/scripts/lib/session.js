@@ -21,7 +21,9 @@ define([
   // will blow up when sending the login message.
   // Don't clear service because the signup page needs that state
   //  even when user credentials are cleared.
-  var DO_NOT_CLEAR = ['channel', 'context', 'service', 'config'];
+  // Don't clear `language`, this is set on startup based on the user's
+  // Accept-Language headers and does not change when user's sign in and out.
+  var DO_NOT_CLEAR = ['channel', 'context', 'service', 'config', 'language'];
 
   // these keys will be persisted to localStorage so that they live between browser sessions
   var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext'];
@@ -94,8 +96,17 @@ define([
         }
       });
 
-      localStorage.setItem(NAMESPACE, JSON.stringify(toSaveToLocalStorage));
-      sessionStorage.setItem(NAMESPACE, JSON.stringify(toSaveToSessionStorage));
+      // Wrap browser storage access in a try/catch block because some browsers
+      // (Firefox, Chrome) except when trying to access browser storage and
+      // cookies are disabled.
+      try {
+        localStorage.setItem(NAMESPACE, JSON.stringify(toSaveToLocalStorage));
+        sessionStorage.setItem(NAMESPACE, JSON.stringify(toSaveToSessionStorage));
+
+      } catch(e) {
+        // some browsers disable access to browser storage
+        // if cookies are disabled.
+      }
     },
 
     /**
@@ -145,6 +156,23 @@ define([
         this[key] = null;
         delete this[key];
       }
+    },
+
+    /**
+     * Clear everything, for testing.
+     * @method testClear
+     * @private
+     */
+    testClear: function () {
+      for (var key in this) {
+        if (this.hasOwnProperty(key)) {
+          this[key] = null;
+          delete this[key];
+        }
+      }
+
+      sessionStorage.clear();
+      localStorage.clear();
     }
     // END TEST API
   };

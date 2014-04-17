@@ -10,13 +10,11 @@ define([
   'jquery',
   'views/sign_in',
   'lib/session',
-  'lib/fxa-client',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, View, Session, FxaClient,
-  WindowMock, RouterMock, TestHelpers) {
+function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -25,18 +23,18 @@ function (chai, $, View, Session, FxaClient,
     var view, email, router;
 
     beforeEach(function () {
-      Session.clear();
       email = 'testuser.' + Math.random() + '@testuser.com';
       router = new RouterMock();
       view = new View({
         router: router
       });
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
-      Session.clear();
       view.remove();
       view.destroy();
     });
@@ -44,10 +42,11 @@ function (chai, $, View, Session, FxaClient,
     describe('render', function () {
       it('prefills email if one is stored in Session (user comes from signup with existing account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
-        view.render();
-
-        assert.ok($('#fxa-signin-header').length);
-        assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+        return view.render()
+            .then(function () {
+              assert.ok($('#fxa-signin-header').length);
+              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+            });
       });
     });
 
@@ -87,12 +86,11 @@ function (chai, $, View, Session, FxaClient,
     describe('submit', function () {
       it('signs the user in on success', function () {
         var password = 'password';
-        var client = new FxaClient();
-        return client.signUp(email, password)
+        return view.fxaClient.signUp(email, password)
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val(password);
-                return view.submit()
+                return view.submit();
               })
               .then(function () {
                 assert.equal(router.page, 'confirm');
@@ -100,15 +98,14 @@ function (chai, $, View, Session, FxaClient,
       });
 
       it('rejects promise with incorrect password message on incorrect password', function () {
-        var client = new FxaClient();
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
               .then(function () {
                 $('[type=email]').val(email);
                 $('[type=password]').val('incorrect');
                 return view.submit();
               })
               .then(function () {
-                assert.fail();
+                assert(false, 'unexpected success');
               }, function (err) {
                 assert.ok(err.message.indexOf('Incorrect') > -1);
               });
@@ -160,8 +157,7 @@ function (chai, $, View, Session, FxaClient,
       var client;
 
       beforeEach(function () {
-        var clientWrapper = new FxaClient();
-        return clientWrapper._getClientAsync()
+        return view.fxaClient._getClientAsync()
                 .then(function (_client) {
                   client = _client;
                   // create spies that can be used to check
@@ -181,6 +177,7 @@ function (chai, $, View, Session, FxaClient,
         assert.isFalse(client.passwordForgotSendCode.called);
       });
     });
+
   });
 
   describe('missing email address when calling /force_auth', function () {
@@ -191,8 +188,10 @@ function (chai, $, View, Session, FxaClient,
       windowMock.location.search = '';
 
       view = new View({ forceAuth: true, window: windowMock });
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -222,8 +221,10 @@ function (chai, $, View, Session, FxaClient,
         window: windowMock,
         router: router
       });
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -253,9 +254,8 @@ function (chai, $, View, Session, FxaClient,
 
     it('forgot password request redirects directly to confirm_reset_password', function () {
       var password = 'password';
-      var client = new FxaClient();
       var event = $.Event('click');
-      return client.signUp(email, password)
+      return view.fxaClient.signUp(email, password)
             .then(function () {
               // the call to client.signUp clears Session.
               // These fields are reset to complete the test.
@@ -275,13 +275,13 @@ function (chai, $, View, Session, FxaClient,
     it('only one forget password request at a time', function () {
       var event = $.Event('click');
 
-      view.submitting = true;
+      view.resetPasswordNow(event);
       return view.resetPasswordNow(event)
-            .then(function () {
-              assert.fail('unexpected success');
-            }, function (err) {
-              assert.equal(err.message, 'submitting already in progress');
-            });
+              .then(function () {
+                assert(false, 'unexpected success');
+              }, function (err) {
+                assert.equal(err.message, 'submit already in progress');
+              });
     });
   });
 

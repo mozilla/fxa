@@ -14,7 +14,6 @@ require.config({
     text: '/bower_components/requirejs-text/text',
     mustache: '/bower_components/mustache/mustache',
     stache: '/bower_components/requirejs-mustache/stache',
-    transit: '/bower_components/jquery.transit/jquery.transit',
     modernizr: '/bower_components/modernizr/modernizr',
     chai: '/bower_components/chai/chai',
     'p-promise': '/bower_components/p/p',
@@ -31,12 +30,6 @@ require.config({
       ],
       exports: 'Backbone'
     },
-    transit: {
-      deps: [
-        'jquery'
-      ],
-      exports: 'jQuery.fn.transition'
-    },
     sinon: {
       exports: 'sinon'
     }
@@ -48,6 +41,8 @@ require.config({
 
 require([
   'lib/translator',
+  'lib/session',
+  'lib/fxa-client',
   '../tests/setup',
   '../tests/spec/lib/channels/web',
   '../tests/spec/lib/channels/fx-desktop',
@@ -61,6 +56,8 @@ require([
   '../tests/spec/lib/router',
   '../tests/spec/lib/strings',
   '../tests/spec/lib/auth-errors',
+  '../tests/spec/lib/app-start',
+  '../tests/spec/lib/validate',
   '../tests/spec/views/base',
   '../tests/spec/views/tooltip',
   '../tests/spec/views/form',
@@ -76,11 +73,26 @@ require([
   '../tests/spec/views/reset_password',
   '../tests/spec/views/confirm_reset_password',
   '../tests/spec/views/complete_reset_password',
-  '../tests/spec/views/ready'
+  '../tests/spec/views/ready',
+  '../tests/spec/views/cookies_disabled'
 ],
-function (Translator) {
+function (Translator, Session, FxaClientWrapper) {
+
   // The translator is expected to be on the window object.
   window.translator = new Translator('en-US', ['en-US']);
+
+  /**
+   * Ensure session state does not pollute other tests
+   */
+  beforeEach(function () {
+    Session.testClear();
+    FxaClientWrapper.testClear();
+  });
+
+  afterEach(function () {
+    Session.testClear();
+    FxaClientWrapper.testClear();
+  });
 
   var runner = mocha.run();
 

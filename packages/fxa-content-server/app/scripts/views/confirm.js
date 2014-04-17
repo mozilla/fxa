@@ -8,17 +8,17 @@ define([
   'views/form',
   'views/base',
   'stache!templates/confirm',
-  'lib/session'
+  'lib/session',
+  'lib/auth-errors'
 ],
-function (FormView, BaseView, Template, Session) {
+function (FormView, BaseView, Template, Session, authErrors) {
   var View = FormView.extend({
     template: Template,
     className: 'confirm',
 
     context: function () {
       return {
-        // HTML is written here to simplify the l10n community's job
-        email: '<strong id="confirm-email" class="email">' + Session.email + '</strong>'
+        email: Session.email
       };
     },
 
@@ -27,12 +27,24 @@ function (FormView, BaseView, Template, Session) {
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
+    afterRender: function() {
+      var graphic = this.$el.find('.graphic');
+      graphic.addClass('pulse');
+    },
+
     submit: function () {
       var self = this;
 
       return this.fxaClient.signUpResend()
               .then(function () {
                 self.displaySuccess();
+              }, function (err) {
+                if (authErrors.is(err, 'INVALID_TOKEN')) {
+                  return self.navigate('signup');
+                }
+
+                // unexpected error, rethrow for display.
+                throw err;
               });
     }
 

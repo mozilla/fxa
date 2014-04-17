@@ -7,9 +7,8 @@
     "underscore": "1.5.2",
     "backbone": "1.1.0",
     "modernizr": "2.7.1",
-    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.17",
+    "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.18",
     "normalize-css": "2.1.3",
-    "jquery.transit": "0.9.9",
     "requirejs-mustache": "https://github.com/jfparadis/requirejs-mustache.git#5fb8c0a3e8560526e8f9617a689e2924a8532d0a",
     "mustache": "0.7.3",
     "requirejs-text": "2.0.10",
@@ -19,7 +18,9 @@
     "sinon": "http://sinonjs.org/releases/sinon-1.7.1.js",
     "fxa-content-server-l10n": "https://github.com/mozilla/fxa-content-server-l10n.git",
     "blanket": "1.1.5",
-    "tos-pp": "https://github.com/mozilla/legal-docs.git"
+    "tos-pp": "https://github.com/mozilla/legal-docs.git",
+    "connect-fonts-firasans": "https://github.com/shane-tomlinson/connect-fonts-firasans.git",
+    "connect-fonts-clearsans": "https://github.com/shane-tomlinson/connect-fonts-clearsans.git"
   },
   "devDependencies": {}
 }

@@ -12,6 +12,8 @@ define([
 ],
 function (_, Backbone) {
   function WindowMock() {
+    var self = this;
+
     this.translator = window.translator;
     this.location = {
       href: window.location.href,
@@ -21,6 +23,12 @@ function (_, Backbone) {
 
     this.document = {
       title: window.document.title
+    };
+
+    this.history = {
+      back: function () {
+        self.history.back.called = true;
+      }
     };
   }
 
@@ -53,6 +61,22 @@ function (_, Backbone) {
     },
 
     scrollTo: function(x, y) {
+    },
+
+    setTimeout: function (callback, timeoutMS) {
+      this._isTimeoutSet = true;
+      return 'timeout';
+    },
+
+    isTimeoutSet: function () {
+      return !!this._isTimeoutSet;
+    },
+
+    clearTimeout: function (timeout) {
+    },
+
+    navigator: {
+      language: 'en-US'
     }
   });
 

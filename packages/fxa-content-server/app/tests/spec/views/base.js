@@ -47,8 +47,10 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         window: windowMock
       });
 
-      view.render();
-      jQuery('body').append(view.el);
+      return view.render()
+          .then(function () {
+            jQuery('body').append(view.el);
+          });
     });
 
     afterEach(function () {
@@ -69,24 +71,30 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         view.template = function () {
           return '<h1>Main title</h1><h2>Sub title</h2>';
         };
-        view.render();
-        assert.equal(windowMock.document.title, 'Main title: Sub title');
+        return view.render()
+            .then(function () {
+              assert.equal(windowMock.document.title, 'Main title: Sub title');
+            });
       });
 
       it('updates the page title with the embedded h1 tag if no h2 tag', function () {
         view.template = function () {
           return '<h1>Title only</h1>';
         };
-        view.render();
-        assert.equal(windowMock.document.title, 'Title only');
+        return view.render()
+            .then(function () {
+              assert.equal(windowMock.document.title, 'Title only');
+            });
       });
 
       it('updates the page title with the startup page title if no h1 or h2 tag', function () {
         view.template = function () {
           return '<div>no titles anywhere</div>';
         };
-        view.render();
-        assert.equal(windowMock.document.title, 'Firefox Accounts Unit Tests');
+        return view.render()
+            .then(function () {
+              assert.equal(windowMock.document.title, 'Firefox Accounts Unit Tests');
+            });
       });
     });
 
@@ -122,12 +130,16 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       });
     });
 
-    describe('displayError', function () {
+    describe('displayError/isErrorVisible/hideError', function () {
       it('translates and display an error in the .error element', function () {
         var msg = view.displayError('the error message');
         var expected = 'a translated error message';
         assert.equal(view.$('.error').html(), expected);
         assert.equal(msg, expected);
+
+        assert.isTrue(view.isErrorVisible());
+        view.hideError();
+        assert.isFalse(view.isErrorVisible());
       });
 
       it('hides any previously displayed success messages', function () {
@@ -148,6 +160,10 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         var expected = 'an error message<div>with html</div>';
         assert.equal(view.$('.error').html(), expected);
         assert.equal(msg, expected);
+
+        assert.isTrue(view.isErrorVisible());
+        view.hideError();
+        assert.isFalse(view.isErrorVisible());
       });
     });
 
@@ -238,6 +254,25 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         backboneHandler.call(view, eventMock);
 
         assert.isTrue(eventMock.isDefaultPrevented());
+      });
+    });
+
+    describe('importSearchParam', function () {
+      it('imports an item from the url\'s search parameters, if available', function () {
+        windowMock.location.search = '?item=value';
+
+        view.importSearchParam('item');
+        assert.equal(view.item, 'value');
+      });
+
+      it('throws an error if search parameter is not available', function () {
+        var err;
+        try {
+          view.importSearchParam('non-existent');
+        } catch(e) {
+          err = e;
+        }
+        assert.ok(err);
       });
     });
   });

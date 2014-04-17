@@ -10,23 +10,21 @@ define([
   'underscore',
   'jquery',
   'views/settings',
-  'lib/fxa-client',
-  'lib/session',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
+function (chai, _, $, View, RouterMock, TestHelpers) {
+  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/settings', function () {
-    var view, router, email;
+    var view, routerMock, email;
 
     beforeEach(function () {
-      Session.clear();
-      router = new RouterMock();
+      routerMock = new RouterMock();
       view = new View({
-        router: router
+        router: routerMock
       });
     });
 
@@ -34,19 +32,15 @@ function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
       $(view.el).remove();
       view.destroy();
       view = null;
-      router = null;
+      routerMock = null;
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function(done) {
-        router.on('navigate', function (newPage) {
-          wrapAssertion(function() {
-            assert.equal(newPage, 'signin');
-          }, done);
-        });
-
-        var isRendered = view.render();
-        assert.isFalse(isRendered);
+      it('redirects to signin', function() {
+        return view.render()
+            .then(function () {
+              assert.equal(routerMock.page, 'signin');
+            });
       });
     });
 
@@ -54,24 +48,25 @@ function (chai, _, $, View, FxaClient, Session, RouterMock, TestHelpers) {
       beforeEach(function () {
         email = 'testuser.' + Math.random() + '@testuser.com';
 
-        var client = new FxaClient();
-        return client.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password')
           .then(function() {
-            view.render();
-
+            return view.render();
+          })
+          .then(function () {
             $('body').append(view.el);
           });
       });
 
-      describe('submit', function () {
-        it('signs the user out, redirects to signin page', function (done) {
-          router.on('navigate', function (newPage) {
-            wrapAssertion(function() {
-              assert.equal(newPage, 'signin');
-            }, done);
-          });
+      it('shows the settings page', function () {
+        assert.ok(view.$('#fxa-settings-header').length);
+      });
 
-          view.submit();
+      describe('submit', function () {
+        it('signs the user out, redirects to signin page', function () {
+          return view.submit()
+              .then(function () {
+                assert.equal(routerMock.page, 'signin');
+              });
         });
       });
     });

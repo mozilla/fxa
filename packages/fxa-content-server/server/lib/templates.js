@@ -32,12 +32,12 @@ module.exports = function (templatePath, i18n) {
   // a map of all the different emails we send
   var templates = {
     verify: {
-      subject: t('Confirm Your Account'),
+      subject: t('Verify your account'),
       text: loadTemplate('email/verify.txt'),
       html: loadTemplate('email/verify.html')
     },
     reset: {
-      subject: t('Reset Password Request'),
+      subject: t('Reset your password'),
       text: loadTemplate('email/reset.txt'),
       html: loadTemplate('email/reset.html')
     }

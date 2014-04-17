@@ -5,6 +5,7 @@
 'use strict';
 
 define([
+  'underscore',
   'jquery',
   'backbone',
   'lib/session',
@@ -23,9 +24,10 @@ define([
   'views/settings',
   'views/change_password',
   'views/delete_account',
-  'transit'
+  'views/cookies_disabled'
 ],
 function (
+  _,
   $,
   Backbone,
   Session,
@@ -43,7 +45,8 @@ function (
   ReadyView,
   SettingsView,
   ChangePasswordView,
-  DeleteAccountView
+  DeleteAccountView,
+  CookiesDisabledView
 ) {
 
   function showView(View, options) {
@@ -73,7 +76,8 @@ function (
       'complete_reset_password(/)': showView(CompleteResetPasswordView),
       'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
       'force_auth(/)': showView(SignInView, { forceAuth: true }),
-      'oauth/signin(/)': showView(SignInView, { isOAuth: true })
+      'oauth/signin(/)': showView(SignInView, { isOAuth: true }),
+      'cookies_disabled(/)': showView(CookiesDisabledView)
     },
 
     initialize: function (options) {
@@ -86,7 +90,7 @@ function (
       this.watchAnchors();
     },
 
-    navigate: function (url) {
+    navigate: function (url, options) {
       // Only add search parameters if they do not already exist.
       // Search parameters are added to the URLs because they are sometimes
       // used to pass state from the browser to the screens. Perhaps we should
@@ -96,19 +100,16 @@ function (
         url = url + this.window.location.search;
       }
 
-      return Backbone.Router.prototype.navigate.call(
-                            this, url, { trigger: true });
+      options = options || { trigger: true };
+      return Backbone.Router.prototype.navigate.call(this, url, options);
     },
 
     redirectToSignupOrSettings: function () {
-      if (Session.sessionToken) {
-        this.navigate('/settings');
-      } else {
-        this.navigate('/signup');
-      }
+      var url = Session.sessionToken ? '/settings' : '/signup';
+      this.navigate(url, { trigger: true, replace: true });
     },
 
-    showView: function (view) {
+    showView: function (viewToShow) {
       if (this.currentView) {
         this.currentView.destroy();
         Session.set('canGoBack', true);
@@ -119,25 +120,37 @@ function (
         Session.set('canGoBack', false);
       }
 
-      this.currentView = view;
+      this.currentView = viewToShow;
 
       // render will return false if the view could not be
       // rendered for any reason, including if the view was
       // automatically redirected.
-      if (this.currentView.render()) {
-        // Render the new view
-        this.$stage.html(this.currentView.el);
+      var self = this;
+      return viewToShow.render()
+        .then(function (isShown) {
+          if (! isShown) {
+            return;
+          }
 
-        // explicitly set the display: block using .css. When embedded
-        // in about:accounts, the content is not yet visible and show will
-        // not display the element.
-        this.$stage.css('display', 'block');
-        this.currentView.afterVisible();
+          // Render the new view and explicitly set the `display: block`
+          // using .css. When embedded in about:accounts, the content
+          // is not yet visible and show will not display the element.
+          self.$stage.html(viewToShow.el).css('display', 'block');
+          viewToShow.afterVisible();
 
-        // The user may be scrolled part way down the page
-        // on screen transition. Force them to the top of the page.
-        this.window.scrollTo(0, 0);
-      }
+          // The user may be scrolled part way down the page
+          // on screen transition. Force them to the top of the page.
+          self.window.scrollTo(0, 0);
+
+          self.$logo = $('#fox-logo');
+          var name = self.currentView.el.className;
+
+          if (name === 'sign-in' || name === 'sign-up') {
+            self.$logo.addClass('fade-down-logo');
+          }
+
+          self.$logo.css('opacity', 1);
+        });
     },
 
     watchAnchors: function () {

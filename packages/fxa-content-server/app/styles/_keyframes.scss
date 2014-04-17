@@ -1,5 +1,4 @@
 /* Keyframes */
-
 @keyframes fadein {
   from {
     opacity: 0;
@@ -9,17 +8,7 @@
   }
 }
 
-@keyframes movein {
-  0% {
-    left: 0;
-    top: -60px;
-  }
-  100% {
-    left: 0;
-    top: -40px;
-  }
-}
-
+//used to spin loader elements
 @keyframes spin {
   from {
     transform: rotate(0deg);
@@ -29,7 +18,7 @@
   }
 }
 
-
+//used for tooltips below form element
 @keyframes fade-up-tt {
   0% {
     opacity: 0;
@@ -42,6 +31,7 @@
   }
 }
 
+//used for tooltips above form element
 @keyframes fade-down-tt {
   0% {
     opacity: 0;
@@ -52,4 +42,74 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+//used for pulsing checkbox
+@keyframes pulse {
+  0% {
+    opacity: 0;
+    transform: scale(1,1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1,1.1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1,1);
+  }
+}
+
+//used for bringing  logo into position
+@keyframes fade-down-logo {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+//used to add shake to error message
+@keyframes error-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-50px);
+  }
+
+  20%, 40%, 60%, 80% {
+    transform: translateX(50px);
+  }
+
+}
+
+.error-shake {
+  animation: error-shake 1s;
+}
+
+.fade-down-logo {
+  animation: fade-down-logo 1s;
+}
+
+.fade-down-tt {
+  animation-name: fade-down-tt;
+  animation-duration: .5s;
+}
+
+.fade-up-tt {
+  animation-name: fade-up-tt;
+  animation-duration: .5s;
+}
+
+.pulse {
+  animation-name: pulse;
+  animation-duration: .5s;
 }

@@ -16,6 +16,7 @@ module.exports = function (grunt) {
       'l10n-generate-tos-pp:app',
       'css',
       'concurrent:server',
+      'static-pages',
       'serverproc:app'
     ]);
   });

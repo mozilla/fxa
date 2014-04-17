@@ -7,26 +7,41 @@
 
 define([
   'chai',
+  'p-promise',
+  'lib/auth-errors',
   'views/complete_reset_password',
+  '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, View, WindowMock, TestHelpers) {
+function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
+  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/complete_reset_password', function () {
-    var view, windowMock;
+    var view, routerMock, windowMock, isPasswordResetComplete;
 
     beforeEach(function () {
+      routerMock = new RouterMock();
       windowMock = new WindowMock();
+      windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
 
       view = new View({
+        router: routerMock,
         window: windowMock
       });
 
-      view.render();
-      $('#container').html(view.el);
+      // mock in isPasswordResetComplete
+      isPasswordResetComplete = false;
+      view.fxaClient.isPasswordResetComplete = function () {
+        return p(isPasswordResetComplete);
+      };
+
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
@@ -35,35 +50,41 @@ function (chai, View, WindowMock, TestHelpers) {
       view = windowMock = null;
     });
 
-    describe('constructor creates it', function () {
-      it('is drawn', function () {
-        assert.ok($('#fxa-complete-reset-password-header').length);
-      });
-    });
-
     describe('render', function () {
-      it('shows an error if the token is missing', function (done) {
-        windowMock.location.search = '?code=code&email=testuser@testuser.com';
-        view.on('error', function () {
-          done();
-        });
-        view.render();
+      it('shows form if token, code and email are all present', function () {
+        assert.ok(view.$('#fxa-complete-reset-password-header').length);
       });
 
-      it('shows an error if the code is missing', function (done) {
-        windowMock.location.search = '?token=token&email=testuser@testuser.com';
-        view.on('error', function () {
-          done();
-        });
-        view.render();
+      it('shows malformed screen if the token is missing', function () {
+        windowMock.location.search = '?code=faea&email=testuser@testuser.com';
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('#fxa-verification-link-damaged-header').length);
+            });
       });
 
-      it('shows an error if the email is missing', function (done) {
-        windowMock.location.search = '?token=token&code=code';
-        view.on('error', function () {
-          done();
-        });
-        view.render();
+      it('shows malformed screen if the code is missing', function () {
+        windowMock.location.search = '?token=feed&email=testuser@testuser.com';
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('#fxa-verification-link-damaged-header').length);
+            });
+      });
+
+      it('shows malformed screen if the email is missing', function () {
+        windowMock.location.search = '?token=feed&code=dea0fae1abc2fab3bed4dec5eec6ace7';
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('#fxa-verification-link-damaged-header').length);
+            });
+      });
+
+      it('shows the expired screen if the token has already been verified', function () {
+        isPasswordResetComplete = true;
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('#fxa-verification-link-expired-header').length);
+            });
       });
     });
 
@@ -83,52 +104,27 @@ function (chai, View, WindowMock, TestHelpers) {
     });
 
     describe('isValid', function () {
-      it('returns true if token, code, email, password, vpassword available, password & vpassword valid and the same', function () {
-        view.token = view.code = view.email = 'passed_in_on_url';
+      it('returns true if password & vpassword valid and the same', function () {
         view.$('#password').val('password');
         view.$('#vpassword').val('password');
         assert.isTrue(view.isValid());
       });
 
-      it('returns false if token, code, email, password, vpassword available, password & vpassword valid are different', function () {
-        view.token = view.code = view.email = 'passed_in_on_url';
+      it('returns false if password & vpassword are different', function () {
         view.$('#password').val('password');
         view.$('#vpassword').val('other_password');
         assert.isFalse(view.isValid());
       });
 
-      it('returns false if token, code, email, password, vpassword available, password invalid', function () {
-        view.token = view.code = view.email = 'passed_in_on_url';
+      it('returns false if password invalid', function () {
         view.$('#password').val('passwor');
         view.$('#vpassword').val('password');
         assert.isFalse(view.isValid());
       });
 
-      it('returns false if token, code, email, password, vpassword available, vpassword invalid', function () {
-        view.token = view.code = view.email = 'passed_in_on_url';
+      it('returns false if vpassword invalid', function () {
         view.$('#password').val('password');
         view.$('#vpassword').val('passwor');
-        assert.isFalse(view.isValid());
-      });
-
-      it('returns false if email missing', function () {
-        view.token = view.code = 'passed_in_on_url';
-        view.$('#password').val('password');
-        view.$('#vpassword').val('password');
-        assert.isFalse(view.isValid());
-      });
-
-      it('returns false if code missing', function () {
-        view.token = view.email = 'passed_in_on_url';
-        view.$('#password').val('password');
-        view.$('#vpassword').val('password');
-        assert.isFalse(view.isValid());
-      });
-
-      it('returns false if token missing', function () {
-        view.code = view.email = 'passed_in_on_url';
-        view.$('#password').val('password');
-        view.$('#vpassword').val('password');
         assert.isFalse(view.isValid());
       });
     });
@@ -161,21 +157,97 @@ function (chai, View, WindowMock, TestHelpers) {
       });
     });
 
-    describe('submit', function() {
-      it('shows an error if passwords are the same', function (done) {
+    describe('validateAndSubmit', function() {
+      it('shows an error if passwords are different', function () {
         view.$('#password').val('password1');
         view.$('#vpassword').val('password2');
 
-        view.on('error', function() {
-          done();
-        });
-
-        view.submit();
+        return view.validateAndSubmit()
+            .then(function () {
+              assert(false, 'unexpected success');
+            }, function () {
+              assert.ok(view.$('.error').text().length);
+            });
       });
 
-      it('submits if passwords are the same', function () {
+      it('redirects to reset_password_complete if all is well', function () {
         view.$('[type=password]').val('password');
-        view.submit();
+
+        view.fxaClient.completePasswordReset = function () {
+          return p(true);
+        };
+        return view.validateAndSubmit()
+            .then(function () {
+              assert.equal(routerMock.page, 'reset_password_complete');
+            });
+      });
+
+      it('reload view to allow user to resend an email on INVALID_TOKEN error', function () {
+        view.$('[type=password]').val('password');
+
+        view.fxaClient.completePasswordReset = function () {
+          return p()
+              .then(function () {
+                throw authErrors.toError('INVALID_TOKEN', 'invalid token, man');
+              });
+        };
+        // isPasswordResetComplete needs to be overridden as well for when
+        // render is re-loaded the token needs to be expired.
+        view.fxaClient.isPasswordResetComplete = function () {
+          return p()
+              .then(function () {
+                return true;
+              });
+        };
+        return view.validateAndSubmit()
+            .then(function () {
+              assert.ok(view.$('#fxa-verification-link-expired-header').length);
+            });
+      });
+
+      it('shows error message if server returns an error', function () {
+        view.$('[type=password]').val('password');
+
+        view.fxaClient.completePasswordReset = function () {
+          return p()
+              .then(function () {
+                throw new Error('uh oh');
+              });
+        };
+        return view.validateAndSubmit()
+            .then(function () {
+              assert(false, 'unexpected success');
+            }, function () {
+              assert.ok(view.$('.error').text().length);
+            });
+      });
+    });
+
+    describe('resendResetEmail', function() {
+      it('redirects to /confirm_reset_password if auth server is happy', function () {
+        view.fxaClient.passwordReset = function (email) {
+          assert.equal(email, 'testuser@testuser.com');
+          return p(true);
+        };
+
+        return view.resendResetEmail()
+            .then(function () {
+              assert.equal(routerMock.page, 'confirm_reset_password');
+            });
+      });
+
+      it('shows server response as an error otherwise', function () {
+        view.fxaClient.passwordReset = function (email) {
+          return p()
+              .then(function () {
+                throw new Error('server error');
+              });
+        };
+
+        return view.resendResetEmail()
+            .then(function () {
+              assert.equal(view.$('.error').text(), 'server error');
+            });
       });
     });
   });

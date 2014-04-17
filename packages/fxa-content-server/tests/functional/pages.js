@@ -42,7 +42,10 @@ define([
     'reset_password_complete',
     'force_auth',
     'delete_account',
-    'non_existent'
+    'non_existent',
+    '500.html',
+    '503.html',
+    'boom'
   ];
 
   var suite = {

@@ -64,20 +64,20 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
     });
 
     describe('redirectToSignupOrSettings', function () {
-      it('go to the signup page', function () {
+      it('replaces current page with the signup page if there is no sessionToken', function () {
         windowMock.location.search = '';
         Session.set('sessionToken', null);
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/signup');
-        assert.deepEqual(navigateOptions, { trigger: true });
+        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
       });
 
-      it('go to the settings page', function () {
+      it('replaces the current page with the settings page if there is a sessionToken', function () {
         windowMock.location.search = '';
         Session.set('sessionToken', 'abc123');
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/settings');
-        assert.deepEqual(navigateOptions, { trigger: true });
+        assert.deepEqual(navigateOptions, { trigger: true, replace: true });
       });
     });
 
@@ -87,25 +87,27 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
       beforeEach(function () {
         signInView = new SignInView({});
         signUpView = new SignUpView({});
-        Session.clear();
       });
 
       afterEach(function() {
         signInView = signUpView = null;
-        Session.clear();
       });
 
       it('shows a view, then shows the new view', function () {
-        router.showView(signInView);
-        assert.ok($('#fxa-signin-header').length);
-        // session was cleared in beforeEach, simulating a user
-        // visiting their first page. The user cannot go back.
-        assert.equal(Session.canGoBack, false);
+        return router.showView(signInView)
+            .then(function () {
+              assert.ok($('#fxa-signin-header').length);
 
-        router.showView(signUpView);
-        assert.ok($('#fxa-signup-header').length);
-        // if there is a back button, it can be shown now.
-        assert.equal(Session.canGoBack, true);
+              // session was cleared in beforeEach, simulating a user
+              // visiting their first page. The user cannot go back.
+              assert.equal(Session.canGoBack, false);
+              return router.showView(signUpView);
+            })
+            .then(function () {
+              assert.ok($('#fxa-signup-header').length);
+              // if there is a back button, it can be shown now.
+              assert.equal(Session.canGoBack, true);
+            });
       });
     });
   });
