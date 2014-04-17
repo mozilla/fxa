@@ -75,6 +75,10 @@ noscript {
   z-index: 999;
 }
 
+#fox-logo.static {
+  opacity: 1;
+}
+
 #stage {
   background: $stage-background-color;
   border-radius: 5px;

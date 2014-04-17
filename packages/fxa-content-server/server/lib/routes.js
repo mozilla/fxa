@@ -100,6 +100,13 @@ module.exports = function (config, templates, i18n) {
       }
       app[route.method](route.path, route.process);
     });
+
+    // Add a route in dev mode to test 500 errors
+    if (config.get('env') === 'development') {
+      app.get('/boom', function(req, res, next) {
+        next(new Error('Uh oh!'));
+      });
+    }
   };
 
 };
