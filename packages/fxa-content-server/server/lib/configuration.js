@@ -73,6 +73,11 @@ var conf = module.exports = convict({
     format: [ 'default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny' ],
     default: 'default_fxa'
   },
+  disable_route_logging: {
+    doc: 'Disable route logging completely. Useful for trimming travis logs.',
+    default: false,
+    env: 'DISABLE_ROUTE_LOGGING'
+  },
   use_https: false,
   var_path: {
     doc: 'The path where deployment specific resources will be sought (keys, etc), and logs will be kept.',
