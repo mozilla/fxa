@@ -73,7 +73,9 @@ function makeApp() {
 
   // workaround for reserved word bug:
   // https://github.com/marijnh/acorn/issues/85
-  app.use(express['static'](STATIC_DIRECTORY));
+  app.use(express['static'](STATIC_DIRECTORY, {
+      maxAge: config.get('static_max_age')
+  }));
 
   // it's a four-oh-four not found.
   app.use(fourOhFour);

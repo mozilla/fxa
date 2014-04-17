@@ -90,10 +90,10 @@ var conf = module.exports = convict({
     format: String,
     default: 'app'
   },
-  font_max_age_ms: {
-    doc: 'Cache fonts for this amount of time, in ms',
+  static_max_age: {
+    doc: 'Cache max age for static assets, in ms',
     format: Number,
-    default: 180 * 24 * 60 * 60 * 1000      // 180 days
+    default: 180 * 24 * 60 * 60 * 1000
   },
   hsts_max_age: {
     doc: 'Max age of the STS directive, in seconds',
