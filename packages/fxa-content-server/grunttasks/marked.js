@@ -18,8 +18,9 @@ module.exports = function (grunt) {
 
   grunt.config('marked', {
     options: {
-      sanitize: false,
-      gfm: true
+      breaks: true,
+      gfm: true,
+      sanitize: false
     },
     tos_pp: {
       files: [
