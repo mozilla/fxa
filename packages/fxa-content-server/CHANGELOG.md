@@ -1,3 +1,12 @@
+<a name="0.10.1"></a>
+### 0.10.1 (2014-04-18)
+
+
+#### Bug Fixes
+
+* **client:** Replaced cookie checks with localStorage checks as a work around for 3rd party c ([c75bf680](https://github.com/mozilla/fxa-content-server/commit/c75bf6801eb764bfd773c0b831381dd6a58157ea))
+
+
 <a name="0.10.0"></a>
 ## 0.10.0 (2014-04-14)
 
