@@ -1,0 +1,17 @@
+{
+  "name": "fxa-customs-server",
+  "version": "0.0.0",
+  "description": "",
+  "scripts": {
+    "test": "tap test"
+  },
+  "author": "",
+  "license": "MPL 2.0",
+  "dependencies": {
+    "rc": "0.3.4",
+    "bluebird": "1.2.2",
+    "bunyan": "0.22.3",
+    "restify": "2.7.0",
+    "memcached": "0.2.8"
+  }
+}
