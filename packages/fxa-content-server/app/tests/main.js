@@ -56,6 +56,7 @@ require([
   '../tests/spec/lib/auth-errors',
   '../tests/spec/lib/app-start',
   '../tests/spec/lib/validate',
+  '../tests/spec/lib/service-name',
   '../tests/spec/views/base',
   '../tests/spec/views/tooltip',
   '../tests/spec/views/form',
