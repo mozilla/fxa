@@ -33,6 +33,19 @@ module.exports = function (grunt) {
           '<%= yeoman.tmp %>/*'
         ]
       }]
+    },
+    bower_tos_pp: {
+      // options: {
+      //   'no-write': true
+      // },
+      files: [{
+        src: [
+          '<%= yeoman.tos_pp_repo_dest %>/*',
+          // Excludes
+          '!<%= yeoman.tos_pp_repo_dest %>/firefox_cloud_services_PrivacyNotice',
+          '!<%= yeoman.tos_pp_repo_dest %>/firefox_cloud_services_ToS'
+        ]
+      }]
     }
   });
 };
