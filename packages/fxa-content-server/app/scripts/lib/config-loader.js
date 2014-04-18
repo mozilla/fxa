@@ -65,15 +65,43 @@ function (
     },
 
     areCookiesEnabled: function (force) {
+      var self = this;
       return this.fetch(force)
           .then(function (config) {
             // use the search parameter for selenium testing. There is
             // no way to disable cookies using wd, so the search parameter
             // is used as a dirty hack.
-            var cookiesEnabled = Url.searchParam('disable_cookies') ?
-                                        false : config.cookiesEnabled;
-            return cookiesEnabled;
+            // var cookiesEnabled = Url.searchParam('disable_cookies') ?
+            //                            false : config.cookiesEnabled;
+
+            // HACK: This is a gross work around for 3rd party cookie issues in
+            //       Firefox Nightly (2014-04-18). Ignoring cookiesEnabled
+            //       altogether for now.
+            var localStorageEnabled;
+
+            if (Url.searchParam('disable_local_storage') === '1') {
+              localStorageEnabled = false;
+            } else if (typeof config.localStorageEnabled !== 'undefined') {
+              localStorageEnabled = config.localStorageEnabled;
+            } else {
+              localStorageEnabled = self.isLocalStorageEnabled();
+            }
+
+            return localStorageEnabled;
           });
+    },
+
+    // HACK: Part of a temporary work around for Firefox Nightly (2014-04-18)
+    isLocalStorageEnabled: function() {
+      var testData = 'local-storage-test';
+
+      try {
+        localStorage.setItem(testData, testData);
+        localStorage.removeItem(testData);
+        return true;
+      } catch(e) {
+        return false;
+      }
     }
   };
 
