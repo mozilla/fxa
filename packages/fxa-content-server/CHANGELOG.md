@@ -1,6 +1,10 @@
 <a name="0.10.2"></a>
 ### 0.10.2 (2014-04-18)
 
+#### Bug Fixes
+
+* **tests:** fix privacy heading ID ([4fd3139e](https://github.com/mozilla/fxa-content-server/commit/4fd3139e4a4044e45bd6d06ebc680c4d1f1c667c))
+
 
 <a name="0.10.1"></a>
 ### 0.10.1 (2014-04-18)
