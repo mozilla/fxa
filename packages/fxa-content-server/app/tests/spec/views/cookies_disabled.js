@@ -53,9 +53,9 @@ function ($, chai, p, View, WindowMock) {
     });
 
     describe('backIfCookiesEnabled', function () {
-      it('goes back in history if cookies are enabled', function () {
+      it('goes back in history if localStorage is enabled', function () {
         serverConfig = {
-          cookiesEnabled: true
+          localStorageEnabled: true
         };
 
         return view.backIfCookiesEnabled()
@@ -65,9 +65,9 @@ function ($, chai, p, View, WindowMock) {
           });
       });
 
-      it('shows an error message if cookies are still disabled', function () {
+      it('shows an error message if localStorage is still disabled', function () {
         serverConfig = {
-          cookiesEnabled: false
+          localStorageEnabled: false
         };
 
         return view.backIfCookiesEnabled()
