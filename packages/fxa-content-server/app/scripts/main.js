@@ -26,6 +26,9 @@ require.config({
         'jquery'
       ],
       exports: 'Backbone'
+    },
+    modernizr: {
+      exports: 'Modernizr'
     }
   },
   stache: {

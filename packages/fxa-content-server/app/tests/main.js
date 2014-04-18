@@ -32,6 +32,9 @@ require.config({
     },
     sinon: {
       exports: 'sinon'
+    },
+    modernizr: {
+      exports: 'Modernizr'
     }
   },
   stache: {
