@@ -59,6 +59,15 @@ function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord) {
   )
 }
 
+function retryAfter(record) {
+  if (!record.bk) { return 0 }
+  return Math.floor((record.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
+}
+
+function max(prev, cur) {
+  return Math.max(prev, cur)
+}
+
 api.post(
   '/check',
   function (req, res, next) {
@@ -77,17 +86,30 @@ api.post(
           return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
             .then(
               function () {
-                return emailRecord.isBlocked() ||
+                var block = emailRecord.isBlocked() ||
                   ipRecord.isBlocked() ||
                   ipEmailRecord.isBlocked()
+                var rt = 0
+                if (block) {
+                  rt = [
+                    retryAfter(emailRecord),
+                    retryAfter(ipRecord),
+                    retryAfter(ipEmailRecord)
+                  ].reduce(max)
+                }
+                return {
+                  block: block,
+                  retryAfter: rt
+                }
+                return
               }
             )
         }
       )
       .then(
-        function (block) {
-          log.info({ op: 'request.check', email: email, ip: ip, block: block })
-          res.send({ block: block })
+        function (result) {
+          log.info({ op: 'request.check', email: email, ip: ip, block: result.block })
+          res.send(result)
         },
         function (err) {
           log.info({ op: 'request.check', email: email, ip: ip, err: err })
