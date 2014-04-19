@@ -39,6 +39,8 @@ function main() {
   var signer = new CC({ module: __dirname + '/signer.js' })
   signer.on('error', function () {}) // don't die
 
+  var Customs = require('../customs')(log, error)
+
   var Server = require('../server')
   var server = null
   var mailer = null
@@ -67,7 +69,7 @@ function main() {
         DB.connect(config[config.db.backend])
           .done(
             function (db) {
-              var customs = require('../customs')(log, error)
+              var customs = new Customs(config.customsUrl)
               var routes = require('../routes')(
                 log,
                 error,

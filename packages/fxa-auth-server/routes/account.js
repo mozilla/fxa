@@ -46,7 +46,12 @@ module.exports = function (
         var email = form.email
         var authSalt = crypto.randomBytes(32)
         var authPW = Buffer(form.authPW, 'hex')
-        customs.check(email, 'accountCreate')
+        customs.check(
+          request.app.clientAddress,
+          request.headers['user-agent'],
+          email,
+          'accountCreate'
+          )
           .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
@@ -190,7 +195,11 @@ module.exports = function (
         var form = request.payload
         var email = form.email
         var authPW = Buffer(form.authPW, 'hex')
-        customs.check(email, 'accountLogin')
+        customs.check(
+          request.app.clientAddress,
+          request.headers['user-agent'],
+          email,
+          'accountLogin')
           .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
@@ -203,7 +212,7 @@ module.exports = function (
               .then(
                 function (match) {
                   if (!match) {
-                    return customs.flag(email)
+                    return customs.flag(request.app.clientAddress, email)
                       .then(
                         function () {
                           throw error.incorrectPassword(emailRecord.email, email)
@@ -403,7 +412,11 @@ module.exports = function (
             Date.now() - sessionToken.verifierSetAt < resendBlackoutPeriod) {
           return reply({})
         }
-        customs.check(sessionToken.email, 'recoveryEmailResendCode')
+        customs.check(
+          request.app.clientAddress,
+          request.headers['user-agent'],
+          sessionToken.email,
+          'recoveryEmailResendCode')
           .then(
             mailer.sendVerifyCode.bind(
               mailer,
@@ -526,7 +539,12 @@ module.exports = function (
                 .then(
                   function (match) {
                     if (!match) {
-                      throw error.incorrectPassword(emailRecord.email, form.email)
+                      return customs.flag(request.app.clientAddress, form.email)
+                        .then(
+                          function () {
+                            throw error.incorrectPassword(emailRecord.email, form.email)
+                          }
+                        )
                     }
                     return db.deleteAccount(emailRecord)
                   }

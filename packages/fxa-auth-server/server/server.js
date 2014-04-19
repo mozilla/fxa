@@ -148,6 +148,7 @@ module.exports = function (path, url, Hapi, toobusy) {
         xff.push(request.info.remoteAddress)
         // Remove empty items from the list, in case of badly-formed header.
         request.app.remoteAddressChain = xff.filter(function(x){ return x })
+        request.app.clientAddress = request.app.remoteAddressChain[0]
 
         request.app.acceptLanguage = request.headers['accept-language']
 
