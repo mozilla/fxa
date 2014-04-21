@@ -48,7 +48,7 @@
     "through": "2.3.4",
     "toobusy": "0.2.4",
     "uuid": "1.4.1",
-    "fxa-customs-server": "git://github.com/dannycoates/fxa-customs-server.git#3849ebb9"
+    "fxa-customs-server": "git://github.com/dannycoates/fxa-customs-server.git#74d7b8d6"
   },
   "devDependencies": {
     "ass": "0.0.4",
