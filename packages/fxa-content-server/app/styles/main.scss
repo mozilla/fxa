@@ -274,11 +274,13 @@ strong.email {
   height: 45px;
   outline: none;
   padding: 0 20px;
+  position: relative;
   transition-duration: 150ms;
   transition-property: border-color;
   /*kills inset shadow on ios browsers*/
   -webkit-appearance:none;
   width: 100%;
+  z-index: 2;
 }
 
 .input-row input::-webkit-input-placeholder {
@@ -552,6 +554,7 @@ ul.links li {
   // it is very easy to accidentally select the text when clicking
   -webkit-touch-callout: none;
   user-select: none;
+  z-index: 3;
 }
 
 .password-row > .password:hover {
@@ -622,6 +625,23 @@ input[type="text"] ~ .show-password-label:hover {
 
 .cannot-create-account-content {
   margin-top: 105px;
+}
+
+.change-password .password-row,
+.complete_reset_password .password-row {
+  margin-bottom: 25px;
+}
+
+.label-helper {
+  border-radius: 2px;
+  color: $input-placeholder-color;
+  font-size: 12px;
+  font-weight: normal;
+  height: 16px;
+  margin: 0 10px;
+  position: absolute;
+  top: 0;
+  z-index: 1;
 }
 
 .spinner {

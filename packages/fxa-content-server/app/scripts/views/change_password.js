@@ -34,6 +34,10 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin) {
       };
     },
 
+    afterRender: function() {
+      this.togglePlaceholderPattern();
+    },
+
     submit: function () {
       var email = Session.email;
       var oldPassword = this.$('#old_password').val();

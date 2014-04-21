@@ -53,6 +53,10 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, aut
           });
     },
 
+    afterRender: function() {
+      this.togglePlaceholderPattern();
+    },
+
     _doesLinkValidate: function () {
       return Validate.isTokenValid(this.token) &&
              Validate.isCodeValid(this.code) &&

@@ -84,6 +84,20 @@ function (_, $, p, Validate, BaseView, Tooltip) {
       return values;
     },
 
+    //when a user begins typing in an input, grab the placeholder, 
+    // put it in a label and then unbind the event
+    // this is done to prevent user confustion about multiple password inputs
+    togglePlaceholderPattern: function() {
+      var input = this.$('input');
+      input.one('keypress', function(){
+        var placeholder = $(this).attr('placeholder');
+        if (placeholder !== '') {
+          $(this).attr('placeholder','');
+          $(this).prev('.label-helper').text(placeholder).animate( {'top': '-17px'}, 400);
+        }
+      });
+    },
+
     enableSubmitIfValid: function () {
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
