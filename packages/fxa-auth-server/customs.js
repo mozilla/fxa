@@ -23,7 +23,8 @@
           email: email,
           action: action,
           agent: agent
-        }
+        },
+        timeout: 1000
       }
     )
     .then(
@@ -49,7 +50,8 @@
         json: {
           ip: ip,
           email: email
-        }
+        },
+        timeout: 1000
       }
     )
     .then(
