@@ -15,6 +15,9 @@ module.exports = function (grunt) {
       replacements: [{
         from: /{:\s.*?\s}/g,
         to: ''
+      }, {
+        from: /^#\s.*?\n$/m,
+        to: ''
       }]
     }
   });
