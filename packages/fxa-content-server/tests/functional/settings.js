@@ -171,8 +171,7 @@ define([
           .click()
         .end()
 
-        // brittle, but some processing time.
-        .wait(2000)
+        .waitForVisibleByClassName('error')
 
         .elementByCssSelector('.error').isDisplayed()
           .then(function (isDisplayed) {
@@ -247,8 +246,7 @@ define([
           .click()
         .end()
 
-        // brittle, but some processing time.
-        .wait(2000)
+        .waitForVisibleByClassName('success')
 
         .elementByCssSelector('.success').isDisplayed()
           .then(function (isDisplayed) {
