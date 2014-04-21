@@ -21,5 +21,6 @@
   "verifierVersion": 0,
   "bounces": {
     "region": "us-east-1"
-  }
+  },
+  "customsUrl": "none"
 }

@@ -152,7 +152,7 @@ module.exports = function (fs, path, url, convict) {
     },
     customsUrl: {
       doc: "fraud / abuse server url",
-      default: 'none', //http://127.0.0.1:7000
+      default: 'http://127.0.0.1:7000',
       env: 'CUSTOMS_SERVER_URL'
     },
     contentServer: {
