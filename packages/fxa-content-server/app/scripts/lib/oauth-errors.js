@@ -18,7 +18,8 @@ function () {
     UNKNOWN_CLIENT: 101,
     INCORRECT_REDIRECT: 103,
     INVALID_ASSERTION: 104,
-    INVALID_PARAMETER: 108
+    INVALID_PARAMETER: 108,
+    INVALID_REQUEST_SIGNATURE: 109
   };
 
   var CODE_TO_MESSAGES = {
@@ -28,6 +29,7 @@ function () {
     103: t('Incorrect redirect_uri'),
     104: t('Invalid assertion'),
     108: t('Invalid parameter in request body: %(param)s'),
+    109: t('Invalid request signature'),
   };
 
   return {

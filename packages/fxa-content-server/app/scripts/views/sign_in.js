@@ -14,11 +14,9 @@ define([
   'lib/session',
   'lib/password-mixin',
   'lib/url',
-  'lib/auth-errors',
-  'lib/oauth-client',
-  'lib/assertion'
+  'lib/auth-errors'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors, OAuthClient, assertion) {
+function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -46,33 +44,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         }
       }
 
-      // Extract oAuth search params
-      // QUESTION: Should we extract the oauth logic out into another view (subclass)?
-      this.isOAuth = options.isOAuth;
-      if (this.isOAuth) {
-        this.oAuthClientID = Url.searchParam('client_id', this.window.location.search);
-        this.oAuthScope = Url.searchParam('scope', this.window.location.search);
-        this.oAuthState = Url.searchParam('state', this.window.location.search);
-        this.oAuthRedirectUri = Url.searchParam('redirect_uri', this.window.location.search);
-
-        this.oAuthClient = new OAuthClient();
-
-        this.oAuthClient.getClientInfo(this.oAuthClientID).then(_.bind(function(result) {
-          // QUESTION: Is it safe to store these in the Session?
-          this.service = result.name;
-          // QUESTION: Do we store the friendly name separately or just rely on a mapping with
-          // fallback?
-          this.serviceName = result.name;
-
-          this.render();
-        }, this))
-        .fail(function(xhr) {
-          // QUESTION: What should we do when getting client info fails?
-          console.error('oauthClient.getClientInfo FAILED', xhr);
-        });
-      } else {
-        this.service = Session.service;
-      }
+      this.service = Session.service;
     },
 
     context: function () {
@@ -108,35 +80,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       return this.fxaClient.signIn(email, password)
         .then(function (accountData) {
           if (accountData.verified) {
-            // If this is oauth then create an assertion and pass it along to the oauth server
-            if (self.isOAuth) {
-              assertion(Session.config.oauthUrl).then(function(ass) {
-                /* jshint camelcase: false */
-                self.oAuthClient.getCode({
-                  assertion: ass,
-                  client_id: self.oAuthClientID,
-                  scope: self.oAuthScope,
-                  state: self.oAuthState,
-                  redirect_uri: self.oAuthRedirectUri
-                }).then(function(result) {
-                  // Redirect to the returned URL
-                  window.location = result.redirect;
-                }).fail(function(error) {
-                  // QUESTION: What should we do when getting a code fails?
-                  console.error('oAuthClient.getCode FAIL', error);
-                });
-              }).fail(function(error) {
-                // QUESTION: What should we do when creating an assertion fails?
-                console.error('assertion FAIL', error);
-              });
-
-            // Don't switch to settings if we're trying to log in to
-            // Firefox. Firefox will show its own landing page
-            } else if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
-              self.navigate('settings');
-            } else {
-              // This is the desktop context so don't do anything
-            }
+            return self.onSignInSuccess();
           } else {
             return self.fxaClient.signUpResend()
               .then(function () {
@@ -158,6 +102,16 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
           // re-throw error, it will be handled at a lower level.
           throw err;
         }, this));
+    },
+
+    onSignInSuccess: function() {
+      // Don't switch to settings if we're trying to log in to
+      // Firefox. Firefox will show its own landing page
+      if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
+        this.navigate('settings');
+      }
+
+      return true;
     },
 
     resetPasswordNow: function (event) {

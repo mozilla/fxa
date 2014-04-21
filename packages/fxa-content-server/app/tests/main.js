@@ -64,6 +64,7 @@ require([
   '../tests/spec/views/sign_up',
   '../tests/spec/views/complete_sign_up',
   '../tests/spec/views/sign_in',
+  '../tests/spec/views/oauth_sign_in',
   '../tests/spec/views/settings',
   '../tests/spec/views/change_password',
   '../tests/spec/views/delete_account',

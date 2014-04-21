@@ -10,6 +10,7 @@ define([
   'backbone',
   'lib/session',
   'views/sign_in',
+  'views/oauth_sign_in',
   'views/sign_up',
   'views/confirm',
   'views/legal',
@@ -32,6 +33,7 @@ function (
   Backbone,
   Session,
   SignInView,
+  OAuthSignInView,
   SignUpView,
   ConfirmView,
   LegalView,
@@ -59,6 +61,7 @@ function (
     routes: {
       '(/)': 'redirectToSignupOrSettings',
       'signin(/)': showView(SignInView),
+      'oauth/signin(/)': showView(OAuthSignInView),
       'signin_complete(/)': showView(ReadyView, { type: 'sign_in' }),
       'signup(/)': showView(SignUpView),
       'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
@@ -76,7 +79,6 @@ function (
       'complete_reset_password(/)': showView(CompleteResetPasswordView),
       'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
       'force_auth(/)': showView(SignInView, { forceAuth: true }),
-      'oauth/signin(/)': showView(SignInView, { isOAuth: true }),
       'cookies_disabled(/)': showView(CookiesDisabledView)
     },
 
