@@ -56,8 +56,12 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS) {
     this.xs = []
   }
 
+  EmailRecord.prototype.retryAfter = function () {
+    return Math.floor((this.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
+  }
+
   EmailRecord.prototype.update = function (action) {
-    if (EMAIL_ACTIONS.indexOf(action) === -1) { return }
+    if (EMAIL_ACTIONS.indexOf(action) === -1) { return 0 }
 
     if (!this.isBlocked()) {
       // only count hits while we aren't already blocking
@@ -66,7 +70,11 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS) {
       if (this.isOverEmailLimit()) {
         this.block()
       }
+      else {
+        return 0
+      }
     }
+    return this.retryAfter()
   }
   return EmailRecord
 }

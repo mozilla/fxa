@@ -28,6 +28,11 @@ module.exports = function (INVALID_AGENT_INTERVAL_MS) {
     this.bk = Date.now()
   }
 
+  IpRecord.prototype.retryAfter = function () {
+    if (!this.isBlocked()) { return 0 }
+    return Math.floor((this.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
+  }
+
   IpRecord.prototype.update = function (agent) {
     if (isBadAgent(agent)) {
       if (Date.now() - this.ba < INVALID_AGENT_INTERVAL_MS) {
@@ -35,7 +40,7 @@ module.exports = function (INVALID_AGENT_INTERVAL_MS) {
       }
       this.ba = Date.now()
     }
-
+    return this.retryAfter()
   }
 
   return IpRecord

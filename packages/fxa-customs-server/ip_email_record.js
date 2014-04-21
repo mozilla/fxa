@@ -53,15 +53,25 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS) {
     this.xs = []
   }
 
+  IpEmailRecord.prototype.retryAfter = function () {
+    return Math.floor((this.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
+  }
+
   IpEmailRecord.prototype.update = function (action) {
     if (!(
       action === 'accountLogin' ||
       action === 'accountDestroy' ||
       action === 'passwordChange'
-      )) { return }
-    if (!this.isBlocked() && this.isOverBadLogins()) {
-      this.block()
+      )) { return 0 }
+    if (!this.isBlocked()) {
+      if (this.isOverBadLogins()) {
+        this.block()
+      }
+      else {
+        return 0
+      }
     }
+    return this.retryAfter()
   }
 
   return IpEmailRecord

@@ -59,11 +59,6 @@ function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord) {
   )
 }
 
-function retryAfter(record) {
-  if (!record.isBlocked()) { return 0 }
-  return Math.floor((record.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
-}
-
 function max(prev, cur) {
   return Math.max(prev, cur)
 }
@@ -79,21 +74,18 @@ api.post(
     fetchRecords(email, ip)
       .spread(
         function (emailRecord, ipRecord, ipEmailRecord) {
-          emailRecord.update(action)
-          ipRecord.update(agent)
-          ipEmailRecord.update(action)
+          var retryAfter = [
+            emailRecord.update(action),
+            ipRecord.update(agent),
+            ipEmailRecord.update(action)
+          ].reduce(max)
 
           return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
             .then(
               function () {
-                var rt = [
-                    retryAfter(emailRecord),
-                    retryAfter(ipRecord),
-                    retryAfter(ipEmailRecord)
-                  ].reduce(max)
                 return {
-                  block: rt > 0,
-                  retryAfter: rt
+                  block: retryAfter > 0,
+                  retryAfter: retryAfter
                 }
                 return
               }
