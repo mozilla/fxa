@@ -1,3 +1,7 @@
+train-11
+  * moved customs-server (fraud/abuse) to its own repo #685
+  * improved the email based rate-limiting behavior
+
 train-10
   * added email_bouncer.js for processing SES email bounces #678
   * fixed an email validation bug #681
