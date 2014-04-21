@@ -3,6 +3,10 @@ language: node_js
 node_js:
  - 0.10
 
+services:
+ - memcached
+ - mysql
+
 notifications:
   email:
     - zcarter@mozilla.com
@@ -16,9 +20,6 @@ notifications:
     use_notice: false
     skip_join: false
 
-env:
-  - DB_BACKEND=mysql
-
 before_script:
   - "mysql -e 'DROP DATABASE IF EXISTS fxa;'"
 
@@ -26,5 +27,5 @@ before_install:
   - sudo apt-get install libgmp3-dev
 
 script:
-  - npm test
+  - npm run test-all
   - grunt validate-shrinkwrap

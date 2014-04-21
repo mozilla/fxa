@@ -55,7 +55,12 @@ module.exports = function (
               .then(
                 function (match) {
                   if (!match) {
-                    throw error.incorrectPassword(emailRecord.email, form.email)
+                    return customs.flag(request.app.clientAddress, form.email)
+                      .then(
+                        function () {
+                          throw error.incorrectPassword(emailRecord.email, form.email)
+                        }
+                      )
                   }
                   return password.unwrap(emailRecord.wrapWrapKb)
                 }
@@ -180,7 +185,11 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Password.forgotSend', request)
         var email = request.payload.email
-        customs.check(email, 'passwordForgotSendCode')
+        customs.check(
+          request.app.clientAddress,
+          request.headers['user-agent'],
+          email,
+          'passwordForgotSendCode')
           .then(db.emailRecord.bind(db, email))
           .then(
             function (emailRecord) {
@@ -246,7 +255,11 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Password.forgotResend', request)
         var passwordForgotToken = request.auth.credentials
-        customs.check(passwordForgotToken.email , 'passwordForgotResendCode')
+        customs.check(
+          request.app.clientAddress,
+          request.headers['user-agent'],
+          passwordForgotToken.email,
+          'passwordForgotResendCode')
           .then(
             mailer.sendRecoveryCode.bind(
               mailer,

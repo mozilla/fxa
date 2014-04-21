@@ -150,6 +150,11 @@ module.exports = function (fs, path, url, convict) {
         env: 'PORT'
       }
     },
+    customsUrl: {
+      doc: "fraud / abuse server url",
+      default: 'http://127.0.0.1:7000',
+      env: 'CUSTOMS_SERVER_URL'
+    },
     contentServer: {
       url: {
         doc: "The url of the corresponding fxa-content-server instance",
