@@ -56,7 +56,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
       return {
         email: Session.prefillEmail,
         service: Session.service,
-        isSync: Session.service === 'sync'
+        isSync: Session.isSync()
       };
     },
 

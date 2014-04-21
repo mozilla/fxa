@@ -387,8 +387,31 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
    */
   BaseView.preventDefaultThen = function (handler) {
     return function (event) {
-      event.preventDefault();
-      return this.invokeHandler(handler, event);
+      if (event) {
+        event.preventDefault();
+      }
+
+      var args = [].slice.call(arguments, 0);
+      args.unshift(handler);
+      return this.invokeHandler.apply(this, args);
+    };
+  };
+
+  /**
+   * Completely cancel an event (preventDefault, stopPropagation), then call
+   * the handler
+   * @method BaseView.cancelEventThen
+   */
+  BaseView.cancelEventThen = function (handler) {
+    return function (event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      var args = [].slice.call(arguments, 0);
+      args.unshift(handler);
+      return this.invokeHandler.apply(this, args);
     };
   };
 

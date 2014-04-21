@@ -27,7 +27,7 @@ function (_, FormView, Template, Session, PasswordMixin) {
 
     context: function () {
       return {
-        isSync: Session.service === 'sync',
+        isSync: Session.isSync(),
         email: Session.email
       };
     },

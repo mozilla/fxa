@@ -19,6 +19,14 @@ define([
 
     isDefaultPrevented: function () {
       return !!this._defaultPrevented;
+    },
+
+    stopPropagation: function () {
+      this._propagationStopped = true;
+    },
+
+    isPropagationStopped: function () {
+      return !!this._propagationStopped;
     }
   };
 

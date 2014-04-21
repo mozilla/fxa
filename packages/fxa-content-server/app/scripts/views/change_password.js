@@ -30,7 +30,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin) {
 
     context: function () {
       return {
-        isSync: Session.service === 'sync'
+        isSync: Session.isSync()
       };
     },
 
