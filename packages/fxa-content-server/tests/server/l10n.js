@@ -39,6 +39,21 @@ define([
     }, dfd.reject.bind(dfd)));
   };
 
+  suite['#get /config should return language not locale'] = function () {
+    var dfd = this.async(1000);
+
+    request(serverUrl + '/config', {
+      headers: {
+        'Accept-Language': 'en-us'
+      }
+    }, dfd.callback(function (err, res) {
+      assert.equal(res.statusCode, 200);
+
+      var body = JSON.parse(res.body);
+      assert.equal(body.language, 'en-us');
+    }, dfd.reject.bind(dfd)));
+  };
+
   suite['#get /i18n/client.json'] = function () {
     var dfd = this.async(1000);
 
