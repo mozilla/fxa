@@ -5,6 +5,7 @@ node_js:
 
 services:
  - memcached
+ - mysql
 
 notifications:
   email:
@@ -18,9 +19,6 @@ notifications:
       - "irc.mozilla.org#fxa"
     use_notice: false
     skip_join: false
-
-env:
-  - DB_BACKEND=mysql
 
 before_script:
   - "mysql -e 'DROP DATABASE IF EXISTS fxa;'"
