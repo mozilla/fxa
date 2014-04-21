@@ -60,7 +60,7 @@ function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord) {
 }
 
 function retryAfter(record) {
-  if (!record.bk) { return 0 }
+  if (!record.isBlocked()) { return 0 }
   return Math.floor((record.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
 }
 
@@ -86,19 +86,13 @@ api.post(
           return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
             .then(
               function () {
-                var block = emailRecord.isBlocked() ||
-                  ipRecord.isBlocked() ||
-                  ipEmailRecord.isBlocked()
-                var rt = 0
-                if (block) {
-                  rt = [
+                var rt = [
                     retryAfter(emailRecord),
                     retryAfter(ipRecord),
                     retryAfter(ipEmailRecord)
                   ].reduce(max)
-                }
                 return {
-                  block: block,
+                  block: rt > 0,
                   retryAfter: rt
                 }
                 return
@@ -112,7 +106,7 @@ api.post(
           res.send(result)
         },
         function (err) {
-          log.info({ op: 'request.check', email: email, ip: ip, err: err })
+          log.error({ op: 'request.check', email: email, ip: ip, err: err })
           res.send(500, err)
         }
       )
@@ -139,7 +133,7 @@ api.post(
           res.send({})
         },
         function (err) {
-          log.info({ op: 'request.failedLoginAttempt', email: email, ip: ip, err: err })
+          log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, err: err })
           res.send(500, err)
         }
       )
