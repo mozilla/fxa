@@ -15,15 +15,16 @@ before_install:
 install:
 # install everything for full dev in the fxa-content-server.
   - npm install --silent
+# copy over the configuration that can be used to start the server.
+  - cp server/config/local.json-dist server/config/local.json
+  - grunt l10n-create-json
 # install the resources necessary for the auth server.
+  - npm install --silent git://github.com/mozilla/fxa-auth-server.git
   - cd node_modules/fxa-auth-server
   - npm install --silent
   - node ./scripts/gen_keys.js
   - npm start &
   - cd ../..
-# copy over the configuration that can be used to start the server.
-  - cp server/config/local.json-dist server/config/local.json
-  - grunt l10n-create-json
   - npm start &
 # now run the tests!
 script: grunt validate-shrinkwrap && grunt lint && npm run-script test-server && npm run-script test-remote
