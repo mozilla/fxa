@@ -6,7 +6,7 @@
 
 const EXPECT_COVERAGE = 95.8;
 
-if (false && !process.env.NO_COVERAGE) {
+if (!process.env.NO_COVERAGE) {
   var
   should = require('should'),
   ass = require('ass'),
