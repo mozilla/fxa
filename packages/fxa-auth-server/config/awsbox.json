@@ -19,5 +19,6 @@
   },
   "templateServer": {
     "url": "https://accounts.dev.lcip.org"
-  }
+  },
+  "customsUrl": "none"
 }
