@@ -10,9 +10,10 @@ define([
   'views/form',
   'stache!templates/change_password',
   'lib/session',
-  'lib/password-mixin'
+  'lib/password-mixin',
+  'lib/auth-errors'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -25,7 +26,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin) {
     events: {
       'click #back': 'back',
       'keyup #back': 'backOnEnter',
-      'change .show-password': 'onPasswordVisibilityChange'
+      'change .show-password': 'onPasswordVisibilityChange',
+      'click #resend': 'resendVerificationEmail'
     },
 
     context: function () {
@@ -53,14 +55,34 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin) {
       var self = this;
       return this.fxaClient.changePassword(email, oldPassword, newPassword)
                 .then(function () {
-                  self.$('.password').val('');
-                  self.$('form').hide();
-
                   self.navigate('settings', {
                     success: t('Password changed')
                   });
+                }, function (err) {
+                  if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
+                    var msg = t('Unverified account. <a href="#" id="resend">Resend verification email</a>.');
+                    return self.displayErrorUnsafe(msg);
+                  }
+
+                  throw err;
                 });
-    }
+    },
+
+    resendVerificationEmail: BaseView.preventDefaultThen(function () {
+      var self = this;
+
+      return this.fxaClient.signUpResend()
+              .then(function () {
+                self.navigate('confirm');
+              }, function (err) {
+                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+                  return self.navigate('signup');
+                }
+
+                throw self.displayError(err);
+              });
+    })
+
   });
 
   _.extend(View.prototype, PasswordMixin);

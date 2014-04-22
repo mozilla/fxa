@@ -13,6 +13,7 @@ define([
   './functional/reset_password',
   './functional/robots_txt',
   './functional/settings',
+  './functional/change_password',
   './functional/force_auth',
   './functional/404',
   './functional/pages',
