@@ -81,25 +81,25 @@ define([
           .click()
         .end()
 
-        // brittle, but some processing time.
-        .wait(2000)
+        .waitForVisibleByClassName('success')
 
         // Success is showing the success message
         .elementByCssSelector('.success').isDisplayed()
           .then(function (isDisplayed) {
             assert.isTrue(isDisplayed);
           })
-        .end();
-    },
+        .end()
 
-    'click resend again, see throttled message': function () {
-      return this.get('remote')
         .elementById('resend')
           .click()
         .end()
 
-        // Success is showing the .error screen
-        .elementByCssSelector('.error').isDisplayed()
+        .elementById('resend')
+          .click()
+        .end()
+
+        // Stills shows success message
+        .elementByCssSelector('.success').isDisplayed()
           .then(function (isDisplayed) {
             assert.isTrue(isDisplayed);
           })
