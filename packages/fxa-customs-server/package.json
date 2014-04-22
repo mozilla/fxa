@@ -1,6 +1,6 @@
 {
   "name": "fxa-customs-server",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "scripts": {
     "test": "tap test"
@@ -13,5 +13,8 @@
     "bunyan": "0.22.3",
     "restify": "2.7.0",
     "memcached": "0.2.8"
+  },
+  "devDependencies": {
+    "tap": "0.4.8"
   }
 }

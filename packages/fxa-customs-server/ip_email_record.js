@@ -53,6 +53,13 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS) {
     this.xs = []
   }
 
+  IpEmailRecord.prototype.unblockIfReset = function (resetAt) {
+    if (resetAt > this.bk) {
+      this.xs = []
+      delete this.bk
+    }
+  }
+
   IpEmailRecord.prototype.retryAfter = function () {
     return Math.floor((this.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
   }

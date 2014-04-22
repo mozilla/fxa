@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS) {
+module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
+
+  now = now || Date.now
 
   var EMAIL_ACTIONS = [
     'accountCreate',
@@ -20,11 +22,12 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS) {
     object = object || {}
     rec.bk = object.bk
     rec.xs = object.xs || []
+    rec.pr = object.pr
     return rec
   }
 
   EmailRecord.prototype.isOverEmailLimit = function () {
-    this.trimHits(Date.now())
+    this.trimHits(now())
     return this.xs.length > MAX_EMAILS
   }
 
@@ -44,20 +47,24 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS) {
   }
 
   EmailRecord.prototype.addHit = function () {
-    this.xs.push(Date.now())
+    this.xs.push(now())
   }
 
   EmailRecord.prototype.isBlocked = function () {
-    return !!(this.bk && (Date.now() - this.bk < BLOCK_INTERVAL_MS))
+    return !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
   }
 
   EmailRecord.prototype.block = function () {
-    this.bk = Date.now()
+    this.bk = now()
     this.xs = []
   }
 
+  EmailRecord.prototype.passwordReset = function () {
+    this.pr = Date.now()
+  }
+
   EmailRecord.prototype.retryAfter = function () {
-    return Math.floor((this.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
+    return Math.floor((this.bk + BLOCK_INTERVAL_MS - now()) / 1000)
   }
 
   EmailRecord.prototype.update = function (action) {

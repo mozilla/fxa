@@ -74,11 +74,14 @@ api.post(
     fetchRecords(email, ip)
       .spread(
         function (emailRecord, ipRecord, ipEmailRecord) {
-          var retryAfter = [
-            emailRecord.update(action),
-            ipRecord.update(agent),
-            ipEmailRecord.update(action)
-          ].reduce(max)
+          var blockEmail = emailRecord.update(action)
+          var blockLogin = ipEmailRecord.update(action)
+          var blockAgent = ipRecord.update(agent)
+
+          if (blockLogin && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
+            blockLogin = 0
+          }
+          var retryAfter = [blockEmail, blockLogin, blockAgent].reduce(max)
 
           return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
             .then(
@@ -126,6 +129,32 @@ api.post(
         },
         function (err) {
           log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, err: err })
+          res.send(500, err)
+        }
+      )
+      .done(next, next)
+  }
+)
+
+api.post(
+  '/passwordReset',
+  function (req, res, next) {
+    var email = req.body.email
+    mc.getAsync(email)
+      .then(EmailRecord.parse, EmailRecord.parse)
+      .then(
+        function (emailRecord) {
+          emailRecord.passwordReset()
+          return mc.setAsync(email, emailRecord, LIFETIME).catch(ignore)
+        }
+      )
+      .then(
+        function () {
+          log.info({ op: 'request.passwordReset', email: email })
+          res.send({})
+        },
+        function (err) {
+          log.error({ op: 'request.failedLoginAttempt', email: email, err: err })
           res.send(500, err)
         }
       )
