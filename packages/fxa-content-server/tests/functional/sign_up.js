@@ -206,7 +206,7 @@ define([
             .end()
 
             // The error area shows a link to /signin
-            .waitForElementByCssSelector('.error a[href="/signin"]')
+            .waitForVisibleByCssSelector('.error a[href="/signin"]')
             .elementByCssSelector('.error a[href="/signin"]')
               .click()
             .end()
