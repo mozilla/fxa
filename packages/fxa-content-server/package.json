@@ -73,7 +73,6 @@
   },
   "devDependencies": {
     "awsbox": "0.7.0",
-    "fxa-auth-server": "git://github.com/mozilla/fxa-auth-server.git",
     "intern-geezer": "1.6.2",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
