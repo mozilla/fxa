@@ -21,7 +21,6 @@ install:
 # install the resources necessary for the auth server.
   - npm install --silent git://github.com/mozilla/fxa-auth-server.git
   - cd node_modules/fxa-auth-server
-  - npm install --silent
   - node ./scripts/gen_keys.js
   - npm start &
   - cd ../..
