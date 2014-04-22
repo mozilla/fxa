@@ -31,6 +31,6 @@
     "awsbox": "0.6.2"
   },
   "scripts": {
-    "test": "mocha -R spec tests/*.js"
+    "test": "mocha -t 5000 -R spec tests/*.js"
   }
 }
