@@ -14,7 +14,8 @@ module.exports = function (fs, path, url, convict) {
     },
     log: {
       level: {
-        default: 'info'
+        default: 'info',
+        env: 'LOG_LEVEL'
       }
     },
     publicUrl: {
