@@ -4,4 +4,4 @@
 
 module.exports = require('intel');
 
-module.exports.config(require('./config').get('logging'));
+module.exports.config(require('../config').get('logging'));

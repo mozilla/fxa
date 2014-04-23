@@ -61,6 +61,7 @@ function loadConf() {
             colorize: true
           },
           json: {
+            class: '../log/json',
             format: '%O'
           }
         }
@@ -96,6 +97,10 @@ function loadConf() {
             handlers: ['summary'] // will propagate to console as well
           }
         }
+      },
+      root: {
+        doc: 'Path used for finding relative classes',
+        default: __filename
       }
     }
   });
@@ -114,7 +119,8 @@ function loadConf() {
   module.exports = conf;
 
   process.nextTick(function() {
-    require('./log').getLogger('bid.config').debug("current configuration:", conf.get());
+    require('./log').getLogger('bid.config')
+      .debug("current configuration:", JSON.stringify(conf.get(), null, 2));
   });
 }
 
