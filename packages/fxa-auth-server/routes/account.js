@@ -57,6 +57,7 @@ module.exports = function (
             function (emailRecord) {
               // account exists
               if (emailRecord.emailVerified) { throw error.accountExists(email) }
+              request.app.accountRecreated = true
               return db.deleteAccount(emailRecord)
             },
             function (err) {

@@ -73,6 +73,7 @@ Overdrive.prototype.summary = function (request, response) {
     lang: request.app.acceptLanguage,
     agent: request.headers['user-agent'],
     remoteAddressChain: request.app.remoteAddressChain,
+    accountRecreated: request.app.accountRecreated,
     t: Date.now() - request.info.received
   }
   line.uid = (request.auth && request.auth.credentials) ?
