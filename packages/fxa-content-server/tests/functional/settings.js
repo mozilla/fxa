@@ -314,8 +314,7 @@ define([
         .end()
 
         // success is going to the delete account page
-        .waitForElementById('fxa-delete-account-header')
-        .end()
+        .waitForVisibleById('fxa-delete-account-header')
 
         .elementByCssSelector('form input.password')
           .click()
