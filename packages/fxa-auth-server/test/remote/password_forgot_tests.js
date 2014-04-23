@@ -270,6 +270,57 @@ TestServer.start(config)
   )
 
   test(
+    '/password/forgot/verify_code should set an unverified account as verified',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'something'
+      var client = null
+      return Client.create(config.publicUrl, email, password)
+        .then(function (c) { client = c })
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            t.equal(status.verified, false, 'email unverified')
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email) // ignore this code
+          }
+        )
+        .then(
+          function () {
+            return client.forgotPassword()
+          }
+        )
+        .then(
+          function () {
+            return server.mailbox.waitForCode(email)
+          }
+        )
+        .then(
+          function (code) {
+            return client.verifyPasswordResetCode(code)
+          }
+        )
+        .then(
+          function () {
+            return client.emailStatus()
+          }
+        )
+        .then(
+          function (status) {
+            t.equal(status.verified, true, 'email verified')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()

@@ -706,6 +706,13 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
                   ]
                 )
               )
+              queries.push(
+                query(
+                  connection,
+                  VERIFY_EMAIL,
+                  [passwordForgotToken.uid]
+                )
+              )
               return P.all(queries)
                 .then(
                   function () {
