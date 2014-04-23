@@ -327,6 +327,8 @@ module.exports = function (
 
   Heap.prototype.forgotPasswordVerified = function (passwordForgotToken) {
     log.trace({ op: 'Heap.forgotPasswordVerified', uid: passwordForgotToken && passwordForgotToken.uid })
+    var account = this.accounts[passwordForgotToken.uid.toString('hex')]
+    if (account) { account.emailVerified = true }
     return this.deletePasswordForgotToken(passwordForgotToken)
       .then(this.createAccountResetToken.bind(this, passwordForgotToken))
   }
