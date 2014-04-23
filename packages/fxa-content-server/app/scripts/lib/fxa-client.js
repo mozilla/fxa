@@ -180,15 +180,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
 
                 return client.signUp(email, password, signUpOptions);
               })
-              .then(null, function (err) {
-                // if the account already exists, swallow the error and
-                // attempt to sign the user in instead.
-                if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
-                  return;
-                }
-
-                throw err;
-              })
               .then(function () {
                 var signInOptions = {
                   customizeSync: options.customizeSync,
