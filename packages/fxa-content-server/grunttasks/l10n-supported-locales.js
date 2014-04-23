@@ -33,6 +33,25 @@ module.exports = function (grunt) {
     return count;
   };
 
+  var getMissingStrings = function (src) {
+    var clientJson = require(path.resolve(src, 'client.json'));
+    var messagesJson = require(path.resolve(src, 'messages.json'));
+    var missing = [];
+
+    Object.keys(clientJson).forEach(function (key) {
+      if (clientJson[key] === '') {
+        missing.push('client.json: ' + key);
+      }
+    });
+    Object.keys(messagesJson).forEach(function (key) {
+      if (messagesJson[key] === '') {
+        missing.push('messages.json: ' + key);
+      }
+    });
+
+    return missing;
+  };
+
   grunt.config('l10n-locale-counts', {
     app: {
       files: [
@@ -57,9 +76,17 @@ module.exports = function (grunt) {
       var src = file.src[0];
       var locale = path.basename(src);
 
-      var count = getCount(src, locale);
+      var count = getCount(src);
       if (count / totalStrings * 100 >= threshold) {
-        grunt.verbose.writeln(locale, count, '/', totalStrings);
+        grunt.log.writeln(locale, count, '/', totalStrings);
+
+        // Although this locale exceeded our threshold, it's
+        // not perfect. Let's see what it's missing.
+        if (count !== totalStrings) {
+          grunt.log.writeln('- Missing strings:');
+          grunt.log.writeln('    ' + getMissingStrings(src).join('\n    ') + '\n');
+        }
+
         goodLocales.push(i18n.languageFrom(locale));
       }
     });
