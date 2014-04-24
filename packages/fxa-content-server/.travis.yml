@@ -22,7 +22,7 @@ install:
   - npm install --silent git://github.com/mozilla/fxa-auth-server.git
   - cd node_modules/fxa-auth-server
   - node ./scripts/gen_keys.js
-  - npm start &
+  - LOG_LEVEL=error npm start &
   - cd ../..
   - npm start &
 # now run the tests!
