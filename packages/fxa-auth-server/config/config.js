@@ -216,14 +216,14 @@ module.exports = function (fs, path, url, convict) {
         env: 'SMTP_SENDER'
       },
       verificationUrl: {
-        doc: 'The landing page for verify emails',
+        doc: 'Deprecated. uses contentServer.url',
         format: String,
         default: undefined,
         env: 'VERIFY_URL',
         arg: 'verify-url'
       },
       passwordResetUrl: {
-        doc: 'The landing page for password reset emails',
+        doc: 'Deprecated. uses contentServer.url',
         format: String,
         default: undefined,
         env: 'RESET_URL',
@@ -303,13 +303,9 @@ module.exports = function (fs, path, url, convict) {
   // set the public url as the issuer domain for assertions
   conf.set('domain', url.parse(conf.get('publicUrl')).host)
 
-  if (!conf.has('smtp.verificationUrl')) {
-    conf.set('smtp.verificationUrl', conf.get('publicUrl') + '/v1/verify_email')
-  }
-
-  if (!conf.has('smtp.passwordResetUrl')) {
-    conf.set('smtp.passwordResetUrl', conf.get('publicUrl') + '/v1/complete_reset_password')
-  }
+  // deprecated smtp urls
+  conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/v1/verify_email')
+  conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_reset_password')
 
   conf.validate()
 
