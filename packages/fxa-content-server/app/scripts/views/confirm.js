@@ -12,6 +12,8 @@ define([
   'lib/auth-errors'
 ],
 function (FormView, BaseView, Template, Session, authErrors) {
+  var t = BaseView.t;
+
   var View = FormView.extend({
     template: Template,
     className: 'confirm',
@@ -40,7 +42,9 @@ function (FormView, BaseView, Template, Session, authErrors) {
                 self.displaySuccess();
               }, function (err) {
                 if (authErrors.is(err, 'INVALID_TOKEN')) {
-                  return self.navigate('signup');
+                  return self.navigate('signup', {
+                    error: t('Invalid token')
+                  });
                 }
 
                 // unexpected error, rethrow for display.

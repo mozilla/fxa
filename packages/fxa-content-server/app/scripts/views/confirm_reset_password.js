@@ -14,6 +14,8 @@ define([
   'lib/auth-errors'
 ],
 function (_, FormView, BaseView, Template, Session, Constants, authErrors) {
+  var t = BaseView.t;
+
   var View = FormView.extend({
     template: Template,
     className: 'confirm-reset-password',
@@ -39,13 +41,16 @@ function (_, FormView, BaseView, Template, Session, Constants, authErrors) {
       var bounceGraphic = this.$el.find('.graphic');
       bounceGraphic.addClass('pulse');
       var self = this;
+
       return self.fxaClient.isPasswordResetComplete(Session.passwordForgotToken)
         .then(function (isComplete) {
           if (isComplete) {
             var email = Session.email;
             Session.clear();
             Session.set('prefillEmail', email);
-            self.navigate('signin');
+            self.navigate('signin', {
+              success: t('Password reset. Sign in to continue.')
+            });
           } else {
             var retryCB = _.bind(self.afterRender, self);
             self._timeout = self.window.setTimeout(retryCB,
@@ -67,7 +72,9 @@ function (_, FormView, BaseView, Template, Session, Constants, authErrors) {
                 self.displaySuccess();
               }, function (err) {
                 if (authErrors.is(err, 'INVALID_TOKEN')) {
-                  return self.navigate('reset_password');
+                  return self.navigate('reset_password', {
+                    error: t('Invalid token')
+                  });
                 }
 
                 // unexpected error, rethrow for display.

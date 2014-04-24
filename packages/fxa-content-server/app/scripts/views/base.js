@@ -13,11 +13,16 @@ define([
   'lib/auth-errors',
   'lib/fxa-client',
   'lib/url',
-  'lib/strings'
+  'lib/strings',
+  'lib/ephemeral-messages'
 ],
-function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) {
+function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, EphemeralMessages) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
+
+  // Share one ephemeral messages across all views. View can be
+  // intialized with an ephemeralMessages for testing.
+  var ephemeralMessages = new EphemeralMessages();
 
   var BaseView = Backbone.View.extend({
     constructor: function (options) {
@@ -27,6 +32,7 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
       this.window = options.window || window;
       this.translator = options.translator || this.window.translator;
       this.router = options.router || this.window.router;
+      this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
 
       this.fxaClient = new FxaClient();
 
@@ -53,7 +59,9 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
         .then(function (isUserAuthorized) {
           if (! isUserAuthorized) {
             // user is not authorized, make them sign in.
-            self.navigate('signin', true);
+            self.navigate('signin', {
+              error: t('Session expired. Sign in to continue.')
+            });
             return false;
           }
 
@@ -72,11 +80,24 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
           })
           .then(_.bind(self.afterRender, self))
           .then(function () {
+            self.showEphemeralMessages();
             self.setTitleFromView();
 
             return true;
           });
         });
+    },
+
+    showEphemeralMessages: function () {
+      var success = this.ephemeralMessages.get('success');
+      if (success) {
+        this.displaySuccess(success);
+      }
+
+      var error = this.ephemeralMessages.get('error');
+      if (error) {
+        this.displayError(error);
+      }
     },
 
     /**
@@ -140,7 +161,7 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
       // make a huge assumption and say if the device does not have touch,
       // it's a desktop device and autofocus can be applied without
       // hiding part of the screen. The no-touch class is added by modernizr
-      if (jQuery('html').hasClass('no-touch')) {
+      if ($('html').hasClass('no-touch')) {
         // only elements that are visibile can be focused. When embedded in
         // about:accounts, the content is hidden when the first "focus" is
         // done. Keep trying to focus until the element is actually focused,
@@ -326,7 +347,15 @@ function (_, Backbone, jQuery, p, Session, authErrors, FxaClient, Url, Strings) 
     /**
      * navigate to another screen
      */
-    navigate: function (page) {
+    navigate: function (page, options) {
+      options = options || {};
+      if (options.success) {
+        this.ephemeralMessages.set('success', options.success);
+      }
+
+      if (options.error) {
+        this.ephemeralMessages.set('error', options.error);
+      }
       this.router.navigate(page, { trigger: true });
     },
 

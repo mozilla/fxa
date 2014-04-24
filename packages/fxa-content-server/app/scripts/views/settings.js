@@ -13,6 +13,8 @@ define([
   'lib/constants'
 ],
 function (_, FormView, BaseView, Template, Session, Constants) {
+  var t = BaseView.t;
+
   var View = FormView.extend({
     // user must be authenticated to see Settings
     mustAuth: true,
@@ -36,7 +38,9 @@ function (_, FormView, BaseView, Template, Session, Constants) {
       var self = this;
       return this.fxaClient.signOut()
               .then(function () {
-                self.navigate('signin');
+                self.navigate('signin', {
+                  success: t('Signed out')
+                });
               });
     }
   });
