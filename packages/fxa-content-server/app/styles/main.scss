@@ -661,5 +661,36 @@ input[type="text"] ~ .show-password-label:hover {
   display: none;
 }
 
+.marketing {
+  background-color: #f5f5f5;
+  border-top: 1px solid #c3cfd8;
+  border-radius: 0 0 5px 5px;
+  font-size: 20px;
+  /* pull in the margins from #stage */
+  margin: 60px -40px -40px -40px;
+  padding: 28px 50px;
+  position: relative;
+  text-align: left;
+
+  .android-logo {
+    background: url(/images/android_logo.png);
+    background-size: 84px 74px;
+    bottom: 0;
+    display: block;
+    height: 74px;
+    position: absolute;
+    right: 50px;
+    width: 84px;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
 @import "keyframes";
 @import "media_queries";
