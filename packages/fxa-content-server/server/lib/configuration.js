@@ -98,7 +98,7 @@ var conf = module.exports = convict({
   static_max_age: {
     doc: 'Cache max age for static assets, in ms',
     format: Number,
-    default: 180 * 24 * 60 * 60 * 1000
+    default: 10 * 60 * 1000 // 10 minutes
   },
   hsts_max_age: {
     doc: 'Max age of the STS directive, in seconds',
