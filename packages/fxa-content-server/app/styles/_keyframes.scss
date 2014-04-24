@@ -75,24 +75,24 @@
   }
 }
 
-//used to add shake to error message
-@keyframes error-shake {
+//used to add shake to error/success message
+@keyframes shake {
   0%, 100% {
     transform: translateX(0);
   }
 
   10%, 30%, 50%, 70%, 90% {
-    transform: translateX(-50px);
+    transform: translateX(-4px);
   }
 
   20%, 40%, 60%, 80% {
-    transform: translateX(50px);
+    transform: translateX(4px);
   }
 
 }
 
-.error-shake {
-  animation: error-shake 1s;
+.shake {
+  animation: shake 1s;
 }
 
 .fade-down-logo {

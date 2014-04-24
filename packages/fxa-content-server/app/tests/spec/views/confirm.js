@@ -103,6 +103,33 @@ function (chai, p, authErrors, View, RouterMock) {
                });
 
       });
+
+      it('debounces resend calls - submit on first and forth attempt', function () {
+        var email = 'user' + Math.random() + '@testuser.com';
+        var count = 0;
+
+        return view.fxaClient.signUp(email, 'password')
+               .then(function () {
+                 view.fxaClient.signUpResend = function() {
+                   count++;
+                   return p(true);
+                 };
+
+                 return view.validateAndSubmit();
+               }).then(function () {
+                 assert.equal(count, 1);
+                 return view.validateAndSubmit();
+               }).then(function () {
+                 assert.equal(count, 1);
+                 return view.validateAndSubmit();
+               }).then(function () {
+                 assert.equal(count, 1);
+                 return view.validateAndSubmit();
+               }).then(function () {
+                 assert.equal(count, 2);
+                 assert.equal(view.$('#resend:visible').length, 0);
+               });
+      });
     });
 
   });
