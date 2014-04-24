@@ -21,11 +21,11 @@ module.exports = function (grunt) {
     'cssmin',
     'static-pages',
     'copy:dist',
-    // modernizer must come after copy or else the custom
-    // modernizr is overwritten with the dev version.
-    'modernizr',
     // uglify overwrites the files in the dist directory.
     'uglify',
+    // modernizr must come after concat, copy and uglify so the
+    // custom version overwrites all default versions.
+    'modernizr:dist',
     'rev',
     'usemin'
   ]);

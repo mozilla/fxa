@@ -35,8 +35,7 @@ module.exports = function (grunt) {
         domprefixes: false
       },
       tests: ['touch'],
-      // this will be uglified in the build step.
-      uglify: false,
+      uglify: true,
       parseFiles: true
     }
   });
