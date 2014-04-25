@@ -46,12 +46,31 @@ define([
       // timeout after 90 seconds
       this.timeout = 90000;
 
+      var self = this;
       user = 'signin' + Math.random();
       email = user + '@restmail.net';
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-      return client.signUp(email, PASSWORD, { preVerified: true });
+      return client.signUp(email, PASSWORD, { preVerified: true })
+          .then(function () {
+            // clear localStorage to avoid pollution from other tests.
+            return self.get('remote')
+              .get(require.toUrl(RESET_PAGE_URL))
+              /*jshint evil:true*/
+              .waitForElementById('fxa-reset-password-header')
+              .safeEval('sessionStorage.clear(); localStorage.clear();');
+          });
+    },
+
+    'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function () {
+      return this.get('remote')
+        .get(require.toUrl(CONFIRM_PAGE_URL))
+
+        // user is immediately redirected to /reset_password if they have no
+        // sessionToken.
+        // Success is showing the screen
+        .waitForElementById('fxa-reset-password-header');
     },
 
     'open reset_password page': function () {

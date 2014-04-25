@@ -25,6 +25,7 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
 
+      Session.set('passwordForgotToken', 'fake password reset token');
       Session.set('email', 'testuser@testuser.com');
 
       view = new View({
@@ -43,8 +44,16 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
     });
 
     describe('constructor', function () {
-      it('draws view', function () {
+      it('draws view if passwordForgotToken exists', function () {
         assert.ok($('#fxa-confirm-reset-password-header').length);
+      });
+
+      it('redirects to /reset_password if no passwordForgotToken', function () {
+        Session.clear('passwordForgotToken');
+        view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'reset_password');
+          });
       });
     });
 
@@ -63,13 +72,16 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
            });
       });
 
-      it('redirects to signin if user has verified', function () {
+      it('redirects to /signin if user has verified', function () {
         view.fxaClient.isPasswordResetComplete = function () {
           return p().then(function () {
             return true;
           });
         };
 
+        // email is cleared in initial render in beforeEach, reset it to
+        // see if it makes it through to the redirect.
+        Session.set('email', 'testuser@testuser.com');
         return view.afterRender()
            .then(function (isComplete) {
              assert.isTrue(isComplete);

@@ -37,6 +37,14 @@ function (_, FormView, BaseView, Template, Session, Constants, authErrors) {
       }
     },
 
+    beforeRender: function () {
+      // user cannot confirm if they have not initiated a reset password
+      if (! Session.passwordForgotToken) {
+        this.navigate('reset_password');
+        return false;
+      }
+    },
+
     afterRender: function () {
       var bounceGraphic = this.$el.find('.graphic');
       bounceGraphic.addClass('pulse');

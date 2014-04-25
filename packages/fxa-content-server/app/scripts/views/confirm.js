@@ -29,6 +29,14 @@ function (FormView, BaseView, Template, Session, authErrors) {
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
+    beforeRender: function () {
+      // user cannot confirm if they have not initiated a sign up.
+      if (! Session.sessionToken) {
+        this.navigate('signup');
+        return false;
+      }
+    },
+
     afterRender: function() {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');

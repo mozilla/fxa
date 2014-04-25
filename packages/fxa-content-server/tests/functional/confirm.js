@@ -9,18 +9,38 @@ define([
 ], function (registerSuite, assert, require) {
   'use strict';
 
-  var url = 'http://localhost:3030/signup';
+  var CONFIRM_URL = 'http://localhost:3030/confirm';
+  var SIGNUP_URL = 'http://localhost:3030/signup';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
   registerSuite({
     name: 'confirm',
+
+    beforeEach: function () {
+      // clear localStorage to avoid pollution from other tests.
+      return this.get('remote')
+        .get(require.toUrl(SIGNUP_URL))
+        /*jshint evil:true*/
+        .waitForElementById('fxa-signup-header')
+        .safeEval('sessionStorage.clear(); localStorage.clear();');
+    },
+
+    'visit confirmation screen without initiating sign up, user is redirected to /signup': function () {
+      return this.get('remote')
+        .get(require.toUrl(CONFIRM_URL))
+
+        // user is immediately redirected to /signup if they have no
+        // sessionToken.
+        // Success is showing the screen
+        .waitForElementById('fxa-signup-header');
+    },
 
     'sign up, wait for confirmation screen, click resend': function () {
       var email = 'signup' + Math.random() + '@example.com';
       var password = '12345678';
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(require.toUrl(SIGNUP_URL))
         .waitForElementById('fxa-signup-header')
 
         .elementByCssSelector('form input.email')
