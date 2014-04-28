@@ -2,8 +2,9 @@
 
 ## How to register a client manually
 
-Generally when you connect applications to OAuth the provider generates the id and secret tokens for you but what if you are creating your own client and ne
-ver had to generate those keys for yourself.
+Generally when you connect applications to OAuth the provider generates the id and secret tokens for you.
+
+But, if you are the one deploying the OAuth resource server, AND the clients to talk to it you have to generate those keys yourself.
 
 To add a client manually, you can add entries in your deployment configuration file in the 'clients' array.
 
@@ -42,3 +43,6 @@ Client secret:
     tempGenerator(64)
     // 'b048895cbc44241bd68b18ab7d34d1aef8ba34441877ef96c28c706fc1e096fc'
 
+With this at hand you can restart your OAuth server, and it will insert them as clients automatically in your configured backend (i.e. database).
+
+    CONFIG_FILES=config/prod.json NODE_ENV=prod grunt server
