@@ -35,7 +35,7 @@ JsonFormatter.prototype.format = function jsonFormat(record) {
   if (typeof record.args[0] === 'string') {
     rec.message = record.message;
   } else {
-    for (var k in record.args[0]) {
+    for (k in record.args[0]) {
       rec[k] = record.args[0][k];
     }
   }
