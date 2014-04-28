@@ -14,7 +14,7 @@ util.inherits(JsonFormatter, intel.Formatter);
 JsonFormatter.prototype.format = function jsonFormat(record) {
   // we use super.format() because intel has circular de-refencing
   var rec = {
-    name: record.name,
+    op: record.name,
     time: record.timestamp,
     pid: record.pid
   };

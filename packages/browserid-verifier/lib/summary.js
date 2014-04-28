@@ -8,7 +8,7 @@ logger = require('./log').getLogger('bid.summary');
 
 var logSummaryInfo = {
   v: 1, // log format version
-  host: os.hostname()
+  hostname: os.hostname()
 };
 
 module.exports = function middlewareFactory() {
