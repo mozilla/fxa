@@ -73,11 +73,6 @@ function loadConf() {
           console: {
             "class": "intel/handlers/console",
             "formatter": "pretty"
-          },
-          summary: {
-            "class": "intel/handlers/file",
-            "file": "summary.log",
-            "formatter": "json"
           }
         }
       },
@@ -93,8 +88,11 @@ function loadConf() {
             exitOnError: false
           },
           'bid.summary': {
+            // Don't log detailed summary information by default.
+            // This gets explicitly enabled in production.
             level: 'INFO',
-            handlers: ['summary'] // will propagate to console as well
+            propagate: false,
+            handlers: []
           }
         }
       },
