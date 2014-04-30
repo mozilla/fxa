@@ -31,7 +31,7 @@ function mockToken() {
   return nock(parts.protocol + '//' + parts.host).post(parts.path + '/verify');
 }
 
-describe('/avatar', function() {
+describe.skip('/avatar', function() {
 
   it('should require authentication', function() {
     var imageData = { url: avatarUrl };

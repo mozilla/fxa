@@ -14,7 +14,10 @@ const request = require('./request');
 exports.create = function createServer() {
   var server = Hapi.createServer(
     config.server.host,
-    config.server.port
+    config.server.port,
+    {
+      debug: false
+    }
   );
 
   server.auth.scheme('oauth', function() {
@@ -59,7 +62,7 @@ exports.create = function createServer() {
         // a 4xx error, so its not our fault. not an ERROR level log
         logger.warn('%d response: %s', err.output.statusCode, err.message);
       } else {
-        logger.error('%s', err);
+        logger.critical(err);
       }
     }
   });

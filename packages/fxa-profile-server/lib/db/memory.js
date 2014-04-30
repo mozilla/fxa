@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Promise = require('../promise');
+const P = require('../promise');
 
 /*
  * MemoryStore structure:
@@ -23,7 +23,7 @@ function MemoryStore() {
 }
 
 MemoryStore.connect = function memoryConnect() {
-  return Promise.resolve(new MemoryStore());
+  return P.resolve(new MemoryStore());
 };
 
 MemoryStore.prototype = {
@@ -34,10 +34,10 @@ MemoryStore.prototype = {
   },
   createProfile: function createProfile(profile) {
     this.profiles[profile.uid] = profile;
-    return Promise.resolve(true);
+    return P.resolve(true);
   },
   getProfile: function getProfile(id) {
-    return Promise.resolve(this.profiles[id]);
+    return P.resolve(this.profiles[id]);
   },
   getOrCreateProfile: function getOrCreateProfile(id) {
     var db = this;
@@ -51,10 +51,10 @@ MemoryStore.prototype = {
   },
   setAvatar: function setAvatar(userId, url) {
     if (!this.profiles[userId]) {
-      return Promise.reject(new Error('User (' + userId + ') does not exist'));
+      return P.reject(new Error('User (' + userId + ') does not exist'));
     }
     this.profiles[userId].avatar = url;
-    return Promise.resolve(true);
+    return P.resolve(true);
   }
 };
 

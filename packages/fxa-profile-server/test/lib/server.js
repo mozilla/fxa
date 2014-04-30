@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const version = require('../../lib/config').get('api.version');
-const Promise = require('../../lib/promise');
+const P = require('../../lib/promise');
 const Server = require('../../lib/server');
 
 function request(options) {
   var server = Server.create();
-  var deferred = Promise.defer();
+  var deferred = P.defer();
   server.inject(options, deferred.resolve.bind(deferred));
   return deferred.promise;
 }

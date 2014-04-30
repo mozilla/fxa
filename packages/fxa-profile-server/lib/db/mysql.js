@@ -5,7 +5,7 @@
 const mysql = require('mysql');
 
 const logger = require('../logging').getLogger('fxa.db.mysql');
-const Promise = require('../promise');
+const P = require('../promise');
 
 const SCHEMA = require('fs').readFileSync(__dirname + '/schema.sql').toString();
 const PROFILE_GET_QUERY = 'SELECT * FROM profiles WHERE uid=?';
@@ -20,7 +20,7 @@ function MysqlStore(options) {
 function createSchema(client, options) {
   logger.verbose('createSchema', options);
 
-  var d = Promise.defer();
+  var d = P.defer();
   var database = options.database;
 
   logger.verbose('createDatabase');
@@ -62,13 +62,13 @@ MysqlStore.connect = function mysqlConnect(options) {
       return store;
     });
   }
-  return Promise.resolve(store);
+  return P.resolve(store);
 };
 
 
 MysqlStore.prototype = {
   profileExists: function profileExists(id) {
-    var defer = Promise.defer();
+    var defer = P.defer();
     this._connection.query(PROFILE_EXISTS_QUERY, [id], function(err, rows) {
       if (err) {
         defer.reject(err);
@@ -79,13 +79,13 @@ MysqlStore.prototype = {
     return defer.promise;
   },
   createProfile: function createProfile(profile) {
-    var defer = Promise.defer();
+    var defer = P.defer();
     this._connection.query(PROFILE_CREATE_QUERY,
       [profile.uid, profile.avatar], defer.callback);
     return defer.promise;
   },
   getProfile: function getProfile(id) {
-    var defer = Promise.defer();
+    var defer = P.defer();
     this._connection.query(PROFILE_GET_QUERY, [id], function(err, rows) {
       if (err) {
         return defer.reject(err);
@@ -119,7 +119,7 @@ MysqlStore.prototype = {
       if (!exists) {
         throw new Error('User (' + uid + ') does not exist');
       }
-      var defer = Promise.defer();
+      var defer = P.defer();
       conn.query(AVATAR_SET_QUERY, [url, uid], defer.callback);
       return defer.promise;
     });

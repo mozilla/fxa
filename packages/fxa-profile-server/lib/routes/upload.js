@@ -8,7 +8,7 @@ const path = require('path');
 
 const config = require('../config');
 const logger = require('../logging').getLogger('fxa.routes.upload');
-const Promise = require('../promise');
+const P = require('../promise');
 const db = require('../db');
 
 function unique() {
@@ -20,7 +20,7 @@ function unique() {
 }
 
 function stream(readable) {
-  var d = Promise.defer();
+  var d = P.defer();
 
   var uploads = config.get('uploads.dir');
   var temp = path.join(uploads, unique());
@@ -62,7 +62,7 @@ module.exports = {
     // save image in uploads dir
     // generate hash to be used as url fragment
     // update db with url
-    Promise.all([
+    P.all([
       stream(req.payload),
       db.getOrCreateProfile(req.auth.credentials)
     ]).spread(function(hash, profile) {

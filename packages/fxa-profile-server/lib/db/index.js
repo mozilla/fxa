@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Promise = require('../promise');
+const P = require('../promise');
 
 const config = require('../config');
 const logger = require('../logging').getLogger('fxa.db');
@@ -12,7 +12,7 @@ const memory = require('./memory');
 var driver;
 function withDriver() {
   if (driver) {
-    return Promise.resolve(driver);
+    return P.resolve(driver);
   }
   var p;
   if (config.get('db.driver') === 'mysql') {
@@ -33,7 +33,7 @@ function proxy(method) {
       logger.verbose('proxied', method, [].slice.call(args));
       return driver[method].apply(driver, args);
     }).catch(function(err) {
-      logger.error(err);
+      logger.error('%s: %s', method, err);
       throw err;
     });
   };
