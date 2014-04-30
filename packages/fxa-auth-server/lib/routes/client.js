@@ -12,6 +12,7 @@ const logger = require('../logging').getLogger('fxa.routes.request');
 const HEX_STRING = /^[0-9a-f]+$/;
 
 
+/*jshint camelcase: false*/
 module.exports = {
   validate: {
     path: {
@@ -24,7 +25,8 @@ module.exports = {
   response: {
     schema: {
       name: Joi.string().required(),
-      imageUri: Joi.string().required()
+      image_uri: Joi.string().required(),
+      redirect_uri: Joi.string().required()
     }
   },
   handler: function requestInfoEndpoint(req, reply) {
@@ -38,7 +40,8 @@ module.exports = {
     }).done(function(client) {
       reply({
         name: client.name,
-        imageUri: client.imageUri
+        image_uri: client.imageUri,
+        redirect_uri: client.redirectUri
       });
     }, reply);
   }

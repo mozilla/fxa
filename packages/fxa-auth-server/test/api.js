@@ -483,6 +483,8 @@ describe('/v1', function() {
           assert.equal(res.statusCode, 200);
           var body = res.result;
           assert.equal(body.name, client.name);
+          assert(body.image_uri);
+          assert(body.redirect_uri);
         }).done(done, done);
       });
     });
