@@ -131,7 +131,7 @@ define([
     'visit settings page with an invalid sessionToken redirects to signin': function() {
       // Changing the password invalidates the current sessionToken
       var self = this;
-      client.passwordChange(email, FIRST_PASSWORD, SECOND_PASSWORD)
+      return client.passwordChange(email, FIRST_PASSWORD, SECOND_PASSWORD)
           .then(function () {
             return self.get('remote')
               .get(require.toUrl(SETTINGS_URL))

@@ -14,9 +14,6 @@ define([
   registerSuite({
     name: 'tos',
 
-    setup: function () {
-    },
-
     'start at signup': function () {
 
       return this.get('remote')
