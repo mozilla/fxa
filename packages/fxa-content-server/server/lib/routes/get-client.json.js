@@ -14,7 +14,9 @@ module.exports = function(i18n) {
 
   route.process = function (req, res, next) {
     // req.locale is set by abide in a previous middleware.
-    req.url = '/i18n/' + req.locale + '/client.json';
+    var locale = i18n.localeFrom(i18n.languageFrom(req.locale));
+
+    req.url = '/i18n/' + locale + '/client.json';
 
     // Let any intermediaries know that client.json can vary based
     // on the accept-language. This will also be useful if client.json

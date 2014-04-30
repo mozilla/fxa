@@ -75,5 +75,37 @@ define([
     }, dfd.reject.bind(dfd)));
   };
 
+  suite['#get /i18n/client.json with lowercase language'] = function () {
+    var dfd = this.async(1000);
+
+    request(serverUrl + '/i18n/client.json', {
+      headers: {
+        'Accept-Language': 'en-gb'
+      }
+    }, dfd.callback(function (err, res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.headers['content-type'], 'application/json; charset=utf8');
+      var body = JSON.parse(res.body);
+
+      assert.equal(body[''].language, 'en_GB');
+    }, dfd.reject.bind(dfd)));
+  };
+
+  suite['#get /i18n/client.json with unsupported locale'] = function () {
+    var dfd = this.async(1000);
+
+    request(serverUrl + '/i18n/client.json', {
+      headers: {
+        'Accept-Language': 'no-OP'
+      }
+    }, dfd.callback(function (err, res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.headers['content-type'], 'application/json; charset=utf8');
+      var body = JSON.parse(res.body);
+
+      assert.equal(body[''].language, 'en_US');
+    }, dfd.reject.bind(dfd)));
+  };
+
   registerSuite(suite);
 });
