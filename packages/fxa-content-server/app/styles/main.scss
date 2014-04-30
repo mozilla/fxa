@@ -163,18 +163,15 @@ strong.email {
 .success {
   border-radius: 3px;
   color: $message-text-color;
+  display: none;
   margin-bottom: 5px;
   padding: 5px;
   position: relative;
-  top:-15px
+  top:-15px;
 }
 
 .error {
   background: $error-background-color;
-}
-
-.error:empty {
-  display: none;
 }
 
 .error a {
@@ -655,6 +652,19 @@ input[type="text"] ~ .show-password-label:hover {
   text-indent: 100%;
   white-space: nowrap;
   width: 36px;
+}
+
+.spinner-white {
+  animation: 0.9s spin infinite linear;
+  background-image: url(/images/spinnerwhite.png);
+  background-size: 33px 33px;
+  display: block;
+  height: 33px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+  width: 33px;
 }
 
 .hidden {

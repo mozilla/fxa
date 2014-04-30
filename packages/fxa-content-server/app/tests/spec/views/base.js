@@ -177,7 +177,8 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
       it('hides any previously displayed success messages', function () {
         view.displaySuccess('the success message');
         view.displayError('the error message');
-        assert.isFalse(view.$('.success').is(':visible'));
+        assert.isTrue(view.isErrorVisible());
+        assert.isFalse(view.isSuccessVisible());
       });
 
       it('removes HTML from error messages', function () {
@@ -208,7 +209,8 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
       it('hides any previously displayed error messages', function () {
         view.displayError('the error message');
         view.displaySuccess('the success message');
-        assert.isFalse(view.$('.error').is(':visible'));
+        assert.isTrue(view.isSuccessVisible());
+        assert.isFalse(view.isErrorVisible());
       });
     });
 
