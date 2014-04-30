@@ -18,12 +18,12 @@
   },
   "dependencies": {
     "bluebird": "1.2.2",
-    "browserid-verify": "0.1.2",
     "convict": "0.4.2",
     "hapi": "4.0.0",
     "intel": "0.5.2",
     "joi": "3.1.0",
-    "mysql": "2.1.1"
+    "mysql": "2.1.1",
+    "request": "2.34.0"
   },
   "devDependencies": {
     "awsbox": "~0.7.0",

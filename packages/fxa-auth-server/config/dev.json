@@ -1,7 +1,7 @@
 {
   "browserid": {
     "issuer": "127.0.0.1:9000",
-    "verificationUrl": "http://127.0.0.1:5050"
+    "verificationUrl": "http://127.0.0.1:5050/v2"
   },
   "clients": [
     {
