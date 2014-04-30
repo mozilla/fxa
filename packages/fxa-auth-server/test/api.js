@@ -11,7 +11,7 @@ const nock = require('nock');
 
 const config = require('../lib/config');
 const db = require('../lib/db');
-const Promise = require('../lib/promise');
+const P = require('../lib/promise');
 const Server = require('./lib/server');
 const unique = require('../lib/unique');
 
@@ -36,12 +36,12 @@ function mockAssertion() {
   return nock(parts.protocol + '//' + parts.host).post(parts.path);
 }
 
-var genKeypair = Promise.promisify(jwcrypto.generateKeypair);
-var certSign = Promise.promisify(jwcrypto.cert.sign);
-var assertionSign = Promise.promisify(jwcrypto.assertion.sign);
+var genKeypair = P.promisify(jwcrypto.generateKeypair);
+var certSign = P.promisify(jwcrypto.cert.sign);
+var assertionSign = P.promisify(jwcrypto.assertion.sign);
 function genAssertion(email) {
   // seriously wtf. creating assertions is atrocious
-  return Promise.all([
+  return P.all([
     genKeypair({
       algorithm: 'DSA',
       keysize: 256
@@ -52,7 +52,7 @@ function genAssertion(email) {
     })
   ]).spread(function(idp, user) {
     var expiration = new Date();
-    return Promise.all([
+    return P.all([
       certSign({
         publicKey: user.publicKey,
         // see fxa-assertion format
@@ -110,7 +110,7 @@ function assertRequestParam(result, param) {
 describe('/v1', function() {
   before(function(done) {
 
-    Promise.all([
+    P.all([
       genAssertion(USERID + config.get('browserid.issuer')).then(function(ass) {
         AN_ASSERTION = ass;
       }),

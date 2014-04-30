@@ -4,7 +4,7 @@
 
 const encrypt = require('../encrypt');
 const logger = require('../logging').getLogger('fxa.db.memory');
-const Promise = require('../promise');
+const P = require('../promise');
 const unique = require('../unique');
 
 /*
@@ -52,7 +52,7 @@ function MemoryStore() {
 }
 
 MemoryStore.connect = function memoryConnect() {
-  return Promise.resolve(new MemoryStore());
+  return P.resolve(new MemoryStore());
 };
 
 function clone(obj) {
@@ -65,7 +65,7 @@ function clone(obj) {
 
 MemoryStore.prototype = {
   ping: function ping() {
-    return Promise.resolve();
+    return P.resolve();
   },
   registerClient: function registerClient(client) {
     if (client.id) {
@@ -81,7 +81,7 @@ MemoryStore.prototype = {
     return client;
   },
   getClient: function getClient(id) {
-    return Promise.resolve(this.clients[id]);
+    return P.resolve(this.clients[id]);
   },
   generateCode: function generateCode(clientId, userId, email, scope) {
     var code = {};
@@ -93,14 +93,14 @@ MemoryStore.prototype = {
     var _code = unique.code();
     code.code = encrypt.hash(_code);
     this.codes[code.code.toString('hex')] = code;
-    return Promise.resolve(_code);
+    return P.resolve(_code);
   },
   getCode: function getCode(code) {
-    return Promise.resolve(this.codes[encrypt.hash(code).toString('hex')]);
+    return P.resolve(this.codes[encrypt.hash(code).toString('hex')]);
   },
   removeCode: function removeCode(id) {
     delete this.codes[id.toString('hex')];
-    return Promise.resolve();
+    return P.resolve();
   },
   generateToken: function generateToken(code) {
     var store = this;
@@ -121,7 +121,7 @@ MemoryStore.prototype = {
     });
   },
   getToken: function getToken(token) {
-    return Promise.resolve(this.tokens[encrypt.hash(token).toString('hex')]);
+    return P.resolve(this.tokens[encrypt.hash(token).toString('hex')]);
   }
 };
 

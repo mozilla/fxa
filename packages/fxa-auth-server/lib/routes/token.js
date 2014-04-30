@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const AppError = require('../error');
-const Hapi = require('hapi');
-const Joi = Hapi.types;
+const Joi = require('joi');
 
 const config = require('../config');
 const db = require('../db');

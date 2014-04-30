@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Promise = require('../../lib/promise');
+const P = require('../../lib/promise');
 const Server = require('../../lib/server');
 const version = require('../../lib/config').get('api.version');
 
 function request(options) {
   var server = Server.create();
-  var deferred = Promise.defer();
+  var deferred = P.defer();
   server.inject(options, deferred.resolve.bind(deferred));
   return deferred.promise;
 }

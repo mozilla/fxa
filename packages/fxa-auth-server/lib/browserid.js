@@ -6,7 +6,7 @@
 const AppError = require('./error');
 const config = require('./config');
 const logger = require('./logging').getLogger('fxa.assertion');
-const Promise = require('./promise');
+const P = require('./promise');
 const verify = require('browserid-verify')({
   url: config.get('browserid.verificationUrl')
 });
@@ -14,7 +14,7 @@ const verify = require('browserid-verify')({
 const HEX_STRING = /^[0-9a-f]+$/;
 
 module.exports = function verifyAssertion(assertion) {
-  var d = Promise.defer();
+  var d = P.defer();
   verify(assertion, config.get('publicUrl'), function(err, email, res) {
     if (err) {
       logger.error('error verifying assertion', err);

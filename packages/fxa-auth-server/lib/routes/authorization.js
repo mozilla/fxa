@@ -5,13 +5,13 @@
 const url = require('url');
 
 const Hapi = require('hapi');
-const Joi = Hapi.types;
+const Joi = require('joi');
 
 const AppError = require('../error');
 const config = require('../config');
 const db = require('../db');
 const logger = require('../logging').getLogger('fxa.routes.authorization');
-const Promise = require('../promise');
+const P = require('../promise');
 const verify = require('../browserid');
 
 const HEX_STRING = /^[0-9a-f]+$/;
@@ -53,7 +53,7 @@ module.exports = {
     }
   },
   handler: function authorizationEndpoint(req, reply) {
-    Promise.all([
+    P.all([
       verify(req.payload.assertion).then(function(claims) {
         if (!claims) {
           throw AppError.invalidAssertion();

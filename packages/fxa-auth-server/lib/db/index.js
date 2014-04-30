@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Promise = require('../promise');
+const P = require('../promise');
 
 const config = require('../config');
 const logger = require('../logging').getLogger('fxa.db');
@@ -14,7 +14,7 @@ function preClients(store) {
   if (clients && clients.length) {
     logger.debug('Loading pre-defined clients',
       JSON.stringify(clients, null, 2));
-    return Promise.all(clients.map(function(c) {
+    return P.all(clients.map(function(c) {
       c.id = Buffer(c.id, 'hex');
       return store.getClient(c.id).then(function(client) {
         if (client) {
@@ -33,7 +33,7 @@ function preClients(store) {
 var driver;
 function withDriver() {
   if (driver) {
-    return Promise.resolve(driver);
+    return P.resolve(driver);
   }
   var p;
   if (config.get('db.driver') === 'mysql') {
