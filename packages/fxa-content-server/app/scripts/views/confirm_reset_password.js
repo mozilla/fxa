@@ -6,35 +6,25 @@
 
 define([
   'underscore',
-  'views/form',
+  'views/confirm',
   'views/base',
   'stache!templates/confirm_reset_password',
   'lib/session',
   'lib/constants',
   'lib/auth-errors'
 ],
-function (_, FormView, BaseView, Template, Session, Constants, authErrors) {
+function (_, ConfirmView, BaseView, Template, Session, Constants, authErrors) {
   var t = BaseView.t;
 
-  var View = FormView.extend({
+  var View = ConfirmView.extend({
     template: Template,
     className: 'confirm-reset-password',
-
-    context: function () {
-      return {
-        email: Session.email
-      };
-    },
-
-    events: {
-      // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
-    },
 
     beforeDestroy: function () {
       if (this._timeout) {
         this.window.clearTimeout(this._timeout);
       }
+      ConfirmView.prototype.beforeDestroy.call(this);
     },
 
     afterRender: function () {
