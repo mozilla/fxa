@@ -26,7 +26,7 @@ define([
   var DO_NOT_CLEAR = ['channel', 'context', 'service', 'config', 'language'];
 
   // these keys will be persisted to localStorage so that they live between browser sessions
-  var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext'];
+  var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext', 'oauth'];
 
   function Session() {
     this.load();

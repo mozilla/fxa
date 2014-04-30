@@ -14,13 +14,15 @@
 define([
   'underscore',
   'views/base',
+  'views/form',
   'stache!templates/ready',
   'lib/session',
   'lib/xss',
   'lib/strings',
-  'lib/service-name'
+  'lib/service-name',
+  'lib/oauth-mixin'
 ],
-function (_, BaseView, Template, Session, Xss, Strings, ServiceName) {
+function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceName, OAuthMixin) {
   var View = BaseView.extend({
     template: Template,
     className: 'reset_password_complete',
@@ -31,18 +33,30 @@ function (_, BaseView, Template, Session, Xss, Strings, ServiceName) {
       this.type = options.type;
     },
 
-    context: function () {
-      var service = Session.service;
-      var serviceName = new ServiceName(this.translator).get(service);
+    beforeRender: function () {
+      if (this.isOAuthSameBrowser()) {
+        // We're continuing an OAuth flow from the same browser
+        this.setupOAuth(Session.oauth);
+        return this.setServiceInfo();
+      } else if (this.isOAuth()) {
+        // We're continuing an OAuth flow in a different browser
+        this.setupOAuth();
+        this.service = Session.service;
+        return this.setServiceInfo();
+      }
+    },
 
-      if (Session.redirectTo) {
+    context: function () {
+      var serviceName = this.serviceName || new ServiceName(this.translator).get(this.service);
+
+      if (this.serviceRedirectURI) {
         serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-          Xss.href(Session.redirectTo), serviceName
+          Xss.href(this.serviceRedirectURI), serviceName
         ]);
       }
 
       return {
-        service: service,
+        service: this.service,
         serviceName: serviceName,
         signIn: this.is('sign_in'),
         signUp: this.is('sign_up'),
@@ -50,15 +64,38 @@ function (_, BaseView, Template, Session, Xss, Strings, ServiceName) {
       };
     },
 
+    events: {
+      // validateAndSubmit is used to prevent multiple concurrent submissions.
+      'click #redirectTo': BaseView.preventDefaultThen('submit')
+    },
+
     afterRender: function() {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
+    },
+
+    submit: function () {
+      if (this.isOAuthSameBrowser()) {
+        return this.finishOAuthFlow();
+      } else if (this.isOAuth()) {
+        return this.oAuthRedirectWithError();
+      }
+    },
+
+    isOAuth: function () {
+      return !!Session.service;
+    },
+
+    isOAuthSameBrowser: function () {
+      return Session.oauth && Session.oauth.client_id === Session.service;
     },
 
     is: function (type) {
       return this.type === type;
     }
   });
+
+  _.extend(View.prototype, OAuthMixin);
 
   return View;
 });

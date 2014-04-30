@@ -1,5 +1,12 @@
 <header>
-  <h1 id="fxa-signup-header">{{#t}}Create a Firefox Account{{/t}}</h1>
+  <h1 id="fxa-signup-header">
+    {{#serviceName}}
+      {{#t}}Create a Firefox Account for %(serviceName)s{{/t}}
+    {{/serviceName}}
+    {{^serviceName}}
+      {{#t}}Create a Firefox Account{{/t}}
+    {{/serviceName}}
+  </h1>
 </header>
 
 <section>

@@ -7,7 +7,7 @@
 define([
   'chai',
   'jquery',
-  'views/oauth_sign_in',
+  'views/oauth_sign_up',
   'lib/session',
   'lib/fxa-client',
   '../../mocks/window',
@@ -19,7 +19,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
-  describe('views/oauth_sign_in', function () {
+  describe('views/oauth_sign_up', function () {
     var view, email, router, windowMock, CLIENT_ID, STATE, SCOPE, CLIENT_NAME, BASE_REDIRECT_URL;
 
     CLIENT_ID = 'dcdb5ae7add825d2';
@@ -33,13 +33,12 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
       email = 'testuser.' + Math.random() + '@testuser.com';
       router = new RouterMock();
       windowMock = new WindowMock();
-      windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
+      windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE + '&redirect_uri=' + encodeURIComponent(BASE_REDIRECT_URL);
       view = new View({
         router: router,
         window: windowMock
       });
       view.render();
-      console.log('!!!', view.el);
       $('#container').html(view.el);
     });
 
@@ -53,23 +52,24 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
       it('displays oAuth client name', function () {
         return view.render()
               .then(function () {
-                assert.include($('#fxa-signin-header').text(), CLIENT_NAME);
+                assert.include($('#fxa-signup-header').text(), CLIENT_NAME);
               });
       });
     });
 
     describe('submit', function () {
-      it('signs the user in on success', function () {
+      it('sets up the user\'s ouath session on success', function () {
         var password = 'password';
-        return view.fxaClient.signUp(email, password, { preVerified: true })
+        return view.fxaClient.signUp(email, password)
               .then(function () {
-              console.log('email??', email, $('form input'), $('.email'));
                 $('.email').val(email);
                 $('[type=password]').val(password);
+                $('#fxa-age-year').val('1990');
                 return view.submit();
               })
               .then(function () {
-                assert.include(windowMock.location.href, BASE_REDIRECT_URL);
+                assert.equal(Session.oauth.state, STATE);
+                assert.equal(Session.service, CLIENT_ID);
               });
       });
     });

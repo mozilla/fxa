@@ -7,81 +7,81 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2014-04-29 00:10+0000\n"
+"POT-Creation-Date: 2014-05-02 22:14+0000\n"
 
-#: app/scripts/templates/sign_up.mustache:9
+#: app/scripts/templates/sign_up.mustache:11
 msgid "1991"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:10
+#: app/scripts/templates/sign_up.mustache:12
 msgid "1992"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:11
+#: app/scripts/templates/sign_up.mustache:13
 msgid "1993"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:12
+#: app/scripts/templates/sign_up.mustache:14
 msgid "1994"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:13
+#: app/scripts/templates/sign_up.mustache:15
 msgid "1995"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:14
+#: app/scripts/templates/sign_up.mustache:16
 msgid "1996"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:15
+#: app/scripts/templates/sign_up.mustache:17
 msgid "1997"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:16
+#: app/scripts/templates/sign_up.mustache:18
 msgid "1998"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:17
+#: app/scripts/templates/sign_up.mustache:19
 msgid "1999"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:18
+#: app/scripts/templates/sign_up.mustache:20
 msgid "2000"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:19
+#: app/scripts/templates/sign_up.mustache:21
 msgid "2001"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:20
+#: app/scripts/templates/sign_up.mustache:22
 msgid "2002"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:21
+#: app/scripts/templates/sign_up.mustache:23
 msgid "2003"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:22
+#: app/scripts/templates/sign_up.mustache:24
 msgid "2004"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:23
+#: app/scripts/templates/sign_up.mustache:25
 msgid "2005"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:24
+#: app/scripts/templates/sign_up.mustache:26
 msgid "2006"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:25
+#: app/scripts/templates/sign_up.mustache:27
 msgid "2007"
 msgstr ""
 
-#: app/scripts/views/base.js:63
+#: app/scripts/views/base.js:64
 msgid "Session expired. Sign in to continue."
 msgstr ""
 
-#: app/scripts/views/base.js:403
+#: app/scripts/views/base.js:427
 msgid "missing search parameter: %(itemName)s"
 msgstr ""
 
@@ -103,12 +103,12 @@ msgstr ""
 msgid "Passwords do not match"
 msgstr ""
 
-#: app/scripts/views/confirm.js:46
-#: app/scripts/views/confirm_reset_password.js:76
+#: app/scripts/views/confirm.js:104
+#: app/scripts/views/confirm_reset_password.js:74
 msgid "Invalid token"
 msgstr ""
 
-#: app/scripts/views/confirm_reset_password.js:52
+#: app/scripts/views/confirm_reset_password.js:50
 msgid "Password reset. Sign in to continue."
 msgstr ""
 
@@ -124,20 +124,20 @@ msgstr ""
 msgid "/force_auth requires an email"
 msgstr ""
 
-#: app/scripts/views/form.js:358
+#: app/scripts/views/form.js:406
 #: app/scripts/lib/strings.js:18
 msgid "Valid email required"
 msgstr ""
 
-#: app/scripts/views/form.js:364
+#: app/scripts/views/form.js:412
 #: app/scripts/lib/strings.js:23
 #: app/scripts/templates/change_password.mustache:6
 #: app/scripts/templates/complete_reset_password.mustache:14
-#: app/scripts/templates/sign_up.mustache:6
+#: app/scripts/templates/sign_up.mustache:8
 msgid "Must be at least 8 characters"
 msgstr ""
 
-#: app/scripts/views/form.js:365
+#: app/scripts/views/form.js:413
 #: app/scripts/lib/strings.js:19
 msgid "Valid password required"
 msgstr ""
@@ -150,7 +150,7 @@ msgstr ""
 msgid "Signed out"
 msgstr ""
 
-#: app/scripts/views/sign_in.js:73
+#: app/scripts/views/sign_in.js:72
 msgid "Unknown account. <a href=\"/signup\">Sign up</a>"
 msgstr ""
 
@@ -159,7 +159,7 @@ msgstr ""
 msgid "Year of birth required"
 msgstr ""
 
-#: app/scripts/views/sign_up.js:134
+#: app/scripts/views/sign_up.js:128
 msgid "Account already exists. <a href=\"/signin\">Sign in</a>"
 msgstr ""
 
@@ -168,6 +168,7 @@ msgid "Could not get Terms of Service"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:44
+#: app/scripts/lib/oauth-errors.js:27
 msgid "Unexpected error"
 msgstr ""
 
@@ -213,6 +214,7 @@ msgid "Invalid JSON in request body"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:55
+#: app/scripts/lib/oauth-errors.js:31
 msgid "Invalid parameter in request body: %(param)s"
 msgstr ""
 
@@ -221,6 +223,7 @@ msgid "Missing parameter in request body: %(param)s"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:57
+#: app/scripts/lib/oauth-errors.js:32
 msgid "Invalid request signature"
 msgstr ""
 
@@ -246,6 +249,18 @@ msgstr ""
 
 #: app/scripts/lib/auth-errors.js:63
 msgid "This endpoint is no longer supported"
+msgstr ""
+
+#: app/scripts/lib/oauth-errors.js:28
+msgid "Unknown client"
+msgstr ""
+
+#: app/scripts/lib/oauth-errors.js:29
+msgid "Incorrect redirect_uri"
+msgstr ""
+
+#: app/scripts/lib/oauth-errors.js:30
+msgid "Invalid assertion"
 msgstr ""
 
 #: app/scripts/lib/service-name.js:16
@@ -311,8 +326,8 @@ msgstr ""
 #: app/scripts/templates/complete_reset_password.mustache:13
 #: app/scripts/templates/delete_account.mustache:4
 #: app/scripts/templates/force_auth.mustache:5
-#: app/scripts/templates/sign_in.mustache:5
-#: app/scripts/templates/sign_up.mustache:5
+#: app/scripts/templates/sign_in.mustache:7
+#: app/scripts/templates/sign_up.mustache:7
 msgid "Show"
 msgstr ""
 
@@ -374,7 +389,7 @@ msgstr ""
 
 #: app/scripts/templates/complete_reset_password.mustache:15
 #: app/scripts/templates/reset_password.mustache:4
-#: app/scripts/templates/sign_up.mustache:27
+#: app/scripts/templates/sign_up.mustache:29
 msgid "Next"
 msgstr ""
 
@@ -410,8 +425,8 @@ msgstr ""
 
 #: app/scripts/templates/confirm_reset_password.mustache:5
 #: app/scripts/templates/force_auth.mustache:6
-#: app/scripts/templates/sign_in.mustache:1
-#: app/scripts/templates/sign_in.mustache:6
+#: app/scripts/templates/sign_in.mustache:3
+#: app/scripts/templates/sign_in.mustache:8
 msgid "Sign in"
 msgstr ""
 
@@ -446,8 +461,8 @@ msgstr ""
 
 #: app/scripts/templates/delete_account.mustache:3
 #: app/scripts/templates/force_auth.mustache:3
-#: app/scripts/templates/sign_in.mustache:3
-#: app/scripts/templates/sign_up.mustache:3
+#: app/scripts/templates/sign_in.mustache:5
+#: app/scripts/templates/sign_up.mustache:5
 msgid "Password"
 msgstr ""
 
@@ -456,13 +471,13 @@ msgid "Sign in to continue"
 msgstr ""
 
 #: app/scripts/templates/force_auth.mustache:7
-#: app/scripts/templates/sign_in.mustache:7
+#: app/scripts/templates/sign_in.mustache:9
 msgid "Forgot password?"
 msgstr ""
 
 #: app/scripts/templates/force_auth.mustache:8
-#: app/scripts/templates/sign_in.mustache:9
-#: app/scripts/templates/sign_up.mustache:26
+#: app/scripts/templates/sign_in.mustache:11
+#: app/scripts/templates/sign_up.mustache:28
 msgid ""
 "By proceeding, I agree to the <a id=\"fxa-tos\" href=\"/legal/terms\">Terms "
 "of Service</a> and <a id=\"fxa-pp\" href=\"/legal/privacy\">Privacy "
@@ -526,8 +541,8 @@ msgid "Enter your email to reset&nbsp;the account password."
 msgstr ""
 
 #: app/scripts/templates/reset_password.mustache:3
-#: app/scripts/templates/sign_in.mustache:2
-#: app/scripts/templates/sign_up.mustache:2
+#: app/scripts/templates/sign_in.mustache:4
+#: app/scripts/templates/sign_up.mustache:4
 msgid "Email"
 msgstr ""
 
@@ -543,26 +558,34 @@ msgstr ""
 msgid "Sign out"
 msgstr ""
 
-#: app/scripts/templates/sign_in.mustache:8
+#: app/scripts/templates/sign_in.mustache:1
+msgid "Sign in to %(serviceName)s"
+msgstr ""
+
+#: app/scripts/templates/sign_in.mustache:10
 msgid "Create an account"
 msgstr ""
 
 #: app/scripts/templates/sign_up.mustache:1
+msgid "Create a Firefox Account for %(serviceName)s"
+msgstr ""
+
+#: app/scripts/templates/sign_up.mustache:3
 msgid "Create a Firefox Account"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:7
+#: app/scripts/templates/sign_up.mustache:9
 msgid "Year of birth"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:8
+#: app/scripts/templates/sign_up.mustache:10
 msgid "1990 or earlier"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:28
+#: app/scripts/templates/sign_up.mustache:30
 msgid "Choose what to sync"
 msgstr ""
 
-#: app/scripts/templates/sign_up.mustache:30
+#: app/scripts/templates/sign_up.mustache:32
 msgid "Already have an account? Sign in."
 msgstr ""

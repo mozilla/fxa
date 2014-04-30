@@ -79,6 +79,7 @@ module.exports = function (config, templates, i18n) {
       '/delete_account',
       '/force_auth',
       '/oauth/signin',
+      '/oauth/signup',
       '/cookies_disabled'
     ];
 

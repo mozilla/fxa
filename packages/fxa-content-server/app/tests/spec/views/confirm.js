@@ -143,6 +143,38 @@ function (chai, p, Session, authErrors, View, RouterMock) {
       });
     });
 
+    describe('oauth', function () {
+      it('redirects to signup_complete after account is verified', function () {
+        var email = 'user' + Math.random() + '@testuser.com';
+
+        Session.set('service', 'sync');
+
+        view.VERIFICATION_POLL_IN_MS = 100;
+
+        return view.fxaClient.signUp(email, 'password', { preVerified: true })
+          .then(function () {
+            Session.set('oauth', {
+              client_id: 'sync'
+            });
+            return view.render();
+          })
+          .then(function () {
+            var defer = p.defer();
+            setTimeout(function () {
+              try {
+                assert.equal(router.page, 'signup_complete');
+                defer.resolve();
+              } catch (e) {
+                defer.reject(e);
+              }
+            }, view.VERIFICATION_POLL_IN_MS + 1000);
+
+            return defer.promise;
+          });
+
+      });
+    });
+
   });
 });
 

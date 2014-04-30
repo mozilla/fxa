@@ -14,14 +14,22 @@ define([
 function (FormView, BaseView, Template, Session, authErrors) {
   var t = BaseView.t;
   var SHOW_RESEND_IN_MS = 5 * 60 * 1000; // 5 minutes.
+  var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
   var View = FormView.extend({
     template: Template,
     className: 'confirm',
 
+    // used by unit tests
+    VERIFICATION_POLL_IN_MS: VERIFICATION_POLL_IN_MS,
+
     beforeDestroy: function () {
       if (this._displayResendTimeout) {
         this.window.clearTimeout(this._displayResendTimeout);
+      }
+
+      if (this._verificationTimeout) {
+        this.window.clearTimeout(this._verificationTimeout);
       }
     },
 
@@ -47,6 +55,28 @@ function (FormView, BaseView, Template, Session, authErrors) {
     afterRender: function() {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
+
+      // If we're in an OAuth flow, start polling the user's verification
+      // status and transistion to the signup complete screen to complete the flow
+      if (Session.oauth) {
+        var self = this;
+        var pollFn = function () {
+          self.fxaClient.recoveryEmailStatus(Session.sessionToken)
+            .then(function (result) {
+              if (result.verified) {
+                self.navigate('signup_complete');
+                self._verificationTimeout = null;
+              } else {
+                self._verificationTimeout = setTimeout(pollFn,
+                                              self.VERIFICATION_POLL_IN_MS);
+              }
+            }, function (err) {
+              self._verificationTimeout = null;
+            });
+        };
+
+        this._verificationTimeout = setTimeout(pollFn, self.VERIFICATION_POLL_IN_MS);
+      }
     },
 
     _attemptedSubmits: 0,

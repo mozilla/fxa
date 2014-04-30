@@ -54,10 +54,38 @@ function (chai, View, Session) {
       });
 
       it('shows redirectTo link and service name if available', function () {
-        Session.set('redirectTo', 'https://sync.firefox.com');
+        // This would be fetched from the OAuth server, but set it
+        // explicitly for tests that use the mock `sync` service ID.
+        view.serviceRedirectURI = 'https://sync.firefox.com';
         Session.set('service', 'sync');
+
         return view.render()
             .then(function () {
+              assert.equal(view.$('#redirectTo').length, 1);
+              var html = view.$('section').text();
+              assert.notEqual(html.indexOf('Firefox Sync'), -1);
+              assert.ok(view.isOAuth());
+              assert.notOk(view.isOAuthSameBrowser());
+            });
+      });
+
+      it('shows redirectTo link and service name if continuing OAuth flow', function () {
+        Session.set('service', 'sync');
+
+        // oauth is set if using the same browser
+        Session.set('oauth', {
+          client_id: 'sync'
+        });
+
+        // This would be fetched from the OAuth server, but set it
+        // explicitly for tests that use the mock `sync` service ID.
+        view.serviceRedirectURI = 'https://sync.firefox.com';
+
+        return view.render()
+            .then(function () {
+              assert.ok(view.isOAuth());
+              assert.ok(view.isOAuthSameBrowser());
+
               assert.equal(view.$('#redirectTo').length, 1);
               var html = view.$('section').text();
               assert.notEqual(html.indexOf('Firefox Sync'), -1);

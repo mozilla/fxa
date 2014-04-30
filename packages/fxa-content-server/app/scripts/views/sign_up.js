@@ -54,6 +54,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
 
     context: function () {
       return {
+        serviceName: this.serviceName,
         email: Session.prefillEmail,
         service: Session.service,
         isSync: Session.isSync()
@@ -118,13 +119,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
       var self = this;
       return this.fxaClient.signUp(email, password, { customizeSync: customizeSync })
         .then(function (accountData) {
-          // this means a user successfully signed in with an already
-          // existing account and should be sent on their merry way.
-          if (accountData.verified) {
-            self.navigate('settings');
-          } else {
-            self.navigate('confirm');
-          }
+          return self.onSignUpSuccess(accountData);
         })
         .then(null, function (err) {
           // account already exists, and the user
@@ -141,6 +136,14 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
           // re-throw error, it will be handled at a lower level.
           throw err;
         });
+    },
+
+    onSignUpSuccess: function(accountData) {
+      if (accountData.verified) {
+        this.navigate('settings');
+      } else {
+        this.navigate('confirm');
+      }
     }
 
   });
