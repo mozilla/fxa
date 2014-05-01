@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "dependencies": {
     "bluebird": {
-      "version": "1.2.2",
-      "from": "bluebird@1.2.2",
-      "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-1.2.2.tgz"
+      "version": "1.2.4",
+      "from": "bluebird@1.2.4",
+      "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-1.2.4.tgz"
     },
     "convict": {
       "version": "0.4.2",
@@ -70,8 +70,9 @@
       }
     },
     "hapi": {
-      "version": "4.0.0",
-      "from": "hapi@4.0.0",
+      "version": "4.0.3",
+      "from": "hapi@4.0.3",
+      "resolved": "https://registry.npmjs.org/hapi/-/hapi-4.0.3.tgz",
       "dependencies": {
         "hoek": {
           "version": "2.1.0",
@@ -116,6 +117,11 @@
         "iron": {
           "version": "2.0.2",
           "from": "iron@2.x.x"
+        },
+        "topo": {
+          "version": "1.0.0",
+          "from": "topo@1.x.x",
+          "resolved": "https://registry.npmjs.org/topo/-/topo-1.0.0.tgz"
         },
         "async": {
           "version": "0.2.10",
@@ -255,21 +261,18 @@
       }
     },
     "mysql": {
-      "version": "2.1.1",
-      "from": "mysql@2.1.1",
-      "resolved": "https://registry.npmjs.org/mysql/-/mysql-2.1.1.tgz",
+      "version": "2.2.0",
+      "from": "mysql@2.2.0",
+      "resolved": "https://registry.npmjs.org/mysql/-/mysql-2.2.0.tgz",
       "dependencies": {
-        "require-all": {
-          "version": "0.0.3",
-          "from": "require-all@0.0.3"
-        },
         "bignumber.js": {
-          "version": "1.0.1",
-          "from": "bignumber.js@1.0.1"
+          "version": "1.3.0",
+          "from": "bignumber.js@1.3.0",
+          "resolved": "https://registry.npmjs.org/bignumber.js/-/bignumber.js-1.3.0.tgz"
         },
         "readable-stream": {
           "version": "1.1.13-1",
-          "from": "readable-stream@~1.1.9",
+          "from": "readable-stream@~1.1.13",
           "dependencies": {
             "core-util-is": {
               "version": "1.0.1",
@@ -285,9 +288,14 @@
             },
             "inherits": {
               "version": "2.0.1",
-              "from": "inherits@2"
+              "from": "inherits@~2.0.1"
             }
           }
+        },
+        "require-all": {
+          "version": "0.0.8",
+          "from": "require-all@0.0.8",
+          "resolved": "https://registry.npmjs.org/require-all/-/require-all-0.0.8.tgz"
         }
       }
     },

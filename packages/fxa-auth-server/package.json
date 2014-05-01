@@ -17,12 +17,12 @@
     "url": "https://github.com/mozilla/fxa-oauth-server/issues"
   },
   "dependencies": {
-    "bluebird": "1.2.2",
+    "bluebird": "1.2.4",
     "convict": "0.4.2",
-    "hapi": "4.0.0",
+    "hapi": "4.0.3",
     "intel": "0.5.2",
     "joi": "3.1.0",
-    "mysql": "2.1.1",
+    "mysql": "2.2.0",
     "request": "2.34.0"
   },
   "devDependencies": {
@@ -35,10 +35,10 @@
     "grunt-mocha-test": "~0.10.2",
     "grunt-nodemon": "~0.2.1",
     "insist": "0.x",
-    "jshint-stylish": "~0.1.5",
+    "jshint-stylish": "~0.2.0",
     "jwcrypto": "~0.5.0",
     "load-grunt-tasks": "~0.4.0",
-    "nock": "~0.27.3",
+    "nock": "~0.28.3",
     "time-grunt": "~0.3.1"
   }
 }
