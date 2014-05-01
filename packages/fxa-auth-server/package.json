@@ -43,6 +43,7 @@
     "jwcrypto": "~0.5.0",
     "load-grunt-tasks": "~0.4.0",
     "nock": "~0.28.3",
-    "time-grunt": "~0.3.1"
+    "time-grunt": "~0.3.1",
+    "blanket": "^1.1.6"
   }
 }

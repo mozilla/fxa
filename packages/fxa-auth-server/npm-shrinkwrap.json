@@ -10,17 +10,14 @@
     "convict": {
       "version": "0.4.2",
       "from": "convict@0.4.2",
-      "resolved": "https://registry.npmjs.org/convict/-/convict-0.4.2.tgz",
       "dependencies": {
         "cjson": {
           "version": "0.3.0",
           "from": "cjson@0.3.0",
-          "resolved": "https://registry.npmjs.org/cjson/-/cjson-0.3.0.tgz",
           "dependencies": {
             "jsonlint": {
               "version": "1.6.0",
               "from": "jsonlint@1.6.0",
-              "resolved": "https://registry.npmjs.org/jsonlint/-/jsonlint-1.6.0.tgz",
               "dependencies": {
                 "nomnom": {
                   "version": "1.6.2",
@@ -50,8 +47,7 @@
         },
         "moment": {
           "version": "2.3.1",
-          "from": "moment@2.3.1",
-          "resolved": "https://registry.npmjs.org/moment/-/moment-2.3.1.tgz"
+          "from": "moment@2.3.1"
         },
         "optimist": {
           "version": "0.6.0",
@@ -83,14 +79,9 @@
           "from": "boom@^2.4.x"
         },
         "catbox": {
-          "version": "2.2.0",
+          "version": "2.2.1",
           "from": "catbox@^2.1.x",
-          "dependencies": {
-            "hoek": {
-              "version": "1.5.2",
-              "from": "hoek@1.x.x"
-            }
-          }
+          "resolved": "https://registry.npmjs.org/catbox/-/catbox-2.2.1.tgz"
         },
         "catbox-memory": {
           "version": "1.0.1",
@@ -103,8 +94,9 @@
           }
         },
         "shot": {
-          "version": "1.3.2",
-          "from": "shot@1.x.x"
+          "version": "1.3.3",
+          "from": "shot@1.x.x",
+          "resolved": "https://registry.npmjs.org/shot/-/shot-1.3.3.tgz"
         },
         "nipple": {
           "version": "2.5.1",
@@ -120,12 +112,11 @@
         },
         "topo": {
           "version": "1.0.0",
-          "from": "topo@1.x.x",
-          "resolved": "https://registry.npmjs.org/topo/-/topo-1.0.0.tgz"
+          "from": "topo@1.x.x"
         },
         "async": {
           "version": "0.2.10",
-          "from": "async@0.2.x"
+          "from": "async@~0.2.9"
         },
         "multiparty": {
           "version": "3.2.4",
@@ -161,7 +152,7 @@
         },
         "mime": {
           "version": "1.2.11",
-          "from": "mime@1.2.x"
+          "from": "mime@~1.2.9"
         },
         "lru-cache": {
           "version": "2.5.0",
@@ -191,14 +182,13 @@
         },
         "qs": {
           "version": "0.6.6",
-          "from": "qs@0.6.x"
+          "from": "qs@~0.6.0"
         }
       }
     },
     "intel": {
       "version": "0.5.2",
       "from": "intel@0.5.2",
-      "resolved": "https://registry.npmjs.org/intel/-/intel-0.5.2.tgz",
       "dependencies": {
         "bluebird": {
           "version": "1.0.8",
@@ -207,7 +197,6 @@
         "chalk": {
           "version": "0.4.0",
           "from": "chalk@0.4.0",
-          "resolved": "https://registry.npmjs.org/chalk/-/chalk-0.4.0.tgz",
           "dependencies": {
             "has-color": {
               "version": "0.1.7",
@@ -229,23 +218,19 @@
         },
         "stack-trace": {
           "version": "0.0.8",
-          "from": "stack-trace@0.0.8",
-          "resolved": "https://registry.npmjs.org/stack-trace/-/stack-trace-0.0.8.tgz"
+          "from": "stack-trace@0.0.8"
         },
         "strftime": {
           "version": "0.8.0",
-          "from": "strftime@0.8.0",
-          "resolved": "https://registry.npmjs.org/strftime/-/strftime-0.8.0.tgz"
+          "from": "strftime@0.8.0"
         },
         "symbol": {
           "version": "0.1.0",
-          "from": "symbol@0.1.0",
-          "resolved": "https://registry.npmjs.org/symbol/-/symbol-0.1.0.tgz"
+          "from": "symbol@0.1.0"
         },
         "utcstring": {
           "version": "0.1.0",
-          "from": "utcstring@0.1.0",
-          "resolved": "https://registry.npmjs.org/utcstring/-/utcstring-0.1.0.tgz"
+          "from": "utcstring@0.1.0"
         }
       }
     },
@@ -301,7 +286,7 @@
     },
     "request": {
       "version": "2.34.0",
-      "from": "request@",
+      "from": "request@2.34.0",
       "dependencies": {
         "qs": {
           "version": "0.6.6",
