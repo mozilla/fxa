@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "awsbox": "~0.7.0",
+    "blanket": "~1.1.6",
     "grunt": "~0.4.4",
     "grunt-cli": "~0.1.13",
     "grunt-contrib-jshint": "~0.10.0",
@@ -43,7 +44,6 @@
     "jwcrypto": "~0.5.0",
     "load-grunt-tasks": "~0.4.0",
     "nock": "~0.28.3",
-    "time-grunt": "~0.3.1",
-    "blanket": "^1.1.6"
+    "time-grunt": "~0.3.1"
   }
 }
