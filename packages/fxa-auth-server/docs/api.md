@@ -72,14 +72,16 @@ https://oauth.accounts.firefox.com/v1/client/5901bd09376fadaa076afacef5251b6a
 A valid 200 response will be a JSON blob with the following properties:
 
 - `name`: A string name of the client.
-- `imageUri`: A url to a logo or image that represents the client.
+- `image_uri`: A url to a logo or image that represents the client.
+- `redirect_uri`: The url registered to redirect to after successful oauth.
 
 Example:
 
 ```js
 {
   "name": "Where's My Fox",
-  "imageUri": "https://mozilla.org/firefox.png"
+  "image_uri": "https://mozilla.org/firefox.png",
+  "redirect_uri": "https://wheres.my.firefox.com/oauth"
 }
 ```
 
