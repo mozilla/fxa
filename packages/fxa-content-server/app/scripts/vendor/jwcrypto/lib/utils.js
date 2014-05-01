@@ -10,11 +10,6 @@ function InputException(message) {
   this.toString = function() { return "Malformed input: "+this.message; };
 }
 
-// patch the window object;
-if (typeof(window) === "undefined") {
-  var window = libs.window;
-}
-
 var int2char = libs.int2char;
 
 // convert a base64url string to hex

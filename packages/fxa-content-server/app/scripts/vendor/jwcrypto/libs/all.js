@@ -1,28 +1,4 @@
-define(function(require,module,exports){// faking some objects so all goes well
-
-// faking some objects so all goes well
-if (typeof(OVERRIDE) == "undefined") {
-  var navigator = {
-    appName: "Netscape"
-  };
-
-  var window = {
-    atob: function(str) {
-      return new Buffer(str, 'base64').toString('utf-8');
-    },
-    btoa: function(str) {
-      return new Buffer(str).toString('base64');
-    }
-  };
-
-  var alert = function(msg) {
-    console.log(msg);
-  };
-} else {
-  var navigator = OVERRIDE.navigator;
-  var window = OVERRIDE.window;
-}
-
+define(function(require,module,exports){
 
 var sha1 = {
   hex: function(){
