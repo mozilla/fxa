@@ -129,12 +129,38 @@ function (chai, _, $, View, RouterMock, TestHelpers) {
           view.submit();
         });
 
-        it('changes from old to new password, redirects user to signin', function (done) {
+        it('changes from old to new password, redirects user to /settings', function () {
           $('#old_password').val('password');
           $('#new_password').val('new_password');
 
-          view.on('success', done);
-          view.submit();
+          return view.submit()
+              .then(function () {
+                assert.equal(routerMock.page, 'settings');
+              });
+        });
+
+        it('shows the unverified user message if the user is unverified', function () {
+          email = 'testuser.' + Math.random() + '@testuser.com';
+
+          // create an unverified user, then change their password.
+          return view.fxaClient.signUp(email, 'password')
+            .then(function () {
+              $('#old_password').val('password');
+              $('#new_password').val('new_password');
+              return view.submit();
+            })
+            .then(function () {
+              assert.ok(view.$('#resend').length);
+            });
+        });
+      });
+
+      describe('resendVerificationEmail', function () {
+        it('resends a verification email, and sends user to /confirm', function () {
+          return view.resendVerificationEmail()
+            .then(function () {
+              assert.equal(routerMock.page, 'confirm');
+            });
         });
       });
     });

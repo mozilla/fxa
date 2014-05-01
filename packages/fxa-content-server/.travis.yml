@@ -7,6 +7,7 @@ env:
     # please get your own free key if you want to test yourself
     - SAUCE_USERNAME: fxa-content
     - SAUCE_ACCESS_KEY: ee5354a4-3d5e-47a0-84b0-0b7aaa12a720
+    - DISABLE_ROUTE_LOGGING: true
 
 before_install:
   - sudo apt-get install libgmp3-dev
@@ -14,15 +15,15 @@ before_install:
 install:
 # install everything for full dev in the fxa-content-server.
   - npm install --silent
-# install the resources necessary for the auth server.
-  - cd node_modules/fxa-auth-server
-  - npm install --silent
-  - node ./scripts/gen_keys.js
-  - npm start &
-  - cd ../..
 # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
   - grunt l10n-create-json
+# install the resources necessary for the auth server.
+  - npm install --silent git://github.com/mozilla/fxa-auth-server.git
+  - cd node_modules/fxa-auth-server
+  - node ./scripts/gen_keys.js
+  - LOG_LEVEL=error npm start &
+  - cd ../..
   - npm start &
 # now run the tests!
 script: grunt validate-shrinkwrap && grunt lint && npm run-script test-server && npm run-script test-remote

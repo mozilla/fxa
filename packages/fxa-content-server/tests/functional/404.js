@@ -14,9 +14,6 @@ define([
   registerSuite({
     name: '404',
 
-    setup: function () {
-    },
-
     'visit an invalid page': function () {
 
       return this.get('remote')

@@ -73,6 +73,11 @@ var conf = module.exports = convict({
     format: [ 'default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny' ],
     default: 'default_fxa'
   },
+  disable_route_logging: {
+    doc: 'Disable route logging completely. Useful for trimming travis logs.',
+    default: false,
+    env: 'DISABLE_ROUTE_LOGGING'
+  },
   use_https: false,
   var_path: {
     doc: 'The path where deployment specific resources will be sought (keys, etc), and logs will be kept.',
@@ -96,10 +101,10 @@ var conf = module.exports = convict({
     format: String,
     default: 'app'
   },
-  font_max_age_ms: {
-    doc: 'Cache fonts for this amount of time, in ms',
+  static_max_age: {
+    doc: 'Cache max age for static assets, in ms',
     format: Number,
-    default: 180 * 24 * 60 * 60 * 1000      // 180 days
+    default: 10 * 60 * 1000 // 10 minutes
   },
   hsts_max_age: {
     doc: 'Max age of the STS directive, in seconds',

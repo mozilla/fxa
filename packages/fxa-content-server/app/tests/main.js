@@ -32,6 +32,9 @@ require.config({
     },
     sinon: {
       exports: 'sinon'
+    },
+    modernizr: {
+      exports: 'Modernizr'
     }
   },
   stache: {
@@ -58,6 +61,7 @@ require([
   '../tests/spec/lib/auth-errors',
   '../tests/spec/lib/app-start',
   '../tests/spec/lib/validate',
+  '../tests/spec/lib/service-name',
   '../tests/spec/views/base',
   '../tests/spec/views/tooltip',
   '../tests/spec/views/form',
@@ -65,6 +69,7 @@ require([
   '../tests/spec/views/complete_sign_up',
   '../tests/spec/views/sign_in',
   '../tests/spec/views/oauth_sign_in',
+  '../tests/spec/views/force_auth',
   '../tests/spec/views/settings',
   '../tests/spec/views/change_password',
   '../tests/spec/views/delete_account',
@@ -75,7 +80,8 @@ require([
   '../tests/spec/views/confirm_reset_password',
   '../tests/spec/views/complete_reset_password',
   '../tests/spec/views/ready',
-  '../tests/spec/views/cookies_disabled'
+  '../tests/spec/views/cookies_disabled',
+  '../tests/spec/views/button_progress_indicator'
 ],
 function (Translator, Session, FxaClientWrapper) {
 

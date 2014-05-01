@@ -1,108 +1,110 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>{{t "Firefox Accounts"}}</title>
-        <style type="text/css">
-            #outlook a{padding:0;} /* Force Outlook to provide a "view in browser" button. */
-            body{width:100% !important;} .ReadMsgBody{width:100%;} .ExternalClass{width:100%;} /* Force Hotmail to display emails at full width */
-            body{-webkit-text-size-adjust:none;} /* Prevent Webkit platforms from changing default text sizes. */
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>{{t "Firefox Accounts"}}</title>
+    <style>
+      a {
+        color: #0095dd;
+        text-decoration: none !important;
+      }
 
-            body{
-              background: #f2f2f2;
-              margin:0;
-              padding:0;
-              width:100% !important;
-              -webkit-text-size-adjust:none;
-              font-family: Helvetica, Arial, sans-serif;
-              font-size: 14px;
-              color: #424f5a;
-            }
-            img{
-              border:0;
-              height:auto;
-              line-height:100%;
-              outline:none;
-              text-decoration:none;
-            }
-            a{
-              color: #3b9bda;
-              text-decoration: none;
-            }
-            a:hover{
-              text-decoration: underline;
-            }
-            p{
-              margin: 0 0 15px;
-              line-height: 1.5;
-            }
+      @media only screen and (max-width: 599px){
+        /*CLIENT-SPECIFIC MOBILE STYLES */
+        body, table, td, p, a, li, blockquote{-webkit-text-size-adjust:none !important;} /* Prevent Webkit platforms from changing default text sizes */
+        body{width:100% !important; min-width:100% !important;} /* Prevent iOS Mail from adding padding to the body */
+        #bodyCell{padding:10px !important;}
 
-            h1 {
-              color: #45505b;
-            }
+        .flexibleContainer {
+          width:85% !important;
+        }
 
-            h2{
-              font-size: 18px;
-              margin: 20px 0 15px;
-            }
-
-            p:last-child{
-              margin-bottom: 0;
-            }
-            table td{
-              border-collapse:collapse;
-            }
-        </style>
+        #templateContainer{
+          max-width:600px !important;
+          width:100% !important;
+        }
+        h1{
+          font-size:24px !important;
+          line-height:100% !important;
+        }
+      }
+    </style>
   </head>
-  <body style="-webkit-text-size-adjust: none;margin: 0;padding: 0;background-color: #f2f2f2;width: 100% !important;">
+  <body leftmargin="0" marginwidth="0" topmargin="0" marginheight="0" offset="0" style="background-color:#F2F2F2;width:100% !important;height:100% !important;padding:0;margin:0;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
     <center>
-    <table border="0" cellpadding="0" cellspacing="0" height="100%" width="100%">
-      <tr style="margin: 0;
-        padding: 0;
-        height: 100% !important;
-        width: 100% !important;
-        background: #f2f2f2;
-        -webkit-text-size-adjust:none;
-        font-family: Helvetica, Arial, sans-serif;
-        font-size: 14px;
-        text-align:center
-        color: #424f5a;">
-        <td align="center" valign="top" style="border-collapse: collapse;">
-
-                <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                  <tr class="spacer">
-                    <td height="60px"></td>
-                  </tr>
-                </table><!-- #header -->
-                <table border="0" cellpadding="0" cellspacing="0" width="500" style="background-color: #fff; border-radius: 3px; margin-bottom: 60px; border-bottom:1px solid #AABBC8; border-left:1px solid #CADBD8; border-right:1px solid #CADBD8; border-top:1px solid #DDD; padding-bottom:20px">
-                  <tr>
-                    <td align="center" valign="top" style="border-collapse: collapse; color: white;">
-                      <h1 style="font-weight:lighter;padding:40px 0 0 0; margin:0; font-size:28px">{{t "Congratulations!"}}</h1>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td align="center" valign="top" class="email-content" style="border-collapse: collapse;  padding: 30px;">
-                      <p>{{t "%(email)s, you're one click away from verifying your Firefox Account."}}</p>
-                      <p style="padding:10px;"><a
-                        style="
-                          padding:10px 0;
-                          background: #0095dd;
-                          width:300px;
-                          display:block;
-                          color:#fff;
-                          font-size:20px;
-                          border-radius:5px"
-                      href="{{{link}}}">{{t "Verify"}}</a></p>
-
-                      <p style="color:#8A9BA8;font-size:10px">{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit <a href='https://support.mozilla.org'>Mozilla Support</a>"}}}</p>
-                    </td>
-                  </tr>
-                </table><!-- #content -->
-
-        </td>
-      </tr>
-    </table><!-- #container table -->
+      <table align="center" border="0" cellpadding="0" cellspacing="0" height="100%" width="100%" id="bodyTable" style="background-color:#F2F2F2;width:100% !important;padding:0;margin:0;height:100% !important;border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+        <tr>
+          <td align="center" valign="top" id="bodyCell" style="width:100% !important;padding:50px;margin:0;height:100% !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+            <!-- BEGIN TEMPLATE // -->
+            <table border="0" cellpadding="0" cellspacing="0" id="templateContainer" style="border:1px solid #DDDDDD;border-bottom-color:#CCCCCC;max-width:500px !important;border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+              <tr>
+                <td align="center" valign="top" style="mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                  <!-- BEGIN BODY // -->
+                  <table border="0" cellpadding="0" cellspacing="0" width="100%" id="templateBody" style="border-bottom:1px solid #CCCCCC;border-top:1px solid #FFFFFF;background-color:#FFFFFF;border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                    <tr>
+                      <td valign="top" class="bodyContent" mc:edit="body_content" style="text-align:center;padding-left:20px;padding-bottom:30px;padding-right:20px;padding-top:30px;line-height:150%;font-size:15px;font-family:Helvetica;color:#424F59;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                        <h1 style="text-align:center;margin-left:0;margin-bottom:10px;margin-right:0;margin-top:0;letter-spacing:normal;line-height:100%;font-weight:normal;font-style:normal;font-size:26px;font-family:Helvetica;display:block;color:#424F59 !important;">{{t "Congratulations!"}}</h1>
+                        <br>
+                        {{t "%(email)s, you're one click away from verifying your Firefox Account."}}
+                      </td>
+                    </tr>
+                    <tr width="100%">
+                      <td align="center" valign="top" style="mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                        <!-- CENTERING TABLE // -->
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                          <tr height="47">
+                            <td align="center" valign="top" style="mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                              <!-- FLEXIBLE CONTAINER // -->
+                              <table border="0" cellpadding="0" cellspacing="0" width="65%" class="flexibleContainer" style="border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                <tr>
+                                  <td align="center" valign="top" class="flexibleContainerCell bottomShim" style="mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                    <table border="0" cellpadding="0" cellspacing="0" width="280" class="emailButton" style="border-radius:4px;background-color:#0095DD;width:100% !important;border-collapse:separate;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                      <tr>
+                                        <td align="center" valign="middle" class="buttonContent" style="text-align:center;line-height:100%;font-weight:normal;font-size:20px;font-family:Helvetica;color:#FFFFFF;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                                          <!--[if mso]>
+                                          <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{{link}}}" style="height:40px;v-text-anchor:middle;width:300px;" arcsize="10%" stroke="f" fillcolor="#0095DD">
+                                          <w:anchorlock/>
+                                          <center>
+                                            <![endif]-->
+                                            <a href="{{{link}}}" style="text-decoration:none;font-size:20px;font-family:Helvetica;display:block;color:#FFFFFF;padding:15px !important;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">{{t "Verify"}}</a>
+                                          <!--[if mso]>
+                                          </center>
+                                          </v:roundrect>
+                                          <![endif]-->
+                                        </td>
+                                      </tr>
+                                    </table>
+                                    <!-- // CONTENT TABLE -->
+                                  </td>
+                                </tr>
+                              </table>
+                              <!-- // FLEXIBLE CONTAINER -->
+                            </td>
+                          </tr>
+                        </table>
+                        <!-- // CENTERING TABLE -->
+                      </td>
+                    </tr>
+                    <tr width="100%">
+                      <td align="center" valign="top" style="mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                        <!-- CENTERING TABLE // -->
+                        <table border="0" cellpadding="0" cellspacing="0" width="70%" style="border-collapse:collapse !important;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;">
+                          <tr>
+                            <td valign="top" class="bodyContent" mc:edit="body_content" style="text-align:center;padding-left:20px;padding-bottom:30px;padding-right:20px;padding-top:30px;font-family:Helvetica;mso-table-rspace:0pt;mso-table-lspace:0pt;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%;color:#8A9BA8;line-height:13px;font-size:11px;">{{t "This is an automated email; if you received it in error, no action is required."}} {{{t "For more information, please visit <a href='https://support.mozilla.org'>Mozilla Support</a>"}}}
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                  <!-- // END BODY -->
+                </td>
+              </tr>
+            </table>
+            <!-- // END TEMPLATE -->
+          </td>
+        </tr>
+      </table>
     </center>
-
   </body>
 </html>

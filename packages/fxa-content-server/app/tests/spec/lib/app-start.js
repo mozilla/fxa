@@ -51,9 +51,9 @@ function (chai, AppStart, Session, WindowMock, RouterMock, HistoryMock) {
                     });
       });
 
-      it('redirects to /cookies_disabled if cookies are disabled', function () {
+      it('redirects to /cookies_disabled if localStorage is disabled', function () {
         appStart.useConfig({
-          cookiesEnabled: false,
+          localStorageEnabled: false,
           i18n: {
             supportedLanguages: ['en'],
             defaultLang: 'en'

@@ -1,22 +1,16 @@
 <header>
-  <h1 id="fxa-signin-header">
-    {{#serviceName}}
-      {{#t}}Sign in to %(serviceName)s{{/t}}
-    {{/serviceName}}
-    {{^serviceName}}
-      {{#t}}Sign in{{/t}}
-    {{/serviceName}}
-  </h1>
+  <h1 id="fxa-force-auth-header">{{#t}}Sign in to continue{{/t}}</h1>
 </header>
 
 <section>
-  <div class="error"></div>
-  <div class="success"></div>
+  {{#fatalError}}
+    <div class="error">{{fatalError}}</div>
+  {{/fatalError}}
+  {{^fatalError}}
 
+  <div class="error"></div>
   <form novalidate>
-    <div class="input-row">
-      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}}>
-    </div>
+    <p class="prefill">{{ email }}</p>
 
     <div class="input-row password-row">
       <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required {{#email}}autofocus{{/email}} autocomplete="off" />
@@ -33,11 +27,11 @@
   </form>
 
   <div class="links">
-    <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
-    <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
+    <a href="/confirm_reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
   </div>
 
   <div class="privacy-links">
     {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
   </div>
+  {{/fatalError}}
 </section>

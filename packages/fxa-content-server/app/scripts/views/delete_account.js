@@ -6,12 +6,15 @@
 
 define([
   'underscore',
+  'views/base',
   'views/form',
   'stache!templates/delete_account',
   'lib/session',
   'lib/password-mixin'
 ],
-function (_, FormView, Template, Session, PasswordMixin) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin) {
+  var t = BaseView.t;
+
   var View = FormView.extend({
     // user must be authenticated to delete their account
     mustAuth: true,
@@ -27,7 +30,7 @@ function (_, FormView, Template, Session, PasswordMixin) {
 
     context: function () {
       return {
-        isSync: Session.service === 'sync',
+        isSync: Session.isSync(),
         email: Session.email
       };
     },
@@ -38,7 +41,9 @@ function (_, FormView, Template, Session, PasswordMixin) {
       var self = this;
       return this.fxaClient.deleteAccount(email, password)
                 .then(function () {
-                  self.navigate('signup');
+                  self.navigate('signup', {
+                    success: t('Account deleted successfully')
+                  });
                 });
     }
   });

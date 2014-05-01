@@ -39,13 +39,12 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.app %>',
           dest: '<%= yeoman.dist %>',
           src: [
+            // modernizr is left unbundled and is generated in the
+            // modernizr task, no need to copy it over.
             '*.{ico,png,txt}',
             '.htaccess',
             'images/{,*/}*.{webp,gif}',
             'styles/fonts/{,*/}*.*',
-            // only modernizr is left unbundled in main.js. It should be
-            // the only thing copied over.
-            'bower_components/modernizr/modernizr.js',
             'bower_components/**/*.{woff,eot,ttf,svg,ofl}',
             'i18n/{,*/}{,*/}*.*',
             'sync/*.html'

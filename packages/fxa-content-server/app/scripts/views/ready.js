@@ -17,9 +17,10 @@ define([
   'stache!templates/ready',
   'lib/session',
   'lib/xss',
-  'lib/strings'
+  'lib/strings',
+  'lib/service-name'
 ],
-function (_, BaseView, Template, Session, Xss, Strings) {
+function (_, BaseView, Template, Session, Xss, Strings, ServiceName) {
   var View = BaseView.extend({
     template: Template,
     className: 'reset_password_complete',
@@ -32,15 +33,17 @@ function (_, BaseView, Template, Session, Xss, Strings) {
 
     context: function () {
       var service = Session.service;
+      var serviceName = new ServiceName(this.translator).get(service);
 
       if (Session.redirectTo) {
-        service = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-          Xss.href(Session.redirectTo), Session.service
+        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+          Xss.href(Session.redirectTo), serviceName
         ]);
       }
 
       return {
         service: service,
+        serviceName: serviceName,
         signIn: this.is('sign_in'),
         signUp: this.is('sign_up'),
         resetPassword: this.is('reset_password')

@@ -31,7 +31,19 @@ function (_, $, Strings) {
         .done(function (data) {
           self.translations = data;
         })
-        .always(done);
+        .fail(function () {
+          // allow for 404's. `.get` will use the key for the translation
+          // if a value is not found in the translations table. This means
+          // English will be the fallback.
+          self.translations = {};
+        })
+        .always(function () {
+          // do not surface any errors, allow the app to load even
+          // if there are no translations for this locale.
+          if (done) {
+            done();
+          }
+        });
     },
 
     /**

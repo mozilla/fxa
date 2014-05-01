@@ -17,16 +17,22 @@ expressLogger.format('default_fxa',
 
 expressLogger.format('dev_fxa', ':method :url :status :response-time');
 
+// Used when logging is disabled
+var disabled = function (req, res, next) {
+  next();
+};
 
 module.exports = function () {
   'use strict';
 
-  return expressLogger({
-    format: config.get('route_log_format'),
-    stream: {
-      write: function (x) {
-        logger.info(typeof x === 'string' ? x.trim() : x);
-      }
-    }
-  });
+  return config.get('disable_route_logging')
+          ? disabled
+          : expressLogger({
+              format: config.get('route_log_format'),
+              stream: {
+                write: function (x) {
+                  logger.info(typeof x === 'string' ? x.trim() : x);
+                }
+              }
+            });
 };

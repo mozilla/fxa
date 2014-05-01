@@ -53,6 +53,10 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, aut
           });
     },
 
+    afterRender: function() {
+      this.togglePlaceholderPattern();
+    },
+
     _doesLinkValidate: function () {
       return Validate.isTokenValid(this.token) &&
              Validate.isCodeValid(this.code) &&
@@ -65,7 +69,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, aut
 
       // damaged and expired links have special messages.
       return {
-        isSync: Session.service === 'sync',
+        isSync: Session.isSync(),
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
         isLinkValid: doesLinkValidate && ! isLinkExpired

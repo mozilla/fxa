@@ -13,6 +13,9 @@ module.exports = function(i18n) {
   route.path = '/config';
 
   route.process = function(req, res) {
+    // `language` and `cookiesEnabled` are dynamic so don't cache.
+    res.header('Cache-Control', 'no-cache, max-age=0');
+
     // Let any intermediaries know that /config can vary based
     // on the accept-language. This will also be useful if client.json
     // gains long lived cache-control headers.
@@ -28,8 +31,8 @@ module.exports = function(i18n) {
       cookiesEnabled: !!req.cookies['__cookie_check'],
       fxaccountUrl: config.get('fxaccount_url'),
       oauthUrl: config.get('oauth_url'),
-      // req.locale is set by abide in a previous middleware.
-      language: req.locale
+      // req.lang is set by abide in a previous middleware.
+      language: req.lang
     });
   };
 

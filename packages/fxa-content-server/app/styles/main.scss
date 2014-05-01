@@ -163,18 +163,15 @@ strong.email {
 .success {
   border-radius: 3px;
   color: $message-text-color;
+  display: none;
   margin-bottom: 5px;
   padding: 5px;
   position: relative;
-  top:-15px
+  top:-15px;
 }
 
 .error {
   background: $error-background-color;
-}
-
-.error:empty {
-  display: none;
 }
 
 .error a {
@@ -269,16 +266,18 @@ strong.email {
   border: 1px solid $input-row-border-color;
   border-radius: 5px;
   box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
-  color: #424f59;
+  color: $input-text-color;
   font-size: 18px;
   height: 45px;
   outline: none;
   padding: 0 20px;
+  position: relative;
   transition-duration: 150ms;
   transition-property: border-color;
   /*kills inset shadow on ios browsers*/
   -webkit-appearance:none;
   width: 100%;
+  z-index: 2;
 }
 
 .input-row input::-webkit-input-placeholder {
@@ -552,6 +551,7 @@ ul.links li {
   // it is very easy to accidentally select the text when clicking
   -webkit-touch-callout: none;
   user-select: none;
+  z-index: 3;
 }
 
 .password-row > .password:hover {
@@ -624,6 +624,23 @@ input[type="text"] ~ .show-password-label:hover {
   margin-top: 105px;
 }
 
+.change-password .password-row,
+.complete_reset_password .password-row {
+  margin-bottom: 25px;
+}
+
+.label-helper {
+  border-radius: 2px;
+  color: $input-placeholder-color;
+  font-size: 12px;
+  font-weight: normal;
+  height: 16px;
+  margin: 0 10px;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+}
+
 .spinner {
   animation: 0.9s spin infinite linear;
   background-image: url(/images/spinnerlight.png);
@@ -637,8 +654,54 @@ input[type="text"] ~ .show-password-label:hover {
   width: 36px;
 }
 
+.spinner-white {
+  animation: 0.9s spin infinite linear;
+  background-image: url(/images/spinnerwhite.png);
+  background-size: 33px 33px;
+  display: block;
+  height: 33px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+  width: 33px;
+}
+
 .hidden {
   display: none;
+}
+
+.marketing {
+  background-color: $marketing-background-color;
+  border-radius: 0 0 5px 5px;
+  border-top: 1px solid $marketing-border-color;
+  font-size: 20px;
+  // pull in the margins from #stage 
+  margin: 60px -40px -40px -40px;
+  // 160 right padding to avoid overlap of the android logo
+  // in long locales (German)
+  padding: 28px 160px 28px 50px;
+  position: relative;
+  text-align: left;
+
+  .android-logo {
+    background: url(/images/android_logo.png);
+    background-size: 84px 74px;
+    bottom: 0;
+    display: block;
+    height: 74px;
+    position: absolute;
+    right: 50px;
+    width: 84px;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
 }
 
 @import "keyframes";

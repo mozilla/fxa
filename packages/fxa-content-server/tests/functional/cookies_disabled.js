@@ -11,14 +11,14 @@ define([
 
   // there is no way to disable cookies using wd. Add `disable_cookies`
   // to the URL to synthesize cookies being disabled.
-  var SIGNUP_COOKIES_DISABLED_URL = 'http://localhost:3030/signup?disable_cookies=1';
+  var SIGNUP_COOKIES_DISABLED_URL = 'http://localhost:3030/signup?disable_local_storage=1';
   var SIGNUP_COOKIES_ENABLED_URL = 'http://localhost:3030/signup';
   var COOKIES_DISABLED_URL = 'http://localhost:3030/cookies_disabled';
 
   registerSuite({
     name: 'cookies_disabled',
 
-    'visit signup page with cookies disabled': function () {
+    'visit signup page with localStorage disabled': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNUP_COOKIES_DISABLED_URL))
 

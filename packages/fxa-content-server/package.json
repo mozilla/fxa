@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",
@@ -73,7 +73,6 @@
   },
   "devDependencies": {
     "awsbox": "0.7.0",
-    "fxa-auth-server": "git://github.com/mozilla/fxa-auth-server.git",
     "intern-geezer": "1.6.2",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },

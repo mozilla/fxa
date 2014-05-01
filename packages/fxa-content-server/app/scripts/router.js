@@ -11,6 +11,7 @@ define([
   'lib/session',
   'views/sign_in',
   'views/oauth_sign_in',
+  'views/force_auth',
   'views/sign_up',
   'views/confirm',
   'views/legal',
@@ -34,6 +35,7 @@ function (
   Session,
   SignInView,
   OAuthSignInView,
+  ForceAuthView,
   SignUpView,
   ConfirmView,
   LegalView,
@@ -78,7 +80,7 @@ function (
       'confirm_reset_password(/)': showView(ConfirmResetPasswordView),
       'complete_reset_password(/)': showView(CompleteResetPasswordView),
       'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
-      'force_auth(/)': showView(SignInView, { forceAuth: true }),
+      'force_auth(/)': showView(ForceAuthView),
       'cookies_disabled(/)': showView(CookiesDisabledView)
     },
 

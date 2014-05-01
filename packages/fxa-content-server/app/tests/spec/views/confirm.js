@@ -8,11 +8,12 @@
 define([
   'chai',
   'p-promise',
+  'lib/session',
   'lib/auth-errors',
   'views/confirm',
   '../../mocks/router'
 ],
-function (chai, p, authErrors, View, RouterMock) {
+function (chai, p, Session, authErrors, View, RouterMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -20,6 +21,8 @@ function (chai, p, authErrors, View, RouterMock) {
     var view, router;
 
     beforeEach(function () {
+      Session.set('sessionToken', 'fake session token');
+
       router = new RouterMock();
       view = new View({
         router: router
@@ -38,6 +41,14 @@ function (chai, p, authErrors, View, RouterMock) {
     describe('constructor creates it', function () {
       it('is drawn', function () {
         assert.ok($('#fxa-confirm-header').length);
+      });
+
+      it('redirects to /signup if no sessionToken', function () {
+        Session.clear('sessionToken');
+        view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'signup');
+          });
       });
     });
 
@@ -102,6 +113,33 @@ function (chai, p, authErrors, View, RouterMock) {
                  assert.equal(count, 1);
                });
 
+      });
+
+      it('debounces resend calls - submit on first and forth attempt', function () {
+        var email = 'user' + Math.random() + '@testuser.com';
+        var count = 0;
+
+        return view.fxaClient.signUp(email, 'password')
+               .then(function () {
+                 view.fxaClient.signUpResend = function() {
+                   count++;
+                   return p(true);
+                 };
+
+                 return view.validateAndSubmit();
+               }).then(function () {
+                 assert.equal(count, 1);
+                 return view.validateAndSubmit();
+               }).then(function () {
+                 assert.equal(count, 1);
+                 return view.validateAndSubmit();
+               }).then(function () {
+                 assert.equal(count, 1);
+                 return view.validateAndSubmit();
+               }).then(function () {
+                 assert.equal(count, 2);
+                 assert.equal(view.$('#resend:visible').length, 0);
+               });
       });
     });
 

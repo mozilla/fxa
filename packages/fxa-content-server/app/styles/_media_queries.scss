@@ -55,6 +55,10 @@
       top: 0;
     }
   }
+
+  .marketing.desktop {
+    display: none;
+  }
 }
 
 @media only screen and (max-height: 480px) and (max-width: 320px) {
@@ -141,6 +145,10 @@
   .button-row a.button {
     padding: 10px 0;
   }
+
+  .marketing.desktop {
+    display: none;
+  }
 }
 
 
@@ -170,6 +178,10 @@
     background-image: url(/images/spinnerlight@2x.png);
   }
 
+  .spinner-white {
+    background-image: url(/images/spinnerwhite@2x.png);
+  }
+
   .input-row select {
     background-image: url(/images/ddarrow_inactive@2x.png)
   }
@@ -179,6 +191,10 @@
   }
 
   #about-mozilla {
-    background-image: url(/images/mozilla@2x.png)
+    background-image: url(/images/mozilla@2x.png);
+  }
+
+  .marketing .android-logo {
+    background-image: url(/images/android_logo@2x.png);
   }
 }

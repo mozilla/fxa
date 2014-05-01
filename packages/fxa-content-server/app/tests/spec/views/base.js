@@ -10,14 +10,15 @@ define([
   'jquery',
   'views/base',
   'lib/translator',
+  'lib/ephemeral-messages',
   'stache!templates/test_template',
   '../../mocks/dom-event',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
-          RouterMock, WindowMock, TestHelpers) {
+function (chai, jQuery, BaseView, Translator, EphemeralMessages,
+          Template, DOMEventMock, RouterMock, WindowMock, TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -25,7 +26,7 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
   var assert = chai.assert;
 
   describe('views/base', function () {
-    var view, router, windowMock;
+    var view, router, windowMock, ephemeralMessages;
 
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
@@ -37,6 +38,8 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       router = new RouterMock();
       windowMock = new WindowMock();
 
+      ephemeralMessages = new EphemeralMessages();
+
       var View = BaseView.extend({
         template: Template
       });
@@ -44,7 +47,8 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       view = new View({
         translator: translator,
         router: router,
-        window: windowMock
+        window: windowMock,
+        ephemeralMessages: ephemeralMessages
       });
 
       return view.render()
@@ -96,6 +100,34 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
               assert.equal(windowMock.document.title, 'Firefox Accounts Unit Tests');
             });
       });
+
+      it('shows one time success messages', function () {
+        ephemeralMessages.set('success', 'success message');
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.success').text(), 'success message');
+
+              return view.render();
+            })
+            .then(function () {
+              // it's a one time message, no success message this time.
+              assert.equal(view.$('.success').text(), '');
+            });
+      });
+
+      it('shows one time error messages', function () {
+        ephemeralMessages.set('error', 'error message');
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.error').text(), 'error message');
+
+              return view.render();
+            })
+            .then(function () {
+              // it's a one time message, no error message this time.
+              assert.equal(view.$('.error').text(), '');
+            });
+      });
     });
 
     describe('afterVisible', function () {
@@ -145,7 +177,8 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       it('hides any previously displayed success messages', function () {
         view.displaySuccess('the success message');
         view.displayError('the error message');
-        assert.isFalse(view.$('.success').is(':visible'));
+        assert.isTrue(view.isErrorVisible());
+        assert.isFalse(view.isSuccessVisible());
       });
 
       it('removes HTML from error messages', function () {
@@ -176,7 +209,8 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
       it('hides any previously displayed error messages', function () {
         view.displayError('the error message');
         view.displaySuccess('the success message');
-        assert.isFalse(view.$('.error').is(':visible'));
+        assert.isTrue(view.isSuccessVisible());
+        assert.isFalse(view.isErrorVisible());
       });
     });
 
@@ -254,6 +288,42 @@ function (chai, jQuery, BaseView, Translator, Template, DOMEventMock,
         backboneHandler.call(view, eventMock);
 
         assert.isTrue(eventMock.isDefaultPrevented());
+      });
+    });
+
+    describe('BaseView.cancelEventThen', function () {
+      it('can take the name of a function as the name of the event handler', function (done) {
+        view.eventHandler = function (event) {
+          wrapAssertion(function() {
+            assert.isTrue(event.isDefaultPrevented());
+            assert.isTrue(event.isPropagationStopped());
+          }, done);
+        };
+
+        var backboneHandler = BaseView.cancelEventThen('eventHandler');
+        backboneHandler.call(view, new DOMEventMock());
+      });
+
+      it('can take a function as the event handler', function (done) {
+        function eventHandler(event) {
+          wrapAssertion(function() {
+            assert.isTrue(event.isDefaultPrevented());
+            assert.isTrue(event.isPropagationStopped());
+          }, done);
+        }
+
+        var backboneHandler = BaseView.cancelEventThen(eventHandler);
+        backboneHandler.call(view, new DOMEventMock());
+      });
+
+      it('can take no arguments at all', function () {
+        var backboneHandler = BaseView.cancelEventThen();
+
+        var eventMock = new DOMEventMock();
+        backboneHandler.call(view, eventMock);
+
+        assert.isTrue(eventMock.isDefaultPrevented());
+        assert.isTrue(eventMock.isPropagationStopped());
       });
     });
 

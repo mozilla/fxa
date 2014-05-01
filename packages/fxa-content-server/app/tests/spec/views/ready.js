@@ -55,7 +55,7 @@ function (chai, View, Session) {
 
       it('shows redirectTo link and service name if available', function () {
         Session.set('redirectTo', 'https://sync.firefox.com');
-        Session.set('service', 'Firefox Sync');
+        Session.set('service', 'sync');
         return view.render()
             .then(function () {
               assert.equal(view.$('#redirectTo').length, 1);

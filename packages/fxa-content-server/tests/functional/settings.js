@@ -109,8 +109,15 @@ define([
         .elementByCssSelector('button[type="submit"]')
           .click()
         .end()
+
+        // Add an explicit timeout while waiting for the browser channel to
+        // timeout and the progress-indicator to be taken away.
+        // Without the explicit timeout, the implicit timeout kicks in while
+        // waiting for `#stage .error` and the test fails.
+        .wait(4000)
+
         // We need to wait for the sign in to finish. When the desktop context
-        // this will manifest itself in the "too many retries" error being
+        // this will manifest itself in the "Unexpected Error" error being
         // shown, which signals the desktop channel didn't get a response.
         .waitForVisibleByCssSelector('#stage .error')
         .elementByCssSelector('#stage .error').isDisplayed()
@@ -123,161 +130,15 @@ define([
         // make sure the sign out element doesn't exist
         .hasElementById('signout')
           .then(function(hasElement) {
-            assert(!hasElement);
+            assert.isFalse(hasElement);
           })
-        .end();
-    },
-
-    'sign in, try to change password with an incorrect old password': function () {
-      return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .elementByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .elementByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        .waitForElementById('fxa-settings-header')
-        .end()
-
-        // Go to change password screen
-        .elementById('change-password')
-          .click()
-        .end()
-
-        .waitForElementById('fxa-change-password-header')
-
-        .elementById('old_password')
-          .click()
-          .type('INCORRECT')
-        .end()
-
-        .elementById('new_password')
-          .click()
-          .type(SECOND_PASSWORD)
-        .end()
-
-        .elementByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        // brittle, but some processing time.
-        .wait(2000)
-
-        .elementByCssSelector('.error').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isTrue(isDisplayed);
-          })
-        .end()
-
-        // click the show button, the error should not be hidden.
-        .elementByCssSelector('[for=show-old-password]')
-          .click()
-        .end()
-
-        .elementByCssSelector('.error').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isTrue(isDisplayed);
-          })
-        .end()
-
-        // Change form so that it is valid, error should be hidden.
-        .elementById('old_password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .elementByCssSelector('.error').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isFalse(isDisplayed);
-          })
-        .end();
-    },
-
-    'sign in, change password, sign in with new password': function () {
-      return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .elementByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .elementByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        .waitForElementById('fxa-settings-header')
-        .end()
-
-        // Go to change password screen
-        .elementById('change-password')
-          .click()
-        .end()
-
-        .waitForElementById('fxa-change-password-header')
-
-        .elementById('old_password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .elementById('new_password')
-          .click()
-          .type(SECOND_PASSWORD)
-        .end()
-
-        .elementByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        // brittle, but some processing time.
-        .wait(2000)
-
-        .elementByCssSelector('.success').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.equal(isDisplayed, true);
-          })
-        .end()
-
-        .get(require.toUrl(SIGNIN_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .elementByCssSelector('form input.password')
-          .click()
-          .type(SECOND_PASSWORD)
-        .end()
-
-        .elementByCssSelector('button[type="submit"]')
-          .click()
         .end();
     },
 
     'visit settings page with an invalid sessionToken redirects to signin': function() {
       // Changing the password invalidates the current sessionToken
       var self = this;
-      client.passwordChange(email, FIRST_PASSWORD, SECOND_PASSWORD)
+      return client.passwordChange(email, FIRST_PASSWORD, SECOND_PASSWORD)
           .then(function () {
             return self.get('remote')
               .get(require.toUrl(SETTINGS_URL))
@@ -316,8 +177,7 @@ define([
         .end()
 
         // success is going to the delete account page
-        .waitForElementById('fxa-delete-account-header')
-        .end()
+        .waitForVisibleById('fxa-delete-account-header')
 
         .elementByCssSelector('form input.password')
           .click()

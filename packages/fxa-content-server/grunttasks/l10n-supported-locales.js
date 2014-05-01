@@ -7,30 +7,51 @@ const i18n = require('i18n-abide');
 const config = require('../server/lib/configuration');
 
 // percentage of strings that must be translated for a supported locale
-const threshold = 90;
+const supportedThreshold = 90;
+// percentage of strings that must be translated for verbose feedback
+const verboseThreshold = 60;
 
 module.exports = function (grunt) {
   'use strict';
 
   grunt.registerTask('l10n-supported-locales', ['l10n-create-json', 'l10n-locale-counts']);
 
-  var getCount = function (src) {
+  var getCount = function (clientKeys, serverKeys, src) {
     var clientJson = require(path.resolve(src, 'client.json'));
     var messagesJson = require(path.resolve(src, 'messages.json'));
     var count = 0;
 
-    Object.keys(clientJson).forEach(function (key) {
-      if (clientJson[key] !== '') {
+    clientKeys.forEach(function (key) {
+      if (key in clientJson && clientJson[key] !== '') {
         count++;
       }
     });
-    Object.keys(messagesJson).forEach(function (key) {
-      if (messagesJson[key] !== '') {
+    serverKeys.forEach(function (key) {
+      if (key in messagesJson && messagesJson[key] !== '') {
         count++;
       }
     });
 
     return count;
+  };
+
+  var getMissingStrings = function (clientKeys, serverKeys, src) {
+    var clientJson = require(path.resolve(src, 'client.json'));
+    var messagesJson = require(path.resolve(src, 'messages.json'));
+    var missing = [];
+
+    clientKeys.forEach(function (key) {
+      if (!clientJson[key]) {
+        missing.push('client.json: ' + key);
+      }
+    });
+    serverKeys.forEach(function (key) {
+      if (!messagesJson[key]) {
+        missing.push('messages.json: ' + key);
+      }
+    });
+
+    return missing;
   };
 
   grunt.config('l10n-locale-counts', {
@@ -49,18 +70,35 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('l10n-locale-counts', 'Print the list of locales we should enable in production.', function () {
     var goodLocales = [ config.get('i18n.defaultLang') ];
     var templateDir = path.join(__dirname, '..', grunt.config().yeoman.tmp, 'i18n', 'templates');
-    var templateClient = require(path.join(templateDir, 'client.pot.json'));
-    var templateServer = require(path.join(templateDir, 'server.pot.json'));
-    var totalStrings = Object.keys(templateClient).length + Object.keys(templateServer).length;
+    var templateClientKeys = Object.keys(require(path.join(templateDir, 'client.pot.json')));
+    var templateServerKeys = Object.keys(require(path.join(templateDir, 'server.pot.json')));
+    var totalStrings = templateClientKeys.length + templateServerKeys.length;
 
     this.files.forEach(function (file) {
       var src = file.src[0];
       var locale = path.basename(src);
+      var count = getCount(templateClientKeys, templateServerKeys, src);
+      var percent = count / totalStrings * 100;
 
-      var count = getCount(src, locale);
-      if (count / totalStrings * 100 >= threshold) {
-        grunt.verbose.writeln(locale, count, '/', totalStrings);
+      if (percent >= supportedThreshold) {
+        grunt.log.writeln(locale, count, '/', totalStrings);
+
+        // Although this locale exceeded our threshold, it's
+        // not perfect. Let's see what it's missing.
+        if (count !== totalStrings) {
+          grunt.log.writeln('- Missing strings:');
+          grunt.log.writeln('    ' + getMissingStrings(templateClientKeys, templateServerKeys, src).join('\n    ') + '\n');
+        }
+
         goodLocales.push(i18n.languageFrom(locale));
+
+      } else if (percent >= verboseThreshold) {
+        grunt.verbose.writeln(locale, count, '/', totalStrings);
+        grunt.verbose.writeln('- Missing strings:');
+        grunt.verbose.writeln('    ' + getMissingStrings(templateClientKeys, templateServerKeys, src).join('\n    ') + '\n');
+
+      } else {
+        grunt.verbose.writeln(locale, count, '/', totalStrings);
       }
     });
 

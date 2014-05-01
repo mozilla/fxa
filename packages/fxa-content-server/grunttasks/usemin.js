@@ -25,6 +25,10 @@ module.exports = function (grunt) {
       src: [
         '<%= yeoman.page_template_src %>/{,*/}*.html'
       ]
+
+      // this task has the side effect of adding modernizr to the list
+      // of generated files to concatinate/copy. We use a custom version
+      // of modernizr and overwrite the version that is automatically copied
     }
   });
 
