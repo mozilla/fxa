@@ -92,7 +92,7 @@ const conf = convict({
         fxa: {
           handlers: ['console'],
           handleExceptions: true,
-          level: 'ALL',
+          level: 'INFO',
           propagate: false
         }
       }
