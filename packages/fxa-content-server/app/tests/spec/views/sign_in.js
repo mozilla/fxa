@@ -8,13 +8,15 @@
 define([
   'chai',
   'jquery',
+  'p-promise',
   'views/sign_in',
   'lib/session',
+  'lib/auth-errors',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, p, View, Session, authErrors, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -39,12 +41,14 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
     });
 
     describe('render', function () {
-      it('prefills email if one is stored in Session (user comes from signup with existing account)', function () {
+      it('prefills email and password if stored in Session (user comes from signup with existing account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
+        Session.set('prefillPassword', 'prefilled password');
         return view.render()
             .then(function () {
               assert.ok($('#fxa-signin-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+              assert.equal(view.$('[type=password]').val(), 'prefilled password');
             });
       });
     });
@@ -83,7 +87,7 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
     });
 
     describe('submit', function () {
-      it('signs the user in on success', function () {
+      it('redirects unverified users to the confirm page on success', function () {
         var password = 'password';
         return view.fxaClient.signUp(email, password)
               .then(function () {
@@ -94,6 +98,34 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
               .then(function () {
                 assert.equal(router.page, 'confirm');
               });
+      });
+
+      it('redirects verified users to the settings page on success', function () {
+        var password = 'password';
+        return view.fxaClient.signUp(email, password, { preVerified: true })
+              .then(function () {
+                $('[type=email]').val(email);
+                $('[type=password]').val(password);
+                return view.submit();
+              })
+              .then(function () {
+                assert.equal(router.page, 'settings');
+              });
+      });
+
+      it('does nothing if user cancels login', function () {
+        view.fxaClient.signIn = function () {
+          return p()
+              .then(function () {
+                throw authErrors.toError('USER_CANCELED_LOGIN');
+              });
+        };
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        return view.submit()
+          .then(function () {
+            assert.isFalse(view.isErrorVisible());
+          });
       });
 
       it('rejects promise with incorrect password message on incorrect password', function () {
@@ -110,17 +142,14 @@ function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
               });
       });
 
-      it('shows message allowing the user to sign up if user enters unknown account', function (done) {
+      it('shows message allowing the user to sign up if user enters unknown account', function () {
         $('[type=email]').val(email);
         $('[type=password]').val('incorrect');
 
-        view.on('error', function (msg) {
-          wrapAssertion(function () {
-            assert.ok(msg.indexOf('/signup') > -1);
-          }, done);
-        });
-
-        return view.submit();
+        return view.submit()
+            .then(function(msg) {
+              assert.ok(msg.indexOf('/signup') > -1);
+            });
       });
     });
 

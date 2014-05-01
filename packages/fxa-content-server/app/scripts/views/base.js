@@ -374,7 +374,13 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
      */
     focus: function (which) {
       try {
-        this.$(which).get(0).focus();
+        var focusEl = this.$(which);
+        // place the cursor at the end of the input when the
+        // element is focused.
+        focusEl.one('focus', function () {
+          this.selectionStart = this.selectionEnd = this.value.length;
+        });
+        focusEl.get(0).focus();
       } catch (e) {
         // IE can blow up if the element is not visible.
       }

@@ -117,20 +117,16 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
 
       var self = this;
       return this.fxaClient.signUp(email, password, { customizeSync: customizeSync })
-        .then(function (accountData) {
-          // this means a user successfully signed in with an already
-          // existing account and should be sent on their merry way.
-          if (accountData.verified) {
-            self.navigate('settings');
-          } else {
-            self.navigate('confirm');
-          }
+        .then(function () {
+          self.navigate('confirm');
         })
         .then(null, function (err) {
-          // account already exists, and the user
-          // entered a bad password they should sign in insted.
+          // Account already exists. No attempt is made at signing the
+          // user in directly, instead, point the user to the signin page
+          // where the entered email/password will be prefilled.
           if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
             Session.set('prefillEmail', email);
+            Session.set('prefillPassword', password);
             var msg = t('Account already exists. <a href="/signin">Sign in</a>');
             return self.displayErrorUnsafe(msg);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {

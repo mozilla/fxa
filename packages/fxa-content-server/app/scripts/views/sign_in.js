@@ -33,8 +33,13 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     context: function () {
       return {
         email: Session.prefillEmail,
+        password: Session.prefillPassword,
         isSync: Session.isSync()
       };
+    },
+
+    afterRender: function () {
+      this.enableSubmitIfValid();
     },
 
     events: {
@@ -65,7 +70,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
               });
           }
         })
-        .then(null, _.bind(function (err) {
+        .then(null, function (err) {
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
             // email indicates the signed in email. Use prefillEmail
             // to avoid collisions across sessions.
@@ -78,7 +83,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
           }
           // re-throw error, it will be handled at a lower level.
           throw err;
-        }, this));
+        });
     }
   });
 
