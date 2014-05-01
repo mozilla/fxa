@@ -501,5 +501,7 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
     }
   });
 
+  FormView.allowOnlyOneSubmit = allowOnlyOneSubmit;
+
   return FormView;
 });

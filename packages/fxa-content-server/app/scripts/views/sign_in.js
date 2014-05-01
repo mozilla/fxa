@@ -14,9 +14,10 @@ define([
   'lib/session',
   'lib/password-mixin',
   'lib/url',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/validate'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors) {
+function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors, Validate) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -45,7 +46,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
       'click a[href="/signup"]': '_savePrefillInfo',
-      'click a[href="/reset_password"]': '_savePrefillInfo'
+      'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail'
     },
 
     submit: function () {
@@ -92,7 +93,40 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     _savePrefillInfo: function () {
       Session.set('prefillEmail', this.$('.email').val());
       Session.set('prefillPassword', this.$('.password').val());
-    }
+    },
+
+    resetPasswordIfKnownValidEmail: function (event) {
+      var email = this.$('.email').val();
+
+      if (Validate.isEmailValid(email)) {
+        // cancel event if resetting the password now, otherwise
+        // let the normal handler kick in and redirect the page.
+        event.preventDefault();
+        event.stopPropagation();
+
+        this.resetPassword(email);
+      } else {
+        // prefill the email for reset password screen. The default
+        // anchor handler will take care of the redirection.
+        Session.set('prefillEmail', email);
+      }
+    },
+
+    resetPassword: FormView.allowOnlyOneSubmit(function (email) {
+      var self = this;
+      return self.fxaClient.passwordReset(email)
+          .then(function () {
+            self.navigate('confirm_reset_password');
+          }, function (err) {
+            if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+              return self._suggestSignUp();
+            }
+
+            // resetPassword is not called from `submit` and must
+            // display its own errors.
+            return self.displayError(err);
+          });
+    })
   });
 
   _.extend(View.prototype, PasswordMixin);
