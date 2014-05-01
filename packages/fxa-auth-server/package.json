@@ -11,10 +11,14 @@
     "type": "git",
     "url": "git://github.com/mozilla/fxa-oauth-server"
   },
-  "author": "",
+  "author": "Mozilla (https://mozilla.org)",
+  "homepage": "https://github.com/mozilla/fxa-oauth-server",
   "license": "MPLv2.0",
   "bugs": {
     "url": "https://github.com/mozilla/fxa-oauth-server/issues"
+  },
+  "engines": {
+    "node": ">=0.10.0"
   },
   "dependencies": {
     "bluebird": "1.2.4",
