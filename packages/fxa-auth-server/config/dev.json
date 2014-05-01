@@ -12,5 +12,17 @@
       "redirectUri": "https://mozilla.org",
       "whitelisted": true
     }
-  ]
+  ],
+  "logging": {
+    "handlers": {
+      "console": {
+        "formatter": "pretty"
+      }
+    },
+    "loggers": {
+      "fxa": {
+        "level": "ALL"
+      }
+    }
+  }
 }
