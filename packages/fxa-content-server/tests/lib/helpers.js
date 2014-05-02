@@ -18,8 +18,18 @@ define([], function () {
     return str;
   }
 
+  function createEmail() {
+    return 'signin' + Math.random() + '@restmail.net';
+  }
+
+  function emailToUser(email) {
+    return email.split('@')[0];
+  }
+
   return {
-    createRandomHexString: createRandomHexString
+    createRandomHexString: createRandomHexString,
+    createEmail: createEmail,
+    emailToUser: emailToUser
   };
 });
 
