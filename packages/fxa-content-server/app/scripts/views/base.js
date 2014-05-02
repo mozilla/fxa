@@ -378,7 +378,12 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
         // place the cursor at the end of the input when the
         // element is focused.
         focusEl.one('focus', function () {
-          this.selectionStart = this.selectionEnd = this.value.length;
+          try {
+            this.selectionStart = this.selectionEnd = this.value.length;
+          } catch (e) {
+            // This can blow up on password fields in Chrome. Drop the error on
+            // the ground, for whatever reason, it still behaves as we expect.
+          }
         });
         focusEl.get(0).focus();
       } catch (e) {

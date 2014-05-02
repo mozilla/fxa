@@ -45,11 +45,7 @@ function (_, FormView, Template, Session, Url) {
       var value = this.$('.email').val();
       if (value) {
         this.enableSubmitIfValid();
-        // place cursor at the end of the text.
-        var emailEl = this.$('.email').get(0);
-        if (emailEl) {
-          emailEl.selectionStart = emailEl.selectionEnd = value.length;
-        }
+        this.focus('.email');
       }
     },
 
