@@ -30,6 +30,10 @@ function (_, Backbone) {
         self.history.back.called = true;
       }
     };
+
+    this.navigator = {
+      userAgent: window.navigator.userAgent
+    }
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {
