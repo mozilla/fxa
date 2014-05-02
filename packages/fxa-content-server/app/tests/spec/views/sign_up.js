@@ -45,11 +45,14 @@ function (chai, _, $, p, View, Session, authErrors, RouterMock, TestHelpers) {
     });
 
     describe('render', function () {
-      it('prefills email if one is stored in Session (user comes from signin with new account)', function () {
+      it('prefills email and password if stored in Session (user comes from signup with existing account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
+        Session.set('prefillPassword', 'prefilled password');
         return view.render()
             .then(function () {
+              assert.ok($('#fxa-signup-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+              assert.equal(view.$('[type=password]').val(), 'prefilled password');
             });
       });
 

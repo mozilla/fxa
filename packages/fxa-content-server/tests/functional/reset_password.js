@@ -16,6 +16,7 @@ define([
 
   var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
   var EMAIL_SERVER_ROOT = 'http://127.0.0.1:9001';
+  var SIGNIN_PAGE_URL = 'http://localhost:3030/signin';
   var RESET_PAGE_URL = 'http://localhost:3030/reset_password';
   var CONFIRM_PAGE_URL = 'http://localhost:3030/confirm_reset_password';
   var COMPLETE_PAGE_URL_ROOT = 'http://localhost:3030/complete_reset_password';
@@ -73,14 +74,27 @@ define([
         .waitForElementById('fxa-reset-password-header');
     },
 
-    'open reset_password page': function () {
+    'open /reset_password page from /signin': function () {
       return this.get('remote')
-        .get(require.toUrl(RESET_PAGE_URL))
-        .waitForElementById('fxa-reset-password-header')
+        .get(require.toUrl(SIGNIN_PAGE_URL))
+        .waitForElementById('fxa-signin-header')
 
-        .elementByCssSelector('form input.email')
+        .elementByCssSelector('input[type=email]')
           .click()
           .type(email)
+        .end()
+
+        .elementByCssSelector('a[href="/reset_password"]')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-reset-password-header')
+        .elementByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            // check the email address was written
+            assert.equal(resultText, email);
+          })
         .end()
 
         .elementByCssSelector('button[type="submit"]')

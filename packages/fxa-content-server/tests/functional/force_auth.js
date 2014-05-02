@@ -32,6 +32,7 @@ define([
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
+      var self = this;
       return client.signUp(email, PASSWORD)
         .then(function (result) {
           accountData = result;
@@ -42,6 +43,14 @@ define([
         .then(function (emails) {
           var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
           return client.verifyCode(accountData.uid, code);
+        })
+        .then(function () {
+          // clear localStorage to avoid pollution from other tests.
+          return self.get('remote')
+            .get(require.toUrl(FORCE_AUTH_URL))
+            /*jshint evil:true*/
+            .waitForElementById('fxa-force-auth-header')
+            .safeEval('sessionStorage.clear(); localStorage.clear();');
         });
     },
 

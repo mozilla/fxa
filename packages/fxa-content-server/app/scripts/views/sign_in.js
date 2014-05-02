@@ -44,7 +44,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'click a[href="/signup"]': '_saveSignUpPrefillInfo'
+      'click a[href="/signup"]': '_savePrefillInfo',
+      'click a[href="/reset_password"]': '_savePrefillInfo'
     },
 
     submit: function () {
@@ -88,7 +89,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       return this.displayErrorUnsafe(msg);
     },
 
-    _saveSignUpPrefillInfo: function () {
+    _savePrefillInfo: function () {
       Session.set('prefillEmail', this.$('.email').val());
       Session.set('prefillPassword', this.$('.password').val());
     }

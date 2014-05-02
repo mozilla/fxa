@@ -31,7 +31,7 @@ function (_, FormView, Template, Session, Url) {
     },
 
     _getPrefillEmail: function () {
-      return this._getQueryEmail() || '';
+      return this._getQueryEmail() || Session.prefillEmail || '';
     },
 
     context: function () {

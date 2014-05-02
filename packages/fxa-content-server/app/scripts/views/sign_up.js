@@ -59,7 +59,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
       'keydown #fxa-age-year': 'submitOnEnter',
-      'click a[href="/signin"]': '_saveSignInPrefillInfo'
+      'click a[href="/signin"]': '_savePrefillInfo'
     },
 
     context: function () {
@@ -158,7 +158,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
       return this.displayErrorUnsafe(msg);
     },
 
-    _saveSignInPrefillInfo: function () {
+    _savePrefillInfo: function () {
       Session.set('prefillEmail', this.$('.email').val());
       Session.set('prefillPassword', this.$('.password').val());
     }
