@@ -16,6 +16,15 @@ define([
 function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
   var t = BaseView.t;
 
+  function selectAutoFocusEl(email, password) {
+    if (! email) {
+      return 'email';
+    } else if (! password) {
+      return 'password';
+    }
+    return 'year';
+  }
+
   var now = new Date();
 
   // If COPPA says 13, why 14 here? To make UX simpler, we only ask
@@ -49,14 +58,22 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'keydown #fxa-age-year': 'submitOnEnter'
+      'keydown #fxa-age-year': 'submitOnEnter',
+      'click a[href="/signin"]': '_saveSignInPrefillInfo'
     },
 
     context: function () {
+      var autofocusEl = selectAutoFocusEl(Session.prefillEmail,
+                                Session.prefillPassword);
+
       return {
         email: Session.prefillEmail,
+        password: Session.prefillPassword,
         service: Session.service,
-        isSync: Session.isSync()
+        isSync: Session.isSync(),
+        focusEmail: autofocusEl === 'email',
+        focusPassword: autofocusEl === 'password',
+        focusYear: autofocusEl === 'year',
       };
     },
 
@@ -125,10 +142,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
           // user in directly, instead, point the user to the signin page
           // where the entered email/password will be prefilled.
           if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
-            Session.set('prefillEmail', email);
-            Session.set('prefillPassword', password);
-            var msg = t('Account already exists. <a href="/signin">Sign in</a>');
-            return self.displayErrorUnsafe(msg);
+            return self._suggestSignIn();
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
             // if user canceled login, just stop
             return;
@@ -137,8 +151,17 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
           // re-throw error, it will be handled at a lower level.
           throw err;
         });
-    }
+    },
 
+    _suggestSignIn: function () {
+      var msg = t('Account already exists. <a href="/signin">Sign in</a>');
+      return this.displayErrorUnsafe(msg);
+    },
+
+    _saveSignInPrefillInfo: function () {
+      Session.set('prefillEmail', this.$('.email').val());
+      Session.set('prefillPassword', this.$('.password').val());
+    }
   });
 
   _.extend(View.prototype, PasswordMixin);
