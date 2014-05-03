@@ -31,8 +31,8 @@ define([
     name: 'complete_sign_up',
 
     setup: function () {
-      user = 'signin' + Math.random();
-      email = user + '@restmail.net';
+      email = TestHelpers.createEmail();
+      user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });

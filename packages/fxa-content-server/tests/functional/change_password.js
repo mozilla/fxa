@@ -7,8 +7,9 @@ define([
   'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient) {
+  'app/bower_components/fxa-js-client/fxa-client',
+  'tests/lib/helpers'
+], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers) {
   'use strict';
 
   var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
@@ -40,7 +41,7 @@ define([
     name: 'settings->change password with verified email',
 
     beforeEach: function () {
-      email = 'signin' + Math.random() + '@example.com';
+      email = TestHelpers.createEmail();
 
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
@@ -216,7 +217,7 @@ define([
     name: 'settings->change password with unverified email',
 
     beforeEach: function () {
-      email = 'signin' + Math.random() + '@example.com';
+      email = TestHelpers.createEmail();
 
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest

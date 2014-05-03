@@ -9,8 +9,9 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'intern/node_modules/dojo/Deferred',
-  'tests/lib/restmail'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail) {
+  'tests/lib/restmail',
+  'tests/lib/helpers'
+], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
   'use strict';
 
   var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
@@ -26,8 +27,8 @@ define([
     name: 'force_auth',
 
     setup: function () {
-      user = 'signin' + Math.random();
-      email = user + '@restmail.net';
+      email = TestHelpers.createEmail();
+      user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });

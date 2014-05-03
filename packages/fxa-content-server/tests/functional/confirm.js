@@ -5,8 +5,9 @@
 define([
   'intern!object',
   'intern/chai!assert',
-  'require'
-], function (registerSuite, assert, require) {
+  'require',
+  'tests/lib/helpers'
+], function (registerSuite, assert, require, TestHelpers) {
   'use strict';
 
   var CONFIRM_URL = 'http://localhost:3030/confirm';
@@ -36,7 +37,7 @@ define([
     },
 
     'sign up, wait for confirmation screen, click resend': function () {
-      var email = 'signup' + Math.random() + '@example.com';
+      var email = TestHelpers.createEmail();
       var password = '12345678';
 
       return this.get('remote')
