@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-
 define([
   'chai',
   'p-promise',
@@ -14,6 +11,8 @@ define([
   '../../mocks/router'
 ],
 function (chai, p, Session, authErrors, View, RouterMock) {
+  'use strict';
+
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -100,19 +99,18 @@ function (chai, p, Session, authErrors, View, RouterMock) {
         var email = 'user' + Math.random() + '@testuser.com';
 
         return view.fxaClient.signUp(email, 'password')
-               .then(function () {
-                 var count = 0;
-                 view.validateAndSubmit = function() {
-                   count++;
-                 };
+              .then(function () {
+                var count = 0;
+                view.validateAndSubmit = function() {
+                  count++;
+                };
 
-                 view.$('section').click();
-                 assert.equal(count, 0);
+                view.$('section').click();
+                assert.equal(count, 0);
 
-                 view.$('#resend').click();
-                 assert.equal(count, 1);
-               });
-
+                view.$('#resend').click();
+                assert.equal(count, 1);
+              });
       });
 
       it('debounces resend calls - submit on first and forth attempt', function () {
@@ -120,30 +118,27 @@ function (chai, p, Session, authErrors, View, RouterMock) {
         var count = 0;
 
         return view.fxaClient.signUp(email, 'password')
-               .then(function () {
-                 view.fxaClient.signUpResend = function() {
-                   count++;
-                   return p(true);
-                 };
+              .then(function () {
+                view.fxaClient.signUpResend = function() {
+                  count++;
+                  return p(true);
+                };
 
-                 return view.validateAndSubmit();
-               }).then(function () {
-                 assert.equal(count, 1);
-                 return view.validateAndSubmit();
-               }).then(function () {
-                 assert.equal(count, 1);
-                 return view.validateAndSubmit();
-               }).then(function () {
-                 assert.equal(count, 1);
-                 return view.validateAndSubmit();
-               }).then(function () {
-                 assert.equal(count, 2);
-                 assert.equal(view.$('#resend:visible').length, 0);
-               });
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(count, 1);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(count, 1);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(count, 1);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(count, 2);
+                assert.equal(view.$('#resend:visible').length, 0);
+              });
       });
     });
-
   });
 });
-
-

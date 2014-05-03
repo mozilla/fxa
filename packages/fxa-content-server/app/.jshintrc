@@ -4,6 +4,7 @@
   "camelcase": true,
   "curly": true,
   "eqeqeq": true,
+  "es3": true,
   "esnext": true,
   "globalstrict": true,
   "immed": true,
@@ -21,10 +22,16 @@
   "undef": true,
   "unused": true,
   "globals": {
-    "require": true,
     "console": true,
     "define": true,
+    "require": true,
     "router": true,
-    "translator": true
+    "translator": true,
+
+    // Used in Mocha tests
+    "afterEach": false,
+    "beforeEach": false,
+    "describe": false,
+    "it": false
   }
 }

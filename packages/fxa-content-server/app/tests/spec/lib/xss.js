@@ -40,7 +40,7 @@ function (chai, _, XSS, Constants) {
       });
 
       it('disallows javascript: href', function () {
-        expectEmpty('javascript:alert(1)');
+        expectEmpty('javascript:alert(1)'); // jshint ignore:line
       });
 
       it('disallows href without a scheme', function () {

@@ -10,7 +10,7 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
-  'tests/lib/helpers',
+  'tests/lib/helpers'
 ], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
   'use strict';
 

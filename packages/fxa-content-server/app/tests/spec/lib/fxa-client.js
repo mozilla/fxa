@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-
 define([
   'chai',
   'jquery',
@@ -20,6 +17,8 @@ define([
 // take care of some app-specific housekeeping.
 function (chai, $, ChannelMock, testHelpers,
               Session, FxaClientWrapper, AuthErrors, Constants) {
+  'use strict';
+
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var email;
@@ -107,14 +106,15 @@ function (chai, $, ChannelMock, testHelpers,
             return client.signUpResend();
           })
           .then(function () {
+            var params = {
+              service: 'sync',
+              redirectTo: 'https://sync.firefox.com',
+              lang: 'it-CH'
+            };
             assert.isTrue(
                 realClient.recoveryEmailResendCode.calledWith(
                     Session.sessionToken,
-                    {
-                      service: 'sync',
-                      redirectTo: 'https://sync.firefox.com',
-                      lang: 'it-CH'
-                    }
+                    params
                 ));
           });
       });
@@ -169,7 +169,6 @@ function (chai, $, ChannelMock, testHelpers,
             assert.isTrue(realClient.signIn.called);
           });
       });
-
     });
 
     describe('signUp when another user has previously signed in to browser and user accepts', function () {
@@ -182,8 +181,8 @@ function (chai, $, ChannelMock, testHelpers,
             assert.equal(channelMock.getMessageCount('can_link_account'), 1);
             // and it includes that it has already verified that it is allowed to link
             assert.isTrue(channelMock.data.verifiedCanLinkAccount);
-            assert.isTrue(realClient.signIn.calledWith(trim(email)))
-          })
+            assert.isTrue(realClient.signIn.calledWith(trim(email)));
+          });
       });
     });
 
@@ -205,11 +204,11 @@ function (chai, $, ChannelMock, testHelpers,
     describe('signIn', function () {
       it('signin with unknown user should call errorback', function () {
         return client.signIn('unknown@unknown.com', 'password')
-          .then(function (info) {
-            assert(false, 'unknown user cannot sign in');
-          }, function (err) {
-            assert.isTrue(true);
-          });
+              .then(function (info) {
+                assert(false, 'unknown user cannot sign in');
+              }, function (err) {
+                assert.isTrue(true);
+              });
       });
 
       it('signs a user in with email/password', function () {
@@ -234,7 +233,6 @@ function (chai, $, ChannelMock, testHelpers,
             assert.isTrue(channelMock.data.customizeSync);
           });
       });
-
     });
 
     describe('signIn with verifiedCanLinkAccount=true option', function () {
@@ -250,8 +248,8 @@ function (chai, $, ChannelMock, testHelpers,
             assert.equal(channelMock.getMessageCount('can_link_account'), 0);
             // and it includes that it has already verified that it is allowed to link
             assert.isTrue(channelMock.data.verifiedCanLinkAccount);
-            assert.isTrue(realClient.signIn.calledWith(trim(email)))
-          })
+            assert.isTrue(realClient.signIn.calledWith(trim(email)));
+          });
       });
     });
 
@@ -269,8 +267,8 @@ function (chai, $, ChannelMock, testHelpers,
             assert.equal(channelMock.getMessageCount('can_link_account'), 1);
             // and it includes that it has already verified that it is allowed to link
             assert.isTrue(channelMock.data.verifiedCanLinkAccount);
-            assert.isTrue(realClient.signIn.calledWith(trim(email)))
-          })
+            assert.isTrue(realClient.signIn.calledWith(trim(email)));
+          });
       });
     });
 
@@ -298,27 +296,29 @@ function (chai, $, ChannelMock, testHelpers,
             return client.passwordReset(email);
           })
           .then(function () {
+            var params = {
+              service: 'sync',
+              redirectTo: 'https://sync.firefox.com',
+              lang: 'it-CH'
+            };
             assert.isTrue(
                 realClient.passwordForgotSendCode.calledWith(
                     trim(email),
-                    {
-                      service: 'sync',
-                      redirectTo: 'https://sync.firefox.com',
-                      lang: 'it-CH'
-                    }
+                    params
                 ));
             return client.passwordResetResend();
           })
           .then(function () {
+            var params = {
+              service: 'sync',
+              redirectTo: 'https://sync.firefox.com',
+              lang: 'it-CH'
+            };
             assert.isTrue(
                 realClient.passwordForgotResendCode.calledWith(
                     trim(email),
                     Session.passwordForgotToken,
-                    {
-                      service: 'sync',
-                      redirectTo: 'https://sync.firefox.com',
-                      lang: 'it-CH'
-                    }
+                    params
                 ));
           });
       });

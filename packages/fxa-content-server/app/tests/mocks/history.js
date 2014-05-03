@@ -5,6 +5,8 @@
 // A mock for Backbone.history
 define([
 ], function () {
+  'use strict';
+
   function History() {}
 
   History.prototype = {
@@ -14,4 +16,3 @@ define([
 
   return History;
 });
-

@@ -4,13 +4,13 @@
 
 // stub out the window object for testing.
 
-'use strict';
-
 define([
   'underscore',
   'backbone'
 ],
 function (_, Backbone) {
+  'use strict';
+
   function WindowMock() {
     var self = this;
 
@@ -18,7 +18,7 @@ function (_, Backbone) {
     this.location = {
       href: window.location.href,
       search: window.location.search,
-      pathname: '/',
+      pathname: '/'
     };
 
     this.document = {
