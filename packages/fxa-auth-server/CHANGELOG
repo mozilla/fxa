@@ -1,3 +1,10 @@
+train-12
+  * verify an account if its unverified when forgot password verification succeeds #694
+  * added 'accountRecreated' flag to the request summary log line #695
+  * deprecate smtp.verificationUrl and passwordResetUrl in favor of contentServer.url #696
+  * Update the URL for the customs server #702
+  * add http datastore api #684
+
 train-11
   * moved customs-server (fraud/abuse) to its own repo #685
   * improved the email based rate-limiting behavior
