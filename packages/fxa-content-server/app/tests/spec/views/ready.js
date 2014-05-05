@@ -8,17 +8,22 @@
 define([
   'chai',
   'views/ready',
-  'lib/session'
+  'lib/session',
+  '../../mocks/window'
 ],
-function (chai, View, Session) {
+function (chai, View, Session, WindowMock) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/ready', function () {
-    var view;
+    var view, windowMock;
 
     beforeEach(function () {
-      view = new View({});
+      windowMock = new WindowMock();
+
+      view = new View({
+        window: windowMock
+      });
     });
 
     afterEach(function () {
@@ -68,6 +73,36 @@ function (chai, View, Session) {
         return view.render()
             .then(function () {
               assert.equal(view.$('#redirectTo').length, 0);
+            });
+      });
+
+      it('normally shows sign up marketing material', function () {
+        view.type = 'sign_up';
+        windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
+
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.marketing').length, 1);
+            });
+      });
+
+      it('does not show sign up marketing material if on Firefox for Android', function () {
+        view.type = 'sign_up';
+        windowMock.navigator.userAgent = 'Mozilla/5.0 (Android; Tablet; rv:26.0) Gecko/26.0 Firefox/26.0';
+
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.marketing').length, 0);
+            });
+      });
+
+      it('does not show sign up marketing material if on B2G', function () {
+        view.type = 'sign_up';
+        windowMock.navigator.userAgent = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0';
+
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.marketing').length, 0);
             });
       });
     });
