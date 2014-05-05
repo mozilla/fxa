@@ -64,7 +64,7 @@ about a client to show in its user interface.
 Example:
 
 ```
-https://oauth.accounts.firefox.com/v1/client/5901bd09376fadaa076afacef5251b6a
+curl -v "https://oauth.accounts.firefox.com/v1/client/5901bd09376fadaa076afacef5251b6a"
 ```
 
 #### Response
@@ -99,6 +99,12 @@ content-server page.
 - `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
 - `action`: Optional. If provided, should be either `signup` or `signin`. Send to improve user experience, based on whether they clicked on a Sign In or Sign Up button.
 
+Example:
+
+```
+curl -v "https://oauth.accounts.firefox.com/v1/authorization?client_id=5901bd09376fadaa076afacef5251b6a&state=1234&scope=profile:email&action=signup"
+```
+
 ### POST /v1/authorization
 
 This endpoint should be used by the fxa-content-server, requesting that
@@ -114,6 +120,21 @@ back to the client. This code will be traded for a token at the
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
 
+Example:
+
+```
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+"https://oauth.accounts.firefox.com/v1/authorization" \
+-d '{
+  "client_id": "5901bd09376fadaa076afacef5251b6a",
+  "assertion": "<assertion>",
+  "state": "1234",
+  "scope": "profile:email"
+}'
+```
+
 #### Response
 
 A valid request will return a 200 response, with JSON containing the `redirect` to follow. It will include the following query parameters:
@@ -125,7 +146,7 @@ Example:
 
 ```js
 {
-  "redirect": "https://example.domain/path?foo=bar&code=asdfqwerty&state=zxcvasdf"
+  "redirect": "https://example.domain/path?foo=bar&code=4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c&state=1234"
 }
 ```
 
@@ -141,6 +162,20 @@ particular user.
 - `client_id`: The id returned from client registration.
 - `client_secret`: The secret returned from client registration.
 - `code`: A string that was received from the [authorization][] endpoint.
+
+Example:
+
+```
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+"https://oauth.accounts.firefox.com/v1/token" \
+-d '{
+  "client_id": "5901bd09376fadaa076afacef5251b6a",
+  "client_secret": "20c6882ef864d75ad1587c38f9d733c80751d2cbc8614e30202dc3d1d25301ff",
+  "code": "4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c"
+}'
+```
 
 #### Response
 
@@ -168,6 +203,18 @@ user and scopes are permitted for the token.
 #### Request Parameters
 
 - `token`: A token string received from a client
+
+Example:
+
+```
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+"https://oauth.accounts.firefox.com/v1/verify" \
+-d '{
+  "token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0"
+}'
+```
 
 #### Response
 
