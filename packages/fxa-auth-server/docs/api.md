@@ -91,6 +91,14 @@ This endpoint starts the OAuth flow. A client redirects the user agent
 to this url. This endpoint will then redirect to the appropriate
 content-server page.
 
+#### Request Parameters
+
+- `client_id`: The id returned from client registration.
+- `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
+- `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
+- `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
+- `action`: Optional. If provided, should be either `signup` or `signin`. Send to improve user experience, based on whether they clicked on a Sign In or Sign Up button.
+
 ### POST /v1/authorization
 
 This endpoint should be used by the fxa-content-server, requesting that
