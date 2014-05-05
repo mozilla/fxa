@@ -154,9 +154,11 @@ module.exports = function (
         return data
       },
       function (err) {
-        log.error({ op: 'MySql.createAccount.1', err: err })
         if (err.errno === 1062) {
           err = error.accountExists(data.email)
+        }
+        else {
+          log.error({ op: 'MySql.createAccount.1', err: err })
         }
         throw err
       }
