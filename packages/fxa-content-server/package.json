@@ -73,7 +73,7 @@
   },
   "devDependencies": {
     "awsbox": "0.7.0",
-    "intern-geezer": "1.6.2",
+    "intern-geezer": "1.7.0",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {
