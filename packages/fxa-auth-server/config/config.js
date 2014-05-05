@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (fs, path, url, convict) {
-  const AVAILABLE_BACKENDS = ["memory", "mysql"]
+  const AVAILABLE_BACKENDS = ["memory", "httpdb", "mysql"]
 
   var conf = convict({
     env: {
@@ -39,6 +39,12 @@ module.exports = function (fs, path, url, convict) {
       available_backends: {
         doc: "List of available key-value stores",
         default: AVAILABLE_BACKENDS
+      }
+    },
+    httpdb: {
+      url: {
+        doc: 'database api url',
+        default: 'http://127.0.0.1:8000'
       }
     },
     mysql: {
