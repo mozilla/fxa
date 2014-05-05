@@ -123,7 +123,7 @@ Example:
 
 ### POST /v1/token
 
-After having received a [code][], the client sends that code (most
+After having received a [code][authorization], the client sends that code (most
 likely a server-side request) to this endpoint, to receive a
 longer-lived token that can be used to access attached services for a
 particular user.
@@ -177,6 +177,7 @@ Example:
 }
 ```
 
+[client]: #get-v1client
 [redirect]: #get-v1authorization
 [authorization]: #post-v1authorization
 [token]: #post-v1token
