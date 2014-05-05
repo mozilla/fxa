@@ -64,7 +64,7 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
   }
 
   EmailRecord.prototype.retryAfter = function () {
-    return Math.floor((this.bk + BLOCK_INTERVAL_MS - now()) / 1000)
+    return Math.max(0, Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000))
   }
 
   EmailRecord.prototype.update = function (action) {
