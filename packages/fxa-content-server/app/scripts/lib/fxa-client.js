@@ -257,6 +257,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       var service = Session.service;
       var redirectTo = Session.redirectTo;
       var email = trim(originalEmail);
+      var forceAuth = Session.forceAuth;
 
       // ensure resend works again
       passwordResetResendCount = 0;
@@ -278,6 +279,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                 Session.set('service', service);
                 Session.set('redirectTo', redirectTo);
                 Session.set('email', email);
+                Session.set('forceAuth', forceAuth);
                 Session.set('passwordForgotToken', result.passwordForgotToken);
               });
     },
