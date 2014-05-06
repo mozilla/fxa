@@ -14,7 +14,7 @@ var INVALID_AGENT_INTERVAL_MS = config.invalidAgentIntervalSeconds * 1000
 
 var IpEmailRecord = require('../ip_email_record')(BLOCK_INTERVAL_MS, config.maxBadLogins)
 var EmailRecord = require('../email_record')(BLOCK_INTERVAL_MS, config.maxEmails)
-var IpRecord = require('../ip_record')(INVALID_AGENT_INTERVAL_MS)
+var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS)
 
 var P = require('bluebird')
 P.promisifyAll(Memcached.prototype)
