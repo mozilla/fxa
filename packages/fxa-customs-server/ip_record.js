@@ -4,8 +4,6 @@
 
 module.exports = function (INVALID_AGENT_INTERVAL_MS) {
 
-  INVALID_AGENT_INTERVAL_MS = 1000 * 60
-
   function IpRecord() {}
 
   IpRecord.parse = function (object) {
