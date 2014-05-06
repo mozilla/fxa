@@ -14,7 +14,6 @@ define([
 function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
   'use strict';
 
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/confirm_reset_password', function () {

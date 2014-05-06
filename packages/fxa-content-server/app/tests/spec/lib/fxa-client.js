@@ -19,7 +19,6 @@ function (chai, $, ChannelMock, testHelpers,
               Session, FxaClientWrapper, AuthErrors, Constants) {
   'use strict';
 
-  /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var email;
   var password = 'password';
@@ -204,9 +203,9 @@ function (chai, $, ChannelMock, testHelpers,
     describe('signIn', function () {
       it('signin with unknown user should call errorback', function () {
         return client.signIn('unknown@unknown.com', 'password')
-              .then(function (info) {
+              .then(function () {
                 assert(false, 'unknown user cannot sign in');
-              }, function (err) {
+              }, function () {
                 assert.isTrue(true);
               });
       });
@@ -399,7 +398,7 @@ function (chai, $, ChannelMock, testHelpers,
             // change password to force password reset to return true
             return client.changePassword(email, password, 'new_password');
           })
-          .then(function (complete) {
+          .then(function () {
             return client.isPasswordResetComplete(token);
           })
           .then(function (complete) {
@@ -419,7 +418,7 @@ function (chai, $, ChannelMock, testHelpers,
             // this test is necessary because errors in deleteAccount
             // should not be propagated to the final done's error
             // handler
-            done(new Error('unexpected failure: ' + err.message));
+            throw new Error('unexpected failure: ' + err.message);
           })
           .then(function () {
             return client.signIn(email, password);

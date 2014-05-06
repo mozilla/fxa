@@ -15,7 +15,6 @@ define([
   '../../lib/helpers'
 ],
 function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -237,7 +236,7 @@ function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
       });
 
       it('shows server response as an error otherwise', function () {
-        view.fxaClient.passwordReset = function (email) {
+        view.fxaClient.passwordReset = function () {
           return p()
               .then(function () {
                 throw new Error('server error');

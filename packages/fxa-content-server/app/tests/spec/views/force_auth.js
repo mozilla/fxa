@@ -11,13 +11,10 @@ define([
   'views/force_auth',
   'lib/session',
   '../../mocks/window',
-  '../../mocks/router',
-  '../../lib/helpers'
+  '../../mocks/router'
 ],
-function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
+function (chai, $, View, Session, WindowMock, RouterMock) {
   var assert = chai.assert;
-  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('/views/force_auth', function () {
     describe('missing email address', function () {

@@ -10,7 +10,6 @@ define([
   'lib/session'
 ],
 function (chai, Session) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('lib/session', function () {

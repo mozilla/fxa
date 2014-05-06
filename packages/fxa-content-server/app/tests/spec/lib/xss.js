@@ -13,7 +13,6 @@ define([
 ],
 function (chai, _, XSS, Constants) {
   var assert = chai.assert;
-  var channel;
 
   describe('lib/xss', function () {
     describe('href', function () {

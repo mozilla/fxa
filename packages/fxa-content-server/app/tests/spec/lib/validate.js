@@ -13,7 +13,6 @@ function (chai, _, Validate, Constants, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
-  var channel;
 
   var createRandomHexString = TestHelpers.createRandomHexString;
 

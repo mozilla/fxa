@@ -8,12 +8,10 @@
 define([
   'chai',
   'underscore',
-  'lib/url',
-  'lib/constants'
+  'lib/url'
 ],
-function (chai, _, Url, Constants) {
+function (chai, _, Url) {
   var assert = chai.assert;
-  var channel;
 
   describe('lib/url', function () {
     describe('searchParam', function () {

@@ -13,18 +13,17 @@ define([
 function (chai, p, Session, authErrors, View, RouterMock) {
   'use strict';
 
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/confirm', function () {
-    var view, router;
+    var view, routerMock;
 
     beforeEach(function () {
       Session.set('sessionToken', 'fake session token');
 
-      router = new RouterMock();
+      routerMock = new RouterMock();
       view = new View({
-        router: router
+        router: routerMock
       });
       return view.render()
           .then(function () {
@@ -44,7 +43,7 @@ function (chai, p, Session, authErrors, View, RouterMock) {
 
       it('redirects to /signup if no sessionToken', function () {
         Session.clear('sessionToken');
-        view.render()
+        return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'signup');
           });
@@ -74,7 +73,7 @@ function (chai, p, Session, authErrors, View, RouterMock) {
 
         return view.submit()
               .then(function () {
-                assert.equal(router.page, 'signup');
+                assert.equal(routerMock.page, 'signup');
               });
       });
 

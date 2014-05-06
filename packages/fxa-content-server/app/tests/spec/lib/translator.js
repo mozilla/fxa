@@ -48,7 +48,7 @@ function (chai, Translator, TestHelpers) {
         translator.fetch(function() {
           wrapAssertion(function () {
             // Check that an expected key is empty
-            assert.isDefined(translator.translations['Show']);
+            assert.isDefined(translator.translations.Show);
           }, done);
         });
       });
@@ -62,7 +62,7 @@ function (chai, Translator, TestHelpers) {
         translator.fetch(function() {
           wrapAssertion(function () {
             // Check that an expected key is undefined
-            assert.isUndefined(translator.translations['Show']);
+            assert.isUndefined(translator.translations.Show);
           }, done);
         });
       });
