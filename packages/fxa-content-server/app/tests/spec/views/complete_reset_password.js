@@ -236,7 +236,7 @@ function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
       });
 
       it('shows server response as an error otherwise', function () {
-        view.fxaClient.passwordReset = function () {
+        view.fxaClient.passwordReset = function (email) {
           return p()
               .then(function () {
                 throw new Error('server error');
@@ -251,6 +251,3 @@ function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
     });
   });
 });
-
-
-

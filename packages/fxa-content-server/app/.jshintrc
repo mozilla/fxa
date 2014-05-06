@@ -18,9 +18,10 @@
   "regexp": true,
   "smarttabs": true,
   "strict": true,
+  "sub": true,
   "trailing": true,
   "undef": true,
-  "unused": true,
+  "unused": "vars",
   "globals": {
     "console": true,
     "define": true,

@@ -203,9 +203,9 @@ function (chai, $, ChannelMock, testHelpers,
     describe('signIn', function () {
       it('signin with unknown user should call errorback', function () {
         return client.signIn('unknown@unknown.com', 'password')
-              .then(function () {
+              .then(function (info) {
                 assert(false, 'unknown user cannot sign in');
-              }, function () {
+              }, function (err) {
                 assert.isTrue(true);
               });
       });
