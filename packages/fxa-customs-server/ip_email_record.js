@@ -62,7 +62,7 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   }
 
   IpEmailRecord.prototype.retryAfter = function () {
-    return Math.floor((this.bk + BLOCK_INTERVAL_MS - now()) / 1000)
+    return Math.max(0, Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000))
   }
 
   IpEmailRecord.prototype.update = function (action) {
