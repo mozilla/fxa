@@ -232,7 +232,7 @@ Example:
 }
 ```
 
-[client]: #get-v1client
+[client]: #get-v1clientid
 [redirect]: #get-v1authorization
 [authorization]: #post-v1authorization
 [token]: #post-v1token
