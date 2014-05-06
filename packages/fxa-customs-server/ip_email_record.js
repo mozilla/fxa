@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS) {
+module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
+
+  now = now || Date.now
 
   function IpEmailRecord() {
     this.xs = []
@@ -17,14 +19,13 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS) {
   }
 
   IpEmailRecord.prototype.isOverBadLogins = function () {
-    this.trimBadLogins(Date.now())
+    this.trimBadLogins(now())
     return this.xs.length > MAX_BAD_LOGINS
   }
 
   IpEmailRecord.prototype.addBadLogin = function () {
-    var now = Date.now()
-    this.trimBadLogins(now)
-    this.xs.push(now)
+    this.trimBadLogins(now())
+    this.xs.push(now())
   }
 
   IpEmailRecord.prototype.trimBadLogins = function (now) {
@@ -45,11 +46,11 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS) {
   }
 
   IpEmailRecord.prototype.isBlocked = function () {
-    return !!(this.bk && (Date.now() - this.bk < BLOCK_INTERVAL_MS))
+    return !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
   }
 
   IpEmailRecord.prototype.block = function () {
-    this.bk = Date.now()
+    this.bk = now()
     this.xs = []
   }
 
@@ -61,7 +62,7 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS) {
   }
 
   IpEmailRecord.prototype.retryAfter = function () {
-    return Math.floor((this.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
+    return Math.floor((this.bk + BLOCK_INTERVAL_MS - now()) / 1000)
   }
 
   IpEmailRecord.prototype.update = function (action) {
