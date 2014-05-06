@@ -32,17 +32,17 @@ const conf = convict({
     formatters: {
       doc: 'http://seanmonstar.github.io/intel/#formatters',
       default: {
-        console: {
+        pretty: {
           format: '%(name)s.%(levelname)s: %(message)s',
           colorize: true
         },
-        'console_with_time': {
+        'pretty_with_time': {
           format: '[%(date)s] %(name)s.%(levelname)s: %(message)s',
           datefmt: '%Y-%m-%d %H:%M:%S.%L',
           colorize: true
         },
         json: {
-          format: '%O'
+          class: './logging/json'
         }
       }
     },
@@ -51,7 +51,7 @@ const conf = convict({
       default: {
         console: {
           class: 'intel/handlers/console',
-          formatter: 'console'
+          formatter: 'pretty'
         }
       }
     },
@@ -61,10 +61,14 @@ const conf = convict({
         fxa: {
           handlers: ['console'],
           handleExceptions: true,
-          level: 'ALL',
+          level: 'INFO',
           propagate: false
         }
       }
+    },
+    root: {
+      doc: 'Path to find relative classes',
+      default: __dirname
     }
   },
   mysql: {

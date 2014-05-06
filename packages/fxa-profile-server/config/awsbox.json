@@ -8,7 +8,7 @@
   "logging": {
     "handlers": {
       "console": {
-        "formatter": "console_with_time"
+        "formatter": "pretty_with_time"
       }
     },
     "loggers": {
