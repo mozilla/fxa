@@ -29,8 +29,7 @@ module.exports = function (BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS, now) {
   }
 
   IpRecord.prototype.retryAfter = function () {
-    if (!this.isBlocked()) { return 0 }
-    return Math.floor((this.bk + BLOCK_INTERVAL_MS - now()) / 1000)
+    return Math.max(0, Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000))
   }
 
   IpRecord.prototype.update = function (agent) {
