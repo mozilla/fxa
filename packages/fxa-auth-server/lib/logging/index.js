@@ -4,7 +4,7 @@
 
 const intel = require('intel');
 
-const config = require('./config');
+const config = require('../config');
 
 intel.config(config.get('logging'));
 

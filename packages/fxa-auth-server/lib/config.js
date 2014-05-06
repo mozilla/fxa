@@ -73,7 +73,7 @@ const conf = convict({
           colorize: true
         },
         json: {
-          format: '%O'
+          class: './logging/json'
         }
       }
     },
@@ -96,6 +96,10 @@ const conf = convict({
           propagate: false
         }
       }
+    },
+    root: {
+      doc: 'Path used for finding relative classes',
+      default: __dirname
     }
   },
   mysql: {
