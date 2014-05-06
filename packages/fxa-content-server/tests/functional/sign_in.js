@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require',
@@ -10,12 +11,13 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers) {
   'use strict';
 
-  var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
-  var EMAIL_SERVER_ROOT = 'http://127.0.0.1:9001';
-  var PAGE_URL = 'http://localhost:3030/signin';
+  var config = intern.config;
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
+  var PAGE_URL = config.fxaContentRoot + 'signin';
   var PASSWORD = 'password';
   var user;
   var email;
