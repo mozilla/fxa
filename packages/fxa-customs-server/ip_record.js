@@ -19,7 +19,7 @@ module.exports = function (BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS) {
   }
 
   IpRecord.prototype.isBlocked = function () {
-    return !!(this.bk && (Date.now() - this.bk < INVALID_AGENT_INTERVAL_MS))
+    return !!(this.bk && (Date.now() - this.bk < BLOCK_INTERVAL_MS))
   }
 
   IpRecord.prototype.block = function () {
