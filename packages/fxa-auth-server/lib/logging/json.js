@@ -26,10 +26,24 @@ JsonFormatter.prototype.format = function jsonFormat(record) {
   };
 
   if (typeof record.args[0] === 'string') {
-    rec.message = record.message;
+    rec.msg = record.message;
   } else {
     for (var k in record.args[0]) {
       rec[k] = record.args[0][k];
+    }
+  }
+
+  if (record.exception) {
+    var err = record.exception;
+    rec.err = {
+      message: err.message,
+      stack: record.stack,
+      name: err.name,
+      code: err.code,
+      signal: err.signal
+    };
+    if (record.uncaughtException) {
+      rec.err.uncaught = true;
     }
   }
   return intel.Formatter.prototype.format.call(this, rec);
