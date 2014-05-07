@@ -23,10 +23,10 @@
   "undef": true,
   "unused": "vars",
   "globals": {
-    "console": true,
-    "define": true,
-    "require": true,
-    "router": true,
+    "console": false,
+    "define": false,
+    "require": false,
+    "router": false,
     "translator": true,
 
     // Used in Mocha tests
