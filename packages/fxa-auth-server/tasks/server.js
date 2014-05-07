@@ -7,7 +7,10 @@ module.exports = function (grunt) {
 
   grunt.config('nodemon', {
     dev: {
-      script: 'bin/server.js'
+      script: 'bin/server.js',
+      options: {
+        args: ['--node-env=dev']
+      }
     }
   });
   grunt.registerTask('server', ['nodemon:dev']);
