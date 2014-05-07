@@ -155,7 +155,7 @@ const conf = convict({
     },
     id: {
       doc: 'Bytes of generated DB ids',
-      default: 16
+      default: 8
     },
     token: {
       doc: 'Bytes of generated tokens',

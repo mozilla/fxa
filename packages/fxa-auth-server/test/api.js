@@ -20,7 +20,7 @@ require('jwcrypto/lib/algs/ds');
 /*global describe,it,before,afterEach*/
 /*jshint camelcase: false*/
 
-const USERID = unique.id().toString('hex');
+const USERID = unique(16).toString('hex');
 const VEMAIL = 'user@example.domain';
 const VERIFY_GOOD = JSON.stringify({
   status: 'okay',

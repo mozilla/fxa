@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS clients (
-  id BINARY(16) PRIMARY KEY,
+  id BINARY(8) PRIMARY KEY,
   secret BINARY(32) NOT NULL,
   name VARCHAR(256) NOT NULL,
   imageUri VARCHAR(256) NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS clients (
 
 CREATE TABLE IF NOT EXISTS codes (
   code BINARY(32) PRIMARY KEY,
-  clientId BINARY(16) NOT NULL,
+  clientId BINARY(8) NOT NULL,
   INDEX codes_client_id(clientId),
   FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
   userId BINARY(16) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS codes (
 
 CREATE TABLE IF NOT EXISTS tokens (
   token BINARY(32) PRIMARY KEY,
-  clientId BINARY(16) NOT NULL,
+  clientId BINARY(8) NOT NULL,
   INDEX tokens_client_id(clientId),
   FOREIGN KEY (clientId) REFERENCES clients(id) ON DELETE CASCADE,
   userId BINARY(16) NOT NULL,
