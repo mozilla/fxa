@@ -13,8 +13,8 @@
  *
  *   * There is only verify(), not lookup() or other methods.
  *
- *   * It doesn't emit async events like 'debug' or 'metrics' because
- *     there's no support for that in node-compute-cluster.  Yet...
+ *   * It doesn't emit async events like "debug" or "metrics" because
+ *     there"s no support for that in node-compute-cluster.  Yet...
  *
  */
 
@@ -22,7 +22,7 @@ const
 util = require("util"),
 events = require("events"),
 path = require("path"),
-log = require('../log').getLogger('bid.ccverifier'),
+log = require("../log").getLogger("bid.ccverifier"),
 cc = require("compute-cluster"),
 _ = require("underscore");
 
@@ -33,11 +33,11 @@ function Verifier(args) {
   this.cc = new cc({
     module: path.join(__dirname, "worker.js")
   }).on("error", function(err) {
-    log.error('compute cluster fatal error: ' + err);
+    log.error("compute cluster fatal error: " + err);
   }).on("info", function(msg) {
-    log.info('compute cluster: ' + msg);
+    log.info("compute cluster: " + msg);
   }).on("debug", function(msg) {
-    log.debug('compute cluster: ' + msg);
+    log.debug("compute cluster: " + msg);
   });
 }
 
@@ -53,7 +53,7 @@ Verifier.prototype.verify = function(args, cb) {
   this.cc.enqueue({args: args}, function(err, res) {
     if (err) {
       // An error from the cluster itself.
-      return cb(new Error('compute cluster error: ' + err));
+      return cb("compute cluster error: " + err);
     }
     if (res.err) {
       // An error from inside the verifier.

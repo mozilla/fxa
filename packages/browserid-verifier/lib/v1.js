@@ -72,9 +72,14 @@ function verify(verifier, req, res) {
     res._summary.assertion_verification_time = reqTime;
 
     if (err) {
-      log.info("assertion_failure");
+      if (err.indexOf("compute cluster") === 0) {
+        log.info("service_failure");
+        res.json({"status":"failure", reason: "service unavailable"}, 503);
+      } else {
+        log.info("assertion_failure");
+        res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
+      }
       res._summary.error = err;
-      res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
       log.info('verify', {
         result: 'failure',
         reason: err,
