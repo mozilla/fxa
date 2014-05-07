@@ -7,7 +7,6 @@
   "globalstrict": false,
   "immed": true,
   "indent": 2,
-  "jquery": true,
   "latedef": true,
   "newcap": true,
   "noarg": true,
@@ -21,10 +20,6 @@
   "undef": true,
   "unused": "vars",
   "globals": {
-    "require": true,
-    "console": true,
-    "define": true,
-    "router": true,
-    "translator": true
+    "define": false
   }
 }
