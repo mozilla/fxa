@@ -12,7 +12,6 @@ define([
   '../../mocks/window'
 ],
 function (chai, View, Session, WindowMock) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/ready', function () {

@@ -15,7 +15,6 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, View, Session, WindowMock, RouterMock, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 

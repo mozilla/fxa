@@ -10,8 +10,6 @@ define([
   'lib/channels/web'
 ],
 function (chai, WebChannel) {
-  /*global describe, beforeEach, afterEach, it*/
-  var assert = chai.assert;
   var channel;
 
   describe('lib/channel/web', function () {

@@ -2,19 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-
 define([
   'chai',
   'underscore',
   'lib/validate',
   'lib/constants',
-  '../../lib/helpers',
+  '../../lib/helpers'
 ],
 function (chai, _, Validate, Constants, TestHelpers) {
+  'use strict';
+
   var assert = chai.assert;
-  var channel;
 
   var createRandomHexString = TestHelpers.createRandomHexString;
 
@@ -96,5 +94,3 @@ function (chai, _, Validate, Constants, TestHelpers) {
     });
   });
 });
-
-

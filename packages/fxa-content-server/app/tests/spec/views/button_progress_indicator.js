@@ -10,7 +10,6 @@ define([
   'views/button_progress_indicator'
 ],
 function (chai, $, ProgressIndicator) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var progressIndicator;
 

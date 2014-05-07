@@ -2,9 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
-
 define([
   'chai',
   'p-promise',
@@ -15,7 +12,8 @@ define([
   '../../mocks/window'
 ],
 function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
-  /*global describe, beforeEach, afterEach, it*/
+  'use strict';
+
   var assert = chai.assert;
 
   describe('views/confirm_reset_password', function () {
@@ -33,9 +31,9 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
         window: windowMock
       });
       return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+            .then(function () {
+              $('#container').html(view.el);
+            });
     });
 
     afterEach(function () {
@@ -61,15 +59,15 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
       it('polls to check if user has verified, if not, retry', function () {
         view.fxaClient.isPasswordResetComplete = function () {
           return p().then(function () {
-              return false;
-            });
+            return false;
+          });
         };
 
         return view.afterRender()
-           .then(function (isComplete) {
-             assert.isFalse(isComplete);
-             assert.isTrue(windowMock.isTimeoutSet());
-           });
+              .then(function (isComplete) {
+                assert.isFalse(isComplete);
+                assert.isTrue(windowMock.isTimeoutSet());
+              });
       });
 
       it('redirects to /signin if user has verified', function () {
@@ -83,13 +81,13 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
         // see if it makes it through to the redirect.
         Session.set('email', 'testuser@testuser.com');
         return view.afterRender()
-           .then(function (isComplete) {
-             assert.isTrue(isComplete);
-             assert.equal(routerMock.page, 'signin');
-             // session.email is used to pre-fill the email on
-             // the signin page.
-             assert.equal(Session.prefillEmail, 'testuser@testuser.com');
-           });
+              .then(function (isComplete) {
+                assert.isTrue(isComplete);
+                assert.equal(routerMock.page, 'signin');
+                // session.email is used to pre-fill the email on
+                // the signin page.
+                assert.equal(Session.prefillEmail, 'testuser@testuser.com');
+              });
       });
     });
 
@@ -143,23 +141,19 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
         var email = 'user' + Math.random() + '@testuser.com';
 
         return view.fxaClient.signUp(email, 'password')
-               .then(function () {
-                 var count = 0;
-                 view.validateAndSubmit = function() {
-                   count++;
-                 };
+              .then(function () {
+                var count = 0;
+                view.validateAndSubmit = function() {
+                  count++;
+                };
 
-                 view.$('section').click();
-                 assert.equal(count, 0);
+                view.$('section').click();
+                assert.equal(count, 0);
 
-                 view.$('#resend').click();
-                 assert.equal(count, 1);
-               });
-
+                view.$('#resend').click();
+                assert.equal(count, 1);
+              });
       });
     });
-
   });
 });
-
-

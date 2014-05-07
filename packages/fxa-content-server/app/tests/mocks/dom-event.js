@@ -4,10 +4,10 @@
 
 // mock out a DOM event
 
-'use strict';
-
 define([
 ], function () {
+  'use strict';
+
   function DOMEventMock() {
     // nothing to do
   }

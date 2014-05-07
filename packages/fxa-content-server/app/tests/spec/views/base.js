@@ -22,7 +22,6 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/base', function () {

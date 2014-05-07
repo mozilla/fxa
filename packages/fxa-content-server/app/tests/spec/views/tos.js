@@ -11,11 +11,10 @@ define([
   'lib/session'
 ],
 function (chai, View, Session) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/tos', function () {
-    var view, router;
+    var view;
 
     beforeEach(function () {
       Session.set('language', 'en-US');
@@ -32,9 +31,8 @@ function (chai, View, Session) {
       return view.render()
           .then(function () {
             $('#container').html(view.el);
+            assert.ok($('#fxa-tos-back').length);
           });
-
-      assert.ok($('#fxa-tos-back').length);
     });
 
     it('Back button not displayed if Session.canGoBack is false', function () {
