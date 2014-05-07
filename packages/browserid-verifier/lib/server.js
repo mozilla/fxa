@@ -9,7 +9,7 @@ toobusy = require('toobusy'),
 log = require('./log').getLogger('bid.server'),
 summary = require('./summary'),
 config = require('./config'),
-Verifier = require('browserid-local-verify'),
+CCVerifier = require('./ccverifier'),
 v1api = require('./v1'),
 v2api = require('./v2');
 
@@ -18,14 +18,10 @@ log.debug("verifier server starting up");
 var app = express();
 var server = http.createServer(app);
 
-var verifier = new Verifier({
+var verifier = new CCVerifier({
   httpTimeout: config.get('httpTimeout'),
   allowURLOmission: config.get('allowURLOmission'),
   insecureSSL: config.get('insecureSSL')
-});
-
-verifier.on('debug', function(msg) {
-  log.debug(msg);
 });
 
 
@@ -34,6 +30,7 @@ function shutdown(signal) {
   return function() {
     log.info("recieved signal", signal +", shutting down...");
     toobusy.shutdown();
+    verifier.shutdown();
     server.close();
   };
 }
