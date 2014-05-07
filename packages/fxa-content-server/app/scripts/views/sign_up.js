@@ -71,9 +71,9 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
         password: Session.prefillPassword,
         service: Session.service,
         isSync: Session.isSync(),
-        focusEmail: autofocusEl === 'email',
-        focusPassword: autofocusEl === 'password',
-        focusYear: autofocusEl === 'year',
+        shouldFocusEmail: autofocusEl === 'email',
+        shouldFocusPassword: autofocusEl === 'password',
+        shouldFocusYear: autofocusEl === 'year'
       };
     },
 
