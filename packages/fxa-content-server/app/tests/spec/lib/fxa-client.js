@@ -134,26 +134,15 @@ function (chai, $, ChannelMock, testHelpers,
           });
       });
 
-      it('signUp existing user attempts to sign the user in', function () {
-        return client.signUp(email, password)
+      it('signUp existing verified user returns ACCOUNT_ALREADY_EXISTS error', function () {
+        return client.signUp(email, password, { preVerified: true })
           .then(function () {
             return client.signUp(email, password);
           })
           .then(function () {
-            assert.isTrue(realClient.signIn.called);
-          });
-      });
-
-      it('signUp existing verified user with incorrect password returns ' +
-              'incorrect password error', function () {
-        return client.signUp(email, password, { preVerified: true })
-          .then(function () {
-            return client.signUp(email, 'incorrect');
-          })
-          .then(function () {
-            throw new Error('incorrect password should not lead to success');
+            assert(false, 'unexpected success');
           }, function (err) {
-            assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+            assert.isTrue(AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS'));
           });
       });
 
