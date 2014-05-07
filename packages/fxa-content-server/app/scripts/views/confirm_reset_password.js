@@ -13,7 +13,7 @@ define([
   'lib/constants',
   'lib/auth-errors'
 ],
-function (_, ConfirmView, BaseView, Template, Session, Constants, authErrors) {
+function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
   var t = BaseView.t;
 
   var View = ConfirmView.extend({
@@ -82,7 +82,7 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, authErrors) {
               .then(function () {
                 self.displaySuccess();
               }, function (err) {
-                if (authErrors.is(err, 'INVALID_TOKEN')) {
+                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
                   return self.navigate('reset_password', {
                     error: t('Invalid token')
                   });

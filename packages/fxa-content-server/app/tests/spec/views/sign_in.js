@@ -16,7 +16,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, p, View, Session, authErrors, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, p, View, Session, AuthErrors, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -117,7 +117,7 @@ function (chai, $, p, View, Session, authErrors, WindowMock, RouterMock, TestHel
         view.fxaClient.signIn = function () {
           return p()
               .then(function () {
-                throw authErrors.toError('USER_CANCELED_LOGIN');
+                throw AuthErrors.toError('USER_CANCELED_LOGIN');
               });
         };
         $('[type=email]').val(email);

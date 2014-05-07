@@ -14,7 +14,7 @@ define([
   'lib/validate',
   'lib/auth-errors'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, authErrors) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, AuthErrors) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -94,7 +94,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, aut
           .then(function () {
             self.navigate('reset_password_complete');
           }, function (err) {
-            if (authErrors.is(err, 'INVALID_TOKEN')) {
+            if (AuthErrors.is(err, 'INVALID_TOKEN')) {
               // The token has expired since the first check, re-render to
               // show a screen that allows the user to receive a new link.
               return self.render();

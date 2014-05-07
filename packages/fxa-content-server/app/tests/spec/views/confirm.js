@@ -10,7 +10,7 @@ define([
   'views/confirm',
   '../../mocks/router'
 ],
-function (chai, p, Session, authErrors, View, RouterMock) {
+function (chai, p, Session, AuthErrors, View, RouterMock) {
   'use strict';
 
   var assert = chai.assert;
@@ -67,7 +67,7 @@ function (chai, p, Session, authErrors, View, RouterMock) {
       it('redirects to `/signup` if the resend token is invalid', function () {
         view.fxaClient.signUpResend = function () {
           return p().then(function () {
-            throw authErrors.toError('INVALID_TOKEN', 'Invalid token');
+            throw AuthErrors.toError('INVALID_TOKEN', 'Invalid token');
           });
         };
 

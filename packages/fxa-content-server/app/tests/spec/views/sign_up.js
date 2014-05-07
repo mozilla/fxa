@@ -16,7 +16,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, p, View, Session, authErrors, RouterMock, TestHelpers) {
+function (chai, _, $, p, View, Session, AuthErrors, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -388,7 +388,7 @@ function (chai, _, $, p, View, Session, authErrors, RouterMock, TestHelpers) {
         view.fxaClient.signUp = function () {
           return p()
               .then(function () {
-                throw authErrors.toError('USER_CANCELED_LOGIN');
+                throw AuthErrors.toError('USER_CANCELED_LOGIN');
               });
         };
 
@@ -407,7 +407,7 @@ function (chai, _, $, p, View, Session, authErrors, RouterMock, TestHelpers) {
         view.fxaClient.signUp = function () {
           return p()
               .then(function () {
-                throw authErrors.toError('SERVER_BUSY');
+                throw AuthErrors.toError('SERVER_BUSY');
               });
         };
 
@@ -418,7 +418,7 @@ function (chai, _, $, p, View, Session, authErrors, RouterMock, TestHelpers) {
 
         return view.submit()
           .then(null, function (err) {
-            assert.isTrue(authErrors.is(err, 'SERVER_BUSY'));
+            assert.isTrue(AuthErrors.is(err, 'SERVER_BUSY'));
           });
       });
 
