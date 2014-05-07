@@ -11,7 +11,7 @@ With this procedure you will generate both client id and secret tokens to provid
 
 ## Difference between same site and external consumers
 
-While other applications within your infrastructure would be ideally preapproved at the user point of view, external consumers should’nt be. This is why when we develop a service leveraging another site, the user gets a confirmation window. 
+While other applications within your infrastructure would be ideally preapproved at the user point of view, external consumers shouldn't be. This is why when we develop a service leveraging another site, the user gets a confirmation window.
 
 If you want to preapprove your own web applications and prevent users in your accounts userbase to have a confirmation window, set the `whitelisted` flag to `true`.
 
@@ -22,20 +22,20 @@ If you want to preapprove your own web applications and prevent users in your ac
 
 At this time, there is no utility to generate id and secret values. We will be creating them manually with a temporary function on the command line.
 
-Note that the client `id` and `secret` are in fact random hexadecimal strings of 32 and 64 bits respectively.
+Note that the client `id` and `secret` are in fact random hexadecimal strings of 8 and 32 bytes respectively.
 
     nodejs
     var crypto = require('crypto');
-    var tempGenerator = function(len){ return crypto.randomBytes(Math.ceil(len/2)).toString('hex').slice(0,len); };
+    var tempGenerator = function(len){ return crypto.randomBytes(Math.ceil(len)).toString('hex').slice(0,len); };
 
-Generate a 32 bit key:
+Generate an 8-byte id:
 
-    tempGenerator(32)
-    // '4a60bf43fc311d195b18d985ad0deed1'
+    tempGenerator(8)
+    // '4a60bf43fc311d19'
 
 Client secret:
 
-    tempGenerator(64)
+    tempGenerator(32)
     // 'b048895cbc44241bd68b18ab7d34d1aef8ba34441877ef96c28c706fc1e096fc'
 
 With this at hand you can paste it in your config file (e.g. `config/prod.json`) and restart the OAuth server. The entry will be inserted automatically in your configured backend (i.e. database).
@@ -79,6 +79,6 @@ This can be very different depending on your installed and supported version, yo
       "redirect_uri": "https://clientapp.example.com/api/oauth",
       "signin_uri": "https://accounts.firefox.com/oauth/signin",
       "oauth_uri": "https://oauth.accounts.firefox.com/v1",
-      "profile_uri": "https://profile.firefox.com/v0",
+      "profile_uri": "https://profile.firefox.com/v1",
       "scopes": "profile"
     }

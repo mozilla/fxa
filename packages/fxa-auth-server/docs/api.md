@@ -64,7 +64,7 @@ about a client to show in its user interface.
 Example:
 
 ```
-curl -v "https://oauth.accounts.firefox.com/v1/client/5901bd09376fadaa076afacef5251b6a"
+curl -v "https://oauth.accounts.firefox.com/v1/client/5901bd09376fadaa"
 ```
 
 #### Response
@@ -102,7 +102,7 @@ content-server page.
 Example:
 
 ```
-curl -v "https://oauth.accounts.firefox.com/v1/authorization?client_id=5901bd09376fadaa076afacef5251b6a&state=1234&scope=profile:email&action=signup"
+curl -v "https://oauth.accounts.firefox.com/v1/authorization?client_id=5901bd09376fadaa&state=1234&scope=profile:email&action=signup"
 ```
 
 ### POST /v1/authorization
@@ -128,7 +128,7 @@ curl -v \
 -H "Content-Type: application/json" \
 "https://oauth.accounts.firefox.com/v1/authorization" \
 -d '{
-  "client_id": "5901bd09376fadaa076afacef5251b6a",
+  "client_id": "5901bd09376fadaa",
   "assertion": "<assertion>",
   "state": "1234",
   "scope": "profile:email"
@@ -171,7 +171,7 @@ curl -v \
 -H "Content-Type: application/json" \
 "https://oauth.accounts.firefox.com/v1/token" \
 -d '{
-  "client_id": "5901bd09376fadaa076afacef5251b6a",
+  "client_id": "5901bd09376fadaa",
   "client_secret": "20c6882ef864d75ad1587c38f9d733c80751d2cbc8614e30202dc3d1d25301ff",
   "code": "4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c"
 }'
