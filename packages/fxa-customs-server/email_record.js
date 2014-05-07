@@ -60,7 +60,7 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
   }
 
   EmailRecord.prototype.passwordReset = function () {
-    this.pr = Date.now()
+    this.pr = now()
   }
 
   EmailRecord.prototype.retryAfter = function () {
@@ -68,7 +68,9 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
   }
 
   EmailRecord.prototype.update = function (action) {
-    if (EMAIL_ACTIONS.indexOf(action) === -1) { return 0 }
+    if (EMAIL_ACTIONS.indexOf(action) === -1) {
+      return 0
+    }
 
     if (!this.isBlocked()) {
       // only count hits while we aren't already blocking
