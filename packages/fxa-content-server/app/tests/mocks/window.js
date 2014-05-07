@@ -33,7 +33,7 @@ function (_, Backbone) {
 
     this.navigator = {
       userAgent: window.navigator.userAgent
-    }
+    };
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {
