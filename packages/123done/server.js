@@ -15,7 +15,9 @@ db.on("error", function (err) {
   console.log("redis error!  the server won't actually store anything!  this is just fine for local dev");
 });
 
-var app = express.createServer(
+var app = express();
+
+app.use(
   express.logger(),
   express.bodyParser()
 );
@@ -50,7 +52,7 @@ oauth(app, db);
 
 // a function to verify that the current user is authenticated
 function checkAuth(req, res, next) {
-  if (!req.session.code) {
+  if (!req.session.email) {
     res.send("authentication required\n", 401);
   } else {
     next();
@@ -61,14 +63,13 @@ function checkAuth(req, res, next) {
 // session
 app.get('/api/auth_status', function(req, res) {
   res.send(JSON.stringify({
-    logged_in_email: req.session.user || null,
+    logged_in_email: req.session.email || null,
   }));
 });
 
 // logout clears the current authenticated user
 app.post('/api/logout', checkAuth, function(req, res) {
-  req.session.user = null;
-  req.session.code = null;
+  req.session.reset();
   res.send(200);
 });
 

@@ -120,9 +120,12 @@ $(document).ready(function() {
       }
     });
 
-    // upon click of signin button call navigator.id.request()
-    $('button').click(function(ev) {
-      window.location = '/login';
+    $('button.signin').click(function(ev) {
+      window.location = '/api/login';
+    });
+
+    $('button.signup').click(function(ev) {
+      window.location = '/api/signup';
     });
 
     // upon click of logout link navigator.id.logout()
