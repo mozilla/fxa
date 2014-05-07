@@ -63,7 +63,7 @@ define([
         .end();
     },
 
-    'forgot password via force-auth goes directly to confirm email screen': function () {
+    'forgot password flow via force-auth goes directly to confirm email screen': function () {
       return this.get('remote')
         .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
         .waitForElementById('fxa-force-auth-header')
@@ -73,7 +73,15 @@ define([
         .end()
 
         .waitForElementById('fxa-confirm-reset-password-header')
-        .end();
+        .end()
+
+        // user remembers her password, clicks the "sign in" link. They
+        // should go back to the /force_auth screen.
+        .elementByClassName('sign-in')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-force-auth-header');
     }
 
 

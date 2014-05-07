@@ -42,15 +42,28 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
     });
 
     describe('constructor', function () {
-      it('draws view if passwordForgotToken exists', function () {
-        assert.ok($('#fxa-confirm-reset-password-header').length);
-      });
-
       it('redirects to /reset_password if no passwordForgotToken', function () {
         Session.clear('passwordForgotToken');
         view.render()
           .then(function () {
             assert.equal(routerMock.page, 'reset_password');
+          });
+      });
+
+      it('`sign in` link goes to /signin in normal flow', function () {
+        // Check to make sure the normal signin link is drawn
+        assert.equal(view.$('a[href="/signin"]').length, 1);
+        assert.equal(view.$('a[href="/force_auth?email=testuser%40testuser.com"]').length, 0);
+        assert.ok($('#fxa-confirm-reset-password-header').length);
+      });
+
+      it('`sign in` link goes to /force_auth in force auth flow', function () {
+        Session.set('forceAuth', true);
+        view.render()
+          .then(function () {
+            // Check to make sure the signin link goes "back"
+            assert.equal(view.$('a[href="/signin"]').length, 0);
+            assert.equal(view.$('a[href="/force_auth?email=testuser%40testuser.com"]').length, 1);
           });
       });
     });

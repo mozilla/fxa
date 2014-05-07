@@ -27,6 +27,14 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, authErrors) {
       ConfirmView.prototype.beforeDestroy.call(this);
     },
 
+    context: function () {
+      return {
+        email: Session.email,
+        encodedEmail: encodeURIComponent(Session.email),
+        forceAuth: Session.forceAuth
+      };
+    },
+
     beforeRender: function () {
       // user cannot confirm if they have not initiated a reset password
       if (! Session.passwordForgotToken) {
