@@ -4,20 +4,10 @@
 
 const
 log = require('./log').getLogger('bid.v2'),
-Verifier = require('browserid-local-verify'),
 config = require('./config'),
 _ = require('underscore'),
 util = require('util');
 
-var verifier = new Verifier({
-  httpTimeout: config.get('httpTimeout'),
-  allowURLOmission: config.get('allowURLOmission'),
-  insecureSSL: config.get('insecureSSL')
-});
-
-verifier.on('debug', function(x) {
-  log.debug(x);
-});
 
 function validateTrustedIssuers(obj) {
   var ti = obj.trustedIssuers;
@@ -42,7 +32,7 @@ function validateTrustedIssuers(obj) {
   return ti;
 }
 
-function verify(req, res) {
+function verify(verifier, req, res) {
   res._summary.api = 2;
   try {
     // content-type must be application/json

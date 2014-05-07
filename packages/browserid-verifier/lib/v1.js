@@ -4,22 +4,12 @@
 
 const
 log = require('./log').getLogger('bid.v1'),
-Verifier = require('browserid-local-verify'),
 config = require('./config'),
 _ = require('underscore'),
 util = require('util');
 
-var verifier = new Verifier({
-  httpTimeout: config.get('httpTimeout'),
-  allowURLOmission: config.get('allowURLOmission'),
-  insecureSSL: config.get('insecureSSL')
-});
 
-verifier.on('debug', function(x) {
-  log.debug(x);
-});
-
-function verify(req, res) {
+function verify(verifier, req, res) {
   req.query = req.query || {};
   req.body = req.body || {};
 
