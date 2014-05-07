@@ -100,7 +100,13 @@ function loadConf() {
         doc: 'Path used for finding relative classes',
         default: __filename
       }
-    }
+    },
+    testServiceFailure: {
+      doc: "(testing only) trigger a service failure in the verifier",
+      format: Boolean,
+      default: false,
+      env: "TEST_SERVICE_FAILURE"
+    },
   });
 
   // load environment dependent configuration

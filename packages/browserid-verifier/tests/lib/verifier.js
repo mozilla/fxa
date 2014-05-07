@@ -78,6 +78,10 @@ Verifier.prototype.start = function(cb) {
     e.CONFIG_FILES = this.config.files;
   }
 
+  if (this.config.testServiceFailure) {
+    e.TEST_SERVICE_FAILURE = this.config.testServiceFailure;
+  }
+
   this.process = cp.spawn(
     process.execPath,
     [

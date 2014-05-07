@@ -23,6 +23,7 @@ util = require("util"),
 events = require("events"),
 path = require("path"),
 log = require("../log").getLogger("bid.ccverifier"),
+config = require("../config"),
 cc = require("compute-cluster"),
 _ = require("underscore");
 
@@ -43,6 +44,7 @@ function Verifier(args) {
 
 util.inherits(Verifier, events.EventEmitter);
 
+const testServiceFailure = config.get('testServiceFailure');
 
 Verifier.prototype.verify = function(args, cb) {
   if (!cb) {
@@ -51,7 +53,7 @@ Verifier.prototype.verify = function(args, cb) {
   }
   args = _.extend({}, this.args, args);
   this.cc.enqueue({args: args}, function(err, res) {
-    if (err) {
+    if (err || testServiceFailure) {
       // An error from the cluster itself.
       return cb("compute cluster error: " + err);
     }
