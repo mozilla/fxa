@@ -24,14 +24,12 @@ module.exports = function (grunt) {
          * locale/
          *       <locale_name>/
          *                    LC_MESSAGES/
-         *                               content-server.po
-         *                               auth-server.po
+         *                               server.po
+         *                               client.po
          *
          * Each locale is stored in its own subdirectory in the output i18n
          * directory.
-         *
-         * content-server.po should have an output filename of messages.json
-         */
+         **/
         var matches = /^locale\/([^\/]+)\/LC_MESSAGES\/(.*)$/.exec(file);
 
         // In order to make sure the locale is in a form that i18n-abide expects
