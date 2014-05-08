@@ -29,6 +29,10 @@ function (_, BaseView, SignUpView, Session, OAuthMixin) {
       return this.setServiceInfo();
     },
 
+    afterRender: function() {
+      this.$('.sign-in').attr('href', '/oauth/signin');
+    },
+
     onSignUpSuccess: function () {
       // Store oauth state for when/if the oauth flow completes
       // in this browser

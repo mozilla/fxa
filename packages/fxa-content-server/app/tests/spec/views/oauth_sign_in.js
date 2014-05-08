@@ -54,6 +54,8 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
         return view.render()
               .then(function () {
                 assert.include($('#fxa-signin-header').text(), CLIENT_NAME);
+                // also make sure link is correct
+                assert.equal($('.sign-up').attr('href'), '/oauth/signup');
               });
       });
     });
