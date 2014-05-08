@@ -10,10 +10,11 @@ module.exports = function (grunt) {
       files: {
         src: [
           '<%= yeoman.dist %>/bower_components/**/*.js',
-          '<%= yeoman.dist %>/bower_components/**/*.{woff,eot,ttf,svg,ofl}',
+          '<%= yeoman.dist %>/bower_components/{,*/}*.js',
           '<%= yeoman.dist %>/scripts/{,*/}*.js',
           '<%= yeoman.dist %>/styles/{,*/}*.css',
-          '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp}'
+          '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp}',
+          '<%= yeoman.dist %>/fonts/{,*/}*.{woff,svg,ofl,eot,ttf}'
         ]
       }
     }

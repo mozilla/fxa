@@ -8,18 +8,23 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'lint',
     'clean:dist',
-    'useminPrepare',
     'selectconfig:dist',
+    // l10n-generate-pages needs to be run before useminPrepare to seed
+    // the list of resources to minimize. Generated pages are placed into
+    // `server/templates/pages/dist` where they will be post-processed
+    // with requirejs and usemin
+    'l10n-generate-pages',
+    // static-pages needs to be run before useminPrepare to seed the list of
+    // resources to minimize.
+    'static-pages',
+    'useminPrepare',
     'l10n-create-json',
     'l10n-generate-tos-pp:dist',
-    // server templates are needed for requirejs to replace the require script
-    'copy:server_templates',
     'requirejs',
     'css',
     'concurrent:dist',
     'concat',
     'cssmin',
-    'static-pages',
     'copy:dist',
     // uglify overwrites the files in the dist directory.
     'uglify',

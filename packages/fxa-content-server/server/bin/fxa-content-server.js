@@ -37,6 +37,7 @@ var routeLogging = require('../lib/logging/route_logging');
 
 var fourOhFour = require('../lib/404');
 var serverErrorHandler = require('../lib/500');
+var localizedRender = require('../lib/localized-render');
 
 var STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
@@ -58,6 +59,9 @@ function makeApp() {
   // i18n adds metadata to a request to help
   // with translating templates on the server.
   app.use(i18n);
+
+  // render the correct template for the locale.
+  app.use(localizedRender({ i18n: i18n }));
 
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());

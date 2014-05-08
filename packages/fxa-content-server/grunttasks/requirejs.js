@@ -11,7 +11,7 @@ module.exports = function (grunt) {
       options: {
         almond: true,
         replaceRequireScript: [{
-          files: ['<%= yeoman.page_template_dist %>/index.html'],
+          files: ['<%= yeoman.page_template_dist %>/{,*/}index.html'],
           module: 'main',
           modulePath: '/scripts/main'
         }],

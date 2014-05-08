@@ -16,20 +16,6 @@ module.exports = function (grunt) {
         ]
       }]
     },
-    server_templates: {
-      files: [{
-        // server side rendered templates. Copied so requirejs can
-        // replace the require script tag and embedded js/css
-        // links can be updated to use minified versions.
-        expand: true,
-        dot: true,
-        cwd: '<%= yeoman.page_template_src %>',
-        dest: '<%= yeoman.page_template_dist %>',
-        src: [
-          '*.html'
-        ]
-      }]
-    },
     dist: {
       files: [
         {
@@ -43,7 +29,7 @@ module.exports = function (grunt) {
             '.htaccess',
             'images/{,*/}*.{webp,gif}',
             'styles/fonts/{,*/}*.*',
-            'bower_components/**/*.{woff,eot,ttf,svg,ofl}',
+            'fonts/**/*.{woff,eot,ttf,svg,ofl}',
             'i18n/{,*/}{,*/}*.*'
           ]
         }
