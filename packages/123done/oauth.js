@@ -9,13 +9,14 @@ var DIFFERENT_BROWSER_ERROR = 3005;
 var oauthFlows = { };
 
 // construct a redirect URL
-function redirectUrl(baseUrl, nonce) {
+function redirectUrl(action, nonce) {
 
-  return baseUrl +
+  return config.auth_uri +
     "?client_id=" + config.client_id +
     "&redirect_uri=" + config.redirect_uri +
     "&state=" + nonce +
-    "&scope=" + config.scopes;
+    "&scope=" + config.scopes +
+    "&action=" + action;
 }
 
 module.exports = function(app, db) {
@@ -25,7 +26,7 @@ module.exports = function(app, db) {
     var nonce = crypto.randomBytes(32).toString('hex');
     oauthFlows[nonce] = true;
     req.session.state = nonce;
-    var url = redirectUrl(config.signin_uri, nonce);
+    var url = redirectUrl("signin", nonce);
     return res.redirect(url);
   });
 
@@ -34,7 +35,7 @@ module.exports = function(app, db) {
     var nonce = crypto.randomBytes(32).toString('hex');
     oauthFlows[nonce] = true;
     req.session.state = nonce;
-    var url = redirectUrl(config.signup_uri, nonce);
+    var url = redirectUrl("signup", nonce);
     return res.redirect(url);
   });
 
