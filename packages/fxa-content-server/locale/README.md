@@ -8,7 +8,7 @@ If you add a new string to the app or server, you'll need to wrap it in a `gette
 
 After you've added new strings to source, you'll need to extract them and update the `.pot` files, using grunt:
 
-    grunt extract-l10n
+    grunt l10n-extract
 
 ## Updating the l10n repo
 
