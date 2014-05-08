@@ -87,6 +87,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceName, O
     },
 
     isOAuthSameBrowser: function () {
+      /* jshint camelcase: false */
       return Session.oauth && Session.oauth.client_id === Session.service;
     },
 

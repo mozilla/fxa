@@ -9,10 +9,9 @@ define([
   'p-promise',
   'views/sign_in',
   'lib/session',
-  'lib/oauth-mixin',
-  'lib/oauth-errors'
+  'lib/oauth-mixin'
 ],
-function (_, p, SignInView, Session, OAuthMixin, oAuthErrors) {
+function (_, p, SignInView, Session, OAuthMixin) {
   var View = SignInView.extend({
     className: 'sign-in oauth-sign-in',
 
@@ -27,7 +26,6 @@ function (_, p, SignInView, Session, OAuthMixin, oAuthErrors) {
     },
 
     onSignInSuccess: function() {
-      var self = this;
       return this.finishOAuthFlow();
     }
   });

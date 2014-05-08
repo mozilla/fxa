@@ -29,7 +29,7 @@ function (_, BaseView, SignUpView, Session, OAuthMixin) {
       return this.setServiceInfo();
     },
 
-    onSignUpSuccess: function (accountData) {
+    onSignUpSuccess: function () {
       // Store oauth state for when/if the oauth flow completes
       // in this browser
       Session.set('oauth', this._oAuthParams);

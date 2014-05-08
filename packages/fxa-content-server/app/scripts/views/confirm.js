@@ -70,7 +70,7 @@ function (FormView, BaseView, Template, Session, authErrors) {
                 self._verificationTimeout = setTimeout(pollFn,
                                               self.VERIFICATION_POLL_IN_MS);
               }
-            }, function (err) {
+            }, function () {
               self._verificationTimeout = null;
             });
         };

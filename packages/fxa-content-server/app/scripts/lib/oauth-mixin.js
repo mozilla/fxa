@@ -50,7 +50,7 @@ define([
     },
 
     oAuthRedirectWithError: function () {
-      self.window.location.href = this.serviceRedirectURI +
+      this.window.location.href = this.serviceRedirectURI +
                                   '?error=' + RP_DIFFERENT_BROWSER_ERROR_CODE;
     },
 
