@@ -53,6 +53,7 @@ module.exports = function(app, db) {
     // have a cookie with that state
     if (code && state && state in oauthFlows && state === req.session.state) {
       delete oauthFlows[state];
+      delete req.session.state;
 
       request.post({
         uri: config.oauth_uri + '/token',
@@ -82,7 +83,8 @@ module.exports = function(app, db) {
           if (err || r.status >= 400) {
             return res.send(r ? r.status : 400, err || body);
           }
-          req.session.email = body.email;
+          var data = JSON.parse(body);
+          req.session.email = data.email;
           res.redirect('/');
         });
       });

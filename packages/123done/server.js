@@ -62,8 +62,10 @@ function checkAuth(req, res, next) {
 // auth status reports who the currently logged in user is on this
 // session
 app.get('/api/auth_status', function(req, res) {
+  console.log(req.session);
+
   res.send(JSON.stringify({
-    logged_in_email: req.session.email || null,
+    email: req.session.email || null,
   }));
 });
 

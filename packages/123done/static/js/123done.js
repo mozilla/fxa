@@ -8,29 +8,9 @@
 $(document).ready(function() {
   window.loggedInEmail = null;
 
-  var loginAssertion = null;
-
-  // verify the assertion on the server, which will use the
-  // verification service provided by mozilla
-  // see the '/verify' handler inside server.js for details
-  function verifyAssertion(assertion, success, failure)
-  {
-    $.post('/api/verify', {
-      assertion: assertion
-    }, function(data, status, xhr) {
-      try {
-        if (status !== 'success') throw data;
-        if (data.status !== 'okay') throw data.reason;
-        success(data);
-      } catch(e) {
-        failure(e ? e.toString() : e);
-      }
-    });
-  }
-
   // now check with the server to get our current login state
   $.get('/api/auth_status', function(data) {
-    loggedInEmail = JSON.parse(data).logged_in_email;
+    loggedInEmail = JSON.parse(data).email;
 
     function updateUI(email) {
       $("ul.loginarea li").css('display', 'none');
@@ -56,69 +36,23 @@ $(document).ready(function() {
       }
     }
 
-    // register callbacks with the persona API to be invoked when
-    // the user logs in or out.
-    navigator.id.watch({
-      // pass the currently logged in email address from the server's
-      // session. This will cause onlogin/onlogout to not be invoked
-      // when we're up to date.
-      loggedInUser: loggedInEmail,
-      // onlogin will be called any time the user logs in
-      onlogin: function(assertion) {
-        loginAssertion = assertion;
+    var logout = function() {
+      loggedInEmail = null;
+      updateUI(loggedInEmail);
+      updateListArea(loggedInEmail);
 
-        // display spinner
-        $("section.todo ul").css('display', 'none');
-        $("section.todo form").css('display', 'none');
-        $("ul.loginarea li").css('display', 'none');
-        $(".loginarea .loading").css('display', 'block');
-        $(".todo .loading").css('display', 'block');
+      // clear items from the dom at logout
+      $("#todolist > li").remove();
+      State.save();
 
-        verifyAssertion(assertion, function(r) {
-          loggedInEmail = r.email;
-          loginAssertion = null;
-          updateUI(loggedInEmail);
-          updateListArea(loggedInEmail);
-          State.merge();
-        }, function(err) {
-          alert("failed to verify assertion: " + err);
-          loggedInEmail = null;
-          loginAssertion = null;
-          updateUI(loggedInEmail);
-          updateListArea(loggedInEmail);
-        });
-      },
-      // onlogout will be called any time the user logs out
-      onlogout: function() {
-        loggedInEmail = null;
-        updateUI(loggedInEmail);
-        updateListArea(loggedInEmail);
+      // don't display the warning icon at logout time, but wait until the user
+      // makes a change to her tasks
+      $("#dataState > div").css('display', 'none');
 
-        // clear items from the dom at logout
-        $("#todolist > li").remove();
-        State.save();
+      // upon logout, make an api request to tear the user's session down
+      $.post('/api/logout');
 
-        // don't display the warning icon at logout time, but wait until the user
-        // makes a change to her tasks
-        $("#dataState > div").css('display', 'none');
-
-        // upon logout, make an api request to tear the user's session down
-        $.post('/api/logout');
-
-      },
-      // onready will be called as soon as persona has loaded, at this
-      // point we can display our login buttons.
-      onready: function() {
-        // Only update the UI if no assertion is being verified
-        if (null === loginAssertion) {
-          updateUI(loggedInEmail);
-          updateListArea(loggedInEmail);
-        }
-
-        // display current saved state
-        State.load();
-      }
-    });
+    };
 
     $('button.signin').click(function(ev) {
       window.location = '/api/login';
@@ -131,7 +65,13 @@ $(document).ready(function() {
     // upon click of logout link navigator.id.logout()
     $("#loggedin a").click(function(ev) {
       ev.preventDefault();
-      navigator.id.logout();
+      logout();
     });
+
+    updateUI(loggedInEmail);
+    updateListArea(loggedInEmail);
+    // display current saved state
+    State.load();
+
   });
 });
