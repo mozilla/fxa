@@ -15,11 +15,17 @@ $(document).ready(function() {
     function updateUI(email) {
       $("ul.loginarea li").css('display', 'none');
       if (email) {
+        console.log(email);
         $('#loggedin span').text(email);
         $('#loggedin').css('display', 'block');
+        $("#splash").hide();
+        $("#lists").slideDown(500);
       } else {
         $('#loggedin span').text('');
         $('#loggedout').css('display', 'block');
+        $("#splash").show();
+        $("#lists").hide();
+
       }
       $("button").removeAttr('disabled').css('opacity', '1');
     }
@@ -40,6 +46,9 @@ $(document).ready(function() {
       loggedInEmail = null;
       updateUI(loggedInEmail);
       updateListArea(loggedInEmail);
+
+      $("#splash").show();
+      $("#lists").hide();
 
       // clear items from the dom at logout
       $("#todolist > li").remove();
@@ -63,7 +72,7 @@ $(document).ready(function() {
     });
 
     // upon click of logout link navigator.id.logout()
-    $("#loggedin a").click(function(ev) {
+    $("#logout").click(function(ev) {
       ev.preventDefault();
       logout();
     });
