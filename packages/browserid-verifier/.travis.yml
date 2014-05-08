@@ -4,9 +4,9 @@ before_install:
  - sudo apt-get install libgmp3-dev
 
 node_js:
- - "0.8"
  - "0.10"
 
 notifications:
   email:
-    - lloyd@mozilla.com
+    - rfkelly@mozilla.com
+    - francois@mozilla.com
