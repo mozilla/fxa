@@ -71,7 +71,7 @@ module.exports = function(app, db) {
         var token = req.session.token = body.access_token;
 
         // store the bearer token
-        db.set(code, body.access_token);
+        //db.set(code, body.access_token);
 
         request.post({
           uri: config.profile_uri + '/email',
