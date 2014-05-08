@@ -118,6 +118,13 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
 }
 
+#loggedin {
+    display: block;
+    float:right;
+    font-size: 14px;
+    margin: 7px 0;
+    padding: 5px 10px;
+}
 
 #logout {
     background: #5FAD47;
@@ -126,7 +133,7 @@ h1, h2, h3, h4, h5, h6 {
     color: #fff;
     display: block;
     float:right;
-    font-size: 14px; 
+    font-size: 14px;
     margin: 7px 0;
     padding: 5px 10px;
 }
