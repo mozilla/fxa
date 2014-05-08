@@ -62,7 +62,6 @@ describe('audience tests', function() {
       }
     }, function(err, r) {
       should.not.exist(err);
-      console.log(r);
       (503).should.equal(r.statusCode);
       ('failure').should.equal(r.body.status);
       done();
