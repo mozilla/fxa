@@ -1,4 +1,4 @@
-var config = require('./config-local.json'),
+var config = require('./config.json'),
     crypto = require('crypto'),
     request = require('request')
     ;
