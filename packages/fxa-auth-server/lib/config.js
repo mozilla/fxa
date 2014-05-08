@@ -35,7 +35,7 @@ const conf = convict({
     doc: 'URL to UI page in fxa-content-server that starts OAuth flow',
     format: 'url',
     env: 'CONTENT_URL',
-    default: 'http://localhost:3030/oauth/signin'
+    default: 'http://localhost:3030/oauth/'
   },
   db: {
     driver: {

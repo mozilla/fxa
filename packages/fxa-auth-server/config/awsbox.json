@@ -3,7 +3,7 @@
     "issuer": "api-accounts.dev.lcip.org",
     "verificationUrl": "https://verifier.stage.mozaws.net/v2"
   },
-  "contentUrl": "https://oauth-ui.dev.lcip.org/oauth/signin",
+  "contentUrl": "https://oauth-ui.dev.lcip.org/oauth/",
   "db": {
     "driver": "memory"
   },
