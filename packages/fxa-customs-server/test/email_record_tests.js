@@ -9,7 +9,7 @@ function now() {
 }
 
 function simpleEmailRecord() {
-  return new (emailRecord(500, 2, now))
+  return new (emailRecord(500, 2, now))()
 }
 
 test(
