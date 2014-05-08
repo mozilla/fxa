@@ -9,4 +9,3 @@ node_js:
 notifications:
   email:
     - rfkelly@mozilla.com
-    - francois@mozilla.com
