@@ -4,20 +4,10 @@
 
 const
 log = require('./log').getLogger('bid.v2'),
-Verifier = require('browserid-local-verify'),
 config = require('./config'),
 _ = require('underscore'),
 util = require('util');
 
-var verifier = new Verifier({
-  httpTimeout: config.get('httpTimeout'),
-  allowURLOmission: config.get('allowURLOmission'),
-  insecureSSL: config.get('insecureSSL')
-});
-
-verifier.on('debug', function(x) {
-  log.debug(x);
-});
 
 function validateTrustedIssuers(obj) {
   var ti = obj.trustedIssuers;
@@ -42,7 +32,7 @@ function validateTrustedIssuers(obj) {
   return ti;
 }
 
-function verify(req, res) {
+function verify(verifier, req, res) {
   res._summary.api = 2;
   try {
     // content-type must be application/json
@@ -82,9 +72,14 @@ function verify(req, res) {
       res._summary.assertion_verification_time = reqTime;
 
       if (err) {
-        log.info("assertion_failure");
+        if (err.indexOf("compute cluster") === 0) {
+          log.info("service_failure");
+          res.json({"status":"failure", reason: "service unavailable"}, 503);
+        } else {
+          log.info("assertion_failure");
+          res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
+        }
         res._summary.error = err;
-        res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
         log.info('verify', {
           result: 'failure',
           reason: err,

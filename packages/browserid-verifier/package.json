@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "browserid-local-verify": "mozilla/browserid-local-verify#404bdcd158094aaaeb412b8eb0263243c79f8b92",
+    "compute-cluster": "git://github.com/dannycoates/node-compute-cluster.git#0222a742",
     "async": "0.2.9",
     "express": "3.4.4",
     "toobusy": "0.2.4",

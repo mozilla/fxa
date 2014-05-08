@@ -9,6 +9,7 @@ toobusy = require('toobusy'),
 log = require('./log').getLogger('bid.server'),
 summary = require('./summary'),
 config = require('./config'),
+CCVerifier = require('./ccverifier'),
 v1api = require('./v1'),
 v2api = require('./v2');
 
@@ -17,11 +18,20 @@ log.debug("verifier server starting up");
 var app = express();
 var server = http.createServer(app);
 
+var verifier = new CCVerifier({
+  httpTimeout: config.get('httpTimeout'),
+  allowURLOmission: config.get('allowURLOmission'),
+  insecureSSL: config.get('insecureSSL'),
+  testServiceFailure: config.get('testServiceFailure')
+});
+
+
 // handle shutdown
 function shutdown(signal) {
   return function() {
     log.info("recieved signal", signal +", shutting down...");
     toobusy.shutdown();
+    verifier.shutdown();
     server.close();
   };
 }
@@ -81,9 +91,9 @@ app.use(summary());
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ limit: "10kb" }));
 
-app.post('/verify', v1api);
-app.post('/', v1api);
-app.post('/v2', v2api);
+app.post('/verify', v1api.bind(v1api, verifier));
+app.post('/', v1api.bind(v1api, verifier));
+app.post('/v2', v2api.bind(v2api, verifier));
 
 function wrongMethod(req, res) {
   return res.send(405);
