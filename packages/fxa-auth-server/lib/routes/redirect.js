@@ -9,7 +9,12 @@ const config = require('../config');
 module.exports = {
   handler: function redirectAuthorization(req, reply) {
     var redirect = url.parse(config.get('contentUrl'), true);
+
+    redirect.pathname += req.query.action === 'signup' ? 'signup' : 'signin';
+    delete req.query.action;
+
     redirect.query = req.query;
+
     delete redirect.search;
     delete redirect.path;
     reply().redirect(url.format(redirect));
