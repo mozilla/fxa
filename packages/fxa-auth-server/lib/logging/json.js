@@ -20,6 +20,7 @@ JsonFormatter.prototype.format = function jsonFormat(record) {
     levelname: record.levelname,
     hostname: HOSTNAME,
     name: record.name,
+    op: record.name,
     pid: record.pid,
     time: record.timestamp,
     v: 1
@@ -34,13 +35,9 @@ JsonFormatter.prototype.format = function jsonFormat(record) {
   }
 
   if (record.exception) {
-    var err = record.exception;
     rec.err = {
-      message: err.message,
-      stack: record.stack,
-      name: err.name,
-      code: err.code,
-      signal: err.signal
+      message: record.message,
+      stack: record.stack
     };
     if (record.uncaughtException) {
       rec.err.uncaught = true;

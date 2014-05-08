@@ -7,7 +7,7 @@ const db = require('../lib/db');
 const logger = require('../lib/logging').getLogger('fxa.bin.server');
 const server = require('../lib/server').create();
 
-logger.debug('Starting with config:', JSON.stringify(config, null, 2));
+logger.debug('Starting with config: %:2j', config);
 db.ping().done(function() {
   server.start(function() {
     logger.info('Server started at:', server.info.uri);

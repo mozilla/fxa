@@ -81,7 +81,8 @@ const conf = convict({
       doc: 'http://seanmonstar.github.io/intel/#handlers',
       default: {
         console: {
-          class: 'intel/handlers/console',
+          class: 'intel/handlers/stream',
+          stream: 'process.stdout', // this string must be replaced
           formatter: 'json'
         }
       }
@@ -171,5 +172,6 @@ conf.loadFile(files);
 
 
 conf.validate();
+
 
 module.exports = conf;
