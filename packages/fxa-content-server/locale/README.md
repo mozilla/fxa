@@ -9,13 +9,13 @@ This folder can be used locally, but the default behavior is to update through `
 Here are a few things to know:
 
 * Do `git add` the file you are working on as often as possible. Otherwise you might just run `grunt` and it’ll overwrite all your work.
-* The files that the default behavior uses to generate the content is from `app/bower_components/fxa-content-server-l10n`.
+* The files that the default behavior uses to generate the content is from `app/bower_components/fxa-content-server-l10n`, that is handled by bower.
 * To work locally —and not get your work overwritten by bower— use those two commands:
 
         grunt po2json
         grunt serverproc:test
 
-* Once you are done with the content you worked on, you can copy the files over to a separate repository (i.e. [fxa-content-server-i10n](https://github.com/mozilla/fxa-content-server-l10n)) and make a pull-request from your own fork. See [#Updating the l10n repo] below.
+* Once you are done with the content you worked on, you can copy the files over to a separate repository (i.e. [fxa-content-server-i10n](https://github.com/mozilla/fxa-content-server-l10n)) and make a pull-request from your own fork. See **Updating the l10n repo** below.
 
         cp -r locale/templates/ ../fxa-content-server-l10n/locale/templates/
 
@@ -46,6 +46,7 @@ After you've added new strings to source, you'll need to extract them and update
 
     grunt l10n-extract
 
+
 ## Updating the l10n repo
 
 After extracting new strings, or editing content, you'll have to update the l10n repo so that localizers participate in translation.
@@ -60,7 +61,9 @@ Then copy the .pot files to that repo:
 
 Then run `merge_po.sh` from within fxa-content-server-l10n:
 
-  ./scripts/merge_po.sh locale
+```
+./scripts/merge_po.sh locale
+```
 
 Commit the merged .po files to master and enjoy.
 
@@ -71,4 +74,4 @@ Translators will update the `.po` files in the l10n repo, which are downloaded a
 
     grunt l10n-create-json
 
-The JSON is not included under version control– they're regenerated on each deployment
+The JSON is not included under version control– they're regenerated on each deployment.
