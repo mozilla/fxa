@@ -50,6 +50,20 @@ function loadConf() {
         env: 'TOOBUSY_MAX_LAG'
       }
     },
+    computecluster: {
+      maxProcesses: {
+        doc: "Max worker processes to spawn for the compute cluster",
+        format: Number,
+        default: undefined,
+        env: 'COMPUTECLUSTER_MAX_PROCESSES'
+      },
+      maxBacklog: {
+        doc: "Max length of work queue for the compute cluster",
+        format: Number,
+        default: undefined,
+        env: 'COMPUTECLUSTER_MAX_BACKLOG'
+      }
+    },
     logging: {
       formatters: {
         doc: "Formatters for intel loggers.",
