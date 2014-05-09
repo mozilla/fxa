@@ -21,3 +21,6 @@ before_script:
   - sudo apt-get install libgmp3-dev
   - "mysql -e 'DROP DATABASE IF EXISTS fxa_oauth;'"
   - "mysql -e 'CREATE DATABASE fxa_oauth;'"
+
+script:
+  - grunt validate-shrinkwrap lint
