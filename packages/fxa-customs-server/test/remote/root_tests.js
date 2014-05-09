@@ -2,8 +2,9 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var test = require('tap').test
+var restify = require('restify')
 var TestServer = require('../test_server')
-var package = require('../../package.json')
+var packageJson = require('../../package.json')
 
 var config = {
   port: 7000
@@ -15,9 +16,27 @@ test(
   function (t) {
     testServer.start(function (err) {
       t.type(testServer.server, 'object', 'test server was started')
-      t.equal(err, null, 'no errors were returned')
+      t.notOk(err, 'no errors were returned')
       t.end()
     })
+  }
+)
+
+var client = restify.createJsonClient({
+  url: 'http://127.0.0.1:' + config.port
+});
+
+test(
+  'version check',
+  function (t) {
+    client.get('/',
+      function (err, req, res, obj) {
+        t.notOk(err, 'good request is successful')
+        t.equal(res.statusCode, 200, 'good request returns a 200')
+        t.equal(obj.version, packageJson.version, 'returns the correct version number')
+        t.end()
+      }
+    )
   }
 )
 
