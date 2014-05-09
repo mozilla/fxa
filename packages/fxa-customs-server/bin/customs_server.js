@@ -72,6 +72,13 @@ api.post(
     var agent = req.body.agent
     var action = req.body.action
 
+    if (!email || !ip || !agent || !action) {
+      var err = {code: 'MissingParameters', message: 'email, ip, agent and action are all required'}
+      log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, agent: agent, action: action, err: err })
+      res.send(500, err)
+      return next()
+    }
+
     fetchRecords(email, ip)
       .spread(
         function (emailRecord, ipRecord, ipEmailRecord) {
@@ -115,6 +122,13 @@ api.post(
   function (req, res, next) {
     var email = req.body.email
     var ip = req.body.ip
+    if (!email || !ip) {
+      var err = {code: 'MissingParameters', message: 'email and ip are both required'}
+      log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, err: err })
+      res.send(500, err)
+      next()
+    }
+
     mc.getAsync(ip + email)
       .then(IpEmailRecord.parse, IpEmailRecord.parse)
       .then(
@@ -141,6 +155,13 @@ api.post(
   '/passwordReset',
   function (req, res, next) {
     var email = req.body.email
+    if (!email) {
+      var err = {code: 'MissingParameters', message: 'email is required'}
+      log.error({ op: 'request.passwordReset', email: email, err: err })
+      res.send(500, err)
+      next()
+    }
+
     mc.getAsync(email)
       .then(EmailRecord.parse, EmailRecord.parse)
       .then(
@@ -155,7 +176,7 @@ api.post(
           res.send({})
         },
         function (err) {
-          log.error({ op: 'request.failedLoginAttempt', email: email, err: err })
+          log.error({ op: 'request.passwordReset', email: email, err: err })
           res.send(500, err)
         }
       )
