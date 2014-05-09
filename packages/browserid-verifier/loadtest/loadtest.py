@@ -10,7 +10,7 @@ from browserid.tests.support import make_assertion
 from loads import TestCase
 
 
-PERCENT_INVALID_REQUESTS = 50
+PERCENT_INVALID_REQUESTS = 5
 
 ONE_YEAR = 60 * 60 * 24 * 365
 
