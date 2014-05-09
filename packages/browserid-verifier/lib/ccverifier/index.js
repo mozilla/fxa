@@ -32,7 +32,9 @@ function Verifier(args) {
   events.EventEmitter.call(this);
   this.args = args;
   this.cc = new cc({
-    module: path.join(__dirname, "worker.js")
+    module: path.join(__dirname, "worker.js"),
+    max_processes: config.get('computecluster.maxProcesses'),
+    max_backlog: config.get('computecluster.maxBacklog'),
   }).on("error", function(err) {
     log.error("compute cluster fatal error: " + err);
   }).on("info", function(msg) {
