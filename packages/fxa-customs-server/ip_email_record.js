@@ -6,6 +6,12 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
 
   now = now || Date.now
 
+  var IP_EMAIL_ACTIONS = [
+    'accountLogin',
+    'accountDestroy',
+    'passwordChange'
+  ]
+
   function IpEmailRecord() {
     this.xs = []
   }
@@ -66,11 +72,10 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   }
 
   IpEmailRecord.prototype.update = function (action) {
-    if (!(
-      action === 'accountLogin' ||
-      action === 'accountDestroy' ||
-      action === 'passwordChange'
-      )) { return 0 }
+    if (IP_EMAIL_ACTIONS.indexOf(action) === -1) {
+      return 0
+    }
+
     if (!this.isBlocked()) {
       if (this.isOverBadLogins()) {
         this.block()
