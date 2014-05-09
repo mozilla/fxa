@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (INVALID_AGENT_INTERVAL_MS) {
+module.exports = function (BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS, now) {
 
-  INVALID_AGENT_INTERVAL_MS = 1000 * 60
+  now = now || Date.now
 
   function IpRecord() {}
 
@@ -21,24 +21,23 @@ module.exports = function (INVALID_AGENT_INTERVAL_MS) {
   }
 
   IpRecord.prototype.isBlocked = function () {
-    return !!(this.bk && (Date.now() - this.bk < INVALID_AGENT_INTERVAL_MS))
+    return !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
   }
 
   IpRecord.prototype.block = function () {
-    this.bk = Date.now()
+    this.bk = now()
   }
 
   IpRecord.prototype.retryAfter = function () {
-    if (!this.isBlocked()) { return 0 }
-    return Math.floor((this.bk + BLOCK_INTERVAL_MS - Date.now()) / 1000)
+    return Math.max(0, Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000))
   }
 
   IpRecord.prototype.update = function (agent) {
     if (isBadAgent(agent)) {
-      if (Date.now() - this.ba < INVALID_AGENT_INTERVAL_MS) {
+      if (now() - this.ba < INVALID_AGENT_INTERVAL_MS) {
         this.block()
       }
-      this.ba = Date.now()
+      this.ba = now()
     }
     return this.retryAfter()
   }
