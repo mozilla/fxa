@@ -6,8 +6,6 @@ const util = require('util');
 
 const intel = require('intel');
 
-const HOSTNAME = require('os').hostname();
-
 function JsonFormatter(options) {
   intel.Formatter.call(this, options);
   this._format = '%O';
@@ -18,7 +16,7 @@ JsonFormatter.prototype.format = function jsonFormat(record) {
   var rec = {
     level: record.level,
     levelname: record.levelname,
-    hostname: HOSTNAME,
+    hostname: record.host,
     name: record.name,
     op: record.name,
     pid: record.pid,
@@ -27,7 +25,11 @@ JsonFormatter.prototype.format = function jsonFormat(record) {
   };
 
   if (typeof record.args[0] === 'string') {
-    rec.msg = record.message;
+    if (record.message.length > 80) {
+      rec.args = record.args;
+    } else {
+      rec.msg = record.message;
+    }
   } else {
     for (var k in record.args[0]) {
       rec[k] = record.args[0][k];
