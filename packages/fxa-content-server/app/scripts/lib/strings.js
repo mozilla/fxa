@@ -29,6 +29,10 @@ function () {
   t('Please enter an email');
   t('Cannot connect to the internet');
 
+  // Intended for email marketing opt-in
+  // Should be removed in favor of #992 and #993 when implemented
+  t('Email me Firefox news and tips');
+
   /**
    * Replace instances of %s and %(name)s with their corresponding values in
    * the context
