@@ -1,6 +1,7 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
+require('ass')
 var test = require('tap').test
 var emailRecord = require('../email_record')
 
@@ -121,6 +122,59 @@ test(
     t.equal(er.retryAfter(), 0, 'just expired blocks can be retried immediately')
     er.bk = 6000
     t.equal(er.retryAfter(), 5, 'unexpired blocks can be retried in a bit')
+    t.end()
+  }
+)
+
+test(
+  'passwordReset works',
+  function (t) {
+    var er = simpleEmailRecord()
+
+    t.equal(er.pr, undefined, 'password is not marked as reset yet')
+    er.passwordReset()
+    t.equal(er.pr, 1000, 'password is marked as reset now')
+    t.end()
+  }
+)
+
+test(
+  'parse works',
+  function (t) {
+    var er = simpleEmailRecord()
+    t.equal(er.isBlocked(), false, 'original object is not blocked')
+    t.equal(er.xs.length, 0, 'original object has no hits')
+
+    var erCopy1 = (emailRecord(50, 2, now)).parse(er)
+    t.equal(erCopy1.isBlocked(), false, 'copied object is not blocked')
+    t.equal(erCopy1.xs.length, 0, 'copied object has no hits')
+
+    er.block()
+    er.addHit()
+    t.equal(er.isBlocked(), true, 'original object is now blocked')
+    t.equal(er.xs.length, 1, 'original object now has one hit')
+
+    var erCopy2 = (emailRecord(50, 2, now)).parse(er)
+    t.equal(erCopy2.isBlocked(), true, 'copied object is blocked')
+    t.equal(erCopy2.xs.length, 1, 'copied object has one hit')
+    t.end()
+  }
+)
+
+test(
+  'update works',
+  function (t) {
+    var er = simpleEmailRecord()
+
+    t.equal(er.update('bogusAction'), 0, 'bogus email actions does nothing')
+    t.equal(er.update('accountCreate'), 0, 'email action in a clean account')
+    er.addHit()
+    er.addHit()
+    er.addHit()
+    t.equal(er.isBlocked(), false, 'account is not blocked')
+    t.equal(er.update('accountCreate'), 0, 'email action above the email limit')
+    t.equal(er.isBlocked(), true, 'account is now blocked')
+    t.equal(er.update('accountCreate'), 0, 'email action in a blocked account')
     t.end()
   }
 )

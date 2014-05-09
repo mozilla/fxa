@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
-    "test": "tap test"
+    "test": "scripts/tap-coverage.js test"
   },
   "author": "",
   "license": "MPL 2.0",
@@ -15,6 +15,7 @@
     "memcached": "0.2.8"
   },
   "devDependencies": {
+    "ass": "0.0.4",
     "jshint": "2.5.x",
     "tap": "0.4.8",
     "walk": "2.3.x"
