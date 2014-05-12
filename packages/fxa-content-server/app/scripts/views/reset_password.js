@@ -6,12 +6,16 @@
 
 define([
   'underscore',
+  'views/base',
   'views/form',
   'stache!templates/reset_password',
   'lib/session',
-  'lib/url'
+  'lib/url',
+  'lib/auth-errors'
 ],
-function (_, FormView, Template, Session, Url) {
+function (_, BaseView, FormView, Template, Session, Url, AuthErrors) {
+  var t = BaseView.t;
+
   var View = FormView.extend({
     template: Template,
     className: 'reset_password',
@@ -54,9 +58,23 @@ function (_, FormView, Template, Session, Url) {
 
       var self = this;
       return this.fxaClient.passwordReset(email)
-                  .then(function () {
-                    self.navigate('confirm_reset_password');
-                  });
+        .then(function () {
+          self.navigate('confirm_reset_password');
+        })
+        .then(null, function (err) {
+          if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+            // email indicates the signed in email. Use prefillEmail
+            // to avoid collisions across sessions.
+            Session.set('prefillEmail', email);
+            var msg = t('Unknown account. <a href="/signup">Sign up</a>');
+            return self.displayErrorUnsafe(msg);
+          } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+            // if user canceled login, just stop
+            return;
+          }
+          // re-throw error, it will be handled at a lower level.
+          throw err;
+        });
     }
   });
 

@@ -383,4 +383,57 @@ define([
         .end();
     }
   });
+
+  registerSuite({
+    name: 'reset_password with unknown email',
+
+    setup: function () {
+      email = TestHelpers.createEmail();
+      return this.get('remote')
+        .get(require.toUrl(RESET_PAGE_URL))
+        /*jshint evil:true*/
+        .waitForElementById('fxa-reset-password-header')
+        .safeEval('sessionStorage.clear(); localStorage.clear();');
+    },
+
+    'open /reset_password page, enter unknown email': function () {
+      return this.get('remote')
+        .get(require.toUrl(RESET_PAGE_URL))
+        .waitForElementById('fxa-reset-password-header')
+
+        .elementByCssSelector('input[type=email]')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        // The error area shows a link to /signup
+        .waitForElementByCssSelector('.error a[href="/signup"]')
+        .elementByCssSelector('.error a[href="/signup"]')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-signup-header')
+        .elementByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            // check the email address was written
+            assert.equal(resultText, email);
+          })
+        .end()
+
+        .waitForElementById('fxa-signup-header')
+        // email is prefilled on signup page
+        .elementByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            // check the email address was written
+            assert.equal(resultText, email);
+          })
+        .end();
+    }
+  });
 });

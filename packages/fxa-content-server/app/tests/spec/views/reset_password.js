@@ -95,12 +95,8 @@ function (chai, View, WindowMock, RouterMock, TestHelpers) {
         view.$('input[type=email]').val(email);
 
         return view.submit()
-                  .then(function () {
-                    assert(false, 'unexpected success');
-                  }, function (err) {
-                    // Turn that frown upside down.
-                    // Error is expected.
-                    assert.ok(err.message.indexOf('Unknown') > -1);
+                  .then(function (msg) {
+                    assert.ok(msg.indexOf('/signup') > -1);
                   });
       });
     });
