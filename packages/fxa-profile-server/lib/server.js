@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Hapi = require('hapi');
-const Boom = Hapi.error;
 
+const AppError = require('./error');
 const config = require('./config').root();
 const logger = require('./logging').getLogger('fxa.server');
 const request = require('./request');
@@ -26,7 +26,7 @@ exports.create = function createServer() {
         var url = config.oauth.url + '/verify';
         logger.verbose('checking auth', auth);
         if (!auth || auth.indexOf('Bearer') !== 0) {
-          return reply(Boom.unauthorized('Bearer token not provided'));
+          return reply(AppError.unauthorized('Bearer token not provided'));
         }
         var token = auth.split(' ')[1];
         request.post({
@@ -41,7 +41,7 @@ exports.create = function createServer() {
           }
           if (body.code >= 400) {
             logger.debug('unauthorized', body);
-            return reply(Boom.unauthorized(body.message));
+            return reply(AppError.unauthorized(body.message));
           }
           logger.verbose('Token valid', body);
           reply(null, {
@@ -57,8 +57,12 @@ exports.create = function createServer() {
   server.route(require('./routing'));
 
   server.ext('onPreResponse', function(request, next) {
-    summary(request, request.response);
-    next();
+    var response = request.response;
+    if (response.isBoom) {
+      response = AppError.translate(response);
+    }
+    summary(request, response);
+    next(response);
   });
 
   // response logging
