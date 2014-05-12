@@ -16,7 +16,7 @@ const HEX_STRING = /^[0-9a-f]+$/;
 module.exports = {
   validate: {
     path: {
-      id: Joi.string()
+      client_id: Joi.string()
         .length(config.get('unique.id') * 2) // hex = bytes*2
         .regex(HEX_STRING)
         .required()
@@ -31,10 +31,10 @@ module.exports = {
   },
   handler: function requestInfoEndpoint(req, reply) {
     var params = req.params;
-    db.getClient(Buffer(params.id, 'hex')).then(function(client) {
+    db.getClient(Buffer(params.client_id, 'hex')).then(function(client) {
       if (!client) {
-        logger.debug('client:id="%s" not found', params.id);
-        throw AppError.unknownClient(params.id);
+        logger.debug('client:id="%s" not found', params.client_id);
+        throw AppError.unknownClient(params.client_id);
       }
       return client;
     }).done(function(client) {

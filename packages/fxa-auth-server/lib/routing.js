@@ -21,7 +21,7 @@ module.exports = [
   },
   {
     method: 'GET',
-    path: v('/client/{id}'),
+    path: v('/client/{client_id}'),
     config: require('./routes/client')
   },
   {

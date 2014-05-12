@@ -12,8 +12,7 @@ const memory = require('./memory');
 function preClients(store) {
   var clients = config.get('clients');
   if (clients && clients.length) {
-    logger.debug('Loading pre-defined clients',
-      JSON.stringify(clients, null, 2));
+    logger.debug('Loading pre-defined clients: %:2j', clients);
     return P.all(clients.map(function(c) {
       c.id = Buffer(c.id, 'hex');
       return store.getClient(c.id).then(function(client) {
@@ -55,7 +54,7 @@ function proxy(method) {
       logger.verbose('proxying', method, [].slice.call(args));
       return driver[method].apply(driver, args);
     }).catch(function(err) {
-      logger.error(err);
+      logger.error('%s: %s', method, err);
       throw err;
     });
   };
