@@ -23,7 +23,7 @@ function NodeFxAccountClient(uri, config) {
     }
 
     if (!config.xhr) {
-        config.xhr = require('xmlhttprequest').XMLHttpRequest;
+        config.xhr = require('xhr2');
     }
 
     FxAccountClient.call(this, uri, config);

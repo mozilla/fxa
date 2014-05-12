@@ -32,7 +32,7 @@
   "dependencies": {
     "p-promise": "~0.2.5",
     "sjcl": "git://github.com/bitwiseshiftleft/sjcl.git#a03ea8e",
-    "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
+    "xhr2": "0.0.7"
   },
   "devDependencies": {
     "bower": "~1.2.7",
@@ -48,7 +48,7 @@
     "grunt-copyright": "~0.1.0",
     "grunt-jscs-checker": "~0.4.0",
     "grunt-open": "~0.2.2",
-    "intern-geezer": "~1.6.0",
+    "intern-geezer": "~1.7.0",
     "load-grunt-tasks": "~0.2.0",
     "http-proxy": "~1.0.2"
   }

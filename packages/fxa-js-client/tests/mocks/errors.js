@@ -135,6 +135,11 @@ define([], function () {
       status: 400,
       headers: {},
       body: '{"code":400, "errno": 999}'
+    },
+    timeout: {
+      status: 400,
+      headers: {},
+      body: ''
     }
   };
 });

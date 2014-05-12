@@ -21,6 +21,7 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
     this.baseUri = baseUri;
     this._localtimeOffsetMsec = options.localtimeOffsetMsec;
     this.xhr = xhr || XMLHttpRequest;
+    this.timeout = options.timeout || 30 * 1000;
   }
 
   /**
@@ -54,6 +55,8 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
       deferred.reject({ error: 'Unknown error', message: e.toString(), errno: 999 });
     }
 
+    xhr.timeout = this.timeout;
+
     xhr.onreadystatechange = function() {
       if (xhr.readyState === 4) {
         var result = xhr.responseText;
@@ -79,7 +82,11 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
         }
 
         if (typeof xhr.status === 'undefined' || xhr.status !== 200) {
-          return deferred.reject(result);
+          if (result.length === 0) {
+            return deferred.reject({ error: 'Timeout error', errno: 999 });
+          } else {
+            return deferred.reject(result);
+          }
         }
 
         deferred.resolve(result);
