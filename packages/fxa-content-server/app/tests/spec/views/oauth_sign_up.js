@@ -17,7 +17,6 @@ define([
 function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
-  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/oauth_sign_up', function () {
     var view, email, router, windowMock, CLIENT_ID, STATE, SCOPE, CLIENT_NAME, BASE_REDIRECT_URL;
@@ -51,11 +50,11 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
     describe('render', function () {
       it('displays oAuth client name', function () {
         return view.render()
-              .then(function () {
-                assert.include($('#fxa-signup-header').text(), CLIENT_NAME);
-                // also make sure link is correct
-                assert.equal($('.sign-in').attr('href'), '/oauth/signin');
-              });
+          .then(function () {
+            assert.include($('#fxa-signup-header').text(), CLIENT_NAME);
+            // also make sure link is correct
+            assert.equal($('.sign-in').attr('href'), '/oauth/signin');
+          });
       });
     });
 
@@ -63,16 +62,16 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
       it('sets up the user\'s ouath session on success', function () {
         var password = 'password';
         return view.fxaClient.signUp(email, password)
-              .then(function () {
-                $('.email').val(email);
-                $('[type=password]').val(password);
-                $('#fxa-age-year').val('1990');
-                return view.submit();
-              })
-              .then(function () {
-                assert.equal(Session.oauth.state, STATE);
-                assert.equal(Session.service, CLIENT_ID);
-              });
+          .then(function () {
+            $('.email').val(email);
+            $('[type=password]').val(password);
+            $('#fxa-age-year').val('1990');
+            return view.submit();
+          })
+          .then(function () {
+            assert.equal(Session.oauth.state, STATE);
+            assert.equal(Session.service, CLIENT_ID);
+          });
       });
     });
   });

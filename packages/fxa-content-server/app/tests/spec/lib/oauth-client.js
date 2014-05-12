@@ -27,10 +27,6 @@ function (chai, $, testHelpers, sinon,
   var client;
   var server;
 
-  function trim(str) {
-    return str && str.replace(/^\s+|\s+$/g, '');
-  }
-
   describe('lib/oauth-client', function () {
     beforeEach(function () {
       server = sinon.fakeServer.create();
@@ -49,6 +45,7 @@ function (chai, $, testHelpers, sinon,
 
     describe('oauth-client', function () {
       it('calls getCode', function () {
+        /* jshint camelcase: false */
         var redirect = RP_URL + '?code=code&state=state';
 
         server.respondWith('POST', OAUTH_URL + '/v1/authorization',

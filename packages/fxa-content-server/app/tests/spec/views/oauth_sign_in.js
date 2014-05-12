@@ -17,7 +17,6 @@ define([
 function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
-  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/oauth_sign_in', function () {
     var view, email, router, windowMock, CLIENT_ID, STATE, SCOPE, CLIENT_NAME, BASE_REDIRECT_URL;
@@ -39,7 +38,6 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
         window: windowMock
       });
       view.render();
-      console.log('!!!', view.el);
       $('#container').html(view.el);
     });
 
@@ -52,11 +50,11 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
     describe('render', function () {
       it('displays oAuth client name', function () {
         return view.render()
-              .then(function () {
-                assert.include($('#fxa-signin-header').text(), CLIENT_NAME);
-                // also make sure link is correct
-                assert.equal($('.sign-up').attr('href'), '/oauth/signup');
-              });
+          .then(function () {
+            assert.include($('#fxa-signin-header').text(), CLIENT_NAME);
+            // also make sure link is correct
+            assert.equal($('.sign-up').attr('href'), '/oauth/signup');
+          });
       });
     });
 
@@ -64,15 +62,14 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
       it('signs the user in on success', function () {
         var password = 'password';
         return view.fxaClient.signUp(email, password, { preVerified: true })
-              .then(function () {
-              console.log('email??', email, $('form input'), $('.email'));
-                $('.email').val(email);
-                $('[type=password]').val(password);
-                return view.submit();
-              })
-              .then(function () {
-                assert.include(windowMock.location.href, BASE_REDIRECT_URL);
-              });
+          .then(function () {
+            $('.email').val(email);
+            $('[type=password]').val(password);
+            return view.submit();
+          })
+          .then(function () {
+            assert.include(windowMock.location.href, BASE_REDIRECT_URL);
+          });
       });
     });
   });

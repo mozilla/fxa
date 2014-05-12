@@ -11,7 +11,7 @@ define([
   'lib/session',
   'lib/auth-errors'
 ],
-function (FormView, BaseView, Template, Session, authErrors) {
+function (FormView, BaseView, Template, Session, AuthErrors) {
   var t = BaseView.t;
   var SHOW_RESEND_IN_MS = 5 * 60 * 1000; // 5 minutes.
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
@@ -126,7 +126,7 @@ function (FormView, BaseView, Template, Session, authErrors) {
               .then(function () {
                 self.displaySuccess();
               }, function (err) {
-                if (authErrors.is(err, 'INVALID_TOKEN')) {
+                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
                   return self.navigate('signup', {
                     error: t('Invalid token')
                   });

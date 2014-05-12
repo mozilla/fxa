@@ -13,7 +13,7 @@ define([
   'lib/oauth-errors',
   'lib/config-loader',
   'lib/session'
-], function (Url, OAuthClient, Assertion, oAuthErrors, ConfigLoader, Session) {
+], function (Url, OAuthClient, Assertion, OAuthErrors, ConfigLoader, Session) {
   /* jshint camelcase: false */
 
   // If the user completes an OAuth flow using a different browser than they started with, we
@@ -45,7 +45,7 @@ define([
           self.serviceRedirectURI = clientInfo.redirect_uri;
         })
         .fail(function(xhr) {
-          self.displayError(xhr.responseJSON, oAuthErrors);
+          self.displayError(xhr.responseJSON, OAuthErrors);
         });
     },
 
@@ -70,7 +70,7 @@ define([
       })
       .fail(function(xhr) {
         Session.clear('oauth');
-        self.displayError(xhr.responseJSON, oAuthErrors);
+        self.displayError(xhr.responseJSON, OAuthErrors);
       });
     }
   };

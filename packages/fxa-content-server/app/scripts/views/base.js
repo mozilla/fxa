@@ -16,7 +16,7 @@ define([
   'lib/strings',
   'lib/ephemeral-messages'
 ],
-function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, EphemeralMessages) {
+function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
@@ -268,7 +268,7 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
      *   error text otw.
      */
     translateError: function (err, errors) {
-      errors = errors || authErrors;
+      errors = errors || AuthErrors;
 
       var msg = errors.toMessage(err);
       var context = errors.toContext(err);

@@ -14,7 +14,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
+function (chai, p, AuthErrors, View, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -187,7 +187,7 @@ function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
         view.fxaClient.completePasswordReset = function () {
           return p()
               .then(function () {
-                throw authErrors.toError('INVALID_TOKEN', 'invalid token, man');
+                throw AuthErrors.toError('INVALID_TOKEN', 'invalid token, man');
               });
         };
         // isPasswordResetComplete needs to be overridden as well for when

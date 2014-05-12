@@ -29,7 +29,7 @@ function () {
     103: t('Incorrect redirect_uri'),
     104: t('Invalid assertion'),
     108: t('Invalid parameter in request body: %(param)s'),
-    109: t('Invalid request signature'),
+    109: t('Invalid request signature')
   };
 
   return {

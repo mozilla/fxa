@@ -15,7 +15,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, View, authErrors, Constants, RouterMock, WindowMock, TestHelpers) {
+function (chai, p, View, AuthErrors, Constants, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
@@ -74,7 +74,7 @@ function (chai, p, View, authErrors, Constants, RouterMock, WindowMock, TestHelp
       });
 
       it('INVALID_PARAMETER error displays the verification link damaged screen', function () {
-        verificationError = authErrors.toError('INVALID_PARAMETER', 'code');
+        verificationError = AuthErrors.toError('INVALID_PARAMETER', 'code');
         return testShowsDamagedScreen()
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.called);
@@ -82,7 +82,7 @@ function (chai, p, View, authErrors, Constants, RouterMock, WindowMock, TestHelp
       });
 
       it('UNKNOWN_ACCOUNT error displays the verification link damaged screen', function () {
-        verificationError = authErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
+        verificationError = AuthErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
         return testShowsDamagedScreen()
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.called);
@@ -90,7 +90,7 @@ function (chai, p, View, authErrors, Constants, RouterMock, WindowMock, TestHelp
       });
 
       it('INVALID_VERIFICATION_CODE error displays the verification link damaged screen', function () {
-        verificationError = authErrors.toError('INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
+        verificationError = AuthErrors.toError('INVALID_VERIFICATION_CODE', 'this isn\'t a lottery');
         return testShowsDamagedScreen()
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.called);

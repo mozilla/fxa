@@ -29,16 +29,12 @@ function (chai, $, P,
   var password = 'password';
   var client;
 
-  function trim(str) {
-    return str && str.replace(/^\s+|\s+$/g, '');
-  }
-
   describe('lib/assertion', function () {
     beforeEach(function () {
       Session.clear();
       client = new FxaClientWrapper();
       email = ' testuser' + Math.random() + '@testuser.com ';
-      return client.signUp(email, password, {preVerified: true})
+      return client.signUp(email, password, { preVerified: true });
     });
 
     afterEach(function () {
@@ -91,7 +87,6 @@ function (chai, $, P,
                     if (err) {
                       defer.reject(new Error('assertion is NOT properly signed: ' + err ));
                     } else {
-                    console.log('pay', payload);
                       assert.ok(payload, 'has payload');
                       assert.ok(assertionParams, 'has assertion params');
                       defer.resolve({

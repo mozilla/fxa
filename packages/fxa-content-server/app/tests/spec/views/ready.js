@@ -74,6 +74,7 @@ function (chai, View, Session, WindowMock) {
       });
 
       it('shows redirectTo link and service name if continuing OAuth flow', function () {
+        /* jshint camelcase: false */
         Session.set('service', 'sync');
 
         // oauth is set if using the same browser

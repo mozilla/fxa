@@ -7,7 +7,7 @@
 define([
   'jquery',
   'p-promise',
-  'lib/session',
+  'lib/session'
 ],
 function ($, P, Session) {
   var oauthUrl;
