@@ -8,11 +8,11 @@
 
   <form novalidate>
     <div class="input-row">
-      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}} required />
+      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{#shouldFocusEmail}}autofocus{{/shouldFocusEmail}} required />
     </div>
 
     <div class="input-row password-row">
-      <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autocomplete="off" {{#email}}autofocus{{/email}} />
+      <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required autocomplete="off" {{#shouldFocusPassword}}autofocus{{/shouldFocusPassword}} />
       <input id="show-password" type="checkbox" class="show-password" aria-controls="password" data-novalue />
       <label for="show-password" class="show-password-label">
         {{#t}}Show{{/t}}
@@ -22,7 +22,7 @@
     </div>
 
     <div class="input-row">
-      <select id="fxa-age-year" value="none">
+      <select id="fxa-age-year" value="none" {{#shouldFocusYear}}autofocus{{/shouldFocusYear}}>
         <option id="fxa-none" value="none">{{#t}}Year of birth{{/t}}</option>
         <option id="fxa-1990" value="1990">{{#t}}1990 or earlier{{/t}}</option>
         <option id="fxa-1991" value="1991">{{#t}}1991{{/t}}</option>

@@ -13,7 +13,7 @@ define([
   'lib/auth-errors',
   'lib/validate'
 ],
-function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, authErrors, Validate) {
+function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, Validate) {
   var CompleteSignUpView = FormView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
@@ -41,9 +41,9 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, authErrors, 
             return false;
           })
           .then(null, function (err) {
-            if (authErrors.is(err, 'UNKNOWN_ACCOUNT') ||
-                authErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
-                authErrors.is(err, 'INVALID_PARAMETER')) {
+            if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT') ||
+                AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
+                AuthErrors.is(err, 'INVALID_PARAMETER')) {
               // These errors show a link damaged screen
               self._isLinkDamaged = true;
             } else {

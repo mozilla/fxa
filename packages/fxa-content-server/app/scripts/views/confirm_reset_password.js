@@ -13,12 +13,17 @@ define([
   'lib/constants',
   'lib/auth-errors'
 ],
-function (_, ConfirmView, BaseView, Template, Session, Constants, authErrors) {
+function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
   var t = BaseView.t;
 
   var View = ConfirmView.extend({
     template: Template,
     className: 'confirm-reset-password',
+
+    events: {
+      'click #resend': BaseView.preventDefaultThen('validateAndSubmit'),
+      'click a[href="/signin"]': 'savePrefillEmailForSignin'
+    },
 
     beforeDestroy: function () {
       if (this._timeout) {
@@ -77,7 +82,7 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, authErrors) {
               .then(function () {
                 self.displaySuccess();
               }, function (err) {
-                if (authErrors.is(err, 'INVALID_TOKEN')) {
+                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
                   return self.navigate('reset_password', {
                     error: t('Invalid token')
                   });
@@ -86,8 +91,11 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, authErrors) {
                 // unexpected error, rethrow for display.
                 throw err;
               });
-    }
+    },
 
+    savePrefillEmailForSignin: function () {
+      Session.set('prefillEmail', Session.email);
+    }
   });
 
   return View;

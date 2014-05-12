@@ -59,7 +59,7 @@ function (p, BaseView, SignInView, Template, Session, Url) {
       var email = Session.forceEmail;
       var password = this.$('.password').val();
 
-      return this.signIn(email, password);
+      return this._signIn(email, password);
     },
 
     resetPasswordNow: BaseView.cancelEventThen(function () {

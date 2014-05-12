@@ -16,7 +16,7 @@ define([
   'lib/strings',
   'lib/ephemeral-messages'
 ],
-function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, EphemeralMessages) {
+function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
@@ -267,8 +267,8 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
      *   error text otw.
      */
     translateError: function (err) {
-      var msg = authErrors.toMessage(err);
-      var context = authErrors.toContext(err);
+      var msg = AuthErrors.toMessage(err);
+      var context = AuthErrors.toContext(err);
       var translated = this.translator.get(msg, context);
 
       return translated;
@@ -374,7 +374,18 @@ function (_, Backbone, $, p, Session, authErrors, FxaClient, Url, Strings, Ephem
      */
     focus: function (which) {
       try {
-        this.$(which).get(0).focus();
+        var focusEl = this.$(which);
+        // place the cursor at the end of the input when the
+        // element is focused.
+        focusEl.one('focus', function () {
+          try {
+            this.selectionStart = this.selectionEnd = this.value.length;
+          } catch (e) {
+            // This can blow up on password fields in Chrome. Drop the error on
+            // the ground, for whatever reason, it still behaves as we expect.
+          }
+        });
+        focusEl.get(0).focus();
       } catch (e) {
         // IE can blow up if the element is not visible.
       }

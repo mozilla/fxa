@@ -157,6 +157,14 @@ define([
             // check the email address was written
             assert.equal(resultText, email);
           })
+        .end()
+
+        .elementByCssSelector('input[type=password]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            // check the password carried over.
+            assert.equal(resultText, PASSWORD);
+          })
         .end();
     }
   });

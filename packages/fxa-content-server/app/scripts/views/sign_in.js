@@ -33,22 +33,29 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     context: function () {
       return {
         email: Session.prefillEmail,
+        password: Session.prefillPassword,
         isSync: Session.isSync()
       };
     },
 
+    afterRender: function () {
+      this.enableSubmitIfValid();
+    },
+
     events: {
-      'change .show-password': 'onPasswordVisibilityChange'
+      'change .show-password': 'onPasswordVisibilityChange',
+      'click a[href="/signup"]': '_savePrefillInfo',
+      'click a[href="/reset_password"]': '_savePrefillInfo'
     },
 
     submit: function () {
       var email = this.$('.email').val();
       var password = this.$('.password').val();
 
-      return this.signIn(email, password);
+      return this._signIn(email, password);
     },
 
-    signIn: function (email, password) {
+    _signIn: function (email, password) {
       var self = this;
       return this.fxaClient.signIn(email, password)
         .then(function (accountData) {
@@ -65,20 +72,26 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
               });
           }
         })
-        .then(null, _.bind(function (err) {
+        .then(null, function (err) {
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-            // email indicates the signed in email. Use prefillEmail
-            // to avoid collisions across sessions.
-            Session.set('prefillEmail', email);
-            var msg = t('Unknown account. <a href="/signup">Sign up</a>');
-            return self.displayErrorUnsafe(msg);
+            return self._suggestSignUp();
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
             // if user canceled login, just stop
             return;
           }
           // re-throw error, it will be handled at a lower level.
           throw err;
-        }, this));
+        });
+    },
+
+    _suggestSignUp: function () {
+      var msg = t('Unknown account. <a href="/signup">Sign up</a>');
+      return this.displayErrorUnsafe(msg);
+    },
+
+    _savePrefillInfo: function () {
+      Session.set('prefillEmail', this.$('.email').val());
+      Session.set('prefillPassword', this.$('.password').val());
     }
   });
 

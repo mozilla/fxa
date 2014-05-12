@@ -9,12 +9,14 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'p-promise',
   'views/sign_up',
   'lib/session',
+  'lib/auth-errors',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, View, Session, RouterMock, TestHelpers) {
+function (chai, _, $, p, View, Session, AuthErrors, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -43,11 +45,14 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
     });
 
     describe('render', function () {
-      it('prefills email if one is stored in Session (user comes from signin with new account)', function () {
+      it('prefills email and password if stored in Session (user comes from signup with existing account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
+        Session.set('prefillPassword', 'prefilled password');
         return view.render()
             .then(function () {
+              assert.ok($('#fxa-signup-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+              assert.equal(view.$('[type=password]').val(), 'prefilled password');
             });
       });
 
@@ -265,7 +270,7 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
 
       it('shows an error if no year is selected', function (done) {
         view.$('[type=email]').val('testuser@testuser.com');
-        view.$('[type=password]').val('passwor');
+        view.$('[type=password]').val('password');
 
         view.on('validation_error', function(which, msg) {
           wrapAssertion(function () {
@@ -278,19 +283,17 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
     });
 
     describe('submit', function () {
-      it('sends the user to confirm screen if form filled out, >= 14 years ago', function (done) {
+      it('sends the user to confirm screen if form filled out, >= 14 years ago', function () {
         $('[type=email]').val(email);
         $('[type=password]').val('password');
 
         var nowYear = (new Date()).getFullYear();
         $('#fxa-age-year').val(nowYear - 14);
 
-        router.on('navigate', function () {
-          wrapAssertion(function () {
-            assert.equal(router.page, 'confirm');
-          }, done);
-        });
-        view.submit();
+        return view.submit()
+            .then(function () {
+              assert.equal(router.page, 'confirm');
+            });
       });
 
       it('submits form if user presses enter on the year', function (done) {
@@ -348,59 +351,75 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
             });
       });
 
-      it('signs user in if they enter already existing account with correct password', function (done) {
-        var password = 'password';
-        view.fxaClient.signUp(email, password)
-              .then(function () {
-                $('[type=email]').val(email);
-                $('[type=password]').val(password);
+      it('shows message allowing the user to sign in if user enters existing verified account', function () {
+        return view.fxaClient.signUp(email, 'password', { preVerified: true })
+            .then(function () {
+              $('[type=email]').val(email);
+              $('[type=password]').val('incorrect');
 
-                var nowYear = (new Date()).getFullYear();
-                $('#fxa-age-year').val(nowYear - 14);
+              var nowYear = (new Date()).getFullYear();
+              $('#fxa-age-year').val(nowYear - 14);
 
-                router.on('navigate', function () {
-                  wrapAssertion(function () {
-                    assert.equal(router.page, 'confirm');
-                  }, done);
-                });
-                view.submit();
-              });
+              return view.submit();
+            })
+            .then(function (msg) {
+              assert.ok(msg.indexOf('/signin') > -1);
+              assert.isTrue(view.isErrorVisible());
+            });
       });
 
-      it('shows message allowing the user to sign in if user enters existing verified account with incorrect password', function (done) {
-        view.fxaClient.signUp(email, 'password', { preVerified: true })
-              .then(function () {
-                $('[type=email]').val(email);
-                $('[type=password]').val('incorrect');
+      it('re-signs up unverified user with new password', function () {
+        return view.fxaClient.signUp(email, 'password')
+            .then(function () {
+              $('[type=email]').val(email);
+              $('[type=password]').val('incorrect');
 
-                var nowYear = (new Date()).getFullYear();
-                $('#fxa-age-year').val(nowYear - 14);
+              var nowYear = (new Date()).getFullYear();
+              $('#fxa-age-year').val(nowYear - 14);
 
-                view.on('error', function (msg) {
-                  wrapAssertion(function () {
-                    assert.ok(msg.indexOf('/signin') > -1);
-                  }, done);
-                });
-                view.submit();
-              });
+              return view.submit();
+            })
+            .then(function () {
+              assert.equal(router.page, 'confirm');
+            });
       });
 
-      it('re-signs up unverified user with new password', function (done) {
-        view.fxaClient.signUp(email, 'password')
+      it('does nothing if user cancels signup', function () {
+        view.fxaClient.signUp = function () {
+          return p()
               .then(function () {
-                $('[type=email]').val(email);
-                $('[type=password]').val('incorrect');
-
-                var nowYear = (new Date()).getFullYear();
-                $('#fxa-age-year').val(nowYear - 14);
-
-                router.on('navigate', function () {
-                  wrapAssertion(function () {
-                    assert.equal(router.page, 'confirm');
-                  }, done);
-                });
-                view.submit();
+                throw AuthErrors.toError('USER_CANCELED_LOGIN');
               });
+        };
+
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        var nowYear = (new Date()).getFullYear();
+        $('#fxa-age-year').val(nowYear - 14);
+
+        return view.submit()
+          .then(function () {
+            assert.isFalse(view.isErrorVisible());
+          });
+      });
+
+      it('re-throws any other errors for display', function () {
+        view.fxaClient.signUp = function () {
+          return p()
+              .then(function () {
+                throw AuthErrors.toError('SERVER_BUSY');
+              });
+        };
+
+        $('[type=email]').val(email);
+        $('[type=password]').val('password');
+        var nowYear = (new Date()).getFullYear();
+        $('#fxa-age-year').val(nowYear - 14);
+
+        return view.submit()
+          .then(null, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'SERVER_BUSY'));
+          });
       });
 
     });

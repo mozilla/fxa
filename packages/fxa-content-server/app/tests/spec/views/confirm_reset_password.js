@@ -11,7 +11,7 @@ define([
   '../../mocks/router',
   '../../mocks/window'
 ],
-function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
+function (chai, p, AuthErrors, View, Session, RouterMock, WindowMock) {
   'use strict';
 
   var assert = chai.assert;
@@ -123,7 +123,7 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
       it('redirects to `/reset_password` if the resend token is invalid', function () {
         view.fxaClient.passwordResetResend = function () {
           return p().then(function () {
-            throw authErrors.toError('INVALID_TOKEN', 'Invalid token');
+            throw AuthErrors.toError('INVALID_TOKEN', 'Invalid token');
           });
         };
 
@@ -166,6 +166,15 @@ function (chai, p, authErrors, View, Session, RouterMock, WindowMock) {
                 view.$('#resend').click();
                 assert.equal(count, 1);
               });
+      });
+    });
+
+    describe('a click on the signin link', function () {
+      it('saves Session.email to Session.prefillEmail so user\'s email address is prefilled when browsing to /signin', function () {
+        Session.set('email', 'testuser@testuser.com');
+
+        view.$('a[href="/signin"]').click();
+        assert.equal(Session.prefillEmail, 'testuser@testuser.com');
       });
     });
   });

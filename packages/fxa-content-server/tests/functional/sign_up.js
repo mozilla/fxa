@@ -166,7 +166,7 @@ define([
         .end();
     },
 
-    'sign up with a verified account and wrong password allows the user to sign in': function () {
+    'sign up with a verified account forces the user to sign in': function () {
 
       var self = this;
       var email = TestHelpers.createEmail();
@@ -189,7 +189,7 @@ define([
 
             .elementByCssSelector('input[type=password]')
               .click()
-              .type('wrong_password')
+              .type(password)
             .end()
 
             .elementByCssSelector('#fxa-age-year')
@@ -216,8 +216,16 @@ define([
             .elementByCssSelector('input[type=email]')
               .getAttribute('value')
               .then(function (resultText) {
-                // check the email address was written
+                // check the email address carried over.
                 assert.equal(resultText, email);
+              })
+            .end()
+
+            .elementByCssSelector('input[type=password]')
+              .getAttribute('value')
+              .then(function (resultText) {
+                // check the password carried over.
+                assert.equal(resultText, password);
               })
             .end();
         });
