@@ -6,6 +6,11 @@ const intel = require('intel');
 
 const config = require('../config');
 
-intel.config(config.get('logging'));
+var conf = config.get('logging');
+if (conf.handlers.console.stream === 'process.stdout') {
+  conf.handlers.console.stream = process.stdout;
+}
+
+intel.config(conf);
 
 module.exports = intel;

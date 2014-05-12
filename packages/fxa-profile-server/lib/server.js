@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const util = require('util');
-
 const Hapi = require('hapi');
 const Boom = Hapi.error;
 
 const config = require('./config').root();
 const logger = require('./logging').getLogger('fxa.server');
 const request = require('./request');
+const summary = require('./logging/summary');
 
 exports.create = function createServer() {
   var server = Hapi.createServer(
@@ -57,20 +56,13 @@ exports.create = function createServer() {
 
   server.route(require('./routing'));
 
-  server.on('request', function(req, evt, tags) {
-    if (tags.error && util.isError(evt.data)) {
-      var err = evt.data;
-      if (err.isBoom && err.output.statusCode < 500) {
-        // a 4xx error, so its not our fault. not an ERROR level log
-        logger.warn('%d response: %s', err.output.statusCode, err.message);
-      } else {
-        logger.critical(err);
-      }
-    }
+  server.ext('onPreResponse', function(request, next) {
+    summary(request, request.response);
+    next();
   });
 
   // response logging
-  server.on('response', function(req) {
+  server.on('response', function onResponse(req) {
     logger.info(
       '%s %s - %d (%dms)',
       req.method.toUpperCase(),

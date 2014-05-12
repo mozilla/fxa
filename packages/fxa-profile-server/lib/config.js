@@ -50,8 +50,9 @@ const conf = convict({
       doc: 'http://seanmonstar.github.io/intel/#handlers',
       default: {
         console: {
-          class: 'intel/handlers/console',
-          formatter: 'pretty'
+          class: 'intel/handlers/stream',
+          formatter: 'pretty',
+          stream: 'process.stdout'
         }
       }
     },

@@ -186,16 +186,12 @@
       }
     },
     "intel": {
-      "version": "0.5.2",
-      "from": "intel@0.5.2",
+      "version": "1.0.0-b1.1",
+      "from": "intel@1.0.0-b1.1",
       "dependencies": {
-        "bluebird": {
-          "version": "1.0.8",
-          "from": "bluebird@1.0.x"
-        },
         "chalk": {
           "version": "0.4.0",
-          "from": "chalk@0.4.0",
+          "from": "chalk@~0.4.0",
           "dependencies": {
             "has-color": {
               "version": "0.1.7",
@@ -212,24 +208,24 @@
           }
         },
         "dbug": {
-          "version": "0.2.0",
-          "from": "dbug@0.2.x"
+          "version": "0.3.1",
+          "from": "dbug@~0.3.1"
         },
         "stack-trace": {
-          "version": "0.0.8",
-          "from": "stack-trace@0.0.8"
+          "version": "0.0.9",
+          "from": "stack-trace@~0.0.9"
         },
         "strftime": {
           "version": "0.8.0",
-          "from": "strftime@0.8.0"
+          "from": "strftime@~0.8.0"
         },
         "symbol": {
-          "version": "0.1.0",
-          "from": "symbol@0.1.0"
+          "version": "0.2.1",
+          "from": "symbol@~0.2.0"
         },
         "utcstring": {
           "version": "0.1.0",
-          "from": "utcstring@0.1.0"
+          "from": "utcstring@~0.1.0"
         }
       }
     },
