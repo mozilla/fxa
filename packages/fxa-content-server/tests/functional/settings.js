@@ -8,8 +8,9 @@ define([
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
-  'app/scripts/lib/constants'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants) {
+  'app/scripts/lib/constants',
+  'tests/lib/helpers'
+], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, TestHelpers) {
   'use strict';
 
   var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
@@ -26,7 +27,7 @@ define([
     name: 'settings',
 
     beforeEach: function () {
-      email = 'signin' + Math.random() + '@example.com';
+      email = TestHelpers.createEmail();
 
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest

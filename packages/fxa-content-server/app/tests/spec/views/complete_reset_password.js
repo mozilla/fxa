@@ -15,7 +15,6 @@ define([
   '../../lib/helpers'
 ],
 function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -252,6 +251,3 @@ function (chai, p, authErrors, View, RouterMock, WindowMock, TestHelpers) {
     });
   });
 });
-
-
-

@@ -16,7 +16,6 @@ define([
   '../../lib/helpers'
 ],
 function (chai, p, View, authErrors, Constants, RouterMock, WindowMock, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {

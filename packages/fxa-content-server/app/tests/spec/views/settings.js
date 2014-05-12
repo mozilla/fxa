@@ -10,13 +10,10 @@ define([
   'underscore',
   'jquery',
   'views/settings',
-  '../../mocks/router',
-  '../../lib/helpers'
+  '../../mocks/router'
 ],
-function (chai, _, $, View, RouterMock, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
+function (chai, _, $, View, RouterMock) {
   var assert = chai.assert;
-  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/settings', function () {
     var view, routerMock, email;

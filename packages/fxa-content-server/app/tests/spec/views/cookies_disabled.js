@@ -13,7 +13,6 @@ define([
   '../../mocks/window'
 ],
 function ($, chai, p, View, WindowMock) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/cookies_disabled', function () {

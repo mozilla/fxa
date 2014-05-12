@@ -4,14 +4,13 @@
 
 // test the interpolated library
 
-'use strict';
-
-
 define([
   'chai',
   'lib/auth-errors'
 ],
 function (chai, AuthErrors) {
+  'use strict';
+
   /*global describe, it*/
   var assert = chai.assert;
 
@@ -33,16 +32,16 @@ function (chai, AuthErrors) {
 
       it('converts an error from the backend containing an errno to a message', function () {
         assert.equal(
-            AuthErrors.toMessage({
-              errno: 102
-            }), 'Unknown account');
+          AuthErrors.toMessage({
+            errno: 102
+          }), 'Unknown account');
       });
 
       it('converts an error from the backend containing a message to a message', function () {
         assert.equal(
-            AuthErrors.toMessage({
-              message: 'this has no errno'
-            }), 'this has no errno');
+          AuthErrors.toMessage({
+            message: 'this has no errno'
+          }), 'this has no errno');
       });
 
       it('converts an empty error message from the backend to service unavailable', function () {
@@ -61,30 +60,30 @@ function (chai, AuthErrors) {
     describe('toContext', function () {
       it('returns the context from backend information for invalid parameter', function () {
         assert.deepEqual(
-            AuthErrors.toContext({
-              errno: 107,
-              validation: {
-                keys: 'uid'
-              }
-            }), { param: 'uid' });
+          AuthErrors.toContext({
+            errno: 107,
+            validation: {
+              keys: 'uid'
+            }
+          }), { param: 'uid' });
       });
 
       it('returns the context from backend information for missing parameter', function () {
         assert.deepEqual(
-            AuthErrors.toContext({
-              errno: 108,
-              param: 'uid'
-            }), { param: 'uid' });
+          AuthErrors.toContext({
+            errno: 108,
+            param: 'uid'
+          }), { param: 'uid' });
       });
 
       it('returns empty context for other errors', function () {
         assert.deepEqual(
-            AuthErrors.toContext({
-              errno: 109,
-              validation: {
-                keys: 'uid'
-              }
-            }), {});
+          AuthErrors.toContext({
+            errno: 109,
+            validation: {
+              keys: 'uid'
+            }
+          }), {});
       });
     });
 
@@ -103,6 +102,3 @@ function (chai, AuthErrors) {
     });
   });
 });
-
-
-

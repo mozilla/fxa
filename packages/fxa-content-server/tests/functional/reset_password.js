@@ -10,7 +10,7 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
-  'tests/lib/helpers',
+  'tests/lib/helpers'
 ], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
   'use strict';
 
@@ -47,8 +47,8 @@ define([
       this.timeout = 90000;
 
       var self = this;
-      user = 'signin' + Math.random();
-      email = user + '@restmail.net';
+      email = TestHelpers.createEmail();
+      user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
@@ -238,8 +238,8 @@ define([
       // timeout after 90 seconds
       this.timeout = 90000;
 
-      user = 'signin' + Math.random();
-      email = user + '@restmail.net';
+      email = TestHelpers.createEmail();
+      user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
@@ -300,7 +300,7 @@ define([
     name: 'reset_password with email specified on URL',
 
     setup: function () {
-      email = 'signin' + Math.random() + '@restmail.net';
+      email = TestHelpers.createEmail();
       var client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
@@ -335,8 +335,8 @@ define([
     name: 'confirm_password page transition',
 
     setup: function () {
-      var user = 'signin' + Math.random();
-      email = user + '@restmail.net';
+      email = TestHelpers.createEmail();
+      user = TestHelpers.emailToUser(email);
 
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest

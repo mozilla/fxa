@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([], function() {
+  'use strict';
+
+  /*global mocha */
   mocha.setup('bdd');
   mocha.timeout(5000);
 });
-

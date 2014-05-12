@@ -20,6 +20,32 @@ define([
     name: 'i18n'
   };
 
+  function testClientJson(acceptLanguageHeader, expectedLanguage) {
+    /*jshint validthis: true*/
+    var dfd = this.async(1000);
+
+    var headers = {};
+    if (acceptLanguageHeader) {
+      headers['Accept-Language'] = acceptLanguageHeader;
+    }
+
+    request(serverUrl + '/i18n/client.json', {
+      headers: headers
+    }, dfd.callback(function (err, res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.headers['content-type'], 'application/json; charset=utf8');
+      // Response differs depending on the Accept-Language, let all
+      // intermediaries know this.
+      assert.equal(res.headers.vary, 'accept-language');
+
+      var body = JSON.parse(res.body);
+
+      // yes, body[''] is correct. Language pack meta
+      // info is in the '' field.
+      assert.equal(body[''].language, expectedLanguage);
+    }, dfd.reject.bind(dfd)));
+  }
+
   suite['#get /config'] = function () {
     var dfd = this.async(1000);
 
@@ -54,25 +80,46 @@ define([
     }, dfd.reject.bind(dfd)));
   };
 
-  suite['#get /i18n/client.json'] = function () {
-    var dfd = this.async(1000);
+  suite['#get /i18n/client.json with multiple supported languages'] = function () {
+    testClientJson.call(this,
+        'de,en;q=0.8,en;q=0.6,en-gb;q=0.4,chrome://global/locale/intl.properties;q=0.2',
+        'de');
+  };
 
-    request(serverUrl + '/i18n/client.json', {
-      headers: {
-        'Accept-Language': 'de,en;q=0.8,en;q=0.6,en-gb;q=0.4,chrome://global/locale/intl.properties;q=0.2'
-      }
-    }, dfd.callback(function (err, res) {
-      assert.equal(res.statusCode, 200);
-      assert.equal(res.headers['content-type'], 'application/json; charset=utf8');
-      // Response differs depending on the Accept-Language, let all
-      // intermediaries know this.
-      assert.equal(res.headers.vary, 'accept-language');
+  suite['#get /i18n/client.json with lowercase language'] = function () {
+    testClientJson.call(this, 'en-gb', 'en_GB');
+  };
 
-      var body = JSON.parse(res.body);
-      // yes, body[''] is correct. Language pack meta
-      // info is in the '' field.
-      assert.equal(body[''].language, 'de');
-    }, dfd.reject.bind(dfd)));
+  suite['#get /i18n/client.json with uppercase language'] = function () {
+    testClientJson.call(this, 'EN-gb', 'en_GB');
+  };
+
+  suite['#get /i18n/client.json with uppercase region'] = function () {
+    testClientJson.call(this, 'en-GB', 'en_GB');
+  };
+
+  suite['#get /i18n/client.json all uppercase language'] = function () {
+    testClientJson.call(this, 'EN-GB', 'en_GB');
+  };
+
+  suite['#get /i18n/client.json for language with multiple regions and only language specified'] = function () {
+    testClientJson.call(this, 'es', 'es');
+  };
+
+  suite['#get /i18n/client.json for language with multiple regions and unsupported region specified'] = function () {
+    testClientJson.call(this, 'es-NONEXISTANT', 'es');
+  };
+
+  suite['#get /i18n/client.json with language with two-part region with an unsupported region specified'] = function () {
+    testClientJson.call(this, 'ja-JP-mac', 'ja');
+  };
+
+  suite['#get /i18n/client.json with unsupported language returns default locale'] = function () {
+    testClientJson.call(this, 'no-OP', 'en_US');
+  };
+
+  suite['#get /i18n/client.json with no locale returns default locale'] = function () {
+    testClientJson.call(this, null, 'en_US');
   };
 
   registerSuite(suite);

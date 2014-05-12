@@ -14,7 +14,6 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, p, FormView, Template, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/form', function () {

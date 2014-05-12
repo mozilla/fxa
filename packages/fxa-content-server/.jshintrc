@@ -2,11 +2,11 @@
   "bitwise": true,
   "curly": true,
   "eqeqeq": true,
+  "es3": true,
   "esnext": true,
   "globalstrict": false,
   "immed": true,
   "indent": 2,
-  "jquery": true,
   "latedef": true,
   "newcap": true,
   "noarg": true,
@@ -15,14 +15,11 @@
   "regexp": true,
   "smarttabs": true,
   "strict": true,
+  "sub": true,
   "trailing": true,
   "undef": true,
-  "unused": true,
+  "unused": "vars",
   "globals": {
-    "require": true,
-    "console": true,
-    "define": true,
-    "router": true,
-    "translator": true
+    "define": false
   }
 }

@@ -124,7 +124,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
         .then(null, function (err) {
           // account already exists, and the user
           // entered a bad password they should sign in insted.
-          if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+          if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
             Session.set('prefillEmail', email);
             var msg = t('Account already exists. <a href="/signin">Sign in</a>');
             return self.displayErrorUnsafe(msg);

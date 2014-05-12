@@ -7,8 +7,9 @@ define([
   'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
-  'app/bower_components/fxa-js-client/fxa-client'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient) {
+  'app/bower_components/fxa-js-client/fxa-client',
+  'tests/lib/helpers'
+], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers) {
   'use strict';
 
   var url = 'http://localhost:3030/signup';
@@ -38,7 +39,7 @@ define([
     },
 
     'sign up': function () {
-      var email = 'signup' + Math.random() + '@example.com';
+      var email = TestHelpers.createEmail();
       var password = '12345678';
 
       return this.get('remote')
@@ -81,7 +82,7 @@ define([
     },
 
     'select an age that is too young': function () {
-      var email = 'signup' + Math.random() + '@example.com';
+      var email = TestHelpers.createEmail();
       var password = '12345678';
 
       return this.get('remote')
@@ -117,7 +118,7 @@ define([
         .end()
 
         // ensure that this does not interfere with other tests.
-        /*jshint evil:true*/
+        /*jshint evil:true, es3:false*/
         .eval('document.cookie = "tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT";')
         .end();
     },
@@ -125,7 +126,7 @@ define([
     'choose option to customize sync': function () {
       var urlForSync = url + '?service=sync';
 
-      var email = 'signup' + Math.random() + '@example.com';
+      var email = TestHelpers.createEmail();
       var password = '12345678';
 
       return this.get('remote')
@@ -168,7 +169,7 @@ define([
     'sign up with a verified account and wrong password allows the user to sign in': function () {
 
       var self = this;
-      var email = 'signup' + Math.random() + '@example.com';
+      var email = TestHelpers.createEmail();
       var password = '12345678';
 
       var client = new FxaClient(AUTH_SERVER_ROOT, {
@@ -225,7 +226,7 @@ define([
     'sign up with an unverified account and different password re-signs up user': function () {
 
       var self = this;
-      var email = 'signup' + Math.random() + '@example.com';
+      var email = TestHelpers.createEmail();
       var password = '12345678';
 
       var client = new FxaClient(AUTH_SERVER_ROOT, {

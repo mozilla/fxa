@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 require.config({
   baseUrl: '/scripts',
   paths: {
@@ -85,6 +83,9 @@ require([
   '../tests/spec/views/button_progress_indicator'
 ],
 function (Translator, Session, FxaClientWrapper) {
+  'use strict';
+
+  /*global mocha */
 
   // The translator is expected to be on the window object.
   window.translator = new Translator('en-US', ['en-US']);

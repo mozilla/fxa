@@ -59,7 +59,10 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceName, O
         service: this.service,
         serviceName: serviceName,
         signIn: this.is('sign_in'),
+
         signUp: this.is('sign_up'),
+        showSignUpMarketing: this._showSignUpMarketing(),
+
         resetPassword: this.is('reset_password')
       };
     },
@@ -67,6 +70,23 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceName, O
     events: {
       // validateAndSubmit is used to prevent multiple concurrent submissions.
       'click #redirectTo': BaseView.preventDefaultThen('submit')
+    },
+
+    _showSignUpMarketing: function () {
+      if (! this.is('sign_up')) {
+        return false;
+      }
+
+      // For UA information, see
+      // https://developer.mozilla.org/docs/Gecko_user_agent_string_reference
+
+      var ua = this.window.navigator.userAgent;
+
+      // covers both B2G and Firefox for Android
+      var isMobileFirefox = ua.indexOf('Mobile') > -1 && ua.indexOf('Firefox') > -1;
+      var isTabletFirefox = ua.indexOf('Tablet') > -1 && ua.indexOf('Firefox') > -1;
+
+      return ! (isMobileFirefox || isTabletFirefox);
     },
 
     afterRender: function() {

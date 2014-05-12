@@ -4,12 +4,12 @@
 
 // stub out the router object for testing.
 
-'use strict';
-
 define([
   'underscore',
   'backbone'
 ], function (_, Backbone) {
+  'use strict';
+
   function RouterMock() {
     // nothing to do here.
   }

@@ -4,10 +4,10 @@
 
 // mock in a channel
 
-'use strict';
-
 define([
 ], function() {
+  'use strict';
+
   function ChannelMock() {
     this.canLinkAccountOk = true;
     this._messageCount = {};
@@ -44,4 +44,3 @@ define([
 
   return ChannelMock;
 });
-
