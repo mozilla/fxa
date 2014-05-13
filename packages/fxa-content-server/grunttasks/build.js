@@ -23,9 +23,6 @@ module.exports = function (grunt) {
     'copy:dist',
     // uglify overwrites the files in the dist directory.
     'uglify',
-    // modernizr must come after concat, copy and uglify so the
-    // custom version overwrites all default versions.
-    'modernizr:dist',
     'rev',
     'usemin'
   ]);

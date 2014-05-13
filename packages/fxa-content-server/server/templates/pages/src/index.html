@@ -15,9 +15,16 @@
         <link rel="stylesheet" href="/styles/fonts.css">
         <link rel="stylesheet" href="/styles/main.css">
         <!-- endbuild -->
-        <!-- build:js /bower_components/modernizr/modernizr.js -->
-        <script src="/bower_components/modernizr/modernizr.js"></script>
+
+        <!-- build:js /scripts/env-test.js -->
+        <script src="/scripts/env-test.js"></script>
         <!-- endbuild -->
+
+        <!--[if lt IE 9]>
+          <!-- build:js /bower_components/html5shiv/dist/html5shiv.js -->
+          <script src="/bower_components/html5shiv/dist/html5shiv.js"></script>
+          <!-- endbuild -->
+        <![endif]-->
     </head>
     <body>
         <!--[if lt IE 8]>

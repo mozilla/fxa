@@ -39,8 +39,6 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.app %>',
           dest: '<%= yeoman.dist %>',
           src: [
-            // modernizr is left unbundled and is generated in the
-            // modernizr task, no need to copy it over.
             '*.{ico,png,txt}',
             '.htaccess',
             'images/{,*/}*.{webp,gif}',

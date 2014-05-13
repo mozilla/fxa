@@ -12,7 +12,6 @@ require.config({
     text: '/bower_components/requirejs-text/text',
     mustache: '/bower_components/mustache/mustache',
     stache: '/bower_components/requirejs-mustache/stache',
-    modernizr: '/bower_components/modernizr/modernizr',
     chai: '/bower_components/chai/chai',
     'p-promise': '/bower_components/p/p',
     sinon: '/bower_components/sinon/index'
@@ -30,9 +29,6 @@ require.config({
     },
     sinon: {
       exports: 'sinon'
-    },
-    modernizr: {
-      exports: 'Modernizr'
     }
   },
   stache: {
