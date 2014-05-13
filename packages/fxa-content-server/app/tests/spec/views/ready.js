@@ -13,6 +13,7 @@ define([
 ],
 function (chai, View, Session, WindowMock) {
   var assert = chai.assert;
+  var redirectUri =  'https://sync.firefox.com';
 
   describe('views/ready', function () {
     var view, windowMock;
@@ -60,7 +61,7 @@ function (chai, View, Session, WindowMock) {
       it('shows redirectTo link and service name if available', function () {
         // This would be fetched from the OAuth server, but set it
         // explicitly for tests that use the mock `sync` service ID.
-        view.serviceRedirectURI = 'https://sync.firefox.com';
+        view.serviceRedirectURI = redirectUri;
         Session.set('service', 'sync');
 
         return view.render()
@@ -84,7 +85,7 @@ function (chai, View, Session, WindowMock) {
 
         // This would be fetched from the OAuth server, but set it
         // explicitly for tests that use the mock `sync` service ID.
-        view.serviceRedirectURI = 'https://sync.firefox.com';
+        view.serviceRedirectURI = redirectUri;
 
         return view.render()
             .then(function () {

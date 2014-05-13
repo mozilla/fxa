@@ -69,11 +69,21 @@ define([
     return str;
   }
 
+  function createEmail() {
+    return 'signin' + Math.random() + '@restmail.net';
+  }
+
+  function emailToUser(email) {
+    return email.split('@')[0];
+  }
+
   return {
     requiresFocus: requiresFocus,
     addFxaClientSpy: addFxaClientSpy,
     removeFxaClientSpy: removeFxaClientSpy,
     wrapAssertion: wrapAssertion,
-    createRandomHexString: createRandomHexString
+    createRandomHexString: createRandomHexString,
+    createEmail: createEmail,
+    emailToUser: emailToUser
   };
 });

@@ -8,9 +8,10 @@ define([
   'lib/session',
   'lib/auth-errors',
   'views/confirm',
-  '../../mocks/router'
+  '../../mocks/router',
+  '../../lib/helpers'
 ],
-function (chai, p, Session, AuthErrors, View, RouterMock) {
+function (chai, p, Session, AuthErrors, View, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -52,7 +53,7 @@ function (chai, p, Session, AuthErrors, View, RouterMock) {
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message', function () {
-        var email = 'user' + Math.random() + '@testuser.com';
+        var email = TestHelpers.createEmail();
 
         return view.fxaClient.signUp(email, 'password')
               .then(function () {
@@ -95,7 +96,7 @@ function (chai, p, Session, AuthErrors, View, RouterMock) {
 
     describe('validateAndSubmit', function () {
       it('only called after click on #resend', function () {
-        var email = 'user' + Math.random() + '@testuser.com';
+        var email = TestHelpers.createEmail();
 
         return view.fxaClient.signUp(email, 'password')
               .then(function () {
@@ -113,7 +114,7 @@ function (chai, p, Session, AuthErrors, View, RouterMock) {
       });
 
       it('debounces resend calls - submit on first and forth attempt', function () {
-        var email = 'user' + Math.random() + '@testuser.com';
+        var email = TestHelpers.createEmail();
         var count = 0;
 
         return view.fxaClient.signUp(email, 'password')
@@ -143,7 +144,7 @@ function (chai, p, Session, AuthErrors, View, RouterMock) {
     describe('oauth', function () {
       it('redirects to signup_complete after account is verified', function () {
         /* jshint camelcase: false */
-        var email = 'user' + Math.random() + '@testuser.com';
+        var email = TestHelpers.createEmail();
 
         Session.set('service', 'sync');
 

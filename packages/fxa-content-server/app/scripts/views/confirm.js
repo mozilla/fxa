@@ -71,7 +71,7 @@ function (FormView, BaseView, Template, Session, AuthErrors) {
                                               self.VERIFICATION_POLL_IN_MS);
               }
             }, function () {
-              self._verificationTimeout = null;
+              this.window.clearTimeout(this._verificationTimeout);
             });
         };
 

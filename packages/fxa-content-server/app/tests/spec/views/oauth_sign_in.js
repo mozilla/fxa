@@ -29,7 +29,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
 
     beforeEach(function () {
       Session.clear();
-      email = 'testuser.' + Math.random() + '@testuser.com';
+      email = TestHelpers.createEmail();
       router = new RouterMock();
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;

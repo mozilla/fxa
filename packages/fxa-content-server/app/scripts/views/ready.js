@@ -68,7 +68,6 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceName, O
     },
 
     events: {
-      // validateAndSubmit is used to prevent multiple concurrent submissions.
       'click #redirectTo': BaseView.preventDefaultThen('submit')
     },
 

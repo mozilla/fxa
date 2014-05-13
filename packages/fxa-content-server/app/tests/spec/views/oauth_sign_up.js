@@ -15,7 +15,6 @@ define([
   '../../lib/helpers'
 ],
 function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/oauth_sign_up', function () {
@@ -29,7 +28,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
 
     beforeEach(function () {
       Session.clear();
-      email = 'testuser.' + Math.random() + '@testuser.com';
+      email = TestHelpers.createEmail();
       router = new RouterMock();
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE + '&redirect_uri=' + encodeURIComponent(BASE_REDIRECT_URL);
