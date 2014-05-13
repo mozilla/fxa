@@ -105,11 +105,11 @@ api.post(
       )
       .then(
         function (result) {
-          log.info({ op: 'request.check', email: email, ip: ip, block: result.block })
+          log.info({ op: 'request.check', email: email, ip: ip, agent: agent, action: action, block: result.block })
           res.send(result)
         },
         function (err) {
-          log.error({ op: 'request.check', email: email, ip: ip, err: err })
+          log.error({ op: 'request.check', email: email, ip: ip, agent: agent, action: action, err: err })
           res.send(500, err)
         }
       )
