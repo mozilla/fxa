@@ -7,12 +7,13 @@
 
 define([
   'chai',
+  'lib/session',
   'views/reset_password',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, View, WindowMock, RouterMock, TestHelpers) {
+function (chai, Session, View, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -20,7 +21,6 @@ function (chai, View, WindowMock, RouterMock, TestHelpers) {
     var view, router;
 
     beforeEach(function () {
-
       router = new RouterMock();
       view = new View({
         router: router
@@ -38,9 +38,17 @@ function (chai, View, WindowMock, RouterMock, TestHelpers) {
       $('#container').empty();
     });
 
-    describe('constructor creates it', function () {
-      it('is drawn', function () {
+    describe('render', function () {
+      it('renders template', function () {
         assert.ok($('#fxa-reset-password-header').length);
+      });
+
+      it('pre-fills email addresses from Session.prefillEmail', function () {
+        Session.set('prefillEmail', 'prefilled@testuser.com');
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.email').val(), 'prefilled@testuser.com');
+            });
       });
     });
 

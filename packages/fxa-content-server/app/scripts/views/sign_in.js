@@ -14,9 +14,10 @@ define([
   'lib/session',
   'lib/password-mixin',
   'lib/url',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/validate'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors) {
+function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors, Validate) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -45,7 +46,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
       'click a[href="/signup"]': '_savePrefillInfo',
-      'click a[href="/reset_password"]': '_savePrefillInfo'
+      'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail'
     },
 
     submit: function () {
@@ -92,7 +93,37 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     _savePrefillInfo: function () {
       Session.set('prefillEmail', this.$('.email').val());
       Session.set('prefillPassword', this.$('.password').val());
-    }
+    },
+
+    resetPasswordIfKnownValidEmail: BaseView.preventDefaultThen(function () {
+      var self = this;
+      return p().then(function () {
+        var email = self.$('.email').val();
+
+        if (Validate.isEmailValid(email)) {
+          return self.resetPassword(email);
+        } else {
+          self._savePrefillInfo();
+          self.navigate('reset_password');
+        }
+      });
+    }),
+
+    resetPassword: FormView.allowOnlyOneSubmit(function (email) {
+      var self = this;
+      return self.fxaClient.passwordReset(email)
+          .then(function () {
+            self.navigate('confirm_reset_password');
+          }, function (err) {
+            if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+              return self._suggestSignUp();
+            }
+
+            // resetPassword is not called from `submit` and must
+            // display its own errors.
+            return self.displayError(err);
+          });
+    })
   });
 
   _.extend(View.prototype, PasswordMixin);
