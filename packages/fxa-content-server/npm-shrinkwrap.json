@@ -4047,9 +4047,9 @@
       }
     },
     "grunt-usemin": {
-      "version": "2.0.2",
-      "from": "grunt-usemin@2.0.2",
-      "resolved": "https://registry.npmjs.org/grunt-usemin/-/grunt-usemin-2.0.2.tgz",
+      "version": "2.1.1",
+      "from": "grunt-usemin@2.1.1",
+      "resolved": "https://registry.npmjs.org/grunt-usemin/-/grunt-usemin-2.1.1.tgz",
       "dependencies": {
         "lodash": {
           "version": "1.0.1",
