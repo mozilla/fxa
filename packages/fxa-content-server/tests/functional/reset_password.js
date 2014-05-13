@@ -82,22 +82,15 @@ define([
         .get(require.toUrl(SIGNIN_PAGE_URL))
         .waitForElementById('fxa-signin-header')
 
-        .elementByCssSelector('input[type=email]')
-          .click()
-          .type(email)
-        .end()
-
         .elementByCssSelector('a[href="/reset_password"]')
           .click()
         .end()
 
         .waitForElementById('fxa-reset-password-header')
+
         .elementByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
+          .click()
+          .type(email)
         .end()
 
         .elementByCssSelector('button[type="submit"]')

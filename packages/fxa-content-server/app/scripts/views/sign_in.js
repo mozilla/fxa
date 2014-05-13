@@ -95,22 +95,19 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       Session.set('prefillPassword', this.$('.password').val());
     },
 
-    resetPasswordIfKnownValidEmail: function (event) {
-      var email = this.$('.email').val();
+    resetPasswordIfKnownValidEmail: BaseView.preventDefaultThen(function () {
+      var self = this;
+      return p().then(function () {
+        var email = self.$('.email').val();
 
-      if (Validate.isEmailValid(email)) {
-        // cancel event if resetting the password now, otherwise
-        // let the normal handler kick in and redirect the page.
-        event.preventDefault();
-        event.stopPropagation();
-
-        this.resetPassword(email);
-      } else {
-        // prefill the email for reset password screen. The default
-        // anchor handler will take care of the redirection.
-        Session.set('prefillEmail', email);
-      }
-    },
+        if (Validate.isEmailValid(email)) {
+          return self.resetPassword(email);
+        } else {
+          self._savePrefillInfo();
+          self.navigate('reset_password');
+        }
+      });
+    }),
 
     resetPassword: FormView.allowOnlyOneSubmit(function (email) {
       var self = this;
