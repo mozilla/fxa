@@ -3,18 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers) {
   'use strict';
 
-  var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
-  var SIGNIN_URL = 'http://localhost:3030/signin';
-  var CHANGE_PASSWORD_URL = 'http://localhost:3030/change_password';
+  var config = intern.config;
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var SIGNIN_URL = config.fxaContentRoot + 'signin';
+  var CHANGE_PASSWORD_URL = config.fxaContentRoot + 'change_password';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';

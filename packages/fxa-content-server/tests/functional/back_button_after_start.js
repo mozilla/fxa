@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require'
-], function (registerSuite, assert, require) {
+], function (intern, registerSuite, assert, require) {
   'use strict';
 
   var FROM_URL = 'https://github.com/mozilla/fxa-content-server';
-  var FXA_ROOT_URL = 'http://localhost:3030/';
+  var FXA_ROOT_URL = intern.config.fxaContentRoot;
 
   registerSuite({
     name: 'back button after navigating to the root',

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require',
@@ -11,15 +12,17 @@ define([
   'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
   'tests/lib/helpers'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
   'use strict';
 
-  var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
-  var EMAIL_SERVER_ROOT = 'http://127.0.0.1:9001';
-  var SIGNIN_PAGE_URL = 'http://localhost:3030/signin';
-  var RESET_PAGE_URL = 'http://localhost:3030/reset_password';
-  var CONFIRM_PAGE_URL = 'http://localhost:3030/confirm_reset_password';
-  var COMPLETE_PAGE_URL_ROOT = 'http://localhost:3030/complete_reset_password';
+  var config = intern.config;
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
+  var SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
+  var RESET_PAGE_URL = config.fxaContentRoot + 'reset_password';
+  var CONFIRM_PAGE_URL = config.fxaContentRoot + 'confirm_reset_password';
+  var COMPLETE_PAGE_URL_ROOT = config.fxaContentRoot + 'complete_reset_password';
+
   var PASSWORD = 'password';
   var user;
   var email;

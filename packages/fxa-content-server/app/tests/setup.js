@@ -7,5 +7,5 @@ define([], function() {
 
   /*global mocha */
   mocha.setup('bdd');
-  mocha.timeout(5000);
+  mocha.timeout(20000);
 });
