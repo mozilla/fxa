@@ -98,7 +98,6 @@ api.post(
                   block: retryAfter > 0,
                   retryAfter: retryAfter
                 }
-                return
               }
             )
         }
