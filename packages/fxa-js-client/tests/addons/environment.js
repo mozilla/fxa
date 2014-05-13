@@ -4,7 +4,7 @@
 
 define([
   'tests/intern',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xmlhttprequest',
+  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!xhr2',
   'tests/addons/sinonResponder',
   'tests/addons/sinon',
   'client/FxAccountClient',

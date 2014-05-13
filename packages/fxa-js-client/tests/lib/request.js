@@ -7,8 +7,8 @@ define([
   'intern/chai!assert',
   'tests/addons/environment',
   'client/lib/request',
-  'tests/addons/sinonResponder'
-], function (tdd, assert, Environment, Request, SinonResponder) {
+  'tests/mocks/errors'
+], function (tdd, assert, Environment, Request, ErrorMocks) {
   with (tdd) {
     suite('request module', function () {
       var RequestMocks;
@@ -44,6 +44,19 @@ define([
             }
           );
 
+      });
+
+      test('#timeout', function () {
+        request = new Request('http://google.com:81', env.xhr, { timeout: 200 });
+
+        var timeoutRequest = env.respond(request.send("/", "GET"), ErrorMocks.timeout);
+
+        return timeoutRequest.then(
+          assert.notOk,
+          function (err) {
+            assert.equal(err.error, 'Timeout error');
+          }
+        );
       });
     });
   }
