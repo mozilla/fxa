@@ -12,7 +12,8 @@ module.exports = function (grunt) {
       },
       src: [
         '{,<%= yeoman.app %>/**/,grunttasks/**/,scripts/**/,server/**/,tests/**/}*.js',
-        '!<%= yeoman.app %>/bower_components/**'
+        '!<%= yeoman.app %>/bower_components/**',
+        '!<%= yeoman.app %>/scripts/env-test.js'
       ]
     }
   });
