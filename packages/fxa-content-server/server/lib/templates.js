@@ -57,8 +57,8 @@ module.exports = function (templatePath, i18n) {
     var l10n = i18n.localizationContext(lang);
     var values = {
       l10n: l10n,
-      link: '{{{link}}}',
-      email: '{{{email}}}'
+      link: '{{link}}',
+      email: '{{email}}'
     };
 
     return {
