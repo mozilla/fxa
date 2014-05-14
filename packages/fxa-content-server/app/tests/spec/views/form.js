@@ -230,6 +230,9 @@ function (chai, $, p, FormView, Template, TestHelpers) {
       });
 
       it('focuses the invalid element', function (done) {
+        // wekbit fails unless focusing another element first.
+        $('#otherElement').focus();
+
         TestHelpers.requiresFocus(function () {
           view.$('#focusMe').on('focus', function () {
             done();

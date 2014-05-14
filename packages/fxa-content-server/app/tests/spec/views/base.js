@@ -25,7 +25,7 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
   var assert = chai.assert;
 
   describe('views/base', function () {
-    var view, router, windowMock, ephemeralMessages;
+    var view, router, windowMock, ephemeralMessages, translator;
 
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
@@ -137,6 +137,8 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
       it('focuses descendent element containing `autofocus` if html has `no-touch` class', function () {
         requiresFocus(function () {
           jQuery('html').addClass('no-touch');
+          // wekbit fails unless focusing another element first.
+          jQuery('#otherElement').focus();
 
           var handlerCalled = false;
           jQuery('#focusMe').on('focus', function () {
