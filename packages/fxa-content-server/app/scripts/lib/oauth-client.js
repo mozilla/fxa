@@ -7,9 +7,10 @@
 define([
   'jquery',
   'p-promise',
-  'lib/session'
+  'lib/session',
+  'lib/config-loader'
 ],
-function ($, P, Session) {
+function ($, P, Session, ConfigLoader) {
   var oauthUrl;
 
   var GET_CLIENT = '/v1/client/';
@@ -26,20 +27,23 @@ function ($, P, Session) {
 
   OAuthClient.prototype = {
     _getOauthUrl: function _getOauthUrl() {
-      var defer = P.defer();
+      var configLoader = new ConfigLoader();
+      var promise;
+
       if (oauthUrl) {
-        defer.resolve(oauthUrl);
+        promise = P(oauthUrl);
       } else if (Session.config && Session.config.oauthUrl) {
         oauthUrl = Session.config.oauthUrl;
-        defer.resolve(oauthUrl);
+        promise = P(oauthUrl);
       } else {
-        $.getJSON('/config', function (data) {
-          oauthUrl = data.oauthUrl;
-          defer.resolve(oauthUrl);
-        });
+        promise = configLoader.fetch()
+          .then(function (data) {
+            oauthUrl = data.oauthUrl;
+            return oauthUrl;
+          });
       }
 
-      return defer.promise;
+      return promise;
     },
 
     // params = { assertion, client_id, redirect_uri, scope, state }
