@@ -92,5 +92,19 @@ function (chai, _, Validate, Constants, TestHelpers) {
         assert.isTrue(Validate.isUidValid(createRandomHexString(Constants.UID_LENGTH)));
       });
     });
+
+    describe('isPasswordValid', function () {
+      it('returns false with empty password', function () {
+        assert.isFalse(Validate.isPasswordValid(''));
+      });
+
+      it('returns false with one too few characters', function () {
+        assert.isFalse(Validate.isPasswordValid(createRandomHexString(Constants.PASSWORD_MIN_LENGTH - 1)));
+      });
+
+      it('returns true with minimum expected characters', function () {
+        assert.isTrue(Validate.isPasswordValid(createRandomHexString(Constants.PASSWORD_MIN_LENGTH)));
+      });
+    });
   });
 });
