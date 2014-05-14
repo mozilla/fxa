@@ -145,6 +145,7 @@ section p {
 section p.prefill {
   color: $input-placeholder-color;
   margin-top: 24px;
+  word-wrap: break-word;
 }
 
 #legal-copy {
@@ -508,7 +509,8 @@ ul.links li {
   color: $link-color;
 }
 
-.verification-email-message {
+.verification-email-message,
+.signed-in-email-message {
   word-wrap: break-word;
 }
 
