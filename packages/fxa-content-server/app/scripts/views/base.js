@@ -379,7 +379,18 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      */
     focus: function (which) {
       try {
-        this.$(which).get(0).focus();
+        var focusEl = this.$(which);
+        // place the cursor at the end of the input when the
+        // element is focused.
+        focusEl.one('focus', function () {
+          try {
+            this.selectionStart = this.selectionEnd = this.value.length;
+          } catch (e) {
+            // This can blow up on password fields in Chrome. Drop the error on
+            // the ground, for whatever reason, it still behaves as we expect.
+          }
+        });
+        focusEl.get(0).focus();
       } catch (e) {
         // IE can blow up if the element is not visible.
       }

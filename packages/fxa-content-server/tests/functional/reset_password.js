@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require',
@@ -11,14 +12,17 @@ define([
   'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
   'tests/lib/helpers'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
   'use strict';
 
-  var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
-  var EMAIL_SERVER_ROOT = 'http://127.0.0.1:9001';
-  var RESET_PAGE_URL = 'http://localhost:3030/reset_password';
-  var CONFIRM_PAGE_URL = 'http://localhost:3030/confirm_reset_password';
-  var COMPLETE_PAGE_URL_ROOT = 'http://localhost:3030/complete_reset_password';
+  var config = intern.config;
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
+  var SIGNIN_PAGE_URL = config.fxaContentRoot + 'signin';
+  var RESET_PAGE_URL = config.fxaContentRoot + 'reset_password';
+  var CONFIRM_PAGE_URL = config.fxaContentRoot + 'confirm_reset_password';
+  var COMPLETE_PAGE_URL_ROOT = config.fxaContentRoot + 'complete_reset_password';
+
   var PASSWORD = 'password';
   var user;
   var email;
@@ -73,12 +77,18 @@ define([
         .waitForElementById('fxa-reset-password-header');
     },
 
-    'open reset_password page': function () {
+    'open /reset_password page from /signin': function () {
       return this.get('remote')
-        .get(require.toUrl(RESET_PAGE_URL))
+        .get(require.toUrl(SIGNIN_PAGE_URL))
+        .waitForElementById('fxa-signin-header')
+
+        .elementByCssSelector('a[href="/reset_password"]')
+          .click()
+        .end()
+
         .waitForElementById('fxa-reset-password-header')
 
-        .elementByCssSelector('form input.email')
+        .elementByCssSelector('input[type=email]')
           .click()
           .type(email)
         .end()
@@ -366,6 +376,59 @@ define([
         .end()
 
         .waitForElementById('fxa-signin-header')
+        .end();
+    }
+  });
+
+  registerSuite({
+    name: 'reset_password with unknown email',
+
+    setup: function () {
+      email = TestHelpers.createEmail();
+      return this.get('remote')
+        .get(require.toUrl(RESET_PAGE_URL))
+        /*jshint evil:true*/
+        .waitForElementById('fxa-reset-password-header')
+        .safeEval('sessionStorage.clear(); localStorage.clear();');
+    },
+
+    'open /reset_password page, enter unknown email': function () {
+      return this.get('remote')
+        .get(require.toUrl(RESET_PAGE_URL))
+        .waitForElementById('fxa-reset-password-header')
+
+        .elementByCssSelector('input[type=email]')
+          .click()
+          .type(email)
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        // The error area shows a link to /signup
+        .waitForElementByCssSelector('.error a[href="/signup"]')
+        .elementByCssSelector('.error a[href="/signup"]')
+          .click()
+        .end()
+
+        .waitForElementById('fxa-signup-header')
+        .elementByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            // check the email address was written
+            assert.equal(resultText, email);
+          })
+        .end()
+
+        .waitForElementById('fxa-signup-header')
+        // email is prefilled on signup page
+        .elementByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            // check the email address was written
+            assert.equal(resultText, email);
+          })
         .end();
     }
   });

@@ -168,5 +168,14 @@ function (chai, p, AuthErrors, View, Session, RouterMock, WindowMock) {
               });
       });
     });
+
+    describe('a click on the signin link', function () {
+      it('saves Session.email to Session.prefillEmail so user\'s email address is prefilled when browsing to /signin', function () {
+        Session.set('email', 'testuser@testuser.com');
+
+        view.$('a[href="/signin"]').click();
+        assert.equal(Session.prefillEmail, 'testuser@testuser.com');
+      });
+    });
   });
 });

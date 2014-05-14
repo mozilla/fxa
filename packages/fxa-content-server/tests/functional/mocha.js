@@ -3,21 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require'
-], function (registerSuite, assert, require) {
+], function (intern, registerSuite, assert, require) {
   'use strict';
 
-  var url = 'http://localhost:3030/tests/index.html?coverage';
+  var url = intern.config.fxaContentRoot + 'tests/index.html?coverage';
   var bodyText;
 
   registerSuite({
     name: 'mocha tests',
 
     'run the mocha tests': function () {
-      // timeout after 120 seconds
-      this.timeout = 120000;
+      // timeout after 200 seconds
+      this.timeout = 200000;
 
       return this.get('remote')
         .get(require.toUrl(url))

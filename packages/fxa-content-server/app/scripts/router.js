@@ -163,6 +163,11 @@ function (
     watchAnchors: function () {
       var self = this;
       $(document).on('click', 'a[href^="/"]', function (event) {
+        // someone killed this event, ignore it.
+        if (event.isDefaultPrevented()) {
+          return;
+        }
+
         if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
           event.preventDefault();
 

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require',
@@ -11,12 +12,14 @@ define([
   'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
   'tests/lib/helpers'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
   'use strict';
 
-  var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
-  var EMAIL_SERVER_ROOT = 'http://127.0.0.1:9001';
-  var FORCE_AUTH_URL = 'http://localhost:3030/force_auth';
+  var config = intern.config;
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
+  var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
+
   var PASSWORD = 'password';
   var user;
   var email;
@@ -32,6 +35,7 @@ define([
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
+      var self = this;
       return client.signUp(email, PASSWORD)
         .then(function (result) {
           accountData = result;
@@ -42,6 +46,14 @@ define([
         .then(function (emails) {
           var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
           return client.verifyCode(accountData.uid, code);
+        })
+        .then(function () {
+          // clear localStorage to avoid pollution from other tests.
+          return self.get('remote')
+            .get(require.toUrl(FORCE_AUTH_URL))
+            /*jshint evil:true*/
+            .waitForElementById('fxa-force-auth-header')
+            .safeEval('sessionStorage.clear(); localStorage.clear();');
         });
     },
 

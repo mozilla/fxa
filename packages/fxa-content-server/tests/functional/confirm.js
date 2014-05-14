@@ -3,15 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require',
   'tests/lib/helpers'
-], function (registerSuite, assert, require, TestHelpers) {
+], function (intern, registerSuite, assert, require, TestHelpers) {
   'use strict';
 
-  var CONFIRM_URL = 'http://localhost:3030/confirm';
-  var SIGNUP_URL = 'http://localhost:3030/signup';
+  var config = intern.config;
+  var CONFIRM_URL = config.fxaContentRoot + 'confirm';
+  var SIGNUP_URL = config.fxaContentRoot +'signup';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
   registerSuite({

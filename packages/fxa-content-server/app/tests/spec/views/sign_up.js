@@ -9,14 +9,29 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'p-promise',
   'views/sign_up',
   'lib/session',
+  'lib/auth-errors',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, View, Session, RouterMock, TestHelpers) {
+function (chai, _, $, p, View, Session, AuthErrors, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
+
+  function fillOutSignUp (email, password, opts) {
+    opts = opts || {};
+    var context = opts.context || window;
+    var year = opts.year || '1960';
+
+    context.$('[type=email]').val(email);
+    context.$('[type=password]').val(password);
+
+    if (!opts.ignoreYear) {
+      $('#fxa-age-year').val(year);
+    }
+  }
 
   describe('views/sign_up', function () {
     var view, router, email;
@@ -43,11 +58,14 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
     });
 
     describe('render', function () {
-      it('prefills email if one is stored in Session (user comes from signin with new account)', function () {
+      it('prefills email and password if stored in Session (user comes from signup with existing account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
+        Session.set('prefillPassword', 'prefilled password');
         return view.render()
             .then(function () {
+              assert.ok($('#fxa-signup-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+              assert.equal(view.$('[type=password]').val(), 'prefilled password');
             });
       });
 
@@ -63,59 +81,37 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
 
     describe('isValid', function () {
       it('returns true if email, password, and age are all valid', function () {
-        view.$('[type=email]').val(email);
-        view.$('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp(email, 'password', { context: view });
         assert.isTrue(view.isValid());
       });
 
       it('returns false if email is empty', function () {
-        $('[type=email]').val('');
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp('', 'password');
         assert.isFalse(view.isValid());
       });
 
       it('returns false if email is not an email address', function () {
-        $('[type=email]').val('testuser');
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp('testuser', 'password');
         assert.isFalse(view.isValid());
       });
 
       it('returns false if email contain one part TLD', function () {
-        $('[type=email]').val('a@b');
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp('a@b', 'password');
         assert.isFalse(view.isValid());
       });
 
       it('returns true if email contain two part TLD', function () {
-        $('[type=email]').val('a@b.c');
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp('a@b.c', 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns true if email contain three part TLD', function () {
-        $('[type=email]').val('a@b.c.d');
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp('a@b.c.d', 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns false if local side of email === 0 chars', function () {
-        var email = '@testuser.com';
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp('@testuser.com', 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -126,10 +122,7 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
         } while (email.length < 65);
 
         email += '@testuser.com';
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp(email, 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -140,19 +133,12 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
         } while (email.length < 64);
 
         email += '@testuser.com';
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp(email, 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns false if domain side of email === 0 chars', function () {
-        var email = 'testuser@';
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp('testuser@', 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -162,11 +148,7 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
           domain += 'a';
         } while (domain.length < 256);
 
-        var email = 'testuser@' + domain;
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp('testuser@' + domain, 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -175,11 +157,8 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
         do {
           domain += 'a';
         } while (domain.length < 254);
-        var email = 'a@' + domain;
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
 
+        fillOutSignUp('a@' + domain, 'password');
         assert.isTrue(view.isValid());
       });
 
@@ -190,11 +169,7 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
         } while (domain.length < 254);
 
         // ab@ + 254 characters = 257 chars
-        var email = 'ab@' + domain;
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp('ab@' + domain, 'password');
         assert.isFalse(view.isValid());
       });
 
@@ -204,41 +179,29 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
           email += 'a';
         } while (email.length < 256);
 
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp(email, 'password');
         assert.isTrue(view.isValid());
       });
 
       it('returns false if password is empty', function () {
-        $('[type=email]').val(email);
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp(email, '');
         assert.isFalse(view.isValid());
       });
 
       it('returns false if password is invalid', function () {
-        $('[type=email]').val(email);
-        $('[type=password]').val('passwor');
-        $('#fxa-age-year').val('1960');
-
+        fillOutSignUp(email, 'passwor');
         assert.isFalse(view.isValid());
       });
 
       it('returns false if age is invalid', function () {
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-
+        fillOutSignUp(email, 'password', { ignoreYear: true });
         assert.isFalse(view.isValid());
       });
     });
 
     describe('showValidationErrors', function() {
       it('shows an error if the email is invalid', function (done) {
-        view.$('[type=email]').val('testuser');
-        view.$('[type=password]').val('password');
-        view.$('#fxa-age-year').val('1990');
+        fillOutSignUp('testuser', 'password');
 
         view.on('validation_error', function(which, msg) {
           wrapAssertion(function () {
@@ -250,9 +213,7 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
       });
 
       it('shows an error if the password is invalid', function (done) {
-        view.$('[type=email]').val('testuser@testuser.com');
-        view.$('[type=password]').val('passwor');
-        view.$('#fxa-age-year').val('1990');
+        fillOutSignUp('testuser@testuser.com', 'passwor');
 
         view.on('validation_error', function(which, msg) {
           wrapAssertion(function () {
@@ -264,8 +225,7 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
       });
 
       it('shows an error if no year is selected', function (done) {
-        view.$('[type=email]').val('testuser@testuser.com');
-        view.$('[type=password]').val('passwor');
+        fillOutSignUp('testuser@testuser.com', 'password', { ignoreYear: true });
 
         view.on('validation_error', function(which, msg) {
           wrapAssertion(function () {
@@ -278,27 +238,19 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
     });
 
     describe('submit', function () {
-      it('sends the user to confirm screen if form filled out, >= 14 years ago', function (done) {
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-
+      it('sends the user to confirm screen if form filled out, >= 14 years ago', function () {
         var nowYear = (new Date()).getFullYear();
-        $('#fxa-age-year').val(nowYear - 14);
+        fillOutSignUp(email, 'password', { year: nowYear - 14 });
 
-        router.on('navigate', function () {
-          wrapAssertion(function () {
-            assert.equal(router.page, 'confirm');
-          }, done);
-        });
-        view.submit();
+        return view.submit()
+            .then(function () {
+              assert.equal(router.page, 'confirm');
+            });
       });
 
       it('submits form if user presses enter on the year', function (done) {
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-
         var nowYear = (new Date()).getFullYear();
-        $('#fxa-age-year').val(nowYear - 14);
+        fillOutSignUp(email, 'password', { year: nowYear - 14 });
 
         router.on('navigate', function () {
           wrapAssertion(function () {
@@ -312,11 +264,8 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
       });
 
       it('sends the user to cannot_create_account screen if user selects <= 13 years ago', function (done) {
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-
         var nowYear = (new Date()).getFullYear();
-        $('#fxa-age-year').val(nowYear - 13);
+        fillOutSignUp(email, 'password', { year: nowYear - 13 });
 
         router.on('navigate', function () {
           wrapAssertion(function () {
@@ -327,11 +276,8 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
       });
 
       it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function () {
-        $('[type=email]').val(email);
-        $('[type=password]').val('password');
-
         var nowYear = (new Date()).getFullYear();
-        $('#fxa-age-year').val(nowYear - 13);
+        fillOutSignUp(email, 'password', { year: nowYear - 13 });
 
         view.submit();
         assert.equal(router.page, 'cannot_create_account');
@@ -348,59 +294,65 @@ function (chai, _, $, View, Session, RouterMock, TestHelpers) {
             });
       });
 
-      it('signs user in if they enter already existing account with correct password', function (done) {
-        var password = 'password';
-        view.fxaClient.signUp(email, password)
-              .then(function () {
-                $('[type=email]').val(email);
-                $('[type=password]').val(password);
+      it('shows message allowing the user to sign in if user enters existing verified account', function () {
+        return view.fxaClient.signUp(email, 'password', { preVerified: true })
+            .then(function () {
+              var nowYear = (new Date()).getFullYear();
+              fillOutSignUp(email, 'incorrect', { year: nowYear - 14 });
 
-                var nowYear = (new Date()).getFullYear();
-                $('#fxa-age-year').val(nowYear - 14);
-
-                router.on('navigate', function () {
-                  wrapAssertion(function () {
-                    assert.equal(router.page, 'confirm');
-                  }, done);
-                });
-                view.submit();
-              });
+              return view.submit();
+            })
+            .then(function (msg) {
+              assert.ok(msg.indexOf('/signin') > -1);
+              assert.isTrue(view.isErrorVisible());
+            });
       });
 
-      it('shows message allowing the user to sign in if user enters existing verified account with incorrect password', function (done) {
-        view.fxaClient.signUp(email, 'password', { preVerified: true })
-              .then(function () {
-                $('[type=email]').val(email);
-                $('[type=password]').val('incorrect');
+      it('re-signs up unverified user with new password', function () {
+        return view.fxaClient.signUp(email, 'password')
+            .then(function () {
+              var nowYear = (new Date()).getFullYear();
+              fillOutSignUp(email, 'incorrect', { year: nowYear - 14 });
 
-                var nowYear = (new Date()).getFullYear();
-                $('#fxa-age-year').val(nowYear - 14);
-
-                view.on('error', function (msg) {
-                  wrapAssertion(function () {
-                    assert.ok(msg.indexOf('/signin') > -1);
-                  }, done);
-                });
-                view.submit();
-              });
+              return view.submit();
+            })
+            .then(function () {
+              assert.equal(router.page, 'confirm');
+            });
       });
 
-      it('re-signs up unverified user with new password', function (done) {
-        view.fxaClient.signUp(email, 'password')
+      it('does nothing if user cancels signup', function () {
+        view.fxaClient.signUp = function () {
+          return p()
               .then(function () {
-                $('[type=email]').val(email);
-                $('[type=password]').val('incorrect');
-
-                var nowYear = (new Date()).getFullYear();
-                $('#fxa-age-year').val(nowYear - 14);
-
-                router.on('navigate', function () {
-                  wrapAssertion(function () {
-                    assert.equal(router.page, 'confirm');
-                  }, done);
-                });
-                view.submit();
+                throw AuthErrors.toError('USER_CANCELED_LOGIN');
               });
+        };
+
+        var nowYear = (new Date()).getFullYear();
+        fillOutSignUp(email, 'password', { year: nowYear - 14 });
+
+        return view.submit()
+          .then(function () {
+            assert.isFalse(view.isErrorVisible());
+          });
+      });
+
+      it('re-throws any other errors for display', function () {
+        view.fxaClient.signUp = function () {
+          return p()
+              .then(function () {
+                throw AuthErrors.toError('SERVER_BUSY');
+              });
+        };
+
+        var nowYear = (new Date()).getFullYear();
+        fillOutSignUp(email, 'password', { year: nowYear - 14 });
+
+        return view.submit()
+          .then(null, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'SERVER_BUSY'));
+          });
       });
 
     });

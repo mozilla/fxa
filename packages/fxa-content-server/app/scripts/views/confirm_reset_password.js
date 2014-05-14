@@ -20,6 +20,11 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
     template: Template,
     className: 'confirm-reset-password',
 
+    events: {
+      'click #resend': BaseView.preventDefaultThen('validateAndSubmit'),
+      'click a[href="/signin"]': 'savePrefillEmailForSignin'
+    },
+
     beforeDestroy: function () {
       if (this._timeout) {
         this.window.clearTimeout(this._timeout);
@@ -86,8 +91,11 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
                 // unexpected error, rethrow for display.
                 throw err;
               });
-    }
+    },
 
+    savePrefillEmailForSignin: function () {
+      Session.set('prefillEmail', Session.email);
+    }
   });
 
   return View;

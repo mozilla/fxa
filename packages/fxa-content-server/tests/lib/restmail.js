@@ -12,7 +12,7 @@ define([
     if (!number) {
       number = 1;
     }
-    console.log('Waiting for email...');
+    console.log('Waiting for email at:', uri);
 
     return request(uri, 'GET', null)
       .then(function (result) {

@@ -3,17 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers'
-], function (registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers) {
   'use strict';
 
-  var url = 'http://localhost:3030/signup';
-  var AUTH_SERVER_ROOT = 'http://127.0.0.1:9000/v1';
+  var config = intern.config;
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var PAGE_URL = config.fxaContentRoot + 'signup';
 
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
@@ -23,7 +25,7 @@ define([
     beforeEach: function () {
       // clear localStorage to avoid pollution from other tests.
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(require.toUrl(PAGE_URL))
         /*jshint evil:true*/
         .waitForElementById('fxa-signup-header')
         .safeEval('sessionStorage.clear(); localStorage.clear();');
@@ -32,7 +34,7 @@ define([
     teardown: function () {
       // clear localStorage to avoid polluting other tests.
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(require.toUrl(PAGE_URL))
         /*jshint evil:true*/
         .waitForElementById('fxa-signup-header')
         .safeEval('sessionStorage.clear(); localStorage.clear();');
@@ -43,7 +45,7 @@ define([
       var password = '12345678';
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(require.toUrl(PAGE_URL))
         .waitForElementById('fxa-signup-header')
 
         .elementByCssSelector('form input.email')
@@ -86,7 +88,7 @@ define([
       var password = '12345678';
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(require.toUrl(PAGE_URL))
         .waitForElementById('fxa-signup-header')
 
         .elementByCssSelector('form input.email')
@@ -124,7 +126,7 @@ define([
     },
 
     'choose option to customize sync': function () {
-      var urlForSync = url + '?service=sync';
+      var urlForSync = PAGE_URL + '?service=sync';
 
       var email = TestHelpers.createEmail();
       var password = '12345678';
@@ -166,7 +168,7 @@ define([
         .end();
     },
 
-    'sign up with a verified account and wrong password allows the user to sign in': function () {
+    'sign up with a verified account forces the user to sign in': function () {
 
       var self = this;
       var email = TestHelpers.createEmail();
@@ -179,7 +181,7 @@ define([
       return client.signUp(email, password, { preVerified: true })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(url))
+            .get(require.toUrl(PAGE_URL))
             .waitForElementById('fxa-signup-header')
 
             .elementByCssSelector('input[type=email]')
@@ -189,7 +191,7 @@ define([
 
             .elementByCssSelector('input[type=password]')
               .click()
-              .type('wrong_password')
+              .type(password)
             .end()
 
             .elementByCssSelector('#fxa-age-year')
@@ -216,8 +218,16 @@ define([
             .elementByCssSelector('input[type=email]')
               .getAttribute('value')
               .then(function (resultText) {
-                // check the email address was written
+                // check the email address carried over.
                 assert.equal(resultText, email);
+              })
+            .end()
+
+            .elementByCssSelector('input[type=password]')
+              .getAttribute('value')
+              .then(function (resultText) {
+                // check the password carried over.
+                assert.equal(resultText, password);
               })
             .end();
         });
@@ -236,7 +246,7 @@ define([
       return client.signUp(email, password)
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(url))
+            .get(require.toUrl(PAGE_URL))
             .waitForElementById('fxa-signup-header')
 
             .elementByCssSelector('input[type=email]')

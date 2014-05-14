@@ -14,9 +14,10 @@ define([
   'lib/session',
   'lib/password-mixin',
   'lib/url',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/validate'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors) {
+function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors, Validate) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -36,22 +37,29 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         service: this.service,
         serviceName: this.serviceName,
         email: Session.prefillEmail,
+        password: Session.prefillPassword,
         isSync: Session.isSync()
       };
     },
 
+    afterRender: function () {
+      this.enableSubmitIfValid();
+    },
+
     events: {
-      'change .show-password': 'onPasswordVisibilityChange'
+      'change .show-password': 'onPasswordVisibilityChange',
+      'click a[href="/signup"]': '_savePrefillInfo',
+      'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail'
     },
 
     submit: function () {
       var email = this.$('.email').val();
       var password = this.$('.password').val();
 
-      return this.signIn(email, password);
+      return this._signIn(email, password);
     },
 
-    signIn: function (email, password) {
+    _signIn: function (email, password) {
       var self = this;
       return this.fxaClient.signIn(email, password)
         .then(function (accountData) {
@@ -64,21 +72,67 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
               });
           }
         })
-        .then(null, _.bind(function (err) {
+        .then(null, function (err) {
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-            // email indicates the signed in email. Use prefillEmail
-            // to avoid collisions across sessions.
-            Session.set('prefillEmail', email);
-            var msg = t('Unknown account. <a href="/signup">Sign up</a>');
-            return self.displayErrorUnsafe(msg);
+            return self._suggestSignUp();
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
             // if user canceled login, just stop
             return;
           }
           // re-throw error, it will be handled at a lower level.
           throw err;
-        }, this));
-    }
+        });
+    },
+
+    onSignInSuccess: function() {
+      // Don't switch to settings if we're trying to log in to
+      // Firefox. Firefox will show its own landing page
+      if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
+        this.navigate('settings');
+      }
+
+      return true;
+    },
+
+    _suggestSignUp: function () {
+      var msg = t('Unknown account. <a href="/signup">Sign up</a>');
+      return this.displayErrorUnsafe(msg);
+    },
+
+    _savePrefillInfo: function () {
+      Session.set('prefillEmail', this.$('.email').val());
+      Session.set('prefillPassword', this.$('.password').val());
+    },
+
+    resetPasswordIfKnownValidEmail: BaseView.preventDefaultThen(function () {
+      var self = this;
+      return p().then(function () {
+        var email = self.$('.email').val();
+
+        if (Validate.isEmailValid(email)) {
+          return self.resetPassword(email);
+        } else {
+          self._savePrefillInfo();
+          self.navigate('reset_password');
+        }
+      });
+    }),
+
+    resetPassword: FormView.allowOnlyOneSubmit(function (email) {
+      var self = this;
+      return self.fxaClient.passwordReset(email)
+          .then(function () {
+            self.navigate('confirm_reset_password');
+          }, function (err) {
+            if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+              return self._suggestSignUp();
+            }
+
+            // resetPassword is not called from `submit` and must
+            // display its own errors.
+            return self.displayError(err);
+          });
+    })
   });
 
   _.extend(View.prototype, PasswordMixin);

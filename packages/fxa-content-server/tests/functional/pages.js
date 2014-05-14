@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require'
-], function (registerSuite, assert, require) {
+], function (intern, registerSuite, assert, require) {
   'use strict';
 
-  var url = 'http://localhost:3030/';
+  var url = intern.config.fxaContentRoot;
 
   var pages = [
     'v1/complete_reset_password',

@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require'
-], function (registerSuite, assert, require) {
+], function (intern, registerSuite, assert, require) {
   'use strict';
 
-  var url = 'http://localhost:3030/signup';
+  var PAGE_URL = intern.config.fxaContentRoot + 'signup';
 
   registerSuite({
     name: 'pp',
@@ -17,7 +18,7 @@ define([
     'start at signup': function () {
 
       return this.get('remote')
-        .get(require.toUrl(url))
+        .get(require.toUrl(PAGE_URL))
         .waitForElementById('fxa-signup-header')
 
         .elementById('fxa-pp')

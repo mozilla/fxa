@@ -3,17 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'require'
-], function (registerSuite, assert, require) {
+], function (intern, registerSuite, assert, require) {
   'use strict';
 
   // there is no way to disable cookies using wd. Add `disable_cookies`
   // to the URL to synthesize cookies being disabled.
-  var SIGNUP_COOKIES_DISABLED_URL = 'http://localhost:3030/signup?disable_local_storage=1';
-  var SIGNUP_COOKIES_ENABLED_URL = 'http://localhost:3030/signup';
-  var COOKIES_DISABLED_URL = 'http://localhost:3030/cookies_disabled';
+  var config = intern.config;
+  var SIGNUP_COOKIES_DISABLED_URL = config.fxaContentRoot + 'signup?disable_local_storage=1';
+  var SIGNUP_COOKIES_ENABLED_URL = config.fxaContentRoot + 'signup';
+  var COOKIES_DISABLED_URL = config.fxaContentRoot + 'cookies_disabled';
 
   registerSuite({
     name: 'cookies_disabled',
