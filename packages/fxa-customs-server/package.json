@@ -2,23 +2,34 @@
   "name": "fxa-customs-server",
   "version": "0.0.1",
   "description": "",
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL 2.0",
+  "keywords": [
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mozilla/fxa-customs-server.git"
+  },
+  "homepage": "https://github.com/mozilla/fxa-customs-server/",
+  "bugs": "https://github.com/mozilla/fxa-customs-server/issues/",
   "scripts": {
     "start": "node bin/customs_server.js",
     "test": "scripts/tap-coverage.js test"
   },
-  "author": "",
-  "license": "MPL 2.0",
   "dependencies": {
-    "rc": "0.3.4",
     "bluebird": "1.2.2",
     "bunyan": "0.22.3",
-    "restify": "2.7.0",
-    "memcached": "0.2.8"
+    "memcached": "0.2.8",
+    "rc": "0.3.4",
+    "restify": "2.7.0"
   },
   "devDependencies": {
     "ass": "0.0.4",
     "jshint": "2.5.x",
     "tap": "0.4.8",
     "walk": "2.3.x"
+  },
+  "engines": {
+    "node": ">=0.10.0"
   }
 }
