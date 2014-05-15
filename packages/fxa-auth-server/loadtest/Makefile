@@ -1,14 +1,19 @@
 SERVER_URL = https://api-accounts.stage.mozaws.net
 
+# Hackety-hack around OSX system python bustage.
+# The need for this should go away with a future osx/xcode update.
+ARCHFLAGS = -Wno-error=unused-command-line-argument-hard-error-in-future
+INSTALL = ARCHFLAGS=$(ARCHFLAGS) ./bin/pip install
+
 .PHONY: build test bench
 
 # Build virtualenv, to ensure we have all the dependencies.
 build:
 	virtualenv --no-site-packages .
-	./bin/pip install gevent
-	./bin/pip install pexpect
-	./bin/pip install https://github.com/mozilla-services/loads/archive/master.zip
-	./bin/pip install 'hawkauthlib'
+	$(INSTALL) gevent
+	$(INSTALL) pexpect
+	$(INSTALL) https://github.com/mozilla-services/loads/archive/master.zip
+	$(INSTALL) 'hawkauthlib'
 	rm -rf ./local  # ubuntu, why you create this useless folder?
 
 # Clean all the things installed by `make build`.
