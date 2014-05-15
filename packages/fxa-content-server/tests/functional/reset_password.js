@@ -37,8 +37,8 @@ define([
     return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, fetchCount)
       .then(function (emails) {
         // token and code are hex values
-        token = emails[emailNumber].html.match(/token=([a-fa-f0-9]+)/)[1];
-        code = emails[emailNumber].html.match(/code=([a-za-z0-9]+)/)[1];
+        token = emails[emailNumber].html.match(/token=([a-f\d]+)/)[1];
+        code = emails[emailNumber].html.match(/code=([a-f\d]+)/)[1];
       });
   }
 
