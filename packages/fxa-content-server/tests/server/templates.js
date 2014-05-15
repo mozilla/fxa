@@ -51,9 +51,9 @@ define([
           assert.match(json.html, matches.html);
 
           // make sure these variables are present and use {{
-          assert.match(json.text, /[^{]{{link}}/);
+          assert.match(json.text, /{{{link}}}/);
           assert.match(json.html, /[^{]{{link}}/);
-          assert.match(json.text, /[^{]{{email}}/);
+          assert.match(json.text, /{{{email}}}/);
           assert.match(json.html, /[^{]{{email}}/);
 
         }, dfd.reject.bind(dfd)));

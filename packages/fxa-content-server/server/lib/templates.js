@@ -83,18 +83,25 @@ module.exports = function (templatePath, i18n) {
       throw new Error('Unknown template type: ' + type);
     }
     var l10n = i18n.localizationContext(lang);
-    var values = {
+
+    // replace %(link)s and %(email)s with variables that are then
+    // replaced by the auth server.
+    var htmlValues = {
       l10n: l10n,
-      // replace %(link)s and %(email)s with variables that are then
-      // replaced by the auth server.
       link: '{{link}}',
       email: '{{email}}'
+    };
+    // don't escape values in text emails
+    var textValues = {
+      l10n: l10n,
+      link: '{{{link}}}',
+      email: '{{{email}}}'
     };
 
     return {
       subject: l10n.gettext(template.subject),
-      html: template.html(values),
-      text: template.text(values)
+      html: template.html(htmlValues),
+      text: template.text(textValues)
     };
   };
 
