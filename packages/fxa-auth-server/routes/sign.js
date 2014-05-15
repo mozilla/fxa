@@ -79,9 +79,8 @@ module.exports = function (log, isA, error, signer, domain) {
               reply(error.serviceUnavailable())
             }
             else if (result && result.err) {
-              // TODO: parse result.err better
-              log.warn({ op: 'signer.enqueue', err: result.err })
-              reply(error.wrap(result.err))
+              log.warn({ op: 'signer.enqueue', err: result.err, req: request.payload })
+              reply(error.invalidRequestParameter(result.err.message))
             }
             else {
               reply(result)

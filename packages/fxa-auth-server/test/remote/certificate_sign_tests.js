@@ -74,6 +74,36 @@ TestServer.start(config)
   )
 
   test(
+    'bad key',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      var duration = 1000 * 60 * 60 * 24
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function (c) {
+            client = c
+            return client.sign(
+              {
+                "algorithm":"RS",
+                "n":"abcdef",
+                "e":"65537"
+              },
+              duration
+            )
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            t.equal(err.errno, 107, 'invalid parameter error')
+          }
+        )
+    }
+  )
+
+  test(
     '/certificate/sign inputs',
     function (t) {
       var email = server.uniqueEmail()
