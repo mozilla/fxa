@@ -1,5 +1,20 @@
 # Contribution Guidelines for the Firefox Accounts Content Server
 
+## Git Commit Guidelines
+
+We loosely follow the [Angular commit guidelines](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#type) of `<type>(<scope>): <subject>` where `type` must be one of:
+
+* **feat**: A new feature
+* **fix**: A bug fix
+* **docs**: Documentation only changes
+* **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing
+  semi-colons, etc)
+* **refactor**: A code change that neither fixes a bug or adds a feature
+* **perf**: A code change that improves performance
+* **test**: Adding missing tests
+* **chore**: Changes to the build process or auxiliary tools and libraries such as documentation
+  generation
+
 ## Grunt Commands
 
 [Grunt](http://gruntjs.com/) is used to run common tasks to build, test, and run local servers.
