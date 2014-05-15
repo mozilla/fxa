@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "scripts": {
+    "start": "node bin/customs_server.js",
     "test": "scripts/tap-coverage.js test"
   },
   "author": "",
