@@ -1,14 +1,19 @@
 SERVER_URL = https://verifier.stage.mozaws.net
 
+# Hackety-hack around OSX system python bustage.
+# The need for this should go away with a future osx/xcode update.
+ARCHFLAGS = -Wno-error=unused-command-line-argument-hard-error-in-future
+INSTALL = ARCHFLAGS=$(ARCHFLAGS) ./venv/bin/pip install
+
 .PHONY: build clean test bench megabench
 
 # Build virtualenv, to ensure we have all the dependencies.
 build:
 	virtualenv --no-site-packages ./venv
-	./venv/bin/pip install pexpect
-	./venv/bin/pip install gevent
-	./venv/bin/pip install https://github.com/mozilla-services/loads/archive/master.zip
-	./venv/bin/pip install PyBrowserID
+	$(INSTALL) pexpect
+	$(INSTALL) gevent
+	$(INSTALL) https://github.com/mozilla-services/loads/archive/master.zip
+	$(INSTALL) PyBrowserID
 
 # Clean all the things installed by `make build`.
 clean:
