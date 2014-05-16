@@ -60,8 +60,4 @@ to fetch the latest code for a new fix, try the following:
     $ git checkout master
     $ git pull
 
-And (optionally) keep your own GitHub master up to date:
-
-    $ git push user1 master
-
 Now you're ready to branch again for your new feature (from step 4 above).
