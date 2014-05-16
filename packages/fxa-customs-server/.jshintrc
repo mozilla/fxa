@@ -15,7 +15,7 @@
   "nonew": true,
   "quotmark": "single",
   "undef": true,
-  "unused": false,
+  "unused": true,
   "strict": false,
 
   "node": true
