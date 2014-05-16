@@ -22,6 +22,7 @@ Patches should be submitted as pull requests. When submitting patches as PRs:
  * Run `grunt jshint` to make sure your code passes linting.
  * Run `npm test` to make sure all tests still pass.
  * Please do not include merge commits in pull requests; include only commits with the new relevant code.
+ * Add yourself to the `AUTHORS` file so we can publically recognize your contribution.
 
 See the main `README.md` for information on prerequisites, installing, running and testing.
 
