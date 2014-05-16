@@ -17,7 +17,7 @@ module.exports = function (BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS, now) {
   }
 
   function isBadAgent(agent) {
-    return false // TODO
+    return false && agent // TODO
   }
 
   IpRecord.prototype.isBlocked = function () {

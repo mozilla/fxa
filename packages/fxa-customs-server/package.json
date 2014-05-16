@@ -4,8 +4,7 @@
   "description": "",
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL 2.0",
-  "keywords": [
-  ],
+  "keywords": [],
   "repository": {
     "type": "git",
     "url": "git@github.com:mozilla/fxa-customs-server.git"
@@ -14,7 +13,7 @@
   "bugs": "https://github.com/mozilla/fxa-customs-server/issues/",
   "scripts": {
     "start": "node bin/customs_server.js",
-    "test": "scripts/tap-coverage.js test"
+    "test": "scripts/test-local.sh"
   },
   "dependencies": {
     "bluebird": "1.2.2",
@@ -25,7 +24,12 @@
   },
   "devDependencies": {
     "ass": "0.0.4",
+    "grunt": "0.4.x",
+    "grunt-cli": "0.1.x",
+    "grunt-contrib-jshint": "0.10.x",
+    "grunt-copyright": "0.1.x",
     "jshint": "2.5.x",
+    "jshint-stylish": "0.2.x",
     "tap": "0.4.8",
     "walk": "2.3.x"
   },
