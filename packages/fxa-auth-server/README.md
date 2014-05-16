@@ -13,7 +13,7 @@ Services ecosystem.
 
 [Detailed API spec](/docs/api.md)
 
-[Contributing](/CONTRIBUTING.md)
+[Guidelines for Contributing](/CONTRIBUTING.md)
 
 ## Prerequisites
 
