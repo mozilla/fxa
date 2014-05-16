@@ -6,7 +6,7 @@ var Memcached = require('memcached')
 var restify = require('restify')
 var config = require('../config')
 var log = require('../log')(config.logLevel, 'customs-server')
-var package = require('../package.json')
+var packageJson = require('../package.json')
 
 var LIFETIME = config.recordLifetimeSeconds
 var BLOCK_INTERVAL_MS = config.blockIntervalSeconds * 1000
@@ -53,9 +53,9 @@ function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord) {
   return P.all(
     [
       // store records ignoring errors
-      mc.setAsync(email, emailRecord, LIFETIME).catch(ignore),
-      mc.setAsync(ip, ipRecord, LIFETIME).catch(ignore),
-      mc.setAsync(ip + email, ipEmailRecord, LIFETIME).catch(ignore)
+      mc.setAsync(email, emailRecord, LIFETIME).caught(ignore),
+      mc.setAsync(ip, ipRecord, LIFETIME).caught(ignore),
+      mc.setAsync(ip + email, ipEmailRecord, LIFETIME).caught(ignore)
     ]
   )
 }
@@ -120,7 +120,7 @@ api.post(
       .then(
         function (ipEmailRecord) {
           ipEmailRecord.addBadLogin()
-          return mc.setAsync(ip + email, ipEmailRecord, LIFETIME).catch(ignore)
+          return mc.setAsync(ip + email, ipEmailRecord, LIFETIME).caught(ignore)
         }
       )
       .then(
@@ -146,7 +146,7 @@ api.post(
       .then(
         function (emailRecord) {
           emailRecord.passwordReset()
-          return mc.setAsync(email, emailRecord, LIFETIME).catch(ignore)
+          return mc.setAsync(email, emailRecord, LIFETIME).caught(ignore)
         }
       )
       .then(
@@ -166,7 +166,7 @@ api.post(
 api.get(
   '/',
   function (req, res, next) {
-    res.send({ version: package.version })
+    res.send({ version: packageJson.version })
     next()
   }
 )
