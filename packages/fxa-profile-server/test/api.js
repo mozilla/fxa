@@ -106,10 +106,10 @@ describe('/email', function() {
     });
   });
 
-  it('should NOT return a profile if wrong scope', function() {
+  it('should NOT return email if wrong scope', function() {
     mockToken().reply(200, JSON.stringify({
       user: USERID,
-      scope: ['foo', 'bar']
+      scope: ['profile:uid']
     }));
     return Server.api.post({
       url: '/email',
@@ -122,3 +122,40 @@ describe('/email', function() {
   });
 });
 
+describe('/uid', function() {
+  var uid = token();
+  before(function() {
+    return db.createProfile({
+      uid: uid,
+      avatar: avatarUrl
+    });
+  });
+
+  it('should return an uid', function() {
+    mockToken().reply(200, TOKEN_GOOD);
+    return Server.api.post({
+      url: '/uid',
+      headers: {
+        authorization: 'Bearer ' + uid
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(JSON.parse(res.payload).uid, USERID);
+    });
+  });
+
+  it('should NOT return a profile if wrong scope', function() {
+    mockToken().reply(200, JSON.stringify({
+      user: USERID,
+      scope: ['profile:email']
+    }));
+    return Server.api.post({
+      url: '/uid',
+      headers: {
+        authorization: 'Bearer ' + uid
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 403);
+    });
+  });
+});

@@ -18,5 +18,10 @@ module.exports = [
     method: 'POST',
     path: v('/email'),
     config: require('./routes/email')
+  },
+  {
+    method: 'POST',
+    path: v('/uid'),
+    config: require('./routes/uid')
   }
 ];
