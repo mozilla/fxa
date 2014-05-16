@@ -16,15 +16,15 @@ you saw the issue.
 
 Patches should be submitted as pull requests. When submitting patches as PRs:
 
-- You agree to license your code under the project's open source license ([MPL 2.0](https://raw.githubusercontent.com/mozilla/fxa-auth-server/master/LICENSE)).
+- You agree to license your code under the project's open source license ([MPL 2.0](/LICENSE)).
 - Base your branch off the current `master` (see below for an example workflow).
 - Add both your code and new tests if relevant.
 - Run `grunt jshint` to make sure your code passes linting.
 - Run `npm test` to make sure all tests still pass.
 - Please do not include merge commits in pull requests; include only commits with the new relevant code.
-- Add yourself to the [AUTHORS](https://github.com/mozilla/fxa-auth-server/blob/master/AUTHORS) file so we can publicly recognize your contribution.
+- Add yourself to the [AUTHORS](/AUTHORS) file so we can publicly recognize your contribution.
 
-See the main [README.md](https://github.com/mozilla/fxa-auth-server/blob/master/README.md) for information on prerequisites, installing, running and testing.
+See the main [README.md](/README.md) for information on prerequisites, installing, running and testing.
 
 ## Example Workflow ##
 
