@@ -41,7 +41,7 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
     var deferred = P.defer();
     var xhr = new this.xhr();
     var uri = this.baseUri + path;
-    var payload;
+    var payload = null;
     var self = this;
     options = options || {};
 
