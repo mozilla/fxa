@@ -186,8 +186,8 @@
       }
     },
     "intel": {
-      "version": "1.0.0-b1.1",
-      "from": "intel@1.0.0-b1.1",
+      "version": "1.0.0-b2",
+      "from": "intel@1.0.0-b2",
       "dependencies": {
         "chalk": {
           "version": "0.4.0",
@@ -208,8 +208,8 @@
           }
         },
         "dbug": {
-          "version": "0.3.1",
-          "from": "dbug@~0.3.1"
+          "version": "0.4.0",
+          "from": "dbug@~0.4.0"
         },
         "stack-trace": {
           "version": "0.0.9",
