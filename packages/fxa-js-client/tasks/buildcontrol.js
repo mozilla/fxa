@@ -22,7 +22,7 @@ module.exports = function (grunt) {
       options: {
         branch: 'gh-pages',
         dir: 'docs',
-        tag: '<%= pkg.version %>-docs'
+        tag: 'docs-<%= pkg.version %>'
       }
     }
   });

@@ -9,7 +9,8 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('intern-geezer');
 
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json')
+    pkg: grunt.file.readJSON('package.json'),
+    pkgReadOnly: grunt.file.readJSON('package.json')
   });
 
   // load local Grunt tasks
@@ -31,7 +32,7 @@ module.exports = function (grunt) {
     ['build']);
 
   grunt.registerTask('release',
-    ['build', 'yuidoc', 'buildcontrol']);
+    ['build', 'bump-only', 'changelog', 'bump-commit', 'yuidoc', 'buildcontrol']);
 
   grunt.registerTask('dev',
     ['watch:dev']);
