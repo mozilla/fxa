@@ -16,6 +16,11 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: v('/profile'),
+    config: require('./routes/profile')
+  },
+  {
+    method: 'POST',
     path: v('/email'),
     config: require('./routes/email')
   },

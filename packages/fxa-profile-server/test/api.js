@@ -84,6 +84,45 @@ describe.skip('/avatar/upload', function() {
 
 });
 
+describe('/profile', function() {
+  var uid = token();
+  before(function() {
+    return db.createProfile({
+      uid: uid,
+      avatar: avatarUrl
+    });
+  });
+
+  it('should return all of a profile', function() {
+    mockToken().reply(200, TOKEN_GOOD);
+    return Server.api.post({
+      url: '/profile',
+      headers: {
+        authorization: 'Bearer ' + uid
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 200);
+      assert.equal(res.result.uid, USERID);
+      assert.equal(res.result.email, 'user@example.domain');
+    });
+  });
+
+  it('should NOT return a profile if wrong scope', function() {
+    mockToken().reply(200, JSON.stringify({
+      user: USERID,
+      scope: ['profile:email']
+    }));
+    return Server.api.post({
+      url: '/uid',
+      headers: {
+        authorization: 'Bearer ' + uid
+      }
+    }).then(function(res) {
+      assert.equal(res.statusCode, 403);
+    });
+  });
+});
+
 describe('/email', function() {
   var uid = token();
   before(function() {
