@@ -8,9 +8,11 @@ module.exports = function (grunt) {
   // load the Intern tasks
   grunt.loadNpmTasks('intern-geezer');
 
+  var pkg = grunt.file.readJSON('package.json');
+
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
-    pkgReadOnly: grunt.file.readJSON('package.json')
+    pkg: pkg,
+    pkgReadOnly: pkg
   });
 
   // load local Grunt tasks
