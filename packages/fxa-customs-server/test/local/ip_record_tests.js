@@ -3,7 +3,7 @@
 
 require('ass')
 var test = require('tap').test
-var ipRecord = require('../ip_record')
+var ipRecord = require('../../ip_record')
 
 function now() {
   return 240*1000 // old school

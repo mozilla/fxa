@@ -18,7 +18,7 @@ module.exports = function (grunt) {
         },
         src: [
           '*.js',
-          '{bin/,scripts/}*'
+          '{bin/,scripts/,test/}*'
         ]
       },
       tests: {
@@ -26,7 +26,7 @@ module.exports = function (grunt) {
           pattern: 'Any copyright is dedicated to the Public Domain.'
         },
         src: [
-          'test/*.js'
+          'test/{remote,local}/*.js'
         ]
       }
     },

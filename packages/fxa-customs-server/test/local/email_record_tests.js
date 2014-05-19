@@ -3,7 +3,7 @@
 
 require('ass')
 var test = require('tap').test
-var emailRecord = require('../email_record')
+var emailRecord = require('../../email_record')
 
 function now() {
   return 1000 // old school
