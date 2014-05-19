@@ -75,6 +75,22 @@ noscript {
   z-index: 999;
 }
 
+/**
+ * IE < 10 does not support CSS transforms 
+ */ 
+.lt-ie10 #fox-logo {
+  opacity: 1;
+}
+
+/**
+ * IE7/8 specific hacks to fix the firefox logo
+ */
+.lt-ie9 #fox-logo {
+  background: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/images/firefox.png', sizingMethod='scale');
+  -ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/images/firefox.png', sizingMethod='scale')";
+}
+
 #fox-logo.static {
   opacity: 1;
 }
@@ -96,6 +112,10 @@ noscript {
 
 .js #stage {
   display: none;
+}
+
+.lt-ie10 #stage {
+  display: block;
 }
 
 header h1,
@@ -177,6 +197,10 @@ strong.email {
 
 .error a {
   color: $message-text-color;
+}
+
+.browsehappy {
+  display: block;
 }
 
 .success {
