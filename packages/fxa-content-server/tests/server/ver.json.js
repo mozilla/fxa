@@ -21,7 +21,7 @@ define([
 
     request(serverUrl + '/ver.json', dfd.callback(function (err, res) {
       assert.equal(res.statusCode, 200);
-      assert.equal(res.headers['content-type'], 'application/json; charset=utf8');
+      assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
 
       var body = JSON.parse(res.body);
       assert.ok('version' in body);

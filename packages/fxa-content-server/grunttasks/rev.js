@@ -9,7 +9,7 @@ module.exports = function (grunt) {
     dist: {
       files: {
         src: [
-          '<%= yeoman.dist %>/bower_components/{,*/}*.js',
+          '<%= yeoman.dist %>/bower_components/**/*.js',
           '<%= yeoman.dist %>/bower_components/**/*.{woff,eot,ttf,svg,ofl}',
           '<%= yeoman.dist %>/scripts/{,*/}*.js',
           '<%= yeoman.dist %>/styles/{,*/}*.css',

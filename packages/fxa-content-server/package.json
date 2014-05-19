@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",
@@ -49,7 +49,6 @@
     "grunt-jsonlint": "1.0.4",
     "grunt-marked": "0.1.0",
     "grunt-mocha": "0.4.10",
-    "grunt-modernizr": "0.5.2",
     "grunt-nsp-shrinkwrap": "0.0.3",
     "grunt-po2json": "git://github.com/shane-tomlinson/grunt-po2json.git#c1a7406",
     "grunt-requirejs": "0.4.2",

@@ -11,9 +11,10 @@ define([
   'p-promise',
   'views/form',
   'stache!templates/test_template',
+  'lib/constants',
   '../../lib/helpers'
 ],
-function (chai, $, p, FormView, Template, TestHelpers) {
+function (chai, $, p, FormView, Template, Constants, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/form', function () {
@@ -274,6 +275,72 @@ function (chai, $, p, FormView, Template, TestHelpers) {
         assert.equal(values.focusMe, 'the value');
         assert.equal(values.otherElement, 'another value');
         assert.isUndefined(values.novalue);
+      });
+    });
+
+    describe('validateEmail', function () {
+      it('returns false if an empty email', function () {
+        view.$('#email').val('');
+        assert.isFalse(view.validateEmail('#email'));
+        assert.isFalse(view.isElementValid('#email'));
+      });
+
+      it('returns false if an invalid email', function () {
+        view.$('#email').val('invalid');
+        assert.isFalse(view.validateEmail('#email'));
+        assert.isFalse(view.isElementValid('#email'));
+      });
+
+      it('returns true if a valid email', function () {
+        view.$('#email').val('testuser@testuser.com');
+        assert.isTrue(view.validateEmail('#email'));
+        assert.isTrue(view.isElementValid('#email'));
+      });
+    });
+
+    describe('validatePassword', function () {
+      it('returns false if an empty password', function () {
+        view.$('#password').val('');
+        assert.isFalse(view.validatePassword('#password'));
+        assert.isFalse(view.isElementValid('#password'));
+      });
+
+      it('returns false if too short a password', function () {
+        view.$('#password').val('1');
+        assert.isFalse(view.validatePassword('#password'));
+        assert.isFalse(view.isElementValid('#password'));
+      });
+
+      it('returns true if a valid password', function () {
+        view.$('#password').val(TestHelpers.createRandomHexString(Constants.PASSWORD_MIN_LENGTH));
+        assert.isTrue(view.validatePassword('#password'));
+        assert.isTrue(view.isElementValid('#password'));
+      });
+    });
+
+    describe('validateInput', function () {
+      it('returns true for an empty non-required input', function () {
+        view.$('#notRequired').val('');
+        assert.isTrue(view.validateInput('#notRequired'));
+        assert.isTrue(view.isElementValid('#notRequired'));
+      });
+
+      it('returns true for a filled out non-required input', function () {
+        view.$('#notRequired').val('value');
+        assert.isTrue(view.validateInput('#notRequired'));
+        assert.isTrue(view.isElementValid('#notRequired'));
+      });
+
+      it('returns false for an empty required input', function () {
+        view.$('#required').val('');
+        assert.isFalse(view.validateInput('#required'));
+        assert.isFalse(view.isElementValid('#required'));
+      });
+
+      it('returns true for a filled out required input', function () {
+        view.$('#required').val('value');
+        assert.isTrue(view.validateInput('#required'));
+        assert.isTrue(view.isElementValid('#required'));
       });
     });
   });

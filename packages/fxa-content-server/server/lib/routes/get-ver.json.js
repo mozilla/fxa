@@ -97,7 +97,7 @@ exports.process = function (req, res) {
   getVersionInfo()
     .then(function (versionInfo) {
       // charset must be set on json responses.
-      res.charset = 'utf8';
+      res.charset = 'utf-8';
       res.json(versionInfo);
     });
 };
