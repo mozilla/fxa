@@ -173,17 +173,6 @@ describe('/v1', function() {
         }).done(done, done);
       });
 
-      it('succeeds if passed', function(done) {
-        mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
-          url: '/authorization',
-          payload: authParams()
-        }).then(function(res) {
-          assert.equal(res.statusCode, 200);
-          assert(res.result.redirect);
-        }).done(done, done);
-      });
-
     });
 
     describe('?assertion', function() {
@@ -196,17 +185,6 @@ describe('/v1', function() {
           })
         }).then(function(res) {
           assertRequestParam(res.result, 'assertion');
-        }).done(done, done);
-      });
-
-      it('succeeds if passed', function(done) {
-        mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
-          url: '/authorization',
-          payload: authParams()
-        }).then(function(res) {
-          assert.equal(res.statusCode, 200);
-          assert(res.result.redirect);
         }).done(done, done);
       });
 

@@ -6,8 +6,8 @@ const P = require('../../lib/promise');
 const Server = require('../../lib/server');
 const version = require('../../lib/config').get('api.version');
 
+var server = Server.create();
 function request(options) {
-  var server = Server.create();
   var deferred = P.defer();
   server.inject(options, deferred.resolve.bind(deferred));
   return deferred.promise;
