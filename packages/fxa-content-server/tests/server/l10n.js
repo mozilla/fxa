@@ -33,7 +33,7 @@ define([
       headers: headers
     }, dfd.callback(function (err, res) {
       assert.equal(res.statusCode, 200);
-      assert.equal(res.headers['content-type'], 'application/json; charset=utf8');
+      assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
       // Response differs depending on the Accept-Language, let all
       // intermediaries know this.
       assert.equal(res.headers.vary, 'accept-language');
@@ -55,7 +55,7 @@ define([
       }
     }, dfd.callback(function (err, res) {
       assert.equal(res.statusCode, 200);
-      assert.equal(res.headers['content-type'], 'application/json; charset=utf8');
+      assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
       // Response differs depending on the Accept-Language, let all
       // intermediaries know this.
       assert.equal(res.headers.vary, 'accept-language');

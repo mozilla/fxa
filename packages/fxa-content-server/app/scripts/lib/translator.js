@@ -27,9 +27,14 @@ function (_, $, Strings) {
     // Fetches our JSON translation file
     fetch: function (done) {
       var self = this;
-      $.ajax({ dataType: 'json', url: '/i18n/client.json' })
+      $.getJSON('/i18n/client.json')
         .done(function (data) {
-          self.translations = data;
+          // Only update the translations if some came back
+          // from the server. If the server sent no translations,
+          // english strings will be served.
+          if (data) {
+            self.translations = data;
+          }
         })
         .fail(function () {
           // allow for 404's. `.get` will use the key for the translation

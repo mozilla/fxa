@@ -24,7 +24,7 @@ module.exports = function(i18n) {
     res.set('Vary', 'accept-language');
 
     // charset must be set on json responses.
-    res.charset = 'utf8';
+    res.charset = 'utf-8';
 
     // let the static middleware handle the rest.
     next();

@@ -26,7 +26,7 @@ define([
     },
     dfd.callback(function (err, res) {
       assert.equal(res.statusCode, 200);
-      assert.equal(res.headers['content-type'], 'application/json; charset=utf8');
+      assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
 
       var results = JSON.parse(res.body);
 
@@ -44,7 +44,7 @@ define([
     },
     dfd.callback(function (err, res) {
       assert.equal(res.statusCode, 200);
-      assert.equal(res.headers['content-type'], 'application/json; charset=utf8');
+      assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
 
       var results = JSON.parse(res.body);
       assert.equal(results.cookiesEnabled, true);

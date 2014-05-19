@@ -22,7 +22,7 @@ module.exports = function(i18n) {
     res.set('Vary', 'accept-language');
 
     // charset must be set on json responses.
-    res.charset = 'utf8';
+    res.charset = 'utf-8';
 
     res.json({
       // The `__cookies_check` cookie is set in client code
