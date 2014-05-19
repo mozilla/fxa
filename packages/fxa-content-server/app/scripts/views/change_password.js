@@ -60,8 +60,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
                   });
                 }, function (err) {
                   if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-                    var msg = t('Unverified account. <a href="#" id="resend">Resend verification email</a>.');
-                    return self.displayErrorUnsafe(msg);
+                    err.forceMessage = t('Unverified account. <a href="#" id="resend">Resend verification email</a>.');
+                    return self.displayErrorUnsafe(err);
                   }
 
                   throw err;
@@ -76,7 +76,9 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
                 self.navigate('confirm');
               }, function (err) {
                 if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-                  return self.navigate('signup');
+                  return self.navigate('signup', {
+                    error: err
+                  });
                 }
 
                 throw self.displayError(err);

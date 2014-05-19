@@ -12,7 +12,6 @@ define([
   'lib/auth-errors'
 ],
 function (FormView, BaseView, Template, Session, AuthErrors) {
-  var t = BaseView.t;
   var SHOW_RESEND_IN_MS = 5 * 60 * 1000; // 5 minutes.
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
@@ -110,6 +109,7 @@ function (FormView, BaseView, Template, Session, AuthErrors) {
       var self = this;
       // Hide the button after 4 attempts. Redisplay button after a delay.
       if (self._attemptedSubmits === 4) {
+        self.logEvent('confirm:too_many_attempts');
         self.$('#resend').hide();
         self._displayResendTimeout = setTimeout(function () {
           self._displayResendTimeout = null;
@@ -122,13 +122,14 @@ function (FormView, BaseView, Template, Session, AuthErrors) {
     submit: function () {
       var self = this;
 
+      self.logEvent('confirm:resend');
       return this.fxaClient.signUpResend()
               .then(function () {
                 self.displaySuccess();
               }, function (err) {
                 if (AuthErrors.is(err, 'INVALID_TOKEN')) {
                   return self.navigate('signup', {
-                    error: t('Invalid token')
+                    error: err
                   });
                 }
 

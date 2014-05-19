@@ -8,27 +8,31 @@ define([
   'lib/auth-errors',
   'views/confirm_reset_password',
   'lib/session',
+  'lib/metrics',
   '../../mocks/router',
-  '../../mocks/window'
+  '../../mocks/window',
+  '../../lib/helpers'
 ],
-function (chai, p, AuthErrors, View, Session, RouterMock, WindowMock) {
+function (chai, p, AuthErrors, View, Session, Metrics, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/confirm_reset_password', function () {
-    var view, routerMock, windowMock;
+    var view, routerMock, windowMock, metrics;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      metrics = new Metrics();
 
       Session.set('passwordForgotToken', 'fake password reset token');
       Session.set('email', 'testuser@testuser.com');
 
       view = new View({
         router: routerMock,
-        window: windowMock
+        window: windowMock,
+        metrics: metrics
       });
       return view.render()
             .then(function () {
@@ -37,8 +41,12 @@ function (chai, p, AuthErrors, View, Session, RouterMock, WindowMock) {
     });
 
     afterEach(function () {
+      metrics.destroy();
+
       view.remove();
       view.destroy();
+
+      view = metrics = null;
     });
 
     describe('constructor', function () {
@@ -130,6 +138,9 @@ function (chai, p, AuthErrors, View, Session, RouterMock, WindowMock) {
         return view.submit()
               .then(function () {
                 assert.equal(routerMock.page, 'reset_password');
+
+                assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                  'confirm_reset_password:resend'));
               });
       });
 

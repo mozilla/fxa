@@ -10,16 +10,17 @@ define([
   'p-promise',
   'views/complete_sign_up',
   'lib/auth-errors',
+  'lib/metrics',
   'lib/constants',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, View, AuthErrors, Constants, RouterMock, WindowMock, TestHelpers) {
+function (chai, p, View, AuthErrors, Metrics, Constants, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
-    var view, routerMock, windowMock, verificationError;
+    var view, routerMock, windowMock, verificationError, metrics;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
@@ -31,13 +32,19 @@ function (chai, p, View, AuthErrors, Constants, RouterMock, WindowMock, TestHelp
           });
     }
 
+    function testEventLogged(eventName) {
+      assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
+    }
+
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      metrics = new Metrics();
 
       view = new View({
         router: routerMock,
-        window: windowMock
+        window: windowMock,
+        metrics: metrics
       });
 
       verificationError = null;
@@ -53,14 +60,20 @@ function (chai, p, View, AuthErrors, Constants, RouterMock, WindowMock, TestHelp
     });
 
     afterEach(function () {
+      metrics.destroy();
+
       view.remove();
       view.destroy();
-      view = windowMock = null;
+
+      view = windowMock = metrics = null;
     });
 
     describe('render', function () {
       it('shows an error if uid is not available on the URL', function () {
         return testShowsDamagedScreen('?code=' + validCode)
+            .then(function () {
+              testEventLogged('complete_sign_up:link_damaged');
+            })
             .then(function () {
               assert.isFalse(view.fxaClient.verifyCode.called);
             });
@@ -69,6 +82,9 @@ function (chai, p, View, AuthErrors, Constants, RouterMock, WindowMock, TestHelp
       it('shows an error if code is not available on the URL', function () {
         return testShowsDamagedScreen('?uid=' + validUid)
             .then(function () {
+              testEventLogged('complete_sign_up:link_damaged');
+            })
+            .then(function () {
               assert.isFalse(view.fxaClient.verifyCode.called);
             });
       });
@@ -76,6 +92,9 @@ function (chai, p, View, AuthErrors, Constants, RouterMock, WindowMock, TestHelp
       it('INVALID_PARAMETER error displays the verification link damaged screen', function () {
         verificationError = AuthErrors.toError('INVALID_PARAMETER', 'code');
         return testShowsDamagedScreen()
+            .then(function () {
+              testEventLogged('complete_sign_up:link_damaged');
+            })
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.called);
             });

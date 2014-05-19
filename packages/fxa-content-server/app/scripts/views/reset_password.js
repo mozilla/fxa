@@ -66,9 +66,10 @@ function (_, BaseView, FormView, Template, Session, Url, AuthErrors) {
             // email indicates the signed in email. Use prefillEmail
             // to avoid collisions across sessions.
             Session.set('prefillEmail', email);
-            var msg = t('Unknown account. <a href="/signup">Sign up</a>');
-            return self.displayErrorUnsafe(msg);
+            err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
+            return self.displayErrorUnsafe(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+            self.logEvent('login:canceled');
             // if user canceled login, just stop
             return;
           }

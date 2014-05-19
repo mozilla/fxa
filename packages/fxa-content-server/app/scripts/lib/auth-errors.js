@@ -36,13 +36,16 @@ function () {
     SERVICE_UNAVAILABLE: 998,
     SERVER_BUSY: 201,
     ENDPOINT_NOT_SUPPORTED: 116,
-    USER_CANCELED_LOGIN: 1001 // local only error code for when user cancels desktop login
+
+    // local only error codes
+    USER_CANCELED_LOGIN: 1001,
+    SESSION_EXPIRED: 1002
   };
 
   var CODE_TO_MESSAGES = {
     // errors returned by the auth server
     999: t('Unexpected error'),
-    110: t('Invalid authentication token in request signature'),
+    110: t('Invalid token'),
     111: t('Invalid timestamp in request signature'),
     115: t('Invalid nonce in request signature'),
     101: t('Account already exists'),
@@ -60,7 +63,10 @@ function () {
     114: t('Attempt limit exceeded.'),
     998: t('System unavailable, try again soon'),
     201: t('Server busy, try again soon'),
-    116: t('This endpoint is no longer supported')
+    116: t('This endpoint is no longer supported'),
+
+    // local only error messages
+    1002: t('Session expired. Sign in to continue.')
   };
 
   return {
@@ -72,6 +78,8 @@ function () {
 
       if (typeof err === 'number') {
         code = err;
+      } else if (err && err.forceMessage) {
+        return err.forceMessage;
       // error from backend
       } else if (err && typeof err.errno === 'number') {
         code = err.errno;
@@ -118,10 +126,10 @@ function () {
     },
 
     /**
-     * Convert a text type from ERROR_TO_CODE to a numeric code
+     * Convert an error or a text type from ERROR_TO_CODE to a numeric code
      */
     toCode: function (type) {
-      return ERROR_TO_CODE[type];
+      return type.errno || ERROR_TO_CODE[type] || type;
     },
 
     /**

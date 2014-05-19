@@ -13,15 +13,17 @@ define([
   'views/sign_in',
   'views/sign_up',
   'lib/session',
+  'lib/constants',
+  'lib/metrics',
   '../../mocks/window',
-  'lib/constants'
+  '../../lib/helpers'
 ],
-function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock, Constants) {
+function (chai, _, Backbone, Router, SignInView, SignUpView, Session, Constants, Metrics, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('lib/router', function () {
-    var router, windowMock, origNavigate, navigateUrl, navigateOptions;
+    var router, windowMock, origNavigate, navigateUrl, navigateOptions, metrics;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
@@ -29,8 +31,11 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
       $('#container').html('<div id="stage"></div>');
 
       windowMock = new WindowMock();
+      metrics = new Metrics();
+
       router = new Router({
-        window: windowMock
+        window: windowMock,
+        metrics: metrics
       });
 
       origNavigate = Backbone.Router.prototype.navigate;
@@ -41,7 +46,8 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
     });
 
     afterEach(function () {
-      windowMock = router = navigateUrl = navigateOptions = null;
+      metrics.destroy();
+      windowMock = router = navigateUrl = navigateOptions = metrics = null;
       Backbone.Router.prototype.navigate = origNavigate;
       $('#container').empty();
     });
@@ -85,8 +91,14 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
       var signInView, signUpView;
 
       beforeEach(function () {
-        signInView = new SignInView({});
-        signUpView = new SignUpView({});
+        signInView = new SignInView({
+          metrics: metrics,
+          window: windowMock
+        });
+        signUpView = new SignUpView({
+          metrics: metrics,
+          window: windowMock
+        });
       });
 
       afterEach(function() {
@@ -94,6 +106,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
       });
 
       it('shows a view, then shows the new view', function () {
+        windowMock.location.pathname = '/signin';
         return router.showView(signInView)
             .then(function () {
               assert.ok($('#fxa-signin-header').length);
@@ -101,12 +114,16 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, WindowMock
               // session was cleared in beforeEach, simulating a user
               // visiting their first page. The user cannot go back.
               assert.equal(Session.canGoBack, false);
+              windowMock.location.pathname = '/signup';
               return router.showView(signUpView);
             })
             .then(function () {
               assert.ok($('#fxa-signup-header').length);
               // if there is a back button, it can be shown now.
               assert.equal(Session.canGoBack, true);
+
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signin'));
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signup'));
             });
       });
     });

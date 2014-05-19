@@ -30,6 +30,13 @@ function (chai, AuthErrors) {
             AuthErrors.toMessage('this is an error'), 'this is an error');
       });
 
+      it('uses forceMessage as the message if it exists', function () {
+        assert.equal(AuthErrors.toMessage({
+          errno: 102,
+          forceMessage: 'this is my message'
+        }), 'this is my message');
+      });
+
       it('converts an error from the backend containing an errno to a message', function () {
         assert.equal(
           AuthErrors.toMessage({
@@ -88,8 +95,17 @@ function (chai, AuthErrors) {
     });
 
     describe('toCode', function () {
-      it('converts a string type to a numeric code', function () {
+      it('returns the errno from an error object', function () {
+        var err = AuthErrors.toError('INVALID_TOKEN', 'bad token, man');
+        assert.equal(AuthErrors.toCode(err), 110);
+      });
+
+      it('converts a string type to a numeric code, if valid code', function () {
         assert.equal(AuthErrors.toCode('UNKNOWN_ACCOUNT'), 102);
+      });
+
+      it('returns the string if an invalid code', function () {
+        assert.equal(AuthErrors.toCode('this is an invalid code'), 'this is an invalid code');
       });
     });
 

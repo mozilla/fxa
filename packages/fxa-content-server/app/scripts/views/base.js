@@ -14,9 +14,10 @@ define([
   'lib/fxa-client',
   'lib/url',
   'lib/strings',
-  'lib/ephemeral-messages'
+  'lib/ephemeral-messages',
+  'lib/null-metrics'
 ],
-function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages) {
+function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages, NullMetrics) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
@@ -24,6 +25,11 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
   // Share one ephemeral messages across all views. View can be
   // intialized with an ephemeralMessages for testing.
   var ephemeralMessages = new EphemeralMessages();
+
+  // A null metrics instance is created for unit tests. In the app,
+  // when a view is initialized, an initialized Metrics instance
+  // is passed in to the contstructor.
+  var nullMetrics = new NullMetrics();
 
   var BaseView = Backbone.View.extend({
     constructor: function (options) {
@@ -34,6 +40,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       this.translator = options.translator || this.window.translator;
       this.router = options.router || this.window.router;
       this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
+      this.metrics = options.metrics || nullMetrics;
 
       this.fxaClient = new FxaClient();
 
@@ -53,6 +60,9 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      */
     render: function () {
       var self = this;
+
+      self.logScreen();
+
       return p()
         .then(function () {
           return self.isUserAuthorized();
@@ -60,8 +70,9 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
         .then(function (isUserAuthorized) {
           if (! isUserAuthorized) {
             // user is not authorized, make them sign in.
+            var err = AuthErrors.toError('SESSION_EXPIRED');
             self.navigate('signin', {
-              error: t('Session expired. Sign in to continue.')
+              error: err
             });
             return false;
           }
@@ -291,6 +302,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       this.hideSuccess();
       this.$('.spinner').hide();
 
+      this.logError(err, errors);
       var translated = this.translateError(err, errors);
 
       if (translated) {
@@ -303,6 +315,39 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       this._isErrorVisible = true;
 
       return translated;
+    },
+
+    /**
+     * Log an error to the event stream
+     */
+    logError: function (err, errors) {
+      // The error could already be logged, if so, abort mission.
+      // This can occur when `navigate` redirects a user to a different
+      // screen and an error is passed. The error is logged before the screen
+      // transition, the new screen is rendered, then the original error is
+      // displayed. This avoids duplicate entries.
+      if (err.logged) {
+        return;
+      }
+      err.logged = true;
+
+      errors = errors || AuthErrors;
+      this.logEvent(this.metrics.errorToId(err, errors));
+    },
+
+    /**
+     * Log the current screen
+     */
+    logScreen: function () {
+      var path = this.window.location.pathname;
+      this.logEvent(this.metrics.pathToId(path));
+    },
+
+    /**
+     * Log an event to the event stream
+     */
+    logEvent: function (eventName) {
+      this.metrics.logEvent(eventName);
     },
 
     /**
@@ -322,6 +367,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       this.hideSuccess();
       this.$('.spinner').hide();
 
+      this.logError(err, errors);
       var translated = this.translateError(err, errors);
 
       if (translated) {
@@ -369,6 +415,9 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       }
 
       if (options.error) {
+        // log the error entry before the new screen is rendered so events
+        // stay in the correct order.
+        this.logError(options.error);
         this.ephemeralMessages.set('error', options.error);
       }
       this.router.navigate(page, { trigger: true });

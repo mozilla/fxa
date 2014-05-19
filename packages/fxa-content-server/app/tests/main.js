@@ -14,7 +14,8 @@ require.config({
     stache: '/bower_components/requirejs-mustache/stache',
     chai: '/bower_components/chai/chai',
     'p-promise': '/bower_components/p/p',
-    sinon: '/bower_components/sinon/index'
+    sinon: '/bower_components/sinon/index',
+    speedTrap: '/bower_components/speed-trap/dist/speed-trap'
   },
   shim: {
     underscore: {
@@ -56,6 +57,8 @@ require([
   '../tests/spec/lib/app-start',
   '../tests/spec/lib/validate',
   '../tests/spec/lib/service-name',
+  '../tests/spec/lib/metrics',
+  '../tests/spec/lib/null-metrics',
   '../tests/spec/views/base',
   '../tests/spec/views/tooltip',
   '../tests/spec/views/form',

@@ -78,13 +78,14 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors) {
     submit: function () {
       var self = this;
 
+      self.logEvent('confirm_reset_password:resend');
       return this.fxaClient.passwordResetResend()
               .then(function () {
                 self.displaySuccess();
               }, function (err) {
                 if (AuthErrors.is(err, 'INVALID_TOKEN')) {
                   return self.navigate('reset_password', {
-                    error: t('Invalid token')
+                    error: err
                   });
                 }
 

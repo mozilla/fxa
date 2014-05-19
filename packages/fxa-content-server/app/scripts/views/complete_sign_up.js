@@ -23,6 +23,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, 
         this.importSearchParam('uid');
         this.importSearchParam('code');
       } catch(e) {
+        this.logEvent('complete_sign_up:link_damaged');
         // This is an invalid link. Abort and show an error message
         // before doing any more checks.
         return true;
@@ -31,6 +32,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, 
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
+        this.logEvent('complete_sign_up:link_damaged');
         return true;
       }
 
@@ -46,6 +48,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, 
                 AuthErrors.is(err, 'INVALID_PARAMETER')) {
               // These errors show a link damaged screen
               self._isLinkDamaged = true;
+              self.logEvent('complete_sign_up:link_damaged');
             } else {
               // all other errors show the standard error box.
               self._error = self.translateError(err);

@@ -9,26 +9,34 @@ define([
   'chai',
   'p-promise',
   'lib/auth-errors',
+  'lib/metrics',
   'views/complete_reset_password',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, AuthErrors, View, RouterMock, WindowMock, TestHelpers) {
+function (chai, p, AuthErrors, Metrics, View, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/complete_reset_password', function () {
-    var view, routerMock, windowMock, isPasswordResetComplete;
+    var view, routerMock, windowMock, isPasswordResetComplete, metrics;
+
+    function testEventLogged(eventName) {
+      assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
+    }
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      metrics = new Metrics();
+
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
 
       view = new View({
         router: routerMock,
-        window: windowMock
+        window: windowMock,
+        metrics: metrics
       });
 
       // mock in isPasswordResetComplete
@@ -44,9 +52,12 @@ function (chai, p, AuthErrors, View, RouterMock, WindowMock, TestHelpers) {
     });
 
     afterEach(function () {
+      metrics.destroy();
+
       view.remove();
       view.destroy();
-      view = windowMock = null;
+
+      view = windowMock = metrics = null;
     });
 
     describe('render', function () {
@@ -58,6 +69,9 @@ function (chai, p, AuthErrors, View, RouterMock, WindowMock, TestHelpers) {
         windowMock.location.search = '?code=faea&email=testuser@testuser.com';
         return view.render()
             .then(function () {
+              testEventLogged('complete_reset_password:link_damaged');
+            })
+            .then(function () {
               assert.ok(view.$('#fxa-verification-link-damaged-header').length);
             });
       });
@@ -65,6 +79,9 @@ function (chai, p, AuthErrors, View, RouterMock, WindowMock, TestHelpers) {
       it('shows malformed screen if the code is missing', function () {
         windowMock.location.search = '?token=feed&email=testuser@testuser.com';
         return view.render()
+            .then(function () {
+              testEventLogged('complete_reset_password:link_damaged');
+            })
             .then(function () {
               assert.ok(view.$('#fxa-verification-link-damaged-header').length);
             });
@@ -74,6 +91,9 @@ function (chai, p, AuthErrors, View, RouterMock, WindowMock, TestHelpers) {
         windowMock.location.search = '?token=feed&code=dea0fae1abc2fab3bed4dec5eec6ace7';
         return view.render()
             .then(function () {
+              testEventLogged('complete_reset_password:link_damaged');
+            })
+            .then(function () {
               assert.ok(view.$('#fxa-verification-link-damaged-header').length);
             });
       });
@@ -81,6 +101,9 @@ function (chai, p, AuthErrors, View, RouterMock, WindowMock, TestHelpers) {
       it('shows the expired screen if the token has already been verified', function () {
         isPasswordResetComplete = true;
         return view.render()
+            .then(function () {
+              testEventLogged('complete_reset_password:link_expired');
+            })
             .then(function () {
               assert.ok(view.$('#fxa-verification-link-expired-header').length);
             });

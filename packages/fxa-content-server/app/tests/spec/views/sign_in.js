@@ -12,23 +12,29 @@ define([
   'views/sign_in',
   'lib/session',
   'lib/auth-errors',
+  'lib/metrics',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, p, View, Session, AuthErrors, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, p, View, Session, AuthErrors, Metrics, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/sign_in', function () {
-    var view, email, routerMock;
+    var view, email, routerMock, metrics;
 
     beforeEach(function () {
       email = 'testuser.' + Math.random() + '@testuser.com';
+
       routerMock = new RouterMock();
+      metrics = new Metrics();
+
       view = new View({
-        router: routerMock
+        router: routerMock,
+        metrics: metrics
       });
+
       return view.render()
           .then(function () {
             $('#container').html(view.el);
@@ -36,8 +42,12 @@ function (chai, $, p, View, Session, AuthErrors, WindowMock, RouterMock, TestHel
     });
 
     afterEach(function () {
+      metrics.destroy();
+
       view.remove();
       view.destroy();
+
+      view = metrics = null;
     });
 
     describe('render', function () {
@@ -113,7 +123,7 @@ function (chai, $, p, View, Session, AuthErrors, WindowMock, RouterMock, TestHel
               });
       });
 
-      it('does nothing if user cancels login', function () {
+      it('logs an error if user cancels login', function () {
         view.fxaClient.signIn = function () {
           return p()
               .then(function () {
@@ -125,6 +135,9 @@ function (chai, $, p, View, Session, AuthErrors, WindowMock, RouterMock, TestHel
         return view.submit()
           .then(function () {
             assert.isFalse(view.isErrorVisible());
+
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'login:canceled'));
           });
       });
 
@@ -150,6 +163,27 @@ function (chai, $, p, View, Session, AuthErrors, WindowMock, RouterMock, TestHel
             .then(function(msg) {
               assert.ok(msg.indexOf('/signup') > -1);
             });
+      });
+
+      it('passes other errors along', function () {
+        view.fxaClient.signIn = function (email) {
+          return p()
+              .then(function () {
+                throw AuthErrors.toError('INVALID_JSON');
+              });
+        };
+
+        return view.submit()
+                  .then(null, function(err) {
+                    // The errorback will not be called if the submit
+                    // succeeds, but the following callback always will
+                    // be. To ensure the errorback was called, pass
+                    // the error along and check its type.
+                    return err;
+                  })
+                  .then(function (err) {
+                    assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
+                  });
       });
     });
 

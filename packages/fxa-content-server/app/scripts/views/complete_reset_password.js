@@ -36,12 +36,14 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, Aut
       } catch(e) {
         // This is an invalid link. Abort and show an error message
         // before doing any more checks.
+        this.logEvent('complete_reset_password:link_damaged');
         return true;
       }
 
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
+        this.logEvent('complete_reset_password:link_damaged');
         return true;
       }
 
@@ -49,6 +51,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, Aut
       return this.fxaClient.isPasswordResetComplete(this.token)
          .then(function (isComplete) {
             self._isLinkExpired = isComplete;
+            self.logEvent('complete_reset_password:link_expired');
             return true;
           });
     },
@@ -95,6 +98,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, Aut
             self.navigate('reset_password_complete');
           }, function (err) {
             if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+              self.logError(err);
               // The token has expired since the first check, re-render to
               // show a screen that allows the user to receive a new link.
               return self.render();

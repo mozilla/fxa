@@ -11,21 +11,24 @@ define([
   'views/base',
   'lib/translator',
   'lib/ephemeral-messages',
+  'lib/metrics',
+  'lib/auth-errors',
   'stache!templates/test_template',
   '../../mocks/dom-event',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, jQuery, BaseView, Translator, EphemeralMessages,
-          Template, DOMEventMock, RouterMock, WindowMock, TestHelpers) {
+function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
+          AuthErrors, Template, DOMEventMock, RouterMock, WindowMock,
+          TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   var assert = chai.assert;
 
   describe('views/base', function () {
-    var view, router, windowMock, ephemeralMessages, translator;
+    var view, router, windowMock, ephemeralMessages, translator, metrics;
 
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
@@ -36,8 +39,8 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
 
       router = new RouterMock();
       windowMock = new WindowMock();
-
       ephemeralMessages = new EphemeralMessages();
+      metrics = new Metrics();
 
       var View = BaseView.extend({
         template: Template
@@ -47,7 +50,8 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
         translator: translator,
         router: router,
         window: windowMock,
-        ephemeralMessages: ephemeralMessages
+        ephemeralMessages: ephemeralMessages,
+        metrics: metrics
       });
 
       return view.render()
@@ -57,11 +61,14 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
     });
 
     afterEach(function () {
+      metrics.destroy();
+
       if (view) {
         view.destroy();
         jQuery(view.el).remove();
-        view = router = windowMock = null;
       }
+
+      view = router = windowMock = metrics = null;
     });
 
     describe('render', function () {
@@ -186,6 +193,14 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
         view.displayError('an error message<div>with html</div>');
         assert.equal(view.$('.error').html(), 'an error message&lt;div&gt;with html&lt;/div&gt;');
       });
+
+      it('adds an entry into the event stream', function () {
+        var err = AuthErrors.toError('INVALID_TOKEN', 'bad token, man');
+        view.displayError(err);
+
+        assert.isTrue(TestHelpers.isEventLogged(metrics,
+                          metrics.errorToId('INVALID_TOKEN', AuthErrors)));
+      });
     });
 
     describe('displayErrorUnsafe', function () {
@@ -198,6 +213,14 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
         assert.isTrue(view.isErrorVisible());
         view.hideError();
         assert.isFalse(view.isErrorVisible());
+      });
+
+      it('adds an entry into the event stream', function () {
+        var err = AuthErrors.toError('INVALID_TOKEN', 'bad token, man');
+        view.displayError(err);
+
+        assert.isTrue(TestHelpers.isEventLogged(metrics,
+                          metrics.errorToId('INVALID_TOKEN', AuthErrors)));
       });
     });
 
@@ -223,6 +246,15 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
           }, done);
         });
         view.navigate('signin');
+      });
+
+      it('logs an error if an error is passed in the options', function () {
+        view.navigate('signin', {
+          error: AuthErrors.toError('SESSION_EXPIRED')
+        });
+
+        assert.isTrue(TestHelpers.isEventLogged(metrics,
+                          metrics.errorToId('SESSION_EXPIRED', AuthErrors)));
       });
     });
 
@@ -344,6 +376,32 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages,
           err = e;
         }
         assert.ok(err);
+      });
+    });
+
+    describe('logEvent', function () {
+      it('logs an event to the event stream', function () {
+        view.logEvent('event1');
+        assert.isTrue(TestHelpers.isEventLogged(metrics, 'event1'));
+      });
+    });
+
+    describe('logError', function () {
+      it('logs an error to the event stream', function () {
+        view.logError(AuthErrors.toError('INVALID_TOKEN'));
+        assert.isTrue(TestHelpers.isEventLogged(metrics,
+                          metrics.errorToId('INVALID_TOKEN', AuthErrors)));
+      });
+
+      it('does not log already logged errors', function () {
+        view.metrics.events.clear();
+
+        var err = AuthErrors.toError('INVALID_TOKEN');
+        view.logError(err);
+        view.logError(err);
+
+        var events = view.metrics.getFilteredData().events;
+        assert.equal(events.length, 1);
       });
     });
   });

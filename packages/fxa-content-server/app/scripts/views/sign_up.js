@@ -143,8 +143,9 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
           // user in directly, instead, point the user to the signin page
           // where the entered email/password will be prefilled.
           if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
-            return self._suggestSignIn();
+            return self._suggestSignIn(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+            self.logEvent('login:canceled');
             // if user canceled login, just stop
             return;
           }
@@ -162,9 +163,9 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
       }
     },
 
-    _suggestSignIn: function () {
-      var msg = t('Account already exists. <a href="/signin">Sign in</a>');
-      return this.displayErrorUnsafe(msg);
+    _suggestSignIn: function (err) {
+      err.forceMessage = t('Account already exists. <a href="/signin">Sign in</a>');
+      return this.displayErrorUnsafe(err);
     },
 
     _savePrefillInfo: function () {

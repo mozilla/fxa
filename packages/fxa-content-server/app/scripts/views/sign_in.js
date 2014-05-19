@@ -74,8 +74,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         })
         .then(null, function (err) {
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-            return self._suggestSignUp();
+            return self._suggestSignUp(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+            self.logEvent('login:canceled');
             // if user canceled login, just stop
             return;
           }
@@ -94,9 +95,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       return true;
     },
 
-    _suggestSignUp: function () {
-      var msg = t('Unknown account. <a href="/signup">Sign up</a>');
-      return this.displayErrorUnsafe(msg);
+    _suggestSignUp: function (err) {
+      err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
+      return this.displayErrorUnsafe(err);
     },
 
     _savePrefillInfo: function () {
@@ -125,7 +126,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
             self.navigate('confirm_reset_password');
           }, function (err) {
             if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-              return self._suggestSignUp();
+              return self._suggestSignUp(err);
             }
 
             // resetPassword is not called from `submit` and must

@@ -13,7 +13,8 @@ require.config({
     text: '../bower_components/requirejs-text/text',
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
-    'p-promise': '../bower_components/p/p'
+    'p-promise': '../bower_components/p/p',
+    speedTrap: '../bower_components/speed-trap/dist/speed-trap'
   },
   shim: {
     underscore: {
