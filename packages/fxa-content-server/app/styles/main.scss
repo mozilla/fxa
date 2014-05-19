@@ -76,6 +76,13 @@ noscript {
 }
 
 /**
+ * IE < 10 does not support CSS transforms 
+ */ 
+.lt-ie10 #fox-logo {
+  opacity: 1;
+}
+
+/**
  * IE7/8 specific hacks to fix the firefox logo
  */
 .lt-ie9 #fox-logo {
@@ -105,6 +112,10 @@ noscript {
 
 .js #stage {
   display: none;
+}
+
+.lt-ie10 #stage {
+  display: block;
 }
 
 header h1,
