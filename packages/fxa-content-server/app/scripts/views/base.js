@@ -161,7 +161,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
     afterVisible: function () {
       // make a huge assumption and say if the device does not have touch,
       // it's a desktop device and autofocus can be applied without
-      // hiding part of the screen. The no-touch class is added by modernizr
+      // hiding part of the screen. The no-touch class is added by env-test
       if ($('html').hasClass('no-touch')) {
         // only elements that are visibile can be focused. When embedded in
         // about:accounts, the content is hidden when the first "focus" is

@@ -13,7 +13,6 @@ require.config({
     text: '../bower_components/requirejs-text/text',
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
-    modernizr: '../bower_components/modernizr/modernizr',
     'p-promise': '../bower_components/p/p'
   },
   shim: {
@@ -26,9 +25,6 @@ require.config({
         'jquery'
       ],
       exports: 'Backbone'
-    },
-    modernizr: {
-      exports: 'Modernizr'
     }
   },
   stache: {
