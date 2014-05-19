@@ -13,6 +13,8 @@ Services ecosystem.
 
 [Detailed API spec](/docs/api.md)
 
+[Guidelines for Contributing](/CONTRIBUTING.md)
+
 ## Prerequisites
 
 * node 0.10.x or higher
