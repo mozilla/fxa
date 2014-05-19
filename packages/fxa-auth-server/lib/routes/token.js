@@ -60,20 +60,22 @@ module.exports = {
           throw AppError.unknownCode(req.payload.code);
         } else if (String(code.clientId) !== String(client.id)) {
           logger.debug('client_id [%s] does not match on our code [%s]',
-            client.id, code.clientId);
+            client.id.toString('hex'), code.clientId.toString('hex'));
           throw AppError.mismatchCode(req.payload.code, client.id);
         } else {
           // + because loldatemath. without it, it does string concat
           var expiresAt = +code.createdAt + config.get('expiration.code');
           if (Date.now() > expiresAt) {
-            logger.debug('code [%s] has expired', code);
+            logger.debug('code [%j] has expired', code);
             throw AppError.expiredCode(req.payload.code, expiresAt);
           }
         }
         return code;
       });
     })
-    .then(db.generateToken)
+    .then(function(code) {
+      return db.generateToken(code);
+    })
     .done(function(token) {
       reply({
         access_token: token.token.toString('hex'),

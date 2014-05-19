@@ -78,7 +78,7 @@ MemoryStore.prototype = {
     client.createdAt = new Date();
     this.clients[client.id] = client;
     client.secret = encrypt.hash(client.secret);
-    return client;
+    return P.resolve(client);
   },
   getClient: function getClient(id) {
     return P.resolve(this.clients[id]);

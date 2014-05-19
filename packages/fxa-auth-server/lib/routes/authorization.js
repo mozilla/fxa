@@ -14,7 +14,7 @@ const logger = require('../logging').getLogger('fxa.routes.authorization');
 const P = require('../promise');
 const verify = require('../browserid');
 
-const HEX_STRING = /^[0-9a-f]+$/;
+const HEX_STRING = /^(?:[0-9a-f]{2})+$/;
 
 function set(arr) {
   var obj = {};
