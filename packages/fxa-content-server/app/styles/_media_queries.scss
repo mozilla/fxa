@@ -2,7 +2,7 @@
 
 @media only screen and (max-width: 500px) {
   html {
-    background: #fff;
+    background: $mobile-html-background-color;
   }
 
   #about-mozilla {
@@ -81,7 +81,7 @@
 
 @media only screen and (max-height: 480px) and (max-width: 320px) {
   body, html {
-    background: #fff;
+    background: $mobile-html-background-color;
   }
   #about-mozilla {
     display: none;
