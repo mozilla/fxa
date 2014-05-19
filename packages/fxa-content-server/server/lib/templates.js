@@ -8,6 +8,34 @@ var fs = require('fs');
 var path = require('path');
 var handlebars = require('handlebars');
 
+/**
+ * A comment from @zaach (edited by @shane-tomlinson) that explains
+ * how email templates work:
+ *
+ * The content-server is, in essence, *partially applying* values
+ * to the template, but the values it applies contain variables
+ * that the auth-server must apply values to. The content-server
+ * takes generic, unlocalized strings in the template
+ * (`{{t "%(email)s, you're one click away from verifying your
+ * Firefox Account."}}`) and turns them into generic, localized strings
+ * (`{{{email}}}, estás a nada de verificar tu cuenta de Firefox.`)
+ * in a new template.
+ *
+ * To avoid the smart quote problem, we simply have to use the non-escaping
+ * `{{{t` when we apply our localized strings rather than `{{t`, which is
+ * safe because we're not interpolating the user's actual email address,
+ * but the string `{{email}}` (which is the trick for fixing the overlap
+ * between values that the content-server and auth-server need to apply).
+ *
+ * Since the email address is supplied by the user we should escape
+ * it using `{{email}}` rather than `{{{email}}}`.
+ *
+ * For more context, see:
+ * https://github.com/mozilla/fxa-content-server/pull/1111#discussion_r12653331
+ * https://github.com/mozilla/fxa-content-server/issues/1054
+*/
+
+
 module.exports = function (templatePath, i18n) {
 
   function t(str) { return str; }
@@ -55,7 +83,16 @@ module.exports = function (templatePath, i18n) {
       throw new Error('Unknown template type: ' + type);
     }
     var l10n = i18n.localizationContext(lang);
-    var values = {
+
+    // replace %(link)s and %(email)s with variables that are then
+    // replaced by the auth server.
+    var htmlValues = {
+      l10n: l10n,
+      link: '{{link}}',
+      email: '{{email}}'
+    };
+    // don't escape values in text emails
+    var textValues = {
       l10n: l10n,
       link: '{{{link}}}',
       email: '{{{email}}}'
@@ -63,8 +100,8 @@ module.exports = function (templatePath, i18n) {
 
     return {
       subject: l10n.gettext(template.subject),
-      html: template.html(values),
-      text: template.text(values)
+      html: template.html(htmlValues),
+      text: template.text(textValues)
     };
   };
 
