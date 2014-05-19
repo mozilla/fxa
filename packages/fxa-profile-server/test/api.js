@@ -35,7 +35,7 @@ describe.skip('/avatar', function() {
 
   it('should require authentication', function() {
     var imageData = { url: avatarUrl };
-    return Server.api.post({
+    return Server.api.get({
       url: '/avatar',
       payload: JSON.stringify(imageData)
     }).then(function(res) {
@@ -47,7 +47,7 @@ describe.skip('/avatar', function() {
     mockToken().reply(200, TOKEN_GOOD);
     var tok = token();
     var imageData = { url: avatarUrl };
-    return Server.api.post({
+    return Server.api.get({
       url: '/avatar',
       payload: JSON.stringify(imageData),
       headers: {
@@ -66,7 +66,7 @@ describe.skip('/avatar', function() {
     var uid = token();
     mockToken().reply(200, TOKEN_GOOD);
     var imageData = { url: 'blah' };
-    return Server.api.post({
+    return Server.api.get({
       url: '/avatar',
       payload: JSON.stringify(imageData),
       headers: {
@@ -95,7 +95,7 @@ describe('/profile', function() {
 
   it('should return all of a profile', function() {
     mockToken().reply(200, TOKEN_GOOD);
-    return Server.api.post({
+    return Server.api.get({
       url: '/profile',
       headers: {
         authorization: 'Bearer ' + uid
@@ -112,7 +112,7 @@ describe('/profile', function() {
       user: USERID,
       scope: ['profile:email']
     }));
-    return Server.api.post({
+    return Server.api.get({
       url: '/uid',
       headers: {
         authorization: 'Bearer ' + uid
@@ -134,7 +134,7 @@ describe('/email', function() {
 
   it('should return an email', function() {
     mockToken().reply(200, TOKEN_GOOD);
-    return Server.api.post({
+    return Server.api.get({
       url: '/email',
       headers: {
         authorization: 'Bearer ' + uid
@@ -150,7 +150,7 @@ describe('/email', function() {
       user: USERID,
       scope: ['profile:uid']
     }));
-    return Server.api.post({
+    return Server.api.get({
       url: '/email',
       headers: {
         authorization: 'Bearer ' + uid
@@ -172,7 +172,7 @@ describe('/uid', function() {
 
   it('should return an uid', function() {
     mockToken().reply(200, TOKEN_GOOD);
-    return Server.api.post({
+    return Server.api.get({
       url: '/uid',
       headers: {
         authorization: 'Bearer ' + uid
@@ -188,7 +188,7 @@ describe('/uid', function() {
       user: USERID,
       scope: ['profile:email']
     }));
-    return Server.api.post({
+    return Server.api.get({
       url: '/uid',
       headers: {
         authorization: 'Bearer ' + uid
