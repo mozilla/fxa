@@ -683,7 +683,9 @@ input[type="text"] ~ .show-password-label:hover {
   padding: 28px 160px 28px 50px;
   position: relative;
   text-align: left;
-
+  .marketing-copy {
+    display: block;
+  }
   .android-logo {
     background: url(/images/android_logo.png);
     background-size: 84px 74px;

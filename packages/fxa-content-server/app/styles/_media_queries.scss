@@ -45,6 +45,28 @@
     padding: 10px 0;
   }
 
+  .marketing {
+    bottom: 0;
+    font-size: 16px;
+    left: 0;
+    margin: 0;
+    padding: 15px 50px 90px 50px;
+    position: fixed;
+    text-align: center;
+    width: 100%;
+    .android-logo {
+      background: url(/images/android_logo.png) no-repeat center bottom;
+      background-size: 84px 74px;
+      bottom: 0;
+      display: block;
+      height: 74px;
+      margin: 0 auto;
+      position: absolute;
+      right: 0;
+      width: 100%;
+    }
+  }
+
   @keyframes movein {
     0% {
       left: 0;
@@ -55,14 +77,12 @@
       top: 0;
     }
   }
-
-  .marketing.desktop {
-    display: none;
-  }
 }
 
 @media only screen and (max-height: 480px) and (max-width: 320px) {
-  
+  body, html {
+    background: #fff;
+  }
   #about-mozilla {
     display: none;
   }
@@ -102,16 +122,13 @@
   }
 
   #stage {
-    background-image: url(/images/firefox.png);
-    background-position: center bottom;
-    background-repeat: no-repeat;
-    background-size: 30px auto;
+    background: none;
     box-shadow: none;
     margin: 10px auto;
     min-height: 0;
     min-width: 300px;
     max-width:400px;
-    padding: 0 10px 40px 10px;
+    padding: 0 10px 20px 10px;
     width: 100%;
   }
 
@@ -146,7 +163,64 @@
     padding: 10px 0;
   }
 
-  .marketing.desktop {
+  .reset_password_complete {
+    header h1 {
+      margin: 20px 0 0 0;
+    }
+    p {
+      margin: 0;
+    }
+  }
+
+  .marketing {
+    background-color: none;
+    border-radius: 0 0 5px 5px;
+    border-top: 1px solid $marketing-border-color;
+    bottom: 0;
+    left: 0;
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    text-align: left;
+    width: 100%;
+    .marketing-spacer {
+      margin: 0 auto;
+      width: 340px;
+      padding: 20px 140px 20px 0;
+      position: relative;
+    }
+    .android-logo {
+      background: url(/images/android_logo.png);
+      background-size: 84px 74px;
+      bottom: 0;
+      display: block;
+      height: 74px;
+      margin: 0;
+      position: absolute;
+      right: 0px;
+      width: 84px;
+    }
+  }
+}
+
+//extra breakpoints to make sure marketing doesn't break main layout
+@media only screen and (max-height: 319px) {
+
+  #stage {
+    background-image: url(/images/firefox.png);
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: 30px auto;
+    padding: 0 10px 40px 10px;
+  }
+  .marketing { 
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 319px) {
+  .marketing { 
     display: none;
   }
 }
