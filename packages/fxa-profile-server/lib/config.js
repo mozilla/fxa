@@ -11,7 +11,7 @@ const conf = convict({
   api: {
     version: {
       doc: 'Version number prepended to API routes',
-      default: 0
+      default: 1
     }
   },
   db: {
