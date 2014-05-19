@@ -72,7 +72,7 @@ define([
     /**
      * Check if a verification uid is valid
      */
-    isUidValid: function(uid) {
+    isUidValid: function (uid) {
       if (typeof uid !== 'string') {
         return false;
       }
@@ -80,6 +80,17 @@ define([
       // uids are fixed length hex strings.
       return uid.length === Constants.UID_LENGTH &&
              HEX_STRING.test(uid);
+    },
+
+    /**
+     * Check if a password is valid
+     */
+    isPasswordValid: function (password) {
+      if (typeof password !== 'string') {
+        return false;
+      }
+
+      return password.length >= Constants.PASSWORD_MIN_LENGTH;
     }
   };
 });

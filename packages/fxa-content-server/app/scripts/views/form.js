@@ -311,16 +311,16 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
      */
     isElementValid: function (selector) {
       var el = this.$(selector);
-      var type = el.attr('type');
+      var type = this.getElementType(el);
 
-      // email follows our own rules.
+      // email and password follow our own rules.
       if (type === 'email') {
         return this.validateEmail(selector);
+      } else if (type === 'password') {
+        return this.validatePassword(selector);
       }
 
-      var value = el.val();
-      var isValid = !!(value && el[0].validity.valid);
-      return isValid;
+      return this.validateInput(selector);
     },
 
     /**
@@ -402,8 +402,45 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
       return Validate.isEmailValid(email);
     },
 
+
     showEmailValidationError: function (which) {
       return this.showValidationError(which, t('Valid email required'));
+    },
+
+    /**
+     * Validate a password field
+     *
+     * @return true if password is valid, false otw.
+     */
+    validatePassword: function (selector) {
+      var password = this.$(selector).val();
+      return Validate.isPasswordValid(password);
+    },
+
+    /**
+     * Basic text input validation. By default, only performs `required`
+     * attribute validation. If the browser supports HTML5 form validation,
+     * browser validation will kick in. If validating an email or password
+     * field, call validateEmail or validatePassword instead.
+     */
+    validateInput: function (selector) {
+      var el = this.$(selector);
+      var isRequired = typeof el.attr('required') !== 'undefined';
+
+      var value = el.val();
+
+      if (isRequired && value.length === 0) {
+        return false;
+      }
+
+      // If the browser supports HTML5 form validation, hooray,
+      // use its validation too.
+      var hasHtml5Validation = !! el[0].validity;
+      if (hasHtml5Validation) {
+        return el[0].validity.valid;
+      }
+
+      return true;
     },
 
     showPasswordValidationError: function (which) {

@@ -19,7 +19,9 @@ define([], function () {
     RESET_PASSWORD_POLL_INTERVAL: 2000,
 
     CODE_LENGTH: 32,
-    UID_LENGTH: 32
+    UID_LENGTH: 32,
+
+    PASSWORD_MIN_LENGTH: 8
   };
 });
 
