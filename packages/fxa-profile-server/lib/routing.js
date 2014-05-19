@@ -15,17 +15,17 @@ module.exports = [
     config: require('./routes/root')
   },
   {
-    method: 'POST',
+    method: 'GET',
     path: v('/profile'),
     config: require('./routes/profile')
   },
   {
-    method: 'POST',
+    method: 'GET',
     path: v('/email'),
     config: require('./routes/email')
   },
   {
-    method: 'POST',
+    method: 'GET',
     path: v('/uid'),
     config: require('./routes/uid')
   }
