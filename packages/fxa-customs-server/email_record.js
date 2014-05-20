@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Keep track of events tied to just email addresses
 module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
 
   now = now || Date.now
@@ -20,9 +21,9 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
   EmailRecord.parse = function (object) {
     var rec = new EmailRecord()
     object = object || {}
-    rec.bk = object.bk
-    rec.xs = object.xs || []
-    rec.pr = object.pr
+    rec.bk = object.bk       // timestamp when the account was blocked
+    rec.xs = object.xs || [] // timestamps when emails were sent
+    rec.pr = object.pr       // timestamp of the last password reset
     return rec
   }
 
