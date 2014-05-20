@@ -58,6 +58,16 @@ function (chai, View, Session, WindowMock) {
             });
       });
 
+      it('shows service name if available', function () {
+        Session.set('service', 'sync');
+
+        return view.render()
+            .then(function () {
+              var html = view.$('section').text();
+              assert.notEqual(html.indexOf('Firefox Sync'), -1);
+            });
+      });
+
       it('shows redirectTo link and service name if available', function () {
         // This would be fetched from the OAuth server, but set it
         // explicitly for tests that use the mock `sync` service ID.

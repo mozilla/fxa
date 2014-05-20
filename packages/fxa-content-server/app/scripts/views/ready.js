@@ -47,7 +47,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceName, O
     },
 
     context: function () {
-      var serviceName = this.serviceName || new ServiceName(this.translator).get(this.service);
+      var serviceName = this.serviceName;
 
       if (this.serviceRedirectURI) {
         serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [

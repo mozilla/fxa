@@ -7,18 +7,22 @@
 'use strict';
 
 define([
+  'p-promise',
   'lib/url',
   'lib/oauth-client',
   'lib/assertion',
   'lib/oauth-errors',
   'lib/config-loader',
-  'lib/session'
-], function (Url, OAuthClient, Assertion, OAuthErrors, ConfigLoader, Session) {
+  'lib/session',
+  'lib/service-name',
+], function (p, Url, OAuthClient, Assertion, OAuthErrors, ConfigLoader, Session, ServiceName) {
   /* jshint camelcase: false */
 
   // If the user completes an OAuth flow using a different browser than they started with, we
   // redirect them back to the RP with this code in the `error_code` query param.
   var RP_DIFFERENT_BROWSER_ERROR_CODE = 3005;
+
+  var SYNC_SERVICE = 'sync';
 
   return {
     setupOAuth: function (params) {
@@ -38,6 +42,11 @@ define([
 
     setServiceInfo: function () {
       var self = this;
+
+      if (this.service === SYNC_SERVICE) {
+        self.serviceName = new ServiceName(this.translator).get(this.service);
+        return p();
+      }
 
       return this._oAuthClient.getClientInfo(this.service)
         .then(function(clientInfo) {
