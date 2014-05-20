@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Keep track of events related to just IP addresses
 module.exports = function (BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS, now) {
 
   now = now || Date.now
@@ -11,8 +12,8 @@ module.exports = function (BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS, now) {
   IpRecord.parse = function (object) {
     var rec = new IpRecord()
     object = object || {}
-    rec.ba = object.ba
-    rec.bk = object.bk
+    rec.ba = object.ba // timestamp the last time a bad agent was seen
+    rec.bk = object.bk // timestamp when the account was blocked
     return rec
   }
 

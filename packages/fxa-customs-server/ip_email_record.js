@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Keep track of events tied to both email and IP addresses
 module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
 
   now = now || Date.now
@@ -19,8 +20,8 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   IpEmailRecord.parse = function (object) {
     var rec = new IpEmailRecord()
     object = object || {}
-    rec.bk = object.bk
-    rec.xs = object.xs || []
+    rec.bk = object.bk       // timestamp when the account was blocked
+    rec.xs = object.xs || [] // timestamps when emails were sent
     return rec
   }
 
