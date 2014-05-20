@@ -7,8 +7,9 @@ const util = require('util');
 const intel = require('intel');
 
 function JsonFormatter(options) {
+  options = options || {};
+  options.format = '%O';
   intel.Formatter.call(this, options);
-  this._format = '%O';
 }
 util.inherits(JsonFormatter, intel.Formatter);
 

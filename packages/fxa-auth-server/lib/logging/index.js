@@ -7,8 +7,8 @@ const intel = require('intel');
 const config = require('../config');
 
 var conf = config.get('logging');
-if (conf.handlers.console.stream === 'process.stdout') {
-  conf.handlers.console.stream = process.stdout;
+if (conf.handlers.console.stream === 'stderr') {
+  conf.handlers.console.stream = process.stderr;
 }
 
 intel.config(conf);
