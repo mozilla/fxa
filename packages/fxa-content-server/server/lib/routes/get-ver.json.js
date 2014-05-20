@@ -60,6 +60,17 @@ function getCommitHashFromGit() {
   return deferred.promise;
 }
 
+var l10nVersion = (function getL10NVersion() {
+  var version;
+  try { 
+    var bowerPath = '../../../app/bower_components/fxa-content-server-l10n/.bower.json';
+    var bowerInfo = require(bowerPath);
+    version = bowerInfo && bowerInfo._release;
+  } catch(e) {
+  } 
+  return version || 'unknown';
+})();
+
 var promise;
 function getVersionInfo() {
   // only resolve once, the data does not need to be re-calculated.
@@ -80,9 +91,11 @@ function getVersionInfo() {
               .then(function (commitHash) {
                 logger.info('version set to: %s', version);
                 logger.info('commit hash set to: %s', commitHash);
+                logger.info('fxa-content-server-l10n commit hash set to: %s', l10nVersion);
                 return {
                   version: version,
-                  commit: commitHash
+                  commit: commitHash,
+                  l10n: l10nVersion
                 };
               });
 
