@@ -19,10 +19,9 @@ define([
   'lib/session',
   'lib/xss',
   'lib/strings',
-  'lib/service-name',
   'lib/oauth-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceName, OAuthMixin) {
+function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
   var View = BaseView.extend({
     template: Template,
     className: 'reset_password_complete',
