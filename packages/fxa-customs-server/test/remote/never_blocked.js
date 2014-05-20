@@ -8,7 +8,6 @@ var TestServer = require('../test_server')
 
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
-var TEST_AGENT = 'Mozilla/5.0'
 
 var config = {
   port: 7000,
@@ -108,17 +107,17 @@ test(
 test(
   'maximum number of emails',
   function (t) {
-    client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, agent: TEST_AGENT, action: 'accountCreate' },
+    client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountCreate' },
       function (err, req, res, obj) {
         t.equal(res.statusCode, 200, 'first email attempt')
         t.equal(obj.block, false, 'creating the account')
 
-        client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, agent: TEST_AGENT, action: 'recoveryEmailResendCode' },
+        client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
           function (err, req, res, obj) {
             t.equal(res.statusCode, 200, 'second email attempt')
             t.equal(obj.block, false, 'resending the code')
 
-            client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, agent: TEST_AGENT, action: 'recoveryEmailResendCode' },
+            client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
               function (err, req, res, obj) {
                 t.equal(res.statusCode, 200, 'third email attempt')
                 t.equal(obj.block, false, 'resending the code')
@@ -153,7 +152,7 @@ test(
               function (isOverBadLogins) {
                 t.equal(isOverBadLogins, false, 'is still not over bad logins')
 
-                client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, agent: TEST_AGENT, action: 'accountLogin' },
+                client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' },
                   function (err, req, res, obj) {
                     t.equal(res.statusCode, 200, 'attempting to login')
                     t.equal(obj.block, false, 'login is not blocked')

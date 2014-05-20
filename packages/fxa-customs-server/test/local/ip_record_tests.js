@@ -10,7 +10,7 @@ function now() {
 }
 
 function simpleIpRecord() {
-  return new (ipRecord(120*1000, 60*1000, now))()
+  return new (ipRecord(120*1000, now))()
 }
 
 test(
@@ -21,7 +21,7 @@ test(
     t.equal(ir.isBlocked(), false, 'record has never been blocked')
     ir.bk = now()
     t.equal(ir.isBlocked(), true, 'record is blocked')
-    ir.bk = now() - 60*1000; // invalidAgentInterval
+    ir.bk = now() - 60*1000;
     t.equal(ir.isBlocked(), true, 'record is still blocked')
     ir.bk = now() - 120*1000; // blockInterval
     t.equal(ir.isBlocked(), false, 'record is no longer blocked')
@@ -62,12 +62,12 @@ test(
   function (t) {
     var ir = simpleIpRecord()
     t.equal(ir.isBlocked(), false, 'original object is not blocked')
-    var irCopy1 = (ipRecord(120*1000, 60*1000, now)).parse(ir)
+    var irCopy1 = (ipRecord(120*1000, now)).parse(ir)
     t.equal(irCopy1.isBlocked(), false, 'copied object is not blocked')
 
     ir.block()
     t.equal(ir.isBlocked(), true, 'original object is now blocked')
-    var irCopy2 = (ipRecord(120*1000, 60*1000, now)).parse(ir)
+    var irCopy2 = (ipRecord(120*1000, now)).parse(ir)
     t.equal(irCopy2.isBlocked(), true, 'copied object is blocked')
     t.end()
   }
@@ -77,7 +77,7 @@ test(
   'update works',
   function (t) {
     var ir = simpleIpRecord()
-    t.equal(ir.update('bogusAgent'), 0, 'bogus agent does nothing')
+    t.equal(ir.update(), 0, 'update does nothing')
     t.end()
   }
 )

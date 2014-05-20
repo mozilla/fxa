@@ -8,7 +8,6 @@ var TestServer = require('../test_server')
 
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
-var TEST_AGENT = 'Mozilla/5.0'
 
 var config = {
   port: 7000,
@@ -81,22 +80,22 @@ test(
 test(
   'too many sent emails',
   function (t) {
-    client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, agent: TEST_AGENT, action: 'recoveryEmailResendCode' },
+    client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
       function (err, req, res, obj) {
         t.equal(res.statusCode, 200, 'first email attempt')
         t.equal(obj.block, false, 'resending the code')
 
-        client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, agent: TEST_AGENT, action: 'recoveryEmailResendCode' },
+        client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
           function (err, req, res, obj) {
             t.equal(res.statusCode, 200, 'second email attempt')
             t.equal(obj.block, false, 'resending the code')
 
-            client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, agent: TEST_AGENT, action: 'recoveryEmailResendCode' },
+            client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
               function (err, req, res, obj) {
                 t.equal(res.statusCode, 200, 'third email attempt')
                 t.equal(obj.block, false, 'resending the code')
 
-                client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, agent: TEST_AGENT, action: 'recoveryEmailResendCode' },
+                client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'recoveryEmailResendCode' },
                   function (err, req, res, obj) {
                     t.equal(res.statusCode, 200, 'fourth email attempt')
                     t.equal(obj.block, true, 'operation blocked')
