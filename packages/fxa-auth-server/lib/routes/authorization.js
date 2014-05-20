@@ -36,7 +36,7 @@ module.exports = {
         // taken from mozilla/persona/lib/validate.js
         .min(50)
         .max(10240)
-        .regex(/^[a-zA-Z0-9_\-\.~]+$/)
+        .regex(/^[a-zA-Z0-9_\-\.~=]+$/)
         .required(),
       redirect_uri: Joi.string()
         .max(256),

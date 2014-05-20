@@ -27,7 +27,7 @@ module.exports = function verifyAssertion(assertion) {
     }
 
     function error(msg, val) {
-      logger.verbose('invalidAssertion:', msg, val);
+      logger.debug('invalidAssertion', msg, val);
       d.reject(AppError.invalidAssertion());
     }
 
