@@ -13,7 +13,7 @@ define([
 ],
 function (chai, View, Session, WindowMock) {
   var assert = chai.assert;
-  var redirectUri =  'https://sync.firefox.com';
+  //var redirectUri =  'https://sync.firefox.com';
 
   describe('views/ready', function () {
     var view, windowMock;

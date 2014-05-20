@@ -10,7 +10,7 @@ define([
   'lib/session',
   'lib/config-loader'
 ],
-function ($, P, Session, ConfigLoader) {
+function ($, p, Session, ConfigLoader) {
   var oauthUrl;
 
   var GET_CLIENT = '/v1/client/';
@@ -31,10 +31,10 @@ function ($, P, Session, ConfigLoader) {
       var promise;
 
       if (oauthUrl) {
-        promise = P(oauthUrl);
+        promise = p(oauthUrl);
       } else if (Session.config && Session.config.oauthUrl) {
         oauthUrl = Session.config.oauthUrl;
-        promise = P(oauthUrl);
+        promise = p(oauthUrl);
       } else {
         promise = configLoader.fetch()
           .then(function (data) {

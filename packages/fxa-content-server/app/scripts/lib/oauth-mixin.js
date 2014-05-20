@@ -14,7 +14,7 @@ define([
   'lib/oauth-errors',
   'lib/config-loader',
   'lib/session',
-  'lib/service-name',
+  'lib/service-name'
 ], function (p, Url, OAuthClient, Assertion, OAuthErrors, ConfigLoader, Session, ServiceName) {
   /* jshint camelcase: false */
 
