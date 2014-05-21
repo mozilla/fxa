@@ -24,6 +24,8 @@ npm install
 npm start
 ```
 
+It will listen on <http://127.0.0.1:3030> by default.
+
 ## Testing
 
 ### Setup
