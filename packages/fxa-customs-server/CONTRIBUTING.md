@@ -5,7 +5,7 @@ mailing list or through issues here on GitHub.
 
 - IRC: `#fxa` on `irc.mozilla.org`
 - Mailing list: <https://mail.mozilla.org/listinfo/dev-fxacct>
-- and of course, [the issues list](https://github.com/mozilla/fxa-auth-server/issues)
+- and of course, [the bug tracker](https://github.com/mozilla/fxa-customs-server/issues)
 
 ## Bug Reports ##
 
@@ -19,10 +19,8 @@ Patches should be submitted as pull requests. When submitting patches as PRs:
 - You agree to license your code under the project's open source license ([MPL 2.0](/LICENSE)).
 - Base your branch off the current `master` (see below for an example workflow).
 - Add both your code and new tests if relevant.
-- Run `grunt jshint` to make sure your code passes linting.
 - Run `npm test` to make sure all tests still pass.
 - Please do not include merge commits in pull requests; include only commits with the new relevant code.
-- Add yourself to the [AUTHORS](/AUTHORS) file so we can publicly recognize your contribution.
 
 See the main [README.md](/README.md) for information on prerequisites, installing, running and testing.
 
@@ -35,9 +33,9 @@ This is an example workflow to make it easier to submit Pull Requests. Imagine y
 2. The clone the upstream (as origin) and add your own repo as a remote:
 
     ```sh
-    $ git clone https://github.com/mozilla/fxa-auth-server.git
-    $ cd fxa-auth-server
-    $ git remote add user1 git@github.com:user1/fxa-auth-server.git
+    $ git clone https://github.com/mozilla/fxa-customs-server.git
+    $ cd fxa-customs-server
+    $ git remote add user1 git@github.com:user1/fxa-customs-server.git
 ```
 
 3. Create a branch for your fix/feature and make sure it's your currently checked-out branch:
