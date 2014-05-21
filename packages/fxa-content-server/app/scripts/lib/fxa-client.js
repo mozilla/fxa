@@ -354,6 +354,16 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
               });
     },
 
+    certificateSign: function (pubkey, duration) {
+      return this._getClientAsync()
+              .then(function (client) {
+                return client.certificateSign(
+                  Session.sessionToken,
+                  pubkey,
+                  duration);
+              });
+    },
+
     sessionStatus: function (sessionToken) {
       return this._getClientAsync()
               .then(function (client) {
@@ -379,6 +389,13 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
           }
 
           throw err;
+        });
+    },
+
+    recoveryEmailStatus: function (sessionToken) {
+      return this._getClientAsync()
+        .then(function (client) {
+          return client.recoveryEmailStatus(sessionToken);
         });
     }
   };

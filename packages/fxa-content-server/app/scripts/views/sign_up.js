@@ -67,6 +67,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
                                 Session.prefillPassword);
 
       return {
+        serviceName: this.serviceName,
         email: Session.prefillEmail,
         password: Session.prefillPassword,
         service: Session.service,
@@ -134,8 +135,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
 
       var self = this;
       return this.fxaClient.signUp(email, password, { customizeSync: customizeSync })
-        .then(function () {
-          self.navigate('confirm');
+        .then(function (accountData) {
+          return self.onSignUpSuccess(accountData);
         })
         .then(null, function (err) {
           // Account already exists. No attempt is made at signing the
@@ -151,6 +152,14 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
           // re-throw error, it will be handled at a lower level.
           throw err;
         });
+    },
+
+    onSignUpSuccess: function(accountData) {
+      if (accountData.verified) {
+        this.navigate('settings');
+      } else {
+        this.navigate('confirm');
+      }
     },
 
     _suggestSignIn: function () {

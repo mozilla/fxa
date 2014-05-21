@@ -7,20 +7,28 @@
 
 define(['underscore'],
 function (_) {
+
+  function searchParams (str) {
+    var search = (str || window.location.search).replace(/^\?/, '');
+    if (! search) {
+      return {};
+    }
+
+    var pairs = search.split('&');
+    var terms = {};
+
+    _.each(pairs, function (pair) {
+      var keyValue = pair.split('=');
+      terms[keyValue[0]] = decodeURIComponent(keyValue[1]);
+    });
+
+    return terms;
+  }
+
   return {
+    searchParams: searchParams,
     searchParam: function (name, str) {
-      var search = (str || window.location.search).replace(/^\?/, '');
-      if (! search) {
-        return;
-      }
-
-      var pairs = search.split('&');
-      var terms = {};
-
-      _.each(pairs, function (pair) {
-        var keyValue = pair.split('=');
-        terms[keyValue[0]] = decodeURIComponent(keyValue[1]);
-      });
+      var terms = searchParams(str);
 
       return terms[name];
     }

@@ -30,6 +30,7 @@ module.exports = function(i18n) {
       // the `__cookie_check` cookie will not arrive.
       cookiesEnabled: !!req.cookies['__cookie_check'],
       fxaccountUrl: config.get('fxaccount_url'),
+      oauthUrl: config.get('oauth_url'),
       // req.lang is set by abide in a previous middleware.
       language: req.lang
     });

@@ -6,8 +6,9 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
+  'intern/dojo/node!../../server/lib/configuration',
   'require'
-], function (intern, registerSuite, assert, require) {
+], function (intern, registerSuite, assert, config, require) {
   'use strict';
 
   var url = intern.config.fxaContentRoot + 'tests/index.html?coverage';
@@ -55,7 +56,8 @@ define([
           .then(function (text) {
             text = text.replace('%', '').trim();
             var covered = parseFloat(text);
-            assert.ok(covered > 90, 'not enough code coverage!');
+            assert.ok(covered > config.get('tests.coverage.globalThreshold'),
+                'code coverage is insufficient at ' + text + '%');
           })
         .end()
 

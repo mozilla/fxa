@@ -433,6 +433,27 @@ function (chai, $, ChannelMock, testHelpers,
       });
     });
 
+    describe('certificateSign', function () {
+      it('signs certificate', function () {
+        var publicKey = {
+          algorithm: 'RS',
+          n: '4759385967235610503571494339196749614544606692567785790953934768202714280652973091341' +
+             '316862993582789079872007974809511698859885077002492642203267408776123',
+          e: '65537'
+        };
+        var duration = 86400000;
+
+        return client.signUp(email, password, { preVerified: true })
+          .then(function (kp) {
+            return client.certificateSign(publicKey, duration);
+          })
+          .then(function (cert) {
+            console.log(cert);
+            assert.ok(cert);
+          });
+      });
+    });
+
     describe('isSignedIn', function () {
       it('resolves to false if no sessionToken passed in', function () {
         return client.isSignedIn()

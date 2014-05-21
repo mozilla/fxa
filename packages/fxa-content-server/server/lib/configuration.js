@@ -90,6 +90,12 @@ var conf = module.exports = convict({
     default: 'http://127.0.0.1:9000',
     env: 'FXA_URL'
   },
+  oauth_url: {
+    doc: 'The url of the Firefox Account OAuth server',
+    format: 'url',
+    default: 'http://127.0.0.1:9010',
+    env: 'FXA_OAUTH_URL'
+  },
   static_directory: {
     doc: 'Directory that static files are served from.',
     format: String,
@@ -117,6 +123,14 @@ var conf = module.exports = convict({
     doc: 'Subdirectory of page_template_root for server-rendered page templates',
     format: ['src', 'dist'],
     default: 'src'
+  },
+  tests: {
+    coverage: {
+      globalThreshold: 90,
+      threshold: 50,
+      // Ignore oauth scripts until tests are enabled (issue #1141)
+      excludeFiles: ['/scripts/../tests/','/scripts/vendor/','oauth']
+    }
   },
   i18n: {
     defaultLang: {

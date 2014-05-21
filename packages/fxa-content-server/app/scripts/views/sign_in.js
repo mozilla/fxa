@@ -29,10 +29,13 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
 
       // reset any force auth status.
       Session.set('forceAuth', false);
+      this.service = Session.service;
     },
 
     context: function () {
       return {
+        service: this.service,
+        serviceName: this.serviceName,
         email: Session.prefillEmail,
         password: Session.prefillPassword,
         isSync: Session.isSync()
@@ -61,11 +64,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       return this.fxaClient.signIn(email, password)
         .then(function (accountData) {
           if (accountData.verified) {
-            // Don't switch to settings if we're trying to log in to
-            // Firefox. Firefox will show its own landing page
-            if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
-              self.navigate('settings');
-            }
+            return self.onSignInSuccess();
           } else {
             return self.fxaClient.signUpResend()
               .then(function () {
@@ -83,6 +82,16 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
           // re-throw error, it will be handled at a lower level.
           throw err;
         });
+    },
+
+    onSignInSuccess: function() {
+      // Don't switch to settings if we're trying to log in to
+      // Firefox. Firefox will show its own landing page
+      if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
+        this.navigate('settings');
+      }
+
+      return true;
     },
 
     _suggestSignUp: function () {

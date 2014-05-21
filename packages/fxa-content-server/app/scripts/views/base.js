@@ -262,13 +262,16 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      * Display an error message.
      * @method translateError
      * @param {string} err - an error object
+     * @param {object} errors - optional Errors object that transforms codes into messages
      *
      * @return {string} translated error text (if available), untranslated
      *   error text otw.
      */
-    translateError: function (err) {
-      var msg = AuthErrors.toMessage(err);
-      var context = AuthErrors.toContext(err);
+    translateError: function (err, errors) {
+      errors = errors || AuthErrors;
+
+      var msg = errors.toMessage(err);
+      var context = errors.toContext(err);
       var translated = this.translator.get(msg, context);
 
       return translated;
@@ -279,15 +282,16 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      * @method displayError
      * @param {string} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
+     * @param {object} errors - optional Errors object that transforms codes into messages
      *
      * @return {string} translated error text (if available), untranslated
      *   error text otw.
      */
-    displayError: function (err) {
+    displayError: function (err, errors) {
       this.hideSuccess();
       this.$('.spinner').hide();
 
-      var translated = this.translateError(err);
+      var translated = this.translateError(err, errors);
 
       if (translated) {
         this.$('.error').text(translated);
@@ -309,15 +313,16 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      * @method displayErrorUnsafe
      * @param {string} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
+     * @param {object} errors - optional Errors object that transforms codes into messages
      *
      * @return {string} translated error text (if available), untranslated
      *   error text otw.
      */
-    displayErrorUnsafe: function (err) {
+    displayErrorUnsafe: function (err, errors) {
       this.hideSuccess();
       this.$('.spinner').hide();
 
-      var translated = this.translateError(err);
+      var translated = this.translateError(err, errors);
 
       if (translated) {
         this.$('.error').html(translated);

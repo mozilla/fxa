@@ -23,10 +23,10 @@ define([
   //  even when user credentials are cleared.
   // Don't clear `language`, this is set on startup based on the user's
   // Accept-Language headers and does not change when user's sign in and out.
-  var DO_NOT_CLEAR = ['channel', 'context', 'service', 'language'];
+  var DO_NOT_CLEAR = ['channel', 'context', 'service', 'config', 'language'];
 
   // these keys will be persisted to localStorage so that they live between browser sessions
-  var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext'];
+  var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext', 'oauth'];
 
   function Session() {
     this.load();

@@ -7,12 +7,14 @@
 module.exports = function (grunt) {
   'use strict';
 
+  var config = require('../server/lib/configuration');
+
   grunt.config('blanket_mocha', {
     dist: {
       options: {
         urls: ['http://localhost:3030/tests/index.html?coverage'],
-        threshold: 50,
-        globalThreshold: 65,
+        threshold: config.get('tests.coverage.threshold'),
+        globalThreshold: config.get('tests.coverage.globalThreshold'),
         log: true,
         logErrors: true
       }

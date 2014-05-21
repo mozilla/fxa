@@ -47,6 +47,8 @@ require([
   '../tests/spec/lib/url',
   '../tests/spec/lib/session',
   '../tests/spec/lib/fxa-client',
+  '../tests/spec/lib/oauth-client',
+  '../tests/spec/lib/assertion',
   '../tests/spec/lib/translator',
   '../tests/spec/lib/router',
   '../tests/spec/lib/strings',
@@ -60,6 +62,9 @@ require([
   '../tests/spec/views/sign_up',
   '../tests/spec/views/complete_sign_up',
   '../tests/spec/views/sign_in',
+  // TODO Renable these (issue #1141)
+  //'../tests/spec/views/oauth_sign_in',
+  //'../tests/spec/views/oauth_sign_up',
   '../tests/spec/views/force_auth',
   '../tests/spec/views/settings',
   '../tests/spec/views/change_password',
