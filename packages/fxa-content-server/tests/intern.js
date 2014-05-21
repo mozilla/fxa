@@ -36,11 +36,7 @@ define(['intern/lib/args'], function (args) {
     // OnDemand. Options that will be permutated are browserName, version, platform, and platformVersion; any other
     // capabilities options specified for an environment will be copied as-is
     environments: [
-      { browserName: 'phantom' }
-      /*{ browserName: 'firefox' },*/
-      /*{ browserName: 'chrome' },*/
-      /*{ browserName: 'safari' },*/
-      /*{ browserName: 'opera' }*/
+      { browserName: 'firefox' }
     ],
 
     // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
