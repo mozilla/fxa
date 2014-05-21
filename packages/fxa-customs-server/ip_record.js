@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Keep track of events related to just IP addresses
-module.exports = function (BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS, now) {
+module.exports = function (BLOCK_INTERVAL_MS, now) {
 
   now = now || Date.now
 
@@ -12,13 +12,8 @@ module.exports = function (BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS, now) {
   IpRecord.parse = function (object) {
     var rec = new IpRecord()
     object = object || {}
-    rec.ba = object.ba // timestamp the last time a bad agent was seen
     rec.bk = object.bk // timestamp when the account was blocked
     return rec
-  }
-
-  function isBadAgent(agent) {
-    return false && agent // TODO
   }
 
   IpRecord.prototype.isBlocked = function () {
@@ -33,13 +28,7 @@ module.exports = function (BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS, now) {
     return Math.max(0, Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000))
   }
 
-  IpRecord.prototype.update = function (agent) {
-    if (isBadAgent(agent)) {
-      if (now() - this.ba < INVALID_AGENT_INTERVAL_MS) {
-        this.block()
-      }
-      this.ba = now()
-    }
+  IpRecord.prototype.update = function () {
     return this.retryAfter()
   }
 

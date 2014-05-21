@@ -10,11 +10,10 @@ var packageJson = require('../package.json')
 
 var LIFETIME = config.recordLifetimeSeconds
 var BLOCK_INTERVAL_MS = config.blockIntervalSeconds * 1000
-var INVALID_AGENT_INTERVAL_MS = config.invalidAgentIntervalSeconds * 1000
 
 var IpEmailRecord = require('../ip_email_record')(BLOCK_INTERVAL_MS, config.maxBadLogins)
 var EmailRecord = require('../email_record')(BLOCK_INTERVAL_MS, config.maxEmails)
-var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS, INVALID_AGENT_INTERVAL_MS)
+var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS)
 
 var P = require('bluebird')
 P.promisifyAll(Memcached.prototype)
@@ -69,12 +68,11 @@ api.post(
   function (req, res, next) {
     var email = req.body.email
     var ip = req.body.ip
-    var agent = req.body.agent
     var action = req.body.action
 
-    if (!email || !ip || !agent || !action) {
-      var err = {code: 'MissingParameters', message: 'email, ip, agent and action are all required'}
-      log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, agent: agent, action: action, err: err })
+    if (!email || !ip || !action) {
+      var err = {code: 'MissingParameters', message: 'email, ip and action are all required'}
+      log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, action: action, err: err })
       res.send(500, err)
       return next()
     }
@@ -83,13 +81,13 @@ api.post(
       .spread(
         function (emailRecord, ipRecord, ipEmailRecord) {
           var blockEmail = emailRecord.update(action)
-          var blockLogin = ipEmailRecord.update(action)
-          var blockAgent = ipRecord.update(agent)
+          var blockIpEmail = ipEmailRecord.update(action)
+          var blockIp = ipRecord.update()
 
-          if (blockLogin && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
-            blockLogin = 0
+          if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
+            blockIpEmail = 0
           }
-          var retryAfter = [blockEmail, blockLogin, blockAgent].reduce(max)
+          var retryAfter = [blockEmail, blockIpEmail, blockIp].reduce(max)
 
           return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
             .then(
@@ -104,11 +102,11 @@ api.post(
       )
       .then(
         function (result) {
-          log.info({ op: 'request.check', email: email, ip: ip, agent: agent, action: action, block: result.block })
+          log.info({ op: 'request.check', email: email, ip: ip, action: action, block: result.block })
           res.send(result)
         },
         function (err) {
-          log.error({ op: 'request.check', email: email, ip: ip, agent: agent, action: action, err: err })
+          log.error({ op: 'request.check', email: email, ip: ip, action: action, err: err })
           res.send(500, err)
         }
       )

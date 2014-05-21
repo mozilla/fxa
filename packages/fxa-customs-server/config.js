@@ -10,7 +10,6 @@ module.exports = require('rc')(
     memcached: '127.0.0.1:11211',
     recordLifetimeSeconds: 900,
     blockIntervalSeconds: 60 * 15,
-    invalidAgentIntervalSeconds: 60,
     maxEmails: 3,
     maxBadLogins: 2
   }
