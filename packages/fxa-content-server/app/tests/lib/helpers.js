@@ -8,6 +8,14 @@ define([
   'sinon'
 ], function (sinon) {
   function requiresFocus(callback, done) {
+    // Give the document focus
+    window.focus();
+
+    // Remove focus from any focused element
+    if (document.activeElement) {
+      document.activeElement.blur();
+    }
+
     if (document.hasFocus && document.hasFocus()) {
       callback();
     } else {
