@@ -68,7 +68,7 @@ function (chai, View, Session, WindowMock) {
             });
       });
 
-      // TODO handle tests that need an oauth-server
+      // TODO Renable these (issue #1141)
       //it('shows redirectTo link and service name if available', function () {
         //// This would be fetched from the OAuth server, but set it
         //// explicitly for tests that use the mock `sync` service ID.

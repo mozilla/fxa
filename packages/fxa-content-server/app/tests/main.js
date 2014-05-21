@@ -62,6 +62,7 @@ require([
   '../tests/spec/views/sign_up',
   '../tests/spec/views/complete_sign_up',
   '../tests/spec/views/sign_in',
+  // TODO Renable these (issue #1141)
   //'../tests/spec/views/oauth_sign_in',
   //'../tests/spec/views/oauth_sign_up',
   '../tests/spec/views/force_auth',
