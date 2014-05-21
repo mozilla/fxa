@@ -124,6 +124,14 @@ var conf = module.exports = convict({
     format: ['src', 'dist'],
     default: 'src'
   },
+  tests: {
+    coverage: {
+      globalThreshold: 90,
+      threshold: 50,
+      // Ignore oauth scripts until tests are enabled (issue #1141)
+      excludeFiles: ['/scripts/../tests/','/scripts/vendor/','oauth']
+    }
+  },
   i18n: {
     defaultLang: {
       format: String,

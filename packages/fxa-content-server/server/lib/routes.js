@@ -53,8 +53,11 @@ module.exports = function (config, templates, i18n) {
       app.get('/tests/index.html', function (req, res) {
         var checkCoverage = 'coverage' in req.query &&
                                 req.query.coverage !== 'false';
+        var coverNever = JSON.stringify(config.get('tests.coverage.excludeFiles'));
+
         return res.render('mocha', {
-          check_coverage: checkCoverage
+          check_coverage: checkCoverage,
+          cover_never: coverNever
         });
       });
     }
