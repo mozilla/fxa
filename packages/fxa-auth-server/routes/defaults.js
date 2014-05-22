@@ -68,7 +68,10 @@ module.exports = function (log, P, db, error) {
             function () {
               reply({})
             },
-            reply
+            function (err) {
+              log.error({ op: 'heartbeat', err: err })
+              reply(error.serviceUnavailable())
+            }
           )
       }
     },
