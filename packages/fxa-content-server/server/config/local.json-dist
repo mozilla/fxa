@@ -1,5 +1,6 @@
 {
   "public_url": "http://127.0.0.1:3030",
+  "oauth_url": "http://127.0.0.1:9010",
   "client_sessions": {
     "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
