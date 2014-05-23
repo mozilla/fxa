@@ -15,11 +15,14 @@
 module.exports = function (grunt) {
   'use strict';
 
-  // show elapsed time at the end
-  require('time-grunt')(grunt);
-
-  // load all grunt tasks
-  require('load-grunt-tasks')(grunt, {scope: 'dependencies'});
+  // load all grunt tasks based on environment
+  if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
+    require('load-grunt-tasks')(grunt, {scope: 'dependencies'});
+  } else {
+    // show elapsed time at the end
+    require('time-grunt')(grunt);
+    require('load-grunt-tasks')(grunt);
+  }
 
   grunt.initConfig({
   });
