@@ -28,7 +28,7 @@ module.exports = function (grunt) {
     files.forEach(function (file) {
       var source = grunt.file.read(path.join(basePath, templateDir, file));
       var template = Handlebars.compile(source);
-      var out = template();
+      var out = template({ locale: 'en' });
       grunt.file.write(path.join(basePath, outputDir, templates[file]), out);
     });
     grunt.log.write('Wrote ' + files.length + ' files');

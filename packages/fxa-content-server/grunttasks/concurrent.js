@@ -7,13 +7,15 @@ module.exports = function (grunt) {
 
   grunt.config('concurrent', {
     server: [
-      'copy:styles'
+      'copy:styles',
+      'connect_fonts_copy'
     ],
     test: [
       'copy:styles'
     ],
     dist: [
       'copy:styles',
+      'connect_fonts_copy',
       'imagemin',
       'htmlmin'
     ],

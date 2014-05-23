@@ -144,7 +144,18 @@ var conf = module.exports = convict({
     supportedLanguages: {
       doc: 'List of languages this deployment should detect and display localized strings.',
       format: Array,
-      default: ['en-US', 'it-CH'],
+      // the big list of locales is specified so the production build script
+      // can build all the locales before config/production.json is written.
+      default: ['af', 'an', 'ar', 'as', 'ast', 'be', 'bg', 'bn-BD', 'bn-IN', 'br',
+          'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'en-GB', 'en-US', 'en-ZA',
+          'eo', 'es', 'es-AR', 'es-CL', 'es-MX', 'et', 'eu', 'fa', 'ff', 'fi',
+          'fr', 'fy', 'fy-NL', 'ga', 'ga-IE', 'gd', 'gl', 'gu', 'gu-IN', 'he',
+          'hi-IN', 'hr', 'ht', 'hu', 'hy-AM', 'id', 'is', 'it', 'it-CH', 'ja',
+          'kk', 'km', 'kn', 'ko', 'ku', 'lij', 'lt', 'lv', 'mai', 'mk', 'ml',
+          'mr', 'ms', 'nb-NO', 'ne-NP', 'nl', 'nn-NO', 'or', 'pa', 'pa-IN',
+          'pl', 'pt', 'pt-BR', 'pt-PT', 'rm', 'ro', 'ru', 'si', 'sk', 'sl',
+          'son', 'sq', 'sr', 'sr-LATN', 'sv', 'sv-SE', 'ta', 'te', 'th', 'tr',
+          'uk', 'ur', 'vi', 'xh', 'zh-CN', 'zh-TW', 'zu'],
       env: 'I18N_SUPPORTED_LANGUAGES'
     },
     translationDirectory: {
@@ -218,5 +229,9 @@ if (supportedLanguages.indexOf(defaultLang) === -1) {
   throw new Error('Configuration error: defaultLang (' + defaultLang + ') is missing from supportedLanguages');
 }
 
+var areDistResources = conf.get('static_directory') === 'dist';
+conf.set('are_dist_resources', areDistResources);
+
 // validate the configuration based on the above specification
 conf.validate();
+

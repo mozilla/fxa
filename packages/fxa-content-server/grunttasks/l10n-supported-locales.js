@@ -4,7 +4,6 @@
 
 const path = require('path');
 const i18n = require('i18n-abide');
-const config = require('../server/lib/configuration');
 
 // percentage of strings that must be translated for a supported locale
 const supportedThreshold = 90;
@@ -68,6 +67,9 @@ module.exports = function (grunt) {
   });
 
   grunt.registerMultiTask('l10n-locale-counts', 'Print the list of locales we should enable in production.', function () {
+    // config must be loaded inside of the task so that it does not interfere
+    // with other tasks.
+    var config = require('../server/lib/configuration');
     var goodLocales = [ config.get('i18n.defaultLang') ];
     var templateDir = path.join(__dirname, '..', grunt.config().yeoman.tmp, 'i18n', 'templates');
     var templateClientKeys = Object.keys(require(path.join(templateDir, 'client.pot.json')));

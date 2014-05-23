@@ -44,6 +44,10 @@ module.exports = function (config) {
     return abide.localeFrom(lang);
   };
 
+  abideObj.normalizeLocale = function (locale) {
+    return abide.normalizeLocale(locale);
+  };
+
   // Export the parseAcceptLanguage() function as-is.
   abideObj.parseAcceptLanguage = function (header) {
     return abide.parseAcceptLanguage(header);
@@ -56,6 +60,10 @@ module.exports = function (config) {
       supported = config.supportedLanguages;
     }
     return abide.bestLanguage(accepted, supported, config.defaultLang);
+  };
+
+  abideObj.normalizeLanguage = function (lang) {
+    return abide.normalizeLanguage(lang);
   };
 
   // A new function to get a stand-alone 'localization context'
