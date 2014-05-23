@@ -10,7 +10,6 @@ Static server that hosts Firefox Account sign up, sign in, email verification, e
 * npm
 * Grunt (`npm install -g grunt-cli`)
 * PhantomJS (`npm install -g phantomjs`)
-* bower (`npm install -g bower`)
 * libgmp
   * On Linux: install libgmp and libgmp-dev packages
   * On Mac OS X: brew install gmp
@@ -59,7 +58,7 @@ npm test
 To run tests against saucelabs:
 
 ```sh
-npm run-script test-remote
+npm run test-remote
 ```
 
 ### Advanced local testing using headed browsers
