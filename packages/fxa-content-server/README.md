@@ -18,7 +18,7 @@ Static server that hosts Firefox Account sign up, sign in, email verification, e
 
 ## Development Setup
 
-```
+```sh
 cp server/config/local.json-dist server/config/local.json
 npm install
 npm start
@@ -38,7 +38,7 @@ There is quite a bit of setup to do before you can test this service, which is n
 
 e.g. in shell form:
 
-```
+```sh
 export SAUCE_USERNAME=fxa-content
 export SAUCE_ACCESS_KEY=ee5354a4-3d5e-47a0-84b0-0b7aaa12a720
 phantomjs --webdriver=4444 &
@@ -52,11 +52,15 @@ npm start &
 
 To run tests locally against phantomjs:
 
-    npm test
+```sh
+npm test
+```
 
 To run tests against saucelabs:
 
-    npm run-script test-remote
+```sh
+npm run-script test-remote
+```
 
 ### Advanced local testing using headed browsers
 
@@ -84,28 +88,31 @@ It is possible to run the Selenium tests against local browsers like Firefox, Ch
 The default auth server is `http://api-accounts.dev.lcip.org`.  To change this,
 edit `server/config/*.json` on your deployed instance.
 
-    {
-      'fxaccount_url': 'http://your.auth.server.here.org'
-    }
-
+```json
+{
+  'fxaccount_url': 'http://your.auth.server.here.org'
+}
+```
 
 ## Grunt Commands
 
 [Grunt](http://gruntjs.com/) is used to run common tasks to build, test, and run local servers.
 
-* `grunt jshint` - run JSHint on client side and testing JavaScript.
-* `grunt build` - build production resources.
-* `grunt clean` - remove any built production resources.
-* `grunt test` - run local Intern tests.
-* `grunt server` - run a local server running on port 3030 with development resources.
-* `grunt server:dist` - run a local server running on port 3030 with production resources. Production resources will be built as part of the task.
-* `grunt version` - stamp a new minor version. Updates the version number and creates a new CHANGELOG.md
-* `grunt version:patch` - stamp a new patch version. Updates the version number and creates a new CHANGELOG.md
+| TASK | DESCRIPTION |
+|------|-------------|
+| `grunt jshint` | run JSHint on client side and testing JavaScript. |
+| `grunt build` | build production resources. |
+| `grunt clean` | remove any built production resources. |
+| `grunt test` | run local Intern tests. |
+| `grunt server` | run a local server running on port 3030 with development resources. |
+| `grunt server:dist` | run a local server running on port 3030 with production resources. Production resources will be built as part of the task. |
+| `grunt version` | stamp a new minor version. Updates the version number and creates a new CHANGELOG.md. |
+| `grunt version:patch` | stamp a new patch version. Updates the version number and creates a new CHANGELOG.md. |
 
 ## Servers
 
-* latest development - https://accounts-latest.dev.lcip.org/
-* testing - https://accounts.dev.lcip.org/
+* latest development - https://latest.dev.lcip.org/
+* testing - https://nightly.dev.lcip.org/
 * stage - https://accounts.stage.mozaws.net/
 * production - https://accounts.firefox.com/
 
