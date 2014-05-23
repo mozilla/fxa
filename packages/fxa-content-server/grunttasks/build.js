@@ -6,7 +6,6 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.registerTask('build', [
-    'lint',
     'clean:dist',
     'selectconfig:dist',
     // l10n-generate-pages needs to be run before useminPrepare to seed
