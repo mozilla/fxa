@@ -13,10 +13,11 @@ define([
   'views/sign_up',
   'lib/session',
   'lib/auth-errors',
+  'lib/metrics',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, p, View, Session, AuthErrors, RouterMock, TestHelpers) {
+function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -34,14 +35,17 @@ function (chai, _, $, p, View, Session, AuthErrors, RouterMock, TestHelpers) {
   }
 
   describe('views/sign_up', function () {
-    var view, router, email;
+    var view, router, email, metrics;
 
     beforeEach(function () {
       email = 'testuser.' + Math.random() + '@testuser.com';
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
       router = new RouterMock();
+      metrics = new Metrics();
+
       view = new View({
-        router: router
+        router: router,
+        metrics: metrics
       });
       return view.render()
           .then(function () {
@@ -50,11 +54,13 @@ function (chai, _, $, p, View, Session, AuthErrors, RouterMock, TestHelpers) {
     });
 
     afterEach(function () {
+      metrics.destroy();
+
       view.remove();
       view.destroy();
-      view = null;
-      router = null;
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+
+      view = router = metrics = null;
     });
 
     describe('render', function () {
@@ -321,7 +327,7 @@ function (chai, _, $, p, View, Session, AuthErrors, RouterMock, TestHelpers) {
             });
       });
 
-      it('does nothing if user cancels signup', function () {
+      it('logs an error if user cancels signup', function () {
         view.fxaClient.signUp = function () {
           return p()
               .then(function () {
@@ -335,6 +341,9 @@ function (chai, _, $, p, View, Session, AuthErrors, RouterMock, TestHelpers) {
         return view.submit()
           .then(function () {
             assert.isFalse(view.isErrorVisible());
+
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'login:canceled'));
           });
       });
 
@@ -351,6 +360,13 @@ function (chai, _, $, p, View, Session, AuthErrors, RouterMock, TestHelpers) {
 
         return view.submit()
           .then(null, function (err) {
+            // The errorback will not be called if the submit
+            // succeeds, but the following callback always will
+            // be. To ensure the errorback was called, pass
+            // the error along and check its type.
+            return err;
+          })
+          .then(function(err) {
             assert.isTrue(AuthErrors.is(err, 'SERVER_BUSY'));
           });
       });

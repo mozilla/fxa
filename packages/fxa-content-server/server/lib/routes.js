@@ -29,7 +29,8 @@ module.exports = function (config, templates, i18n) {
     require('./routes/get-ver.json'),
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-config')(i18n),
-    require('./routes/get-client.json')(i18n)
+    require('./routes/get-client.json')(i18n),
+    require('./routes/post-metrics')()
   ];
 
   var authServerHost = url.parse(config.get('fxaccount_url')).hostname;

@@ -85,6 +85,19 @@ define([
     return email.split('@')[0];
   }
 
+  function isEventLogged(metrics, eventName) {
+    var events = metrics.getFilteredData().events;
+
+    for (var i = 0; i < events.length; ++i) {
+      var event = events[i];
+      if (event.type === eventName) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   return {
     requiresFocus: requiresFocus,
     addFxaClientSpy: addFxaClientSpy,
@@ -92,6 +105,7 @@ define([
     wrapAssertion: wrapAssertion,
     createRandomHexString: createRandomHexString,
     createEmail: createEmail,
-    emailToUser: emailToUser
+    emailToUser: emailToUser,
+    isEventLogged: isEventLogged
   };
 });

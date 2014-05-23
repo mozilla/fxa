@@ -28,6 +28,24 @@ function (chai, _, Url) {
         assert.isUndefined(Url.searchParam('animal'));
       });
     });
+
+    describe('pathToScreenName', function () {
+      it('strips leading /', function () {
+        assert.equal(Url.pathToScreenName('/signin'), 'signin');
+      });
+
+      it('strips trailing /', function () {
+        assert.equal(Url.pathToScreenName('signup/'), 'signup');
+      });
+
+      it('leaves middle / alone', function () {
+        assert.equal(Url.pathToScreenName('/legal/tos/'), 'legal/tos');
+      });
+
+      it('strips search parameters', function () {
+        assert.equal(Url.pathToScreenName('complete_sign_up?email=testuser@testuser.com'), 'complete_sign_up');
+      });
+    });
   });
 });
 

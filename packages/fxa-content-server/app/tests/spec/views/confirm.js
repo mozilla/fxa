@@ -7,25 +7,30 @@ define([
   'p-promise',
   'lib/session',
   'lib/auth-errors',
+  'lib/metrics',
   'views/confirm',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, p, Session, AuthErrors, View, RouterMock, TestHelpers) {
+function (chai, p, Session, AuthErrors, Metrics, View, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/confirm', function () {
-    var view, routerMock;
+    var view, routerMock, metrics;
 
     beforeEach(function () {
       Session.set('sessionToken', 'fake session token');
 
       routerMock = new RouterMock();
+      metrics = new Metrics();
+
       view = new View({
-        router: routerMock
+        router: routerMock,
+        metrics: metrics
       });
+
       return view.render()
           .then(function () {
             $('#container').html(view.el);
@@ -33,8 +38,12 @@ function (chai, p, Session, AuthErrors, View, RouterMock, TestHelpers) {
     });
 
     afterEach(function () {
+      metrics.destroy();
+
       view.remove();
       view.destroy();
+
+      view = metrics = null;
     });
 
     describe('constructor creates it', function () {
@@ -52,7 +61,7 @@ function (chai, p, Session, AuthErrors, View, RouterMock, TestHelpers) {
     });
 
     describe('submit', function () {
-      it('resends the confirmation email, shows success message', function () {
+      it('resends the confirmation email, shows success message, logs the event', function () {
         var email = TestHelpers.createEmail();
 
         return view.fxaClient.signUp(email, 'password')
@@ -61,6 +70,8 @@ function (chai, p, Session, AuthErrors, View, RouterMock, TestHelpers) {
               })
               .then(function () {
                 assert.isTrue(view.$('.success').is(':visible'));
+                assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                  'confirm:resend'));
               });
 
       });
@@ -75,6 +86,9 @@ function (chai, p, Session, AuthErrors, View, RouterMock, TestHelpers) {
         return view.submit()
               .then(function () {
                 assert.equal(routerMock.page, 'signup');
+
+                assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                  'confirm:resend'));
               });
       });
 
@@ -137,6 +151,11 @@ function (chai, p, Session, AuthErrors, View, RouterMock, TestHelpers) {
               }).then(function () {
                 assert.equal(count, 2);
                 assert.equal(view.$('#resend:visible').length, 0);
+
+                assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                  'confirm:resend'));
+                assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                  'confirm:too_many_attempts'));
               });
       });
     });

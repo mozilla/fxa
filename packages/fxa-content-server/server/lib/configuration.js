@@ -170,6 +170,14 @@ var conf = module.exports = convict({
       default: 'key-value-json',
       env: 'I18N_TRANSLATION_TYPE'
     }
+  },
+  metrics: {
+    sample_rate: {
+      doc: 'Front end metrics sample rate - must be between 0 and 1',
+      format: Number,
+      default: 0,
+      env: 'METRICS_SAMPLE_RATE'
+    }
   }
 });
 

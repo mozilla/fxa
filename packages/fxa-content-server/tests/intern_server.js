@@ -16,7 +16,8 @@ define([
     'tests/server/routes',
     'tests/server/ver.json.js',
     'tests/server/cookies_disabled',
-    'tests/server/l10n'
+    'tests/server/l10n',
+    'tests/server/metrics'
   ];
 
   return intern;

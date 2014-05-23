@@ -28,7 +28,9 @@ define([
   'lib/url',
   'lib/channels/web',
   'lib/channels/fx-desktop',
-  'lib/config-loader'
+  'lib/config-loader',
+  'lib/metrics',
+  'lib/null-metrics'
 ],
 function (
   _,
@@ -41,7 +43,9 @@ function (
   Url,
   WebChannel,
   FxDesktopChannel,
-  ConfigLoader
+  ConfigLoader,
+  Metrics,
+  NullMetrics
 ) {
 
   function getChannel() {
@@ -75,11 +79,24 @@ function (
     setSessionValueFromUrl('context');
   }
 
+  function isMetricsCollectionEnabled (sampleRate) {
+    return Math.random() <= sampleRate;
+  }
+
+  function createMetrics(sampleRate) {
+    if (isMetricsCollectionEnabled(sampleRate)) {
+      return new Metrics();
+    }
+
+    return new NullMetrics();
+  }
+
   function Start(options) {
     options = options || {};
 
     this._window = options.window || window;
-    this._window.router = this._router = options.router || new Router();
+    this._router = options.router;
+
     this._history = options.history || Backbone.history;
     this._configLoader = new ConfigLoader();
   }
@@ -101,11 +118,19 @@ function (
                     .then(_.bind(this.useConfig, this));
     },
 
-    useConfig: function(config) {
+    useConfig: function (config) {
       this._config = config;
       this._configLoader.useConfig(config);
       Session.set('config', config);
       Session.set('language', config.language);
+
+      this._metrics = createMetrics(config.metricsSampleRate);
+      this._metrics.init();
+
+      if (! this._router) {
+        this._router = new Router({ metrics: this._metrics });
+      }
+      this._window.router = this._router;
     },
 
     initializeL10n: function () {

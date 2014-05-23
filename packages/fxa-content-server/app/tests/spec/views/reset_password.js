@@ -7,23 +7,29 @@
 
 define([
   'chai',
+  'p-promise',
   'lib/session',
+  'lib/auth-errors',
+  'lib/metrics',
   'views/reset_password',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, Session, View, WindowMock, RouterMock, TestHelpers) {
+function (chai, p, Session, AuthErrors, Metrics, View, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/reset_password', function () {
-    var view, router;
+    var view, router, metrics;
 
     beforeEach(function () {
       router = new RouterMock();
+      metrics = new Metrics();
+
       view = new View({
-        router: router
+        router: router,
+        metrics: metrics
       });
       return view.render()
           .then(function () {
@@ -32,10 +38,13 @@ function (chai, Session, View, WindowMock, RouterMock, TestHelpers) {
     });
 
     afterEach(function () {
+      metrics.destroy();
+
       view.remove();
       view.destroy();
-      view = router = null;
       $('#container').empty();
+
+      view = router = metrics = null;
     });
 
     describe('render', function () {
@@ -98,13 +107,58 @@ function (chai, Session, View, WindowMock, RouterMock, TestHelpers) {
     });
 
     describe('submit with unknown email address', function () {
-      it('rejects the promise', function () {
+      it('shows an error message', function () {
         var email = 'unknown' + Math.random() + '@testuser.com';
         view.$('input[type=email]').val(email);
 
         return view.submit()
                   .then(function (msg) {
                     assert.ok(msg.indexOf('/signup') > -1);
+                  });
+      });
+    });
+
+    describe('submit when user cancelled login', function () {
+      it('logs an error', function () {
+        view.fxaClient.passwordReset = function (email) {
+          return p()
+              .then(function () {
+                throw AuthErrors.toError('USER_CANCELED_LOGIN');
+              });
+        };
+
+        return view.submit()
+                  .then(null, function(err) {
+                    assert.isTrue(false, 'unexpected failure');
+                  })
+                  .then(function (err) {
+                    assert.isFalse(view.isErrorVisible());
+
+                    assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                      'login:canceled'));
+                  });
+      });
+    });
+
+    describe('submit with other error', function () {
+      it('passes other errors along', function () {
+        view.fxaClient.passwordReset = function (email) {
+          return p()
+              .then(function () {
+                throw AuthErrors.toError('INVALID_JSON');
+              });
+        };
+
+        return view.submit()
+                  .then(null, function(err) {
+                    // The errorback will not be called if the submit
+                    // succeeds, but the following callback always will
+                    // be. To ensure the errorback was called, pass
+                    // the error along and check its type.
+                    return err;
+                  })
+                  .then(function (err) {
+                    assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
                   });
       });
     });

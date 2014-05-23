@@ -32,7 +32,8 @@ module.exports = function(i18n) {
       fxaccountUrl: config.get('fxaccount_url'),
       oauthUrl: config.get('oauth_url'),
       // req.lang is set by abide in a previous middleware.
-      language: req.lang
+      language: req.lang,
+      metricsSampleRate: config.get('metrics.sample_rate')
     });
   };
 

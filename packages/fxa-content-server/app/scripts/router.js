@@ -57,7 +57,15 @@ function (
 
   function showView(View, options) {
     return function () {
-      this.showView(new View(options || {}));
+      // passed in options block can override
+      // default options.
+      options = _.extend({
+        metrics: this.metrics,
+        window: this.window,
+        router: this
+      }, options || {});
+
+      this.showView(new View(options));
     };
   }
 
@@ -91,6 +99,8 @@ function (
       options = options || {};
 
       this.window = options.window || window;
+
+      this.metrics = options.metrics;
 
       this.$stage = $('#stage');
 
