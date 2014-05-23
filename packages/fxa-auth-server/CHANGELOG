@@ -1,3 +1,10 @@
+train-13
+  * added contributing file #719
+  * added MPL license file
+  * fix for certificate sign requests when the provided key is invalid #717
+  * fixed hawk payload verification bug #713
+  * updated base email templates #709
+
 train-12
   * verify an account if its unverified when forgot password verification succeeds #694
   * added 'accountRecreated' flag to the request summary log line #695
