@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+var fs = require('fs');
 
 var HEX_STRING = require('../routes/validators').HEX_STRING
 
@@ -53,11 +54,8 @@ module.exports = function (path, url, Hapi, toobusy) {
           )
       }
     }
-
-    var server = Hapi.createServer(
-      config.listen.host,
-      config.listen.port,
-      {
+    
+    var serverOptions = {
         cors: {
           additionalExposedHeaders: ['Timestamp', 'Accept-Language']
         },
@@ -70,6 +68,18 @@ module.exports = function (path, url, Hapi, toobusy) {
           }
         }
       }
+
+      if(config.useHttps) {
+          serverOptions.tls = {
+              key: fs.readFileSync(config.keyPath),
+              cert: fs.readFileSync(config.certPath)
+          }
+      }
+
+    var server = Hapi.createServer(
+      config.listen.host,
+      config.listen.port,
+      serverOptions
     )
 
     server.pack.require('hapi-auth-hawk', function (err) {
