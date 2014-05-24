@@ -178,6 +178,14 @@ var conf = module.exports = convict({
       default: 0,
       env: 'METRICS_SAMPLE_RATE'
     }
+  },
+  key_path: {
+      doc: 'The location of the SSL key in pem format',
+      default: path.resolve(__dirname, '..', '..','key.pem')
+  },
+  cert_path: {
+	doc: 'The location of the SSL certificate in pem format',
+	default: path.resolve(__dirname, '..', '..','cert.pem')
   }
 });
 
