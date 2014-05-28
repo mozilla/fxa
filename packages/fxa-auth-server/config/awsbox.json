@@ -21,7 +21,8 @@
   "logging": {
     "formatters": {
       "pretty": {
-        "format": "[%(date)s] %(name)s.%(levelname)s: %(message)s"
+        "format": "[%(date)s] %(name)s.%(levelname)s: %(message)s",
+        "colorize": false
       }
     },
     "handlers": {
@@ -31,7 +32,7 @@
     },
     "loggers": {
       "fxa": {
-        "level": "debug"
+        "level": "verbose"
       }
     }
   }
