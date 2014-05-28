@@ -114,6 +114,8 @@ module.exports = function verRoute (i18n) {
             res.send(template);
           },
           'text/html': function () {
+            // the HTML page removes the header to allow embedding.
+            res.removeHeader('X-FRAME-OPTIONS');
             res.render(page, { body: template });
           }
         });
