@@ -18,6 +18,14 @@ var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS)
 var P = require('bluebird')
 P.promisifyAll(Memcached.prototype)
 
+function shutdown() {
+  process.nextTick(process.exit)
+}
+
+if (process.env.ASS_CODE_COVERAGE) {
+  process.on('SIGINT', shutdown)
+}
+
 var mc = new Memcached(
   config.memcached,
   {
