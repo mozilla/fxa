@@ -59,7 +59,9 @@ function (chai, $, P,
                 var fullAssertion = jwcrypto.cert.unbundle(assertion);
                 var components = jwcrypto.extractComponents(fullAssertion.certs[0]);
                 var assertionPublicKey = jwcrypto.loadPublicKey(JSON.stringify(components.payload['public-key']));
-                var checkDate = new Date(components.payload.exp - 1);
+                // construct the checkDate based on the assertion's expiry time, not the certificate's
+                var assertionComponents = jwcrypto.extractComponents(fullAssertion.signedAssertion);
+                var checkDate = new Date(assertionComponents.payload.exp - 1);
 
                 assert.ok(components.payload.iss, 'Issuer exists');
                 assert.ok(components.payload.iat, 'Issued date exists');

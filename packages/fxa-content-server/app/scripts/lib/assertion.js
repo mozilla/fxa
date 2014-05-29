@@ -12,8 +12,7 @@ define([
 function (P, jwcrypto, FxaClient) {
 
   var client = new FxaClient();
-  // cert takes duration in seconds, assertion takes milliseconds. O_o
-  var CERT_DURATION_S = 60 * 60 * 6; // 6hrs
+  var CERT_DURATION_MS = 1000 * 60 * 60 * 6; // 6hrs
   var ASSERTION_DURATION_MS = 1000 * 60 * 5; // 5mins
 
   function keyPair() {
@@ -37,7 +36,7 @@ function (P, jwcrypto, FxaClient) {
       // while certSign is going over the wire, we can also sign the
       // assertion here on the machine
       return P.all([
-        client.certificateSign(kp.publicKey.toSimpleObject(), CERT_DURATION_S),
+        client.certificateSign(kp.publicKey.toSimpleObject(), CERT_DURATION_MS),
         assertion(kp.secretKey, audience)
       ]);
     });
