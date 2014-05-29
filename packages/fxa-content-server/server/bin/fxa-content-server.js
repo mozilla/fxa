@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+var fs = require('fs');
+var https = require('https');
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -99,8 +101,12 @@ function listen(theApp) {
   app = theApp || app;
   if (config.get('use_https')) {
     // Development only... Ops runs this behind nginx
-    port = 443;
-    app.listen(443);
+    port = config.get('port');
+    var tlsoptions = {
+        key: fs.readFileSync(config.get('key_path')),
+        cert: fs.readFileSync(config.get('cert_path'))
+    }
+    https.createServer(tlsoptions, app).listen(port);
     app.on('error', function (e) {
       if ('EACCES' === e.code) {
         logger.error('Permission Denied, maybe you should run this with sudo?');

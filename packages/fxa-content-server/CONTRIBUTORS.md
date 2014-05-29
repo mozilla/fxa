@@ -5,6 +5,7 @@ besnik@programeshqip.org
 Brian Warner
 Chris Karlof
 ckarlof
+Eric Le Lay
 Jed Parsons
 John Gruen
 johngruen
