@@ -40,7 +40,6 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
       } else if (this.isOAuth()) {
         // We're continuing an OAuth flow in a different browser
         this.setupOAuth();
-        this.service = Session.service;
         return this.setServiceInfo();
       }
     },
@@ -105,8 +104,13 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
     },
 
     isOAuthSameBrowser: function () {
+      // The signup/signin flow sets Session.oauth with the
+      // Oauth parameters. If the user opens the verification
+      // link in the same browser, then we check to make sure
+      // the service listed in the link is the same as the client_id
+      // in the previously saved Oauth params.
       /* jshint camelcase: false */
-      return Session.oauth && Session.oauth.client_id === Session.service;
+      return !!Session.oauth && Session.oauth.client_id === Session.service;
     },
 
     is: function (type) {

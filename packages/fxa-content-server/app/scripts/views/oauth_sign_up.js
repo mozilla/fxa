@@ -21,8 +21,6 @@ function (_, BaseView, SignUpView, Session, OAuthMixin) {
 
       // Set up OAuth so we can retrieve the pretty service name
       this.setupOAuth();
-
-      Session.set('service', this._oAuthParams.client_id);
     },
 
     beforeRender: function () {
