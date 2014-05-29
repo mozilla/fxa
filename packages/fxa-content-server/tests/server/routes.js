@@ -18,42 +18,48 @@ define([
   };
 
   var routes = {
-    '/config': 200,
-    '/signin': 200,
-    '/signin_complete': 200,
-    '/signup': 200,
-    '/signup_complete': 200,
-    '/confirm': 200,
-    '/settings': 200,
-    '/change_password': 200,
-    '/legal': 200,
-    '/legal/terms': 200,
-    '/legal/privacy': 200,
-    '/cannot_create_account': 200,
-    '/verify_email': 200,
-    '/reset_password': 200,
-    '/confirm_reset_password': 200,
-    '/complete_reset_password': 200,
-    '/reset_password_complete': 200,
-    '/delete_account': 200,
-    '/force_auth': 200,
-    '/tests/index.html': 200,
-    '/tests/index.html?coverage': 200,
-    '/500.html': 200,
-    '/503.html': 200,
-    '/ver.json': 200,
-    '/non_existent': 404,
-    '/boom': 500,
-    '/legal/non_existent': 404,
-    '/en-US/legal/non_existent': 404,
-    '/cookies_disabled': 200
+    '/config': { statusCode: 200, headerAccept: 'application/json' },
+    '/signin': { statusCode: 200 },
+    '/signin_complete': { statusCode: 200 },
+    '/signup': { statusCode: 200 },
+    '/signup_complete': { statusCode: 200 },
+    '/confirm': { statusCode: 200 },
+    '/settings': { statusCode: 200 },
+    '/change_password': { statusCode: 200 },
+    '/legal': { statusCode: 200 },
+    '/legal/terms': { statusCode: 200 },
+    '/legal/privacy': { statusCode: 200 },
+    '/cannot_create_account': { statusCode: 200 },
+    '/verify_email': { statusCode: 200 },
+    '/reset_password': { statusCode: 200 },
+    '/confirm_reset_password': { statusCode: 200 },
+    '/complete_reset_password': { statusCode: 200 },
+    '/reset_password_complete': { statusCode: 200 },
+    '/delete_account': { statusCode: 200 },
+    '/force_auth': { statusCode: 200 },
+    '/tests/index.html': { statusCode: 200 },
+    '/tests/index.html?coverage': { statusCode: 200 },
+    '/500.html': { statusCode: 200 },
+    '/503.html': { statusCode: 200 },
+    '/ver.json': { statusCode: 200, headerAccept: 'application/json' },
+    '/non_existent': { statusCode: 404 },
+    '/boom': { statusCode: 500 },
+    '/legal/non_existent': { statusCode: 404 },
+    '/en-US/legal/non_existent': { statusCode: 404 },
+    '/cookies_disabled': { statusCode: 200 }
   };
 
-  function routeTest(route, expectedStatusCode) {
+  var iframeAllowedRoutes = [
+    '/legal/terms',
+    '/legal/privacy'
+  ];
+
+  function routeTest(route, expectedStatusCode, requestOptions) {
     suite['#https get ' + httpsUrl + route] = function () {
       var dfd = this.async(1000);
 
-      request(httpsUrl + route, dfd.callback(function (err, res) {
+      request(httpsUrl + route, requestOptions, dfd.callback(function (err, res) {
+        checkHeaders(route, res.headers);
         assert.equal(res.statusCode, expectedStatusCode);
       }, dfd.reject.bind(dfd)));
     };
@@ -62,16 +68,31 @@ define([
     suite['#http get ' + httpUrl + route] = function () {
       var dfd = this.async(1000);
 
-      request(httpUrl + route, dfd.callback(function (err, res) {
+      request(httpUrl + route, requestOptions, dfd.callback(function (err, res) {
+        checkHeaders(route, res.headers);
         assert.equal(res.statusCode, expectedStatusCode);
       }, dfd.reject.bind(dfd)));
     };
   }
 
   Object.keys(routes).forEach(function (key) {
-    routeTest(key, routes[key]);
+    var requestOptions = {
+      headers: {
+        'Accept': routes[key].headerAccept || 'text/html'
+      }
+    };
+
+    routeTest(key, routes[key].statusCode, requestOptions);
   });
 
   registerSuite(suite);
+
+  function checkHeaders(route, headers) {
+    if (iframeAllowedRoutes.indexOf(route) >= 0) {
+      assert.notOk(headers.hasOwnProperty('x-frame-options'));
+    } else {
+      assert.ok(headers.hasOwnProperty('x-frame-options'));
+    }
+  }
 
 });
