@@ -1,0 +1,6 @@
+{{t "Are you sure?"}}
+
+{{{t "Please confirm that you'd like to reset the password for %s." email }}}
+{{t "Reset password:"}} {{{link}}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{t "For more information, please visit https://support.mozilla.org"}}
