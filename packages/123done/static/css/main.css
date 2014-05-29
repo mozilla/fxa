@@ -32,24 +32,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #splash header{
-    background: url(../img/landing.jpg) center center;
-    background-size: cover;
     font-weight: 300;
-    height: 640px;
+    background: #eef2f0;
     margin: 0 0 100px 0;
     width: 100%;
 }
 
 #splash-logo {
     display: block;
-    margin: 0 auto;
-    height: 250px;
-    padding: 170px 0 10px 0;
+    margin: 20px auto 0 auto;
     width: 72px;
 }
 
 #splash h1 {
-    color: #fff;
     font-size: 72px;
     font-weight:100;
     margin: 0;
@@ -57,7 +52,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #splash h2 {
-    color: #fff;
     font-size: 24px;
     font-weight: 300;
     margin: 0;
