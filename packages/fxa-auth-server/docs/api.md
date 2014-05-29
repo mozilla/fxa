@@ -693,7 +693,7 @@ ___Parameters___
     * p - DS only
     * q - DS only
     * g - DS only
-* duration - time interval from now when the certificate will expire, in seconds, up to a maximum of 24 hours.
+* duration - time interval from now when the certificate will expire, in milliseconds, up to a maximum of 24 hours.
 
 ___Headers___
 
