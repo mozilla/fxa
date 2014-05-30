@@ -60,10 +60,21 @@ function getCommitHashFromGit() {
   return deferred.promise;
 }
 
-var l10nVersion = (function getL10NVersion() {
+var l10nVersion = (function () {
   var version;
   try { 
     var bowerPath = '../../../app/bower_components/fxa-content-server-l10n/.bower.json';
+    var bowerInfo = require(bowerPath);
+    version = bowerInfo && bowerInfo._release;
+  } catch(e) {
+  } 
+  return version || 'unknown';
+})();
+
+var tosPpVersion = (function () {
+  var version;
+  try { 
+    var bowerPath = '../../../app/bower_components/tos-pp/.bower.json';
     var bowerInfo = require(bowerPath);
     version = bowerInfo && bowerInfo._release;
   } catch(e) {
@@ -92,10 +103,12 @@ function getVersionInfo() {
                 logger.info('version set to: %s', version);
                 logger.info('commit hash set to: %s', commitHash);
                 logger.info('fxa-content-server-l10n commit hash set to: %s', l10nVersion);
+                logger.info('tos-pp (legal-docs) commit hash set to: %s', tosPpVersion);
                 return {
                   version: version,
                   commit: commitHash,
-                  l10n: l10nVersion
+                  l10n: l10nVersion,
+                  tosPp: tosPpVersion
                 };
               });
 
