@@ -10,7 +10,7 @@ define([
 ], function (intern, registerSuite, assert, require) {
   'use strict';
 
-  var FROM_URL = 'https://github.com/mozilla/fxa-content-server';
+  var FROM_URL = 'http://example.com/';
   var FXA_ROOT_URL = intern.config.fxaContentRoot;
 
   registerSuite({
