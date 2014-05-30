@@ -8,7 +8,7 @@ const db = require('../lib/db');
 
 describe('db', function() {
 
-  describe.only('#_initialClients', function() {
+  describe('#_initialClients', function() {
     it('should not insert already existing clients', function() {
       return db.ping().then(function() {
         return db._initialClients();
