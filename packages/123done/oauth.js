@@ -66,7 +66,7 @@ module.exports = function(app, db) {
       }, function(err, r, body) {
         if (err) return res.send(r.status, err);
 
-        console.log(err, res, body);
+        console.log(err, body);
         req.session.scopes = body.scopes;
         req.session.token_type = body.token_type;
         var token = req.session.token = body.access_token;
@@ -74,18 +74,19 @@ module.exports = function(app, db) {
         // store the bearer token
         //db.set(code, body.access_token);
 
-        request.post({
-          uri: config.profile_uri + '/email',
+        request.get({
+          uri: config.profile_uri + '/profile',
           headers: {
             Authorization: 'Bearer ' + token
           }
         }, function (err, r, body) {
-          console.log(err, r, body);
+          console.log(err, body);
           if (err || r.status >= 400) {
             return res.send(r ? r.status : 400, err || body);
           }
           var data = JSON.parse(body);
           req.session.email = data.email;
+          req.session.uid = data.uid;
           res.redirect('/');
         });
       });
