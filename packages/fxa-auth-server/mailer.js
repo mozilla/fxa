@@ -79,7 +79,7 @@ module.exports = function (log) {
         'Content-Language': translator.language
       }
     }
-    this.send(email)
+    return this.send(email)
   }
 
   Mailer.prototype.recoveryEmail = function (message) {
@@ -115,7 +115,7 @@ module.exports = function (log) {
         'Content-Language': translator.language
       }
     }
-    this.send(email)
+    return this.send(email)
   }
 
   return Mailer

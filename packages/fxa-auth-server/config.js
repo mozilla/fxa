@@ -6,7 +6,7 @@ module.exports = require('rc')(
     locales: ['en_US', 'de'],
     mail: {
       host: '127.0.0.1',
-      port: 9001,
+      port: 9999,
       secure: false,
       sender: 'verification@accounts.firefox.com',
       verificationUrl: 'https://accounts.firefox.com/v1/verify_email',
