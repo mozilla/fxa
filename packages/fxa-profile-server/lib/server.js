@@ -68,12 +68,14 @@ exports.create = function createServer() {
   // response logging
   server.on('response', function onResponse(req) {
     logger.info(
-      '%s %s - %d (%dms)',
+      '%s %s - %d (%dms) <%s>',
       req.method.toUpperCase(),
       req.path,
       req.response.statusCode,
-      Date.now() - req.info.received
+      Date.now() - req.info.received,
+      req.id
     );
+    logger.verbose('Response: %:2j <%s>', req.response.source, req.id);
   });
 
   return server;

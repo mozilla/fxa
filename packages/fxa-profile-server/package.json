@@ -11,9 +11,9 @@
   "dependencies": {
     "bluebird": "1.2.1",
     "convict": "0.4.2",
-    "hapi": "4.0.0",
+    "hapi": "5.1.0",
     "intel": "1.0.0-b2",
-    "joi": "3.1.0",
+    "joi": "4.5.0",
     "mysql": "2.1.1",
     "request": "2.34.0"
   },

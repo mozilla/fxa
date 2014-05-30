@@ -38,8 +38,7 @@ const conf = convict({
         },
         'pretty_with_time': {
           format: '[%(date)s] %(name)s.%(levelname)s: %(message)s',
-          datefmt: '%Y-%m-%d %H:%M:%S.%L',
-          colorize: true
+          datefmt: '%Y-%m-%d %H:%M:%S.%L'
         },
         json: {
           class: './logging/json'
@@ -52,7 +51,7 @@ const conf = convict({
         console: {
           class: 'intel/handlers/stream',
           formatter: 'pretty',
-          stream: 'process.stdout'
+          stream: 'stderr'
         }
       }
     },
