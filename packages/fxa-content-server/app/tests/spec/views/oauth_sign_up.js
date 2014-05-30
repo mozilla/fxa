@@ -23,7 +23,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
     CLIENT_ID = 'dcdb5ae7add825d2';
     STATE = '123';
     SCOPE = 'profile:email';
-    CLIENT_NAME = 'Awsy';
+    CLIENT_NAME = '123Done';
     BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
 
     beforeEach(function () {

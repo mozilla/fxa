@@ -140,8 +140,8 @@ define([
               // confirm logged out
               assert.ok(text.length === 0);
             })
-            .end()
-        })
+            .end();
+        });
     },
 
     'unverified': function () {
@@ -192,15 +192,8 @@ define([
               // get the second email, that one will have the service
               var verifyUrl = emails[1].html.match(/Verify: ([A-Za-z0-9:\/\.\_\?\=\&]+)/)[1];
               return self.get('remote')
-                /*
-                .newWindow(verifyUrl, 'verify_window')
-                .windowHandles()
-                .then(function (windows) {
-                  console.log(windows);
-                });
-                */
-                .get(require.toUrl(verifyUrl))
-            })
+                .get(require.toUrl(verifyUrl));
+            });
         })
 
         .waitForVisibleByCssSelector('#redirectTo')
@@ -235,7 +228,7 @@ define([
           // confirm logged out
           assert.ok(text.length === 0);
         })
-        .end()
+        .end();
     }
   });
 

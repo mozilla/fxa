@@ -16,7 +16,6 @@ define([
 
   var config = intern.config;
   //var OAUTH_APP = 'https://123done.dev.lcip.org/';
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var OAUTH_APP = config.fxaOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
@@ -47,10 +46,6 @@ define([
     },
 
     'basic sign up': function () {
-      var client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-
       var self = this;
 
       return this.get('remote')
@@ -111,7 +106,7 @@ define([
               var verifyUrl = emails[0].html.match(/Verify: ([A-Za-z0-9:\/\.\_\?\=\&]+)/)[1];
 
               return self.get('remote')
-                .get(require.toUrl(verifyUrl))
+                .get(require.toUrl(verifyUrl));
             });
         })
         .end()

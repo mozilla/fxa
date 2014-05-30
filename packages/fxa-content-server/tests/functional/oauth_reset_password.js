@@ -17,10 +17,8 @@ define([
   var config = intern.config;
   //var OAUTH_APP = 'https://123done.dev.lcip.org/';
   var OAUTH_APP = config.fxaOauthApp;
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
   var PAGE_URL = config.fxaContentRoot + 'signin';
-  var PASSWORD = 'password';
   var email;
 
   registerSuite({
