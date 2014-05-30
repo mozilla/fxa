@@ -40,6 +40,11 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, Aut
         return true;
       }
 
+      // Remove any spaces that are probably due to a MUA adding
+      // line breaks in the middle of the link.
+      this.token = this.token.replace(/ /g, '');
+      this.code = this.code.replace(/ /g, '');
+
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.

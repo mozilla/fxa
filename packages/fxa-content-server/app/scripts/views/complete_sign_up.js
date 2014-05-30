@@ -29,6 +29,11 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, 
         return true;
       }
 
+      // Remove any spaces that are probably due to a MUA adding
+      // line breaks in the middle of the link.
+      this.uid = this.uid.replace(/ /g, '');
+      this.code = this.code.replace(/ /g, '');
+
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
