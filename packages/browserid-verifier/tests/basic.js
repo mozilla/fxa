@@ -60,6 +60,19 @@ describe('basic verifier test', function() {
     });
   });
 
+  it('should handle any errors', function(done) {
+    request({
+      method: 'post',
+      url: verifier.url(),
+      json: true,
+      body: "{ 'a' }"
+    }, function(err, r, body) {
+      should.not.exist(err);
+      (r.statusCode).should.equal(400);
+      done();
+    });
+  });
+
   it('test servers should stop', function(done) {
     idp.stop(function(e) {
       verifier.stop(function(e1) {

@@ -51,6 +51,7 @@ app.use(function(req, res, next) {
   }
 });
 
+
 // return 503 when the server is too busy
 toobusy.maxLag(config.get("toobusy.maxLag"));
 app.use(function(req, res, next) {
@@ -101,6 +102,20 @@ function wrongMethod(req, res) {
 
 ['/verify', '/', '/v2'].forEach(function(route) {
   app.get(route, wrongMethod);
+});
+
+// error handler goes last, to receive any errors from previous middleware
+app.use(function(err, req, res, next) {
+  if (err) {
+    if (err.status) {
+      res.statusCode = err.status;
+    } else {
+      res.statusCode = 500;
+      log.error(err);
+    }
+    res.end();
+  }
+  next();
 });
 
 server.listen(config.get('port'), config.get('ip'), function() {
