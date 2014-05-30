@@ -31,6 +31,12 @@ function (_, p, SignInView, Session, OAuthMixin) {
 
     onSignInSuccess: function() {
       return this.finishOAuthFlow();
+    },
+
+    onSignInUnverified: function() {
+      // set the oauth parameters in the session so they are available in the email confirmation
+      Session.set('oauth', this._oAuthParams);
+      return SignInView.prototype.onSignInUnverified.call(this);
     }
   });
 

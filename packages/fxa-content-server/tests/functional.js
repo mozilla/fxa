@@ -20,6 +20,8 @@ define([
   './functional/back_button_after_start',
   './functional/cookies_disabled',
   './functional/mocha'
+  // './functional/oauth_sign_in',
+  // './functional/oauth_sign_up'
 ], function () {
   'use strict';
 });

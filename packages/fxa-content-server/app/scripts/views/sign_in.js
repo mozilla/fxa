@@ -66,10 +66,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
           if (accountData.verified) {
             return self.onSignInSuccess();
           } else {
-            return self.fxaClient.signUpResend()
-              .then(function () {
-                self.navigate('confirm');
-              });
+            return self.onSignInUnverified();
           }
         })
         .then(null, function (err) {
@@ -93,6 +90,15 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       }
 
       return true;
+    },
+
+    onSignInUnverified: function() {
+      var self = this;
+
+      return self.fxaClient.signUpResend()
+        .then(function () {
+          self.navigate('confirm');
+        });
     },
 
     _suggestSignUp: function (err) {

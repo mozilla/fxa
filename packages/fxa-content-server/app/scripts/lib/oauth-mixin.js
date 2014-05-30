@@ -37,7 +37,11 @@ define([
       }
       this._oAuthParams = params;
 
-      this.service = params.client_id;
+      // FxA auth server API expects a 'service' parameter to include in
+      // verification emails. Oauth uses 'client_id', so we set 'service'
+      // to the 'client_id'.
+      this.service = params.client_id || Session.service;
+      Session.set('service', this.service);
     },
 
     setServiceInfo: function () {
