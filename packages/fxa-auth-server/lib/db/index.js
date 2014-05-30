@@ -9,15 +9,30 @@ const logger = require('../logging').getLogger('fxa.db');
 const mysql = require('./mysql');
 const memory = require('./memory');
 
+
+function buffer(obj) {
+  if (Buffer.isBuffer(obj)) {
+    return obj;
+  } else if (typeof obj === 'string') {
+    return Buffer(obj, 'hex');
+  }
+}
+
+function unbuf(buf) {
+  if (Buffer.isBuffer(buf)) {
+    return buf.toString('hex');
+  }
+  return buf;
+}
+
 function preClients(store) {
   var clients = config.get('clients');
   if (clients && clients.length) {
     logger.debug('Loading pre-defined clients: %:2j', clients);
     return P.all(clients.map(function(c) {
-      c.id = Buffer(c.id, 'hex');
       return store.getClient(c.id).then(function(client) {
         if (client) {
-          logger.debug('Client %s exists, skipping', c.id.toString('hex'));
+          logger.debug('Client %s exists, skipping', unbuf(c.id));
         } else {
           return store.registerClient(c);
         }
@@ -41,7 +56,9 @@ function withDriver() {
     p = memory.connect();
   }
   return p.then(function(store) {
-    logger.debug('connected to [%s] store', config.get('db.driver'));
+    logger.debug('connected to "%s" store', config.get('db.driver'));
+    store._unbuf = unbuf;
+    store._buf = buffer;
     return driver = store;
   }).then(preClients);
 }
@@ -51,7 +68,7 @@ function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function(driver) {
-      logger.verbose('proxying', method, [].slice.call(args));
+      logger.verbose('proxying', method, args);
       return driver[method].apply(driver, args);
     }).catch(function(err) {
       logger.error('%s: %s', method, err);
@@ -59,10 +76,16 @@ function proxy(method) {
     });
   };
 }
+
+
 Object.keys(mysql.prototype).forEach(function(key) {
   exports[key] = proxy(key);
 });
 
 exports.disconnect = function disconnect() {
   driver = null;
+};
+
+exports._initialClients = function() {
+  return preClients(this);
 };

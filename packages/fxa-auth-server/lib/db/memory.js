@@ -70,18 +70,19 @@ MemoryStore.prototype = {
   registerClient: function registerClient(client) {
     if (client.id) {
       logger.debug('registerClient: client already has ID?', client.id);
-      client.id = Buffer(client.id, 'hex');
+      client.id = this._buf(client.id);
     } else {
       client.id = unique.id();
     }
-    logger.debug('registerClient', client.name, client.id.toString('hex'));
+    var hex = this._unbuf(client.id);
+    logger.debug('registerClient', client.name, hex);
     client.createdAt = new Date();
-    this.clients[client.id] = client;
+    this.clients[hex] = client;
     client.secret = encrypt.hash(client.secret);
     return P.resolve(client);
   },
   getClient: function getClient(id) {
-    return P.resolve(this.clients[id]);
+    return P.resolve(this.clients[this._unbuf(id)]);
   },
   generateCode: function generateCode(clientId, userId, email, scope) {
     var code = {};
@@ -92,14 +93,14 @@ MemoryStore.prototype = {
     code.createdAt = new Date();
     var _code = unique.code();
     code.code = encrypt.hash(_code);
-    this.codes[code.code.toString('hex')] = code;
+    this.codes[this._unbuf(code.code)] = code;
     return P.resolve(_code);
   },
   getCode: function getCode(code) {
-    return P.resolve(this.codes[encrypt.hash(code).toString('hex')]);
+    return P.resolve(this.codes[this._unbuf(encrypt.hash(code))]);
   },
   removeCode: function removeCode(id) {
-    delete this.codes[id.toString('hex')];
+    delete this.codes[this._unbuf(id)];
     return P.resolve();
   },
   generateToken: function generateToken(code) {
@@ -115,13 +116,13 @@ MemoryStore.prototype = {
       var _token = unique.token();
       var ret = clone(token);
       token.token = encrypt.hash(_token);
-      store.tokens[token.token.toString('hex')] = token;
+      store.tokens[this._unbuf(token.token)] = token;
       ret.token = _token;
       return ret;
     });
   },
   getToken: function getToken(token) {
-    return P.resolve(this.tokens[encrypt.hash(token).toString('hex')]);
+    return P.resolve(this.tokens[this._unbuf(encrypt.hash(token))]);
   }
 };
 

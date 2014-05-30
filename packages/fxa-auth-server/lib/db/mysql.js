@@ -97,7 +97,7 @@ MysqlStore.prototype = {
     var id;
     if (client.id) {
       logger.debug('registerClient: client already has ID?', client.id);
-      id = Buffer(client.id, 'hex');
+      id = this._buf(client.id);
     } else {
       id = unique.id();
     }
@@ -115,7 +115,6 @@ MysqlStore.prototype = {
       ],
       function(err) {
         if (err) {
-          logger.error('registerClient:', err);
           return d.reject(err);
         }
         logger.debug('registerClient: success [%s]', id.toString('hex'));
@@ -124,12 +123,11 @@ MysqlStore.prototype = {
       });
     return d.promise;
   },
-  getClient: function getClient(id) {
+  getClient: function getClient(_id) {
     var d = P.defer();
-    logger.debug('getClient:', id);
+    var id = this._buf(_id);
     this._connection.query(QUERY_CLIENT_GET, [id], function(err, rows) {
       if (err) {
-        logger.error('getClient:', err);
         return d.reject(err);
       }
       d.resolve(rows[0]);
