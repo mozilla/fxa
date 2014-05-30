@@ -82,7 +82,7 @@ const conf = convict({
       default: {
         console: {
           class: 'intel/handlers/stream',
-          stream: 'stdout',
+          stream: 'stderr',
           formatter: 'json'
         }
       }
