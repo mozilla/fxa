@@ -91,9 +91,9 @@ define([
 
     'sign in verified with correct password': function () {
       var self = this;
-      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2)
+      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
         .then(function (emails) {
-          var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
+          var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
           return client.verifyCode(accountData.uid, code);
         })
         .then(function () {
@@ -123,9 +123,9 @@ define([
 
     'sign in verified with incorrect password, click `forgot password?`': function () {
       var self = this;
-      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2)
+      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
         .then(function (emails) {
-          var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
+          var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
           return client.verifyCode(accountData.uid, code);
         })
         .then(function () {
