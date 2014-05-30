@@ -33,7 +33,7 @@ module.exports = {
   response: {
     schema: {
       access_token: Joi.string().required(),
-      scope: Joi.string().required(),
+      scope: Joi.string().required().allow(''),
       token_type: Joi.string().valid('bearer').required()
     }
   },

@@ -15,7 +15,7 @@ const HEX_STRING = /^[0-9a-f]+$/;
 /*jshint camelcase: false*/
 module.exports = {
   validate: {
-    path: {
+    params: {
       client_id: Joi.string()
         .length(config.get('unique.id') * 2) // hex = bytes*2
         .regex(HEX_STRING)

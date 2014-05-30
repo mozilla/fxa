@@ -116,7 +116,7 @@ MemoryStore.prototype = {
       var _token = unique.token();
       var ret = clone(token);
       token.token = encrypt.hash(_token);
-      store.tokens[this._unbuf(token.token)] = token;
+      store.tokens[store._unbuf(token.token)] = token;
       ret.token = _token;
       return ret;
     });

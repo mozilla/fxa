@@ -464,6 +464,33 @@ describe('/v1', function() {
         }).done(done, done);
       });
     });
+    
+    it('should work if no scope was requested', function(done) {
+      mockAssertion().reply(200, VERIFY_GOOD);
+      Server.api.post({
+        url: '/authorization',
+        payload: authParams({
+          scope: undefined
+        })
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        return Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            client_secret: secret,
+            code: url.parse(res.result.redirect, true).query.code
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.token_type, 'bearer');
+        assert(res.result.access_token);
+        assert.equal(res.result.access_token.length,
+          config.get('unique.token') * 2);
+        assert.equal(res.result.scope, '');
+      }).done(done, done);
+    });
   });
 
   describe('/client/:id', function() {
