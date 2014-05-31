@@ -11,3 +11,4 @@ Implementation of OAuth for use by Firefox Accounts
 ## License
 
 MPL 2.0
+
