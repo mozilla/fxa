@@ -6,7 +6,8 @@
     "start": "grunt server",
     "postinstall": "bower install --config.interactive=false -s; node scripts/post_install.js",
     "test": "intern-runner config=tests/intern",
-    "test-remote": "intern-runner config=tests/intern_sauce",
+    "test-sauce": "intern-runner config=tests/intern_sauce",
+    "test-travis": "intern-runner config=tests/intern_travis",
     "test-server": "intern-client config=tests/intern_server",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md"
   },

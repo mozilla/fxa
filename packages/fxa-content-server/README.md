@@ -1,12 +1,13 @@
 # Firefox Accounts Content Server
 
-[![Build Status](https://travis-ci.org/mozilla/fxa-content-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-content-server)
+Travis Tests: [![Build Status: Travis](https://travis-ci.org/mozilla/fxa-content-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-content-server)
+Functional Tests: <a href='http://qa.stage.mozaws.net:8080/job/fxa.content-server-tests.dev/'><img src='http://qa.stage.mozaws.net:8080/job/fxa.content-server-tests.dev/badge/icon' alt='Build Status: Functional Tests' height='13'></a>
 
 Static server that hosts Firefox Account sign up, sign in, email verification, etc. flows.
 
 ## Prerequisites
 
-* node 0.10.x or higher
+* node 0.10.x
 * npm
 * Grunt (`npm install -g grunt-cli`)
 * PhantomJS (`npm install -g phantomjs`)
@@ -30,7 +31,7 @@ It will listen on <http://127.0.0.1:3030> by default.
 ### Setup
 There is quite a bit of setup to do before you can test this service, which is non-optimal, but for now:
 
-  * Set up saucelabs credentials (we have an opensource account: `SAUCE_USERNAME=fxa-content` `SAUCE_ACCESS_KEY=ee5354a4-3d5e-47a0-84b0-0b7aaa12a720`)
+  * Set up SauceLabs credentials (we have an open source account: `SAUCE_USERNAME=fxa-content` `SAUCE_ACCESS_KEY=ee5354a4-3d5e-47a0-84b0-0b7aaa12a720`)
   * PhantomJS: `phantomjs --webdriver=4444` (see [Prerequisites](#prerequisites))
   * Run the Firefox Content Server locally: `npm start`
   * Run an instance of the [fxa-auth-server](https://github.com/mozilla/fxa-auth-server) at 127.0.0.1:9000.
@@ -55,10 +56,10 @@ To run tests locally against phantomjs:
 npm test
 ```
 
-To run tests against saucelabs:
+To run tests against SauceLabs:
 
 ```sh
-npm run test-remote
+npm run test-sauce
 ```
 
 ### Advanced local testing using headed browsers

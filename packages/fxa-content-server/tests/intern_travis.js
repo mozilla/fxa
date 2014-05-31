@@ -8,11 +8,12 @@ define([
   'use strict';
 
   // override the main config file and adjust it to suit Sauce Labs
-  intern.useSauceConnect = true;
-  intern.webdriver.port = 4445;
-  intern.functionalSuites = [ 'tests/functional' ];
+  intern.useSauceConnect = false;
+  intern.webdriver.port = 4444;
+  intern.functionalSuites = [ 'tests/functional/mocha' ];
+
   intern.environments = [
-    { browserName: 'firefox', version: '29', platform: 'Windows 7' }
+    { browserName: 'firefox' }
   ];
 
   return intern;

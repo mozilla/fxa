@@ -30,8 +30,6 @@ define([
 
         // success is going to the TOS screen
         .waitForElementById('fxa-tos-header')
-        .end()
-
         .elementById('fxa-tos-back')
           .click()
         .end()
