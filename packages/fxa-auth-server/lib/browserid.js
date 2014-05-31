@@ -10,14 +10,40 @@ const logger = require('./logging').getLogger('fxa.assertion');
 const P = require('./promise');
 
 const HEX_STRING = /^[0-9a-f]+$/;
+const VERIFICATION_URL = config.get('browserid.verificationUrl');
+const AUDIENCE = config.get('publicUrl');
+
+function unb64(text) {
+  return Buffer(text, 'base64').toString('utf8');
+}
+
+function Assertion(assertion) {
+  this.assertion = assertion;
+}
+
+Assertion.prototype.toJSON = function() {
+  var parts = this.assertion.split('.');
+  var ass = JSON.parse(unb64(parts[1]));
+  ass.pubkey = ass.publicKey = ass['public-key'] = undefined;
+  try {
+    return {
+      header: JSON.parse(unb64(parts[0])),
+      assertion: ass,
+      cert: JSON.parse(unb64(parts[3]))
+    };
+  } catch (ex) {
+    return ex;
+  }
+};
 
 module.exports = function verifyAssertion(assertion) {
+  logger.verbose('assertion %:2j', new Assertion(assertion));
   var d = P.defer();
   var opts = {
-    url: config.get('browserid.verificationUrl'),
+    url: VERIFICATION_URL,
     json: {
       assertion: assertion,
-      audience: config.get('publicUrl')
+      audience: AUDIENCE
     }
   };
   request.post(opts, function(err, res, body) {
