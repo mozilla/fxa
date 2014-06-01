@@ -154,13 +154,13 @@ TestServer.start(config)
         .then(
           function (emailData) {
             t.assert(emailData.text.indexOf('Verify') !== -1, 'is en-US')
-            t.assert(emailData.text.indexOf('ʎɟıɹǝɅ') === -1, 'not it-CH')
+            t.assert(emailData.text.indexOf('Verificar') === -1, 'not pt-BR')
             return client.destroyAccount()
           }
         )
         .then(
           function () {
-            return Client.create(config.publicUrl, email, password, { lang: 'it-CH' })
+            return Client.create(config.publicUrl, email, password, { lang: 'pt-BR' })
           }
         )
         .then(
@@ -176,7 +176,7 @@ TestServer.start(config)
         .then(
           function (emailData) {
             t.assert(emailData.text.indexOf('Verify') === -1, 'not en-US')
-            t.assert(emailData.text.indexOf('ʎɟıɹǝɅ') !== -1, 'is it-CH')
+            t.assert(emailData.text.indexOf('Verificar') !== -1, 'is pt-BR')
             return client.destroyAccount()
           }
         )

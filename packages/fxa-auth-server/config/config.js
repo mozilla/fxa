@@ -169,13 +169,6 @@ module.exports = function (fs, path, url, convict) {
         env: 'CONTENT_SERVER_URL'
       }
     },
-    templateServer: {
-      url: {
-        doc: "The url of the corresponding template server instance (currently the same as the fxa-content-server)",
-        default: 'http://127.0.0.1:3030',
-        env: 'TEMPLATE_SERVER_URL'
-      }
-    },
     smtp: {
       api: {
         host: {
@@ -256,6 +249,13 @@ module.exports = function (fs, path, url, convict) {
       defaultLanguage: {
         format: String,
         default: "en-US"
+      },
+      locales: {
+        default: ["ca", "cs", "cy", "da", "de", "en-US", "es", "es-AR",
+                  "es-CL", "et", "eu", "ff", "fr", "fy", "he", "hu", "id",
+                  "it", "ja", "ko", "lt", "nb-NO", "nl", "pa", "pl", "pt",
+                  "pt-BR", "rm", "ru", "sk", "sl", "sq", "sr", "sr-LATN",
+                  "sv", "tr", "zh-CN", "zh-TW"]
       }
     },
     tokenLifetimes: {

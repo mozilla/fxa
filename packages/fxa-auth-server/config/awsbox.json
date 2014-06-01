@@ -17,8 +17,5 @@
   "contentServer": {
     "url": "https://accounts.dev.lcip.org"
   },
-  "templateServer": {
-    "url": "https://accounts.dev.lcip.org"
-  },
   "customsUrl": "none"
 }
