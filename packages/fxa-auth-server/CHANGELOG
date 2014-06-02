@@ -1,3 +1,10 @@
+train-14
+  * moved email sending into fxa-auth-mailer #730
+  * updated hapi-auth-hawk to mitigate bug (#700) #731
+  * added `use_https` config option #728
+  * always return an error on `__heartbeat__` failure #726
+  * updated documentation
+
 train-13
   * added contributing file #719
   * added MPL license file
