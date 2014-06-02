@@ -56,6 +56,17 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
       }
     },
 
+    // afterRender fucnction to handle select-row hack (issue 822)
+    afterRender: function() {
+      var select = this.$el.find('.select-row select');
+      select.focus(function(){
+        select.parent().addClass('select-focus');
+      });
+      select.blur(function(){
+        select.parent().removeClass('select-focus');
+      });
+    },
+
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
       'keydown #fxa-age-year': 'submitOnEnter',
