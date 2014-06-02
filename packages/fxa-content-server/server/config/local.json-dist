@@ -15,6 +15,6 @@
   "route_log_format": "dev_fxa",
   "static_directory": "app",
   "metrics": {
-    "sample_rate": 1
+    "sample_rate": 0
   }
 }
