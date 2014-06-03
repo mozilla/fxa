@@ -9,7 +9,7 @@ module.exports = require('rc')(
     port: 7000,
     memcached: '127.0.0.1:11211',
     recordLifetimeSeconds: 900,
-    blockIntervalSeconds: 60 * 15,
+    blockIntervalSeconds: 60 * 60 * 24,
     rateLimitIntervalSeconds: 60 * 15,
     maxEmails: 3,
     maxBadLogins: 2
