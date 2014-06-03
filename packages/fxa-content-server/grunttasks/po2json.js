@@ -34,7 +34,7 @@ module.exports = function (grunt) {
 
         // In order to make sure the locale is in a form that i18n-abide expects
         // we convert it from locale to langauge back to locale.
-        var locale = i18n.localeFrom(i18n.languageFrom(matches[1]));
+        var locale = i18n.normalizeLocale(matches[1]);
         var filename = matches[2];
         if (filename === 'server.po') {
           filename = 'messages.json';

@@ -14,7 +14,7 @@ module.exports = function(i18n) {
 
   route.process = function (req, res, next) {
     // req.locale is set by abide in a previous middleware.
-    var locale = i18n.localeFrom(i18n.languageFrom(req.locale));
+    var locale = i18n.normalizeLocale(req.locale);
 
     req.url = '/i18n/' + locale + '/client.json';
 
