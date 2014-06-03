@@ -1135,6 +1135,4 @@ Content-Type: application/json
 
 # Reference Client
 
-The [git repo](https://github.com/mozilla/fxa-auth-server) contains a reference implementation
-of the client side of the protocol in [/client/index.js](/client/index.js) with
-sample usage in [/client/example.js](/client/example.js)
+https://github.com/mozilla/fxa-js-client

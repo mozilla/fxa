@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var Client = require('../../client')
+var Client = require('../client')
 var path = require('path')
 var TestServer = require('../test_server')
 
