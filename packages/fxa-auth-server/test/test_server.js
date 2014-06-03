@@ -64,7 +64,7 @@ TestServer.prototype.start = function () {
   // if another instance is already running this will just die which is ok
   this.mail = cp.spawn(
     'node',
-    ['./mail_helper_stub.js'],
+    ['./mail_helper.js'],
     {
       cwd: __dirname,
       stdio: this.printLogs ? 'pipe' : 'ignore'

@@ -4,12 +4,11 @@
 
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
-var path = require('path')
 var Client = require('../client')
 var jwcrypto = require('jwcrypto')
 var config = require('../../config').root()
 
-process.env.CONFIG_FILES = path.join(__dirname, '../config/account_tests.json')
+
 var config = require('../../config').root()
 
 var publicKey = {
