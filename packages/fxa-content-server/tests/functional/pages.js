@@ -44,9 +44,8 @@ define([
     'force_auth',
     'delete_account',
     'non_existent',
-    // Disabled for now, issue #1139
-    //'500.html',
-    //'503.html',
+    '500.html',
+    '503.html',
     'boom'
   ];
 
