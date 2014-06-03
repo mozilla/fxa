@@ -545,6 +545,36 @@ describe('/v1', function() {
       });
     });
 
+    it('should return the email with profile:email scope', function(done) {
+      mockAssertion().reply(200, VERIFY_GOOD);
+      Server.api.post({
+        url: '/authorization',
+        payload: authParams({
+          scope: 'profile:email'
+        })
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        return Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            client_secret: secret,
+            code: url.parse(res.result.redirect, true).query.code
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        return Server.api.post({
+          url: '/verify',
+          payload: {
+            token: res.result.access_token
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert.equal(res.result.email, VEMAIL);
+      }).done(done, done);
+    });
   });
 
 });

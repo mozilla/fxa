@@ -38,7 +38,8 @@ module.exports = {
       };
 
       // token.scope is a Set/Array
-      if (token.scope.indexOf('profile') !== -1) {
+      if (token.scope.indexOf('profile') !== -1 ||
+          token.scope.indexOf('profile:email') !== -1) {
         blob.email = token.email;
       }
 
