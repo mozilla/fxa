@@ -288,6 +288,7 @@ strong.email {
 .input-row input[type='email'],
 .input-row input[type='password'],
 .input-row select {
+  background-color: $mobile-html-background-color;
   border: 1px solid $input-row-border-color;
   border-radius: 5px;
   box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
@@ -435,19 +436,26 @@ label:focus ~ .input-help-focused {
 * and all .select-rows can be replaced with input rows*
 */
 
+.select-row-wrapper {
+  position: relative;
+}
+
 .select-row {
-  background: $stage-background-color url(/images/ddarrow_inactive.png) 96% center no-repeat;
+  background: url(/images/ddarrow_inactive.png) 96% center no-repeat;
   border-radius: 5px;
   border: 1px solid $input-row-border-color;
   cursor:pointer;
   height:45px;
   overflow:hidden;
+  transition-duration: 150ms;
+  transition-property: border-color;
   width:100%;
 }
 
 .select-row:hover {
   border-color: $input-row-hover-border-color;
   background-image: url(/images/ddarrow_active.png);
+  background-color: $html-background-color;
 }
 
 .select-row select {
@@ -457,16 +465,17 @@ label:focus ~ .input-help-focused {
           appearance: none;
   background: none;
   border: none;
+  box-sizing: content-box;
   color: $input-placeholder-color;
   cursor: pointer;
   font-size: 18px;
   height: auto;
   outline: none;
-  padding: 8px 20px 9px 20px;
+  padding: 8px 0 9px 20px;
   text-indent: 0.01px;
   text-overflow: "";
   user-select: none;
-  width: 105%;
+  width: 100%;
 }
 
 .select-row:hover select {
@@ -474,14 +483,22 @@ label:focus ~ .input-help-focused {
 }
 
 .select-row.select-focus {
-  border-color: $input-row-focus-border-color;
+  background-color: $html-background-color;
   background-image: url(/images/ddarrow_active.png);
+  border-color: $input-row-focus-border-color;
 }
 
 .select-row.select-focus select {
   color: $input-text-color;
 }
 
+.select-row.invalid-row {
+  border-color: $error-background-color;
+}
+
+.select-row select option {
+  background-color: $stage-background-color;
+}
 
 .select-row select:-moz-focusring {
   color: transparent !important; /* !important must be added or else the browser ignores the request */
