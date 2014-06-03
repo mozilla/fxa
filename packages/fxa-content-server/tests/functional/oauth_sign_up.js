@@ -15,7 +15,6 @@ define([
   'use strict';
 
   var config = intern.config;
-  //var OAUTH_APP = 'https://123done.dev.lcip.org/';
   var OAUTH_APP = config.fxaOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
@@ -33,7 +32,7 @@ define([
       user = TestHelpers.emailToUser(email);
     },
 
-    teardown: function () {
+    beforeEach: function () {
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
@@ -103,10 +102,8 @@ define([
 
           return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
             .then(function (emails) {
-              var verifyUrl = emails[0].html.match(/Verify: ([A-Za-z0-9:\/\.\_\?\=\&]+)/)[1];
-
               return self.get('remote')
-                .get(require.toUrl(verifyUrl));
+                .get(require.toUrl(emails[0].headers['x-link']));
             });
         })
         .end()
