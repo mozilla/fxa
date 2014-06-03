@@ -37,6 +37,7 @@ module.exports = function (grunt) {
     clientWalker.on('end', function() {
       var authWalker = extract({
         'input-dir': path.join(__dirname, '..', 'server'),
+        exclude: /pages\/dist/,
         'output-dir': messagesOutputPath,
         'output': 'server.pot',
         'join-existing': false,
