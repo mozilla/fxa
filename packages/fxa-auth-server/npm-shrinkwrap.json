@@ -62,7 +62,7 @@
         },
         "async": {
           "version": "0.2.10",
-          "from": "async@0.2.10",
+          "from": "async@~0.2.9",
           "resolved": "https://registry.npmjs.org/async/-/async-0.2.10.tgz"
         },
         "cheerio": {
@@ -162,7 +162,7 @@
             },
             "underscore": {
               "version": "1.4.4",
-              "from": "underscore@1.4.x",
+              "from": "underscore@~1.4",
               "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.4.4.tgz"
             },
             "entities": {
@@ -242,7 +242,7 @@
             },
             "underscore": {
               "version": "1.4.4",
-              "from": "underscore@1.4.4",
+              "from": "underscore@1.4.x",
               "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.4.4.tgz"
             },
             "dateformat": {
@@ -393,7 +393,7 @@
               "dependencies": {
                 "inherits": {
                   "version": "2.0.1",
-                  "from": "inherits@~2.0.1",
+                  "from": "inherits@2",
                   "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
                 },
                 "minimatch": {
@@ -706,7 +706,7 @@
             },
             "underscore": {
               "version": "1.4.4",
-              "from": "underscore@1.4.x",
+              "from": "underscore@~1.4",
               "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.4.4.tgz"
             },
             "dateformat": {
@@ -827,7 +827,7 @@
         },
         "awssum-amazon": {
           "version": "1.3.0",
-          "from": "awssum-amazon@1.x.x",
+          "from": "awssum-amazon@>= 1.1.1",
           "resolved": "https://registry.npmjs.org/awssum-amazon/-/awssum-amazon-1.3.0.tgz",
           "dependencies": {
             "underscore": {
@@ -1000,8 +1000,8 @@
     },
     "fxa-auth-mailer": {
       "version": "0.0.1",
-      "from": "fxa-auth-mailer@git://github.com/dannycoates/fxa-auth-mailer.git#5bd6df4c1f",
-      "resolved": "git://github.com/dannycoates/fxa-auth-mailer.git#5bd6df4c1f8b7ac09a6e423a050248cd728c2531",
+      "from": "fxa-auth-mailer@git://github.com/dannycoates/fxa-auth-mailer.git#35b7f29e0a",
+      "resolved": "git://github.com/dannycoates/fxa-auth-mailer.git#35b7f29e0a01f20258de2a6ab31fa25c71a6d144",
       "dependencies": {
         "bluebird": {
           "version": "1.2.4",
@@ -1579,7 +1579,7 @@
             },
             "mime": {
               "version": "1.2.11",
-              "from": "mime@1.2.11",
+              "from": "mime@~1.2.11",
               "resolved": "https://registry.npmjs.org/mime/-/mime-1.2.11.tgz"
             },
             "negotiator": {
@@ -1635,11 +1635,6 @@
               "resolved": "https://registry.npmjs.org/dtrace-provider/-/dtrace-provider-0.2.8.tgz"
             }
           }
-        },
-        "lazysmtp": {
-          "version": "0.0.8",
-          "from": "lazysmtp@git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
-          "resolved": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992a3f242c9138bd881ddb1c8b99c611e"
         }
       }
     },
@@ -1922,7 +1917,7 @@
           "dependencies": {
             "glob": {
               "version": "3.2.11",
-              "from": "glob@~3.2.9",
+              "from": "glob@~3.2.1",
               "resolved": "https://registry.npmjs.org/glob/-/glob-3.2.11.tgz",
               "dependencies": {
                 "inherits": {
@@ -1963,7 +1958,7 @@
           "dependencies": {
             "graceful-fs": {
               "version": "1.2.3",
-              "from": "graceful-fs@~1",
+              "from": "graceful-fs@~1.2.0",
               "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-1.2.3.tgz"
             },
             "inherits": {
@@ -2034,7 +2029,7 @@
         },
         "js-yaml": {
           "version": "2.0.5",
-          "from": "js-yaml@~2.0.5",
+          "from": "js-yaml@2.0.x",
           "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-2.0.5.tgz",
           "dependencies": {
             "argparse": {
@@ -2723,7 +2718,7 @@
       "dependencies": {
         "findup-sync": {
           "version": "0.1.3",
-          "from": "findup-sync@^0.1.2",
+          "from": "findup-sync@~0.1.0",
           "resolved": "https://registry.npmjs.org/findup-sync/-/findup-sync-0.1.3.tgz",
           "dependencies": {
             "glob": {
@@ -3132,12 +3127,12 @@
         },
         "glob": {
           "version": "3.2.11",
-          "from": "glob@~3.2.9",
+          "from": "glob@~3.2.1",
           "resolved": "https://registry.npmjs.org/glob/-/glob-3.2.11.tgz",
           "dependencies": {
             "inherits": {
               "version": "2.0.1",
-              "from": "inherits@~2.0.1",
+              "from": "inherits@2",
               "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
             },
             "minimatch": {

@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "description": "An identity provider for PiCL services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -48,7 +48,7 @@
     "toobusy": "0.2.4",
     "uuid": "1.4.1",
     "fxa-customs-server": "git://github.com/mozilla/fxa-customs-server.git#74d7b8d6",
-    "fxa-auth-mailer": "git://github.com/dannycoates/fxa-auth-mailer.git#5bd6df4c1f"
+    "fxa-auth-mailer": "git://github.com/dannycoates/fxa-auth-mailer.git#35b7f29e0a"
   },
   "devDependencies": {
     "ass": "0.0.4",
