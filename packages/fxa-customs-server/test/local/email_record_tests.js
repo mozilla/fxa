@@ -10,7 +10,7 @@ function now() {
 }
 
 function simpleEmailRecord() {
-  return new (emailRecord(500, 2, now))()
+  return new (emailRecord(500, 800, 2, now))()
 }
 
 test(
@@ -23,6 +23,13 @@ test(
     t.equal(er.isBlocked(), false, 'blockedAt is older than rate-limit interval')
     er.rl = 501
     t.equal(er.isBlocked(), true, 'blockedAt is within the rate-limit interval')
+    delete er.rl
+    t.equal(er.isBlocked(), false, 'record is no longer blocked')
+
+    er.bk = 199
+    t.equal(er.isBlocked(), false, 'blockedAt is older than block interval')
+    er.bk = 201
+    t.equal(er.isBlocked(), true, 'blockedAt is within the block interval')
     t.end()
   }
 )
@@ -110,18 +117,26 @@ test(
 test(
   'retryAfter works',
   function (t) {
-    var er = simpleEmailRecord()
-    er.now = function () {
+    var er = new (emailRecord(5000, 8000, 2, function () {
       return 10000
-    }
+    }))()
 
     t.equal(er.retryAfter(), 0, 'unblocked records can be retried now')
-    er.rl = 100
+    er.rl = 1000
     t.equal(er.retryAfter(), 0, 'long expired blocks can be retried immediately')
-    er.rl = 500
+    er.rl = 5000
     t.equal(er.retryAfter(), 0, 'just expired blocks can be retried immediately')
     er.rl = 6000
-    t.equal(er.retryAfter(), 5, 'unexpired blocks can be retried in a bit')
+    t.equal(er.retryAfter(), 1, 'unexpired blocks can be retried in a bit')
+
+    delete er.rl
+    t.equal(er.retryAfter(), 0, 'unblocked records can be retried now')
+    er.bk = 1000
+    t.equal(er.retryAfter(), 0, 'long expired blocks can be retried immediately')
+    er.bk = 2000
+    t.equal(er.retryAfter(), 0, 'just expired blocks can be retried immediately')
+    er.bk = 6000
+    t.equal(er.retryAfter(), 4, 'unexpired blocks can be retried in a bit') // TODO?
     t.end()
   }
 )
@@ -145,7 +160,7 @@ test(
     t.equal(er.isBlocked(), false, 'original object is not blocked')
     t.equal(er.xs.length, 0, 'original object has no hits')
 
-    var erCopy1 = (emailRecord(50, 2, now)).parse(er)
+    var erCopy1 = (emailRecord(50, 50, 2, now)).parse(er)
     t.equal(erCopy1.isBlocked(), false, 'copied object is not blocked')
     t.equal(erCopy1.xs.length, 0, 'copied object has no hits')
 
@@ -154,7 +169,7 @@ test(
     t.equal(er.isBlocked(), true, 'original object is now blocked')
     t.equal(er.xs.length, 1, 'original object now has one hit')
 
-    var erCopy2 = (emailRecord(50, 2, now)).parse(er)
+    var erCopy2 = (emailRecord(50, 50, 2, now)).parse(er)
     t.equal(erCopy2.isBlocked(), true, 'copied object is blocked')
     t.equal(erCopy2.xs.length, 1, 'copied object has one hit')
     t.end()
