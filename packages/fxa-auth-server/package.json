@@ -18,9 +18,10 @@
     "nodemailer": "0.6.5",
     "po2json": "0.2.3",
     "rc": "0.4.0",
-    "restify": "2.8.1",
+    "restify": "2.8.1"
+  },
+  "devDependencies": {
     "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
     "mailparser": "0.4.1"
-  },
-  "devDependencies": {}
+  }
 }

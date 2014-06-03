@@ -7,12 +7,7 @@ handlebars.registerHelper(
   't',
   function (string) {
     if (this.translator) {
-      if (arguments.length > 2) {
-        var args = Array.prototype.slice.call(arguments, 1, arguments.length - 1)
-        args.unshift(this.translator.gettext(string))
-        return this.translator.sprintf.apply(this.translator, args)
-      }
-      return this.translator.gettext(string)
+      return this.translator.format(this.translator.gettext(string), this)
     }
     return string
   }

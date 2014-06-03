@@ -5,6 +5,8 @@ var P = require('bluebird')
 var po2json = require('po2json')
 var poParseFile = P.promisify(po2json.parseFile)
 
+Jed.prototype.format = i18n.format
+
 module.exports = function (locales) {
   return P.all(
     locales.map(
