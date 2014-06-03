@@ -12,11 +12,11 @@ var TEST_IP = '192.0.2.1'
 var config = {
   port: 7000,
   memcached: '127.0.0.1:11211',
-  blockIntervalSeconds: 1,
+  rateLimitIntervalSeconds: 1,
   maxBadLogins: 2
 }
 
-var IpEmailRecord = require('../../ip_email_record')(config.blockIntervalSeconds * 1000, config.maxBadLogins)
+var IpEmailRecord = require('../../ip_email_record')(config.rateLimitIntervalSeconds * 1000, config.maxBadLogins)
 var testServer = new TestServer(config)
 
 var mc = new Memcached(
@@ -119,7 +119,7 @@ test(
           }
         )
       },
-      config.blockIntervalSeconds * 1000
+      config.rateLimitIntervalSeconds * 1000
     )
   }
 )

@@ -19,10 +19,10 @@ test(
     var er = simpleEmailRecord()
 
     t.equal(er.isBlocked(), false, 'record has never been blocked')
-    er.bk = 499
-    t.equal(er.isBlocked(), false, 'blockedAt is older than block interval')
-    er.bk = 501
-    t.equal(er.isBlocked(), true, 'blockedAt is within the block interval')
+    er.rl = 499
+    t.equal(er.isBlocked(), false, 'blockedAt is older than rate-limit interval')
+    er.rl = 501
+    t.equal(er.isBlocked(), true, 'blockedAt is within the rate-limit interval')
     t.end()
   }
 )
@@ -43,14 +43,14 @@ test(
 )
 
 test(
-  'block works',
+  'rateLimit works',
   function (t) {
     var er = simpleEmailRecord()
 
     er.addHit()
     t.equal(er.isBlocked(), false, 'record is not blocked')
     t.equal(er.xs.length, 1, 'record has been emailed once')
-    er.block()
+    er.rateLimit()
     t.equal(er.isBlocked(), true, 'record is blocked')
     t.equal(er.xs.length, 0, 'record has an empty list of emails')
     t.end()
@@ -116,11 +116,11 @@ test(
     }
 
     t.equal(er.retryAfter(), 0, 'unblocked records can be retried now')
-    er.bk = 100
+    er.rl = 100
     t.equal(er.retryAfter(), 0, 'long expired blocks can be retried immediately')
-    er.bk = 500
+    er.rl = 500
     t.equal(er.retryAfter(), 0, 'just expired blocks can be retried immediately')
-    er.bk = 6000
+    er.rl = 6000
     t.equal(er.retryAfter(), 5, 'unexpired blocks can be retried in a bit')
     t.end()
   }
@@ -149,7 +149,7 @@ test(
     t.equal(erCopy1.isBlocked(), false, 'copied object is not blocked')
     t.equal(erCopy1.xs.length, 0, 'copied object has no hits')
 
-    er.block()
+    er.rateLimit()
     er.addHit()
     t.equal(er.isBlocked(), true, 'original object is now blocked')
     t.equal(er.xs.length, 1, 'original object now has one hit')

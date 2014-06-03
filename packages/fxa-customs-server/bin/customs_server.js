@@ -10,9 +10,10 @@ var packageJson = require('../package.json')
 
 var LIFETIME = config.recordLifetimeSeconds
 var BLOCK_INTERVAL_MS = config.blockIntervalSeconds * 1000
+var RATE_LIMIT_INTERVAL_MS = config.rateLimitIntervalSeconds * 1000
 
-var IpEmailRecord = require('../ip_email_record')(BLOCK_INTERVAL_MS, config.maxBadLogins)
-var EmailRecord = require('../email_record')(BLOCK_INTERVAL_MS, config.maxEmails)
+var IpEmailRecord = require('../ip_email_record')(RATE_LIMIT_INTERVAL_MS, config.maxBadLogins)
+var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, config.maxEmails)
 var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS)
 
 var P = require('bluebird')
