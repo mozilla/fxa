@@ -41,7 +41,7 @@ define([
 
       this.setPosition();
 
-      var tooltipContainer = this.invalidEl.closest('.input-row');
+      var tooltipContainer = this.invalidEl.closest('.input-row,.select-row-wrapper');
       this.$el.appendTo(tooltipContainer);
 
       this.bindDOMEvents();
