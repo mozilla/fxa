@@ -223,6 +223,39 @@ api.post(
   }
 )
 
+api.post(
+  '/blockIp',
+  function (req, res, next) {
+    var ip = req.body.ip
+    if (!ip) {
+      var err = {code: 'MissingParameters', message: 'ip is required'}
+      log.error({ op: 'request.blockIp', ip: ip, err: err })
+      res.send(500, err)
+      next()
+    }
+
+    mc.getAsync(ip)
+      .then(IpRecord.parse, IpRecord.parse)
+      .then(
+        function (ipRecord) {
+          ipRecord.block()
+          return mc.setAsync(ip, ipRecord, LIFETIME).caught(ignore)
+        }
+      )
+      .then(
+        function () {
+          log.info({ op: 'request.blockIp', ip: ip })
+          res.send({})
+        },
+        function (err) {
+          log.error({ op: 'request.blockIp', ip: ip, err: err })
+          res.send(500, err)
+        }
+      )
+      .done(next, next)
+  }
+)
+
 api.get(
   '/',
   function (req, res, next) {
