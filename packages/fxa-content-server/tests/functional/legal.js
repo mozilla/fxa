@@ -29,7 +29,8 @@ define([
         .end()
 
         // success is going to the TOS screen
-        .waitForElementById('fxa-tos-header')
+        .waitForVisibleByCssSelector('#legal-copy ol li')
+        .waitForVisibleByCssSelector('#fxa-tos-back')
         .elementById('fxa-tos-back')
           .click()
         .end()
@@ -39,10 +40,8 @@ define([
           .click()
         .end()
 
-        // success is going to the privacy screen
-        .waitForElementById('fxa-pp-header')
-        .end()
-
+        .waitForVisibleByCssSelector('#legal-copy p')
+        .waitForVisibleByCssSelector('#fxa-pp-back')
         .elementById('fxa-pp-back')
           .click()
         .end()

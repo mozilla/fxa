@@ -25,10 +25,8 @@ define([
           .click()
         .end()
 
-        // success is going to the TOS screen
-        .waitForElementById('fxa-tos-header')
-        .end()
-
+        .waitForVisibleByCssSelector('#legal-copy ol li')
+        .waitForVisibleByCssSelector('#fxa-tos-back')
         .elementById('fxa-tos-back')
           .click()
         .end()
