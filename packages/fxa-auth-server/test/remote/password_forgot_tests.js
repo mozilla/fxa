@@ -5,10 +5,9 @@
 var test = require('../ptaptest')
 var url = require('url')
 var Client = require('../client')
-var path = require('path')
 var TestServer = require('../test_server')
 
-process.env.CONFIG_FILES = path.join(__dirname, '../config/account_tests.json')
+
 var config = require('../../config').root()
 
 TestServer.start(config)

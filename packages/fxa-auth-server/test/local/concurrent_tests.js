@@ -8,8 +8,8 @@ var path = require('path')
 var Client = require('../client')
 var P = require('../../promise')
 
-process.env.CONFIG_FILES = path.join(__dirname, '../config/account_tests.json,')
-process.env.CONFIG_FILES += path.join(__dirname, '../config/scrypt.json')
+
+process.env.CONFIG_FILES = path.join(__dirname, '../config/scrypt.json')
 var config = require('../../config').root()
 
 // This test is mysql specific

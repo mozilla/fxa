@@ -172,12 +172,12 @@ module.exports = function (fs, path, url, convict) {
     smtp: {
       api: {
         host: {
-          doc: 'host for bin/mail_helper.js',
+          doc: 'host for test/mail_helper.js',
           default: '127.0.0.1',
           env: 'MAILER_HOST'
         },
         port: {
-          doc: 'port for bin/mail_helper.js',
+          doc: 'port for test/mail_helper.js',
           default: 9001,
           env: 'MAILER_PORT'
         }

@@ -5,10 +5,9 @@
 var test = require('../ptaptest')
 var Client = require('../client')
 var TestServer = require('../test_server')
-var path = require('path')
 var jwcrypto = require('jwcrypto')
 
-process.env.CONFIG_FILES = path.join(__dirname, '../config/account_tests.json')
+
 var config = require('../../config').root()
 
 TestServer.start(config)
