@@ -4,7 +4,7 @@
 
 var test = require('../ptaptest')
 var url = require('url')
-var Client = require('../../client')
+var Client = require('../client')
 var path = require('path')
 var TestServer = require('../test_server')
 

@@ -5,7 +5,7 @@
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var path = require('path')
-var Client = require('../../client')
+var Client = require('../client')
 var jwcrypto = require('jwcrypto')
 var config = require('../../config').root()
 

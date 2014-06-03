@@ -50,11 +50,7 @@ Run tests with:
 
 ## Reference Client
 
-A node library that implements the client side of the protocol and an example
-script is located in the `/client` directory.
-
-* [/client/index.js](/client/index.js)
-* [/client/example.js](/client/example.js)
+https://github.com/mozilla/fxa-js-client
 
 
 ## Dev Deployment

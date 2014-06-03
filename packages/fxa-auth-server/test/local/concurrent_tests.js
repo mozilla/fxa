@@ -5,7 +5,7 @@
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var path = require('path')
-var Client = require('../../client')
+var Client = require('../client')
 var P = require('../../promise')
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/account_tests.json,')
