@@ -64,9 +64,9 @@ describe('basic verifier test', function() {
     request({
       method: 'post',
       url: verifier.url(),
-      json: true,
-      body: "{ 'a' }"
-    }, function(err, r, body) {
+      body: "{ 'a' }",
+      headers: { 'content-type': 'application/json' }
+    }, function(err, r) {
       should.not.exist(err);
       (r.statusCode).should.equal(400);
       done();
