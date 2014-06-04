@@ -23,4 +23,4 @@ before_script:
   - "mysql -e 'CREATE DATABASE fxa_oauth;'"
 
 script:
-  - grunt validate-shrinkwrap lint
+  - grunt validate-shrinkwrap test
