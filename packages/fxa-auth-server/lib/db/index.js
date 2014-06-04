@@ -25,23 +25,20 @@ function unbuf(buf) {
   return buf;
 }
 
-function preClients(store) {
+function preClients() {
   var clients = config.get('clients');
   if (clients && clients.length) {
     logger.debug('Loading pre-defined clients: %:2j', clients);
     return P.all(clients.map(function(c) {
-      return store.getClient(c.id).then(function(client) {
+      return exports.getClient(c.id).then(function(client) {
         if (client) {
           logger.debug('Client %s exists, skipping', unbuf(c.id));
         } else {
-          return store.registerClient(c);
+          return exports.registerClient(c);
         }
       });
-    })).then(function() {
-      return store;
-    });
+    }));
   }
-  return store;
 }
 
 var driver;
@@ -59,8 +56,10 @@ function withDriver() {
     logger.debug('connected to "%s" store', config.get('db.driver'));
     store._unbuf = unbuf;
     store._buf = buffer;
-    return driver = store;
-  }).then(preClients);
+    driver = store;
+  }).then(preClients).then(function() {
+    return driver;
+  });
 }
 
 
@@ -87,5 +86,5 @@ exports.disconnect = function disconnect() {
 };
 
 exports._initialClients = function() {
-  return preClients(this);
+  return preClients();
 };
