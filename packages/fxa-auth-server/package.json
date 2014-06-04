@@ -36,19 +36,19 @@
     "bunyan": "0.22.1",
     "compute-cluster": "git://github.com/dannycoates/node-compute-cluster.git#0222a742",
     "convict": "0.4.2",
+    "fxa-auth-mailer": "git://github.com/dannycoates/fxa-auth-mailer.git#35b7f29e0a",
+    "fxa-customs-server": "git://github.com/mozilla/fxa-customs-server.git#74d7b8d6",
     "hapi": "3.0.2",
     "hapi-auth-hawk": "git://github.com/dannycoates/hapi-auth-hawk.git#146758e444",
     "hkdf": "0.0.2",
     "jwcrypto": "0.4.4",
     "mysql": "2.1.1",
     "p-promise": "0.2.5",
-    "request": "2.34.0",
+    "poolee": "0.4.13",
     "scrypt-hash": "1.1.8",
     "through": "2.3.4",
     "toobusy": "0.2.4",
-    "uuid": "1.4.1",
-    "fxa-customs-server": "git://github.com/mozilla/fxa-customs-server.git#74d7b8d6",
-    "fxa-auth-mailer": "git://github.com/dannycoates/fxa-auth-mailer.git#35b7f29e0a"
+    "uuid": "1.4.1"
   },
   "devDependencies": {
     "ass": "0.0.4",
@@ -63,6 +63,7 @@
     "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
     "load-grunt-tasks": "0.4.0",
     "mailparser": "0.4.1",
+    "request": "2.34.0",
     "sjcl": "1.0.0",
     "tap": "0.4.8"
   }

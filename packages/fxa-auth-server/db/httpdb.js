@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var request = require('../requestp')
+var Pool = require('../pool')
 
 var butil = require('../crypto/butil')
 var unbuffer = butil.unbuffer
@@ -19,19 +19,13 @@ module.exports = function (
   PasswordChangeToken) {
 
   function DB(options) {
-    this.url = options.url
+    this.pool = new Pool(options.url)
   }
 
   DB.connect = function (options) {
     var db = new DB(options)
 
-    return request(
-      {
-        method: 'GET',
-        url: db.url,
-        json: true
-      }
-    )
+    return db.pool.get('/')
     .then(
       function (api) {
         // TODO: transition to api version
@@ -48,11 +42,11 @@ module.exports = function (
   }
 
   DB.prototype.close = function () {
-    return P()
+    return P(this.pool.close())
   }
 
   DB.prototype.ping = function () {
-    return request(this.url + '/__heartbeat__')
+    return this.pool.get('/__heartbeat__')
   }
 
   // CREATE
@@ -67,12 +61,9 @@ module.exports = function (
     )
     data.createdAt = data.verifierSetAt = Date.now()
     data.normalizedEmail = data.email.toLowerCase()
-    return request(
-      {
-        method: 'PUT',
-        url: this.url + '/account/' + data.uid.toString('hex'),
-        json: unbuffer(data)
-      }
+    return this.pool.put(
+      '/account/' + data.uid.toString('hex'),
+      unbuffer(data)
     )
     .then(
       function () {
@@ -92,20 +83,17 @@ module.exports = function (
     return SessionToken.create(authToken)
       .then(
         function (sessionToken) {
-          return request(
-            {
-              method: 'PUT',
-              url: this.url + '/sessionToken/' + sessionToken.id,
-              json: unbuffer(
-                {
-                  tokenId: sessionToken.tokenId,
-                  data: sessionToken.data,
-                  uid: sessionToken.uid,
-                  createdAt: sessionToken.createdAt
-                },
-                'inplace'
-              )
-            }
+          return this.pool.put(
+            '/sessionToken/' + sessionToken.id,
+            unbuffer(
+              {
+                tokenId: sessionToken.tokenId,
+                data: sessionToken.data,
+                uid: sessionToken.uid,
+                createdAt: sessionToken.createdAt
+              },
+              'inplace'
+            )
           )
           .then(
             function () {
@@ -121,21 +109,18 @@ module.exports = function (
     return KeyFetchToken.create(authToken)
       .then(
         function (keyFetchToken) {
-          return request(
-            {
-              method: 'PUT',
-              url: this.url + '/keyFetchToken/' + keyFetchToken.id,
-              json: unbuffer(
-                {
-                  tokenId: keyFetchToken.tokenId,
-                  authKey: keyFetchToken.authKey,
-                  uid: keyFetchToken.uid,
-                  keyBundle: keyFetchToken.keyBundle,
-                  createdAt: keyFetchToken.createdAt
-                },
-                'inplace'
-              )
-            }
+          return this.pool.put(
+            '/keyFetchToken/' + keyFetchToken.id,
+            unbuffer(
+              {
+                tokenId: keyFetchToken.tokenId,
+                authKey: keyFetchToken.authKey,
+                uid: keyFetchToken.uid,
+                keyBundle: keyFetchToken.keyBundle,
+                createdAt: keyFetchToken.createdAt
+              },
+              'inplace'
+            )
           )
           .then(
             function () {
@@ -151,20 +136,17 @@ module.exports = function (
     return AccountResetToken.create(token)
       .then(
         function (accountResetToken) {
-          return request(
-            {
-              method: 'PUT',
-              url: this.url + '/accountResetToken/' + accountResetToken.id,
-              json: unbuffer(
-                {
-                  tokenId: accountResetToken.tokenId,
-                  data: accountResetToken.data,
-                  uid: accountResetToken.uid,
-                  createdAt: accountResetToken.createdAt
-                },
-                'inplace'
-              )
-            }
+          return this.pool.put(
+            '/accountResetToken/' + accountResetToken.id,
+            unbuffer(
+              {
+                tokenId: accountResetToken.tokenId,
+                data: accountResetToken.data,
+                uid: accountResetToken.uid,
+                createdAt: accountResetToken.createdAt
+              },
+              'inplace'
+            )
           )
           .then(
             function () {
@@ -180,22 +162,19 @@ module.exports = function (
     return PasswordForgotToken.create(emailRecord)
       .then(
         function (passwordForgotToken) {
-          return request(
-            {
-              method: 'PUT',
-              url: this.url + '/passwordForgotToken/' + passwordForgotToken.id,
-              json: unbuffer(
-                {
-                  tokenId: passwordForgotToken.tokenId,
-                  data: passwordForgotToken.data,
-                  uid: passwordForgotToken.uid,
-                  passCode: passwordForgotToken.passCode,
-                  createdAt: passwordForgotToken.createdAt,
-                  tries: passwordForgotToken.tries
-                },
-                'inplace'
-              )
-            }
+          return this.pool.put(
+            '/passwordForgotToken/' + passwordForgotToken.id,
+            unbuffer(
+              {
+                tokenId: passwordForgotToken.tokenId,
+                data: passwordForgotToken.data,
+                uid: passwordForgotToken.uid,
+                passCode: passwordForgotToken.passCode,
+                createdAt: passwordForgotToken.createdAt,
+                tries: passwordForgotToken.tries
+              },
+              'inplace'
+            )
           )
           .then(
             function () {
@@ -211,20 +190,17 @@ module.exports = function (
     return PasswordChangeToken.create(data)
       .then(
         function (passwordChangeToken) {
-          return request(
-            {
-              method: 'PUT',
-              url: this.url + '/passwordChangeToken/' + passwordChangeToken.id,
-              json: unbuffer(
-                {
-                  tokenId: passwordChangeToken.tokenId,
-                  data: passwordChangeToken.data,
-                  uid: passwordChangeToken.uid,
-                  createdAt: passwordChangeToken.createdAt
-                },
-                'inplace'
-              )
-            }
+          return this.pool.put(
+            '/passwordChangeToken/' + passwordChangeToken.id,
+            unbuffer(
+              {
+                tokenId: passwordChangeToken.tokenId,
+                data: passwordChangeToken.data,
+                uid: passwordChangeToken.uid,
+                createdAt: passwordChangeToken.createdAt
+              },
+              'inplace'
+            )
           )
           .then(
             function () {
@@ -239,211 +215,154 @@ module.exports = function (
 
   DB.prototype.accountExists = function (email) {
     log.trace({ op: 'DB.accountExists', email: email })
-    return request(
-      {
-        method: 'HEAD',
-        url: this.url + '/emailRecord/' + Buffer(email, 'utf8').toString('hex'),
-        json: true
-      }
-    )
-    .then(
-      function () {
-        return true
-      },
-      function (err) {
-        if (err.statusCode === 404) {
-          return false
+    return this.pool.head('/emailRecord/' + Buffer(email, 'utf8').toString('hex'))
+      .then(
+        function () {
+          return true
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            return false
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   DB.prototype.accountDevices = function (uid) {
     log.trace({ op: 'DB.accountDevices', uid: uid })
-    return request(
-      {
-        method: 'GET',
-        url: this.url + '/account/' + uid.toString('hex') + '/devices',
-        json: true
-      }
-    )
+    return this.pool.get('/account/' + uid.toString('hex') + '/devices')
   }
 
   DB.prototype.sessionToken = function (id) {
     log.trace({ op: 'DB.sessionToken', id: id })
-    return request(
-      {
-        method: 'GET',
-        url: this.url + '/sessionToken/' + id.toString('hex'),
-        json: true
-      }
-    )
-    .then(
-      function (body) {
-        var data = bufferize(body)
-        return SessionToken.fromHex(data.tokenData, data)
-      },
-      function (err) {
-        if (err.statusCode === 404) {
-          err = error.invalidToken()
+    return this.pool.get('/sessionToken/' + id.toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          return SessionToken.fromHex(data.tokenData, data)
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            err = error.invalidToken()
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   DB.prototype.keyFetchToken = function (id) {
     log.trace({ op: 'DB.keyFetchToken', id: id })
-    return request(
-      {
-        method: 'GET',
-        url: this.url + '/keyFetchToken/' + id.toString('hex'),
-        json: true
-      }
-    )
-    .then(
-      function (body) {
-        var data = bufferize(body)
-        return KeyFetchToken.fromId(id, data)
-      },
-      function (err) {
-        if (err.statusCode === 404) {
-          err = error.invalidToken()
+    return this.pool.get('/keyFetchToken/' + id.toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          return KeyFetchToken.fromId(id, data)
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            err = error.invalidToken()
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   DB.prototype.accountResetToken = function (id) {
     log.trace({ op: 'DB.accountResetToken', id: id })
-    return request(
-      {
-        method: 'GET',
-        url: this.url + '/accountResetToken/' + id.toString('hex'),
-        json: true
-      }
-    )
-    .then(
-      function (body) {
-        var data = bufferize(body)
-        return AccountResetToken.fromHex(data.tokenData, data)
-      },
-      function (err) {
-        if (err.statusCode === 404) {
-          err = error.invalidToken()
+    return this.pool.get('/accountResetToken/' + id.toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          return AccountResetToken.fromHex(data.tokenData, data)
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            err = error.invalidToken()
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   DB.prototype.passwordForgotToken = function (id) {
     log.trace({ op: 'DB.passwordForgotToken', id: id })
-    return request(
-      {
-        method: 'GET',
-        url: this.url + '/passwordForgotToken/' + id.toString('hex'),
-        json: true
-      }
-    )
-    .then(
-      function (body) {
-        var data = bufferize(body)
-        return PasswordForgotToken.fromHex(data.tokenData, data)
-      },
-      function (err) {
-        if (err.statusCode === 404) {
-          err = error.invalidToken()
+    return this.pool.get('/passwordForgotToken/' + id.toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          return PasswordForgotToken.fromHex(data.tokenData, data)
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            err = error.invalidToken()
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   DB.prototype.passwordChangeToken = function (id) {
     log.trace({ op: 'DB.passwordChangeToken', id: id })
-    return request(
-      {
-        method: 'GET',
-        url: this.url + '/passwordChangeToken/' + id.toString('hex'),
-        json: true
-      }
-    )
-    .then(
-      function (body) {
-        var data = bufferize(body)
-        return PasswordChangeToken.fromHex(data.tokenData, data)
-      },
-      function (err) {
-        if (err.statusCode === 404) {
-          err = error.invalidToken()
+    return this.pool.get('/passwordChangeToken/' + id.toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          return PasswordChangeToken.fromHex(data.tokenData, data)
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            err = error.invalidToken()
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   DB.prototype.emailRecord = function (email) {
     log.trace({ op: 'DB.emailRecord', email: email })
-    return request(
-      {
-        method: 'GET',
-        url: this.url + '/emailRecord/' + Buffer(email, 'utf8').toString('hex'),
-        json: true
-      }
-    )
-    .then(
-      function (body) {
-        var data = bufferize(body)
-        data.emailVerified = !!data.emailVerified
-        return data
-      },
-      function (err) {
-        if (err.statusCode === 404) {
-          err = error.unknownAccount(email)
+    return this.pool.get('/emailRecord/' + Buffer(email, 'utf8').toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          data.emailVerified = !!data.emailVerified
+          return data
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            err = error.unknownAccount(email)
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   DB.prototype.account = function (uid) {
     log.trace({ op: 'DB.account', uid: uid })
-    return request(
-      {
-        method: 'GET',
-        url: this.url + '/account/' + uid.toString('hex'),
-        json: true
-      }
-    )
-    .then(
-      function (body) {
-        var data = bufferize(body)
-        data.emailVerified = !!data.emailVerified
-        return data
-      },
-      function (err) {
-        if (err.statusCode === 404) {
-          err = error.unknownAccount()
+    return this.pool.get('/account/' + uid.toString('hex'))
+      .then(
+        function (body) {
+          var data = bufferize(body)
+          data.emailVerified = !!data.emailVerified
+          return data
+        },
+        function (err) {
+          if (err.statusCode === 404) {
+            err = error.unknownAccount()
+          }
+          throw err
         }
-        throw err
-      }
-    )
+      )
   }
 
   // UPDATE
 
   DB.prototype.updatePasswordForgotToken = function (token) {
     log.trace({ op: 'DB.udatePasswordForgotToken', uid: token && token.uid })
-    return request(
+    return this.pool.post(
+      '/passwordForgotToken/' + token.id + '/update',
       {
-        method: 'POST',
-        url: this.url + '/passwordForgotToken/' + token.id + '/update',
-        json: {
-          tries: token.tries
-        }
+        tries: token.tries
       }
     )
   }
@@ -452,13 +371,7 @@ module.exports = function (
 
   DB.prototype.deleteAccount = function (authToken) {
     log.trace({ op: 'DB.deleteAccount', uid: authToken && authToken.uid })
-    return request(
-      {
-        method: 'DELETE',
-        url: this.url + '/account/' + authToken.uid.toString('hex'),
-        json: true
-      }
-    )
+    return this.pool.del('/account/' + authToken.uid.toString('hex'))
   }
 
   DB.prototype.deleteSessionToken = function (sessionToken) {
@@ -469,13 +382,7 @@ module.exports = function (
         uid: sessionToken && sessionToken.uid
       }
     )
-    return request(
-      {
-        method: 'DELETE',
-        url: this.url + '/sessionToken/' + sessionToken.id,
-        json: true
-      }
-    )
+    return this.pool.del('/sessionToken/' + sessionToken.id)
   }
 
   DB.prototype.deleteKeyFetchToken = function (keyFetchToken) {
@@ -486,13 +393,7 @@ module.exports = function (
         uid: keyFetchToken && keyFetchToken.uid
       }
     )
-    return request(
-      {
-        method: 'DELETE',
-        url: this.url + '/keyFetchToken/' + keyFetchToken.id,
-        json: true
-      }
-    )
+    return this.pool.del('/keyFetchToken/' + keyFetchToken.id)
   }
 
   DB.prototype.deleteAccountResetToken = function (accountResetToken) {
@@ -503,13 +404,7 @@ module.exports = function (
         uid: accountResetToken && accountResetToken.uid
       }
     )
-    return request(
-      {
-        method: 'DELETE',
-        url: this.url + '/accountResetToken/' + accountResetToken.id,
-        json: true
-      }
-    )
+    return this.pool.del('/accountResetToken/' + accountResetToken.id)
   }
 
   DB.prototype.deletePasswordForgotToken = function (passwordForgotToken) {
@@ -520,13 +415,7 @@ module.exports = function (
         uid: passwordForgotToken && passwordForgotToken.uid
       }
     )
-    return request(
-      {
-        method: 'DELETE',
-        url: this.url + '/passwordForgotToken/' + passwordForgotToken.id,
-        json: true
-      }
-    )
+    return this.pool.del('/passwordForgotToken/' + passwordForgotToken.id)
   }
 
   DB.prototype.deletePasswordChangeToken = function (passwordChangeToken) {
@@ -537,37 +426,22 @@ module.exports = function (
         uid: passwordChangeToken && passwordChangeToken.uid
       }
     )
-    return request(
-      {
-        method: 'DELETE',
-        url: this.url + '/passwordChangeToken/' + passwordChangeToken.id,
-        json: true
-      }
-    )
+    return this.pool.del('/passwordChangeToken/' + passwordChangeToken.id)
   }
 
   // BATCH
 
   DB.prototype.resetAccount = function (accountResetToken, data) {
     log.trace({ op: 'DB.resetAccount', uid: accountResetToken && accountResetToken.uid })
-    return request(
-      {
-        method: 'POST',
-        url: this.url + '/account/' + accountResetToken.uid.toString('hex') + '/reset',
-        json: unbuffer(data)
-      }
+    return this.pool.post(
+      '/account/' + accountResetToken.uid.toString('hex') + '/reset',
+      unbuffer(data)
     )
   }
 
   DB.prototype.verifyEmail = function (account) {
     log.trace({ op: 'DB.verifyEmail', uid: account && account.uid })
-    return request(
-      {
-        method: 'POST',
-        url: this.url + '/account/' + account.uid.toString('hex') + '/verifyEmail',
-        json: true
-      }
-    )
+    return this.pool.post('/account/' + account.uid.toString('hex') + '/verifyEmail')
   }
 
   DB.prototype.forgotPasswordVerified = function (passwordForgotToken) {
@@ -575,20 +449,17 @@ module.exports = function (
     return AccountResetToken.create(passwordForgotToken)
       .then(
         function (accountResetToken) {
-          return request(
-            {
-              method: 'POST',
-              url: this.url + '/passwordForgotToken/' + passwordForgotToken.id + '/verified',
-              json: unbuffer(
-                {
-                  tokenId: accountResetToken.tokenId,
-                  data: accountResetToken.data,
-                  uid: accountResetToken.uid,
-                  createdAt: accountResetToken.createdAt
-                },
-                'inplace'
-              )
-            }
+          return this.pool.post(
+            '/passwordForgotToken/' + passwordForgotToken.id + '/verified',
+            unbuffer(
+              {
+                tokenId: accountResetToken.tokenId,
+                data: accountResetToken.data,
+                uid: accountResetToken.uid,
+                createdAt: accountResetToken.createdAt
+              },
+              'inplace'
+            )
           )
           .then(
             function () {
