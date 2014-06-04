@@ -44,7 +44,7 @@
     "jwcrypto": "0.4.4",
     "mysql": "2.1.1",
     "p-promise": "0.2.5",
-    "poolee": "0.4.13",
+    "poolee": "0.4.15",
     "scrypt-hash": "1.1.8",
     "through": "2.3.4",
     "toobusy": "0.2.4",

@@ -13,6 +13,7 @@ function parseUrl(url) {
       host: match[2]
     }
   }
+  throw new Error('url is invalid: ' + url)
 }
 
 function Pool(url, options) {
@@ -45,11 +46,14 @@ Pool.prototype.request = function (method, path, data) {
       if (err || Math.floor(res && res.statusCode / 100) !== 2) {
         return d.reject({ error: err, statusCode: res && res.statusCode, body: body })
       }
+      if (!body) { return d.resolve() }
       var json = null
       try {
         json = JSON.parse(body)
       }
-      catch (e) {}
+      catch (e) {
+        return d.reject({ error: e, statusCode: res && res.statusCode, body: body })
+      }
       d.resolve(json)
     }
   )

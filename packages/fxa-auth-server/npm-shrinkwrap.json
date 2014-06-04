@@ -2874,13 +2874,13 @@
       "resolved": "https://registry.npmjs.org/p-promise/-/p-promise-0.2.5.tgz"
     },
     "poolee": {
-      "version": "0.4.13",
-      "from": "poolee@0.4.13",
-      "resolved": "https://registry.npmjs.org/poolee/-/poolee-0.4.13.tgz",
+      "version": "0.4.15",
+      "from": "poolee@0.4.15",
+      "resolved": "https://registry.npmjs.org/poolee/-/poolee-0.4.15.tgz",
       "dependencies": {
         "keep-alive-agent": {
           "version": "0.0.1",
-          "from": "keep-alive-agent@*",
+          "from": "keep-alive-agent@0.0.1",
           "resolved": "https://registry.npmjs.org/keep-alive-agent/-/keep-alive-agent-0.0.1.tgz"
         }
       }
