@@ -4,7 +4,7 @@
 
 var url = require('url')
 var punycode = require('punycode')
-var isA = require('hapi').types
+var isA = require('joi')
 
 // Match any non-empty hex-encoded string.
 

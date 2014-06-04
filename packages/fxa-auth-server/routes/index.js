@@ -6,8 +6,7 @@ var crypto = require('crypto')
 
 var P = require('../promise')
 var uuid = require('uuid')
-var Hapi = require('hapi')
-var isA = Hapi.types
+var isA = require('joi')
 
 module.exports = function (
   log,
