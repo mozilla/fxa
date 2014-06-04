@@ -9,10 +9,9 @@ const assert = require('insist');
 const nock = require('nock');
 
 const config = require('../lib/config');
-const db = require('../lib/db');
 const Server = require('./lib/server');
 
-/*global describe,before,it*/
+/*global describe,it*/
 
 const USERID = crypto.randomBytes(16).toString('hex');
 const TOKEN_GOOD = JSON.stringify({
@@ -20,7 +19,6 @@ const TOKEN_GOOD = JSON.stringify({
   scope: ['profile'],
   email: 'user@example.domain'
 });
-var avatarUrl = 'http://example.domain/path/img.png';
 
 function token() {
   return crypto.randomBytes(32).toString('hex');
@@ -31,67 +29,8 @@ function mockToken() {
   return nock(parts.protocol + '//' + parts.host).post(parts.path + '/verify');
 }
 
-describe.skip('/avatar', function() {
-
-  it('should require authentication', function() {
-    var imageData = { url: avatarUrl };
-    return Server.api.get({
-      url: '/avatar',
-      payload: JSON.stringify(imageData)
-    }).then(function(res) {
-      assert.equal(res.statusCode, 401);
-    });
-  });
-
-  it('should be able to post a url', function() {
-    mockToken().reply(200, TOKEN_GOOD);
-    var tok = token();
-    var imageData = { url: avatarUrl };
-    return Server.api.get({
-      url: '/avatar',
-      payload: JSON.stringify(imageData),
-      headers: {
-        authorization: 'Bearer ' + tok
-      }
-    }).then(function(res) {
-      assert.equal(res.statusCode, 200);
-
-      return db.getProfile(USERID);
-    }).then(function(profile) {
-      assert.equal(profile.avatar, avatarUrl);
-    });
-  });
-
-  it('should fail if is not a url', function() {
-    var uid = token();
-    mockToken().reply(200, TOKEN_GOOD);
-    var imageData = { url: 'blah' };
-    return Server.api.get({
-      url: '/avatar',
-      payload: JSON.stringify(imageData),
-      headers: {
-        authorization: 'Bearer ' + uid
-      }
-    }).then(function(res) {
-      assert.equal(res.statusCode, 400);
-    });
-  });
-
-});
-
-describe.skip('/avatar/upload', function() {
-
-
-});
-
 describe('/profile', function() {
   var uid = token();
-  before(function() {
-    return db.createProfile({
-      uid: uid,
-      avatar: avatarUrl
-    });
-  });
 
   it('should return all of a profile', function() {
     mockToken().reply(200, TOKEN_GOOD);
@@ -125,12 +64,6 @@ describe('/profile', function() {
 
 describe('/email', function() {
   var uid = token();
-  before(function() {
-    return db.createProfile({
-      uid: uid,
-      avatar: avatarUrl
-    });
-  });
 
   it('should return an email', function() {
     mockToken().reply(200, TOKEN_GOOD);
@@ -163,12 +96,6 @@ describe('/email', function() {
 
 describe('/uid', function() {
   var uid = token();
-  before(function() {
-    return db.createProfile({
-      uid: uid,
-      avatar: avatarUrl
-    });
-  });
 
   it('should return an uid', function() {
     mockToken().reply(200, TOKEN_GOOD);
