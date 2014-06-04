@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "0.14.0",
+  "version": "0.14.1",
   "dependencies": {
     "ass": {
       "version": "0.0.4",
@@ -1579,7 +1579,7 @@
             },
             "mime": {
               "version": "1.2.11",
-              "from": "mime@~1.2.11",
+              "from": "mime@1.2.11",
               "resolved": "https://registry.npmjs.org/mime/-/mime-1.2.11.tgz"
             },
             "negotiator": {
@@ -2872,6 +2872,18 @@
       "version": "0.2.5",
       "from": "p-promise@0.2.5",
       "resolved": "https://registry.npmjs.org/p-promise/-/p-promise-0.2.5.tgz"
+    },
+    "poolee": {
+      "version": "0.4.15",
+      "from": "poolee@0.4.15",
+      "resolved": "https://registry.npmjs.org/poolee/-/poolee-0.4.15.tgz",
+      "dependencies": {
+        "keep-alive-agent": {
+          "version": "0.0.1",
+          "from": "keep-alive-agent@0.0.1",
+          "resolved": "https://registry.npmjs.org/keep-alive-agent/-/keep-alive-agent-0.0.1.tgz"
+        }
+      }
     },
     "request": {
       "version": "2.34.0",

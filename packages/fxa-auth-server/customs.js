@@ -3,28 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
  var P = require('./promise')
- var request = require('./requestp')
+ var Pool = require('./pool')
 
  module.exports = function (log, error) {
 
   function Customs(url) {
-    this.url = url
+    if (url === 'none') {
+      this.pool = { post: function () { return P({ block: false })}}
+    }
+    else {
+      this.pool = new Pool(url, { timeout: 1000 })
+    }
   }
 
   Customs.prototype.check = function (ip, agent, email, action) {
     log.trace({ op: 'customs.check', email: email, action: action })
-    if (this.url === 'none') { return P() }
-    return request(
+    return this.pool.post(
+      '/check',
       {
-        method: 'POST',
-        url: this.url + '/check',
-        json: {
-          ip: ip,
-          email: email,
-          action: action,
-          agent: agent
-        },
-        timeout: 1000
+        ip: ip,
+        email: email,
+        action: action,
+        agent: agent
       }
     )
     .then(
@@ -42,16 +42,11 @@
 
   Customs.prototype.flag = function (ip, email) {
     log.trace({ op: 'customs.flag', ip: ip, email: email })
-    if (this.url === 'none') { return P() }
-    return request(
+    return this.pool.post(
+      '/failedLoginAttempt',
       {
-        method: 'POST',
-        url: this.url + '/failedLoginAttempt',
-        json: {
-          ip: ip,
-          email: email
-        },
-        timeout: 1000
+        ip: ip,
+        email: email
       }
     )
     .then(
