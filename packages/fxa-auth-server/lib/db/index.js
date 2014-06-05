@@ -9,7 +9,6 @@ const logger = require('../logging').getLogger('fxa.db');
 const mysql = require('./mysql');
 const memory = require('./memory');
 
-
 function buffer(obj) {
   if (Buffer.isBuffer(obj)) {
     return obj;
@@ -62,13 +61,22 @@ function withDriver() {
   });
 }
 
+const proxyReturn = logger.isEnabledFor(logger.VERBOSE) ?
+  function verboseReturn(promise, method) {
+    return promise.then(function(ret) {
+      logger.verbose('proxied %s < %j', method, ret);
+      return ret;
+    });
+  } : function identity(x) {
+    return x;
+  };
 
 function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function(driver) {
-      logger.verbose('proxying', method, args);
-      return driver[method].apply(driver, args);
+      logger.verbose('proxying %s > %j', method, args);
+      return proxyReturn(driver[method].apply(driver, args), method);
     }).catch(function(err) {
       logger.error('%s: %s', method, err);
       throw err;
