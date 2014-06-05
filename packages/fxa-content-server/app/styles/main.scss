@@ -813,5 +813,10 @@ input[type="text"] ~ .show-password-label:hover {
   }
 }
 
+.reset-warning {
+  font-size: 12px;
+  font-weight: normal;
+}
+
 @import "keyframes";
 @import "media_queries";
