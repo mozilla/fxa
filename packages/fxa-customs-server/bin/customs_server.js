@@ -61,9 +61,9 @@ function setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord) {
   return P.all(
     [
       // store records ignoring errors
-      mc.setAsync(email, emailRecord, LIFETIME).caught(ignore),
-      mc.setAsync(ip, ipRecord, LIFETIME).caught(ignore),
-      mc.setAsync(ip + email, ipEmailRecord, LIFETIME).caught(ignore)
+      mc.setAsync(email, emailRecord, LIFETIME).catch(ignore),
+      mc.setAsync(ip, ipRecord, LIFETIME).catch(ignore),
+      mc.setAsync(ip + email, ipEmailRecord, LIFETIME).catch(ignore)
     ]
   )
 }
@@ -140,7 +140,7 @@ api.post(
       .then(
         function (ipEmailRecord) {
           ipEmailRecord.addBadLogin()
-          return mc.setAsync(ip + email, ipEmailRecord, LIFETIME).caught(ignore)
+          return mc.setAsync(ip + email, ipEmailRecord, LIFETIME).catch(ignore)
         }
       )
       .then(
@@ -173,7 +173,7 @@ api.post(
       .then(
         function (emailRecord) {
           emailRecord.passwordReset()
-          return mc.setAsync(email, emailRecord, LIFETIME).caught(ignore)
+          return mc.setAsync(email, emailRecord, LIFETIME).catch(ignore)
         }
       )
       .then(
@@ -206,7 +206,7 @@ api.post(
       .then(
         function (emailRecord) {
           emailRecord.block()
-          return mc.setAsync(email, emailRecord, LIFETIME).caught(ignore)
+          return mc.setAsync(email, emailRecord, LIFETIME).catch(ignore)
         }
       )
       .then(
@@ -239,7 +239,7 @@ api.post(
       .then(
         function (ipRecord) {
           ipRecord.block()
-          return mc.setAsync(ip, ipRecord, LIFETIME).caught(ignore)
+          return mc.setAsync(ip, ipRecord, LIFETIME).catch(ignore)
         }
       )
       .then(
