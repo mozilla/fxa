@@ -13,10 +13,13 @@ var config = {
   port: 7000,
   memcached: '127.0.0.1:11211',
   blockIntervalSeconds: 1,
+  rateLimitIntervalSeconds: 1,
   maxEmails: 3
 }
 
-var EmailRecord = require('../../email_record')(config.blockIntervalSeconds * 1000, config.maxEmails)
+var EmailRecord = require('../../email_record')(config.rateLimitIntervalSeconds * 1000, config.blockIntervalSeconds * 1000, config.maxEmails)
+var IpEmailRecord = require('../../ip_email_record')(config.rateLimitIntervalSeconds * 1000, config.maxBadLogins)
+var IpRecord = require('../../ip_record')(config.blockIntervalSeconds * 1000)
 var testServer = new TestServer(config)
 
 var mc = new Memcached(
@@ -31,7 +34,7 @@ var mc = new Memcached(
   }
 )
 
-function blockedCheck(cb) {
+function blockedEmailCheck(cb) {
   setTimeout( // give memcache time to flush the writes
     function () {
       mc.get(TEST_EMAIL,
@@ -39,6 +42,34 @@ function blockedCheck(cb) {
           var er = EmailRecord.parse(data)
           mc.end()
           cb(er.isBlocked())
+        }
+      )
+    }
+  )
+}
+
+function blockedIpCheck(cb) {
+  setTimeout( // give memcache time to flush the writes
+    function () {
+      mc.get(TEST_IP,
+        function (err, data) {
+          var ir = IpRecord.parse(data)
+          mc.end()
+          cb(ir.isBlocked())
+        }
+      )
+    }
+  )
+}
+
+function badLoginCheck(cb) {
+  setTimeout( // give memcache time to flush the writes
+    function () {
+      mc.get(TEST_IP + TEST_EMAIL,
+        function (err, data) {
+          var ier = IpEmailRecord.parse(data)
+          mc.end()
+          cb(ier.isOverBadLogins())
         }
       )
     }
@@ -61,15 +92,37 @@ var client = restify.createJsonClient({
 });
 
 test(
-  'clear sent emails',
+  'clear everything',
   function (t) {
     mc.del(TEST_EMAIL,
       function (err) {
         t.equal(err, undefined, 'record deleted')
-        blockedCheck(
+        blockedEmailCheck(
           function (isBlocked) {
             t.equal(isBlocked, false, 'not blocked')
-            t.end()
+
+            mc.del(TEST_IP + TEST_EMAIL,
+              function (err) {
+                t.equal(err, undefined, 'record deleted')
+                badLoginCheck(
+                  function (isOverBadLogins) {
+                    t.equal(isOverBadLogins, false, 'not over bad logins')
+
+                    mc.del(TEST_IP,
+                      function (err) {
+                        t.equal(err, undefined, 'record deleted')
+                        blockedIpCheck(
+                          function (isBlocked) {
+                            t.equal(isBlocked, false, 'not blocked')
+                            t.end()
+                          }
+                        )
+                      }
+                    )
+                  }
+                )
+              }
+            )
           }
         )
       }
@@ -100,7 +153,7 @@ test(
                     t.equal(res.statusCode, 200, 'fourth email attempt')
                     t.equal(obj.block, true, 'operation blocked')
 
-                    blockedCheck(
+                    blockedEmailCheck(
                       function (isBlocked) {
                         t.equal(isBlocked, true, 'account is blocked')
                         t.end()
@@ -122,14 +175,14 @@ test(
   function (t) {
     setTimeout(
       function () {
-        blockedCheck(
+        blockedEmailCheck(
           function (isBlocked) {
             t.equal(isBlocked, false, 'account no longer blocked')
             t.end()
           }
         )
       },
-      config.blockIntervalSeconds * 1000
+      config.rateLimitIntervalSeconds * 1000
     )
   }
 )

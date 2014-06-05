@@ -13,10 +13,13 @@ var config = {
   port: 7000,
   memcached: '127.0.0.1:11211',
   blockIntervalSeconds: 1,
+  rateLimitIntervalSeconds: 1,
   maxBadLogins: 2
 }
 
-var IpEmailRecord = require('../../ip_email_record')(config.blockIntervalSeconds * 1000, config.maxBadLogins)
+var EmailRecord = require('../../email_record')(config.rateLimitIntervalSeconds * 1000, config.blockIntervalSeconds * 1000, config.maxEmails)
+var IpEmailRecord = require('../../ip_email_record')(config.rateLimitIntervalSeconds * 1000, config.maxBadLogins)
+var IpRecord = require('../../ip_record')(config.blockIntervalSeconds * 1000)
 var testServer = new TestServer(config)
 
 var mc = new Memcached(
@@ -30,6 +33,34 @@ var mc = new Memcached(
     namespace: 'fxa~'
   }
 )
+
+function blockedEmailCheck(cb) {
+  setTimeout( // give memcache time to flush the writes
+    function () {
+      mc.get(TEST_EMAIL,
+        function (err, data) {
+          var er = EmailRecord.parse(data)
+          mc.end()
+          cb(er.isBlocked())
+        }
+      )
+    }
+  )
+}
+
+function blockedIpCheck(cb) {
+  setTimeout( // give memcache time to flush the writes
+    function () {
+      mc.get(TEST_IP,
+        function (err, data) {
+          var ir = IpRecord.parse(data)
+          mc.end()
+          cb(ir.isBlocked())
+        }
+      )
+    }
+  )
+}
 
 function badLoginCheck(cb) {
   setTimeout( // give memcache time to flush the writes
@@ -61,15 +92,37 @@ var client = restify.createJsonClient({
 });
 
 test(
-  'clear bad logins',
+  'clear everything',
   function (t) {
-    mc.del(TEST_IP + TEST_EMAIL,
+    mc.del(TEST_EMAIL,
       function (err) {
         t.equal(err, undefined, 'record deleted')
-        badLoginCheck(
-          function (isOverBadLogins) {
-            t.equal(isOverBadLogins, false, 'not over bad logins')
-            t.end()
+        blockedEmailCheck(
+          function (isBlocked) {
+            t.equal(isBlocked, false, 'not blocked')
+
+            mc.del(TEST_IP + TEST_EMAIL,
+              function (err) {
+                t.equal(err, undefined, 'record deleted')
+                badLoginCheck(
+                  function (isOverBadLogins) {
+                    t.equal(isOverBadLogins, false, 'not over bad logins')
+
+                    mc.del(TEST_IP,
+                      function (err) {
+                        t.equal(err, undefined, 'record deleted')
+                        blockedIpCheck(
+                          function (isBlocked) {
+                            t.equal(isBlocked, false, 'not blocked')
+                            t.end()
+                          }
+                        )
+                      }
+                    )
+                  }
+                )
+              }
+            )
           }
         )
       }
@@ -119,7 +172,7 @@ test(
           }
         )
       },
-      config.blockIntervalSeconds * 1000
+      config.rateLimitIntervalSeconds * 1000
     )
   }
 )

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Keep track of events tied to both email and IP addresses
-module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
+module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
 
   now = now || Date.now
 
@@ -20,7 +20,7 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   IpEmailRecord.parse = function (object) {
     var rec = new IpEmailRecord()
     object = object || {}
-    rec.bk = object.bk       // timestamp when the account was blocked
+    rec.rl = object.rl       // timestamp when the account was rate-limited
     rec.xs = object.xs || [] // timestamps when emails were sent
     return rec
   }
@@ -45,7 +45,7 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
     var i = this.xs.length - 1
     var n = 0
     var login = this.xs[i]
-    while (login > (now - BLOCK_INTERVAL_MS) && n <= MAX_BAD_LOGINS) {
+    while (login > (now - RATE_LIMIT_INTERVAL_MS) && n <= MAX_BAD_LOGINS) {
       login = this.xs[--i]
       n++
     }
@@ -53,23 +53,23 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   }
 
   IpEmailRecord.prototype.isBlocked = function () {
-    return !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
+    return !!(this.rl && (now() - this.rl < RATE_LIMIT_INTERVAL_MS))
   }
 
-  IpEmailRecord.prototype.block = function () {
-    this.bk = now()
+  IpEmailRecord.prototype.rateLimit = function () {
+    this.rl = now()
     this.xs = []
   }
 
   IpEmailRecord.prototype.unblockIfReset = function (resetAt) {
-    if (resetAt > this.bk) {
+    if (resetAt > this.rl) {
       this.xs = []
-      delete this.bk
+      delete this.rl
     }
   }
 
   IpEmailRecord.prototype.retryAfter = function () {
-    return Math.max(0, Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000))
+    return Math.max(0, Math.floor(((this.rl || 0) + RATE_LIMIT_INTERVAL_MS - now()) / 1000))
   }
 
   IpEmailRecord.prototype.update = function (action) {
@@ -79,7 +79,7 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_BAD_LOGINS, now) {
 
     if (!this.isBlocked()) {
       if (this.isOverBadLogins()) {
-        this.block()
+        this.rateLimit()
       }
       else {
         return 0

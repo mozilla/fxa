@@ -10,9 +10,10 @@ var packageJson = require('../package.json')
 
 var LIFETIME = config.recordLifetimeSeconds
 var BLOCK_INTERVAL_MS = config.blockIntervalSeconds * 1000
+var RATE_LIMIT_INTERVAL_MS = config.rateLimitIntervalSeconds * 1000
 
-var IpEmailRecord = require('../ip_email_record')(BLOCK_INTERVAL_MS, config.maxBadLogins)
-var EmailRecord = require('../email_record')(BLOCK_INTERVAL_MS, config.maxEmails)
+var IpEmailRecord = require('../ip_email_record')(RATE_LIMIT_INTERVAL_MS, config.maxBadLogins)
+var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, config.maxEmails)
 var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS)
 
 var P = require('bluebird')
@@ -182,6 +183,72 @@ api.post(
         },
         function (err) {
           log.error({ op: 'request.passwordReset', email: email, err: err })
+          res.send(500, err)
+        }
+      )
+      .done(next, next)
+  }
+)
+
+api.post(
+  '/blockEmail',
+  function (req, res, next) {
+    var email = req.body.email
+    if (!email) {
+      var err = {code: 'MissingParameters', message: 'email is required'}
+      log.error({ op: 'request.blockEmail', email: email, err: err })
+      res.send(500, err)
+      next()
+    }
+
+    mc.getAsync(email)
+      .then(EmailRecord.parse, EmailRecord.parse)
+      .then(
+        function (emailRecord) {
+          emailRecord.block()
+          return mc.setAsync(email, emailRecord, LIFETIME).caught(ignore)
+        }
+      )
+      .then(
+        function () {
+          log.info({ op: 'request.blockEmail', email: email })
+          res.send({})
+        },
+        function (err) {
+          log.error({ op: 'request.blockEmail', email: email, err: err })
+          res.send(500, err)
+        }
+      )
+      .done(next, next)
+  }
+)
+
+api.post(
+  '/blockIp',
+  function (req, res, next) {
+    var ip = req.body.ip
+    if (!ip) {
+      var err = {code: 'MissingParameters', message: 'ip is required'}
+      log.error({ op: 'request.blockIp', ip: ip, err: err })
+      res.send(500, err)
+      next()
+    }
+
+    mc.getAsync(ip)
+      .then(IpRecord.parse, IpRecord.parse)
+      .then(
+        function (ipRecord) {
+          ipRecord.block()
+          return mc.setAsync(ip, ipRecord, LIFETIME).caught(ignore)
+        }
+      )
+      .then(
+        function () {
+          log.info({ op: 'request.blockIp', ip: ip })
+          res.send({})
+        },
+        function (err) {
+          log.error({ op: 'request.blockIp', ip: ip, err: err })
           res.send(500, err)
         }
       )

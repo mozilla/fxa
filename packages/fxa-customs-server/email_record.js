@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Keep track of events tied to just email addresses
-module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
+module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
 
   now = now || Date.now
 
@@ -21,7 +21,8 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
   EmailRecord.parse = function (object) {
     var rec = new EmailRecord()
     object = object || {}
-    rec.bk = object.bk       // timestamp when the account was blocked
+    rec.bk = object.bk       // timestamp when the account was banned
+    rec.rl = object.rl       // timestamp when the account was rate-limited
     rec.xs = object.xs || [] // timestamps when emails were sent
     rec.pr = object.pr       // timestamp of the last password reset
     return rec
@@ -40,7 +41,7 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
     var i = this.xs.length - 1
     var n = 0
     var hit = this.xs[i]
-    while (hit > (now - BLOCK_INTERVAL_MS) && n <= MAX_EMAILS) {
+    while (hit > (now - RATE_LIMIT_INTERVAL_MS) && n <= MAX_EMAILS) {
       hit = this.xs[--i]
       n++
     }
@@ -52,11 +53,17 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
   }
 
   EmailRecord.prototype.isBlocked = function () {
-    return !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
+    var rateLimited = !!(this.rl && (now() - this.rl < RATE_LIMIT_INTERVAL_MS))
+    var banned = !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
+    return rateLimited || banned
   }
 
   EmailRecord.prototype.block = function () {
     this.bk = now()
+  }
+
+  EmailRecord.prototype.rateLimit = function () {
+    this.rl = now()
     this.xs = []
   }
 
@@ -65,7 +72,9 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
   }
 
   EmailRecord.prototype.retryAfter = function () {
-    return Math.max(0, Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000))
+    var rateLimitAfter = Math.floor(((this.rl || 0) + RATE_LIMIT_INTERVAL_MS - now()) / 1000)
+    var banAfter = Math.floor(((this.bk || 0) + BLOCK_INTERVAL_MS - now()) / 1000)
+    return Math.max(0, rateLimitAfter, banAfter)
   }
 
   EmailRecord.prototype.update = function (action) {
@@ -74,11 +83,11 @@ module.exports = function (BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
     }
 
     if (!this.isBlocked()) {
-      // only count hits while we aren't already blocking
+      // only count hits while aren't already suspended
       this.addHit()
 
       if (this.isOverEmailLimit()) {
-        this.block()
+        this.rateLimit()
       }
       else {
         return 0

@@ -19,10 +19,10 @@ test(
     var ier = simpleIpEmailRecord()
 
     t.equal(ier.isBlocked(), false, 'record has never been blocked')
-    ier.bk = 499
-    t.equal(ier.isBlocked(), false, 'blockedAt is older than block interval')
-    ier.bk = 501
-    t.equal(ier.isBlocked(), true, 'blockedAt is within the block interval')
+    ier.rl = 499
+    t.equal(ier.isBlocked(), false, 'blockedAt is older than rate-limit interval')
+    ier.rl = 501
+    t.equal(ier.isBlocked(), true, 'blockedAt is within the rate-limit interval')
     t.end()
   }
 )
@@ -43,14 +43,14 @@ test(
 )
 
 test(
-  'block works',
+  'rateLimit works',
   function (t) {
     var ier = simpleIpEmailRecord()
 
     ier.addBadLogin()
     t.equal(ier.isBlocked(), false, 'record is not blocked')
     t.equal(ier.xs.length, 1, 'record has been emailed once')
-    ier.block()
+    ier.rateLimit()
     t.equal(ier.isBlocked(), true, 'record is blocked')
     t.equal(ier.xs.length, 0, 'record has an empty list of emails')
     t.end()
@@ -116,11 +116,11 @@ test(
     }
 
     t.equal(ier.retryAfter(), 0, 'unblocked records can be retried now')
-    ier.bk = 100
+    ier.rl = 100
     t.equal(ier.retryAfter(), 0, 'long expired blocks can be retried immediately')
-    ier.bk = 500
+    ier.rl = 500
     t.equal(ier.retryAfter(), 0, 'just expired blocks can be retried immediately')
-    ier.bk = 6000
+    ier.rl = 6000
     t.equal(ier.retryAfter(), 5, 'unexpired blocks can be retried in a bit')
     t.end()
   }
@@ -132,20 +132,20 @@ test(
     var ier = simpleIpEmailRecord()
 
     t.equal(ier.xs.length, 0, 'record does not have any bad logins')
-    t.equal(ier.bk, undefined, 'record is not blocked')
+    t.equal(ier.rl, undefined, 'record is not blocked')
     ier.unblockIfReset(now())
     t.equal(ier.xs.length, 0, 'record still does not have any bad logins')
-    t.equal(ier.bk, undefined, 'record is still not blocked')
-    ier.block()
+    t.equal(ier.rl, undefined, 'record is still not blocked')
+    ier.rateLimit()
     ier.addBadLogin()
     t.equal(ier.xs.length, 1, 'record has one bad login')
-    t.equal(ier.bk, now(), 'record is blocked')
+    t.equal(ier.rl, now(), 'record is blocked')
     ier.unblockIfReset(500)
     t.equal(ier.xs.length, 1, 'bad logins are not cleared when resetting prior to blocking')
-    t.equal(ier.bk, now(), 'record is not unblocked when resetting prior to blocking')
+    t.equal(ier.rl, now(), 'record is not unblocked when resetting prior to blocking')
     ier.unblockIfReset(2000)
     t.equal(ier.xs.length, 0, 'bad logins are cleared when resetting after blocking')
-    t.equal(ier.bk, undefined, 'record is unblocked when resetting after blocking')
+    t.equal(ier.rl, undefined, 'record is unblocked when resetting after blocking')
     t.end()
   }
 )
@@ -161,7 +161,7 @@ test(
     t.equal(ierCopy1.isBlocked(), false, 'copied object is not blocked')
     t.equal(ierCopy1.xs.length, 0, 'copied object has no bad logins')
 
-    ier.block()
+    ier.rateLimit()
     ier.addBadLogin()
     t.equal(ier.isBlocked(), true, 'original object is now blocked')
     t.equal(ier.xs.length, 1, 'original object now has one bad login')
