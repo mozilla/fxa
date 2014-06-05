@@ -4,7 +4,8 @@ var express       = require('express'),
     redis         = require('redis'),
     fonts         = require('connect-fonts'),
     font_sugiyama = require('connect-fonts-drsugiyama'),
-    oauth         = require('./oauth');
+    oauth         = require('./oauth'),
+    config        = require('./config.json');
 
 
 // create a connection to the redis datastore
@@ -100,5 +101,6 @@ app.get('/api/todos/get', checkAuth, function(req, res) {
 
 
 app.use(express.static(__dirname + "/static"));
-
-app.listen(process.env['PORT'] || 8080, '0.0.0.0');
+var port = process.env['PORT'] || config.port || 8080;
+app.listen(port, '0.0.0.0');
+console.log('123done started on port', port);
