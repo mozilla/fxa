@@ -65,7 +65,9 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
     if (resetAt > this.rl) {
       this.xs = []
       delete this.rl
+      return true
     }
+    return false
   }
 
   IpEmailRecord.prototype.retryAfter = function () {
