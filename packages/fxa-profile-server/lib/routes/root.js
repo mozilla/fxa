@@ -7,9 +7,10 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 
+const config = require('../config');
 const version = require('../../package.json').version;
 
-var commitHash;
+var commitHash = config.get('git.commit');
 
 module.exports = {
   handler: function index(req, reply) {

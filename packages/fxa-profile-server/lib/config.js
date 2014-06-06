@@ -28,6 +28,13 @@ const conf = convict({
     format: ['dev', 'test', 'stage', 'prod'],
     default: 'dev'
   },
+  git: {
+    commit: {
+      doc: 'Commit SHA when in stage/production',
+      format: String,
+      default: ''
+    }
+  },
   logging: {
     formatters: {
       doc: 'http://seanmonstar.github.io/intel/#formatters',
