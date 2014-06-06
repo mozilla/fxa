@@ -93,6 +93,7 @@ MysqlStore.prototype = {
     return d.promise;
   },
 
+  // createdAt is DEFAULT NOW() in the schema.sql
   registerClient: function registerClient(client) {
     var id;
     if (client.id) {
