@@ -1,80 +1,20 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var Memcached = require('memcached')
 var test = require('tap').test
 var restify = require('restify')
 var TestServer = require('../test_server')
+var mcHelper = require('../memcache-helper')
 
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
 
 var config = {
   port: 7000,
-  memcached: '127.0.0.1:11211',
-  blockIntervalSeconds: 1,
-  rateLimitIntervalSeconds: 1,
-  maxEmails: 3
+  rateLimitIntervalSeconds: 1
 }
 
-var EmailRecord = require('../../email_record')(config.rateLimitIntervalSeconds * 1000, config.blockIntervalSeconds * 1000, config.maxEmails)
-var IpEmailRecord = require('../../ip_email_record')(config.rateLimitIntervalSeconds * 1000, config.maxBadLogins)
-var IpRecord = require('../../ip_record')(config.blockIntervalSeconds * 1000)
 var testServer = new TestServer(config)
-
-var mc = new Memcached(
-  config.memcached,
-  {
-    timeout: 500,
-    retries: 1,
-    retry: 1000,
-    reconnect: 1000,
-    idle: 30000,
-    namespace: 'fxa~'
-  }
-)
-
-function blockedEmailCheck(cb) {
-  setTimeout( // give memcache time to flush the writes
-    function () {
-      mc.get(TEST_EMAIL,
-        function (err, data) {
-          var er = EmailRecord.parse(data)
-          mc.end()
-          cb(er.isBlocked())
-        }
-      )
-    }
-  )
-}
-
-function blockedIpCheck(cb) {
-  setTimeout( // give memcache time to flush the writes
-    function () {
-      mc.get(TEST_IP,
-        function (err, data) {
-          var ir = IpRecord.parse(data)
-          mc.end()
-          cb(ir.isBlocked())
-        }
-      )
-    }
-  )
-}
-
-function badLoginCheck(cb) {
-  setTimeout( // give memcache time to flush the writes
-    function () {
-      mc.get(TEST_IP + TEST_EMAIL,
-        function (err, data) {
-          var ier = IpEmailRecord.parse(data)
-          mc.end()
-          cb(ier.isOverBadLogins())
-        }
-      )
-    }
-  )
-}
 
 test(
   'startup',
@@ -87,48 +27,21 @@ test(
   }
 )
 
-var client = restify.createJsonClient({
-  url: 'http://127.0.0.1:' + config.port
-});
-
 test(
   'clear everything',
   function (t) {
-    mc.del(TEST_EMAIL,
+    mcHelper.clearEverything(
       function (err) {
-        t.equal(err, undefined, 'record deleted')
-        blockedEmailCheck(
-          function (isBlocked) {
-            t.equal(isBlocked, false, 'not blocked')
-
-            mc.del(TEST_IP + TEST_EMAIL,
-              function (err) {
-                t.equal(err, undefined, 'record deleted')
-                badLoginCheck(
-                  function (isOverBadLogins) {
-                    t.equal(isOverBadLogins, false, 'not over bad logins')
-
-                    mc.del(TEST_IP,
-                      function (err) {
-                        t.equal(err, undefined, 'record deleted')
-                        blockedIpCheck(
-                          function (isBlocked) {
-                            t.equal(isBlocked, false, 'not blocked')
-                            t.end()
-                          }
-                        )
-                      }
-                    )
-                  }
-                )
-              }
-            )
-          }
-        )
+        t.notOk(err, 'no errors were returned')
+        t.end()
       }
     )
   }
 )
+
+var client = restify.createJsonClient({
+  url: 'http://127.0.0.1:' + config.port
+});
 
 test(
   'too many sent emails',
@@ -153,7 +66,7 @@ test(
                     t.equal(res.statusCode, 200, 'fourth email attempt')
                     t.equal(obj.block, true, 'operation blocked')
 
-                    blockedEmailCheck(
+                    mcHelper.blockedEmailCheck(
                       function (isBlocked) {
                         t.equal(isBlocked, true, 'account is blocked')
                         t.end()
@@ -175,7 +88,7 @@ test(
   function (t) {
     setTimeout(
       function () {
-        blockedEmailCheck(
+        mcHelper.blockedEmailCheck(
           function (isBlocked) {
             t.equal(isBlocked, false, 'account no longer blocked')
             t.end()
