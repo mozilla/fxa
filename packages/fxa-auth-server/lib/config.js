@@ -64,6 +64,13 @@ const conf = convict({
       default: 1000 * 60 * 15
     }
   },
+  git: {
+    commit: {
+      doc: 'Commit SHA when in stage/production',
+      format: String,
+      default: ''
+    }
+  },
   logging: {
     formatters: {
       doc: 'http://seanmonstar.github.io/intel/#formatters',
