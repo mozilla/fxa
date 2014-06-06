@@ -343,6 +343,64 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
         assert.isTrue(view.isElementValid('#required'));
       });
     });
+
+    describe('notifyDelayedRequest', function () {
+      it('shows a notification when the response takes too long then hides it', function () {
+        // override expectation
+        view.LONGER_THAN_EXPECTED = 200;
+        view.formIsValid = true;
+
+        view.submit = function () {
+          var defer = p.defer();
+
+          setTimeout(function () {
+            try {
+              assert.isTrue(view._isErrorVisible);
+              defer.resolve();
+            } catch (e) {
+              defer.reject(e);
+            }
+          }, 500);
+
+          return defer.promise;
+        };
+
+        return view.validateAndSubmit()
+          .then(function () {
+            assert.isFalse(view._isErrorVisible);
+          });
+      });
+    });
+
+
+    describe('notifyDelayedRequest', function () {
+      it('shows a notification when the response takes too long, switches when an error is thrown', function () {
+        // override expectation
+        view.LONGER_THAN_EXPECTED = 200;
+        view.formIsValid = true;
+
+        view.submit = function () {
+          var defer = p.defer();
+
+          setTimeout(function () {
+            try {
+              assert.isTrue(view._isErrorVisible);
+              defer.reject('BOOM');
+            } catch (e) {
+              defer.reject(e);
+            }
+          }, 500);
+
+          return defer.promise;
+        };
+
+        return view.validateAndSubmit()
+          .then(null, function (err) {
+            assert.isTrue(view._isErrorVisible);
+            assert.equal(view.$('.error').text(), 'BOOM');
+          });
+      });
+    });
   });
 });
 
