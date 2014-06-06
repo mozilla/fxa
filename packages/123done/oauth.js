@@ -54,7 +54,6 @@ module.exports = function(app, db) {
     // have a cookie with that state
     if (code && state && state in oauthFlows && state === req.session.state) {
       delete oauthFlows[state];
-      delete req.session.state;
 
       request.post({
         uri: config.oauth_uri + '/token',
@@ -90,6 +89,9 @@ module.exports = function(app, db) {
           res.redirect('/');
         });
       });
+    } else if (state && state === req.session.state && req.session.email) {
+      // Trying to complete a sign in for an already completed flow
+      res.redirect('/');
     } else {
 
       var msg = 'Bad request ';
