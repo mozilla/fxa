@@ -15,24 +15,19 @@ define([
   'use strict';
 
   var config = intern.config;
-  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var OAUTH_APP = config.fxaOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 
   var PAGE_URL = config.fxaContentRoot + 'signin';
   var PASSWORD = 'password';
+  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var user;
   var email;
-  var accountData;
-  var client;
 
   registerSuite({
     name: 'oauth sign in',
 
     setup: function () {
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
     },
 
     beforeEach: function () {
@@ -40,45 +35,59 @@ define([
       user = TestHelpers.emailToUser(email);
       var self = this;
 
-      return client.signUp(email, PASSWORD)
-        .then(function (result) {
-          accountData = result;
-        })
-        .then(function () {
-          // clear localStorage to avoid pollution from other tests.
-          return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
-            .waitForElementById('fxa-signin-header')
-            .safeEval('sessionStorage.clear(); localStorage.clear();');
-        });
-    },
+      return self.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .waitForElementById('fxa-signin-header')
+        .safeEval('sessionStorage.clear(); localStorage.clear();')
+        // sign up, do not verify steps
+        .get(require.toUrl(OAUTH_APP))
+        .waitForVisibleByCssSelector('#splash')
+        .elementByCssSelector('#splash .signup')
+        .click()
+        .end()
 
-    teardown: function () {
-      // clear localStorage to avoid polluting other tests.
-      // Without the clear, /signup tests fail because of the info stored
-      // in prefillEmail
-      /*
-       return this.get('remote')
-       .get(require.toUrl(PAGE_URL))
-       .waitForElementById('fxa-signin-header')
-       .safeEval('sessionStorage.clear(); localStorage.clear();');
-       */
+        .waitForVisibleByCssSelector('#fxa-signup-header')
+        .elementByCssSelector('form input.email')
+        .click()
+        .type(email)
+        .end()
+
+        .elementByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        .elementByCssSelector('#fxa-age-year')
+        .click()
+        .end()
+
+        .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
+        .buttonDown()
+        .buttonUp()
+        .click()
+        .end()
+
+        .elementByCssSelector('button[type="submit"]')
+        .click()
+        .end()
+
+        .waitForVisibleByCssSelector('#fxa-confirm-header')
+        .end();
     },
 
     'verified': function () {
       var self = this;
-
       // verify account
       return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
         .then(function (emails) {
-          var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-          return client.verifyCode(accountData.uid, code);
-        })
-        .then(function () {
+
           return self.get('remote')
+            .get(require.toUrl(emails[0].headers['x-link']))
+            .waitForVisibleByCssSelector('#fxa-sign-up-complete-header')
+            // sign in with a verified account
             .get(require.toUrl(OAUTH_APP))
-            .waitForVisibleByCssSelector('.signin')
-            .elementByCssSelector('.signin')
+            .waitForVisibleByCssSelector('#splash')
+            .elementByCssSelector('#splash .signin')
             .click()
             .end()
 
@@ -142,15 +151,18 @@ define([
             })
             .end();
         });
+
+
     },
 
     'unverified': function () {
       var self = this;
 
       return this.get('remote')
+        // Step 2: Try to sign in, unverified
         .get(require.toUrl(OAUTH_APP))
-        .waitForVisibleByCssSelector('.signin')
-        .elementByCssSelector('.signin')
+        .waitForVisibleByCssSelector('#splash')
+        .elementByCssSelector('#splash .signin')
         .click()
         .end()
 
@@ -186,19 +198,18 @@ define([
         .end()
 
         .waitForVisibleByCssSelector('#fxa-confirm-header')
-        .then(function() {
+        .then(function () {
           return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
             .then(function (emails) {
-              // get the second email, that one will have the service
-              var verifyUrl = emails[1].html.match(/Verify: ([A-Za-z0-9:\/\.\_\?\=\&]+)/)[1];
+              var verifyUrl = emails[0].headers['x-link'];
+              console.log(verifyUrl);
               return self.get('remote')
                 .get(require.toUrl(verifyUrl));
             });
         })
-
-        .waitForVisibleByCssSelector('#redirectTo')
+        .waitForVisibleByCssSelector('#fxa-sign-up-complete-header')
         .elementByCssSelector('#redirectTo')
-          .click()
+        .click()
         .end()
 
         .waitForVisibleByCssSelector('#loggedin')
