@@ -74,6 +74,19 @@ function (chai, p, AuthErrors, View, Session, Metrics, RouterMock, WindowMock, T
             assert.equal(view.$('a[href="/force_auth?email=testuser%40testuser.com"]').length, 1);
           });
       });
+
+      it('`sign in` link goes to /oauth/signin in oauth flow', function () {
+        /* jshint camelcase: false */
+        Session.set('service', 'sync');
+        Session.set('oauth', { client_id: 'sync' });
+        view.render()
+          .then(function () {
+            // Check to make sure the signin link goes "back"
+            assert.equal(view.$('a[href="/oauth/signin"]').length, 1);
+            assert.equal(view.$('a[href="/signin"]').length, 0);
+            assert.equal(view.$('a[href="/force_auth?email=testuser%40testuser.com"]').length, 0);
+          });
+      });
     });
 
     describe('afterRender', function () {
@@ -105,6 +118,31 @@ function (chai, p, AuthErrors, View, Session, Metrics, RouterMock, WindowMock, T
               .then(function (isComplete) {
                 assert.isTrue(isComplete);
                 assert.equal(routerMock.page, 'signin');
+                // session.email is used to pre-fill the email on
+                // the signin page.
+                assert.equal(Session.prefillEmail, 'testuser@testuser.com');
+              });
+      });
+
+      it('redirects to /oauth/signin if user has verified in oauth flow', function () {
+        /* jshint camelcase: false */
+
+        Session.set('service', 'sync');
+        Session.set('oauth', { client_id: 'sync' });
+
+        view.fxaClient.isPasswordResetComplete = function () {
+          return p().then(function () {
+            return true;
+          });
+        };
+
+        // email is cleared in initial render in beforeEach, reset it to
+        // see if it makes it through to the redirect.
+        Session.set('email', 'testuser@testuser.com');
+        return view.afterRender()
+              .then(function (isComplete) {
+                assert.isTrue(isComplete);
+                assert.equal(routerMock.page, 'oauth/signin');
                 // session.email is used to pre-fill the email on
                 // the signin page.
                 assert.equal(Session.prefillEmail, 'testuser@testuser.com');

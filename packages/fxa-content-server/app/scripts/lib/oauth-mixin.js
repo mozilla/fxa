@@ -8,6 +8,7 @@
 
 define([
   'p-promise',
+  'views/base',
   'lib/url',
   'lib/oauth-client',
   'lib/assertion',
@@ -15,7 +16,7 @@ define([
   'lib/config-loader',
   'lib/session',
   'lib/service-name'
-], function (p, Url, OAuthClient, Assertion, OAuthErrors, ConfigLoader, Session, ServiceName) {
+], function (p, BaseView, Url, OAuthClient, Assertion, OAuthErrors, ConfigLoader, Session, ServiceName) {
   /* jshint camelcase: false */
 
   // If the user completes an OAuth flow using a different browser than they started with, we
@@ -85,6 +86,35 @@ define([
         Session.clear('oauth');
         self.displayError(xhr.responseJSON, OAuthErrors);
       });
+    },
+
+    isOAuth: function () {
+      return !!Session.service;
+    },
+
+    isOAuthSameBrowser: function () {
+      // The signup/signin flow sets Session.oauth with the
+      // Oauth parameters. If the user opens the verification
+      // link in the same browser, then we check to make sure
+      // the service listed in the link is the same as the client_id
+      // in the previously saved Oauth params.
+      /* jshint camelcase: false */
+      return !!Session.oauth && Session.oauth.client_id === Session.service;
+    },
+
+    setupOAuthLinks: function () {
+      this.$('a[href~="/signin"]').attr('href', '/oauth/signin');
+      this.$('a[href~="/signup"]').attr('href', '/oauth/signup');
+    },
+
+    // override this method so we can fix signup/signin links in errors
+    displayErrorUnsafe: function (err, errors) {
+      var result = BaseView.prototype.displayErrorUnsafe.call(this, err, errors);
+      var isOAuthView = this.className.match('oauth');
+      if (isOAuthView || this.isOAuthSameBrowser()) {
+        this.setupOAuthLinks();
+      }
+      return result;
     }
   };
 });

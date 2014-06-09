@@ -11,9 +11,10 @@ define([
   'stache!templates/reset_password',
   'lib/session',
   'lib/url',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/oauth-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, Url, AuthErrors) {
+function (_, BaseView, FormView, Template, Session, Url, AuthErrors, OAuthMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -51,6 +52,10 @@ function (_, BaseView, FormView, Template, Session, Url, AuthErrors) {
         this.enableSubmitIfValid();
         this.focus('.email');
       }
+
+      if (this.isOAuthSameBrowser()) {
+        this.setupOAuthLinks();
+      }
     },
 
     submit: function () {
@@ -62,6 +67,8 @@ function (_, BaseView, FormView, Template, Session, Url, AuthErrors) {
           self.navigate('confirm_reset_password');
         })
         .then(null, function (err) {
+          // clear oauth session
+          Session.clear('oauth');
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
             // email indicates the signed in email. Use prefillEmail
             // to avoid collisions across sessions.
@@ -78,6 +85,8 @@ function (_, BaseView, FormView, Template, Session, Url, AuthErrors) {
         });
     }
   });
+
+  _.extend(View.prototype, OAuthMixin);
 
   return View;
 });

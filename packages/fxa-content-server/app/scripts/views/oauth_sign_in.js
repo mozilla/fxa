@@ -26,7 +26,7 @@ function (_, p, SignInView, Session, OAuthMixin) {
     },
 
     afterRender: function() {
-      this.$('.sign-up').attr('href', '/oauth/signup');
+      this.setupOAuthLinks();
     },
 
     onSignInSuccess: function() {
@@ -37,6 +37,16 @@ function (_, p, SignInView, Session, OAuthMixin) {
       // set the oauth parameters in the session so they are available in the email confirmation
       Session.set('oauth', this._oAuthParams);
       return SignInView.prototype.onSignInUnverified.call(this);
+    },
+
+    onPasswordResetNavigate: function () {
+      Session.set('oauth', this._oAuthParams);
+      this.navigate('reset_password');
+    },
+
+    onPasswordResetEmailSuccess: function () {
+      Session.set('oauth', this._oAuthParams);
+      this.navigate('confirm_reset_password');
     }
   });
 

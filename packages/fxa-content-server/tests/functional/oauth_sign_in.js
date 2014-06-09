@@ -202,7 +202,6 @@ define([
           return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
             .then(function (emails) {
               var verifyUrl = emails[0].headers['x-link'];
-              console.log(verifyUrl);
               return self.get('remote')
                 .get(require.toUrl(verifyUrl));
             });

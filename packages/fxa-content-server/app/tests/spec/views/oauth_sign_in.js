@@ -72,6 +72,30 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
           });
       });
     });
+
+    describe('resetPasswordIfKnownValidEmail', function () {
+      it('goes to the confirm_reset_password page if user types a valid, known email', function () {
+        var password = 'password';
+        return view.fxaClient.signUp(email, password, { preVerified: true })
+              .then(function () {
+                $('.email').val(email);
+                return view.resetPasswordIfKnownValidEmail();
+              })
+              .then(function () {
+                assert.ok(Session.oauth, 'oauth params are set');
+                assert.equal(router.page, 'confirm_reset_password');
+              });
+      });
+
+      it('goes to the reset_password screen if a blank email', function () {
+        $('[type=email]').val('');
+        return view.resetPasswordIfKnownValidEmail()
+            .then(function () {
+              assert.ok(Session.oauth, 'oauth params are set');
+              assert.ok(router.page, 'reset_password');
+            });
+      });
+    });
   });
 
 });

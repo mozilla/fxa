@@ -12,9 +12,10 @@ define([
   'lib/session',
   'lib/password-mixin',
   'lib/validate',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/oauth-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, AuthErrors) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, AuthErrors, OAuthMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -100,6 +101,19 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, Aut
       var self = this;
       return this.fxaClient.completePasswordReset(this.email, password, this.token, this.code)
           .then(function () {
+            // Get a new sessionToken if we're in an OAuth flow
+            // so that we can generate FxA assertions
+            if (self.isOAuthSameBrowser()) {
+              // cache oauth params because signIn will clear them
+              var params = Session.oauth;
+              return self.fxaClient.signIn(self.email, password)
+                .then(function () {
+                  // restore oauth params
+                  Session.set('oauth', params);
+                });
+            }
+          })
+          .then(function () {
             self.navigate('reset_password_complete');
           }, function (err) {
             if (AuthErrors.is(err, 'INVALID_TOKEN')) {
@@ -134,6 +148,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, Aut
   });
 
   _.extend(View.prototype, PasswordMixin);
+  _.extend(View.prototype, OAuthMixin);
 
   return View;
 });

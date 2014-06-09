@@ -49,6 +49,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
       'click a[href="/signup"]': '_savePrefillInfo',
+      'click a[href="/oauth/signup"]': '_savePrefillInfo',
       'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail'
     },
 
@@ -101,6 +102,14 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         });
     },
 
+    onPasswordResetEmailSuccess: function () {
+      this.navigate('confirm_reset_password');
+    },
+
+    onPasswordResetNavigate: function () {
+      this.navigate('reset_password');
+    },
+
     _suggestSignUp: function (err) {
       err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
       return this.displayErrorUnsafe(err);
@@ -120,7 +129,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
           return self.resetPassword(email);
         } else {
           self._savePrefillInfo();
-          self.navigate('reset_password');
+          self.onPasswordResetNavigate();
         }
       });
     }),
@@ -129,7 +138,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       var self = this;
       return self.fxaClient.passwordReset(email)
           .then(function () {
-            self.navigate('confirm_reset_password');
+            self.onPasswordResetEmailSuccess();
           }, function (err) {
             if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
               return self._suggestSignUp(err);

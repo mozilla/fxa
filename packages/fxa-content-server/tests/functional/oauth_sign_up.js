@@ -111,6 +111,20 @@ define([
         .waitForVisibleByCssSelector('#redirectTo')
         .elementByCssSelector('#redirectTo')
           .click()
+        .end()
+
+        .waitForVisibleByCssSelector('#logout')
+        .elementByCssSelector('#logout')
+        .click()
+        .end()
+
+        .waitForVisibleByCssSelector('.signup')
+        .elementByCssSelector('#loggedin')
+        .text()
+        .then(function (text) {
+          // confirm logged out
+          assert.ok(text.length === 0);
+        })
         .end();
     }
   });
