@@ -26,7 +26,6 @@ process.on('message', function (message) {
       {
         publicKey: jwcrypto.loadPublicKeyFromObject(message.publicKey),
         principal: { email: message.email }
-        //TODO: kA, etc
       },
       {
         issuer: DOMAIN,

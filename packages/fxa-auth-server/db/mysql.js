@@ -42,7 +42,6 @@ module.exports = function (
       reportStats.bind(this),
       options.statInterval || 15000
     )
-    this.statInterval.unref()
   }
 
   function reportStats() {
@@ -94,6 +93,7 @@ module.exports = function (
   }
 
   MySql.prototype.close = function () {
+    log.trace({op: 'MySql.close'})
     this.poolCluster.end()
     clearInterval(this.statInterval)
     return P()

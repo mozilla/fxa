@@ -13,7 +13,7 @@
     "start": "NODE_ENV=dev scripts/start-local.sh 2>&1 | bunyan -o short",
     "test-mysql": "DB_BACKEND=mysql CUSTOMS_SERVER_URL=http://127.0.0.1:7000 npm test",
     "test-httpdb": "DB_BACKEND=httpdb npm test",
-    "test-all": "npm run test-quick && npm run test-mysql && grunt",
+    "test-all": "npm run test-quick && npm run test-mysql",
     "test-quick": "npm run tq",
     "tq": "NODE_ENV=dev tap test/local && NODE_ENV=dev scripts/test-remote-quick.js",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 tap --timeout=300 --tap test/remote"
@@ -43,12 +43,11 @@
     "hkdf": "0.0.2",
     "joi": "4.5.0",
     "jwcrypto": "0.4.4",
-    "mysql": "2.1.1",
+    "mysql": "2.3.2",
     "p-promise": "0.2.5",
     "poolee": "0.4.15",
     "scrypt-hash": "1.1.8",
     "through": "2.3.4",
-    "toobusy": "0.2.4",
     "uuid": "1.4.1"
   },
   "devDependencies": {

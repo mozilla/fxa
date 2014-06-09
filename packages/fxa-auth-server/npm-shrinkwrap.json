@@ -2824,23 +2824,18 @@
       }
     },
     "mysql": {
-      "version": "2.1.1",
-      "from": "mysql@2.1.1",
-      "resolved": "https://registry.npmjs.org/mysql/-/mysql-2.1.1.tgz",
+      "version": "2.3.2",
+      "from": "mysql@2.3.2",
+      "resolved": "https://registry.npmjs.org/mysql/-/mysql-2.3.2.tgz",
       "dependencies": {
-        "require-all": {
-          "version": "0.0.3",
-          "from": "require-all@0.0.3",
-          "resolved": "https://registry.npmjs.org/require-all/-/require-all-0.0.3.tgz"
-        },
         "bignumber.js": {
-          "version": "1.0.1",
-          "from": "bignumber.js@1.0.1",
-          "resolved": "https://registry.npmjs.org/bignumber.js/-/bignumber.js-1.0.1.tgz"
+          "version": "1.4.0",
+          "from": "bignumber.js@1.4.0",
+          "resolved": "https://registry.npmjs.org/bignumber.js/-/bignumber.js-1.4.0.tgz"
         },
         "readable-stream": {
           "version": "1.1.13-1",
-          "from": "readable-stream@~1.1.9",
+          "from": "readable-stream@~1.1.13",
           "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-1.1.13-1.tgz",
           "dependencies": {
             "core-util-is": {
@@ -2864,6 +2859,11 @@
               "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
             }
           }
+        },
+        "require-all": {
+          "version": "0.0.8",
+          "from": "require-all@0.0.8",
+          "resolved": "https://registry.npmjs.org/require-all/-/require-all-0.0.8.tgz"
         }
       }
     },
@@ -3171,18 +3171,6 @@
       "version": "2.3.4",
       "from": "through@2.3.4",
       "resolved": "https://registry.npmjs.org/through/-/through-2.3.4.tgz"
-    },
-    "toobusy": {
-      "version": "0.2.4",
-      "from": "toobusy@0.2.4",
-      "resolved": "https://registry.npmjs.org/toobusy/-/toobusy-0.2.4.tgz",
-      "dependencies": {
-        "bindings": {
-          "version": "1.1.0",
-          "from": "bindings@1.1.0",
-          "resolved": "https://registry.npmjs.org/bindings/-/bindings-1.1.0.tgz"
-        }
-      }
     },
     "uuid": {
       "version": "1.4.1",
