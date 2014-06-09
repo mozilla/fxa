@@ -5,7 +5,7 @@ var fs = require('fs');
 
 var HEX_STRING = require('../routes/validators').HEX_STRING
 
-module.exports = function (path, url, Hapi, toobusy) {
+module.exports = function (path, url, Hapi) {
 
   function create(log, error, config, routes, db) {
 
@@ -45,7 +45,6 @@ module.exports = function (path, url, Hapi, toobusy) {
           .done(
             function (token) {
               if (token.expired(Date.now())) {
-                // TODO: delete token
                 return cb(error.invalidToken())
               }
               return cb(null, token)
@@ -54,7 +53,7 @@ module.exports = function (path, url, Hapi, toobusy) {
           )
       }
     }
-    
+
     var serverOptions = {
         cors: {
           additionalExposedHeaders: ['Timestamp', 'Accept-Language']
@@ -66,6 +65,10 @@ module.exports = function (path, url, Hapi, toobusy) {
           cookies: {
             parse: false
           }
+        },
+        load: {
+          maxEventLoopDelay: config.toobusy.maxLag,
+          sampleInterval: 1000
         }
       }
 
@@ -129,24 +132,11 @@ module.exports = function (path, url, Hapi, toobusy) {
 
     server.app.log = log
 
-    //TODO throttle extension
-
-    // Enable toobusy, unless it has been preffed off in the config.
-    if (config.toobusy.maxLag > 0) {
-      toobusy.maxLag(config.toobusy.maxLag)
-    } else {
-      toobusy = function() { return false; }
-    }
-
     server.ext(
       'onRequest',
       function (request, next) {
-        var exit = false
-        if (toobusy()) {
-          exit = error.serviceUnavailable()
-        }
         log.begin('server.onRequest', request)
-        next(exit)
+        next()
       }
     )
 

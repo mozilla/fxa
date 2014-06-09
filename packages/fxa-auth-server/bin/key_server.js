@@ -8,33 +8,24 @@ var config = require('../config').root()
 function main() {
   var log = require('../log')(config.log.level)
 
+  function logMemoryStats() {
+    log.stat(
+      {
+        stat: 'mem',
+        rss: this.rss,
+        heapUsed: this.heapUsed
+      }
+    )
+  }
+
   log.event('config', config)
   if (config.env !== 'prod') {
     log.info(config, "starting config")
   }
 
-  // memory monitor
-  var MemoryMonitor = require('../memory_monitor')
-  var memoryMonitor = new MemoryMonitor()
-  memoryMonitor.on(
-    'mem',
-    function (usage) {
-      log.stat(
-        {
-          stat: 'mem',
-          rss: usage.rss,
-          heapTotal: usage.heapTotal,
-          heapUsed: usage.heapUsed
-        }
-      )
-    }
-  )
-  memoryMonitor.start()
-
   var error = require('../error')
   var Token = require('../tokens')(log, config.tokenLifetimes)
 
-  // signer compute-cluster
   var CC = require('compute-cluster')
   var signer = new CC({ module: __dirname + '/signer.js' })
   signer.on('error', function () {}) // don't die
@@ -44,17 +35,16 @@ function main() {
   var Server = require('../server')
   var server = null
   var mailer = null
+  var memInterval = null
+  var database = null
+  var customs = null
 
-  // TODO: send to the SMTP server directly. In the future this may change
-  // to another process that we send an http request to.
   require('../mailer')(config, log)
     .done(
       function(m) {
         mailer = m
-        // server public key
         var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
 
-        // databases
         var DB = require('../db')(
           config.db.backend,
           log,
@@ -69,7 +59,8 @@ function main() {
         DB.connect(config[config.db.backend])
           .done(
             function (db) {
-              var customs = new Customs(config.customsUrl)
+              database = db
+              customs = new Customs(config.customsUrl)
               var routes = require('../routes')(
                 log,
                 error,
@@ -87,6 +78,7 @@ function main() {
                   log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
                 }
               )
+              memInterval = setInterval(logMemoryStats.bind(server.load), 15000)
             },
             function (err) {
               log.error({ op: 'DB.connect', err: err.message })
@@ -108,19 +100,17 @@ function main() {
   log.on('error', shutdown)
 
   function shutdown() {
-    memoryMonitor.stop()
-    mailer.stop()
+    log.info({ op: 'shutdown' })
+    clearInterval(memInterval)
     server.stop(
       function () {
-        process.exit()
+        customs.close()
+        mailer.stop()
+        database.close()
+        signer.exit()
       }
     )
   }
 }
 
-if (!fs.existsSync(config.publicKeyFile)) {
-  require('../scripts/gen_keys')(main)
-}
-else {
-  main()
-}
+main()

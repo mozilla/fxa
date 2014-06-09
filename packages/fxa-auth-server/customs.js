@@ -57,5 +57,9 @@
     )
   }
 
+  Customs.prototype.close = function () {
+    return this.pool.close()
+  }
+
   return Customs
 }
