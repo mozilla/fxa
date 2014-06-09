@@ -17,5 +17,8 @@
   "contentServer": {
     "url": "https://accounts.dev.lcip.org"
   },
-  "customsUrl": "none"
+  "customsUrl": "none",
+  "toobusy": {
+    "maxLag": 0
+  }
 }
