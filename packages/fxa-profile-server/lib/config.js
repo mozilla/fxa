@@ -57,7 +57,7 @@ const conf = convict({
       default: {
         console: {
           class: 'intel/handlers/stream',
-          formatter: 'pretty',
+          formatter: 'json',
           stream: 'stderr'
         }
       }

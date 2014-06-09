@@ -7,7 +7,7 @@
     },
     "loggers": {
       "fxa": {
-        "level": "error"
+        "level": "ALL"
       }
     }
   }
