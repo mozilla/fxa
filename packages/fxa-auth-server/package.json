@@ -15,7 +15,7 @@
     "test-httpdb": "DB_BACKEND=httpdb npm test",
     "test-all": "npm run test-quick && npm run test-mysql",
     "test-quick": "npm run tq",
-    "tq": "NODE_ENV=dev tap test/local && NODE_ENV=dev scripts/test-remote-quick.js",
+    "tq": "NODE_ENV=dev tap test/local 2>/dev/null && NODE_ENV=dev scripts/test-remote-quick.js",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 tap --timeout=300 --tap test/remote"
   },
   "repository": {
@@ -31,9 +31,9 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "aws-sdk": "2.0.0-rc11",
+    "aws-sdk": "2.0.0-rc.19",
     "binary-split": "0.1.2",
-    "bunyan": "0.22.1",
+    "bunyan": "0.23.1",
     "compute-cluster": "git://github.com/dannycoates/node-compute-cluster.git#0222a742",
     "convict": "0.4.2",
     "fxa-auth-mailer": "git://github.com/dannycoates/fxa-auth-mailer.git#35b7f29e0a",
@@ -41,7 +41,7 @@
     "hapi": "5.1.0",
     "hapi-auth-hawk": "git://github.com/dannycoates/hapi-auth-hawk.git#146758e444",
     "hkdf": "0.0.2",
-    "joi": "4.5.0",
+    "joi": "4.6.0",
     "jwcrypto": "0.4.4",
     "mysql": "2.3.2",
     "p-promise": "0.2.5",
@@ -54,17 +54,17 @@
     "ass": "0.0.4",
     "awsbox": "0.7.0",
     "awsboxen": "0.5.2",
-    "grunt": "0.4.4",
+    "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
-    "grunt-contrib-jshint": "0.9.2",
+    "grunt-contrib-jshint": "0.10.0",
     "grunt-copyright": "0.1.0",
     "grunt-nsp-shrinkwrap": "0.0.3",
-    "hawk": "2.1.0",
+    "hawk": "2.2.1",
     "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
     "load-grunt-tasks": "0.4.0",
-    "mailparser": "0.4.1",
-    "request": "2.34.0",
-    "sjcl": "1.0.0",
-    "tap": "0.4.8"
+    "mailparser": "0.4.4",
+    "request": "2.36.0",
+    "sjcl": "1.0.1",
+    "tap": "0.4.9"
   }
 }
