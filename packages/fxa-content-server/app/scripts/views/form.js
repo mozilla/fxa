@@ -114,11 +114,12 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
     return function () {
       var self = this;
       var args = arguments;
+      var workingText;
 
       this.window.clearTimeout(this._workingTimeout);
 
       this._workingTimeout = this.window.setTimeout(function () {
-        self.displayError(t('Working…'));
+        workingText = self.displayError(t('Working…'));
       }, this.LONGER_THAN_EXPECTED);
 
       return p()
@@ -127,7 +128,9 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
           })
           .then(function (value) {
             self.window.clearTimeout(self._workingTimeout);
-            self.hideError();
+            if (workingText === self.$('.error').text()) {
+              self.hideError();
+            }
             return value;
           }, function(err) {
             self.window.clearTimeout(self._workingTimeout);
