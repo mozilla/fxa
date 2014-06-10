@@ -159,7 +159,7 @@ TestServer.start(config)
         )
         .then(
           function () {
-            return Client.create(config.publicUrl, email, password, { lang: 'pt-BR' })
+            return Client.create(config.publicUrl, email, password, { lang: 'pt-br' })
           }
         )
         .then(

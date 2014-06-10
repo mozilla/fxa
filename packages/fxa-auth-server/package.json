@@ -36,7 +36,7 @@
     "bunyan": "0.23.1",
     "compute-cluster": "git://github.com/dannycoates/node-compute-cluster.git#0222a742",
     "convict": "0.4.2",
-    "fxa-auth-mailer": "git://github.com/dannycoates/fxa-auth-mailer.git#35b7f29e0a",
+    "fxa-auth-mailer": "git://github.com/dannycoates/fxa-auth-mailer.git#4e3d910ae5",
     "fxa-customs-server": "git://github.com/mozilla/fxa-customs-server.git#74d7b8d6",
     "hapi": "5.1.0",
     "hapi-auth-hawk": "git://github.com/dannycoates/hapi-auth-hawk.git#146758e444",
