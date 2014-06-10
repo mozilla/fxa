@@ -1,10 +1,10 @@
 {
   "name": "fxa-auth-mailer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "tap test"
+    "test": "tap test/local"
   },
   "author": "",
   "license": "MPL 2.0",
@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "lazysmtp": "git://github.com/dannycoates/node-lazysmtp.git#9bb3712992",
-    "mailparser": "0.4.1"
+    "mailparser": "0.4.1",
+    "tap": "0.4.9"
   }
 }

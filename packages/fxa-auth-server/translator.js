@@ -40,7 +40,7 @@ module.exports = function (locales) {
       }
       return function translator(acceptLanguage) {
         var languages = i18n.parseAcceptLanguage(acceptLanguage)
-        var best = i18n.bestLanguage(languages, supportedLanguages, 'en-US')
+        var best = i18n.normalizeLanguage(i18n.bestLanguage(languages, supportedLanguages, 'en-US'))
         return languageTranslations[best]
       }
     }
