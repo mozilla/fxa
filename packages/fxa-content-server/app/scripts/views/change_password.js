@@ -37,7 +37,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
     },
 
     afterRender: function() {
-      this.togglePlaceholderPattern();
+      this.initializePlaceholderFields();
     },
 
     submit: function () {

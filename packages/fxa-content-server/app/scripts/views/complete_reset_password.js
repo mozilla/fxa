@@ -63,7 +63,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, Aut
     },
 
     afterRender: function() {
-      this.togglePlaceholderPattern();
+      this.initializePlaceholderFields();
     },
 
     _doesLinkValidate: function () {
