@@ -7,6 +7,7 @@ var crypto = require('crypto')
 var P = require('../promise')
 var uuid = require('uuid')
 var isA = require('joi')
+var url = require('url')
 
 module.exports = function (
   log,
@@ -64,11 +65,12 @@ module.exports = function (
     sign,
     util
   )
-  v1Routes.forEach(function(route) {
-    route.path = "/v1" + route.path
-  })
+  v1Routes.forEach(function(r) { r.path = "/v1" + r.path })
 
-  var routes = defaults.concat(idp, v1Routes)
+  var allRoutes = defaults.concat(idp, v1Routes)
+  var basePath = url.parse(config.publicUrl).path
+  if (basePath === '/') { basePath = '' }
+  allRoutes.forEach(function (r) { r.path = basePath + r.path })
 
-  return routes
+  return allRoutes
 }
