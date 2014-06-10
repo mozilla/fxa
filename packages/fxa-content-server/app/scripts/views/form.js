@@ -106,8 +106,41 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
     };
   }
 
+  /**
+   * Decorator to show a notice when requests take
+   * longer than expected
+   */
+  function notifyDelayedRequest(handler) {
+    return function () {
+      var self = this;
+      var args = arguments;
+
+      this.window.clearTimeout(this._workingTimeout);
+
+      this._workingTimeout = this.window.setTimeout(function () {
+        self.displayError(t('Working…'));
+      }, this.LONGER_THAN_EXPECTED);
+
+      return p()
+          .then(function () {
+            return self.invokeHandler(handler, args);
+          })
+          .then(function (value) {
+            self.window.clearTimeout(self._workingTimeout);
+            self.hideError();
+            return value;
+          }, function(err) {
+            self.window.clearTimeout(self._workingTimeout);
+            throw err;
+          });
+    };
+  }
 
   var FormView = BaseView.extend({
+
+    // Time to wait for a request to finish before showing a notice
+    LONGER_THAN_EXPECTED: 10000, // 10 seconds
+
     constructor: function (options) {
       BaseView.call(this, options);
 
@@ -240,7 +273,7 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
         });
     }),
 
-    _submitForm: showButtonProgressIndicator(function () {
+    _submitForm: notifyDelayedRequest(showButtonProgressIndicator(function () {
       var self = this;
       return p()
           .then(_.bind(self.beforeSubmit, self))
@@ -255,7 +288,7 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
             throw self.displayError(err);
           })
           .then(_.bind(self.afterSubmit, self));
-    }),
+    })),
 
     /**
      * Checks whether the form is valid. Checks the validitity of each
