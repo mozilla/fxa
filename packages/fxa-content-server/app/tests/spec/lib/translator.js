@@ -9,13 +9,11 @@
 
 define([
   'chai',
-  'lib/translator',
-  '/tests/lib/helpers.js'
+  'lib/translator'
 ],
-function (chai, Translator, TestHelpers) {
+function (chai, Translator) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
-  var wrapAssertion = TestHelpers.wrapAssertion;
 
   // translations taken from Persona's db_LB translations.
   var TRANSLATIONS = {
@@ -44,27 +42,25 @@ function (chai, Translator, TestHelpers) {
     });
 
     describe('fetch', function () {
-      it('fetches translations from the server', function (done) {
-        translator.fetch(function() {
-          wrapAssertion(function () {
+      it('fetches translations from the server', function () {
+        return translator.fetch()
+          .then(function() {
             // Check that an expected key is empty
             assert.isDefined(translator.translations['Show']);
-          }, done);
-        });
+          });
       });
 
-      it('fails gracefully when receiving a 404', function (done) {
+      it('fails gracefully when receiving a 404', function () {
         // Monkey patch jQuery ajax to to request an invalid URL
         $(document).one('ajaxSend', function(event, jqXHR, ajaxOptions) {
           ajaxOptions.url = '/i18n/client-not-here.json';
         });
 
-        translator.fetch(function() {
-          wrapAssertion(function () {
+        return translator.fetch()
+          .then(function() {
             // Check that an expected key is undefined
             assert.isUndefined(translator.translations['Show']);
-          }, done);
-        });
+          });
       });
     });
 

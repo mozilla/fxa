@@ -11,9 +11,10 @@
 define([
   'underscore',
   'jquery',
+  'p-promise',
   'lib/strings'
 ],
-function (_, $, Strings) {
+function (_, $, p, Strings) {
 
   var Translator = function () {
     this.translations = {};
@@ -25,8 +26,10 @@ function (_, $, Strings) {
     },
 
     // Fetches our JSON translation file
-    fetch: function (done) {
+    fetch: function () {
+      var defer = p.defer();
       var self = this;
+
       $.getJSON('/i18n/client.json')
         .done(function (data) {
           // Only update the translations if some came back
@@ -45,10 +48,10 @@ function (_, $, Strings) {
         .always(function () {
           // do not surface any errors, allow the app to load even
           // if there are no translations for this locale.
-          if (done) {
-            done();
-          }
+          defer.resolve();
         });
+
+      return defer.promise;
     },
 
     /**
