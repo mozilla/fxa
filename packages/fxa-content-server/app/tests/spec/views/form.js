@@ -370,10 +370,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
             assert.isFalse(view._isErrorVisible);
           });
       });
-    });
 
-
-    describe('notifyDelayedRequest', function () {
       it('shows a notification when the response takes too long, switches when an error is thrown', function () {
         // override expectation
         view.LONGER_THAN_EXPECTED = 200;
@@ -398,6 +395,23 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
           .then(null, function (err) {
             assert.isTrue(view._isErrorVisible);
             assert.equal(view.$('.error').text(), 'BOOM');
+          });
+      });
+
+      it('should not hide forceMessage errors', function () {
+        view.formIsValid = true;
+
+        view.submit = function () {
+          return p()
+            .then(function () {
+              return view.displayError({ forceMessage: 'BOOM' });
+            });
+        };
+
+        return view.validateAndSubmit()
+          .then(function (err) {
+            assert.equal(view.$('.error').text(), 'BOOM');
+            assert.isTrue(view._isErrorVisible);
           });
       });
     });

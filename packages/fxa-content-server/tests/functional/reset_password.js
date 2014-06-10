@@ -399,6 +399,7 @@ define([
 
         .elementByCssSelector('input[type=email]')
           .click()
+          .clear()
           .type(email)
         .end()
 
