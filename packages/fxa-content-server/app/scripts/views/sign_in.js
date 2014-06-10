@@ -102,10 +102,6 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         });
     },
 
-    onPasswordResetEmailSuccess: function () {
-      this.navigate('confirm_reset_password');
-    },
-
     onPasswordResetNavigate: function () {
       this.navigate('reset_password');
     },
@@ -123,31 +119,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     resetPasswordIfKnownValidEmail: BaseView.preventDefaultThen(function () {
       var self = this;
       return p().then(function () {
-        var email = self.$('.email').val();
-
-        if (Validate.isEmailValid(email)) {
-          return self.resetPassword(email);
-        } else {
-          self._savePrefillInfo();
-          self.onPasswordResetNavigate();
-        }
+        self._savePrefillInfo();
+        self.onPasswordResetNavigate();
       });
-    }),
-
-    resetPassword: FormView.allowOnlyOneSubmit(function (email) {
-      var self = this;
-      return self.fxaClient.passwordReset(email)
-          .then(function () {
-            self.onPasswordResetEmailSuccess();
-          }, function (err) {
-            if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-              return self._suggestSignUp(err);
-            }
-
-            // resetPassword is not called from `submit` and must
-            // display its own errors.
-            return self.displayError(err);
-          });
     })
   });
 

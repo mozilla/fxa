@@ -42,11 +42,6 @@ function (_, p, SignInView, Session, OAuthMixin) {
     onPasswordResetNavigate: function () {
       Session.set('oauth', this._oAuthParams);
       this.navigate('reset_password');
-    },
-
-    onPasswordResetEmailSuccess: function () {
-      Session.set('oauth', this._oAuthParams);
-      this.navigate('confirm_reset_password');
     }
   });
 

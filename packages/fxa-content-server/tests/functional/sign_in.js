@@ -150,13 +150,13 @@ define([
             // success is seeing the error message.
             .waitForVisibleByClassName('error')
 
-            // If user clicks on "forgot your password?", send
-            // an email confirmation now.
+            // If user clicks on "forgot your password?",
+            // begin the reset password flow.
             .elementByCssSelector('a[href="/reset_password"]')
               .click()
             .end()
 
-            .waitForElementById('fxa-confirm-reset-password-header')
+            .waitForElementById('fxa-reset-password-header')
             .end();
         });
     },
@@ -172,6 +172,7 @@ define([
 
         .elementByCssSelector('input[type=email]')
           .click()
+          .clear()
           .type(email)
         .end()
 
@@ -204,46 +205,6 @@ define([
           .then(function (resultText) {
             // check the password carried over.
             assert.equal(resultText, PASSWORD);
-          })
-        .end();
-    },
-
-    'click on `forgot password?` with an unknown account allows the user to sign up': function () {
-      var self = this;
-      email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
-
-      return self.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('input[type=email]')
-          .click()
-          .clear()
-          .type(email)
-        .end()
-
-        .elementByCssSelector('input[type=password]')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .elementByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
-
-        // The error area shows a link to /signup
-        .waitForElementByCssSelector('.error a[href="/signup"]')
-        .elementByCssSelector('.error a[href="/signup"]')
-          .click()
-        .end()
-
-        .waitForElementById('fxa-signup-header')
-        .elementByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
           })
         .end();
     },

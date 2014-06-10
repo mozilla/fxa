@@ -216,26 +216,6 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, WindowMock, RouterMock
     });
 
     describe('resetPasswordIfKnownValidEmail', function () {
-      it('goes to the confirm_reset_password page if user types a valid, known email', function () {
-        var password = 'password';
-        return view.fxaClient.signUp(email, password, { preVerified: true })
-              .then(function () {
-                $('[type=email]').val(email);
-                return view.resetPasswordIfKnownValidEmail();
-              })
-              .then(function () {
-                assert.equal(routerMock.page, 'confirm_reset_password');
-              });
-      });
-
-      it('allows the user to sign up if user types a valid, unknown email', function () {
-        $('[type=email]').val(email);
-        return view.resetPasswordIfKnownValidEmail()
-            .then(function () {
-              assert.ok(view.$('.error a[href="/signup"]').length);
-            });
-      });
-
       it('goes to the reset_password screen if a blank email', function () {
         $('[type=email]').val('');
         return view.resetPasswordIfKnownValidEmail()
@@ -250,21 +230,6 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, WindowMock, RouterMock
             .then(function () {
               assert.ok(routerMock.page, 'reset_password');
             });
-      });
-
-      it('shows an error if any other error', function () {
-        view.fxaClient.passwordReset = function() {
-          return p().then(function () {
-            throw new Error('this is an error');
-          });
-        };
-
-        $('[type=email]').val(email);
-        return view.resetPasswordIfKnownValidEmail()
-            .then(function () {
-              assert.isTrue(view.isErrorVisible());
-            });
-
       });
     });
   });
