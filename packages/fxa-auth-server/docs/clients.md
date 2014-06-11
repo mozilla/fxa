@@ -26,7 +26,7 @@ Note that the client `id` and `secret` are in fact random hexadecimal strings of
 
     nodejs
     var crypto = require('crypto');
-    var tempGenerator = function(len){ return crypto.randomBytes(Math.ceil(len)).toString('hex').slice(0,len); };
+    var tempGenerator = function(len){ return crypto.randomBytes(Math.ceil(len)).toString('hex'); };
 
 Generate an 8-byte id:
 
