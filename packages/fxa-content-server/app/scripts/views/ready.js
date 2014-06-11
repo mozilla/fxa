@@ -22,6 +22,9 @@ define([
   'lib/oauth-mixin'
 ],
 function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
+
+  var MARKETING_PERCENTAGE = 0.1;
+
   var View = BaseView.extend({
     template: Template,
     className: 'reset_password_complete',
@@ -53,13 +56,16 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
         ]);
       }
 
+      var shouldShowSurvey = this._shouldOverrideMarketing(MARKETING_PERCENTAGE);
+
       return {
         service: this.service,
         serviceName: serviceName,
         signIn: this.is('sign_in'),
 
         signUp: this.is('sign_up'),
-        showSignUpMarketing: this._showSignUpMarketing(),
+        showSignUpSurvey: this._showSignUpSurvey(shouldShowSurvey),
+        showSignUpMarketing: this._showSignUpMarketing(shouldShowSurvey),
 
         resetPassword: this.is('reset_password')
       };
@@ -69,8 +75,25 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
       'click #redirectTo': BaseView.preventDefaultThen('submit')
     },
 
-    _showSignUpMarketing: function () {
-      if (! this.is('sign_up')) {
+    _shouldOverrideMarketing: function(percent) {
+      var isEnglish = /^en/.test(Session.language);
+
+      if (isEnglish) {
+        return Math.random() <= percent;
+      }
+
+      return false;
+    },
+
+    _showSignUpSurvey: function(showSurvey) {
+      if (showSurvey) {
+        return true;
+      }
+      return false;
+    },
+
+    _showSignUpMarketing: function (showSurvey) {
+      if (! this.is('sign_up') || showSurvey) {
         return false;
       }
 
