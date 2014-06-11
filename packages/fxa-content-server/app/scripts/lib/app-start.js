@@ -134,13 +134,8 @@ function (
     },
 
     initializeL10n: function () {
-      var deferred = p.defer();
-
       var translator = this._window.translator = new Translator();
-
-      translator.fetch(_.bind(deferred.resolve, deferred));
-
-      return deferred.promise;
+      return translator.fetch();
     },
 
     /**
