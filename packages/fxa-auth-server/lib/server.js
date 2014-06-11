@@ -14,7 +14,8 @@ exports.create = function createServer() {
     config.server.host,
     config.server.port,
     {
-      cors: true
+      cors: true,
+      validation: {stripUnknown: true}
     }
   );
 
