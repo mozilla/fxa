@@ -69,7 +69,7 @@ module.exports = function (
     util
   )
   v1Routes.forEach(function(r) { r.path = basePath + "/v1" + r.path })
-
+  defaults.forEach(function(r) { r.path = basePath + r.path })
   var allRoutes = defaults.concat(idp, v1Routes)
 
   return allRoutes

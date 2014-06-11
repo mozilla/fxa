@@ -43,6 +43,23 @@ TestServer.start(config)
   )
 
   test(
+    'default routes are prefixed',
+    function (t) {
+      var d = P.defer()
+      request(config.publicUrl + '/',
+        function (err, res, body) {
+          if (err) { d.reject(err) }
+          t.equal(res.statusCode, 200)
+          var json = JSON.parse(body)
+          t.deepEqual(Object.keys(json), ['version', 'commit'])
+          d.resolve(json)
+        }
+      )
+      return d.promise
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
