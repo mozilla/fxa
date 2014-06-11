@@ -6,6 +6,8 @@ var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var path = require('path')
 var Client = require('../client')
+var P = require('../../promise')
+var request = require('request')
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/base_path.json')
 var config = require('../../config').root()
@@ -18,9 +20,25 @@ TestServer.start(config)
     function (t) {
       var email = Math.random() + "@example.com"
       var password = 'ok'
-      t.ok(true) // this silences log output. with no assertions tap dumps logs
       // if this doesn't crash, we're all good
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+    }
+  )
+
+  test(
+    '.well-known did not move',
+    function (t) {
+      var d = P.defer()
+      request('http://127.0.0.1:9000/.well-known/browserid',
+        function (err, res, body) {
+          if (err) { d.reject(err) }
+          t.equal(res.statusCode, 200)
+          var json = JSON.parse(body)
+          t.equal(json.authentication, '/.well-known/browserid/sign_in.html')
+          d.resolve(json)
+        }
+      )
+      return d.promise
     }
   )
 

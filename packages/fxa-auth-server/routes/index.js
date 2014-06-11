@@ -58,6 +58,9 @@ module.exports = function (
     config.smtp.redirectDomain
   )
 
+  var basePath = url.parse(config.publicUrl).path
+  if (basePath === '/') { basePath = '' }
+
   var v1Routes = [].concat(
     account,
     password,
@@ -65,12 +68,9 @@ module.exports = function (
     sign,
     util
   )
-  v1Routes.forEach(function(r) { r.path = "/v1" + r.path })
+  v1Routes.forEach(function(r) { r.path = basePath + "/v1" + r.path })
 
   var allRoutes = defaults.concat(idp, v1Routes)
-  var basePath = url.parse(config.publicUrl).path
-  if (basePath === '/') { basePath = '' }
-  allRoutes.forEach(function (r) { r.path = basePath + r.path })
 
   return allRoutes
 }
