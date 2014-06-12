@@ -15,6 +15,11 @@ define([
   var config = intern.config;
   var SIGNUP_COOKIES_DISABLED_URL = config.fxaContentRoot + 'signup?disable_local_storage=1';
   var SIGNUP_COOKIES_ENABLED_URL = config.fxaContentRoot + 'signup';
+
+  // Use fake, but real looking uid & code
+  var VERIFY_COOKIES_DISABLED_URL = config.fxaContentRoot +
+        'verify_email?disable_local_storage=1&uid=240103bbecd645848103021e7d245bcb&code=fc46f44802b2a2ce979f39b2187aa1c0';
+
   var COOKIES_DISABLED_URL = config.fxaContentRoot + 'cookies_disabled';
 
   registerSuite({
@@ -60,6 +65,14 @@ define([
 
         // Should be redirected back to the signup page.
         .waitForElementById('fxa-signup-header');
+    },
+
+    'visit verify page with localStorage disabled': function () {
+      return this.get('remote')
+        .get(require.toUrl(VERIFY_COOKIES_DISABLED_URL))
+
+        .waitForElementById('fxa-cookies-disabled-header')
+        .end();
     }
   });
 });
