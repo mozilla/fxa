@@ -1,6 +1,6 @@
 {
   "name": "fxa-js-client",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "Web client that talks to the Firefox Accounts API server",
   "author": "Mozilla",
   "license": "MPL 2.0",
