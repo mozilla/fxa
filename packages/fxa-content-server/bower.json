@@ -5,8 +5,6 @@
     "backbone": "1.1.0",
     "blanket": "1.1.5",
     "chai": "1.8.1",
-    "connect-fonts-clearsans": "https://github.com/shane-tomlinson/connect-fonts-clearsans.git",
-    "connect-fonts-firasans": "https://github.com/shane-tomlinson/connect-fonts-firasans.git",
     "fxa-content-server-l10n": "https://github.com/mozilla/fxa-content-server-l10n.git",
     "fxa-js-client": "https://github.com/mozilla/fxa-js-client.git#0.1.20",
     "html5shiv": "3.7.2",
