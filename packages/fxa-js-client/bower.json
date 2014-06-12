@@ -8,7 +8,7 @@
     "cjs": "latest"
   },
   "dependencies": {
-    "p": "https://github.com/zaach/p.git#avoid-data-uri",
+    "p": "https://github.com/rkatic/p.git#5e9520f364789db476aad434e3da3b36e4ecc535",
     "sjcl": "~1.0.0"
   }
 }
