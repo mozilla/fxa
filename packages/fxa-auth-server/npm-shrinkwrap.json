@@ -682,9 +682,9 @@
       }
     },
     "fxa-customs-server": {
-      "version": "0.0.0",
-      "from": "fxa-customs-server@git://github.com/mozilla/fxa-customs-server.git#74d7b8d6dc239335178cef287794af7a1c028114",
-      "resolved": "git://github.com/mozilla/fxa-customs-server.git#74d7b8d6dc239335178cef287794af7a1c028114",
+      "version": "0.0.1",
+      "from": "fxa-customs-server@git://github.com/mozilla/fxa-customs-server.git#a6a3db4f607a72dde10490fc112685c60b89807a",
+      "resolved": "git://github.com/mozilla/fxa-customs-server.git#a6a3db4f607a72dde10490fc112685c60b89807a",
       "dependencies": {
         "bluebird": {
           "version": "1.2.2",
