@@ -177,27 +177,6 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
       return values;
     },
 
-    //when a user begins typing in an input, grab the placeholder,
-    // put it in a label and then unbind the event
-    // this is done to prevent user confustion about multiple password inputs
-    togglePlaceholderPattern: function (el) {
-      var self = this;
-      var input = el || this.$('input');
-
-      input.one('keyup', function () {
-        // if values haven't changed, reattach the event listener for just this element
-        if (! self.detectFormValueChanges()) {
-          self.togglePlaceholderPattern($(this));
-          return true;
-        }
-        var placeholder = $(this).attr('placeholder');
-        if (placeholder !== '') {
-          $(this).attr('placeholder','');
-          $(this).prev('.label-helper').text(placeholder).animate( {'top': '-17px'}, 400);
-        }
-      });
-    },
-
     enableSubmitIfValid: function () {
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
@@ -604,14 +583,6 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
         this._previousFormValues = newValues;
       }
       return newValues;
-    },
-
-    /**
-     * Initialize fields with placeholder text that can toggle position.
-     */
-    initializePlaceholderFields: function () {
-      this.updateFormValueChanges();
-      this.togglePlaceholderPattern();
     }
   });
 

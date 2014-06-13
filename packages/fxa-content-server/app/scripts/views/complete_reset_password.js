@@ -11,11 +11,12 @@ define([
   'stache!templates/complete_reset_password',
   'lib/session',
   'lib/password-mixin',
+  'lib/floating-placeholder-mixin',
   'lib/validate',
   'lib/auth-errors',
   'lib/oauth-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, AuthErrors, OAuthMixin) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, Validate, AuthErrors, OAuthMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -149,6 +150,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, Validate, Aut
 
   _.extend(View.prototype, PasswordMixin);
   _.extend(View.prototype, OAuthMixin);
+  _.extend(View.prototype, FloatingPlaceholderMixin);
 
   return View;
 });

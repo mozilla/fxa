@@ -11,9 +11,10 @@ define([
   'stache!templates/change_password',
   'lib/session',
   'lib/password-mixin',
+  'lib/floating-placeholder-mixin',
   'lib/auth-errors'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, AuthErrors) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -88,6 +89,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
   });
 
   _.extend(View.prototype, PasswordMixin);
+  _.extend(View.prototype, FloatingPlaceholderMixin);
 
   return View;
 });
