@@ -38,12 +38,7 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
    */
   function ifFormValuesChanged(handler) {
     return function () {
-      // oldValues will be `undefined` the first time through.
-      var oldValues = this._previousFormValues;
-      var newValues = this.getFormValues();
-
-      if (! _.isEqual(oldValues, newValues)) {
-        this._previousFormValues = newValues;
+      if (this.updateFormValueChanges()) {
         return this.invokeHandler(handler, arguments);
       }
     };
@@ -180,20 +175,6 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
       }
 
       return values;
-    },
-
-    //when a user begins typing in an input, grab the placeholder,
-    // put it in a label and then unbind the event
-    // this is done to prevent user confustion about multiple password inputs
-    togglePlaceholderPattern: function() {
-      var input = this.$('input');
-      input.one('keypress', function(){
-        var placeholder = $(this).attr('placeholder');
-        if (placeholder !== '') {
-          $(this).attr('placeholder','');
-          $(this).prev('.label-helper').text(placeholder).animate( {'top': '-17px'}, 400);
-        }
-      });
     },
 
     enableSubmitIfValid: function () {
@@ -571,6 +552,37 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
      */
     isSubmitting: function () {
       return this._isSubmitting;
+    },
+
+    /**
+     * Detect if form values have changed
+     *
+     * @return {object || null} the form values or null if they haven't changed.
+     */
+    detectFormValueChanges: function () {
+      // oldValues will be `undefined` the first time through.
+      var oldValues = this._previousFormValues;
+      var newValues = this.getFormValues();
+
+      if (! _.isEqual(oldValues, newValues)) {
+        return newValues;
+      }
+
+      return null;
+    },
+
+    /**
+     * Detect if form values have changed and use the new
+     * values as the baseline to detect future changes.
+     *
+     * @return {object || null} the form values or null if they haven't changed.
+     */
+    updateFormValueChanges: function () {
+      var newValues = this.detectFormValueChanges();
+      if (newValues) {
+        this._previousFormValues = newValues;
+      }
+      return newValues;
     }
   });
 
