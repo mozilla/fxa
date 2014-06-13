@@ -195,17 +195,18 @@ var conf = module.exports = convict({
 conf.set('process_type', path.basename(process.argv[1], '.js'));
 
 var DEV_CONFIG_PATH = path.join(__dirname, '..', 'config', 'local.json');
-if (! process.env.CONFIG_FILES &&
-    fs.existsSync(DEV_CONFIG_PATH)) {
-  process.env.CONFIG_FILES = DEV_CONFIG_PATH;
-}
+var files;
 
 // handle configuration files.  you can specify a CSV list of configuration
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable
-if (process.env.CONFIG_FILES &&
-    process.env.CONFIG_FILES !== '') {
-  var files = process.env.CONFIG_FILES.split(',');
+if (process.env.CONFIG_FILES && process.env.CONFIG_FILES.trim() !== '') {
+  files = process.env.CONFIG_FILES.split(',');
+} else if (fs.existsSync(DEV_CONFIG_PATH)) {
+  files = [ DEV_CONFIG_PATH ];
+}
+
+if (files) {
   conf.loadFile(files);
 }
 

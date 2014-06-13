@@ -13,7 +13,7 @@ const verboseThreshold = 60;
 module.exports = function (grunt) {
   'use strict';
 
-  grunt.registerTask('l10n-supported-locales', ['l10n-create-json', 'l10n-locale-counts']);
+  grunt.registerTask('l10n-supported-locales', ['selectconfig:dist', 'l10n-create-json', 'l10n-locale-counts']);
 
   var getCount = function (clientKeys, serverKeys, src) {
     var clientJson = require(path.resolve(src, 'client.json'));
@@ -69,8 +69,8 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('l10n-locale-counts', 'Print the list of locales we should enable in production.', function () {
     // config must be loaded inside of the task so that it does not interfere
     // with other tasks.
-    var config = require('../server/lib/configuration');
-    var goodLocales = [ config.get('i18n.defaultLang') ];
+    var config = grunt.config().server;
+    var goodLocales = [ config.i18n.defaultLang ];
     var templateDir = path.join(__dirname, '..', grunt.config().yeoman.tmp, 'i18n', 'templates');
     var templateClientKeys = Object.keys(require(path.join(templateDir, 'client.pot.json')));
     var templateServerKeys = Object.keys(require(path.join(templateDir, 'server.pot.json')));
