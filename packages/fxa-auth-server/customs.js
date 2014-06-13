@@ -9,7 +9,10 @@
 
   function Customs(url) {
     if (url === 'none') {
-      this.pool = { post: function () { return P({ block: false })}}
+      this.pool = {
+        post: function () { return P({ block: false })},
+        close: function () {}
+      }
     }
     else {
       this.pool = new Pool(url, { timeout: 1000 })
