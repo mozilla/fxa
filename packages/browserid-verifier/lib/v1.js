@@ -42,7 +42,7 @@ function verify(verifier, req, res) {
         reason: reason,
         rp: audience
       });
-      res._summary.error = e;
+      res._summary.err = e;
       return res.json({ status: "failure", reason: reason}, 415);
     }
     reason = util.format("missing %s parameter", assertion ? "audience" : "assertion");
@@ -51,7 +51,7 @@ function verify(verifier, req, res) {
       reason: reason,
       rp: audience
     });
-    res._summary.error = reason;
+    res._summary.err = reason;
     return res.json({ status: "failure", reason: reason}, 400);
   }
 
@@ -79,7 +79,7 @@ function verify(verifier, req, res) {
         log.info("assertion_failure");
         res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
       }
-      res._summary.error = err;
+      res._summary.err = err;
       log.info('verify', {
         result: 'failure',
         reason: err,
