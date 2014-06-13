@@ -133,6 +133,21 @@ TestServer.start(config)
   )
 
   test(
+    'Strict-Transport-Security header',
+    function (t) {
+      request(
+        {
+          url: config.publicUrl + '/'
+        },
+        function (err, res, body) {
+          t.equal(res.headers['strict-transport-security'], 'max-age=10886400')
+          t.end()
+        }
+      )
+    }
+  )
+
+  test(
     'oversized payload',
     function (t) {
       var client = new Client(config.publicUrl)
