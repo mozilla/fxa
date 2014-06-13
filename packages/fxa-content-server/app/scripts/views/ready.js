@@ -23,7 +23,7 @@ define([
 ],
 function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
 
-  var MARKETING_PERCENTAGE = 0.1;
+  var SURVEY_PERCENTAGE = 0.9;
 
   var View = BaseView.extend({
     template: Template,
@@ -33,6 +33,8 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
       options = options || {};
 
       this.type = options.type;
+
+      this._surveyPercentage = 'surveyPercentage' in options ? options.surveyPercentage : SURVEY_PERCENTAGE;
     },
 
     beforeRender: function () {
@@ -56,7 +58,8 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
         ]);
       }
 
-      var shouldShowSurvey = this._shouldOverrideMarketing(MARKETING_PERCENTAGE);
+      var shouldShowSurvey = this._shouldShowSurvey(this._surveyPercentage);
+      var shouldShowMarketing = this._shouldShowSignUpMarketing(shouldShowSurvey);
 
       return {
         service: this.service,
@@ -64,8 +67,8 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
         signIn: this.is('sign_in'),
 
         signUp: this.is('sign_up'),
-        showSignUpSurvey: this._showSignUpSurvey(shouldShowSurvey),
-        showSignUpMarketing: this._showSignUpMarketing(shouldShowSurvey),
+        showSignUpSurvey: shouldShowSurvey,
+        showSignUpMarketing: shouldShowMarketing,
 
         resetPassword: this.is('reset_password')
       };
@@ -75,24 +78,17 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
       'click #redirectTo': BaseView.preventDefaultThen('submit')
     },
 
-    _shouldOverrideMarketing: function(percent) {
+    _shouldShowSurvey: function (surveyPercentage) {
       var isEnglish = /^en/.test(Session.language);
 
-      if (isEnglish) {
-        return Math.random() <= percent;
+      if (! isEnglish) {
+        return false;
       }
 
-      return false;
+      return Math.random() <= surveyPercentage;
     },
 
-    _showSignUpSurvey: function(showSurvey) {
-      if (showSurvey) {
-        return true;
-      }
-      return false;
-    },
-
-    _showSignUpMarketing: function (showSurvey) {
+    _shouldShowSignUpMarketing: function (showSurvey) {
       if (! this.is('sign_up') || showSurvey) {
         return false;
       }
