@@ -39,7 +39,14 @@ function () {
 
     // local only error codes
     USER_CANCELED_LOGIN: 1001,
-    SESSION_EXPIRED: 1002
+    SESSION_EXPIRED: 1002,
+
+    COOKIES_STILL_DISABLED: 1003,
+    PASSWORDS_DO_NOT_MATCH: 1004,
+    WORKING: 1005,
+    COULD_NOT_GET_PP: 1006,
+    COULD_NOT_GET_TOS: 1007,
+    PASSWORDS_MUST_BE_DIFFERENT: 1008
   };
 
   var CODE_TO_MESSAGES = {
@@ -66,7 +73,13 @@ function () {
     116: t('This endpoint is no longer supported'),
 
     // local only error messages
-    1002: t('Session expired. Sign in to continue.')
+    1002: t('Session expired. Sign in to continue.'),
+    1003: t('Cookies are still disabled'),
+    1004: t('Passwords do not match'),
+    1005: t('Working…'),
+    1006: t('Could not get Privacy Notice'),
+    1007: t('Could not get Terms of Service'),
+    1008: t('Your new password must be different')
   };
 
   return {

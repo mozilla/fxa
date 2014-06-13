@@ -47,8 +47,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
       var newPassword = this.$('#new_password').val();
 
       if (oldPassword === newPassword) {
-        return this.displayError(
-                    t('Your new password must be different'));
+        var err = AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
+        return this.displayError(err);
       }
 
       this.hideError();

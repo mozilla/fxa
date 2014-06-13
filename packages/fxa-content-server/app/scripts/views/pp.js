@@ -9,11 +9,10 @@ define([
   'views/base',
   'stache!templates/pp',
   'lib/session',
-  'lib/strings'
+  'lib/strings',
+  'lib/auth-errors'
 ],
-function ($, BaseView, Template, Session, Strings) {
-  var t = BaseView.t;
-
+function ($, BaseView, Template, Session, Strings, AuthErrors) {
   var View = BaseView.extend({
     template: Template,
     className: 'pp',
@@ -38,7 +37,8 @@ function ($, BaseView, Template, Session, Strings) {
         self.$('.hidden').removeClass('hidden');
       })
       .fail(function() {
-        self.displayError(t('Could not get Privacy Notice'));
+        var err = AuthErrors.toError('COULD_NOT_GET_PP');
+        self.displayError(err);
         self.$('.hidden').removeClass('hidden');
       })
       .always(function() {

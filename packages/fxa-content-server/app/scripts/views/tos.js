@@ -9,11 +9,10 @@ define([
   'views/base',
   'stache!templates/tos',
   'lib/session',
-  'lib/strings'
+  'lib/strings',
+  'lib/auth-errors'
 ],
-function ($, BaseView, Template, Session, Strings) {
-  var t = BaseView.t;
-
+function ($, BaseView, Template, Session, Strings, AuthErrors) {
   var View = BaseView.extend({
     template: Template,
     className: 'tos',
@@ -38,7 +37,8 @@ function ($, BaseView, Template, Session, Strings) {
         self.$('.hidden').removeClass('hidden');
       })
       .fail(function() {
-        self.displayError(t('Could not get Terms of Service'));
+        var err = AuthErrors.toError('COULD_NOT_GET_TOS');
+        self.displayError(err);
         self.$('.hidden').removeClass('hidden');
       })
       .always(function() {

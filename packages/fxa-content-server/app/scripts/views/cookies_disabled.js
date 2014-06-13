@@ -7,11 +7,10 @@
 define([
   'views/base',
   'lib/config-loader',
+  'lib/auth-errors',
   'stache!templates/cookies_disabled'
 ],
-function (BaseView, ConfigLoader, Template) {
-  var t = BaseView.t;
-
+function (BaseView, ConfigLoader, AuthErrors, Template) {
   var View = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);
@@ -31,7 +30,8 @@ function (BaseView, ConfigLoader, Template) {
       return this._configLoader.areCookiesEnabled(true)
         .then(function (areCookiesEnabled) {
           if (! areCookiesEnabled) {
-            return self.displayError(t('Cookies are still disabled'));
+            var err = AuthErrors.toError('COOKIES_STILL_DISABLED');
+            return self.displayError(err);
           }
 
           self.back();
