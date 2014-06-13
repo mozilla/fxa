@@ -79,7 +79,7 @@ function verify(verifier, req, res) {
           log.info("assertion_failure");
           res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
         }
-        res._summary.error = err;
+        res._summary.err = err;
         log.info('verify', {
           result: 'failure',
           reason: err,
@@ -101,7 +101,7 @@ function verify(verifier, req, res) {
   } catch(err) {
     var reason = err.reason ? err.reason : err.toString();
 
-    res._summary.error = err;
+    res._summary.err = err;
     log.info('verify', {
       result: 'failure',
       reason: reason,
