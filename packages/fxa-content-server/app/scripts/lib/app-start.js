@@ -142,15 +142,19 @@ function (
      * config can be passed in for testing
      */
     allResourcesReady: function () {
-      // Get the party started
-      this._history.start({ pushState: true });
-
       // These must be initialized after Backbone.history so that
       // Backbone does not override the page the channel sets.
       Session.set('channel', getChannel());
       var self = this;
       return this._configLoader.areCookiesEnabled()
         .then(function (areCookiesEnabled) {
+          // Get the party started.
+          // If cookies are disabled, do not attempt to render the
+          // route displayed in the URL because the user is immediately
+          // redirected to cookies_disabled
+          var shouldRenderFirstView = ! areCookiesEnabled;
+          self._history.start({ pushState: true, silent: shouldRenderFirstView });
+
           if (! areCookiesEnabled) {
             self._router.navigate('cookies_disabled');
           }
