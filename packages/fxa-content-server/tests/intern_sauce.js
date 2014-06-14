@@ -10,7 +10,7 @@ define([
   // override the main config file and adjust it to suit Sauce Labs
   intern.useSauceConnect = true;
   intern.webdriver.port = 4445;
-  intern.functionalSuites = [ 'tests/functional' ];
+  intern.functionalSuites = [ 'tests/functional', 'tests/functional_extra' ];
   intern.environments = [
     { browserName: 'firefox', version: '29', platform: 'Windows 7' }
   ];
