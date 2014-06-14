@@ -5,7 +5,7 @@
 require.config({
   baseUrl: '/scripts',
   paths: {
-    jquery: '/bower_components/jquery/jquery',
+    jquery: '/bower_components/jquery/dist/jquery',
     backbone: '/bower_components/backbone/backbone',
     underscore: '/bower_components/underscore/underscore',
     fxaClient: '/bower_components/fxa-js-client/fxa-client',
