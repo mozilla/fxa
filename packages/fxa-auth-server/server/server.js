@@ -69,6 +69,11 @@ module.exports = function (path, url, Hapi) {
         load: {
           maxEventLoopDelay: config.toobusy.maxLag,
           sampleInterval: 1000
+        },
+        security: {
+          hsts: {
+            maxAge: 10886400
+          }
         }
       }
 
@@ -178,7 +183,6 @@ module.exports = function (path, url, Hapi) {
             response.backtrace(request.app.traced)
           }
         }
-        response.header('Strict-Transport-Security', 'max-age=10886400')
         response.header('Timestamp', '' + Math.floor(Date.now() / 1000))
         log.summary(request, response)
         next(response)
