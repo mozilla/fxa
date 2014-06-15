@@ -72,7 +72,8 @@ module.exports = function (path, url, Hapi) {
         },
         security: {
           hsts: {
-            maxAge: 10886400
+            maxAge: 15552000,
+            includeSubdomains: true
           }
         }
       }

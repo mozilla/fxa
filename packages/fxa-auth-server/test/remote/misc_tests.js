@@ -140,7 +140,7 @@ TestServer.start(config)
           url: config.publicUrl + '/'
         },
         function (err, res, body) {
-          t.equal(res.headers['strict-transport-security'], 'max-age=10886400')
+          t.equal(res.headers['strict-transport-security'], 'max-age=15552000; includeSubdomains')
           t.end()
         }
       )
