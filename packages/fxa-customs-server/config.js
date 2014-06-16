@@ -12,6 +12,10 @@ module.exports = require('rc')(
     blockIntervalSeconds: 60 * 60 * 24, // duration of a manual ban
     rateLimitIntervalSeconds: 60 * 15,  // duration of automatic throttling
     maxEmails: 3,   // number of emails sent within rateLimitIntervalSeconds before throttling
-    maxBadLogins: 2 // number failed login attempts within rateLimitIntervalSeconds before throttling
-  }
+    maxBadLogins: 2, // number failed login attempts within rateLimitIntervalSeconds before throttling
+    bans: {
+      region: '',
+      queueUrl: ''
+    }
+ }
 )

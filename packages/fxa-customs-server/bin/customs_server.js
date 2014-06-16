@@ -39,6 +39,15 @@ var mc = new Memcached(
   }
 )
 
+var handleBan = P.promisify(require('../bans/handler')(mc, log))
+
+// optional SQS-based IP/email banning API
+if (config.bans.region && config.bans.queueUrl) {
+  var bans = require('../bans')(log)
+  bans(config.bans, mc)
+  log.info({ op: 'listening', sqsRegion: config.bans.region, sqsQueueUrl: config.bans.queueUrl })
+}
+
 var api = restify.createServer()
 api.use(restify.bodyParser())
 
@@ -201,19 +210,14 @@ api.post(
       next()
     }
 
-    mc.getAsync(email)
-      .then(EmailRecord.parse, EmailRecord.parse)
-      .then(
-        function (emailRecord) {
-          emailRecord.block()
-          return mc.setAsync(email, emailRecord, LIFETIME).catch(ignore)
-        }
-      )
+    handleBan({ ban: { email: email } })
       .then(
         function () {
           log.info({ op: 'request.blockEmail', email: email })
           res.send({})
-        },
+        }
+      )
+      .catch(
         function (err) {
           log.error({ op: 'request.blockEmail', email: email, err: err })
           res.send(500, err)
@@ -234,19 +238,14 @@ api.post(
       next()
     }
 
-    mc.getAsync(ip)
-      .then(IpRecord.parse, IpRecord.parse)
-      .then(
-        function (ipRecord) {
-          ipRecord.block()
-          return mc.setAsync(ip, ipRecord, LIFETIME).catch(ignore)
-        }
-      )
+    handleBan({ ban: { ip: ip } })
       .then(
         function () {
           log.info({ op: 'request.blockIp', ip: ip })
           res.send({})
-        },
+        }
+      )
+      .catch(
         function (err) {
           log.error({ op: 'request.blockIp', ip: ip, err: err })
           res.send(500, err)
