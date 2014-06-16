@@ -68,6 +68,11 @@ function makeApp() {
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
+  if (config.get('env') === 'development') {
+    app.use(helmet.csp({'default-src': ['\'self\''],
+                        'report-uri': '/_/csp-violation'
+                       }));
+  }
   app.disable('x-powered-by');
 
   app.use(routeLogging());

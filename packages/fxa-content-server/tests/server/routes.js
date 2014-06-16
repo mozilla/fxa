@@ -93,6 +93,9 @@ define([
     } else {
       assert.ok(headers.hasOwnProperty('x-frame-options'));
     }
+    if (config.get('env') === 'development') {
+      assert.ok(headers.hasOwnProperty('content-security-policy'));
+    }
   }
 
 });
