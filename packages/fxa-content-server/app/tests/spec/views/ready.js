@@ -23,7 +23,7 @@ function (chai, View, Session, WindowMock) {
     }
 
     function createViewWithSurvey() {
-      createView(1);
+      createView(100);
     }
 
     function createView(surveyPercentage) {

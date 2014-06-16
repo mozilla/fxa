@@ -23,7 +23,7 @@ define([
 ],
 function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
 
-  var SURVEY_PERCENTAGE = 0.9;
+  var SURVEY_PERCENTAGE = 10;
 
   var View = BaseView.extend({
     template: Template,
@@ -85,7 +85,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
         return false;
       }
 
-      return Math.random() <= surveyPercentage;
+      return Math.random() <= (surveyPercentage / 100);
     },
 
     _shouldShowSignUpMarketing: function (showSurvey) {
