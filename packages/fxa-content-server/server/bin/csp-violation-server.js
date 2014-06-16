@@ -19,6 +19,9 @@ function makeApp() {
   var violations = fs.createWriteStream('violations.txt', {flags: 'a'});
   var app = express();
   app.use(express.bodyParser());
+  app.get('/index.html', function(req, res) {
+    res.json({result: 'ok'});
+  });
   app.post('/_/csp-violation', function(req, res) {
     logger.warn('VIOLATION REPORT');
     var data = {
