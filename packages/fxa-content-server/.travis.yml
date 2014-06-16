@@ -29,6 +29,7 @@ install:
   - cd node_modules/fxa-auth-server
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &
+  - sleep 10
   - cd ../..
   - npm start &
 # now run the tests!
