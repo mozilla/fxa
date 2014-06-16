@@ -102,7 +102,7 @@ module.exports = function (log) {
       code: message.code
     }
 
-    var localized = this.templates.verifyEmail(values)
+    var localized = this.templates.recoveryEmail(values)
     var email = {
       sender: this.sender,
       to: message.email,
