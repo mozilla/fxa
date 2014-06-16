@@ -1,3 +1,9 @@
+train-15
+  * allow routes to use a base path for hosting in a subdirectory
+  * updated dependencies
+  * use poolee module for HTTP requests
+  * code reorganization
+
 train-14
   * moved email sending into fxa-auth-mailer #730
   * updated hapi-auth-hawk to mitigate bug (#700) #731
