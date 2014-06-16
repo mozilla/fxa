@@ -18,13 +18,22 @@ function (chai, View, Session, WindowMock) {
   describe('views/ready', function () {
     var view, windowMock;
 
-    beforeEach(function () {
+    function createViewWithMarketing() {
+      createView(0);
+    }
+
+    function createViewWithSurvey() {
+      createView(100);
+    }
+
+    function createView(surveyPercentage) {
       windowMock = new WindowMock();
 
       view = new View({
+        surveyPercentage: surveyPercentage,
         window: windowMock
       });
-    });
+    }
 
     afterEach(function () {
       view.remove();
@@ -33,6 +42,10 @@ function (chai, View, Session, WindowMock) {
     });
 
     describe('render', function () {
+      beforeEach(function () {
+        createViewWithMarketing();
+      });
+
       it('renders with correct header for reset_password type', function () {
         view.type = 'reset_password';
 
@@ -122,7 +135,7 @@ function (chai, View, Session, WindowMock) {
 
         return view.render()
             .then(function () {
-              assert.equal(view.$('.marketing').length, 1);
+              assert.equal(view.$('.marketing.default').length, 1);
             });
       });
 
@@ -132,7 +145,7 @@ function (chai, View, Session, WindowMock) {
 
         return view.render()
             .then(function () {
-              assert.equal(view.$('.marketing').length, 0);
+              assert.equal(view.$('.marketing.default').length, 0);
             });
       });
 
@@ -142,9 +155,35 @@ function (chai, View, Session, WindowMock) {
 
         return view.render()
             .then(function () {
-              assert.equal(view.$('.marketing').length, 0);
+              assert.equal(view.$('.marketing.default').length, 0);
             });
       });
+    });
+
+    describe('render/show survey', function () {
+      it('shows survey to english users', function () {
+        Session.set('language', 'en_GB');
+        createViewWithSurvey();
+
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.marketing.default').length, 0);
+              assert.equal(view.$('.marketing.survey').length, 1);
+            });
+      });
+
+      it('still shows default marketing to non-english users', function () {
+        Session.set('language', 'de');
+        createViewWithSurvey();
+        view.type = 'sign_up';
+
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.marketing.default').length, 1);
+              assert.equal(view.$('.marketing.survey').length, 0);
+            });
+      });
+
     });
   });
 });

@@ -47,13 +47,19 @@
 
   .marketing {
     bottom: 0;
-    font-size: 16px;
     left: 0;
-    margin: 0;
-    padding: 15px 50px 90px 50px;
     position: fixed;
-    text-align: center;
     width: 100%;
+    &.image-snippet {
+      font-size: 16px;
+      margin: 0;
+      padding: 15px 50px 90px 50px;
+      text-align:center;
+    }
+    &.text-snippet {
+      margin: 0;
+      padding: 15px 20px 20px 20px;
+    }
     .android-logo {
       background: url(/images/android_logo.png) no-repeat center bottom;
       background-size: 84px 74px;
@@ -178,12 +184,18 @@
     border-top: 1px solid $marketing-border-color;
     bottom: 0;
     left: 0;
-    font-size: 18px;
-    margin: 0;
-    padding: 0;
+
     position: absolute;
-    text-align: left;
     width: 100%;
+    &.image-snippet {
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+      text-align:left;
+    }
+    &.text-snippet {
+      margin: 0;
+    }
     .marketing-spacer {
       margin: 0 auto;
       width: 340px;
