@@ -24,11 +24,12 @@ define([
   'jquery',
   'p-promise',
   'lib/validate',
+  'lib/auth-errors',
   'views/base',
   'views/tooltip',
   'views/button_progress_indicator'
 ],
-function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
+function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndicator) {
   var t = BaseView.t;
 
   /**
@@ -114,7 +115,8 @@ function (_, $, p, Validate, BaseView, Tooltip, ButtonProgressIndicator) {
       this.window.clearTimeout(this._workingTimeout);
 
       this._workingTimeout = this.window.setTimeout(function () {
-        workingText = self.displayError(t('Working…'));
+        var err = AuthErrors.toError('WORKING');
+        workingText = self.displayError(err);
       }, this.LONGER_THAN_EXPECTED);
 
       return p()

@@ -17,8 +17,6 @@ define([
   'lib/oauth-mixin'
 ],
 function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, Validate, AuthErrors, OAuthMixin) {
-  var t = BaseView.t;
-
   var View = FormView.extend({
     template: Template,
     className: 'complete_reset_password',
@@ -92,7 +90,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
 
     showValidationErrorsEnd: function () {
       if (this._getPassword() !== this._getVPassword()) {
-        this.displayError(t('Passwords do not match'));
+        var err = AuthErrors.toError('PASSWORDS_DO_NOT_MATCH');
+        this.displayError(err);
       }
     },
 
