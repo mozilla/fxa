@@ -19,9 +19,6 @@ define([
   './functional/pages',
   './functional/back_button_after_start',
   './functional/cookies_disabled'
-  // './functional/oauth_sign_in',
-  // './functional/oauth_sign_up',
-  // './functional/oauth_reset_password'
 ], function () {
   'use strict';
 });
