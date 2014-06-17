@@ -70,7 +70,8 @@ function makeApp() {
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
   if (config.get('env') === 'development') {
     app.use(helmet.csp({'default-src': ['\'self\''],
-                        'report-uri': '/_/csp-violation'
+                        'report-uri': '/_/csp-violation',
+                        'reportOnly': true
                        }));
   }
   app.disable('x-powered-by');

@@ -94,7 +94,7 @@ define([
       assert.ok(headers.hasOwnProperty('x-frame-options'));
     }
     if (config.get('env') === 'development') {
-      assert.ok(headers.hasOwnProperty('content-security-policy'));
+      assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
     }
   }
 
