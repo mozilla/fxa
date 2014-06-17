@@ -15,6 +15,25 @@ We loosely follow the [Angular commit guidelines](https://github.com/angular/ang
 * **chore**: Changes to the build process or auxiliary tools and libraries such as documentation
   generation
 
+### Scope
+The scope could be anything specifying place of the commit change. For example `oauth`,
+`fxa-client`, `signup`, `l10n` etc...
+
+### Subject
+The subject contains succinct description of the change:
+
+* use the imperative, present tense: "change" not "changed" nor "changes"
+* don't capitalize first letter
+* no dot (.) at the end
+
+###Body (optional)
+Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes"
+The body should include the motivation for the change and contrast this with previous behavior.
+
+###Footer
+The footer should contain any information about **Breaking Changes** and is also the place to
+reference GitHub issues that this commit **Closes**.
+
 ## Grunt Commands
 
 [Grunt](http://gruntjs.com/) is used to run common tasks to build, test, and run local servers.
