@@ -48,36 +48,7 @@ function (
   NullMetrics
 ) {
 
-  function getChannel() {
-    var context = Url.searchParam('context');
-    var channel;
 
-    if (context === Constants.FX_DESKTOP_CONTEXT) {
-      // Firefox for desktop native=>FxA glue code.
-      channel = new FxDesktopChannel();
-    } else {
-      // default to the web channel that doesn't do anything yet.
-      channel = new WebChannel();
-    }
-
-    channel.init();
-    return channel;
-  }
-
-  function setSessionValueFromUrl(name) {
-    var value = Url.searchParam(name);
-    if (value) {
-      Session.set(name, value);
-    } else {
-      Session.clear(name);
-    }
-  }
-
-  function initSessionFromUrl() {
-    setSessionValueFromUrl('service');
-    setSessionValueFromUrl('redirectTo');
-    setSessionValueFromUrl('context');
-  }
 
   function isMetricsCollectionEnabled (sampleRate) {
     return Math.random() <= sampleRate;
@@ -103,7 +74,7 @@ function (
 
   Start.prototype = {
     startApp: function () {
-      initSessionFromUrl();
+      this.initSessionFromUrl();
 
       // fetch both config and translations in parallel to speed up load.
       return p.all([
@@ -144,7 +115,7 @@ function (
     allResourcesReady: function () {
       // These must be initialized after Backbone.history so that
       // Backbone does not override the page the channel sets.
-      Session.set('channel', getChannel());
+      Session.set('channel', this.getChannel());
       var self = this;
       return this._configLoader.areCookiesEnabled()
         .then(function (areCookiesEnabled) {
@@ -159,6 +130,51 @@ function (
             self._router.navigate('cookies_disabled');
           }
         });
+    },
+
+    _searchParam: function (name) {
+      return Url.searchParam(name, this._window.location.search);
+    },
+
+    getChannel: function () {
+      var context = this._searchParam('context');
+      var channel;
+
+      if (context === Constants.FX_DESKTOP_CONTEXT) {
+        // Firefox for desktop native=>FxA glue code.
+        channel = new FxDesktopChannel();
+      } else {
+        // default to the web channel that doesn't do anything yet.
+        channel = new WebChannel();
+      }
+
+      channel.init();
+      return channel;
+    },
+
+    setSessionValueFromUrl: function (paramName, sessionName) {
+      var value = this._searchParam(paramName);
+      var name = sessionName || paramName;
+      if (value) {
+        Session.set(name, value);
+      } else {
+        Session.clear(name);
+      }
+    },
+
+    initSessionFromUrl: function () {
+      this.setSessionValueFromUrl('service');
+      this.setSessionValueFromUrl('redirectTo');
+      this.setSessionValueFromUrl('context');
+      this.initOAuthService();
+    },
+
+    // If Session.service hasn't been set,
+    // look for the service in the `client_id` parameter.
+    initOAuthService: function () {
+      if (! Session.service) {
+        this.setSessionValueFromUrl('client_id', 'service');
+      }
     }
   };
 
