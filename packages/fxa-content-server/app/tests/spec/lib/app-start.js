@@ -65,6 +65,14 @@ function (chai, AppStart, Session, WindowMock, RouterMock, HistoryMock) {
               assert.equal(routerMock.page, 'cookies_disabled');
             });
       });
+
+      it('sets the session service from a client_id query parameter', function () {
+        windowMock.location.search = '?client_id=testing';
+        return appStart.startApp()
+                    .then(function () {
+                      assert.equal(Session.service, 'testing');
+                    });
+      });
     });
   });
 });
