@@ -16,6 +16,8 @@ module.exports = function(options) {
       // don't wait around to send a response.
       res.json({ success: true });
 
+      var metrics = req.body;
+      metrics['user-agent'] = req.get('user-agent');
       metricsCollector.write(req.body);
     }
   };

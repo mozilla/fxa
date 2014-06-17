@@ -30,24 +30,17 @@ define([
   SpeedTrap.prototype = speedTrap;
 
   var ALLOWED_FIELDS = [
-    'date',
     'navigationTiming',
     'referrer',
     'duration',
     'timers',
     'events',
     'context',
-    'service'
+    'service',
+    'lang'
   ];
 
   var TEN_MINS_MS = 10 * 60 * 1000;
-
-  function getDate() {
-    var roundedDate = new Date();
-    roundedDate.setHours(0, 0, 0, 0);
-
-    return roundedDate;
-  }
 
   function Metrics (options) {
     options = options || {};
@@ -64,9 +57,9 @@ define([
     this.timers = this._speedTrap.timers;
     this.events = this._speedTrap.events;
 
-    this._date = getDate();
-
     this._window = options.window || window;
+
+    this._lang = options.lang || 'unknown';
 
     var searchParams = this._window.location.search;
     this._context = Url.searchParam('context', searchParams);
@@ -135,9 +128,9 @@ define([
       var unloadData = this._speedTrap.getUnload();
 
       var allData = _.extend({
-        date: this._date.toISOString(),
         context: this._context,
-        service: this._service
+        service: this._service,
+        lang: this._lang
       }, loadData, unloadData);
 
       return allData;

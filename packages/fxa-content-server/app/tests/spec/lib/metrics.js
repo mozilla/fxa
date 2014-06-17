@@ -23,7 +23,8 @@ function (chai, Metrics, WindowMock) {
 
       windowMock.location.search = '?service=sync&context=fxa_desktop_v1';
       metrics = new Metrics({
-        window: windowMock
+        window: windowMock,
+        lang: 'db_LB'
       });
       metrics.init();
     });
@@ -46,13 +47,13 @@ function (chai, Metrics, WindowMock) {
       it('gets non-optional fields', function () {
         var filteredData = metrics.getFilteredData();
 
-        assert.isTrue(filteredData.hasOwnProperty('date'));
         assert.isTrue(filteredData.hasOwnProperty('events'));
         assert.isTrue(filteredData.hasOwnProperty('timers'));
         assert.isTrue(filteredData.hasOwnProperty('navigationTiming'));
         assert.isTrue(filteredData.hasOwnProperty('duration'));
         assert.isTrue(filteredData.hasOwnProperty('context'));
         assert.isTrue(filteredData.hasOwnProperty('service'));
+        assert.isTrue(filteredData.hasOwnProperty('lang'));
       });
     });
 

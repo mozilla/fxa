@@ -25,14 +25,22 @@ define([
       process.stderr.write = _origWrite;
       var loggedMetrics = JSON.parse(String(chunk));
 
+      // fields originating on the server.
+      assert.ok(loggedMetrics.date);
       assert.equal(loggedMetrics.op, 'client.metrics');
+      assert.ok(loggedMetrics.hostname);
+      assert.ok(loggedMetrics.pid);
+      assert.ok(loggedMetrics.v);
+
+      // fields origininating on the client.
+      assert.ok(loggedMetrics.lang, 'db_LB');
+      assert.ok(loggedMetrics.agent, 'Firefox 32.0');
       assert.equal(loggedMetrics.duration, 1234);
       assert.equal(loggedMetrics['nt.included'], 0);
       assert.isUndefined(loggedMetrics['nt.notIncludedUndefined']);
       assert.isUndefined(loggedMetrics['nt.notIncludedNull']);
-      assert.equal(loggedMetrics['event[0].firstEvent'], 1235);
-      assert.equal(loggedMetrics['event[1].secondEvent'], 3512);
-
+      assert.equal(loggedMetrics['event_0.firstEvent'], 1235);
+      assert.equal(loggedMetrics['event_1.secondEvent'], 3512);
     });
 
     metricsCollector.write({
@@ -50,7 +58,9 @@ define([
           offset: 3512
         }
       ],
-      duration: 1234
+      duration: 1234,
+      'user-agent': 'Firefox 32.0',
+      lang: 'db_LB'
     });
   };
 

@@ -83,9 +83,9 @@ function (
     return Math.random() <= sampleRate;
   }
 
-  function createMetrics(sampleRate) {
+  function createMetrics(sampleRate, options) {
     if (isMetricsCollectionEnabled(sampleRate)) {
-      return new Metrics();
+      return new Metrics(options);
     }
 
     return new NullMetrics();
@@ -124,7 +124,9 @@ function (
       Session.set('config', config);
       Session.set('language', config.language);
 
-      this._metrics = createMetrics(config.metricsSampleRate);
+      this._metrics = createMetrics(config.metricsSampleRate, {
+        lang: config.language
+      });
       this._metrics.init();
 
       if (! this._router) {
