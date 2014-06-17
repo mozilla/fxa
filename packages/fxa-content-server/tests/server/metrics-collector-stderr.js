@@ -26,7 +26,7 @@ define([
       var loggedMetrics = JSON.parse(String(chunk));
 
       // fields originating on the server.
-      assert.ok(loggedMetrics.date);
+      assert.ok(loggedMetrics.time);
       assert.equal(loggedMetrics.op, 'client.metrics');
       assert.ok(loggedMetrics.hostname);
       assert.ok(loggedMetrics.pid);

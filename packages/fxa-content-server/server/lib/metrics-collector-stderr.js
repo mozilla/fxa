@@ -13,11 +13,11 @@ var HOSTNAME = os.hostname();
 var OP = 'client.metrics';
 var VERSION = 1;
 
-function addDate(loggableEvent) {
+function addTime(loggableEvent) {
   // round the date to the nearest day.
   var today = new Date();
   today.setHours(0, 0, 0, 0);
-  loggableEvent.date = today.toISOString();
+  loggableEvent.time = today.toISOString();
 }
 
 function addOp(loggableEvent) {
@@ -78,7 +78,7 @@ function toLoggableEvent(event) {
   // work off of a whitelist to ensure only data we care about is logged.
 
   // fields that rely on server data.
-  addDate(loggableEvent);
+  addTime(loggableEvent);
   addOp(loggableEvent);
   addHostname(loggableEvent);
   addPid(loggableEvent);
