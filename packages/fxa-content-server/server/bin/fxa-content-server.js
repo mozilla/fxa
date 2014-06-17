@@ -70,6 +70,10 @@ function makeApp() {
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
   if (config.get('env') === 'development') {
     app.use(helmet.csp({'default-src': ['\'self\''],
+                        'connect-src': ['\'self\'',
+                              config.get('fxaccount_url'),
+                              config.get('oauth_url')
+                        ],
                         'report-uri': '/_/csp-violation',
                         'reportOnly': true
                        }));
