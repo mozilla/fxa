@@ -296,7 +296,7 @@ strong.email {
   font-size: 18px;
   height: 45px;
   outline: none;
-  padding: 0 20px;
+  padding: 0 $input-left-right-padding;
   position: relative;
   transition-duration: 150ms;
   transition-property: border-color;
@@ -333,7 +333,7 @@ strong.email {
   color: $input-placeholder-color;
   height: auto;
   outline: none;
-  padding: 10px 20px;
+  padding: 10px $input-left-right-padding;
   // Some hackery for Firefox since moz-appearance: none doesn't remove the arrow
   text-indent: 0.01px;
   text-overflow: "";
@@ -471,7 +471,7 @@ label:focus ~ .input-help-focused {
   font-size: 18px;
   height: auto;
   outline: none;
-  padding: 8px 0 9px 20px;
+  padding: 8px 0 9px $input-left-right-padding;
   text-indent: 0.01px;
   text-overflow: "";
   user-select: none;
@@ -674,6 +674,7 @@ ul.links li {
   z-index: 3;
 }
 
+
 .password-row > .password:hover {
   border-color: $input-border-color;
 }
@@ -693,6 +694,21 @@ ul.links li {
 .show-password {
   opacity: 0;
   position: absolute;
+}
+
+/**
+ * IE8 blows up when changing the type of the password field
+ * to a text field. Hide the show/hide button and reset 
+ * the password field's padding.
+ */
+.no-toggle-pw, .reveal-pw {
+  .password-row input[type='password'] {
+    padding-right: $input-left-right-padding;
+  }
+
+  .show-password-label, .show-password {
+    display: none;
+  }
 }
 
 .show-password-label:hover,
