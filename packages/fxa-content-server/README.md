@@ -90,7 +90,7 @@ edit `server/config/*.json` on your deployed instance.
 
 ```json
 {
-  'fxaccount_url': 'http://your.auth.server.here.org'
+  "fxaccount_url": "http://your.auth.server.here.org"
 }
 ```
 
