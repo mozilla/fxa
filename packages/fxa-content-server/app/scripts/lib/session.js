@@ -87,8 +87,8 @@ define([
       var toSaveToSessionStorage = {};
       var toSaveToLocalStorage = {};
       _.each(this, function (value, key) {
-        if (DO_NOT_PERSIST.indexOf(key) === -1) {
-          if (PERSIST_TO_LOCAL_STORAGE.indexOf(key) >= 0) {
+        if (_.indexOf(DO_NOT_PERSIST, key) === -1) {
+          if (_.indexOf(PERSIST_TO_LOCAL_STORAGE, key) >= 0) {
             toSaveToLocalStorage[key] = value;
           } else {
             toSaveToSessionStorage[key] = value;
@@ -132,7 +132,7 @@ define([
         return;
       }
 
-      if (this.hasOwnProperty(key) && DO_NOT_CLEAR.indexOf(key) === -1) {
+      if (this.hasOwnProperty(key) && _.indexOf(DO_NOT_CLEAR, key) === -1) {
         this[key] = null;
         delete this[key];
         this.persist();
