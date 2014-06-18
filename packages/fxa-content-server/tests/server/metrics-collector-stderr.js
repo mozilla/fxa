@@ -20,6 +20,8 @@ define([
   suite['writes formatted data to stderr'] = function () {
     var dfd = this.async(1000);
 
+    // process.stderr.write is overwritten because the 'data' message
+    // is never received and the test times out.
     var _origWrite = process.stderr.write;
     process.stderr.write = dfd.callback(function (chunk) {
       process.stderr.write = _origWrite;
@@ -39,8 +41,12 @@ define([
       assert.equal(loggedMetrics['nt.included'], 0);
       assert.isUndefined(loggedMetrics['nt.notIncludedUndefined']);
       assert.isUndefined(loggedMetrics['nt.notIncludedNull']);
-      assert.equal(loggedMetrics['event_0.firstEvent'], 1235);
-      assert.equal(loggedMetrics['event_1.secondEvent'], 3512);
+
+      assert.equal(loggedMetrics.events[0], 'firstEvent');
+      assert.equal(loggedMetrics.event_durations[0], 1235);
+
+      assert.equal(loggedMetrics.events[1], 'secondEvent');
+      assert.equal(loggedMetrics.event_durations[1], 3512);
     });
 
     metricsCollector.write({

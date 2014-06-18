@@ -64,9 +64,12 @@ function addNavigationTiming(loggableEvent, event) {
 
 function addEvents(loggableEvent, event) {
   if (event.events && event.events.forEach) {
+    loggableEvent.events = [];
+    loggableEvent.event_durations = [];
+
     event.events.forEach(function (event, index) {
-      var eventName = 'event_' + index + '.' + event.type;
-      loggableEvent[eventName] = event.offset;
+      loggableEvent.events.push(event.type);
+      loggableEvent.event_durations.push(event.offset);
     });
   }
 }
