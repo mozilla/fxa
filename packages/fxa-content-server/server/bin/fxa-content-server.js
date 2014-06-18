@@ -40,6 +40,8 @@ var routeLogging = require('../lib/logging/route_logging');
 var fourOhFour = require('../lib/404');
 var serverErrorHandler = require('../lib/500');
 var localizedRender = require('../lib/localized-render');
+var csp = require('../lib/csp');
+
 
 var STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
@@ -68,16 +70,7 @@ function makeApp() {
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
-  if (config.get('env') === 'development') {
-    app.use(helmet.csp({'default-src': ['\'self\''],
-                        'connect-src': ['\'self\'',
-                              config.get('fxaccount_url'),
-                              config.get('oauth_url')
-                        ],
-                        'report-uri': '/_/csp-violation',
-                        'reportOnly': true
-                       }));
-  }
+  app.use(csp);
   app.disable('x-powered-by');
 
   app.use(routeLogging());
