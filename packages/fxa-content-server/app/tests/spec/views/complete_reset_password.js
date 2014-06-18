@@ -72,7 +72,7 @@ function (chai, p, AuthErrors, Metrics, View, RouterMock, WindowMock, TestHelper
               testEventLogged('complete_reset_password:link_damaged');
             })
             .then(function () {
-              assert.ok(view.$('#fxa-verification-link-damaged-header').length);
+              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
             });
       });
 
@@ -83,7 +83,7 @@ function (chai, p, AuthErrors, Metrics, View, RouterMock, WindowMock, TestHelper
               testEventLogged('complete_reset_password:link_damaged');
             })
             .then(function () {
-              assert.ok(view.$('#fxa-verification-link-damaged-header').length);
+              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
             });
       });
 
@@ -94,18 +94,18 @@ function (chai, p, AuthErrors, Metrics, View, RouterMock, WindowMock, TestHelper
               testEventLogged('complete_reset_password:link_damaged');
             })
             .then(function () {
-              assert.ok(view.$('#fxa-verification-link-damaged-header').length);
+              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
             });
       });
 
-      it('shows the expired screen if the token has already been verified', function () {
+      it('shows the expired screen if the token has already been used', function () {
         isPasswordResetComplete = true;
         return view.render()
             .then(function () {
               testEventLogged('complete_reset_password:link_expired');
             })
             .then(function () {
-              assert.ok(view.$('#fxa-verification-link-expired-header').length);
+              assert.ok(view.$('#fxa-reset-link-expired-header').length);
             });
       });
     });
@@ -223,7 +223,7 @@ function (chai, p, AuthErrors, Metrics, View, RouterMock, WindowMock, TestHelper
         };
         return view.validateAndSubmit()
             .then(function () {
-              assert.ok(view.$('#fxa-verification-link-expired-header').length);
+              assert.ok(view.$('#fxa-reset-link-expired-header').length);
             });
       });
 
