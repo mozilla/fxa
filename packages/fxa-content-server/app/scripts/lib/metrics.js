@@ -62,8 +62,8 @@ define([
     this._lang = options.lang || 'unknown';
 
     var searchParams = this._window.location.search;
-    this._context = Url.searchParam('context', searchParams);
-    this._service = Url.searchParam('service', searchParams);
+    this._context = Url.searchParam('context', searchParams) || 'web';
+    this._service = Url.searchParam('service', searchParams) || 'none';
 
     this._inactivityFlushMs = options.inactivityFlushMs || TEN_MINS_MS;
   }

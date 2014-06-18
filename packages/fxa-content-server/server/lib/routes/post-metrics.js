@@ -17,7 +17,7 @@ module.exports = function(options) {
       res.json({ success: true });
 
       var metrics = req.body;
-      metrics['user-agent'] = req.get('user-agent');
+      metrics.agent = req.get('user-agent');
       metricsCollector.write(req.body);
     }
   };

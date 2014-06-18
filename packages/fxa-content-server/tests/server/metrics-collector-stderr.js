@@ -47,6 +47,9 @@ define([
 
       assert.equal(loggedMetrics.events[1], 'secondEvent');
       assert.equal(loggedMetrics.event_durations[1], 3512);
+
+      assert.equal(loggedMetrics.service, 'sync');
+      assert.equal(loggedMetrics.context, 'fx_desktop_v1');
     });
 
     metricsCollector.write({
@@ -66,7 +69,9 @@ define([
       ],
       duration: 1234,
       'user-agent': 'Firefox 32.0',
-      lang: 'db_LB'
+      lang: 'db_LB',
+      service: 'sync',
+      context: 'fx_desktop_v1'
     });
   };
 

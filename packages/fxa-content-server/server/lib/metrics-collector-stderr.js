@@ -36,16 +36,10 @@ function addVersion(loggableEvent) {
   loggableEvent.v = VERSION;
 }
 
-function addLang(loggableEvent, event) {
-  loggableEvent.lang = event.lang || 'unknown';
-}
-
-function addUserAgent(loggableEvent, event) {
-  loggableEvent.agent = event['user-agent'] || 'unknown';
-}
-
-function addDuration(loggableEvent, event) {
-  loggableEvent.duration = event.duration || 'unknown';
+function copyFields(fields, to, from) {
+  fields.forEach(function(field) {
+    to[field] = from[field] || 'unknown';
+  });
 }
 
 function isValidNavigationTimingValue(value) {
@@ -88,11 +82,17 @@ function toLoggableEvent(event) {
   addVersion(loggableEvent);
 
   // fields that rely on client data.
-  addLang(loggableEvent, event);
-  addUserAgent(loggableEvent, event);
-  addDuration(loggableEvent, event);
+  copyFields([
+    'lang',
+    'agent',
+    'duration',
+    'context',
+    'service'
+  ], loggableEvent, event);
+
   addNavigationTiming(loggableEvent, event);
   addEvents(loggableEvent, event);
+
 
   return loggableEvent;
 }
