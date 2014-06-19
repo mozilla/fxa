@@ -70,7 +70,12 @@ function makeApp() {
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
-  app.use(csp);
+
+  // only send CSP headers in development mode
+  if (config.get('env') === 'development') {
+    app.use(csp);
+  }
+
   app.disable('x-powered-by');
 
   app.use(routeLogging());
@@ -108,7 +113,8 @@ function listen(theApp) {
     var tlsoptions = {
         key: fs.readFileSync(config.get('key_path')),
         cert: fs.readFileSync(config.get('cert_path'))
-    }
+    };
+
     https.createServer(tlsoptions, app).listen(port);
     app.on('error', function (e) {
       if ('EACCES' === e.code) {

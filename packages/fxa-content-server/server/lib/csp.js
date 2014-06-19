@@ -7,7 +7,6 @@
 
 'use strict';
 
-var url = require('url');
 var helmet = require('helmet');
 var config = require('./configuration');
 
@@ -28,21 +27,6 @@ module.exports = function (req, res, next) {
 };
 
 function requiresCsp(req) {
-  // only send CSP headers in development mode
-  if (config.get('env') !== 'development') {
-    return false;
-  }
-
   // is the user running tests? No CSP.
-  // The url is parsed to allow for query parameters.
-  try {
-    if (url.parse(req.url).pathname === '/tests/index.html') {
-      return false;
-    }
-  } catch(e) {
-    // If req.url is invalid, url.parse will except. ignore the error.
-  }
-
-  // Everyone else gets CSP.
-  return true;
+  return req.path !== '/tests/index.html';
 }
