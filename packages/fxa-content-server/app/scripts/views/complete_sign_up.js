@@ -11,12 +11,19 @@ define([
   'stache!templates/complete_sign_up',
   'lib/fxa-client',
   'lib/auth-errors',
-  'lib/validate'
+  'lib/validate',
+  'lib/resend-mixin',
+  'lib/session'
 ],
-function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, Validate) {
+function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, Validate, ResendMixin, Session) {
   var CompleteSignUpView = FormView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
+
+    events: {
+      // validateAndSubmit is used to prevent multiple concurrent submissions.
+      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
+    },
 
     beforeRender: function () {
       try {
@@ -48,8 +55,10 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, 
             return false;
           })
           .then(null, function (err) {
-            if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT') ||
-                AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
+            if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+              self._isLinkExpired = true;
+              self.logEvent('complete_sign_up:link_expired');
+            } else if (AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
                 AuthErrors.is(err, 'INVALID_PARAMETER')) {
               // These errors show a link damaged screen
               self._isLinkDamaged = true;
@@ -70,14 +79,43 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, 
 
     context: function () {
       var doesLinkValidate = this._doesLinkValidate();
+      var isLinkExpired = this._isLinkExpired;
+      // This is only the case if you've signed up in the same browser
+      // you opened the verification link in.
+      var canResend = !!Session.sessionToken;
 
       return {
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! doesLinkValidate,
+        isLinkExpired: isLinkExpired,
+        canResend: canResend,
         error: this._error
       };
+    },
+
+    // This is called when a user follows an expired verification link
+    // and clicks the "Resend" link.
+    submit: function () {
+      var self = this;
+
+      self.logEvent('complete_sign_up:resend');
+      return this.fxaClient.signUpResend()
+              .then(function () {
+                self.displaySuccess();
+              }, function (err) {
+                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+                  return self.navigate('signup', {
+                    error: err
+                  });
+                }
+
+                // unexpected error, rethrow for display.
+                throw err;
+              });
     }
   });
+
+  _.extend(CompleteSignUpView.prototype, ResendMixin);
 
   return CompleteSignUpView;
 });

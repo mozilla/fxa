@@ -24,6 +24,14 @@ function (chai, p, View, AuthErrors, Metrics, Constants, RouterMock, WindowMock,
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
+    function testShowsExpiredScreen(search) {
+      windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
+      return view.render()
+          .then(function () {
+            assert.ok(view.$('#fxa-verification-link-expired-header').length);
+          });
+    }
+
     function testShowsDamagedScreen(search) {
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
       return view.render()
@@ -102,7 +110,10 @@ function (chai, p, View, AuthErrors, Metrics, Constants, RouterMock, WindowMock,
 
       it('UNKNOWN_ACCOUNT error displays the verification link damaged screen', function () {
         verificationError = AuthErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
-        return testShowsDamagedScreen()
+        return testShowsExpiredScreen()
+            .then(function () {
+              testEventLogged('complete_sign_up:link_expired');
+            })
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.called);
             });
