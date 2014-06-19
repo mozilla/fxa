@@ -40,6 +40,8 @@ var routeLogging = require('../lib/logging/route_logging');
 var fourOhFour = require('../lib/404');
 var serverErrorHandler = require('../lib/500');
 var localizedRender = require('../lib/localized-render');
+var csp = require('../lib/csp');
+
 
 var STATIC_DIRECTORY =
   path.join(__dirname, '..', '..', config.get('static_directory'));
@@ -68,12 +70,12 @@ function makeApp() {
   app.use(helmet.xframe('deny'));
   app.use(helmet.iexss());
   app.use(helmet.hsts(config.get('hsts_max_age'), true));
+
+  // only send CSP headers in development mode
   if (config.get('env') === 'development') {
-    app.use(helmet.csp({'default-src': ['\'self\''],
-                        'report-uri': '/_/csp-violation',
-                        'reportOnly': true
-                       }));
+    app.use(csp);
   }
+
   app.disable('x-powered-by');
 
   app.use(routeLogging());
@@ -111,7 +113,8 @@ function listen(theApp) {
     var tlsoptions = {
         key: fs.readFileSync(config.get('key_path')),
         cert: fs.readFileSync(config.get('cert_path'))
-    }
+    };
+
     https.createServer(tlsoptions, app).listen(port);
     app.on('error', function (e) {
       if ('EACCES' === e.code) {

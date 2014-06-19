@@ -6,8 +6,9 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
-  'intern/dojo/node!request'
-], function (registerSuite, assert, config, request) {
+  'intern/dojo/node!request',
+  'intern/dojo/node!url'
+], function (registerSuite, assert, config, request, url) {
   'use strict';
 
   var httpsUrl = config.get('public_url');
@@ -93,8 +94,10 @@ define([
     } else {
       assert.ok(headers.hasOwnProperty('x-frame-options'));
     }
-    if (config.get('env') === 'development') {
-      assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
+    if (config.get('env') === 'development' &&
+          // the front end tests do not get CSP headers.
+          url.parse(route).pathname !== '/tests/index.html') {
+      assert.ok(headers.hasOwnProperty('content-security-policy'));
     }
   }
 
