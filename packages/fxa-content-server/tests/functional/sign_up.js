@@ -284,6 +284,84 @@ define([
               })
             .end();
         });
+    },
+
+    'visiting the tos/pp links saves information for return': function () {
+      var self = this;
+      return testRepopulateFields.call(self, '/legal/terms', 'fxa-tos-header')
+              .then(function () {
+                return testRepopulateFields.call(self, '/legal/privacy', 'fxa-pp-header');
+              });
     }
   });
+
+  function testRepopulateFields(dest, header) {
+    /*jshint validthis: true*/
+    var self = this;
+    var email = TestHelpers.createEmail();
+    var password = '12345678';
+    var year = TOO_YOUNG_YEAR - 1;
+
+    return self.get('remote')
+      .get(require.toUrl(PAGE_URL))
+      .waitForElementById('fxa-signup-header')
+
+      .elementByCssSelector('input[type=email]')
+        .clear()
+        .click()
+        .type(email)
+      .end()
+
+      .elementByCssSelector('input[type=password]')
+        .clear()
+        .click()
+        .type(password)
+      .end()
+
+      .elementByCssSelector('#fxa-age-year')
+        .click()
+      .end()
+
+      .elementById('fxa-' + year)
+        .buttonDown()
+        .buttonUp()
+        .click()
+      .end()
+
+      .elementByCssSelector('a[href="' + dest + '"]')
+        .click()
+      .end()
+
+      .waitForElementById(header)
+
+      .elementByCssSelector('.back')
+        .click()
+      .end()
+
+      .waitForElementById('fxa-signup-header')
+
+      .elementByCssSelector('input[type=email]')
+        .getValue()
+        .then(function (resultText) {
+          // check the email address was re-populated
+          assert.equal(resultText, email);
+        })
+      .end()
+
+      .elementByCssSelector('input[type=password]')
+        .getValue()
+        .then(function (resultText) {
+          // check the email address was re-populated
+          assert.equal(resultText, password);
+        })
+      .end()
+
+      .elementByCssSelector('#fxa-age-year')
+        .getValue()
+        .then(function (resultText) {
+          // check the email address was re-populated
+          assert.equal(resultText, year);
+        })
+      .end();
+  }
 });

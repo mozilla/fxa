@@ -68,11 +68,15 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
       select.change(function(){
         select.parent().removeClass('invalid-row');
       });
+
+      this._selectPrefillYear();
     },
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
       'keydown #fxa-age-year': 'submitOnEnter',
+      'click a[href="/legal/terms"]': '_savePrefillInfo',
+      'click a[href="/legal/privacy"]': '_savePrefillInfo',
       'click a[href="/signin"]': '_savePrefillInfo'
     },
 
@@ -84,6 +88,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
         serviceName: this.serviceName,
         email: Session.prefillEmail,
         password: Session.prefillPassword,
+        year: Session.prefillYear || 'none',
         service: Session.service,
         isSync: Session.isSync(),
         shouldFocusEmail: autofocusEl === 'email',
@@ -189,6 +194,13 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
     _savePrefillInfo: function () {
       Session.set('prefillEmail', this.$('.email').val());
       Session.set('prefillPassword', this.$('.password').val());
+      Session.set('prefillYear', this.$('#fxa-age-year').val());
+    },
+
+    _selectPrefillYear: function () {
+      if (Session.prefillYear) {
+        this.$('#fxa-' + Session.prefillYear).attr('selected', 'selected');
+      }
     }
   });
 

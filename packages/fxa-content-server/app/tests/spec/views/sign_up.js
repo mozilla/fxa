@@ -64,14 +64,17 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
     });
 
     describe('render', function () {
-      it('prefills email and password if stored in Session (user comes from signup with existing account)', function () {
+      it('prefills email, password, and year if stored in Session (user comes from signup with existing account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
         Session.set('prefillPassword', 'prefilled password');
+        Session.set('prefillYear', '1990');
+
         return view.render()
             .then(function () {
               assert.ok($('#fxa-signup-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
               assert.equal(view.$('[type=password]').val(), 'prefilled password');
+              assert.ok(view.$('#fxa-1990').is(':selected'));
             });
       });
 

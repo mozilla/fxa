@@ -50,6 +50,8 @@ function (chai, $, View, Session, WindowMock, RouterMock) {
 
       beforeEach(function () {
         email = 'testuser.' + Math.random() + '@testuser.com';
+        Session.set('prefillPassword', 'password');
+
         windowMock = new WindowMock();
         windowMock.location.search = '?email=' + encodeURIComponent(email);
         router = new RouterMock();
@@ -78,6 +80,10 @@ function (chai, $, View, Session, WindowMock, RouterMock) {
 
       it('does not allow the email to be edited', function () {
         assert.equal($('input[type=email]').length, 0);
+      });
+
+      it('prefills password', function () {
+        assert.equal($('input[type=password]').val(), 'password');
       });
 
       it('user cannot create an account', function () {

@@ -50,6 +50,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       'change .show-password': 'onPasswordVisibilityChange',
       'click a[href="/signup"]': '_savePrefillInfo',
       'click a[href="/oauth/signup"]': '_savePrefillInfo',
+      'click a[href="/legal/terms"]': '_savePrefillInfo',
+      'click a[href="/legal/privacy"]': '_savePrefillInfo',
       'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail'
     },
 
