@@ -459,7 +459,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
         handler = this[handler];
 
         if (typeof handler !== 'function') {
-          console.warn(handler + ' is an invalid function name');
+          throw new Error(handler + ' is an invalid function name');
         }
       }
 
