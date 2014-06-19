@@ -211,7 +211,9 @@ MysqlStore.prototype = {
           return d.reject(err);
         }
         var t = rows[0];
-        t.scope = t.scope.split(' ');
+        if (t) {
+          t.scope = t.scope.split(' ');
+        }
         d.resolve(t);
       });
 

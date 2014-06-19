@@ -510,6 +510,19 @@ describe('/v1', function() {
 
   describe('/verify', function() {
 
+    describe('unknown token', function() {
+      it('should not error', function() {
+        return Server.api.post({
+          url: '/verify',
+          payload: {
+            token: unique.token().toString('hex')
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+        });
+      });
+    });
+
     describe('response', function() {
       it('should return the correct response', function(done) {
         mockAssertion().reply(200, VERIFY_GOOD);
