@@ -81,6 +81,20 @@ function (chai, View, Session, WindowMock) {
             });
       });
 
+      // regression test for #1216
+      it('does not show service name if service is defined but serviceName is not', function () {
+        view.context = function () {
+          return {
+            service: 'sync'
+          };
+        };
+
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('.account-ready-generic').length);
+            });
+      });
+
       // TODO Renable these (issue #1141)
       //it('shows redirectTo link and service name if available', function () {
         //// This would be fetched from the OAuth server, but set it
