@@ -179,6 +179,9 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
         // done. Keep trying to focus until the element is actually focused,
         // and then stop trying.
         var autofocusEl = this.$('[autofocus]');
+        if (! autofocusEl.length) {
+          return;
+        }
 
         var self = this;
         var attemptFocus = function () {
