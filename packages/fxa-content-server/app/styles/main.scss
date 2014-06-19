@@ -500,6 +500,19 @@ label:focus ~ .input-help-focused {
   background-color: $stage-background-color;
 }
 
+
+/**
+ * Override the default blue highlight for IE10+
+ */
+.select-row select::-ms-value {
+  background: none;
+}
+
+.select-row select:focus::-ms-value {
+  color: $input-text-color;
+}
+
+
 .select-row select:-moz-focusring {
   color: transparent !important; /* !important must be added or else the browser ignores the request */
   text-shadow: 0 0 0 $input-row-hover-border-color !important;
