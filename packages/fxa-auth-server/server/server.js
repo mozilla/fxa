@@ -91,7 +91,7 @@ module.exports = function (path, url, Hapi) {
       serverOptions
     )
 
-    server.pack.require('hapi-auth-hawk', function (err) {
+    server.pack.register(require('hapi-auth-hawk'), function (err) {
       server.auth.strategy(
         'sessionToken',
         'hawk',
