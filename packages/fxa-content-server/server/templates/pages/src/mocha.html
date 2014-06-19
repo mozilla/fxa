@@ -17,12 +17,6 @@
         -->
         <script src="/bower_components/mocha/mocha.js"></script>
         <script data-main="main" src="/bower_components/requirejs/require.js"></script>
-        <script>
-          // Avoid caching files that are loaded with Require.JS
-          require.config({
-            urlArgs: "bust=" + (new Date()).getTime()
-          });
-        </script>
         {{#check_coverage}}
           <!--
                Blanket rewrites the JS to do analysis, rendering the
