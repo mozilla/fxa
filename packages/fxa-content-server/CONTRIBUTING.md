@@ -55,6 +55,11 @@ reference GitHub issues that this commit **Closes**.
 - **stage** - https://accounts.stage.mozaws.net/
 - **production** - https://accounts.firefox.com/
 
+## Dependency Servers
+
+We use [Freight](https://github.com/vladikoff/freight) to package our npm and Bower dependencies.
+Check Freight status at [freight.dev.lcip.org](https://freight.dev.lcip.org/).
+
 ## License
 
 MPL 2.0
