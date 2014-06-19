@@ -39,7 +39,7 @@ function (chai, Metrics, WindowMock) {
 
         // ensure results are filtered and no unexpected data makes it through.
         for (var key in filteredData) {
-          assert.isTrue(metrics.ALLOWED_FIELDS.indexOf(key) > -1);
+          assert.include(metrics.ALLOWED_FIELDS, key);
         }
       });
 

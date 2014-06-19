@@ -113,7 +113,7 @@ function (chai, p, Session, AuthErrors, Metrics, View, WindowMock, RouterMock, T
 
         return view.submit()
                   .then(function (msg) {
-                    assert.ok(msg.indexOf('/signup') > -1);
+                    assert.include(msg, '/signup');
                   });
       });
     });

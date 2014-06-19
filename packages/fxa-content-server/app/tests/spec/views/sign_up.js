@@ -309,7 +309,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
               return view.submit();
             })
             .then(function (msg) {
-              assert.ok(msg.indexOf('/signin') > -1);
+              assert.include(msg, '/signin');
               assert.isTrue(view.isErrorVisible());
             });
       });

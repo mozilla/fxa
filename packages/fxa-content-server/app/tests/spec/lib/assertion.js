@@ -48,7 +48,7 @@ function (chai, $, P,
           .then(function(ass) {
             assertion = ass;
             assert.isNotNull(ass, 'Assertion is not null');
-            assert.ok(ass.indexOf('~') > -1, 'Result has the ~');
+            assert.include(ass, '~', 'Result has the ~');
           })
           .then(function() {
             var defer = P.defer();
