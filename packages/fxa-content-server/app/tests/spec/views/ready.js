@@ -77,7 +77,7 @@ function (chai, View, Session, WindowMock) {
         return view.render()
             .then(function () {
               var html = view.$('section').text();
-              assert.notEqual(html.indexOf('Firefox Sync'), -1);
+              assert.include(html, 'Firefox Sync');
             });
       });
 
@@ -92,7 +92,7 @@ function (chai, View, Session, WindowMock) {
             //.then(function () {
               //assert.equal(view.$('#redirectTo').length, 1);
               //var html = view.$('section').text();
-              //assert.notEqual(html.indexOf('Firefox Sync'), -1);
+              //assert.include(html, 'Firefox Sync');
               //assert.ok(view.isOAuth());
               //assert.notOk(view.isOAuthSameBrowser());
             //});
@@ -118,7 +118,7 @@ function (chai, View, Session, WindowMock) {
 
               //assert.equal(view.$('#redirectTo').length, 1);
               //var html = view.$('section').text();
-              //assert.notEqual(html.indexOf('Firefox Sync'), -1);
+              //assert.include(html, 'Firefox Sync');
             //});
       //});
 
