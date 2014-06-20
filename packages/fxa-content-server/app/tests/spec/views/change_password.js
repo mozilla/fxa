@@ -9,11 +9,12 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'lib/auth-errors',
   'views/change_password',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, View, RouterMock, TestHelpers) {
+function (chai, _, $, AuthErrors, View, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -115,17 +116,28 @@ function (chai, _, $, View, RouterMock, TestHelpers) {
       });
 
       describe('submit', function () {
-        it('prints an error message if both passwords are the same', function (done) {
+        it('prints incorrect password error message if old password is incorrect (event if passwords are the same)', function () {
+          $('#old_password').val('bad_password');
+          $('#new_password').val('bad_password');
+
+          return view.submit()
+              .then(function () {
+                assert.ok(false, 'unexpected success');
+              }, function (err) {
+                assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+              });
+        });
+
+        it('prints passwords must be different message if both passwords are the same and the first password is correct', function () {
           $('#old_password').val('password');
           $('#new_password').val('password');
 
-          view.on('error', function (msg) {
-            wrapAssertion(function () {
-              assert.ok(msg);
-            }, done);
-          });
-
-          view.submit();
+          return view.submit()
+              .then(function () {
+                assert.ok(false, 'unexpected success');
+              }, function (err) {
+                assert.ok(AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT'));
+              });
         });
 
         it('changes from old to new password, redirects user to /settings', function () {

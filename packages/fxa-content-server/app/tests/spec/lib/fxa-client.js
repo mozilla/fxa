@@ -354,6 +354,29 @@ function (chai, $, ChannelMock, testHelpers,
       });
     });
 
+    describe('checkPassword', function () {
+      it('returns error if password is incorrect', function () {
+        email = trim(email);
+        return realClient.signUp(email, password, { preverified: true })
+          .then(function() {
+            return client.checkPassword(email, 'badpassword');
+          })
+          .then(function () {
+            assert.ok(false, 'unexpected success');
+          }, function(err) {
+            assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+          });
+      });
+
+      it('succeeds if password is correct', function () {
+        email = trim(email);
+        return realClient.signUp(email, password, { preverified: true })
+          .then(function() {
+            return client.checkPassword(email, password);
+          });
+      });
+    });
+
     describe('changePassword', function () {
       it('changes the user\'s password', function () {
         return client.signUp(email, password, {preVerified: true})
@@ -479,6 +502,7 @@ function (chai, $, ChannelMock, testHelpers,
           });
       });
     });
+
   });
 });
 

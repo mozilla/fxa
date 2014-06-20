@@ -89,6 +89,16 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       return defer.promise;
     },
 
+    /**
+     * Check the user's current password without affecting session state.
+     */
+    checkPassword: function (email, password) {
+      return this._getClientAsync()
+          .then(function (client) {
+            return client.signIn(email, password);
+          });
+    },
+
     signIn: function (originalEmail, password, options) {
       var email = trim(originalEmail);
       var self = this;
