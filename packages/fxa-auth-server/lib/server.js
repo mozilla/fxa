@@ -15,11 +15,31 @@ exports.create = function createServer() {
     config.server.port,
     {
       cors: true,
-      validation: {stripUnknown: true}
+      debug: false,
+      validation: {
+        stripUnknown: true
+      }
     }
   );
 
   server.route(require('./routing'));
+
+  // hapi internal logging: server and request
+  server.on('log', function onServerLog(ev, tags) {
+    if (tags.error && tags.implementation) {
+      logger.critical('Uncaught internal error', ev.tags, ev.data);
+    } else {
+      logger.debug(ev.tags, ev.data);
+    }
+  });
+
+  server.on('request', function onRequestLog(req, ev, tags) {
+    if (tags.error && tags.implementation) {
+      logger.critical('Uncaught internal error', ev.tags, ev.data);
+    } else {
+      logger.debug('<%s>', req.id, ev.tags, ev.data);
+    }
+  });
 
   server.ext('onPreResponse', function onPreResponse(request, next) {
     var response = request.response;
