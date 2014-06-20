@@ -8,10 +8,10 @@ module.exports = require('rc')(
     logLevel: 'trace',
     port: 7000,
     memcached: '127.0.0.1:11211',
-    recordLifetimeSeconds: 900,
-    blockIntervalSeconds: 60 * 60 * 24,
-    rateLimitIntervalSeconds: 60 * 15,
-    maxEmails: 3,
-    maxBadLogins: 2
+    recordLifetimeSeconds: 900,         // memcache record expiry
+    blockIntervalSeconds: 60 * 60 * 24, // duration of a manual ban
+    rateLimitIntervalSeconds: 60 * 15,  // duration of automatic throttling
+    maxEmails: 3,   // number of emails sent within rateLimitIntervalSeconds before throttling
+    maxBadLogins: 2 // number failed login attempts within rateLimitIntervalSeconds before throttling
   }
 )
