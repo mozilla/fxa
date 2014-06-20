@@ -11,7 +11,7 @@ define([
   'stache!templates/confirm',
   'lib/session',
   'lib/auth-errors',
-  'lib/resend-mixin'
+  'views/mixins/resend-mixin'
 ],
 function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds

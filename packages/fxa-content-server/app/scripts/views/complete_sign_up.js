@@ -12,7 +12,7 @@ define([
   'lib/fxa-client',
   'lib/auth-errors',
   'lib/validate',
-  'lib/resend-mixin',
+  'views/mixins/resend-mixin',
   'lib/session'
 ],
 function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, Validate, ResendMixin, Session) {

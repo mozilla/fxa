@@ -9,7 +9,7 @@ define([
   'p-promise',
   'views/sign_in',
   'lib/session',
-  'lib/oauth-mixin'
+  'views/mixins/oauth-mixin'
 ],
 function (_, p, SignInView, Session, OAuthMixin) {
   var View = SignInView.extend({

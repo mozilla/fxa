@@ -19,7 +19,7 @@ define([
   'lib/session',
   'lib/xss',
   'lib/strings',
-  'lib/oauth-mixin'
+  'views/mixins/oauth-mixin'
 ],
 function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
 
