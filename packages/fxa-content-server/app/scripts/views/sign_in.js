@@ -12,7 +12,7 @@ define([
   'stache!templates/sign_in',
   'lib/constants',
   'lib/session',
-  'lib/password-mixin',
+  'views/mixins/password-mixin',
   'lib/url',
   'lib/auth-errors',
   'lib/validate'

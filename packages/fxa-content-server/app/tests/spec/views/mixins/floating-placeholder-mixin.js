@@ -10,7 +10,7 @@ define([
   'chai',
   'views/form',
   'stache!templates/test_template',
-  'lib/floating-placeholder-mixin'
+  'views/mixins/floating-placeholder-mixin'
 ], function ($, _, chai, FormView, Template, FloatingPlaceholderMixin) {
 
   var assert = chai.assert;

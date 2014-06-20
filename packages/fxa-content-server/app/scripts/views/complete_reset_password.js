@@ -10,11 +10,11 @@ define([
   'views/form',
   'stache!templates/complete_reset_password',
   'lib/session',
-  'lib/password-mixin',
-  'lib/floating-placeholder-mixin',
+  'views/mixins/password-mixin',
+  'views/mixins/floating-placeholder-mixin',
   'lib/validate',
   'lib/auth-errors',
-  'lib/oauth-mixin'
+  'views/mixins/oauth-mixin'
 ],
 function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, Validate, AuthErrors, OAuthMixin) {
   var View = FormView.extend({

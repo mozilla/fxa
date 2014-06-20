@@ -10,7 +10,7 @@ define([
   'views/form',
   'stache!templates/sign_up',
   'lib/session',
-  'lib/password-mixin',
+  'views/mixins/password-mixin',
   'lib/auth-errors'
 ],
 function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
@@ -104,10 +104,10 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
 
     showValidationErrorsEnd: function () {
       if (! this._validateYear()) {
-        //next two lines deal with ff30's select list regression 
+        //next two lines deal with ff30's select list regression
         var selectRow = this.$el.find('.select-row');
         selectRow.addClass('invalid-row');
-        
+
         this.showValidationError('#fxa-age-year', t('Year of birth required'));
       }
     },
