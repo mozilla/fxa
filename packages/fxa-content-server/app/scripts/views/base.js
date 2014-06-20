@@ -202,6 +202,8 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
     },
 
     destroy: function (remove) {
+      this.trigger('destroy');
+
       if (this.beforeDestroy) {
         this.beforeDestroy();
       }
