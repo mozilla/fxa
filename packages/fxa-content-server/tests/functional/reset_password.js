@@ -135,7 +135,7 @@ define([
         .end();
     },
 
-    'start verifiction - get token and code from email': function () {
+    'start reset - get token and code from email': function () {
       return setTokenAndCodeFromEmail(user, 1);
     },
 
@@ -144,7 +144,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .waitForElementById('fxa-reset-link-damaged-header')
 
         .end();
     },
@@ -155,7 +155,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .waitForElementById('fxa-reset-link-damaged-header')
 
         .end();
     },
@@ -167,7 +167,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-verification-link-expired-header')
+        .waitForElementById('fxa-reset-link-expired-header')
 
         .end();
     },
@@ -177,7 +177,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .waitForElementById('fxa-reset-link-damaged-header')
 
         .end();
     },
@@ -189,7 +189,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .waitForElementById('fxa-reset-link-damaged-header')
 
         .end();
     },
@@ -199,7 +199,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .waitForElementById('fxa-reset-link-damaged-header')
 
         .end();
     },
@@ -209,7 +209,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .waitForElementById('fxa-reset-link-damaged-header')
 
         .end();
     },
@@ -263,7 +263,7 @@ define([
           });
     },
 
-    'complete verification': function () {
+    'complete reset': function () {
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
@@ -293,7 +293,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-verification-link-expired-header')
+        .waitForElementById('fxa-reset-link-expired-header')
         .end()
 
         .elementById('resend')

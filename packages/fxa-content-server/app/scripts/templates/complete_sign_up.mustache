@@ -1,3 +1,24 @@
+{{#isLinkExpired}}
+<header>
+  <h1 id="fxa-verification-link-expired-header">{{#t}}Verification link expired{{/t}}</h1>
+</header>
+
+<section>
+  <div class="error"></div>
+  <div class="success">{{#t}}Email resent{{/t}}</div>
+
+  <p>
+    {{#t}}The link you clicked to verify your email is expired.{{/t}}
+  </p>
+
+  {{#canResend}}
+  <div class="links">
+    <a id="resend" class="resend-email" href="#">{{#t}}Click here to receive a new verification link{{/t}}</a>
+  </div>
+  {{/canResend}}
+</section>
+{{/isLinkExpired}}
+
 {{#isLinkDamaged}}
 <header>
   <h1 id="fxa-verification-link-damaged-header">{{#t}}Verification link damaged{{/t}}</h1>

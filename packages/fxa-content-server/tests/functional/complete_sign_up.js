@@ -19,6 +19,9 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PAGE_URL_ROOT = config.fxaContentRoot + 'verify_email';
+  var SIGNUP_PAGE_URL = config.fxaContentRoot + 'signup';
+
+  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
   var PASSWORD = 'password';
   var user;
@@ -102,7 +105,7 @@ define([
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .waitForElementById('fxa-verification-link-expired-header')
         .end();
     },
 
@@ -116,6 +119,144 @@ define([
         // sign-up-complete page.
         .waitForElementById('fxa-sign-up-complete-header')
         .end();
+    }
+  });
+
+  registerSuite({
+    name: 'complete_sign_up with expired link, but without signing up in browser',
+
+    setup: function () {
+      email = TestHelpers.createEmail();
+      user = TestHelpers.emailToUser(email);
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+      return client.signUp(email, PASSWORD)
+        .then(function (result) {
+          accountData = result;
+          uid = accountData.uid;
+        })
+        .then(function () {
+          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user);
+        })
+        .then(function (emails) {
+          code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+
+          return client.signUp(email, 'secondpassword');
+        });
+    },
+
+    'open expired email verification link': function () {
+      var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+
+      return this.get('remote')
+        .get(require.toUrl(url))
+
+        .waitForElementById('fxa-verification-link-expired-header')
+        .elementById('resend')
+        .then(function () {
+          assert.fail('resend link should not be present');
+        }, function (err) {
+          assert.include(err.message, 'Failed to execute elementById("resend")');
+          return true;
+        })
+        .end();
+    }
+  });
+
+  registerSuite({
+    name: 'complete_sign_up with expired link and click resend',
+
+    setup: function () {
+      email = TestHelpers.createEmail();
+      user = TestHelpers.emailToUser(email);
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+      return client.signUp(email, PASSWORD)
+        .then(function (result) {
+          accountData = result;
+          uid = accountData.uid;
+        })
+        .then(function () {
+          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user);
+        })
+        .then(function (emails) {
+          code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+        });
+    },
+
+    'open expired email verification link': function () {
+      var self = this;
+      var completeUrl = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+
+      return client.signUp(email, PASSWORD)
+        .then(function () {
+          return self.get('remote')
+            .get(require.toUrl(SIGNUP_PAGE_URL))
+            .waitForElementById('fxa-signup-header')
+
+            .elementByCssSelector('input[type=email]')
+              .click()
+              .type(email)
+            .end()
+
+            .elementByCssSelector('input[type=password]')
+              .click()
+              .type('different_password')
+            .end()
+
+            .elementByCssSelector('#fxa-age-year')
+              .click()
+            .end()
+
+            .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
+              .buttonDown()
+              .buttonUp()
+              .click()
+            .end()
+
+            .elementByCssSelector('button[type="submit"]')
+              .click()
+            .end()
+
+            // Being pushed to the confirmation screen is success.
+            .waitForElementById('fxa-confirm-header')
+            .then(function (resultText) {
+              return self.get('remote')
+                .get(require.toUrl(completeUrl));
+            })
+            .waitForElementById('fxa-verification-link-expired-header')
+
+            .elementById('resend')
+              .click()
+            .end()
+
+            .waitForVisibleByClassName('success')
+
+            // Success is showing the success message
+            .elementByCssSelector('.success').isDisplayed()
+              .then(function (isDisplayed) {
+                assert.isTrue(isDisplayed);
+              })
+            .end()
+
+            .elementById('resend')
+              .click()
+            .end()
+
+            .elementById('resend')
+              .click()
+            .end()
+
+            // Stills shows success message
+            .elementByCssSelector('.success').isDisplayed()
+              .then(function (isDisplayed) {
+                assert.isTrue(isDisplayed);
+              })
+            .end();
+        });
+
     }
   });
 });

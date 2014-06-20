@@ -5,14 +5,15 @@
 'use strict';
 
 define([
+  'underscore',
   'views/form',
   'views/base',
   'stache!templates/confirm',
   'lib/session',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/resend-mixin'
 ],
-function (FormView, BaseView, Template, Session, AuthErrors) {
-  var SHOW_RESEND_IN_MS = 5 * 60 * 1000; // 5 minutes.
+function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
   var View = FormView.extend({
@@ -23,9 +24,7 @@ function (FormView, BaseView, Template, Session, AuthErrors) {
     VERIFICATION_POLL_IN_MS: VERIFICATION_POLL_IN_MS,
 
     beforeDestroy: function () {
-      if (this._displayResendTimeout) {
-        this.window.clearTimeout(this._displayResendTimeout);
-      }
+      ResendMixin.beforeDestroy.call(this);
 
       if (this._verificationTimeout) {
         this.window.clearTimeout(this._verificationTimeout);
@@ -78,47 +77,6 @@ function (FormView, BaseView, Template, Session, AuthErrors) {
       }
     },
 
-    _attemptedSubmits: 0,
-    beforeSubmit: function () {
-      // See https://github.com/mozilla/fxa-content-server/issues/885.
-      // The first click of the resend button sends an email.
-      // The forth click of the resend button sends an email.
-      // All other clicks are ignored.
-      // The button is hidden after the forth click for 5 minutes, then
-      // start the process again.
-
-      this._attemptedSubmits++;
-
-      this._updateSuccessMessage();
-      this._updateResendButton();
-
-      return this._attemptedSubmits === 1 || this._attemptedSubmits === 4;
-    },
-
-    _updateSuccessMessage: function () {
-      // if a success message is already being displayed, shake it.
-      var successEl = this.$('.success:visible');
-      if (successEl) {
-        successEl.one('animationend', function () {
-          successEl.removeClass('shake');
-        }).addClass('shake');
-      }
-    },
-
-    _updateResendButton: function () {
-      var self = this;
-      // Hide the button after 4 attempts. Redisplay button after a delay.
-      if (self._attemptedSubmits === 4) {
-        self.logEvent('confirm:too_many_attempts');
-        self.$('#resend').hide();
-        self._displayResendTimeout = setTimeout(function () {
-          self._displayResendTimeout = null;
-          self._attemptedSubmits = 0;
-          self.$('#resend').show();
-        }, SHOW_RESEND_IN_MS);
-      }
-    },
-
     submit: function () {
       var self = this;
 
@@ -138,6 +96,8 @@ function (FormView, BaseView, Template, Session, AuthErrors) {
               });
     }
   });
+
+  _.extend(View.prototype, ResendMixin);
 
   return View;
 });
