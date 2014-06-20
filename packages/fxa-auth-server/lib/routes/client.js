@@ -25,7 +25,7 @@ module.exports = {
   response: {
     schema: {
       name: Joi.string().required(),
-      image_uri: Joi.string().required(),
+      image_uri: Joi.string(),
       redirect_uri: Joi.string().required()
     }
   },
