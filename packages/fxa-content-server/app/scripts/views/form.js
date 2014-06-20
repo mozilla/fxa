@@ -112,9 +112,9 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
       var args = arguments;
       var workingText;
 
-      this.window.clearTimeout(this._workingTimeout);
+      this.clearTimeout(this._workingTimeout);
 
-      this._workingTimeout = this.window.setTimeout(function () {
+      this.setTimeout(function () {
         var err = AuthErrors.toError('WORKING');
         workingText = self.displayError(err);
       }, this.LONGER_THAN_EXPECTED);
@@ -124,13 +124,13 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
             return self.invokeHandler(handler, args);
           })
           .then(function (value) {
-            self.window.clearTimeout(self._workingTimeout);
+            self.clearTimeout(self._workingTimeout);
             if (workingText === self.$('.error').text()) {
               self.hideError();
             }
             return value;
           }, function(err) {
-            self.window.clearTimeout(self._workingTimeout);
+            self.clearTimeout(self._workingTimeout);
             throw err;
           });
     };
@@ -145,6 +145,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
       BaseView.call(this, options);
 
       this._buttonProgressIndicator = new ButtonProgressIndicator();
+      this.trackSubview(this._buttonProgressIndicator);
 
       // attach events of the descendent view and this view.
       this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));

@@ -27,13 +27,6 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors, OA
       'click a[href="/oauth/signin"]': 'savePrefillEmailForSignin'
     },
 
-    beforeDestroy: function () {
-      if (this._timeout) {
-        this.window.clearTimeout(this._timeout);
-      }
-      ConfirmView.prototype.beforeDestroy.call(this);
-    },
-
     context: function () {
       return {
         email: Session.email,
@@ -77,8 +70,7 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors, OA
             }
           } else {
             var retryCB = _.bind(self.afterRender, self);
-            self._timeout = self.window.setTimeout(retryCB,
-                              Constants.RESET_PASSWORD_POLL_INTERVAL);
+            self.setTimeout(retryCB, Constants.RESET_PASSWORD_POLL_INTERVAL);
           }
 
           return isComplete;

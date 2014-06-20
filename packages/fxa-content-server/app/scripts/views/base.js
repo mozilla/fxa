@@ -15,9 +15,10 @@ define([
   'lib/url',
   'lib/strings',
   'lib/ephemeral-messages',
-  'lib/null-metrics'
+  'lib/null-metrics',
+  'lib/timer-mixin'
 ],
-function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages, NullMetrics) {
+function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages, NullMetrics, TimerMixin) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
@@ -189,7 +190,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
             return;
           }
           self.focus(autofocusEl);
-          setTimeout(attemptFocus, 50);
+          self.setTimeout(attemptFocus, 50);
         };
 
         attemptFocus();
@@ -216,6 +217,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       }
 
       this.destroySubviews();
+
       this.trigger('destroyed');
     },
 
@@ -544,6 +546,8 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
   }
 
   BaseView.t = t;
+
+  _.extend(BaseView.prototype, TimerMixin);
 
   return BaseView;
 });

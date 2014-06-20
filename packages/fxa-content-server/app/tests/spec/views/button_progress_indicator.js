@@ -19,6 +19,11 @@ function (chai, $, ProgressIndicator) {
       $('#container').html('<button id="indicate">Button</button>');
     });
 
+    afterEach(function () {
+      progressIndicator.destroy();
+      progressIndicator = null;
+    });
+
     describe('start', function () {
       it('shows the indicator', function () {
         progressIndicator.start('#indicate');
