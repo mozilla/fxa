@@ -22,7 +22,12 @@ define([
 
     setPasswordVisibility: function (isVisible) {
       var type = isVisible ? 'text' : 'password';
-      this.$('.password').attr('type', type);
+      try {
+        this.$('.password').attr('type', type);
+      } catch(e) {
+        // IE8 blows up when changing the type of the input field. Other
+        // browsers might too. Ignore the error.
+      }
     }
   };
 });
