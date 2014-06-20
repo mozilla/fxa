@@ -16,7 +16,7 @@ define([
   'lib/strings',
   'lib/ephemeral-messages',
   'lib/null-metrics',
-  'lib/timer-mixin'
+  'views/mixins/timer-mixin'
 ],
 function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages, NullMetrics, TimerMixin) {
   var ENTER_BUTTON_CODE = 13;

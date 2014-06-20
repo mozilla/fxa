@@ -20,7 +20,7 @@ define([
   'underscore',
   'jquery',
   'backbone',
-  'lib/timer-mixin'
+  'views/mixins/timer-mixin'
 ], function (_, $, Backbone, TimerMixin) {
   'use strict';
 
