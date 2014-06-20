@@ -10,7 +10,7 @@ define([
   'views/form',
   'stache!templates/delete_account',
   'lib/session',
-  'lib/password-mixin'
+  'views/mixins/password-mixin'
 ],
 function (_, BaseView, FormView, Template, Session, PasswordMixin) {
   var t = BaseView.t;

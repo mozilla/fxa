@@ -12,7 +12,7 @@ define([
   'lib/session',
   'lib/url',
   'lib/auth-errors',
-  'lib/oauth-mixin'
+  'views/mixins/oauth-mixin'
 ],
 function (_, BaseView, FormView, Template, Session, Url, AuthErrors, OAuthMixin) {
   var t = BaseView.t;

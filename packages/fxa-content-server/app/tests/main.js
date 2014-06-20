@@ -64,7 +64,6 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/lib/service-name',
     '../tests/spec/lib/metrics',
     '../tests/spec/lib/null-metrics',
-    '../tests/spec/lib/floating-placeholder-mixin',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',
     '../tests/spec/views/form',
@@ -86,7 +85,9 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/views/complete_reset_password',
     '../tests/spec/views/ready',
     '../tests/spec/views/cookies_disabled',
-    '../tests/spec/views/button_progress_indicator'
+    '../tests/spec/views/button_progress_indicator',
+
+    '../tests/spec/views/mixins/floating-placeholder-mixin'
   ];
 
   /*global mocha */

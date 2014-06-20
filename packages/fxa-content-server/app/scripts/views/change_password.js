@@ -10,8 +10,8 @@ define([
   'views/form',
   'stache!templates/change_password',
   'lib/session',
-  'lib/password-mixin',
-  'lib/floating-placeholder-mixin',
+  'views/mixins/password-mixin',
+  'views/mixins/floating-placeholder-mixin',
   'lib/auth-errors'
 ],
 function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, AuthErrors) {

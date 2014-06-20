@@ -9,7 +9,7 @@ define([
   'views/base',
   'views/sign_up',
   'lib/session',
-  'lib/oauth-mixin'
+  'views/mixins/oauth-mixin'
 ],
 function (_, BaseView, SignUpView, Session, OAuthMixin) {
   var View = SignUpView.extend({
