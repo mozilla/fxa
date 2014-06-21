@@ -29,7 +29,7 @@ exports.create = function createServer() {
     if (tags.error && tags.implementation) {
       logger.critical('Uncaught internal error', ev.tags, ev.data);
     } else {
-      logger.debug(ev.tags, ev.data);
+      logger.verbose('Server', ev.tags, ev.data);
     }
   });
 
@@ -37,7 +37,7 @@ exports.create = function createServer() {
     if (tags.error && tags.implementation) {
       logger.critical('Uncaught internal error', ev.tags, ev.data);
     } else {
-      logger.debug('<%s>', req.id, ev.tags, ev.data);
+      logger.verbose('Request <%s>', req.id, ev.tags, ev.data);
     }
   });
 
