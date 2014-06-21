@@ -49,6 +49,7 @@ The currently-defined error responses are:
 - [GET /v1/authorization][redirect]
 - [POST /v1/authorization][authorization]
 - [POST /v1/token][token]
+- [POST /v1/destroy][delete]
 - [GET /v1/client/:id][client]
 - [POST /v1/verify][verify]
 
@@ -195,6 +196,34 @@ Example:
 }
 ```
 
+### POST /v1/destroy
+
+After a client is done using a token, the responsible thing to do is to
+destroy the token afterwards. A client can use this route to do so.
+
+#### Request Parameters
+
+- `token` - The hex string token.
+- `client_secret` - The client secret used to get the token originally.
+
+Example:
+
+```
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+"https://oauth.accounts.firefox.com/v1/destroy
+-d '{
+  "token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0",
+  "client_secret": "20c6882ef864d75ad1587c38f9d733c80751d2cbc8614e30202dc3d1d25301ff"
+}'
+```
+
+#### Response
+
+A valid request will return an empty response, with a 200 status code.
+
+
 ### POST /v1/verify
 
 Attached services can post tokens to this endpoint to learn about which
@@ -236,4 +265,5 @@ Example:
 [redirect]: #get-v1authorization
 [authorization]: #post-v1authorization
 [token]: #post-v1token
+[delete]: #delete-v1destroy
 [verify]: #post-v1verify

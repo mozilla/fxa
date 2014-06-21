@@ -123,6 +123,10 @@ MemoryStore.prototype = {
   },
   getToken: function getToken(token) {
     return P.resolve(this.tokens[this._unbuf(encrypt.hash(token))]);
+  },
+  removeToken: function removeToken(id) {
+    delete this.tokens[this._unbuf(id)];
+    return P.resolve();
   }
 };
 

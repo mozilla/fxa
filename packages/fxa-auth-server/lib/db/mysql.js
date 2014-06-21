@@ -77,6 +77,7 @@ const QUERY_TOKEN_INSERT =
 const QUERY_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
+const QUERY_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
 
 MysqlStore.prototype = {
 
@@ -217,6 +218,17 @@ MysqlStore.prototype = {
         d.resolve(t);
       });
 
+    return d.promise;
+  },
+
+  removeToken: function removeToken(id) {
+    var d = P.defer();
+    this._connection.query(QUERY_TOKEN_DELETE, [id], function(err) {
+      if (err) {
+        return d.reject(err);
+      }
+      d.resolve();
+    });
     return d.promise;
   }
 
