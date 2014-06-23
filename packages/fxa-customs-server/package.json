@@ -16,6 +16,7 @@
     "test": "scripts/test-local.sh"
   },
   "dependencies": {
+    "aws-sdk": "2.0.0-rc.19",
     "bluebird": "1.2.2",
     "bunyan": "0.22.3",
     "memcached": "0.2.8",

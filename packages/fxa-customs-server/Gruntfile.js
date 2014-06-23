@@ -18,7 +18,7 @@ module.exports = function (grunt) {
         },
         src: [
           '*.js',
-          '{bin/,scripts/,test/}*'
+          '{bans/,bin/,scripts/,test/}*'
         ]
       },
       tests: {
@@ -37,7 +37,7 @@ module.exports = function (grunt) {
         reporter: require('jshint-stylish')
       },
       app: [
-        '{,bin/,scripts/,test/}*.js'
+        '{,bans/,bin/,scripts/,test/}*.js'
       ]
     }
   })
