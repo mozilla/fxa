@@ -44,7 +44,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
       return view.validateAndSubmit()
           .then(function () {
             // success callback should not be called on failure.
-            assert(false, 'unexpected success');
+            assert.fail('unexpected success');
           }, function (err) {
             assert.equal(err, expectedMessage);
             assert.isTrue(view.isErrorVisible());
@@ -109,16 +109,19 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
     describe('validateAndSubmit', function () {
       it('submits form if isValid returns true', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
         return testFormSubmitted();
       });
 
       it('shows validation errors if isValid returns false', function () {
         view.formIsValid = false;
+        view.enableSubmitIfValid();
         return testValidationErrorDisplayed('invalid form');
       });
 
       it('only allows one submit at a time', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
         view.validateAndSubmit();
         return view.validateAndSubmit()
                   .then(function () {
@@ -142,6 +145,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
 
       it('displays error message and does not disable form if beforeSubmit throws an error', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
         view.beforeSubmit = function () {
           throw 'an error message';
         };
@@ -154,6 +158,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
 
       it('beforeSubmit can return a false to stop form submission', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
         view.beforeSubmit = function () {
           return false;
         };
@@ -166,6 +171,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
 
       it('beforeSubmit can return a promise for asynchronous operations', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
         view.beforeSubmit = function () {
           return p().delay(10);
         };
@@ -175,6 +181,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
 
       it('displays error message and does not re-enable form if submit throws an error', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
         view.submit = function () {
           throw 'an error message';
         };
@@ -187,6 +194,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
 
       it('submit can return a promise for asynchronous operations', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
         view.submit = function () {
           return p().then(function () {
             view.isFormSubmitted = true;
@@ -198,6 +206,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
 
       it('override afterSubmit to prevent form from being re-enabled - afterSubmit errors are not displayed', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
         view.afterSubmit = function () {
           // do not re-enable form.
           throw new Error('error that is not displayed');
@@ -212,6 +221,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
 
       it('afterSubmit can return a promise for asynchronous operations', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
         view.afterSubmit = function () {
           return p().delay(10);
         };
@@ -349,6 +359,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
         // override expectation
         view.LONGER_THAN_EXPECTED = 200;
         view.formIsValid = true;
+        view.enableSubmitIfValid();
 
         view.submit = function () {
           var defer = p.defer();
@@ -375,6 +386,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
         // override expectation
         view.LONGER_THAN_EXPECTED = 200;
         view.formIsValid = true;
+        view.enableSubmitIfValid();
 
         view.submit = function () {
           var defer = p.defer();
@@ -400,6 +412,7 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
 
       it('should not hide forceMessage errors', function () {
         view.formIsValid = true;
+        view.enableSubmitIfValid();
 
         view.submit = function () {
           return p()

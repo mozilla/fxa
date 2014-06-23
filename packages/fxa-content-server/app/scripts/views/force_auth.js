@@ -22,8 +22,11 @@ function (p, BaseView, SignInView, Template, Session, Url) {
     initialize: function (options) {
       options = options || {};
 
-      // forceAuth means a user must sign in as a specific user.
+      // The session is cleared just after this. Store
+      // the prefillPassword so it can be inserted into the DOM.
+      this._prefillPassword = Session.prefillPassword;
 
+      // forceAuth means a user must sign in as a specific user.
       // kill the user's local session, set forceAuth flag
       Session.clear();
       Session.set('forceAuth', true);
@@ -44,6 +47,7 @@ function (p, BaseView, SignInView, Template, Session, Url) {
 
       return {
         email: Session.forceEmail,
+        password: this._prefillPassword,
         forceAuth: Session.forceAuth,
         fatalError: fatalError
       };
@@ -53,6 +57,10 @@ function (p, BaseView, SignInView, Template, Session, Url) {
       'click a[href="/confirm_reset_password"]': 'resetPasswordNow',
       // Backbone does not add SignInView's events, so this must be duplicated.
       'change .show-password': 'onPasswordVisibilityChange'
+    },
+
+    beforeDestroy: function () {
+      Session.set('prefillPassword', this.$('.password').val());
     },
 
     submit: function () {

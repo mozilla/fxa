@@ -102,11 +102,13 @@ define([
             .waitForElementById('fxa-signin-header')
 
             .elementByCssSelector('form input.email')
+              .clear()
               .click()
               .type(email)
             .end()
 
             .elementByCssSelector('form input.password')
+              .clear()
               .click()
               .type(PASSWORD)
             .end()
@@ -134,11 +136,13 @@ define([
             .waitForElementById('fxa-signin-header')
 
             .elementByCssSelector('form input.email')
+              .clear()
               .click()
               .type(email)
             .end()
 
             .elementByCssSelector('form input.password')
+              .clear()
               .click()
               .type('incorrect password')
             .end()
@@ -254,6 +258,65 @@ define([
             assert.equal(resultText, email);
           })
         .end();
+    },
+
+    'visiting the tos/pp links saves information for return': function () {
+      var self = this;
+      return testRepopulateFields.call(self, '/legal/terms', 'fxa-tos-header')
+              .then(function () {
+                return testRepopulateFields.call(self, '/legal/privacy', 'fxa-pp-header');
+              });
     }
   });
+
+  function testRepopulateFields(dest, header) {
+    /*jshint validthis: true*/
+    var self = this;
+    var email = TestHelpers.createEmail();
+    var password = '12345678';
+
+    return self.get('remote')
+      .get(require.toUrl(PAGE_URL))
+      .waitForElementById('fxa-signin-header')
+
+      .elementByCssSelector('input[type=email]')
+        .clear()
+        .click()
+        .type(email)
+      .end()
+
+      .elementByCssSelector('input[type=password]')
+        .clear()
+        .click()
+        .type(password)
+      .end()
+
+      .elementByCssSelector('a[href="' + dest + '"]')
+        .click()
+      .end()
+
+      .waitForElementById(header)
+
+      .elementByCssSelector('.back')
+        .click()
+      .end()
+
+      .waitForElementById('fxa-signin-header')
+
+      .elementByCssSelector('input[type=email]')
+        .getValue()
+        .then(function (resultText) {
+          // check the email address was re-populated
+          assert.equal(resultText, email);
+        })
+      .end()
+
+      .elementByCssSelector('input[type=password]')
+        .getValue()
+        .then(function (resultText) {
+          // check the email address was re-populated
+          assert.equal(resultText, password);
+        })
+      .end();
+  }
 });

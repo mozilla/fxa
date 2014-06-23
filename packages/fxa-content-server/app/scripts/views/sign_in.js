@@ -42,15 +42,14 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       };
     },
 
-    afterRender: function () {
-      this.enableSubmitIfValid();
-    },
-
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'click a[href="/signup"]': '_savePrefillInfo',
-      'click a[href="/oauth/signup"]': '_savePrefillInfo',
       'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail'
+    },
+
+    beforeDestroy: function () {
+      Session.set('prefillEmail', this.$('.email').val());
+      Session.set('prefillPassword', this.$('.password').val());
     },
 
     submit: function () {
@@ -111,15 +110,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       return this.displayErrorUnsafe(err);
     },
 
-    _savePrefillInfo: function () {
-      Session.set('prefillEmail', this.$('.email').val());
-      Session.set('prefillPassword', this.$('.password').val());
-    },
-
     resetPasswordIfKnownValidEmail: BaseView.preventDefaultThen(function () {
       var self = this;
       return p().then(function () {
-        self._savePrefillInfo();
         self.onPasswordResetNavigate();
       });
     })

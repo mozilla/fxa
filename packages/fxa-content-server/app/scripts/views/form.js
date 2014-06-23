@@ -156,6 +156,12 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
       'change form': ifFormValuesChanged('enableSubmitIfValid')
     },
 
+    afterRender: function () {
+      this.enableSubmitIfValid();
+
+      BaseView.prototype.afterRender.call(this);
+    },
+
     /**
      * Get the current form values. Does not fetch the value of elements with
      * the `data-novalue` attribute.

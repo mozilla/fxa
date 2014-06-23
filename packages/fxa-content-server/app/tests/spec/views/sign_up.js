@@ -32,6 +32,10 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
     if (!opts.ignoreYear) {
       $('#fxa-age-year').val(year);
     }
+
+    if (context.enableSubmitIfValid) {
+      context.enableSubmitIfValid();
+    }
   }
 
   describe('views/sign_up', function () {
@@ -64,14 +68,17 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
     });
 
     describe('render', function () {
-      it('prefills email and password if stored in Session (user comes from signup with existing account)', function () {
+      it('prefills email, password, and year if stored in Session (user comes from signup with existing account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
         Session.set('prefillPassword', 'prefilled password');
+        Session.set('prefillYear', '1990');
+
         return view.render()
             .then(function () {
               assert.ok($('#fxa-signup-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
               assert.equal(view.$('[type=password]').val(), 'prefilled password');
+              assert.ok(view.$('#fxa-1990').is(':selected'));
             });
       });
 
@@ -92,32 +99,32 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
       });
 
       it('returns false if email is empty', function () {
-        fillOutSignUp('', 'password');
+        fillOutSignUp('', 'password', { context: view });
         assert.isFalse(view.isValid());
       });
 
       it('returns false if email is not an email address', function () {
-        fillOutSignUp('testuser', 'password');
+        fillOutSignUp('testuser', 'password', { context: view });
         assert.isFalse(view.isValid());
       });
 
       it('returns false if email contain one part TLD', function () {
-        fillOutSignUp('a@b', 'password');
+        fillOutSignUp('a@b', 'password', { context: view });
         assert.isFalse(view.isValid());
       });
 
       it('returns true if email contain two part TLD', function () {
-        fillOutSignUp('a@b.c', 'password');
+        fillOutSignUp('a@b.c', 'password', { context: view });
         assert.isTrue(view.isValid());
       });
 
       it('returns true if email contain three part TLD', function () {
-        fillOutSignUp('a@b.c.d', 'password');
+        fillOutSignUp('a@b.c.d', 'password', { context: view });
         assert.isTrue(view.isValid());
       });
 
       it('returns false if local side of email === 0 chars', function () {
-        fillOutSignUp('@testuser.com', 'password');
+        fillOutSignUp('@testuser.com', 'password', { context: view });
         assert.isFalse(view.isValid());
       });
 
@@ -128,7 +135,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
         } while (email.length < 65);
 
         email += '@testuser.com';
-        fillOutSignUp(email, 'password');
+        fillOutSignUp(email, 'password', { context: view });
         assert.isFalse(view.isValid());
       });
 
@@ -139,12 +146,12 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
         } while (email.length < 64);
 
         email += '@testuser.com';
-        fillOutSignUp(email, 'password');
+        fillOutSignUp(email, 'password', { context: view });
         assert.isTrue(view.isValid());
       });
 
       it('returns false if domain side of email === 0 chars', function () {
-        fillOutSignUp('testuser@', 'password');
+        fillOutSignUp('testuser@', 'password', { context: view });
         assert.isFalse(view.isValid());
       });
 
@@ -154,7 +161,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
           domain += 'a';
         } while (domain.length < 256);
 
-        fillOutSignUp('testuser@' + domain, 'password');
+        fillOutSignUp('testuser@' + domain, 'password', { context: view });
         assert.isFalse(view.isValid());
       });
 
@@ -164,7 +171,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
           domain += 'a';
         } while (domain.length < 254);
 
-        fillOutSignUp('a@' + domain, 'password');
+        fillOutSignUp('a@' + domain, 'password', { context: view });
         assert.isTrue(view.isValid());
       });
 
@@ -175,7 +182,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
         } while (domain.length < 254);
 
         // ab@ + 254 characters = 257 chars
-        fillOutSignUp('ab@' + domain, 'password');
+        fillOutSignUp('ab@' + domain, 'password', { context: view });
         assert.isFalse(view.isValid());
       });
 
@@ -185,12 +192,12 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
           email += 'a';
         } while (email.length < 256);
 
-        fillOutSignUp(email, 'password');
+        fillOutSignUp(email, 'password', { context: view });
         assert.isTrue(view.isValid());
       });
 
       it('returns false if password is empty', function () {
-        fillOutSignUp(email, '');
+        fillOutSignUp(email, '', { context: view });
         assert.isFalse(view.isValid());
       });
 
@@ -207,7 +214,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
 
     describe('showValidationErrors', function() {
       it('shows an error if the email is invalid', function (done) {
-        fillOutSignUp('testuser', 'password');
+        fillOutSignUp('testuser', 'password', { context: view });
 
         view.on('validation_error', function(which, msg) {
           wrapAssertion(function () {
@@ -219,7 +226,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
       });
 
       it('shows an error if the password is invalid', function (done) {
-        fillOutSignUp('testuser@testuser.com', 'passwor');
+        fillOutSignUp('testuser@testuser.com', 'passwor', { context: view });
 
         view.on('validation_error', function(which, msg) {
           wrapAssertion(function () {
@@ -231,7 +238,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
       });
 
       it('shows an error if no year is selected', function (done) {
-        fillOutSignUp('testuser@testuser.com', 'password', { ignoreYear: true });
+        fillOutSignUp('testuser@testuser.com', 'password', { ignoreYear: true, context: view });
 
         view.on('validation_error', function(which, msg) {
           wrapAssertion(function () {
@@ -246,7 +253,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
     describe('submit', function () {
       it('sends the user to confirm screen if form filled out, >= 14 years ago', function () {
         var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14 });
+        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
         return view.submit()
             .then(function () {
@@ -256,7 +263,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
 
       it('submits form if user presses enter on the year', function (done) {
         var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14 });
+        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
         router.on('navigate', function () {
           wrapAssertion(function () {
@@ -271,7 +278,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
 
       it('sends the user to cannot_create_account screen if user selects <= 13 years ago', function (done) {
         var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 13 });
+        fillOutSignUp(email, 'password', { year: nowYear - 13, context: view });
 
         router.on('navigate', function () {
           wrapAssertion(function () {
@@ -283,7 +290,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
 
       it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function () {
         var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 13 });
+        fillOutSignUp(email, 'password', { year: nowYear - 13, context: view });
 
         view.submit();
         assert.equal(router.page, 'cannot_create_account');
@@ -304,7 +311,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
         return view.fxaClient.signUp(email, 'password', { preVerified: true })
             .then(function () {
               var nowYear = (new Date()).getFullYear();
-              fillOutSignUp(email, 'incorrect', { year: nowYear - 14 });
+              fillOutSignUp(email, 'incorrect', { year: nowYear - 14, context: view });
 
               return view.submit();
             })
@@ -318,7 +325,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
         return view.fxaClient.signUp(email, 'password')
             .then(function () {
               var nowYear = (new Date()).getFullYear();
-              fillOutSignUp(email, 'incorrect', { year: nowYear - 14 });
+              fillOutSignUp(email, 'incorrect', { year: nowYear - 14, context: view });
 
               return view.submit();
             })
@@ -336,7 +343,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
         };
 
         var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14 });
+        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
         return view.submit()
           .then(function () {
@@ -356,7 +363,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
         };
 
         var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14 });
+        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
         return view.submit()
           .then(null, function (err) {
