@@ -28,8 +28,11 @@
   // END MODERNIZR BASED CODE
 
   // Code below here is our own.
+  var pwElement = document.createElement('input');
+  pwElement.setAttribute('type', 'password');
+
   try {
-    var pwElement = document.createElement('input');
+    // IE8 will blow up here.
     pwElement.setAttribute('type', 'text');
     docElement.className += ' toggle-pw';
   } catch(e) {
