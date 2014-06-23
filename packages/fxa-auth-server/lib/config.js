@@ -102,6 +102,9 @@ const conf = convict({
           handleExceptions: true,
           level: 'INFO',
           propagate: false
+        },
+        'fxa.server.hapi': {
+          level: 'ERROR'
         }
       }
     },

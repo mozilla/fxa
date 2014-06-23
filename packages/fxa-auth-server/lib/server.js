@@ -7,6 +7,7 @@ const Hapi = require('hapi');
 const AppError = require('./error');
 const config = require('./config').root();
 const logger = require('./logging').getLogger('fxa.server');
+const hapiLogger = require('./logging').getLogger('fxa.server.hapi');
 const summary = require('./logging/summary');
 
 exports.create = function createServer() {
@@ -27,17 +28,17 @@ exports.create = function createServer() {
   // hapi internal logging: server and request
   server.on('log', function onServerLog(ev, tags) {
     if (tags.error && tags.implementation) {
-      logger.critical('Uncaught internal error', ev.tags, ev.data);
+      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
     } else {
-      logger.verbose('Server', ev.tags, ev.data);
+      hapiLogger.verbose('Server', ev.tags, ev.data);
     }
   });
 
   server.on('request', function onRequestLog(req, ev, tags) {
     if (tags.error && tags.implementation) {
-      logger.critical('Uncaught internal error', ev.tags, ev.data);
+      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
     } else {
-      logger.verbose('Request <%s>', req.id, ev.tags, ev.data);
+      hapiLogger.verbose('Request <%s>', req.id, ev.tags, ev.data);
     }
   });
 
