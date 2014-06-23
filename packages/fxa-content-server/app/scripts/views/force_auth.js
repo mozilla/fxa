@@ -55,10 +55,12 @@ function (p, BaseView, SignInView, Template, Session, Url) {
 
     events: {
       'click a[href="/confirm_reset_password"]': 'resetPasswordNow',
-      'click a[href="/legal/terms"]': '_savePrefillInfo',
-      'click a[href="/legal/privacy"]': '_savePrefillInfo',
       // Backbone does not add SignInView's events, so this must be duplicated.
       'change .show-password': 'onPasswordVisibilityChange'
+    },
+
+    beforeDestroy: function () {
+      Session.set('prefillPassword', this.$('.password').val());
     },
 
     submit: function () {
@@ -87,11 +89,7 @@ function (p, BaseView, SignInView, Template, Session, Url) {
                   self.displayError(err);
                 });
       });
-    }),
-
-    _savePrefillInfo: function () {
-      Session.set('prefillPassword', this.$('.password').val());
-    }
+    })
   });
 
   return View;

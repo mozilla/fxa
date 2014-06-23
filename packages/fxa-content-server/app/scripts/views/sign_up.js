@@ -74,10 +74,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'keydown #fxa-age-year': 'submitOnEnter',
-      'click a[href="/legal/terms"]': '_savePrefillInfo',
-      'click a[href="/legal/privacy"]': '_savePrefillInfo',
-      'click a[href="/signin"]': '_savePrefillInfo'
+      'keydown #fxa-age-year': 'submitOnEnter'
     },
 
     context: function () {
@@ -95,6 +92,12 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
         shouldFocusPassword: autofocusEl === 'password',
         shouldFocusYear: autofocusEl === 'year'
       };
+    },
+
+    beforeDestroy: function () {
+      Session.set('prefillEmail', this.$('.email').val());
+      Session.set('prefillPassword', this.$('.password').val());
+      Session.set('prefillYear', this.$('#fxa-age-year').val());
     },
 
     submitOnEnter: function (event) {
@@ -189,12 +192,6 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
     _suggestSignIn: function (err) {
       err.forceMessage = t('Account already exists. <a href="/signin">Sign in</a>');
       return this.displayErrorUnsafe(err);
-    },
-
-    _savePrefillInfo: function () {
-      Session.set('prefillEmail', this.$('.email').val());
-      Session.set('prefillPassword', this.$('.password').val());
-      Session.set('prefillYear', this.$('#fxa-age-year').val());
     },
 
     _selectPrefillYear: function () {

@@ -102,11 +102,13 @@ define([
             .waitForElementById('fxa-signin-header')
 
             .elementByCssSelector('form input.email')
+              .clear()
               .click()
               .type(email)
             .end()
 
             .elementByCssSelector('form input.password')
+              .clear()
               .click()
               .type(PASSWORD)
             .end()
@@ -134,11 +136,13 @@ define([
             .waitForElementById('fxa-signin-header')
 
             .elementByCssSelector('form input.email')
+              .clear()
               .click()
               .type(email)
             .end()
 
             .elementByCssSelector('form input.password')
+              .clear()
               .click()
               .type('incorrect password')
             .end()
