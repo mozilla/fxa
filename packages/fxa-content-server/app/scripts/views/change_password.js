@@ -46,27 +46,33 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
       var oldPassword = this.$('#old_password').val();
       var newPassword = this.$('#new_password').val();
 
-      if (oldPassword === newPassword) {
-        var err = AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
-        return this.displayError(err);
-      }
-
       this.hideError();
 
       var self = this;
-      return this.fxaClient.changePassword(email, oldPassword, newPassword)
-                .then(function () {
-                  self.navigate('settings', {
-                    success: t('Password changed')
-                  });
-                }, function (err) {
-                  if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-                    err.forceMessage = t('Unverified account. <a href="#" id="resend">Resend verification email</a>.');
-                    return self.displayErrorUnsafe(err);
-                  }
+      // Try to sign the user in before checking whether the
+      // passwords are the same. If the user typed the incorrect old
+      // password, they should know that first.
+      return this.fxaClient.checkPassword(email, oldPassword)
+          .then(function () {
+            if (oldPassword === newPassword) {
+              throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
+            }
 
-                  throw err;
-                });
+            return self.fxaClient.changePassword(
+                          email, oldPassword, newPassword);
+          })
+          .then(function () {
+            self.navigate('settings', {
+              success: t('Password changed')
+            });
+          }, function (err) {
+            if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
+              err.forceMessage = t('Unverified account. <a href="#" id="resend">Resend verification email</a>.');
+              return self.displayErrorUnsafe(err);
+            }
+
+            throw err;
+          });
     },
 
     resendVerificationEmail: BaseView.preventDefaultThen(function () {
