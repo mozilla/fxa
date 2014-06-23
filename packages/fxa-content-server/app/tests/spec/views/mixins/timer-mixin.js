@@ -8,9 +8,10 @@ define([
   'chai',
   'backbone',
   'underscore',
+  '../../../lib/helpers',
   'views/mixins/timer-mixin',
   'views/base'
-], function (Chai, Backbone, _, TimerMixin, BaseView) {
+], function (Chai, Backbone, _, TestHelpers, TimerMixin, BaseView) {
   var assert = Chai.assert;
 
   var TimerView = BaseView.extend({});
@@ -36,8 +37,12 @@ define([
 
       it('calls a function in the context of the view', function (done) {
         view.setTimeout(function () {
-          assert.equal(this, view);
-          done();
+          // capture `this` here because wrapAssertion will call
+          // the test function in the global context.
+          var self = this;
+          TestHelpers.wrapAssertion(function () {
+            assert.equal(self, view);
+          }, done);
         }, 1);
       });
     });
@@ -49,9 +54,9 @@ define([
           isTimeoutCalled = true;
         }, 10);
 
-        setTimeout(function () {
-          done(assert.isFalse(isTimeoutCalled));
-        }, 20);
+        setTimeout(TestHelpers.wrapAssertion(function () {
+          assert.isFalse(isTimeoutCalled);
+        }, done), 20);
 
         view.clearTimeout(timeout);
       });
@@ -64,9 +69,9 @@ define([
           isTimeoutCalled = true;
         }, 10);
 
-        setTimeout(function () {
-          done(assert.isFalse(isTimeoutCalled));
-        }, 20);
+        setTimeout(TestHelpers.wrapAssertion(function () {
+          assert.isFalse(isTimeoutCalled);
+        }, done), 20);
 
         view.destroy();
       });

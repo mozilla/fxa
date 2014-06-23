@@ -114,7 +114,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
 
       this.clearTimeout(this._workingTimeout);
 
-      this.setTimeout(function () {
+      this._workingTimeout = this.setTimeout(function () {
         var err = AuthErrors.toError('WORKING');
         workingText = self.displayError(err);
       }, this.LONGER_THAN_EXPECTED);
