@@ -8,12 +8,21 @@ module.exports = function (grunt) {
   grunt.config('mochaTest', {
     test: {
       options: {
-        ui: 'bdd'
+        ui: 'bdd',
+        require: 'coverage/blanket'
       },
       src: [
         'test/**/*.js',
         '!test/lib/**'
       ]
+    },
+    coverage: {
+      options: {
+        reporter: 'html-cov',
+        quiet: true,
+        captureFile: 'coverage.html'
+      },
+      src: '<%= mochaTest.test.src %>'
     }
   });
 
