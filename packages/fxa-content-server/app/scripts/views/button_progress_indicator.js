@@ -17,9 +17,11 @@
 // the progress indicator is not hidden.
 
 define([
+  'underscore',
   'jquery',
-  'backbone'
-], function ($, Backbone) {
+  'backbone',
+  'views/mixins/timer-mixin'
+], function (_, $, Backbone, TimerMixin) {
   'use strict';
 
   // The show and hide delays are to minimize flash.
@@ -50,7 +52,7 @@ define([
 
       // If we are waiting to remove the indicator, clear the timeout.
       if (self._removeIndicatorTimeout) {
-        clearTimeout(self._removeIndicatorTimeout);
+        self.clearTimeout(self._removeIndicatorTimeout);
         self._removeIndicatorTimeout = null;
 
         // Indicator was waiting to be removed, making it already visible. No
@@ -63,6 +65,14 @@ define([
 
         self.showIndicator(buttonEl);
       }, SHOW_DELAY_MS);
+    },
+
+    destroy: function () {
+      this.done();
+
+      this.trigger('destroy');
+
+      this.remove();
     },
 
     /**
@@ -89,7 +99,7 @@ define([
       // Indicator is waiting to be shown, no need to show it anymore.
       // Remove the timeout and ensure the indictor is nowhere to be found.
       if (self._showIndicatorTimeout) {
-        clearTimeout(self._showIndicatorTimeout);
+        self.clearTimeout(self._showIndicatorTimeout);
         self._showIndicatorTimeout = null;
 
         // the spinner is not yet displayed, but #stage may not yet
@@ -98,7 +108,7 @@ define([
         return;
       }
 
-      self._removeIndicatorTimeout = setTimeout(function () {
+      self._removeIndicatorTimeout = self.setTimeout(function () {
         self._removeIndicatorTimeout = null;
 
         self.removeIndicator();
@@ -132,14 +142,10 @@ define([
      */
     isVisible: function () {
       return !!this._count;
-    },
-
-    testReset: function () {
-      this._count = 0;
-      clearTimeout(this._showIndicatorTimeout);
-      clearTimeout(this._removeIndicatorTimeout);
     }
   });
+
+  _.extend(View.prototype, TimerMixin);
 
   return View;
 });

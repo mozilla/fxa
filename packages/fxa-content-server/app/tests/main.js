@@ -86,8 +86,8 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/views/ready',
     '../tests/spec/views/cookies_disabled',
     '../tests/spec/views/button_progress_indicator',
-
-    '../tests/spec/views/mixins/floating-placeholder-mixin'
+    '../tests/spec/views/mixins/floating-placeholder-mixin',
+    '../tests/spec/views/mixins/timer-mixin'
   ];
 
   /*global mocha */

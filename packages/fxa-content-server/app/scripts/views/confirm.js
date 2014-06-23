@@ -23,14 +23,6 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
     // used by unit tests
     VERIFICATION_POLL_IN_MS: VERIFICATION_POLL_IN_MS,
 
-    beforeDestroy: function () {
-      ResendMixin.beforeDestroy.call(this);
-
-      if (this._verificationTimeout) {
-        this.window.clearTimeout(this._verificationTimeout);
-      }
-    },
-
     context: function () {
       return {
         email: Session.email
@@ -63,17 +55,13 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
             .then(function (result) {
               if (result.verified) {
                 self.navigate('signup_complete');
-                self._verificationTimeout = null;
               } else {
-                self._verificationTimeout = setTimeout(pollFn,
-                                              self.VERIFICATION_POLL_IN_MS);
+                self.setTimeout(pollFn, self.VERIFICATION_POLL_IN_MS);
               }
-            }, function () {
-              this.window.clearTimeout(this._verificationTimeout);
             });
         };
 
-        this._verificationTimeout = setTimeout(pollFn, self.VERIFICATION_POLL_IN_MS);
+        this.setTimeout(pollFn, self.VERIFICATION_POLL_IN_MS);
       }
     },
 

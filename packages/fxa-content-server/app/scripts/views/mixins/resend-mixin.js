@@ -13,12 +13,6 @@ define([
   return {
     _attemptedSubmits: 0,
 
-    beforeDestroy: function () {
-      if (this._displayResendTimeout) {
-        this.window.clearTimeout(this._displayResendTimeout);
-      }
-    },
-
     beforeSubmit: function () {
       // See https://github.com/mozilla/fxa-content-server/issues/885.
       // The first click of the resend button sends an email.
@@ -51,9 +45,7 @@ define([
       if (self._attemptedSubmits === 4) {
         self.logEvent(self.className + ':too_many_attempts');
         self.$('#resend').hide();
-        self._displayResendTimeout = setTimeout(function () {
-          self.window.clearTimeout(self._displayResendTimeout);
-          self._displayResendTimeout = null;
+        self.setTimeout(function () {
           self._attemptedSubmits = 0;
           self.$('#resend').show();
         }, SHOW_RESEND_IN_MS);
