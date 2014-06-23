@@ -70,6 +70,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
       });
 
       this._selectPrefillYear();
+
+      FormView.prototype.afterRender.call(this);
     },
 
     events: {

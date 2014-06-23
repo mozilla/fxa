@@ -49,13 +49,14 @@ function (_, BaseView, FormView, Template, Session, Url, AuthErrors, OAuthMixin)
     afterRender: function () {
       var value = this.$('.email').val();
       if (value) {
-        this.enableSubmitIfValid();
         this.focus('.email');
       }
 
       if (this.isOAuthSameBrowser()) {
         this.setupOAuthLinks();
       }
+
+      FormView.prototype.afterRender.call(this);
     },
 
     submit: function () {

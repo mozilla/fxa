@@ -42,10 +42,6 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
       };
     },
 
-    afterRender: function () {
-      this.enableSubmitIfValid();
-    },
-
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
       'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail'
