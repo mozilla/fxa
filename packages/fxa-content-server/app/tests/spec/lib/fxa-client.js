@@ -362,7 +362,7 @@ function (chai, $, ChannelMock, testHelpers,
             return client.checkPassword(email, 'badpassword');
           })
           .then(function () {
-            assert.ok(false, 'unexpected success');
+            assert.fail('unexpected success');
           }, function(err) {
             assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
           });
