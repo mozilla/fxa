@@ -48,6 +48,7 @@ define([
 
         .waitForVisibleByCssSelector('#fxa-signup-header')
         .elementByCssSelector('form input.email')
+        .clear()
         .click()
         .type(email)
         .end()
@@ -109,6 +110,7 @@ define([
             .end()
 
             .elementByCssSelector('form input.email')
+            .clear()
             .click()
             .type(email)
             .end()
@@ -184,6 +186,7 @@ define([
         .end()
 
         .elementByCssSelector('form input.email')
+        .clear()
         .click()
         .type(email)
         .end()
