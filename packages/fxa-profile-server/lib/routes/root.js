@@ -7,10 +7,17 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 
-const config = require('../config');
 const version = require('../../package.json').version;
 
-var commitHash = config.get('git.commit');
+// See if config/version.json exists (part of rpm builds)
+var commitHash = (function() {
+  var sha;
+  try {
+    sha = require('../../config/version.json');
+    sha = sha.version.hash;
+  } catch(e) { /* ignore */ }
+  return sha;
+})();
 
 module.exports = {
   handler: function index(req, reply) {
