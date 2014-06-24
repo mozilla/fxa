@@ -67,65 +67,62 @@ define([
     'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function () {
       return this.get('remote')
         .get(require.toUrl(CONFIRM_PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
 
         // user is immediately redirected to /reset_password if they have no
         // sessionToken.
         // Success is showing the screen
-        .waitForElementById('fxa-reset-password-header');
+        .findById('fxa-reset-password-header');
     },
 
     'open /reset_password page from /signin': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_PAGE_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('a[href="/reset_password"]')
+        .findByCssSelector('a[href="/reset_password"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-reset-password-header')
-
-        .elementByCssSelector('input[type=email]')
+        .findByCssSelector('input[type=email]')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-confirm-reset-password-header')
+        .findById('fxa-confirm-reset-password-header')
         .end();
     },
 
     'open confirm_reset_password page, click resend': function () {
       return this.get('remote')
         .get(require.toUrl(CONFIRM_PAGE_URL))
-        .waitForElementById('fxa-confirm-reset-password-header')
-
-        .elementById('resend')
+        .findById('resend')
           .click()
         .end()
 
-        .waitForVisibleByClassName('success')
+        .then(function () {
+          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, 2);
+        })
 
         // Success is showing the success message
-        .elementByCssSelector('.success').isDisplayed()
+        .findByCssSelector('.success').isDisplayed()
           .then(function (isDisplayed) {
             assert.isTrue(isDisplayed);
           })
         .end()
 
-        .elementById('resend')
+        .findById('resend')
           .click()
         .end()
 
-        .elementById('resend')
+        .findById('resend')
           .click()
         .end()
 
         // Stills shows success message
-        .elementByCssSelector('.success').isDisplayed()
+        .findByCssSelector('.success').isDisplayed()
           .then(function (isDisplayed) {
             assert.isTrue(isDisplayed);
           })
@@ -141,8 +138,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-reset-link-damaged-header')
-
+        .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
@@ -152,20 +148,17 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-reset-link-damaged-header')
-
+        .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
     'open complete page with invalid token shows expired screen': function () {
       var invalidToken = createRandomHexString(token.length);
-
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + invalidToken + '&code=' + code + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-reset-link-expired-header')
-
+        .findById('fxa-reset-link-expired-header')
         .end();
     },
 
@@ -174,20 +167,17 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-reset-link-damaged-header')
-
+        .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
     'open complete page with malformed code shows damanged screen': function () {
       var malformedCode = createRandomHexString(code.length - 1);
-
       var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + malformedCode + '&email=' + encodeURIComponent(email);
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-reset-link-damaged-header')
-
+        .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
@@ -196,8 +186,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-reset-link-damaged-header')
-
+        .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
@@ -206,8 +195,7 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-reset-link-damaged-header')
-
+        .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
@@ -216,23 +204,21 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-complete-reset-password-header')
-
-        .elementByCssSelector('form input#password')
+        .findByCssSelector('form input#password')
           .click()
           .type(PASSWORD)
         .end()
 
-        .elementByCssSelector('form input#vpassword')
+        .findByCssSelector('form input#vpassword')
           .click()
           .type(PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-reset-password-complete-header')
+        .findById('fxa-reset-password-complete-header')
         .end();
     }
 
@@ -265,23 +251,22 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-complete-reset-password-header')
-
-        .elementByCssSelector('form input#password')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input#password')
           .click()
           .type(PASSWORD)
         .end()
 
-        .elementByCssSelector('form input#vpassword')
+        .findByCssSelector('form input#vpassword')
           .click()
           .type(PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-reset-password-complete-header')
+        .findById('fxa-reset-password-complete-header')
         .end();
     },
 
@@ -290,14 +275,14 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-reset-link-expired-header')
+        .findById('fxa-reset-link-expired-header')
         .end()
 
-        .elementById('resend')
+        .findById('resend')
           .click()
         .end()
 
-        .waitForElementById('fxa-confirm-reset-password-header')
+        .findById('fxa-confirm-reset-password-header')
         .end();
     }
   });
@@ -318,9 +303,8 @@ define([
       var url = RESET_PAGE_URL + '?email=' + email;
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-reset-password-header')
-
-        .elementByCssSelector('form input.email')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input.email')
           .getAttribute('value')
           .then(function (resultText) {
             // email address should be pre-filled from the query param.
@@ -328,11 +312,11 @@ define([
           })
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-confirm-reset-password-header')
+        .findById('fxa-confirm-reset-password-header')
         .end();
     }
   });
@@ -355,24 +339,22 @@ define([
     'page transitions after completion': function () {
       return this.get('remote')
         .get(require.toUrl(RESET_PAGE_URL))
-        .waitForElementById('fxa-reset-password-header')
-
-        .elementByCssSelector('form input.email')
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-confirm-reset-password-header')
+        .findById('fxa-confirm-reset-password-header')
           .then(function () {
             return client.passwordChange(email, PASSWORD, 'newpassword');
           })
         .end()
 
-        .waitForElementById('fxa-signin-header')
+        .findById('fxa-signin-header')
         .end();
     }
   });
@@ -388,26 +370,25 @@ define([
     'open /reset_password page, enter unknown email': function () {
       return this.get('remote')
         .get(require.toUrl(RESET_PAGE_URL))
-        .waitForElementById('fxa-reset-password-header')
-
-        .elementByCssSelector('input[type=email]')
+        .findByCssSelector('input[type=email]')
           .click()
-          .clear()
+          .clearValue()
           .type(email)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
         // The error area shows a link to /signup
-        .waitForElementByCssSelector('.error a[href="/signup"]')
-        .elementByCssSelector('.error a[href="/signup"]')
+        .findByCssSelector('.error a[href="/signup"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-signup-header')
-        .elementByCssSelector('input[type=email]')
+        .findById('fxa-signup-header')
+        .end()
+
+        .findByCssSelector('input[type=email]')
           .getAttribute('value')
           .then(function (resultText) {
             // check the email address was written
@@ -415,9 +396,11 @@ define([
           })
         .end()
 
-        .waitForElementById('fxa-signup-header')
+        .findById('fxa-signup-header')
+        .end()
+
         // email is prefilled on signup page
-        .elementByCssSelector('input[type=email]')
+        .findByCssSelector('input[type=email]')
           .getAttribute('value')
           .then(function (resultText) {
             // check the email address was written

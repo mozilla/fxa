@@ -10,8 +10,9 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/lib/restmail'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers, restmail) {
   'use strict';
 
   var config = intern.config;
@@ -56,76 +57,70 @@ define([
     'sign in, try to change password with an incorrect old password': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
-        .waitForVisibleById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
-
-        .waitForVisibleById('fxa-settings-header')
 
         // Go to change password screen
-        .elementById('change-password')
+        .findById('change-password')
           .click()
         .end()
 
-        .waitForVisibleById('fxa-change-password-header')
-
-        .elementById('old_password')
+        .findById('old_password')
           .click()
           .type('INCORRECT')
         .end()
 
-        .elementById('new_password')
+        .findById('new_password')
           .click()
           .type(SECOND_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForVisibleByClassName('error')
-
-        .elementByCssSelector('.error').isDisplayed()
+        .sleep(2000)
+        .findByCssSelector('.error').isDisplayed()
           .then(function (isDisplayed) {
             assert.isTrue(isDisplayed);
           })
         .end()
 
         // click the show button, the error should not be hidden.
-        .elementByCssSelector('[for=show-old-password]')
+        .findByCssSelector('[for=show-old-password]')
           .click()
         .end()
 
-        .elementByCssSelector('.error').isDisplayed()
+        .findByCssSelector('.error').isDisplayed()
           .then(function (isDisplayed) {
             assert.isTrue(isDisplayed);
           })
         .end()
 
         // Change form so that it is valid, error should be hidden.
-        .elementById('old_password')
+        .findById('old_password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
         // Since the test is to see if the error is hidden,
-        // .waitForVisibleByClass cannot be used. We want the opposite of
-        // .waitForVisibleByClass.
-        .wait(ANIMATION_DELAY_MS)
+        // .findByClass cannot be used. We want the opposite of
+        // .findByClass.
+        .sleep(ANIMATION_DELAY_MS)
 
-        .elementByCssSelector('.error').isDisplayed()
+        .findByCssSelector('.error').isDisplayed()
           .then(function (isDisplayed) {
             assert.isFalse(isDisplayed);
           })
@@ -135,73 +130,65 @@ define([
     'sign in, change password, sign in with new password': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
-        .waitForVisibleById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
-
-        .waitForVisibleById('fxa-settings-header')
 
         // Go to change password screen
-        .elementById('change-password')
+        .findById('change-password')
           .click()
         .end()
 
-        .waitForVisibleById('fxa-change-password-header')
-
-        .elementById('old_password')
+        .findById('old_password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
-        .elementById('new_password')
+        .findById('new_password')
           .click()
           .type(SECOND_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForVisibleById('fxa-settings-header')
+        .findById('fxa-settings-header')
+        .end()
 
-        // For whatever reason, .waitForVisibleByClassName completes
-        // but the .isDisplayed() check fails. With the .wait, no such
+        // For whatever reason, .findByClass completes
+        // but the .isDisplayed() check fails. With the .sleep, no such
         // error.
-        .wait(ANIMATION_DELAY_MS)
-        .waitForVisibleByClassName('success')
-
-        .elementByClassName('success').isDisplayed()
+        .sleep(ANIMATION_DELAY_MS)
+        .findByClassName('success').isDisplayed()
           .then(function (isDisplayed) {
             assert.equal(isDisplayed, true);
           })
         .end()
 
         .get(require.toUrl(SIGNIN_URL))
-        .waitForVisibleById('fxa-signin-header')
 
-        .elementByCssSelector('form input.email')
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(SECOND_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end();
     }
@@ -232,50 +219,47 @@ define([
     'sign in, change password screen, user must verifiy account': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
-        .waitForVisibleById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForVisibleById('fxa-confirm-header')
+        .findById('fxa-confirm-header')
+        .end()
 
         // unverified user browses directly to change password page.
         .get(require.toUrl(CHANGE_PASSWORD_URL))
-        .waitForVisibleById('fxa-change-password-header')
-
-        .elementById('old_password')
+        .findById('old_password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
-        .elementById('new_password')
+        .findById('new_password')
           .click()
           .type(SECOND_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
         // uh oh, user must verify their account.
-        .waitForVisibleById('resend')
-
-        .elementById('resend')
+        .findById('resend')
           .click()
         .end()
 
-        .waitForVisibleById('fxa-confirm-header');
+        .findById('fxa-confirm-header')
+        .end();
     }
   });
 

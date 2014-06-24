@@ -23,12 +23,14 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
+        .setFindTimeout(intern.config.pageLoadTimeout)
         // wait for the tests to complete
-        .waitForElementById('total-failures')
+        .findById('total-failures')
+        .end()
         //
         // Save the body text in case there are any errors
-        .elementsByCssSelector('body')
-        .text()
+        .findByCssSelector('body')
+        .getVisibleText()
           .then(function (text) {
             bodyText = text;
           })
@@ -36,8 +38,8 @@ define([
 
         // Check for any failures, if there is a failure, print the
         // test log and fail.
-        .elementById('total-failures')
-        .text()
+        .findById('total-failures')
+        .getVisibleText()
           .then(function (text) {
             if (text !== '0') {
               console.log(bodyText);
@@ -50,9 +52,8 @@ define([
 
 
         // check for the grand total
-        .waitForElementByCssSelector('.grand-total .rs')
-        .elementByCssSelector('.grand-total .rs')
-        .text()
+        .findByCssSelector('.grand-total .rs')
+        .getVisibleText()
           .then(function (text) {
             text = text.replace('%', '').trim();
             var covered = parseFloat(text);
@@ -62,10 +63,16 @@ define([
         .end()
 
         // any individual failures?
-        .elementsByCssSelector('.bl-error .bl-file a')
-        .then(function(elements) {
-          assert.equal(elements.length, 0, 'all modules have sufficient coverage');
-        })
+        .findByCssSelector('.bl-error .bl-file a')
+        .then(
+          function() {
+            throw new Error('Blanket.js Errors');
+          },
+          function(err) {
+            // No Blanket.js errors
+            assert.strictEqual(err.name, 'NoSuchElement');
+          }
+        )
         .end();
 
     }

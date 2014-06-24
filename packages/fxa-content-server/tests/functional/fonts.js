@@ -23,17 +23,17 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-signin-header')
+        .setFindTimeout(intern.config.pageLoadTimeout)
 
-        .elementByCssSelector('#fxa-signin-header')
-          .getComputedCss('font-family')
+        .findByCssSelector('#fxa-signin-header')
+          .getComputedStyle('font-family')
           .then(function (value) {
             assert.ok(value.indexOf('Fira Sans') > -1);
           })
         .end()
 
-        .elementByCssSelector('body')
-          .getComputedCss('font-family')
+        .findByCssSelector('body')
+          .getComputedStyle('font-family')
           .then(function (value) {
             assert.ok(value.indexOf('Clear Sans') > -1);
           })
@@ -44,17 +44,16 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(nonFiraUrl))
-        .waitForElementById('fxa-pp-header')
 
-        .elementByCssSelector('#fxa-pp-header')
-          .getComputedCss('font-family')
+        .findByCssSelector('#fxa-pp-header')
+          .getComputedStyle('font-family')
           .then(function (value) {
             assert.ok(value.indexOf('Fira Sans') === -1);
           })
         .end()
 
-        .elementByCssSelector('body')
-          .getComputedCss('font-family')
+        .findByCssSelector('body')
+          .getComputedStyle('font-family')
           .then(function (value) {
             assert.ok(value.indexOf('Clear Sans') === -1);
           })

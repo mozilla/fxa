@@ -50,75 +50,60 @@ define([
     'sign in, go to settings, sign out': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-settings-header')
-
         // sign the user out
-        .elementById('signout')
+        .findById('signout')
           .click()
         .end()
 
         // success is going to the signin page
-        .waitForElementById('fxa-signin-header')
+        .findById('fxa-signin-header')
         .end();
     },
 
     'sign in to desktop context, go to settings, no way to sign out': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL + '?context=' + Constants.FX_DESKTOP_CONTEXT))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
-
-        // Add an explicit timeout while waiting for the browser channel to
-        // timeout and the progress-indicator to be taken away.
-        // Without the explicit timeout, the implicit timeout kicks in while
-        // waiting for `#stage .error` and the test fails.
-        .wait(4000)
 
         // We need to wait for the sign in to finish. When the desktop context
         // this will manifest itself in the "Unexpected Error" error being
         // shown, which signals the desktop channel didn't get a response.
-        .waitForVisibleByCssSelector('#stage .error')
-        .elementByCssSelector('#stage .error').isDisplayed()
+        .findByCssSelector('#stage .error').isDisplayed()
         .then(function (isDisplayed) {
           assert.equal(isDisplayed, true);
         })
 
         .get(require.toUrl(SETTINGS_URL))
-        .waitForElementById('fxa-settings-header')
         // make sure the sign out element doesn't exist
-        .hasElementById('signout')
-          .then(function(hasElement) {
-            assert.isFalse(hasElement);
-          })
+        .findById('signout')
+          .then(assert.fail, assert.ok)
         .end();
     },
 
@@ -130,7 +115,7 @@ define([
             return self.get('remote')
               .get(require.toUrl(SETTINGS_URL))
               // Expect to get redirected to sign in since the sessionToken is invalid
-              .waitForElementById('fxa-signin-header')
+              .findById('fxa-signin-header')
               .end();
           });
     },
@@ -138,46 +123,44 @@ define([
     'sign in, delete account': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-settings-header')
+        .findById('fxa-settings-header')
         .end()
 
         // Go to delete account screen
-        .waitForElementById('delete-account')
-        .elementById('delete-account')
+        .findById('delete-account')
           .click()
         .end()
 
         // success is going to the delete account page
-        .waitForVisibleById('fxa-delete-account-header')
+        .findById('fxa-delete-account-header')
+        .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
 
         // delete account
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
         // success is going to the signup page
-        .waitForElementById('fxa-signup-header')
+        .findById('fxa-signup-header')
         .end();
     }
   });

@@ -19,14 +19,13 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-404-header')
-
-        .elementById('fxa-404-home')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findById('fxa-404-home')
           .click()
         .end()
 
         // success is going to the signup screen
-        .waitForElementById('fxa-signup-header')
+        .findById('fxa-signup-header')
         .end();
     }
   });

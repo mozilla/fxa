@@ -76,7 +76,7 @@
     "grunt-jscs-checker": "0.4.3",
     "grunt-jsonlint": "1.0.4",
     "grunt-todo": "0.2.3",
-    "intern-geezer": "1.7.0",
+    "intern-geezer": "2.0.1",
     "jshint": "2.5.0",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },

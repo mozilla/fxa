@@ -16,17 +16,17 @@ define([
     name: '500',
 
     'visit an invalid page': function () {
+      var expected = intern.config.fxaProduction ? 'fxa-404-home' : 'fxa-500-home';
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-500-header')
-
-        .elementById('fxa-500-home')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findById(expected)
           .click()
         .end()
 
         // success is going to the signup screen
-        .waitForElementById('fxa-signup-header')
+        .findById('fxa-signup-header')
         .end();
     }
   });

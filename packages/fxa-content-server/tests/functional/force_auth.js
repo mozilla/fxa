@@ -57,40 +57,36 @@ define([
     'sign in via force-auth': function () {
       return this.get('remote')
         .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
-        .waitForElementById('fxa-force-auth-header')
-
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-settings-header')
+        .findById('fxa-settings-header')
         .end();
     },
 
     'forgot password flow via force-auth goes directly to confirm email screen': function () {
       return this.get('remote')
         .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
-        .waitForElementById('fxa-force-auth-header')
-
-        .elementByCssSelector('.reset-password')
+        .findByCssSelector('.reset-password')
           .click()
         .end()
 
-        .waitForElementById('fxa-confirm-reset-password-header')
+        .findById('fxa-confirm-reset-password-header')
         .end()
 
         // user remembers her password, clicks the "sign in" link. They
         // should go back to the /force_auth screen.
-        .elementByClassName('sign-in')
+        .findByClassName('sign-in')
           .click()
         .end()
 
-        .waitForElementById('fxa-force-auth-header');
+        .findById('fxa-force-auth-header');
     },
 
     'visiting the tos/pp links saves information for return': function () {
@@ -110,28 +106,28 @@ define([
 
     return self.get('remote')
       .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
-      .waitForElementById('fxa-force-auth-header')
-
-      .elementByCssSelector('input[type=password]')
-        .clear()
+      .findByCssSelector('input[type=password]')
+        .clearValue()
         .click()
         .type(password)
       .end()
 
-      .elementByCssSelector('a[href="' + dest + '"]')
+      .findByCssSelector('a[href="' + dest + '"]')
         .click()
       .end()
 
-      .waitForElementById(header)
+      .findById(header)
+      .end()
 
-      .elementByCssSelector('.back')
+      .findByCssSelector('.back')
         .click()
       .end()
 
-      .waitForElementById('fxa-force-auth-header')
+      .findById('fxa-force-auth-header')
+      .end()
 
-      .elementByCssSelector('input[type=password]')
-        .getValue()
+      .findByCssSelector('input[type=password]')
+        .getProperty('value')
         .then(function (resultText) {
           // check the email address was re-populated
           assert.equal(resultText, password);

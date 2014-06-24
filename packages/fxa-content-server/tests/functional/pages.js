@@ -56,7 +56,8 @@ define([
     return function () {
       return this.get('remote')
         .get(require.toUrl(url + path))
-        .waitForElementByCssSelector('#stage header')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('#stage header')
         .end();
     };
   };

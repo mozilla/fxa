@@ -7,9 +7,6 @@ define([
 ], function (intern) {
   'use strict';
 
-  // override the main config file and adjust it to suit Sauce Labs
-  intern.useSauceConnect = false;
-  intern.webdriver.port = 4444;
   intern.functionalSuites = [
     'tests/functional/mocha',
     // a few basic functional tests

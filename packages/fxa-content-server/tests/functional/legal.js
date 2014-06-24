@@ -22,32 +22,26 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-legal-header')
-
-        .elementByCssSelector('a[href="/legal/terms"]')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('a[href="/legal/terms"]')
           .click()
         .end()
 
         // success is going to the TOS screen
-        .waitForVisibleByCssSelector('#legal-copy ol li')
-        .waitForVisibleByCssSelector('#fxa-tos-back')
-        .elementById('fxa-tos-back')
+        .findByCssSelector('#fxa-tos-back')
           .click()
         .end()
 
-        .waitForElementById('fxa-legal-header')
-        .elementByCssSelector('a[href="/legal/privacy"]')
+        .findByCssSelector('a[href="/legal/privacy"]')
           .click()
         .end()
 
-        .waitForVisibleByCssSelector('#legal-copy p')
-        .waitForVisibleByCssSelector('#fxa-pp-back')
-        .elementById('fxa-pp-back')
+        .findByCssSelector('#fxa-pp-back')
           .click()
         .end()
 
         // success is going back to the legal screen.
-        .waitForElementById('fxa-legal-header')
+        .findByCssSelector('#fxa-legal-header')
         .end();
     },
 
@@ -55,10 +49,9 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url + '/terms'))
-        .waitForVisibleByCssSelector('#legal-copy')
 
-        .elementById('legal-copy')
-          .text()
+        .findById('legal-copy')
+          .getVisibleText()
           .then(function (resultText) {
             // the legal text shouldn't be empty
             assert.ok(resultText.trim().length);
@@ -70,10 +63,9 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url + '/privacy'))
-        .waitForVisibleByCssSelector('#legal-copy')
 
-        .elementById('legal-copy')
-          .text()
+        .findById('legal-copy')
+          .getVisibleText()
           .then(function (resultText) {
             // the legal text shouldn't be empty
             assert.ok(resultText.trim().length);

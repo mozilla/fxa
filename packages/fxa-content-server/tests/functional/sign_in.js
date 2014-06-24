@@ -56,25 +56,23 @@ define([
     'sign in unverified': function () {
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('form input.email')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-confirm-header')
-        .elementByCssSelector('.verification-email-message')
-          .text()
+        .findByCssSelector('.verification-email-message')
+          .getVisibleText()
           .then(function (resultText) {
             // check the email address was written
             assert.ok(resultText.indexOf(email) > -1);
@@ -92,26 +90,24 @@ define([
         .then(function () {
           return self.get('remote')
             .get(require.toUrl(PAGE_URL))
-            .waitForElementById('fxa-signin-header')
-
-            .elementByCssSelector('form input.email')
-              .clear()
+            .findByCssSelector('form input.email')
+              .clearValue()
               .click()
               .type(email)
             .end()
 
-            .elementByCssSelector('form input.password')
-              .clear()
+            .findByCssSelector('form input.password')
+              .clearValue()
               .click()
               .type(PASSWORD)
             .end()
 
-            .elementByCssSelector('button[type="submit"]')
+            .findByCssSelector('button[type="submit"]')
               .click()
             .end()
 
             // success is seeing the sign-in-complete screen.
-            .waitForElementById('fxa-settings-header')
+            .findById('fxa-settings-header')
             .end();
         });
     },
@@ -126,34 +122,33 @@ define([
         .then(function () {
           return self.get('remote')
             .get(require.toUrl(PAGE_URL))
-            .waitForElementById('fxa-signin-header')
-
-            .elementByCssSelector('form input.email')
-              .clear()
+            .findByCssSelector('form input.email')
+              .clearValue()
               .click()
               .type(email)
             .end()
 
-            .elementByCssSelector('form input.password')
-              .clear()
+            .findByCssSelector('form input.password')
+              .clearValue()
               .click()
               .type('incorrect password')
             .end()
 
-            .elementByCssSelector('button[type="submit"]')
+            .findByCssSelector('button[type="submit"]')
               .click()
             .end()
 
             // success is seeing the error message.
-            .waitForVisibleByClassName('error')
+            .findByClassName('error')
+            .end()
 
             // If user clicks on "forgot your password?",
             // begin the reset password flow.
-            .elementByCssSelector('a[href="/reset_password"]')
+            .findByCssSelector('a[href="/reset_password"]')
               .click()
             .end()
 
-            .waitForElementById('fxa-reset-password-header')
+            .findById('fxa-reset-password-header')
             .end();
         });
     },
@@ -165,31 +160,27 @@ define([
 
       return self.get('remote')
         .get(require.toUrl(PAGE_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('input[type=email]')
+        .findByCssSelector('input[type=email]')
           .click()
-          .clear()
+          .clearValue()
           .type(email)
         .end()
 
-        .elementByCssSelector('input[type=password]')
+        .findByCssSelector('input[type=password]')
           .click()
           .type(PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
         // The error area shows a link to /signup
-        .waitForElementByCssSelector('.error a[href="/signup"]')
-        .elementByCssSelector('.error a[href="/signup"]')
+        .findByCssSelector('.error a[href="/signup"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-signup-header')
-        .elementByCssSelector('input[type=email]')
+        .findByCssSelector('input[type=email]')
           .getAttribute('value')
           .then(function (resultText) {
             // check the email address was written
@@ -197,7 +188,7 @@ define([
           })
         .end()
 
-        .elementByCssSelector('input[type=password]')
+        .findByCssSelector('input[type=password]')
           .getAttribute('value')
           .then(function (resultText) {
             // check the password carried over.
@@ -211,18 +202,16 @@ define([
 
       return self.get('remote')
         .get(require.toUrl(PAGE_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('input[type=email]')
+        .findByCssSelector('input[type=email]')
           .click()
-          .clear()
+          .clearValue()
         .end()
 
-        .elementByCssSelector('a[href="/reset_password"]')
+        .findByCssSelector('a[href="/reset_password"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-reset-password-header');
+        .findById('fxa-reset-password-header');
     },
 
     'click `forgot password?` link with invalid email redirects to /forgot_password and prefills partial email': function () {
@@ -231,20 +220,20 @@ define([
 
       return self.get('remote')
         .get(require.toUrl(PAGE_URL))
-        .waitForElementById('fxa-signin-header')
-
-        .elementByCssSelector('input[type=email]')
+        .findByCssSelector('input[type=email]')
           .click()
-          .clear()
+          .clearValue()
           .type(email)
         .end()
 
-        .elementByCssSelector('a[href="/reset_password"]')
+        .findByCssSelector('a[href="/reset_password"]')
           .click()
         .end()
 
-        .waitForElementById('fxa-reset-password-header')
-        .elementByCssSelector('input[type=email]')
+        .findById('fxa-reset-password-header')
+        .end()
+
+        .findByCssSelector('input[type=email]')
           .getAttribute('value')
           .then(function (resultText) {
             // check the email address was written
@@ -270,42 +259,39 @@ define([
 
     return self.get('remote')
       .get(require.toUrl(PAGE_URL))
-      .waitForElementById('fxa-signin-header')
-
-      .elementByCssSelector('input[type=email]')
-        .clear()
+      .findByCssSelector('input[type=email]')
+        .clearValue()
         .click()
         .type(email)
       .end()
 
-      .elementByCssSelector('input[type=password]')
-        .clear()
+      .findByCssSelector('input[type=password]')
+        .clearValue()
         .click()
         .type(password)
       .end()
 
-      .elementByCssSelector('a[href="' + dest + '"]')
+      .findByCssSelector('a[href="' + dest + '"]')
         .click()
       .end()
 
-      .waitForElementById(header)
+      .findById(header)
+      .end()
 
-      .elementByCssSelector('.back')
+      .findByCssSelector('.back')
         .click()
       .end()
 
-      .waitForElementById('fxa-signin-header')
-
-      .elementByCssSelector('input[type=email]')
-        .getValue()
+      .findByCssSelector('input[type=email]')
+        .getProperty('value')
         .then(function (resultText) {
           // check the email address was re-populated
           assert.equal(resultText, email);
         })
       .end()
 
-      .elementByCssSelector('input[type=password]')
-        .getValue()
+      .findByCssSelector('input[type=password]')
+        .getProperty('value')
         .then(function (resultText) {
           // check the email address was re-populated
           assert.equal(resultText, password);
