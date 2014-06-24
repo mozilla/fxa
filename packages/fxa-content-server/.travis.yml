@@ -17,6 +17,8 @@ before_install:
   - "sh -e /etc/init.d/xvfb start"
   - wget http://selenium-release.storage.googleapis.com/2.41/selenium-server-standalone-2.41.0.jar
   - java -jar selenium-server-standalone-2.41.0.jar &> /dev/null &
+  - export FREIGHT_URL=https://freight.dev.lcip.org
+  - npm install -g vladikoff/freight#v0.3.0 && freight
 
 install:
 # install everything for full dev in the fxa-content-server.
@@ -25,12 +27,14 @@ install:
   - cp server/config/local.json-dist server/config/local.json
   - grunt l10n-create-json
 # install the resources necessary for the auth server.
-  - npm install --silent git://github.com/mozilla/fxa-auth-server.git
-  - cd node_modules/fxa-auth-server
+  - git clone git://github.com/mozilla/fxa-auth-server.git --depth 1
+  - cd fxa-auth-server
+  - freight
+  - npm install --silent
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &
   - sleep 10
-  - cd ../..
+  - cd ..
   - npm start &
 # now run the tests!
 script: 
