@@ -56,7 +56,9 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
       return this.fxaClient.isPasswordResetComplete(this.token)
          .then(function (isComplete) {
             self._isLinkExpired = isComplete;
-            self.logEvent('complete_reset_password:link_expired');
+            if (isComplete) {
+              self.logEvent('complete_reset_password:link_expired');
+            }
             return true;
           });
     },
