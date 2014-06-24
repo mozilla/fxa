@@ -16,23 +16,23 @@
     "test": "scripts/test-local.sh"
   },
   "dependencies": {
-    "aws-sdk": "2.0.0-rc.19",
+    "aws-sdk": "2.0.0-rc.20",
     "bluebird": "1.2.2",
-    "bunyan": "0.22.3",
+    "bunyan": "0.23.1",
     "memcached": "0.2.8",
     "rc": "0.3.4",
     "restify": "2.7.0"
   },
   "devDependencies": {
     "ass": "0.0.4",
-    "grunt": "0.4.x",
-    "grunt-cli": "0.1.x",
-    "grunt-contrib-jshint": "0.10.x",
-    "grunt-copyright": "0.1.x",
+    "grunt": "0.4.5",
+    "grunt-cli": "0.1.13",
+    "grunt-contrib-jshint": "0.10.0",
+    "grunt-copyright": "0.1.0",
     "jshint": "2.5.x",
     "jshint-stylish": "0.2.x",
-    "request": "2.34.x",
-    "tap": "0.4.8",
+    "request": "2.36.0",
+    "tap": "0.4.11",
     "walk": "2.3.x"
   },
   "engines": {
