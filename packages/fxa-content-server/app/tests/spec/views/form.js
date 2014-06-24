@@ -12,13 +12,15 @@ define([
   'views/form',
   'stache!templates/test_template',
   'lib/constants',
+  'lib/metrics',
+  'lib/auth-errors',
   '../../lib/helpers'
 ],
-function (chai, $, p, FormView, Template, Constants, TestHelpers) {
+function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/form', function () {
-    var view;
+    var view, metrics;
 
     var View = FormView.extend({
       template: Template,
@@ -68,8 +70,15 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
                   });
     }
 
+    function testEventLogged(eventName) {
+      assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
+    }
+
     beforeEach(function () {
-      view = new View({});
+      metrics = new Metrics();
+      view = new View({
+        metrics: metrics
+      });
 
       return view.render()
           .then(function () {
@@ -250,6 +259,16 @@ function (chai, $, p, FormView, Template, Constants, TestHelpers) {
           });
           view.showValidationError('#focusMe', 'this is an error');
         }, done);
+      });
+
+      it('logs the error', function (done) {
+        var err = AuthErrors.toError('EMAIL_REQUIRED');
+        view.on('validation_error', function () {
+          TestHelpers.wrapAssertion(function () {
+            testEventLogged(metrics.errorToId(err, AuthErrors));
+          }, done);
+        });
+        view.showValidationError('#focusMe', err);
       });
 
       it('adds invalid class to the invalid element', function () {
