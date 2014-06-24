@@ -4,20 +4,21 @@
 
 'use strict';
 
-var logger = require('intel').getLogger('server.metrics');
+var MetricsCollector = require('../metrics-collector-stderr');
 
-module.exports = function() {
-  var route = {};
+module.exports = function(options) {
+  var metricsCollector = new MetricsCollector();
 
-  route.method = 'post';
-  route.path = '/metrics';
+  return {
+    method: 'post',
+    path: '/metrics',
+    process: function(req, res) {
+      // don't wait around to send a response.
+      res.json({ success: true });
 
-  route.process = function(req, res) {
-
-    logger.info('metrics:\n%s', JSON.stringify(req.body, null, 2));
-
-    res.json({ success: true });
+      var metrics = req.body;
+      metrics.agent = req.get('user-agent');
+      metricsCollector.write(req.body);
+    }
   };
-
-  return route;
 };

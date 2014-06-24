@@ -17,7 +17,8 @@ define([
     'tests/server/ver.json.js',
     'tests/server/cookies_disabled',
     'tests/server/l10n',
-    'tests/server/metrics'
+    'tests/server/metrics',
+    'tests/server/metrics-collector-stderr'
   ];
 
   return intern;

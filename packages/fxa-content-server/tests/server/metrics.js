@@ -27,7 +27,7 @@ define([
     }, dfd.reject.bind(dfd)));
   };
 
-  suite['#post /metrics - does nothing yet'] = function () {
+  suite['#post /metrics - returns 200, all the time'] = function () {
     var dfd = this.async(1000);
 
     request.post(serverUrl + '/metrics', {
