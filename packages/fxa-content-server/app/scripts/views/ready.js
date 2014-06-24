@@ -88,21 +88,25 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
       return Math.random() <= (surveyPercentage / 100);
     },
 
-    _shouldShowSignUpMarketing: function (showSurvey) {
-      if (! this.is('sign_up') || showSurvey) {
-        return false;
-      }
+    _shouldShowSignUpMarketing: function (isSurveyVisible) {
+      var isSignUp = this.is('sign_up');
+      var isSync = Session.service === 'sync';
+      var isFirefoxMobile = this._isFirefoxMobile();
 
+      return ! isSurveyVisible && isSignUp && isSync && ! isFirefoxMobile;
+    },
+
+    _isFirefoxMobile: function () {
       // For UA information, see
       // https://developer.mozilla.org/docs/Gecko_user_agent_string_reference
 
       var ua = this.window.navigator.userAgent;
 
       // covers both B2G and Firefox for Android
-      var isMobileFirefox = ua.indexOf('Mobile') > -1 && ua.indexOf('Firefox') > -1;
-      var isTabletFirefox = ua.indexOf('Tablet') > -1 && ua.indexOf('Firefox') > -1;
+      var isMobileFirefox = /Mobile/.test(ua) && /Firefox/.test(ua);
+      var isTabletFirefox = /Tablet/.test(ua) && /Firefox/.test(ua);
 
-      return ! (isMobileFirefox || isTabletFirefox);
+      return isMobileFirefox || isTabletFirefox;
     },
 
     afterRender: function() {

@@ -143,19 +143,33 @@ function (chai, View, Session, WindowMock) {
             });
       });
 
-      it('normally shows sign up marketing material', function () {
+      it('normally shows sign up marketing material to desktop sync users', function () {
+        view.type = 'sign_up';
+        windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
+        Session.set('service', 'sync');
+
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('.marketing.survey').length, 0);
+              assert.equal(view.$('.marketing.default').length, 1);
+            });
+      });
+
+      it('does not show sign up marketing material to non-sync users', function () {
         view.type = 'sign_up';
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
 
         return view.render()
             .then(function () {
-              assert.equal(view.$('.marketing.default').length, 1);
+              assert.equal(view.$('.marketing.survey').length, 0);
+              assert.equal(view.$('.marketing.default').length, 0);
             });
       });
 
       it('does not show sign up marketing material if on Firefox for Android', function () {
         view.type = 'sign_up';
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Android; Tablet; rv:26.0) Gecko/26.0 Firefox/26.0';
+        Session.set('service', 'sync');
 
         return view.render()
             .then(function () {
@@ -166,6 +180,7 @@ function (chai, View, Session, WindowMock) {
       it('does not show sign up marketing material if on B2G', function () {
         view.type = 'sign_up';
         windowMock.navigator.userAgent = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0';
+        Session.set('service', 'sync');
 
         return view.render()
             .then(function () {
@@ -186,8 +201,9 @@ function (chai, View, Session, WindowMock) {
             });
       });
 
-      it('still shows default marketing to non-english users', function () {
+      it('still shows default marketing to non-english desktop sync users', function () {
         Session.set('language', 'de');
+        Session.set('service', 'sync');
         createViewWithSurvey();
         view.type = 'sign_up';
 
