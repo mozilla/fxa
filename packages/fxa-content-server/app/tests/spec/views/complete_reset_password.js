@@ -26,6 +26,10 @@ function (chai, p, AuthErrors, Metrics, View, RouterMock, WindowMock, TestHelper
       assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
     }
 
+    function testEventNotLogged(eventName) {
+      assert.isFalse(TestHelpers.isEventLogged(metrics, eventName));
+    }
+
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
@@ -62,7 +66,11 @@ function (chai, p, AuthErrors, Metrics, View, RouterMock, WindowMock, TestHelper
 
     describe('render', function () {
       it('shows form if token, code and email are all present', function () {
-        assert.ok(view.$('#fxa-complete-reset-password-header').length);
+        return view.render()
+            .then(function () {
+              testEventNotLogged('complete_reset_password:link_expired');
+              assert.ok(view.$('#fxa-complete-reset-password-header').length);
+            });
       });
 
       it('shows malformed screen if the token is missing', function () {
