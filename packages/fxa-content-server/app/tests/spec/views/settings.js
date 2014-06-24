@@ -10,9 +10,11 @@ define([
   'underscore',
   'jquery',
   'views/settings',
-  '../../mocks/router'
+  '../../mocks/router',
+  'lib/session',
+  'lib/constants'
 ],
-function (chai, _, $, View, RouterMock) {
+function (chai, _, $, View, RouterMock, Session, Constants) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
@@ -45,7 +47,7 @@ function (chai, _, $, View, RouterMock) {
       beforeEach(function () {
         email = 'testuser.' + Math.random() + '@testuser.com';
 
-        return view.fxaClient.signUp(email, 'password')
+        return view.fxaClient.signUp(email, 'password', { preVerified: true })
           .then(function() {
             return view.render();
           })
@@ -64,6 +66,17 @@ function (chai, _, $, View, RouterMock) {
               .then(function () {
                 assert.equal(routerMock.page, 'signin');
               });
+        });
+      });
+
+      describe('desktop context', function () {
+        it('does not show sign out link', function () {
+          Session.set('sessionTokenContext', Constants.FX_DESKTOP_CONTEXT);
+
+          return view.render()
+            .then(function () {
+              assert.equal(view.$('#signout').length, 0);
+            });
         });
       });
     });

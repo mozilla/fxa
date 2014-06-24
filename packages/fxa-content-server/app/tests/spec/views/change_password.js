@@ -12,9 +12,10 @@ define([
   'lib/auth-errors',
   'views/change_password',
   '../../mocks/router',
-  '../../lib/helpers'
+  '../../lib/helpers',
+  'lib/session'
 ],
-function (chai, _, $, AuthErrors, View, RouterMock, TestHelpers) {
+function (chai, _, $, AuthErrors, View, RouterMock, TestHelpers, Session) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -147,6 +148,18 @@ function (chai, _, $, AuthErrors, View, RouterMock, TestHelpers) {
           return view.submit()
               .then(function () {
                 assert.equal(routerMock.page, 'settings');
+              });
+        });
+
+       it('changes from old to new password, keeps sessionTokenContext', function () {
+          $('#old_password').val('password');
+          $('#new_password').val('new_password');
+
+          Session.set('sessionTokenContext', 'foo');
+
+          return view.submit()
+              .then(function () {
+                assert.equal(Session.sessionTokenContext, 'foo');
               });
         });
 

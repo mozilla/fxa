@@ -344,6 +344,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     changePassword: function (originalEmail, oldPassword, newPassword) {
       var email = trim(originalEmail);
       var self = this;
+      var sessionTokenContext = Session.sessionTokenContext;
       return this._getClientAsync()
               .then(function (client) {
                 return client.passwordChange(email, oldPassword, newPassword);
@@ -352,6 +353,11 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                 // Clear old info on password change.
                 Session.clear();
                 return self.signIn(email, newPassword);
+              }).then(function (result) {
+                // Restore the sessionTokenContext because it indicates if we're
+                // in a Sync flow or not.
+                Session.set('sessionTokenContext', sessionTokenContext);
+                return result;
               });
     },
 
