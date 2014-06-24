@@ -32,7 +32,9 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     return str && str.replace(/^\s+|\s+$/g, '');
   }
 
-  function FxaClientWrapper() {
+  function FxaClientWrapper(options) {
+    options = options || {};
+    client = options.client;
   }
 
   FxaClientWrapper.prototype = {

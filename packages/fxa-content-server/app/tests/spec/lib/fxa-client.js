@@ -5,6 +5,7 @@
 define([
   'chai',
   'jquery',
+  'p-promise',
   '../../mocks/channel',
   '../../lib/helpers',
   'lib/session',
@@ -15,7 +16,7 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, ChannelMock, testHelpers,
+function (chai, $, p, ChannelMock, testHelpers,
               Session, FxaClientWrapper, AuthErrors, Constants) {
   'use strict';
 
@@ -74,19 +75,25 @@ function (chai, $, ChannelMock, testHelpers,
       });
 
       it('a throttled signUp returns a THROTTLED error', function () {
-        return client.signUp(email, password)
-          .then(function () {
-            return client.signUp(email, password);
-          })
-          .then(function () {
-            return client.signUp(email, password);
-          })
-          .then(function () {
-            return client.signUp(email, password);
-          })
-          .then(null, function (err) {
-            assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
-          });
+        var FxaClientMock = {
+          signUp: function () {
+            return p.reject({
+              code: 429,
+              errno: 114,
+              error: 'Too Many Requests',
+              message: 'Client has sent too many requests'
+            });
+          }
+        };
+
+        return new FxaClientWrapper({ client: FxaClientMock })
+          .signUp(email, password)
+          .then(
+            assert.fail,
+            function (err) {
+              assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
+            }
+          );
       });
 
       it('informs browser of customizeSync option', function () {
