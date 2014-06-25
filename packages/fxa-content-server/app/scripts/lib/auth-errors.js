@@ -46,7 +46,11 @@ function () {
     WORKING: 1005,
     COULD_NOT_GET_PP: 1006,
     COULD_NOT_GET_TOS: 1007,
-    PASSWORDS_MUST_BE_DIFFERENT: 1008
+    PASSWORDS_MUST_BE_DIFFERENT: 1008,
+    PASSWORD_TOO_SHORT: 1009,
+    PASSWORD_REQUIRED: 1010,
+    EMAIL_REQUIRED: 1011,
+    YEAR_OF_BIRTH_REQUIRED: 1012
   };
 
   var CODE_TO_MESSAGES = {
@@ -79,7 +83,11 @@ function () {
     1005: t('Working…'),
     1006: t('Could not get Privacy Notice'),
     1007: t('Could not get Terms of Service'),
-    1008: t('Your new password must be different')
+    1008: t('Your new password must be different'),
+    1009: t('Must be at least 8 characters'),
+    1010: t('Valid password required'),
+    1011: t('Valid email required'),
+    1012: t('Year of birth required')
   };
 
   return {

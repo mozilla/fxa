@@ -118,7 +118,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
         var selectRow = this.$el.find('.select-row');
         selectRow.addClass('invalid-row');
 
-        this.showValidationError('#fxa-age-year', t('Year of birth required'));
+        this.showValidationError('#fxa-age-year', AuthErrors.toError('YEAR_OF_BIRTH_REQUIRED'));
       }
     },
 

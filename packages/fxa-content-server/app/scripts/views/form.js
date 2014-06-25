@@ -30,8 +30,6 @@ define([
   'views/button_progress_indicator'
 ],
 function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndicator) {
-  var t = BaseView.t;
-
   /**
    * Decorator that checks whether the form has changed, and if so, call
    * the specified handler.
@@ -430,7 +428,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
 
 
     showEmailValidationError: function (which) {
-      return this.showValidationError(which, t('Valid email required'));
+      return this.showValidationError(which, AuthErrors.toError('EMAIL_REQUIRED'));
     },
 
     /**
@@ -472,17 +470,19 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
     showPasswordValidationError: function (which) {
       var passwordVal = this.$(which).val();
 
-      var msg = passwordVal ? t('Must be at least 8 characters')
-                            : t('Valid password required');
+      var errType = passwordVal ? 'PASSWORD_TOO_SHORT' : 'PASSWORD_REQUIRED';
 
-      return this.showValidationError(which, msg);
+      return this.showValidationError(which, AuthErrors.toError(errType));
     },
 
     /**
      * Show a form validation error to the user in the form of a tooltip.
      */
-    showValidationError: function (which, message) {
+    showValidationError: function (which, err) {
+      this.logError(err);
+
       var invalidEl = this.$(which);
+      var message = AuthErrors.toMessage(err);
 
       var tooltip = new Tooltip({
         message: message,
