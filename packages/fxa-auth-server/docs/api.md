@@ -96,7 +96,7 @@ The follow error responses include additional parameters:
 
 Since this is a HTTP-based protocol, clients should be prepared to gracefully handle standard HTTP error responses that may be produced by proxies, load-balancers, or other intermediary servers.  Non-application responses can be identified by their lack of properly-formatted JSON response body.  Common examples would include:
 
-* "413 Request Entity Too Large" may be produced up an upstream proxy server.
+* "413 Request Entity Too Large" may be produced by an upstream proxy server.
 * "502 Gateway Timeout" may be produced by a load-balancer if it cannot contact the application servers.
 
 ---
