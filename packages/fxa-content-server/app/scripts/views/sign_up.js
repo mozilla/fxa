@@ -11,9 +11,10 @@ define([
   'stache!templates/sign_up',
   'lib/session',
   'views/mixins/password-mixin',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/url'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors, Url) {
   var t = BaseView.t;
 
   function selectAutoFocusEl(email, password) {
@@ -80,12 +81,16 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
     },
 
     context: function () {
-      var autofocusEl = selectAutoFocusEl(Session.prefillEmail,
-                                Session.prefillPassword);
+      // Session.prefillEmail comes first because users can edit the email,
+      // go to another screen, edit the email again, and come back here. We
+      // want the last used email.
+      var email = Session.prefillEmail || Url.searchParam('email', this.window.location.search);
+
+      var autofocusEl = selectAutoFocusEl(email, Session.prefillPassword);
 
       return {
         serviceName: this.serviceName,
-        email: Session.prefillEmail,
+        email: email,
         password: Session.prefillPassword,
         year: Session.prefillYear || 'none',
         service: Session.service,

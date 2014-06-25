@@ -15,9 +15,10 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   '../../mocks/router',
+  '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHelpers) {
+function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -39,17 +40,21 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
   }
 
   describe('views/sign_up', function () {
-    var view, router, email, metrics;
+    var view, router, email, metrics, windowMock;
 
     beforeEach(function () {
+      Session.clear();
+
       email = 'testuser.' + Math.random() + '@testuser.com';
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
       router = new RouterMock();
+      windowMock = new WindowMock();
       metrics = new Metrics();
 
       view = new View({
         router: router,
-        metrics: metrics
+        metrics: metrics,
+        window: windowMock
       });
       return view.render()
           .then(function () {
@@ -79,6 +84,16 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, TestHel
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
               assert.equal(view.$('[type=password]').val(), 'prefilled password');
               assert.ok(view.$('#fxa-1990').is(':selected'));
+            });
+      });
+
+      it('prefills email with email from search parameter if Session.prefillEmail is not set', function () {
+        windowMock.location.search = '?email=' + encodeURIComponent('testuser@testuser.com');
+
+        return view.render()
+            .then(function () {
+              assert.ok($('#fxa-signup-header').length);
+              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
             });
       });
 
