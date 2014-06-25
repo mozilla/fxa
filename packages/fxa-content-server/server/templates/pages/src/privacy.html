@@ -3,18 +3,22 @@
 <!--[if IE 7]>         <html class="no-js lt-ie10 lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="lt-ie10 lt-ie9"> <![endif]-->
 <!--[if IE 9]>         <html class="lt-ie10"> <![endif]-->
-<!--[if gt IE 9]><!--> <html> <!--<![endif]-->
+<!--[if gt IE 9]><!--> <html dir="{{ lang_dir }}" lang="{{ lang }}"> <!--<![endif]-->
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>{{#t}}Firefox Accounts{{/t}}: {{#t}}Privacy Notice{{/t}}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
-        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
         <!-- build:css(.tmp) /styles/{{ locale }}.css -->
-        <link rel="stylesheet" href="/styles/fonts/{{ locale }}.css">
         <link rel="stylesheet" href="/bower_components/normalize-css/normalize.css">
+        {{#if fontSupportDisabled}}
+        <link rel="stylesheet" href="/styles/system-font-main.css">
+        {{else}}
+        <link rel="stylesheet" href="/styles/fonts/{{ locale }}.css">
         <link rel="stylesheet" href="/styles/main.css">
+        {{/if}}
         <!-- endbuild -->
     </head>
     <body>

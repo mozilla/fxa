@@ -169,6 +169,16 @@ var conf = module.exports = convict({
       format: String,
       default: 'key-value-json',
       env: 'I18N_TRANSLATION_TYPE'
+    },
+    fonts: {
+      unsupportedLanguages: {
+        doc: 'These languages should use system fonts instead of Fira Sans',
+        format: Array,
+        default: [ 'an', 'ar', 'as', 'ast', 'bn-DB', 'bn-IN', 'fa', 'ff', 'gd',
+              'gu', 'gu-IN', 'he', 'hi-IN', 'ht', 'hy-AM', 'ja', 'km', 'kn', 'ko', 'lij',
+              'mai', 'ml', 'mr', 'ne-NP', 'or', 'pa', 'pa-IN', 'si', 'son', 'ta', 'te',
+              'th', 'ur', 'vi', 'zh-CN', 'zh-TW' ]
+      }
     }
   },
   metrics: {

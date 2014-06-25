@@ -16,9 +16,11 @@ define([
   './functional/change_password',
   './functional/force_auth',
   './functional/404',
+  './functional/500',
   './functional/pages',
   './functional/back_button_after_start',
-  './functional/cookies_disabled'
+  './functional/cookies_disabled',
+  './functional/fonts'
 ], function () {
   'use strict';
 });

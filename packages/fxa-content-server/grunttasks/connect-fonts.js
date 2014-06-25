@@ -31,7 +31,11 @@ module.exports = function (grunt) {
     // server config is not available on startup and is set in the
     // selectconfig task. configure_connect_fonts should be run after
     // selectconfig and before connect_fonts.
-    var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages');
+    var fontsDisabled = grunt.config.get('server.i18n.fonts.unsupportedLanguages');
+    var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages')
+                              .filter(function (lang) {
+                                return fontsDisabled.indexOf(lang) === -1;
+                              });
 
     grunt.config('do_connect_fonts', {
       dist: {

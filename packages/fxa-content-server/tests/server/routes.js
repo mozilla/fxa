@@ -40,8 +40,6 @@ define([
     '/force_auth': { statusCode: 200 },
     '/tests/index.html': { statusCode: 200 },
     '/tests/index.html?coverage': { statusCode: 200 },
-    '/500.html': { statusCode: 200 },
-    '/503.html': { statusCode: 200 },
     '/ver.json': { statusCode: 200, headerAccept: 'application/json' },
     '/non_existent': { statusCode: 404 },
     '/boom': { statusCode: 500 },
@@ -49,6 +47,11 @@ define([
     '/en-US/legal/non_existent': { statusCode: 404 },
     '/cookies_disabled': { statusCode: 200 }
   };
+
+  if (config.get('are_dist_resources')) {
+    routes['/500.html'] = { statusCode: 200 };
+    routes['/503.html'] = { statusCode: 200 };
+  }
 
   var iframeAllowedRoutes = [
     '/legal/terms',

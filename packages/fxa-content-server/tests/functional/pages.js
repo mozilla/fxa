@@ -46,8 +46,6 @@ define([
     'non_existent',
     'cookies_disabled',
     'clear',
-    '500.html',
-    '503.html',
     'boom'
   ];
 

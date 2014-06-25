@@ -1,5 +1,5 @@
-$default-font-family: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-$header-font-family: "Fira Sans", Helvetica, Arial, sans-serif;
+$default-font: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+$header-font: "Fira Sans", Helvetica, Arial, sans-serif;
 
 $button-background-color: #0095dd;
 $button-background-disabled-color: #8a9ba8;
@@ -25,3 +25,10 @@ $show-password-label-color: #8a9ba8;
 $stage-background-color: #fff;
 $success-background-color: #5fad47;
 $text-color: #424f59;
+
+@mixin font() {
+  font-family: $default-font;
+}
+@mixin header-font() {
+  font-family: $header-font;
+}

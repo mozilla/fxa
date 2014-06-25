@@ -1,0 +1,863 @@
+// Border box all the things by default
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: $html-background-color;
+  height: 100%;
+}
+
+body {
+  color: $text-color;
+  @include font();
+  font-size: 14px;
+  padding-bottom: 20px;
+}
+
+a {
+  color: $link-color;
+  cursor: pointer; /* Use the correct cursor for anchors without an href */
+}
+
+a:active {
+  outline: none;
+}
+
+a:focus {
+  outline: 1px dotted $link-color;
+}
+
+a.no-underline {
+  text-decoration: none;
+}
+
+noscript {
+  color: $error-text-color;
+  display: block;
+  margin: 160px 0 0 0;
+}
+
+#about-mozilla {
+  background-image: url(/images/mozilla.png);
+  background-size: 69px 19px;
+  cursor: pointer;
+  height: 19px;
+  opacity: .5;
+  position: absolute;
+  right: 12px;
+  transition: opacity 150ms;
+  top: 12px;
+  width: 69px;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus {
+    outline-color: $html-background-color;
+  }
+}
+
+#fox-logo {
+  background: url(/images/firefox.png);
+  background-size: 80px 85px;
+  height: 85px;
+  margin: 0 auto;
+  opacity: 0;
+  position: relative;
+  top:40px;
+  width: 80px;
+  z-index: 999;
+}
+
+/**
+ * IE < 10 does not support CSS transforms 
+ */ 
+.lt-ie10 #fox-logo {
+  opacity: 1;
+}
+
+/**
+ * IE7/8 specific hacks to fix the firefox logo
+ */
+.lt-ie9 #fox-logo {
+  background: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/images/firefox.png', sizingMethod='scale');
+  -ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/images/firefox.png', sizingMethod='scale')";
+}
+
+#fox-logo.static {
+  opacity: 1;
+}
+
+#stage {
+  background: $stage-background-color;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  margin: -5px auto 0 auto;
+  min-height: 450px;
+  padding: 60px 40px 40px 40px;
+  text-align: center;
+  width: 420px;
+}
+
+#stage.in-content {
+  margin-top:85px;
+}
+
+.js #stage {
+  display: none;
+}
+
+.lt-ie10 #stage {
+  display: block;
+}
+
+header h1,
+header h2,
+header h3 {
+  @include header-font();
+  line-height: 1em;
+  margin: 0;
+}
+
+header h1 {
+  font-size: 24px;
+  font-weight: 200;
+  margin: 0 0 32px 0;
+}
+
+header h1 span {
+  left: -9999px;
+  position: relative;
+}
+
+header h2 {
+  font-size: 24px;
+  font-weight: 200;
+}
+
+#legal-header h2 {
+  margin: 0 0 30px 0;
+  padding: 0;
+}
+
+#legal-header h3 {
+  font-size: 12px;
+  padding: 5px 0 10px;
+}
+
+#legal-copy ul,
+#legal-copy ol {
+  margin-left: 0;
+  padding-left: 20px;
+}
+
+section p {
+  font-size: 18px;
+}
+
+section p.prefill {
+  color: $input-placeholder-color;
+  margin-top: 24px;
+  word-wrap: break-word;
+}
+
+#legal-copy {
+  text-align: left;
+}
+
+#legal-copy p {
+  font-size: 14px;
+}
+
+strong.email {
+  display: block;
+}
+
+.error,
+.success {
+  border-radius: 3px;
+  color: $message-text-color;
+  display: none;
+  margin-bottom: 5px;
+  padding: 5px;
+  position: relative;
+  top:-15px;
+}
+
+.error {
+  background: $error-background-color;
+}
+
+.error a {
+  color: $message-text-color;
+}
+
+.browsehappy {
+  display: block;
+}
+
+.success {
+  background: $success-background-color;
+  display: none;
+}
+
+// complete is like success, but without the associated styles.
+.complete {
+  display: none;
+}
+
+.graphic {
+  background-repeat: no-repeat;
+  background-size: 150px 130px;
+  height: 130px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+  width: 150px;
+}
+
+.graphic-checkbox {
+  background-image: url(/images/graphic_checkbox.png);
+}
+
+.graphic-mail {
+  background-image: url(/images/graphic_mail.png);
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+}
+
+.input-row {
+  margin-bottom: 15px;
+  position: relative;
+  width: 100%;
+
+  button,
+  input,
+  select {
+    @include font();
+  }
+}
+
+.tooltip {
+  background: $error-background-color;
+  border-radius: 1px;
+  color: $message-text-color;
+  left: 3px;
+  padding: 5px 12px;
+  position: absolute;
+  top: -32px;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+/* tooltip caret */
+.tooltip:before,
+.tooltip::before {
+  background: $error-background-color;
+  content: '.';
+  height: 16px;
+  left: 12px;
+  position: absolute;
+  text-indent: -999px;
+  top: 21px;
+  transform: rotate(45deg);
+  white-space: nowrap;
+  width: 16px;
+  // The z-index must be -1 or else the caret is displayed on top of the tooltip text
+  z-index: -1;
+}
+
+/**
+ * these are caret's attached to tooltips that hang below the
+ * input element. The tooltip's top is set via JS.
+ */
+.tooltip-below:before,
+.tooltip-below::before {
+  top: -7px;
+}
+
+.input-row input[type='text'],
+.input-row input[type='email'],
+.input-row input[type='password'],
+.input-row select {
+  background-color: $mobile-html-background-color;
+  border: 1px solid $input-row-border-color;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
+  color: $input-text-color;
+  font-size: 18px;
+  height: 45px;
+  outline: none;
+  padding: 0 $input-left-right-padding;
+  position: relative;
+  transition-duration: 150ms;
+  transition-property: border-color;
+  /*kills inset shadow on ios browsers*/
+  -webkit-appearance:none;
+  width: 100%;
+  z-index: 2;
+}
+
+.input-row input::-webkit-input-placeholder {
+   color: $input-placeholder-color;
+}
+
+.input-row input:-moz-placeholder { /* Firefox 18- */
+   color: $input-placeholder-color;
+}
+
+.input-row input::-moz-placeholder {  /* Firefox 19+ */
+   color: $input-placeholder-color;
+}
+
+.input-row input:-ms-input-placeholder {
+   color: $input-placeholder-color;
+}
+
+.input-row select {
+  // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background: $stage-background-color url(/images/ddarrow_inactive.png) 96% center;
+  background-repeat: no-repeat;
+  background-size: 10px 17px;
+  color: $input-placeholder-color;
+  height: auto;
+  outline: none;
+  padding: 10px $input-left-right-padding;
+  // Some hackery for Firefox since moz-appearance: none doesn't remove the arrow
+  text-indent: 0.01px;
+  text-overflow: "";
+  user-select: none;
+  width: 100%;
+}
+
+.input-row:hover input {
+  border-color: $input-border-color;
+}
+
+.input-row input:focus,
+.input-row select:focus {
+  border-color: $input-row-focus-border-color;
+  transition-duration: 150ms;
+  transition-property: border-color;
+}
+
+.input-row select:hover,
+.input-row select:hover:active,
+.input-row select:focus {
+  background-image: url(/images/ddarrow_active.png);
+  background-color: $html-background-color;
+  transition-duration: 150ms;
+  transition-property: all;
+}
+
+.input-row option {
+  background-color: $stage-background-color;
+}
+
+.input-row input:hover,
+.input-row select:hover,
+.input-row:hover input:hover,
+.input-row:hover select:hover {
+  border-color: $input-row-hover-border-color;
+  outline: none;
+}
+
+.input-row input:focus,
+.input-row select:focus,
+.input-row:hover input:focus,
+.input-row:hover select:focus,
+.input-row:focus input {
+  border-color: $input-row-focus-border-color;
+  color: $text-color;
+  outline: none;
+}
+
+.input-row input[type='text'].invalid,
+.input-row input[type='email'].invalid,
+.input-row input[type='password'].invalid,
+.input-row input[type='text'].invalid ~ .show-password-label,
+.input-row input[type='password'].invalid ~ .show-password-label,
+.input-row select.invalid {
+  border-color: $error-background-color;
+}
+
+/**
+ * Firefox show a focus ring around the selected text.
+ * See issue https://github.com/mozilla/fxa-content-server/issues/459
+ * and the solution at:
+ * http://stackoverflow.com/questions/19468372/how-to-remove-dashed-border-of-select-box-in-firefox#answer-19468615
+ */
+.input-row select:-moz-focusring {
+  color: transparent !important; /* !important must be added or else the browser ignores the request */
+  text-shadow: 0 0 0 $input-row-hover-border-color !important;
+}
+
+.input-row:last-child {
+  margin-bottom: 0;
+}
+
+.input-row .input-help {
+  color: $input-placeholder-color;
+  margin-top: 8px;
+}
+
+.input-row .input-help-focused {
+  opacity: 0;
+  transition-duration: 750ms;
+  transition-property: opacity;
+}
+
+/**
+ * The label:active and :focus selectors are added
+ * to eliminate flicker when the user holds the mouse
+ * key down over top of teh "show/hide" password button.
+ */
+input:focus ~ .input-help-focused,
+label:active ~ .input-help-focused,
+label:focus ~ .input-help-focused {
+  opacity: 1;
+}
+
+
+/**
+* The select-row works as a hacky fix for FF30's regression on
+* select list skinning. If ff fixes. the following css can be removed
+* and all .select-rows can be replaced with input rows*
+*/
+
+.select-row-wrapper {
+  position: relative;
+}
+
+.select-row {
+  background: url(/images/ddarrow_inactive.png) 96% center no-repeat;
+  border-radius: 5px;
+  border: 1px solid $input-row-border-color;
+  cursor:pointer;
+  height:45px;
+  overflow:hidden;
+  transition-duration: 150ms;
+  transition-property: border-color;
+  width:100%;
+}
+
+.select-row:hover {
+  border-color: $input-row-hover-border-color;
+  background-image: url(/images/ddarrow_active.png);
+  background-color: $html-background-color;
+}
+
+.select-row select {
+  // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background: none;
+  border: none;
+  box-sizing: content-box;
+  color: $input-placeholder-color;
+  cursor: pointer;
+  font-size: 18px;
+  height: auto;
+  outline: none;
+  padding: 8px 0 9px $input-left-right-padding;
+  text-indent: 0.01px;
+  text-overflow: "";
+  user-select: none;
+  width: 100%;
+}
+
+.select-row:hover select {
+  color: $input-text-color;
+}
+
+.select-row.select-focus {
+  background-color: $html-background-color;
+  background-image: url(/images/ddarrow_active.png);
+  border-color: $input-row-focus-border-color;
+}
+
+.select-row.select-focus select {
+  color: $input-text-color;
+}
+
+.select-row.invalid-row {
+  border-color: $error-background-color;
+}
+
+.select-row select option {
+  background-color: $stage-background-color;
+}
+
+
+/**
+ * Override the default blue highlight for IE10+
+ */
+.select-row select::-ms-value {
+  background: none;
+}
+
+.select-row select:focus::-ms-value {
+  color: $input-text-color;
+}
+
+
+.select-row select:-moz-focusring {
+  color: transparent !important; /* !important must be added or else the browser ignores the request */
+  text-shadow: 0 0 0 $input-row-hover-border-color !important;
+}
+
+
+/*end select row rules*/
+
+
+.button-row {
+  margin-bottom: 20px;
+  margin-top: 45px;
+}
+
+.button-row button,
+.button-row a.button {
+  background: $button-background-color;
+  border: none;
+  border-radius: 5px;
+  color: $message-text-color;
+  cursor: pointer;
+  @include font();
+  font-size: 24px;
+  padding: 15px 0;
+  transition-duration: 150ms;
+  transition-property: background-color;
+  width: 100%;
+}
+
+.button-row a.button {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.button-row a.button:active,
+.button-row a.button:hover,
+.button-row a.button:focus,
+.button-row button:active,
+.button-row button:hover,
+.button-row button:focus {
+  background: $button-background-hover-color;
+}
+
+.button-row button:disabled,
+.button-row button.disabled {
+  background: $button-background-disabled-color;
+  cursor: auto;
+}
+
+button::-moz-focus-inner { 
+  border: 0;
+  padding: 0;
+}
+
+/* Custom rows */
+.input-row-month-day select {
+  width: 45%;
+}
+
+
+.description {
+  font-size: 18px;
+}
+
+.links {
+  margin-bottom: 20px;
+  overflow: auto;
+  /* the 1px of padding allows the :focus outline on anchors to show. */
+  padding: 1px;
+}
+
+ul.links {
+  list-style: none;
+  padding: 0;
+}
+
+ul.links li {
+  margin: 12px 0;
+  padding: 0;
+}
+
+.links a {
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.links .left {
+  float: left;
+}
+
+.links .right {
+  float: right;
+}
+
+.privacy-links,
+.privacy-links a {
+  color: $input-placeholder-color;
+  margin-top: 35px;
+  transition-duration: 150ms;
+}
+
+.privacy-links + .button-row {
+  margin-top: 20px;
+}
+
+.privacy-links a:active,
+.privacy-links a:hover,
+.privacy-links a:focus {
+  color: $link-color;
+}
+
+.verification-email-message,
+.signed-in-email-message {
+  word-wrap: break-word;
+}
+
+.password-row {
+  position: relative;
+}
+
+/*
+ * The password class is used instead of type because the field's type can
+ * change from password to text.
+ */
+.password-row input[type='password'] {
+  padding-right: 75px;
+}
+
+/**
+ * The addition of right, top, border-radius, and background-color are
+ * all to fix a bug in firefox 29 where the right padding of the password
+ * field is ignored and password text flows under the show/hide button. When
+ * Firefox is fixed, top and right can be set to 0, height set to 44px,
+ * border-radius and background-color removed.
+ *
+ * See https://bugzilla.mozilla.org/show_bug.cgi?id=965237
+ */
+
+.password-row .show-password-label {
+  background-color: $stage-background-color;
+  border-left: 1px solid $input-row-border-color;
+  border-radius: 0 4px 4px 0;
+  color: $input-placeholder-color;
+  cursor: pointer;
+  font-size: 16px;
+  height: 43px;
+  line-height: 44px;
+  min-width: 55px;
+  padding: 0 7px;
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  // it is very easy to accidentally select the text when clicking
+  -webkit-touch-callout: none;
+  user-select: none;
+  z-index: 3;
+}
+
+
+.password-row > .password:hover {
+  border-color: $input-border-color;
+}
+
+.show-password-label {
+  border-color: $input-border-color;
+}
+
+/**
+ * The checkboxes are keyboard accessible, the label is placed as a sibling
+ * to the checkbox. The checkbox cannot be hidden or set to `display: none` or
+ * else it is impossible to focus the element using the keyboard. Instead, we
+ * give it an absolute position and set its opacity to 0. Whenever tabbed to
+ * using the keyboard, the label acts as if the mouse were hovering over the
+ * label.
+ */
+.show-password {
+  opacity: 0;
+  position: absolute;
+}
+
+/**
+ * IE8 blows up when changing the type of the password field
+ * to a text field. Hide the show/hide button and reset 
+ * the password field's padding.
+ */
+.no-toggle-pw, .reveal-pw {
+  .password-row input[type='password'] {
+    padding-right: $input-left-right-padding;
+  }
+
+  .show-password-label, .show-password {
+    display: none;
+  }
+}
+
+/* IE8 has trouble rendering bullet characters with custom fonts,
+ * so use something standard */
+.lt-ie9 input[type="password"] {
+    font-family: sans-serif;
+}
+
+.show-password-label:hover,
+.show-password-label:active,
+.show-password-label:focus,
+.show-password:hover + .show-password-label,
+.show-password:active + .show-password-label,
+.show-password:focus + .show-password-label {
+  background: $html-background-color;
+  color: $text-color;
+  outline: none;
+}
+
+/* this one is impossible to do w/o sibling selector
+we may need to add js for IE8*/
+
+.password:focus ~ .show-password-label{
+  border-left-color: $input-row-focus-border-color;
+}
+
+input[type="text"] ~ .show-password-label {
+  background: $button-background-disabled-color;
+  color: $message-text-color;
+}
+
+/**
+ * Hover over the show password label in its dark state
+ */
+input[type="text"] ~ .show-password:focus + .show-password-label,
+input[type="text"] ~ .show-password:active + .show-password-label,
+input[type="text"] ~ .show-password:hover + .show-password-label,
+input[type="text"] ~ .show-password-label:focus,
+input[type="text"] ~ .show-password-label:active,
+input[type="text"] ~ .show-password-label:hover {
+  background: $show-password-background-color;
+  color: $message-text-color;
+}
+
+.customize-sync-row {
+  color: $input-placeholder-color;
+  margin-bottom: 20px !important;
+}
+
+.links + .privacy-links {
+  margin: 20px 0 15px 0;
+}
+
+.cannot-create-account-content {
+  margin-top: 105px;
+}
+
+.change-password .password-row,
+.complete_reset_password .password-row {
+  margin-bottom: 25px;
+}
+
+.label-helper {
+  border-radius: 2px;
+  color: $input-placeholder-color;
+  font-size: 12px;
+  font-weight: normal;
+  height: 16px;
+  margin: 0 10px;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+}
+
+.spinner {
+  animation: 0.9s spin infinite linear;
+  background-image: url(/images/spinnerlight.png);
+  background-size: 36px 36px;
+  display: block;
+  height: 36px;
+  margin: 130px auto 0;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+  width: 36px;
+}
+
+.spinner-white {
+  animation: 0.9s spin infinite linear;
+  background-image: url(/images/spinnerwhite.png);
+  background-size: 33px 33px;
+  display: block;
+  height: 33px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+  width: 33px;
+}
+
+.hidden {
+  display: none;
+}
+
+.marketing {
+  background-color: $marketing-background-color;
+  border-radius: 0 0 5px 5px;
+  border-top: 1px solid $marketing-border-color;
+  // pull in the margins from #stage 
+  margin: 60px -40px -40px -40px;
+  position: relative;
+  &.image-snippet {
+    font-size: 20px;
+    // 160 right padding to avoid overlap of the android logo
+    // in long locales (German)
+    padding: 28px 160px 28px 50px;  
+    text-align: left;
+  }
+  &.text-snippet {
+    font-size: 16px;
+    // pull in the margins from #stage 
+    padding: 28px 40px 36px 40px; 
+    text-align:center;
+  }
+  .marketing-copy {
+    display: block;
+  }
+  .android-logo {
+    background: url(/images/android_logo.png);
+    background-size: 84px 74px;
+    bottom: 0;
+    display: block;
+    height: 74px;
+    position: absolute;
+    right: 50px;
+    width: 84px;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.reset-warning {
+  font-size: 12px;
+  font-weight: normal;
+}
+
+@import "keyframes";
+@import "media_queries";
