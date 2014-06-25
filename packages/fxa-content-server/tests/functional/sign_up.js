@@ -9,8 +9,9 @@ define([
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -23,21 +24,11 @@ define([
     name: 'sign_up',
 
     beforeEach: function () {
-      // clear localStorage to avoid pollution from other tests.
-      return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        /*jshint evil:true*/
-        .waitForElementById('fxa-signup-header')
-        .safeEval('sessionStorage.clear(); localStorage.clear();');
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     teardown: function () {
-      // clear localStorage to avoid polluting other tests.
-      return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        /*jshint evil:true*/
-        .waitForElementById('fxa-signup-header')
-        .safeEval('sessionStorage.clear(); localStorage.clear();');
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'sign up': function () {

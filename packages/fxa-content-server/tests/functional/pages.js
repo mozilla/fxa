@@ -44,6 +44,8 @@ define([
     'force_auth',
     'delete_account',
     'non_existent',
+    'cookies_disabled',
+    'clear',
     '500.html',
     '503.html',
     'boom'

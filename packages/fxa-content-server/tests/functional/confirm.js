@@ -7,8 +7,9 @@ define([
   'intern!object',
   'intern/chai!assert',
   'require',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -20,12 +21,8 @@ define([
     name: 'confirm',
 
     beforeEach: function () {
-      // clear localStorage to avoid pollution from other tests.
-      return this.get('remote')
-        .get(require.toUrl(SIGNUP_URL))
-        /*jshint evil:true*/
-        .waitForElementById('fxa-signup-header')
-        .safeEval('sessionStorage.clear(); localStorage.clear();');
+      // clear localStorage to avoid polluting other tests.
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'visit confirmation screen without initiating sign up, user is redirected to /signup': function () {

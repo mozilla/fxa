@@ -85,7 +85,8 @@ module.exports = function (config, templates, i18n) {
       '/force_auth',
       '/oauth/signin',
       '/oauth/signup',
-      '/cookies_disabled'
+      '/cookies_disabled',
+      '/clear'
     ];
 
     FRONTEND_ROUTES.forEach(function (route) {

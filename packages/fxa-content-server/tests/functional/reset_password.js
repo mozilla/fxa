@@ -11,8 +11,9 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -59,11 +60,7 @@ define([
       return client.signUp(email, PASSWORD, { preVerified: true })
           .then(function () {
             // clear localStorage to avoid pollution from other tests.
-            return self.get('remote')
-              .get(require.toUrl(RESET_PAGE_URL))
-              /*jshint evil:true*/
-              .waitForElementById('fxa-reset-password-header')
-              .safeEval('sessionStorage.clear(); localStorage.clear();');
+            return FunctionalHelpers.clearBrowserState(self);
           });
     },
 
@@ -385,11 +382,7 @@ define([
 
     setup: function () {
       email = TestHelpers.createEmail();
-      return this.get('remote')
-        .get(require.toUrl(RESET_PAGE_URL))
-        /*jshint evil:true*/
-        .waitForElementById('fxa-reset-password-header')
-        .safeEval('sessionStorage.clear(); localStorage.clear();');
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'open /reset_password page, enter unknown email': function () {

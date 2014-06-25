@@ -10,14 +10,14 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
 
-  var PAGE_URL = config.fxaContentRoot + 'signin';
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var COMPLETE_PAGE_URL_ROOT = config.fxaContentRoot + 'complete_reset_password';
@@ -68,22 +68,14 @@ define([
           accountData = result;
         })
         .then(function () {
-          // clear localStorage to avoid pollution from other tests.
-          return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
-            .waitForElementById('fxa-signin-header')
-            .safeEval('sessionStorage.clear(); localStorage.clear();');
+          // clear localStorage to avoid polluting other tests.
+          return FunctionalHelpers.clearBrowserState(self);
         });
     },
 
     teardown: function () {
       // clear localStorage to avoid polluting other tests.
-      // Without the clear, /signup tests fail because of the info stored
-      // in prefillEmail
-      return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        .waitForElementById('fxa-signin-header')
-        .safeEval('sessionStorage.clear(); localStorage.clear();');
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'oath reset password': function () {

@@ -27,7 +27,8 @@ define([
   'views/settings',
   'views/change_password',
   'views/delete_account',
-  'views/cookies_disabled'
+  'views/cookies_disabled',
+  'views/clear_storage'
 ],
 function (
   _,
@@ -52,7 +53,8 @@ function (
   SettingsView,
   ChangePasswordView,
   DeleteAccountView,
-  CookiesDisabledView
+  CookiesDisabledView,
+  ClearStorageView
 ) {
 
   function showView(View, options) {
@@ -92,7 +94,8 @@ function (
       'complete_reset_password(/)': showView(CompleteResetPasswordView),
       'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
       'force_auth(/)': showView(ForceAuthView),
-      'cookies_disabled(/)': showView(CookiesDisabledView)
+      'cookies_disabled(/)': showView(CookiesDisabledView),
+      'clear(/)': showView(ClearStorageView)
     },
 
     initialize: function (options) {
