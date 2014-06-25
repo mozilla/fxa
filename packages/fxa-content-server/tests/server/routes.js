@@ -99,6 +99,8 @@ define([
           url.parse(route).pathname !== '/tests/index.html') {
       assert.ok(headers.hasOwnProperty('content-security-policy'));
     }
+
+    assert.equal(headers['x-content-type-options'], 'nosniff');
   }
 
 });
