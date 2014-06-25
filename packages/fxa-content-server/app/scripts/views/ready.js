@@ -19,11 +19,10 @@ define([
   'lib/session',
   'lib/xss',
   'lib/strings',
-  'views/mixins/oauth-mixin'
+  'views/mixins/oauth-mixin',
+  'views/marketing_snippet'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
-
-  var SURVEY_PERCENTAGE = 10;
+function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
     template: Template,
@@ -33,8 +32,6 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
       options = options || {};
 
       this.type = options.type;
-
-      this._surveyPercentage = 'surveyPercentage' in options ? options.surveyPercentage : SURVEY_PERCENTAGE;
     },
 
     beforeRender: function () {
@@ -58,18 +55,11 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
         ]);
       }
 
-      var shouldShowSurvey = this._shouldShowSurvey(this._surveyPercentage);
-      var shouldShowMarketing = this._shouldShowSignUpMarketing(shouldShowSurvey);
-
       return {
         service: this.service,
         serviceName: serviceName,
         signIn: this.is('sign_in'),
-
         signUp: this.is('sign_up'),
-        showSignUpSurvey: shouldShowSurvey,
-        showSignUpMarketing: shouldShowMarketing,
-
         resetPassword: this.is('reset_password')
       };
     },
@@ -78,40 +68,23 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin) {
       'click #redirectTo': BaseView.preventDefaultThen('submit')
     },
 
-    _shouldShowSurvey: function (surveyPercentage) {
-      var isEnglish = /^en/.test(Session.language);
-
-      if (! isEnglish) {
-        return false;
-      }
-
-      return Math.random() <= (surveyPercentage / 100);
-    },
-
-    _shouldShowSignUpMarketing: function (isSurveyVisible) {
-      var isSignUp = this.is('sign_up');
-      var isSync = Session.service === 'sync';
-      var isFirefoxMobile = this._isFirefoxMobile();
-
-      return ! isSurveyVisible && isSignUp && isSync && ! isFirefoxMobile;
-    },
-
-    _isFirefoxMobile: function () {
-      // For UA information, see
-      // https://developer.mozilla.org/docs/Gecko_user_agent_string_reference
-
-      var ua = this.window.navigator.userAgent;
-
-      // covers both B2G and Firefox for Android
-      var isMobileFirefox = /Mobile/.test(ua) && /Firefox/.test(ua);
-      var isTabletFirefox = /Tablet/.test(ua) && /Firefox/.test(ua);
-
-      return isMobileFirefox || isTabletFirefox;
-    },
-
     afterRender: function() {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
+
+      return this._createMarketingSnippet();
+    },
+
+    _createMarketingSnippet: function () {
+      var marketingSnippet = new MarketingSnippet({
+        type: this.type,
+        service: Session.service,
+        language: Session.language,
+        el: this.$('.marketing-area')
+      });
+      this.trackSubview(marketingSnippet);
+
+      return marketingSnippet.render();
     },
 
     submit: function () {

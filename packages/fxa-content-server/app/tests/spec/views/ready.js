@@ -18,19 +18,10 @@ function (chai, View, Session, WindowMock) {
   describe('views/ready', function () {
     var view, windowMock;
 
-    function createViewWithMarketing() {
-      createView(0);
-    }
-
-    function createViewWithSurvey() {
-      createView(100);
-    }
-
     function createView(surveyPercentage) {
       windowMock = new WindowMock();
 
       view = new View({
-        surveyPercentage: surveyPercentage,
         window: windowMock
       });
     }
@@ -43,7 +34,7 @@ function (chai, View, Session, WindowMock) {
 
     describe('render', function () {
       beforeEach(function () {
-        createViewWithMarketing();
+        createView();
       });
 
       it('renders with correct header for reset_password type', function () {
@@ -143,77 +134,16 @@ function (chai, View, Session, WindowMock) {
             });
       });
 
-      it('normally shows sign up marketing material to desktop sync users', function () {
+      it('shows some form of marketing for english speakers', function () {
         view.type = 'sign_up';
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
+        Session.set('language', 'en');
         Session.set('service', 'sync');
 
         return view.render()
             .then(function () {
-              assert.equal(view.$('.marketing.survey').length, 0);
-              assert.equal(view.$('.marketing.default').length, 1);
+              assert.equal(view.$('.marketing').length, 1);
             });
       });
-
-      it('does not show sign up marketing material to non-sync users', function () {
-        view.type = 'sign_up';
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Windows NT x.y; rv:31.0) Gecko/20100101 Firefox/31.0';
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.survey').length, 0);
-              assert.equal(view.$('.marketing.default').length, 0);
-            });
-      });
-
-      it('does not show sign up marketing material if on Firefox for Android', function () {
-        view.type = 'sign_up';
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Android; Tablet; rv:26.0) Gecko/26.0 Firefox/26.0';
-        Session.set('service', 'sync');
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 0);
-            });
-      });
-
-      it('does not show sign up marketing material if on B2G', function () {
-        view.type = 'sign_up';
-        windowMock.navigator.userAgent = 'Mozilla/5.0 (Mobile; rv:26.0) Gecko/26.0 Firefox/26.0';
-        Session.set('service', 'sync');
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 0);
-            });
-      });
-    });
-
-    describe('render/show survey', function () {
-      it('shows survey to english users', function () {
-        Session.set('language', 'en_GB');
-        createViewWithSurvey();
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 0);
-              assert.equal(view.$('.marketing.survey').length, 1);
-            });
-      });
-
-      it('still shows default marketing to non-english desktop sync users', function () {
-        Session.set('language', 'de');
-        Session.set('service', 'sync');
-        createViewWithSurvey();
-        view.type = 'sign_up';
-
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('.marketing.default').length, 1);
-              assert.equal(view.$('.marketing.survey').length, 0);
-            });
-      });
-
     });
   });
 });
