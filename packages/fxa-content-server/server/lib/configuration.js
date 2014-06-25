@@ -141,7 +141,7 @@ var conf = module.exports = convict({
       globalThreshold: 90,
       threshold: 50,
       // Ignore oauth scripts until tests are enabled (issue #1141)
-      excludeFiles: ['/scripts/../tests/','/scripts/vendor/','oauth']
+      excludeFiles: ['/scripts/../tests/','/scripts/vendor/','oauth', '/scripts/../bower_components/']
     }
   },
   i18n: {
