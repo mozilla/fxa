@@ -17,7 +17,7 @@ module.exports = function (grunt) {
           pattern: 'This Source Code Form is subject to the terms of the Mozilla Public'
         },
         src: [
-          '*.js',
+          '{,config/}*.js',
           '{bans/,bin/,scripts/,test/}*'
         ]
       },
@@ -37,7 +37,7 @@ module.exports = function (grunt) {
         reporter: require('jshint-stylish')
       },
       app: [
-        '{,bans/,bin/,scripts/,test/}*.js'
+        '{,bans/,bin/,config/,scripts/,test/}*.js'
       ]
     }
   })

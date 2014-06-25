@@ -4,16 +4,16 @@
 
 var Memcached = require('memcached')
 var restify = require('restify')
-var config = require('../config')
-var log = require('../log')(config.logLevel, 'customs-server')
+var config = require('../config').root()
+var log = require('../log')(config.log.level, 'customs-server')
 var packageJson = require('../package.json')
 
-var LIFETIME = config.recordLifetimeSeconds
-var BLOCK_INTERVAL_MS = config.blockIntervalSeconds * 1000
-var RATE_LIMIT_INTERVAL_MS = config.rateLimitIntervalSeconds * 1000
+var LIFETIME = config.memcache.recordLifetimeSeconds
+var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
+var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
 
-var IpEmailRecord = require('../ip_email_record')(RATE_LIMIT_INTERVAL_MS, config.maxBadLogins)
-var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, config.maxEmails)
+var IpEmailRecord = require('../ip_email_record')(RATE_LIMIT_INTERVAL_MS, config.limits.maxBadLogins)
+var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, config.limits.maxEmails)
 var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS)
 
 var P = require('bluebird')
@@ -28,7 +28,7 @@ if (process.env.ASS_CODE_COVERAGE) {
 }
 
 var mc = new Memcached(
-  config.memcached,
+  config.memcache.host + ':' + config.memcache.port,
   {
     timeout: 500,
     retries: 1,
@@ -264,8 +264,9 @@ api.get(
 )
 
 api.listen(
-  config.port,
+  config.listen.port,
+  config.listen.host,
   function () {
-    log.info({ op: 'listening', port: config.port })
+    log.info({ op: 'listening', host: config.listen.host, port: config.listen.port })
   }
 )

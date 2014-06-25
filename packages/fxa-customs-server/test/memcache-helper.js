@@ -5,15 +5,20 @@
 var Memcached = require('memcached')
 
 var config = {
-  memcached: '127.0.0.1:11211',
-  blockIntervalSeconds: 1,
-  rateLimitIntervalSeconds: 1,
-  maxEmails: 3,
-  maxBadLogins: 2
+  memcache: {
+    host: '127.0.0.1',
+    port: '11211'
+  },
+  limits: {
+    blockIntervalSeconds: 1,
+    rateLimitIntervalSeconds: 1,
+    maxEmails: 3,
+    maxBadLogins: 2
+  }
 }
 
 var mc = new Memcached(
-  config.memcached,
+  config.memcache.host + ':' + config.memcache.port,
   {
     timeout: 500,
     retries: 1,
@@ -29,9 +34,9 @@ module.exports.mc = mc
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
 
-var EmailRecord = require('../email_record')(config.rateLimitIntervalSeconds * 1000, config.blockIntervalSeconds * 1000, config.maxEmails)
-var IpEmailRecord = require('../ip_email_record')(config.rateLimitIntervalSeconds * 1000, config.maxBadLogins)
-var IpRecord = require('../ip_record')(config.blockIntervalSeconds * 1000)
+var EmailRecord = require('../email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.blockIntervalSeconds * 1000, config.limits.maxEmails)
+var IpEmailRecord = require('../ip_email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.maxBadLogins)
+var IpRecord = require('../ip_record')(config.limits.blockIntervalSeconds * 1000)
 
 function blockedEmailCheck(cb) {
   setTimeout( // give memcache time to flush the writes

@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var config = require('../config')
+var config = require('../config').root()
 
-var LIFETIME = config.recordLifetimeSeconds
-var BLOCK_INTERVAL_MS = config.blockIntervalSeconds * 1000
-var RATE_LIMIT_INTERVAL_MS = config.rateLimitIntervalSeconds * 1000
+var LIFETIME = config.memcache.recordLifetimeSeconds
+var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
+var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
 
-var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, config.maxEmails)
+var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, config.limits.maxEmails)
 var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS)
 
 module.exports = function (mc, log) {

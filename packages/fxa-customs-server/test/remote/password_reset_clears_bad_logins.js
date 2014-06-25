@@ -10,8 +10,9 @@ var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
 
 var config = {
-  port: 7000,
-  rateLimitIntervalSeconds: 1
+  listen: {
+    port: 7000
+  }
 }
 
 var testServer = new TestServer(config)
@@ -40,7 +41,7 @@ test(
 )
 
 var client = restify.createJsonClient({
-  url: 'http://127.0.0.1:' + config.port
+  url: 'http://127.0.0.1:' + config.listen.port
 });
 
 test(
