@@ -92,7 +92,6 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, RouterMock, WindowM
 
         return view.render()
             .then(function () {
-              assert.ok($('#fxa-signup-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
             });
       });

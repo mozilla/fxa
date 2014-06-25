@@ -33,10 +33,15 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     },
 
     context: function () {
+      // Session.prefillEmail comes first because users can edit the email,
+      // go to another screen, edit the email again, and come back here. We
+      // want the last used email.
+      var email = Session.prefillEmail || Url.searchParam('email', this.window.location.search);
+
       return {
         service: this.service,
         serviceName: this.serviceName,
-        email: Session.prefillEmail,
+        email: email,
         password: Session.prefillPassword,
         isSync: Session.isSync()
       };

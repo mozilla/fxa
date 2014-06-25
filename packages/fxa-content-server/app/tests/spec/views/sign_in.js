@@ -22,17 +22,21 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, WindowMock, RouterMock
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/sign_in', function () {
-    var view, email, routerMock, metrics;
+    var view, email, routerMock, metrics, windowMock;
 
     beforeEach(function () {
       email = 'testuser.' + Math.random() + '@testuser.com';
 
+      Session.clear();
+
       routerMock = new RouterMock();
+      windowMock = new WindowMock();
       metrics = new Metrics();
 
       view = new View({
         router: routerMock,
-        metrics: metrics
+        metrics: metrics,
+        window: windowMock
       });
 
       return view.render()
@@ -61,6 +65,16 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, WindowMock, RouterMock
               assert.equal(view.$('[type=password]').val(), 'prefilled password');
             });
       });
+    });
+
+
+    it('prefills email with email from search parameter if Session.prefillEmail is not set', function () {
+      windowMock.location.search = '?email=' + encodeURIComponent('testuser@testuser.com');
+
+      return view.render()
+          .then(function () {
+            assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+          });
     });
 
     describe('updatePasswordVisibility', function () {
