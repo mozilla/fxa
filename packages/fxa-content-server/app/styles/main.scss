@@ -711,6 +711,12 @@ ul.links li {
   }
 }
 
+/* IE8 has trouble rendering bullet characters with custom fonts,
+ * so use something standard */
+.lt-ie9 input[type="password"] {
+    font-family: sans-serif;
+}
+
 .show-password-label:hover,
 .show-password-label:active,
 .show-password-label:focus,
