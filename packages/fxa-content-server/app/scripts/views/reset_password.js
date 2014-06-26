@@ -10,11 +10,10 @@ define([
   'views/form',
   'stache!templates/reset_password',
   'lib/session',
-  'lib/url',
   'lib/auth-errors',
   'views/mixins/oauth-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, Url, AuthErrors, OAuthMixin) {
+function (_, BaseView, FormView, Template, Session, AuthErrors, OAuthMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -32,7 +31,7 @@ function (_, BaseView, FormView, Template, Session, Url, AuthErrors, OAuthMixin)
     },
 
     _getQueryEmail: function () {
-      return Url.searchParam('email', this.window.location.search);
+      return this.searchParam('email');
     },
 
     _getPrefillEmail: function () {

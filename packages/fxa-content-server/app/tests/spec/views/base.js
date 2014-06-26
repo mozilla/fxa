@@ -360,6 +360,20 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
       });
     });
 
+    describe('searchParam', function () {
+      it('gets an item from the url\'s search parameters, if available', function () {
+        windowMock.location.search = '?item=value';
+
+        var value = view.searchParam('item');
+        assert.equal(value, 'value');
+      });
+
+      it('returns `undefined` if search parameter is not available', function () {
+        var value = view.searchParam('non-existent');
+        assert.isUndefined(value);
+      });
+    });
+
     describe('importSearchParam', function () {
       it('imports an item from the url\'s search parameters, if available', function () {
         windowMock.location.search = '?item=value';

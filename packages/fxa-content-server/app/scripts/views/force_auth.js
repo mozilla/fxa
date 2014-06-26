@@ -9,10 +9,9 @@ define([
   'views/base',
   'views/sign_in',
   'stache!templates/force_auth',
-  'lib/session',
-  'lib/url'
+  'lib/session'
 ],
-function (p, BaseView, SignInView, Template, Session, Url) {
+function (p, BaseView, SignInView, Template, Session) {
   var t = BaseView.t;
 
   var View = SignInView.extend({
@@ -31,7 +30,7 @@ function (p, BaseView, SignInView, Template, Session, Url) {
       Session.clear();
       Session.set('forceAuth', true);
 
-      var email = Url.searchParam('email', this.window.location.search);
+      var email = this.searchParam('email');
       if (email) {
         // email indicates the signed in email. Use forceEmail to avoid
         // collisions across sessions.
