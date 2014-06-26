@@ -12,11 +12,9 @@ define([
   var CLEAR_URL = config.fxaContentRoot + 'clear';
 
   function clearBrowserState(context) {
-    /*jshint validthis: true*/
     // clear localStorage to avoid polluting other tests.
     return context.get('remote')
       .get(require.toUrl(CLEAR_URL))
-      /*jshint evil:true*/
       .waitForElementById('fxa-clear-storage-header');
   }
 

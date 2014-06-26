@@ -108,11 +108,6 @@ define([
 
         // Success is being redirected to the cannot create screen.
         .waitForElementById('fxa-cannot-create-account-header')
-        .end()
-
-        // ensure that this does not interfere with other tests.
-        /*jshint evil:true, es3:false*/
-        .eval('document.cookie = "tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT";')
         .end();
     },
 
