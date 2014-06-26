@@ -56,7 +56,7 @@
     "i18n-abide": "0.0.20",
     "intel": "0.5.2",
     "jshint-stylish": "0.2.0",
-    "jsxgettext-recursive": "0.0.4",
+    "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "0.4.0",
     "mkdirp": "0.5.0",
     "request": "2.34.0",
