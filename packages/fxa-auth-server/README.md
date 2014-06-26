@@ -138,15 +138,15 @@ The server will automatically re-create it on next use.
 
 ## Using with FxOS
 
-By default FxOS uses the production Firefox Accounts server (`api.accounts.firefox.com/v1`). If you want to use a different account server on a device, you need to update a preference value `identity.fxaccounts.auth.uri`.
+By default, FxOS uses the production Firefox Accounts server (`api.accounts.firefox.com/v1`). If you want to use a different account server on a device, you need to update a preference value `identity.fxaccounts.auth.uri`.
 
-1) Download this script: https://gist.github.com/edmoz/5596162
-2) `chmod +x modPref.sh; ./modPref.sh pull`
-3) Edit `prefs.js` to change `identity.fxaccounts.auth.uri`, e.g., add a line
+* Download this script: https://gist.github.com/edmoz/5596162
+* `chmod +x modPref.sh; ./modPref.sh pull`
+* Edit `prefs.js` to change `identity.fxaccounts.auth.uri`, e.g., add a line
 ```
 user_pref("identity.fxaccounts.auth.uri", "https://api-accounts.stage.mozaws.net/v1");
 ```
-4) ./modPref.sh push prefs.js
+* `./modPref.sh push prefs.js`
 
 ## License
 
