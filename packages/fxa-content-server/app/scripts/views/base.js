@@ -484,11 +484,17 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
     },
 
     /**
+     * Fetch a search parameter from this.window.location.search
+     */
+    searchParam: function (itemName) {
+      return Url.searchParam(itemName, this.window.location.search);
+    },
+
+    /**
      * Import an item from the URL search parameters into the current context
      */
     importSearchParam: function (itemName) {
-      var search = this.window.location.search;
-      this[itemName] = Url.searchParam(itemName, search);
+      this[itemName] = this.searchParam(itemName);
 
       if (! this[itemName]) {
         var err = Strings.interpolate(t('missing search parameter: %(itemName)s'), { itemName: itemName });

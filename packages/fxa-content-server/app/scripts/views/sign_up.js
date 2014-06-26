@@ -80,12 +80,16 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
     },
 
     context: function () {
-      var autofocusEl = selectAutoFocusEl(Session.prefillEmail,
-                                Session.prefillPassword);
+      // Session.prefillEmail comes first because users can edit the email,
+      // go to another screen, edit the email again, and come back here. We
+      // want the last used email.
+      var email = Session.prefillEmail || this.searchParam('email');
+
+      var autofocusEl = selectAutoFocusEl(email, Session.prefillPassword);
 
       return {
         serviceName: this.serviceName,
-        email: Session.prefillEmail,
+        email: email,
         password: Session.prefillPassword,
         year: Session.prefillYear || 'none',
         service: Session.service,

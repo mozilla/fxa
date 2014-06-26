@@ -13,11 +13,10 @@ define([
   'lib/constants',
   'lib/session',
   'views/mixins/password-mixin',
-  'lib/url',
   'lib/auth-errors',
   'lib/validate'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, Url, AuthErrors, Validate) {
+function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, AuthErrors, Validate) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -33,10 +32,15 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     },
 
     context: function () {
+      // Session.prefillEmail comes first because users can edit the email,
+      // go to another screen, edit the email again, and come back here. We
+      // want the last used email.
+      var email = Session.prefillEmail || this.searchParam('email');
+
       return {
         service: this.service,
         serviceName: this.serviceName,
-        email: Session.prefillEmail,
+        email: email,
         password: Session.prefillPassword,
         isSync: Session.isSync()
       };
