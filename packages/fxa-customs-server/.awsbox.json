@@ -4,6 +4,6 @@
   ],
   "packages": [
     "memcached"
-  ]
+  ],
   "ssl": "disable"
 }
