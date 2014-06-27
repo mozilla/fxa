@@ -91,7 +91,10 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
             return self.invokeHandler(handler, args);
           })
           .then(function (value) {
-            self._buttonProgressIndicator.done();
+            // Stop the progress indicator unless the page is navigating
+            if (!value || !value.pageNavigation) {
+              self._buttonProgressIndicator.done();
+            }
             return value;
           }, function(err) {
             self._buttonProgressIndicator.done();

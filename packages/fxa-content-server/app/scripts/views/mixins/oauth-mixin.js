@@ -81,6 +81,7 @@ define([
         Session.clear('oauth');
         // Redirect to the returned URL
         self.window.location.href = result.redirect;
+        return { pageNavigation: true };
       })
       .fail(function(xhr) {
         Session.clear('oauth');
