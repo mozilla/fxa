@@ -56,6 +56,15 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
             assert.equal($('.sign-up').attr('href'), '/oauth/signup');
           });
       });
+
+      it('is enabled if prefills are valid', function () {
+        Session.set('prefillEmail', 'testuser@testuser.com');
+        Session.set('prefillPassword', 'prefilled password');
+        return view.render()
+          .then(function () {
+            assert.isFalse(view.$('button').hasClass('disabled'));
+          });
+      });
     });
 
     describe('submit', function () {
@@ -74,7 +83,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
     });
 
     describe('resetPasswordIfKnownValidEmail', function () {
-      it('goes to the confirm_reset_password page if user types a valid, known email', function () {
+      it('goes to the reset_password page if user types a valid, known email', function () {
         var password = 'password';
         return view.fxaClient.signUp(email, password, { preVerified: true })
               .then(function () {
@@ -83,7 +92,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
               })
               .then(function () {
                 assert.ok(Session.oauth, 'oauth params are set');
-                assert.equal(router.page, 'confirm_reset_password');
+                assert.equal(router.page, 'reset_password');
               });
       });
 

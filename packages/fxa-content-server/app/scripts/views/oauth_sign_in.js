@@ -22,11 +22,16 @@ function (_, p, SignInView, Session, OAuthMixin) {
     },
 
     beforeRender: function() {
-      return this.setServiceInfo();
+      var self = this;
+      return p().then(function () {
+          return SignInView.prototype.beforeRender.call(self);
+        })
+        .then(_.bind(this.setServiceInfo, this));
     },
 
     afterRender: function() {
       this.setupOAuthLinks();
+      return SignInView.prototype.afterRender.call(this);
     },
 
     onSignInSuccess: function() {

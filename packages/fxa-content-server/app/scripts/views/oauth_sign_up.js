@@ -6,12 +6,13 @@
 
 define([
   'underscore',
+  'p-promise',
   'views/base',
   'views/sign_up',
   'lib/session',
   'views/mixins/oauth-mixin'
 ],
-function (_, BaseView, SignUpView, Session, OAuthMixin) {
+function (_, p, BaseView, SignUpView, Session, OAuthMixin) {
   var View = SignUpView.extend({
     className: 'sign-up oauth-sign-up',
 
@@ -23,12 +24,17 @@ function (_, BaseView, SignUpView, Session, OAuthMixin) {
       this.setupOAuth();
     },
 
-    beforeRender: function () {
-      return this.setServiceInfo();
+    beforeRender: function() {
+      var self = this;
+      return p().then(function () {
+          return SignUpView.prototype.beforeRender.call(self);
+        })
+        .then(_.bind(this.setServiceInfo, this));
     },
 
     afterRender: function() {
-      this.$('.sign-in').attr('href', '/oauth/signin');
+      this.setupOAuthLinks();
+      return SignUpView.prototype.afterRender.call(this);
     },
 
     onSignUpSuccess: function () {
