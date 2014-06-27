@@ -56,7 +56,7 @@ module.exports = function (log) {
             this.emit('data', message)
           }
           catch (e) {
-            log.error({ op: 'sqs.fetch', message: message, err: e })
+            log.error({ op: 'sqs.fetch.parse', message: message, err: e })
           }
         }
         this.fetch(url)
