@@ -41,6 +41,8 @@ define(['intern/lib/args'], function (args) {
       { browserName: 'firefox' }
     ],
 
+    reporters: ['console'],
+
     // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
     maxConcurrency: 3,
 
