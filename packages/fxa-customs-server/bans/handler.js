@@ -64,6 +64,9 @@ module.exports = function (mc, log) {
   }
 
   function handleBan(message, cb) {
+    if (!cb) {
+      cb = function () {}
+    }
     if (message.ban && message.ban.ip) {
       blockIp(message.ban.ip, cb)
     }
