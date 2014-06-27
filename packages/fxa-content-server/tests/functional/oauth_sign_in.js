@@ -37,43 +37,43 @@ define([
 
       return FunctionalHelpers.clearBrowserState(this)
         .then(function () {
-          return self.get('remote');
-        })
-        // sign up, do not verify steps
-        .get(require.toUrl(OAUTH_APP))
-        .waitForVisibleByCssSelector('#splash')
-        .elementByCssSelector('#splash .signup')
-        .click()
-        .end()
+          return self.get('remote')
+            // sign up, do not verify steps
+            .get(require.toUrl(OAUTH_APP))
+            .waitForVisibleByCssSelector('#splash')
+            .elementByCssSelector('#splash .signup')
+            .click()
+            .end()
 
-        .waitForVisibleByCssSelector('#fxa-signup-header')
-        .elementByCssSelector('form input.email')
-        .clear()
-        .click()
-        .type(email)
-        .end()
+            .waitForVisibleByCssSelector('#fxa-signup-header')
+            .elementByCssSelector('form input.email')
+            .clear()
+            .click()
+            .type(email)
+            .end()
 
-        .elementByCssSelector('form input.password')
-        .click()
-        .type(PASSWORD)
-        .end()
+            .elementByCssSelector('form input.password')
+            .click()
+            .type(PASSWORD)
+            .end()
 
-        .elementByCssSelector('#fxa-age-year')
-        .click()
-        .end()
+            .elementByCssSelector('#fxa-age-year')
+            .click()
+            .end()
 
-        .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
-        .buttonDown()
-        .buttonUp()
-        .click()
-        .end()
+            .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
+            .buttonDown()
+            .buttonUp()
+            .click()
+            .end()
 
-        .elementByCssSelector('button[type="submit"]')
-        .click()
-        .end()
+            .elementByCssSelector('button[type="submit"]')
+            .click()
+            .end()
 
-        .waitForVisibleByCssSelector('#fxa-confirm-header')
-        .end();
+            .waitForVisibleByCssSelector('#fxa-confirm-header')
+            .end();
+        });
     },
 
     'verified': function () {
