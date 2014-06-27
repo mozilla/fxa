@@ -13,6 +13,7 @@ module.exports = function (grunt) {
     grunt.task.run([
       'clean:app',
       'selectconfig:app',
+      'l10n-create-json',
       'l10n-generate-tos-pp:app',
       'css',
       'concurrent:server',
