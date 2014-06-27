@@ -10,8 +10,9 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -41,11 +42,7 @@ define([
         })
         .then(function () {
           // clear localStorage to avoid pollution from other tests.
-          return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
-            /*jshint evil:true*/
-            .waitForElementById('fxa-signin-header')
-            .safeEval('sessionStorage.clear(); localStorage.clear();');
+          return FunctionalHelpers.clearBrowserState(self);
         });
     },
 
@@ -53,11 +50,7 @@ define([
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
-      return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        /*jshint evil:true*/
-        .waitForElementById('fxa-signin-header')
-        .safeEval('sessionStorage.clear(); localStorage.clear();');
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'sign in unverified': function () {

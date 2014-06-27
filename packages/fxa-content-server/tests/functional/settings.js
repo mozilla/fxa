@@ -10,8 +10,9 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'app/scripts/lib/constants',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -38,29 +39,12 @@ define([
       var self = this;
       return client.signUp(email, FIRST_PASSWORD, { preVerified: true })
                .then(function () {
-                  return self.get('remote')
-                    .get(require.toUrl(SIGNIN_URL))
-                    .waitForElementById('fxa-signin-header')
-                    // Clear out the session. This isn't ideal since
-                    // it implies too much knowledge of the implementation
-                    // of the Session module but it guarantees that we don't
-                    // break the other tests.
-                    .safeEval('sessionStorage.clear(); localStorage.clear();') // jshint ignore:line
-                    .end();
-
+                  return FunctionalHelpers.clearBrowserState(self);
                 });
     },
 
     teardown: function () {
-      return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .waitForElementById('fxa-signin-header')
-        // Clear out the session. This isn't ideal since
-        // it implies too much knowledge of the implementation
-        // of the Session module but it guarantees that we don't
-        // break the other tests.
-        .safeEval('sessionStorage.clear(); localStorage.clear();') // jshint ignore:line
-        .end();
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'sign in, go to settings, sign out': function () {

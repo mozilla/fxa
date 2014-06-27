@@ -9,8 +9,9 @@ define([
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -27,16 +28,8 @@ define([
 
   function clearBrowserStorage() {
     /*jshint validthis: true*/
-    return this.get('remote')
-      .get(require.toUrl(SIGNIN_URL))
-      .waitForVisibleById('fxa-signin-header')
-      // Clear out the session. This isn't ideal since
-      // it implies too much knowledge of the implementation
-      // of the Session module but it guarantees that we don't
-      // break the other tests.
-      .safeEval('sessionStorage.clear(); localStorage.clear();') // jshint ignore:line
-      .end();
-
+    // clear localStorage to avoid polluting other tests.
+    return FunctionalHelpers.clearBrowserState(this);
   }
 
   registerSuite({

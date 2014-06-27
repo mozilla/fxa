@@ -85,6 +85,7 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/views/complete_reset_password',
     '../tests/spec/views/ready',
     '../tests/spec/views/cookies_disabled',
+    '../tests/spec/views/clear_storage',
     '../tests/spec/views/button_progress_indicator',
     '../tests/spec/views/marketing_snippet',
     '../tests/spec/views/mixins/floating-placeholder-mixin',

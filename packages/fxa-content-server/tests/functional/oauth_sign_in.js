@@ -10,15 +10,15 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 
-  var PAGE_URL = config.fxaContentRoot + 'signin';
   var PASSWORD = 'password';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var user;
@@ -35,10 +35,10 @@ define([
       user = TestHelpers.emailToUser(email);
       var self = this;
 
-      return self.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        .waitForElementById('fxa-signin-header')
-        .safeEval('sessionStorage.clear(); localStorage.clear();')
+      return FunctionalHelpers.clearBrowserState(this)
+        .then(function () {
+          return self.get('remote');
+        })
         // sign up, do not verify steps
         .get(require.toUrl(OAUTH_APP))
         .waitForVisibleByCssSelector('#splash')

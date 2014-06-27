@@ -11,8 +11,9 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -48,12 +49,8 @@ define([
           return client.verifyCode(accountData.uid, code);
         })
         .then(function () {
-          // clear localStorage to avoid pollution from other tests.
-          return self.get('remote')
-            .get(require.toUrl(FORCE_AUTH_URL))
-            /*jshint evil:true*/
-            .waitForElementById('fxa-force-auth-header')
-            .safeEval('sessionStorage.clear(); localStorage.clear();');
+          // clear localStorage to avoid polluting other tests.
+          return FunctionalHelpers.clearBrowserState(self);
         });
     },
 
