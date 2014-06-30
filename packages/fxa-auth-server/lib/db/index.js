@@ -2,27 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const unbuf = require('buf').unbuf.hex;
+
 const P = require('../promise');
 
 const config = require('../config');
 const logger = require('../logging').getLogger('fxa.db');
 const mysql = require('./mysql');
 const memory = require('./memory');
-
-function buffer(obj) {
-  if (Buffer.isBuffer(obj)) {
-    return obj;
-  } else if (typeof obj === 'string') {
-    return Buffer(obj, 'hex');
-  }
-}
-
-function unbuf(buf) {
-  if (Buffer.isBuffer(buf)) {
-    return buf.toString('hex');
-  }
-  return buf;
-}
 
 function preClients() {
   var clients = config.get('clients');
@@ -53,8 +40,6 @@ function withDriver() {
   }
   return p.then(function(store) {
     logger.debug('connected to "%s" store', config.get('db.driver'));
-    store._unbuf = unbuf;
-    store._buf = buffer;
     driver = store;
   }).then(preClients).then(function() {
     return driver;
@@ -96,3 +81,4 @@ exports.disconnect = function disconnect() {
 exports._initialClients = function() {
   return preClients();
 };
+

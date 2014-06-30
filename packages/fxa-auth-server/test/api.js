@@ -11,6 +11,7 @@ const nock = require('nock');
 
 const config = require('../lib/config');
 const db = require('../lib/db');
+const encrypt = require('../lib/encrypt');
 const P = require('../lib/promise');
 const Server = require('./lib/server');
 const unique = require('../lib/unique');
@@ -586,30 +587,40 @@ describe('/v1', function() {
 
   describe('/destroy', function() {
     it('should destroy tokens', function() {
+      var token;
       return newToken().then(function(res) {
+        token = res.result.access_token;
         return Server.api.post({
           url: '/destroy',
           payload: {
-            token: res.result.access_token,
+            token: token,
             client_secret: secret
           }
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
+        return db.getToken(encrypt.hash(token)).then(function(tok) {
+          assert.equal(tok, undefined);
+        });
       });
     });
 
     it('should not allow unauthorized destruction', function() {
+      var token;
       return newToken().then(function(res) {
+        token = res.result.access_token;
         return Server.api.post({
           url: '/destroy',
           payload: {
-            token: res.result.access_token,
+            token: token,
             client_secret: badSecret
           }
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 400);
+        return db.getToken(encrypt.hash(token)).then(function(tok) {
+          assert(tok);
+        });
       });
     });
   });

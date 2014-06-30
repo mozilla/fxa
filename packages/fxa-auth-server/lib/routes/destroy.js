@@ -5,15 +5,13 @@
 
 const Joi = require('joi');
 
+const unbuf = require('buf').unbuf.hex;
+
 const AppError = require('../error');
 const config = require('../config');
 const db = require('../db');
 const encrypt = require('../encrypt');
 const HEX_STRING = /^[0-9a-f]+$/;
-
-function eq(orig, unhashed) {
-  return orig.toString('hex') === encrypt.hash(unhashed).toString('hex');
-}
 
 module.exports = {
   validate: {
@@ -29,18 +27,18 @@ module.exports = {
     }
   },
   handler: function destroyToken(req, reply) {
-    var token = req.payload.token;
-    var secret = req.payload.client_secret;
+    var token = encrypt.hash(req.payload.token);
+    var secret = encrypt.hash(req.payload.client_secret);
 
-    db.getToken(Buffer(token, 'hex'))
+    db.getToken(token)
     .then(function(tok) {
       if (!tok) {
         throw AppError.invalidToken();
       }
       return db.getClient(tok.clientId);
     }).then(function(client) {
-      if (client && !eq(client.secret, secret)) {
-        throw AppError.incorrectSecret(client && client.id.toString('hex'));
+      if (client && (unbuf(client.secret) !== unbuf(secret))) {
+        throw AppError.incorrectSecret(client && unbuf(client.id));
       }
       // if client doesn't exist, but token does, then just clean up
       return db.removeToken(token);

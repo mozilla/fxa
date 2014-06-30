@@ -4,6 +4,7 @@
 
 const util = require('util');
 
+const unbuf = require('buf').unbuf.hex;
 const intel = require('intel');
 
 function JsonFormatter(options) {
@@ -33,7 +34,7 @@ JsonFormatter.prototype.format = function jsonFormat(record) {
     }
   } else {
     for (var k in record.args[0]) {
-      rec[k] = record.args[0][k];
+      rec[k] = unbuf(record.args[0][k]);
     }
   }
 
