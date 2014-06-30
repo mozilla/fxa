@@ -237,6 +237,94 @@
   }
 }
 
+//You know...for the trusted UI
+@media only screen and (max-height:345px) and (max-width:276px) {
+  body {
+    margin: 0;
+    padding: 0;
+    max-height:100%;
+  }
+
+  #fox-logo {
+    display: none;
+  }
+
+  #stage {
+    background: none;
+    margin:0 auto;
+    min-width: 250px;
+    padding: 0;
+    width: 250px !important;
+  }
+
+  header h1 {
+    font-size: 18px;
+    margin: 5px 0 10px 0;
+  }
+
+  section p {
+    font-size: 14px;
+  }
+
+  .privacy-links {
+    margin-bottom: 0;
+  }
+
+  .graphic {
+    margin: 40px auto 0 auto;
+  }
+
+  .success, .error {
+    margin: 0 0 10px 0;
+    top:0;
+  }
+
+  .input-row {
+    margin-bottom: 14px;
+  }
+
+  .input-row input[type='text'],
+  .input-row input[type='email'],
+  .input-row input[type='password'],
+  .input-row select {
+    border-radius: 2px;
+    font-size: 16px;
+    height: 36px;
+    padding: 0 $input-left-right-padding * .5;
+  }
+
+  .input-row .input-help-focused {
+    opacity: 1;
+  }
+
+  .password-row .show-password-label {
+    border-radius: 0 2px 2px 0;
+    font-size: 14px;
+    height: 34px;
+    line-height: 34px;
+  }
+
+  .select-row {
+    border-radius:2px;
+    height:36px;
+  }
+
+  .select-row select {
+    box-sizing: border-box;
+    font-size: 16px;
+    padding: 4px 0 9px $input-left-right-padding * .5;
+  }
+
+  .button-row {
+    margin:0 0 10px 0;
+  }
+
+  .button-row button,
+  .button-row a.button {
+    font-size: 18px;
+    padding: 8px 0;
+  }
+}
 
 /* Retina */
 
