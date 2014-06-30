@@ -4,10 +4,12 @@
 
 const crypto = require('crypto');
 
+const buf = require('buf').hex;
+
 const config = require('./config');
 
 exports.hash = function hash(value) {
   var sha = crypto.createHash(config.get('encrypt.hashAlg'));
-  sha.update(value);
+  sha.update(buf(value));
   return sha.digest();
 };

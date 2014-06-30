@@ -7,6 +7,10 @@
       "from": "bluebird@1.2.4",
       "resolved": "https://registry.npmjs.org/bluebird/-/bluebird-1.2.4.tgz"
     },
+    "buf": {
+      "version": "0.1.0",
+      "from": "buf@0.1.0"
+    },
     "convict": {
       "version": "0.4.2",
       "from": "convict@0.4.2",

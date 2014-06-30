@@ -32,6 +32,12 @@ exports.get = function get(options) {
   return request(options);
 };
 
+exports.delete = function _delete(options) {
+  options = opts(options);
+  options.method = 'DELETE';
+  return request(options);
+};
+
 var api = {};
 Object.keys(exports).forEach(function(key) {
   api[key] = function api(options) {

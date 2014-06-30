@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const buf = require('buf').hex;
 const mysql = require('mysql');
 
 const encrypt = require('../encrypt');
@@ -77,6 +78,7 @@ const QUERY_TOKEN_INSERT =
 const QUERY_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
+const QUERY_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
 
 MysqlStore.prototype = {
 
@@ -98,7 +100,7 @@ MysqlStore.prototype = {
     var id;
     if (client.id) {
       logger.debug('registerClient: client already has ID?', client.id);
-      id = this._buf(client.id);
+      id = buf(client.id);
     } else {
       id = unique.id();
     }
@@ -126,7 +128,7 @@ MysqlStore.prototype = {
   },
   getClient: function getClient(_id) {
     var d = P.defer();
-    var id = this._buf(_id);
+    var id = buf(_id);
     this._connection.query(QUERY_CLIENT_GET, [id], function(err, rows) {
       if (err) {
         return d.reject(err);
@@ -204,7 +206,7 @@ MysqlStore.prototype = {
 
   getToken: function getToken(token) {
     var d = P.defer();
-    this._connection.query(QUERY_TOKEN_FIND, [encrypt.hash(token)],
+    this._connection.query(QUERY_TOKEN_FIND, [buf(token)],
       function(err, rows) {
         if (err) {
           logger.error('getToken:', err);
@@ -217,6 +219,17 @@ MysqlStore.prototype = {
         d.resolve(t);
       });
 
+    return d.promise;
+  },
+
+  removeToken: function removeToken(id) {
+    var d = P.defer();
+    this._connection.query(QUERY_TOKEN_DELETE, [buf(id)], function(err) {
+      if (err) {
+        return d.reject(err);
+      }
+      d.resolve();
+    });
     return d.promise;
   }
 

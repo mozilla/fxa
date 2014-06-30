@@ -11,6 +11,7 @@ const nock = require('nock');
 
 const config = require('../lib/config');
 const db = require('../lib/db');
+const encrypt = require('../lib/encrypt');
 const P = require('../lib/promise');
 const Server = require('./lib/server');
 const unique = require('../lib/unique');
@@ -81,6 +82,7 @@ function genAssertion(email) {
 
 var client;
 var secret;
+var badSecret;
 var clientId;
 var AN_ASSERTION;
 
@@ -97,6 +99,24 @@ function authParams(params) {
     defaults[key] = params[key];
   }
   return defaults;
+}
+
+function newToken(payload) {
+  mockAssertion().reply(200, VERIFY_GOOD);
+  return Server.api.post({
+    url: '/authorization',
+    payload: authParams(payload || {})
+  }).then(function(res) {
+    assert.equal(res.statusCode, 200);
+    return Server.api.post({
+      url: '/token',
+      payload: {
+        client_id: clientId,
+        client_secret: secret,
+        code: url.parse(res.result.redirect, true).query.code
+      }
+    });
+  });
 }
 
 function assertRequestParam(result, param) {
@@ -118,6 +138,9 @@ describe('/v1', function() {
         client = config.get('clients')[0];
         clientId = client.id;
         secret = client.secret;
+        badSecret = Buffer(secret, 'hex').slice();
+        badSecret[badSecret.length - 1] ^= 1;
+        badSecret = badSecret.toString('hex');
       })
     ]).done(function() { done(); }, done);
   });
@@ -333,7 +356,7 @@ describe('/v1', function() {
           url: '/token',
           payload: {
             client_id: clientId,
-            client_secret: unique.secret().toString('hex'),
+            client_secret: badSecret,
             code: unique.code().toString('hex')
           }
         }).then(function(res) {
@@ -491,6 +514,7 @@ describe('/v1', function() {
         assert.equal(res.result.scope, '');
       }).done(done, done);
     });
+
   });
 
   describe('/client/:id', function() {
@@ -525,22 +549,8 @@ describe('/v1', function() {
 
     describe('response', function() {
       it('should return the correct response', function(done) {
-        mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
-          url: '/authorization',
-          payload: authParams({
-            scope: 'profile'
-          })
-        }).then(function(res) {
-          assert.equal(res.statusCode, 200);
-          return Server.api.post({
-            url: '/token',
-            payload: {
-              client_id: clientId,
-              client_secret: secret,
-              code: url.parse(res.result.redirect, true).query.code
-            }
-          });
+        newToken({
+          scope: 'profile'
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           return Server.api.post({
@@ -559,23 +569,7 @@ describe('/v1', function() {
     });
 
     it('should return the email with profile:email scope', function(done) {
-      mockAssertion().reply(200, VERIFY_GOOD);
-      Server.api.post({
-        url: '/authorization',
-        payload: authParams({
-          scope: 'profile:email'
-        })
-      }).then(function(res) {
-        assert.equal(res.statusCode, 200);
-        return Server.api.post({
-          url: '/token',
-          payload: {
-            client_id: clientId,
-            client_secret: secret,
-            code: url.parse(res.result.redirect, true).query.code
-          }
-        });
-      }).then(function(res) {
+      newToken({ scope: 'profile:email' }).then(function(res) {
         assert.equal(res.statusCode, 200);
         return Server.api.post({
           url: '/verify',
@@ -587,6 +581,47 @@ describe('/v1', function() {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.email, VEMAIL);
       }).done(done, done);
+    });
+
+  });
+
+  describe('/destroy', function() {
+    it('should destroy tokens', function() {
+      var token;
+      return newToken().then(function(res) {
+        token = res.result.access_token;
+        return Server.api.post({
+          url: '/destroy',
+          payload: {
+            token: token,
+            client_secret: secret
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        return db.getToken(encrypt.hash(token)).then(function(tok) {
+          assert.equal(tok, undefined);
+        });
+      });
+    });
+
+    it('should not allow unauthorized destruction', function() {
+      var token;
+      return newToken().then(function(res) {
+        token = res.result.access_token;
+        return Server.api.post({
+          url: '/destroy',
+          payload: {
+            token: token,
+            client_secret: badSecret
+          }
+        });
+      }).then(function(res) {
+        assert.equal(res.statusCode, 400);
+        return db.getToken(encrypt.hash(token)).then(function(tok) {
+          assert(tok);
+        });
+      });
     });
   });
 

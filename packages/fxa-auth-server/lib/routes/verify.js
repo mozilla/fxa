@@ -7,6 +7,7 @@ const Joi = require('joi');
 const AppError = require('../error');
 const config = require('../config');
 const db = require('../db');
+const encrypt = require('../encrypt');
 
 const HEX_STRING = /^[0-9a-f]+$/;
 
@@ -27,7 +28,7 @@ module.exports = {
     }
   },
   handler: function verify(req, reply) {
-    db.getToken(Buffer(req.payload.token, 'hex'))
+    db.getToken(encrypt.hash(req.payload.token))
     .then(function(token) {
       if (!token) {
         throw AppError.invalidToken();

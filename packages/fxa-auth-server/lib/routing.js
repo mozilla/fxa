@@ -41,6 +41,11 @@ module.exports = [
   },
   {
     method: 'POST',
+    path: v('/destroy'),
+    config: require('./routes/destroy')
+  },
+  {
+    method: 'POST',
     path: v('/verify'),
     config: require('./routes/verify')
   }
