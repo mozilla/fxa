@@ -18,6 +18,13 @@ module.exports = function (config) {
 
   var abide = require('i18n-abide');
 
+  // Convert the array to an object for faster lookups
+  var fontSupportDisabled = config.fonts.unsupportedLanguages
+     .reduce(function (prev, val) {
+       prev[val] = true;
+       return prev;
+     }, {});
+
   // Configure i18n-abide for loading gettext templates.
   // This causes it to process the configuration settings, parse the
   // message files for each language, etc.
@@ -26,7 +33,7 @@ module.exports = function (config) {
   // bundled into a function; we're going to hide that fact with a
   // bit of a wrapper API, returning the function as if it were a
   // stateful object with helper methods.
-  var abideObj = abide.abide(
+  var abideMiddleware = abide.abide(
     {
       default_lang: abide.localeFrom(config.defaultLang),
       debug_lang: config.debugLang,
@@ -35,6 +42,17 @@ module.exports = function (config) {
       translation_type: config.translationType
     }
   );
+
+  // Wrap the abide middleware so we can set fontSupport
+  var abideObj = function (req, res, next) {
+    // Call the abide middleware with our own `next` function
+    // so that we can modify the request object afterward.
+    abideMiddleware(req, res, function (val) {
+      var lang = abide.normalizeLanguage(req.lang);
+      res.locals.fontSupportDisabled = req.fontSupportDisabled = fontSupportDisabled[lang];
+      next(val);
+    });
+  };
 
   // Export the langaugeFrom() function as-is.
   abideObj.languageFrom = function (locale) {
@@ -71,7 +89,7 @@ module.exports = function (config) {
   // object, without actually having to be an express app.
   abideObj.localizationContext = function (acceptLang) {
     var fakeReq = {headers: {}};
-    var fakeResp = {locals: function () {}};
+    var fakeResp = {};
     if (acceptLang) {
       fakeReq.headers['accept-language'] = acceptLang;
     }
@@ -82,12 +100,16 @@ module.exports = function (config) {
     }
     var l10n = {};
     l10n.lang = fakeReq.lang;
-    l10n.lang_dir = fakeReq.lang_dir;
+    l10n.lang_dir = fakeResp.locals.lang_dir;
     l10n.locale = fakeReq.locale;
     l10n.gettext = fakeReq.gettext.bind(fakeReq);
     l10n.format = fakeReq.format.bind(fakeReq);
+
+    l10n.fontSupportDisabled = fontSupportDisabled[l10n.lang];
+
     return l10n;
   };
+
 
   return abideObj;
 };

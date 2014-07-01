@@ -6,16 +6,16 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.registerTask('build', [
-    'clean:dist',
+    // Clean everything
+    'clean',
     'selectconfig:dist',
     // l10n-generate-pages needs to be run before useminPrepare to seed
     // the list of resources to minimize. Generated pages are placed into
     // `server/templates/pages/dist` where they will be post-processed
     // with requirejs and usemin
     'l10n-generate-pages',
-    // static-pages needs to be run before useminPrepare to seed the list of
-    // resources to minimize.
-    'static-pages',
+    // use error pages from en_US as the static error pages
+    'copy:error_pages',
     'useminPrepare',
     'l10n-create-json',
     'l10n-generate-tos-pp:dist',

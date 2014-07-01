@@ -10,13 +10,25 @@ module.exports = function (grunt) {
   'use strict';
 
   var path = require('path');
-  var i18n = require('i18n-abide');
+  var Handlebars = require('handlebars');
 
   var templateSrc;
   var templateDest;
 
+  // Make the 'gettext' function available in the templates.
+  Handlebars.registerHelper('t', function (string) {
+    if (string.fn) {
+      return this.l10n.format(this.l10n.gettext(string.fn(this)), this);
+    } else {
+      return this.l10n.format(this.l10n.gettext(string), this);
+    }
+    return string;
+  });
+
   grunt.registerTask('l10n-generate-pages',
       'Generate localized versions of the static pages', function () {
+
+    var i18n = require('../server/lib/i18n')(grunt.config.get('server.i18n'));
 
     // server config is set in the selectconfig task
     var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages');
@@ -24,29 +36,40 @@ module.exports = function (grunt) {
     templateSrc = grunt.config.get('yeoman.page_template_src');
     templateDest = grunt.config.get('yeoman.page_template_dist');
 
-    supportedLanguages.forEach(generatePagesForLanguage);
+    supportedLanguages.forEach(function (lang) {
+      generatePagesForLanguage(i18n, lang);
+    });
   });
 
-  function generatePagesForLanguage(language) {
+
+  function generatePagesForLanguage(i18n, language) {
     // items on disk are stored by locale, not language.
     var locale = i18n.localeFrom(language);
     var destRoot = path.join(templateDest, locale);
+    var context = i18n.localizationContext(language);
 
     grunt.file.recurse(templateSrc,
                     function (srcPath, rootDir, subDir, fileName) {
 
       var destPath = path.join(destRoot, (subDir || ''), fileName);
-      generatePage(srcPath, destPath, locale);
+      generatePage(srcPath, destPath, context);
     });
   }
 
-  function generatePage(srcPath, destPath, locale) {
+  function generatePage(srcPath, destPath, context) {
     grunt.log.writeln('generating `%s`', destPath);
 
     grunt.file.copy(srcPath, destPath, {
       process: function (contents, path) {
-        // replace any `{{ locale }}` tags with the locale.
-        return contents.replace(/{{\s*locale\s*}}/g, locale);
+        var template = Handlebars.compile(contents);
+        var out = template({
+          l10n: context,
+          locale: context.locale,
+          lang: context.lang,
+          lang_dir: context.lang_dir,
+          fontSupportDisabled: context.fontSupportDisabled
+        });
+        return out;
       }
     });
   }

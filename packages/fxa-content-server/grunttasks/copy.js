@@ -16,6 +16,18 @@ module.exports = function (grunt) {
         ]
       }]
     },
+    error_pages: {
+      files: [
+        {
+          expand: true,
+          dot: true,
+          flatten: true,
+          cwd: '<%= yeoman.page_template_dist %>',
+          dest: '<%= yeoman.app %>',
+          src: 'en_US/{500,503}.html'
+        }
+      ]
+    },
     dist: {
       files: [
         {
