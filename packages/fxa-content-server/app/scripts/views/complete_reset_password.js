@@ -14,9 +14,9 @@ define([
   'views/mixins/floating-placeholder-mixin',
   'lib/validate',
   'lib/auth-errors',
-  'views/mixins/oauth-mixin'
+  'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, Validate, AuthErrors, OAuthMixin) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, Validate, AuthErrors, ServiceMixin) {
   var View = FormView.extend({
     template: Template,
     className: 'complete_reset_password',
@@ -150,7 +150,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
   });
 
   _.extend(View.prototype, PasswordMixin);
-  _.extend(View.prototype, OAuthMixin);
+  _.extend(View.prototype, ServiceMixin);
   _.extend(View.prototype, FloatingPlaceholderMixin);
 
   return View;

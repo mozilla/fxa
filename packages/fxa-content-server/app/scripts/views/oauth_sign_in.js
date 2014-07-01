@@ -9,9 +9,9 @@ define([
   'p-promise',
   'views/sign_in',
   'lib/session',
-  'views/mixins/oauth-mixin'
+  'views/mixins/service-mixin'
 ],
-function (_, p, SignInView, Session, OAuthMixin) {
+function (_, p, SignInView, Session, ServiceMixin) {
   var View = SignInView.extend({
     className: 'sign-in oauth-sign-in',
 
@@ -50,7 +50,7 @@ function (_, p, SignInView, Session, OAuthMixin) {
     }
   });
 
-  _.extend(View.prototype, OAuthMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });

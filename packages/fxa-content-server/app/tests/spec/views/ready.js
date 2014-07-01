@@ -98,7 +98,7 @@ function (chai, View, Session, WindowMock) {
               //assert.equal(view.$('#redirectTo').length, 1);
               //var html = view.$('section').text();
               //assert.include(html, 'Firefox Sync');
-              //assert.ok(view.isOAuth());
+              //assert.ok(view.hasService());
               //assert.notOk(view.isOAuthSameBrowser());
             //});
       //});
@@ -118,7 +118,7 @@ function (chai, View, Session, WindowMock) {
 
         //return view.render()
             //.then(function () {
-              //assert.ok(view.isOAuth());
+              //assert.ok(view.hasService());
               //assert.ok(view.isOAuthSameBrowser());
 
               //assert.equal(view.$('#redirectTo').length, 1);

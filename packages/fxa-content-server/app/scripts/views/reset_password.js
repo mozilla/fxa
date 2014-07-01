@@ -11,9 +11,9 @@ define([
   'stache!templates/reset_password',
   'lib/session',
   'lib/auth-errors',
-  'views/mixins/oauth-mixin'
+  'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, AuthErrors, OAuthMixin) {
+function (_, BaseView, FormView, Template, Session, AuthErrors, ServiceMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -86,7 +86,7 @@ function (_, BaseView, FormView, Template, Session, AuthErrors, OAuthMixin) {
     }
   });
 
-  _.extend(View.prototype, OAuthMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });
