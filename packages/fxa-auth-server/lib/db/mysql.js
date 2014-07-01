@@ -16,14 +16,14 @@ function MysqlStore(options) {
   this._connection = mysql.createConnection(options);
 }
 
-function createSchema(client, options) {
+function createSchema(conn, options) {
   logger.verbose('createSchema', options);
 
   var d = P.defer();
   var database = options.database;
 
   logger.verbose('createDatabase');
-  client.query('CREATE DATABASE IF NOT EXISTS ' + database
+  conn.query('CREATE DATABASE IF NOT EXISTS ' + database
     + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci', function(err) {
       if (err) {
         logger.error('create database', err);
@@ -31,7 +31,7 @@ function createSchema(client, options) {
       }
 
       logger.verbose('changeUser');
-      client.changeUser({
+      conn.changeUser({
         user: options.user,
         password: options.password,
         database: database
@@ -42,7 +42,7 @@ function createSchema(client, options) {
         }
         logger.verbose('creatingSchema');
 
-        client.query(SCHEMA, function(err) {
+        conn.query(SCHEMA, function(err) {
           if (err) {
             logger.error('creatingSchema', err);
             return d.reject(err);
@@ -55,14 +55,17 @@ function createSchema(client, options) {
 }
 
 MysqlStore.connect = function mysqlConnect(options) {
-  options.multipleStatements = true;
-  var store = new MysqlStore(options);
   if (options.createSchema) {
-    return createSchema(store._connection, options).then(function() {
-      return store;
+    options.multipleStatements = true;
+    var schemaConn = mysql.createConnection(options);
+    return createSchema(schemaConn, options).then(function() {
+      schemaConn.end();
+      delete options.multipleStatements;
+      return new MysqlStore(options);
     });
+  } else {
+    return P.resolve(new MysqlStore(options));
   }
-  return P.resolve(store);
 };
 
 const QUERY_CLIENT_REGISTER =
