@@ -36,12 +36,6 @@ function loadConf() {
       default: false,
       env: "INSECURE_SSL"
     },
-    allowURLOmission: {
-      doc: "(temporary hack) Allow missing URLs in support documents",
-      format: Boolean,
-      default: false,
-      env: "ALLOW_URL_OMISSION"
-    },
     toobusy: {
       maxLag: {
         doc: "Max event-loop lag before toobusy reports failure",
