@@ -89,7 +89,7 @@ define([
       });
     },
 
-    isOAuth: function () {
+    hasService: function () {
       return !!Session.service;
     },
 
@@ -111,8 +111,8 @@ define([
     // override this method so we can fix signup/signin links in errors
     displayErrorUnsafe: function (err, errors) {
       var result = BaseView.prototype.displayErrorUnsafe.call(this, err, errors);
-      var isOAuthView = this.className.match('oauth');
-      if (isOAuthView || this.isOAuthSameBrowser()) {
+      var hasServiceView = this.className.match('oauth');
+      if (hasServiceView || this.isOAuthSameBrowser()) {
         this.setupOAuthLinks();
       }
       return result;

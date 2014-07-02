@@ -10,9 +10,9 @@ define([
   'views/base',
   'views/sign_up',
   'lib/session',
-  'views/mixins/oauth-mixin'
+  'views/mixins/service-mixin'
 ],
-function (_, p, BaseView, SignUpView, Session, OAuthMixin) {
+function (_, p, BaseView, SignUpView, Session, ServiceMixin) {
   var View = SignUpView.extend({
     className: 'sign-up oauth-sign-up',
 
@@ -45,7 +45,7 @@ function (_, p, BaseView, SignUpView, Session, OAuthMixin) {
     }
   });
 
-  _.extend(View.prototype, OAuthMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });

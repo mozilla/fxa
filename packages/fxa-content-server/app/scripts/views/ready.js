@@ -19,10 +19,10 @@ define([
   'lib/session',
   'lib/xss',
   'lib/strings',
-  'views/mixins/oauth-mixin',
+  'views/mixins/service-mixin',
   'views/marketing_snippet'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin, MarketingSnippet) {
+function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
     template: Template,
@@ -39,7 +39,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin, Ma
         // We're continuing an OAuth flow from the same browser
         this.setupOAuth(Session.oauth);
         return this.setServiceInfo();
-      } else if (this.isOAuth()) {
+      } else if (this.hasService()) {
         // We're continuing an OAuth flow in a different browser
         this.setupOAuth();
         return this.setServiceInfo();
@@ -90,7 +90,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin, Ma
     submit: function () {
       if (this.isOAuthSameBrowser()) {
         return this.finishOAuthFlow();
-      } else if (this.isOAuth()) {
+      } else if (this.hasService()) {
         return this.oAuthRedirectWithError();
       }
     },
@@ -100,7 +100,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, OAuthMixin, Ma
     }
   });
 
-  _.extend(View.prototype, OAuthMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });

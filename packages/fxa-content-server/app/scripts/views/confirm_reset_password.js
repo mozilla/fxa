@@ -12,9 +12,9 @@ define([
   'lib/session',
   'lib/constants',
   'lib/auth-errors',
-  'views/mixins/oauth-mixin'
+  'views/mixins/service-mixin'
 ],
-function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors, OAuthMixin) {
+function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors, ServiceMixin) {
   var t = BaseView.t;
 
   var View = ConfirmView.extend({
@@ -104,7 +104,7 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors, OA
     }
   });
 
-  _.extend(View.prototype, OAuthMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });
