@@ -91,6 +91,13 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       return defer.promise;
     },
 
+    getRandomBytes: function () {
+      return this._getClientAsync()
+        .then(function (client) {
+          return client.getRandomBytes();
+        });
+    },
+
     /**
      * Check the user's current password without affecting session state.
      */

@@ -10,24 +10,27 @@ define([
   'lib/fxa-client'
 ],
 function (P, jwcrypto, FxaClient) {
-
   var client = new FxaClient();
   var CERT_DURATION_MS = 1000 * 60 * 60 * 6; // 6hrs
   var ASSERTION_DURATION_MS = 1000 * 60 * 5; // 5mins
 
   function keyPair() {
-    var d = P.defer();
-    // for DSA-128 reasons, see http://goo.gl/uAjE41
-    jwcrypto.generateKeypair({
-      algorithm: 'DS',
-      keysize: 128
-    }, function (err, keypair) {
-      if (err) {
-        return d.reject(err);
-      }
-      d.resolve(keypair);
-    });
-    return d.promise;
+    return client.getRandomBytes()
+      .then(function(bytes) {
+        jwcrypto.addEntropy(bytes);
+        var d = P.defer();
+        // for DSA-128 reasons, see http://goo.gl/uAjE41
+        jwcrypto.generateKeypair({
+          algorithm: 'DS',
+          keysize: 128
+        }, function (err, keypair) {
+          if (err) {
+            return d.reject(err);
+          }
+          d.resolve(keypair);
+        });
+        return d.promise;
+      });
   }
 
   function certificate(audience) {

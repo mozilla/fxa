@@ -141,7 +141,7 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
         jQuery('html').removeClass('no-touch');
       });
 
-      it('focuses descendent element containing `autofocus` if html has `no-touch` class', function () {
+      it('focuses descendent element containing `autofocus` if html has `no-touch` class', function (done) {
         requiresFocus(function () {
           jQuery('html').addClass('no-touch');
           // wekbit fails unless focusing another element first.
@@ -151,22 +151,35 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
           jQuery('#focusMe').on('focus', function () {
             handlerCalled = true;
           });
-          view.afterVisible();
 
-          assert.isTrue(handlerCalled);
-        });
+          // IE focuses the elements asynchronously.
+          // Add a bit of delay to give the browser time to do its thing.
+          setTimeout(function () {
+            assert.isTrue(handlerCalled);
+            done();
+          }, 200);
+
+          view.afterVisible();
+        }, done);
       });
 
-      it('does not focus descendent element containing `autofocus` if html does not have `no-touch` class', function () {
+      it('does not focus descendent element containing `autofocus` if html does not have `no-touch` class', function (done) {
         requiresFocus(function () {
           var handlerCalled = false;
           jQuery('#focusMe').on('focus', function () {
             handlerCalled = true;
           });
-          view.afterVisible();
 
-          assert.isFalse(handlerCalled);
-        });
+          // IE focuses the elements asynchronously.
+          // Add a bit of delay to give the browser time to focus
+          // the element, if it erroneously does so.
+          setTimeout(function () {
+            assert.isFalse(handlerCalled);
+            done();
+          }, 200);
+
+          view.afterVisible();
+        }, done);
       });
     });
 

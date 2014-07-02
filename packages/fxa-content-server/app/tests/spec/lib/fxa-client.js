@@ -510,6 +510,15 @@ function (chai, $, p, ChannelMock, testHelpers,
       });
     });
 
+    describe('getRandomBytes', function () {
+      it('snags some entropy from somewhere', function () {
+        return client.getRandomBytes()
+            .then(function (bytes) {
+              assert.ok(bytes);
+            });
+      });
+    });
+
   });
 });
 
