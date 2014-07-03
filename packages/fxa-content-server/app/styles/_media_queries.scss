@@ -180,7 +180,7 @@
 
   .marketing {
     background-color: none;
-    border-radius: 0 0 5px 5px;
+    border-radius: 0 0 $big-border-radius $big-border-radius;
     border-top: 1px solid $marketing-border-color;
     bottom: 0;
     left: 0;
@@ -287,7 +287,7 @@
   .input-row input[type='email'],
   .input-row input[type='password'],
   .input-row select {
-    border-radius: 2px;
+    border-radius: $small-border-radius;
     font-size: 16px;
     height: 36px;
     padding: 0 $input-left-right-padding * .5;
@@ -298,14 +298,14 @@
   }
 
   .password-row .show-password-label {
-    border-radius: 0 2px 2px 0;
+    border-radius: 0 $small-border-radius $small-border-radius 0;
     font-size: 14px;
     height: 34px;
     line-height: 34px;
   }
 
   .select-row {
-    border-radius:2px;
+    border-radius: $small-border-radius;
     height:36px;
   }
 
