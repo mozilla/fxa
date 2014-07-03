@@ -95,7 +95,7 @@ noscript {
 
 #stage {
   background: $stage-background-color;
-  border-radius: 5px;
+  border-radius: $big-border-radius;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
   margin: -5px auto 0 auto;
   min-height: 450px;
@@ -180,7 +180,7 @@ strong.email {
 
 .error,
 .success {
-  border-radius: 3px;
+  border-radius: $small-border-radius;
   color: $message-text-color;
   display: none;
   margin-bottom: 5px;
@@ -246,7 +246,7 @@ strong.email {
 
 .tooltip {
   background: $error-background-color;
-  border-radius: 1px;
+  border-radius: $small-border-radius;
   color: $message-text-color;
   left: 3px;
   padding: 5px 12px;
@@ -288,7 +288,7 @@ strong.email {
 .input-row select {
   background-color: $mobile-html-background-color;
   border: 1px solid $input-row-border-color;
-  border-radius: 5px;
+  border-radius: $big-border-radius;
   box-shadow: inset 0 1px 1px $input-row-box-shadow-color;
   color: $input-text-color;
   font-size: 18px;
@@ -440,7 +440,7 @@ label:focus ~ .input-help-focused {
 
 .select-row {
   background: url(/images/ddarrow_inactive.png) 96% center no-repeat;
-  border-radius: 5px;
+  border-radius: $big-border-radius;
   border: 1px solid $input-row-border-color;
   cursor:pointer;
   height:45px;
@@ -529,7 +529,7 @@ label:focus ~ .input-help-focused {
 .button-row a.button {
   background: $button-background-color;
   border: none;
-  border-radius: 5px;
+  border-radius: $big-border-radius;
   color: $message-text-color;
   cursor: pointer;
   @include font();
@@ -655,7 +655,7 @@ ul.links li {
 .password-row .show-password-label {
   background-color: $stage-background-color;
   border-left: 1px solid $input-row-border-color;
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 $big-border-radius $big-border-radius 0;
   color: $input-placeholder-color;
   cursor: pointer;
   font-size: 16px;
@@ -770,7 +770,7 @@ input[type="text"] ~ .show-password-label:hover {
 }
 
 .label-helper {
-  border-radius: 2px;
+  border-radius: $small-border-radius;
   color: $input-placeholder-color;
   font-size: 12px;
   font-weight: normal;
@@ -813,7 +813,7 @@ input[type="text"] ~ .show-password-label:hover {
 
 .marketing {
   background-color: $marketing-background-color;
-  border-radius: 0 0 5px 5px;
+  border-radius: 0 0 $big-border-radius $big-border-radius;
   border-top: 1px solid $marketing-border-color;
   // pull in the margins from #stage 
   margin: 60px -40px -40px -40px;

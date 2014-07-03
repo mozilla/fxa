@@ -26,6 +26,9 @@ $stage-background-color: #fff;
 $success-background-color: #5fad47;
 $text-color: #424f59;
 
+$small-border-radius: 2px;
+$big-border-radius: $small-border-radius * 2;
+
 @mixin font() {
   font-family: $default-font;
 }
