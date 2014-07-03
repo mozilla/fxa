@@ -38,7 +38,7 @@ function addVersion(loggableEvent) {
 
 function copyFields(fields, to, from) {
   fields.forEach(function(field) {
-    to[field] = from[field] || 'unknown';
+    to[field] = from.hasOwnProperty(field) ? from[field] : 'unknown';
   });
 }
 
@@ -87,7 +87,10 @@ function toLoggableEvent(event) {
     'agent',
     'duration',
     'context',
-    'service'
+    'service',
+    'marketingLink',
+    'marketingType',
+    'marketingClicked'
   ], loggableEvent, event);
 
   addNavigationTiming(loggableEvent, event);

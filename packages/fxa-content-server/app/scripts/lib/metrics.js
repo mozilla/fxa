@@ -37,7 +37,10 @@ define([
     'events',
     'context',
     'service',
-    'lang'
+    'lang',
+    'marketingLink',
+    'marketingType',
+    'marketingClicked'
   ];
 
   var TEN_MINS_MS = 10 * 60 * 1000;
@@ -130,7 +133,10 @@ define([
       var allData = _.extend({
         context: this._context,
         service: this._service,
-        lang: this._lang
+        lang: this._lang,
+        marketingType: this._marketingType || 'none',
+        marketingLink: this._marketingLink || 'none',
+        marketingClicked: this._marketingClicked || false
       }, loadData, unloadData);
 
       return allData;
@@ -214,6 +220,21 @@ define([
      */
     pathToId: function (path) {
       return 'screen:' + Url.pathToScreenName(path);
+    },
+
+    /**
+     * Log which marketing snippet is shown to the user
+     */
+    logMarketingImpression: function (type, link) {
+      this._marketingType = type;
+      this._marketingLink = link;
+    },
+
+    /**
+     * Log whether the user clicked on the marketing link
+     */
+    logMarketingClick: function () {
+      this._marketingClicked = true;
     }
   });
 

@@ -50,6 +50,10 @@ define([
 
       assert.equal(loggedMetrics.service, 'sync');
       assert.equal(loggedMetrics.context, 'fx_desktop_v1');
+
+      assert.equal(loggedMetrics.marketingType, 'survey');
+      assert.equal(loggedMetrics.marketingLink, 'http://mzl.la/1oV7jUy');
+      assert.isFalse(loggedMetrics.marketingClicked);
     });
 
     metricsCollector.write({
@@ -71,7 +75,10 @@ define([
       'user-agent': 'Firefox 32.0',
       lang: 'db_LB',
       service: 'sync',
-      context: 'fx_desktop_v1'
+      context: 'fx_desktop_v1',
+      marketingType: 'survey',
+      marketingLink: 'http://mzl.la/1oV7jUy',
+      marketingClicked: false
     });
   };
 

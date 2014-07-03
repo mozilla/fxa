@@ -80,7 +80,8 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
         type: this.type,
         service: Session.service,
         language: Session.language,
-        el: this.$('.marketing-area')
+        el: this.$('.marketing-area'),
+        metrics: this.metrics
       });
       this.trackSubview(marketingSnippet);
 
