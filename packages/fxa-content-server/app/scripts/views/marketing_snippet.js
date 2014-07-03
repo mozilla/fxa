@@ -21,7 +21,7 @@ define([
   'views/base',
   'stache!templates/marketing_snippet'
 ], function (BaseView, Template) {
-  var SURVEY_PERCENTAGE = 10;
+  var SURVEY_PERCENTAGE = 0;
 
   var View = BaseView.extend({
     template: Template,
