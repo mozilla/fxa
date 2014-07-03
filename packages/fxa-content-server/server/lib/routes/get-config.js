@@ -7,14 +7,16 @@
 var config = require('../configuration');
 var publicUrl = config.get('public_url');
 var authServerUrl = config.get('fxaccount_url');
+var isAuthServerProxyEnabled = config.get('fxaccount_proxy.enabled');
 var oauthServerUrl = config.get('oauth_url');
+var isOauthServerProxyEnabled = config.get('oauth_proxy.enabled');
 
 function isIE8(userAgent) {
   return /MSIE 8\.0/.test(userAgent);
 }
 
 function getAuthServerUrl(userAgent) {
-  if (isIE8(userAgent)) {
+  if (isAuthServerProxyEnabled && isIE8(userAgent)) {
     return publicUrl + '/auth';
   }
 
@@ -22,7 +24,7 @@ function getAuthServerUrl(userAgent) {
 }
 
 function getOAuthServerUrl(userAgent) {
-  if (isIE8(userAgent)) {
+  if (isOauthServerProxyEnabled && isIE8(userAgent)) {
     return publicUrl + '/oauth';
   }
 

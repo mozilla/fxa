@@ -5,11 +5,6 @@
 'use strict';
 
 
-var url = require('url');
-var dns = require('dns');
-var path = require('path');
-var fs = require('fs');
-var config = require('./configuration');
 var logger = require('intel').getLogger('server.routes');
 
 /**
@@ -30,14 +25,23 @@ module.exports = function (config, templates, i18n) {
     require('./routes/get-terms-privacy')(i18n),
     require('./routes/get-config')(i18n),
     require('./routes/get-client.json')(i18n),
-    require('./routes/post-metrics')(),
-    require('./routes/get-auth'),
-    require('./routes/get-oauth'),
-    require('./routes/post-auth'),
-    require('./routes/post-oauth')
+    require('./routes/post-metrics')()
   ];
 
-  var authServerHost = url.parse(config.get('fxaccount_url')).hostname;
+  if (config.get('fxaccount_proxy.enabled')) {
+    routes.push(
+      require('./routes/get-auth'),
+      require('./routes/post-auth')
+    );
+  }
+
+  if (config.get('oauth_proxy.enabled')) {
+    routes.push(
+      require('./routes/get-oauth'),
+      require('./routes/post-oauth')
+    );
+  }
+
 
   return function (app) {
     // handle password reset links
