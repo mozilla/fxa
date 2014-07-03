@@ -2,7 +2,8 @@
   <header>
     <h1 id="fxa-signin-header">
       {{#serviceName}}
-        {{#t}}Sign in to %(serviceName)s{{/t}}
+        <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+        {{#t}}Sign in{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
       {{/serviceName}}
       {{^serviceName}}
         {{#t}}Sign in{{/t}}

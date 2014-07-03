@@ -145,10 +145,6 @@ define([
       return this.get('context') === Constants.FX_DESKTOP_CONTEXT;
     },
 
-    isSync: function () {
-      return this.get('service') === 'sync';
-    },
-
     // BEGIN TEST API
     /**
      * Remove an item from memory but not sessionStorage. Used to test .load

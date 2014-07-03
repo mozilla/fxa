@@ -15,13 +15,16 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
+  'lib/translator',
+  'lib/service-name',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, RouterMock, WindowMock, TestHelpers) {
+function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator, ServiceName, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
+  var translator = new Translator('en-US', ['en-US']);
 
   function fillOutSignUp (email, password, opts) {
     opts = opts || {};
@@ -102,9 +105,21 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, RouterMo
       it('shows choose what to sync checkbox when service is sync even after session is cleared', function () {
         Session.set('service', 'sync');
         Session.clear();
+
         return view.render()
             .then(function () {
               assert.equal(view.$('.customize-sync-row').length, 1);
+            });
+      });
+
+      it('Shows Sync service name', function () {
+        Session.set('service', 'sync');
+        var syncName = new ServiceName(translator).get('sync');
+
+        // create a new view so that it initializes with the service from Session
+        return view.render()
+            .then(function () {
+              assert.include(view.$('#fxa-signup-header').text(), syncName);
             });
       });
     });

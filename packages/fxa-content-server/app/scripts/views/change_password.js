@@ -12,9 +12,10 @@ define([
   'lib/session',
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, AuthErrors) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, AuthErrors, ServiceMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -33,7 +34,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
 
     context: function () {
       return {
-        isSync: Session.isSync()
+        isSync: this.isSync()
       };
     },
 
@@ -96,6 +97,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
 
   _.extend(View.prototype, PasswordMixin);
   _.extend(View.prototype, FloatingPlaceholderMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });
