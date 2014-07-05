@@ -87,6 +87,10 @@ MemoryStore.prototype = {
   getClient: function getClient(id) {
     return P.resolve(this.clients[unbuf(id)]);
   },
+  removeClient: function removeClient(id) {
+    delete this.clients[unbuf(id)];
+    return P.resolve();
+  },
   generateCode: function generateCode(clientId, userId, email, scope) {
     var code = {};
     code.clientId = clientId;

@@ -72,6 +72,7 @@ const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients (id, name, imageUri, secret, redirectUri, whitelisted)' +
   'VALUES (?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
+const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
   'INSERT INTO codes (clientId, userId, email, scope, code) VALUES ' +
   '(?, ?, ?, ?, ?)';
@@ -137,6 +138,17 @@ MysqlStore.prototype = {
         return d.reject(err);
       }
       d.resolve(rows[0]);
+    });
+    return d.promise;
+  },
+  removeClient: function removeClient(_id) {
+    var d = P.defer();
+    var id = buf(_id);
+    this._connection.query(QUERY_CLIENT_DELETE, [id], function(err) {
+      if (err) {
+        return d.reject(err);
+      }
+      d.resolve();
     });
     return d.promise;
   },
