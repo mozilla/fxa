@@ -273,10 +273,19 @@ strong.email {
   z-index: -1;
 }
 
+//RTL languages need adjusted caret position
+html[dir='rtl'] .tooltip:before,
+html[dir='rtl'] .tooltip::before, {
+    top: 19px;
+}
+
 /**
  * these are caret's attached to tooltips that hang below the
  * input element. The tooltip's top is set via JS.
  */
+
+html[dir='rtl'] .tooltip-below:before,
+html[dir='rtl'] .tooltip-below::before,
 .tooltip-below:before,
 .tooltip-below::before {
   top: -7px;
@@ -469,11 +478,11 @@ label:focus ~ .input-help-focused {
   font-size: 18px;
   height: auto;
   outline: none;
-  padding: 8px 0 9px $input-left-right-padding;
+  padding: 9px 10% 9px $input-left-right-padding;
   text-indent: 0.01px;
   text-overflow: "";
   user-select: none;
-  width: 100%;
+  width: 90%;
 }
 
 .select-row:hover select {
@@ -638,7 +647,8 @@ ul.links li {
  * The password class is used instead of type because the field's type can
  * change from password to text.
  */
-.password-row input[type='password'] {
+.password-row input[type='password'],
+.password-row input[type='text'] {
   padding-right: 75px;
 }
 
