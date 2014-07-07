@@ -1,6 +1,8 @@
+//Font Family Variables
 $default-font: "Clear Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 $header-font: "Fira Sans", Helvetica, Arial, sans-serif;
 
+//Color Variables
 $button-background-color: #0095dd;
 $button-background-disabled-color: #8a9ba8;
 $button-background-hover-color: #08c;
@@ -26,8 +28,14 @@ $stage-background-color: #fff;
 $success-background-color: #5fad47;
 $text-color: #424f59;
 
+//Border-Radius Variables
 $small-border-radius: 2px;
 $big-border-radius: $small-border-radius * 2;
+
+//Animation Variables
+$short-transition: 150ms;
+$medium-transition: $short-transition * 3;
+$long-transition: $short-transition * 7;
 
 @mixin font() {
   font-family: $default-font;

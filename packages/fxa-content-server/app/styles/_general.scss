@@ -48,7 +48,7 @@ noscript {
   opacity: .5;
   position: absolute;
   right: 12px;
-  transition: opacity 150ms;
+  transition: opacity $short-transition;
   top: 12px;
   width: 69px;
 
@@ -296,7 +296,7 @@ strong.email {
   outline: none;
   padding: 0 $input-left-right-padding;
   position: relative;
-  transition-duration: 150ms;
+  transition-duration: $short-transition;
   transition-property: border-color;
   /*kills inset shadow on ios browsers*/
   -webkit-appearance:none;
@@ -346,7 +346,7 @@ strong.email {
 .input-row input:focus,
 .input-row select:focus {
   border-color: $input-row-focus-border-color;
-  transition-duration: 150ms;
+  transition-duration: $short-transition;
   transition-property: border-color;
 }
 
@@ -355,7 +355,7 @@ strong.email {
 .input-row select:focus {
   background-image: url(/images/ddarrow_active.png);
   background-color: $html-background-color;
-  transition-duration: 150ms;
+  transition-duration: $short-transition;
   transition-property: all;
 }
 
@@ -412,7 +412,7 @@ strong.email {
 
 .input-row .input-help-focused {
   opacity: 0;
-  transition-duration: 750ms;
+  transition-duration: $medium-transition;
   transition-property: opacity;
 }
 
@@ -445,7 +445,7 @@ label:focus ~ .input-help-focused {
   cursor:pointer;
   height:45px;
   overflow:hidden;
-  transition-duration: 150ms;
+  transition-duration: $short-transition;
   transition-property: border-color;
   width:100%;
 }
@@ -535,7 +535,7 @@ label:focus ~ .input-help-focused {
   @include font();
   font-size: 24px;
   padding: 15px 0;
-  transition-duration: 150ms;
+  transition-duration: $short-transition;
   transition-property: background-color;
   width: 100%;
 }
@@ -612,7 +612,7 @@ ul.links li {
 .privacy-links a {
   color: $input-placeholder-color;
   margin-top: 35px;
-  transition-duration: 150ms;
+  transition-duration: $short-transition;
 }
 
 .privacy-links + .button-row {
