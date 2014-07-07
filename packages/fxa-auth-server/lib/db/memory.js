@@ -134,6 +134,10 @@ MemoryStore.prototype = {
   removeToken: function removeToken(id) {
     delete this.tokens[unbuf(id)];
     return P.resolve();
+  },
+  getEncodingInfo: function getEncodingInfo() {
+    console.warn('getEncodingInfo has no meaning with memory implementation');
+    return P.resolve({});
   }
 };
 
