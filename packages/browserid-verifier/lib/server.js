@@ -20,7 +20,6 @@ var server = http.createServer(app);
 
 var verifier = new CCVerifier({
   httpTimeout: config.get('httpTimeout'),
-  allowURLOmission: config.get('allowURLOmission'),
   insecureSSL: config.get('insecureSSL'),
   testServiceFailure: config.get('testServiceFailure')
 });
