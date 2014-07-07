@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "async": "0.9.0",
-    "browserid-local-verify": "git://github.com/mozilla/browserid-local-verify.git#404bdcd158094aaaeb412b8eb0263243c79f8b92",
+    "browserid-local-verify": "0.0.10",
     "compute-cluster": "git://github.com/dannycoates/node-compute-cluster.git#0222a742",
     "convict": "0.4.2",
     "express": "3.8.1",
