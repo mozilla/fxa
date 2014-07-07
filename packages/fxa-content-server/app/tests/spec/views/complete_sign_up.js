@@ -12,15 +12,16 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/constants',
+  'lib/fxa-client',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, View, AuthErrors, Metrics, Constants, RouterMock, WindowMock, TestHelpers) {
+function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
-    var view, routerMock, windowMock, verificationError, metrics;
+    var view, routerMock, windowMock, verificationError, metrics, fxaClient;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
@@ -48,11 +49,13 @@ function (chai, p, View, AuthErrors, Metrics, Constants, RouterMock, WindowMock,
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
         window: windowMock,
-        metrics: metrics
+        metrics: metrics,
+        fxaClient: fxaClient
       });
 
       verificationError = null;

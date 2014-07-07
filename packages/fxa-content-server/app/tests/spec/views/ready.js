@@ -9,20 +9,23 @@ define([
   'chai',
   'views/ready',
   'lib/session',
+  'lib/fxa-client',
   '../../mocks/window'
 ],
-function (chai, View, Session, WindowMock) {
+function (chai, View, Session, FxaClient, WindowMock) {
   var assert = chai.assert;
   //var redirectUri =  'https://sync.firefox.com';
 
   describe('views/ready', function () {
-    var view, windowMock;
+    var view, windowMock, fxaClient;
 
     function createView(surveyPercentage) {
       windowMock = new WindowMock();
+      fxaClient = new FxaClient();
 
       view = new View({
-        window: windowMock
+        window: windowMock,
+        fxaClient: fxaClient
       });
     }
 

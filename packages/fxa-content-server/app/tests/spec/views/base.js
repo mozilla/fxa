@@ -13,6 +13,7 @@ define([
   'lib/ephemeral-messages',
   'lib/metrics',
   'lib/auth-errors',
+  'lib/fxa-client',
   'stache!templates/test_template',
   '../../mocks/dom-event',
   '../../mocks/router',
@@ -20,7 +21,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
-          AuthErrors, Template, DOMEventMock, RouterMock, WindowMock,
+          AuthErrors, FxaClient, Template, DOMEventMock, RouterMock, WindowMock,
           TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -28,7 +29,7 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
   var assert = chai.assert;
 
   describe('views/base', function () {
-    var view, router, windowMock, ephemeralMessages, translator, metrics;
+    var view, router, windowMock, ephemeralMessages, translator, metrics, fxaClient;
 
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
@@ -41,6 +42,7 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
       windowMock = new WindowMock();
       ephemeralMessages = new EphemeralMessages();
       metrics = new Metrics();
+      fxaClient = new FxaClient();
 
       var View = BaseView.extend({
         template: Template
@@ -51,7 +53,8 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
         router: router,
         window: windowMock,
         ephemeralMessages: ephemeralMessages,
-        metrics: metrics
+        metrics: metrics,
+        fxaClient: fxaClient
       });
 
       return view.render()

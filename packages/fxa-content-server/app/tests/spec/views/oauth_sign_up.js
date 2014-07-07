@@ -18,7 +18,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
   var assert = chai.assert;
 
   describe('views/oauth_sign_up', function () {
-    var view, email, router, windowMock, CLIENT_ID, STATE, SCOPE, CLIENT_NAME, BASE_REDIRECT_URL;
+    var view, email, router, windowMock, CLIENT_ID, STATE, SCOPE, CLIENT_NAME, BASE_REDIRECT_URL, fxaClient;
 
     CLIENT_ID = 'dcdb5ae7add825d2';
     STATE = '123';
@@ -32,9 +32,13 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
       router = new RouterMock();
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE + '&redirect_uri=' + encodeURIComponent(BASE_REDIRECT_URL);
+
+      fxaClient = new FxaClient();
+
       view = new View({
         router: router,
-        window: windowMock
+        window: windowMock,
+        fxaClient: fxaClient
       });
       view.render();
       $('#container').html(view.el);

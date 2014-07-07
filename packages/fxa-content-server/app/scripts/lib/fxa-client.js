@@ -9,6 +9,7 @@
 'use strict';
 
 define([
+  'underscore',
   'fxaClient',
   'jquery',
   'p-promise',
@@ -16,17 +17,7 @@ define([
   'lib/auth-errors',
   'lib/constants'
 ],
-function (FxaClient, $, p, Session, AuthErrors, Constants) {
-  var client;
-
-  /**
-   * NOTE: Views create their own FxaClientWrapper. These are
-   * kept as global state so the counts are shared across wrappers.
-   * The counts can be reset by calling `FxaClientWrapper.testClear();`
-   */
-  var signUpResendCount = 0;
-  var passwordResetResendCount = 0;
-
+function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
   // IE 8 doesn't support String.prototype.trim
   function trim(str) {
     return str && str.replace(/^\s+|\s+$/g, '');
@@ -34,7 +25,10 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
 
   function FxaClientWrapper(options) {
     options = options || {};
-    client = options.client;
+
+    this._client = options.client;
+    this._signUpResendCount = 0;
+    this._passwordResetResendCount = 0;
   }
 
   FxaClientWrapper.prototype = {
@@ -74,16 +68,15 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     _getClientAsync: function () {
       var defer = p.defer();
 
-      if (client) {
-        defer.resolve(client);
-      } else if (Session.config && Session.config.fxaccountUrl) {
-        client = new FxaClient(Session.config.fxaccountUrl);
-        defer.resolve(client);
+      if (this._client) {
+        defer.resolve(this._client);
       } else {
-        $.getJSON('/config', function (data) {
-          client = new FxaClient(data.fxaccountUrl);
-          defer.resolve(client);
-        });
+        var self = this;
+        this._getFxAccountUrl()
+          .then(function (fxaccountUrl) {
+            self._client = new FxaClient(fxaccountUrl);
+            defer.resolve(self._client);
+          });
       }
 
       // Protip: add `.delay(msToDelay)` to do a dirty
@@ -91,6 +84,21 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       return defer.promise;
     },
 
+    _getFxAccountUrl: function() {
+      if (Session.config && Session.config.fxaccountUrl) {
+        return p(Session.config.fxaccountUrl);
+      }
+
+      var defer = p.defer();
+      $.getJSON('/config', function (data) {
+        defer.resolve(data.fxaccountUrl);
+      });
+      return defer.promise;
+    },
+
+    /**
+     * Fetch some entropy from the server
+     */
     getRandomBytes: function () {
       return this._getClientAsync()
         .then(function (client) {
@@ -128,7 +136,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
                 }
                 return;
               })
-              .then(self._getClientAsync)
+              .then(_.bind(self._getClientAsync, self))
               .then(function (client) {
                 return client.signIn(email, password, { keys: true });
               })
@@ -177,14 +185,14 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       var service = Session.service;
       var redirectTo = Session.redirectTo;
       // ensure resend works again
-      signUpResendCount = 0;
+      this._signUpResendCount = 0;
 
       // We need to check for the relink warning here *before*
       // we do the account creation. Otherwise, the user may
       // cancel later in the relink warning during sign in,
       // but still have an account created for her.
       return this._checkForDesktopSyncRelinkWarning(email)
-              .then(this._getClientAsync)
+              .then(_.bind(this._getClientAsync, this))
               .then(function (client) {
                 var signUpOptions = {
                   keys: true,
@@ -220,14 +228,15 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     },
 
     signUpResend: function () {
+      var self = this;
       return this._getClientAsync()
         .then(function (client) {
-          if (signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
+          if (self._signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
             var defer = p.defer();
             defer.resolve(true);
             return defer.promise;
           } else {
-            signUpResendCount++;
+            self._signUpResendCount++;
           }
 
           return client.recoveryEmailResendCode(
@@ -271,7 +280,7 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
       var oauth = Session.oauth;
 
       // ensure resend works again
-      passwordResetResendCount = 0;
+      this._passwordResetResendCount = 0;
 
       return this._getClientAsync()
               .then(function (client) {
@@ -297,14 +306,15 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
     },
 
     passwordResetResend: function () {
+      var self = this;
       return this._getClientAsync()
         .then(function (client) {
-          if (passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
+          if (self._passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
             var defer = p.defer();
             defer.resolve(true);
             return defer.promise;
           } else {
-            passwordResetResendCount++;
+            self._passwordResetResendCount++;
           }
           // the linters complain if this is defined in the call to
           // passwordForgotResendCode
@@ -323,8 +333,10 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
 
     completePasswordReset: function (originalEmail, newPassword, token, code) {
       var email = trim(originalEmail);
+      var client;
       return this._getClientAsync()
-              .then(function (client) {
+              .then(function (_client) {
+                client = _client;
                 return client.passwordForgotVerifyCode(code, token);
               })
               .then(function (result) {
@@ -425,15 +437,6 @@ function (FxaClient, $, p, Session, AuthErrors, Constants) {
           return client.recoveryEmailStatus(sessionToken);
         });
     }
-  };
-
-  /**
-   * Reset global state - for testing.
-   * @method testClear
-   */
-  FxaClientWrapper.testClear = function () {
-    signUpResendCount = 0;
-    passwordResetResendCount = 0;
   };
 
   return FxaClientWrapper;

@@ -12,18 +12,22 @@ define([
   'views/settings',
   '../../mocks/router',
   'lib/session',
-  'lib/constants'
+  'lib/constants',
+  'lib/fxa-client'
 ],
-function (chai, _, $, View, RouterMock, Session, Constants) {
+function (chai, _, $, View, RouterMock, Session, Constants, FxaClient) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
-    var view, routerMock, email;
+    var view, routerMock, email, fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      fxaClient = new FxaClient();
+
       view = new View({
-        router: routerMock
+        router: routerMock,
+        fxaClient: fxaClient
       });
     });
 

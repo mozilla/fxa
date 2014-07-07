@@ -32,6 +32,10 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
   // is passed in to the contstructor.
   var nullMetrics = new NullMetrics();
 
+  // Share one fxa client across all views. View can be initialized
+  // with an fxaClient for testing.
+  var fxaClient = new FxaClient();
+
   var BaseView = Backbone.View.extend({
     constructor: function (options) {
       options = options || {};
@@ -43,7 +47,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
       this.metrics = options.metrics || nullMetrics;
 
-      this.fxaClient = new FxaClient();
+      this.fxaClient = options.fxaClient || fxaClient;
 
       Backbone.View.call(this, options);
     },
