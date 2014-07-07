@@ -8,16 +8,20 @@
 define([
   'chai',
   'views/marketing_snippet',
+  'lib/metrics',
   '../../mocks/window'
 ],
-function (chai, View, WindowMock) {
+function (chai, View, Metrics, WindowMock) {
   var assert = chai.assert;
 
   describe('views/marketing_snippet', function () {
-    var view, windowMock;
+    var view, windowMock, metrics;
 
     function createView(options) {
       options.window = windowMock;
+
+      metrics = new Metrics();
+      options.metrics = metrics;
 
       view = new View(options);
     }
@@ -145,6 +149,43 @@ function (chai, View, WindowMock) {
             });
       });
 
+      it('logs the marketing type and link', function () {
+        createView({
+          type: 'sign_up',
+          service: 'sync',
+          language: 'de',
+          surveyPercentage: 100
+        });
+
+        return view.render()
+            .then(function () {
+              var filteredData = metrics.getFilteredData();
+              assert.ok(filteredData.marketingType);
+              assert.ok(filteredData.marketingLink);
+              assert.isFalse(filteredData.marketingClicked);
+            });
+      });
+
+    });
+
+    describe('a click on the marketing material', function () {
+      it('is logged', function () {
+        createView({
+          type: 'sign_up',
+          service: 'sync',
+          language: 'de',
+          surveyPercentage: 100
+        });
+
+        return view.render()
+            .then(function () {
+              view.$('.marketing-link').click();
+            })
+            .then(function () {
+              var filteredData = metrics.getFilteredData();
+              assert.isTrue(filteredData.marketingClicked);
+            });
+      });
     });
   });
 });
