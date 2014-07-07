@@ -21,6 +21,13 @@ module.exports = [
   },
   {
     method: 'GET',
+    path: '/config',
+    config: require('./routes/config')
+  },
+
+  // v1 API
+  {
+    method: 'GET',
     path: v('/client/{client_id}'),
     config: require('./routes/client')
   },

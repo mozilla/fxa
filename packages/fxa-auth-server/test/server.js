@@ -27,4 +27,15 @@ describe('server', function() {
       }).done(done, done);
     });
   });
+
+  describe('/config', function() {
+    it('should succeed', function(done) {
+      Server.get('/config').then(function(res) {
+        assert.equal(res.statusCode, 200);
+        assert(res.result.browserid.issuer);
+        assert(res.result.browserid.verificationUrl);
+        assert(res.result.contentUrl);
+      }).done(done, done);
+    });
+  });
 });
