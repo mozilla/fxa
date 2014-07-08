@@ -470,5 +470,13 @@ module.exports = function (
       )
   }
 
+  DB.prototype.updateLocale = function (uid, locale) {
+    log.trace({ op: 'DB.updateLocale', uid: uid, locale: locale })
+    return this.pool.post(
+      '/account/' + uid.toString('hex') + '/locale',
+      { locale: locale }
+    )
+  }
+
   return DB
 }

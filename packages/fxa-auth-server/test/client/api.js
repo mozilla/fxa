@@ -226,7 +226,7 @@ ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code) {
   )
 }
 
-ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration) {
+ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration, locale) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
@@ -237,6 +237,9 @@ ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, dura
           {
             publicKey: publicKey,
             duration: duration
+          },
+          {
+            'accept-language': locale
           }
         )
       }.bind(this)

@@ -46,6 +46,7 @@ module.exports = function (
         var email = form.email
         var authSalt = crypto.randomBytes(32)
         var authPW = Buffer(form.authPW, 'hex')
+        var locale = request.app.acceptLanguage
         customs.check(
           request.app.clientAddress,
           request.headers['user-agent'],
@@ -84,7 +85,8 @@ module.exports = function (
                       passwordForgotToken: null,
                       authSalt: authSalt,
                       verifierVersion: password.version,
-                      verifyHash: verifyHash
+                      verifyHash: verifyHash,
+                      locale: locale
                     }
                   )
                   .then(
@@ -324,8 +326,8 @@ module.exports = function (
         var uid = Buffer(request.query.uid, 'hex')
         db.account(uid)
           .done(
-            function () {
-              reply({ exists: true })
+            function (account) {
+              reply({ exists: true, locale: account.locale })
             },
             function (err) {
               if (err.errno === 102) {

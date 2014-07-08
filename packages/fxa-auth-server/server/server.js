@@ -55,35 +55,35 @@ module.exports = function (path, url, Hapi) {
     }
 
     var serverOptions = {
-        cors: {
-          additionalExposedHeaders: ['Timestamp', 'Accept-Language']
-        },
-        files: {
-          relativeTo: path.dirname(__dirname)
-        },
-        state: {
-          cookies: {
-            parse: false
-          }
-        },
-        load: {
-          maxEventLoopDelay: config.toobusy.maxLag,
-          sampleInterval: 1000
-        },
-        security: {
-          hsts: {
-            maxAge: 15552000,
-            includeSubdomains: true
-          }
+      cors: {
+        additionalExposedHeaders: ['Timestamp', 'Accept-Language']
+      },
+      files: {
+        relativeTo: path.dirname(__dirname)
+      },
+      state: {
+        cookies: {
+          parse: false
+        }
+      },
+      load: {
+        maxEventLoopDelay: config.toobusy.maxLag,
+        sampleInterval: 1000
+      },
+      security: {
+        hsts: {
+          maxAge: 15552000,
+          includeSubdomains: true
         }
       }
+    }
 
-      if(config.useHttps) {
-          serverOptions.tls = {
-              key: fs.readFileSync(config.keyPath),
-              cert: fs.readFileSync(config.certPath)
-          }
+    if(config.useHttps) {
+      serverOptions.tls = {
+        key: fs.readFileSync(config.keyPath),
+        cert: fs.readFileSync(config.certPath)
       }
+    }
 
     var server = Hapi.createServer(
       config.listen.host,
@@ -146,6 +146,22 @@ module.exports = function (path, url, Hapi) {
       }
     )
 
+    function trimLocale(header) {
+      if (!header || header === 'undefined') {
+        return null
+      }
+      if (header.length < 256) {
+        return header
+      }
+      var parts = header.split(',')
+      var str = parts[0]
+      if (str.length >= 255) { return null }
+      for (var i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
+        str += ',' + parts[i]
+      }
+      return str
+    }
+
     server.ext(
       'onPreAuth',
       function (request, next) {
@@ -156,7 +172,7 @@ module.exports = function (path, url, Hapi) {
         request.app.remoteAddressChain = xff.filter(function(x){ return x })
         request.app.clientAddress = request.app.remoteAddressChain[0]
 
-        request.app.acceptLanguage = request.headers['accept-language']
+        request.app.acceptLanguage = trimLocale(request.headers['accept-language'])
 
         if (request.headers.authorization) {
           // Log some helpful details for debugging authentication problems.

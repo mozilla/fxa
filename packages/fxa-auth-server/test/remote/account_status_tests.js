@@ -29,6 +29,23 @@ TestServer.start(config)
   )
 
   test(
+    'account status includes locale',
+    function (t) {
+      return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
+        .then(
+          function (c) {
+            return c.api.accountStatus(c.uid)
+          }
+        )
+        .then(
+          function (response) {
+            t.equal(response.locale, 'en-US', 'locale is stored')
+          }
+        )
+    }
+  )
+
+  test(
     'account status with non-existing account',
     function (t) {
       var api = new Client.Api(config.publicUrl)

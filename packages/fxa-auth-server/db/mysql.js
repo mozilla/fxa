@@ -118,8 +118,8 @@ module.exports = function (
   // CREATE
   var CREATE_ACCOUNT = 'INSERT INTO accounts' +
     ' (uid, normalizedEmail, email, emailCode, emailVerified, kA, wrapWrapKb,' +
-    ' authSalt, verifierVersion, verifyHash, verifierSetAt, createdAt)' +
-    ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    ' authSalt, verifierVersion, verifyHash, verifierSetAt, createdAt, locale)' +
+    ' VALUES (?, LOWER(?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (data) {
     log.trace(
@@ -146,7 +146,8 @@ module.exports = function (
         data.verifierVersion,
         data.verifyHash,
         data.verifierSetAt,
-        data.createdAt
+        data.createdAt,
+        data.locale
       ]
     )
     .then(
@@ -337,7 +338,7 @@ module.exports = function (
   }
 
   var SESSION_TOKEN = 'SELECT t.tokenData, t.uid, t.createdAt,' +
-    ' a.emailVerified, a.email, a.emailCode, a.verifierSetAt' +
+    ' a.emailVerified, a.email, a.emailCode, a.verifierSetAt, a.locale' +
     ' FROM sessionTokens t, accounts a' +
     ' WHERE t.tokenId = ? AND t.uid = a.uid'
 
@@ -451,7 +452,7 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
   }
 
   var ACCOUNT = 'SELECT email, normalizedEmail, emailCode, emailVerified, kA,' +
-    ' wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt, createdAt' +
+    ' wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt, createdAt, locale' +
     ' FROM accounts WHERE uid = ?'
 
   MySql.prototype.account = function (uid) {
@@ -475,7 +476,8 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
             verifyHash: result.verifyHash,
             authSalt: result.authSalt,
             verifierSetAt: result.verifierSetAt,
-            createdAt: result.createdAt
+            createdAt: result.createdAt,
+            locale: result.locale
           }
         }
       )
@@ -715,6 +717,12 @@ var KEY_FETCH_TOKEN = 'SELECT t.authKey, t.uid, t.keyBundle, t.createdAt,' +
           )
       }
     )
+  }
+
+  var UPDATE_LOCALE = 'UPDATE accounts SET locale = ? WHERE uid = ?'
+
+  MySql.prototype.updateLocale = function (uid, locale) {
+    return this.write(UPDATE_LOCALE, [locale, uid])
   }
 
   MySql.prototype.singleQuery = function (poolName, sql, params) {
