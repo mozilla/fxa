@@ -68,6 +68,9 @@ define([
   };
 
   /*
+
+  // TODO - Enable when adding more tests for OAuth - see #1246
+
   suite['#oauth server proxied GET request'] = function () {
     var dfd = this.async(1000);
 
