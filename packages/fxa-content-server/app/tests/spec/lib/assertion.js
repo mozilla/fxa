@@ -24,7 +24,7 @@ function (chai, $, P,
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';
-  var ISSUER = 'http://127.0.0.1:9000';
+  var ISSUER = 'http://' + document.location.hostname + ':9000';
   var email;
   var password = 'password';
   var client;
