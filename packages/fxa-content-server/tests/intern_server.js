@@ -18,7 +18,8 @@ define([
     'tests/server/cookies_disabled',
     'tests/server/l10n',
     'tests/server/metrics',
-    'tests/server/metrics-collector-stderr'
+    'tests/server/metrics-collector-stderr',
+    'tests/server/proxy'
   ];
 
   return intern;

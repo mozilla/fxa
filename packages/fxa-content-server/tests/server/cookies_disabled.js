@@ -13,7 +13,7 @@ define([
   var serverUrl = config.get('public_url');
 
   var suite = {
-    name: 'config'
+    name: 'cookies disabled'
   };
 
   suite['#get /config without cookies returns `cookiesEnabled=false`'] = function () {

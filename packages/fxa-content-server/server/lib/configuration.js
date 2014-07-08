@@ -90,11 +90,23 @@ var conf = module.exports = convict({
     default: 'http://127.0.0.1:9000',
     env: 'FXA_URL'
   },
+  fxaccount_proxy: {
+    enabled: {
+      doc: 'Set to true to listen for auth requests at the configured endpoint',
+      default: false
+    }
+  },
   oauth_url: {
     doc: 'The url of the Firefox Account OAuth server',
     format: 'url',
     default: 'https://oauth.dev.lcip.org',
     env: 'FXA_OAUTH_URL'
+  },
+  oauth_proxy: {
+    enabled: {
+      doc: 'Set to true to listen for oauth requests at the configured endpoint',
+      default: false
+    }
   },
   static_directory: {
     doc: 'Directory that static files are served from.',
