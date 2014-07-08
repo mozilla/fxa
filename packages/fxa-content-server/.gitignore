@@ -39,6 +39,7 @@ app/bower_components
 *.sass-cache
 
 app/styles/*.css
+!app/styles/fontello.css
 
 
 ### Yeoman ###
@@ -63,7 +64,8 @@ app/i18n
 app/styles/fonts
 
 ### Fonts copied from connect-fonts packages ###
-app/fonts
+app/fonts/default
+app/fonts/latin
 
 ### Strings
 locale/*/*/*.po

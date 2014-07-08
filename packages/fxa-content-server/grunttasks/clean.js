@@ -33,8 +33,10 @@ module.exports = function (grunt) {
           '<%= yeoman.tmp %>/*',
           // css files are regenerated on every server run.
           '<%= yeoman.app %>/styles/**/*.css',
+          '!<%= yeoman.app %>/styles/fontello.css',
           // fonts are copied over every server run.
-          '<%= yeoman.app %>/fonts'
+          '<%= yeoman.app %>/fonts/default',
+          '<%= yeoman.app %>/fonts/latin'
         ]
       }]
     }
