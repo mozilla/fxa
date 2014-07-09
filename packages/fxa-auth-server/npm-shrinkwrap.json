@@ -189,34 +189,51 @@
       }
     },
     "intel": {
-      "version": "1.0.0-b2",
-      "from": "intel@1.0.0-b2",
+      "version": "1.0.0-b4",
+      "from": "intel@1.0.0-b4",
+      "resolved": "https://registry.npmjs.org/intel/-/intel-1.0.0-b4.tgz",
       "dependencies": {
-        "bluebird": {
-          "version": "1.2.4",
-          "from": "bluebird@~1.2.0"
-        },
         "chalk": {
-          "version": "0.4.0",
-          "from": "chalk@~0.4.0",
+          "version": "0.5.1",
+          "from": "chalk@~0.5.1",
           "dependencies": {
-            "has-color": {
-              "version": "0.1.7",
-              "from": "has-color@~0.1.0"
-            },
             "ansi-styles": {
+              "version": "1.1.0",
+              "from": "ansi-styles@^1.1.0"
+            },
+            "escape-string-regexp": {
               "version": "1.0.0",
-              "from": "ansi-styles@~1.0.0"
+              "from": "escape-string-regexp@^1.0.0"
+            },
+            "has-ansi": {
+              "version": "0.1.0",
+              "from": "has-ansi@^0.1.0",
+              "dependencies": {
+                "ansi-regex": {
+                  "version": "0.2.1",
+                  "from": "ansi-regex@^0.2.0"
+                }
+              }
             },
             "strip-ansi": {
-              "version": "0.1.1",
-              "from": "strip-ansi@~0.1.0"
+              "version": "0.3.0",
+              "from": "strip-ansi@^0.3.0",
+              "dependencies": {
+                "ansi-regex": {
+                  "version": "0.2.1",
+                  "from": "ansi-regex@^0.2.0"
+                }
+              }
+            },
+            "supports-color": {
+              "version": "0.2.0",
+              "from": "supports-color@^0.2.0"
             }
           }
         },
         "dbug": {
           "version": "0.4.1",
-          "from": "dbug@~0.4.0"
+          "from": "dbug@~0.4.1"
         },
         "stack-trace": {
           "version": "0.0.9",
@@ -224,8 +241,7 @@
         },
         "strftime": {
           "version": "0.8.1",
-          "from": "strftime@~0.8.0",
-          "resolved": "https://registry.npmjs.org/strftime/-/strftime-0.8.1.tgz"
+          "from": "strftime@~0.8.0"
         },
         "symbol": {
           "version": "0.2.1",

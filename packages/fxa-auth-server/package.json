@@ -25,7 +25,7 @@
     "buf": "0.1.0",
     "convict": "0.4.2",
     "hapi": "6.0.2",
-    "intel": "1.0.0-b2",
+    "intel": "1.0.0-b4",
     "joi": "4.6.1",
     "mysql": "2.3.2",
     "request": "2.37.0"
@@ -42,10 +42,10 @@
     "grunt-nodemon": "^0.3.0",
     "grunt-nsp-shrinkwrap": "~0.0.3",
     "insist": "0.x",
-    "jshint-stylish": "~0.2.0",
+    "jshint-stylish": "~0.3.0",
     "jwcrypto": "~0.5.0",
     "load-grunt-tasks": "^0.6.0",
-    "nock": "^0.41.0",
+    "nock": "^0.42.1",
     "time-grunt": "~0.3.1"
   }
 }
