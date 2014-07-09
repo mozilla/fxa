@@ -9,13 +9,13 @@
     "test": "grunt test --node-env=test"
   },
   "dependencies": {
-    "bluebird": "1.2.1",
+    "bluebird": "2.2.1",
     "convict": "0.4.2",
-    "hapi": "5.1.0",
-    "intel": "1.0.0-b2",
-    "joi": "4.5.0",
-    "mysql": "2.1.1",
-    "request": "2.34.0"
+    "hapi": "6.0.2",
+    "intel": "1.0.0-b4",
+    "joi": "4.6.1",
+    "mysql": "2.3.2",
+    "request": "2.37.0"
   },
   "devDependencies": {
     "awsbox": "~0.7.0",
@@ -25,12 +25,12 @@
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-copyright": "~0.1.0",
     "grunt-jscs-checker": "~0.4.1",
-    "grunt-nodemon": "~0.2.1",
-    "grunt-mocha-test": "~0.10.2",
+    "grunt-nodemon": "~0.3.0",
+    "grunt-mocha-test": "~0.11.0",
     "insist": "0.x",
-    "jshint-stylish": "~0.2.0",
-    "load-grunt-tasks": "~0.4.0",
-    "nock": "~0.27.3",
+    "jshint-stylish": "~0.3.0",
+    "load-grunt-tasks": "~0.6.0",
+    "nock": "~0.42.1",
     "time-grunt": "~0.3.1"
   },
   "repo": "mozilla/fxa-profile-server",
