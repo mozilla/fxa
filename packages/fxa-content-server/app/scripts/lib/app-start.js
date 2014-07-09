@@ -26,7 +26,7 @@ define([
   'lib/translator',
   'lib/session',
   'lib/url',
-  'lib/channels/web',
+  'lib/channels/null',
   'lib/channels/fx-desktop',
   'lib/config-loader',
   'lib/metrics',
@@ -41,7 +41,7 @@ function (
   Translator,
   Session,
   Url,
-  WebChannel,
+  NullChannel,
   FxDesktopChannel,
   ConfigLoader,
   Metrics,
@@ -148,8 +148,8 @@ function (
         // Firefox for desktop native=>FxA glue code.
         channel = new FxDesktopChannel();
       } else {
-        // default to the web channel that doesn't do anything yet.
-        channel = new WebChannel();
+        // default to the null channel that doesn't do anything yet.
+        channel = new NullChannel();
       }
 
       channel.init();

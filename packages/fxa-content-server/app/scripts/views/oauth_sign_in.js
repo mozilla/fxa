@@ -35,7 +35,9 @@ function (_, p, SignInView, Session, ServiceMixin) {
     },
 
     onSignInSuccess: function() {
-      return this.finishOAuthFlow();
+      return this.finishOAuthFlow({
+        source: "signin"
+      });
     },
 
     onSignInUnverified: function() {

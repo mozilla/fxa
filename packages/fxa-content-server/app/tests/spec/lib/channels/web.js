@@ -6,24 +6,36 @@
 
 
 define([
-  'chai',
-  'lib/channels/web'
-],
-function (chai, WebChannel) {
-  var channel;
+    'underscore',
+    'chai',
+    'router',
+    'views/sign_in',
+    'lib/channels/web',
+    '/tests/mocks/window.js'
+  ],
+  function (_, chai, Router, View, WebChannel, WindowMock) {
+    /*global describe, beforeEach, it*/
+    var assert = chai.assert;
+    var channel;
+    var windowMock;
 
-  describe('lib/channel/web', function () {
-    beforeEach(function() {
-      channel = new WebChannel();
-      channel.init();
-    });
+    describe('lib/channel/web', function () {
 
-    describe('send', function () {
-      it('is a standin that does nothing', function() {
-        channel.send('heya');
+      beforeEach(function () {
+        windowMock = new WindowMock();
+        channel = new WebChannel('MyChannel', windowMock);
+      });
+
+      describe('send', function () {
+        it('sends an event with a callback', function (done) {
+          channel.send('after_render', {}, function (err, response) {
+              assert.notOk(err);
+              done();
+            }
+          );
+          assert.isTrue(windowMock.dispatchedEvents['after_render']);
+        });
       });
     });
   });
-});
-
 

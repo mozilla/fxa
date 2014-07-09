@@ -17,11 +17,12 @@ define([
   'stache!templates/ready',
   'lib/session',
   'lib/xss',
+  'lib/url',
   'lib/strings',
   'views/mixins/service-mixin',
   'views/marketing_snippet'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, MarketingSnippet) {
+function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
     template: Template,
@@ -50,9 +51,14 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
       var serviceName = this.serviceName;
 
       if (this.serviceRedirectURI) {
-        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-          Xss.href(this.serviceRedirectURI), serviceName
-        ]);
+        if (Session.oauth && Session.oauth.webChannelId) {
+          serviceName = Strings.interpolate('%s', [serviceName]);
+          this.submit();
+        } else {
+          serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+            Xss.href(this.serviceRedirectURI), serviceName
+          ]);
+        }
       }
 
       return {

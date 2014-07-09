@@ -12,6 +12,7 @@ function (Translator, Session, FxaClientWrapper) {
 
   var tests = [
     '../tests/spec/lib/channels/web',
+    '../tests/spec/lib/channels/null',
     '../tests/spec/lib/channels/fx-desktop',
     '../tests/spec/lib/xss',
     '../tests/spec/lib/url',
