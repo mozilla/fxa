@@ -87,6 +87,10 @@ MemoryStore.prototype = {
   getClient: function getClient(id) {
     return P.resolve(this.clients[unbuf(id)]);
   },
+  removeClient: function removeClient(id) {
+    delete this.clients[unbuf(id)];
+    return P.resolve();
+  },
   generateCode: function generateCode(clientId, userId, email, scope) {
     var code = {};
     code.clientId = clientId;
@@ -130,6 +134,10 @@ MemoryStore.prototype = {
   removeToken: function removeToken(id) {
     delete this.tokens[unbuf(id)];
     return P.resolve();
+  },
+  getEncodingInfo: function getEncodingInfo() {
+    console.warn('getEncodingInfo has no meaning with memory implementation');
+    return P.resolve({});
   }
 };
 

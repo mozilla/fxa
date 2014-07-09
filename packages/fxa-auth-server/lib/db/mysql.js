@@ -13,6 +13,11 @@ const unique = require('../unique');
 const SCHEMA = require('fs').readFileSync(__dirname + '/schema.sql').toString();
 
 function MysqlStore(options) {
+  if (options.charset && options.charset !== 'UTF8_UNICODE_CI') {
+    logger.warn('createDatabase: using charset ' + options.charset);
+  } else {
+    options.charset = 'UTF8_UNICODE_CI';
+  }
   this._connection = mysql.createConnection(options);
 }
 
@@ -23,8 +28,11 @@ function createSchema(conn, options) {
   var database = options.database;
 
   logger.verbose('createDatabase');
-  conn.query('CREATE DATABASE IF NOT EXISTS ' + database
-    + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci', function(err) {
+  var createDatabaseQuery =
+    'CREATE DATABASE IF NOT EXISTS ' + database +
+    ' CHARACTER SET utf8 COLLATE utf8_unicode_ci';
+
+  conn.query(createDatabaseQuery, function(err) {
       if (err) {
         logger.error('create database', err);
         return d.reject(err);
@@ -50,14 +58,22 @@ function createSchema(conn, options) {
           d.resolve();
         });
       });
-    });
+  });
   return d.promise;
 }
 
 MysqlStore.connect = function mysqlConnect(options) {
   if (options.createSchema) {
+    // ugly, but you can't connect to a database before the database actually
+    // exists. So remove and restore it later.
+    var database = options.database;
+    delete options.database;
+
     options.multipleStatements = true;
     var schemaConn = mysql.createConnection(options);
+
+    options.database = database;
+
     return createSchema(schemaConn, options).then(function() {
       schemaConn.end();
       delete options.multipleStatements;
@@ -72,6 +88,7 @@ const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients (id, name, imageUri, secret, redirectUri, whitelisted)' +
   'VALUES (?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
+const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
   'INSERT INTO codes (clientId, userId, email, scope, code) VALUES ' +
   '(?, ?, ?, ?, ?)';
@@ -137,6 +154,17 @@ MysqlStore.prototype = {
         return d.reject(err);
       }
       d.resolve(rows[0]);
+    });
+    return d.promise;
+  },
+  removeClient: function removeClient(_id) {
+    var d = P.defer();
+    var id = buf(_id);
+    this._connection.query(QUERY_CLIENT_DELETE, [id], function(err) {
+      if (err) {
+        return d.reject(err);
+      }
+      d.resolve();
     });
     return d.promise;
   },
@@ -234,8 +262,35 @@ MysqlStore.prototype = {
       d.resolve();
     });
     return d.promise;
-  }
+  },
 
+  getEncodingInfo: function getEncodingInfo() {
+    var d = P.defer();
+    var info = {};
+
+    var qry = 'SHOW VARIABLES LIKE "%character\\_set\\_%"';
+    this._connection.query(qry, function(err, rows) {
+      /*jshint sub:true*/
+      if (err) {
+        return d.reject(err);
+      }
+      rows.forEach(function(row) {
+        info[row['Variable_name']] = row.Value;
+      });
+
+      qry = 'SHOW VARIABLES LIKE "%collation\\_%"';
+      this._connection.query(qry, function(err, rows) {
+        if (err) {
+          return d.reject(err);
+        }
+        rows.forEach(function(row) {
+          info[row['Variable_name']] = row.Value;
+        });
+        d.resolve(info);
+      });
+    });
+    return d.promise;
+  }
 };
 
 module.exports = MysqlStore;
