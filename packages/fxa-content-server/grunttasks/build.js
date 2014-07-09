@@ -17,8 +17,6 @@ module.exports = function (grunt) {
     // use error pages from en_US as the static error pages
     'copy:error_pages',
     'useminPrepare',
-    'l10n-create-json',
-    'l10n-generate-tos-pp:dist',
     'requirejs',
     'css',
     'concurrent:dist',
