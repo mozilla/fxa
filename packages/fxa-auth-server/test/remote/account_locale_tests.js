@@ -59,6 +59,54 @@ TestServer.start(config)
   )
 
   test(
+    'a really long (invalid) locale',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'ilikepancakes'
+      return Client.create(
+        config.publicUrl,
+        email,
+        password,
+        { lang: Buffer(128).toString('hex') }
+      )
+      .then(
+        function (c) {
+          return c.api.accountStatus(c.uid)
+        }
+      )
+      .then(
+        function (response) {
+          t.ok(!response.locale, 'account has no locale')
+        }
+      )
+    }
+  )
+
+  test(
+    'a really long (valid) locale',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'ilikepancakes'
+      return Client.create(
+        config.publicUrl,
+        email,
+        password,
+        { lang: 'en-US,en;q=0.8,' + Buffer(128).toString('hex') }
+      )
+      .then(
+        function (c) {
+          return c.api.accountStatus(c.uid)
+        }
+      )
+      .then(
+        function (response) {
+          t.equal(response.locale, 'en-US,en;q=0.8', 'account has no locale')
+        }
+      )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
