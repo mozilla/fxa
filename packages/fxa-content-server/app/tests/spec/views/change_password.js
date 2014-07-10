@@ -10,22 +10,26 @@ define([
   'underscore',
   'jquery',
   'lib/auth-errors',
+  'lib/fxa-client',
   'views/change_password',
   '../../mocks/router',
   '../../lib/helpers',
   'lib/session'
 ],
-function (chai, _, $, AuthErrors, View, RouterMock, TestHelpers, Session) {
+function (chai, _, $, AuthErrors, FxaClient, View, RouterMock, TestHelpers, Session) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/change_password', function () {
-    var view, routerMock, email;
+    var view, routerMock, email, fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      fxaClient = new FxaClient();
+
       view = new View({
-        router: routerMock
+        router: routerMock,
+        fxaClient: fxaClient
       });
     });
 

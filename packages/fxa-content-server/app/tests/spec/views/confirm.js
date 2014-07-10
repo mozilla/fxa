@@ -8,27 +8,30 @@ define([
   'lib/session',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/fxa-client',
   'views/confirm',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, p, Session, AuthErrors, Metrics, View, RouterMock, TestHelpers) {
+function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/confirm', function () {
-    var view, routerMock, metrics;
+    var view, routerMock, metrics, fxaClient;
 
     beforeEach(function () {
       Session.set('sessionToken', 'fake session token');
 
       routerMock = new RouterMock();
       metrics = new Metrics();
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
-        metrics: metrics
+        metrics: metrics,
+        fxaClient: fxaClient
       });
 
       return view.render()

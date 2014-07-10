@@ -10,22 +10,28 @@ define([
   'jquery',
   'views/force_auth',
   'lib/session',
+  'lib/fxa-client',
   '../../mocks/window',
   '../../mocks/router'
 ],
-function (chai, $, View, Session, WindowMock, RouterMock) {
+function (chai, $, View, Session, FxaClient, WindowMock, RouterMock) {
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
     describe('missing email address', function () {
-      var view, windowMock;
+      var view, windowMock, fxaClient;
 
       beforeEach(function () {
         windowMock = new WindowMock();
         windowMock.location.search = '';
 
+        fxaClient = new FxaClient();
+
         Session.clear();
-        view = new View({ window: windowMock });
+        view = new View({
+          window: windowMock,
+          fxaClient: fxaClient
+        });
         return view.render()
             .then(function () {
               $('#container').html(view.el);

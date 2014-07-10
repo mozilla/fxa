@@ -13,16 +13,17 @@ define([
   'lib/session',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/fxa-client',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, p, View, Session, AuthErrors, Metrics, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/sign_in', function () {
-    var view, email, routerMock, metrics, windowMock;
+    var view, email, routerMock, metrics, windowMock, fxaClient;
 
     beforeEach(function () {
       email = 'testuser.' + Math.random() + '@testuser.com';
@@ -32,11 +33,13 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, WindowMock, RouterMock
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
         metrics: metrics,
-        window: windowMock
+        window: windowMock,
+        fxaClient: fxaClient
       });
 
       return view.render()

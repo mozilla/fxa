@@ -9,13 +9,12 @@ define([
   'views/form',
   'views/base',
   'stache!templates/complete_sign_up',
-  'lib/fxa-client',
   'lib/auth-errors',
   'lib/validate',
   'views/mixins/resend-mixin',
   'lib/session'
 ],
-function (_, FormView, BaseView, CompleteSignUpTemplate, FxaClient, AuthErrors, Validate, ResendMixin, Session) {
+function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, ResendMixin, Session) {
   var CompleteSignUpView = FormView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',

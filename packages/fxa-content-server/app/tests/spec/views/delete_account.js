@@ -9,20 +9,24 @@ define([
   'chai',
   'jquery',
   'views/delete_account',
+  'lib/fxa-client',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, View, RouterMock, TestHelpers) {
+function (chai, $, View, FxaClient, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/delete_account', function () {
-    var view, routerMock, email, password = 'password';
+    var view, routerMock, email, password = 'password', fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      fxaClient = new FxaClient();
+
       view = new View({
-        router: routerMock
+        router: routerMock,
+        fxaClient: fxaClient
       });
     });
 

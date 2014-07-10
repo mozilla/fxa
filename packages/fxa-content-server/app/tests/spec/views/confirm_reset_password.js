@@ -9,22 +9,24 @@ define([
   'views/confirm_reset_password',
   'lib/session',
   'lib/metrics',
+  'lib/fxa-client',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, AuthErrors, View, Session, Metrics, RouterMock, WindowMock, TestHelpers) {
+function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/confirm_reset_password', function () {
-    var view, routerMock, windowMock, metrics;
+    var view, routerMock, windowMock, metrics, fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
+      fxaClient = new FxaClient();
 
       Session.set('passwordForgotToken', 'fake password reset token');
       Session.set('email', 'testuser@testuser.com');
@@ -32,7 +34,8 @@ function (chai, p, AuthErrors, View, Session, Metrics, RouterMock, WindowMock, T
       view = new View({
         router: routerMock,
         window: windowMock,
-        metrics: metrics
+        metrics: metrics,
+        fxaClient: fxaClient
       });
       return view.render()
             .then(function () {

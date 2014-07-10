@@ -40,10 +40,9 @@ require.config({
 require([
   'lib/translator',
   'lib/session',
-  'lib/fxa-client',
   '../tests/setup'
 ],
-function (Translator, Session, FxaClientWrapper) {
+function (Translator, Session) {
   'use strict';
 
   var tests = [
@@ -116,12 +115,10 @@ function (Translator, Session, FxaClientWrapper) {
      */
     beforeEach(function () {
       Session.testClear();
-      FxaClientWrapper.testClear();
     });
 
     afterEach(function () {
       Session.testClear();
-      FxaClientWrapper.testClear();
     });
 
     var runner = mocha.run();

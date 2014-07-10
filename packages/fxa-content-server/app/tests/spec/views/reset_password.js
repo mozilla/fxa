@@ -11,25 +11,28 @@ define([
   'lib/session',
   'lib/auth-errors',
   'lib/metrics',
+  'lib/fxa-client',
   'views/reset_password',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, p, Session, AuthErrors, Metrics, View, WindowMock, RouterMock, TestHelpers) {
+function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/reset_password', function () {
-    var view, router, metrics;
+    var view, router, metrics, fxaClient;
 
     beforeEach(function () {
       router = new RouterMock();
       metrics = new Metrics();
+      fxaClient = new FxaClient();
 
       view = new View({
         router: router,
-        metrics: metrics
+        metrics: metrics,
+        fxaClient: fxaClient
       });
       return view.render()
           .then(function () {
