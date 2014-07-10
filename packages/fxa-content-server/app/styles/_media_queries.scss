@@ -31,7 +31,7 @@
 
   .privacy-links,
   .links + .privacy-links {
-    font-size: 12px;
+    font-size: $small-font;
     margin: 10px auto;
     max-width: 340px;
   }
@@ -51,7 +51,7 @@
     position: fixed;
     width: 100%;
     &.image-snippet {
-      font-size: 16px;
+      font-size: $base-font;
       margin: 0;
       padding: 15px 50px 90px 50px;
       text-align:center;
@@ -99,7 +99,7 @@
   }
 
   header h2 {
-    font-size: 20px;
+    font-size: $medium-font;
     font-weight: 200;
     margin: 0;
     padding: 10px 0 20px 0;
@@ -147,7 +147,7 @@
   }
 
   header h2 {
-    font-size: 20px;
+    font-size: $medium-font;
     font-weight: 200;
     margin: 0 auto;
     padding: 10px 0 20px 0;
@@ -155,7 +155,7 @@
 
   .privacy-links,
   .links + .privacy-links {
-    font-size: 12px;
+    font-size: $small-font;
     margin: 10px auto;
     max-width: 340px;
   }
@@ -188,7 +188,7 @@
     position: absolute;
     width: 100%;
     &.image-snippet {
-      font-size: 16px;
+      font-size: $medium-font;
       margin: 0;
       padding: 0;
       text-align:left;
@@ -258,12 +258,12 @@
   }
 
   header h1 {
-    font-size: 18px;
+    font-size: $medium-font;
     margin: 5px 0 10px 0;
   }
 
   section p {
-    font-size: 14px;
+    font-size: $base-font;
   }
 
   .privacy-links {
@@ -288,7 +288,7 @@
   .input-row input[type='password'],
   .input-row select {
     border-radius: $small-border-radius;
-    font-size: 16px;
+    font-size: $base-font;
     height: 36px;
     padding: 0 $input-left-right-padding * .5;
   }
@@ -299,7 +299,7 @@
 
   .password-row .show-password-label {
     border-radius: 0 $small-border-radius $small-border-radius 0;
-    font-size: 14px;
+    font-size: $base-font;
     height: 34px;
     line-height: 34px;
   }
@@ -311,7 +311,7 @@
 
   .select-row select {
     box-sizing: border-box;
-    font-size: 16px;
+    font-size: $base-font;
     padding: 5px 5% 9px $input-left-right-padding * .5;
   }
 
@@ -321,7 +321,7 @@
 
   .button-row button,
   .button-row a.button {
-    font-size: 18px;
+    font-size: $medium-font;
     padding: 8px 0;
   }
 }
