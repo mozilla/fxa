@@ -44,7 +44,9 @@ Pool.prototype.request = function (method, path, data) {
     },
     function (err, res, body) {
       if (err || Math.floor(res && res.statusCode / 100) !== 2) {
-        return d.reject({ error: err, statusCode: res && res.statusCode, body: body })
+        var e = new Error(body)
+        e.statusCode = res && res.statusCode
+        return d.reject(e)
       }
       if (!body) { return d.resolve() }
       var json = null
@@ -52,7 +54,7 @@ Pool.prototype.request = function (method, path, data) {
         json = JSON.parse(body)
       }
       catch (e) {
-        return d.reject({ error: e, statusCode: res && res.statusCode, body: body })
+        return d.reject(new Error('Invalid JSON'))
       }
       d.resolve(json)
     }
