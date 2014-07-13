@@ -43,6 +43,7 @@ module.exports = function(name, testfunc) {
             t.end()
           },
           function(err) {
+            console.error(err.stack)
             t.fail(err.message || err.error || err)
             t.end()
           }

@@ -316,26 +316,39 @@ module.exports = function (
       method: 'GET',
       path: '/account/status',
       config: {
+        auth: {
+          mode: 'optional',
+          strategy: 'sessionToken'
+        },
         validate: {
           query: {
-            uid: isA.string().min(32).max(32).regex(HEX_STRING).required()
+            uid: isA.string().min(32).max(32).regex(HEX_STRING)
           }
         }
       },
       handler: function (request, reply) {
-        var uid = Buffer(request.query.uid, 'hex')
-        db.account(uid)
-          .done(
-            function (account) {
-              reply({ exists: true, locale: account.locale })
-            },
-            function (err) {
-              if (err.errno === 102) {
-                return reply({ exists: false })
+        var sessionToken = request.auth.credentials
+        if (sessionToken) {
+          reply({ exists: true, locale: sessionToken.locale })
+        }
+        else if (request.query.uid) {
+          var uid = Buffer(request.query.uid, 'hex')
+          db.account(uid)
+            .done(
+              function (account) {
+                reply({ exists: true })
+              },
+              function (err) {
+                if (err.errno === 102) {
+                  return reply({ exists: false })
+                }
+                reply(err)
               }
-              reply(err)
-            }
-          )
+            )
+        }
+        else {
+          reply(error.missingRequestParameter('uid'))
+        }
       }
     },
     {

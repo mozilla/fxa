@@ -148,11 +148,25 @@ ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
     )
 }
 
-ClientApi.prototype.accountStatus = function (uid) {
-  return this.doRequest(
-    'GET',
-    this.baseURL + '/account/status?uid=' + uid
-  )
+ClientApi.prototype.accountStatus = function (uid, sessionTokenHex) {
+  if (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'GET',
+            this.baseURL + '/account/status',
+            token
+          )
+        }.bind(this)
+      )
+  }
+  else {
+    return this.doRequest(
+      'GET',
+      this.baseURL + '/account/status?uid=' + uid
+    )
+  }
 }
 
 ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW) {

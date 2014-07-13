@@ -26,7 +26,7 @@ TestServer.start(config)
         .then(
           function (c) {
             client = c
-            return c.api.accountStatus(c.uid)
+            return c.api.accountStatus(c.uid, c.sessionToken)
           }
         )
         .then(
@@ -47,7 +47,7 @@ TestServer.start(config)
         )
         .then(
           function () {
-            return client.api.accountStatus(client.uid)
+            return client.api.accountStatus(client.uid, client.sessionToken)
           }
         )
         .then(
@@ -71,7 +71,7 @@ TestServer.start(config)
       )
       .then(
         function (c) {
-          return c.api.accountStatus(c.uid)
+          return c.api.accountStatus(c.uid, c.sessionToken)
         }
       )
       .then(
@@ -95,7 +95,7 @@ TestServer.start(config)
       )
       .then(
         function (c) {
-          return c.api.accountStatus(c.uid)
+          return c.api.accountStatus(c.uid, c.sessionToken)
         }
       )
       .then(

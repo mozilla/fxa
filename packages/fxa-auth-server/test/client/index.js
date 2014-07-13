@@ -118,6 +118,8 @@ Client.prototype.create = function () {
     function (a) {
       this.uid = a.uid
       this.authAt = a.authAt
+      this.sessionToken = a.sessionToken
+      this.keyFetchToken = a.keyFetchToken
       return this
     }.bind(this)
   )
