@@ -1,32 +1,39 @@
 /* Responsiveness */
 
-@media only screen and (max-width: 500px) {
-  html {
-    background: $mobile-html-background-color;
-  }
-
+@media only screen and (max-width: 480px), 
+only screen and (orientation:landscape) and (min-width:481px) and (max-height:480px) {
   #about-mozilla {
     display: none;
   }
 
   #fox-logo {
-    background: url(/images/firefox.png);
-    background-size: 64px 68px;
-    height: 68px;
-    margin: 10px auto 0 auto;
-    position: relative;
+    background: url(/images/firefox.png) no-repeat center top;
+    background-size: 48px 51px;
+    height: 51px;
+    margin-top: 10px;
     top: 0;
-    width: 64px;
-    z-index: 999;
+    width: 100%;
+  }
+
+  header h1 {
+    font-size: $medium-font + $media-adjustment;
+    margin: 0 0 20px 0;
   }
 
   #stage {
-    box-shadow: none;
-    margin: 10px auto;
-    min-height: 0;
+    border-radius: $small-border-radius;
+    margin: 0 auto;
+    min-height:300px !important;
+    max-width: 360px;
     min-width: 300px;
-    padding: 0 10px;
-    width: 100%;
+    padding: 45px 20px 10px 20px;
+    position: relative;
+    top: -28px;
+    width: 94%;
+  }
+
+  section p {
+    font-size: $base-font;
   }
 
   .privacy-links,
@@ -36,29 +43,65 @@
     max-width: 340px;
   }
 
+  .input-row input[type='text'],
+  .input-row input[type='email'],
+  .input-row input[type='password'],
+  .input-row select {
+    border-radius: $small-border-radius;
+    font-size: $base-font + $media-adjustment;
+    height: 40px;
+  }
+
+  .select-row {
+    border-radius: $small-border-radius;
+    height: 42px;
+  }
+
+  .select-row select {
+    font-size: $base-font;
+    padding: 10px 10% 11px $input-left-right-padding;
+    width: 90%;
+  }
+
+  .password-row .show-password-label {
+    border-radius: 0 $small-border-radius $small-border-radius 0;
+    height: 38px;
+    line-height: 38px;
+  }
+
+  .input-row .input-help {
+    font-size: $small-font;
+    margin-top: 4px;
+  }
+
   .button-row {
     margin-top: 20px;
   }
 
   .button-row button,
   .button-row a.button {
-    padding: 10px 0;
+    border-radius: $small-border-radius;
+    font-size: $medium-font + $media-adjustment;
+    padding: 8px 0;
+  }
+
+  .graphic {
+    background-position: center center;
+    background-size: 120px 104px;
+    height: 104px;
   }
 
   .marketing {
-    bottom: 0;
-    left: 0;
-    position: fixed;
-    width: 100%;
+    margin: 20px -20px -10px -20px;
     &.image-snippet {
       font-size: $base-font;
-      margin: 0;
-      padding: 15px 50px 90px 50px;
-      text-align:center;
+      padding: 15px 50px 80px 50px;
+      text-align: center;
+
     }
     &.text-snippet {
-      margin: 0;
-      padding: 15px 20px 20px 20px;
+      font-size: $base-font;
+      text-align: center;
     }
     .android-logo {
       background: url(/images/android_logo.png) no-repeat center bottom;
@@ -85,185 +128,52 @@
   }
 }
 
-@media only screen and (max-height: 480px) and (max-width: 320px) {
-  body, html {
-    background: $mobile-html-background-color;
-  }
-  #about-mozilla {
-    display: none;
-  }
-
-  #fox-logo {
-    height: 0;
-    width: 0;
-  }
-
-  header h2 {
-    font-size: $medium-font;
-    font-weight: 200;
-    margin: 0;
-    padding: 10px 0 20px 0;
-  }
-
+@media only screen and (max-width: 320px) {
   #stage {
-    background-image: url(/images/firefox.png);
-    background-position: center bottom;
-    background-repeat: no-repeat;
-    background-size: 30px auto;
     margin: 0 auto;
     min-height: 0;
-    min-width: 270px;
-    padding: 0 0 30px 0;
-    width: 270px;
+    width: 94%;
   }
 }
 
-@media only screen and (orientation:landscape) and (max-height:480px) {
+//You know...for the trusted UI
+@media only screen and (max-width:319px) {
+
   html {
-    background: $stage-background-color;
+    background-color: $stage-background-color;
+    height: 100%;
   }
 
-  #about-mozilla {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  #fox-logo {
     display: none;
   }
 
   #stage {
     background: none;
     box-shadow: none;
-    margin: 10px auto;
-    min-height: 0;
-    min-width: 300px;
-    max-width:400px;
-    padding: 0 10px 20px 10px;
-    width: 100%;
-  }
-
-  #fox-logo {
-    height: 0;
-    margin: 0;
-    padding: 0;
-    top: 0;
-    width: 0;
-  }
-
-  header h2 {
-    font-size: $medium-font;
-    font-weight: 200;
-    margin: 0 auto;
-    padding: 10px 0 20px 0;
-  }
-
-  .privacy-links,
-  .links + .privacy-links {
-    font-size: $small-font;
-    margin: 10px auto;
-    max-width: 340px;
-  }
-
-  .button-row {
-    margin-top: 20px;
-  }
-
-  .button-row button,
-  .button-row a.button {
-    padding: 10px 0;
-  }
-
-  .reset_password_complete {
-    header h1 {
-      margin: 20px 0 0 0;
-    }
-    p {
-      margin: 0;
-    }
-  }
-
-  .marketing {
-    background-color: none;
-    border-radius: 0 0 $big-border-radius $big-border-radius;
-    border-top: 1px solid $marketing-border-color;
-    bottom: 0;
-    left: 0;
-
-    position: absolute;
-    width: 100%;
-    &.image-snippet {
-      font-size: $medium-font;
-      margin: 0;
-      padding: 0;
-      text-align:left;
-    }
-    &.text-snippet {
-      margin: 0;
-    }
-    .marketing-spacer {
-      margin: 0 auto;
-      width: 340px;
-      padding: 20px 140px 20px 0;
-      position: relative;
-    }
-    .android-logo {
-      background: url(/images/android_logo.png);
-      background-size: 84px 74px;
-      bottom: 0;
-      display: block;
-      height: 74px;
-      margin: 0;
-      position: absolute;
-      right: 0px;
-      width: 84px;
-    }
-  }
-}
-
-//extra breakpoints to make sure marketing doesn't break main layout
-@media only screen and (max-height: 319px) {
-
-  #stage {
-    background-image: url(/images/firefox.png);
-    background-position: center bottom;
-    background-repeat: no-repeat;
-    background-size: 30px auto;
-    padding: 0 10px 40px 10px;
-  }
-  .marketing { 
-    display: none;
-  }
-}
-
-@media only screen and (max-width: 319px) {
-  .marketing { 
-    display: none;
-  }
-}
-
-//You know...for the trusted UI
-@media only screen and (max-height:345px) and (max-width:276px) {
-  body {
-    margin: 0;
-    padding: 0;
-    max-height:100%;
-  }
-
-  #fox-logo {
-    display: none;
-  }
-
-  #stage {
-    background: none;
-    margin:0 auto;
+    margin:10px auto 0 auto;
     min-width: 250px;
     padding: 0;
-    width: 250px !important;
+    top: 0;
+    width: 250px;
   }
 
   header h1 {
     font-size: $medium-font;
-    margin: 5px 0 10px 0;
+    margin: 0 0 10px 0;
   }
 
   section p {
     font-size: $base-font;
+  }
+
+  .links {
+    margin: 0;
   }
 
   .privacy-links {
@@ -285,34 +195,16 @@
 
   .input-row input[type='text'],
   .input-row input[type='email'],
-  .input-row input[type='password'],
-  .input-row select {
-    border-radius: $small-border-radius;
-    font-size: $base-font;
-    height: 36px;
+  .input-row input[type='password'] {
     padding: 0 $input-left-right-padding * .5;
+  }
+
+  .select-row select {
+    padding-left: $input-left-right-padding * .5
   }
 
   .input-row .input-help-focused {
     opacity: 1;
-  }
-
-  .password-row .show-password-label {
-    border-radius: 0 $small-border-radius $small-border-radius 0;
-    font-size: $base-font;
-    height: 34px;
-    line-height: 34px;
-  }
-
-  .select-row {
-    border-radius: $small-border-radius;
-    height:36px;
-  }
-
-  .select-row select {
-    box-sizing: border-box;
-    font-size: $base-font;
-    padding: 5px 5% 9px $input-left-right-padding * .5;
   }
 
   .button-row {
@@ -323,6 +215,10 @@
   .button-row a.button {
     font-size: $medium-font;
     padding: 8px 0;
+  }
+
+  .marketing { 
+    display: none;
   }
 }
 
