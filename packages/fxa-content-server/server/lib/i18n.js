@@ -39,7 +39,8 @@ module.exports = function (config) {
       debug_lang: config.debugLang,
       supported_languages: config.supportedLanguages,
       translation_directory: config.translationDirectory,
-      translation_type: config.translationType
+      translation_type: config.translationType,
+      locale_on_url: true
     }
   );
 
@@ -88,7 +89,7 @@ module.exports = function (config) {
   // This gives us the properties that i18n-abide attaches to the request
   // object, without actually having to be an express app.
   abideObj.localizationContext = function (acceptLang) {
-    var fakeReq = {headers: {}};
+    var fakeReq = {headers: {}, url: ''};
     var fakeResp = {};
     if (acceptLang) {
       fakeReq.headers['accept-language'] = acceptLang;

@@ -44,15 +44,10 @@ module.exports = function verRoute (i18n) {
   route.path = /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
 
   route.process = function (req, res) {
-    var lang = req.params[0];
+    var lang = req.params[0] || req.lang;
     var page = req.params[1];
 
-    if (! lang) {
-      // abide should put a lang on the request, if not, use the default.
-      return res.redirect(getRedirectURL(req.lang || DEFAULT_LANG, page));
-    }
-
-    getTemplate(page, lang, DEFAULT_LANG)
+    getTemplate(page, lang)
       .then(function (template) {
         if (! template) {
           logger.warn('%s->`%s` does not exist, redirecting to `%s`',

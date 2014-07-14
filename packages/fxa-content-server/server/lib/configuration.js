@@ -159,7 +159,7 @@ var conf = module.exports = convict({
       // the big list of locales is specified so the production build script
       // can build all the locales before config/production.json is written.
       default: ['af', 'an', 'ar', 'as', 'ast', 'be', 'bg', 'bn-BD', 'bn-IN', 'br',
-          'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'en-GB', 'en-US', 'en-ZA',
+          'bs', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en-GB', 'en-US', 'en-ZA',
           'eo', 'es', 'es-AR', 'es-CL', 'es-MX', 'et', 'eu', 'fa', 'ff', 'fi',
           'fr', 'fy', 'fy-NL', 'ga', 'ga-IE', 'gd', 'gl', 'gu', 'gu-IN', 'he',
           'hi-IN', 'hr', 'ht', 'hu', 'hy-AM', 'id', 'is', 'it', 'it-CH', 'ja',
