@@ -58,6 +58,7 @@ function (Translator, Session) {
     '../tests/spec/lib/router',
     '../tests/spec/lib/strings',
     '../tests/spec/lib/auth-errors',
+    '../tests/spec/lib/oauth-errors',
     '../tests/spec/lib/app-start',
     '../tests/spec/lib/validate',
     '../tests/spec/lib/service-name',

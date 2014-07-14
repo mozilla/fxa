@@ -91,6 +91,9 @@ function () {
   };
 
   return {
+    ERROR_TO_CODE: ERROR_TO_CODE,
+    CODE_TO_MESSAGES: CODE_TO_MESSAGES,
+
     /**
      * Convert an error, a numeric code or string type to a message
      */
@@ -117,7 +120,7 @@ function () {
         code = this.toCode('SERVICE_UNAVAILABLE');
       }
 
-      return CODE_TO_MESSAGES[code] || err;
+      return this.CODE_TO_MESSAGES[code] || err;
     },
 
     /**
@@ -150,7 +153,7 @@ function () {
      * Convert an error or a text type from ERROR_TO_CODE to a numeric code
      */
     toCode: function (type) {
-      return type.errno || ERROR_TO_CODE[type] || type;
+      return type.errno || this.ERROR_TO_CODE[type] || type;
     },
 
     /**
