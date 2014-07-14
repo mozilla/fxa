@@ -80,6 +80,7 @@ define([
     }, dfd.reject.bind(dfd)));
   };
 
+  // Test each server template based page
   ['/', '/non-existent', '/boom', '/legal/terms', '/legal/privacy'].forEach(function (page) {
     suite['#get page ' + page + ' has correct localized resources'] = function () {
       var dfd = this.async(1000);
@@ -98,7 +99,7 @@ define([
   });
 
   // Test against Hebrew, a rtl langauge that must use system fonts
-  ['/', '/non-existent', '/boom', '/legal/terms', '/legal/privacy'].forEach(function (page) {
+  ['/', '/non-existent', '/boom'].forEach(function (page) {
     suite['#get page ' + page + ' has correct localized resources for he locale'] = function () {
       var dfd = this.async(1000);
 
@@ -114,6 +115,34 @@ define([
       }, dfd.reject.bind(dfd)));
     };
   });
+
+  suite['#get terms page using lang in the URL'] = function () {
+    var dfd = this.async(1000);
+
+    request(serverUrl + '/zh-CN/legal/terms', {
+      headers: {
+        'Accept': 'text/html'
+      }
+    }, dfd.callback(function (err, res) {
+      assert.ok(res.body.match(/styles\/system-font-main\.css/));
+      assert.ok(res.body.match(/dir="ltr"/));
+      assert.ok(res.body.match(/lang="zh-CN"/));
+    }, dfd.reject.bind(dfd)));
+  };
+
+  suite['#get privacy page using lang in the URL'] = function () {
+    var dfd = this.async(1000);
+
+    request(serverUrl + '/zh-CN/legal/privacy', {
+      headers: {
+        'Accept': 'text/html'
+      }
+    }, dfd.callback(function (err, res) {
+      assert.ok(res.body.match(/styles\/system-font-main\.css/));
+      assert.ok(res.body.match(/dir="ltr"/));
+      assert.ok(res.body.match(/lang="zh-CN"/));
+    }, dfd.reject.bind(dfd)));
+  };
 
   suite['#get /i18n/client.json with multiple supported languages'] = function () {
     testClientJson.call(this,

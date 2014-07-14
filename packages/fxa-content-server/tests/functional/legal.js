@@ -49,6 +49,36 @@ define([
         // success is going back to the legal screen.
         .waitForElementById('fxa-legal-header')
         .end();
+    },
+
+    'start at terms page': function () {
+
+      return this.get('remote')
+        .get(require.toUrl(url + '/terms'))
+        .waitForVisibleByCssSelector('#legal-copy')
+
+        .elementById('legal-copy')
+          .text()
+          .then(function (resultText) {
+            // the legal text shouldn't be empty
+            assert.ok(resultText.trim().length);
+          })
+        .end();
+    },
+
+    'start at privacy page': function () {
+
+      return this.get('remote')
+        .get(require.toUrl(url + '/privacy'))
+        .waitForVisibleByCssSelector('#legal-copy')
+
+        .elementById('legal-copy')
+          .text()
+          .then(function (resultText) {
+            // the legal text shouldn't be empty
+            assert.ok(resultText.trim().length);
+          })
+        .end();
     }
   });
 });
