@@ -161,11 +161,15 @@ ClientApi.prototype.accountStatus = function (uid, sessionTokenHex) {
         }.bind(this)
       )
   }
-  else {
+  else if (uid) {
     return this.doRequest(
       'GET',
       this.baseURL + '/account/status?uid=' + uid
     )
+  }
+  else {
+    // for testing the error response only
+    return this.doRequest('GET', this.baseURL + '/account/status')
   }
 }
 
