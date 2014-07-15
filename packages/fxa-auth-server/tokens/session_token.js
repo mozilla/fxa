@@ -10,6 +10,7 @@ module.exports = function (log, inherits, Token) {
     this.emailCode = details.emailCode || null
     this.emailVerified = !!details.emailVerified
     this.verifierSetAt = details.verifierSetAt
+    this.locale = details.locale || null
   }
   inherits(SessionToken, Token)
 

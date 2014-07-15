@@ -148,11 +148,29 @@ ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
     )
 }
 
-ClientApi.prototype.accountStatus = function (uid) {
-  return this.doRequest(
-    'GET',
-    this.baseURL + '/account/status?uid=' + uid
-  )
+ClientApi.prototype.accountStatus = function (uid, sessionTokenHex) {
+  if (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex)
+      .then(
+        function (token) {
+          return this.doRequest(
+            'GET',
+            this.baseURL + '/account/status',
+            token
+          )
+        }.bind(this)
+      )
+  }
+  else if (uid) {
+    return this.doRequest(
+      'GET',
+      this.baseURL + '/account/status?uid=' + uid
+    )
+  }
+  else {
+    // for testing the error response only
+    return this.doRequest('GET', this.baseURL + '/account/status')
+  }
 }
 
 ClientApi.prototype.accountReset = function (accountResetTokenHex, authPW) {
@@ -226,7 +244,7 @@ ClientApi.prototype.recoveryEmailVerifyCode = function (uid, code) {
   )
 }
 
-ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration) {
+ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, duration, locale) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(
       function (token) {
@@ -237,6 +255,9 @@ ClientApi.prototype.certificateSign = function (sessionTokenHex, publicKey, dura
           {
             publicKey: publicKey,
             duration: duration
+          },
+          {
+            'accept-language': locale
           }
         )
       }.bind(this)

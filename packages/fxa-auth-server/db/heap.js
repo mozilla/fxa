@@ -161,6 +161,7 @@ module.exports = function (
     sessionToken.email = account.email
     sessionToken.emailCode = account.emailCode
     sessionToken.emailVerified = account.emailVerified
+    sessionToken.locale = account.locale
     return P(sessionToken)
   }
 
@@ -331,6 +332,13 @@ module.exports = function (
     if (account) { account.emailVerified = true }
     return this.deletePasswordForgotToken(passwordForgotToken)
       .then(this.createAccountResetToken.bind(this, passwordForgotToken))
+  }
+
+  Heap.prototype.updateLocale = function (uid, locale) {
+    var account = this.accounts[uid.toString('hex')]
+    if (!account) { return P.reject(error.unknownAccount()) }
+    account.locale = locale
+    return P(true)
   }
 
   return Heap

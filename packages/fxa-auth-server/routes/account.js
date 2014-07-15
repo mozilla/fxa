@@ -46,6 +46,7 @@ module.exports = function (
         var email = form.email
         var authSalt = crypto.randomBytes(32)
         var authPW = Buffer(form.authPW, 'hex')
+        var locale = request.app.acceptLanguage
         customs.check(
           request.app.clientAddress,
           request.headers['user-agent'],
@@ -84,7 +85,8 @@ module.exports = function (
                       passwordForgotToken: null,
                       authSalt: authSalt,
                       verifierVersion: password.version,
-                      verifyHash: verifyHash
+                      verifyHash: verifyHash,
+                      locale: locale
                     }
                   )
                   .then(
@@ -314,26 +316,39 @@ module.exports = function (
       method: 'GET',
       path: '/account/status',
       config: {
+        auth: {
+          mode: 'optional',
+          strategy: 'sessionToken'
+        },
         validate: {
           query: {
-            uid: isA.string().min(32).max(32).regex(HEX_STRING).required()
+            uid: isA.string().min(32).max(32).regex(HEX_STRING)
           }
         }
       },
       handler: function (request, reply) {
-        var uid = Buffer(request.query.uid, 'hex')
-        db.account(uid)
-          .done(
-            function () {
-              reply({ exists: true })
-            },
-            function (err) {
-              if (err.errno === 102) {
-                return reply({ exists: false })
+        var sessionToken = request.auth.credentials
+        if (sessionToken) {
+          reply({ exists: true, locale: sessionToken.locale })
+        }
+        else if (request.query.uid) {
+          var uid = Buffer(request.query.uid, 'hex')
+          db.account(uid)
+            .done(
+              function (account) {
+                reply({ exists: true })
+              },
+              function (err) {
+                if (err.errno === 102) {
+                  return reply({ exists: false })
+                }
+                reply(err)
               }
-              reply(err)
-            }
-          )
+            )
+        }
+        else {
+          reply(error.missingRequestParameter('uid'))
+        }
       }
     },
     {

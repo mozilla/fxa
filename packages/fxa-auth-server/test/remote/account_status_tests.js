@@ -29,6 +29,61 @@ TestServer.start(config)
   )
 
   test(
+    'account status includes locale when authenticated',
+    function (t) {
+      return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
+        .then(
+          function (c) {
+            return c.api.accountStatus(c.uid, c.sessionToken)
+          }
+        )
+        .then(
+          function (response) {
+            t.equal(response.locale, 'en-US', 'locale is stored')
+          }
+        )
+    }
+  )
+
+  test(
+    'account status does not include locale when unauthenticated',
+    function (t) {
+      return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
+        .then(
+          function (c) {
+            return c.api.accountStatus(c.uid)
+          }
+        )
+        .then(
+          function (response) {
+            t.ok(!response.locale, 'locale is not present')
+          }
+        )
+    }
+  )
+
+  test(
+    'account status unauthenticated with no uid returns an error',
+    function (t) {
+      return Client.create(config.publicUrl, server.uniqueEmail(), 'password', { lang: 'en-US' })
+        .then(
+          function (c) {
+            return c.api.accountStatus()
+          }
+        )
+        .then(
+          function () {
+            t.fail('should get an error')
+          },
+          function (e) {
+            t.equal(e.code, 400, 'correct error status code')
+            t.equal(e.errno, 108, 'correct errno')
+          }
+        )
+    }
+  )
+
+  test(
     'account status with non-existing account',
     function (t) {
       var api = new Client.Api(config.publicUrl)

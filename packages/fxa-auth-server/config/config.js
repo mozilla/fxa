@@ -59,7 +59,7 @@ module.exports = function (fs, path, url, convict) {
       },
       patchLevel : {
         doc: 'The patch level the database should be set to for this release',
-        default: 2,
+        default: 3,
         format: 'nat'
       },
       master: {

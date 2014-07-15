@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function (log, isA, error, signer, domain) {
+module.exports = function (log, isA, error, signer, db, domain) {
 
   const HOUR = 1000 * 60 * 60
 
@@ -62,6 +62,11 @@ module.exports = function (log, isA, error, signer, domain) {
           if (!publicKey.g) {
             return reply(error.missingRequestParameter('g'))
           }
+        }
+
+        if (!sessionToken.locale && request.app.acceptLanguage) {
+          db.updateLocale(sessionToken.uid, request.app.acceptLanguage)
+          // meh on the result
         }
 
         signer.enqueue(

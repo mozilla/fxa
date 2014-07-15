@@ -49,7 +49,7 @@ module.exports = function (
     customs
   )
   var session = require('./session')(log, isA, error, db)
-  var sign = require('./sign')(log, isA, error, signer, config.domain)
+  var sign = require('./sign')(log, isA, error, signer, db, config.domain)
   var util = require('./util')(
     log,
     crypto,
