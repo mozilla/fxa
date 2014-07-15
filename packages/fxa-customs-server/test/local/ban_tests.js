@@ -12,7 +12,9 @@ var log = {
 }
 
 var config = {
-  blockIntervalSeconds: 1
+  limits: {
+    blockIntervalSeconds: 1
+  }
 }
 
 var TEST_IP = '192.0.2.1'
@@ -65,7 +67,7 @@ test(
           }
         )
       },
-      config.blockIntervalSeconds * 1000
+      config.limits.blockIntervalSeconds * 1000
     )
   }
 )
@@ -105,7 +107,7 @@ test(
           }
         )
       },
-      config.blockIntervalSeconds * 1000
+      config.limits.blockIntervalSeconds * 1000
     )
   }
 )

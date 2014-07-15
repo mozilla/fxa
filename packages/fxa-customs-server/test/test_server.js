@@ -6,7 +6,7 @@ var cp = require('child_process')
 var request = require('request')
 
 function TestServer(config) {
-  this.url = 'http://127.0.0.1:' + config.port
+  this.url = 'http://127.0.0.1:' + config.listen.port
   this.server = null
 }
 
