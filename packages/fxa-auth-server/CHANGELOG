@@ -1,3 +1,6 @@
+train-16
+  * updated hapi to 6.0.2
+
 train-15
   * allow routes to use a base path for hosting in a subdirectory
   * updated dependencies
