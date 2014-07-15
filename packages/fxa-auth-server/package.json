@@ -37,7 +37,7 @@
     "compute-cluster": "git://github.com/dannycoates/node-compute-cluster.git#0222a742",
     "convict": "0.4.2",
     "fxa-auth-mailer": "git://github.com/dannycoates/fxa-auth-mailer.git#452434ae0f",
-    "fxa-customs-server": "git://github.com/mozilla/fxa-customs-server.git#a6a3db4f607a",
+    "fxa-customs-server": "git://github.com/mozilla/fxa-customs-server.git#d5f96e7308aae0a803ea140dfa3b0234f9389d86",
     "hapi": "6.0.2",
     "hapi-auth-hawk": "git://github.com/dannycoates/hapi-auth-hawk.git#b2f1d31184",
     "hkdf": "0.0.2",
