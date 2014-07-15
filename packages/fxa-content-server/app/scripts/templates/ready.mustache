@@ -1,26 +1,28 @@
-<header>
-  {{#signIn}}
-  <h1 id="fxa-sign-in-complete-header">{{#t}}Signed in successfully{{/t}}</h1>
-  {{/signIn}}
-  {{#signUp}}
-  <h1 id="fxa-sign-up-complete-header">{{#t}}Account verified{{/t}}</h1>
-  {{/signUp}}
-  {{#resetPassword}}
-  <h1 id="fxa-reset-password-complete-header">{{#t}}Password reset{{/t}}</h1>
-  {{/resetPassword}}
-</header>
+<div id="main-content">
+  <header>
+    {{#signIn}}
+    <h1 id="fxa-sign-in-complete-header">{{#t}}Signed in successfully{{/t}}</h1>
+    {{/signIn}}
+    {{#signUp}}
+    <h1 id="fxa-sign-up-complete-header">{{#t}}Account verified{{/t}}</h1>
+    {{/signUp}}
+    {{#resetPassword}}
+    <h1 id="fxa-reset-password-complete-header">{{#t}}Password reset{{/t}}</h1>
+    {{/resetPassword}}
+  </header>
 
-<section>
-  <div class="error"></div>
+  <section>
+    <div class="error"></div>
 
-  <div class="graphic graphic-checkbox">{{#t}}Success{{/t}}</div>
+    <div class="graphic graphic-checkbox">{{#t}}Success{{/t}}</div>
 
-  {{#serviceName}}
-    <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
-  {{/serviceName}}
-  {{^serviceName}}
-    <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>
-  {{/serviceName}}
+    {{#serviceName}}
+      <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
+    {{/serviceName}}
+    {{^serviceName}}
+      <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>
+    {{/serviceName}}
 
-  <div class="marketing-area"></div>
-</section>
+    <div class="marketing-area"></div>
+  </section>
+</div>

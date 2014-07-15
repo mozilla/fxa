@@ -1,43 +1,45 @@
-<header>
-  <h1 id="fxa-signin-header">
-    {{#serviceName}}
-      {{#t}}Sign in to %(serviceName)s{{/t}}
-    {{/serviceName}}
-    {{^serviceName}}
-      {{#t}}Sign in{{/t}}
-    {{/serviceName}}
-  </h1>
-</header>
+<div id="main-content">
+  <header>
+    <h1 id="fxa-signin-header">
+      {{#serviceName}}
+        {{#t}}Sign in to %(serviceName)s{{/t}}
+      {{/serviceName}}
+      {{^serviceName}}
+        {{#t}}Sign in{{/t}}
+      {{/serviceName}}
+    </h1>
+  </header>
 
-<section>
-  <div class="error"></div>
-  <div class="success"></div>
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
 
-  <form novalidate>
-    <div class="input-row">
-      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}}>
+    <form novalidate>
+      <div class="input-row">
+        <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}}>
+      </div>
+
+      <div class="input-row password-row">
+        <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#email}}autofocus{{/email}} autocomplete="off" />
+
+        <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
+        <label for="show-password" class="show-password-label">
+          {{#t}}Show{{/t}}
+        </label>
+      </div>
+
+      <div class="button-row">
+        <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
+      </div>
+    </form>
+
+    <div class="links">
+      <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
+      <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
     </div>
 
-    <div class="input-row password-row">
-      <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#email}}autofocus{{/email}} autocomplete="off" />
-
-      <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
-      <label for="show-password" class="show-password-label">
-        {{#t}}Show{{/t}}
-      </label>
+    <div class="privacy-links">
+      {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
     </div>
-
-    <div class="button-row">
-      <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
-    </div>
-  </form>
-
-  <div class="links">
-    <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
-    <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
-  </div>
-
-  <div class="privacy-links">
-    {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
-  </div>
-</section>
+  </section>
+</div>

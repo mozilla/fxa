@@ -20,7 +20,7 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     margin: 0 0 20px 0;
   }
 
-  #stage {
+  #main-content {
     border-radius: $small-border-radius;
     margin: 0 auto;
     min-height:300px !important;
@@ -129,7 +129,7 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
 }
 
 @media only screen and (max-width: 320px) {
-  #stage {
+  #main-content {
     margin: 0 auto;
     min-height: 0;
     width: 94%;
@@ -140,7 +140,7 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
 @media only screen and (max-width:319px) {
 
   html {
-    background-color: $stage-background-color;
+    background-color: $content-background-color;
     height: 100%;
   }
 
@@ -153,7 +153,7 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     display: none;
   }
 
-  #stage {
+  #main-content {
     background: none;
     box-shadow: none;
     margin:10px auto 0 auto;

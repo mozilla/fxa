@@ -1,30 +1,32 @@
-<header>
-  <h1 id="fxa-delete-account-header">{{#t}}Delete account{{/t}}</h1>
-</header>
+<div id="main-content">
+  <header>
+    <h1 id="fxa-delete-account-header">{{#t}}Delete account{{/t}}</h1>
+  </header>
 
-<section>
-  <div class="error"></div>
+  <section>
+    <div class="error"></div>
 
-  <form novalidate>
-    <p>{{#t}}Are you sure you want to delete your account? This action cannot be undone.{{/t}}</p>
-    <p class="prefill">{{ email }}</p>
+    <form novalidate>
+      <p>{{#t}}Are you sure you want to delete your account? This action cannot be undone.{{/t}}</p>
+      <p class="prefill">{{ email }}</p>
 
-    <div class="input-row password-row">
-      <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autocomplete="off" />
+      <div class="input-row password-row">
+        <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autocomplete="off" />
 
-      <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
-      <label for="show-password" class="show-password-label">
-        {{#t}}Show{{/t}}
-      </label>
+        <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
+        <label for="show-password" class="show-password-label">
+          {{#t}}Show{{/t}}
+        </label>
 
+      </div>
+
+      <div class="button-row">
+        <button type="submit" class="disabled">{{#t}}Delete account{{/t}}</button>
+      </div>
+    </form>
+
+    <div class="links">
+      <a href="#" id="back">{{#t}}Back{{/t}}</a>
     </div>
-
-    <div class="button-row">
-      <button type="submit" class="disabled">{{#t}}Delete account{{/t}}</button>
-    </div>
-  </form>
-
-  <div class="links">
-    <a href="#" id="back">{{#t}}Back{{/t}}</a>
-  </div>
-</section>
+  </section>
+</div>

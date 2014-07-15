@@ -93,8 +93,13 @@ noscript {
   opacity: 1;
 }
 
-#stage {
-  background: $stage-background-color;
+
+/**
+* Apply styles to div injected by backbone,
+* rather than to the stage itself
+**/
+#main-content {
+  background: $content-background-color;
   border-radius: $big-border-radius;
   box-shadow: 0 1px 5px $input-row-border-color;
   margin: -5px auto 0 auto;
@@ -104,7 +109,7 @@ noscript {
   width: 420px;
 }
 
-#stage.in-content {
+.in-content #main-content {
   margin-top:85px;
 }
 
@@ -334,7 +339,7 @@ html[dir='rtl'] .tooltip-below::before,
   -webkit-appearance: none;
      -moz-appearance: none;
           appearance: none;
-  background: $stage-background-color url(/images/ddarrow_inactive.png) 96% center;
+  background: $content-background-color url(/images/ddarrow_inactive.png) 96% center;
   background-repeat: no-repeat;
   background-size: 10px 17px;
   color: $input-placeholder-color;
@@ -369,7 +374,7 @@ html[dir='rtl'] .tooltip-below::before,
 }
 
 .input-row option {
-  background-color: $stage-background-color;
+  background-color: $content-background-color;
 }
 
 .input-row input:hover,
@@ -448,7 +453,7 @@ label:focus ~ .input-help-focused {
 }
 
 .select-row {
-  background: $stage-background-color url(/images/ddarrow_inactive.png) 96% center no-repeat;
+  background: $content-background-color url(/images/ddarrow_inactive.png) 96% center no-repeat;
   border-radius: $big-border-radius;
   border: 1px solid $input-row-border-color;
   cursor:pointer;
@@ -503,7 +508,7 @@ label:focus ~ .input-help-focused {
 }
 
 .select-row select option {
-  background-color: $stage-background-color;
+  background-color: $content-background-color;
 }
 
 
@@ -662,7 +667,7 @@ ul.links li {
  */
 
 .password-row .show-password-label {
-  background-color: $stage-background-color;
+  background-color: $content-background-color;
   border-left: 1px solid $input-row-border-color;
   border-radius: 0 $big-border-radius $big-border-radius 0;
   color: $input-placeholder-color;
@@ -824,9 +829,9 @@ input[type="text"] ~ .show-password-label:hover {
   background-color: $html-background-color;
   border-radius: 0 0 $big-border-radius $big-border-radius;
   border-top: 1px solid $marketing-border-color;
-  box-shadow: 0 1px 1px $stage-background-color inset;
+  box-shadow: 0 1px 1px $content-background-color inset;
   font-size: $medium-font;
-  // pull in the margins from #stage 
+  // pull in the margins from #main-content 
   margin: 60px -40px -40px -40px;
   position: relative;
   &.image-snippet {
@@ -836,7 +841,7 @@ input[type="text"] ~ .show-password-label:hover {
     text-align: left;
   }
   &.text-snippet {
-    // pull in the margins from #stage 
+    // pull in the margins from #main-content 
     padding: 28px 20px 36px 20px; 
     text-align:center;
   }

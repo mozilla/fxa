@@ -1,42 +1,44 @@
-{{#isLinkExpired}}
-<header>
-  <h1 id="fxa-verification-link-expired-header">{{#t}}Verification link expired{{/t}}</h1>
-</header>
+<div id="main-content">
+  {{#isLinkExpired}}
+  <header>
+    <h1 id="fxa-verification-link-expired-header">{{#t}}Verification link expired{{/t}}</h1>
+  </header>
 
-<section>
-  <div class="error"></div>
-  <div class="success">{{#t}}Email resent{{/t}}</div>
+  <section>
+    <div class="error"></div>
+    <div class="success">{{#t}}Email resent{{/t}}</div>
 
-  <p>
-    {{#t}}The link you clicked to verify your email is expired.{{/t}}
-  </p>
+    <p>
+      {{#t}}The link you clicked to verify your email is expired.{{/t}}
+    </p>
 
-  {{#canResend}}
-  <div class="links">
-    <a id="resend" class="resend-email" href="#">{{#t}}Click here to receive a new verification link{{/t}}</a>
-  </div>
-  {{/canResend}}
-</section>
-{{/isLinkExpired}}
+    {{#canResend}}
+    <div class="links">
+      <a id="resend" class="resend-email" href="#">{{#t}}Click here to receive a new verification link{{/t}}</a>
+    </div>
+    {{/canResend}}
+  </section>
+  {{/isLinkExpired}}
 
-{{#isLinkDamaged}}
-<header>
-  <h1 id="fxa-verification-link-damaged-header">{{#t}}Verification link damaged{{/t}}</h1>
-</header>
+  {{#isLinkDamaged}}
+  <header>
+    <h1 id="fxa-verification-link-damaged-header">{{#t}}Verification link damaged{{/t}}</h1>
+  </header>
 
-<section>
-  <p>
-    {{#t}}The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.{{/t}}
-  </p>
-</section>
-{{/isLinkDamaged}}
+  <section>
+    <p>
+      {{#t}}The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.{{/t}}
+    </p>
+  </section>
+  {{/isLinkDamaged}}
 
-{{#error}}
-<header>
-  <h1 id="fxa-verification-error-header">{{#t}}Verification error{{/t}}</h1>
-</header>
+  {{#error}}
+  <header>
+    <h1 id="fxa-verification-error-header">{{#t}}Verification error{{/t}}</h1>
+  </header>
 
-<section>
-  <div class="error">{{error}}</div>
-</section>
-{{/error}}
+  <section>
+    <div class="error">{{error}}</div>
+  </section>
+  {{/error}}
+</div>
