@@ -8,7 +8,7 @@
 define(['underscore'],
 function (_) {
 
-  function searchParams (str) {
+  function searchParams (str, whitelist) {
     var search = (str || window.location.search).replace(/^\?/, '');
     if (! search) {
       return {};
@@ -22,7 +22,20 @@ function (_) {
       terms[keyValue[0]] = decodeURIComponent(keyValue[1]);
     });
 
-    return terms;
+    if (! whitelist) {
+      return terms;
+    }
+
+    // whitelist is in effect.
+    var allowedTerms = {};
+
+    _.each(whitelist, function(allowedTerm) {
+      if (allowedTerm in terms) {
+        allowedTerms[allowedTerm] = terms[allowedTerm];
+      }
+    });
+
+    return allowedTerms;
   }
 
   return {

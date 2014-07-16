@@ -33,8 +33,11 @@ define([
 
       this._oAuthClient = new OAuthClient();
 
-      if (!params) {
-        params = Url.searchParams(this.window.location.search);
+      if (! params) {
+        // params listed in:
+        // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
+        params = Url.searchParams(this.window.location.search,
+                  ['client_id', 'redirect_uri', 'state', 'scope', 'action']);
       }
       this._oAuthParams = params;
 
