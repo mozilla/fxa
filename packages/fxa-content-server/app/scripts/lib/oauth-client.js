@@ -8,9 +8,10 @@ define([
   'jquery',
   'lib/promise',
   'lib/session',
-  'lib/config-loader'
+  'lib/config-loader',
+  'lib/oauth-errors'
 ],
-function ($, p, Session, ConfigLoader) {
+function ($, p, Session, ConfigLoader, OAuthErrors) {
   var oauthUrl;
 
   var GET_CLIENT = '/v1/client/';
@@ -23,6 +24,20 @@ function ($, p, Session, ConfigLoader) {
     if (options && options.oauthUrl) {
       oauthUrl = options.oauthUrl;
     }
+  }
+
+  function transformError(xhr) {
+    if (!xhr || xhr.status === 0) {
+      return OAuthErrors.toError('SERVICE_UNAVAILABLE');
+    }
+
+    var errObj = xhr.responseJSON;
+
+    if (!errObj) {
+      return OAuthErrors.toError('UNEXPECTED_ERROR');
+    }
+
+    return OAuthErrors.toError(errObj.errno);
   }
 
   OAuthClient.prototype = {
