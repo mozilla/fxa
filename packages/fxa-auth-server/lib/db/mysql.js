@@ -100,19 +100,25 @@ const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
 const QUERY_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
 
+function firstRow(rows) {
+  return rows[0];
+}
+
 MysqlStore.prototype = {
 
   ping: function ping() {
     logger.debug('ping');
-    var d = P.defer();
-    this._connection.ping(function(err) {
-      if (err) {
-        logger.error('ping:', err);
-        return d.reject(err);
-      }
-      d.resolve();
+    var conn = this._connection;
+    return new P(function(resolve, reject) {
+      conn.ping(function(err) {
+        if (err) {
+          logger.error('ping:', err);
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
     });
-    return d.promise;
   },
 
   // createdAt is DEFAULT NOW() in the schema.sql
@@ -125,88 +131,52 @@ MysqlStore.prototype = {
       id = unique.id();
     }
     logger.debug('registerClient', client.name, id.toString('hex'));
-    var d = P.defer();
     var hash = encrypt.hash(client.secret);
-    this._connection.query(QUERY_CLIENT_REGISTER,
-      [
-        id,
-        client.name,
-        client.imageUri,
-        hash,
-        client.redirectUri,
-        client.whitelisted
-      ],
-      function(err) {
-        if (err) {
-          return d.reject(err);
-        }
-        logger.debug('registerClient: success [%s]', id.toString('hex'));
-        client.id = id;
-        d.resolve(client);
-      });
-    return d.promise;
-  },
-  getClient: function getClient(_id) {
-    var d = P.defer();
-    var id = buf(_id);
-    this._connection.query(QUERY_CLIENT_GET, [id], function(err, rows) {
-      if (err) {
-        return d.reject(err);
-      }
-      d.resolve(rows[0]);
+    return this._write(QUERY_CLIENT_REGISTER, [
+      id,
+      client.name,
+      client.imageUri,
+      hash,
+      client.redirectUri,
+      client.whitelisted
+    ]).then(function() {
+      logger.debug('registerClient: success [%s]', id.toString('hex'));
+      client.id = id;
+      return client;
     });
-    return d.promise;
   },
-  removeClient: function removeClient(_id) {
-    var d = P.defer();
-    var id = buf(_id);
-    this._connection.query(QUERY_CLIENT_DELETE, [id], function(err) {
-      if (err) {
-        return d.reject(err);
-      }
-      d.resolve();
-    });
-    return d.promise;
+  getClient: function getClient(id) {
+    return this._readOne(QUERY_CLIENT_GET, [buf(id)]);
   },
-  generateCode: function generateCode(clientId, userId, email, scope) {
+  removeClient: function removeClient(id) {
+    return this._write(QUERY_CLIENT_DELETE, [buf(id)]);
+  },
+  generateCode: function generateCode(clientId, userId, email, _scope) {
     var code = unique.code();
     var hash = encrypt.hash(code);
-    var d = P.defer();
-    this._connection.query(QUERY_CODE_INSERT,
-      [clientId, userId, email, scope.join(' '), hash],
-      function(err) {
-        if (err) {
-          return d.reject(err);
-        }
-        d.resolve(code);
-      });
-    return d.promise;
+    var scope = _scope.join(' ');
+    return this._write(QUERY_CODE_INSERT, [
+      clientId,
+      userId,
+      email,
+      scope,
+      hash
+    ]).then(function() {
+      return code;
+    });
   },
   getCode: function getCode(code) {
     logger.debug('getCode');
-    var d = P.defer();
     var hash = encrypt.hash(code);
-    this._connection.query(QUERY_CODE_FIND, [hash], function(err, rows) {
-      if (err) {
-        return d.reject(err);
-      }
-      var code = rows[0];
+    return this._readOne(QUERY_CODE_FIND, [hash]).then(function(code) {
       if (code) {
         code.scope = code.scope.split(' ');
       }
-      d.resolve(code);
+      return code;
     });
-    return d.promise;
   },
   removeCode: function removeCode(id) {
-    var d = P.defer();
-    this._connection.query(QUERY_CODE_DELETE, [id], function(err) {
-      if (err) {
-        return d.reject(err);
-      }
-      d.resolve();
-    });
-    return d.promise;
+    return this._write(QUERY_CODE_DELETE, [id]);
   },
   generateToken: function generateToken(code) {
     var t = {
@@ -217,79 +187,79 @@ MysqlStore.prototype = {
       type: 'bearer'
     };
     var _token = unique.token();
-    var conn = this._connection;
+    var me = this;
     return this.removeCode(code.code).then(function() {
       var hash = encrypt.hash(_token);
-      var d = P.defer();
-      conn.query(QUERY_TOKEN_INSERT,
-        [t.clientId, t.userId, t.email, t.scope.join(' '), t.type, hash],
-        function(err) {
-          if (err) {
-            logger.error('generateToken:', err);
-            return d.reject(err);
-          }
-          t.token = _token;
-          d.resolve(t);
-        });
-      return d.promise;
+      return me._write(QUERY_TOKEN_INSERT, [
+        t.clientId,
+        t.userId,
+        t.email,
+        t.scope.join(' '),
+        t.type,
+        hash
+      ]).then(function() {
+        t.token = _token;
+        return t;
+      });
     });
   },
 
   getToken: function getToken(token) {
-    var d = P.defer();
-    this._connection.query(QUERY_TOKEN_FIND, [buf(token)],
-      function(err, rows) {
-        if (err) {
-          logger.error('getToken:', err);
-          return d.reject(err);
-        }
-        var t = rows[0];
-        if (t) {
-          t.scope = t.scope.split(' ');
-        }
-        d.resolve(t);
-      });
-
-    return d.promise;
+    return this._readOne(QUERY_TOKEN_FIND, [buf(token)]).then(function(t) {
+      if (t) {
+        t.scope = t.scope.split(' ');
+      }
+      return t;
+    });
   },
 
   removeToken: function removeToken(id) {
-    var d = P.defer();
-    this._connection.query(QUERY_TOKEN_DELETE, [buf(id)], function(err) {
-      if (err) {
-        return d.reject(err);
-      }
-      d.resolve();
-    });
-    return d.promise;
+    return this._write(QUERY_TOKEN_DELETE, [buf(id)]);
   },
 
   getEncodingInfo: function getEncodingInfo() {
-    var d = P.defer();
     var info = {};
 
+    var me = this;
     var qry = 'SHOW VARIABLES LIKE "%character\\_set\\_%"';
-    this._connection.query(qry, function(err, rows) {
-      /*jshint sub:true*/
-      if (err) {
-        return d.reject(err);
-      }
+    return this._read(qry).then(function(rows) {
+      /*jshint camelcase:false*/
       rows.forEach(function(row) {
-        info[row['Variable_name']] = row.Value;
+        info[row.Variable_name] = row.Value;
       });
 
       qry = 'SHOW VARIABLES LIKE "%collation\\_%"';
-      this._connection.query(qry, function(err, rows) {
-        if (err) {
-          return d.reject(err);
-        }
+      return me._read(qry).then(function(rows) {
         rows.forEach(function(row) {
-          info[row['Variable_name']] = row.Value;
+          info[row.Variable_name] = row.Value;
         });
-        d.resolve(info);
+        return info;
       });
     });
-    return d.promise;
+  },
+
+  _write: function _write(sql, params) {
+    return this._query(this._connection, sql, params);
+  },
+
+  _read: function _read(sql, params) {
+    return this._query(this._connection, sql, params);
+  },
+
+  _readOne: function _readOne(sql, params) {
+    return this._read(sql, params).then(firstRow);
+  },
+
+  _query: function _query(connection, sql, params) {
+    return new P(function(resolve, reject) {
+      connection.query(sql, params || [], function(err, results) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results);
+        }
+      });
+    });
   }
 };
 
