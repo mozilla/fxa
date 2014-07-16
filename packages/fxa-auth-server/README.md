@@ -48,6 +48,8 @@ Run tests with:
 
     npm test
 
+* Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
+
 ## Reference Client
 
 https://github.com/mozilla/fxa-js-client
