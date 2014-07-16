@@ -68,6 +68,19 @@ function addEvents(loggableEvent, event) {
   }
 }
 
+function addScreenSize(loggableEvent, event) {
+  if (! event.screen) {
+    return;
+  }
+
+  if (event.screen.width) {
+    loggableEvent['screen.width'] = event.screen.width;
+  }
+
+  if (event.screen.height) {
+    loggableEvent['screen.height'] = event.screen.height;
+  }
+}
 
 function toLoggableEvent(event) {
   var loggableEvent = {};
@@ -95,6 +108,7 @@ function toLoggableEvent(event) {
 
   addNavigationTiming(loggableEvent, event);
   addEvents(loggableEvent, event);
+  addScreenSize(loggableEvent, event);
 
 
   return loggableEvent;

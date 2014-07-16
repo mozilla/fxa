@@ -54,6 +54,9 @@ define([
       assert.equal(loggedMetrics.marketingType, 'survey');
       assert.equal(loggedMetrics.marketingLink, 'http://mzl.la/1oV7jUy');
       assert.isFalse(loggedMetrics.marketingClicked);
+
+      assert.equal(loggedMetrics['screen.width'], 1680);
+      assert.equal(loggedMetrics['screen.height'], 1050);
     });
 
     metricsCollector.write({
@@ -78,7 +81,11 @@ define([
       context: 'fx_desktop_v1',
       marketingType: 'survey',
       marketingLink: 'http://mzl.la/1oV7jUy',
-      marketingClicked: false
+      marketingClicked: false,
+      screen: {
+        width: 1680,
+        height: 1050
+      }
     });
   };
 

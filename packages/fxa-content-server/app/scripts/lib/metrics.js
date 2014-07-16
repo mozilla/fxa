@@ -40,7 +40,8 @@ define([
     'lang',
     'marketingLink',
     'marketingType',
-    'marketingClicked'
+    'marketingClicked',
+    'screen'
   ];
 
   var TEN_MINS_MS = 10 * 60 * 1000;
