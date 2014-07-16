@@ -62,7 +62,7 @@ define([
           self.serviceRedirectURI = clientInfo.redirect_uri;
         })
         .fail(function(err) {
-          self.displayError(err, OAuthErrors);
+          self.error = OAuthErrors.toMessage(err);
         });
     },
 

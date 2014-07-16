@@ -43,7 +43,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         serviceName: this.serviceName,
         email: email,
         password: Session.prefillPassword,
-        isSync: this.isSync()
+        isSync: this.isSync(),
+        error: this.error
       };
     },
 

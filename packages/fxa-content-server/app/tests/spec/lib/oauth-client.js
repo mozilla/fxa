@@ -115,7 +115,7 @@ function (chai, $, testHelpers, sinon,
               assert.ok(result);
               assert.equal(result.name, 'MozRP');
             });
-        })
+        });
 
         it('responds with a SERVICE_UNAVAILABLE error if the service is unavailable', function () {
           var clientId = 'clientId';

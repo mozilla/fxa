@@ -12,6 +12,11 @@
   </header>
 
   <section>
+    {{#error}}
+      <div class="error visible">{{ error }}</div>
+    {{/error}}
+
+    {{^error}}
     <div class="error"></div>
     <div class="success"></div>
 
@@ -42,5 +47,6 @@
     <div class="privacy-links">
       {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
     </div>
+    {{/error}}
   </section>
 </div>
