@@ -26,14 +26,14 @@ function ($, p, Session, ConfigLoader, OAuthErrors) {
     }
   }
 
-  function transformError(xhr) {
-    if (!xhr || xhr.status === 0) {
+  function normalizeError(xhr) {
+    if (! xhr || xhr.status === 0) {
       return OAuthErrors.toError('SERVICE_UNAVAILABLE');
     }
 
     var errObj = xhr.responseJSON;
 
-    if (!errObj) {
+    if (! errObj) {
       return OAuthErrors.toError('UNEXPECTED_ERROR');
     }
 
@@ -64,13 +64,21 @@ function ($, p, Session, ConfigLoader, OAuthErrors) {
     // params = { assertion, client_id, redirect_uri, scope, state }
     getCode: function getCode(params) {
       return this._getOauthUrl().then(function (url) {
-        return p.jQueryXHR($.post(url + GET_CODE, params));
+        return p.jQueryXHR($.post(url + GET_CODE, params))
+            .then(null, function(xhr) {
+              var err = normalizeError(xhr);
+              throw err;
+            });
       });
     },
 
     getClientInfo: function getClientInfo(id) {
       return this._getOauthUrl().then(function (url) {
-        return p.jQueryXHR($.get(url + GET_CLIENT + id));
+        return p.jQueryXHR($.get(url + GET_CLIENT + id))
+            .then(null, function(xhr) {
+              var err = normalizeError(xhr);
+              throw err;
+            });
       });
     }
   };

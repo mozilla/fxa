@@ -34,6 +34,8 @@ function (_, Backbone) {
     this.navigator = {
       userAgent: window.navigator.userAgent
     };
+
+    this.console = window.console;
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {
