@@ -112,6 +112,10 @@ app.get('/api/todos/get', checkAuth, function(req, res) {
   }
 });
 
+app.get(/^\/iframe(:?\/(?:index.html)?)?$/, function (req, res, next) {
+  req.url = '/index.html';
+  next();
+});
 
 app.use(express.static(__dirname + "/static"));
 var port = process.env['PORT'] || config.port || 8080;

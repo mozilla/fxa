@@ -3,6 +3,7 @@
 var config = require('./config.json');
 var crypto = require('crypto');
 var request = require('request');
+var querystring = require('querystring');
 var KeyPair = require('fxa-crypto-utils').KeyPair;
 var PreverifiedEmailTokenGenerator = require('fxa-crypto-utils').PreverifiedEmailTokenGenerator;
 
@@ -13,20 +14,17 @@ var oauthFlows = { };
 
 // construct a redirect URL
 function toQueryString(obj) {
-  var fields = Object.keys(obj).map(function (key) {
-    return key + "=" + obj[key];
-  });
-
-  return "?" + fields.join("&");
+  return '?' + querystring.stringify(obj);
 }
 
-function redirectUrl(action, nonce, email, preVerifyToken) {
+function getOAuthInfo(action, nonce, email, preVerifyToken) {
   var oauthParams = {
     client_id: config.client_id,
     redirect_uri: config.redirect_uri,
     state: nonce,
     scope: config.scopes,
-    action: action
+    action: action,
+    content_uri: config.content_uri
   };
 
   if (email) {
@@ -37,7 +35,18 @@ function redirectUrl(action, nonce, email, preVerifyToken) {
     oauthParams.preVerifyToken = preVerifyToken;
   }
 
-  return config.auth_uri + toQueryString(oauthParams);
+  return oauthParams;
+}
+
+function redirectUrl(oauthInfo) {
+  return config.auth_uri + toQueryString(oauthInfo);
+}
+
+function generateAndSaveNonce(req) {
+  var nonce = crypto.randomBytes(32).toString('hex');
+  oauthFlows[nonce] = true;
+  req.session.state = nonce;
+  return nonce;
 }
 
 module.exports = function(app, db) {
@@ -54,20 +63,24 @@ module.exports = function(app, db) {
 
   // begin a new oauth log in flow
   app.get('/api/login', function(req, res) {
-    var nonce = crypto.randomBytes(32).toString('hex');
-    oauthFlows[nonce] = true;
-    req.session.state = nonce;
-    var url = redirectUrl("signin", nonce);
-    return res.redirect(url);
+    var nonce = generateAndSaveNonce(req);
+    var oauthInfo = getOAuthInfo('signin', nonce);
+    res.format({
+      'application/json': function () {
+        res.json(oauthInfo);
+      }
+    });
   });
 
   // begin a new oauth sign up flow
   app.get('/api/signup', function(req, res) {
-    var nonce = crypto.randomBytes(32).toString('hex');
-    oauthFlows[nonce] = true;
-    req.session.state = nonce;
-    var url = redirectUrl("signup", nonce);
-    return res.redirect(url);
+    var nonce = generateAndSaveNonce(req);
+    var oauthInfo = getOAuthInfo('signup', nonce);
+    res.format({
+      'application/json': function () {
+        res.json(oauthInfo);
+      }
+    });
   });
 
   app.get('/api/preverified-signup', function(req, res) {
@@ -77,11 +90,9 @@ module.exports = function(app, db) {
     // the user making the request is the current user.
     preVerifyTokenGenerator.generate(email)
       .then(function (preVerifyToken) {
-        var nonce = crypto.randomBytes(32).toString('hex');
-        oauthFlows[nonce] = true;
-        req.session.state = nonce;
-        var url = redirectUrl("signup", nonce, email, preVerifyToken);
-        return res.redirect(url);
+        var nonce = generateAndSaveNonce(req);
+        var oauthInfo = getOAuthInfo('signup', nonce, email, preVerifyToken);
+        return res.redirect(redirectUrl(oauthInfo));
       });
   });
 
@@ -142,7 +153,9 @@ module.exports = function(app, db) {
           var data = JSON.parse(body);
           req.session.email = data.email;
           req.session.uid = data.uid;
-          res.redirect('/');
+          // use the referrer so the redirect occurs correctly
+          // for either the redirect or iframe flow.
+          res.redirect(req.get('referrer'));
         });
       });
     } else if (req.session.email) {

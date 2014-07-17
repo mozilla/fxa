@@ -6,6 +6,7 @@
   "redirect_uri": "https://123done.dev.lcip.org/api/oauth",
   "auth_uri": "https://oauth.dev.lcip.org/v1/authorization",
   "oauth_uri": "https://oauth.dev.lcip.org/v1",
+  "content_uri": "https://accounts.dev.lcip.org",
   "profile_uri": "https://profile.dev.lcip.org/v1",
   "scopes": "profile",
   "preverify_email_audience": "accounts.dev.lcip.org",

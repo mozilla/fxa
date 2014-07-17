@@ -60,15 +60,50 @@ $(document).ready(function() {
 
       // upon logout, make an api request to tear the user's session down
       $.post('/api/logout');
-
     };
 
+    function authenticate (endpoint, flow) {
+      if (window.location.href.indexOf('iframe') > -1) {
+        $.getJSON('/api/' + endpoint)
+          .done(function (data) {
+            var relierClient = new FxaRelierClient(data.client_id, {
+              fxaHost: data.content_uri
+            });
+
+            relierClient.auth[flow]({
+              ui: 'lightbox',
+              state: data.state,
+              scope: data.scope,
+              redirect_uri: data.redirect_uri
+            }).then(function (result) {
+              document.location.href = result.redirect;
+            }, function (err) {
+              console.log('iframe auth err: %s', JSON.stringify(err));
+            });
+        });
+      } else {
+        $.getJSON('/api/' + endpoint)
+          .done(function (data) {
+            var relierClient = new FxaRelierClient(data.client_id, {
+              fxaHost: data.content_uri
+            });
+
+            relierClient.auth[flow]({
+              ui: 'redirect',
+              state: data.state,
+              scope: data.scope,
+              redirect_uri: data.redirect_uri
+            });
+        });
+      }
+    }
+
     $('button.signin').click(function(ev) {
-      window.location = '/api/login';
+      authenticate('login', 'signIn');
     });
 
     $('button.signup').click(function(ev) {
-      window.location = '/api/signup';
+      authenticate('signup', 'signUp');
     });
 
     // upon click of logout link navigator.id.logout()

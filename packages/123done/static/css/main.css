@@ -146,7 +146,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #footer-main {
-    background: url(../img/grad@2x.png) repeat-x #304050;
+    background: url(/img/grad@2x.png) repeat-x #304050;
     background-size: 5px 20px;
     bottom: 0;
     color: #fff;
@@ -164,7 +164,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .logo {
-    background: url(../img/logo@2x.png) no-repeat center center;
+    background: url(/img/logo@2x.png) no-repeat center center;
     background-size: 36px 34px;
     display: inline-block;
     height: 35px;
@@ -210,7 +210,7 @@ ul#donelist {
 
 #todolist li {
     background-color: #fff;
-    background: url(../img/todo-item@2x.png) no-repeat 16px center;
+    background: url(/img/todo-item@2x.png) no-repeat 16px center;
     background-size: 20px 20px;
     border-radius: 2px;
     border: 1px solid #8a9ba8;
@@ -223,15 +223,15 @@ ul#donelist {
 
 #todolist li:hover {
     background-color: #eee;
-    background-image: url(../img/todo-item-done@2x.png);
+    background-image: url(/img/todo-item-done@2x.png);
 }
 
 #todolist li.done {
-    background-image: url(../img/todo-item-hover@2x.png);
+    background-image: url(/img/todo-item-hover@2x.png);
 }
 
 #todolist li.can-delete:hover {
-    background-image: url(../img/todo-item-clear@2x.png);
+    background-image: url(/img/todo-item-clear@2x.png);
 }
 
 .todo input {
@@ -285,7 +285,7 @@ ul#donelist {
     border-left: none;
     margin: 0;
     width: 15%;
-} 
+}
 
 @media only screen and (max-width: 960px) {
     .container {
@@ -296,11 +296,11 @@ ul#donelist {
 
 @media only screen and (max-width: 640px) {
 
-    .todo input[type='text'] { 
+    .todo input[type='text'] {
         width: 80%;
     }
 
-    .todo input[type='submit'] { 
+    .todo input[type='submit'] {
         width: 20%;
     }
 }
@@ -313,7 +313,7 @@ ul#donelist {
 
     #header-main {
         background: #F2F2F2;
-        box-shadow: none;    
+        box-shadow: none;
     }
 
     .todo .container {
@@ -333,7 +333,7 @@ only screen and ( min-resolution: 192dpi),
 only screen and ( min-resolution: 2dppx) {
 
     #logo {
-    	background-image: url(../img/logo@2x.png);
+    	background-image: url(/img/logo@2x.png);
     }
 }
 
