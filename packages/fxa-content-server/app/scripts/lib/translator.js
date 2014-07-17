@@ -11,7 +11,7 @@
 define([
   'underscore',
   'jquery',
-  'p-promise',
+  'lib/promise',
   'lib/strings'
 ],
 function (_, $, p, Strings) {
@@ -27,31 +27,22 @@ function (_, $, p, Strings) {
 
     // Fetches our JSON translation file
     fetch: function () {
-      var defer = p.defer();
       var self = this;
 
-      $.getJSON('/i18n/client.json')
-        .done(function (data) {
-          // Only update the translations if some came back
-          // from the server. If the server sent no translations,
-          // english strings will be served.
-          if (data) {
-            self.translations = data;
-          }
-        })
-        .fail(function () {
-          // allow for 404's. `.get` will use the key for the translation
-          // if a value is not found in the translations table. This means
-          // English will be the fallback.
-          self.translations = {};
-        })
-        .always(function () {
-          // do not surface any errors, allow the app to load even
-          // if there are no translations for this locale.
-          defer.resolve();
-        });
-
-      return defer.promise;
+      return p.jQueryXHR($.getJSON('/i18n/client.json'))
+          .then(function (data) {
+            // Only update the translations if some came back
+            // from the server. If the server sent no translations,
+            // english strings will be served.
+            if (data) {
+              self.translations = data;
+            }
+          }, function () {
+            // allow for 404's. `.get` will use the key for the translation
+            // if a value is not found in the translations table. This means
+            // English will be the fallback.
+            self.translations = {};
+          });
     },
 
     /**

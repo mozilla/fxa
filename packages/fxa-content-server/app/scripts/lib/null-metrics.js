@@ -9,7 +9,7 @@
 
 define([
   'underscore',
-  'p-promise',
+  'lib/promise',
   'lib/metrics'
 ], function (_, p, Metrics) {
   'use strict';

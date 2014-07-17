@@ -8,7 +8,7 @@
 define([
   'chai',
   'jquery',
-  'p-promise',
+  'lib/promise',
   'views/form',
   'stache!templates/test_template',
   'lib/constants',

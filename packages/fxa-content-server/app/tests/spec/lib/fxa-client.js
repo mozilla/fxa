@@ -5,7 +5,7 @@
 define([
   'chai',
   'jquery',
-  'p-promise',
+  'lib/promise',
   '../../mocks/channel',
   '../../lib/helpers',
   'lib/session',

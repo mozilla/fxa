@@ -8,7 +8,7 @@
 define([
   'chai',
   'jquery',
-  'p-promise',
+  'lib/promise',
   'views/sign_in',
   'lib/session',
   'lib/auth-errors',

@@ -6,7 +6,7 @@
 
 define([
   'jquery',
-  'p-promise',
+  'lib/promise',
   'lib/session',
   'lib/config-loader'
 ],
@@ -49,16 +49,15 @@ function ($, p, Session, ConfigLoader) {
     // params = { assertion, client_id, redirect_uri, scope, state }
     getCode: function getCode(params) {
       return this._getOauthUrl().then(function (url) {
-        return $.post(url + GET_CODE, params);
+        return p.jQueryXHR($.post(url + GET_CODE, params));
       });
     },
 
     getClientInfo: function getClientInfo(id) {
       return this._getOauthUrl().then(function (url) {
-        return $.get(url + GET_CLIENT + id);
+        return p.jQueryXHR($.get(url + GET_CLIENT + id));
       });
     }
-
   };
 
   return OAuthClient;

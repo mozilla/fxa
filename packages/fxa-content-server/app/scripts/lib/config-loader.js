@@ -35,8 +35,6 @@ function (
         return p(this._config);
       }
 
-      var deferred = p.defer();
-
       // The content server sets no cookies of its own, and cannot check for
       // the existence of a session cookie. So, we send them a cookie
       // from the client to see if the backend receives it.
@@ -56,12 +54,11 @@ function (
       }
 
       var self = this;
-      $.getJSON('/config', function (config) {
-        self._config = config;
-        deferred.resolve(config);
-      });
-
-      return deferred.promise;
+      return p.jQueryXHR($.getJSON('/config'))
+          .then(function (config) {
+            self._config = config;
+            return config;
+          });
     },
 
     areCookiesEnabled: function (force) {

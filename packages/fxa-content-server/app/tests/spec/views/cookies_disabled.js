@@ -8,7 +8,7 @@
 define([
   'jquery',
   'chai',
-  'p-promise',
+  'lib/promise',
   'views/cookies_disabled',
   '../../mocks/window'
 ],
@@ -24,8 +24,11 @@ function ($, chai, p, View, WindowMock) {
       // Going deep into the internals, which isn't great. Monkey patch
       // $.getJSON so that we do not have to actually make a request to
       // the backend and can control the return value.
-      $.getJSON = function (url, done) {
-        done(serverConfig);
+
+      $.getJSON = function (url) {
+        var deferred = jQuery.Deferred();
+        deferred.resolve(serverConfig);
+        return deferred.promise();
       };
 
       windowMock = new WindowMock();

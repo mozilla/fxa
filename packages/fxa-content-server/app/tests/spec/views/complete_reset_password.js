@@ -7,7 +7,7 @@
 
 define([
   'chai',
-  'p-promise',
+  'lib/promise',
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',

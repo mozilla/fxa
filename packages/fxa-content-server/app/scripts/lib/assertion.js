@@ -5,7 +5,7 @@
 'use strict';
 
 define([
-  'p-promise',
+  'lib/promise',
   'vendor/jwcrypto',
   'lib/fxa-client'
 ],

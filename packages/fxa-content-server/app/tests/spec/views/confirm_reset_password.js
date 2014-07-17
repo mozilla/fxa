@@ -4,7 +4,7 @@
 
 define([
   'chai',
-  'p-promise',
+  'lib/promise',
   'lib/auth-errors',
   'views/confirm_reset_password',
   'lib/session',
