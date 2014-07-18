@@ -23,18 +23,19 @@
     <body>
         <div id="fox-logo" class="static"></div>
         <div id="stage">
-          <header>
-            <h1 id="fxa-404-header">{{#t}}Page not found{{/t}}</h1>
-          </header>
+            <div id="main-content">
+              <header>
+                <h1 id="fxa-404-header">{{#t}}Page not found{{/t}}</h1>
+              </header>
 
+              <section>
+                {{#t}}The page you requested is not found. We've been notified and will fix any links that may be broken.{{/t}}
+              </section>
 
-          <section>
-            {{#t}}The page you requested is not found. We've been notified and will fix any links that may be broken.{{/t}}
-          </section>
-
-          <div class="button-row">
-            <a href="/signup" class="button" id="fxa-404-home">{{#t}}Home{{/t}}</a>
-          </div>
+              <div class="button-row">
+                <a href="/signup" class="button" id="fxa-404-home">{{#t}}Home{{/t}}</a>
+              </div>
+            </div>
         </div>
 
         <a id="about-mozilla" rel="author" target="_blank" href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"></a>

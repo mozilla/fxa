@@ -1,37 +1,39 @@
-<header>
-  <h1 id="fxa-force-auth-header">{{#t}}Sign in to continue{{/t}}</h1>
-</header>
+<div id="main-content">
+  <header>
+    <h1 id="fxa-force-auth-header">{{#t}}Sign in to continue{{/t}}</h1>
+  </header>
 
-<section>
-  {{#fatalError}}
-    <div class="error">{{fatalError}}</div>
-  {{/fatalError}}
-  {{^fatalError}}
+  <section>
+    {{#fatalError}}
+      <div class="error">{{fatalError}}</div>
+    {{/fatalError}}
+    {{^fatalError}}
 
-  <div class="error"></div>
-  <form novalidate>
-    <p class="prefill">{{ email }}</p>
+    <div class="error"></div>
+    <form novalidate>
+      <p class="prefill">{{ email }}</p>
 
-    <div class="input-row password-row">
-      <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" value="{{ password }}" required {{#email}}autofocus{{/email}} autocomplete="off" />
+      <div class="input-row password-row">
+        <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" value="{{ password }}" required {{#email}}autofocus{{/email}} autocomplete="off" />
 
-      <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
-      <label for="show-password" class="show-password-label">
-        {{#t}}Show{{/t}}
-      </label>
+        <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
+        <label for="show-password" class="show-password-label">
+          {{#t}}Show{{/t}}
+        </label>
+      </div>
+
+      <div class="button-row">
+        <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
+      </div>
+    </form>
+
+    <div class="links">
+      <a href="/confirm_reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
     </div>
 
-    <div class="button-row">
-      <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
+    <div class="privacy-links">
+      {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
     </div>
-  </form>
-
-  <div class="links">
-    <a href="/confirm_reset_password" class="reset-password">{{#t}}Forgot password?{{/t}}</a>
-  </div>
-
-  <div class="privacy-links">
-    {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
-  </div>
-  {{/fatalError}}
-</section>
+    {{/fatalError}}
+  </section>
+</div>

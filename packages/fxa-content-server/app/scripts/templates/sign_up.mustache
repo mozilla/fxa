@@ -1,77 +1,79 @@
-<header>
-  <h1 id="fxa-signup-header">
-    {{#serviceName}}
-      {{#t}}Create a Firefox Account for %(serviceName)s{{/t}}
-    {{/serviceName}}
-    {{^serviceName}}
-      {{#t}}Create a Firefox Account{{/t}}
-    {{/serviceName}}
-  </h1>
-</header>
+<div id="main-content">
+  <header>
+    <h1 id="fxa-signup-header">
+      {{#serviceName}}
+        {{#t}}Create a Firefox Account for %(serviceName)s{{/t}}
+      {{/serviceName}}
+      {{^serviceName}}
+        {{#t}}Create a Firefox Account{{/t}}
+      {{/serviceName}}
+    </h1>
+  </header>
 
-<section>
-  <div class="error"></div>
-  <div class="success"></div>
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
 
-  <form novalidate>
-    <div class="input-row">
-      <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{#shouldFocusEmail}}autofocus{{/shouldFocusEmail}} required />
-    </div>
-
-    <div class="input-row password-row">
-      <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required autocomplete="off" {{#shouldFocusPassword}}autofocus{{/shouldFocusPassword}} />
-      <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
-      <label for="show-password" class="show-password-label">
-        {{#t}}Show{{/t}}
-      </label>
-      <div class="input-help input-help-focused">{{#t}}Must be at least 8 characters{{/t}}</div>
-
-    </div>
-
-    <div class="select-row-wrapper">
-      <div class="select-row">
-        <select id="fxa-age-year" {{#shouldFocusYear}}autofocus{{/shouldFocusYear}}>
-          <option id="fxa-none" value="none">{{#t}}Year of birth{{/t}}</option>
-          <option id="fxa-1990" value="1990">{{#t}}1990 or earlier{{/t}}</option>
-          <option id="fxa-1991" value="1991">{{#t}}1991{{/t}}</option>
-          <option id="fxa-1992" value="1992">{{#t}}1992{{/t}}</option>
-          <option id="fxa-1993" value="1993">{{#t}}1993{{/t}}</option>
-          <option id="fxa-1994" value="1994">{{#t}}1994{{/t}}</option>
-          <option id="fxa-1995" value="1995">{{#t}}1995{{/t}}</option>
-          <option id="fxa-1996" value="1996">{{#t}}1996{{/t}}</option>
-          <option id="fxa-1997" value="1997">{{#t}}1997{{/t}}</option>
-          <option id="fxa-1998" value="1998">{{#t}}1998{{/t}}</option>
-          <option id="fxa-1999" value="1999">{{#t}}1999{{/t}}</option>
-          <option id="fxa-2000" value="2000">{{#t}}2000{{/t}}</option>
-          <option id="fxa-2001" value="2001">{{#t}}2001{{/t}}</option>
-          <option id="fxa-2002" value="2002">{{#t}}2002{{/t}}</option>
-          <option id="fxa-2003" value="2003">{{#t}}2003{{/t}}</option>
-          <option id="fxa-2004" value="2004">{{#t}}2004{{/t}}</option>
-          <option id="fxa-2005" value="2005">{{#t}}2005{{/t}}</option>
-          <option id="fxa-2006" value="2006">{{#t}}2006{{/t}}</option>
-          <option id="fxa-2007" value="2007">{{#t}}2007{{/t}}</option>
-
-        </select>
+    <form novalidate>
+      <div class="input-row">
+        <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{#shouldFocusEmail}}autofocus{{/shouldFocusEmail}} required />
       </div>
-    </div>
 
-    <div class="privacy-links">
-      {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
-    </div>
+      <div class="input-row password-row">
+        <input id="password" type="password" class="password tooltip-below" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required autocomplete="off" {{#shouldFocusPassword}}autofocus{{/shouldFocusPassword}} />
+        <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
+        <label for="show-password" class="show-password-label">
+          {{#t}}Show{{/t}}
+        </label>
+        <div class="input-help input-help-focused">{{#t}}Must be at least 8 characters{{/t}}</div>
 
-    <div class="button-row">
-      <button id="submit-btn" type="submit" class="disabled">{{#t}}Next{{/t}}</button>
-    </div>
-
-    {{#isSync}}
-      <div class="input-row customize-sync-row">
-        <label><input id="customize-sync" type="checkbox" class="customize-sync"> {{#t}}Choose what to sync{{/t}}</label>
       </div>
-    {{/isSync}}
-  </form>
 
-  <div class="links">
-    <a href="/signin" class="sign-in">{{#t}}Already have an account? Sign in.{{/t}}</a>
-  </div>
+      <div class="select-row-wrapper">
+        <div class="select-row">
+          <select id="fxa-age-year" {{#shouldFocusYear}}autofocus{{/shouldFocusYear}}>
+            <option id="fxa-none" value="none">{{#t}}Year of birth{{/t}}</option>
+            <option id="fxa-1990" value="1990">{{#t}}1990 or earlier{{/t}}</option>
+            <option id="fxa-1991" value="1991">{{#t}}1991{{/t}}</option>
+            <option id="fxa-1992" value="1992">{{#t}}1992{{/t}}</option>
+            <option id="fxa-1993" value="1993">{{#t}}1993{{/t}}</option>
+            <option id="fxa-1994" value="1994">{{#t}}1994{{/t}}</option>
+            <option id="fxa-1995" value="1995">{{#t}}1995{{/t}}</option>
+            <option id="fxa-1996" value="1996">{{#t}}1996{{/t}}</option>
+            <option id="fxa-1997" value="1997">{{#t}}1997{{/t}}</option>
+            <option id="fxa-1998" value="1998">{{#t}}1998{{/t}}</option>
+            <option id="fxa-1999" value="1999">{{#t}}1999{{/t}}</option>
+            <option id="fxa-2000" value="2000">{{#t}}2000{{/t}}</option>
+            <option id="fxa-2001" value="2001">{{#t}}2001{{/t}}</option>
+            <option id="fxa-2002" value="2002">{{#t}}2002{{/t}}</option>
+            <option id="fxa-2003" value="2003">{{#t}}2003{{/t}}</option>
+            <option id="fxa-2004" value="2004">{{#t}}2004{{/t}}</option>
+            <option id="fxa-2005" value="2005">{{#t}}2005{{/t}}</option>
+            <option id="fxa-2006" value="2006">{{#t}}2006{{/t}}</option>
+            <option id="fxa-2007" value="2007">{{#t}}2007{{/t}}</option>
 
-</section>
+          </select>
+        </div>
+      </div>
+
+      <div class="privacy-links">
+        {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
+      </div>
+
+      <div class="button-row">
+        <button id="submit-btn" type="submit" class="disabled">{{#t}}Next{{/t}}</button>
+      </div>
+
+      {{#isSync}}
+        <div class="input-row customize-sync-row">
+          <label><input id="customize-sync" type="checkbox" class="customize-sync"> {{#t}}Choose what to sync{{/t}}</label>
+        </div>
+      {{/isSync}}
+    </form>
+
+    <div class="links">
+      <a href="/signin" class="sign-in">{{#t}}Already have an account? Sign in.{{/t}}</a>
+    </div>
+
+  </section>
+</div>

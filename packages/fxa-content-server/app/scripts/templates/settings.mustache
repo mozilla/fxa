@@ -1,24 +1,26 @@
-<header>
-  <h1 id="fxa-settings-header">{{#t}}Manage account{{/t}}</h1>
-</header>
+<div id="main-content">
+  <header>
+    <h1 id="fxa-settings-header">{{#t}}Manage account{{/t}}</h1>
+  </header>
 
-<section>
-  <div class="error"></div>
-  <div class="success"></div>
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
 
-  <p class="signed-in-email-message">{{#t}}You are signed in as{{/t}}<br />{{email}}</p>
+    <p class="signed-in-email-message">{{#t}}You are signed in as{{/t}}<br />{{email}}</p>
 
 
-  <ul class="links">
-    {{#showSignOut}}
+    <ul class="links">
+      {{#showSignOut}}
+        <li>
+          <a id="signout" href="#">{{#t}}Sign out{{/t}}</a>
+        </li>
+      {{/showSignOut}}
       <li>
-        <a id="signout" href="#">{{#t}}Sign out{{/t}}</a>
+        <a id="change-password" href="/change_password">{{#t}}Change password{{/t}}</a>
       </li>
-    {{/showSignOut}}
-    <li>
-      <a id="change-password" href="/change_password">{{#t}}Change password{{/t}}</a>
-    </li>
-    <li>
-      <a id="delete-account" href="/delete_account">{{#t}}Delete account{{/t}}</a>
-    </li>
-</section>
+      <li>
+        <a id="delete-account" href="/delete_account">{{#t}}Delete account{{/t}}</a>
+      </li>
+  </section>
+</div>
