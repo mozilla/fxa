@@ -25,8 +25,9 @@
     "client-sessions": "0.6.x",
     "redis": "0.7.1",
     "postprocess": "0.2.4",
-    "connect-fonts": "0.0.9-alpha8",
-    "connect-fonts-drsugiyama": "0.0.1",
+    "connect-fonts": "2.0.2",
+    "connect-fonts-opensans": "0.0.5",
+    "connect-fonts-alegreyasans": "0.0.2",
     "request": "2.34.0",
     "bower": "*"
   },

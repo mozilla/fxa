@@ -3,9 +3,13 @@ var express       = require('express'),
     sessions      = require('client-sessions'),
     redis         = require('redis'),
     fonts         = require('connect-fonts'),
-    font_sugiyama = require('connect-fonts-drsugiyama'),
+    font_opensans = require('connect-fonts-opensans'),
+    font_alegreyasans
+                  = require('connect-fonts-alegreyasans'),
+    url           = require('url'),
     oauth         = require('./oauth'),
     config        = require('./config.json');
+
 
 
 // create a connection to the redis datastore
@@ -25,9 +29,18 @@ app.use(
 
 //app.use(require('./retarget.js'));
 
+var allowOrigin = "*";
+try {
+  // a bit of a dirty hack. Use the redirect_uri to find
+  // out what this server's public host is.
+  allowOrigin = url.parse(config.redirect_uri).host;
+} catch(e) {
+}
+
 app.use(fonts.setup({
-  allow_origin: "123done.org",
-  fonts: [ font_sugiyama ]
+  allow_origin: allowOrigin,
+  ua: "all",
+  fonts: [ font_opensans, font_alegreyasans ]
 }));
 
 app.use(function (req, res, next) {
