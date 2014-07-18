@@ -76,7 +76,6 @@ module.exports = function (config, templates, i18n) {
     // became too long. One route is created for each item.
     var FRONTEND_ROUTES = [
       '/signin',
-      '/signin_complete',
       '/signup',
       '/signup_complete',
       '/confirm',

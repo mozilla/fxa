@@ -17,7 +17,6 @@ define([
     'v1/verify_email',
     '',
     'signin',
-    'signin_complete',
     'signup',
     'signup_complete',
     'cannot_create_account',
