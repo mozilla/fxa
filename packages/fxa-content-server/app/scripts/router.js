@@ -28,7 +28,8 @@ define([
   'views/change_password',
   'views/delete_account',
   'views/cookies_disabled',
-  'views/clear_storage'
+  'views/clear_storage',
+  'views/unexpected_error'
 ],
 function (
   _,
@@ -54,7 +55,8 @@ function (
   ChangePasswordView,
   DeleteAccountView,
   CookiesDisabledView,
-  ClearStorageView
+  ClearStorageView,
+  UnexpectedErrorView
 ) {
 
   function showView(View, options) {
@@ -95,7 +97,8 @@ function (
       'reset_password_complete(/)': showView(ReadyView, { type: 'reset_password' }),
       'force_auth(/)': showView(ForceAuthView),
       'cookies_disabled(/)': showView(CookiesDisabledView),
-      'clear(/)': showView(ClearStorageView)
+      'clear(/)': showView(ClearStorageView),
+      'unexpected_error(/)': showView(UnexpectedErrorView)
     },
 
     initialize: function (options) {
@@ -171,6 +174,13 @@ function (
           }
 
           self.$logo.css('opacity', 1);
+        })
+        .fail(function (err) {
+          // The router's navigate method doesn't set ephemeral messages,
+          // so use the view's higher level navigate method.
+          return viewToShow.navigate('unexpected_error', {
+            error: err && err.message
+          });
         });
     },
 
