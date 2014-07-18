@@ -6,7 +6,7 @@
 
 define([
   'underscore',
-  'p-promise',
+  'lib/promise',
   'views/base',
   'views/sign_up',
   'lib/session',

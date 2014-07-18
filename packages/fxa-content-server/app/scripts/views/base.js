@@ -8,7 +8,7 @@ define([
   'underscore',
   'backbone',
   'jquery',
-  'p-promise',
+  'lib/promise',
   'lib/session',
   'lib/auth-errors',
   'lib/fxa-client',

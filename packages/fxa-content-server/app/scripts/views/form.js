@@ -22,7 +22,7 @@
 define([
   'underscore',
   'jquery',
-  'p-promise',
+  'lib/promise',
   'lib/validate',
   'lib/auth-errors',
   'views/base',

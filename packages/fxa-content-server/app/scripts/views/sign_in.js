@@ -6,7 +6,7 @@
 
 define([
   'underscore',
-  'p-promise',
+  'lib/promise',
   'views/base',
   'views/form',
   'stache!templates/sign_in',

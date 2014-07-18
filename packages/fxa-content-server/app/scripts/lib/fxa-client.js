@@ -12,7 +12,7 @@ define([
   'underscore',
   'fxaClient',
   'jquery',
-  'p-promise',
+  'lib/promise',
   'lib/session',
   'lib/auth-errors',
   'lib/constants'
@@ -89,11 +89,10 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
         return p(Session.config.fxaccountUrl);
       }
 
-      var defer = p.defer();
-      $.getJSON('/config', function (data) {
-        defer.resolve(data.fxaccountUrl);
-      });
-      return defer.promise;
+      return p.jQueryXHR($.getJSON('/config'))
+          .then(function (data) {
+            return data.fxaccountUrl;
+          });
     },
 
     /**

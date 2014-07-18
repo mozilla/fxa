@@ -5,7 +5,7 @@
 'use strict';
 
 define([
-  'p-promise',
+  'lib/promise',
   'views/base',
   'views/sign_in',
   'stache!templates/force_auth',

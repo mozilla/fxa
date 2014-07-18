@@ -9,7 +9,7 @@ define([
   'chai',
   'underscore',
   'jquery',
-  'p-promise',
+  'lib/promise',
   'views/sign_up',
   'lib/session',
   'lib/auth-errors',

@@ -19,7 +19,7 @@ define([
   'backbone',
   'jquery',
   'speedTrap',
-  'p-promise',
+  'lib/promise',
   'lib/url'
 ], function (_, Backbone, $, speedTrap, p, Url) {
   'use strict';

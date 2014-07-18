@@ -20,7 +20,7 @@
 define([
   'underscore',
   'backbone',
-  'p-promise',
+  'lib/promise',
   'router',
   'lib/constants',
   'lib/translator',

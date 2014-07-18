@@ -7,7 +7,7 @@
 
 define([
   'chai',
-  'p-promise',
+  'lib/promise',
   'views/complete_sign_up',
   'lib/auth-errors',
   'lib/metrics',
