@@ -19,3 +19,6 @@ env:
 before_script:
   - "mysql -e 'DROP DATABASE IF EXISTS fxa;'"
   - "mysql -e 'CREATE DATABASE fxa;'"
+
+script:
+  - grunt
