@@ -54,6 +54,8 @@ function (chai, Metrics, WindowMock) {
         assert.isTrue(filteredData.hasOwnProperty('context'));
         assert.isTrue(filteredData.hasOwnProperty('service'));
         assert.isTrue(filteredData.hasOwnProperty('lang'));
+        assert.equal(filteredData.screen.width, window.screen.width);
+        assert.equal(filteredData.screen.height, window.screen.height);
       });
     });
 
