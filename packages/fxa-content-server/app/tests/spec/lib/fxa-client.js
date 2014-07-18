@@ -35,7 +35,6 @@ function (chai, $, p, ChannelMock, testHelpers,
     beforeEach(function () {
       channelMock = new ChannelMock();
       Session.set('channel', channelMock);
-      Session.set('language', 'it-CH');
       email = ' testuser' + Math.random() + '@testuser.com ';
 
       client = new FxaClientWrapper();
@@ -68,8 +67,7 @@ function (chai, $, p, ChannelMock, testHelpers,
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
               service: 'sync',
-              redirectTo: 'https://sync.firefox.com',
-              lang: 'it-CH'
+              redirectTo: 'https://sync.firefox.com'
             }));
           });
       });
@@ -114,8 +112,7 @@ function (chai, $, p, ChannelMock, testHelpers,
           .then(function () {
             var params = {
               service: 'sync',
-              redirectTo: 'https://sync.firefox.com',
-              lang: 'it-CH'
+              redirectTo: 'https://sync.firefox.com'
             };
             assert.isTrue(
                 realClient.recoveryEmailResendCode.calledWith(
@@ -293,8 +290,7 @@ function (chai, $, p, ChannelMock, testHelpers,
           .then(function () {
             var params = {
               service: 'sync',
-              redirectTo: 'https://sync.firefox.com',
-              lang: 'it-CH'
+              redirectTo: 'https://sync.firefox.com'
             };
             assert.isTrue(
                 realClient.passwordForgotSendCode.calledWith(
@@ -306,8 +302,7 @@ function (chai, $, p, ChannelMock, testHelpers,
           .then(function () {
             var params = {
               service: 'sync',
-              redirectTo: 'https://sync.firefox.com',
-              lang: 'it-CH'
+              redirectTo: 'https://sync.firefox.com'
             };
             assert.isTrue(
                 realClient.passwordForgotResendCode.calledWith(

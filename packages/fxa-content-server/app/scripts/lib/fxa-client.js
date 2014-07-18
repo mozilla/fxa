@@ -196,8 +196,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
                 var signUpOptions = {
                   keys: true,
                   service: service,
-                  redirectTo: redirectTo,
-                  lang: Session.language
+                  redirectTo: redirectTo
                 };
 
                 if (options.preVerified) {
@@ -242,8 +241,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
             Session.sessionToken,
             {
               service: Session.service,
-              redirectTo: Session.redirectTo,
-              lang: Session.language
+              redirectTo: Session.redirectTo
             });
         });
     },
@@ -285,8 +283,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
               .then(function (client) {
                 return client.passwordForgotSendCode(email, {
                   service: service,
-                  redirectTo: redirectTo,
-                  lang: Session.language
+                  redirectTo: redirectTo
                 });
               })
               .then(function (result) {
@@ -319,8 +316,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
           // passwordForgotResendCode
           var options = {
             service: Session.service,
-            redirectTo: Session.redirectTo,
-            lang: Session.language
+            redirectTo: Session.redirectTo
           };
           return client.passwordForgotResendCode(
                    Session.email,
