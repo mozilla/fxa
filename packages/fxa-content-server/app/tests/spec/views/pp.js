@@ -17,7 +17,6 @@ function (chai, View, Session) {
     var view;
 
     beforeEach(function () {
-      Session.set('language', 'en-US');
       view = new View({});
     });
 

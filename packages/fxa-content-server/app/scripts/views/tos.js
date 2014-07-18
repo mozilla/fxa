@@ -10,10 +10,9 @@ define([
   'stache!templates/tos',
   'lib/promise',
   'lib/session',
-  'lib/strings',
   'lib/auth-errors'
 ],
-function ($, BaseView, Template, p, Session, Strings, AuthErrors) {
+function ($, BaseView, Template, p, Session, AuthErrors) {
   var View = BaseView.extend({
     template: Template,
     className: 'tos',
@@ -27,7 +26,7 @@ function ($, BaseView, Template, p, Session, Strings, AuthErrors) {
     afterRender: function () {
       var self = this;
       return p.jQueryXHR($.ajax({
-        url: Strings.interpolate('/%s/legal/terms', [Session.language]),
+        url: '/legal/terms',
         accepts: {
           text: 'text/partial'
         },
