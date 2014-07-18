@@ -8,11 +8,12 @@ define([
   'jquery',
   'views/base',
   'stache!templates/tos',
+  'lib/promise',
   'lib/session',
   'lib/strings',
   'lib/auth-errors'
 ],
-function ($, BaseView, Template, Session, Strings, AuthErrors) {
+function ($, BaseView, Template, p, Session, Strings, AuthErrors) {
   var View = BaseView.extend({
     template: Template,
     className: 'tos',
@@ -25,14 +26,14 @@ function ($, BaseView, Template, Session, Strings, AuthErrors) {
 
     afterRender: function () {
       var self = this;
-      $.ajax({
+      return p.jQueryXHR($.ajax({
         url: Strings.interpolate('/%s/legal/terms', [Session.language]),
         accepts: {
           text: 'text/partial'
         },
         dataType: 'text'
-      })
-      .done(function(template) {
+      }))
+      .then(function(template) {
         self.$('#legal-copy').html(template);
         self.$('.hidden').removeClass('hidden');
       })
@@ -40,9 +41,6 @@ function ($, BaseView, Template, Session, Strings, AuthErrors) {
         var err = AuthErrors.toError('COULD_NOT_GET_TOS');
         self.displayError(err);
         self.$('.hidden').removeClass('hidden');
-      })
-      .always(function() {
-        self.trigger('ready');
       });
     },
 
