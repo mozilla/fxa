@@ -10,7 +10,7 @@ module.exports = function (grunt) {
       '<%= mainJsFiles %>'
     ],
     options: {
-      config: '.jscs.json'
+      config: '.jscsrc'
     }
   });
 };
