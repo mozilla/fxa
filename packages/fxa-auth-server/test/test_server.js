@@ -7,6 +7,7 @@ var crypto = require('crypto')
 var P = require('../promise')
 var request = require('request')
 var mailbox = require('./mailbox')
+var createDBServer = require('fxa-auth-db-mem')
 
 function TestServer(config, printLogs) {
   this.printLogs = printLogs === false ? false : true
@@ -39,10 +40,17 @@ function waitLoop(testServer, url, cb) {
 
 TestServer.start = function (config, printLogs) {
   var d = P.defer()
-  var testServer = new TestServer(config, printLogs)
-  waitLoop(testServer, config.publicUrl, function (err) {
-    return err ? d.reject(err) : d.resolve(testServer)
-  })
+  createDBServer().then(
+    function (db) {
+      db.listen(config.httpdb.url.split(':')[2])
+      db.on('error', function () {})
+      var testServer = new TestServer(config, printLogs)
+      testServer.db = db
+      waitLoop(testServer, config.publicUrl, function (err) {
+        return err ? d.reject(err) : d.resolve(testServer)
+      })
+    }
+  )
   return d.promise
 }
 
@@ -77,6 +85,7 @@ TestServer.prototype.start = function () {
 }
 
 TestServer.prototype.stop = function () {
+  try { this.db.close() } catch (e) {}
   if (this.server) {
     this.server.kill('SIGINT')
     this.mail.kill()

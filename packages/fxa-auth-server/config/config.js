@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (fs, path, url, convict) {
-  const AVAILABLE_BACKENDS = ["memory", "httpdb", "mysql"]
 
   var conf = convict({
     env: {
@@ -32,115 +31,14 @@ module.exports = function (fs, path, url, convict) {
     },
     db: {
       backend: {
-        format: AVAILABLE_BACKENDS,
-        default: "memory",
+        default: "httpdb",
         env: 'DB_BACKEND'
-      },
-      available_backends: {
-        doc: "List of available key-value stores",
-        default: AVAILABLE_BACKENDS
       }
     },
     httpdb: {
       url: {
         doc: 'database api url',
         default: 'http://127.0.0.1:8000'
-      }
-    },
-    mysql: {
-      createSchema: {
-        default: true,
-        env: 'CREATE_MYSQL_SCHEMA'
-      },
-      patchKey : {
-        doc: 'The name of the row in the dbMetadata table which stores the patch level',
-        default: 'schema-patch-level',
-        format: String
-      },
-      patchLevel : {
-        doc: 'The patch level the database should be set to for this release',
-        default: 3,
-        format: 'nat'
-      },
-      master: {
-        user: {
-          default: 'root',
-          env: 'MYSQL_USERNAME'
-        },
-        password: {
-          default: '',
-          env: 'MYSQL_PASSWORD'
-        },
-        database: {
-          default: 'fxa',
-          env: 'MYSQL_DATABASE'
-        },
-        host: {
-          default: '127.0.0.1',
-          env: 'MYSQL_HOST'
-        },
-        port: {
-          default: '3306',
-          env: 'MYSQL_PORT'
-        },
-        connectionLimit: {
-          doc: "The maximum number of connections to create at once.",
-          default: 10,
-          format: 'nat',
-          env: 'MYSQL_CONNECTION_LIMIT'
-        },
-        waitForConnections: {
-          doc: "Determines the pool's action when no connections are available and the limit has been reached.",
-          default: true,
-          format: Boolean,
-          env: 'MYSQL_WAIT_FOR_CONNECTIONS'
-        },
-        queueLimit: {
-          doc: "Determines the maximum size of the pool's waiting-for-connections queue.",
-          default: 100,
-          format: 'nat',
-          env: 'MYSQL_QUEUE_LIMIT'
-        }
-      },
-      slave : {
-        user: {
-          default: 'root',
-          env: 'MYSQL_SLAVE_USERNAME'
-        },
-        password: {
-          default: '',
-          env: 'MYSQL_SLAVE_PASSWORD'
-        },
-        database: {
-          default: 'fxa',
-          env: 'MYSQL_SLAVE_DATABASE'
-        },
-        host: {
-          default: '127.0.0.1',
-          env: 'MYSQL_SLAVE_HOST'
-        },
-        port: {
-          default: '3306',
-          env: 'MYSQL_SLAVE_PORT'
-        },
-        connectionLimit: {
-          doc: "The maximum number of connections to create at once.",
-          default: 10,
-          format: 'nat',
-          env: 'SLAVE_CONNECTION_LIMIT'
-        },
-        waitForConnections: {
-          doc: "Determines the pool's action when no connections are available and the limit has been reached.",
-          default: true,
-          format: Boolean,
-          env: 'SLAVE_WAIT_FOR_CONNECTIONS'
-        },
-        queueLimit: {
-          doc: "Determines the maximum size of the pool's waiting-for-connections queue.",
-          default: 100,
-          format: 'nat',
-          env: 'SLAVE_QUEUE_LIMIT'
-        }
       }
     },
     listen: {
