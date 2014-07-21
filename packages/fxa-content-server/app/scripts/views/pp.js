@@ -10,10 +10,9 @@ define([
   'stache!templates/pp',
   'lib/promise',
   'lib/session',
-  'lib/strings',
   'lib/auth-errors'
 ],
-function ($, BaseView, Template, p, Session, Strings, AuthErrors) {
+function ($, BaseView, Template, p, Session, AuthErrors) {
   var View = BaseView.extend({
     template: Template,
     className: 'pp',
@@ -27,7 +26,7 @@ function ($, BaseView, Template, p, Session, Strings, AuthErrors) {
     afterRender: function () {
       var self = this;
       p.jQueryXHR($.ajax({
-        url: Strings.interpolate('/%s/legal/privacy', [Session.language]),
+        url: '/legal/privacy',
         accepts: {
           text: 'text/partial'
         },
