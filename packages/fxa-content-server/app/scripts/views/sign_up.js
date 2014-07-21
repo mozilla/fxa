@@ -110,7 +110,8 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
         isSync: this.isSync(),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
-        shouldFocusYear: autofocusEl === 'year'
+        shouldFocusYear: autofocusEl === 'year',
+        error: this.error
       };
     },
 

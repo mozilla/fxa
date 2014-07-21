@@ -74,8 +74,8 @@ noscript {
 }
 
 /**
- * IE < 10 does not support CSS transforms 
- */ 
+ * IE < 10 does not support CSS transforms
+ */
 .lt-ie10 #fox-logo {
   opacity: 1;
 }
@@ -193,6 +193,10 @@ strong.email {
   padding: 5px;
   position: relative;
   top:-15px;
+}
+
+.error.visible {
+  display: block;
 }
 
 .error {
@@ -574,7 +578,7 @@ label:focus ~ .input-help-focused {
   cursor: auto;
 }
 
-button::-moz-focus-inner { 
+button::-moz-focus-inner {
   border: 0;
   padding: 0;
 }
@@ -711,7 +715,7 @@ ul.links li {
 
 /**
  * IE8 blows up when changing the type of the password field
- * to a text field. Hide the show/hide button and reset 
+ * to a text field. Hide the show/hide button and reset
  * the password field's padding.
  */
 .no-toggle-pw, .reveal-pw {
@@ -838,7 +842,7 @@ input[type="text"] ~ .show-password-label:hover {
   &.image-snippet {
     // 160 right padding to avoid overlap of the android logo
     // in long locales (German)
-    padding: 28px 160px 28px 50px;  
+    padding: 28px 160px 28px 50px;
     text-align: left;
   }
   &.text-snippet {

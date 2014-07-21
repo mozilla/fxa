@@ -12,6 +12,11 @@
   </header>
 
   <section>
+    {{#error}}
+      <div class="error visible">{{ error }}</div>
+    {{/error}}
+
+    {{^error}}
     <div class="error"></div>
     <div class="success"></div>
 
@@ -76,5 +81,6 @@
       <a href="/signin" class="sign-in">{{#t}}Already have an account? Sign in.{{/t}}</a>
     </div>
 
+    {{/error}}
   </section>
 </div>

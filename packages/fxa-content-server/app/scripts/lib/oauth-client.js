@@ -8,9 +8,10 @@ define([
   'jquery',
   'lib/promise',
   'lib/session',
-  'lib/config-loader'
+  'lib/config-loader',
+  'lib/oauth-errors'
 ],
-function ($, p, Session, ConfigLoader) {
+function ($, p, Session, ConfigLoader, OAuthErrors) {
   var oauthUrl;
 
   var GET_CLIENT = '/v1/client/';
@@ -23,6 +24,20 @@ function ($, p, Session, ConfigLoader) {
     if (options && options.oauthUrl) {
       oauthUrl = options.oauthUrl;
     }
+  }
+
+  function normalizeError(xhr) {
+    if (! xhr || xhr.status === 0) {
+      return OAuthErrors.toError('SERVICE_UNAVAILABLE');
+    }
+
+    var errObj = xhr.responseJSON;
+
+    if (! errObj) {
+      return OAuthErrors.toError('UNEXPECTED_ERROR');
+    }
+
+    return OAuthErrors.toError(errObj.errno);
   }
 
   OAuthClient.prototype = {
@@ -49,13 +64,21 @@ function ($, p, Session, ConfigLoader) {
     // params = { assertion, client_id, redirect_uri, scope, state }
     getCode: function getCode(params) {
       return this._getOauthUrl().then(function (url) {
-        return p.jQueryXHR($.post(url + GET_CODE, params));
+        return p.jQueryXHR($.post(url + GET_CODE, params))
+            .then(null, function(xhr) {
+              var err = normalizeError(xhr);
+              throw err;
+            });
       });
     },
 
     getClientInfo: function getClientInfo(id) {
       return this._getOauthUrl().then(function (url) {
-        return p.jQueryXHR($.get(url + GET_CLIENT + id));
+        return p.jQueryXHR($.get(url + GET_CLIENT + id))
+            .then(null, function(xhr) {
+              var err = normalizeError(xhr);
+              throw err;
+            });
       });
     }
   };

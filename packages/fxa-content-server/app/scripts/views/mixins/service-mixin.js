@@ -61,8 +61,8 @@ define([
           self.serviceName = clientInfo.name;
           self.serviceRedirectURI = clientInfo.redirect_uri;
         })
-        .fail(function(xhr) {
-          self.displayError(xhr.responseJSON, OAuthErrors);
+        .fail(function(err) {
+          self.error = OAuthErrors.toMessage(err);
         });
     },
 
@@ -86,9 +86,9 @@ define([
         self.window.location.href = result.redirect;
         return { pageNavigation: true };
       })
-      .fail(function(xhr) {
+      .fail(function(err) {
         Session.clear('oauth');
-        self.displayError(xhr.responseJSON, OAuthErrors);
+        self.displayError(err, OAuthErrors);
       });
     },
 

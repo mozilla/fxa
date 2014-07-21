@@ -16,22 +16,28 @@ function (_, AuthErrors) {
   };
 
   var ERROR_TO_CODE = {
-    UNEXPECTED_ERROR: 999,
     UNKNOWN_CLIENT: 101,
     INCORRECT_REDIRECT: 103,
     INVALID_ASSERTION: 104,
     INVALID_PARAMETER: 108,
-    INVALID_REQUEST_SIGNATURE: 109
+    INVALID_REQUEST_SIGNATURE: 109,
+
+    // local only errors.
+    SERVICE_UNAVAILABLE: 998,
+    UNEXPECTED_ERROR: 999
   };
 
   var CODE_TO_MESSAGES = {
     // errors returned by the oauth server
-    999: t('Unexpected error'),
     101: t('Unknown client'),
     103: t('Incorrect redirect_uri'),
     104: t('Invalid assertion'),
     108: t('Invalid parameter in request body: %(param)s'),
-    109: t('Invalid request signature')
+    109: t('Invalid request signature'),
+
+    // local only errors.
+    998: t('System unavailable, try again soon'),
+    999: t('Unexpected error')
   };
 
   return _.extend({}, AuthErrors, {

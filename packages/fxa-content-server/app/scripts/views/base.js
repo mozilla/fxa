@@ -41,6 +41,9 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
     this.hideSuccess();
     this.$('.spinner').hide();
 
+    errors = errors || AuthErrors;
+    err = this._normalizeError(err, errors);
+
     this.logError(err, errors);
     var translated = this.translateError(err, errors);
 
@@ -350,6 +353,10 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      * Log an error to the event stream
      */
     logError: function (err, errors) {
+      errors = errors || AuthErrors;
+
+      err = this._normalizeError(err, errors);
+
       // The error could already be logged, if so, abort mission.
       // This can occur when `navigate` redirects a user to a different
       // screen and an error is passed. The error is logged before the screen
@@ -360,8 +367,21 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       }
       err.logged = true;
 
-      errors = errors || AuthErrors;
       this.logEvent(this.metrics.errorToId(err, errors));
+    },
+
+    _normalizeError: function (err, errors) {
+      if (! err) {
+        // likely an error in logic, display an unexpected error to the
+        // user and show a console trace to help us debug.
+        err = errors.toError('UNEXPECTED_ERROR');
+
+        if (this.window.console && this.window.console.trace) {
+          this.window.console.trace();
+        }
+      }
+
+      return err;
     },
 
     /**

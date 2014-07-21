@@ -31,13 +31,11 @@ function () {
     MISSING_CONTENT_LENGTH_HEADER: 112,
     REQUEST_TOO_LARGE: 113,
     THROTTLED: 114,
-    // If the auth server is unavailable, it will not respond.
-    // Use a client side only code.
-    SERVICE_UNAVAILABLE: 998,
     SERVER_BUSY: 201,
     ENDPOINT_NOT_SUPPORTED: 116,
 
     // local only error codes
+    SERVICE_UNAVAILABLE: 998,
     USER_CANCELED_LOGIN: 1001,
     SESSION_EXPIRED: 1002,
 
@@ -72,11 +70,11 @@ function () {
     112: t('Missing content-length header'),
     113: t('Request body too large'),
     114: t('Attempt limit exceeded'),
-    998: t('System unavailable, try again soon'),
     201: t('Server busy, try again soon'),
     116: t('This endpoint is no longer supported'),
 
     // local only error messages
+    998: t('System unavailable, try again soon'),
     1002: t('Session expired. Sign in to continue.'),
     1003: t('Cookies are still disabled'),
     1004: t('Passwords do not match'),

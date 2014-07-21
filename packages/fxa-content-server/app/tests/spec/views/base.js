@@ -8,6 +8,7 @@
 define([
   'chai',
   'jquery',
+  'sinon',
   'views/base',
   'lib/translator',
   'lib/ephemeral-messages',
@@ -20,7 +21,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
+function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
           AuthErrors, FxaClient, Template, DOMEventMock, RouterMock, WindowMock,
           TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
@@ -217,6 +218,11 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
         assert.isTrue(TestHelpers.isEventLogged(metrics,
                           metrics.errorToId('INVALID_TOKEN', AuthErrors)));
       });
+
+      it('displays an `Unexpected Error` if no error passed in', function () {
+        view.displayError();
+        assert.equal(view.$('.error').html(), AuthErrors.toMessage('UNEXPECTED_ERROR'));
+      });
     });
 
     describe('displayErrorUnsafe', function () {
@@ -237,6 +243,11 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
 
         assert.isTrue(TestHelpers.isEventLogged(metrics,
                           metrics.errorToId('INVALID_TOKEN', AuthErrors)));
+      });
+
+      it('displays an `Unexpected Error` if no error passed in', function () {
+        view.displayError();
+        assert.equal(view.$('.error').html(), AuthErrors.toMessage('UNEXPECTED_ERROR'));
       });
     });
 
@@ -432,6 +443,23 @@ function (chai, jQuery, BaseView, Translator, EphemeralMessages, Metrics,
 
         var events = view.metrics.getFilteredData().events;
         assert.equal(events.length, 1);
+      });
+
+      it('logs an `Unexpected Error` if no error object is passed in', function () {
+        view.metrics.events.clear();
+        view.logError();
+
+        assert.isTrue(TestHelpers.isEventLogged(metrics, metrics.errorToId('UNEXPECTED_ERROR', AuthErrors)));
+      });
+
+      it('prints a stack trace via console.trace to facilitate debugging if no error object is passed in', function () {
+        view.metrics.events.clear();
+        sinon.spy(view.window.console, 'trace');
+
+        view.logError();
+
+        assert.isTrue(view.window.console.trace.calledOnce);
+        view.window.console.trace.restore();
       });
     });
   });
