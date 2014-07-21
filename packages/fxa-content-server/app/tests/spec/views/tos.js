@@ -45,12 +45,11 @@ function (chai, View, Session) {
           });
     });
 
-    it('fetches translated text from the backend', function (done) {
-      view.on('ready', function() {
-        assert.ok(view.$('#terms-of-service').length);
-        done();
-      });
-      view.render();
+    it('fetches translated text from the backend', function () {
+      return view.render()
+        .then(function () {
+          assert.ok(view.$('#fxa-tos-header').length);
+        });
     });
   });
 });
