@@ -21,7 +21,6 @@ define([
   var routes = {
     '/config': { statusCode: 200, headerAccept: 'application/json' },
     '/signin': { statusCode: 200 },
-    '/signin_complete': { statusCode: 200 },
     '/signup': { statusCode: 200 },
     '/signup_complete': { statusCode: 200 },
     '/confirm': { statusCode: 200 },

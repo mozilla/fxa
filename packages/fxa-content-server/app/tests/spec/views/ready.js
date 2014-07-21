@@ -49,14 +49,6 @@ function (chai, View, Session, FxaClient, WindowMock) {
             });
       });
 
-      it('renders with correct header for sign_in type', function () {
-        view.type = 'sign_in';
-        return view.render()
-            .then(function () {
-              assert.ok(view.$('#fxa-sign-in-complete-header').length);
-            });
-      });
-
       it('renders with correct header for sign_up type', function () {
         view.type = 'sign_up';
         return view.render()

@@ -77,7 +77,6 @@ function (
       'signin(/)': showView(SignInView),
       'oauth/signin(/)': showView(OAuthSignInView),
       'oauth/signup(/)': showView(OAuthSignUpView),
-      'signin_complete(/)': showView(ReadyView, { type: 'sign_in' }),
       'signup(/)': showView(SignUpView),
       'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
       'cannot_create_account(/)': showView(CannotCreateAccountView),
