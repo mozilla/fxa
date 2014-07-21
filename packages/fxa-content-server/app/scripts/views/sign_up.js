@@ -6,14 +6,16 @@
 
 define([
   'underscore',
+  'p-promise',
   'views/base',
   'views/form',
   'stache!templates/sign_up',
   'lib/session',
   'views/mixins/password-mixin',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
+function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors, ServiceMixin) {
   var t = BaseView.t;
 
   function selectAutoFocusEl(email, password) {
@@ -52,8 +54,20 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
     beforeRender: function () {
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.navigate('cannot_create_account');
-        return false;
+        return p(false);
       }
+
+      this.service = Session.service;
+
+      var self = this;
+      return p().then(function () {
+          return FormView.prototype.beforeRender.call(self);
+        })
+        .then(function () {
+          if (self.hasService() && self.isSync()) {
+            return self.setServiceInfo();
+          }
+        });
     },
 
     // afterRender fucnction to handle select-row hack (issue 822)
@@ -93,7 +107,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
         password: Session.prefillPassword,
         year: Session.prefillYear || 'none',
         service: Session.service,
-        isSync: Session.isSync(),
+        isSync: this.isSync(),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
         shouldFocusYear: autofocusEl === 'year'
@@ -208,6 +222,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors) {
   });
 
   _.extend(View.prototype, PasswordMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });

@@ -119,6 +119,10 @@ define([
         this.setupOAuthLinks();
       }
       return result;
+    },
+
+    isSync: function () {
+      return Session.service === 'sync';
     }
   };
 });

@@ -10,9 +10,10 @@ define([
   'views/form',
   'stache!templates/delete_account',
   'lib/session',
-  'views/mixins/password-mixin'
+  'views/mixins/password-mixin',
+  'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin, ServiceMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -30,7 +31,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin) {
 
     context: function () {
       return {
-        isSync: Session.isSync(),
+        isSync: this.isSync(),
         email: Session.email
       };
     },
@@ -49,6 +50,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin) {
   });
 
   _.extend(View.prototype, PasswordMixin);
+  _.extend(View.prototype, ServiceMixin);
 
   return View;
 });
