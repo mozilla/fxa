@@ -93,7 +93,6 @@ function (
       this._config = config;
       this._configLoader.useConfig(config);
       Session.set('config', config);
-      Session.set('language', config.language);
 
       this._metrics = createMetrics(config.metricsSampleRate, {
         lang: config.language
@@ -101,7 +100,10 @@ function (
       this._metrics.init();
 
       if (! this._router) {
-        this._router = new Router({ metrics: this._metrics });
+        this._router = new Router({
+          metrics: this._metrics,
+          language: config.language
+        });
       }
       this._window.router = this._router;
     },

@@ -64,7 +64,8 @@ function (
       options = _.extend({
         metrics: this.metrics,
         window: this.window,
-        router: this
+        router: this,
+        language: this.language
       }, options || {});
 
       this.showView(new View(options));
@@ -103,6 +104,7 @@ function (
       this.window = options.window || window;
 
       this.metrics = options.metrics;
+      this.language = options.language;
 
       this.$stage = $('#stage');
 

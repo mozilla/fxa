@@ -36,13 +36,9 @@ function (chai, AppStart, Session, WindowMock, RouterMock, HistoryMock) {
     });
 
     describe('start', function () {
-      it('start starts the app', function () {
+      it('starts the app', function () {
         return appStart.startApp()
                     .then(function () {
-                      // language will be chosen by the backend depending
-                      // on the user's Accept-Language headers and could
-                      // be different for everybody.
-                      assert.ok(Session.language);
                       assert.ok(Session.config);
                       assert.ok(Session.channel);
 
