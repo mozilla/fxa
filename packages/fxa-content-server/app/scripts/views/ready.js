@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Handle sign_in_complete, sign_up_complete,
- * and reset_password_complete.
+ * Handle sign_up_complete and reset_password_complete.
  * Prints a message to the user that says
  * "All ready! You can go visit {{ service }}"
  */
@@ -58,7 +57,6 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
       return {
         service: this.service,
         serviceName: serviceName,
-        signIn: this.is('sign_in'),
         signUp: this.is('sign_up'),
         resetPassword: this.is('reset_password')
       };
