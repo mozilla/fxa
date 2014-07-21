@@ -15,15 +15,13 @@ define([
 
   // channel is initialized on app startup
   // and should not be saved to sessionStorage
-  var DO_NOT_PERSIST = ['channel', 'prefillPassword', 'prefillYear', 'error', 'language', 'service'];
+  var DO_NOT_PERSIST = ['channel', 'prefillPassword', 'prefillYear', 'error', 'service'];
 
   // channel should not be cleared from memory or else fxa-client.js
   // will blow up when sending the login message.
   // Don't clear service because the signup page needs that state
   //  even when user credentials are cleared.
-  // Don't clear `language`, this is set on startup based on the user's
-  // Accept-Language headers and does not change when user's sign in and out.
-  var DO_NOT_CLEAR = ['channel', 'context', 'service', 'config', 'language'];
+  var DO_NOT_CLEAR = ['channel', 'context', 'service', 'config'];
 
   // these keys will be persisted to localStorage so that they live between browser sessions
   var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext', 'oauth'];

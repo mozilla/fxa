@@ -31,6 +31,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
       options = options || {};
 
       this.type = options.type;
+      this.language = options.language;
     },
 
     beforeRender: function () {
@@ -77,7 +78,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
       var marketingSnippet = new MarketingSnippet({
         type: this.type,
         service: Session.service,
-        language: Session.language,
+        language: this.language,
         el: this.$('.marketing-area'),
         metrics: this.metrics
       });
