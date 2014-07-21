@@ -5,7 +5,7 @@
 module.exports = function (db, log) {
 
   function accountDeleted(uid, email) {
-    log.info({ op: 'accountDeleted', uid: uid, email: email })
+    log.info({ op: 'accountDeleted', uid: uid.toString('hex'), email: email })
   }
 
   function gotError(email, err) {
