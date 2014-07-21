@@ -8,12 +8,11 @@
 define([
   'chai',
   '/tests/mocks/window.js',
-  '/tests/mocks/router.js',
   'lib/session',
   'lib/channels/fx-desktop',
   '/tests/lib/helpers.js'
 ],
-function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) {
+function (chai, WindowMock, Session, FxDesktopChannel, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
   var channel;
@@ -21,7 +20,6 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) 
 
   describe('lib/channel/fx-desktop', function () {
     var windowMock;
-    var routerMock;
 
     function dispatchEvent(status, data) {
       windowMock.dispatchEvent({
@@ -36,12 +34,10 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) 
     }
 
     beforeEach(function () {
-      routerMock = new RouterMock();
       windowMock = new WindowMock();
 
       channel = new FxDesktopChannel();
       channel.init({
-        router: routerMock,
         window: windowMock,
         sendTimeoutLength: 10
       });
@@ -51,44 +47,6 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) 
       if (channel) {
         channel.teardown();
       }
-    });
-
-    describe('init', function () {
-      it('sends the user to the settings page if signed in', function (done) {
-        channel.on('session_status', function () {
-          wrapAssertion(function () {
-            assert.equal(routerMock.page, 'settings');
-          }, done);
-        });
-
-        dispatchEvent('session_status', {
-          email: 'testuser@testuser.com'
-        });
-      });
-
-      it('sends the user to the signup page if not signed in', function (done) {
-        channel.on('session_status', function () {
-          wrapAssertion(function () {
-            assert.equal(routerMock.page, 'signup');
-          }, done);
-        });
-
-        // no data from session_status signifies no user is signed in.
-        dispatchEvent('session_status');
-      });
-
-      it('does not redirect the user if a route is present in the path', function (done) {
-        channel.window.location.pathname = '/signin';
-
-        channel.on('session_status', function () {
-          wrapAssertion(function () {
-            assert.notEqual(routerMock.page, 'signup');
-          }, done);
-        });
-
-        // no data from session_status signifies no user is signed in.
-        dispatchEvent('session_status');
-      });
     });
 
     describe('send', function () {
@@ -110,6 +68,16 @@ function (chai, WindowMock, RouterMock, Session, FxDesktopChannel, TestHelpers) 
         // if there is an exception, done is never called.
         setTimeout(done, 500);
         channel.send('wait-for-response', { key: 'value' });
+      });
+    });
+
+    describe('oauth auto-verification', function () {
+      it('is not supported', function (done) {
+        channel.send('should_auto_complete_after_email_verification', {}, function (err, response) {
+          wrapAssertion(function () {
+            assert.isFalse(response.should_auto_complete_after_email_verification); //jshint ignore: line
+          }, done);
+        });
       });
     });
 

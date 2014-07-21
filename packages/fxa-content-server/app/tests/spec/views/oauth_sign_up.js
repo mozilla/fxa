@@ -12,13 +12,14 @@ define([
   'lib/fxa-client',
   '../../mocks/window',
   '../../mocks/router',
+  '../../mocks/oauth_servers',
   '../../lib/helpers'
 ],
-function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, OAuthServersMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/oauth_sign_up', function () {
-    var view, email, router, windowMock, CLIENT_ID, STATE, SCOPE, CLIENT_NAME, BASE_REDIRECT_URL, fxaClient;
+    var view, email, router, windowMock, CLIENT_ID, STATE, SCOPE, CLIENT_NAME, BASE_REDIRECT_URL, fxaClient, oAuthServersMock;
 
     CLIENT_ID = 'dcdb5ae7add825d2';
     STATE = '123';
@@ -33,6 +34,8 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE + '&redirect_uri=' + encodeURIComponent(BASE_REDIRECT_URL);
 
+      oAuthServersMock = new OAuthServersMock();
+
       fxaClient = new FxaClient();
 
       view = new View({
@@ -40,14 +43,17 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
         window: windowMock,
         fxaClient: fxaClient
       });
-      view.render();
-      $('#container').html(view.el);
+      return view.render()
+          .then(function () {
+            $('#container').html(view.el);
+          });
     });
 
     afterEach(function () {
       Session.clear();
       view.remove();
       view.destroy();
+      oAuthServersMock.destroy();
     });
 
     describe('render', function () {
@@ -64,6 +70,9 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
     describe('submit', function () {
       it('sets up the user\'s ouath session on success', function () {
         var password = 'password';
+
+        // the screen is rendered, we can take over from here.
+        oAuthServersMock.destroy();
         return view.fxaClient.signUp(email, password)
           .then(function () {
             $('.email').val(email);

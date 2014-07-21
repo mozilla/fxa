@@ -62,10 +62,10 @@ function (chai, Session) {
       });
 
       it('will not clear items in DO_NOT_CLEAR', function() {
-        var channel = {};
-        Session.set('channel', channel);
-        Session.clear('channel');
-        assert.strictEqual(Session.channel, channel);
+        var context = 'fxa_desktop_v1';
+        Session.set('context', context);
+        Session.clear('context');
+        assert.strictEqual(Session.context, context);
       });
     });
 
@@ -98,12 +98,12 @@ function (chai, Session) {
       });
 
       it('does not load up items in DO_NOT_PERSIST', function() {
-        var channel = {};
-        Session.set('channel', channel);
+        var prefillPassword = 'password';
+        Session.set('prefillPassword', prefillPassword);
         Session.persist();
         Session.clear();
         Session.load();
-        assert.strictEqual(Session.channel, channel);
+        assert.isUndefined(Session.prefillPassword);
       });
     });
   });

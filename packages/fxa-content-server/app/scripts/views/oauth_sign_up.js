@@ -9,10 +9,9 @@ define([
   'lib/promise',
   'views/base',
   'views/sign_up',
-  'lib/session',
   'views/mixins/service-mixin'
 ],
-function (_, p, BaseView, SignUpView, Session, ServiceMixin) {
+function (_, p, BaseView, SignUpView, ServiceMixin) {
   var View = SignUpView.extend({
     className: 'sign-up oauth-sign-up',
 
@@ -40,7 +39,7 @@ function (_, p, BaseView, SignUpView, Session, ServiceMixin) {
     onSignUpSuccess: function () {
       // Store oauth state for when/if the oauth flow completes
       // in this browser
-      Session.set('oauth', this._oAuthParams);
+      this.persistOAuthParams();
       this.navigate('confirm');
     }
   });

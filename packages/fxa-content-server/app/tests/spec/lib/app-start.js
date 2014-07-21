@@ -9,11 +9,12 @@ define([
   'chai',
   'lib/app-start',
   'lib/session',
+  'lib/constants',
   '../../mocks/window',
   '../../mocks/router',
   '../../mocks/history'
 ],
-function (chai, AppStart, Session, WindowMock, RouterMock, HistoryMock) {
+function (chai, AppStart, Session, Constants, WindowMock, RouterMock, HistoryMock) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
 
@@ -22,6 +23,23 @@ function (chai, AppStart, Session, WindowMock, RouterMock, HistoryMock) {
     var routerMock;
     var historyMock;
     var appStart;
+
+
+    function getFxDesktopContextSearchString() {
+      return '?context=' + Constants.FX_DESKTOP_CONTEXT;
+    }
+
+    function dispatchEventFromWindowMock(status, data) {
+      windowMock.dispatchEvent({
+        detail: {
+          command: 'message',
+          data: {
+            status: status,
+            data: data
+          }
+        }
+      });
+    }
 
     beforeEach(function () {
       windowMock = new WindowMock();
@@ -35,12 +53,11 @@ function (chai, AppStart, Session, WindowMock, RouterMock, HistoryMock) {
       });
     });
 
-    describe('start', function () {
+    describe('startApp', function () {
       it('starts the app', function () {
         return appStart.startApp()
                     .then(function () {
                       assert.ok(Session.config);
-                      assert.ok(Session.channel);
 
                       // translator is put on the global object.
                       assert.ok(windowMock.translator);
@@ -59,6 +76,51 @@ function (chai, AppStart, Session, WindowMock, RouterMock, HistoryMock) {
         return appStart.startApp()
             .then(function () {
               assert.equal(routerMock.page, 'cookies_disabled');
+            });
+      });
+
+      it('redirects to /settings if the context is FXA_DESKTOP and user is signed in', function () {
+        windowMock.location.search = getFxDesktopContextSearchString();
+
+        windowMock.on('session_status', function () {
+          dispatchEventFromWindowMock('session_status', {
+            email: 'testuser@testuser.com'
+          });
+        });
+
+        return appStart.startApp()
+            .then(function () {
+              assert.equal(routerMock.page, 'settings');
+            });
+      });
+
+      it('redirects to /signup if the context is FXA_DESKTOP, no email is set, and no pathname is specified', function () {
+        windowMock.location.search = getFxDesktopContextSearchString();
+
+        windowMock.on('session_status', function () {
+          // no data from session_status signifies no user is signed in.
+          dispatchEventFromWindowMock('session_status');
+        });
+
+        return appStart.startApp()
+            .then(function () {
+              assert.equal(routerMock.page, 'signup');
+            });
+      });
+
+      it('does not redirect the user if a route is present in the path', function () {
+        windowMock.location.search = getFxDesktopContextSearchString();
+        windowMock.location.pathname = '/signin';
+        routerMock.page = 'signin';
+
+        windowMock.on('session_status', function () {
+          // no data from session_status signifies no user is signed in.
+          dispatchEventFromWindowMock('session_status');
+        });
+
+        return appStart.startApp()
+            .then(function () {
+              assert.equal(routerMock.page, 'signin');
             });
       });
 

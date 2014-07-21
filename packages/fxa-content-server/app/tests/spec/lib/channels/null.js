@@ -18,11 +18,9 @@ function (chai, NullChannel) {
       channel.init();
     });
 
-    describe('send', function (done) {
-      it('is a standin that does nothing', function() {
-        channel.send('heya', function() {
-          done();
-        });
+    describe('send', function () {
+      it('is a standin that does nothing', function(done) {
+        channel.send('heya', {}, done);
       });
     });
   });

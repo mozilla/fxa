@@ -11,9 +11,9 @@ function (Translator, Session, FxaClientWrapper) {
   'use strict';
 
   var tests = [
-    '../tests/spec/lib/channels/web',
     '../tests/spec/lib/channels/null',
     '../tests/spec/lib/channels/fx-desktop',
+    '../tests/spec/lib/channels/redirect',
     '../tests/spec/lib/xss',
     '../tests/spec/lib/url',
     '../tests/spec/lib/session',
@@ -36,9 +36,8 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/views/sign_up',
     '../tests/spec/views/complete_sign_up',
     '../tests/spec/views/sign_in',
-    // TODO Renable these (issue #1141)
-    //'../tests/spec/views/oauth_sign_in',
-    //'../tests/spec/views/oauth_sign_up',
+    '../tests/spec/views/oauth_sign_in',
+    '../tests/spec/views/oauth_sign_up',
     '../tests/spec/views/force_auth',
     '../tests/spec/views/settings',
     '../tests/spec/views/settings/avatar',
@@ -61,7 +60,8 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/views/button_progress_indicator',
     '../tests/spec/views/marketing_snippet',
     '../tests/spec/views/mixins/floating-placeholder-mixin',
-    '../tests/spec/views/mixins/timer-mixin'
+    '../tests/spec/views/mixins/timer-mixin',
+    '../tests/spec/views/mixins/service-mixin'
   ];
 
   /*global mocha */

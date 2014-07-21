@@ -5,20 +5,28 @@
 // mock in a channel
 
 define([
-], function() {
+  'underscore',
+  'lib/channels/base'
+], function(_, BaseChannel) {
   'use strict';
+
+  function noOp() {
+    // no-op, no functionality
+  }
 
   function ChannelMock() {
     this.canLinkAccountOk = true;
     this._messageCount = {};
   }
 
-  ChannelMock.prototype = {
+  _.extend(ChannelMock.prototype, new BaseChannel(), {
     getMessageCount: function(message) {
       return this._messageCount[message] || 0;
     },
 
     send: function(message, data, done) {
+      done = done || noOp;
+
       this.message = message;
       this.data = data;
       if (!this._messageCount[message]) {
@@ -27,20 +35,21 @@ define([
       this._messageCount[message] += 1;
       switch (message)
       {
-      case 'can_link_account':
-        this.onCanLinkAccount(data, done);
-        break;
-      default:
-        if (done) {
+        case 'should_auto_complete_after_email_verification':
+          done(null, { should_auto_complete_after_email_verification: true }); //jshint ignore:line
+          break;
+        case 'can_link_account':
+          this.onCanLinkAccount(data, done);
+          break;
+        default:
           done();
-        }
       }
     },
 
     onCanLinkAccount: function(data, done) {
       done(null, { data: { ok: this.canLinkAccountOk } });
     }
-  };
+  });
 
   return ChannelMock;
 });

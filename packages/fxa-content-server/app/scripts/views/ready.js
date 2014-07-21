@@ -17,16 +17,16 @@ define([
   'stache!templates/ready',
   'lib/session',
   'lib/xss',
-  'lib/url',
   'lib/strings',
+  'lib/auth-errors',
   'views/mixins/service-mixin',
   'views/marketing_snippet'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMixin, MarketingSnippet) {
+function (_, BaseView, FormView, Template, Session, Xss, Strings, AuthErrors, ServiceMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
     template: Template,
-    className: 'reset_password_complete',
+    className: 'ready',
 
     initialize: function (options) {
       options = options || {};
@@ -51,14 +51,9 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMi
       var serviceName = this.serviceName;
 
       if (this.serviceRedirectURI) {
-        if (Session.oauth && Session.oauth.webChannelId) {
-          serviceName = Strings.interpolate('%s', [serviceName]);
-          this.submit();
-        } else {
-          serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-            Xss.href(this.serviceRedirectURI), serviceName
-          ]);
-        }
+        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+          Xss.href(this.serviceRedirectURI), serviceName
+        ]);
       }
 
       return {
@@ -77,7 +72,18 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMi
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
-      return this._createMarketingSnippet();
+      var self = this;
+      // Some channels (e.g. FxWebChannel) can auto-complete
+      // verification without user interaction. Check if
+      // verification should be done automatically, if so, do it!
+      return self.shouldAutoCompleteOAuthVerification()
+        .then(function (shouldAutoComplete) {
+          if (shouldAutoComplete) {
+            return self.submit();
+          }
+
+          return self._createMarketingSnippet();
+        });
     },
 
     _createMarketingSnippet: function () {
@@ -95,9 +101,14 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, ServiceMi
 
     submit: function () {
       if (this.isOAuthSameBrowser()) {
-        return this.finishOAuthFlow();
-      } else if (this.hasService()) {
-        return this.oAuthRedirectWithError();
+        return this.finishOAuthFlow({
+          source: this.type
+        });
+      } else if (this.isOAuthDifferentBrowser()) {
+        return this.finishOAuthFlowDifferentBrowser();
+      } else {
+        // We aren't expecting this case to happen.
+        this.displayError(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
     },
 

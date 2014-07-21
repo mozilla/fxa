@@ -4,28 +4,18 @@
 
 'use strict';
 
-// A shell of for a channel. Doesn't do anything yet, but is a useful standin.
+// A shell of a channel. Doesn't do anything yet, but is a useful standin.
 
 define([
-    'underscore',
-    'backbone'
-  ],
-  function (_, Backbone) {
+  'underscore',
+  'lib/channels/base'
+],
+function (_, BaseChannel) {
+  function NullChannel() {
+    // nothing to do.
+  }
 
-    function NullChannel() {
-    }
-
-    _.extend(NullChannel.prototype, Backbone.Events, {
-      init: function () {
-      },
-      teardown: function () {
-      },
-      send: function (command, data, done) {
-        if (done) {
-          done();
-        }
-      }
-    });
+  _.extend(NullChannel.prototype, new BaseChannel());
 
   return NullChannel;
 });

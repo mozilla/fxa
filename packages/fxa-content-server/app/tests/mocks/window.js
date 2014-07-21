@@ -40,7 +40,7 @@ function (_, Backbone) {
 
   _.extend(WindowMock.prototype, Backbone.Events, {
     dispatchEvent: function (event) {
-      var msg = event.detail.command;
+      var msg = event.detail.command || event.detail.message;
 
       var listenerEvent = {
         data: {
@@ -58,8 +58,16 @@ function (_, Backbone) {
       this.dispatchedEvents[msg] = true;
     },
 
+    isEventDispatched: function (eventName) {
+      return !! (this.dispatchedEvents && this.dispatchedEvents[eventName]);
+    },
+
     addEventListener: function(msg, callback, bubbles) {
       this.on(msg, callback);
+    },
+
+    removeEventListener: function(msg, callback, bubbles) {
+      this.off(msg, callback);
     },
 
     CustomEvent: function(command, data) {

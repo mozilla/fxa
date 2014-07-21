@@ -8,10 +8,9 @@ define([
   'underscore',
   'lib/promise',
   'views/sign_in',
-  'lib/session',
   'views/mixins/service-mixin'
 ],
-function (_, p, SignInView, Session, ServiceMixin) {
+function (_, p, SignInView, ServiceMixin) {
   var View = SignInView.extend({
     className: 'sign-in oauth-sign-in',
 
@@ -36,18 +35,19 @@ function (_, p, SignInView, Session, ServiceMixin) {
 
     onSignInSuccess: function() {
       return this.finishOAuthFlow({
-        source: "signin"
+        source: 'signin'
       });
     },
 
     onSignInUnverified: function() {
-      // set the oauth parameters in the session so they are available in the email confirmation
-      Session.set('oauth', this._oAuthParams);
+      // set the oauth parameters in the session so they are available
+      // in the email confirmation
+      this.persistOAuthParams();
       return SignInView.prototype.onSignInUnverified.call(this);
     },
 
     onPasswordResetNavigate: function () {
-      Session.set('oauth', this._oAuthParams);
+      this.persistOAuthParams();
       this.navigate('reset_password');
     }
   });
