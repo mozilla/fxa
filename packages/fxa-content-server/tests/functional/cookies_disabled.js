@@ -28,18 +28,17 @@ define([
     'visit signup page with localStorage disabled': function () {
       return this.get('remote')
         .get(require.toUrl(SIGNUP_COOKIES_DISABLED_URL))
-
-        .waitForElementById('fxa-cookies-disabled-header')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findById('fxa-cookies-disabled-header')
         .end()
 
         // try again, cookies are still disabled.
-        .elementById('submit-btn')
+        .findById('submit-btn')
           .click()
         .end()
 
         // show an error message after second try
-        .waitForVisibleByCssSelector('#stage .error')
-        .elementByCssSelector('#stage .error').isDisplayed()
+        .findByCssSelector('#stage .error').isDisplayed()
         .then(function (isDisplayed) {
           assert.equal(isDisplayed, true);
         });
@@ -50,28 +49,28 @@ define([
         .get(require.toUrl(SIGNUP_COOKIES_ENABLED_URL))
         // wd has no way of disabling/enabling cookies, so we have to
         // manually seed history.
-        .waitForElementById('fxa-signup-header')
+        .findById('fxa-signup-header')
         .end()
 
         .get(require.toUrl(COOKIES_DISABLED_URL))
 
-        .waitForElementById('fxa-cookies-disabled-header')
+        .findById('fxa-cookies-disabled-header')
         .end()
 
         // try again, cookies are enabled.
-        .elementById('submit-btn')
+        .findById('submit-btn')
           .click()
         .end()
 
         // Should be redirected back to the signup page.
-        .waitForElementById('fxa-signup-header');
+        .findById('fxa-signup-header');
     },
 
     'visit verify page with localStorage disabled': function () {
       return this.get('remote')
         .get(require.toUrl(VERIFY_COOKIES_DISABLED_URL))
 
-        .waitForElementById('fxa-cookies-disabled-header')
+        .findById('fxa-cookies-disabled-header')
         .end();
     }
   });

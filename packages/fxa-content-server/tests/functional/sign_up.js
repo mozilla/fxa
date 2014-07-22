@@ -8,10 +8,11 @@ define([
   'intern/chai!assert',
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
+  'intern/node_modules/dojo/node!leadfoot/helpers/pollUntil',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, pollUntil, FxaClient, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -37,36 +38,34 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
-        .waitForElementById('fxa-signup-header')
-
-        .elementByCssSelector('form input.email')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(password)
         .end()
 
-        .elementByCssSelector('#fxa-age-year')
+        .findByCssSelector('#fxa-age-year')
           .click()
         .end()
 
-        .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .buttonDown()
-          .buttonUp()
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+          .pressMouseButton()
+          .releaseMouseButton()
           .click()
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
         // Being pushed to the confirmation screen is success.
-        .waitForElementById('fxa-confirm-header')
-        .elementByCssSelector('.verification-email-message')
-          .text()
+        .findByCssSelector('.verification-email-message')
+          .getVisibleText()
           .then(function (resultText) {
             // check the email address was written
             assert.ok(resultText.indexOf(email) > -1);
@@ -80,34 +79,32 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
-        .waitForElementById('fxa-signup-header')
-
-        .elementByCssSelector('form input.email')
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(password)
         .end()
 
-        .elementByCssSelector('#fxa-age-year')
+        .findByCssSelector('#fxa-age-year')
           .click()
         .end()
 
-        .elementById('fxa-' + TOO_YOUNG_YEAR)
-          .buttonDown()
-          .buttonUp()
+        .findById('fxa-' + TOO_YOUNG_YEAR)
+          .pressMouseButton()
+          .releaseMouseButton()
           .click()
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
         // Success is being redirected to the cannot create screen.
-        .waitForElementById('fxa-cannot-create-account-header')
+        .findById('fxa-cannot-create-account-header')
         .end();
     },
 
@@ -119,38 +116,36 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(urlForSync))
-        .waitForElementById('fxa-signup-header')
-
-        .elementByCssSelector('form input.email')
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(password)
         .end()
 
-        .elementByCssSelector('#fxa-age-year')
+        .findByCssSelector('#fxa-age-year')
           .click()
         .end()
 
-        .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .buttonDown()
-          .buttonUp()
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+          .pressMouseButton()
+          .releaseMouseButton()
           .click()
         .end()
 
-        .elementByCssSelector('form input.customize-sync')
+        .findByCssSelector('form input.customize-sync')
           .click()
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
         // Being pushed to the confirmation screen is success.
-        .waitForElementById('fxa-confirm-header')
+        .findById('fxa-confirm-header')
         .end();
     },
 
@@ -168,41 +163,37 @@ define([
         .then(function () {
           return self.get('remote')
             .get(require.toUrl(PAGE_URL))
-            .waitForElementById('fxa-signup-header')
-
-            .elementByCssSelector('input[type=email]')
+            .findByCssSelector('input[type=email]')
               .click()
-              .clear()
+              .clearValue()
               .type(email)
             .end()
 
-            .elementByCssSelector('input[type=password]')
+            .findByCssSelector('input[type=password]')
               .click()
               .type(password)
             .end()
 
-            .elementByCssSelector('#fxa-age-year')
+            .findByCssSelector('#fxa-age-year')
               .click()
             .end()
 
-            .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
-              .buttonDown()
-              .buttonUp()
+            .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+              .pressMouseButton()
+              .releaseMouseButton()
               .click()
             .end()
 
-            .elementByCssSelector('button[type="submit"]')
+            .findByCssSelector('button[type="submit"]')
               .click()
             .end()
 
             // The error area shows a link to /signin
-            .waitForVisibleByCssSelector('.error a[href="/signin"]')
-            .elementByCssSelector('.error a[href="/signin"]')
+            .findByCssSelector('.error a[href="/signin"]')
               .click()
             .end()
 
-            .waitForElementById('fxa-signin-header')
-            .elementByCssSelector('input[type=email]')
+            .findByCssSelector('input[type=email]')
               .getAttribute('value')
               .then(function (resultText) {
                 // check the email address carried over.
@@ -210,7 +201,7 @@ define([
               })
             .end()
 
-            .elementByCssSelector('input[type=password]')
+            .findByCssSelector('input[type=password]')
               .getAttribute('value')
               .then(function (resultText) {
                 // check the password carried over.
@@ -234,36 +225,33 @@ define([
         .then(function () {
           return self.get('remote')
             .get(require.toUrl(PAGE_URL))
-            .waitForElementById('fxa-signup-header')
-
-            .elementByCssSelector('input[type=email]')
+            .findByCssSelector('input[type=email]')
               .click()
               .type(email)
             .end()
 
-            .elementByCssSelector('input[type=password]')
+            .findByCssSelector('input[type=password]')
               .click()
               .type('different_password')
             .end()
 
-            .elementByCssSelector('#fxa-age-year')
+            .findByCssSelector('#fxa-age-year')
               .click()
             .end()
 
-            .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
-              .buttonDown()
-              .buttonUp()
+            .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+              .pressMouseButton()
+              .releaseMouseButton()
               .click()
             .end()
 
-            .elementByCssSelector('button[type="submit"]')
+            .findByCssSelector('button[type="submit"]')
               .click()
             .end()
 
             // Being pushed to the confirmation screen is success.
-            .waitForElementById('fxa-confirm-header')
-            .elementByCssSelector('.verification-email-message')
-              .text()
+            .findByCssSelector('.verification-email-message')
+              .getVisibleText()
               .then(function (resultText) {
                 // check the email address was written
                 assert.ok(resultText.indexOf(email) > -1);
@@ -290,60 +278,57 @@ define([
 
     return self.get('remote')
       .get(require.toUrl(PAGE_URL))
-      .waitForElementById('fxa-signup-header')
-
-      .elementByCssSelector('input[type=email]')
-        .clear()
+      .findByCssSelector('input[type=email]')
+        .clearValue()
         .click()
         .type(email)
       .end()
 
-      .elementByCssSelector('input[type=password]')
-        .clear()
+      .findByCssSelector('input[type=password]')
+        .clearValue()
         .click()
         .type(password)
       .end()
 
-      .elementByCssSelector('#fxa-age-year')
+      .findByCssSelector('#fxa-age-year')
         .click()
       .end()
 
-      .elementById('fxa-' + year)
-        .buttonDown()
-        .buttonUp()
+      .findById('fxa-' + year)
+        .pressMouseButton()
+        .releaseMouseButton()
         .click()
       .end()
 
-      .elementByCssSelector('a[href="' + dest + '"]')
+      .findByCssSelector('a[href="' + dest + '"]')
         .click()
       .end()
 
-      .waitForElementById(header)
+      .findById(header)
+      .end()
 
-      .elementByCssSelector('.back')
+      .findByCssSelector('.back')
         .click()
       .end()
 
-      .waitForElementById('fxa-signup-header')
-
-      .elementByCssSelector('input[type=email]')
-        .getValue()
+      .findByCssSelector('input[type=email]')
+        .getProperty('value')
         .then(function (resultText) {
           // check the email address was re-populated
           assert.equal(resultText, email);
         })
       .end()
 
-      .elementByCssSelector('input[type=password]')
-        .getValue()
+      .findByCssSelector('input[type=password]')
+        .getProperty('value')
         .then(function (resultText) {
           // check the email address was re-populated
           assert.equal(resultText, password);
         })
       .end()
 
-      .elementByCssSelector('#fxa-age-year')
-        .getValue()
+      .findByCssSelector('#fxa-age-year')
+        .getProperty('value')
         .then(function (resultText) {
           // check the email address was re-populated
           assert.equal(resultText, year);

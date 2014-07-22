@@ -16,17 +16,17 @@ define([
   registerSuite({
     name: 'back button after navigating to the root',
 
-    'start at github, visit Fxa root, click `back` - should go back to github': function () {
+    'start at github, visit Fxa root, click `back` - should go back to example': function () {
       return this.get('remote')
         .get(require.toUrl(FROM_URL))
         .get(require.toUrl(FXA_ROOT_URL))
-
-        .waitForElementById('fxa-signup-header')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findById('fxa-signup-header')
 
         // click back.
-        .back()
+        .goBack()
 
-        .url()
+        .getCurrentUrl()
           .then(function (resultUrl) {
             assert.equal(resultUrl, FROM_URL);
           })

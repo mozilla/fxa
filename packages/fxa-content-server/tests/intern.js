@@ -5,13 +5,21 @@
 // Learn more about configuring this file at <https://github.com/theintern/intern/wiki/Configuring-Intern>.
 // These default settings work OK for most people. The options that *must* be changed below are the
 // packages, suites, excludeInstrumentation, and (if you want functional tests) functionalSuites.
-define(['intern/lib/args'], function (args) {
+define(['intern/lib/args', 'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/topic'],
+  function (args, topic) {
   'use strict';
 
   var fxaAuthRoot = args.fxaAuthRoot ? args.fxaAuthRoot : 'http://127.0.0.1:9000/v1';
   var fxaContentRoot = args.fxaContentRoot ? args.fxaContentRoot : 'http://127.0.0.1:3030/';
   var fxaEmailRoot = args.fxaEmailRoot ? args.fxaEmailRoot : 'http://127.0.0.1:9001';
   var fxaOauthApp = args.fxaOauthApp ? args.fxaOauthApp : 'http://127.0.0.1:8080/';
+  var fxaProduction = args.fxaProduction ? args.fxaProduction : false;
+
+  if (topic) {
+    topic.subscribe('/suite/start', function (suite) {
+      console.log('Running: ' + suite.name);
+    });
+  }
 
   return {
     // The port on which the instrumenting proxy will listen
@@ -23,6 +31,7 @@ define(['intern/lib/args'], function (args) {
     fxaContentRoot: fxaContentRoot,
     fxaEmailRoot: fxaEmailRoot,
     fxaOauthApp: fxaOauthApp,
+    fxaProduction: fxaProduction,
 
     // Default desired capabilities for all environments. Individual capabilities can be overridden by any of the
     // specified browser environments in the `environments` array below as well. See
@@ -41,21 +50,10 @@ define(['intern/lib/args'], function (args) {
       { browserName: 'firefox' }
     ],
 
-    reporters: ['console'],
+    pageLoadTimeout: 20000,
 
     // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
     maxConcurrency: 3,
-
-    // Whether or not to start Sauce Connect before running tests
-    useSauceConnect: false,
-
-    // Connection information for the remote WebDriver service. If using Sauce Labs, keep your username and password
-    // in the SAUCE_USERNAME and SAUCE_ACCESS_KEY environment variables unless you are sure you will NEVER be
-    // publishing this configuration file somewhere
-    webdriver: {
-      host: 'localhost',
-      port: 4444
-    },
 
     // Functional test suite(s) to run in each browser once non-functional tests are completed
     functionalSuites: [ 'tests/functional/mocha', 'tests/functional' ],

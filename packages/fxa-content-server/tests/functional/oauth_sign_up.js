@@ -44,19 +44,14 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(OAUTH_APP))
-        .waitForVisibleByCssSelector('.signup')
-        .elementByCssSelector('.signup')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('.signup')
           .click()
         .end()
 
-        .waitForVisibleByCssSelector('#fxa-signup-header')
-        .elementByCssSelector('#fxa-signup-header')
-          .text()
-          .then(function (text) {
-            assert.ok(text.indexOf('Create a Firefox Account for ') > -1, 'Sign Up page should have a service header');
-          })
+        .findByCssSelector('#fxa-signup-header .service')
         .end()
-        .url()
+        .getCurrentUrl()
         .then(function (url) {
           assert.ok(url.indexOf('client_id=') > -1);
           assert.ok(url.indexOf('redirect_uri=') > -1);
@@ -64,32 +59,32 @@ define([
         })
         .end()
 
-        .elementByCssSelector('form input.email')
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(PASSWORD)
         .end()
 
-        .elementByCssSelector('#fxa-age-year')
+        .findByCssSelector('#fxa-age-year')
           .click()
         .end()
 
-        .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .buttonDown()
-          .buttonUp()
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+          .pressMouseButton()
+          .releaseMouseButton()
           .click()
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
-        .waitForVisibleByCssSelector('#fxa-confirm-header')
-        .url()
+        .findByCssSelector('#fxa-confirm-header')
+        .getCurrentUrl()
         .then(function (url) {
           assert.ok(url.indexOf('client_id=') > -1);
           assert.ok(url.indexOf('redirect_uri=') > -1);
@@ -103,19 +98,20 @@ define([
         })
         .end()
 
-        .waitForVisibleByCssSelector('#redirectTo')
-        .elementByCssSelector('#redirectTo')
+        .findByCssSelector('#redirectTo')
           .click()
         .end()
 
-        .waitForVisibleByCssSelector('#logout')
-        .elementByCssSelector('#logout')
+        // let items load
+        .findByCssSelector('#todolist li')
+        .end()
+
+        .findByCssSelector('#logout')
         .click()
         .end()
 
-        .waitForVisibleByCssSelector('.signup')
-        .elementByCssSelector('#loggedin')
-        .text()
+        .findByCssSelector('#loggedin')
+        .getVisibleText()
         .then(function (text) {
           // confirm logged out
           assert.ok(text.length === 0);

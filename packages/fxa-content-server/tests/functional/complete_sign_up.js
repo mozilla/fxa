@@ -61,11 +61,12 @@ define([
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.get('remote')
+        .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(url))
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .findById('fxa-verification-link-damaged-header')
         .end();
     },
 
@@ -79,7 +80,7 @@ define([
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .findById('fxa-verification-link-damaged-header')
         .end();
     },
 
@@ -92,7 +93,7 @@ define([
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
-        .waitForElementById('fxa-verification-link-damaged-header')
+        .findById('fxa-verification-link-damaged-header')
         .end();
     },
 
@@ -105,7 +106,7 @@ define([
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
-        .waitForElementById('fxa-verification-link-expired-header')
+        .findById('fxa-verification-link-expired-header')
         .end();
     },
 
@@ -117,7 +118,7 @@ define([
 
         // a successful user is immediately redirected to the
         // sign-up-complete page.
-        .waitForElementById('fxa-sign-up-complete-header')
+        .findById('fxa-sign-up-complete-header')
         .end();
     }
   });
@@ -152,12 +153,16 @@ define([
       return this.get('remote')
         .get(require.toUrl(url))
 
-        .waitForElementById('fxa-verification-link-expired-header')
-        .elementById('resend')
+        .findById('fxa-verification-link-expired-header')
+        .end()
+
+        // Give resend time to show up
+        .setFindTimeout(200)
+        .findById('resend')
         .then(function () {
           assert.fail('resend link should not be present');
         }, function (err) {
-          assert.include(err.message, 'Failed to execute elementById("resend")');
+          assert.strictEqual(err.name, 'NoSuchElement');
           return true;
         })
         .end();
@@ -194,63 +199,67 @@ define([
         .then(function () {
           return self.get('remote')
             .get(require.toUrl(SIGNUP_PAGE_URL))
-            .waitForElementById('fxa-signup-header')
+            .setFindTimeout(intern.config.pageLoadTimeout)
+            .findById('fxa-signup-header')
+            .end()
 
-            .elementByCssSelector('input[type=email]')
+            .findByCssSelector('input[type=email]')
               .click()
               .type(email)
             .end()
 
-            .elementByCssSelector('input[type=password]')
+            .findByCssSelector('input[type=password]')
               .click()
               .type('different_password')
             .end()
 
-            .elementByCssSelector('#fxa-age-year')
+            .findByCssSelector('#fxa-age-year')
               .click()
             .end()
 
-            .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
-              .buttonDown()
-              .buttonUp()
+            .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+              .pressMouseButton()
+              .releaseMouseButton()
               .click()
             .end()
 
-            .elementByCssSelector('button[type="submit"]')
+            .findByCssSelector('button[type="submit"]')
               .click()
             .end()
 
             // Being pushed to the confirmation screen is success.
-            .waitForElementById('fxa-confirm-header')
-            .then(function (resultText) {
-              return self.get('remote')
-                .get(require.toUrl(completeUrl));
-            })
-            .waitForElementById('fxa-verification-link-expired-header')
+            .findById('fxa-confirm-header')
+            .end()
 
-            .elementById('resend')
+            .get(require.toUrl(completeUrl))
+
+            .findById('fxa-verification-link-expired-header')
+            .end()
+
+            .findById('resend')
               .click()
             .end()
 
-            .waitForVisibleByClassName('success')
+            .findByClassName('success')
+            .end()
 
             // Success is showing the success message
-            .elementByCssSelector('.success').isDisplayed()
+            .findByCssSelector('.success').isDisplayed()
               .then(function (isDisplayed) {
                 assert.isTrue(isDisplayed);
               })
             .end()
 
-            .elementById('resend')
+            .findById('resend')
               .click()
             .end()
 
-            .elementById('resend')
+            .findById('resend')
               .click()
             .end()
 
             // Stills shows success message
-            .elementByCssSelector('.success').isDisplayed()
+            .findByCssSelector('.success').isDisplayed()
               .then(function (isDisplayed) {
                 assert.isTrue(isDisplayed);
               })

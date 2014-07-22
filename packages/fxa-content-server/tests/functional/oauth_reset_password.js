@@ -90,14 +90,13 @@ define([
         .then(function () {
           return self.get('remote')
             .get(require.toUrl(OAUTH_APP))
-            .waitForVisibleByCssSelector('.signin')
-            .elementByCssSelector('.signin')
+            .setFindTimeout(intern.config.pageLoadTimeout)
+            .findByCssSelector('.signin')
             .click()
             .end()
 
-            .waitForVisibleByCssSelector('#fxa-signin-header')
-
-            .url()
+            .findByCssSelector('#fxa-signin-header')
+            .getCurrentUrl()
             .then(function (url) {
               assert.ok(url.indexOf('oauth/signin?') > -1);
               assert.ok(url.indexOf('client_id=') > -1);
@@ -106,30 +105,26 @@ define([
             })
             .end()
 
-            .elementByCssSelector('#fxa-signin-header')
-            .text()
-            .then(function (text) {
-              assert.ok(text.indexOf('Sign in to') > -1, 'Sign in page should have a service header, was: ' + text);
-            })
+            .findByCssSelector('#fxa-signin-header .service')
             .end()
 
-            .elementByCssSelector('a[href="/reset_password"]')
+            .findByCssSelector('a[href="/reset_password"]')
             .click()
             .end()
 
-            .waitForElementById('fxa-reset-password-header')
+            .findById('fxa-reset-password-header')
+            .end()
 
-            .elementByCssSelector('input[type=email]')
+            .findByCssSelector('input[type=email]')
             .click()
             .type(email)
             .end()
 
-            .elementByCssSelector('button[type="submit"]')
+            .findByCssSelector('button[type="submit"]')
             .click()
             .end()
 
-            .waitForVisibleById('fxa-confirm-reset-password-header')
-
+            .findById('fxa-confirm-reset-password-header')
             .then(function () {
               return setTokenAndCodeFromEmail(user, 1);
             })
@@ -141,52 +136,61 @@ define([
                 '&email=' + encodeURIComponent(email);
               return self.get('remote').get(require.toUrl(url));
             })
+            .end()
 
-            .waitForElementById('fxa-complete-reset-password-header')
+            .findById('fxa-complete-reset-password-header')
+            .end()
 
-            .elementByCssSelector('form input#password')
+            .findByCssSelector('form input#password')
             .click()
             .type(PASSWORD)
             .end()
 
-            .elementByCssSelector('form input#vpassword')
+            .findByCssSelector('form input#vpassword')
             .click()
             .type(PASSWORD)
             .end()
 
-            .elementByCssSelector('button[type="submit"]')
+            .findByCssSelector('button[type="submit"]')
             .click()
             .end()
 
-            .waitForElementById('fxa-reset-password-complete-header')
+            .findById('fxa-reset-password-complete-header')
+            .end()
 
-            .elementByCssSelector('#redirectTo')
+            .findByCssSelector('#redirectTo')
             .click()
             .end()
 
-            .waitForVisibleByCssSelector('#loggedin')
-            .url()
+            // let items load
+            .findByCssSelector('#todolist li')
+            .end()
+
+            .findByCssSelector('#loggedin')
+            .getCurrentUrl()
             .then(function (url) {
               // redirected back to the App
               assert.ok(url.indexOf(OAUTH_APP) > -1);
             })
             .end()
 
-            .elementByCssSelector('#loggedin')
-            .text()
+            .findByCssSelector('#loggedin span')
+            .getVisibleText()
             .then(function (text) {
               // confirm logged in email
               assert.ok(text.indexOf(email) > -1);
             })
             .end()
 
-            .elementByCssSelector('#logout')
+            .findByCssSelector('#logout')
             .click()
             .end()
 
-            .waitForVisibleByCssSelector('.signup')
-            .elementByCssSelector('#loggedin')
-            .text()
+            .findByCssSelector('.signup')
+            .end()
+
+            .findByCssSelector('#loggedin')
+            .getVisibleText()
             .then(function (text) {
               // confirm logged out
               assert.ok(text.length === 0);

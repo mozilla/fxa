@@ -19,7 +19,9 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .text()
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByTagName('body')
+        .getVisibleText()
         .then(function(source) {
           assert.isTrue(/Disallow: \//g.test(source));
         })

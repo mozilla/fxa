@@ -40,38 +40,37 @@ define([
           return self.get('remote')
             // sign up, do not verify steps
             .get(require.toUrl(OAUTH_APP))
-            .waitForVisibleByCssSelector('#splash')
-            .elementByCssSelector('#splash .signup')
+            .setFindTimeout(intern.config.pageLoadTimeout)
+            .findByCssSelector('#splash .signup')
             .click()
             .end()
 
-            .waitForVisibleByCssSelector('#fxa-signup-header')
-            .elementByCssSelector('form input.email')
-            .clear()
+            .findByCssSelector('form input.email')
+            .clearValue()
             .click()
             .type(email)
             .end()
 
-            .elementByCssSelector('form input.password')
+            .findByCssSelector('form input.password')
             .click()
             .type(PASSWORD)
             .end()
 
-            .elementByCssSelector('#fxa-age-year')
+            .findByCssSelector('#fxa-age-year')
             .click()
             .end()
 
-            .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
-            .buttonDown()
-            .buttonUp()
+            .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+            .pressMouseButton()
+            .releaseMouseButton()
             .click()
             .end()
 
-            .elementByCssSelector('button[type="submit"]')
+            .findByCssSelector('button[type="submit"]')
             .click()
             .end()
 
-            .waitForVisibleByCssSelector('#fxa-confirm-header')
+            .findByCssSelector('#fxa-confirm-header')
             .end();
         });
     },
@@ -84,23 +83,20 @@ define([
 
           return self.get('remote')
             .get(require.toUrl(emails[0].headers['x-link']))
-            .waitForVisibleByCssSelector('#fxa-sign-up-complete-header')
+
+            // wait for confirmation
+            .findById('fxa-sign-up-complete-header')
+            .end()
             // sign in with a verified account
             .get(require.toUrl(OAUTH_APP))
-            .waitForVisibleByCssSelector('#splash')
-            .elementByCssSelector('#splash .signin')
+            .findByCssSelector('#splash .signin')
             .click()
             .end()
 
-            .waitForVisibleByCssSelector('#fxa-signin-header')
-            .elementByCssSelector('#fxa-signin-header')
-            .text()
-            .then(function (text) {
-              assert.ok(text.indexOf('Sign in to') > -1, 'Sign Up page should have a service header');
-            })
+            .findByCssSelector('#fxa-signin-header .service')
             .end()
 
-            .url()
+            .getCurrentUrl()
             .then(function (url) {
               assert.ok(url.indexOf('oauth/signin?') > -1);
               assert.ok(url.indexOf('client_id=') > -1);
@@ -109,44 +105,47 @@ define([
             })
             .end()
 
-            .elementByCssSelector('form input.email')
-            .clear()
+            .findByCssSelector('form input.email')
+            .clearValue()
             .click()
             .type(email)
             .end()
 
-            .elementByCssSelector('form input.password')
+            .findByCssSelector('form input.password')
             .click()
             .type(PASSWORD)
             .end()
 
-            .elementByCssSelector('button[type="submit"]')
+            .findByCssSelector('button[type="submit"]')
             .click()
             .end()
 
-            .waitForVisibleByCssSelector('#loggedin')
-            .url()
+            .findByCssSelector('#loggedin')
+            .getCurrentUrl()
             .then(function (url) {
               // redirected back to the App
               assert.ok(url.indexOf(OAUTH_APP) > -1);
             })
             .end()
 
-            .elementByCssSelector('#loggedin')
-            .text()
+            // let items load
+            .findByCssSelector('#todolist li')
+            .end()
+
+            .findByCssSelector('#loggedin')
+            .getVisibleText()
             .then(function (text) {
               // confirm logged in email
               assert.ok(text.indexOf(email) > -1);
             })
             .end()
 
-            .elementByCssSelector('#logout')
+            .findByCssSelector('#logout')
             .click()
             .end()
 
-            .waitForVisibleByCssSelector('.signup')
-            .elementByCssSelector('#loggedin')
-            .text()
+            .findByCssSelector('#loggedin')
+            .getVisibleText()
             .then(function (text) {
               // confirm logged out
               assert.ok(text.length === 0);
@@ -163,20 +162,14 @@ define([
       return this.get('remote')
         // Step 2: Try to sign in, unverified
         .get(require.toUrl(OAUTH_APP))
-        .waitForVisibleByCssSelector('#splash')
-        .elementByCssSelector('#splash .signin')
+        .findByCssSelector('#splash .signin')
         .click()
         .end()
 
-        .waitForVisibleByCssSelector('#fxa-signin-header')
-        .elementByCssSelector('#fxa-signin-header')
-        .text()
-        .then(function (text) {
-          assert.ok(text.indexOf('Sign in to') > -1, 'Sign In page should have a service header');
-        })
+        .findByCssSelector('#fxa-signin-header .service')
         .end()
 
-        .url()
+        .getCurrentUrl()
         .then(function (url) {
           assert.ok(url.indexOf('oauth/signin?') > -1);
           assert.ok(url.indexOf('client_id=') > -1);
@@ -185,63 +178,66 @@ define([
         })
         .end()
 
-        .elementByCssSelector('form input.email')
-        .clear()
+        .findByCssSelector('form input.email')
+        .clearValue()
         .click()
         .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
         .click()
         .type(PASSWORD)
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
         .click()
         .end()
 
-        .waitForVisibleByCssSelector('#fxa-confirm-header')
+        .findByCssSelector('#fxa-confirm-header')
         .then(function () {
           return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
             .then(function (emails) {
               var verifyUrl = emails[0].headers['x-link'];
               return self.get('remote')
-                .get(require.toUrl(verifyUrl));
+                .get(require.toUrl(verifyUrl))
+                .findByCssSelector('#redirectTo')
+                .click()
+                .end()
+
+                .findByCssSelector('#loggedin')
+                .getCurrentUrl()
+                .then(function (url) {
+                  // redirected back to the App
+                  assert.ok(url.indexOf(OAUTH_APP) > -1);
+                })
+                .end()
+
+                // let items load
+                .findByCssSelector('#todolist li')
+                .end()
+
+                .findByCssSelector('#loggedin')
+                .getVisibleText()
+                .then(function (text) {
+                  // confirm logged in email
+                  assert.ok(text.indexOf(email) > -1);
+                })
+                .end()
+
+                .findByCssSelector('#logout')
+                .click()
+                .end()
+
+                .findByCssSelector('#loggedin')
+                .getVisibleText()
+                .then(function (text) {
+                  // confirm logged out
+                  assert.ok(text.length === 0);
+                })
+                .end();
             });
-        })
-        .waitForVisibleByCssSelector('#fxa-sign-up-complete-header')
-        .elementByCssSelector('#redirectTo')
-        .click()
-        .end()
 
-        .waitForVisibleByCssSelector('#loggedin')
-        .url()
-        .then(function (url) {
-          // redirected back to the App
-          assert.ok(url.indexOf(OAUTH_APP) > -1);
-        })
-        .end()
-
-        .elementByCssSelector('#loggedin')
-        .text()
-        .then(function (text) {
-          // confirm logged in email
-          assert.ok(text.indexOf(email) > -1);
-        })
-        .end()
-
-        .elementByCssSelector('#logout')
-        .click()
-        .end()
-
-        .waitForVisibleByCssSelector('.signup')
-        .elementByCssSelector('#loggedin')
-        .text()
-        .then(function (text) {
-          // confirm logged out
-          assert.ok(text.length === 0);
-        })
-        .end();
+        });
     }
   });
 

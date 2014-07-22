@@ -19,20 +19,17 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url))
-        .waitForElementById('fxa-signup-header')
-
-        .elementById('fxa-tos')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('#fxa-tos')
           .click()
         .end()
 
-        .waitForVisibleByCssSelector('#legal-copy ol li')
-        .waitForVisibleByCssSelector('#fxa-tos-back')
-        .elementById('fxa-tos-back')
+        .findByCssSelector('#fxa-tos-back')
           .click()
         .end()
 
         // success is going back to the signup
-        .waitForElementById('fxa-signup-header')
+        .findByCssSelector('#fxa-signup-header')
         .end();
     }
   });

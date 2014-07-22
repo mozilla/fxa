@@ -15,7 +15,9 @@ define([
     // clear localStorage to avoid polluting other tests.
     return context.get('remote')
       .get(require.toUrl(CLEAR_URL))
-      .waitForElementById('fxa-clear-storage-header');
+      .setFindTimeout(intern.config.pageLoadTimeout)
+      .findById('fxa-clear-storage-header')
+      .end();
   }
 
   return {

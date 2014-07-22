@@ -8,8 +8,9 @@ define([
   'intern/chai!assert',
   'require',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'intern/dojo/node!leadfoot/helpers/pollUntil'
+], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers, pollUntil) {
   'use strict';
 
   var config = intern.config;
@@ -28,11 +29,12 @@ define([
     'visit confirmation screen without initiating sign up, user is redirected to /signup': function () {
       return this.get('remote')
         .get(require.toUrl(CONFIRM_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
 
         // user is immediately redirected to /signup if they have no
         // sessionToken.
         // Success is showing the screen
-        .waitForElementById('fxa-signup-header');
+        .findByCssSelector('#fxa-signup-header');
     },
 
     'sign up, wait for confirmation screen, click resend': function () {
@@ -41,53 +43,56 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(SIGNUP_URL))
-        .waitForElementById('fxa-signup-header')
-
-        .elementByCssSelector('form input.email')
+        .findByCssSelector('form input.email')
           .click()
           .type(email)
         .end()
 
-        .elementByCssSelector('form input.password')
+        .findByCssSelector('form input.password')
           .click()
           .type(password)
         .end()
 
-        .elementByCssSelector('#fxa-age-year')
+        .findByCssSelector('#fxa-age-year')
           .click()
         .end()
 
-        .elementById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .buttonDown()
-          .buttonUp()
+        .findByCssSelector('#fxa-' + (TOO_YOUNG_YEAR - 1))
+          .pressMouseButton()
+          .releaseMouseButton()
           .click()
         .end()
 
-        .elementByCssSelector('button[type="submit"]')
+        .findByCssSelector('button[type="submit"]')
           .click()
         .end()
 
         // Being pushed to the confirmation screen is success.
-        .waitForElementById('fxa-confirm-header')
-        .elementByCssSelector('.verification-email-message')
-          .text()
+        .findByCssSelector('.verification-email-message')
+          .getVisibleText()
           .then(function (resultText) {
             // check the email address was written
             assert.ok(resultText.indexOf(email) > -1);
           })
         .end()
 
-        .elementById('resend')
+        .findByCssSelector('#resend')
           .click()
         .end()
 
-        .waitForVisibleByClassName('success')
-
-        // Success is showing the screen
-        .elementByCssSelector('.success').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isTrue(isDisplayed);
-          })
+        // the test below depends on the speed of the email resent XHR
+        // we have to pollUntil the resent request completes
+        .then(pollUntil(function () {
+          /* global document */
+          var element = document.getElementsByClassName('success')[0];
+          return element && element.offsetWidth > 0 ? true : null;
+        }, [ ], 40000))
+        .then(function (result) {
+          assert.ok(result);
+        }, function (error) {
+          // success was never displayed
+          assert.fail(error);
+        })
         .end();
     }
   });
