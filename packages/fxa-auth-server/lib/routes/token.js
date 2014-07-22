@@ -12,6 +12,19 @@ const logger = require('../logging').getLogger('fxa.routes.token');
 
 const HEX_STRING = /^[0-9a-f]+$/;
 
+function generateToken(code) {
+  return [db.removeCode(code.code), db.generateToken(code)];
+}
+
+function toToken(_, token) {
+  /*jshint camelcase: false*/
+  return {
+    access_token: token.token.toString('hex'),
+    token_type: token.type,
+    scope: token.scope.join(' ')
+  };
+}
+
 module.exports = {
   validate: {
     payload: {
@@ -73,16 +86,9 @@ module.exports = {
         return code;
       });
     })
-    .then(function(code) {
-      return db.generateToken(code);
-    })
-    .done(function(token) {
-      reply({
-        access_token: token.token.toString('hex'),
-        token_type: token.type,
-        scope: token.scope.join(' ')
-      });
-    }, reply);
+    .then(generateToken)
+    .spread(toToken)
+    .done(reply, reply);
   }
 };
 

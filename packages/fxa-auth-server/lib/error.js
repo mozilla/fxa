@@ -160,4 +160,14 @@ AppError.invalidRequestParameter = function invalidRequestParameter(val) {
   });
 };
 
+AppError.invalidResponseType = function invalidResponseType() {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 110,
+    message: 'Invalid response_type'
+  });
+};
+
+
 module.exports = AppError;
