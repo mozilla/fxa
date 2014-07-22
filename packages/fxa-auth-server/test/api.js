@@ -397,7 +397,7 @@ describe('/v1', function() {
         var secret2 = unique.secret();
         var client2 = {
           name: 'client2',
-          secret: secret2,
+          hashedSecret: encrypt.hash(secret2),
           redirectUri: 'https://example.domain',
           imageUri: 'https://example.foo.domain/logo.png',
           whitelisted: true

@@ -81,7 +81,7 @@ MemoryStore.prototype = {
     logger.debug('registerClient', client.name, hex);
     client.createdAt = new Date();
     this.clients[hex] = client;
-    client.secret = encrypt.hash(client.secret);
+    client.secret = client.hashedSecret;
     return P.resolve(client);
   },
   getClient: function getClient(id) {

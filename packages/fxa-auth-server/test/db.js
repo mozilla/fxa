@@ -30,7 +30,7 @@ describe('db', function() {
         var data = {
           id: clientId,
           name: clientName,
-          secret: randomString(32),
+          hashedSecret: randomString(32),
           imageUri: 'https://example.domain/logo',
           redirectUri: 'https://example.domain/return?foo=bar',
           whitelisted: true

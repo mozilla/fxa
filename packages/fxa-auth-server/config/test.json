@@ -17,7 +17,7 @@
     },
     "loggers": {
       "fxa": {
-        "level": "error"
+        "level": "warn"
       }
     }
   }
