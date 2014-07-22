@@ -28,7 +28,7 @@ Services ecosystem.
 
 ## Install
 
-You'll need node 0.10.x or higher and npm to run the server.
+You'll need node 0.10.x or higher and npm to run the server. On some systems running the server as root will cause working directory permissions issues with node. It is recommended that you create a seperate, standard user to ensure a clean and more secure installation.
 
 Clone the git repository and install dependencies:
 
