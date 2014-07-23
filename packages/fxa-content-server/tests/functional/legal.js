@@ -50,6 +50,9 @@ define([
       return this.get('remote')
         .get(require.toUrl(url + '/terms'))
 
+        .findByCssSelector('#main-content')
+        .end()
+
         .findById('legal-copy')
           .getVisibleText()
           .then(function (resultText) {
@@ -63,6 +66,9 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(url + '/privacy'))
+
+        .findByCssSelector('#main-content')
+        .end()
 
         .findById('legal-copy')
           .getVisibleText()
