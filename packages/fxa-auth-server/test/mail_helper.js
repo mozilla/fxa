@@ -28,14 +28,14 @@ function emailName(emailAddress) {
   return emailAddress.split('@')[0]
 }
 
-mail.on(
-  'mail',
-  function (email) {
+require('simplesmtp').createSimpleServer(
+  {
+    SMTPBanner: "FXATEST"
+  },
+  function (req) {
     var mp = new MailParser({ defaultCharset: 'utf8' })
-    mp.on(
-      'end',
+    mp.on('end',
       function (mail) {
-        //console.log(mail)
         var uid = mail.headers['x-uid']
         var link = mail.headers['x-link']
         var rc = mail.headers['x-recovery-code']
@@ -49,7 +49,7 @@ mail.on(
         }
         else {
           console.error('\x1B[31mNo verify code match\x1B[39m')
-          console.error(email)
+          console.error(mail)
         }
         if (users[name]) {
           users[name].push(mail)
@@ -58,12 +58,10 @@ mail.on(
         }
       }
     )
-    mp.write(email)
-    mp.end()
+    req.pipe(mp)
+    req.accept()
   }
-)
-
-mail.start(config.mail.port)
+).listen(config.mail.port, config.mail.host)
 
 // HTTP half
 
