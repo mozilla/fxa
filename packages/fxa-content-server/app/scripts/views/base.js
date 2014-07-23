@@ -89,8 +89,6 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
     render: function () {
       var self = this;
 
-      self.logScreen();
-
       return p()
         .then(function () {
           return self.isUserAuthorized();
