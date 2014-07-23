@@ -36,11 +36,19 @@ Clone the git repository and install dependencies:
     cd fxa-auth-server
     npm install
 
-To start the server, run:
+To start the server in dev mode (ie. `NODE_ENV=dev`), run:
 
     npm start
 
-It will listen on http://localhost:9000 by default.
+This runs a script `scripts/start-local.sh` as defined in `package.json`. This will start up
+4 services, three of which listen on the following ports (by default):
+
+* `bin/key_server.js` on port 9000
+* `test/mail_helper.js` on port 9001
+* `./node_modules/fxa-customs-server/bin/customs_server.js` on port 7000
+* `bin/notifier.js` (no port)
+
+When you `Ctrl-c` your server, all 4 processes will be stopped.
 
 ## Testing
 
