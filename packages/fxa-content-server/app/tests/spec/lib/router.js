@@ -127,6 +127,76 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, Constants,
             });
       });
     });
+
+    describe('showView', function () {
+      var view;
+
+      beforeEach(function () {
+        view = new SignUpView({
+          metrics: metrics,
+          window: windowMock,
+          router: router
+        });
+      });
+
+      afterEach(function() {
+        view = null;
+      });
+
+      it('navigates to unexpected error view on beforeRender errors', function () {
+        windowMock.location.pathname = '/signup';
+        view.beforeRender = function () {
+          throw new Error('boom');
+        };
+
+        var navigate = view.navigate;
+        view.navigate = function (url, options) {
+          assert.equal(options.error, 'boom');
+          return navigate.call(this, url, options);
+        };
+
+        return router.showView(view)
+          .then(function () {
+            assert.include(navigateUrl, 'unexpected_error');
+          });
+      });
+
+      it('navigates to unexpected error view on context errors', function () {
+        windowMock.location.pathname = '/signup';
+        view.context = function () {
+          throw new Error('boom');
+        };
+
+        var navigate = view.navigate;
+        view.navigate = function (url, options) {
+          assert.equal(options.error, 'boom');
+          return navigate.call(this, url, options);
+        };
+
+        return router.showView(view)
+          .then(function () {
+            assert.include(navigateUrl, 'unexpected_error');
+          });
+      });
+
+      it('navigates to unexpected error view on afterRender errors', function () {
+        windowMock.location.pathname = '/signup';
+        view.afterRender = function () {
+          throw new Error('boom');
+        };
+
+        var navigate = view.navigate;
+        view.navigate = function (url, options) {
+          assert.equal(options.error, 'boom');
+          return navigate.call(this, url, options);
+        };
+
+        return router.showView(view)
+          .then(function () {
+            assert.include(navigateUrl, 'unexpected_error');
+          });
+      });
+    });
   });
 });
 
