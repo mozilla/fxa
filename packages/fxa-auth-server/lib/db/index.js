@@ -2,11 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const buf = require('buf').hex;
 const unbuf = require('buf').unbuf.hex;
 
 const P = require('../promise');
 
 const config = require('../config');
+const encrypt = require('../encrypt');
 const logger = require('../logging').getLogger('fxa.db');
 const mysql = require('./mysql');
 const memory = require('./memory');
@@ -20,6 +22,11 @@ function preClients() {
         if (client) {
           logger.debug('Client %s exists, skipping', unbuf(c.id));
         } else {
+          if (c.secret) {
+            logger.warn('Do not keep client secrets in the config file.'
+              + ' Use the `hashedSecret` field instead.');
+            c.hashedSecret = encrypt.hash(buf(c.secret));
+          }
           return exports.registerClient(c);
         }
       });

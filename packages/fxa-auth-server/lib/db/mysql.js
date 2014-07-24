@@ -131,12 +131,11 @@ MysqlStore.prototype = {
       id = unique.id();
     }
     logger.debug('registerClient', client.name, id.toString('hex'));
-    var hash = encrypt.hash(client.secret);
     return this._write(QUERY_CLIENT_REGISTER, [
       id,
       client.name,
       client.imageUri,
-      hash,
+      client.hashedSecret,
       client.redirectUri,
       client.whitelisted
     ]).then(function() {
