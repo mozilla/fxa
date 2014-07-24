@@ -220,7 +220,7 @@ destroy the token afterwards. A client can use this route to do so.
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
-"https://oauth.accounts.firefox.com/v1/destroy
+"https://oauth.accounts.firefox.com/v1/destroy" \
 -d '{
   "token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0",
   "client_secret": "20c6882ef864d75ad1587c38f9d733c80751d2cbc8614e30202dc3d1d25301ff"
