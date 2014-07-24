@@ -293,6 +293,91 @@ describe('/v1', function() {
       });
     });
 
+    describe('?response_type', function() {
+      it('is optional', function(done) {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            response_type: undefined
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assert(res.result.redirect);
+        }).done(done, done);
+      });
+      it('can be code', function(done) {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            response_type: 'code'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          assert(res.result.redirect);
+        }).done(done, done);
+      });
+      it('must not be something besides code or token', function(done) {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            response_type: 'foo'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
+        }).done(done, done);
+      });
+
+      describe('token', function() {
+        var client2 = config.get('clients')[1];
+        assert(client2.canGrant); //sanity check
+
+        it('does not require state argument', function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              client_id: client2.id,
+              state: undefined,
+              response_type: 'token'
+            })
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+          });
+        });
+        it('requires a client with proper permission', function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              client_id: client.id,
+              response_type: 'token'
+            })
+          }).then(function(res) {
+            assert.equal(res.statusCode, 400);
+            assert.equal(res.result.errno, 110);
+          });
+        });
+        it('returns an implicit token', function(done) {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              client_id: client2.id,
+              response_type: 'token'
+            })
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert(res.result.access_token);
+            assert.equal(res.result.token_type, 'bearer');
+            assert(res.result.scope);
+          }).done(done, done);
+        });
+      });
+    });
+
     describe('response', function() {
       describe('with a whitelisted client', function() {
         it('should redirect to the redirect_uri', function(done) {

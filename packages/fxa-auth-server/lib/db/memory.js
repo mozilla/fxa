@@ -110,23 +110,20 @@ MemoryStore.prototype = {
     delete this.codes[unbuf(id)];
     return P.resolve();
   },
-  generateToken: function generateToken(code) {
-    var store = this;
-    return this.removeCode(code.code).then(function() {
-      var token = {};
-      token.clientId = code.clientId;
-      token.userId = code.userId;
-      token.email = code.email;
-      token.scope = code.scope;
-      token.createdAt = new Date();
-      token.type = 'bearer';
-      var _token = unique.token();
-      var ret = clone(token);
-      token.token = encrypt.hash(_token);
-      store.tokens[unbuf(token.token)] = token;
-      ret.token = _token;
-      return ret;
-    });
+  generateToken: function generateToken(vals) {
+    var token = {};
+    token.clientId = vals.clientId;
+    token.userId = vals.userId;
+    token.email = vals.email;
+    token.scope = vals.scope;
+    token.createdAt = new Date();
+    token.type = 'bearer';
+    var _token = unique.token();
+    var ret = clone(token);
+    token.token = encrypt.hash(_token);
+    this.tokens[unbuf(token.token)] = token;
+    ret.token = _token;
+    return P.resolve(ret);
   },
   getToken: function getToken(token) {
     return P.resolve(this.tokens[unbuf(token)]);

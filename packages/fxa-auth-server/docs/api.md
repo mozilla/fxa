@@ -118,6 +118,7 @@ back to the client. This code will be traded for a token at the
 - `client_id`: The id returned from client registration.
 - `assertion`: A FxA assertion for the signed-in user.
 - `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
+- `response_type`: Optional. If supplied, must be either `code` or `token`. `code` is the default. `token` means the implicit grant is desired, and requires that the client have special permission to do so.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
 
@@ -150,6 +151,12 @@ Example:
   "redirect": "https://example.domain/path?foo=bar&code=4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c&state=1234"
 }
 ```
+
+##### Implicit Grant
+
+If requesting an implicit grant (token), the response will match the
+[/v1/token][token] response.
+
 
 ### POST /v1/token
 
@@ -191,7 +198,7 @@ Example:
 ```js
 {
   "access_token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0",
-  "scopes": [],
+  "scope": "profile:email profile:avatar",
   "token_type": "bearer"
 }
 ```

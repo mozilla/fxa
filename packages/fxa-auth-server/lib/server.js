@@ -11,6 +11,7 @@ const hapiLogger = require('./logging').getLogger('fxa.server.hapi');
 const summary = require('./logging/summary');
 
 exports.create = function createServer() {
+  var isProd = config.env === 'prod';
   var server = Hapi.createServer(
     config.server.host,
     config.server.port,
@@ -23,7 +24,14 @@ exports.create = function createServer() {
     }
   );
 
-  server.route(require('./routing'));
+  var routes = require('./routing');
+  if (isProd) {
+    logger.info('Disabling response schema validation');
+    routes.forEach(function(route) {
+      delete route.config.response;
+    });
+  }
+  server.route(routes);
 
   // hapi internal logging: server and request
   server.on('log', function onServerLog(ev, tags) {

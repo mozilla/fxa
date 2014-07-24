@@ -85,8 +85,9 @@ MysqlStore.connect = function mysqlConnect(options) {
 };
 
 const QUERY_CLIENT_REGISTER =
-  'INSERT INTO clients (id, name, imageUri, secret, redirectUri, whitelisted)' +
-  'VALUES (?, ?, ?, ?, ?, ?);';
+  'INSERT INTO clients ' +
+  '(id, name, imageUri, secret, redirectUri, whitelisted, canGrant) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
@@ -137,7 +138,8 @@ MysqlStore.prototype = {
       client.imageUri,
       client.hashedSecret,
       client.redirectUri,
-      client.whitelisted
+      !!client.whitelisted,
+      !!client.canGrant
     ]).then(function() {
       logger.debug('registerClient: success [%s]', id.toString('hex'));
       client.id = id;
@@ -177,29 +179,27 @@ MysqlStore.prototype = {
   removeCode: function removeCode(id) {
     return this._write(QUERY_CODE_DELETE, [id]);
   },
-  generateToken: function generateToken(code) {
+  generateToken: function generateToken(vals) {
     var t = {
-      clientId: code.clientId,
-      userId: code.userId,
-      email: code.email,
-      scope: code.scope,
+      clientId: vals.clientId,
+      userId: vals.userId,
+      email: vals.email,
+      scope: vals.scope,
       type: 'bearer'
     };
     var _token = unique.token();
     var me = this;
-    return this.removeCode(code.code).then(function() {
-      var hash = encrypt.hash(_token);
-      return me._write(QUERY_TOKEN_INSERT, [
-        t.clientId,
-        t.userId,
-        t.email,
-        t.scope.join(' '),
-        t.type,
-        hash
-      ]).then(function() {
-        t.token = _token;
-        return t;
-      });
+    var hash = encrypt.hash(_token);
+    return me._write(QUERY_TOKEN_INSERT, [
+      t.clientId,
+      t.userId,
+      t.email,
+      t.scope.join(' '),
+      t.type,
+      hash
+    ]).then(function() {
+      t.token = _token;
+      return t;
     });
   },
 
