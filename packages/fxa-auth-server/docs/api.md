@@ -10,15 +10,15 @@ https://<server-url>/v1/<api-endpoint>
 
 Note that:
 
-- All API access must be over HTTPS
+- All API access must be over HTTPS.
 - The URL embeds a version identifier "v1"; future revisions of this API may introduce new version numbers.
-- The base URL of the server may be configured on a per-client basis
+- The base URL of the server may be configured on a per-client basis.
 
 ### Errors
 
 Invalid requests will return 4XX responses. Internal failures will return 5XX. Both will include JSON responses describing the error.
 
-Example error:
+**Example error:**
 
 ```js
 {
@@ -31,17 +31,18 @@ Example error:
 
 The currently-defined error responses are:
 
-- status code, errno: description
-- 400, 101: unknown client id
-- 400, 102: incorrect client secret
-- 400, 103: redirect_uri doesn't match registered value
-- 400, 104: invalid fxa assertion 
-- 400, 105: unknown code
-- 400, 106: incorrect code
-- 400, 107: expired code
-- 400, 108: invalid token
-- 400, 109: invalid request parameter
-- 500, 999: internal server error
+| status code | errno | description |
+|:-----------:|:-----:|-------------|
+| 400 | 101 | unknown client id |
+| 400 | 102 | incorrect client secret |
+| 400 | 103 | `redirect_uri` doesn't match registered value |
+| 400 | 104 | invalid fxa assertion |
+| 400 | 105 | unknown code |
+| 400 | 106 | incorrect code |
+| 400 | 107 | expired code |
+| 400 | 108 | invalid token |
+| 400 | 109 | invalid request parameter |
+| 500 | 999 | internal server error |
 
 ## API Endpoints
 
@@ -62,9 +63,9 @@ about a client to show in its user interface.
 
 - `id`: The `client_id` of a client asking for permission.
 
-Example:
+**Example:**
 
-```
+```sh
 curl -v "https://oauth.accounts.firefox.com/v1/client/5901bd09376fadaa"
 ```
 
@@ -76,9 +77,9 @@ A valid 200 response will be a JSON blob with the following properties:
 - `image_uri`: A url to a logo or image that represents the client.
 - `redirect_uri`: The url registered to redirect to after successful oauth.
 
-Example:
+**Example:**
 
-```js
+```json
 {
   "name": "Where's My Fox",
   "image_uri": "https://mozilla.org/firefox.png",
@@ -100,9 +101,9 @@ content-server page.
 - `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
 - `action`: Optional. If provided, should be either `signup` or `signin`. Send to improve user experience, based on whether they clicked on a Sign In or Sign Up button.
 
-Example:
+**Example:**
 
-```
+```sh
 curl -v "https://oauth.accounts.firefox.com/v1/authorization?client_id=5901bd09376fadaa&state=1234&scope=profile:email&action=signup"
 ```
 
@@ -122,9 +123,9 @@ back to the client. This code will be traded for a token at the
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
 
-Example:
+**Example:**
 
-```
+```sh
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
@@ -144,9 +145,9 @@ A valid request will return a 200 response, with JSON containing the `redirect` 
 - `code`: A string that the client will trade with the [token][] endpoint. Codes have a configurable expiration value, default is 15 minutes.
 - `state`: The same value as was passed as a request parameter.
 
-Example:
+**Example:**
 
-```js
+```json
 {
   "redirect": "https://example.domain/path?foo=bar&code=4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c&state=1234"
 }
@@ -171,9 +172,9 @@ particular user.
 - `client_secret`: The secret returned from client registration.
 - `code`: A string that was received from the [authorization][] endpoint.
 
-Example:
+**Example:**
 
-```
+```sh
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
@@ -193,9 +194,9 @@ A valid request will return a JSON response with these properties:
 - `scope`: A string of space-separated permissions that this token has. May differ from requested scopes, since user can deny permissions.
 - `token_type`: A string representing the token type. Currently will always be "bearer".
 
-Example:
+**Example:**
 
-```js
+```json
 {
   "access_token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0",
   "scope": "profile:email profile:avatar",
@@ -213,9 +214,9 @@ destroy the token afterwards. A client can use this route to do so.
 - `token` - The hex string token.
 - `client_secret` - The client secret used to get the token originally.
 
-Example:
+**Example:**
 
-```
+```sh
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
@@ -240,9 +241,9 @@ user and scopes are permitted for the token.
 
 - `token`: A token string received from a client
 
-Example:
+**Example:**
 
-```
+```sh
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
@@ -259,9 +260,9 @@ A valid request will return JSON with these properties:
 - `user`: The uid of the respective user.
 - `scopes`: An array of scopes allowed for this token.
 
-Example:
+**Example:**
 
-```js
+```json
 {
   "user": "5901bd09376fadaa076afacef5251b6a",
   "scopes": ["profile:email", "profile:avatar"]
