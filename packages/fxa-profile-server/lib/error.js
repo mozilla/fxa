@@ -15,11 +15,15 @@ function AppError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message;
   this.isBoom = true;
   this.stack = options.stack;
+  if (!this.stack) {
+    Error.captureStackTrace(this, AppError);
+  }
   this.errno = options.errno || DEFAULTS.errno;
+  var code = options.code || DEFAULTS.code;
   this.output = {
-    statusCode: options.code || DEFAULTS.code,
+    statusCode: code,
     payload: {
-      code: options.code || DEFAULTS.code,
+      code: code,
       errno: this.errno,
       error: options.error || DEFAULTS.error,
       message: this.message,
@@ -31,6 +35,7 @@ function AppError(options, extra, headers) {
   for (var i = 0; i < keys.length; i++) {
     this.output.payload[keys[i]] = extra[keys[i]];
   }
+
 }
 util.inherits(AppError, Error);
 
@@ -83,6 +88,28 @@ AppError.invalidRequestParameter = function invalidRequestParameter(val) {
     message: 'Invalid request parameter'
   }, {
     validation: val
+  });
+};
+
+AppError.unsupportedProvider = function unsupportedProvider(url) {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 102,
+    message: 'Unsupported image provider'
+  }, {
+    url: url
+  });
+};
+
+AppError.processingError = function processingError(res) {
+  return new AppError({
+    code: 500,
+    error: 'Internal Server Error',
+    errno: 103,
+    message: 'Image processing error'
+  }, {
+    _res: res
   });
 };
 

@@ -14,13 +14,29 @@ const conf = convict({
       default: 1
     }
   },
-  /*db: {
+  aws: {
+    accessKeyId: {
+      arg: 'aws-key',
+      doc: 'aws access key id',
+      env: 'AWS_ACCESS_KEY_ID',
+      format: String,
+      default: 'CHANGE ME'
+    },
+    secretAccessKey: {
+      arg: 'aws-secret',
+      doc: 'aws secret access key',
+      env: 'AWS_SECRET_ACCESS_KEY',
+      format: String,
+      default: 'CHANGE ME'
+    }
+  },
+  db: {
     driver: {
       env: 'DB',
       format: ['mysql', 'memory'],
       default: 'memory'
     }
-  },*/
+  },
   env: {
     arg: 'node-env',
     doc: 'The current node.js environment',
@@ -35,12 +51,55 @@ const conf = convict({
       default: ''
     }
   },
+  img: {
+    driver: {
+      format: ['local', 'aws'],
+      default: 'aws'
+    },
+    providers: {
+      doc: 'Patterns to match a URL to ensure we only accept certain URLs.',
+      default: {
+        'gravatar':
+            '^http(://www|s://secure)\\.gravatar\\.com/avatar/[0-9a-f]{32}$',
+        'fxa': '^http://localhost:1112/a/[0-9a-f]{32}$'
+      }
+    },
+    uploads: {
+      dest: {
+        public: {
+          doc: 'Path or bucket name for images to be served publicly.',
+          default: path.join(__dirname, '..', 'var', 'public')
+        }
+      }
+    },
+    compute: {
+      maxBacklog: {
+        default: 500
+      },
+      maxRequestTime: {
+        doc: 'seconds we will let the user wait before returning a 503',
+        format: 'duration',
+        default: 10
+      }
+    },
+    resize: {
+      height: {
+        default: 600
+      },
+      width: {
+        default: 600
+      }
+    },
+    url: {
+      default: 'http://localhost:1112/a/%(id)s'
+    }
+  },
   logging: {
     formatters: {
       doc: 'http://seanmonstar.github.io/intel/#formatters',
       default: {
         pretty: {
-          format: '%(name)s.%(levelname)s: %(message)s',
+          format: '[p%(pid)s] %(name)s.%(levelname)s: %(message)s',
           colorize: true
         },
         'pretty_with_time': {
@@ -70,6 +129,9 @@ const conf = convict({
           handleExceptions: true,
           level: 'INFO',
           propagate: false
+        },
+        'fxa.server.web.hapi': {
+          level: 'ERROR'
         }
       }
     },
@@ -78,7 +140,7 @@ const conf = convict({
       default: __dirname
     }
   },
-  /*mysql: {
+  mysql: {
     createSchema: {
       env: 'CREATE_MYSQL_SCHEMA',
       default: true
@@ -103,7 +165,7 @@ const conf = convict({
       default: '3306',
       env: 'MYSQL_PORT'
     }
-  },*/
+  },
   oauth: {
     url: {
       doc: 'URL of fxa-oauth-server',
@@ -126,6 +188,20 @@ const conf = convict({
       format: 'port',
       default: 1111
     }
+  },
+  worker: {
+    host: {
+      env: 'WORKER_HOST',
+      default: 'localhost'
+    },
+    port: {
+      env: 'WORKER_PORT',
+      format: 'port',
+      default: 1113
+    },
+    url: {
+      default: 'http://localhost:1113'
+    }
   }
 });
 
@@ -133,6 +209,11 @@ var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json');
 var files = (envConfig + ',' + process.env.CONFIG_FILES)
   .split(',').filter(fs.existsSync);
 conf.loadFile(files);
+
+if (process.env.LOG_LEVEL) {
+  conf.set('logging.loggers.fxa.level', process.env.LOG_LEVEL);
+}
+process.env.NODE_ENV = conf.get('env');
 
 conf.validate();
 

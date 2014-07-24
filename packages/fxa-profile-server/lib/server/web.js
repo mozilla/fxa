@@ -4,17 +4,22 @@
 
 const Hapi = require('hapi');
 
-const AppError = require('./error');
-const config = require('./config').root();
-const logger = require('./logging').getLogger('fxa.server');
-const request = require('./request');
-const summary = require('./logging/summary');
+const AppError = require('../error');
+const config = require('../config').root();
+const logger = require('../logging').getLogger('fxa.server.web');
+const hapiLogger = require('../logging').getLogger('fxa.server.web.hapi');
+const request = require('../request');
+const summary = require('../logging/summary');
 
+// This is the webserver. It's what the outside always talks to. It
+// handles the whole Profile API.
 exports.create = function createServer() {
+  var isProd = config.env === 'prod';
   var server = Hapi.createServer(
     config.server.host,
     config.server.port,
     {
+      cors: true,
       debug: false
     }
   );
@@ -54,7 +59,31 @@ exports.create = function createServer() {
 
   server.auth.strategy('oauth', 'oauth');
 
-  server.route(require('./routing'));
+  var routes = require('../routing');
+  if (isProd) {
+    logger.info('Disabling response schema validation');
+    routes.forEach(function(route) {
+      delete route.config.response;
+    });
+  }
+  server.route(routes);
+
+  // hapi internal logging: server and request
+  server.on('log', function onServerLog(ev, tags) {
+    if (tags.error && tags.implementation) {
+      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
+    } else {
+      hapiLogger.verbose('Server', ev.tags, ev.data);
+    }
+  });
+
+  server.on('request', function onRequestLog(req, ev, tags) {
+    if (tags.error && tags.implementation) {
+      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
+    } else {
+      hapiLogger.verbose('Request <%s>', req.id, ev.tags, ev.data);
+    }
+  });
 
   server.ext('onPreResponse', function(request, next) {
     var response = request.response;

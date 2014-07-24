@@ -17,6 +17,7 @@ env:
   - NODE_ENV=test DB=mysql
 
 before_script:
+  - sudo apt-get install graphicsmagick
   - "mysql -e 'DROP DATABASE IF EXISTS fxa;'"
   - "mysql -e 'CREATE DATABASE fxa;'"
 

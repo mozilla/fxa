@@ -9,6 +9,9 @@ Such as name, avatar, location, age, gender, [etc](https://wiki.mozilla.org/Iden
 
 ## Development
 
+Dependencies:
+- gm (GraphicsMagick)
+
 Installation:
 
 ```

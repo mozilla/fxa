@@ -3,12 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const config = require('../lib/config').root();
-const logger = require('../lib/logging').getLogger('fxa.bin.server');
-const server = require('../lib/server').create();
+const logger = require('../lib/logging').getLogger('fxa.bin.static');
+const server = require('../lib/server/_static').create();
 
-process.title = 'server';
+if (config.env !== 'dev') {
+  logger.warn('static bin should only be for local dev');
+}
 
-logger.debug('Starting with config: %:2j', config);
+
 server.start(function() {
-  logger.info('Server started at:', server.info.uri);
+  logger.info('Static started at:', server.info.uri);
 });

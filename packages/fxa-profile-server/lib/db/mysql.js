@@ -3,17 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const mysql = require('mysql');
+const buf = require('buf').hex;
 
+const img = require('../img');
 const logger = require('../logging').getLogger('fxa.db.mysql');
 const P = require('../promise');
 
 const SCHEMA = require('fs').readFileSync(__dirname + '/schema.sql').toString();
-const PROFILE_GET_QUERY = 'SELECT * FROM profiles WHERE uid=?';
-const PROFILE_EXISTS_QUERY = 'SELECT uid FROM profiles WHERE uid=?';
-const PROFILE_CREATE_QUERY = 'INSERT INTO profiles (uid, avatar) VALUES (?, ?)';
-const AVATAR_SET_QUERY = 'UPDATE profiles SET avatar=? WHERE uid=?';
 
 function MysqlStore(options) {
+  if (options.charset && options.charset !== 'UTF8_UNICODE_CI') {
+    logger.warn('createDatabase: using charset ' + options.charset);
+  } else {
+    options.charset = 'UTF8_UNICODE_CI';
+  }
   this._connection = mysql.createConnection(options);
 }
 
@@ -56,72 +59,82 @@ function createSchema(client, options) {
 }
 
 MysqlStore.connect = function mysqlConnect(options) {
-  var store = new MysqlStore(options);
   if (options.createSchema) {
-    return createSchema(store._connection, options).then(function() {
-      return store;
+    // ugly, but you can't connect to a database before the database actually
+    // exists. So remove and restore it later.
+    var database = options.database;
+    delete options.database;
+
+    options.multipleStatements = true;
+    var schemaConn = mysql.createConnection(options);
+
+    return createSchema(schemaConn, options).then(function() {
+      schemaConn.end();
+      delete options.multipleStatements;
+      options.database = database;
+      return new MysqlStore(options);
     });
+  } else {
+    return P.resolve(new MysqlStore(options));
   }
-  return P.resolve(store);
 };
 
+function firstRow(rows) {
+  return rows[0];
+}
+
+const Q_AVATAR_INSERT = 'INSERT INTO avatars (id, url, uid) ' +
+  'VALUES (?, ?, ?)';
+const Q_AVATAR_UPDATE = 'INSERT INTO avatar_selected (userId, avatarId) '
+  + 'VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE avatarId = VALUES(avatarId)';
+const Q_SELECTED_AVATAR = 'SELECT avatars.* FROM avatars LEFT JOIN '
+  + 'avatar_selected ON (avatar_selected.avatarId=avatars.id AND '
+  + 'avatar_selected.userId=?)';
 
 MysqlStore.prototype = {
-  profileExists: function profileExists(id) {
-    var defer = P.defer();
-    this._connection.query(PROFILE_EXISTS_QUERY, [id], function(err, rows) {
-      if (err) {
-        defer.reject(err);
-      } else {
-        defer.resolve(!!rows[0]);
-      }
-    });
-    return defer.promise;
-  },
-  createProfile: function createProfile(profile) {
-    var defer = P.defer();
-    this._connection.query(PROFILE_CREATE_QUERY,
-      [profile.uid, profile.avatar], defer.callback);
-    return defer.promise;
-  },
-  getProfile: function getProfile(id) {
-    var defer = P.defer();
-    this._connection.query(PROFILE_GET_QUERY, [id], function(err, rows) {
-      if (err) {
-        return defer.reject(err);
-      }
-      var result = rows[0];
-      if (result) {
 
-        defer.resolve({
-          uid: result.uid,
-          avatar: result.avatar
-        });
-      } else {
-        defer.resolve();
-      }
-    });
-    return defer.promise;
+  addAvatar: function addAvatar(uid, url, provider, selected) {
+    var id = img.id();
+    var store = this;
+    var p = this._write(Q_AVATAR_INSERT, [id, url, uid]);
+    if (selected) {
+      p = p.then(function() {
+        return store._write(Q_AVATAR_UPDATE, [uid, id]);
+      });
+    }
+
+    return p;
   },
-  getOrCreateProfile: function getOrCreateProfile(id) {
-    var db = this;
-    return db.profileExists(id).then(function(exists) {
-      if (!exists) {
-        return db.createProfile({ uid: id });
-      }
-    }).then(function() {
-      return db.getProfile(id);
-    });
+
+  getSelectedAvatar: function getSelectedAvatar(uid) {
+    return this._readOne(Q_SELECTED_AVATAR, [buf(uid)]);
   },
-  setAvatar: function setAvatar(uid, url) {
-    var conn = this._connection;
-    return this.profileExists(uid).then(function(exists) {
-      if (!exists) {
-        throw new Error('User (' + uid + ') does not exist');
-      }
-      var defer = P.defer();
-      conn.query(AVATAR_SET_QUERY, [url, uid], defer.callback);
-      return defer.promise;
+
+  getAvatars: function getAvatars(uid) {
+    return P.resolve(uid);
+  },
+
+  _write: function _write(sql, params) {
+    return this._query(this._connection, sql, params);
+  },
+
+  _read: function _read(sql, params) {
+    return this._query(this._connection, sql, params);
+  },
+
+  _readOne: function _readOne(sql, params) {
+    return this._read(sql, params).then(firstRow);
+  },
+
+  _query: function _query(connection, sql, params) {
+    return new P(function(resolve, reject) {
+      connection.query(sql, params || [], function(err, results) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results);
+        }
+      });
     });
   }
 };

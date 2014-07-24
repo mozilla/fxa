@@ -1,0 +1,20 @@
+CREATE TABLE IF NOT EXISTS avatars (
+  id BINARY(16) PRIMARY KEY,
+  url VARCHAR(256) NOT NULL,
+  userId BINARY(16) NOT NULL,
+  selected BOOLEAN NOT NULL DEFAULT FALSE,
+  INDEX avatars_user_id(userId),
+  providerId INT NOT NULL,
+  FOREIGN KEY providerId REFERENCES avatar_providers(id),
+) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS avatar_providers (
+  id AUTOINCREMENT PRIMARY KEY,
+  name VARCHAR(32) NOT NULL
+) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS avatar_selected (
+  userId BINARY(16) NOT NULL PRIMARY KEY,
+  avatarId BINARY(16) NOT NULL,
+  FOREIGN KEY avatarId REFERENCES avatars(id),
+) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
