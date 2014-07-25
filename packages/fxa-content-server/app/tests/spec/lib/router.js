@@ -12,13 +12,15 @@ define([
   'router',
   'views/sign_in',
   'views/sign_up',
+  'views/ready',
   'lib/session',
   'lib/constants',
   'lib/metrics',
+  'lib/ephemeral-messages',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, Backbone, Router, SignInView, SignUpView, Session, Constants, Metrics, WindowMock, TestHelpers) {
+function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session, Constants, Metrics, EphemeralMessages, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -135,7 +137,9 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, Constants,
         view = new SignUpView({
           metrics: metrics,
           window: windowMock,
-          router: router
+          router: router,
+          // ensure there is no cross talk with other tests.
+          ephemeralMessages: new EphemeralMessages()
         });
       });
 
@@ -194,6 +198,24 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, Session, Constants,
         return router.showView(view)
           .then(function () {
             assert.include(navigateUrl, 'unexpected_error');
+          });
+      });
+
+      it('only logs a screen that has children once', function () {
+        windowMock.location.pathname = '/signup_complete';
+
+        view = new ReadyView({
+          metrics: metrics,
+          window: windowMock,
+          router: router,
+          // ensure there is no cross talk with other tests.
+          ephemeralMessages: new EphemeralMessages()
+        });
+
+        return router.showView(view)
+          .then(function () {
+            assert.equal(metrics.getFilteredData().events.length, 1);
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signup_complete'));
           });
       });
     });

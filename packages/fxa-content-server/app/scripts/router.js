@@ -162,6 +162,8 @@ function (
           self.$stage.html(viewToShow.el).css('display', 'block');
           viewToShow.afterVisible();
 
+          viewToShow.logScreen();
+
           // The user may be scrolled part way down the page
           // on screen transition. Force them to the top of the page.
           self.window.scrollTo(0, 0);
