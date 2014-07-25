@@ -58,7 +58,9 @@ function (p, _, FormView, Template, Session, Cropper, AuthErrors) {
         width: width,
         height: height,
         displayLength: 240,
-        exportLength: 600
+        exportLength: 600,
+        verticalGutter: 0,
+        horizontalGutter: 90
       });
     },
 

@@ -892,49 +892,54 @@ input[type="text"] ~ .show-password-label:hover {
   position: relative;
 }
 
-.cropper {
-  // background: yellow;
+.cropper .wrapper {
+  position: relative;
+  overflow: hidden;
+  height: $avatar-size;
+  width: $avatar-size + 180px;
+  margin: 0px -40px;
 }
 
-.cropper .wrapper, .cropper .mask {
+.cropper .mask {
+  background: url(/images/crop-mask.svg);
   position: relative;
-  // background: red;
-  overflow: hidden;
-  height: $avatar-size + 80px;
-  width: $avatar-size + 80px;
-  margin: 0px auto;
+  height: $avatar-size;
+  width: $avatar-size;
+  top: 0px;
+  left: (420 - $avatar-size) / 2;
+  z-index: 1;
+}
+
+.cropper .mask:before,
+.cropper .mask:after {
+  content: "";
+  display: block;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.5);
+  height: $avatar-size;
+  width: (420 - $avatar-size) / 2;
+  top: 0px;
+  z-index: 1;
+}
+.cropper .mask:before {
+  left: -(420 - $avatar-size) / 2;
+}
+.cropper .mask:after {
+  right: -(420 - $avatar-size) / 2;
 }
 
 .cropper .drag-overlay {
-  width: $avatar-size + 80px;
-  height: $avatar-size + 80px;
   position: absolute;
+  top: 0px;
+  left: 0px;
   cursor: move;
   z-index: 3;
+  height: 100%;
+  width: 100%;
 }
 
 .cropper img {
   position: absolute;
-}
-
-.cropper .mask {
-  // background-color: red;
-  // clip-path: url(#clipping);
-  // -webkit-clip-path: circle(100, 100, 100);
-  z-index: 1;
-}
-
-.cropper .mask:after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  opacity: .75;
-  -ms-filter: "alpha(opacity=75)";
-  box-shadow: inset 0 0 0 40px white, inset 0 0 0 41px rgba(0,0,0,.1), inset 0 0 20px 41px rgba(0,0,0,.2);
 }
 
 .cropper canvas {
