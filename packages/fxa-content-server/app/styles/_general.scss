@@ -836,7 +836,7 @@ input[type="text"] ~ .show-password-label:hover {
   border-top: 1px solid $marketing-border-color;
   box-shadow: 0 1px 1px $content-background-color inset;
   font-size: $medium-font;
-  // pull in the margins from #main-content 
+  // pull in the margins from #main-content
   margin: 60px -40px -40px -40px;
   position: relative;
   &.image-snippet {
@@ -846,8 +846,8 @@ input[type="text"] ~ .show-password-label:hover {
     text-align: left;
   }
   &.text-snippet {
-    // pull in the margins from #main-content 
-    padding: 28px 20px 36px 20px; 
+    // pull in the margins from #main-content
+    padding: 28px 20px 36px 20px;
     text-align:center;
   }
   .marketing-copy {
@@ -878,195 +878,11 @@ input[type="text"] ~ .show-password-label:hover {
   font-weight: normal;
 }
 
-.avatar-wrapper img {
-  width: $avatar-size;
-  height: $avatar-size;
-}
-
-.avatar-wrapper {
-  position: relative;
-  overflow: hidden;
-}
-
-.avatar-wrapper video {
-  position: relative;
-}
-
-.cropper .wrapper {
-  position: relative;
-  overflow: hidden;
-  height: $avatar-size;
-  width: $avatar-size + 180px;
-  margin: 0px -40px;
-}
-
-.cropper .mask {
-  background: url(/images/crop-mask.svg);
-  position: relative;
-  height: $avatar-size;
-  width: $avatar-size;
-  top: 0px;
-  left: (420 - $avatar-size) / 2;
-  z-index: 1;
-}
-
-.cropper .mask:before,
-.cropper .mask:after {
-  content: "";
-  display: block;
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.5);
-  height: $avatar-size;
-  width: (420 - $avatar-size) / 2;
-  top: 0px;
-  z-index: 1;
-}
-.cropper .mask:before {
-  left: -(420 - $avatar-size) / 2;
-}
-.cropper .mask:after {
-  right: -(420 - $avatar-size) / 2;
-}
-
-.cropper .drag-overlay {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  cursor: move;
-  z-index: 3;
-  height: 100%;
-  width: 100%;
-}
-
-.cropper img {
-  position: absolute;
-}
-
-.cropper canvas {
-  display: none;
-}
-
-#fxa-settings-sub-header {
-  font-size: $medium-font;
-  padding-bottom: 5px;
-  font-weight: normal;
-}
-#fxa-settings-sub-header a {
-  text-decoration: none;
-  font-size: 88%;
-}
-
-.notice {
-  font-size: $base-font;
-  color: $faint-text-color;
-}
-
-.main-avatar {
-  position: relative;
-  margin: 0px auto;
-  height: $avatar-size;
-  width: $avatar-size;
-}
-
-.main-avatar .remove {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  text-decoration: none;
-}
-
-/* Circle Avatar Styles */
-
-.avatar-wrapper {
-  line-height: 0;		/* remove line-height */ 
-  display: inline-block;	/* circle wraps image */
-  margin: 5px;
-  border: 2px solid rgba(255,255,255,0.4);
-  border-radius: 50%;	/* relative value */
-  /*box-shadow: 0px 0px 5px rgba(0,0,0,0.4);*/
-  transition: linear 0.25s;
-  height: $avatar-size;
-  width: $avatar-size;
-}
-
-.avatar-wrapper video {
-  border-radius: 50%;	/* relative value */
-  /*box-shadow: 0px 0px 5px rgba(0,0,0,0.4);*/
-}
-
-a.avatar-wrapper {
-  color: transparent;
-} /* IE fix: removes blue border */
-
-.avatar_camera canvas {
-  display: none;
-}
-
-.avatar_change nav {
-  padding: 20px;
-}
-
-.avatar_change nav a {
-  padding: 11px;
-  text-decoration: none;
-  display: inline-block;
-  width: 80px;
-  height: 80px;
-  background-color: #fff;
-
-  line-height: 1.1;
-  margin: 5px;
-  border-radius: 50%;
-}
-
-.avatar_change nav span {
-  font-size: 35px;
-  // display: inline-block;
-}
-
-.avatar_change nav span:after {
-  content: '\A';
-  white-space: pre;
-}
-
-.avatar_change nav {
-  margin: 60px -40px -40px -40px;
-  background-color: $html-background-color;
-}
-
-.avatar_change .gravatar-logo {
-  background: url(/images/gravatar.svg) no-repeat top center;
-  background-image: url(/images/gravatar.svg);
-  background-size: contain;
-  width: 35px;
-  height: 35px;
-  display: inline-block;
-}
-
-.zoom-in, .zoom-out {
-  cursor: pointer;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  color: $faint-text-color;
-}
-
-.rotate {
-  background: transparent;
-  border: 0;
-  color: $link-color;
-}
-
-.zoom-in, .zoom-out, .rotate {
-  font-size: 20px;
-}
-
+// Put a margin on top when the error messages follow a div
 div + .success, div + .error {
   margin-top: 10px;
 }
 
+@import "avatars";
 @import "keyframes";
 @import "media_queries";

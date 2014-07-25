@@ -1,0 +1,107 @@
+.avatar-wrapper img {
+  width: $avatar-size;
+  height: $avatar-size;
+}
+
+.avatar-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar-wrapper video {
+  position: relative;
+}
+
+#fxa-settings-sub-header {
+  font-size: $medium-font;
+  padding-bottom: 5px;
+  font-weight: normal;
+}
+#fxa-settings-sub-header a {
+  text-decoration: none;
+  font-size: 88%;
+}
+
+.notice {
+  font-size: $base-font;
+  color: $faint-text-color;
+}
+
+.main-avatar {
+  position: relative;
+}
+
+.main-avatar .remove {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  text-decoration: none;
+}
+
+/* Circle Avatar Styles */
+
+.avatar-wrapper {
+  line-height: 0;
+  display: inline-block;
+  margin: 0px 0px 5px;
+  border-radius: 50%;
+  height: $avatar-size;
+  width: $avatar-size;
+}
+
+.avatar-wrapper video {
+  border-radius: 50%;
+}
+
+a.avatar-wrapper {
+  color: transparent;
+} /* IE fix: removes blue border */
+
+.avatar_camera canvas {
+  display: none;
+}
+
+.avatar_change nav {
+  padding: 20px;
+}
+
+.avatar_change nav a {
+  padding: 11px;
+  text-decoration: none;
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  background-color: #fff;
+
+  line-height: 1.1;
+  margin: 5px;
+  border-radius: 50%;
+}
+
+.avatar_change nav span {
+  font-size: 35px;
+}
+
+.avatar_change nav span:after {
+  content: '\A';
+  white-space: pre;
+}
+
+.avatar_change nav {
+  margin: 60px -40px -40px -40px;
+  background-color: $html-background-color;
+  border-radius: $big-border-radius;
+}
+
+.avatar_change .gravatar-logo {
+  background: url(/images/gravatar.svg) no-repeat top center;
+  background-image: url(/images/gravatar.svg);
+  background-size: contain;
+  width: 39px;
+  height: 39px;
+  display: inline-block;
+}
+
+@import "cropper";
+
+
