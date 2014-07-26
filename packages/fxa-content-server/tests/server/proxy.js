@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!request',
   'tests/lib/helpers'
-], function (registerSuite, assert, config, request, TestHelpers) {
+], function (intern, registerSuite, assert, config, request, TestHelpers) {
   'use strict';
 
   var httpsUrl = config.get('public_url');
@@ -16,6 +17,13 @@ define([
   var suite = {
     name: 'auth & oauth server proxy'
   };
+
+  // At this time, proxy is not enabled in production or stage. So
+  // skip the tests (register a suite with no tests yet).
+  if (intern.config.fxaProduction) {
+    registerSuite(suite);
+    return;
+  }
 
   suite['#get /config returns proxied `fxaccountUrl` and `oauthUrl` for IE8'] = function () {
     var dfd = this.async(1000);

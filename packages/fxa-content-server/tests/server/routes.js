@@ -3,16 +3,25 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!request',
   'intern/dojo/node!url'
-], function (registerSuite, assert, config, request, url) {
+], function (intern, registerSuite, assert, config, request, url) {
   'use strict';
 
-  var httpsUrl = config.get('public_url');
-  var httpUrl = httpsUrl.replace(config.get('port'), config.get('http_port'));
+  var httpUrl, httpsUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+
+  if (intern.config.fxaProduction) {
+    assert.equal(0, httpsUrl.indexOf('https://'), 'uses https scheme');
+    httpUrl = httpsUrl.replace('https://', 'http://');
+  } else {
+    httpUrl = httpsUrl.replace(config.get('port'), config.get('http_port'));
+  }
+
+  var asyncTimeout = 5000;
 
   var suite = {
     name: 'front end routes'
@@ -43,19 +52,22 @@ define([
     '/reset_password_complete': { statusCode: 200 },
     '/delete_account': { statusCode: 200 },
     '/force_auth': { statusCode: 200 },
-    '/tests/index.html': { statusCode: 200 },
-    '/tests/index.html?coverage': { statusCode: 200 },
     '/ver.json': { statusCode: 200, headerAccept: 'application/json' },
-    '/non_existent': { statusCode: 404 },
-    '/boom': { statusCode: 500 },
-    '/legal/non_existent': { statusCode: 404 },
-    '/en-US/legal/non_existent': { statusCode: 404 },
     '/cookies_disabled': { statusCode: 200 }
   };
 
   if (config.get('are_dist_resources')) {
     routes['/500.html'] = { statusCode: 200 };
     routes['/503.html'] = { statusCode: 200 };
+  }
+
+  if (!intern.config.fxaProduction) {
+    routes['/tests/index.html'] = { statusCode: 200 };
+    routes['/tests/index.html?coverage'] = { statusCode: 200 };
+    routes['/boom'] = { statusCode: 500 };
+    routes['/non_existent'] = { statusCode: 404 };
+    routes['/legal/non_existent'] = { statusCode: 404 };
+    routes['/en-US/legal/non_existent'] = { statusCode: 404 };
   }
 
   var iframeAllowedRoutes = [
@@ -65,20 +77,20 @@ define([
 
   function routeTest(route, expectedStatusCode, requestOptions) {
     suite['#https get ' + httpsUrl + route] = function () {
-      var dfd = this.async(1000);
+      var dfd = this.async(asyncTimeout);
 
       request(httpsUrl + route, requestOptions, dfd.callback(function (err, res) {
-        checkHeaders(route, res.headers);
+        checkHeaders(route, res);
         assert.equal(res.statusCode, expectedStatusCode);
       }, dfd.reject.bind(dfd)));
     };
 
     // test to ensure http->https redirection works as expected.
     suite['#http get ' + httpUrl + route] = function () {
-      var dfd = this.async(1000);
+      var dfd = this.async(asyncTimeout);
 
       request(httpUrl + route, requestOptions, dfd.callback(function (err, res) {
-        checkHeaders(route, res.headers);
+        checkHeaders(route, res);
         assert.equal(res.statusCode, expectedStatusCode);
       }, dfd.reject.bind(dfd)));
     };
@@ -96,15 +108,20 @@ define([
 
   registerSuite(suite);
 
-  function checkHeaders(route, headers) {
+  function checkHeaders(route, res) {
+    var headers = res.headers;
+
     if (iframeAllowedRoutes.indexOf(route) >= 0) {
       assert.notOk(headers.hasOwnProperty('x-frame-options'));
     } else {
       assert.ok(headers.hasOwnProperty('x-frame-options'));
     }
-    if (config.get('env') === 'development' &&
-          // the front end tests do not get CSP headers.
-          url.parse(route).pathname !== '/tests/index.html') {
+
+    if (intern.config.fxaProduction) {
+      assert.ok(headers.hasOwnProperty('content-security-policy-report-only'));
+    } else if (config.get('env') === 'development' &&
+               // the front end tests do not get CSP headers.
+               url.parse(route).pathname !== '/tests/index.html') {
       assert.ok(headers.hasOwnProperty('content-security-policy'));
     }
 

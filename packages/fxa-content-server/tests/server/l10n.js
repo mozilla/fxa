@@ -7,14 +7,17 @@
 // user's `Accept-Language` headers
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!request'
-], function (registerSuite, assert, config, request) {
+], function (intern, registerSuite, assert, config, request) {
   'use strict';
 
-  var serverUrl = config.get('public_url');
+  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+
+  var asyncTimeout = 5000;
 
   var suite = {
     name: 'i18n'
@@ -22,7 +25,7 @@ define([
 
   function testClientJson(acceptLanguageHeader, expectedLanguage) {
     /*jshint validthis: true*/
-    var dfd = this.async(1000);
+    var dfd = this.async(asyncTimeout);
 
     var headers = {};
     if (acceptLanguageHeader) {
@@ -36,7 +39,27 @@ define([
       assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
       // Response differs depending on the Accept-Language, let all
       // intermediaries know this.
-      assert.equal(res.headers.vary, 'accept-language');
+      //
+      // Note: in production, for /i18n/client.json, nginx can do gzip compression,
+      // and will add the header 'Vary: Accept-Encoding' in addition to the 'Vary:
+      // Accept-Language' that is set by nodejs on the server-side. However, while
+      // that is legal in HTTP, in nodejs < 0.11.11 on the client-side, the second
+      // 'Vary:' header clobbers the first one. In nodejs >= 0.11.11, the two headers
+      // are folded into one comma-separated value. Which leads to this way too
+      // complicated test condition. See https://github.com/joyent/node/pull/6821.
+      //
+      assert.ok(res.headers.vary, 'the vary header exists');
+      var varyHeader = res.headers.vary.toLowerCase().split(/,\s*/);
+      if (intern.config.fxaProduction) {
+        if (process.versions['node'] < '0.11.11') {
+          assert.ok(varyHeader.indexOf('accept-encoding') !== -1);
+        } else {
+          assert.ok(varyHeader.indexOf('accept-language') !== -1 &&
+                    varyHeader.indexOf('accept-encoding') !== -1);
+        }
+      } else {
+        assert.ok(varyHeader.indexOf('accept-language') !== -1);
+      }
 
       var body = JSON.parse(res.body);
 
@@ -47,7 +70,7 @@ define([
   }
 
   suite['#get /config'] = function () {
-    var dfd = this.async(1000);
+    var dfd = this.async(asyncTimeout);
 
     request(serverUrl + '/config', {
       headers: {
@@ -58,7 +81,10 @@ define([
       assert.equal(res.headers['content-type'], 'application/json; charset=utf-8');
       // Response differs depending on the Accept-Language, let all
       // intermediaries know this.
-      assert.equal(res.headers.vary, 'accept-language');
+      assert.ok(res.headers.vary, 'the vary header exists');
+      // the field names in Vary are case-insensitive
+      var varyHeader = res.headers.vary.toLowerCase();
+      assert.equal(varyHeader, 'accept-language');
 
       var body = JSON.parse(res.body);
       assert.equal(body.language, 'es');
@@ -66,7 +92,7 @@ define([
   };
 
   suite['#get /config should return language not locale'] = function () {
-    var dfd = this.async(1000);
+    var dfd = this.async(asyncTimeout);
 
     request(serverUrl + '/config', {
       headers: {
@@ -83,7 +109,7 @@ define([
   // Test each server template based page
   ['/', '/non-existent', '/boom', '/legal/terms', '/legal/privacy'].forEach(function (page) {
     suite['#get page ' + page + ' has correct localized resources'] = function () {
-      var dfd = this.async(1000);
+      var dfd = this.async(asyncTimeout);
 
       request(serverUrl + page, {
         headers: {
@@ -91,9 +117,13 @@ define([
           'Accept': 'text/html'
         }
       }, dfd.callback(function (err, res) {
-        assert.ok(res.body.match(/styles\/en_US\.css/));
+        var re = /styles\/en_US\.css/;
+        if (intern.config.fxaProduction) {
+          re = /styles\/[a-f0-9]{0,8}\.en_US\.css/;
+        }
+        assert.ok(res.body.match(re));
         assert.ok(res.body.match(/dir="ltr"/));
-        assert.ok(res.body.match(/lang="en-us"/));
+        assert.ok(res.body.match(/lang="en-us"/i));
       }, dfd.reject.bind(dfd)));
     };
   });
@@ -101,7 +131,7 @@ define([
   // Test against Hebrew, a rtl langauge that must use system fonts
   ['/', '/non-existent', '/boom'].forEach(function (page) {
     suite['#get page ' + page + ' has correct localized resources for he locale'] = function () {
-      var dfd = this.async(1000);
+      var dfd = this.async(asyncTimeout);
 
       request(serverUrl + page, {
         headers: {
@@ -109,7 +139,11 @@ define([
           'Accept': 'text/html'
         }
       }, dfd.callback(function (err, res) {
-        assert.ok(res.body.match(/styles\/system-font-main\.css/));
+        var re = /styles\/system-font-main\.css/;
+        if (intern.config.fxaProduction) {
+          re = /styles\/[a-f0-9]{0,8}\.he\.css/;
+        }
+        assert.ok(res.body.match(re));
         assert.ok(res.body.match(/dir="rtl"/));
         assert.ok(res.body.match(/lang="he"/));
       }, dfd.reject.bind(dfd)));
@@ -117,28 +151,36 @@ define([
   });
 
   suite['#get terms page using lang in the URL'] = function () {
-    var dfd = this.async(1000);
+    var dfd = this.async(asyncTimeout);
 
     request(serverUrl + '/zh-CN/legal/terms', {
       headers: {
         'Accept': 'text/html'
       }
     }, dfd.callback(function (err, res) {
-      assert.ok(res.body.match(/styles\/system-font-main\.css/));
+      var re = /styles\/system-font-main\.css/;
+      if (intern.config.fxaProduction) {
+        re = /styles\/[a-f0-9]{0,8}\.zh_CN\.css/;
+      }
+      assert.ok(re);
       assert.ok(res.body.match(/dir="ltr"/));
       assert.ok(res.body.match(/lang="zh-CN"/));
     }, dfd.reject.bind(dfd)));
   };
 
   suite['#get privacy page using lang in the URL'] = function () {
-    var dfd = this.async(1000);
+    var dfd = this.async(asyncTimeout);
 
     request(serverUrl + '/zh-CN/legal/privacy', {
       headers: {
         'Accept': 'text/html'
       }
     }, dfd.callback(function (err, res) {
-      assert.ok(res.body.match(/styles\/system-font-main\.css/));
+      var re = /styles\/system-font-main\.css/;
+      if (intern.config.fxaProduction) {
+        re = /styles\/[a-f0-9]{0,8}\.zh_CN\.css/;
+      }
+      assert.ok(re);
       assert.ok(res.body.match(/dir="ltr"/));
       assert.ok(res.body.match(/lang="zh-CN"/));
     }, dfd.reject.bind(dfd)));
@@ -151,19 +193,19 @@ define([
   };
 
   suite['#get /i18n/client.json with lowercase language'] = function () {
-    testClientJson.call(this, 'en-gb', 'en_GB');
+    testClientJson.call(this, 'es-ar', 'es_AR');
   };
 
   suite['#get /i18n/client.json with uppercase language'] = function () {
-    testClientJson.call(this, 'EN-gb', 'en_GB');
+    testClientJson.call(this, 'ES-ar', 'es_AR');
   };
 
   suite['#get /i18n/client.json with uppercase region'] = function () {
-    testClientJson.call(this, 'en-GB', 'en_GB');
+    testClientJson.call(this, 'es-AR', 'es_AR');
   };
 
   suite['#get /i18n/client.json all uppercase language'] = function () {
-    testClientJson.call(this, 'EN-GB', 'en_GB');
+    testClientJson.call(this, 'ES-AR', 'es_AR');
   };
 
   suite['#get /i18n/client.json for language with multiple regions and only language specified'] = function () {

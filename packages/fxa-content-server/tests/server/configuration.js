@@ -3,15 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!child_process'
-], function (registerSuite, assert, cp) {
+], function (intern, registerSuite, assert, cp) {
   'use strict';
 
   var suite = {
     name: 'configuration'
   };
+
+  // This test cannot be run remotely like the other tests in tests/server. So,
+  // if production, just skip these tests (register a suite with no tests).
+  if (intern.config.fxaProduction) {
+    registerSuite(suite);
+    return;
+  }
 
   function spawnServer (cb) {
 

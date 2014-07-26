@@ -3,21 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!request'
-], function (registerSuite, assert, config, request) {
+], function (intern, registerSuite, assert, config, request) {
   'use strict';
 
-  var serverUrl = config.get('public_url');
+  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
+
+  var asyncTimeout = 5000;
 
   var suite = {
     name: 'ver.json'
   };
 
   suite['#get ver.json'] = function () {
-    var dfd = this.async(1000);
+    var dfd = this.async(asyncTimeout);
 
     request(serverUrl + '/ver.json', dfd.callback(function (err, res) {
       assert.equal(res.statusCode, 200);
@@ -26,6 +29,8 @@ define([
       var body = JSON.parse(res.body);
       assert.ok('version' in body);
       assert.ok('commit' in body);
+      assert.ok('l10n' in body);
+      assert.ok('tosPp' in body);
     }, dfd.reject.bind(dfd)));
   };
 
