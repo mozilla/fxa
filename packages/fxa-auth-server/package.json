@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "An identity provider for PiCL services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -28,12 +28,13 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "aws-sdk": "2.0.8",
+    "aws-sdk": "2.0.9",
     "binary-split": "0.1.2",
     "bunyan": "0.23.1",
     "compute-cluster": "0.0.9",
     "convict": "0.4.2",
     "fxa-auth-mailer": "0.0.2",
+    "fxa-customs-server": "git://github.com/mozilla/fxa-customs-server.git#d5f96e7308aae0a803ea140dfa3b0234f9389d86",
     "hapi": "6.2.1",
     "hapi-auth-hawk": "1.1.0",
     "hkdf": "0.0.2",
@@ -58,9 +59,9 @@
     "hawk": "2.2.2",
     "load-grunt-tasks": "0.6.0",
     "mailparser": "0.4.4",
-    "request": "2.38.0",
+    "request": "2.39.0",
     "simplesmtp": "0.3.32",
     "sjcl": "1.0.1",
-    "tap": "0.4.11"
+    "tap": "0.4.12"
   }
 }
