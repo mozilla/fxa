@@ -49,6 +49,7 @@ ClientApi.prototype.doRequest = function (method, url, token, payload, headers) 
     headers: headers,
     json: payload || true
   }
+  if (headers['accept-language'] === undefined) { delete headers['accept-language']}
   this.emit('startRequest', options)
   request(options, function (err, res, body) {
     if (res && res.headers.timestamp) {
