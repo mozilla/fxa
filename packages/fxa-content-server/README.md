@@ -100,7 +100,7 @@ edit `server/config/*.json` on your deployed instance.
 
 | TASK | DESCRIPTION |
 |------|-------------|
-| `grunt build` | build production resources. |
+| `grunt build` | build production resources. See [task source](grunttasks/build.js) for more documentation |
 | `grunt clean` | remove any built production resources. |
 | `grunt lint` | run JSHint, JSONLint, and JSCS (code style checker) on client side and testing JavaScript. |
 | `grunt server` | run a local server running on port 3030 with development resources. |
