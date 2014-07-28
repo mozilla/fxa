@@ -1,3 +1,9 @@
+train-18
+  * fixed internal server error on /certificate/sign #771
+  * removed mysql and heap DB implementations #769
+  * fixed log uid encoding issue #765
+  * updated documentation
+
 train-17
   * added locale to account #751
   * better db related error messages for httpdb #754
