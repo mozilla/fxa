@@ -28,6 +28,9 @@ module.exports = function (grunt) {
     // Runs r.js optimizer on the application files
     'requirejs',
 
+    // Adds requirejs to the generated r.js bundle
+    'concat:requirejs',
+
     // general 'css' tasks:
     //    'sass', - compile SASS,
     //    'autoprefixer' - auto prefix CSS for many browsers,
