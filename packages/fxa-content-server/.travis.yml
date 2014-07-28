@@ -26,18 +26,19 @@ install:
 # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
 # install the resources necessary for the auth server.
-  - git clone git://github.com/mozilla/fxa-auth-server.git --depth 1
+  - git clone git://github.com/mozilla/fxa-auth-server.git
   - cd fxa-auth-server
-  - freight
+  - git checkout a44b4ad
   - npm install --silent
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &
   - sleep 10
   - cd ..
   - npm start &
+
 # now run the tests!
-script: 
+script:
   - grunt validate-shrinkwrap
-  - grunt lint 
-  - npm run test-server 
+  - grunt lint
+  - npm run test-server
   - travis_retry npm run test-travis
