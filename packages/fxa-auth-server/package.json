@@ -36,7 +36,7 @@
     "fxa-auth-mailer": "0.0.2",
     "fxa-customs-server": "git://github.com/mozilla/fxa-customs-server.git#d5f96e7308aae0a803ea140dfa3b0234f9389d86",
     "hapi": "6.2.1",
-    "hapi-auth-hawk": "1.1.0",
+    "hapi-auth-hawk": "git://github.com/dannycoates/hapi-auth-hawk.git#0158be2a90683c0b3b8e9754b217470e5ff12665",
     "hkdf": "0.0.2",
     "joi": "4.6.1",
     "jwcrypto": "0.4.4",

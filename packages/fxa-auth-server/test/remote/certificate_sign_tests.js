@@ -206,6 +206,49 @@ TestServer.start(config)
   )
 
   test(
+    'no payload',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var duration = 1000 * 60 * 60 * 24
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+        .then(
+          function (client) {
+            client.api.once(
+              'startRequest',
+              function hijackPayload(options) {
+                // we want the payload hash in the auth header
+                // but no payload in the request body
+                options.json = true
+              }
+            )
+            return client.api.Token.SessionToken.fromHex(client.sessionToken)
+              .then(
+                function (token) {
+                  return client.api.doRequest(
+                    'POST',
+                    client.api.baseURL + '/certificate/sign',
+                    token,
+                    {
+                      publicKey: publicKey,
+                      duration: duration
+                    }
+                  )
+                }
+              )
+          }
+        )
+        .then(
+          t.fail,
+          function (err) {
+            console.log(err)
+            t.equal(err.errno, 109, 'Missing payload authentication')
+          }
+        )
+    }
+  )
+
+  test(
     'teardown',
     function (t) {
       server.stop()
