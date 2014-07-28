@@ -147,10 +147,7 @@ module.exports = function (path, url, Hapi) {
     )
 
     function trimLocale(header) {
-      if (!header || header === 'undefined') {
-        return null
-      }
-      if (header.length < 256) {
+      if (!header || header.length < 256) {
         return header
       }
       var parts = header.split(',')
@@ -171,7 +168,6 @@ module.exports = function (path, url, Hapi) {
         // Remove empty items from the list, in case of badly-formed header.
         request.app.remoteAddressChain = xff.filter(function(x){ return x })
         request.app.clientAddress = request.app.remoteAddressChain[0]
-
         request.app.acceptLanguage = trimLocale(request.headers['accept-language'])
 
         if (request.headers.authorization) {
@@ -213,5 +209,3 @@ module.exports = function (path, url, Hapi) {
     create: create
   }
 }
-
-
