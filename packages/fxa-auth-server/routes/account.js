@@ -75,6 +75,7 @@ module.exports = function (
                   return db.createAccount(
                     {
                       uid: uuid.v4('binary'),
+                      createdAt: Date.now(),
                       email: email,
                       emailCode: crypto.randomBytes(16),
                       emailVerified: form.preVerified || false,
@@ -86,6 +87,7 @@ module.exports = function (
                       authSalt: authSalt,
                       verifierVersion: password.version,
                       verifyHash: verifyHash,
+                      verifierSetAt: Date.now(),
                       locale: locale
                     }
                   )
