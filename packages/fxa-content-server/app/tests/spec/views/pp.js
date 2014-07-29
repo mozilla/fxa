@@ -25,8 +25,7 @@ function (chai, View, Session) {
       view.destroy();
     });
 
-    it('Back button displayed if Session.canGoBack is true', function () {
-      Session.set('canGoBack', true);
+    it('Back button is displayed', function () {
       return view.render()
           .then(function () {
             $('#container').html(view.el);
@@ -35,17 +34,7 @@ function (chai, View, Session) {
           });
     });
 
-    it('Back button not displayed if Session.canGoBack is false', function () {
-      Session.set('canGoBack', false);
-      return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-
-            assert.equal($('#fxa-pp-back').length, 0);
-          });
-    });
-
-    it('fetches ?? translated text from the backend', function () {
+    it('fetches translated text from the backend', function () {
       return view.render()
         .then(function() {
           assert.ok(view.$('#fxa-pp-header').length);

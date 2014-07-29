@@ -113,16 +113,11 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session,
             .then(function () {
               assert.ok($('#fxa-signin-header').length);
 
-              // session was cleared in beforeEach, simulating a user
-              // visiting their first page. The user cannot go back.
-              assert.equal(Session.canGoBack, false);
               windowMock.location.pathname = '/signup';
               return router.showView(signUpView);
             })
             .then(function () {
               assert.ok($('#fxa-signup-header').length);
-              // if there is a back button, it can be shown now.
-              assert.equal(Session.canGoBack, true);
 
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signin'));
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signup'));

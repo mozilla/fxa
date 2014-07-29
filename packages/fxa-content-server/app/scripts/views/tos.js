@@ -12,16 +12,10 @@ define([
   'lib/session',
   'lib/auth-errors'
 ],
-function ($, BaseView, Template, p, Session, AuthErrors) {
+function ($, BaseView, Template, p, AuthErrors) {
   var View = BaseView.extend({
     template: Template,
     className: 'tos',
-
-    context: function () {
-      return {
-        canGoBack: Session.canGoBack
-      };
-    },
 
     afterRender: function () {
       var self = this;
