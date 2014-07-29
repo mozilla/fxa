@@ -82,8 +82,6 @@ function (
         language: this.language
       }, options || {});
 
-      console.log('options route??', options);
-
       this.showView(new View(options));
     };
   }

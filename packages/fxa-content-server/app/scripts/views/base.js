@@ -154,12 +154,6 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       if (error) {
         this.displayError(error);
       }
-
-      var notice = this.ephemeralMessages.get('notice');
-      if (notice) {
-        this.displayNoticeUnsafe(notice);
-      }
-
     },
 
     /**

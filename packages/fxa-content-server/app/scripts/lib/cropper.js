@@ -7,15 +7,16 @@
 define([
 ],
 function () {
-  var DISPLAY_LENGTH = 240;
-  var EXPORT_LENGTH = 480;
+  var DEFAULT_DISPLAY_LENGTH = 240;
+  var DEFAULT_EXPORT_LENGTH = 480;
   var DEFAULT_GUTTER = 40;
 
   /*
    * options: {
-   *  src: The image source. Data URIs are okay. Required.
-   *  width: The image width. Required.
-   *  height: The image height. Required.
+   *  container: The jQuery UI object of the cropper's container element. Required.
+   *  src: The image source. Data URIs are okay.
+   *  width: The image width. Required if src is set.
+   *  height: The image height. Required if src is set.
    *  horizontalGutter: The amount of space between the crop zone and the sides of the wrapper
    *  verticalGutter: The amount of space between the crop zone and the top/bottom of the wrapper
    *  displayLength: The length of the crop square during cropping
@@ -23,8 +24,8 @@ function () {
    * }
    */
   function Cropper (options) {
-    this.DISPLAY_LENGTH = options.displayLength || DISPLAY_LENGTH;
-    this.EXPORT_LENGTH = options.exportLength || EXPORT_LENGTH;
+    this.displayLength = options.displayLength || DEFAULT_DISPLAY_LENGTH;
+    this.exportLength = options.exportLength || DEFAULT_EXPORT_LENGTH;
 
     this.top = 0;
     this.left = 0;
@@ -37,22 +38,25 @@ function () {
                             options.horizontalGutter :
                             DEFAULT_GUTTER;
 
-    this._setupComponent(options.component);
+    if (! options.container) {
+      throw new Error('A container element is required');
+    }
+    this._setupElements(options.container);
 
     if (options.src) {
       this.setImageSrc(options.src, options.width, options.height);
     }
   }
 
-  Cropper.prototype._setupComponent = function (component) {
+  Cropper.prototype._setupElements = function (container) {
     var self = this;
 
-    this.component = component;
-    this.img = component.find('img');
-    this.wrapper = component.find('.wrapper');
-    this.canvas = component.find('canvas')[0];
+    this.container = container;
+    this.img = container.find('img');
+    this.wrapper = container.find('.wrapper');
+    this.canvas = container.find('canvas')[0];
 
-    this.draggable = component.find('.drag-overlay');
+    this.draggable = container.find('.drag-overlay');
     this.draggable.draggable({
       drag: function (e, ui) {
         var pos = self.getBoundedPosition(self.top + ui.position.top, self.left + ui.position.left);
@@ -65,24 +69,24 @@ function () {
       }
     });
 
-    this.slider = component.find('[type=range]');
+    this.slider = container.find('[type=range]');
     this.slider.on('input', function (e) {
       self.resize(parseInt(this.value, 10));
     });
     this.scale = parseInt(this.slider.val(), 10);
 
-    this.rotater = component.find('.rotate');
+    this.rotater = container.find('.rotate');
     this.rotater.on('click', function (e) {
       var data = self.rotate(90);
       self.setImageSrc(data, self._originalHeight, self._originalWidth);
     });
 
-    component.find('.zoom-out').on('click', function () {
+    container.find('.zoom-out').on('click', function () {
       self.resize(self.scale - 10);
       self.slider.val(self.scale);
     });
 
-    component.find('.zoom-in').on('click', function () {
+    container.find('.zoom-in').on('click', function () {
       self.resize(self.scale + 10);
       self.slider.val(self.scale);
     });
@@ -99,8 +103,6 @@ function () {
 
     this.top = pos.top;
     this.left = pos.left;
-
-    //this.img.css(pos);
   };
 
   Cropper.prototype.setImageSrc = function (src, width, height) {
@@ -123,6 +125,11 @@ function () {
     // initialize the center to the middle of the wrapper
     this.yCenter = this._wrapperHeight / 2;
     this.xCenter = this._wrapperWidth / 2;
+
+    if (typeof width !== 'number' || typeof height !== 'number' ||
+        width <= 0 || height <= 0) {
+      throw new Error('Height and width must be > 0.');
+    }
 
     this._originalWidth = width;
     this._originalHeight = height;
@@ -182,7 +189,7 @@ function () {
     }
 
     var factor = 1 + scale / 100;
-    var length = this.DISPLAY_LENGTH * factor;
+    var length = this.displayLength * factor;
     this.scale = scale;
 
     this.updateSize(length);
@@ -217,10 +224,10 @@ function () {
   // Get the scaled position of the crop square over the source image
   Cropper.prototype.cropPosition = function () {
     var scale = this.isLandscape ?
-                  this._originalHeight / this.DISPLAY_LENGTH :
-                  this._originalWidth / this.DISPLAY_LENGTH;
+                  this._originalHeight / this.displayLength :
+                  this._originalWidth / this.displayLength;
     var oscale = 1 + this.scale / 100;
-    var sourceLength = this.DISPLAY_LENGTH / oscale * scale;
+    var sourceLength = this.displayLength / oscale * scale;
 
     return {
       left: (-this.left + this.horizontalGutter) / oscale * scale,
@@ -230,10 +237,10 @@ function () {
   };
 
   // Get the final cropped image data
-  Cropper.prototype.getImageData = function (type, quality) {
+  Cropper.prototype.toDataURL = function (type, quality) {
     var context = this.canvas.getContext('2d');
     var sourcePos = this.cropPosition();
-    var destLength = this.EXPORT_LENGTH;
+    var destLength = this.exportLength;
 
     this.canvas.width = destLength;
     this.canvas.height = destLength;

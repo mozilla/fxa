@@ -52,22 +52,28 @@ function (p, _, FormView, Template, Session, Cropper, AuthErrors) {
       var width = Session.cropImgWidth;
       var height = Session.cropImgHeight;
 
-      this.cropper = new Cropper({
-        component: this.$('.cropper'),
-        src: this.cropImgSrc,
-        width: width,
-        height: height,
-        displayLength: 240,
-        exportLength: 600,
-        verticalGutter: 0,
-        horizontalGutter: 90
-      });
+      try {
+        this.cropper = new Cropper({
+          container: this.$('.cropper'),
+          src: this.cropImgSrc,
+          width: width,
+          height: height,
+          displayLength: 240,
+          exportLength: 600,
+          verticalGutter: 0,
+          horizontalGutter: 90
+        });
+      } catch (e) {
+        this.navigate('settings/avatar/change', {
+          error: AuthErrors.toMessage('UNUSABLE_IMAGE')
+        });
+      }
     },
 
     submit: function () {
       var self = this;
       return p().then(function () {
-        var data = self.cropper.getImageData();
+        var data = self.cropper.toDataURL();
         // TODO upload to the server
         Session.set('avatar', data);
         self.navigate('settings/avatar');

@@ -49,7 +49,8 @@ function () {
     PASSWORD_REQUIRED: 1010,
     EMAIL_REQUIRED: 1011,
     YEAR_OF_BIRTH_REQUIRED: 1012,
-    UNUSABLE_IMAGE: 1013
+    UNUSABLE_IMAGE: 1013,
+    NO_CAMERA: 1014
   };
 
   var CODE_TO_MESSAGES = {
@@ -87,7 +88,8 @@ function () {
     1010: t('Valid password required'),
     1011: t('Valid email required'),
     1012: t('Year of birth required'),
-    1013: t('A usable image was not found')
+    1013: t('A usable image was not found'),
+    1014: t('Could not initialize camera')
   };
 
   return {
