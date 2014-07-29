@@ -69,10 +69,13 @@ function ($, _, FormView, Template, Session, AuthErrors) {
           var img = new Image();
           img.src = src;
           img.onload = function () {
-            Session.set('cropImgWidth', img.width);
-            Session.set('cropImgHeight', img.height);
 
-            self.navigate('settings/avatar/crop');
+            require(['../bower_components/jquery-ui/ui/draggable'], function (ui) {
+              Session.set('cropImgWidth', img.width);
+              Session.set('cropImgHeight', img.height);
+
+              self.navigate('settings/avatar/crop');
+            });
           };
           img.onerror = function () {
             self.navigate('settings/avatar', {

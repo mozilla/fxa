@@ -6,7 +6,6 @@ require.config({
   baseUrl: '/scripts',
   paths: {
     jquery: '../bower_components/jquery/dist/jquery',
-    'jquery-ui': '../bower_components/jquery-ui/jquery-ui',
     backbone: '../bower_components/backbone/backbone',
     underscore: '../bower_components/underscore/underscore',
     fxaClient: '../bower_components/fxa-js-client/fxa-client',
@@ -20,17 +19,13 @@ require.config({
     md5: '../bower_components/JavaScript-MD5/js/md5'
   },
   shim: {
-    'jquery-ui': {
-      exports: '$',
-      deps: ['jquery']
-    },
     underscore: {
       exports: '_'
     },
     backbone: {
       deps: [
         'underscore',
-        'jquery-ui'
+        'jquery'
       ],
       exports: 'Backbone'
     },

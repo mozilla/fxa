@@ -1,6 +1,12 @@
 .avatar-wrapper img {
   width: $avatar-size;
   height: $avatar-size;
+  display: block;
+}
+
+.avatar-wrapper img.default {
+  background-image: url(/images/avatar.jpg);
+  background-size: cover;
 }
 
 .avatar-wrapper {
@@ -45,6 +51,7 @@
   display: inline-block;
   margin: 0px 0px 5px;
   border-radius: 50%;
+  border-width: 0px;
   height: $avatar-size;
   width: $avatar-size;
 }
