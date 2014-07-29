@@ -73,9 +73,9 @@ function makeApp() {
   app.use(helmet.contentTypeOptions());
 
   // only send CSP headers in development mode
-  //if (config.get('env') === 'development') {
-    //app.use(csp);
-  //}
+  if (config.get('env') === 'development') {
+    app.use(csp);
+  }
 
   app.disable('x-powered-by');
 
