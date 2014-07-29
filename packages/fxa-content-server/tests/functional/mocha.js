@@ -70,7 +70,7 @@ define([
           },
           function(err) {
             // No Blanket.js errors
-            assert.strictEqual(err.name, 'NoSuchElement');
+            assert.strictEqual(err.name, 'NoSuchElement', 'Error was: ' + err.message);
           }
         )
         .end();

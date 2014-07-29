@@ -26,7 +26,7 @@
                example:
                http://localhost:3030/tests/index.html?coverage
           -->
-          <script src="/bower_components/blanket/dist/qunit/blanket.js" data-cover-flags="existingRequireJS" data-cover-only="['/scripts/']" data-cover-never="{{ cover_never }}"></script>
+          <script src="/bower_components/blanket/dist/qunit/blanket.js" data-cover-flags="existingRequireJS" data-cover-only="['/scripts/']" data-cover-never='{{{ cover_never }}}'></script>
           <script src="/bower_components/blanket/src/mocha-blanket.js"></script>
           <script>
             /* global blanket */

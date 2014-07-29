@@ -141,7 +141,8 @@ var conf = module.exports = convict({
       globalThreshold: 90,
       threshold: 50,
       // Ignore oauth scripts until tests are enabled (issue #1141)
-      excludeFiles: ['/scripts/../tests/','/scripts/vendor/','oauth', '/scripts/../bower_components/']
+      // Ignore avatar_camera while tests are WIP (issue #1457)
+      excludeFiles: ['/scripts/../tests/','/scripts/vendor/','oauth', '/scripts/../bower_components/', 'camera', '/scripts/views/settings/avatar_camera.js']
     }
   },
   i18n: {
