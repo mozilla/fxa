@@ -1,0 +1,29 @@
+<div id="main-content">
+  <header>
+    <h3 id="fxa-settings-sub-header"><a href="/settings">{{#t}}Manage account{{/t}}</a></h3>
+    <h1 id="fxa-account-picture-header">{{#t}}Account picture{{/t}}</h1>
+  </header>
+
+  <section>
+    <div class="avatar-wrapper">
+      {{#gravatar}}
+        <img src="{{ gravatar }}" id="gravatar"/>
+      {{/gravatar}}
+      {{^gravatar}}
+        <img src="/images/avatar.jpg" id="gravatar" />
+      {{/gravatar}}
+    </div>
+
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <form novalidate>
+      <div class="button-row">
+        <button id="submit-btn" type="submit" {{^gravatar}}class="disabled"{{/gravatar}}>{{#t}}Save{{/t}}</button>
+      </div>
+    </form>
+    <ul class="links">
+      <li><a href="/settings/avatar/change">{{#t}}Cancel{{/t}}</a>
+    </ul>
+  </section>
+</div>

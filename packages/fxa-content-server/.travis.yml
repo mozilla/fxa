@@ -28,7 +28,8 @@ install:
 # install the resources necessary for the auth server.
   - git clone git://github.com/mozilla/fxa-auth-server.git
   - cd fxa-auth-server
-  - git checkout a44b4ad
+  - git checkout f65d2b938f533a9834ff780ebe0b2ac9ede48cda
+  - freight
   - npm install --silent
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &

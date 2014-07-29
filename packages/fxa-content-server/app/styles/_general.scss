@@ -836,7 +836,7 @@ input[type="text"] ~ .show-password-label:hover {
   border-top: 1px solid $marketing-border-color;
   box-shadow: 0 1px 1px $content-background-color inset;
   font-size: $medium-font;
-  // pull in the margins from #main-content 
+  // pull in the margins from #main-content
   margin: 60px -40px -40px -40px;
   position: relative;
   &.image-snippet {
@@ -846,8 +846,8 @@ input[type="text"] ~ .show-password-label:hover {
     text-align: left;
   }
   &.text-snippet {
-    // pull in the margins from #main-content 
-    padding: 28px 20px 36px 20px; 
+    // pull in the margins from #main-content
+    padding: 28px 20px 36px 20px;
     text-align:center;
   }
   .marketing-copy {
@@ -878,5 +878,11 @@ input[type="text"] ~ .show-password-label:hover {
   font-weight: normal;
 }
 
+// Put a margin on top when the error messages follow a div
+div + .success, div + .error {
+  margin-top: 10px;
+}
+
+@import "avatars";
 @import "keyframes";
 @import "media_queries";

@@ -26,6 +26,7 @@ $show-password-label-color: #8a9ba8;
 $content-background-color: #fff;
 $success-background-color: #5fad47;
 $text-color: #424f59;
+$faint-text-color: #8a9ba8;
 
 //Font-Size Variables
 $large-font: 24px;
@@ -42,6 +43,8 @@ $big-border-radius: $small-border-radius * 2;
 $short-transition: 150ms;
 $medium-transition: $short-transition * 3;
 $long-transition: $short-transition * 7;
+
+$avatar-size: 240px;
 
 @mixin font() {
   font-family: $default-font;

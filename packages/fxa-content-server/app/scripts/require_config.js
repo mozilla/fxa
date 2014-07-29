@@ -15,7 +15,8 @@ require.config({
     chai: '../bower_components/chai/chai',
     'p-promise': '../bower_components/p/p',
     sinon: '../bower_components/sinon/index',
-    speedTrap: '../bower_components/speed-trap/dist/speed-trap'
+    speedTrap: '../bower_components/speed-trap/dist/speed-trap',
+    md5: '../bower_components/JavaScript-MD5/js/md5'
   },
   shim: {
     underscore: {

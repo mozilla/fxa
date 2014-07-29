@@ -39,11 +39,18 @@ module.exports = function (grunt) {
           src: [
             '*.{ico,png,txt}',
             '.htaccess',
-            'images/{,*/}*.{webp,gif}',
+            'images/{,*/}*.{webp,gif,svg}',
             'styles/fonts/{,*/}*.*',
             'fonts/**/*.{woff,eot,ttf,svg,ofl}',
             'i18n/{,*/}{,*/}*.*'
           ]
+        },
+        {
+          // jquery ui
+          expand: true,
+          cwd: '<%= yeoman.app %>/bower_components/jquery-ui',
+          src: ['**/*.js'],
+          dest: '<%= yeoman.dist %>/bower_components/jquery-ui'
         }
       ]
     },

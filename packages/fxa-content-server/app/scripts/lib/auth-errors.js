@@ -48,7 +48,8 @@ function () {
     PASSWORD_TOO_SHORT: 1009,
     PASSWORD_REQUIRED: 1010,
     EMAIL_REQUIRED: 1011,
-    YEAR_OF_BIRTH_REQUIRED: 1012
+    YEAR_OF_BIRTH_REQUIRED: 1012,
+    UNUSABLE_IMAGE: 1013
   };
 
   var CODE_TO_MESSAGES = {
@@ -85,7 +86,8 @@ function () {
     1009: t('Must be at least 8 characters'),
     1010: t('Valid password required'),
     1011: t('Valid email required'),
-    1012: t('Year of birth required')
+    1012: t('Year of birth required'),
+    1013: t('A usable image was not found')
   };
 
   return {

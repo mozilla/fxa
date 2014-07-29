@@ -1,0 +1,24 @@
+<div id="main-content">
+  <header>
+    <h3 id="fxa-settings-sub-header"><a href="/settings">{{#t}}Manage account{{/t}}</a></h3>
+    <h1 id="fxa-account-picture-header">{{#t}}Account picture{{/t}}</h1>
+  </header>
+
+  <section>
+    <p class="avatar-wrapper">
+      {{#avatar}}
+        <img src="{{ avatar }}" />
+      {{/avatar}}
+      {{^avatar}}
+        <img class="default"/>
+      {{/avatar}}
+    </p>
+
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <ul class="links">
+      <li><a href="/settings/avatar/change">{{#t}}Change{{/t}}</a>
+    </ul>
+  </section>
+</div>

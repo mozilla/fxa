@@ -36,6 +36,19 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
   // with an fxaClient for testing.
   var fxaClient = new FxaClient();
 
+  function displaySuccess(displayStrategy, msg) {
+    /*jshint validthis: true*/
+    this.hideError();
+
+    if (msg) {
+      this.$('.success')[displayStrategy](this.translator.get(msg));
+    }
+
+    this.$('.success').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
+    this.trigger('success', msg);
+    this._isSuccessVisible = true;
+  }
+
   function displayError(displayStrategy, err, errors) {
     /*jshint validthis: true*/
     this.hideSuccess();
@@ -132,10 +145,21 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
         this.displaySuccess(success);
       }
 
+      var successUnsafe = this.ephemeralMessages.get('successUnsafe');
+      if (successUnsafe) {
+        this.displaySuccessUnsafe(successUnsafe);
+      }
+
       var error = this.ephemeralMessages.get('error');
       if (error) {
         this.displayError(error);
       }
+
+      var notice = this.ephemeralMessages.get('notice');
+      if (notice) {
+        this.displayNoticeUnsafe(notice);
+      }
+
     },
 
     /**
@@ -277,17 +301,15 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
      * If msg is not given, the contents of the .success element's text
      * will not be updated.
      */
-    displaySuccess: function (msg) {
-      this.hideError();
+    displaySuccess: _.partial(displaySuccess, 'text'),
 
-      if (msg) {
-        this.$('.success').text(this.translator.get(msg));
-      }
-
-      this.$('.success').slideDown(EPHEMERAL_MESSAGE_ANIMATION_MS);
-      this.trigger('success', msg);
-      this._isSuccessVisible = true;
-    },
+    /**
+     * Display a success message
+     * @method displaySuccess
+     * If msg is not given, the contents of the .success element's HTML
+     * will not be updated.
+     */
+    displaySuccessUnsafe: _.partial(displaySuccess, 'html'),
 
     hideSuccess: function () {
       this.$('.success').slideUp(EPHEMERAL_MESSAGE_ANIMATION_MS);
@@ -428,6 +450,9 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       if (options.success) {
         this.ephemeralMessages.set('success', options.success);
       }
+      if (options.successUnsafe) {
+        this.ephemeralMessages.set('successUnsafe', options.successUnsafe);
+      }
 
       if (options.error) {
         // log the error entry before the new screen is rendered so events
@@ -435,6 +460,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
         this.logError(options.error);
         this.ephemeralMessages.set('error', options.error);
       }
+
       this.router.navigate(page, { trigger: true });
     },
 

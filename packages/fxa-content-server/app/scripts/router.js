@@ -25,6 +25,12 @@ define([
   'views/complete_reset_password',
   'views/ready',
   'views/settings',
+  'views/settings/avatar',
+  'views/settings/avatar_change',
+  'views/settings/avatar_crop',
+  'views/settings/avatar_url',
+  'views/settings/avatar_gravatar',
+  'views/settings/avatar_camera',
   'views/change_password',
   'views/delete_account',
   'views/cookies_disabled',
@@ -52,6 +58,12 @@ function (
   CompleteResetPasswordView,
   ReadyView,
   SettingsView,
+  AvatarView,
+  AvatarChangeView,
+  AvatarCropView,
+  AvatarURLView,
+  AvatarGravatarView,
+  AvatarCameraView,
   ChangePasswordView,
   DeleteAccountView,
   CookiesDisabledView,
@@ -70,6 +82,8 @@ function (
         language: this.language
       }, options || {});
 
+      console.log('options route??', options);
+
       this.showView(new View(options));
     };
   }
@@ -86,6 +100,12 @@ function (
       'verify_email(/)': showView(CompleteSignUpView),
       'confirm(/)': showView(ConfirmView),
       'settings(/)': showView(SettingsView),
+      'settings/avatar(/)': showView(AvatarView),
+      'settings/avatar/change(/)': showView(AvatarChangeView),
+      'settings/avatar/crop(/)': showView(AvatarCropView),
+      'settings/avatar/url(/)': showView(AvatarURLView),
+      'settings/avatar/gravatar(/)': showView(AvatarGravatarView),
+      'settings/avatar/camera(/)': showView(AvatarCameraView),
       'change_password(/)': showView(ChangePasswordView),
       'delete_account(/)': showView(DeleteAccountView),
       'legal(/)': showView(LegalView),
@@ -198,7 +218,7 @@ function (
           event.preventDefault();
 
           // Remove leading slashes
-          var url = $(event.target).attr('href').replace(/^\//, '');
+          var url = $(this).attr('href').replace(/^\//, '');
 
           // Instruct Backbone to trigger routing events
           self.navigate(url);

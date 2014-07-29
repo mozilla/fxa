@@ -9,7 +9,6 @@ module.exports = function (grunt) {
     dist: {
       // Options: https://github.com/jrburke/r.js/blob/master/build/example.build.js
       options: {
-        almond: true,
         replaceRequireScript: [{
           files: ['<%= yeoman.page_template_dist %>/{,*/}index.html'],
           module: 'main',
