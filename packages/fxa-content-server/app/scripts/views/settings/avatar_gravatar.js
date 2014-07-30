@@ -16,7 +16,7 @@ function ($, _, md5, FormView, Template, Session) {
 
   function t (s) { return s; }
 
-  var GRAVATAR_URL = 'http://www.gravatar.com/avatar/';
+  var GRAVATAR_URL = 'https://www.gravatar.com/avatar/';
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
@@ -71,7 +71,7 @@ function ($, _, md5, FormView, Template, Session) {
       // TODO submit intent to server
       Session.set('avatar', this.gravatarUrl());
       this.navigate('settings/avatar', {
-        successUnsafe: t('Courtesy of <a href="#">Gravatar</a>')
+        successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')
       });
     }
   });

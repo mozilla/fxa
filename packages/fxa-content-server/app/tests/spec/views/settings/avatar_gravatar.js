@@ -15,7 +15,7 @@ define([
 ],
 function (chai, _, $, View, RouterMock, Session) {
   var assert = chai.assert;
-  var GRAVATAR_URL = 'http://www.gravatar.com/avatar/';
+  var GRAVATAR_URL = 'https://www.gravatar.com/avatar/';
 
   describe('views/settings/avatar/gravatar', function () {
     var view, routerMock;
@@ -79,7 +79,7 @@ function (chai, _, $, View, RouterMock, Session) {
             view.submit();
             assert.include(Session.avatar, GRAVATAR_URL + '0bc83cb571cd1c50ba6f3e8a78ef1346');
             assert.equal(routerMock.page, 'settings/avatar');
-            assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="#">Gravatar</a>');
+            assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
           });
       });
     });
