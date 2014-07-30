@@ -27,9 +27,12 @@ define([
   'lib/auth-errors',
   'views/base',
   'views/tooltip',
-  'views/button_progress_indicator'
+  'views/decorators/button_progress_indicator',
+  'views/decorators/notify_delayed_request',
+  'views/decorators/allow_only_one_submit'
 ],
-function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndicator) {
+function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
+    showButtonProgressIndicator, notifyDelayedRequest, allowOnlyOneSubmit) {
   /**
    * Decorator that checks whether the form has changed, and if so, call
    * the specified handler.
@@ -43,100 +46,6 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
     };
   }
 
-  /**
-   * Decorator to only allow one form submission.
-   */
-  function allowOnlyOneSubmit(handler) {
-    return function () {
-      var self = this;
-      var args = arguments;
-
-      if (self.isSubmitting()) {
-        return p()
-          .then(function () {
-            // already submitting, get outta here.
-            throw new Error('submit already in progress');
-          });
-      }
-
-      self._isSubmitting = true;
-      return p()
-          .then(function () {
-            return self.invokeHandler(handler, args);
-          })
-          .then(function (value) {
-            self._isSubmitting = false;
-            return value;
-          }, function (err) {
-            self._isSubmitting = false;
-
-            throw err;
-          });
-    };
-  }
-
-  /**
-   * Decorator to show a button progress indicator during
-   * asynchronous operations
-   */
-  function showButtonProgressIndicator(handler) {
-    return function () {
-      var self = this;
-      var args = arguments;
-
-      self._buttonProgressIndicator.start(self.$('button[type=submit]'));
-
-      return p()
-          .then(function () {
-            return self.invokeHandler(handler, args);
-          })
-          .then(function (value) {
-            // Stop the progress indicator unless the page is navigating
-            if (!value || !value.pageNavigation) {
-              self._buttonProgressIndicator.done();
-            }
-            return value;
-          }, function(err) {
-            self._buttonProgressIndicator.done();
-            throw err;
-          });
-    };
-  }
-
-  /**
-   * Decorator to show a notice when requests take
-   * longer than expected
-   */
-  function notifyDelayedRequest(handler) {
-    return function () {
-      var self = this;
-      var args = arguments;
-      var workingText;
-
-      this.clearTimeout(this._workingTimeout);
-
-      this._workingTimeout = this.setTimeout(function () {
-        var err = AuthErrors.toError('WORKING');
-        workingText = self.displayError(err);
-      }, this.LONGER_THAN_EXPECTED);
-
-      return p()
-          .then(function () {
-            return self.invokeHandler(handler, args);
-          })
-          .then(function (value) {
-            self.clearTimeout(self._workingTimeout);
-            if (workingText === self.$('.error').text()) {
-              self.hideError();
-            }
-            return value;
-          }, function(err) {
-            self.clearTimeout(self._workingTimeout);
-            throw err;
-          });
-    };
-  }
-
   var FormView = BaseView.extend({
 
     // Time to wait for a request to finish before showing a notice
@@ -144,9 +53,6 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
 
     constructor: function (options) {
       BaseView.call(this, options);
-
-      this._buttonProgressIndicator = new ButtonProgressIndicator();
-      this.trackSubview(this._buttonProgressIndicator);
 
       // attach events of the descendent view and this view.
       this.delegateEvents(_.extend({}, FormView.prototype.events, this.events));
@@ -597,8 +503,6 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip, ButtonProgressIndica
       return newValues;
     }
   });
-
-  FormView.allowOnlyOneSubmit = allowOnlyOneSubmit;
 
   return FormView;
 });
