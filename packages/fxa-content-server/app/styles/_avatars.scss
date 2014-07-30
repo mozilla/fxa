@@ -3,6 +3,9 @@
   height: $avatar-size;
   display: block;
 }
+.avatar-wrapper img.hidden {
+  display: none;
+}
 
 .avatar-wrapper img.default {
   background-image: url(/images/avatar.jpg);

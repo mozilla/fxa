@@ -8,11 +8,10 @@ define([
   'underscore',
   'views/form',
   'stache!templates/settings/avatar_camera',
-  'lib/session'
+  'lib/session',
+  'lib/auth-errors'
 ],
-function (_, FormView, Template, Session) {
-
-  function t(s) { return s; }
+function (_, FormView, Template, Session, AuthErrors) {
 
   var MAX = 480;
   var LENGTH = MAX / 2;
@@ -38,12 +37,18 @@ function (_, FormView, Template, Session) {
     _getMedia: function () {
       var self = this;
 
-      navigator.getMedia = ( navigator.getUserMedia ||
+      var getUserMedia = navigator.getUserMedia ||
                              navigator.webkitGetUserMedia ||
                              navigator.mozGetUserMedia ||
-                             navigator.msGetUserMedia);
+                             navigator.msGetUserMedia;
 
-      navigator.getMedia(
+      if (! getUserMedia) {
+        return this.displayError(AuthErrors.toCode('NO_CAMERA'));
+      }
+
+      var getMedia = _.bind(getUserMedia, navigator);
+
+      getMedia(
         {
           video: true,
           audio: false
@@ -60,8 +65,7 @@ function (_, FormView, Template, Session) {
         },
         function(err) {
           self._streamError = true;
-          console.error('An error occured! ' + err);
-          self.displayError(t('Could not initialize camera'));
+          self.displayError(AuthErrors.toCode('NO_CAMERA'));
         }
       );
 

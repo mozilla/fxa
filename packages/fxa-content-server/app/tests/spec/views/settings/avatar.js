@@ -56,7 +56,6 @@ function (chai, _, $, View, RouterMock, Session, Constants) {
 
         return view.render()
           .then(function () {
-            console.log(view.$('.avatar-wrapper'));
             assert.isTrue(view.$('.avatar-wrapper img.default').length > 0);
           });
       });

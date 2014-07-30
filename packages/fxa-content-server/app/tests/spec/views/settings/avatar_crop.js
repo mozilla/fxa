@@ -9,13 +9,14 @@ define([
   'chai',
   'underscore',
   'jquery',
+  '../../../../bower_components/jquery-ui/ui/draggable',
   'views/settings/avatar_crop',
   '../../../mocks/router',
   'lib/session',
   'lib/constants',
   'lib/auth-errors'
 ],
-function (chai, _, $, View, RouterMock, Session, Constants, AuthErrors) {
+function (chai, _, $, ui, View, RouterMock, Session, Constants, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -68,6 +69,8 @@ function (chai, _, $, View, RouterMock, Session, Constants, AuthErrors) {
 
       it('has a cropper image', function () {
         Session.set('cropImgSrc', pngSrc);
+        Session.set('cropImgWidth', 1);
+        Session.set('cropImgHeight', 1);
 
         view = new View();
         view.isUserAuthorized = function () {
@@ -85,6 +88,8 @@ function (chai, _, $, View, RouterMock, Session, Constants, AuthErrors) {
 
       it('submits an ', function () {
         Session.set('cropImgSrc', pngSrc);
+        Session.set('cropImgWidth', 1);
+        Session.set('cropImgHeight', 1);
 
         view = new View({
           router: routerMock

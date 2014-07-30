@@ -21,7 +21,7 @@
     "tos-pp": "https://github.com/mozilla/legal-docs.git",
     "underscore": "1.5.2",
     "jquery-ui": "1.11.0",
-    "JavaScript-MD5": "~1.1.0"
+    "JavaScript-MD5": "1.1.0"
   },
   "devDependencies": {}
 }

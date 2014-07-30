@@ -23,6 +23,12 @@ define([
     'verify_email',
     'confirm',
     'settings',
+    'settings/avatar',
+    'settings/avatar/change',
+    'settings/avatar/url',
+    'settings/avatar/gravatar',
+    'settings/avatar/camera',
+    'settings/avatar/crop',
     'change_password',
     'legal',
     // legal are all redirected to the language detected
