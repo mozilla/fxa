@@ -50,7 +50,7 @@
     "ass": "0.0.4",
     "awsbox": "0.7.0",
     "awsboxen": "0.5.2",
-    "fxa-auth-db-mem": "0.18.0",
+    "fxa-auth-db-mem": "0.18.1",
     "grunt": "0.4.5",
     "grunt-cli": "0.1.13",
     "grunt-contrib-jshint": "0.10.0",

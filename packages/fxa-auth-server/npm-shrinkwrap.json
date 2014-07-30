@@ -1045,9 +1045,9 @@
       }
     },
     "fxa-auth-db-mem": {
-      "version": "0.18.0",
-      "from": "fxa-auth-db-mem@0.18.0",
-      "resolved": "https://registry.npmjs.org/fxa-auth-db-mem/-/fxa-auth-db-mem-0.18.0.tgz",
+      "version": "0.18.1",
+      "from": "fxa-auth-db-mem@0.18.1",
+      "resolved": "https://registry.npmjs.org/fxa-auth-db-mem/-/fxa-auth-db-mem-0.18.1.tgz",
       "dependencies": {
         "bluebird": {
           "version": "2.2.2",
