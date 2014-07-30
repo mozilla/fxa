@@ -6,14 +6,20 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
+  'tests/functional/lib/helpers',
   'require'
-], function (intern, registerSuite, assert, require) {
+], function (intern, registerSuite, assert, FunctionalHelpers, require) {
   'use strict';
 
   var PAGE_URL = intern.config.fxaContentRoot + 'signup';
+  var PP_URL = intern.config.fxaContentRoot + 'legal/privacy';
 
   registerSuite({
     name: 'pp',
+
+    beforeEach: function () {
+      return FunctionalHelpers.clearBrowserState(this);
+    },
 
     'start at signup': function () {
 
@@ -24,7 +30,7 @@ define([
           .click()
         .end()
 
-        // success is going to the TOS screen
+        // success is going to the Privacy screen
         .findById('fxa-pp-header')
         .end()
 
@@ -33,6 +39,24 @@ define([
         .end()
 
         // success is going back to the signup
+        .findById('fxa-signup-header')
+        .end();
+    },
+
+    'start at privacy': function () {
+
+      return this.get('remote')
+        .get(require.toUrl(PP_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findById('fxa-pp-header')
+        .end()
+
+        .findById('fxa-pp-home')
+          .click()
+        .end()
+
+        // success is going home
         .findById('fxa-signup-header')
         .end();
     }

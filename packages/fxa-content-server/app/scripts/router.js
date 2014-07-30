@@ -156,12 +156,6 @@ function (
     showView: function (viewToShow) {
       if (this.currentView) {
         this.currentView.destroy();
-        Session.set('canGoBack', true);
-      } else {
-        // user can only go back if there is a screen to go back to.
-        // this is used for the TOS/PP pages where there is no
-        // back button if the user browses there directly.
-        Session.set('canGoBack', false);
       }
 
       this.currentView = viewToShow;
