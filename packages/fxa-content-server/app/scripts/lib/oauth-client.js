@@ -26,20 +26,6 @@ function ($, p, Session, ConfigLoader, OAuthErrors) {
     }
   }
 
-  function normalizeError(xhr) {
-    if (! xhr || xhr.status === 0) {
-      return OAuthErrors.toError('SERVICE_UNAVAILABLE');
-    }
-
-    var errObj = xhr.responseJSON;
-
-    if (! errObj) {
-      return OAuthErrors.toError('UNEXPECTED_ERROR');
-    }
-
-    return OAuthErrors.toError(errObj.errno);
-  }
-
   OAuthClient.prototype = {
     _getOauthUrl: function _getOauthUrl() {
       var configLoader = new ConfigLoader();
@@ -66,7 +52,7 @@ function ($, p, Session, ConfigLoader, OAuthErrors) {
       return this._getOauthUrl().then(function (url) {
         return p.jQueryXHR($.post(url + GET_CODE, params))
             .then(null, function(xhr) {
-              var err = normalizeError(xhr);
+              var err = OAuthErrors.normalizeXHRError(xhr);
               throw err;
             });
       });
@@ -76,10 +62,19 @@ function ($, p, Session, ConfigLoader, OAuthErrors) {
       return this._getOauthUrl().then(function (url) {
         return p.jQueryXHR($.get(url + GET_CLIENT + id))
             .then(null, function(xhr) {
-              var err = normalizeError(xhr);
+              var err = OAuthErrors.normalizeXHRError(xhr);
               throw err;
             });
       });
+    },
+
+    // params = { assertion, client_id, scope }
+    getToken: function (params) {
+      /* jshint camelcase: false */
+
+      // Use the special 'token' response type
+      params.response_type = 'token';
+      return this.getCode(params);
     }
   };
 

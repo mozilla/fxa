@@ -14,7 +14,7 @@ define([
   var NAMESPACE = '__fxa_session';
 
   // and should not be saved to sessionStorage
-  var DO_NOT_PERSIST = ['client_id', 'prefillPassword', 'prefillYear', 'error', 'service'];
+  var DO_NOT_PERSIST = ['client_id', 'prefillPassword', 'prefillYear', 'error', 'service', 'cropImgWidth', 'cropImgHeight', 'cropImgSrc'];
 
   // Don't clear service because the signup page needs that state
   //  even when user credentials are cleared.

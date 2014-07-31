@@ -6,17 +6,19 @@
 
 var config = require('../configuration');
 var publicUrl = config.get('public_url');
+var clientId = config.get('oauth_client_id');
+
+var isAPIServerProxyEnabled = config.get('api_proxy.enabled');
 var authServerUrl = config.get('fxaccount_url');
-var isAuthServerProxyEnabled = config.get('fxaccount_proxy.enabled');
 var oauthServerUrl = config.get('oauth_url');
-var isOauthServerProxyEnabled = config.get('oauth_proxy.enabled');
+var profileServerUrl = config.get('profile_url');
 
 function isIE8(userAgent) {
   return /MSIE 8\.0/.test(userAgent);
 }
 
 function getAuthServerUrl(userAgent) {
-  if (isAuthServerProxyEnabled && isIE8(userAgent)) {
+  if (isAPIServerProxyEnabled && isIE8(userAgent)) {
     return publicUrl + '/auth';
   }
 
@@ -24,11 +26,19 @@ function getAuthServerUrl(userAgent) {
 }
 
 function getOAuthServerUrl(userAgent) {
-  if (isOauthServerProxyEnabled && isIE8(userAgent)) {
+  if (isAPIServerProxyEnabled && isIE8(userAgent)) {
     return publicUrl + '/oauth';
   }
 
   return oauthServerUrl;
+}
+
+function getProfileServerUrl(userAgent) {
+  if (isAPIServerProxyEnabled && isIE8(userAgent)) {
+    return publicUrl + '/profile_api';
+  }
+
+  return profileServerUrl;
 }
 
 module.exports = function(i18n) {
@@ -57,6 +67,8 @@ module.exports = function(i18n) {
       cookiesEnabled: !!req.cookies['__cookie_check'],
       fxaccountUrl: getAuthServerUrl(userAgent),
       oauthUrl: getOAuthServerUrl(userAgent),
+      profileUrl: getProfileServerUrl(userAgent),
+      oauthClientId: clientId,
       // req.lang is set by abide in a previous middleware.
       language: req.lang,
       metricsSampleRate: config.get('metrics.sample_rate')

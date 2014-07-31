@@ -58,6 +58,22 @@ function ($, _, FormView, Template, Session, AuthErrors) {
       var self = this;
       var file = e.target.files[0];
 
+      // Define our callbacks here to avoid a circular DOM reference
+      var imgOnload = function () {
+        // Store the width and height for the cropper view
+        Session.set('cropImgWidth', this.width);
+        Session.set('cropImgHeight', this.height);
+        require(['../bower_components/jquery-ui/ui/draggable'], function () {
+          self.navigate('settings/avatar/crop');
+        });
+      };
+
+      var imgOnerrer = function () {
+        self.navigate('settings/avatar', {
+          error: AuthErrors.toMessage('UNUSABLE_IMAGE')
+        });
+      };
+
       if (file.type.match('image.*')) {
         var reader = new self.FileReader();
 
@@ -68,20 +84,8 @@ function ($, _, FormView, Template, Session, AuthErrors) {
 
           var img = new Image();
           img.src = src;
-          img.onload = function () {
-
-            require(['../bower_components/jquery-ui/ui/draggable'], function (ui) {
-              Session.set('cropImgWidth', img.width);
-              Session.set('cropImgHeight', img.height);
-
-              self.navigate('settings/avatar/crop');
-            });
-          };
-          img.onerror = function () {
-            self.navigate('settings/avatar', {
-              error: AuthErrors.toMessage('UNUSABLE_IMAGE')
-            });
-          };
+          img.onload = imgOnload;
+          img.onerror = imgOnerrer;
         };
         reader.readAsDataURL(file);
       } else {
