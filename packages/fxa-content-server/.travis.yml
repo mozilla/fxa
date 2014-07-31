@@ -18,14 +18,16 @@ before_install:
   - wget http://selenium-release.storage.googleapis.com/2.41/selenium-server-standalone-2.41.0.jar
   - java -jar selenium-server-standalone-2.41.0.jar &> /dev/null &
   - export FREIGHT_URL=https://freight.dev.lcip.org
+  # See https://github.com/mozilla/fxa-content-server/issues/1483
+  - npm config set spin false
   - npm install -g vladikoff/freight#v0.3.0 && freight
 
 install:
-# install everything for full dev in the fxa-content-server.
+  # install everything for full dev in the fxa-content-server.
   - travis_retry npm install --silent
-# copy over the configuration that can be used to start the server.
+  # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
-# install the resources necessary for the auth server.
+  # install the resources necessary for the auth server.
   - git clone git://github.com/mozilla/fxa-auth-server.git --depth 1
   - cd fxa-auth-server
   - freight
