@@ -3,10 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 require([
-  '../scripts/require_config',
-  './test_start'
+  '../scripts/require_config'
 ],
-function (RequireConfig, TestStart) {
+function (RequireConfig) {
   'use strict';
-  // don't need to do anything.
+  // Ensure config is loaded before trying to load any other scripts.
+  require(['../tests/test_start'], function () {
+    // nothing to do here.
+  });
 });
