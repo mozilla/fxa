@@ -5,12 +5,10 @@
 'use strict';
 
 require([
-  './require_config'
+  './require_config',
+  './lib/app-start'
 ],
 function (RequireConfig, AppStart) {
-  // Ensure config is loaded before trying to load any other scripts.
-  require(['./lib/app-start'], function (AppStart) {
-    var appStart = new AppStart();
-    appStart.startApp();
-  });
+  var appStart = new AppStart();
+  appStart.startApp();
 });
