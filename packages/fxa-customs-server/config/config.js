@@ -65,20 +65,9 @@ module.exports = function (fs, path, url, convict) {
     },
     memcache: {
       address: {
-        doc: 'Hostname/IP:Port of the memcache server; trumps host and port if set',
-        default: '',
+        doc: 'Hostname/IP:Port of the memcache server',
+        default: '127.0.0.1:11211',
         env: 'MEMCACHE_ADDRESS'
-      },
-      host: {
-        doc: 'Hostname / IP of the memcache server',
-        default: '127.0.0.1',
-        env: 'MEMCACHE_HOST'
-      },
-      port: {
-        doc: 'Port of the memcache server',
-        default: '11211',
-        format: 'port',
-        env: 'MEMCACHE_PORT'
       },
       recordLifetimeSeconds: {
         doc: 'Memcache record expiry',

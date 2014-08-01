@@ -18,7 +18,7 @@ var config = {
 }
 
 var mc = new Memcached(
-  config.memcache.host + ':' + config.memcache.port,
+  config.memcache.address,
   {
     timeout: 500,
     retries: 1,
