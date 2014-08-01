@@ -13,5 +13,8 @@ notifications:
     use_notice: false
     skip_join: false
 
+ before_install:
+  - npm config set spin false
+
 script:
   - npm test
