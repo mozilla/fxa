@@ -27,8 +27,13 @@ if (process.env.ASS_CODE_COVERAGE) {
   process.on('SIGINT', shutdown)
 }
 
+var memcacheAddress = config.memcache.address
+if (!memcacheAddress) {
+  memcacheAddress = config.memcache.host + ':' + config.memcache.port
+}
+
 var mc = new Memcached(
-  config.memcache.host + ':' + config.memcache.port,
+  memcacheAddress,
   {
     timeout: 500,
     retries: 1,

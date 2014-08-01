@@ -41,25 +41,34 @@ module.exports = function (fs, path, url, convict) {
       blockIntervalSeconds: {
         doc: 'Duration of a manual ban',
         default: 60 * 60 * 24,
-        format: 'nat'
+        format: 'nat',
+        env: 'BLOCK_INTERVAL_SECONDS'
       },
       rateLimitIntervalSeconds: {
         doc: 'Duration of automatic throttling',
         default: 60 * 15,
-        format: 'nat'
+        format: 'nat',
+        env: 'RATE_LIMIT_INTERVAL_SECONDS'
       },
       maxEmails: {
         doc: 'Number of emails sent within rateLimitIntervalSeconds before throttling',
         default: 3,
-        format: 'nat'
+        format: 'nat',
+        env: 'MAX_EMAILS'
       },
       maxBadLogins: {
         doc: 'Number failed login attempts within rateLimitIntervalSeconds before throttling',
         default: 2,
-        format: 'nat'
+        format: 'nat',
+        env: 'MAX_BAD_LOGINS'
       }
     },
     memcache: {
+      address: {
+        doc: 'Hostname/IP:Port of the memcache server; trumps host and port if set',
+        default: '',
+        env: 'MEMCACHE_ADDRESS'
+      },
       host: {
         doc: 'Hostname / IP of the memcache server',
         default: '127.0.0.1',
@@ -74,7 +83,8 @@ module.exports = function (fs, path, url, convict) {
       recordLifetimeSeconds: {
         doc: 'Memcache record expiry',
         default: 900,
-        format: 'nat'
+        format: 'nat',
+        env: 'RECORD_LIFETIME_SECONDS'
       }
     },
     bans: {
