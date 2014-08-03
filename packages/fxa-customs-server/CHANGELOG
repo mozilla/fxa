@@ -1,2 +1,7 @@
+0.1.1
+  * Remove redundant memcache.host and memcache.port settings
+  * expose all configuration settings to the environment; add option memcache.address to work with previous puppet settings
+  * removing npm spinner from travis logs
+
 0.1.0
   * init
