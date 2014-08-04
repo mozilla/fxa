@@ -201,24 +201,28 @@ strong.email {
 
 .error {
   background: $error-background-color;
-}
 
-.error a {
-  color: $message-text-color;
-}
-
-.browsehappy {
-  display: block;
+  a {
+    color: $message-text-color;
+  }
 }
 
 .success {
   background: $success-background-color;
   display: none;
+
+  a {
+    color: $message-text-color;
+  }
 }
 
 // complete is like success, but without the associated styles.
 .complete {
   display: none;
+}
+
+.browsehappy {
+  display: block;
 }
 
 .graphic {
