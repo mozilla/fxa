@@ -10,7 +10,13 @@ define([
   // override the main config file and adjust it to suit Sauce Labs
   intern.tunnel = 'SauceLabsTunnel';
   intern.tunnelOptions = {
-    port: 4445
+    port: 4445,
+    directDomains: [
+      'lcip.org'
+    ],
+    skipSslDomains: [
+      'lcip.org'
+    ]
   };
   intern.functionalSuites = [ 'tests/functional', 'tests/functional_extra' ];
   intern.environments = [
