@@ -4,25 +4,30 @@
 
 'use strict';
 
-// A shell of a web channel. Doesn't do anything yet, but is a useful standin.
+// A channel interface.
 
-define(function () {
-  function WebChannel() {
+define([
+  'underscore',
+  'backbone'
+],
+function (_, Backbone) {
+  function BaseChannel() {
     // nothing to do.
   }
 
-  WebChannel.prototype = {
+  _.extend(BaseChannel.prototype, Backbone.Events, {
     init: function () {
     },
+
     teardown: function () {
     },
+
     send: function (command, data, done) {
       if (done) {
         done();
       }
     }
-  };
+  });
 
-  return WebChannel;
+  return BaseChannel;
 });
-

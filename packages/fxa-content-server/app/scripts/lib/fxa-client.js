@@ -15,9 +15,10 @@ define([
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
-  'lib/constants'
+  'lib/constants',
+  'lib/channels'
 ],
-function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
+function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
   // IE 8 doesn't support String.prototype.trim
   function trim(str) {
     return str && str.replace(/^\s+|\s+$/g, '');
@@ -29,6 +30,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
     this._client = options.client;
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
+    this._channel = options.channel;
   }
 
   FxaClientWrapper.prototype = {
@@ -37,32 +39,21 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
     // checks and dialogs. It throws an error with message='USER_CANCELED_LOGIN' and
     // errno=1001 if that's the case.
     _checkForDesktopSyncRelinkWarning: function (email) {
-      var defer = p.defer();
-      if (Session.channel) {
-        Session.channel.send('can_link_account', { email: email }, function (err, response) {
-          if (err) {
-            console.error('_checkForDesktopSyncRelinkWarning failed with', err);
-            // If the browser doesn't implement this command, then it will handle
-            // prompting the relink warning after sign in completes. This can likely
-            // be changed to 'reject' after Fx31 hits nightly, because all browsers
-            // will likely support 'can_link_account'
-            defer.resolve();
-          } else {
-            if (response && response.data && !response.data.ok) {
-              var errorMessage = 'USER_CANCELED_LOGIN';
-              var error = new Error(errorMessage);
-              error.errno = AuthErrors.toCode(errorMessage);
-              defer.reject(error);
-            } else {
-              defer.resolve();
-            }
-          }
-        });
-      } else {
-        // if no channel to desktop, there's nothing to check
-        defer.resolve();
-      }
-      return defer.promise;
+      return Channels.sendExpectResponse('can_link_account', { email: email }, {
+        // A testing channel that was passed in on client creation. If no
+        // channel is sent, the appropriate one will be created.
+        channel: this._channel
+      }).then(function (response) {
+        if (response && response.data && ! response.data.ok) {
+          throw AuthErrors.toError('USER_CANCELED_LOGIN');
+        }
+      }, function (err) {
+        console.error('_checkForDesktopSyncRelinkWarning failed with', err);
+        // If the browser doesn't implement this command, then it will handle
+        // prompting the relink warning after sign in completes. This can likely
+        // be changed to 'reject' after Fx31 hits nightly, because all browsers
+        // will likely support 'can_link_account'
+      });
     },
 
     _getClientAsync: function () {
@@ -120,12 +111,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
       var self = this;
       options = options || {};
 
-      // dummy promise to allow us to branch
-      var defer = p.defer();
-      defer.resolve();
-
-      return defer.promise
-              .then(function() {
+      return p().then(function() {
                 // If we already verified in signUp that we can link with
                 // the desktop, don't do it again. Otherwise,
                 // make the call over to the Desktop code to ask if
@@ -154,25 +140,16 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants) {
                 };
 
                 Session.set(updatedSessionData);
-                if (Session.channel) {
-                  var defer = p.defer();
-                  // Skipping the relink warning is only relevant to the channel
-                  // communication with the Desktop browser. It may have been
-                  // done during a sign up flow.
-                  updatedSessionData.verifiedCanLinkAccount = true;
-                  Session.channel.send('login', updatedSessionData, function (err) {
-                    if (err) {
-                      defer.reject(err);
-                    } else {
-                      defer.resolve(accountData);
-                    }
-                  });
-                  return defer.promise;
-                } else if (window.console && window.console.warn) {
-                  console.warn('Session.channel does not exist');
-                }
+                // Skipping the relink warning is only relevant to the channel
+                // communication with the Desktop browser. It may have been
+                // done during a sign up flow.
+                updatedSessionData.verifiedCanLinkAccount = true;
 
-                return accountData;
+                return Channels.sendExpectResponse('login', updatedSessionData, {
+                  channel: self._channel
+                }).then(function () {
+                  return accountData;
+                });
               });
 
     },

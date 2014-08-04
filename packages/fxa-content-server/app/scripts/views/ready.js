@@ -18,14 +18,15 @@ define([
   'lib/session',
   'lib/xss',
   'lib/strings',
+  'lib/auth-errors',
   'views/mixins/service-mixin',
   'views/marketing_snippet'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, MarketingSnippet) {
+function (_, BaseView, FormView, Template, Session, Xss, Strings, AuthErrors, ServiceMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
     template: Template,
-    className: 'reset_password_complete',
+    className: 'ready',
 
     initialize: function (options) {
       options = options || {};
@@ -89,9 +90,14 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, ServiceMixin, 
 
     submit: function () {
       if (this.isOAuthSameBrowser()) {
-        return this.finishOAuthFlow();
-      } else if (this.hasService()) {
-        return this.oAuthRedirectWithError();
+        return this.finishOAuthFlow({
+          source: this.type
+        });
+      } else if (this.isOAuthDifferentBrowser()) {
+        return this.finishOAuthFlowDifferentBrowser();
+      } else {
+        // We aren't expecting this case to happen.
+        this.displayError(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
     },
 

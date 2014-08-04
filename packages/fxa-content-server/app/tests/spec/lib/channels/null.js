@@ -7,20 +7,20 @@
 
 define([
   'chai',
-  'lib/channels/web'
+  'lib/channels/null'
 ],
-function (chai, WebChannel) {
+function (chai, NullChannel) {
   var channel;
 
-  describe('lib/channel/web', function () {
+  describe('lib/channel/null', function () {
     beforeEach(function() {
-      channel = new WebChannel();
+      channel = new NullChannel();
       channel.init();
     });
 
     describe('send', function () {
-      it('is a standin that does nothing', function() {
-        channel.send('heya');
+      it('is a standin that does nothing', function(done) {
+        channel.send('heya', {}, done);
       });
     });
   });

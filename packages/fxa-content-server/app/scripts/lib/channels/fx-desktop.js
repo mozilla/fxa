@@ -8,11 +8,10 @@
 
 define([
   'underscore',
-  'backbone',
-  'lib/session'
+  'lib/channels/base'
 ],
-function (_, Backbone, Session) {
-  var SEND_TIMEOUT_LENGTH_MS = 1000;
+function (_, BaseChannel) {
+  var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 1000;
 
   function noOp() {
     // Nothing to do here.
@@ -61,36 +60,11 @@ function (_, Backbone, Session) {
     }
   }
 
-  function findInitialPage() {
-    /*jshint validthis: true*/
-
-    this.send('session_status', {}, _.bind(function (err, response) {
-      // Don't perform any redirection if a pathname is present
-      var hasPathName = this.window.location.pathname !== '/';
-
-      if (err) {
-        return;
-      }
-
-      if (response.data) {
-        Session.set('email', response.data.email);
-        if (!Session.forceAuth && !hasPathName) {
-          this.router.navigate('settings', { trigger: true });
-        }
-      } else {
-        Session.clear();
-        if (!hasPathName) {
-          this.router.navigate('signup', { trigger: true });
-        }
-      }
-    }, this));
-  }
-
   function Channel() {
     // nothing to do here.
   }
 
-  _.extend(Channel.prototype, Backbone.Events, {
+  _.extend(Channel.prototype, new BaseChannel(), {
     init: function init(options) {
       options = options || {};
 
@@ -98,13 +72,10 @@ function (_, Backbone, Session) {
 
       this.window = options.window || window;
 
-      this.window.addEventListener(
-              'message', _.bind(receiveMessage, this), false);
+      this._boundReceiveMessage = _.bind(receiveMessage, this);
+      this.window.addEventListener('message', this._boundReceiveMessage, false);
 
-      this.sendTimeoutLength = options.sendTimeoutLength || SEND_TIMEOUT_LENGTH_MS;
-      this.router = options.router || window.router;
-
-      findInitialPage.call(this);
+      this.sendTimeoutLength = options.sendTimeoutLength || DEFAULT_SEND_TIMEOUT_LENGTH_MS;
     },
 
     teardown: function () {
@@ -112,6 +83,8 @@ function (_, Backbone, Session) {
         var item = this.outstandingRequests[key];
         clearTimeout(item.timeout);
       }
+
+      this.window.removeEventListener('message', this._boundReceiveMessage, false);
     },
 
     send: function (command, data, done) {

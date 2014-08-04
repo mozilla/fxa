@@ -34,10 +34,11 @@ function (chai, $, p, ChannelMock, testHelpers,
   describe('lib/fxa-client', function () {
     beforeEach(function () {
       channelMock = new ChannelMock();
-      Session.set('channel', channelMock);
       email = ' testuser' + Math.random() + '@testuser.com ';
 
-      client = new FxaClientWrapper();
+      client = new FxaClientWrapper({
+        channel: channelMock
+      });
       return client._getClientAsync()
               .then(function (_realClient) {
                 realClient = _realClient;
@@ -84,8 +85,10 @@ function (chai, $, p, ChannelMock, testHelpers,
           }
         };
 
-        return new FxaClientWrapper({ client: FxaClientMock })
-          .signUp(email, password)
+        return new FxaClientWrapper({
+          client: FxaClientMock,
+          channel: channelMock
+        }).signUp(email, password)
           .then(
             assert.fail,
             function (err) {

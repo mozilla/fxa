@@ -13,15 +13,12 @@ define([
 ], function (_, Constants) {
   var NAMESPACE = '__fxa_session';
 
-  // channel is initialized on app startup
   // and should not be saved to sessionStorage
-  var DO_NOT_PERSIST = ['channel', 'prefillPassword', 'prefillYear', 'error', 'service'];
+  var DO_NOT_PERSIST = ['client_id', 'prefillPassword', 'prefillYear', 'error', 'service'];
 
-  // channel should not be cleared from memory or else fxa-client.js
-  // will blow up when sending the login message.
   // Don't clear service because the signup page needs that state
   //  even when user credentials are cleared.
-  var DO_NOT_CLEAR = ['channel', 'context', 'service', 'config'];
+  var DO_NOT_CLEAR = ['client_id', 'context', 'service', 'config'];
 
   // these keys will be persisted to localStorage so that they live between browser sessions
   var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext', 'oauth'];
@@ -141,6 +138,15 @@ define([
 
     isDesktopContext: function () {
       return this.get('context') === Constants.FX_DESKTOP_CONTEXT;
+    },
+
+    // Check whether the user is in the OAuth flow.
+    //
+    // This is done here instead of in service-mixin to eliminate
+    // a circular dependency that causes the FxaClientWrapper to not
+    // load.
+    isOAuth: function () {
+      return !! this.get('client_id');
     },
 
     // BEGIN TEST API
