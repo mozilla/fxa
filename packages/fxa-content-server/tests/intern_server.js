@@ -19,6 +19,7 @@ define([
     'tests/server/l10n',
     'tests/server/metrics',
     'tests/server/metrics-collector-stderr',
+    'tests/server/configuration',
     'tests/server/proxy'
   ];
 

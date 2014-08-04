@@ -11,9 +11,6 @@ const BIN_ROOT = path.join(__dirname, '..', 'server', 'bin');
 
 module.exports = function (done) {
   process.chdir(path.dirname(__dirname));
-  // We'll get PORT via config/local.json
-  // This is required for Travis-CI to work correctly.
-  delete process.env['PORT'];
 
   var fabPath = path.join(BIN_ROOT, 'fxa-content-server.js');
   var fxaccntbridge = spawn('node', [fabPath]);

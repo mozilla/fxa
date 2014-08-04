@@ -269,6 +269,19 @@ if (supportedLanguages.indexOf(defaultLang) === -1) {
   throw new Error('Configuration error: defaultLang (' + defaultLang + ') is missing from supportedLanguages');
 }
 
+// Ensure that static resources have been generated for each languages in the supported language list
+// Static resources are generated for each language in the default supported languages list, at least until issue #1434 is fixed
+var staticallyGeneratedLanguages = conf.default('i18n.supportedLanguages');
+var missingLangs = [];
+supportedLanguages.forEach(function (l) {
+  if (staticallyGeneratedLanguages.indexOf(l) === -1) {
+    missingLangs.push(l);
+  }
+});
+if (missingLangs.length) {
+  throw new Error('Configuration error: (' + missingLangs.join(', ') + ') is missing from the default list of supportedLanguages');
+}
+
 var areDistResources = conf.get('static_directory') === 'dist';
 conf.set('are_dist_resources', areDistResources);
 
