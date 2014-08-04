@@ -72,18 +72,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, AuthErrors, Se
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
-      var self = this;
-      // Some channels (e.g. FxWebChannel) can auto-complete
-      // verification without user interaction. Check if
-      // verification should be done automatically, if so, do it!
-      return self.shouldAutoCompleteOAuthVerification()
-        .then(function (shouldAutoComplete) {
-          if (shouldAutoComplete) {
-            return self.submit();
-          }
-
-          return self._createMarketingSnippet();
-        });
+      return this._createMarketingSnippet();
     },
 
     _createMarketingSnippet: function () {

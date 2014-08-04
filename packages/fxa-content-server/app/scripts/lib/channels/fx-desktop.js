@@ -90,10 +90,6 @@ function (_, BaseChannel) {
     send: function (command, data, done) {
       done = done || noOp;
 
-      if (command === 'should_auto_complete_after_email_verification') {
-        return done(null, { should_auto_complete_after_email_verification: false }); //jshint ignore: line
-      }
-
       var outstanding = this.outstandingRequests[command];
       if (! outstanding) {
         // if this is a resend, retriesCompleted has already been updated

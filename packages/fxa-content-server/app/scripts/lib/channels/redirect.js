@@ -29,9 +29,7 @@ define([
     send: function (command, data, done) {
       done = done || noOp;
 
-      if (command === 'should_auto_complete_after_email_verification') {
-        return done(null, { should_auto_complete_after_email_verification: false }); //jshint ignore: line
-      } else if (command === 'oauth_complete') {
+      if (command === 'oauth_complete') {
         var redirectTo = data.redirect;
 
         if (data.error) {

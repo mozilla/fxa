@@ -35,9 +35,6 @@ define([
       this._messageCount[message] += 1;
       switch (message)
       {
-        case 'should_auto_complete_after_email_verification':
-          done(null, { should_auto_complete_after_email_verification: true }); //jshint ignore:line
-          break;
         case 'can_link_account':
           this.onCanLinkAccount(data, done);
           break;

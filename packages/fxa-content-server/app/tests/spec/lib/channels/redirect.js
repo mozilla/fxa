@@ -60,17 +60,6 @@ function (chai, RedirectChannel, WindowMock, TestHelpers) {
       });
 
     });
-
-    describe('oauth auto-verification', function () {
-      it('is not supported', function (done) {
-        channel.send('should_auto_complete_after_email_verification', {}, function (err, response) {
-          TestHelpers.wrapAssertion(function () {
-            assert.isNull(err);
-            assert.isFalse(response.should_auto_complete_after_email_verification);//jshint ignore: line
-          }, done);
-        });
-      });
-    });
   });
 });
 

@@ -108,21 +108,6 @@ define([
         });
     },
 
-    /**
-     * Check whether a channel supports auto completion of the oauth
-     * verification flow.
-     */
-    shouldAutoCompleteOAuthVerification: function () {
-      if (this.isOAuthSameBrowser()) {
-        return notifyChannel.call(this, 'should_auto_complete_after_email_verification', {})
-        .then(function (response) {
-          return response && response.should_auto_complete_after_email_verification;
-        });
-      }
-
-      return p(false);
-    },
-
     finishOAuthFlowDifferentBrowser: function () {
       return notifyChannel.call(this, 'oauth_complete', {
             redirect: this.serviceRedirectURI,

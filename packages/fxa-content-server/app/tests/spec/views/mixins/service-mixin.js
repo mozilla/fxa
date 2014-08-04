@@ -102,46 +102,6 @@ define([
       });
     });
 
-    describe('shouldAutoCompleteOAuthVerification', function () {
-      describe('if not an oauth flow', function () {
-        it('returns false', function () {
-          return view.shouldAutoCompleteOAuthVerification()
-            .then(function (shouldAutoComplete) {
-              assert.isFalse(shouldAutoComplete);
-            });
-        });
-      });
-
-      describe('if oauth flow completed in a different browser', function () {
-        it('returns false', function () {
-          windowMock.location.search = DEFAULT_SEARCH_STRING;
-          view.setupOAuth();
-
-          return view.shouldAutoCompleteOAuthVerification()
-            .then(function (shouldAutoComplete) {
-              assert.isFalse(shouldAutoComplete);
-            });
-        });
-      });
-
-      describe('if an oauth flow completed in the same browser', function () {
-        it('returns what the channel says', function () {
-          windowMock.location.search = DEFAULT_SEARCH_STRING;
-          view.setupOAuth();
-
-          // Session.oauth is ordinarily set by the /oauth/signin or
-          // /oauth/signup pages. Synthesize it for the test.
-          view.persistOAuthParams();
-
-          // our mock channel supports redirection
-          return view.shouldAutoCompleteOAuthVerification()
-            .then(function (shouldAutoComplete) {
-              assert.isTrue(shouldAutoComplete);
-            });
-        });
-      });
-    });
-
     describe('finishOAuthFlowDifferentBrowser', function () {
       it('notifies the channel', function () {
         windowMock.location.search = DEFAULT_SEARCH_STRING;

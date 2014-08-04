@@ -71,16 +71,6 @@ function (chai, WindowMock, Session, FxDesktopChannel, TestHelpers) {
       });
     });
 
-    describe('oauth auto-verification', function () {
-      it('is not supported', function (done) {
-        channel.send('should_auto_complete_after_email_verification', {}, function (err, response) {
-          wrapAssertion(function () {
-            assert.isFalse(response.should_auto_complete_after_email_verification); //jshint ignore: line
-          }, done);
-        });
-      });
-    });
-
     describe('on', function () {
       it('registers a callback to be called when the browser sends ' +
             'the registered message', function (done) {
