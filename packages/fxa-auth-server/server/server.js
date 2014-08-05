@@ -75,6 +75,9 @@ module.exports = function (path, url, Hapi) {
           maxAge: 15552000,
           includeSubdomains: true
         }
+      },
+      payload: {
+        maxBytes: 16384
       }
     }
 

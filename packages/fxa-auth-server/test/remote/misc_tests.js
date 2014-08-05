@@ -155,7 +155,8 @@ TestServer.start(config)
         'POST',
         client.api.baseURL + '/get_random_bytes',
         null,
-        { big: Buffer(1024 * 512).toString('hex')}
+        // See payload.maxBytes in ../../server/server.js
+        { big: Buffer(8192).toString('hex')}
       )
       .then(
         function (body) {
