@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "start": "grunt server",
-    "test": "grunt test --node-env=test"
+    "test": "grunt test --node-env=test",
+    "outdated": "npm outdated --depth 0"
   },
   "dependencies": {
     "bluebird": "2.2.1",

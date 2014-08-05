@@ -21,4 +21,5 @@ before_script:
   - "mysql -e 'CREATE DATABASE fxa;'"
 
 script:
+  - npm run outdated
   - grunt
