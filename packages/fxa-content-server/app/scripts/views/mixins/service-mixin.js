@@ -30,7 +30,7 @@ define([
 
   var SYNC_SERVICE = 'sync';
 
-  var EXPECT_CHANNEL_RESPONSE_TIMEOUT = 10000;
+  var EXPECT_CHANNEL_RESPONSE_TIMEOUT = 5000;
 
   function shouldSetupOAuthLinksOnError () {
     /*jshint validthis: true*/
@@ -41,25 +41,60 @@ define([
   function notifyChannel(message, data) {
     /*jshint validthis: true*/
     var self = this;
-
     // Assume the receiver of the channel's notification will either
     // respond or shut the FxA window.
     // If it doesn't, assume there was an error and show a generic
     // error to the user
-    self._expectResponseTimeout = self.setTimeout(function() {
-      self.displayError(OAuthErrors.toError('TRY_AGAIN'), OAuthErrors);
-    }, EXPECT_CHANNEL_RESPONSE_TIMEOUT);
+    if (data && data.timeout) {
+      self._expectResponseTimeout = self.setTimeout(function () {
+        self.displayError(OAuthErrors.toError('TRY_AGAIN'), OAuthErrors);
+      }, EXPECT_CHANNEL_RESPONSE_TIMEOUT);
+    }
 
     return Channels.sendExpectResponse(message, data, {
         window: self.window,
         channel: self.channel
-      }).then(function (response) {
-        self.clearTimeout(self._expectResponseTimeout);
-        return response;
-      }, function (err) {
+      }).then(null, function (err) {
         self.clearTimeout(self._expectResponseTimeout);
         throw err;
       });
+  }
+
+  /**
+   * Apply additional result data depending on the current channel environment
+   *
+   * @param {Object} result
+   * @param {Object} options
+   * @returns {Object}
+   */
+  function decorateOAuthResult(result, options) {
+    options = options || {};
+
+    // if specific to the WebChannel flow
+    if (Channels.getWebChannelId(options.context)) {
+      // set closeWindow
+      result.closeWindow = options.viewOptions && options.viewOptions.source === 'signin';
+      // if the source is "signin" then set a timeout for a successful WebChannel signin
+      if (options.viewOptions.source === 'signin') {
+        result.timeout = 3000;
+      }
+    }
+
+    return p(result);
+  }
+
+  /**
+   * Formats the OAuth "result.redirect" url into a {code, state} object
+   *
+   * @param {Object} result
+   * @returns {Object}
+   */
+  function formatOAuthResult(result) {
+    // get code and state from redirect params
+    var redirectParams = result.redirect.split('?')[1];
+    result.state = Url.searchParam('state', redirectParams);
+    result.code = Url.searchParam('code', redirectParams);
+    return p(result);
   }
 
   return {
@@ -74,7 +109,7 @@ define([
         // params listed in:
         // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
         params = Url.searchParams(this.window.location.search,
-                  ['client_id', 'redirect_uri', 'state', 'scope', 'action']);
+                  ['client_id', 'redirect_uri', 'state', 'scope', 'action', 'webChannelId']);
       }
       this._oAuthParams = params;
 
@@ -115,8 +150,7 @@ define([
           });
     },
 
-    finishOAuthFlow: buttonProgressIndicator(function (options) {
-      options = options || {};
+    finishOAuthFlow: buttonProgressIndicator(function (viewOptions) {
       var self = this;
 
       return this._configLoader.fetch().then(function(config) {
@@ -127,9 +161,21 @@ define([
         return self._oAuthClient.getCode(self._oAuthParams);
       })
       .then(function(result) {
-        result.source = options.source;
+
+        return formatOAuthResult(result);
+      })
+      .then(function(result) {
+
+        return decorateOAuthResult(result, {
+          context: self.window,
+          viewOptions: viewOptions
+        });
+      })
+      .then(function(result) {
+
         return notifyChannel.call(self, 'oauth_complete', result);
-      }).then(function() {
+      })
+      .then(function() {
         Session.clear('oauth');
         // on success, keep the button progress indicator going until the
         // window closes.

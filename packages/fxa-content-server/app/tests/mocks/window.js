@@ -55,7 +55,11 @@ function (_, Backbone) {
         this.dispatchedEvents = {};
       }
 
-      this.dispatchedEvents[msg] = true;
+      if (typeof msg === 'object') {
+        this.dispatchedEvents[msg.command] = msg;
+      } else {
+        this.dispatchedEvents[msg] = true;
+      }
     },
 
     isEventDispatched: function (eventName) {
