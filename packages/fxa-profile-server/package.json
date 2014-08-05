@@ -31,6 +31,7 @@
     "insist": "0.x",
     "jshint-stylish": "~0.4.0",
     "load-grunt-tasks": "~0.6.0",
+    "mocha-text-cov": "~0.1.0",
     "nock": "~0.42.1",
     "time-grunt": "~0.4.0"
   },
