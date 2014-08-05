@@ -27,6 +27,9 @@ define(['intern/lib/args', 'intern/node_modules/dojo/has!host-node?intern/node_m
 
     // A fully qualified URL to the Intern proxy
     proxyUrl: 'http://127.0.0.1:9090/',
+
+    asyncTimeout: 5000, // milliseconds
+
     fxaAuthRoot: fxaAuthRoot,
     fxaContentRoot: fxaContentRoot,
     fxaEmailRoot: fxaEmailRoot,

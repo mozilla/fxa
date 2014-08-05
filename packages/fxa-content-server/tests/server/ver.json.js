@@ -13,14 +13,12 @@ define([
 
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
-  var asyncTimeout = 5000;
-
   var suite = {
     name: 'ver.json'
   };
 
   suite['#get ver.json'] = function () {
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/ver.json', dfd.callback(function (err, res) {
       assert.equal(res.statusCode, 200);

@@ -21,8 +21,6 @@ define([
     httpUrl = httpsUrl.replace(config.get('port'), config.get('http_port'));
   }
 
-  var asyncTimeout = 5000;
-
   var suite = {
     name: 'front end routes'
   };
@@ -77,7 +75,7 @@ define([
 
   function routeTest(route, expectedStatusCode, requestOptions) {
     suite['#https get ' + httpsUrl + route] = function () {
-      var dfd = this.async(asyncTimeout);
+      var dfd = this.async(intern.config.asyncTimeout);
 
       request(httpsUrl + route, requestOptions, dfd.callback(function (err, res) {
         checkHeaders(route, res);
@@ -87,7 +85,7 @@ define([
 
     // test to ensure http->https redirection works as expected.
     suite['#http get ' + httpUrl + route] = function () {
-      var dfd = this.async(asyncTimeout);
+      var dfd = this.async(intern.config.asyncTimeout);
 
       request(httpUrl + route, requestOptions, dfd.callback(function (err, res) {
         checkHeaders(route, res);

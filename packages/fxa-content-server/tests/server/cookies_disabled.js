@@ -13,14 +13,12 @@ define([
 
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
-  var asyncTimeout = 5000;
-
   var suite = {
     name: 'cookies disabled'
   };
 
   suite['#get /config without cookies returns `cookiesEnabled=false`'] = function () {
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/config', {
       headers: {
@@ -38,7 +36,7 @@ define([
   };
 
   suite['#get /config with cookies returns `cookiesEnabled=true`'] = function () {
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/config', {
       headers: {

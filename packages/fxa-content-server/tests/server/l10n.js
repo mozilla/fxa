@@ -17,15 +17,13 @@ define([
 
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
-  var asyncTimeout = 5000;
-
   var suite = {
     name: 'i18n'
   };
 
   function testClientJson(acceptLanguageHeader, expectedLanguage) {
     /*jshint validthis: true*/
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     var headers = {};
     if (acceptLanguageHeader) {
@@ -70,7 +68,7 @@ define([
   }
 
   suite['#get /config'] = function () {
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/config', {
       headers: {
@@ -92,7 +90,7 @@ define([
   };
 
   suite['#get /config should return language not locale'] = function () {
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/config', {
       headers: {
@@ -109,7 +107,7 @@ define([
   // Test each server template based page
   ['/', '/non-existent', '/boom', '/legal/terms', '/legal/privacy'].forEach(function (page) {
     suite['#get page ' + page + ' has correct localized resources'] = function () {
-      var dfd = this.async(asyncTimeout);
+      var dfd = this.async(intern.config.asyncTimeout);
 
       request(serverUrl + page, {
         headers: {
@@ -131,7 +129,7 @@ define([
   // Test against Hebrew, a rtl langauge that must use system fonts
   ['/', '/non-existent', '/boom'].forEach(function (page) {
     suite['#get page ' + page + ' has correct localized resources for he locale'] = function () {
-      var dfd = this.async(asyncTimeout);
+      var dfd = this.async(intern.config.asyncTimeout);
 
       request(serverUrl + page, {
         headers: {
@@ -151,7 +149,7 @@ define([
   });
 
   suite['#get terms page using lang in the URL'] = function () {
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/zh-CN/legal/terms', {
       headers: {
@@ -169,7 +167,7 @@ define([
   };
 
   suite['#get privacy page using lang in the URL'] = function () {
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/zh-CN/legal/privacy', {
       headers: {

@@ -13,8 +13,6 @@ define([
 
   var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
-  var asyncTimeout = 5000;
-
   // IMHO, metrics should be enabled in dev too.
   var metricsSampleRate = intern.config.fxaProduction ? 0.1 : config.get('metrics.sample_rate');
 
@@ -23,7 +21,7 @@ define([
   };
 
   suite['#get /config returns a `metricsSampleRate`'] = function () {
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/config',
     dfd.callback(function (err, res) {
@@ -34,7 +32,7 @@ define([
   };
 
   suite['#post /metrics - returns 200, all the time'] = function () {
-    var dfd = this.async(asyncTimeout);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request.post(serverUrl + '/metrics', {
       data: {
