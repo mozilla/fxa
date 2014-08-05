@@ -54,8 +54,8 @@ define([
         if (process.versions['node'] < '0.11.11') {
           assert.ok(varyHeader.indexOf('accept-encoding') !== -1);
         } else {
-          assert.ok(varyHeader.indexOf('accept-language') !== -1 &&
-                    varyHeader.indexOf('accept-encoding') !== -1);
+          assert.ok(varyHeader.indexOf('accept-language') !== -1);
+          assert.ok(varyHeader.indexOf('accept-encoding') !== -1);
         }
       } else {
         assert.ok(varyHeader.indexOf('accept-language') !== -1);
