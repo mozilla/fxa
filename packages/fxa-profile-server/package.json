@@ -7,7 +7,7 @@
   "scripts": {
     "start": "grunt server",
     "test": "grunt test --node-env=test",
-    "outdated": "npm outdated --depth 0 --no-color | sort"
+    "outdated": "npm outdated --depth 0"
   },
   "dependencies": {
     "bluebird": "2.2.1",
