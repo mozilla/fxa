@@ -40,7 +40,6 @@ install:
 
 # now run the tests!
 script:
-  - grunt validate-shrinkwrap
   - grunt lint
   - npm run test-server
   - travis_retry npm run test-travis

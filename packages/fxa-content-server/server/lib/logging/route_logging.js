@@ -12,10 +12,11 @@ var config = require('../configuration');
  * Enhances connect logger middleware - custom formats.
  * See lib/configuration for usage.
  */
-expressLogger.format('default_fxa',
-              ':remote-addr - - ":method :url HTTP/:http-version" :status :response-time :res[content-length] ":referrer" ":user-agent"');
+var formats = {
+  'default_fxa': ':remote-addr - - ":method :url HTTP/:http-version" :status :response-time :res[content-length] ":referrer" ":user-agent"',
 
-expressLogger.format('dev_fxa', ':method :url :status :response-time');
+  'dev_fxa': ':method :url :status :response-time'
+};
 
 // Used when logging is disabled
 var disabled = function (req, res, next) {
@@ -28,7 +29,7 @@ module.exports = function () {
   return config.get('disable_route_logging')
           ? disabled
           : expressLogger({
-              format: config.get('route_log_format'),
+              format: formats[config.get('route_log_format')],
               stream: {
                 write: function (x) {
                   logger.info(typeof x === 'string' ? x.trim() : x);
