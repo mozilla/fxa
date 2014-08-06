@@ -137,8 +137,9 @@ header h1 {
 
 header h1 span.service {
   display: block;
-  font-size: 18px;
+  font-size: $medium-font;
   font-weight: 200;
+  margin-top: 10px;
 }
 
 header h2 {
