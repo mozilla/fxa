@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "0.18.0",
+  "version": "0.19.0-dev",
   "description": "An identity provider for PiCL services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -28,19 +28,18 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "aws-sdk": "2.0.9",
+    "aws-sdk": "2.0.11",
     "binary-split": "0.1.2",
-    "bunyan": "0.23.1",
+    "bunyan": "1.0.0",
     "compute-cluster": "0.0.9",
     "convict": "0.4.2",
     "fxa-auth-mailer": "0.0.2",
-    "fxa-customs-server": "git://github.com/mozilla/fxa-customs-server.git#d5f96e7308aae0a803ea140dfa3b0234f9389d86",
-    "hapi": "6.2.1",
-    "hapi-auth-hawk": "git://github.com/dannycoates/hapi-auth-hawk.git#0158be2a90683c0b3b8e9754b217470e5ff12665",
+    "hapi": "6.4.0",
+    "hapi-auth-hawk": "1.1.1",
     "hkdf": "0.0.2",
-    "joi": "4.6.1",
+    "joi": "4.6.2",
     "jwcrypto": "0.4.4",
-    "p-promise": "0.3.8",
+    "p-promise": "0.4.6",
     "poolee": "0.4.15",
     "scrypt-hash": "1.1.8",
     "through": "2.3.4",
@@ -54,10 +53,10 @@
     "grunt-contrib-jshint": "0.10.0",
     "grunt-copyright": "0.1.0",
     "grunt-nsp-shrinkwrap": "0.0.3",
-    "hawk": "2.2.2",
+    "hawk": "2.2.3",
     "load-grunt-tasks": "0.6.0",
     "mailparser": "0.4.4",
-    "request": "2.39.0",
+    "request": "2.40.0",
     "simplesmtp": "0.3.32",
     "sjcl": "1.0.1",
     "tap": "0.4.12"
