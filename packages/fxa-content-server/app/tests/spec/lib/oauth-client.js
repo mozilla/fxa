@@ -44,22 +44,23 @@ function (chai, $, testHelpers, sinon,
     });
 
     describe('oauth-client', function () {
+      /* jshint camelcase: false */
       describe('getCode', function () {
+
+        var params = {
+          assertion: 'assertion',
+          client_id: 'deadbeef',
+          redirect_uri: 'http://example.com',
+          scope: 'profile',
+          state: 'state'
+        };
+
         it('normally responds with a redirect', function () {
-          /* jshint camelcase: false */
           var redirect = RP_URL + '?code=code&state=state';
 
           server.respondWith('POST', OAUTH_URL + '/v1/authorization',
             [200, { 'Content-Type': 'application/json' },
               '{ "redirect": "' + redirect + '" }']);
-
-          var params = {
-            assertion: 'assertion',
-            client_id: 'deadbeef',
-            redirect_uri: 'http://example.com',
-            scope: 'profile',
-            state: 'state'
-          };
 
           return client.getCode(params)
             .then(function (result) {
@@ -69,12 +70,10 @@ function (chai, $, testHelpers, sinon,
         });
 
         it('responds with a SERVICE_UNAVAILABLE error if the service is unavailable', function () {
-          var clientId = 'clientId';
-
-          server.respondWith('GET', OAUTH_URL + '/v1/client/' + clientId,
+          server.respondWith('POST', OAUTH_URL + '/v1/authorization',
             [0, {}, '']);
 
-          return client.getClientInfo(clientId)
+          return client.getCode(params)
             .then(function (result) {
               assert.fail('unexpected success');
             }, function (err) {
@@ -83,9 +82,7 @@ function (chai, $, testHelpers, sinon,
         });
 
         it('converts returned errors to OAuth error objects', function () {
-          var clientId = 'clientId';
-
-          server.respondWith('GET', OAUTH_URL + '/v1/client/' + clientId,
+          server.respondWith('POST', OAUTH_URL + '/v1/authorization',
             [400, { 'Content-Type': 'application/json' },
               JSON.stringify({
                 errno: OAuthErrors.toCode('INCORRECT_REDIRECT'),
@@ -93,7 +90,7 @@ function (chai, $, testHelpers, sinon,
               })]);
 
 
-          return client.getClientInfo(clientId)
+          return client.getCode(params)
             .then(function (result) {
               assert.fail('unexpected success');
             }, function (err) {
