@@ -22,11 +22,8 @@
     "bluebird": "1.2.2",
     "bunyan": "0.23.1",
     "convict": "0.4.2",
-    "jshint-stylish": "0.4.0",
     "memcached": "0.2.8",
-    "request": "2.40.0",
-    "restify": "2.8.2",
-    "tap": "0.4.12"
+    "restify": "2.8.2"
   },
   "devDependencies": {
     "ass": "0.0.4",
@@ -36,7 +33,8 @@
     "grunt-copyright": "0.1.0",
     "grunt-nsp-shrinkwrap": "0.0.3",
     "jshint": "2.5.x",
-    "jshint-stylish": "0.4.x",
+    "jshint-stylish": "0.4.0",
+    "request": "2.40.0",
     "tap": "0.4.12",
     "walk": "2.3.x"
   },
