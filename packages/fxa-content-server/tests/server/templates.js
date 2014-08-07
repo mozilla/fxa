@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!request'
-], function (registerSuite, assert, config, request) {
+], function (intern, registerSuite, assert, config, request) {
   'use strict';
 
-  var serverUrl = config.get('public_url');
+  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var emailTemplates = {
     '/en-US/reset': {
@@ -39,6 +40,12 @@ define([
     name: 'email templates'
   };
 
+  if (intern.config.fxaProduction) {
+    // skip tests for obsolete email templates in production
+    registerSuite(suite);
+    return;
+  }
+
   function emailTemplateTest(name, matches) {
     suite['#get email template for ' + name] = function() {
       var dfd = this.async(1000);
@@ -65,5 +72,4 @@ define([
   });
 
   registerSuite(suite);
-
 });

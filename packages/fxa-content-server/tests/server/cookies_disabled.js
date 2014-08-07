@@ -3,21 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
   'intern/dojo/node!request'
-], function (registerSuite, assert, config, request) {
+], function (intern, registerSuite, assert, config, request) {
   'use strict';
 
-  var serverUrl = config.get('public_url');
+  var serverUrl = intern.config.fxaContentRoot.replace(/\/$/, '');
 
   var suite = {
     name: 'cookies disabled'
   };
 
   suite['#get /config without cookies returns `cookiesEnabled=false`'] = function () {
-    var dfd = this.async(1000);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/config', {
       headers: {
@@ -35,7 +36,7 @@ define([
   };
 
   suite['#get /config with cookies returns `cookiesEnabled=true`'] = function () {
-    var dfd = this.async(1000);
+    var dfd = this.async(intern.config.asyncTimeout);
 
     request(serverUrl + '/config', {
       headers: {

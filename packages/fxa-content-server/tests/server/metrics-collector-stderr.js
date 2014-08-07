@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
+  'intern',
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/metrics-collector-stderr'
-], function (registerSuite, assert, StdErrCollector) {
+], function (intern, registerSuite, assert, StdErrCollector) {
   'use strict';
 
   var und;
@@ -14,6 +15,13 @@ define([
   var suite = {
     name: 'metrics-collector-stderr'
   };
+
+  // This test cannot be run remotely like the other tests in tests/server. So,
+  // if production, just skip these tests (register a suite with no tests).
+  if (intern.config.fxaProduction) {
+    registerSuite(suite);
+    return;
+  }
 
   var metricsCollector = new StdErrCollector();
 
