@@ -24,4 +24,5 @@ before_script:
   - "mysql -e 'CREATE DATABASE fxa_oauth;'"
 
 script:
+  - npm run outdated
   - grunt validate-shrinkwrap test
