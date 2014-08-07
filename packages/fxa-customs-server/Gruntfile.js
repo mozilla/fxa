@@ -7,6 +7,7 @@ module.exports = function (grunt) {
 
   grunt.loadNpmTasks('grunt-copyright')
   grunt.loadNpmTasks('grunt-contrib-jshint')
+  grunt.loadNpmTasks('grunt-nsp-shrinkwrap')
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -42,6 +43,6 @@ module.exports = function (grunt) {
     }
   })
 
-  grunt.registerTask('default', ['lint', 'copyright'])
+  grunt.registerTask('default', ['lint', 'copyright', 'validate-shrinkwrap'])
   grunt.registerTask('lint', ['jshint'])
 }
