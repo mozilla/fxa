@@ -51,9 +51,14 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, AuthErrors, Se
       var serviceName = this.serviceName;
 
       if (this.serviceRedirectURI) {
-        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-          Xss.href(this.serviceRedirectURI), serviceName
-        ]);
+        // if this is a WebChannel flow, then do not show any links, just finish the flow automatically
+        if (Session.oauth && Session.oauth.webChannelId) {
+          serviceName = Strings.interpolate('%s', [serviceName]);
+        } else {
+          serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+            Xss.href(this.serviceRedirectURI), serviceName
+          ]);
+        }
       }
 
       return {
@@ -71,6 +76,10 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, AuthErrors, Se
     afterRender: function() {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
+      // Finish the WebChannel flow
+      if (Session.oauth && Session.oauth.webChannelId) {
+        this.submit();
+      }
 
       return this._createMarketingSnippet();
     },

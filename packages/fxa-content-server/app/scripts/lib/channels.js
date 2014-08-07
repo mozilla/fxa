@@ -10,8 +10,10 @@ define([
   'lib/promise',
   'lib/channels/null',
   'lib/channels/fx-desktop',
-  'lib/channels/redirect'
-], function (Session, p, NullChannel, FxDesktopChannel, RedirectChannel) {
+  'lib/channels/redirect',
+  'lib/channels/web',
+  'lib/url'
+], function (Session, p, NullChannel, FxDesktopChannel, RedirectChannel, WebChannel, Url) {
   'use strict';
 
   return {
@@ -24,15 +26,21 @@ define([
      */
     get: function (options) {
       options = options || {};
+      var context = options.window || window;
 
       if (options.channel) {
         return options.channel;
       }
 
       var channel;
+      // try to get the webChannelId from Session and URL params
+      var webChannelId = this.getWebChannelId(context);
 
       if (Session.isDesktopContext()) {
         channel = new FxDesktopChannel();
+      } else if (webChannelId) {
+        // use WebChannel if "webChannelId" is set
+        channel = new WebChannel(webChannelId);
       } else if (Session.isOAuth()) {
         // By default, all OAuth communication happens via redirects.
         channel = new RedirectChannel();
@@ -41,7 +49,7 @@ define([
       }
 
       channel.init({
-        window: options.window || window
+        window: context
       });
 
       return channel;
@@ -72,6 +80,24 @@ define([
       });
 
       return deferred.promise;
+    },
+
+    /**
+     * Returns the WebChannel id if available
+     */
+    getWebChannelId: function (context) {
+      var id = null;
+      // check given window context
+      if (context && context.location) {
+        id = Url.searchParam('webChannelId', context.location.search);
+      }
+
+      // fallback to session if context cannot find the id
+      if (! id && Session.oauth) {
+        id = Session.oauth.webChannelId;
+      }
+
+      return id;
     }
   };
 });
