@@ -10,13 +10,13 @@
     "outdated": "npm outdated --depth 0"
   },
   "dependencies": {
-    "bluebird": "2.2.1",
+    "bluebird": "2.2.2",
     "convict": "0.4.2",
-    "hapi": "6.2.0",
+    "hapi": "6.4.0",
     "intel": "1.0.0-b4",
-    "joi": "4.6.1",
-    "mysql": "2.3.2",
-    "request": "2.37.0"
+    "joi": "4.6.2",
+    "mysql": "2.4.2",
+    "request": "2.40.0"
   },
   "devDependencies": {
     "awsbox": "~0.7.0",
@@ -28,12 +28,12 @@
     "grunt-jscs": "~0.6.1",
     "grunt-mocha-test": "~0.11.0",
     "grunt-nodemon": "~0.3.0",
-    "grunt-nsp-shrinkwrap": "0.0.3",
+    "grunt-nsp-shrinkwrap": "~0.0.3",
     "insist": "0.x",
     "jshint-stylish": "~0.4.0",
     "load-grunt-tasks": "~0.6.0",
     "mocha-text-cov": "~0.1.0",
-    "nock": "~0.42.1",
+    "nock": "~0.44.0",
     "time-grunt": "~0.4.0"
   },
   "repo": "mozilla/fxa-profile-server",
