@@ -30,7 +30,7 @@ module.exports = function (path, url, Hapi) {
         // keeping a nonce cache.  Instead we use this as an opportunity
         // to report on the clock skew values seen in the wild.
         var skew = (Date.now() / 1000) - (+ts)
-        log.info({ op: 'server.nonceFunc', skew: skew })
+        log.trace({ op: 'server.nonceFunc', skew: skew })
         return cb()
       }
     }
