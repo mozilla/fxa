@@ -22,4 +22,6 @@ before_install:
   - npm config set spin false
 
 script:
+  - npm run outdated
+  - ./node_modules/.bin/grunt validate-shrinkwrap
   - npm test

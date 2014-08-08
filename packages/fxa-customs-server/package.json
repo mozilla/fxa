@@ -13,7 +13,9 @@
   "bugs": "https://github.com/mozilla/fxa-customs-server/issues/",
   "scripts": {
     "start": "node bin/customs_server.js",
-    "test": "scripts/test-local.sh"
+    "test": "scripts/test-local.sh",
+    "outdated": "npm outdated --depth 0",
+    "shrinkwrap": "npm shrinkwrap && grunt validate-shrinkwrap"
   },
   "dependencies": {
     "aws-sdk": "2.0.0-rc.20",
@@ -21,7 +23,7 @@
     "bunyan": "0.23.1",
     "convict": "0.4.2",
     "memcached": "0.2.8",
-    "restify": "2.7.0"
+    "restify": "2.8.2"
   },
   "devDependencies": {
     "ass": "0.0.4",
@@ -29,10 +31,11 @@
     "grunt-cli": "0.1.13",
     "grunt-contrib-jshint": "0.10.0",
     "grunt-copyright": "0.1.0",
+    "grunt-nsp-shrinkwrap": "0.0.3",
     "jshint": "2.5.x",
-    "jshint-stylish": "0.2.x",
-    "request": "2.36.0",
-    "tap": "0.4.11",
+    "jshint-stylish": "0.4.0",
+    "request": "2.40.0",
+    "tap": "0.4.12",
     "walk": "2.3.x"
   },
   "engines": {
