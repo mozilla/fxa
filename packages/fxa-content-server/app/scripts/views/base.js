@@ -86,6 +86,8 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
 
       this.fxaClient = options.fxaClient || fxaClient;
 
+      this.automatedBrowser = !!this.searchParam('automatedBrowser');
+
       Backbone.View.call(this, options);
     },
 

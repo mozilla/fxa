@@ -20,7 +20,8 @@ define([
   './functional/pages',
   './functional/back_button_after_start',
   './functional/cookies_disabled',
-  './functional/fonts'
+  './functional/fonts',
+  './functional/avatar'
 ], function () {
   'use strict';
 });
