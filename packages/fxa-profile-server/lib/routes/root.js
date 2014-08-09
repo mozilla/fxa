@@ -32,14 +32,13 @@ module.exports = {
       return sendReply();
     }
 
-     // figure it out from git (either '.git', or '/home/app/git' for AwsBox)
-    var gitDir;
-    if (!fs.existsSync(path.join(__dirname, '..', '..', '.git'))) {
+    // figure it out from git (either '.git', or '/home/app/git' for AwsBox)
+    var gitDir = path.resolve(__dirname, '..', '..', '.git');
+    if (!fs.existsSync(gitDir)) {
       // try at '/home/app/git' for AwsBox deploys
       gitDir = path.sep + path.join('home', 'app', 'git');
     }
-    var cmd = util.format('git %s rev-parse HEAD',
-        gitDir ? '--git-dir=' + gitDir : '');
+    var cmd = util.format('git --git-dir=%s rev-parse HEAD', gitDir);
     exec(cmd, function(err, stdout) {
       commitHash = stdout.replace(/\s+/, '');
       return sendReply();
