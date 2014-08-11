@@ -19,6 +19,12 @@ var conf = module.exports = convict({
     default: 3080,
     env: 'HTTP_PORT'
   },
+  redirect_port: {
+    doc: 'Redirect port for HTTPS',
+    format: 'port',
+    default: 80,
+    env: 'REDIRECT_PORT'
+  },
   cachify_prefix: {
     doc: 'The prefix for cachify hashes in URLs',
     default: 'v'
@@ -207,8 +213,8 @@ var conf = module.exports = convict({
       default: path.resolve(__dirname, '..', '..','key.pem')
   },
   cert_path: {
-	doc: 'The location of the SSL certificate in pem format',
-	default: path.resolve(__dirname, '..', '..','cert.pem')
+      doc: 'The location of the SSL certificate in pem format',
+      default: path.resolve(__dirname, '..', '..','cert.pem')
   }
 });
 
