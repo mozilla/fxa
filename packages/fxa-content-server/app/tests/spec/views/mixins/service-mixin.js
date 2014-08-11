@@ -8,6 +8,7 @@ define([
   'chai',
   'backbone',
   'underscore',
+  'lib/promise',
   '../../../mocks/oauth_servers',
   '../../../mocks/window',
   '../../../mocks/channel',
@@ -15,16 +16,18 @@ define([
   'views/base',
   'lib/session',
   'stache!templates/test_template'
-], function (Chai, Backbone, _, MockOAuthServers, WindowMock, ChannelMock, ServiceMixin, BaseView, Session, TestTemplate) {
+], function (Chai, Backbone, _, p, MockOAuthServers, WindowMock, ChannelMock, ServiceMixin, BaseView, Session, TestTemplate) {
   var assert = Chai.assert;
 
 
   var CLIENT_ID = 'dcdb5ae7add825d2';
   var STATE = '123';
+  var CODE = 'code1';
   var SCOPE = 'profile:email';
   var CLIENT_NAME = '123Done';
   var BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
   var DEFAULT_SEARCH_STRING = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
+  var DEFAULT_REDIRECT_STRING = '?code=' + CODE + '&state=' + STATE;
 
 
   var OAuthView = BaseView.extend({
@@ -113,9 +116,141 @@ define([
       });
     });
 
+    describe('_decorateOAuthResult', function () {
+      it('decorates nothing by default', function (done) {
+        view._decorateOAuthResult({}, {})
+          .then(function (result) {
+            assert.notOk(result.closeWindow);
+            assert.notOk(result.timeout);
+            return done();
+          });
+      });
+
+      it('decorates WebChannel from Session with signin source', function (done) {
+        Session.set('oauth', {
+          webChannelId: 'id'
+        });
+
+        view._decorateOAuthResult({}, {
+          context: windowMock,
+          viewOptions: {
+            source: 'signin'
+          }
+        }).then(function (result) {
+          assert.isTrue(result.closeWindow);
+          assert.ok(result.timeout);
+          Session.clear('oauth');
+          done();
+        });
+      });
+
+      it('decorates WebChannel from location param with signin source', function (done) {
+        windowMock.location.search = DEFAULT_SEARCH_STRING + '&webChannelId=id';
+
+        view._decorateOAuthResult({}, {
+          context: windowMock,
+          viewOptions: {
+            source: 'signin'
+          }
+        }).then(function (result) {
+          assert.isTrue(result.closeWindow);
+          assert.ok(result.timeout);
+          done();
+        });
+      });
+    });
+
+    describe('_formatOAuthResult', function () {
+      it('formats the redirect params', function (done) {
+        view._formatOAuthResult({
+          redirect: DEFAULT_REDIRECT_STRING
+        }).then(function (result) {
+          assert.equal(result.redirect, DEFAULT_REDIRECT_STRING);
+          assert.equal(result.code, CODE);
+          assert.equal(result.state, STATE);
+          done();
+        });
+      });
+    });
+
+    describe('_notifyChannel', function () {
+      var mockChannel = {
+        init: function() {},
+        send: function(msg, data, done) { done(); },
+        teardown: function() {}
+      };
+
+      it('throws timeout errors', function (done) {
+        view.channel = mockChannel;
+        view.setTimeout = function(func) { func(); };
+
+        var displayedError = false;
+        view.displayError = function() {
+          displayedError = true;
+          done();
+        };
+
+        view._notifyChannel({}, {timeout: 1});
+      });
+
+      it('throws channel errors', function () {
+        view.channel = mockChannel;
+        view.channel.send = function (msg, data, done) {
+          done(new Error('Cannot send events'));
+        };
+
+        return view._notifyChannel({})
+          .then(assert.fail, function() { assert.ok('Error thrown'); });
+      });
+    });
+
     describe('finishOAuthFlow', function () {
-      it('notifies the channel', function () {
-        // TODO - fill this in with #1141
+      var mockAssertionLibrary = {
+        generate: function() {
+          return p('mockAssertion');
+        }
+      };
+      var mockConfigLoader = {
+        fetch: function() {
+          return p({oauthUrl: ''});
+        }
+      };
+
+      it('notifies the channel', function (done) {
+        view.assertionLibrary = mockAssertionLibrary;
+        view._configLoader = mockConfigLoader;
+        view._oAuthParams = {};
+        view._oAuthClient = {
+          getCode: function() {
+            return p({redirect: DEFAULT_REDIRECT_STRING});
+          }
+        };
+
+        view.finishOAuthFlow()
+          .then(function () {
+            assert.equal(Session.oauth, null);
+            done();
+          });
+      });
+
+      it('throws errors', function () {
+        view.assertionLibrary = mockAssertionLibrary;
+        view._configLoader = mockConfigLoader;
+        view._oAuthParams = {};
+        view._oAuthClient = {
+          getCode: function() {
+            return p({});
+          }
+        };
+        var displayedError = false;
+        view.displayError = function() {
+          displayedError = true;
+        };
+
+        return view.finishOAuthFlow()
+          .then(function () {
+            assert.isTrue(displayedError);
+          });
       });
     });
 
