@@ -1,3 +1,10 @@
+train-19
+  * belated major version 1 bump but maintain minor version count
+  * fixed uid logging issue #755
+  * nonceFunc logging is now trace instead of info level
+  * updated many dependencies
+  * removed awsbox
+  
 train-18
   * fixed internal server error on /certificate/sign #771
   * removed mysql and heap DB implementations #769

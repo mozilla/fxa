@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "0.19.0-dev",
+  "version": "1.19.0",
   "dependencies": {
     "ass": {
       "version": "0.0.4",
