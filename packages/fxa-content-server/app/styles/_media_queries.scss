@@ -167,6 +167,12 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     margin: 0 0 10px 0;
   }
 
+header h1 span.service {
+  font-size: $base-font;
+  margin-top: 4px;
+}
+
+
   section p {
     font-size: $base-font;
   }
