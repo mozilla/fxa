@@ -78,7 +78,7 @@ Overdrive.prototype.summary = function (request, response) {
   }
   line.uid = (request.auth && request.auth.credentials) ?
     request.auth.credentials.uid :
-    payload.uid || query.uid
+    payload.uid || query.uid || '00'
   line.service = payload.service || query.service
   line.redirectTo = payload.redirectTo || query.redirectTo
   line.keys = query.keys
