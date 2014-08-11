@@ -18,6 +18,12 @@ require.config({
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',
     md5: '../bower_components/JavaScript-MD5/js/md5'
   },
+  packages: [
+    { name: 'draggable',
+      location: '../bower_components/jquery-ui/ui',
+      main: 'draggable'
+    }
+  ],
   shim: {
     underscore: {
       exports: '_'
