@@ -1,3 +1,49 @@
+<a name="0.19.0"></a>
+## 0.19.0 (2014-08-11)
+
+
+#### Bug Fixes
+
+* **avatars:**
+  * add profile server client to proxy remote images ([899f1895](https://github.com/mozilla/fxa-content-server/commit/899f18956b3f6cdb12de6a920b561ea030d6612d))
+  * clean up numerous issues from comments in #1405 ([916044d6](https://github.com/mozilla/fxa-content-server/commit/916044d668305d3a94b698ec226b4a9130dca5d5))
+* **bug:**
+  * IE9: browser unsupported message is very wide ([488f5108](https://github.com/mozilla/fxa-content-server/commit/488f510878be6a788b70b0f6c79d10c9951bfd53))
+  * fixed snippet layout error ([0e3dcd9e](https://github.com/mozilla/fxa-content-server/commit/0e3dcd9eb8bc533202757ee202a1dae1b7b82d3d))
+* **client:**
+  * Show the /force_auth error message on startup, if one exists. ([e61bf17e](https://github.com/mozilla/fxa-content-server/commit/e61bf17e5083788f355d9753abaa6474aa4265ca))
+  * Remove the survey material all together, it's not being used. ([04249936](https://github.com/mozilla/fxa-content-server/commit/04249936f85cb64421f0a2a7b5557f7383549b3f))
+  * If logError/displayError/displayErrorUnsafe is called without an error, log an ` ([d3bf9552](https://github.com/mozilla/fxa-content-server/commit/d3bf95521ecd6f86daa18f7c6766d12477959bd6))
+  * Display `Service Unavailable` if the user visits `/oauth/sign(in|up)` and the OA ([fe599744](https://github.com/mozilla/fxa-content-server/commit/fe599744d5c7d191136616ea49744be2a6ee50d4))
+  * Ensure a down OAuth server does not cause an `undefined` error. ([7224d952](https://github.com/mozilla/fxa-content-server/commit/7224d9528c73c02d24afada320901ed5ce122284))
+* **csp:**
+  * allow image sources from gravatar ([cfd7ce84](https://github.com/mozilla/fxa-content-server/commit/cfd7ce84f5213eca4ffff7a488e6173d05b3b130))
+  * allow data uris for images ([9a880661](https://github.com/mozilla/fxa-content-server/commit/9a880661e1e5272cd26aa48eacde3736a93eaa49))
+* **deps:** update express and request dependencies to patched versions ([5e990731](https://github.com/mozilla/fxa-content-server/commit/5e9907315cf22e5447af8794e5760ab4c515064e))
+* **fxa-client:** remove lang from fxa-client requests ([93c3384d](https://github.com/mozilla/fxa-content-server/commit/93c3384d80d913a5a1a746b2e2213240f9b404b0), closes [#1404](https://github.com/mozilla/fxa-content-server/issues/1404))
+* **l10n:**
+  * ensure that supported languages are a subset of the default supported languages ([d0d14176](https://github.com/mozilla/fxa-content-server/commit/d0d141761f51ed7b0397d92d0f90fcf219b34d06))
+  * add hsb and dsb to default supported languag list for asset generation ([c726205d](https://github.com/mozilla/fxa-content-server/commit/c726205d62649df14f6dcefd2ee97861759ddd02))
+* **legal:**
+  * show home button on legal pages when loaded directly ([8bf43a37](https://github.com/mozilla/fxa-content-server/commit/8bf43a37d40febaaab93d597ed4ecd2b06e5c7b0))
+  * fix layout of statically rendered legal pages ([f59d82b1](https://github.com/mozilla/fxa-content-server/commit/f59d82b1c5a7694c932f836ab398304ae284ac71))
+* **logger:** fix for express logger api change ([dfa60957](https://github.com/mozilla/fxa-content-server/commit/dfa609575339e903969fdabe9e91657b468e17a9))
+* **metrics:** Log a screen once, childviews should not cause the parent to be lgoged. ([5964e0ba](https://github.com/mozilla/fxa-content-server/commit/5964e0badb1495c62a44e807ea604e43b8543f3f))
+* **router:** show error screen when view rendering fails ([49eb7063](https://github.com/mozilla/fxa-content-server/commit/49eb70631f261cf7deecaf15e5c324edf51e704f))
+* **sync:** show Sync brand name when signin up/in for Sync ([c15a2761](https://github.com/mozilla/fxa-content-server/commit/c15a276112883834a46b7c7b50cebe39db941214), closes [#1339](https://github.com/mozilla/fxa-content-server/issues/1339))
+* **test:** Ensure requirejs configuration is loaded before any other scripts. ([10eddcb4](https://github.com/mozilla/fxa-content-server/commit/10eddcb4bd11eeadb50b21577272ecd00882c31e))
+* **tos-pp:** rely on accept headers instead of naviagor.language for partial requests ([fdceab5a](https://github.com/mozilla/fxa-content-server/commit/fdceab5a0aad420e0c000bb920b121ce05bd99d5), closes [#1412](https://github.com/mozilla/fxa-content-server/issues/1412))
+
+
+#### Features
+
+* **metrics:** Add screen width and height to the metrics. ([0f5f3513](https://github.com/mozilla/fxa-content-server/commit/0f5f35135098b0502a9276549d4d74160a28279a))
+* **oauth:**
+  * Add WebChannel support ([97b714b6](https://github.com/mozilla/fxa-content-server/commit/97b714b6705ba7f719febe9ca7c814bf768207f8))
+  * message to native flows ([00c1c0f7](https://github.com/mozilla/fxa-content-server/commit/00c1c0f7a054fa690b0af00f52aa5f526dc0b127))
+* **settings:** profile images ([fe0b8770](https://github.com/mozilla/fxa-content-server/commit/fe0b8770c8bfe0b719a947f193a827d03bf747e6))
+
+
 <a name="0.18.0"></a>
 ## 0.18.0 (2014-07-28)
 
