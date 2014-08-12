@@ -35,7 +35,7 @@ function (p, _, FormView, Template, Session, Cropper, AuthErrors) {
     },
 
     beforeRender: function () {
-      if (!this.cropImgSrc) {
+      if (! this.cropImgSrc) {
         this.navigate('settings/avatar/change', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });

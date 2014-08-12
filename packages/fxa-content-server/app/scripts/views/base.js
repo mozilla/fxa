@@ -78,6 +78,7 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
 
       this.subviews = [];
       this.window = options.window || window;
+      this.navigator = options.navigator || this.window.navigator || navigator;
       this.translator = options.translator || this.window.translator;
       this.router = options.router || this.window.router;
       this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;

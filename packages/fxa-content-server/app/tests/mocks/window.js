@@ -32,7 +32,29 @@ function (_, Backbone) {
     };
 
     this.navigator = {
-      userAgent: window.navigator.userAgent
+      userAgent: window.navigator.userAgent,
+      getUserMedia: function (options, cb, errb) {
+        var nav = this;
+        this._opts = options;
+        setTimeout(function () {
+          var stream = {
+            stop: function () {
+            }
+          };
+          if (nav._error) {
+            errb(nav._error);
+          } else {
+            cb(stream);
+          }
+          self.trigger('stream');
+        }, 0);
+      }
+    };
+
+    this.URL = {
+      createObjectURL: function (stream) {
+        return '';
+      }
     };
 
     this.console = window.console;

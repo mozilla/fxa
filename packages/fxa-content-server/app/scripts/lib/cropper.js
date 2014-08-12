@@ -73,10 +73,10 @@ function () {
     this.slider.on('input', function (e) {
       self.resize(parseInt(this.value, 10));
     });
-    this.scale = parseInt(this.slider.val(), 10);
+    this.scale = parseInt(this.slider.val() || 0, 10);
 
-    this.rotater = container.find('.rotate');
-    this.rotater.on('click', function (e) {
+    this.rotator = container.find('.rotate');
+    this.rotator.on('click', function () {
       var data = self.rotate(90);
       self.setImageSrc(data, self._originalHeight, self._originalWidth);
     });

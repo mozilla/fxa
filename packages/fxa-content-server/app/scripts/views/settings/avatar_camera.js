@@ -13,8 +13,8 @@ define([
 ],
 function (_, FormView, Template, Session, AuthErrors) {
 
-  var MAX = 480;
-  var LENGTH = MAX / 2;
+  var EXPORT_LENGTH = 600;
+  var DISPLAY_LENGTH = 240;
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
@@ -30,23 +30,26 @@ function (_, FormView, Template, Session, AuthErrors) {
       };
     },
 
-    initialize: function () {
+    initialize: function (options) {
+      this.exportLength = options.exportLength || EXPORT_LENGTH;
+      this.displayLength = options.displayLength || DISPLAY_LENGTH;
       this.streaming = false;
     },
 
     _getMedia: function () {
       var self = this;
+      var nav = this.navigator;
 
-      var getUserMedia = navigator.getUserMedia ||
-                             navigator.webkitGetUserMedia ||
-                             navigator.mozGetUserMedia ||
-                             navigator.msGetUserMedia;
+      var getUserMedia = nav.getUserMedia ||
+                             nav.webkitGetUserMedia ||
+                             nav.mozGetUserMedia ||
+                             nav.msGetUserMedia;
 
       if (! getUserMedia) {
         return this.displayError(AuthErrors.toCode('NO_CAMERA'));
       }
 
-      var getMedia = _.bind(getUserMedia, navigator);
+      var getMedia = _.bind(getUserMedia, nav);
 
       getMedia(
         {
@@ -55,16 +58,15 @@ function (_, FormView, Template, Session, AuthErrors) {
         },
         function(stream) {
           self.stream = stream;
-          if (navigator.mozGetUserMedia) {
+          if (nav.mozGetUserMedia) {
             self.video[0].mozSrcObject = stream;
           } else {
-            var vendorURL = window.URL || window.webkitURL;
+            var vendorURL = self.window.URL || self.window.webkitURL;
             self.video[0].src = vendorURL.createObjectURL(stream);
           }
           self.video[0].play();
         },
         function(err) {
-          self._streamError = true;
           self.displayError(AuthErrors.toCode('NO_CAMERA'));
         }
       );
@@ -84,14 +86,13 @@ function (_, FormView, Template, Session, AuthErrors) {
 
       self.video[0].addEventListener('canplay', function(ev){
         if (!self.streaming) {
-          var pos = self.centeredPos(self.width, self.height, LENGTH);
-
+          var pos = self.centeredPos(self.width, self.height, self.displayLength);
           self.height = self.video[0].videoHeight / (self.video[0].videoWidth / self.width);
           self.video.width(self.width);
           self.video.height(self.height);
           self.video.css(pos);
-          self.canvas.setAttribute('width', self.width);
-          self.canvas.setAttribute('height', self.height);
+          self.canvas.width = self.width;
+          self.canvas.height = self.height;
           self.video.removeClass('hidden');
           self.img.addClass('hidden');
           self.streaming = true;
@@ -127,10 +128,10 @@ function (_, FormView, Template, Session, AuthErrors) {
       var h = this.video[0].videoHeight;
       var minValue = Math.min(h, w);
 
-      this.canvas.width = MAX;
-      this.canvas.height = MAX;
+      this.canvas.width = this.exportLength;
+      this.canvas.height = this.exportLength;
 
-      var pos = this.centeredPos(w, h, MAX);
+      var pos = this.centeredPos(w, h, minValue);
 
       this.canvas.getContext('2d').drawImage(
         this.video[0],
@@ -138,7 +139,7 @@ function (_, FormView, Template, Session, AuthErrors) {
         Math.abs(pos.top),
         minValue,
         minValue,
-        0, 0, MAX, MAX
+        0, 0, this.exportLength, this.exportLength
       );
 
       return this.canvas.toDataURL('image/jpeg', 0.9);
