@@ -5,8 +5,12 @@
 // Learn more about configuring this file at <https://github.com/theintern/intern/wiki/Configuring-Intern>.
 // These default settings work OK for most people. The options that *must* be changed below are the
 // packages, suites, excludeInstrumentation, and (if you want functional tests) functionalSuites.
-define(['intern/lib/args', 'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/topic'],
-  function (args, topic) {
+define([
+    'intern/lib/args',
+    'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/topic',
+    './tools/firefox_profile'
+  ],
+  function (args, topic, FirefoxProfile) {
   'use strict';
 
   var fxaAuthRoot = args.fxaAuthRoot ? args.fxaAuthRoot : 'http://127.0.0.1:9000/v1';
@@ -43,7 +47,8 @@ define(['intern/lib/args', 'intern/node_modules/dojo/has!host-node?intern/node_m
     // Note that the `build` capability will be filled in with the current commit ID from the Travis CI environment
     // automatically
     capabilities: {
-      'selenium-version': '2.39.0'
+      'selenium-version': '2.39.0',
+      'firefox_profile': FirefoxProfile
     },
 
     // Browsers to run integration testing against. Note that version numbers must be strings if used with Sauce
