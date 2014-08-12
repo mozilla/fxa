@@ -80,7 +80,7 @@ function (_, FormView, Template, Session, OAuthClient, ProfileClient, Assertion,
         // Store the width and height for the cropper view
         Session.set('cropImgWidth', this.width);
         Session.set('cropImgHeight', this.height);
-        require(['../bower_components/jquery-ui/ui/draggable'], function () {
+        require(['draggable'], function () {
           self.navigate('settings/avatar/crop');
         });
       };

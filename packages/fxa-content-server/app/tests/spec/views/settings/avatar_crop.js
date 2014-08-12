@@ -9,7 +9,7 @@ define([
   'chai',
   'underscore',
   'jquery',
-  '../../../../bower_components/jquery-ui/ui/draggable',
+  'draggable',
   'views/settings/avatar_crop',
   '../../../mocks/router',
   'lib/session',
