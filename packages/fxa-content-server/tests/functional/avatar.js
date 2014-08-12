@@ -58,6 +58,10 @@ define([
 
             .findByCssSelector('button[type="submit"]')
               .click()
+            .end()
+
+            // make sure we actually sign in
+            .findById('fxa-settings-header')
             .end();
         });
     },
@@ -89,19 +93,24 @@ define([
           .click()
         .end()
 
+        .findByCssSelector('img[src*="https://www.gravatar.com"]')
+        .end()
+
         .findById('submit-btn')
           .click()
         .end()
 
-        // redirected back to main avatar page after save
-        .findById('change-avatar')
-        .end()
+        .then(FunctionalHelpers.visibleByQSA('.success'))
 
         .findByCssSelector('.success')
           .getVisibleText()
           .then(function (val) {
             assert.ok(val, 'has success text');
           })
+        .end()
+
+        // redirected back to main avatar page after save
+        .findById('change-avatar')
         .end()
 
         // check for an image with the gravatar url
@@ -118,6 +127,9 @@ define([
           .click()
         .end()
 
+        .findByCssSelector('img[src*="https://www.gravatar.com"]')
+        .end()
+
         .findByCssSelector('a.cancel')
           .click()
         .end()
@@ -125,6 +137,9 @@ define([
         // redirected back to main avatar page after save
         .findById('avatar-options')
         .end()
+
+        // give time for error to show up, there should be no error though
+        .sleep(500)
 
         .findByCssSelector('.error')
           .getVisibleText()
@@ -137,7 +152,6 @@ define([
         .findByCssSelector('.default')
         .end();
     },
-
     'visit gravatar with no gravatar set': function () {
       return this.get('remote')
         .get(require.toUrl(AVATAR_CHANGE_URL))

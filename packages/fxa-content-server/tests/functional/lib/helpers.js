@@ -4,8 +4,9 @@
 
 define([
   'intern',
-  'require'
-], function (intern, require) {
+  'require',
+  'intern/dojo/node!leadfoot/helpers/pollUntil'
+], function (intern, require, pollUntil) {
   'use strict';
 
   var config = intern.config;
@@ -20,8 +21,31 @@ define([
       .end();
   }
 
+  /**
+   * Use document.querySelectorAll to find visible elements
+   * used for error and success notification animations.
+   *
+   * Usage:  ".then(FunctionalHelpers.visibleByQSA('.success'))"
+   *
+   * @param {String} selector
+   *        QSA compatible selector string
+   */
+  function visibleByQSA(selector) {
+    return pollUntil(function (selector) {
+      /* global document */
+      var match = document.querySelectorAll(selector);
+
+      if (match.length > 1) {
+        throw new Error('Multiple elements matched. Make a more precise selector');
+      }
+
+      return match[0] && match[0].offsetWidth > 0 ? true : null;
+    }, [ selector ], 10000);
+  }
+
   return {
-    clearBrowserState: clearBrowserState
+    clearBrowserState: clearBrowserState,
+    visibleByQSA: visibleByQSA,
+    pollUntil: pollUntil
   };
 });
-
