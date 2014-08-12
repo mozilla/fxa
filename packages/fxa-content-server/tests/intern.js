@@ -53,7 +53,9 @@ define(['intern/lib/args', 'intern/node_modules/dojo/has!host-node?intern/node_m
       { browserName: 'firefox' }
     ],
 
-    pageLoadTimeout: 30000,
+    // the default test timeout is 30 seconds
+    // make it 28 seconds to see the timeout error stack
+    pageLoadTimeout: 28000,
 
     // Maximum number of simultaneous integration tests that should be executed on the remote WebDriver service
     maxConcurrency: 3,

@@ -12,10 +12,10 @@ define([
   intern.tunnelOptions = {
     port: 4445,
     directDomains: [
-      'lcip.org'
+      'latest.dev.lcip.org'
     ],
     skipSslDomains: [
-      'lcip.org'
+      'latest.dev.lcip.org'
     ]
   };
   intern.functionalSuites = [ 'tests/functional', 'tests/functional_extra' ];

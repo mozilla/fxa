@@ -81,12 +81,9 @@ define([
         .end()
 
         // the test below depends on the speed of the email resent XHR
-        // we have to pollUntil the resent request completes
-        .then(pollUntil(function () {
-          /* global document */
-          var element = document.getElementsByClassName('success')[0];
-          return element && element.offsetWidth > 0 ? true : null;
-        }, [ ], 40000))
+        // we have to wait until the resent request completes and the success notification is visible
+        .then(FunctionalHelpers.visibleByQSA('.success'))
+
         .then(function (result) {
           assert.ok(result);
         }, function (error) {
