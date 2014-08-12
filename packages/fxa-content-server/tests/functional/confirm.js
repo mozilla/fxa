@@ -15,7 +15,7 @@ define([
 
   var config = intern.config;
   var CONFIRM_URL = config.fxaContentRoot + 'confirm';
-  var SIGNUP_URL = config.fxaContentRoot +'signup';
+  var SIGNUP_URL = config.fxaContentRoot + 'signup';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
   registerSuite({

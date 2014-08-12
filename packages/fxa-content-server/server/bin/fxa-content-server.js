@@ -68,9 +68,12 @@ function makeApp() {
   app.use(localizedRender({ i18n: i18n }));
 
   app.use(helmet.xframe('deny'));
-  app.use(helmet.iexss());
-  app.use(helmet.hsts(config.get('hsts_max_age'), true));
-  app.use(helmet.contentTypeOptions());
+  app.use(helmet.xssFilter());
+  app.use(helmet.hsts({
+    maxAge: config.get('hsts_max_age'),
+    includeSubdomains: true
+  }));
+  app.use(helmet.nosniff());
 
   // only send CSP headers in development mode
   if (config.get('env') === 'development') {
@@ -153,7 +156,7 @@ function makeHttpRedirectApp () {
 
 function listenHttpRedirectApp(httpApp) {
   'use strict';
-  var httpPort = config.get('use_https') ? config.get('redirect_port'): config.get('http_port');
+  var httpPort = config.get('use_https') ? config.get('redirect_port') : config.get('http_port');
 
   httpApp.listen(httpPort, '0.0.0.0');
   if (isMain) {
