@@ -28,17 +28,14 @@ module.exports = function (config, templates, i18n) {
     require('./routes/post-metrics')()
   ];
 
-  if (config.get('fxaccount_proxy.enabled')) {
+  if (config.get('api_proxy.enabled')) {
     routes.push(
       require('./routes/get-auth'),
-      require('./routes/post-auth')
-    );
-  }
-
-  if (config.get('oauth_proxy.enabled')) {
-    routes.push(
+      require('./routes/post-auth'),
       require('./routes/get-oauth'),
-      require('./routes/post-oauth')
+      require('./routes/post-oauth'),
+      require('./routes/get-profile_api'),
+      require('./routes/post-profile_api')
     );
   }
 

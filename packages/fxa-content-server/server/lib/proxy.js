@@ -17,6 +17,7 @@ var restreamer = require('connect-restreamer')();
 var config = require('./configuration');
 var fxaAuthServerUrl = config.get('fxaccount_url');
 var fxaOAuthServerUrl = config.get('oauth_url');
+var fxaProfileServerUrl = config.get('profile_url');
 
 var proxy = httpProxy.createServer({});
 
@@ -55,9 +56,11 @@ function getTarget (url) {
     return fxaAuthServerUrl;
   } else if (/^\/oauth\//.test(url)) {
     return fxaOAuthServerUrl;
+  } else if (/^\/profile_api\//.test(url)) {
+    return fxaProfileServerUrl;
   }
 }
 
 function getUpdatedUrl (url) {
-  return url.replace(/^\/(oauth|auth)\//, '/');
+  return url.replace(/^\/(oauth|auth|profile_api)\//, '/');
 }

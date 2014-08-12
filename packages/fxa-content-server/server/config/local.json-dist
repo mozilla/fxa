@@ -1,12 +1,10 @@
 {
   "public_url": "http://127.0.0.1:3030",
-  "fxaccount_proxy": {
+  "api_proxy": {
     "enabled": true
   },
   "oauth_url": "http://127.0.0.1:9010",
-  "oauth_proxy": {
-    "enabled": true
-  },
+  "profile_url": "http://127.0.0.1:1111",
   "client_sessions": {
     "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",

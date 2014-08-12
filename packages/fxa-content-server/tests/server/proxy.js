@@ -37,6 +37,7 @@ define([
 
       assert.equal(results.fxaccountUrl, config.get('public_url') + '/auth');
       assert.equal(results.oauthUrl, config.get('public_url') + '/oauth');
+      assert.equal(results.profileUrl, config.get('public_url') + '/profile_api');
     }, dfd.reject.bind(dfd)));
   };
 
@@ -102,8 +103,21 @@ define([
       assert.equal(res.statusCode, 400);
     }, dfd.reject.bind(dfd)));
   };
-  */
 
+  suite['#profile server proxied GET request'] = function () {
+    var dfd = this.async(1000);
+
+
+    var route = '/profile_api/';
+
+    request(httpsUrl + route, {
+      method: 'GET'
+    }, dfd.callback(function (err, res) {
+      assert.equal(res.statusCode, 200);
+      assert.include(res.body, 'commit');
+    }, dfd.reject.bind(dfd)));
+  };
+  */
 
   registerSuite(suite);
 });
