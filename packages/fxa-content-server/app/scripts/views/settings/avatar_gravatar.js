@@ -25,10 +25,6 @@ function ($, _, md5, FormView, Template, Session) {
     template: Template,
     className: 'avatar_gravatar',
 
-    events: {
-      'error #gravatar': 'notFound'
-    },
-
     initialize: function () {
       this.email = Session.email;
       if (this.email) {
@@ -44,13 +40,17 @@ function ($, _, md5, FormView, Template, Session) {
 
     afterRender: function () {
       if (! this.gravatar) {
-        var self = this;
-        this.$('#gravatar').one('load', function () {
-          self.gravatar = self.gravatarUrl();
-          self.render();
-        });
-        this.$('#gravatar').attr('src', this.gravatarUrl());
+        var img = new Image();
+        img.onerror = _.bind(this.notFound, this);
+
+        img.onload = _.bind(this.found, this);
+        img.src = this.gravatarUrl();
       }
+    },
+
+    found: function () {
+      this.gravatar = this.gravatarUrl();
+      this.render();
     },
 
     notFound: function () {
@@ -60,7 +60,11 @@ function ($, _, md5, FormView, Template, Session) {
     },
 
     gravatarUrl: function () {
-      return GRAVATAR_URL + this.hashedEmail + '?s=240d=404';
+      if (this.automatedBrowser) {
+        // Don't return a 404 so we can test the success flow
+        return GRAVATAR_URL + this.hashedEmail + '?s=240';
+      }
+      return GRAVATAR_URL + this.hashedEmail + '?s=240&d=404';
     },
 
     _hashEmail: function (email) {

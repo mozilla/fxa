@@ -40,8 +40,6 @@ function (chai, jquery, RouterMock, CanvasMock, Cropper, View) {
     it('creates a cropper', function () {
       return view.render()
         .then(function () {
-          assert.equal(routerMock.page, 'settings/avatar/crop');
-
           var cropper = new Cropper({
             src: pngSrc,
             width: 1,

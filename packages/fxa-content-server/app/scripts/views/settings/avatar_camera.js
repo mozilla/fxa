@@ -9,9 +9,12 @@ define([
   'views/form',
   'stache!templates/settings/avatar_camera',
   'lib/session',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/url'
 ],
-function (_, FormView, Template, Session, AuthErrors) {
+function (_, FormView, Template, Session, AuthErrors, Url) {
+  // a blank 1x1 png
+  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   var EXPORT_LENGTH = 600;
   var DISPLAY_LENGTH = 240;
@@ -34,6 +37,21 @@ function (_, FormView, Template, Session, AuthErrors) {
       this.exportLength = options.exportLength || EXPORT_LENGTH;
       this.displayLength = options.displayLength || DISPLAY_LENGTH;
       this.streaming = false;
+
+      var self = this;
+      if (this.automatedBrowser) {
+        // mock some things out for automated browser testing
+        this.streaming = true;
+        this._getMedia = function () {
+          self.enableSubmitIfValid();
+        };
+        this.stream = {
+          stop: function () {}
+        };
+        this.takePicture = function () {
+          return pngSrc;
+        };
+      }
     },
 
     _getMedia: function () {
