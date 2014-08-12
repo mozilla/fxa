@@ -20,6 +20,7 @@ module.exports = function (grunt) {
         out: '<%= yeoman.tmp %>/scripts/main.js',
         mainConfigFile: '<%= yeoman.app %>/scripts/require_config.js',
         keepBuildDir: true,
+        findNestedDependencies: true,
         // TODO: (Issue #560) Figure out how to make sourcemaps work with grunt-usemin
         // https://github.com/yeoman/grunt-usemin/issues/30
         //generateSourceMaps: true,
