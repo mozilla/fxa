@@ -8,6 +8,7 @@ module.exports = function (grunt) {
   grunt.config('csslint', {
     strict: {
       options: {
+        'adjoining-classes': 0,
         'box-model': 0,
         'box-sizing': 0,
         'compatible-vendor-prefixes': 0,
@@ -19,8 +20,10 @@ module.exports = function (grunt) {
         'outline-none': 0,
         'overqualified-elements': 0,
         'qualified-headings': 0,
+        'regex-selectors': 0,
         'unique-headings': 0,
         'universal-selector': 0,
+        'unqualified-attributes': 0,
         'zero-units': 0
       },
       src: ['<%= yeoman.app %>/styles/**/*.css']

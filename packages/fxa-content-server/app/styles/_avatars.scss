@@ -1,117 +1,110 @@
-.avatar-wrapper img {
-  width: $avatar-size;
-  height: $avatar-size;
-  display: block;
-}
-.avatar-wrapper img.hidden {
-  display: none;
-}
-
-.avatar-wrapper img.default {
-  background-image: url(/images/default-profile.svg);
-  background-size: cover;
-}
-
 .avatar-wrapper {
-  position: relative;
+  border-radius: 50%;
+  border-width: 0;
+  display: inline-block;
+  height: $avatar-size;
+  line-height: 0;
+  margin: 0 0 5px;
   overflow: hidden;
+  position: relative;
+  width: $avatar-size;
+
+  img {
+    display: block;
+    height: $avatar-size;
+    width: $avatar-size;
+
+    &.hidden {
+      display: none;
+    }
+
+    &.default {
+      background-image: image-url('default-profile.svg');
+      background-size: cover;
+    }
+  }
+
+  video {
+    border-radius: 50%;
+    position: relative;
+  }
 }
 
-.avatar-wrapper video {
-  position: relative;
+// IE fix: removes blue border
+a.avatar-wrapper {
+  color: transparent;
 }
 
 #fxa-settings-sub-header {
   font-size: $medium-font;
-  padding-bottom: 5px;
   font-weight: normal;
-}
-#fxa-settings-sub-header a {
-  text-decoration: none;
-  font-size: 88%;
+  padding-bottom: 5px;
+
+  a {
+    font-size: 88%;
+    text-decoration: none;
+  }
 }
 
 .notice {
-  font-size: $base-font;
   color: $faint-text-color;
+  font-size: $base-font;
 }
 
 .main-avatar {
   position: relative;
+
+  .remove {
+    position: absolute;
+    right: 0;
+    text-decoration: none;
+    top: 0;
+  }
 }
 
-.main-avatar .remove {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  text-decoration: none;
-}
 
 /* Circle Avatar Styles */
-
-.avatar-wrapper {
-  line-height: 0;
-  display: inline-block;
-  margin: 0px 0px 5px;
-  border-radius: 50%;
-  border-width: 0px;
-  height: $avatar-size;
-  width: $avatar-size;
-}
-
-.avatar-wrapper video {
-  border-radius: 50%;
-}
-
-a.avatar-wrapper {
-  color: transparent;
-} /* IE fix: removes blue border */
-
 .avatar_camera canvas {
   display: none;
 }
 
-.avatar_change nav {
-  padding: 20px;
+.avatar_change {
+  .gravatar-logo {
+    // background-image: image-url('gravatar.svg');
+    background: image-url('gravatar.svg') no-repeat top center;
+    background-size: contain;
+    display: inline-block;
+    height: 39px;
+    width: 39px;
+  }
+
+  nav {
+    background-color: $html-background-color;
+    border-radius: $big-border-radius;
+    margin: 60px -40px -40px -40px;
+    padding: 20px;
+
+    a {
+      background-color: #fff;
+      border-radius: 50%;
+      display: inline-block;
+      height: 80px;
+      line-height: 1.1;
+      margin: 5px;
+      padding: 11px;
+      text-decoration: none;
+      width: 80px;
+    }
+
+    span {
+      font-size: 35px;
+
+      &:after {
+        content: '\A';
+        white-space: pre;
+      }
+    }
+  }
 }
 
-.avatar_change nav a {
-  padding: 11px;
-  text-decoration: none;
-  display: inline-block;
-  width: 80px;
-  height: 80px;
-  background-color: #fff;
-
-  line-height: 1.1;
-  margin: 5px;
-  border-radius: 50%;
-}
-
-.avatar_change nav span {
-  font-size: 35px;
-}
-
-.avatar_change nav span:after {
-  content: '\A';
-  white-space: pre;
-}
-
-.avatar_change nav {
-  margin: 60px -40px -40px -40px;
-  background-color: $html-background-color;
-  border-radius: $big-border-radius;
-}
-
-.avatar_change .gravatar-logo {
-  background: url(/images/gravatar.svg) no-repeat top center;
-  background-image: url(/images/gravatar.svg);
-  background-size: contain;
-  width: 39px;
-  height: 39px;
-  display: inline-block;
-}
-
-@import "cropper";
-
-
+@import 'cropper';
