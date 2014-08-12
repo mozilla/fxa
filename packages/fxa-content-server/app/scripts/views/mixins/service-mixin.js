@@ -38,7 +38,7 @@ define([
     return hasServiceView || this.isOAuthSameBrowser();
   }
 
-  function notifyChannel(message, data) {
+  function _notifyChannel(message, data) {
     /*jshint validthis: true*/
     var self = this;
     // Assume the receiver of the channel's notification will either
@@ -48,7 +48,7 @@ define([
     if (data && data.timeout) {
       self._expectResponseTimeout = self.setTimeout(function () {
         self.displayError(OAuthErrors.toError('TRY_AGAIN'), OAuthErrors);
-      }, EXPECT_CHANNEL_RESPONSE_TIMEOUT);
+      }, data.timeout);
     }
 
     return Channels.sendExpectResponse(message, data, {
@@ -67,7 +67,7 @@ define([
    * @param {Object} options
    * @returns {Object}
    */
-  function decorateOAuthResult(result, options) {
+  function _decorateOAuthResult(result, options) {
     options = options || {};
 
     // if specific to the WebChannel flow
@@ -75,8 +75,8 @@ define([
       // set closeWindow
       result.closeWindow = options.viewOptions && options.viewOptions.source === 'signin';
       // if the source is "signin" then set a timeout for a successful WebChannel signin
-      if (options.viewOptions.source === 'signin') {
-        result.timeout = 3000;
+      if (options.viewOptions && options.viewOptions.source === 'signin') {
+        result.timeout = EXPECT_CHANNEL_RESPONSE_TIMEOUT;
       }
     }
 
@@ -89,7 +89,7 @@ define([
    * @param {Object} result
    * @returns {Object}
    */
-  function formatOAuthResult(result) {
+  function _formatOAuthResult(result) {
     // get code and state from redirect params
     var redirectParams = result.redirect.split('?')[1];
     result.state = Url.searchParam('state', redirectParams);
@@ -118,6 +118,10 @@ define([
       // to the 'client_id'.
       this.service = params.client_id || Session.service;
 
+      // assertion library to use to generate assertions
+      // can be substituted for testing
+      this.assertionLibrary = Assertion;
+
       Session.set('service', this.service);
       // A hint that allows Session to determine whether the user
       // is in the OAuth flow.
@@ -144,7 +148,7 @@ define([
     },
 
     finishOAuthFlowDifferentBrowser: function () {
-      return notifyChannel.call(this, 'oauth_complete', {
+      return _notifyChannel.call(this, 'oauth_complete', {
             redirect: this.serviceRedirectURI,
             error: RP_DIFFERENT_BROWSER_ERROR_CODE
           });
@@ -152,9 +156,8 @@ define([
 
     finishOAuthFlow: buttonProgressIndicator(function (viewOptions) {
       var self = this;
-
       return this._configLoader.fetch().then(function(config) {
-        return Assertion.generate(config.oauthUrl);
+        return self.assertionLibrary.generate(config.oauthUrl);
       })
       .then(function(assertion) {
         self._oAuthParams.assertion = assertion;
@@ -162,18 +165,18 @@ define([
       })
       .then(function(result) {
 
-        return formatOAuthResult(result);
+        return _formatOAuthResult(result);
       })
       .then(function(result) {
 
-        return decorateOAuthResult(result, {
+        return _decorateOAuthResult(result, {
           context: self.window,
           viewOptions: viewOptions
         });
       })
       .then(function(result) {
 
-        return notifyChannel.call(self, 'oauth_complete', result);
+        return _notifyChannel.call(self, 'oauth_complete', result);
       })
       .then(function() {
         Session.clear('oauth');
@@ -230,6 +233,10 @@ define([
 
     isSync: function () {
       return Session.service === SYNC_SERVICE;
-    }
+    },
+    // exported for testing purposes
+    _decorateOAuthResult: _decorateOAuthResult,
+    _formatOAuthResult: _formatOAuthResult,
+    _notifyChannel: _notifyChannel
   };
 });
