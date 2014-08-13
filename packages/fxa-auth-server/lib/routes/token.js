@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const AppError = require('../error');
+const buf = require('buf').hex;
+const hex = require('buf').to.hex;
 const Joi = require('joi');
 
 const config = require('../config');
@@ -52,15 +54,17 @@ module.exports = {
   },
   handler: function tokenEndpoint(req, reply) {
     var params = req.payload;
-    db.getClient(Buffer(params.client_id, 'hex')).then(function(client) {
+    db.getClient(buf(params.client_id)).then(function(client) {
       if (!client) {
         logger.debug('client_id="%s" not found', params.client_id);
         throw AppError.unknownClient(params.client_id);
       }
 
-      if (String(encrypt.hash(params.client_secret))
-        !== String(client.secret)) {
+      var submitted = hex(encrypt.hash(buf(params.client_secret)));
+      var stored = hex(client.secret);
+      if (submitted !== stored) {
         logger.debug('client id=%s did not match secrets', params.client_id);
+        logger.verbose('mismatched secret: param=%s, db=%s', submitted, stored);
         throw AppError.incorrectSecret(params.client_id);
       }
 
