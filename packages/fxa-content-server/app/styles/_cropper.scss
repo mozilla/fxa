@@ -1,53 +1,54 @@
-
 .cropper {
   .wrapper {
-    position: relative;
-    overflow: hidden;
     height: $avatar-size;
+    margin: 0 -40px;
+    overflow: hidden;
+    position: relative;
     width: $avatar-size + 180px;
-    margin: 0px -40px;
+
+    & img {
+      position: absolute;
+    }
   }
 
   .mask {
-    background: url(/images/crop-mask.svg);
-    position: relative;
+    background: image-url('crop-mask.svg');
     height: $avatar-size;
-    width: $avatar-size;
-    top: 0px;
     left: (420 - $avatar-size) / 2;
+    position: relative;
+    top: 0;
+    width: $avatar-size;
     z-index: 1;
-  }
 
-  .mask:before,
-  .mask:after {
-    content: "";
-    display: block;
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.5);
-    height: $avatar-size;
-    width: (420 - $avatar-size) / 2;
-    top: 0px;
-    z-index: 1;
-  }
-  .mask:before {
-    left: -(420 - $avatar-size) / 2;
-  }
-  .mask:after {
-    right: -(420 - $avatar-size) / 2;
+    &:before,
+    &:after {
+      background-color: rgba(#000, 0.5);
+      content: '';
+      display: block;
+      height: $avatar-size;
+      position: absolute;
+      top: 0;
+      width: (420 - $avatar-size) / 2;
+      z-index: 1;
+    }
+
+    &:before {
+      left: -(420 - $avatar-size) / 2;
+    }
+
+    &:after {
+      right: -(420 - $avatar-size) / 2;
+    }
   }
 
   .drag-overlay {
-    position: absolute;
-    top: 0px;
-    left: 0px;
     cursor: move;
-    z-index: 3;
     height: 100%;
-    width: 100%;
-  }
-
-  .wrapper img {
+    left: 0;
     position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 3;
   }
 
   canvas {
@@ -56,13 +57,13 @@
 
   .zoom-in,
   .zoom-out {
+    color: $faint-text-color;
     cursor: pointer;
     -webkit-touch-callout: none;
-    -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+    -webkit-user-select: none;
     user-select: none;
-    color: $faint-text-color;
   }
 
   .rotate {

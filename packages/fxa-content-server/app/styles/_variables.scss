@@ -49,6 +49,7 @@ $avatar-size: 240px;
 @mixin font() {
   font-family: $default-font;
 }
+
 @mixin header-font() {
   font-family: $header-font;
 }
