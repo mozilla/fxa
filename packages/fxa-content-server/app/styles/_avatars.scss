@@ -52,13 +52,20 @@ a.avatar-wrapper {
 }
 
 .main-avatar {
+  display: inline-block;
   position: relative;
+  width: $avatar-size;
 
   .remove {
     position: absolute;
-    right: 0;
     text-decoration: none;
-    top: 0;
+    text-align: center;
+    font-size: 24px;
+    line-height: 50px;
+    right: -10px;
+    top: -10px;
+    height: 50px;
+    width: 50px;
   }
 }
 
