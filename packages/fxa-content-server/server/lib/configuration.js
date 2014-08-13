@@ -153,7 +153,7 @@ var conf = module.exports = convict({
       globalThreshold: 90,
       threshold: 50,
       // Ignore oauth scripts until tests are enabled (issue #1141)
-      excludeFiles: ['/scripts/../tests/','/scripts/vendor/','oauth', '/scripts/../bower_components/']
+      excludeFiles: ['/scripts/../tests/', '/scripts/vendor/', 'oauth', '/scripts/../bower_components/']
     }
   },
   i18n: {
@@ -215,11 +215,11 @@ var conf = module.exports = convict({
   },
   key_path: {
       doc: 'The location of the SSL key in pem format',
-      default: path.resolve(__dirname, '..', '..','key.pem')
+      default: path.resolve(__dirname, '..', '..', 'key.pem')
   },
   cert_path: {
       doc: 'The location of the SSL certificate in pem format',
-      default: path.resolve(__dirname, '..', '..','cert.pem')
+      default: path.resolve(__dirname, '..', '..', 'cert.pem')
   }
 });
 
