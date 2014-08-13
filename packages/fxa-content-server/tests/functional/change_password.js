@@ -10,9 +10,8 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'tests/lib/restmail'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers, restmail) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -45,6 +44,10 @@ define([
 
       var self = this;
       return client.signUp(email, FIRST_PASSWORD, { preVerified: true })
+        .then(function () {
+          return self.get('remote')
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        })
           .then(function () {
             return clearBrowserStorage.call(self);
           });
@@ -91,7 +94,8 @@ define([
           .click()
         .end()
 
-        .sleep(2000)
+        .then(FunctionalHelpers.visibleByQSA('.error'))
+
         .findByCssSelector('.error').isDisplayed()
           .then(function (isDisplayed) {
             assert.isTrue(isDisplayed);
@@ -166,10 +170,8 @@ define([
         .findById('fxa-settings-header')
         .end()
 
-        // For whatever reason, .findByClass completes
-        // but the .isDisplayed() check fails. With the .sleep, no such
-        // error.
-        .sleep(ANIMATION_DELAY_MS)
+        .then(FunctionalHelpers.visibleByQSA('.success'))
+        
         .findByClassName('success').isDisplayed()
           .then(function (isDisplayed) {
             assert.equal(isDisplayed, true);
@@ -177,6 +179,10 @@ define([
         .end()
 
         .get(require.toUrl(SIGNIN_URL))
+
+        .findByCssSelector('.use-different')
+          .click()
+        .end()
 
         .findByCssSelector('form input.email')
           .click()

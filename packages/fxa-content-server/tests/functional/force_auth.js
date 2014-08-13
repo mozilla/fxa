@@ -56,6 +56,7 @@ define([
 
     'sign in via force-auth': function () {
       return this.get('remote')
+        .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
         .findByCssSelector('form input.password')
           .click()
@@ -72,6 +73,7 @@ define([
 
     'forgot password flow via force-auth goes directly to confirm email screen': function () {
       return this.get('remote')
+        .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
         .findByCssSelector('.reset-password')
           .click()
@@ -105,6 +107,7 @@ define([
     var password = '12345678';
 
     return self.get('remote')
+      .setFindTimeout(intern.config.pageLoadTimeout)
       .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
       .findByCssSelector('input[type=password]')
         .clearValue()

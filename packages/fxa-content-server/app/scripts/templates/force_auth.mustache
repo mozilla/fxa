@@ -10,6 +10,11 @@
     {{^fatalError}}
 
     <div class="error"></div>
+    <div class="avatar-wrapper avatar-view">
+      {{#avatar}}
+        <img src="{{ avatar }}" alt="{{ email }}"/>
+      {{/avatar}}
+    </div>
     <form novalidate>
       <p class="prefill">{{ email }}</p>
 

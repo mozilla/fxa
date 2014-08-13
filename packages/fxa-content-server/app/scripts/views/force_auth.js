@@ -46,6 +46,7 @@ function (p, BaseView, SignInView, Template, Session) {
 
       return {
         email: Session.forceEmail,
+        avatar: this._getAvatar(),
         password: this._prefillPassword,
         forceAuth: Session.forceAuth,
         fatalError: fatalError
@@ -66,7 +67,9 @@ function (p, BaseView, SignInView, Template, Session) {
       var email = Session.forceEmail;
       var password = this.$('.password').val();
 
-      return this._signIn(email, password);
+      return this._signIn(email, {
+        password: password
+      });
     },
 
     resetPasswordNow: BaseView.cancelEventThen(function () {
@@ -88,7 +91,20 @@ function (p, BaseView, SignInView, Template, Session) {
                   self.displayError(err);
                 });
       });
-    })
+    }),
+
+    /**
+     * Return user's "Session.avatar" if the session email is the same as the force email.
+     *
+     * @private
+     */
+    _getAvatar: function () {
+      if (Session.forceEmail && Session.avatar && Session.forceEmail === Session.email) {
+        return Session.avatar;
+      } else {
+        return null;
+      }
+    }
   });
 
   return View;

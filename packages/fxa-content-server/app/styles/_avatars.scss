@@ -8,6 +8,20 @@
   overflow: hidden;
   position: relative;
   width: $avatar-size;
+  &.avatar-view {
+    background-size: 120px;
+    height: 120px;
+    width: 120px;
+    display: block;
+    margin: 0 auto;
+    background: image-url('default-profile.svg') center;
+    background-repeat: no-repeat;
+    img {
+      height: 120px;
+      width: 120px;
+    }
+  }
+
 
   img {
     display: block;

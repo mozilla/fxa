@@ -17,36 +17,74 @@
     {{/error}}
 
     {{^error}}
-    <div class="error"></div>
-    <div class="success"></div>
+      <div class="error"></div>
+      <div class="success"></div>
 
-    <form novalidate>
-      <div class="input-row">
-        <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}}>
+      {{#suggestedUser}}
+          <div class="avatar-wrapper avatar-view">
+            {{#avatar}}
+              <img src="{{ avatar }}" alt="{{ email }}"/>
+            {{/avatar}}
+          </div>
+          <p class="prefill">{{ email }}</p>
+        {{#chooserAskForPassword}}
+          <form novalidate>
+            <input type="hidden" class="email" value="{{ email }}" />
+
+            <div class="input-row password-row">
+              <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required autocomplete="off" />
+
+              <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
+              <label for="show-password" class="show-password-label">
+                {{#t}}Show{{/t}}
+              </label>
+            </div>
+
+            <div class="button-row">
+              <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
+            </div>
+           </form>
+        {{/chooserAskForPassword}}
+        {{^chooserAskForPassword}}
+          <div class="button-row">
+            <button type="submit" class="use-logged-in">{{#t}}Sign in{{/t}}</button>
+          </div>
+        {{/chooserAskForPassword}}
+        <div class="links">
+          <a href="/#" class="use-different">{{#t}}Use a different account{{/t}}</a><br/>
+        </div>
+      {{/suggestedUser}}
+
+      {{^suggestedUser}}
+        <form novalidate>
+        <div class="input-row">
+          <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}}>
+        </div>
+
+        <div class="input-row password-row">
+          <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#email}}autofocus{{/email}} autocomplete="off" />
+
+          <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
+          <label for="show-password" class="show-password-label">
+            {{#t}}Show{{/t}}
+          </label>
+        </div>
+
+        <div class="button-row">
+          <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
+        </div>
+      </form>
+
+      <div class="links">
+        <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
+        <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
       </div>
 
-      <div class="input-row password-row">
-        <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#email}}autofocus{{/email}} autocomplete="off" />
-
-        <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
-        <label for="show-password" class="show-password-label">
-          {{#t}}Show{{/t}}
-        </label>
+      <div class="privacy-links">
+        {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
       </div>
+      {{/suggestedUser}}
 
-      <div class="button-row">
-        <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
-      </div>
-    </form>
-
-    <div class="links">
-      <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
-      <a href="/signup" class="right sign-up">{{#t}}Create an account{{/t}}</a>
-    </div>
-
-    <div class="privacy-links">
-      {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
-    </div>
     {{/error}}
   </section>
 </div>

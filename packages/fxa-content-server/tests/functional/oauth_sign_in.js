@@ -108,6 +108,10 @@ define([
             })
             .end()
 
+            .findByCssSelector('.use-different')
+            .click()
+            .end()
+
             .findByCssSelector('form input.email')
             .clearValue()
             .click()
@@ -155,8 +159,65 @@ define([
             })
             .end();
         });
+    },
 
+    'verified using a cached login': function () {
+      var self = this;
+      // verify account
+      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
+        .then(function (emails) {
 
+          return self.get('remote')
+            .get(require.toUrl(emails[0].headers['x-link']))
+
+            // wait for confirmation
+            .findById('fxa-sign-up-complete-header')
+            .end()
+            // sign in with a verified account
+            .get(require.toUrl(OAUTH_APP))
+            .findByCssSelector('#splash .signin')
+            .click()
+            .end()
+
+            .findByCssSelector('#fxa-signin-header .service')
+            .end()
+
+            .findByCssSelector('.use-logged-in')
+            .click()
+            .end()
+
+            .findByCssSelector('#loggedin')
+            .getCurrentUrl()
+            .then(function (url) {
+              // redirected back to the App
+              assert.ok(url.indexOf(OAUTH_APP) > -1);
+            })
+            .end()
+
+            // let items load
+            .findByCssSelector('#todolist li')
+            .end()
+
+            .findByCssSelector('#loggedin')
+            .getVisibleText()
+            .then(function (text) {
+              // confirm logged in email
+              assert.ok(text.indexOf(email) > -1);
+            })
+            .end()
+
+            .findByCssSelector('#logout')
+            .click()
+            .end()
+
+            .findByCssSelector('#loggedin')
+            .getVisibleText()
+            .then(function (text) {
+              // confirm logged out
+              assert.ok(text.length === 0);
+            })
+            .end();
+        });
     },
 
     'unverified': function () {
@@ -179,6 +240,10 @@ define([
           assert.ok(url.indexOf('redirect_uri=') > -1);
           assert.ok(url.indexOf('state=') > -1);
         })
+        .end()
+
+        .findByCssSelector('.use-different')
+        .click()
         .end()
 
         .findByCssSelector('form input.email')
@@ -241,6 +306,24 @@ define([
             });
 
         });
+    },
+    'unverified with a cached login': function () {
+      return this.get('remote')
+        .get(require.toUrl(OAUTH_APP))
+        .findByCssSelector('#splash .signin')
+        .click()
+        .end()
+
+        .findByCssSelector('#fxa-signin-header .service')
+        .end()
+
+        .findByCssSelector('.use-logged-in')
+        .click()
+        .end()
+
+        // success is using a cached login and being redirected to a confirmation screen
+        .findByCssSelector('#fxa-confirm-header')
+        .end();
     }
   });
 

@@ -76,6 +76,10 @@ define([
         .click()
         .end()
 
+        .findByCssSelector('.use-different')
+        .click()
+        .end()
+
         .findByCssSelector('form input.email')
         .end()
 
@@ -98,6 +102,10 @@ define([
 
           return true;
         }, [ OAUTH_APP ])
+
+        .findByCssSelector('.use-different')
+        .click()
+        .end()
 
         .findByCssSelector('form input.email')
         .clearValue()

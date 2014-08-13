@@ -6,9 +6,13 @@
   <section>
     <div class="error"></div>
     <div class="success"></div>
+    <div class="avatar-wrapper avatar-view">
+      {{#avatar}}
+        <img src="{{ avatar }}"  alt="{{ email }}"/>
+      {{/avatar}}
+    </div>
 
     <p class="signed-in-email-message">{{#t}}You are signed in as{{/t}}<br />{{email}}</p>
-
 
     <ul class="links">
       {{#showSignOut}}
