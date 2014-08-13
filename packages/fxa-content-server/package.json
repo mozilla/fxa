@@ -68,6 +68,7 @@
     "firefox-profile": "0.3.3",
     "grunt-blanket-mocha": "0.4.1",
     "grunt-bump": "0.0.15",
+    "grunt-contrib-watch": "0.6.1",
     "grunt-contrib-csslint": "0.2.0",
     "grunt-contrib-imagemin": "git://github.com/vladikoff/grunt-contrib-imagemin#keepOldImage",
     "grunt-contrib-jshint": "0.10.0",
