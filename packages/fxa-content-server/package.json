@@ -55,11 +55,9 @@
     "http-proxy": "1.2.0",
     "i18n-abide": "0.0.22",
     "intel": "1.0.0-b4",
-    "jshint-stylish": "0.4.0",
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "0.6.0",
     "mkdirp": "0.5.0",
-    "request": "2.40.0",
     "time-grunt": "0.4.0"
   },
   "devDependencies": {
@@ -79,6 +77,8 @@
     "grunt-todo": "0.4.0",
     "intern-geezer": "2.0.1",
     "jshint": "2.5.3",
+    "jshint-stylish": "0.4.0",
+    "request": "2.40.0",
     "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {
