@@ -34,14 +34,14 @@ install:
   - npm install --silent
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &
-  - sleep 10
   - cd ..
   - npm start &
+  - sleep 10
 
 # now run the tests!
 script:
   - npm outdated --depth 0 # show old modules
   - grunt validate-shrinkwrap --force # check for vulnerable modules via nodesecurity.io
   - grunt lint
-  - npm run test-server
   - travis_retry npm run test-travis
+  - travis_retry npm run test-server
