@@ -42,6 +42,7 @@ The currently-defined error responses are:
 | 400 | 107 | expired code |
 | 400 | 108 | invalid token |
 | 400 | 109 | invalid request parameter |
+| 400 | 110 | invalid response_type |
 | 500 | 999 | internal server error |
 
 ## API Endpoints
@@ -98,7 +99,7 @@ content-server page.
 - `client_id`: The id returned from client registration.
 - `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
-- `scope`: Optional. A string-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
+- `scope`: Optional. A space-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
 - `action`: Optional. If provided, should be either `signup` or `signin`. Send to improve user experience, based on whether they clicked on a Sign In or Sign Up button.
 
 **Example:**
