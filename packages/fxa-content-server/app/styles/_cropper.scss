@@ -5,7 +5,7 @@
     overflow: hidden;
     position: relative;
     width: $avatar-size + 180px;
-    background-color: black;
+    background-color: $cropper-background-color;
 
     & img {
       position: absolute;
