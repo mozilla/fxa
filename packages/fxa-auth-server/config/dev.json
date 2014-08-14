@@ -12,6 +12,15 @@
       "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
       "redirectUri": "http://127.0.0.1:8080/api/oauth",
       "whitelisted": true
+    },
+    {
+      "id": "98e6508e88680e1a",
+      "secret": "a82c22f94f2a48c82fc712ae636415b6fe70ba61e01e1c138c8224c127124d48",
+      "name": "Admin",
+      "imageUri": "https://example2.domain/logo",
+      "redirectUri": "https://example2.domain/return?foo=bar",
+      "whitelisted": true,
+      "canGrant": true
     }
   ],
   "logging": {
