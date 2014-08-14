@@ -23,9 +23,17 @@ exports.create = function() {
     path: '/a/{id}',
     handler: {
       'directory': {
-        'path': path.join(__dirname, '..', 'var', 'public')
+        'path': path.join(__dirname, '..', '..', 'var', 'public')
       }
     }
+  });
+
+  server.on('log', function onLog(evt) {
+    logger.verbose('hapi.server', evt);
+  });
+
+  server.on('request', function onRequest(req, evt) {
+    logger.verbose('hapi.request', evt);
   });
 
   // response logging

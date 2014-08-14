@@ -18,6 +18,7 @@ const config = require('../lib/config');
 const db = require('../lib/db');
 const inject = require('./lib/inject');
 const Server = require('./lib/server');
+const Static = require('./lib/static');
 const WORKER = require('../lib/server/worker').create();
 
 const USERID = crypto.randomBytes(16).toString('hex');
@@ -254,15 +255,15 @@ describe('/avatar', function() {
       throw new Error('aws image tests not implemented');
     }
 
-    it('should upload a new avatar', function(done) {
-      this.slow(2500);
-      this.timeout(4000);
+    it('should upload a new avatar', function() {
+      this.slow(2000);
+      this.timeout(3000);
       mockToken().reply(200, JSON.stringify({
         user: USERID,
         scope: ['profile:avatar:write']
       }));
       mockWorker();
-      Server.api.post({
+      return Server.api.post({
         url: '/avatar/upload',
         payload: imageData,
         headers: {
@@ -273,12 +274,10 @@ describe('/avatar', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 201);
         assert(res.result.url);
+        console.log(res.result);
         return res.result.url;
-      }).then(function(url) {
-        console.log(path.join(pubPath, url));
-        while (!fs.existsSync(path.join(pubPath, url))) {
-        }
-        done();
+      }).then(Static.get).then(function(res) {
+        assert.equal(res.statusCode, 200);
       });
     });
 

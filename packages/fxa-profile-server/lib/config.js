@@ -91,7 +91,8 @@ const conf = convict({
       }
     },
     url: {
-      default: 'http://localhost:1112/a/%(id)s'
+      doc: 'Pattern to generate FxA avatar URLs. {id} will be replaced.',
+      default: 'http://localhost:1112/a/{id}'
     }
   },
   logging: {

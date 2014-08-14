@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const assert = require('assert');
+
 const Joi = require('joi');
 const P = require('../../promise');
 
@@ -15,9 +17,12 @@ const request = require('../../request');
 const WORKER_URL = config.get('worker.url');
 
 const FXA_PROVIDER = 'fxa';
+const FXA_URL_TEMPLATE = config.get('img.url');
+assert(FXA_URL_TEMPLATE.indexOf('{id}') !== -1,
+    'img.url must contain the string "{id}"');
 
 function fxaUrl(id) {
-  return id;
+  return FXA_URL_TEMPLATE.replace('{id}', id);
 }
 
 function pipeToWorker(id, payload, headers) {
