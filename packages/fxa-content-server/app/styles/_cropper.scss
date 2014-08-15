@@ -5,6 +5,7 @@
     overflow: hidden;
     position: relative;
     width: $avatar-size + 180px;
+    background-color: $cropper-background-color;
 
     & img {
       position: absolute;
@@ -76,5 +77,10 @@
   .zoom-out,
   .rotate {
     font-size: 20px;
+    vertical-align: middle;
+  }
+
+  .slider {
+    vertical-align: middle;
   }
 }
