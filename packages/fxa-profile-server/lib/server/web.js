@@ -11,6 +11,14 @@ const hapiLogger = require('../logging').getLogger('fxa.server.web.hapi');
 const request = require('../request');
 const summary = require('../logging/summary');
 
+function set(arr) {
+  var obj = Object.create(null);
+  arr.forEach(function(name) {
+    obj[name] = name;
+  });
+  return Object.keys(obj);
+}
+
 // This is the webserver. It's what the outside always talks to. It
 // handles the whole Profile API.
 exports.create = function createServer() {
@@ -66,6 +74,21 @@ exports.create = function createServer() {
       delete route.config.response;
     });
   }
+  // make sure all `read` scopes include `write`, and all include `profile`
+  routes.forEach(function(route) {
+    var scopes = route.config.auth && route.config.auth.scope;
+    if (!scopes) {
+      return;
+    }
+    for (var i = 0, len = scopes.length; i < len; i++) {
+      var scope = scopes[i];
+      if (scope.indexOf(':write') === -1) {
+        scopes.push(scope + ':write');
+      }
+    }
+    scopes = set(scopes);
+    logger.verbose(route.path, scopes);
+  });
   server.route(routes);
 
   // hapi internal logging: server and request
