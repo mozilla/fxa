@@ -19,8 +19,9 @@ define([
   var OAUTH_APP = config.fxaOauthApp;
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var CONTENT_SERVER = config.fxaContentRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
-  var COMPLETE_PAGE_URL_ROOT = config.fxaContentRoot + 'complete_reset_password';
+  var COMPLETE_PAGE_URL_ROOT = CONTENT_SERVER + 'complete_reset_password';
 
   var PASSWORD = 'password';
   var user;
@@ -69,7 +70,13 @@ define([
         })
         .then(function () {
           // clear localStorage to avoid polluting other tests.
-          return FunctionalHelpers.clearBrowserState(self);
+          return self.get('remote')
+            // always go to the content server so the browser state is cleared
+            .get(require.toUrl(CONTENT_SERVER))
+            .setFindTimeout(intern.config.pageLoadTimeout)
+            .then(function () {
+              return FunctionalHelpers.clearBrowserState(self);
+            });
         });
     },
 

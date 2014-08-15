@@ -16,6 +16,7 @@ define([
   'use strict';
 
   var config = intern.config;
+  var CONTENT_SERVER = config.fxaContentRoot;
   var OAUTH_APP = config.fxaOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 
@@ -35,44 +36,46 @@ define([
       user = TestHelpers.emailToUser(email);
       var self = this;
 
-      return FunctionalHelpers.clearBrowserState(this)
+      return self.get('remote')
+        // always go to the content server so the browser state is cleared
+        .get(require.toUrl(CONTENT_SERVER))
+        .setFindTimeout(intern.config.pageLoadTimeout)
         .then(function () {
-          return self.get('remote')
-            // sign up, do not verify steps
-            .get(require.toUrl(OAUTH_APP))
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            .findByCssSelector('#splash .signup')
-            .click()
-            .end()
+          return FunctionalHelpers.clearBrowserState(self);
+        })
+        // sign up, do not verify steps
+        .get(require.toUrl(OAUTH_APP))
+        .findByCssSelector('#splash .signup')
+        .click()
+        .end()
 
-            .findByCssSelector('form input.email')
-            .clearValue()
-            .click()
-            .type(email)
-            .end()
+        .findByCssSelector('form input.email')
+        .clearValue()
+        .click()
+        .type(email)
+        .end()
 
-            .findByCssSelector('form input.password')
-            .click()
-            .type(PASSWORD)
-            .end()
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
 
-            .findByCssSelector('#fxa-age-year')
-            .click()
-            .end()
+        .findByCssSelector('#fxa-age-year')
+        .click()
+        .end()
 
-            .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-            .pressMouseButton()
-            .releaseMouseButton()
-            .click()
-            .end()
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+        .pressMouseButton()
+        .releaseMouseButton()
+        .click()
+        .end()
 
-            .findByCssSelector('button[type="submit"]')
-            .click()
-            .end()
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
 
-            .findByCssSelector('#fxa-confirm-header')
-            .end();
-        });
+        .findByCssSelector('#fxa-confirm-header')
+        .end();
     },
 
     'verified': function () {

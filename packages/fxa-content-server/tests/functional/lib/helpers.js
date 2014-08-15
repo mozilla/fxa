@@ -9,16 +9,21 @@ define([
 ], function (intern, require, pollUntil) {
   'use strict';
 
-  var config = intern.config;
-  var CLEAR_URL = config.fxaContentRoot + 'clear';
-
   function clearBrowserState(context) {
     // clear localStorage to avoid polluting other tests.
     return context.get('remote')
-      .get(require.toUrl(CLEAR_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
-      .findById('fxa-clear-storage-header')
-      .end();
+      .execute(function () {
+        try {
+          /* global document, localStorage, sessionStorage */
+          localStorage.clear();
+          sessionStorage.clear();
+          document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+        } catch(e) {
+          console.log('Failed to clearBrowserState');
+          // if cookies are disabled, this will blow up some browsers.
+        }
+        return true;
+      }, []);
   }
 
   /**

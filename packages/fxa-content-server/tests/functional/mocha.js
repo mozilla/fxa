@@ -63,6 +63,7 @@ define([
         .end()
 
         // any individual failures?
+        .setFindTimeout(3000)
         .findByCssSelector('.bl-error .bl-file a')
         .then(
           function() {
