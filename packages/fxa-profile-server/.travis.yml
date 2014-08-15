@@ -18,8 +18,8 @@ env:
 
 before_script:
   - sudo apt-get install graphicsmagick
-  - "mysql -e 'DROP DATABASE IF EXISTS fxa;'"
-  - "mysql -e 'CREATE DATABASE fxa;'"
+  - "mysql -e 'DROP DATABASE IF EXISTS fxa_profile;'"
+  - "mysql -e 'CREATE DATABASE fxa_profile;'"
 
 script:
   - npm run outdated

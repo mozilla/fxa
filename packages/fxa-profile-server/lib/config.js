@@ -155,7 +155,7 @@ const conf = convict({
       env: 'MYSQL_PASSWORD'
     },
     database: {
-      default: 'fxa',
+      default: 'fxa_profile',
       env: 'MYSQL_DATABASE'
     },
     host: {
