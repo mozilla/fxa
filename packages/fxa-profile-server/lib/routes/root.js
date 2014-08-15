@@ -7,6 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 
+const Joi = require('joi');
+
 const version = require('../../package.json').version;
 
 // See if config/version.json exists (part of rpm builds)
@@ -20,6 +22,12 @@ var commitHash = (function() {
 })();
 
 module.exports = {
+  response: {
+    schema: {
+      version: Joi.string().required(),
+      commit: Joi.string()
+    }
+  },
   handler: function index(req, reply) {
     function sendReply() {
       reply({

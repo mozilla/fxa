@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const Joi = require('joi');
+
 const db = require('../../db');
 
 const EMPTY = Object.create(null);
@@ -18,6 +20,11 @@ module.exports = {
   auth: {
     strategy: 'oauth',
     scope: ['profile', 'profile:avatar']
+  },
+  response: {
+    schema: {
+      avatar: Joi.string().required()
+    }
   },
   handler: function avatar(req, reply) {
     db.getSelectedAvatar(req.auth.credentials.user)

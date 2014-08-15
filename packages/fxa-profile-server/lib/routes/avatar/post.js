@@ -29,6 +29,9 @@ module.exports = {
       selected: Joi.boolean()
     }
   },
+  response: {
+    schema: false
+  },
   handler: function avatarPost(req, reply) {
     var uid = req.auth.credentials.user;
     var payload = req.payload;

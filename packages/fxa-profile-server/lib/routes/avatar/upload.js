@@ -80,7 +80,7 @@ module.exports = {
     logger.debug('Upload %d bytes', req.headers['content-length']);
     pipeToWorker(id, req.payload, req.headers)
       .then(function save() {
-        return db.addAvatar(id, url, FXA_PROVIDER, false);
+        return db.addAvatar(id, url, FXA_PROVIDER, true);
       })
       .done(function uploadDone() {
         reply({ url: url }).code(201);
