@@ -26,7 +26,7 @@ function createSchema(client, options) {
   var d = P.defer();
   var database = options.database;
 
-  logger.verbose('createDatabase');
+  logger.verbose('createDatabase', database);
   client.query('CREATE DATABASE IF NOT EXISTS ' + database
     + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci', function(err) {
       if (err) {
@@ -67,6 +67,7 @@ MysqlStore.connect = function mysqlConnect(options) {
 
     options.multipleStatements = true;
     var schemaConn = mysql.createConnection(options);
+    options.database = database;
 
     return createSchema(schemaConn, options).then(function() {
       schemaConn.end();
