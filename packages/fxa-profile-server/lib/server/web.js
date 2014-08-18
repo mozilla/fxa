@@ -87,7 +87,6 @@ exports.create = function createServer() {
       }
     }
     scopes = set(scopes);
-    logger.verbose(route.path, scopes);
   });
   server.route(routes);
 

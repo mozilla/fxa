@@ -13,7 +13,10 @@ const logger = require('../logging').getLogger('fxa.img.local');
 const PUBLIC_DIR = config.get('img.uploads.dest.public');
 
 function LocalDriver(options) {
-  logger.warn('Using img.local driver!');
+  var env = config.get('env');
+  if (env !== 'dev' && env !== 'test') {
+    logger.warn('Using img.local driver!');
+  }
   this._o = options;
 }
 

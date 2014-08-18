@@ -42,7 +42,9 @@ function pipeToWorker(id, payload, headers) {
       reject(err);
     });
     dest.on('end', function() {
-      var res = JSON.parse(buf.toString('utf8'));
+      var str = buf.toString('utf8');
+      logger.verbose('worker response', str);
+      var res = JSON.parse(str);
       if (!res.error) {
         resolve(res);
       } else {
