@@ -47,6 +47,8 @@ function compute(id, src) {
     return img.upload(id, out);
   }).done(function() {
     process.send({ id: id });
+  }, function(err) {
+    process.send({ id: id, error: err });
   });
 }
 
