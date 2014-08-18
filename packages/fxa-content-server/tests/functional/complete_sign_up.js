@@ -11,8 +11,9 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'app/scripts/lib/constants',
   'tests/lib/restmail',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, restmail, TestHelpers) {
+  'tests/lib/helpers',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -242,6 +243,8 @@ define([
 
             .findByClassName('success')
             .end()
+
+            .then(FunctionalHelpers.visibleByQSA('.success'))
 
             // Success is showing the success message
             .findByCssSelector('.success').isDisplayed()
