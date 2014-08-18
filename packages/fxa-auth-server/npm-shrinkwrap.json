@@ -2112,6 +2112,23 @@
         }
       }
     },
+    "jws": {
+      "version": "0.2.6",
+      "from": "jws@",
+      "resolved": "https://registry.npmjs.org/jws/-/jws-0.2.6.tgz",
+      "dependencies": {
+        "base64url": {
+          "version": "0.0.6",
+          "from": "base64url@0.0.6",
+          "resolved": "https://registry.npmjs.org/base64url/-/base64url-0.0.6.tgz"
+        },
+        "jwa": {
+          "version": "0.0.1",
+          "from": "jwa@0.0.1",
+          "resolved": "https://registry.npmjs.org/jwa/-/jwa-0.0.1.tgz"
+        }
+      }
+    },
     "load-grunt-tasks": {
       "version": "0.6.0",
       "from": "load-grunt-tasks@0.6.0",

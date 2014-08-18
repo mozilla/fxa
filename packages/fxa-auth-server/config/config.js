@@ -29,6 +29,9 @@ module.exports = function (fs, path, url, convict) {
     publicKeyFile: {
       default: path.resolve(__dirname, '../config/public-key.json')
     },
+    preVerifySecret: {
+      default: "abcdef0123456789"
+    },
     db: {
       backend: {
         default: "httpdb",

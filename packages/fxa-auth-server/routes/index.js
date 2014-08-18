@@ -36,7 +36,8 @@ module.exports = function (
     isProduction,
     config.domain,
     config.smtp.resendBlackoutPeriod,
-    customs
+    customs,
+    config.preVerifySecret
   )
   var password = require('./password')(
     log,

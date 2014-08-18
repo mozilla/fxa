@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+var jws = require('jws')
 
 var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
@@ -22,8 +23,14 @@ module.exports = function (
   isProduction,
   domain,
   resendBlackoutPeriod,
-  customs
+  customs,
+  preVerifySecret
   ) {
+
+  function isPreVerified(email, token) {
+    var decoded = jws.decode(token)
+    return !!decoded && decoded.payload === email && jws.verify(token, preVerifySecret)
+  }
 
   var routes = [
     {
@@ -36,7 +43,8 @@ module.exports = function (
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.boolean(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional()
+            redirectTo: validators.redirectTo(redirectDomain).optional(),
+            preVerifyToken: isA.string().optional()
           }
         }
       },
@@ -78,7 +86,7 @@ module.exports = function (
                       createdAt: Date.now(),
                       email: email,
                       emailCode: crypto.randomBytes(16),
-                      emailVerified: form.preVerified || false,
+                      emailVerified: form.preVerified || isPreVerified(email, form.preVerifyToken),
                       kA: crypto.randomBytes(32),
                       wrapWrapKb: crypto.randomBytes(32),
                       devices: {},

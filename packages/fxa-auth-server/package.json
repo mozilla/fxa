@@ -39,6 +39,7 @@
     "hkdf": "0.0.2",
     "joi": "4.6.2",
     "jwcrypto": "0.4.4",
+    "jws": "0.2.6",
     "p-promise": "0.4.8",
     "poolee": "0.4.15",
     "scrypt-hash": "1.1.8",
