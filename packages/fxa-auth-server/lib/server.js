@@ -20,6 +20,9 @@ exports.create = function createServer() {
       debug: false,
       validation: {
         stripUnknown: true
+      },
+      payload: {
+        maxBytes: 16384
       }
     }
   );
