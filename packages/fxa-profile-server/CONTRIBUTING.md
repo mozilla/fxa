@@ -17,7 +17,7 @@ you saw the issue.
 Patches should be submitted as pull requests (PR).
 
 Before submitting a PR:
-- Your code must run and pass all the automated tests before you submit your PR for review. "Work in progress" pull requests are allowed to be submitted, but should be clearly labeled as such and should not be merged until all tests pass and the code has been reviews.
+- Your code must run and pass all the automated tests before you submit your PR for review. "Work in progress" pull requests are allowed to be submitted, but should be clearly labeled as such and should not be merged until all tests pass and the code has been reviewed.
   - Run `grunt jshint` to make sure your code passes linting.
   - Run `npm test` to make sure all tests still pass.
 - Your patch should include new tests that cover your changes. It is your and your reviewer's responsibility to ensure your patch includes adequate tests.
