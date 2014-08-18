@@ -27,30 +27,23 @@ function fxaUrl(id) {
 
 function pipeToWorker(id, payload, headers) {
   return new P(function(resolve, reject) {
-    var dest = request.post(WORKER_URL + '/a/' + id, {
-      headers: headers
-    });
-    payload.pipe(dest);
+    var url = WORKER_URL + '/a/' + id;
+    var opts = { headers: headers, json: true };
+    logger.verbose('posting to worker', url);
+    payload.pipe(request.post(url, opts, function(err, res, body) {
+      err = err || body.error;
+      if (err) {
+        logger.error('Processing error', err);
+        reject(AppError.processingError(err));
+        return;
+      }
+
+      logger.verbose('worker response', body);
+      resolve(body);
+    }));
     payload.on('error', function(err) {
       logger.error('Payload stream error', err);
       reject(err);
-    });
-    var buf = Buffer(0);
-    dest.on('data', function(data) { buf = Buffer.concat([buf, data]); });
-    dest.on('error', function(err) {
-      logger.error('Worker stream error', err);
-      reject(err);
-    });
-    dest.on('end', function() {
-      var str = buf.toString('utf8');
-      logger.verbose('worker response', str);
-      var res = JSON.parse(str);
-      if (!res.error) {
-        resolve(res);
-      } else {
-        logger.error('Processing error', res);
-        reject(AppError.processingError(res));
-      }
     });
   });
 }
