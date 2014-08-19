@@ -29,7 +29,10 @@ module.exports = function (
 
   function isPreVerified(email, token) {
     var decoded = jws.decode(token)
-    return !!decoded && decoded.payload === email && jws.verify(token, preVerifySecret)
+    return !!preVerifySecret && // a secret is set
+           !!decoded && // the token was parseable
+           decoded.payload === email && // the emails match
+           jws.verify(token, preVerifySecret) // the signature is valid
   }
 
   var routes = [

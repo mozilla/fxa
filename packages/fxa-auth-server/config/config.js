@@ -30,7 +30,7 @@ module.exports = function (fs, path, url, convict) {
       default: path.resolve(__dirname, '../config/public-key.json')
     },
     preVerifySecret: {
-      default: "abcdef0123456789"
+      default: ""
     },
     db: {
       backend: {
