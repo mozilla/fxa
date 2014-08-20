@@ -65,8 +65,8 @@ Add a new object literal within the `clients` array, that would look like:
 {
   "clients": [
     {
-      "id": "<8-byte client id>",
-      "secret": "<32-byte client secret>",
+      "id": "<8-byte client id in hex>",
+      "secret": "<32-byte client secret in hex>",
       "name": "123done",
       "imageUri": "https://clientapp.example.com/static/img/logo100.png",
       "redirectUri": "https://clientapp.example.com/api/oauth",
@@ -85,8 +85,8 @@ This can be very different depending on your installed and supported version, yo
 
 ```json
 {
-  "client_id": "<8-byte client id>",
-  "client_secret": "<32-byte client secret>",
+  "client_id": "<8-byte client id in hex>",
+  "client_secret": "<32-byte client secret in hex>",
   "name": "123done",
   "redirect_uri": "https://clientapp.example.com/api/oauth",
   "signin_uri": "https://accounts.firefox.com/oauth/signin",
