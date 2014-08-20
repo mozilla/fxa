@@ -8,6 +8,8 @@ Implementation of OAuth for use by Firefox Accounts
 
 [Design document](https://github.com/mozilla/fxa-oauth-server/wiki/oauth-design)
 
+[MDN docs](https://developer.mozilla.org/en-US/Firefox_Accounts)
+
 ## License
 
 MPL 2.0
