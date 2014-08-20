@@ -61,6 +61,7 @@
   },
   "devDependencies": {
     "awsbox": "0.7.0",
+    "coveralls": "2.11.1",
     "execSync": "1.0.1-pre",
     "firefox-profile": "0.3.3",
     "grunt-blanket-mocha": "0.4.1",
