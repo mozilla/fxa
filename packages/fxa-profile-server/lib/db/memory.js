@@ -6,7 +6,6 @@ const buf = require('buf');
 const hex = buf.to.hex;
 
 const config = require('../config');
-const img = require('../img');
 const P = require('../promise');
 
 function clone(obj) {
@@ -53,11 +52,11 @@ MemoryStore.connect = function memoryConnect() {
 
 MemoryStore.prototype = {
 
-  addAvatar: function addAvatar(uid, url, provider, selected) {
-    var id = img.id();
+  addAvatar: function addAvatar(id, uid, url, provider, selected) {
     var avatar = {
       id: id,
       url: url,
+      provider: provider,
       userId: uid
     };
     this.avatars[hex(id)] = avatar;
@@ -94,6 +93,15 @@ MemoryStore.prototype = {
       }
     }
     return P.resolve(avatars);
+  },
+
+  addProvider: function addProvider(name) {
+    this.providers[name] = name;
+    return P.resolve(name);
+  },
+
+  getProvider: function getProvider(name) {
+    return P.resolve(name);
   }
 };
 
