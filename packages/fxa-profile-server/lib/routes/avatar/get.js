@@ -23,7 +23,7 @@ module.exports = {
   },
   response: {
     schema: {
-      avatar: Joi.string().required()
+      avatar: Joi.string()
     }
   },
   handler: function avatar(req, reply) {
