@@ -20,14 +20,14 @@ const conf = convict({
       doc: 'aws access key id',
       env: 'AWS_ACCESS_KEY_ID',
       format: String,
-      default: 'CHANGE ME'
+      default: 'CHANGEME'
     },
     secretAccessKey: {
       arg: 'aws-secret',
       doc: 'aws secret access key',
       env: 'AWS_SECRET_ACCESS_KEY',
       format: String,
-      default: 'CHANGE ME'
+      default: 'CHANGEME'
     }
   },
   db: {
@@ -53,6 +53,7 @@ const conf = convict({
   },
   img: {
     driver: {
+      env: 'IMG',
       format: ['local', 'aws'],
       default: 'aws'
     },

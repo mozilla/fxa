@@ -5,7 +5,8 @@
 const mysql = require('mysql');
 const buf = require('buf').hex;
 
-const img = require('../img');
+const AppError = require('../error');
+const config = require('../config');
 const logger = require('../logging').getLogger('fxa.db.mysql');
 const P = require('../promise');
 
@@ -84,27 +85,40 @@ function firstRow(rows) {
   return rows[0];
 }
 
-const Q_AVATAR_INSERT = 'INSERT INTO avatars (id, url, uid) ' +
-  'VALUES (?, ?, ?)';
+const Q_AVATAR_INSERT = 'INSERT INTO avatars (id, url, userId, providerId) ' +
+  'VALUES (?, ?, ?, ?)';
 const Q_AVATAR_UPDATE = 'INSERT INTO avatar_selected (userId, avatarId) '
-  + 'VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE avatarId = VALUES(avatarId)';
+  + 'VALUES (?, ?) ON DUPLICATE KEY UPDATE avatarId = VALUES(avatarId)';
 const Q_SELECTED_AVATAR = 'SELECT avatars.* FROM avatars LEFT JOIN '
-  + 'avatar_selected ON (avatar_selected.avatarId=avatars.id AND '
-  + 'avatar_selected.userId=?)';
+  + 'avatar_selected ON (avatars.id = avatar_selected.avatarId) WHERE '
+  + 'avatars.userId=? AND avatar_selected.avatarId IS NOT NULL';
+const Q_AVATAR_LIST = 'SELECT avatars.id,url, avatar_selected.avatarId '
+  + 'IS NOT NULL AS selected FROM avatars LEFT JOIN avatar_selected ON '
+  + '(avatars.id = avatar_selected.avatarId) WHERE avatars.userId=?';
+
+const Q_PROVIDER_INSERT = 'INSERT INTO avatar_providers (name) VALUES (?)';
+const Q_PROVIDER_GET = 'SELECT * FROM avatar_providers WHERE name=?';
 
 MysqlStore.prototype = {
 
-  addAvatar: function addAvatar(uid, url, provider, selected) {
-    var id = img.id();
+  addAvatar: function addAvatar(id, uid, url, provider, selected) {
+    id = buf(id);
+    uid = buf(uid);
     var store = this;
-    var p = this._write(Q_AVATAR_INSERT, [id, url, uid]);
-    if (selected) {
-      p = p.then(function() {
-        return store._write(Q_AVATAR_UPDATE, [uid, id]);
-      });
-    }
+    return this.getProvider(provider).then(function(prov) {
+      if (!prov) {
+        logger.error('provider not found', provider);
+        throw AppError.unsupportedProvider(url);
+      }
+      var p = store._write(Q_AVATAR_INSERT, [id, url, uid, prov.id]);
+      if (selected) {
+        p = p.then(function() {
+          return store._write(Q_AVATAR_UPDATE, [uid, id]);
+        });
+      }
 
-    return p;
+      return p;
+    });
   },
 
   getSelectedAvatar: function getSelectedAvatar(uid) {
@@ -112,7 +126,15 @@ MysqlStore.prototype = {
   },
 
   getAvatars: function getAvatars(uid) {
-    return P.resolve(uid);
+    return this._read(Q_AVATAR_LIST, [buf(uid)]);
+  },
+
+  addProvider: function addProvider(name) {
+    return this._write(Q_PROVIDER_INSERT, [name]);
+  },
+
+  getProvider: function getProvider(name) {
+    return this._readOne(Q_PROVIDER_GET, [name]);
   },
 
   _write: function _write(sql, params) {
@@ -139,5 +161,18 @@ MysqlStore.prototype = {
     });
   }
 };
+
+if (config.get('env') === 'test') {
+  MysqlStore.prototype._clear = function clear() {
+    var store = this;
+    return this._write('DELETE FROM avatar_selected;')
+      .then(function() {
+        return store._write('DELETE FROM avatars;');
+      })
+      .then(function() {
+        return store._write('DELETE FROM avatar_providers;');
+      });
+  };
+}
 
 module.exports = MysqlStore;

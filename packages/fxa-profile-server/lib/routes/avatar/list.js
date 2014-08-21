@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const hex = require('buf').to.hex;
 const Joi = require('joi');
 
 const db = require('../../db');
@@ -10,9 +11,9 @@ function avatars(list) {
   return {
     avatars: list.map(function(row) {
       return {
-        id: row.id,
+        id: hex(row.id),
         url: row.url,
-        selected: row.selected
+        selected: !!row.selected
       };
     })
   };

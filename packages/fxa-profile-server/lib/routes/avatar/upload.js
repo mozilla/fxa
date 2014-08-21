@@ -72,10 +72,11 @@ module.exports = {
   handler: function upload(req, reply) {
     var id = img.id();
     var url = fxaUrl(id);
+    var uid = req.auth.credentials.user;
     logger.debug('Upload %d bytes', req.headers['content-length']);
     pipeToWorker(id, req.payload, req.headers)
       .then(function save() {
-        return db.addAvatar(id, url, FXA_PROVIDER, true);
+        return db.addAvatar(id, uid, url, FXA_PROVIDER, true);
       })
       .done(function uploadDone() {
         reply({ url: url }).code(201);

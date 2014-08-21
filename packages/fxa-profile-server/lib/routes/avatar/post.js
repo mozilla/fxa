@@ -6,6 +6,7 @@ const Joi = require('joi');
 
 const AppError = require('../../error');
 const db = require('../../db');
+const img = require('../../img');
 
 
 const EMPTY = Object.create(null);
@@ -46,7 +47,9 @@ module.exports = {
     if (!provider) {
       return reply(AppError.unsupportedProvider(payload.url));
     }
-    db.addAvatar(uid, payload.url, provider, payload.selected).done(function() {
+    var id = img.id();
+    db.addAvatar(id, uid, payload.url, provider, payload.selected)
+    .done(function() {
       reply(EMPTY).code(201);
     }, reply);
   }

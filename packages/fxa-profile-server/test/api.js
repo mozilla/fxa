@@ -70,8 +70,9 @@ function mockWorker() {
     });
 }
 
-console.log('');
-console.log('CONFIG', JSON.stringify(config.root(), null, 2));
+function mockAws() {
+  return nock('https://s3.amazonaws.com').post('/').reply(400);
+}
 
 describe('/profile', function() {
   var uid = token();
@@ -173,22 +174,26 @@ describe('/uid', function() {
 describe('/avatar', function() {
   var tok = token();
   var PROVIDER = 'gravatar';
+  var user = uid();
 
   describe('GET', function() {
     before(function() {
       var grav1 = GRAVATAR.slice(0, -1) + '1';
       var grav2 = GRAVATAR.slice(0, -1) + '2';
-      return db.addAvatar(USERID, grav1, PROVIDER, true)
+      var id1 = token();
+      var id2 = token();
+      var id3 = token();
+      return db.addAvatar(id1, user, grav1, PROVIDER, true)
         .then(function() {
           // replace grav1 as selected
-          return db.addAvatar(USERID, GRAVATAR, PROVIDER, true);
+          return db.addAvatar(id2, user, GRAVATAR, PROVIDER, true);
         }).then(function() {
-          return db.addAvatar(USERID, grav2, PROVIDER, false);
+          return db.addAvatar(id3, user, grav2, PROVIDER, false);
         });
     });
     it('should return selected avatar', function() {
       mockToken().reply(200, JSON.stringify({
-        user: USERID,
+        user: user,
         scope: ['profile:avatar']
       }));
       return Server.api.get({
@@ -251,10 +256,6 @@ describe('/avatar', function() {
       mkdirp.sync(pubPath);
     });
 
-    if (config.get('img.driver') === 'aws') {
-      throw new Error('aws image tests not implemented');
-    }
-
     it('should upload a new avatar', function() {
       this.slow(2000);
       this.timeout(3000);
@@ -263,6 +264,7 @@ describe('/avatar', function() {
         scope: ['profile:avatar:write']
       }));
       mockWorker();
+      mockAws();
       return Server.api.post({
         url: '/avatar/upload',
         payload: imageData,
@@ -274,7 +276,6 @@ describe('/avatar', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 201);
         assert(res.result.url);
-        console.log(res.result);
         return res.result.url;
       }).then(Static.get).then(function(res) {
         assert.equal(res.statusCode, 200);
@@ -296,15 +297,15 @@ describe('/avatars', function() {
   before(function() {
     var grav1 = GRAVATAR.slice(0, -1) + '1';
     var grav2 = GRAVATAR.slice(0, -1) + '2';
-    return db.addAvatar(user, grav1, PROVIDER, true)
+    return db.addAvatar(token(), user, grav1, PROVIDER, true)
       .then(function() {
         // replace grav1 as selected
-        return db.addAvatar(user, GRAVATAR, PROVIDER, true);
+        return db.addAvatar(token(), user, GRAVATAR, PROVIDER, true);
       }).then(function() {
-        return db.addAvatar(user, grav2, PROVIDER, false);
+        return db.addAvatar(token(), user, grav2, PROVIDER, false);
       }).then(function() {
         // other user!
-        return db.addAvatar(uid(), grav1, PROVIDER, true);
+        return db.addAvatar(token(), uid(), grav1, PROVIDER, true);
       });
   });
 
@@ -321,10 +322,20 @@ describe('/avatars', function() {
     }).then(function(res) {
       assert.equal(res.statusCode, 200);
       assert.equal(res.result.avatars.length, 3);
-      assert(!res.result.avatars[0].selected);
-      assert(res.result.avatars[1].selected);
-      assert(!res.result.avatars[2].selected);
+      var selected = false;
+      res.result.avatars.forEach(function(av) {
+        if (av.url === GRAVATAR) {
+          assert(av.selected);
+          selected = true;
+        } else {
+          assert(!av.selected);
+        }
+      });
+      assert(selected);
     });
   });
 });
 
+after(function() {
+  return db._clear();
+});

@@ -5,6 +5,7 @@
 const buf = require('buf');
 const hex = buf.to.hex;
 
+const config = require('../config');
 const img = require('../img');
 const P = require('../promise');
 
@@ -95,5 +96,14 @@ MemoryStore.prototype = {
     return P.resolve(avatars);
   }
 };
+
+if (config.get('env') === 'test') {
+  MemoryStore.prototype._clear = function clear() {
+    this.avatars = {};
+    this.providers = {};
+    this.selected = {};
+    return P.resolve();
+  };
+}
 
 module.exports = MemoryStore;
