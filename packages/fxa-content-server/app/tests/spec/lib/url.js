@@ -66,6 +66,16 @@ function (chai, _, Url) {
         assert.equal(Url.pathToScreenName('complete_sign_up?email=testuser@testuser.com'), 'complete_sign_up');
       });
     });
+
+    describe('isHTTP', function () {
+      it('detects HTTP and HTTPS properly', function () {
+        assert.isFalse(Url.isHTTP('urn:ietf:wg:oauth:2.0:fx:webchannel'));
+        assert.isTrue(Url.isHTTP('https://find.firefox.com'));
+        assert.isTrue(Url.isHTTP('http://find.firefox.com'));
+        assert.isFalse(Url.isHTTP(''));
+        assert.isFalse(Url.isHTTP());
+      });
+    });
   });
 });
 
