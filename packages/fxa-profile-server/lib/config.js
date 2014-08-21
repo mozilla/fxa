@@ -61,7 +61,8 @@ const conf = convict({
       doc: 'Patterns to match a URL to ensure we only accept certain URLs.',
       default: {
         'gravatar':
-            '^http(://www|s://secure)\\.gravatar\\.com/avatar/[0-9a-f]{32}$',
+            '^http(://www|s://secure)\\.gravatar\\.com' +
+            '/avatar/[0-9a-f]{32}(\\?s=\\d+)?$',
         'fxa': '^http://localhost:1112/a/[0-9a-f]{32}$'
       }
     },
@@ -81,6 +82,10 @@ const conf = convict({
         doc: 'seconds we will let the user wait before returning a 503',
         format: 'duration',
         default: 10
+      },
+      maxProcesses: {
+        doc: 'max child processes for compute-cluster',
+        default: Math.ceil(require('os').cpus().length * 1.25)
       }
     },
     resize: {
