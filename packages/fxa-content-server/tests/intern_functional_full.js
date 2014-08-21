@@ -7,7 +7,7 @@ define([
 ], function (intern, functional) {
   'use strict';
 
-  intern.functionalSuites = [ 'tests/functional',  'tests/functional_extra' ];
+  intern.functionalSuites = [ 'tests/functional',  'tests/functional_oauth' ];
 
   return intern;
 });

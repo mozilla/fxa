@@ -18,7 +18,7 @@ define([
       'latest.dev.lcip.org'
     ]
   };
-  intern.functionalSuites = [ 'tests/functional', 'tests/functional_extra' ];
+  intern.functionalSuites = [ 'tests/functional', 'tests/functional_oauth' ];
   intern.environments = [
     { browserName: 'firefox', version: '29', platform: 'Windows 7' }
   ];

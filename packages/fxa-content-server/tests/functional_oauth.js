@@ -5,7 +5,8 @@
 define([
   './functional/oauth_sign_in',
   './functional/oauth_sign_up',
-  './functional/oauth_reset_password'
+  './functional/oauth_reset_password',
+  './functional/oauth_webchannel'
 ], function () {
   'use strict';
 });
