@@ -63,7 +63,7 @@ const conf = convict({
         'gravatar':
             '^http(://www|s://secure)\\.gravatar\\.com' +
             '/avatar/[0-9a-f]{32}(\\?s=\\d+)?$',
-        'fxa': '^http://localhost:1112/a/[0-9a-f]{32}$'
+        'fxa': '^http://127.0.0.1:1112/a/[0-9a-f]{32}$'
       }
     },
     uploads: {
@@ -98,7 +98,7 @@ const conf = convict({
     },
     url: {
       doc: 'Pattern to generate FxA avatar URLs. {id} will be replaced.',
-      default: 'http://localhost:1112/a/{id}'
+      default: 'http://127.0.0.1:1112/a/{id}'
     }
   },
   logging: {
@@ -183,12 +183,12 @@ const conf = convict({
   publicUrl: {
     format: 'url',
     env: 'PUBLIC_URL',
-    default: 'http://localhost:1111'
+    default: 'http://127.0.0.1:1111'
   },
   server: {
     host: {
       env: 'HOST',
-      default: 'localhost'
+      default: '127.0.0.1'
     },
     port: {
       env: 'PORT',
@@ -199,7 +199,7 @@ const conf = convict({
   worker: {
     host: {
       env: 'WORKER_HOST',
-      default: 'localhost'
+      default: '127.0.0.1'
     },
     port: {
       env: 'WORKER_PORT',
@@ -207,7 +207,7 @@ const conf = convict({
       default: 1113
     },
     url: {
-      default: 'http://localhost:1113'
+      default: 'http://127.0.0.1:1113'
     }
   }
 });
