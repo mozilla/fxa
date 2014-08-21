@@ -21,7 +21,7 @@ function opts(options) {
 
 exports.get = function get(options) {
   options = opts(options);
-  options.url = options.url.replace('http://localhost:1112', '');
+  options.url = options.url.replace('http://127.0.0.1:1112', '');
   options.method = 'GET';
   return request(options);
 };
