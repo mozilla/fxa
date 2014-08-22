@@ -92,6 +92,7 @@ define([
           .click()
         .end()
 
+        .then(FunctionalHelpers.visibleByQSA('#stage .error'))
         // We need to wait for the sign in to finish. When the desktop context
         // this will manifest itself in the "Unexpected Error" error being
         // shown, which signals the desktop channel didn't get a response.
