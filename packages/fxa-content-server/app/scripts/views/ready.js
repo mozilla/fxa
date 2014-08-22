@@ -17,12 +17,13 @@ define([
   'stache!templates/ready',
   'lib/session',
   'lib/xss',
+  'lib/url',
   'lib/strings',
   'lib/auth-errors',
   'views/mixins/service-mixin',
   'views/marketing_snippet'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Strings, AuthErrors, ServiceMixin, MarketingSnippet) {
+function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, AuthErrors, ServiceMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
     template: Template,
@@ -51,13 +52,15 @@ function (_, BaseView, FormView, Template, Session, Xss, Strings, AuthErrors, Se
       var serviceName = this.serviceName;
 
       if (this.serviceRedirectURI) {
-        // if this is a WebChannel flow, then do not show any links, just finish the flow automatically
-        if (Session.oauth && Session.oauth.webChannelId) {
-          serviceName = Strings.interpolate('%s', [serviceName]);
-        } else {
+        // if the given redirect uri is an URN based uri, such as "urn:ietf:wg:oauth:2.0:fx:webchannel"
+        // then we don't show clickable service links. The flow should be completed automatically depending
+        // on the flow it is using (such as iFrame or WebChannel).
+        if (Url.isHTTP(this.serviceRedirectURI)) {
           serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
             Xss.href(this.serviceRedirectURI), serviceName
           ]);
+        } else {
+          serviceName = Strings.interpolate('%s', [serviceName]);
         }
       }
 

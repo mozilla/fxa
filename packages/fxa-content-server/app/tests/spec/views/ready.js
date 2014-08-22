@@ -139,6 +139,15 @@ function (chai, View, Session, FxaClient, WindowMock) {
               assert.equal(view.$('.marketing').length, 1);
             });
       });
+
+      it('formats the service name correctly depending on the redirect uris', function () {
+        view.serviceRedirectURI = 'https://find.firefox.com';
+        view.serviceName = 'Find My Device';
+        assert.equal(view.context().serviceName, '<a href="https://find.firefox.com" class="no-underline" id="redirectTo">Find My Device</a>');
+
+        view.serviceRedirectURI = 'urn:ietf:wg:oauth:2.0:fx:webchannel';
+        assert.equal(view.context().serviceName, view.serviceName);
+      });
     });
   });
 });
