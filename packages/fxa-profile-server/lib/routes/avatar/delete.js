@@ -23,7 +23,7 @@ module.exports = {
   validate: {
     params: {
       id: Joi.string()
-        .length(64)
+        .length(32)
         .regex(validate.hex)
         .required()
     }

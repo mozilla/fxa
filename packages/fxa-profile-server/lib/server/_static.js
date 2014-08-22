@@ -21,7 +21,7 @@ exports.create = function() {
     path: '/a/{id}',
     handler: {
       'directory': {
-        'path': config.img.upload.dest.public
+        'path': config.img.uploads.dest.public
       }
     }
   });

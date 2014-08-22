@@ -37,7 +37,7 @@ exports.create = function createServer() {
       authenticate: function(req, reply) {
         var auth = req.headers.authorization;
         var url = config.oauth.url + '/verify';
-        logger.verbose('checking auth', auth);
+        logger.debug('checking auth', auth);
         if (!auth || auth.indexOf('Bearer') !== 0) {
           return reply(AppError.unauthorized('Bearer token not provided'));
         }
@@ -56,7 +56,7 @@ exports.create = function createServer() {
             logger.debug('unauthorized', body);
             return reply(AppError.unauthorized(body.message));
           }
-          logger.verbose('Token valid', body);
+          logger.debug('Token valid', body);
           reply(null, {
             credentials: body
           });

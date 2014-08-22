@@ -11,6 +11,7 @@ const validate = require('../../validate');
 const EMPTY = Object.create(null);
 function avatarOrEmpty(avatar) {
   if (avatar) {
+    console.log(avatar.length);
     return {
       id: hex(avatar.id),
       avatar: avatar.url
@@ -28,7 +29,7 @@ module.exports = {
     schema: {
       id: Joi.string()
         .regex(validate.hex)
-        .length(64),
+        .length(32),
       avatar: Joi.string().max(256)
     }
   },

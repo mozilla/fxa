@@ -12,9 +12,11 @@ const url = require('url');
 const assert = require('insist');
 const mkdirp = require('mkdirp');
 const nock = require('nock');
-const rimraf = require('rimraf');
 
 const config = require('../lib/config');
+if (config.get('img.driver') === 'local') {
+  mkdirp.sync(config.get('img.uploads.dest.public'));
+}
 const db = require('../lib/db');
 const inject = require('./lib/inject');
 const Server = require('./lib/server');
@@ -190,9 +192,9 @@ describe('/avatar', function() {
     before(function() {
       var grav1 = GRAVATAR.slice(0, -1) + '1';
       var grav2 = GRAVATAR.slice(0, -1) + '2';
-      var id1 = token();
-      var id2 = token();
-      var id3 = token();
+      var id1 = uid();
+      var id2 = uid();
+      var id3 = uid();
       return db.addAvatar(id1, user, grav1, PROVIDER, true)
         .then(function() {
           // replace grav1 as selected
@@ -260,11 +262,6 @@ describe('/avatar', function() {
   describe('upload', function() {
     var imagePath = path.join(__dirname, 'lib', 'firefox.png');
     var imageData = fs.readFileSync(imagePath);
-    var pubPath = path.join(__dirname, '..', 'var', 'public');
-
-    before(function() {
-      mkdirp.sync(pubPath);
-    });
 
     it('should upload a new avatar', function() {
       this.slow(2000);
@@ -291,15 +288,11 @@ describe('/avatar', function() {
         assert.equal(res.statusCode, 200);
       });
     });
-
-    after(function() {
-      rimraf.sync(pubPath);
-    });
   });
 
   describe('DELETE', function() {
     var user = uid();
-    var id = token();
+    var id = uid();
 
     before(function() {
       return db.addAvatar(id, user, GRAVATAR, PROVIDER, true);
@@ -349,22 +342,22 @@ describe('/avatars', function() {
   before(function() {
     var grav1 = GRAVATAR.slice(0, -1) + '1';
     var grav2 = GRAVATAR.slice(0, -1) + '2';
-    return db.addAvatar(token(), user, grav1, PROVIDER, true)
+    return db.addAvatar(uid(), user, grav1, PROVIDER, true)
       .then(function() {
         // replace grav1 as selected
-        return db.addAvatar(token(), user, GRAVATAR, PROVIDER, true);
+        return db.addAvatar(uid(), user, GRAVATAR, PROVIDER, true);
       }).then(function() {
-        return db.addAvatar(token(), user, grav2, PROVIDER, false);
+        return db.addAvatar(uid(), user, grav2, PROVIDER, false);
       }).then(function() {
         // other user!
-        return db.addAvatar(token(), uid(), grav1, PROVIDER, true);
+        return db.addAvatar(uid(), uid(), grav1, PROVIDER, true);
       });
   });
 
   it('should return a list of avatars', function() {
     mockToken().reply(200, JSON.stringify({
       user: user,
-      scope: ['profile:avatar']
+      scope: ['profile:avatar:write']
     }));
     return Server.api.get({
       url: '/avatars',
