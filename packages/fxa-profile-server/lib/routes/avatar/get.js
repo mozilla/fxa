@@ -5,11 +5,14 @@
 const Joi = require('joi');
 
 const db = require('../../db');
+const hex = require('buf').to.hex;
+const validate = require('../../validate');
 
 const EMPTY = Object.create(null);
 function avatarOrEmpty(avatar) {
   if (avatar) {
     return {
+      id: hex(avatar.id),
       avatar: avatar.url
     };
   }
@@ -23,7 +26,10 @@ module.exports = {
   },
   response: {
     schema: {
-      avatar: Joi.string()
+      id: Joi.string()
+        .regex(validate.hex)
+        .length(64),
+      avatar: Joi.string().max(256)
     }
   },
   handler: function avatar(req, reply) {

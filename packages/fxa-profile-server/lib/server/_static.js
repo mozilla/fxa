@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const path = require('path');
-
 const Hapi = require('hapi');
 
 const config = require('../config').root();
@@ -23,7 +21,7 @@ exports.create = function() {
     path: '/a/{id}',
     handler: {
       'directory': {
-        'path': path.join(__dirname, '..', '..', 'var', 'public')
+        'path': config.img.upload.dest.public
       }
     }
   });

@@ -12,6 +12,10 @@ const logger = require('../logging').getLogger('fxa.img.local');
 
 const PUBLIC_DIR = config.get('img.uploads.dest.public');
 
+if (!fs.existsSync(PUBLIC_DIR)) {
+  throw new Error('PUBLIC_DIR does not exist: ' + PUBLIC_DIR);
+}
+
 function LocalDriver(options) {
   var env = config.get('env');
   if (env !== 'dev' && env !== 'test') {

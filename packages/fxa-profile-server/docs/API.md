@@ -130,7 +130,7 @@ curl -v \
 
 - scope: `profile:avatar`
 
-Returns a url of the current user avatar.
+Returns details of the current user avatar, or an empty object if none.
 
 #### Request
 
@@ -144,7 +144,8 @@ curl -v \
 
 ```json
 {
-  "avatar": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
+  "id": "5976f65292394fd4a2d0e8ca981e3d0481625c14128d46c2b600e74a017fa4a8",
+  "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
 }
 ```
 
@@ -168,7 +169,7 @@ curl -v \
 {
   "avatars": [
     {
-      "id": "8f9980ad5a9c279beb52123653967342f",
+      "id": "5976f65292394fd4a2d0e8ca981e3d0481625c14128d46c2b600e74a017fa4a8",
       "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96",
       "selected": true
     }
@@ -232,7 +233,7 @@ curl -v \
 
 ```json
 {
-  "url": "https://a.p.firefoxusercontent.net/a/8f9980ad5a9c279beb52123653967342f"
+  "url": "https://a.p.firefoxusercontent.net/a/5976f65292394fd4a2d0e8ca981e3d0481625c14128d46c2b600e74a017fa4a8"
 }
 ```
 

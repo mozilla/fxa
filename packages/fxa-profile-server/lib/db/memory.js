@@ -52,6 +52,10 @@ MemoryStore.connect = function memoryConnect() {
 
 MemoryStore.prototype = {
 
+  ping: function ping() {
+    return P.resolve();
+  },
+
   addAvatar: function addAvatar(id, uid, url, provider, selected) {
     var avatar = {
       id: id,
@@ -67,6 +71,10 @@ MemoryStore.prototype = {
       };
     }
     return P.fulfilled();
+  },
+
+  getAvatar: function getAvatar(id) {
+    return P.resolve(this.avatars[hex(id)]);
   },
 
   getSelectedAvatar: function getSelectedAvatar(uid) {
@@ -93,6 +101,11 @@ MemoryStore.prototype = {
       }
     }
     return P.resolve(avatars);
+  },
+
+  deleteAvatar: function deleteAvatar(id) {
+    delete this.avatars[hex(id)];
+    return P.resolve();
   },
 
   addProvider: function addProvider(name) {

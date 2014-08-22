@@ -69,9 +69,17 @@ AppError.translate = function translate(response) {
   return error;
 };
 
+AppError.notFound = function notFound() {
+  return new AppError({
+    code: 404,
+    error: 'Bad Request',
+    message: 'Not Found'
+  });
+};
+
 AppError.unauthorized = function unauthorized(msg) {
   return new AppError({
-    code: 403,
+    code: 401,
     error: 'Bad Request',
     errno: 100,
     message: 'Unauthorized'

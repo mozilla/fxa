@@ -89,17 +89,35 @@ const Q_AVATAR_INSERT = 'INSERT INTO avatars (id, url, userId, providerId) ' +
   'VALUES (?, ?, ?, ?)';
 const Q_AVATAR_UPDATE = 'INSERT INTO avatar_selected (userId, avatarId) '
   + 'VALUES (?, ?) ON DUPLICATE KEY UPDATE avatarId = VALUES(avatarId)';
+const Q_AVATAR_GET = 'SELECT * FROM avatars WHERE id=?';
 const Q_SELECTED_AVATAR = 'SELECT avatars.* FROM avatars LEFT JOIN '
   + 'avatar_selected ON (avatars.id = avatar_selected.avatarId) WHERE '
   + 'avatars.userId=? AND avatar_selected.avatarId IS NOT NULL';
-const Q_AVATAR_LIST = 'SELECT avatars.id,url, avatar_selected.avatarId '
+const Q_AVATAR_LIST = 'SELECT avatars.id, url, avatar_selected.avatarId '
   + 'IS NOT NULL AS selected FROM avatars LEFT JOIN avatar_selected ON '
   + '(avatars.id = avatar_selected.avatarId) WHERE avatars.userId=?';
+const Q_AVATAR_DELETE = 'DELETE FROM avatars WHERE id=?';
 
 const Q_PROVIDER_INSERT = 'INSERT INTO avatar_providers (name) VALUES (?)';
 const Q_PROVIDER_GET = 'SELECT * FROM avatar_providers WHERE name=?';
 
 MysqlStore.prototype = {
+
+  ping: function ping() {
+    logger.debug('ping');
+    var conn = this._connection;
+    return new P(function(resolve, reject) {
+      conn.ping(function(err) {
+        if (err) {
+          logger.error('ping:', err);
+          reject(err);
+        } else {
+          logger.debug('pong');
+          resolve();
+        }
+      });
+    });
+  },
 
   addAvatar: function addAvatar(id, uid, url, provider, selected) {
     id = buf(id);
@@ -121,12 +139,20 @@ MysqlStore.prototype = {
     });
   },
 
+  getAvatar: function getAvatar(id) {
+    return this._readOne(Q_AVATAR_GET, [buf(id)]);
+  },
+
   getSelectedAvatar: function getSelectedAvatar(uid) {
     return this._readOne(Q_SELECTED_AVATAR, [buf(uid)]);
   },
 
   getAvatars: function getAvatars(uid) {
     return this._read(Q_AVATAR_LIST, [buf(uid)]);
+  },
+
+  deleteAvatar: function deleteAvatar(id) {
+    return this._write(Q_AVATAR_DELETE, [buf(id)]);
   },
 
   addProvider: function addProvider(name) {

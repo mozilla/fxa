@@ -11,21 +11,36 @@ const config = require('../config');
 const logger = require('../logging').getLogger('fxa.compute');
 const P  = require('../promise');
 
-/*jshint camelcase: false*/
-var imageCc = new ComputeCluster({
-  module: path.join(__dirname, 'image-cc.js'),
-  max_backlog: config.get('img.compute.maxBacklog'),
-  max_request_time: config.get('img.compute.maxRequestTime')
-});
+const MAX_PROCESSES = config.get('img.compute.maxProcesses');
 
-imageCc.on('error', function(e) {
-  logger.critical('Fatal IPC error with image-cc.js', e);
-  process.exit(1);
-}).on('info', function(msg) {
-  logger.info('image-cc', msg);
-}).on('debug', function(msg) {
-  logger.debug('image-cc', msg);
-});
+var imageCc;
+if (MAX_PROCESSES > 0) {
+  /*jshint camelcase: false*/
+  imageCc = new ComputeCluster({
+    module: path.join(__dirname, 'image-cc.js'),
+    max_backlog: config.get('img.compute.maxBacklog'),
+    max_request_time: config.get('img.compute.maxRequestTime'),
+    max_processes: MAX_PROCESSES
+  });
+
+  imageCc.on('error', function(e) {
+    logger.critical('Fatal IPC error with image-cc.js', e);
+    process.exit(1);
+  }).on('info', function(msg) {
+    logger.info('image-cc', msg);
+  }).on('debug', function(msg) {
+    logger.debug('image-cc', msg);
+  });
+} else {
+  logger.info('compute-cluster disabled');
+  imageCc = {
+    enqueue: function sameProcessEnqueue(msg, callback) {
+      require('./image-cc').compute(msg, function(res) {
+        callback(null, res);
+      });
+    }
+  };
+}
 
 exports.image = function image(id, payload) {
   return new P(function(resolve, reject) {

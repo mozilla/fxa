@@ -12,6 +12,9 @@
     }
   },
   "img": {
-    "driver": "local"
+    "driver": "local",
+    "compute": {
+      "maxProcesses": 0
+    }
   }
 }

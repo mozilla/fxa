@@ -10,7 +10,7 @@ const logger = require('../logging').getLogger('fxa.db');
 const klass = config.get('db.driver') === 'mysql' ?
   require('./mysql') : require('./memory');
 
-function preProviders() {
+function loadProviders() {
   var providers = Object.keys(config.get('img.providers'));
   logger.debug('Loading pre-defined providers:', providers);
   return P.all(providers.map(function(name) {
@@ -38,7 +38,7 @@ function withDriver() {
   return p.then(function(store) {
     logger.debug('connected to [%s] store', config.get('db.driver'));
     driver = store;
-  }).then(preProviders).then(function() {
+  }).then(loadProviders).then(function() {
     return driver;
   });
 }

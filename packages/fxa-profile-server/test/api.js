@@ -71,7 +71,17 @@ function mockWorker() {
 }
 
 function mockAws() {
-  return nock('https://s3.amazonaws.com').post('/').reply(400);
+  var bucket = config.get('img.uploads.dest.public');
+  var u = '/' + bucket + '/XXX';
+  var id;
+  return nock('https://s3.amazonaws.com')
+    .filteringPath(function filter(_path) {
+      id = _path.replace('/' + bucket + '/', '');
+      console.log(_path, id);
+      return _path.replace(id, 'XXX');
+    })
+    .put(u)
+    .reply(200);
 }
 
 describe('/profile', function() {
@@ -284,6 +294,48 @@ describe('/avatar', function() {
 
     after(function() {
       rimraf.sync(pubPath);
+    });
+  });
+
+  describe('DELETE', function() {
+    var user = uid();
+    var id = token();
+
+    before(function() {
+      return db.addAvatar(id, user, GRAVATAR, PROVIDER, true);
+    });
+
+    it('should fail if not owned by user', function() {
+      mockToken().reply(200, JSON.stringify({
+        user: uid(),
+        scope: ['profile:avatar:write']
+      }));
+      return Server.api.delete({
+        url: '/avatar/' + id,
+        headers: {
+          authorization: 'Bearer ' + tok,
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 401);
+      });
+    });
+
+    it('should remove avatar from user', function() {
+      mockToken().reply(200, JSON.stringify({
+        user: user,
+        scope: ['profile:avatar:write']
+      }));
+      return Server.api.delete({
+        url: '/avatar/' + id,
+        headers: {
+          authorization: 'Bearer ' + tok,
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 200);
+        return db.getAvatar(id);
+      }).then(function(avatar) {
+        assert.equal(avatar, undefined);
+      });
     });
   });
 });

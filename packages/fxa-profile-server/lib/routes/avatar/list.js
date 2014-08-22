@@ -22,7 +22,7 @@ function avatars(list) {
 module.exports = {
   auth: {
     strategy: 'oauth',
-    scope: ['profile', 'profile:avatar']
+    scope: ['profile:write', 'profile:avatar:write']
   },
   response: {
     schema: {
