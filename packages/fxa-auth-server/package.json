@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.19.0",
+  "version": "1.20.0",
   "description": "An identity provider for PiCL services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -28,18 +28,18 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "aws-sdk": "2.0.11",
+    "aws-sdk": "2.0.15",
     "binary-split": "0.1.2",
     "bunyan": "1.0.0",
     "compute-cluster": "0.0.9",
     "convict": "0.4.2",
     "fxa-auth-mailer": "0.0.5",
-    "hapi": "6.4.0",
+    "hapi": "6.5.1",
     "hapi-auth-hawk": "1.1.1",
     "hkdf": "0.0.2",
     "joi": "4.6.2",
     "jwcrypto": "0.4.4",
-    "p-promise": "0.4.6",
+    "p-promise": "0.4.8",
     "poolee": "0.4.15",
     "scrypt-hash": "1.1.8",
     "through": "2.3.4",
@@ -55,7 +55,7 @@
     "grunt-nsp-shrinkwrap": "0.0.3",
     "hawk": "2.2.3",
     "load-grunt-tasks": "0.6.0",
-    "mailparser": "0.4.4",
+    "mailparser": "0.4.6",
     "request": "2.40.0",
     "simplesmtp": "0.3.32",
     "sjcl": "1.0.1",
