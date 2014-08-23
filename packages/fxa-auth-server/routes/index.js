@@ -20,6 +20,8 @@ module.exports = function (
   customs
   ) {
   var isProduction = config.env === 'prod'
+  var jwks = require('../jwks')(error, config)
+  var isPreVerified = require('../preverifier')(jwks, error, config)
   var defaults = require('./defaults')(log, P, db, error)
   var idp = require('./idp')(log, serverPublicKey)
   var account = require('./account')(
@@ -37,7 +39,7 @@ module.exports = function (
     config.domain,
     config.smtp.resendBlackoutPeriod,
     customs,
-    config.preVerifySecret
+    isPreVerified
   )
   var password = require('./password')(
     log,

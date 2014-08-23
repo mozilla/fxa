@@ -24,16 +24,8 @@ module.exports = function (
   domain,
   resendBlackoutPeriod,
   customs,
-  preVerifySecret
+  isPreVerified
   ) {
-
-  function isPreVerified(email, token) {
-    var decoded = jws.decode(token)
-    return !!preVerifySecret && // a secret is set
-           !!decoded && // the token was parseable
-           decoded.payload === email && // the emails match
-           jws.verify(token, preVerifySecret) // the signature is valid
-  }
 
   var routes = [
     {
@@ -77,8 +69,9 @@ module.exports = function (
               if (err.errno !== 102) { throw err }
             }
           )
+          .then(isPreVerified.bind(null, form.email, form.preVerifyToken))
           .then(
-            function () {
+            function (preverified) {
               var password = new Password(authPW, authSalt, verifierVersion)
               return password.verifyHash()
               .then(
@@ -89,7 +82,7 @@ module.exports = function (
                       createdAt: Date.now(),
                       email: email,
                       emailCode: crypto.randomBytes(16),
-                      emailVerified: form.preVerified || isPreVerified(email, form.preVerifyToken),
+                      emailVerified: form.preVerified || preverified,
                       kA: crypto.randomBytes(32),
                       wrapWrapKb: crypto.randomBytes(32),
                       devices: {},

@@ -14,13 +14,32 @@ module.exports = function (log, serverPublicKey) {
           expiresIn: 10000
         }
       },
-      handler: function wellKnown(request, reply) {
-        log.begin('wellKnown', request)
+      handler: function browserid(request, reply) {
+        log.begin('browserid', request)
         reply(
           {
             'public-key': serverPublicKey,
             'authentication': '/.well-known/browserid/sign_in.html',
             'provisioning': '/.well-known/browserid/provision.html'
+          }
+        )
+      }
+    },
+    {
+      method: 'GET',
+      path: '/.well-known/public-keys',
+      handler: function (request, reply) {
+        // FOR DEV PURPOSES ONLY
+        reply(
+          {
+            keys: [
+              {
+                kty: "RSA",
+                n: serverPublicKey.n,//bigint(serverPublicKey.n).toBuffer().toString('base64'),
+                e: serverPublicKey.e,//bigint(serverPublicKey.e).toBuffer().toString('base64'),
+                kid: "dev-1"
+              }
+            ]
           }
         )
       }

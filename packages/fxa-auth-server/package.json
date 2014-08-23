@@ -42,6 +42,7 @@
     "jws": "0.2.6",
     "p-promise": "0.4.8",
     "poolee": "0.4.15",
+    "request": "2.40.0",
     "scrypt-hash": "1.1.8",
     "through": "2.3.4",
     "uuid": "1.4.1"
@@ -57,7 +58,6 @@
     "hawk": "2.2.3",
     "load-grunt-tasks": "0.6.0",
     "mailparser": "0.4.6",
-    "request": "2.40.0",
     "simplesmtp": "0.3.32",
     "sjcl": "1.0.1",
     "tap": "0.4.12"
