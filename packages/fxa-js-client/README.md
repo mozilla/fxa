@@ -1,9 +1,12 @@
 fxa-js-client
 =======
 
+> Web client that talks to the Firefox Accounts API server
+
 [![Build Status](https://travis-ci.org/mozilla/fxa-js-client.svg?branch=master)](https://travis-ci.org/mozilla/fxa-js-client)
 
-Web client that talks to the Firefox Accounts API server
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/fxa-client.svg)](https://saucelabs.com/u/fxa-client)
+
 
 [__Download Library__](https://github.com/mozilla/fxa-js-client/releases)
 
