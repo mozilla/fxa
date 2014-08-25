@@ -18,9 +18,19 @@ define([
       'latest.dev.lcip.org'
     ]
   };
-  intern.functionalSuites = [ 'tests/functional', 'tests/functional_oauth' ];
+  intern.functionalSuites = [
+    'tests/functional',
+    'tests/functional_oauth'
+  ];
+
+  if (intern.fxaContentRoot.indexOf('https://') === 0) {
+    // test firefox specific flows only on HTTPS
+    // this might have to change if we test more browsers in the future
+    intern.functionalSuites.push('tests/functional/firefox/functional_firefox');
+  }
+
   intern.environments = [
-    { browserName: 'firefox', version: '29', platform: 'Windows 7' }
+    { browserName: 'firefox', version: '31', platform: 'Windows 7' }
   ];
 
   return intern;

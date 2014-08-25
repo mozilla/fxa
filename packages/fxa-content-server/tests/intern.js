@@ -10,14 +10,15 @@ define([
     'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/topic',
     './tools/firefox_profile'
   ],
-  function (args, topic, FirefoxProfile) {
+  function (args, topic, firefoxProfile) {
   'use strict';
 
-  var fxaAuthRoot = args.fxaAuthRoot ? args.fxaAuthRoot : 'http://127.0.0.1:9000/v1';
-  var fxaContentRoot = args.fxaContentRoot ? args.fxaContentRoot : 'http://127.0.0.1:3030/';
-  var fxaEmailRoot = args.fxaEmailRoot ? args.fxaEmailRoot : 'http://127.0.0.1:9001';
-  var fxaOauthApp = args.fxaOauthApp ? args.fxaOauthApp : 'http://127.0.0.1:8080/';
-  var fxaProduction = args.fxaProduction ? args.fxaProduction : false;
+  var fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
+  var fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
+  var fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
+  var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
+  var fxaProduction = !!args.fxaProduction;
+  var fxaToken = args.fxaToken || 'http://';
 
   if (topic) {
     topic.subscribe('/suite/start', function (suite) {
@@ -25,7 +26,7 @@ define([
     });
   }
 
-  return {
+  var config = {
     // The port on which the instrumenting proxy will listen
     proxyPort: 9090,
 
@@ -39,6 +40,7 @@ define([
     fxaEmailRoot: fxaEmailRoot,
     fxaOauthApp: fxaOauthApp,
     fxaProduction: fxaProduction,
+    fxaToken: fxaToken,
 
     // Default desired capabilities for all environments. Individual capabilities can be overridden by any of the
     // specified browser environments in the `environments` array below as well. See
@@ -47,8 +49,7 @@ define([
     // Note that the `build` capability will be filled in with the current commit ID from the Travis CI environment
     // automatically
     capabilities: {
-      'selenium-version': '2.39.0',
-      'firefox_profile': FirefoxProfile
+      'selenium-version': '2.39.0'
     },
 
     // Browsers to run integration testing against. Note that version numbers must be strings if used with Sauce
@@ -72,4 +73,8 @@ define([
     excludeInstrumentation: /./
   };
 
+  //to create a profile, give it the `config` option.
+  config.capabilities.firefox_profile = firefoxProfile(config);
+
+  return config;
 });
