@@ -4,7 +4,7 @@
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",
-    "postinstall": "bower install --config.interactive=false -s; node scripts/post_install.js",
+    "postinstall": "bower update --config.interactive=false -s; node scripts/post_install.js",
     "test": "intern-runner config=tests/intern",
     "test-functional": "intern-runner config=tests/intern_functional",
     "test-sauce": "intern-runner config=tests/intern_sauce",
