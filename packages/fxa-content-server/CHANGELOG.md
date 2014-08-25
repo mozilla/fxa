@@ -1,3 +1,25 @@
+<a name="0.20.0"></a>
+## 0.20.0 (2014-08-25)
+
+
+#### Bug Fixes
+
+* **build:**
+  * Remove imagemin for dependencies ([bddf83fe](https://github.com/mozilla/fxa-content-server/commit/bddf83fe80296ddfabe6330eeb1fb260c6f4d59a))
+  * Wait for config to load. Move draggable into a require.js packge. ([b2a0be17](https://github.com/mozilla/fxa-content-server/commit/b2a0be177fe3dbb24e7cc9832939187a02822096))
+* **l10n:** remove the en i18n symlink ([9c2e5ba0](https://github.com/mozilla/fxa-content-server/commit/9c2e5ba0c707f8a20bcef5a7ea17462531d58937))
+* **teats:** Use execute to clear browser state ([f56aa45e](https://github.com/mozilla/fxa-content-server/commit/f56aa45e2e0a9d09f199f175ee376bde3fbe446c))
+* **tests:**
+  * Avatar functional test updates ([ceb5561d](https://github.com/mozilla/fxa-content-server/commit/ceb5561d2ba9f64846ddd9d556b704099e02ef3e))
+  * Update service-mixin tests. ([37d6c371](https://github.com/mozilla/fxa-content-server/commit/37d6c371db3d7442d6742e5ba79fd24b68d7ca92), closes [#1400](https://github.com/mozilla/fxa-content-server/issues/1400))
+* **travis:** Run functional tests first, move sleep. ([23f124cc](https://github.com/mozilla/fxa-content-server/commit/23f124cce5b9e38d8621097ec398716f06b3f0d6))
+
+
+#### Features
+
+* **oauth:** Support for URN redirects ([dc2cefd6](https://github.com/mozilla/fxa-content-server/commit/dc2cefd658f7ad8fc0c70b39d174b9b42f3a4101))
+
+
 <a name="0.19.0"></a>
 ## 0.19.0 (2014-08-11)
 
