@@ -58,6 +58,7 @@ The currently-defined error responses are:
 - [GET /v1/avatars][avatars]
 - [POST /v1/avatar][avatar-post]
 - [POST /v1/avatar/upload][upload]
+- [DELETE /v1/avatar/:id][delete]
 
 ### GET /v1/profile
 
@@ -132,6 +133,8 @@ curl -v \
 
 Returns details of the current user avatar, or an empty object if none.
 
+An avatar `id` is a 32-length hexstring.
+
 #### Request
 
 ```sh
@@ -144,7 +147,7 @@ curl -v \
 
 ```json
 {
-  "id": "5976f65292394fd4a2d0e8ca981e3d0481625c14128d46c2b600e74a017fa4a8",
+  "id": "81625c14128d46c2b600e74a017fa4a8",
   "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
 }
 ```
@@ -169,7 +172,7 @@ curl -v \
 {
   "avatars": [
     {
-      "id": "5976f65292394fd4a2d0e8ca981e3d0481625c14128d46c2b600e74a017fa4a8",
+      "id": "81625c14128d46c2b600e74a017fa4a8",
       "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96",
       "selected": true
     }
@@ -197,6 +200,7 @@ Supported Providers:
 curl -v \
 -X POST \
 -H "Content-Type: application/json" \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
 "https://profile.accounts.firefox.com/v1/avatar" \
 -d '{
   "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96",
@@ -225,6 +229,7 @@ headers `Content-Length` and `Content-Type` are required.
 curl -v \
 -X POST \
 -H "Content-Type: image/png" \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
 --data-binary @image.png \
 "https://profile.accounts.firefox.com/v1/avatar/upload"
 ```
@@ -233,8 +238,25 @@ curl -v \
 
 ```json
 {
-  "url": "https://a.p.firefoxusercontent.net/a/5976f65292394fd4a2d0e8ca981e3d0481625c14128d46c2b600e74a017fa4a8"
+  "url": "https://a.p.firefoxusercontent.net/a/81625c14128d46c2b600e74a017fa4a8"
 }
+```
+
+### DELETE /v1/avatar/:id
+
+- scope: `profile:avatar:write`
+
+Delete an avatar from the user's profile.
+
+#### Request
+
+The `id` of an avatar can be received from [GET /v1/avatar][avatar] or
+[GET /v1/avatars][avatars].
+
+```sh
+curl -v \
+-X DELETE \
+"https://profile.accounts.firefox.com/v1/avatar/81625c14128d46c2b600e74a017fa4a8"
 ```
 
 
@@ -245,5 +267,6 @@ curl -v \
 [avatar-post]: #post-v1avatar
 [avatars]: #get-v1avatars
 [upload]: #post-v1avatarupload
+[delete]: #delete-v1avatarid
 
 [OAuth]: https://github.com/mozilla/fxa-oauth-server
