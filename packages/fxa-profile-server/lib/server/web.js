@@ -4,17 +4,30 @@
 
 const Hapi = require('hapi');
 
-const AppError = require('./error');
-const config = require('./config').root();
-const logger = require('./logging').getLogger('fxa.server');
-const request = require('./request');
-const summary = require('./logging/summary');
+const AppError = require('../error');
+const config = require('../config').root();
+const logger = require('../logging').getLogger('fxa.server.web');
+const hapiLogger = require('../logging').getLogger('fxa.server.web.hapi');
+const request = require('../request');
+const summary = require('../logging/summary');
 
+function set(arr) {
+  var obj = Object.create(null);
+  arr.forEach(function(name) {
+    obj[name] = name;
+  });
+  return Object.keys(obj);
+}
+
+// This is the webserver. It's what the outside always talks to. It
+// handles the whole Profile API.
 exports.create = function createServer() {
+  var isProd = config.env === 'prod';
   var server = Hapi.createServer(
     config.server.host,
     config.server.port,
     {
+      cors: true,
       debug: false
     }
   );
@@ -24,7 +37,7 @@ exports.create = function createServer() {
       authenticate: function(req, reply) {
         var auth = req.headers.authorization;
         var url = config.oauth.url + '/verify';
-        logger.verbose('checking auth', auth);
+        logger.debug('checking auth', auth);
         if (!auth || auth.indexOf('Bearer') !== 0) {
           return reply(AppError.unauthorized('Bearer token not provided'));
         }
@@ -43,7 +56,7 @@ exports.create = function createServer() {
             logger.debug('unauthorized', body);
             return reply(AppError.unauthorized(body.message));
           }
-          logger.verbose('Token valid', body);
+          logger.debug('Token valid', body);
           reply(null, {
             credentials: body
           });
@@ -54,7 +67,45 @@ exports.create = function createServer() {
 
   server.auth.strategy('oauth', 'oauth');
 
-  server.route(require('./routing'));
+  var routes = require('../routing');
+  if (isProd) {
+    logger.info('Disabling response schema validation');
+    routes.forEach(function(route) {
+      delete route.config.response;
+    });
+  }
+  // make sure all `read` scopes include `write`, and all include `profile`
+  routes.forEach(function(route) {
+    var scopes = route.config.auth && route.config.auth.scope;
+    if (!scopes) {
+      return;
+    }
+    for (var i = 0, len = scopes.length; i < len; i++) {
+      var scope = scopes[i];
+      if (scope.indexOf(':write') === -1) {
+        scopes.push(scope + ':write');
+      }
+    }
+    scopes = set(scopes);
+  });
+  server.route(routes);
+
+  // hapi internal logging: server and request
+  server.on('log', function onServerLog(ev, tags) {
+    if (tags.error && tags.implementation) {
+      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
+    } else {
+      hapiLogger.verbose('Server', ev.tags, ev.data);
+    }
+  });
+
+  server.on('request', function onRequestLog(req, ev, tags) {
+    if (tags.error && tags.implementation) {
+      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
+    } else {
+      hapiLogger.verbose('Request <%s>', req.id, ev.tags, ev.data);
+    }
+  });
 
   server.ext('onPreResponse', function(request, next) {
     var response = request.response;

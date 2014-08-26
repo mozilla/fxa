@@ -3,17 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const mysql = require('mysql');
+const buf = require('buf').hex;
 
+const AppError = require('../error');
+const config = require('../config');
 const logger = require('../logging').getLogger('fxa.db.mysql');
 const P = require('../promise');
 
 const SCHEMA = require('fs').readFileSync(__dirname + '/schema.sql').toString();
-const PROFILE_GET_QUERY = 'SELECT * FROM profiles WHERE uid=?';
-const PROFILE_EXISTS_QUERY = 'SELECT uid FROM profiles WHERE uid=?';
-const PROFILE_CREATE_QUERY = 'INSERT INTO profiles (uid, avatar) VALUES (?, ?)';
-const AVATAR_SET_QUERY = 'UPDATE profiles SET avatar=? WHERE uid=?';
 
 function MysqlStore(options) {
+  if (options.charset && options.charset !== 'UTF8_UNICODE_CI') {
+    logger.warn('createDatabase: using charset ' + options.charset);
+  } else {
+    options.charset = 'UTF8_UNICODE_CI';
+  }
   this._connection = mysql.createConnection(options);
 }
 
@@ -23,7 +27,7 @@ function createSchema(client, options) {
   var d = P.defer();
   var database = options.database;
 
-  logger.verbose('createDatabase');
+  logger.verbose('createDatabase', database);
   client.query('CREATE DATABASE IF NOT EXISTS ' + database
     + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci', function(err) {
       if (err) {
@@ -56,74 +60,145 @@ function createSchema(client, options) {
 }
 
 MysqlStore.connect = function mysqlConnect(options) {
-  var store = new MysqlStore(options);
   if (options.createSchema) {
-    return createSchema(store._connection, options).then(function() {
-      return store;
+    // ugly, but you can't connect to a database before the database actually
+    // exists. So remove and restore it later.
+    var database = options.database;
+    delete options.database;
+
+    options.multipleStatements = true;
+    var schemaConn = mysql.createConnection(options);
+    options.database = database;
+
+    return createSchema(schemaConn, options).then(function() {
+      schemaConn.end();
+      delete options.multipleStatements;
+      options.database = database;
+      return new MysqlStore(options);
     });
+  } else {
+    return P.resolve(new MysqlStore(options));
   }
-  return P.resolve(store);
 };
 
+function firstRow(rows) {
+  return rows[0];
+}
+
+const Q_AVATAR_INSERT = 'INSERT INTO avatars (id, url, userId, providerId) ' +
+  'VALUES (?, ?, ?, ?)';
+const Q_AVATAR_UPDATE = 'INSERT INTO avatar_selected (userId, avatarId) '
+  + 'VALUES (?, ?) ON DUPLICATE KEY UPDATE avatarId = VALUES(avatarId)';
+const Q_AVATAR_GET = 'SELECT * FROM avatars WHERE id=?';
+const Q_SELECTED_AVATAR = 'SELECT avatars.* FROM avatars LEFT JOIN '
+  + 'avatar_selected ON (avatars.id = avatar_selected.avatarId) WHERE '
+  + 'avatars.userId=? AND avatar_selected.avatarId IS NOT NULL';
+const Q_AVATAR_LIST = 'SELECT avatars.id, url, avatar_selected.avatarId '
+  + 'IS NOT NULL AS selected FROM avatars LEFT JOIN avatar_selected ON '
+  + '(avatars.id = avatar_selected.avatarId) WHERE avatars.userId=?';
+const Q_AVATAR_DELETE = 'DELETE FROM avatars WHERE id=?';
+
+const Q_PROVIDER_INSERT = 'INSERT INTO avatar_providers (name) VALUES (?)';
+const Q_PROVIDER_GET = 'SELECT * FROM avatar_providers WHERE name=?';
 
 MysqlStore.prototype = {
-  profileExists: function profileExists(id) {
-    var defer = P.defer();
-    this._connection.query(PROFILE_EXISTS_QUERY, [id], function(err, rows) {
-      if (err) {
-        defer.reject(err);
-      } else {
-        defer.resolve(!!rows[0]);
-      }
-    });
-    return defer.promise;
-  },
-  createProfile: function createProfile(profile) {
-    var defer = P.defer();
-    this._connection.query(PROFILE_CREATE_QUERY,
-      [profile.uid, profile.avatar], defer.callback);
-    return defer.promise;
-  },
-  getProfile: function getProfile(id) {
-    var defer = P.defer();
-    this._connection.query(PROFILE_GET_QUERY, [id], function(err, rows) {
-      if (err) {
-        return defer.reject(err);
-      }
-      var result = rows[0];
-      if (result) {
 
-        defer.resolve({
-          uid: result.uid,
-          avatar: result.avatar
-        });
-      } else {
-        defer.resolve();
-      }
-    });
-    return defer.promise;
-  },
-  getOrCreateProfile: function getOrCreateProfile(id) {
-    var db = this;
-    return db.profileExists(id).then(function(exists) {
-      if (!exists) {
-        return db.createProfile({ uid: id });
-      }
-    }).then(function() {
-      return db.getProfile(id);
-    });
-  },
-  setAvatar: function setAvatar(uid, url) {
+  ping: function ping() {
+    logger.debug('ping');
     var conn = this._connection;
-    return this.profileExists(uid).then(function(exists) {
-      if (!exists) {
-        throw new Error('User (' + uid + ') does not exist');
+    return new P(function(resolve, reject) {
+      conn.ping(function(err) {
+        if (err) {
+          logger.error('ping:', err);
+          reject(err);
+        } else {
+          logger.debug('pong');
+          resolve();
+        }
+      });
+    });
+  },
+
+  addAvatar: function addAvatar(id, uid, url, provider, selected) {
+    id = buf(id);
+    uid = buf(uid);
+    var store = this;
+    return this.getProvider(provider).then(function(prov) {
+      if (!prov) {
+        logger.error('provider not found', provider);
+        throw AppError.unsupportedProvider(url);
       }
-      var defer = P.defer();
-      conn.query(AVATAR_SET_QUERY, [url, uid], defer.callback);
-      return defer.promise;
+      var p = store._write(Q_AVATAR_INSERT, [id, url, uid, prov.id]);
+      if (selected) {
+        p = p.then(function() {
+          return store._write(Q_AVATAR_UPDATE, [uid, id]);
+        });
+      }
+
+      return p;
+    });
+  },
+
+  getAvatar: function getAvatar(id) {
+    return this._readOne(Q_AVATAR_GET, [buf(id)]);
+  },
+
+  getSelectedAvatar: function getSelectedAvatar(uid) {
+    return this._readOne(Q_SELECTED_AVATAR, [buf(uid)]);
+  },
+
+  getAvatars: function getAvatars(uid) {
+    return this._read(Q_AVATAR_LIST, [buf(uid)]);
+  },
+
+  deleteAvatar: function deleteAvatar(id) {
+    return this._write(Q_AVATAR_DELETE, [buf(id)]);
+  },
+
+  addProvider: function addProvider(name) {
+    return this._write(Q_PROVIDER_INSERT, [name]);
+  },
+
+  getProvider: function getProvider(name) {
+    return this._readOne(Q_PROVIDER_GET, [name]);
+  },
+
+  _write: function _write(sql, params) {
+    return this._query(this._connection, sql, params);
+  },
+
+  _read: function _read(sql, params) {
+    return this._query(this._connection, sql, params);
+  },
+
+  _readOne: function _readOne(sql, params) {
+    return this._read(sql, params).then(firstRow);
+  },
+
+  _query: function _query(connection, sql, params) {
+    return new P(function(resolve, reject) {
+      connection.query(sql, params || [], function(err, results) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(results);
+        }
+      });
     });
   }
 };
+
+if (config.get('env') === 'test') {
+  MysqlStore.prototype._clear = function clear() {
+    var store = this;
+    return this._write('DELETE FROM avatar_selected;')
+      .then(function() {
+        return store._write('DELETE FROM avatars;');
+      })
+      .then(function() {
+        return store._write('DELETE FROM avatar_providers;');
+      });
+  };
+}
 
 module.exports = MysqlStore;

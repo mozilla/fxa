@@ -9,6 +9,7 @@ module.exports = function (grunt) {
     test: {
       options: {
         ui: 'bdd',
+        reporter: 'spec',
         require: 'coverage/blanket'
       },
       src: [

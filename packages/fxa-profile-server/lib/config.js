@@ -14,13 +14,29 @@ const conf = convict({
       default: 1
     }
   },
-  /*db: {
+  aws: {
+    accessKeyId: {
+      arg: 'aws-key',
+      doc: 'aws access key id',
+      env: 'AWS_ACCESS_KEY_ID',
+      format: String,
+      default: 'CHANGEME'
+    },
+    secretAccessKey: {
+      arg: 'aws-secret',
+      doc: 'aws secret access key',
+      env: 'AWS_SECRET_ACCESS_KEY',
+      format: String,
+      default: 'CHANGEME'
+    }
+  },
+  db: {
     driver: {
       env: 'DB',
       format: ['mysql', 'memory'],
       default: 'memory'
     }
-  },*/
+  },
   env: {
     arg: 'node-env',
     doc: 'The current node.js environment',
@@ -35,12 +51,62 @@ const conf = convict({
       default: ''
     }
   },
+  img: {
+    driver: {
+      env: 'IMG',
+      format: ['local', 'aws'],
+      default: 'aws'
+    },
+    providers: {
+      doc: 'Patterns to match a URL to ensure we only accept certain URLs.',
+      default: {
+        'gravatar':
+            '^http(://www|s://secure)\\.gravatar\\.com' +
+            '/avatar/[0-9a-f]{32}(\\?s=\\d+)?$',
+        'fxa': '^http://127.0.0.1:1112/a/[0-9a-f]{32}$'
+      }
+    },
+    uploads: {
+      dest: {
+        public: {
+          doc: 'Path or bucket name for images to be served publicly.',
+          default: path.join(__dirname, '..', 'var', 'public')
+        }
+      }
+    },
+    compute: {
+      maxBacklog: {
+        default: 500
+      },
+      maxRequestTime: {
+        doc: 'seconds we will let the user wait before returning a 503',
+        format: 'duration',
+        default: 10
+      },
+      maxProcesses: {
+        doc: 'max child processes for compute-cluster',
+        default: Math.ceil(require('os').cpus().length * 1.25)
+      }
+    },
+    resize: {
+      height: {
+        default: 600
+      },
+      width: {
+        default: 600
+      }
+    },
+    url: {
+      doc: 'Pattern to generate FxA avatar URLs. {id} will be replaced.',
+      default: 'http://127.0.0.1:1112/a/{id}'
+    }
+  },
   logging: {
     formatters: {
       doc: 'http://seanmonstar.github.io/intel/#formatters',
       default: {
         pretty: {
-          format: '%(name)s.%(levelname)s: %(message)s',
+          format: '[p%(pid)s] %(name)s.%(levelname)s: %(message)s',
           colorize: true
         },
         'pretty_with_time': {
@@ -70,6 +136,9 @@ const conf = convict({
           handleExceptions: true,
           level: 'INFO',
           propagate: false
+        },
+        'fxa.server.web.hapi': {
+          level: 'ERROR'
         }
       }
     },
@@ -78,7 +147,7 @@ const conf = convict({
       default: __dirname
     }
   },
-  /*mysql: {
+  mysql: {
     createSchema: {
       env: 'CREATE_MYSQL_SCHEMA',
       default: true
@@ -92,7 +161,7 @@ const conf = convict({
       env: 'MYSQL_PASSWORD'
     },
     database: {
-      default: 'fxa',
+      default: 'fxa_profile',
       env: 'MYSQL_DATABASE'
     },
     host: {
@@ -103,7 +172,7 @@ const conf = convict({
       default: '3306',
       env: 'MYSQL_PORT'
     }
-  },*/
+  },
   oauth: {
     url: {
       doc: 'URL of fxa-oauth-server',
@@ -114,17 +183,31 @@ const conf = convict({
   publicUrl: {
     format: 'url',
     env: 'PUBLIC_URL',
-    default: 'http://localhost:1111'
+    default: 'http://127.0.0.1:1111'
   },
   server: {
     host: {
       env: 'HOST',
-      default: 'localhost'
+      default: '127.0.0.1'
     },
     port: {
       env: 'PORT',
       format: 'port',
       default: 1111
+    }
+  },
+  worker: {
+    host: {
+      env: 'WORKER_HOST',
+      default: '127.0.0.1'
+    },
+    port: {
+      env: 'WORKER_PORT',
+      format: 'port',
+      default: 1113
+    },
+    url: {
+      default: 'http://127.0.0.1:1113'
     }
   }
 });
@@ -133,6 +216,11 @@ var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json');
 var files = (envConfig + ',' + process.env.CONFIG_FILES)
   .split(',').filter(fs.existsSync);
 conf.loadFile(files);
+
+if (process.env.LOG_LEVEL) {
+  conf.set('logging.loggers.fxa.level', process.env.LOG_LEVEL);
+}
+process.env.NODE_ENV = conf.get('env');
 
 conf.validate();
 

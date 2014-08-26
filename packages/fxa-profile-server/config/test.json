@@ -7,8 +7,14 @@
     },
     "loggers": {
       "fxa": {
-        "level": "error"
+        "level": "warn"
       }
+    }
+  },
+  "img": {
+    "driver": "local",
+    "compute": {
+      "maxProcesses": 0
     }
   }
 }

@@ -2,15 +2,37 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const buf = require('buf');
+const hex = buf.to.hex;
+
+const config = require('../config');
 const P = require('../promise');
+
+function clone(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
 
 /*
  * MemoryStore structure:
  * MemoryStore = {
- *   profiles: {
+ *   avatars: {
+ *     <id>: {
+ *       id: <id>,
+ *       url: <string>,
+ *       userId: <uid>,
+ *       providerId: <providers.id>
+ *     }
+ *   },
+ *   providers: {
+ *     <id>: {
+ *       id: <id>,
+ *       name: <string>
+ *     }
+ *   },
+ *   selected: {
  *     <uid>: {
- *       uid: <id>
- *       avatar: <url>
+ *       userId: <uid>,
+ *       avatarId: <avatar.id>
  *     }
  *   }
  * }
@@ -19,7 +41,9 @@ function MemoryStore() {
   if (!(this instanceof MemoryStore)) {
     return new MemoryStore();
   }
-  this.profiles = {};
+  this.avatars = {};
+  this.providers = {};
+  this.selected = {};
 }
 
 MemoryStore.connect = function memoryConnect() {
@@ -27,35 +51,80 @@ MemoryStore.connect = function memoryConnect() {
 };
 
 MemoryStore.prototype = {
-  profileExists: function profileExists(id) {
-    return this.getProfile(id).then(function(user) {
-      return !!user;
-    });
+
+  ping: function ping() {
+    return P.resolve();
   },
-  createProfile: function createProfile(profile) {
-    this.profiles[profile.uid] = profile;
-    return P.resolve(true);
-  },
-  getProfile: function getProfile(id) {
-    return P.resolve(this.profiles[id]);
-  },
-  getOrCreateProfile: function getOrCreateProfile(id) {
-    var db = this;
-    return db.profileExists(id).then(function(exists) {
-      if (!exists) {
-        return db.createProfile({ uid: id });
-      }
-    }).then(function() {
-      return db.getProfile(id);
-    });
-  },
-  setAvatar: function setAvatar(userId, url) {
-    if (!this.profiles[userId]) {
-      return P.reject(new Error('User (' + userId + ') does not exist'));
+
+  addAvatar: function addAvatar(id, uid, url, provider, selected) {
+    var avatar = {
+      id: id,
+      url: url,
+      provider: provider,
+      userId: uid
+    };
+    this.avatars[hex(id)] = avatar;
+    if (selected) {
+      this.selected[hex(uid)] = {
+        userId: uid,
+        avatarId: id
+      };
     }
-    this.profiles[userId].avatar = url;
-    return P.resolve(true);
+    return P.fulfilled();
+  },
+
+  getAvatar: function getAvatar(id) {
+    return P.resolve(this.avatars[hex(id)]);
+  },
+
+  getSelectedAvatar: function getSelectedAvatar(uid) {
+    var selected = this.selected[hex(uid)];
+    if (selected) {
+      var avatar = this.avatars[hex(selected.avatarId)];
+      return P.resolve(avatar);
+    }
+    return P.resolve();
+  },
+
+  getAvatars: function getAvatars(uid) {
+    uid = hex(uid);
+    var ids = Object.keys(this.avatars);
+    var selected = this.selected[uid];
+    var avatars = [];
+    for (var i = 0; i < ids.length; i++) {
+      if (hex(this.avatars[ids[i]].userId) === uid) {
+        var av = clone(this.avatars[ids[i]]);
+        if (selected && hex(selected.avatarId) === ids[i]) {
+          av.selected = true;
+        }
+        avatars.push(av);
+      }
+    }
+    return P.resolve(avatars);
+  },
+
+  deleteAvatar: function deleteAvatar(id) {
+    delete this.avatars[hex(id)];
+    return P.resolve();
+  },
+
+  addProvider: function addProvider(name) {
+    this.providers[name] = name;
+    return P.resolve(name);
+  },
+
+  getProvider: function getProvider(name) {
+    return P.resolve(name);
   }
 };
+
+if (config.get('env') === 'test') {
+  MemoryStore.prototype._clear = function clear() {
+    this.avatars = {};
+    this.providers = {};
+    this.selected = {};
+    return P.resolve();
+  };
+}
 
 module.exports = MemoryStore;

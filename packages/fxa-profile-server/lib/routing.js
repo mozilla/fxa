@@ -33,5 +33,30 @@ module.exports = [
     method: 'GET',
     path: v('/uid'),
     config: require('./routes/uid')
+  },
+  {
+    method: 'GET',
+    path: v('/avatar'),
+    config: require('./routes/avatar/get')
+  },
+  {
+    method: 'GET',
+    path: v('/avatars'),
+    config: require('./routes/avatar/list')
+  },
+  {
+    method: 'POST',
+    path: v('/avatar'),
+    config: require('./routes/avatar/post')
+  },
+  {
+    method: 'POST',
+    path: v('/avatar/upload'),
+    config: require('./routes/avatar/upload')
+  },
+  {
+    method: 'DELETE',
+    path: v('/avatar/{id}'),
+    config: require('./routes/avatar/delete')
   }
 ];

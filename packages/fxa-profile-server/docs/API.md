@@ -44,6 +44,8 @@ The currently-defined error responses are:
 - status code, errno: description
 - 403, 100: Unauthorized
 - 400, 101: Invalid request parameter
+- 400, 102: Unsupported image provider
+- 500, 103: Image processing error
 - 500, 999: internal server error
 
 ## API Endpoints
@@ -52,6 +54,11 @@ The currently-defined error responses are:
 - [GET /v1/profile][profile]
 - [GET /v1/email][email]
 - [GET /v1/uid][uid]
+- [GET /v1/avatar][avatar]
+- [GET /v1/avatars][avatars]
+- [POST /v1/avatar][avatar-post]
+- [POST /v1/avatar/upload][upload]
+- [DELETE /v1/avatar/:id][delete]
 
 ### GET /v1/profile
 
@@ -61,7 +68,7 @@ Retrieves all properties of a profile.
 
 #### Request
 
-```
+```sh
 curl -v \
 -H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
 "https://profile.accounts.firefox.com/v1/profile"
@@ -84,7 +91,7 @@ Retrieves the user's email address.
 
 #### Request
 
-```
+```sh
 curl -v \
 -H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
 "https://profile.accounts.firefox.com/v1/email"
@@ -92,7 +99,7 @@ curl -v \
 
 #### Response
 
-```js
+```json
 {
   "email": "user@example.domain"
 }
@@ -106,7 +113,7 @@ Retrieves a consistent, unique ID for this user.
 
 #### Request
 
-```
+```sh
 curl -v \
 -H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
 "https://profile.accounts.firefox.com/v1/uid"
@@ -120,8 +127,146 @@ curl -v \
 }
 ```
 
+### GET /v1/avatar
+
+- scope: `profile:avatar`
+
+Returns details of the current user avatar, or an empty object if none.
+
+An avatar `id` is a 32-length hexstring.
+
+#### Request
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/avatar"
+```
+
+#### Response
+
+```json
+{
+  "id": "81625c14128d46c2b600e74a017fa4a8",
+  "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
+}
+```
+
+### GET /v1/avatars
+
+- scope: `profile:avatar:write`
+
+Get a list of uploaded avatars for a user.
+
+#### Request
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/avatars"
+```
+
+#### Response
+
+```json
+{
+  "avatars": [
+    {
+      "id": "81625c14128d46c2b600e74a017fa4a8",
+      "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96",
+      "selected": true
+    }
+  ]
+}
+```
+
+### POST /v1/avatar
+
+- scope: `profile:avatar:write`
+
+Add a URL for an avatar to the user's profile.
+
+#### Request
+
+- `url` - The URL of the image. Must be from a supported provider.
+- `selected` - Boolean, whether it should be the selected avatar.
+
+Supported Providers:
+
+- FxAccounts
+- Gravatar
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/avatar" \
+-d '{
+  "url": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96",
+  "selected": true
+}'
+```
+
+#### Response
+
+```json
+{}
+```
+
+### POST /v1/avatar/upload
+
+- scope: `profile:avatar:write`
+
+Upload image data as an avatar for the user.
+
+#### Request
+
+The binary data of the image should make up the post body, and the
+headers `Content-Length` and `Content-Type` are required.
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: image/png" \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+--data-binary @image.png \
+"https://profile.accounts.firefox.com/v1/avatar/upload"
+```
+
+#### Response
+
+```json
+{
+  "url": "https://a.p.firefoxusercontent.net/a/81625c14128d46c2b600e74a017fa4a8"
+}
+```
+
+### DELETE /v1/avatar/:id
+
+- scope: `profile:avatar:write`
+
+Delete an avatar from the user's profile.
+
+#### Request
+
+The `id` of an avatar can be received from [GET /v1/avatar][avatar] or
+[GET /v1/avatars][avatars].
+
+```sh
+curl -v \
+-X DELETE \
+"https://profile.accounts.firefox.com/v1/avatar/81625c14128d46c2b600e74a017fa4a8"
+```
+
+
 [profile]: #get-v1profile
 [email]: #get-v1email
 [uid]: #get-v1uid
+[avatar]: #get-v1avatar
+[avatar-post]: #post-v1avatar
+[avatars]: #get-v1avatars
+[upload]: #post-v1avatarupload
+[delete]: #delete-v1avatarid
 
 [OAuth]: https://github.com/mozilla/fxa-oauth-server

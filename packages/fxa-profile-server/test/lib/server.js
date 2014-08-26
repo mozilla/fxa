@@ -6,8 +6,8 @@ const version = require('../../lib/config').get('api.version');
 const P = require('../../lib/promise');
 const Server = require('../../lib/server');
 
+var server = Server.create();
 function request(options) {
-  var server = Server.create();
   var deferred = P.defer();
   server.inject(options, deferred.resolve.bind(deferred));
   return deferred.promise;
@@ -20,17 +20,13 @@ function opts(options) {
   return options;
 }
 
-exports.post = function post(options) {
-  options = opts(options);
-  options.method = 'POST';
-  return request(options);
-};
-
-exports.get = function get(options) {
-  options = opts(options);
-  options.method = 'GET';
-  return request(options);
-};
+['GET', 'POST', 'PUT', 'DELETE'].forEach(function(method) {
+  exports[method.toLowerCase()] = function(options) {
+    options = opts(options);
+    options.method = method;
+    return request(options);
+  };
+});
 
 var api = {};
 Object.keys(exports).forEach(function(key) {

@@ -7,8 +7,11 @@
     },
     "loggers": {
       "fxa": {
-        "level": "ALL"
+        "level": "all"
       }
     }
+  },
+  "img": {
+    "driver": "local"
   }
 }
