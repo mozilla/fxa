@@ -57,7 +57,7 @@ define([
         // skip the file picker if this is an automater browser
         if (this.automatedBrowser) {
           var self = this;
-          require(['draggable'], function (ui) {
+          require(['draggable', 'touch-punch'], function () {
             Session.set('cropImgSrc', pngSrc);
             Session.set('cropImgWidth', 1);
             Session.set('cropImgHeight', 1);
@@ -78,7 +78,7 @@ define([
           // Store the width and height for the cropper view
           Session.set('cropImgWidth', this.width);
           Session.set('cropImgHeight', this.height);
-          require(['draggable'], function () {
+          require(['draggable', 'touch-punch'], function () {
             self.navigate('settings/avatar/crop');
           });
         };

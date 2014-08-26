@@ -22,6 +22,10 @@ require.config({
     { name: 'draggable',
       location: '../bower_components/jquery-ui/ui',
       main: 'draggable'
+    },
+    { name: 'touch-punch',
+      location: '../bower_components/jquery-ui-touch-punch',
+      main: 'jquery.ui.touch-punch'
     }
   ],
   shim: {
