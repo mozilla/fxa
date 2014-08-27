@@ -15,7 +15,7 @@ notifications:
 env:
   - NODE_ENV=test DB=memory IMG=local
   - NODE_ENV=test DB=mysql IMG=local
-  - NODE_ENV=test DB=memory IMG=aws
+#  - NODE_ENV=test DB=memory IMG=aws
 
 before_script:
   - sudo apt-get install graphicsmagick
