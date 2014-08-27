@@ -48,6 +48,8 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    *   a URL that the client should be redirected to after handling the request
    *   @param {String} [options.preVerified]
    *   set email to be verified if possible
+   *   @param {String} [options.preVerifyToken]
+   *   Opaque alphanumeric token that can be used to pre-verify a user.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
@@ -77,8 +79,17 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
               data.redirectTo = options.redirectTo;
             }
 
+            // preVerified and preVerifyToken exist for two different use
+            // cases. preVerified is used for unit/functional testing, while
+            // preVerifyToken is used by trusted RPs to indicate a user is
+            // already verified. The plan is to eventually drop preVerified and
+            // use preVerifyToken universally.
             if (options.preVerified) {
               data.preVerified = options.preVerified;
+            }
+
+            if (options.preVerifyToken) {
+              data.preVerifyToken = options.preVerifyToken;
             }
 
             if (options.keys) {
