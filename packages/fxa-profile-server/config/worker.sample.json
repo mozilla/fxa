@@ -1,4 +1,8 @@
 {
+  "aws": {
+    "accessKeyId": "CHANGEME",
+    "secretAccessKey": "CHANGEME"
+  },
   "img": {
     "driver": "aws",
     "providers": {
