@@ -1,14 +1,14 @@
 {
   "name": "fxa-js-client",
   "devDependencies": {
-    "requirejs": "~2.1.6",
-    "requirejs-plugins": "~1.0.2",
-    "requirejs-handlebars": "~0.0.1",
-    "almond": "~0.2.5",
-    "cjs": "latest"
+    "requirejs": "2.1.6",
+    "requirejs-plugins": "1.0.2",
+    "requirejs-handlebars": "0.0.1",
+    "almond": "0.2.5",
+    "cjs": "https://github.com/guybedford/cjs.git#69c7f33059"
   },
   "dependencies": {
     "p": "https://github.com/rkatic/p.git#5e9520f364789db476aad434e3da3b36e4ecc535",
-    "sjcl": "~1.0.0"
+    "sjcl": "1.0.0"
   }
 }
