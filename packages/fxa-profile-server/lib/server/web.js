@@ -50,7 +50,7 @@ exports.create = function createServer() {
         }, function(err, resp, body) {
           if (err) {
             logger.error('auth verify error', err, body);
-            return reply(err);
+            return reply(AppError.oauthError(err));
           }
           if (body.code >= 400) {
             logger.debug('unauthorized', body);
