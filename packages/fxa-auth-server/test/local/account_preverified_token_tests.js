@@ -22,7 +22,7 @@ TestServer.start(config)
   test(
     'a valid preVerifyToken creates a verified account',
     function (t) {
-      var email = Math.random() + "@example.com"
+      var email = server.uniqueEmail()
       var password = 'ok'
       var header = b64(JSON.stringify(
         {
@@ -59,7 +59,7 @@ TestServer.start(config)
   test(
     'an invalid preVerifyToken return an invalid verification code error',
     function (t) {
-      var email = Math.random() + "@example.com"
+      var email = server.uniqueEmail()
       var password = 'ok'
       var header = b64(JSON.stringify(
         {
@@ -83,6 +83,55 @@ TestServer.start(config)
           fail,
           function (err) {
             t.equal(err.errno, 105, 'invalid verification code')
+          }
+        )
+    }
+  )
+
+  test(
+    're-signup against an unverified email',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'abcdef'
+      return Client.create(config.publicUrl, email, password)
+        .then(
+          function () {
+            // delete the first verification email
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function () {
+            var header = b64(JSON.stringify(
+              {
+                alg: 'RS256',
+                jku: config.publicUrl + '/.well-known/public-keys',
+                kid: 'dev-1'
+              }
+            ))
+            var payload = b64(JSON.stringify(
+              {
+                iss: config.trustedIssuers[0],
+                exp: Date.now() + 10000,
+                aud: config.domain,
+                sub: email
+              }
+            ))
+            var sig = secretKey.sign(header + '.' + payload)
+            var token = header + '.' + payload + '.' + sig
+            return Client.create(config.publicUrl, email, password, { preVerifyToken: token })
+          }
+        )
+        .then(
+          function (client) {
+            t.ok(client.uid, 'account created')
+            return client.keys()
+          }
+        )
+        .then(
+          function (keys) {
+            t.ok(Buffer.isBuffer(keys.kA), 'kA exists')
+            t.ok(Buffer.isBuffer(keys.wrapKb), 'wrapKb exists')
           }
         )
     }
