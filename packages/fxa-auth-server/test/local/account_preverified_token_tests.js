@@ -7,7 +7,6 @@ var path = require('path')
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../client')
-var jws = require('jws')
 var jwcrypto = require('jwcrypto')
 require('jwcrypto/lib/algs/rs')
 var b64 = require('jwcrypto/lib/utils').base64urlencode

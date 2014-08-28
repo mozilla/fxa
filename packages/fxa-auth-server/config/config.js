@@ -20,7 +20,7 @@ module.exports = function (fs, path, url, convict) {
     publicUrl: {
       format: "url",
       // the real url is set by awsbox
-      default: "http://localhost:9000",
+      default: "http://127.0.0.1:9000",
       env: "PUBLIC_URL"
     },
     secretKeyFile: {
@@ -29,14 +29,11 @@ module.exports = function (fs, path, url, convict) {
     publicKeyFile: {
       default: path.resolve(__dirname, '../config/public-key.json')
     },
-    preVerifySecret: {
-      default: ""
-    },
     trustedJKUs: {
-      default: ["http://localhost:9000/.well-known/public-keys"]
+      default: []
     },
     trustedIssuers: {
-      default: ["localhost"]
+      default: []
     },
     db: {
       backend: {
