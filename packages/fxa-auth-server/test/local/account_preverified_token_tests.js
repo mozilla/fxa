@@ -42,7 +42,6 @@ TestServer.start(config)
       ))
       var sig = secretKey.sign(header + '.' + payload)
       var token = header + '.' + payload + '.' + sig
-      console.error(token)
       return Client.create(config.publicUrl, email, password, { preVerifyToken: token })
         .then(
           function (c) {

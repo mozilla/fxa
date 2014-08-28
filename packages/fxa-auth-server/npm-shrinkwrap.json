@@ -203,6 +203,11 @@
         }
       }
     },
+    "bigint": {
+      "version": "0.4.2",
+      "from": "bigint@",
+      "resolved": "https://registry.npmjs.org/bigint/-/bigint-0.4.2.tgz"
+    },
     "binary-split": {
       "version": "0.1.2",
       "from": "binary-split@0.1.2",

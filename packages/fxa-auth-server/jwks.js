@@ -30,9 +30,10 @@ module.exports = function (error, config) {
           function (key) {
             var k = jwcrypto.loadPublicKeyFromObject(
               {
-                algorithm:"RS",
-                n: key.n,
-                e: key.e
+                algorithm:'RS',
+                version: '2012.08.15', // used to base64 decode n & e
+                modulus: key.n,
+                exponent: key.e
               }
             )
             k.kid = key.kid

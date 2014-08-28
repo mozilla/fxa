@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var b64 = require('jwcrypto/lib/utils').base64urlencode
+var bigint = require('bigint')
+
 module.exports = function (log, serverPublicKey) {
 
   var routes = [
@@ -35,8 +38,8 @@ module.exports = function (log, serverPublicKey) {
             keys: [
               {
                 kty: "RSA",
-                n: serverPublicKey.n,//bigint(serverPublicKey.n).toBuffer().toString('base64'),
-                e: serverPublicKey.e,//bigint(serverPublicKey.e).toBuffer().toString('base64'),
+                n: b64(bigint(serverPublicKey.n).toBuffer()),
+                e: b64(bigint(serverPublicKey.e).toBuffer()),
                 kid: "dev-1"
               }
             ]

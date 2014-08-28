@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "aws-sdk": "2.0.15",
+    "bigint": "0.4.2",
     "binary-split": "0.1.2",
     "bunyan": "1.0.0",
     "compute-cluster": "0.0.9",

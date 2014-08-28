@@ -11,13 +11,6 @@ module.exports = function (jwks, error, config) {
   }
 
   function validate(jwt) {
-    console.error('SUP',
-    config.trustedIssuers.indexOf(jwt.iss) > -1,
-    jwt.exp > Date.now(),
-    jwt.aud === config.domain,
-    jwt.sub
-    )
-
     return config.trustedIssuers.indexOf(jwt.iss) > -1 &&
       jwt.exp > Date.now() &&
       jwt.aud === config.domain &&
