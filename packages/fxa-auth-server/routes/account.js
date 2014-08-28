@@ -38,7 +38,7 @@ module.exports = function (
             preVerified: isA.boolean(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
-            preVerifyToken: isA.string().optional()
+            preVerifyToken: isA.string().max(2048).optional()
           }
         }
       },
