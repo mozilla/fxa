@@ -79,7 +79,8 @@ function (
         metrics: this.metrics,
         window: this.window,
         router: this,
-        language: this.language
+        language: this.language,
+        relier: this.relier
       }, options || {});
 
       this.showView(new View(options));
@@ -126,6 +127,7 @@ function (
 
       this.metrics = options.metrics;
       this.language = options.language;
+      this.relier = options.relier;
 
       this.$stage = $('#stage');
 

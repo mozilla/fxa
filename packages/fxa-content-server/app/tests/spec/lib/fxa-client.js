@@ -164,6 +164,21 @@ function (chai, $, p, ChannelMock, testHelpers,
             assert.isTrue(realClient.signIn.called);
           });
       });
+
+      it('signUp a preverified user using preVerifyToken', function () {
+        var password = 'password';
+        var preVerifyToken = 'somebiglongtoken';
+        return client.signUp(email, password, {
+            preVerifyToken: preVerifyToken
+          })
+          .then(function () {
+            assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
+              preVerifyToken: preVerifyToken,
+              keys: true
+            }));
+            assert.isTrue(realClient.signIn.called);
+          });
+      });
     });
 
     describe('signUp when another user has previously signed in to browser and user accepts', function () {

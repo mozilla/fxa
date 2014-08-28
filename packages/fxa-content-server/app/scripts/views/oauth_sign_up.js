@@ -36,11 +36,11 @@ function (_, p, BaseView, SignUpView, ServiceMixin) {
       return SignUpView.prototype.afterRender.call(this);
     },
 
-    onSignUpSuccess: function () {
+    onSignUpSuccess: function (accountData) {
       // Store oauth state for when/if the oauth flow completes
       // in this browser
       this.persistOAuthParams();
-      this.navigate('confirm');
+      return SignUpView.prototype.onSignUpSuccess.call(this, accountData);
     }
   });
 
