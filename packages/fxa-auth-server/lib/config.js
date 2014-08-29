@@ -180,6 +180,9 @@ var files = (envConfig + ',' + process.env.CONFIG_FILES)
   .split(',').filter(fs.existsSync);
 conf.loadFile(files);
 
+if (process.env.LOG_LEVEL) {
+  conf.set('logging.loggers.fxa.level', process.env.LOG_LEVEL);
+}
 
 conf.validate();
 
