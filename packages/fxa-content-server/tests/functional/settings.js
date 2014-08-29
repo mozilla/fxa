@@ -111,14 +111,18 @@ define([
     'visit settings page with an invalid sessionToken redirects to signin': function() {
       // Changing the password invalidates the current sessionToken
       var self = this;
-      return client.passwordChange(email, FIRST_PASSWORD, SECOND_PASSWORD)
-          .then(function () {
-            return self.get('remote')
-              .get(require.toUrl(SETTINGS_URL))
-              // Expect to get redirected to sign in since the sessionToken is invalid
-              .findById('fxa-signin-header')
-              .end();
-          });
+
+      return FunctionalHelpers.clearBrowserState(self)
+        .then(function () {
+          return client.passwordChange(email, FIRST_PASSWORD, SECOND_PASSWORD);
+        })
+        .then(function () {
+          return self.get('remote')
+            .get(require.toUrl(SETTINGS_URL))
+            // Expect to get redirected to sign in since the sessionToken is invalid
+            .findById('fxa-signin-header')
+            .end();
+        });
     },
 
     'sign in, delete account': function () {

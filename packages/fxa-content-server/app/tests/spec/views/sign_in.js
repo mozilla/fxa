@@ -202,6 +202,9 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator,
       });
 
       it('passes other errors along', function () {
+        $('[type=email]').val(email);
+        $('[type=password]').val('incorrect');
+
         view.fxaClient.signIn = function (email) {
           return p()
               .then(function () {
@@ -268,7 +271,141 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator,
             });
       });
     });
+
+    describe('useLoggedInAccount', function () {
+      it('shows an error if session is expired', function (done) {
+        Session.set('sessionToken', 'abc123');
+        Session.set('email', 'a@a.com');
+
+        return view.useLoggedInAccount()
+          .then(function () {
+            assert.isTrue(view._isErrorVisible);
+            // do not show email input
+            assert.notOk(view.$('#email').length);
+            // show password input
+            assert.ok(view.$('#password').length);
+            assert.equal(view.$('.error').text(), 'Session expired. Sign in to continue.');
+            done();
+          })
+          .fail(done);
+      });
+
+      it('signs in with a valid session', function (done) {
+        Session.set('sessionToken', 'abc123');
+        Session.set('email', 'a@a.com');
+
+        view.fxaClient.recoveryEmailStatus = function () {
+          return p({verified: true});
+        };
+
+        return view.useLoggedInAccount()
+          .then(function () {
+            assert.notOk(view._isErrorVisible);
+            assert.equal(view.$('.error').text(), '');
+            done();
+          })
+          .fail(done);
+      });
+    });
+
+    describe('useDifferentAccount', function () {
+      it('can switch to signin with the useDifferentAccount button', function (done) {
+        Session.set('sessionToken', 'abc123');
+        Session.set('email', 'a@a.com');
+
+        return view.useLoggedInAccount()
+          .then(function () {
+            $('.use-different').click();
+            assert.ok($('.email').length, 'should show email input');
+            assert.ok($('.password').length, 'should show password input');
+            done();
+          })
+          .fail(done);
+      });
+    });
+
+    describe('_suggestedUser', function () {
+      it('can suggest the user based on session variables', function () {
+        assert.isNull(view._suggestedUser(), 'null when no session set');
+        Session.set('sessionToken', 'abc123');
+        assert.isNull(view._suggestedUser(), 'null when no email set');
+
+        Session.clear();
+        Session.set('email', 'a@a.com');
+        assert.isNull(view._suggestedUser(), 'null when no session token set');
+
+        Session.clear();
+        Session.set('sessionToken', 'abc123');
+        Session.set('email', 'a@a.com');
+        assert.equal(view._suggestedUser().email, 'a@a.com');
+        assert.equal(view._suggestedUser().avatar, undefined);
+
+        Session.clear();
+        Session.set('sessionToken', 'abc123');
+        Session.set('email', 'a@a.com');
+        Session.set('avatar', 'avatar.jpg');
+        assert.equal(view._suggestedUser().email, 'a@a.com');
+        assert.equal(view._suggestedUser().avatar, 'avatar.jpg');
+      });
+
+      it('does shows if there is the same email in query params', function (done) {
+        windowMock.location.search = '?email=a@a.com';
+        Session.set('email', 'a@a.com');
+        Session.set('sessionToken', 'abc123');
+
+        return view.render()
+          .then(function () {
+            assert.ok($('.avatar-view').length, 'should show suggested avatar');
+            assert.notOk($('.password').length, 'should not show password input');
+            done();
+          })
+          .fail(done);
+      });
+
+      it('does not show if there is an email in query params that does not match', function (done) {
+        windowMock.location.search = '?email=b@b.com';
+        Session.set('email', 'a@a.com');
+        Session.set('sessionToken', 'abc123');
+
+        return view.render()
+          .then(function () {
+            assert.equal($('.email')[0].type, 'email', 'should show email input');
+            assert.ok($('.password').length, 'should show password input');
+            done();
+          })
+          .fail(done);
+      });
+    });
+
+    describe('_suggestedUserAskPassword', function () {
+      it('asks for password right away if service is sync', function (done) {
+        Session.set('email', 'a@a.com');
+        Session.set('sessionToken', 'abc123');
+        Session.set('service', 'sync');
+
+        return view.render()
+          .then(function () {
+            assert.equal($('.email')[0].type, 'hidden', 'should not show email input');
+            assert.ok($('.password').length, 'should show password input');
+            done();
+          })
+          .fail(done);
+      });
+
+      it('does not ask for password right away if service is not sync', function (done) {
+        Session.set('email', 'a@a.com');
+        Session.set('sessionToken', 'abc123');
+        Session.set('service', 'loop');
+
+        return view.render()
+          .then(function () {
+            assert.ok($('.avatar-view').length, 'should show suggested avatar');
+            assert.notOk($('.password').length, 'should show password input');
+            done();
+          })
+          .fail(done);
+      });
+    });
+
   });
 });
-
-

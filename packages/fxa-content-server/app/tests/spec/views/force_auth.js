@@ -49,6 +49,59 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock) {
 
         assert.notEqual(view.$('.error').text(), '');
       });
+
+      it('shows no avatar if Session.avatar is undefined', function (done) {
+        Session.set('forceEmail', 'a@a.com');
+        assert.isNull(view.context().avatar);
+        
+        return view.render()
+          .then(function () {
+            assert.notOk(view.$('.avatar-view img').length);
+            done();
+          })
+          .fail(done);
+      });
+
+      it('shows no avatar when there is no Session.email', function (done) {
+        Session.set('forceEmail', 'a@a.com');
+        Session.set('avatar', 'avatar.jpg');
+        assert.isNull(view.context().avatar);
+
+        return view.render()
+          .then(function () {
+            assert.notOk(view.$('.avatar-view img').length);
+            done();
+          })
+          .fail(done);
+      });
+
+      it('shows avatar when Session.email and Session.forceEmail match', function (done) {
+        Session.set('forceEmail', 'a@a.com');
+        Session.set('email', 'a@a.com');
+        Session.set('avatar', 'avatar.jpg');
+        assert.equal(view.context().avatar, 'avatar.jpg');
+
+        return view.render()
+          .then(function () {
+            assert.ok(view.$('.avatar-view img').length);
+            done();
+          })
+          .fail(done);
+      });
+
+      it('shows no avatar when Session.email and Session.forceEmail do not match', function (done) {
+        Session.set('forceEmail', 'a@a.com');
+        Session.set('email', 'b@b.com');
+        Session.set('avatar', 'avatar.jpg');
+        assert.isNull(view.context().avatar);
+
+        return view.render()
+          .then(function () {
+            assert.notOk(view.$('.avatar-view img').length);
+            done();
+          })
+          .fail(done);
+      });
     });
 
     describe('with email', function () {
@@ -79,6 +132,13 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock) {
         $('#container').empty();
       });
 
+
+      it('is able to submit the form', function (done) {
+        view._signIn = function() {
+          done();
+        };
+        $('#submit-btn').click();
+      });
 
       it('does not print an error message', function () {
         assert.equal(view.$('.error').text(), '');

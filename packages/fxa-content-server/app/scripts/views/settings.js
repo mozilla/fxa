@@ -25,6 +25,7 @@ function (_, FormView, BaseView, Template, Session, Constants) {
     context: function () {
       return {
         email: Session.email,
+        avatar: Session.avatar,
         showSignOut: Session.get('sessionTokenContext') !== Constants.FX_DESKTOP_CONTEXT
       };
     },

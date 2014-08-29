@@ -46,6 +46,10 @@ define([
         });
     },
 
+    beforeEach: function () {
+      return FunctionalHelpers.clearBrowserState(this);
+    },
+
     teardown: function () {
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
