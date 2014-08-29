@@ -22,7 +22,7 @@ function withDriver() {
   }
   var p;
   if (config.get('img.driver') === 'aws') {
-    p = klass.connect(config.get('aws'));
+    p = klass.connect();
   } else {
     p = klass.connect();
   }

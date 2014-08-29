@@ -47,7 +47,8 @@ function compute(msg, callback) {
   }).done(function() {
     callback({ id: id });
   }, function(err) {
-    callback({ id: id, error: err });
+    logger.error('compute', err);
+    callback({ id: id, error: err.message });
   });
 }
 exports.compute = compute;

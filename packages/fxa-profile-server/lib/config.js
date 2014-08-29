@@ -14,22 +14,6 @@ const conf = convict({
       default: 1
     }
   },
-  aws: {
-    accessKeyId: {
-      arg: 'aws-key',
-      doc: 'aws access key id',
-      env: 'AWS_ACCESS_KEY_ID',
-      format: String,
-      default: 'CHANGEME'
-    },
-    secretAccessKey: {
-      arg: 'aws-secret',
-      doc: 'aws secret access key',
-      env: 'AWS_SECRET_ACCESS_KEY',
-      format: String,
-      default: 'CHANGEME'
-    }
-  },
   db: {
     driver: {
       env: 'DB',
@@ -70,7 +54,7 @@ const conf = convict({
       dest: {
         public: {
           doc: 'Path or bucket name for images to be served publicly.',
-          default: path.join(__dirname, '..', 'var', 'public')
+          default: 'BUCKET_NAME'
         }
       }
     },
@@ -216,6 +200,16 @@ var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json');
 var files = (envConfig + ',' + process.env.CONFIG_FILES)
   .split(',').filter(fs.existsSync);
 conf.loadFile(files);
+
+if (conf.get('img.driver') === 'local') {
+  conf.set('img.uploads.dest.public',
+    path.join(__dirname, '..', 'var', 'public'));
+}
+
+if (conf.get('env') === 'test') {
+  process.env.AWS_ACCESS_KEY_ID = 'TESTME';
+  process.env.AWS_SECRET_ACCESS_KEY = 'TESTME';
+}
 
 if (process.env.LOG_LEVEL) {
   conf.set('logging.loggers.fxa.level', process.env.LOG_LEVEL);

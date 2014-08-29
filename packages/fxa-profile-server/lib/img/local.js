@@ -16,12 +16,11 @@ if (!fs.existsSync(PUBLIC_DIR)) {
   throw new Error('PUBLIC_DIR does not exist: ' + PUBLIC_DIR);
 }
 
-function LocalDriver(options) {
+function LocalDriver() {
   var env = config.get('env');
   if (env !== 'dev' && env !== 'test') {
     logger.warn('Using img.local driver!');
   }
-  this._o = options;
 }
 
 LocalDriver.connect = function localConnect(options) {

@@ -14,8 +14,9 @@ if (!/^[a-zA-Z0-9_\-]+$/.test(PUBLIC_BUCKET)) {
   throw new Error('Illegal Bucket Name: ' + PUBLIC_BUCKET);
 }
 
-function AwsDriver(options) {
-  this._s3 = new aws.S3(options);
+
+function AwsDriver() {
+  this._s3 = new aws.S3();
 }
 
 AwsDriver.connect = function awsConnect(options) {
