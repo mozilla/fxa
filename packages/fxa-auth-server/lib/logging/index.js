@@ -13,4 +13,10 @@ if (typeof conf.handlers.console.stream === 'string') {
 
 intel.config(conf);
 
+var root = intel.getLogger('fxa');
+if (root.isEnabledFor(intel.DEBUG)) {
+  root.warn('\t*** CAREFUL! Louder logs (less than INFO)' +
+    ' may include SECRETS! ***');
+}
+
 module.exports = intel;
