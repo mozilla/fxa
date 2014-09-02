@@ -136,7 +136,7 @@ MysqlStore.prototype = {
       id,
       client.name,
       client.imageUri,
-      client.hashedSecret,
+      buf(client.hashedSecret),
       client.redirectUri,
       !!client.whitelisted,
       !!client.canGrant

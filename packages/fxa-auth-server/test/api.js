@@ -81,7 +81,9 @@ function genAssertion(email) {
 
 
 var client;
-var secret;
+// this matches the hashed secret in config, an assert sanity checks
+// lower to make sure it matches
+var secret = 'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
 var badSecret;
 var clientId;
 var AN_ASSERTION;
@@ -137,7 +139,7 @@ describe('/v1', function() {
       db.ping().then(function() {
         client = config.get('clients')[0];
         clientId = client.id;
-        secret = client.secret;
+        assert.equal(encrypt.hash(secret).toString('hex'), client.hashedSecret);
         badSecret = Buffer(secret, 'hex').slice();
         badSecret[badSecret.length - 1] ^= 1;
         badSecret = badSecret.toString('hex');
