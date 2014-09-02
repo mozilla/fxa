@@ -4,6 +4,7 @@
 
 var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
+var BASE64_JWT = validators.BASE64_JWT
 
 var Password = require('../crypto/password')
 var butil = require('../crypto/butil')
@@ -38,7 +39,7 @@ module.exports = function (
             preVerified: isA.boolean(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
-            preVerifyToken: isA.string().max(2048).optional()
+            preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional()
           }
         }
       },

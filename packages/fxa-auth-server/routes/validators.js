@@ -10,6 +10,8 @@ var isA = require('joi')
 
 module.exports.HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/
 
+module.exports.BASE64_JWT = /^(?:[a-zA-Z0-9-_]+[=]{0,2}\.){2}[a-zA-Z0-9-_]+[=]{0,2}$/
+
 
 // Joi validator to match any valid email address.
 // This is different to Joi's builtin email validator, and
