@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const buf = require('buf').hex;
 const unbuf = require('buf').unbuf.hex;
 
 const P = require('../promise');
@@ -23,9 +22,13 @@ function preClients() {
           logger.debug('Client %s exists, skipping', unbuf(c.id));
         } else {
           if (c.secret) {
-            logger.warn('Do not keep client secrets in the config file.'
-              + ' Use the `hashedSecret` field instead.');
-            c.hashedSecret = encrypt.hash(buf(c.secret));
+            logger.error('Do not keep client secrets in the config file.'
+              + ' Use the `hashedSecret` field instead.\n\n'
+              + '\tclient=%s has `secret` field\n'
+              + '\tuse hashedSecret="%s" instead',
+              unbuf(c.id),
+              unbuf(encrypt.hash(c.secret)));
+            process.exit(1);
           }
           return exports.registerClient(c);
         }
