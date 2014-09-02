@@ -124,6 +124,7 @@ define([
     }
 
     assert.equal(headers['x-content-type-options'], 'nosniff');
+    assert.include(headers['strict-transport-security'], 'max-age=');
   }
 
 });
