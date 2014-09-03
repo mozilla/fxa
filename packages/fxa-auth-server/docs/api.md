@@ -209,7 +209,7 @@ ___JOSE Header___
   "keys":[
   {
     "kid":"dev-1",
-    "use": "sign",
+    "use": "sig",
     "kty":"RSA",
     "n":"W_lCUvksZMVxW2JLNtoyPPshvSHng28H5FggSBGBjmzv3eHkMgRdc8hpOkgcPwXYxHdVM6udtVdXZtbGN8nUyQX8gxD3AJg-GSrH3UOsoArPLCmcxwIEpk4B0wqwP68oK8dQHt0iK3N-XeCnMpv75ULlVn3LEOZT8CsuNraVOthYeClUb8r1PjRwqRB06QGNqnnhcPMmh-6cRzQ9HmTMz6CDcugiH5n2sjrvpeBugEsnXt3KpzVdSc4usXrIEmLRuFjwFbkzoo7FiAtSoXxBqc074qz8ejm-V0-2Wv3p6ePeLODeYkPQho4Lb1TBdoidr9RHY29Out4mhzb4nUrHHQ",
     "e":"AQAB"
