@@ -6,8 +6,6 @@ var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../client')
 var jwcrypto = require('jwcrypto')
-var config = require('../../config').root()
-
 
 var config = require('../../config').root()
 

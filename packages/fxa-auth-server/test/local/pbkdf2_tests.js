@@ -4,7 +4,6 @@
 
 var test = require('../ptaptest')
 var pbkdf2 = require('../../crypto/pbkdf2')
-var test = require('../ptaptest')
 var ITERATIONS = 20000
 var LENGTH = 32
 
