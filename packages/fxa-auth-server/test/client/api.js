@@ -100,7 +100,8 @@ ClientApi.prototype.accountCreate = function (email, authPW, options) {
       authPW: authPW.toString('hex'),
       preVerified: options.preVerified || undefined,
       service: options.service || undefined,
-      redirectTo: options.redirectTo || undefined
+      redirectTo: options.redirectTo || undefined,
+      preVerifyToken: options.preVerifyToken || undefined
     },
     {
       'accept-language': options.lang

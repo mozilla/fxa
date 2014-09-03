@@ -335,7 +335,7 @@ TestServer.start(config)
       return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
         .then(
           function (c) {
-            return Client.create(config.publicUrl, email2, password, server.mailbox)
+            return Client.create(config.publicUrl, email2, password)
           }
         )
         .then(
@@ -353,7 +353,7 @@ TestServer.start(config)
     function (t) {
       var email = server.uniqueEmail()
       var password = 'abcdef'
-      return Client.create(config.publicUrl, email, password, server.mailbox)
+      return Client.create(config.publicUrl, email, password)
         .then(
           function () {
             // delete the first verification email

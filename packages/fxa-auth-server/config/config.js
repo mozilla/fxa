@@ -29,6 +29,9 @@ module.exports = function (fs, path, url, convict) {
     publicKeyFile: {
       default: path.resolve(__dirname, '../config/public-key.json')
     },
+    trustedJKUs: {
+      default: []
+    },
     db: {
       backend: {
         default: "httpdb",

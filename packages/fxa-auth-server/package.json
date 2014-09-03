@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "aws-sdk": "2.0.15",
+    "bigint": "0.4.2",
     "binary-split": "0.1.2",
     "bunyan": "1.0.0",
     "compute-cluster": "0.0.9",
@@ -39,8 +40,10 @@
     "hkdf": "0.0.2",
     "joi": "4.6.2",
     "jwcrypto": "0.4.4",
+    "jws": "0.2.6",
     "p-promise": "0.4.8",
     "poolee": "0.4.15",
+    "request": "2.40.0",
     "scrypt-hash": "1.1.8",
     "through": "2.3.4",
     "uuid": "1.4.1"
@@ -56,7 +59,6 @@
     "hawk": "2.2.3",
     "load-grunt-tasks": "0.6.0",
     "mailparser": "0.4.6",
-    "request": "2.40.0",
     "simplesmtp": "0.3.32",
     "sjcl": "1.0.1",
     "tap": "0.4.12"

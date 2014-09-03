@@ -152,6 +152,7 @@ ___Parameters___
 * authPW - the PBKDF2/HKDF stretched password as a hex string
 * service - (optional) opaque alphanumeric token to be included in verification links
 * redirectTo - (optional) a URL that the client should be redirected to after handling the request
+* preVerifyToken - (optional) see below
 
 ### Request
 
@@ -184,12 +185,52 @@ Successful requests will produce a "200 OK" response with the account's unique i
 Failing requests may be due to the following errors:
 
 * status code 400, errno 101:  attempt to create an account that already exists
+* status code 400, errno 105:  invalid verification code
 * status code 400, errno 106:  request body was not valid json
 * status code 400, errno 107:  request body contains invalid parameters
 * status code 400, errno 108:  request body missing required parameters
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
 
+### preVerifyToken
+
+A `preVerifyToken` is a signed [JWT](http://tools.ietf.org/html/draft-ietf-oauth-json-web-token-25) that certifies that the given email address has already been verified by the issuer.
+
+___JOSE Header___
+
+* alg - algorithm used to sign this JWT, currently only "RS256" is supported
+* kid - key id of the JWK used to sign this JWT
+* jku - the url of a [JWK set](http://tools.ietf.org/html/draft-ietf-jose-json-web-key-31#section-5) containing the public key used to sign this JWT (must be https)
+  * example url: `https://nightly.dev.lcip.org/.well-known/public-keys`
+  * example jwk set response:
+
+```json
+{
+  "keys":[
+  {
+    "kid":"dev-1",
+    "use": "sig",
+    "kty":"RSA",
+    "n":"W_lCUvksZMVxW2JLNtoyPPshvSHng28H5FggSBGBjmzv3eHkMgRdc8hpOkgcPwXYxHdVM6udtVdXZtbGN8nUyQX8gxD3AJg-GSrH3UOsoArPLCmcxwIEpk4B0wqwP68oK8dQHt0iK3N-XeCnMpv75ULlVn3LEOZT8CsuNraVOthYeClUb8r1PjRwqRB06QGNqnnhcPMmh-6cRzQ9HmTMz6CDcugiH5n2sjrvpeBugEsnXt3KpzVdSc4usXrIEmLRuFjwFbkzoo7FiAtSoXxBqc074qz8ejm-V0-2Wv3p6ePeLODeYkPQho4Lb1TBdoidr9RHY29Out4mhzb4nUrHHQ",
+    "e":"AQAB"
+  }]
+}
+```
+
+___Payload___
+
+* exp - expiration timestamp
+* aud - the public DNS name of the auth-server. ex: api.accounts.firefox.com
+* sub - the preverified email address
+
+___Example___
+
+```
+{
+  //...
+  "preVerifyToken": "eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHA6Ly8xMjcuMC4wLjE6OTAwMC8ud2VsbC1rbm93bi9wdWJsaWMta2V5cyIsImtpZCI6ImRldi0xIn0.eyJpc3MiOiIxMjcuMC4wLjEiLCJleHAiOjE0MDkyNjE0NTc0NjIsImF1ZCI6IjEyNy4wLjAuMTo5MDAwIiwic3ViIjoiMC45Njg5NDI5MzQ4ODAwMzMxQGV4YW1wbGUuY29tIn0.541e3ebad20241f4247d483a4ca5b90ab6820d033ed6ff8c3fc0ac399b16ff045c2eb3f28ba83220b726de36c4f928e56664ba22fe470f6850bc3db690c17a1720e8ed5de927896d706ac7b26df90ca146225cfeaa64fb45f0ef0f0f2b06a76c5b763612c6544ba43c82630a26b5aea1675437719a86c264d81ffa71176596731f6c9223c66d959f02beffd3a715c91653c46fdf8f80f155905a468c3d2eadbb2f42ebde5ed8e4eff1f1b5557686ba60364fe6f4fd6d018c980ac91150086b3d3716d363d1c19953a80cf2f246e842b2a480126c116696eab003e6b0abb6ffe4633cdbda09a81c47ed8c7515c4dd37566d6ab1b2b3b9deebda7f45d40dd0f0f4"
+}
+```
 
 ## GET /v1/account/status
 

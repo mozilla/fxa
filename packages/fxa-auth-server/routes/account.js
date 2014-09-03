@@ -4,6 +4,7 @@
 
 var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
+var BASE64_JWT = validators.BASE64_JWT
 
 var Password = require('../crypto/password')
 var butil = require('../crypto/butil')
@@ -22,7 +23,8 @@ module.exports = function (
   isProduction,
   domain,
   resendBlackoutPeriod,
-  customs
+  customs,
+  isPreVerified
   ) {
 
   var routes = [
@@ -36,7 +38,8 @@ module.exports = function (
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required(),
             preVerified: isA.boolean(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional()
+            redirectTo: validators.redirectTo(redirectDomain).optional(),
+            preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional()
           }
         }
       },
@@ -66,8 +69,9 @@ module.exports = function (
               if (err.errno !== 102) { throw err }
             }
           )
+          .then(isPreVerified.bind(null, form.email, form.preVerifyToken))
           .then(
-            function () {
+            function (preverified) {
               var password = new Password(authPW, authSalt, verifierVersion)
               return password.verifyHash()
               .then(
@@ -78,7 +82,7 @@ module.exports = function (
                       createdAt: Date.now(),
                       email: email,
                       emailCode: crypto.randomBytes(16),
-                      emailVerified: form.preVerified || false,
+                      emailVerified: form.preVerified || preverified,
                       kA: crypto.randomBytes(32),
                       wrapWrapKb: crypto.randomBytes(32),
                       devices: {},

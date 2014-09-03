@@ -2,6 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var b64 = require('jwcrypto/lib/utils').base64urlencode
+var bigint = require('bigint')
+
 module.exports = function (log, serverPublicKey) {
 
   var routes = [
@@ -14,13 +17,33 @@ module.exports = function (log, serverPublicKey) {
           expiresIn: 10000
         }
       },
-      handler: function wellKnown(request, reply) {
-        log.begin('wellKnown', request)
+      handler: function browserid(request, reply) {
+        log.begin('browserid', request)
         reply(
           {
             'public-key': serverPublicKey,
             'authentication': '/.well-known/browserid/sign_in.html',
             'provisioning': '/.well-known/browserid/provision.html'
+          }
+        )
+      }
+    },
+    {
+      method: 'GET',
+      path: '/.well-known/public-keys',
+      handler: function (request, reply) {
+        // FOR DEV PURPOSES ONLY
+        reply(
+          {
+            keys: [
+              {
+                kid: "dev-1",
+                use: "sig",
+                kty: "RSA",
+                n: b64(bigint(serverPublicKey.n).toBuffer()),
+                e: b64(bigint(serverPublicKey.e).toBuffer())
+              }
+            ]
           }
         )
       }
