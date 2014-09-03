@@ -71,7 +71,8 @@ function makeApp() {
   app.use(helmet.xssFilter());
   app.use(helmet.hsts({
     maxAge: config.get('hsts_max_age'),
-    includeSubdomains: true
+    includeSubdomains: true,
+    force: true
   }));
   app.use(helmet.nosniff());
 

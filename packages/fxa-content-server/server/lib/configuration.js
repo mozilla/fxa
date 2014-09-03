@@ -131,9 +131,9 @@ var conf = module.exports = convict({
     default: 10 * 60 * 1000 // 10 minutes
   },
   hsts_max_age: {
-    doc: 'Max age of the STS directive, in seconds',
-    format: Number,
-    default: 180 * 24 * 60 * 60            // 180 days
+    doc: 'Max age of the STS directive',
+    format: 'duration',
+    default: '180 days'
   },
   template_path: {
     doc: 'The location of server-rendered templates',
