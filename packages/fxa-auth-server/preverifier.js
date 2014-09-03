@@ -13,6 +13,7 @@ module.exports = function (jwks, error, config) {
   function isValidJwt(email, jwt) {
     return jwt.exp > Date.now() &&
       jwt.aud === config.domain &&
+      !!jwt.sub &&
       jwt.sub === email
   }
 
