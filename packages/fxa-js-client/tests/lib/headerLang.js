@@ -30,7 +30,7 @@ define([
         var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
-          lang: 'it-ch;'
+          lang: 'zh-cn;'
         };
 
         return respond(client.signUp(email, password, opts), RequestMocks.signUp)
@@ -41,7 +41,7 @@ define([
           .then(
             function (emails) {
               assert.property(emails[0], 'headers');
-              assert.equal(emails[0].headers['content-language'], 'it-ch');
+              assert.equal(emails[0].headers['content-language'], 'zh-CN');
             },
             assert.notOk
           );
@@ -51,7 +51,7 @@ define([
         var account;
         var passwordForgotToken;
         var opts = {
-          lang: 'it-CH;',
+          lang: 'zh-CN',
           service: 'sync'
         };
 
@@ -70,7 +70,7 @@ define([
           .then(
             function (emails) {
               assert.property(emails[1], 'headers');
-              assert.equal(emails[1].headers['content-language'], 'it-ch');
+              assert.equal(emails[1].headers['content-language'], 'zh-CN');
             },
             assert.notOk
           )
@@ -79,7 +79,7 @@ define([
       test('#recoveryEmailResendCode', function () {
         var user;
         var opts = {
-          lang: 'it-CH;'
+          lang: 'zh-CN'
         };
 
         return accountHelper.newUnverifiedAccount()
@@ -97,7 +97,7 @@ define([
           .then(
             function (emails) {
               assert.property(emails[1], 'headers');
-              assert.equal(emails[1].headers['content-language'], 'it-ch');
+              assert.equal(emails[1].headers['content-language'], 'zh-CN');
             },
             assert.notOk
           )
