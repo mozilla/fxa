@@ -203,17 +203,18 @@ ___JOSE Header___
 * jku - the url of a [JWK set](http://tools.ietf.org/html/draft-ietf-jose-json-web-key-31#section-5) containing the public key used to sign this JWT (must be https)
   * example url: `https://nightly.dev.lcip.org/.well-known/public-keys`
   * example jwk set response:
-    ```
-    {
-      "keys":[
-      {
-        "kty":"RSA",
-        "n":"W_lCUvksZMVxW2JLNtoyPPshvSHng28H5FggSBGBjmzv3eHkMgRdc8hpOkgcPwXYxHdVM6udtVdXZtbGN8nUyQX8gxD3AJg-GSrH3UOsoArPLCmcxwIEpk4B0wqwP68oK8dQHt0iK3N-XeCnMpv75ULlVn3LEOZT8CsuNraVOthYeClUb8r1PjRwqRB06QGNqnnhcPMmh-6cRzQ9HmTMz6CDcugiH5n2sjrvpeBugEsnXt3KpzVdSc4usXrIEmLRuFjwFbkzoo7FiAtSoXxBqc074qz8ejm-V0-2Wv3p6ePeLODeYkPQho4Lb1TBdoidr9RHY29Out4mhzb4nUrHHQ",
-        "e":"AQAB",
-        "kid":"dev-1"
-      }]
-    }
-    ```
+
+```json
+{
+  "keys":[
+  {
+    "kty":"RSA",
+    "n":"W_lCUvksZMVxW2JLNtoyPPshvSHng28H5FggSBGBjmzv3eHkMgRdc8hpOkgcPwXYxHdVM6udtVdXZtbGN8nUyQX8gxD3AJg-GSrH3UOsoArPLCmcxwIEpk4B0wqwP68oK8dQHt0iK3N-XeCnMpv75ULlVn3LEOZT8CsuNraVOthYeClUb8r1PjRwqRB06QGNqnnhcPMmh-6cRzQ9HmTMz6CDcugiH5n2sjrvpeBugEsnXt3KpzVdSc4usXrIEmLRuFjwFbkzoo7FiAtSoXxBqc074qz8ejm-V0-2Wv3p6ePeLODeYkPQho4Lb1TBdoidr9RHY29Out4mhzb4nUrHHQ",
+    "e":"AQAB",
+    "kid":"dev-1"
+  }]
+}
+```
 
 ___Payload___
 
