@@ -32,9 +32,6 @@ module.exports = function (fs, path, url, convict) {
     trustedJKUs: {
       default: []
     },
-    trustedIssuers: {
-      default: []
-    },
     db: {
       backend: {
         default: "httpdb",

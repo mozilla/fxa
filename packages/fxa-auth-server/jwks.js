@@ -9,7 +9,7 @@ require('jwcrypto/lib/algs/rs')
 module.exports = function (error, config) {
   // a naive jwk cache
   function JwkCache() {
-    this.cache = {}
+    this.cache = {} // one entry per config.trustedJKUs
   }
 
   function getJwkSet(jku) {

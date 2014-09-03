@@ -217,7 +217,6 @@ ___JOSE Header___
 
 ___Payload___
 
-* iss - the public DNS name of the issuer of this claim. ex: marketplace.firefox.com
 * exp - expiration timestamp
 * aud - the public DNS name of the auth-server. ex: api.accounts.firefox.com
 * sub - the preverified email address

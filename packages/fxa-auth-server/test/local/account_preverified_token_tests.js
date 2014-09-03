@@ -33,7 +33,6 @@ TestServer.start(config)
       ))
       var payload = b64(JSON.stringify(
         {
-          iss: config.trustedIssuers[0],
           exp: Date.now() + 10000,
           aud: config.domain,
           sub: email
@@ -70,7 +69,6 @@ TestServer.start(config)
       ))
       var payload = b64(JSON.stringify(
         {
-          iss: config.trustedIssuers[0],
           exp: Date.now() + 10000,
           aud: config.domain,
           sub: 'wrong@example.com'
@@ -111,7 +109,6 @@ TestServer.start(config)
             ))
             var payload = b64(JSON.stringify(
               {
-                iss: config.trustedIssuers[0],
                 exp: Date.now() + 10000,
                 aud: config.domain,
                 sub: email
