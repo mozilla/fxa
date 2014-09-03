@@ -23,7 +23,7 @@ module.exports = function (log, P, db, error) {
           reply(
             {
               version: version,
-              commit: commitHash,
+              commit: commitHash
             }
           )
         }

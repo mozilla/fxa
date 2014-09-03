@@ -183,7 +183,7 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
-          },
+          }
         },
         response: {
           schema: {

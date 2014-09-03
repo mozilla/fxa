@@ -280,7 +280,7 @@ TestServer.start(config)
         'me@example.com-',
         'me@example..com',
         'me@example-.com',
-        'me@example.-com',
+        'me@example.-com'
       ]
       emails.forEach(function(email, i) {
         emails[i] = Client.create(config.publicUrl, email, pwd)
@@ -306,7 +306,7 @@ TestServer.start(config)
         'a+b+c@example.com',
         '#!?-@t-e-s-t.c-o-m',
         String.fromCharCode(1234) + '@example.com',
-        'test@' + String.fromCharCode(5678) + '.com',
+        'test@' + String.fromCharCode(5678) + '.com'
       ]
 
       emails.forEach(function(email, i) {

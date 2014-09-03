@@ -171,7 +171,7 @@ module.exports = function (
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional()
-          },
+          }
         },
         response: {
           schema: {
@@ -241,7 +241,7 @@ module.exports = function (
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional()
-          },
+          }
         },
         response: {
           schema: {
@@ -297,7 +297,7 @@ module.exports = function (
         validate: {
           payload: {
             code: isA.string().min(32).max(32).regex(HEX_STRING).required()
-          },
+          }
         },
         response: {
           schema: {
