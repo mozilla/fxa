@@ -185,6 +185,7 @@ Successful requests will produce a "200 OK" response with the account's unique i
 Failing requests may be due to the following errors:
 
 * status code 400, errno 101:  attempt to create an account that already exists
+* status code 400, errno 105:  invalid verification code
 * status code 400, errno 106:  request body was not valid json
 * status code 400, errno 107:  request body contains invalid parameters
 * status code 400, errno 108:  request body missing required parameters
@@ -198,8 +199,21 @@ A `preVerifyToken` is a signed [JWT](http://tools.ietf.org/html/draft-ietf-oauth
 ___JOSE Header___
 
 * alg - algorithm used to sign this JWT, currently only "RS256" is supported
-* jku - the url of a JWK set containing the public key used to sign this JWT
 * kid - key id of the JWK used to sign this JWT
+* jku - the url of a [JWK set](http://tools.ietf.org/html/draft-ietf-jose-json-web-key-31#section-5) containing the public key used to sign this JWT (must be https)
+  * example url: `https://nightly.dev.lcip.org/.well-known/public-keys`
+  * example jwk set response:
+    ```
+    {
+      "keys":[
+      {
+        "kty":"RSA",
+        "n":"W_lCUvksZMVxW2JLNtoyPPshvSHng28H5FggSBGBjmzv3eHkMgRdc8hpOkgcPwXYxHdVM6udtVdXZtbGN8nUyQX8gxD3AJg-GSrH3UOsoArPLCmcxwIEpk4B0wqwP68oK8dQHt0iK3N-XeCnMpv75ULlVn3LEOZT8CsuNraVOthYeClUb8r1PjRwqRB06QGNqnnhcPMmh-6cRzQ9HmTMz6CDcugiH5n2sjrvpeBugEsnXt3KpzVdSc4usXrIEmLRuFjwFbkzoo7FiAtSoXxBqc074qz8ejm-V0-2Wv3p6ePeLODeYkPQho4Lb1TBdoidr9RHY29Out4mhzb4nUrHHQ",
+        "e":"AQAB",
+        "kid":"dev-1"
+      }]
+    }
+    ```
 
 ___Payload___
 

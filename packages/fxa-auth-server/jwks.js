@@ -18,6 +18,7 @@ module.exports = function (error, config) {
       {
         method: 'GET',
         url: jku,
+        strictSSL: true,
         json: true
       },
       function (err, res, json) {
