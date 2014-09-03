@@ -37,10 +37,11 @@ module.exports = function (log, serverPublicKey) {
           {
             keys: [
               {
+                kid: "dev-1",
+                use: "sign",
                 kty: "RSA",
                 n: b64(bigint(serverPublicKey.n).toBuffer()),
-                e: b64(bigint(serverPublicKey.e).toBuffer()),
-                kid: "dev-1"
+                e: b64(bigint(serverPublicKey.e).toBuffer())
               }
             ]
           }
