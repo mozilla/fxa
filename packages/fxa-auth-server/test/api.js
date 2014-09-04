@@ -252,6 +252,21 @@ describe('/v1', function() {
           assert.equal(res.result.message, 'Incorrect redirect_uri');
         }).done(done, done);
       });
+
+      it('can be a URN', function() {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        return Server.api.post({
+          url: '/authorization',
+          payload: authParams({
+            client_id: '98e6508e88680e1b'
+          })
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          var expected = 'urn:ietf:wg:oauth:2.0:fx:webchannel';
+          var actual = res.result.redirect.substr(0, expected.length);
+          assert.equal(actual, expected);
+        });
+      });
     });
 
     describe('?state', function() {
