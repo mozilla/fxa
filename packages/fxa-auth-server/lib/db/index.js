@@ -9,8 +9,8 @@ const P = require('../promise');
 const config = require('../config');
 const encrypt = require('../encrypt');
 const logger = require('../logging').getLogger('fxa.db');
-const mysql = require('./mysql');
-const memory = require('./memory');
+const klass = config.get('db.driver') === 'mysql' ?
+  require('./mysql') : require('./memory');
 
 function preClients() {
   var clients = config.get('clients');
@@ -44,9 +44,9 @@ function withDriver() {
   }
   var p;
   if (config.get('db.driver') === 'mysql') {
-    p = mysql.connect(config.get('mysql'));
+    p = klass.connect(config.get('mysql'));
   } else {
-    p = memory.connect();
+    p = klass.connect();
   }
   return p.then(function(store) {
     logger.debug('connected to "%s" store', config.get('db.driver'));
@@ -80,7 +80,7 @@ function proxy(method) {
 }
 
 
-Object.keys(mysql.prototype).forEach(function(key) {
+Object.keys(klass.prototype).forEach(function(key) {
   exports[key] = proxy(key);
 });
 
