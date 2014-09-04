@@ -58,6 +58,9 @@ function preClients() {
           unbuf(encrypt.hash(c.secret)));
         process.exit(1);
       }
+      // ensure booleans are boolean and not undefined
+      c.whitelisted = !!c.whitelisted;
+      c.canGrant = !!c.canGrant;
       return exports.getClient(c.id).then(function(client) {
         if (client) {
           client = convertClientToConfigFormat(client);
