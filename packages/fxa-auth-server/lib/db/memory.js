@@ -84,6 +84,26 @@ MemoryStore.prototype = {
     client.secret = client.hashedSecret;
     return P.resolve(client);
   },
+  updateClient: function updateClient(client) {
+    if (!client.id) {
+      return P.reject(new Error('Update client needs an id'));
+    }
+    var hex = unbuf(client.id);
+    if (!this.clients[hex]) {
+      return P.reject(new Error('Client does not exist'));
+    }
+    var old = this.clients[hex];
+    for (var key in client) {
+      if (key === 'id') {
+        // nothing
+      } else if (key === 'hashedSecret') {
+        old.secret = buf(client[key]);
+      } else {
+        old[key] = client[key];
+      }
+    }
+    return P.resolve(old);
+  },
   getClient: function getClient(id) {
     return P.resolve(this.clients[unbuf(id)]);
   },

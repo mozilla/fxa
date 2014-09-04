@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const db = require('../lib/db');
-const config = require('../lib/config').root();
+const config = require('../lib/config');
 const assert = require('insist');
 const crypto = require('crypto');
 
@@ -19,6 +19,19 @@ describe('db', function() {
     it('should not insert already existing clients', function() {
       return db.ping().then(function() {
         return db._initialClients();
+      });
+    });
+
+    it('should update existing clients', function() {
+      var clients = config.get('clients');
+      return db.ping().then(function() {
+        clients[0].imageUri = 'http://other.domain/foo/bar.png';
+        config.set('clients', clients);
+        return db._initialClients();
+      }).then(function() {
+        return db.getClient(clients[0].id);
+      }).then(function(c) {
+        assert.equal(c.imageUri, clients[0].imageUri);
       });
     });
   });
@@ -63,7 +76,7 @@ describe('db', function() {
 
   describe('getEncodingInfo', function() {
     it('should use utf8', function() {
-      if (config.db.driver === 'memory') {
+      if (config.get('db.driver') === 'memory') {
         return assert.ok('getEncodingInfo has no meaning with memory impl');
       }
 

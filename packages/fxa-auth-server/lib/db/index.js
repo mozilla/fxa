@@ -12,6 +12,31 @@ const logger = require('../logging').getLogger('fxa.db');
 const mysql = require('./mysql');
 const memory = require('./memory');
 
+function clientCompare(client, other) {
+  var props = Object.keys(client);
+  for (var i = 0; i < props.length; i++) {
+    var prop = props[i];
+    if (prop === 'createdAt') {
+      continue;
+    }
+    /*jshint eqeqeq: false*/
+    if (unbuf(client[prop]) != unbuf(other[prop])) {
+      logger.debug('Clients differ on %s: %s vs %s',
+        prop, unbuf(client[prop]), unbuf(other[prop]));
+      return false;
+    }
+  }
+  return true;
+}
+
+function show(obj) {
+  var out = {};
+  for (var k in obj) {
+    out[k] = unbuf(obj[k]);
+  }
+  return out;
+}
+
 function preClients() {
   var clients = config.get('clients');
   if (clients && clients.length) {
@@ -19,7 +44,18 @@ function preClients() {
     return P.all(clients.map(function(c) {
       return exports.getClient(c.id).then(function(client) {
         if (client) {
-          logger.debug('Client %s exists, skipping', unbuf(c.id));
+          logger.info('Client %s exists, comparing...', c.id);
+          c.secret = c.hashedSecret;
+          delete c.hashedSecret;
+          if (clientCompare(client, c)) {
+            logger.info('Client %s is the same, skipping...', c.id);
+          } else {
+            logger.warn('Client %s differs, updating!\n'
+              + 'Before: %:2j\nAfter: %:2j', c.id, show(client), show(c));
+            c.hashedSecret = c.secret;
+            delete c.secret;
+            return exports.updateClient(c);
+          }
         } else {
           if (c.secret) {
             logger.error('Do not keep client secrets in the config file.'
