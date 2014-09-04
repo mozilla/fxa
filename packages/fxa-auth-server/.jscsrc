@@ -14,6 +14,7 @@
     "requireSpaceAfterPrefixUnaryOperators": ["~"],
     "requireSpacesInConditionalExpression": true,
     "requireSpaceBeforeBinaryOperators": ["+", "-", "/", "*", "=", "==", "===", "!=", "!=="],
+    "validateIndentation": 2,
     "validateQuoteMarks": "'",
     "validateJSDoc": {
         "checkParamNames": true,
