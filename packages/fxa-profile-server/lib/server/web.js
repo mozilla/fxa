@@ -80,6 +80,9 @@ exports.create = function createServer() {
     if (!scopes) {
       return;
     }
+    if (scopes.indexOf('profile') === -1) {
+      scopes.push('profile');
+    }
     for (var i = 0, len = scopes.length; i < len; i++) {
       var scope = scopes[i];
       if (scope.indexOf(':write') === -1) {
