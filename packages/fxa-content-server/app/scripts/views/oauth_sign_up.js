@@ -16,11 +16,16 @@ function (_, p, BaseView, SignUpView, ServiceMixin) {
     className: 'sign-up oauth-sign-up',
 
     initialize: function (options) {
+      options = options || {};
+
       /* jshint camelcase: false */
       SignUpView.prototype.initialize.call(this, options);
 
       // Set up OAuth so we can retrieve the pretty service name
-      this.setupOAuth();
+      this.setupOAuth(null, {
+        assertionLibrary: options.assertionLibrary,
+        oAuthClient: options.oAuthClient
+      });
     },
 
     beforeRender: function() {
@@ -40,7 +45,13 @@ function (_, p, BaseView, SignUpView, ServiceMixin) {
       // Store oauth state for when/if the oauth flow completes
       // in this browser
       this.persistOAuthParams();
-      return SignUpView.prototype.onSignUpSuccess.call(this, accountData);
+      if (accountData.verified) {
+        // the account is verified using the pre-verify flow. Send the user
+        // back to the RP without further interaction.
+        return this.finishOAuthFlow();
+      } else {
+        return SignUpView.prototype.onSignUpSuccess.call(this, accountData);
+      }
     }
   });
 

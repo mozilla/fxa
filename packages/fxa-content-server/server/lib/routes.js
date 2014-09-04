@@ -39,7 +39,6 @@ module.exports = function (config, templates, i18n) {
     );
   }
 
-
   return function (app) {
     // handle password reset links
     app.get('/v1/complete_reset_password', function (req, res) {

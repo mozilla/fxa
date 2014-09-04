@@ -7,25 +7,58 @@
 define([
   'chai',
   'jquery',
+  'sinon',
   'views/oauth_sign_up',
+  'lib/promise',
   'lib/session',
   'lib/fxa-client',
+  'lib/metrics',
+  'lib/auth-errors',
+  'lib/oauth-client',
+  'lib/assertion',
+  'models/reliers/relier',
   '../../mocks/window',
   '../../mocks/router',
-  '../../mocks/oauth_servers',
   '../../lib/helpers'
 ],
-function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, OAuthServersMock, TestHelpers) {
+function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
+      OAuthClient, Assertion, Relier, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
-  describe('views/oauth_sign_up', function () {
-    var view, email, router, windowMock, CLIENT_ID, STATE, SCOPE, CLIENT_NAME, BASE_REDIRECT_URL, fxaClient, oAuthServersMock;
+  function fillOutSignUp (email, password, opts) {
+    opts = opts || {};
+    var context = opts.context || window;
+    var year = opts.year || '1960';
 
-    CLIENT_ID = 'dcdb5ae7add825d2';
-    STATE = '123';
-    SCOPE = 'profile:email';
-    CLIENT_NAME = '123Done';
-    BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
+    context.$('[type=email]').val(email);
+    context.$('[type=password]').val(password);
+
+    if (!opts.ignoreYear) {
+      $('#fxa-age-year').val(year);
+    }
+
+    if (context.enableSubmitIfValid) {
+      context.enableSubmitIfValid();
+    }
+  }
+
+  var CLIENT_ID = 'dcdb5ae7add825d2';
+  var STATE = '123';
+  var SCOPE = 'profile:email';
+  var CLIENT_NAME = '123Done';
+  var BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
+
+  describe('views/oauth_sign_up', function () {
+    var nowYear = (new Date()).getFullYear();
+    var view;
+    var router;
+    var email;
+    var metrics;
+    var windowMock;
+    var fxaClient;
+    var oAuthClient;
+    var assertionLibrary;
+    var relier;
 
     beforeEach(function () {
       Session.clear();
@@ -34,15 +67,32 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, OAuthServer
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE + '&redirect_uri=' + encodeURIComponent(BASE_REDIRECT_URL);
 
-      oAuthServersMock = new OAuthServersMock();
 
+      metrics = new Metrics();
+      relier = new Relier();
+
+      oAuthClient = new OAuthClient();
+      sinon.stub(oAuthClient, 'getClientInfo', function () {
+        return p({
+          name: '123Done',
+          //jshint camelcase: false
+          redirect_uri: BASE_REDIRECT_URL
+        });
+      });
+
+      assertionLibrary = new Assertion();
       fxaClient = new FxaClient();
 
       view = new View({
         router: router,
+        metrics: metrics,
         window: windowMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier,
+        assertionLibrary: assertionLibrary,
+        oAuthClient: oAuthClient
       });
+
       return view.render()
           .then(function () {
             $('#container').html(view.el);
@@ -53,7 +103,6 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, OAuthServer
       Session.clear();
       view.remove();
       view.destroy();
-      oAuthServersMock.destroy();
     });
 
     describe('render', function () {
@@ -67,27 +116,78 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, OAuthServer
       });
     });
 
-    describe('submit', function () {
+    describe('submit without a preVerifyToken', function () {
       it('sets up the user\'s ouath session on success', function () {
-        var password = 'password';
+        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
-        // the screen is rendered, we can take over from here.
-        oAuthServersMock.destroy();
-        return view.fxaClient.signUp(email, password)
-          .then(function () {
-            $('.email').val(email);
-            $('[type=password]').val(password);
-            $('#fxa-age-year').val('1990');
-            return view.submit();
-          })
+        sinon.stub(fxaClient, 'signUp', function () {
+          return p({
+            sessionToken: 'asessiontoken',
+            verified: false
+          });
+        });
+
+        return view.submit()
           .then(function () {
             assert.equal(Session.oauth.state, STATE);
             assert.equal(Session.service, CLIENT_ID);
           });
       });
     });
-  });
 
+    describe('submit with a preVerifyToken', function () {
+      beforeEach(function () {
+        relier.set('preVerifyToken', 'preverifytoken');
+      });
+
+      it('redirects to the rp if pre-verification is successful', function () {
+        sinon.stub(fxaClient, 'signUp', function () {
+          return p({
+            sessionToken: 'asessiontoken',
+            verified: true
+          });
+        });
+
+        sinon.stub(oAuthClient, 'getCode', function () {
+          return {
+            redirect: BASE_REDIRECT_URL + '?state=fakestate&code=faketcode'
+          };
+        });
+
+        sinon.stub(assertionLibrary, 'generate', function () {
+          return 'fakeassertion';
+        });
+
+        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+        return view.submit()
+            .then(function () {
+              assert.include(windowMock.location.href, BASE_REDIRECT_URL);
+            });
+      });
+
+      it('redirects to /confirm if pre-verification is not successful', function () {
+        sinon.stub(fxaClient, 'signUp', function (email, password, options) {
+          // force the preVerifyToken to be invalid
+          if (options.preVerifyToken) {
+            return p().then(function () {
+              throw AuthErrors.toError('INVALID_VERIFICATION_CODE');
+            });
+          } else {
+            return p({
+              sessionToken: 'sessiontoken',
+              verified: false
+            });
+          }
+        });
+
+        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+        return view.submit()
+            .then(function () {
+              assert.equal(router.page, 'confirm');
+            });
+      });
+    });
+  });
 });
 
 

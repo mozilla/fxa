@@ -9,7 +9,6 @@ define([
   'chai',
   'underscore',
   'jquery',
-  'sinon',
   'lib/promise',
   'views/sign_up',
   'lib/session',
@@ -18,13 +17,12 @@ define([
   'lib/fxa-client',
   'lib/translator',
   'lib/service-name',
-  'models/reliers/relier',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient, Translator, ServiceName,
-      Relier, RouterMock, WindowMock, TestHelpers) {
+function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator, ServiceName,
+      RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
   var translator = new Translator('en-US', ['en-US']);
@@ -429,94 +427,6 @@ function (chai, _, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient, T
     });
   });
 
-  describe('views/sign_up with a pre-verified user', function () {
-    var view, router, email, metrics, windowMock, fxaClient, fakeServer, relier;
-
-    beforeEach(function () {
-      Session.clear();
-
-      email = TestHelpers.createEmail();
-      document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
-      router = new RouterMock();
-      windowMock = new WindowMock();
-      metrics = new Metrics();
-      fxaClient = new FxaClient();
-      relier = new Relier();
-      relier.set('preVerifyToken', 'bigscarytoken');
-
-      fakeServer = sinon.fakeServer.create();
-      fakeServer.autoRespond = true;
-      fakeServer.respondWith('GET', '/config',
-          [200, { 'Content-Type': 'application/json' }, JSON.stringify({
-            fxaccountUrl: 'http://127.0.0.1:9000/v1'
-          })]);
-
-      view = new View({
-        router: router,
-        metrics: metrics,
-        window: windowMock,
-        fxaClient: fxaClient,
-        relier: relier
-      });
-
-      return view.render()
-          .then(function () {
-            $('#container').append(view.el);
-          });
-    });
-
-    afterEach(function () {
-      metrics.destroy();
-
-      view.remove();
-      view.destroy();
-      document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
-
-      fakeServer.restore();
-      fakeServer = view = router = metrics = null;
-    });
-
-    describe('submit', function () {
-      it('redirects to /signup_complete if pre-verification is successful', function () {
-        fakeServer.respondWith('POST', 'http://127.0.0.1:9000/v1/account/create?keys=true',
-            [200, { 'Content-Type': 'application/json' }, JSON.stringify({})]);
-        fakeServer.respondWith('POST', 'http://127.0.0.1:9000/v1/account/login?keys=true',
-            [200, { 'Content-Type': 'application/json' }, JSON.stringify({ verified: true })]);
-
-        var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
-        return view.submit()
-            .then(function () {
-              assert.equal(router.page, 'signup_complete');
-            });
-      });
-
-      it('redirects to /confirm if pre-verification is not successful', function () {
-        fakeServer.respondWith(/\/account\/create\?keys=true/, function (xhr) {
-          // force the preVerifyToken to be invalid.
-          if (xhr.requestBody.preVerifyToken) {
-            xhr.respond(500, { 'Content-Type': 'application/json' }, JSON.stringify({
-              errno: AuthErrors.toCode('INVALID_VERIFICATION_CODE')
-            }));
-          } else {
-            xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({}));
-          }
-        });
-
-        fakeServer.respondWith('POST', 'http://127.0.0.1:9000/v1/account/login?keys=true',
-            [200, { 'Content-Type': 'application/json' }, JSON.stringify({ verfied: false })]);
-
-        var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
-        return view.submit()
-            .then(function () {
-              fakeServer.restore();
-              assert.equal(router.page, 'confirm');
-            });
-      });
-    });
-
-  });
 });
 
 
