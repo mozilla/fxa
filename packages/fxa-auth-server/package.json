@@ -1,6 +1,7 @@
 {
   "name": "fxa-oauth-server",
   "version": "0.20.0",
+  "private": true,
   "description": "Firefox Accounts OAuth2 server.",
   "main": "index.js",
   "scripts": {
@@ -45,6 +46,7 @@
     "insist": "0.x",
     "jshint-stylish": "^0.4.0",
     "jwcrypto": "^0.5.0",
+    "mocha-text-cov": "^0.1.0",
     "load-grunt-tasks": "^0.6.0",
     "nock": "^0.44.0",
     "read": "^1.0.5",
