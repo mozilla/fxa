@@ -81,7 +81,7 @@ function main() {
               memInterval = setInterval(logMemoryStats.bind(server.load), 15000)
             },
             function (err) {
-              log.error({ op: 'DB.connect', err: err.message })
+              log.error({ op: 'DB.connect', err: { message: err.message } })
               process.exit(1)
             }
           )

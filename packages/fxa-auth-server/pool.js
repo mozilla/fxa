@@ -44,7 +44,7 @@ Pool.prototype.request = function (method, path, data) {
     },
     function (err, res, body) {
       if (err || Math.floor(res && res.statusCode / 100) !== 2) {
-        var e = new Error(body)
+        var e = new Error(body || (err && err.message))
         e.statusCode = res && res.statusCode
         return d.reject(e)
       }
