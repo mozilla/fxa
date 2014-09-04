@@ -82,14 +82,14 @@ TestServer.start(config)
     }
   )
 
-/*/ TODO: revisit after the "dumb" resend logic is updated
+
   test(
-    'create account with service identifier',
+    'create account with service identifier and resume',
     function (t) {
       var email = server.uniqueEmail()
       var password = 'allyourbasearebelongtous'
       var client = null
-      var options = { service: 'abcdef' }
+      var options = { service: 'abcdef', resume: 'foo' }
       return Client.create(config.publicUrl, email, password, options)
         .then(
           function (x) {
@@ -104,35 +104,12 @@ TestServer.start(config)
         .then(
           function (emailData) {
             t.equal(emailData.headers['x-service-id'], 'abcdef')
-            client.options.service = '123456'
-            return client.requestVerifyEmail()
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function (emailData) {
-            t.equal(emailData.headers['x-service-id'], '123456')
-            client.options.service = null
-            return client.requestVerifyEmail()
-          }
-        )
-        .then(
-          function () {
-            return server.mailbox.waitForEmail(email)
-          }
-        )
-        .then(
-          function (emailData) {
-            t.equal(emailData.headers['x-service-id'], undefined)
+            t.ok(emailData.headers['x-link'].indexOf('resume=foo') > -1)
           }
         )
     }
   )
-/*/
+
   test(
     'create account allows localization of emails',
     function (t) {

@@ -585,9 +585,9 @@
       }
     },
     "fxa-auth-mailer": {
-      "version": "0.0.5",
-      "from": "fxa-auth-mailer@0.0.5",
-      "resolved": "https://registry.npmjs.org/fxa-auth-mailer/-/fxa-auth-mailer-0.0.5.tgz",
+      "version": "1.0.6",
+      "from": "fxa-auth-mailer@1.0.6",
+      "resolved": "https://registry.npmjs.org/fxa-auth-mailer/-/fxa-auth-mailer-1.0.6.tgz",
       "dependencies": {
         "bluebird": {
           "version": "2.2.2",
@@ -913,9 +913,9 @@
                   "resolved": "https://registry.npmjs.org/follow-redirects/-/follow-redirects-0.0.3.tgz",
                   "dependencies": {
                     "underscore": {
-                      "version": "1.6.0",
+                      "version": "1.7.0",
                       "from": "underscore@",
-                      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.6.0.tgz"
+                      "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.7.0.tgz"
                     }
                   }
                 },
@@ -954,9 +954,9 @@
               "resolved": "https://registry.npmjs.org/aws-sdk/-/aws-sdk-2.0.5.tgz",
               "dependencies": {
                 "aws-sdk-apis": {
-                  "version": "3.1.6",
+                  "version": "3.1.7",
                   "from": "aws-sdk-apis@3.x",
-                  "resolved": "https://registry.npmjs.org/aws-sdk-apis/-/aws-sdk-apis-3.1.6.tgz"
+                  "resolved": "https://registry.npmjs.org/aws-sdk-apis/-/aws-sdk-apis-3.1.7.tgz"
                 },
                 "xml2js": {
                   "version": "0.2.6",
@@ -993,9 +993,9 @@
                   "resolved": "https://registry.npmjs.org/isarray/-/isarray-0.0.1.tgz"
                 },
                 "string_decoder": {
-                  "version": "0.10.25-1",
+                  "version": "0.10.31",
                   "from": "string_decoder@~0.10.x",
-                  "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-0.10.25-1.tgz"
+                  "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-0.10.31.tgz"
                 },
                 "inherits": {
                   "version": "2.0.1",

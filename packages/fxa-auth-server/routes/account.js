@@ -39,6 +39,7 @@ module.exports = function (
             preVerified: isA.boolean(),
             service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
+            resume: isA.string().max(2048).optional(),
             preVerifyToken: isA.string().max(2048).regex(BASE64_JWT).optional()
           }
         }
@@ -150,6 +151,7 @@ module.exports = function (
                 mailer.sendVerifyCode(response.account, response.account.emailCode, {
                   service: form.service,
                   redirectTo: form.redirectTo,
+                  resume: form.resume,
                   acceptLanguage: request.app.acceptLanguage
                 })
                 .fail(
@@ -423,7 +425,8 @@ module.exports = function (
         validate: {
           payload: {
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional()
+            redirectTo: validators.redirectTo(redirectDomain).optional(),
+            resume: isA.string().max(2048).optional()
           }
         }
       },
@@ -447,6 +450,7 @@ module.exports = function (
               {
                 service: request.payload.service,
                 redirectTo: request.payload.redirectTo,
+                resume: request.payload.resume,
                 acceptLanguage: request.app.acceptLanguage
               }
             )

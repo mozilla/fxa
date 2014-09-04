@@ -34,7 +34,7 @@
     "bunyan": "1.0.0",
     "compute-cluster": "0.0.9",
     "convict": "0.4.2",
-    "fxa-auth-mailer": "0.0.5",
+    "fxa-auth-mailer": "1.0.6",
     "hapi": "6.5.1",
     "hapi-auth-hawk": "1.1.1",
     "hkdf": "0.0.2",

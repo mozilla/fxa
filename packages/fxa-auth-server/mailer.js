@@ -25,6 +25,7 @@ module.exports = function (config, log) {
             code: code.toString('hex'),
             service: opts.service,
             redirectTo: opts.redirectTo,
+            resume: opts.resume,
             acceptLanguage: opts.acceptLanguage || defaultLanguage
           }
         ))
@@ -37,6 +38,7 @@ module.exports = function (config, log) {
             code: code.toString('hex'),
             service: opts.service,
             redirectTo: opts.redirectTo,
+            resume: opts.resume,
             acceptLanguage: opts.acceptLanguage || defaultLanguage
           }
         ))
