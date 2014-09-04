@@ -89,6 +89,8 @@ const QUERY_CLIENT_REGISTER =
   '(id, name, imageUri, secret, redirectUri, whitelisted, canGrant) ' +
   'VALUES (?, ?, ?, ?, ?, ?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
+const QUERY_CLIENT_UPDATE = 'UPDATE clients SET name=?, imageUri=?, secret=?,' +
+  'redirectUri=?, whitelisted=?, canGrant=? WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
   'INSERT INTO codes (clientId, userId, email, scope, code) VALUES ' +
@@ -146,6 +148,25 @@ MysqlStore.prototype = {
       return client;
     });
   },
+
+  updateClient: function updateClient(client) {
+    if (!client.id) {
+      return P.reject(new Error('Update client needs an id'));
+    }
+    return this._write(QUERY_CLIENT_UPDATE, [
+      // VALUES
+      client.name,
+      client.imageUri,
+      buf(client.hashedSecret),
+      client.redirectUri,
+      client.whitelisted,
+      client.canGrant,
+
+      // WHERE
+      buf(client.id)
+    ]);
+  },
+
   getClient: function getClient(id) {
     return this._readOne(QUERY_CLIENT_GET, [buf(id)]);
   },

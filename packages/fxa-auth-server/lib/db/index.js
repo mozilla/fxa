@@ -12,24 +12,67 @@ const logger = require('../logging').getLogger('fxa.db');
 const klass = config.get('db.driver') === 'mysql' ?
   require('./mysql') : require('./memory');
 
+function clientEquals(client, other) {
+  var props = Object.keys(client);
+  for (var i = 0; i < props.length; i++) {
+    var prop = props[i];
+    logger.verbose('comparing %s', prop);
+    var clientProp = unbuf(client[prop]);
+    var otherProp = unbuf(other[prop]);
+    if (clientProp !== otherProp) {
+      logger.debug('Clients differ on %s: %s vs %s',
+        prop, clientProp, otherProp);
+      return false;
+    }
+  }
+  return true;
+}
+
+function convertClientToConfigFormat(client) {
+  var out = {};
+  for (var key in client) {
+    if (key === 'createdAt') {
+      continue;
+    } else if (key === 'secret') {
+      out.hashedSecret = unbuf(client.secret);
+    } else if (key === 'whitelisted' || key === 'canGrant') {
+      out[key] = !!client[key]; // db stores booleans as 0 or 1.
+    } else {
+      out[key] = unbuf(client[key]);
+    }
+  }
+  return out;
+}
+
 function preClients() {
   var clients = config.get('clients');
   if (clients && clients.length) {
     logger.debug('Loading pre-defined clients: %:2j', clients);
     return P.all(clients.map(function(c) {
+      if (c.secret) {
+        logger.error('Do not keep client secrets in the config file.'
+          + ' Use the `hashedSecret` field instead.\n\n'
+          + '\tclient=%s has `secret` field\n'
+          + '\tuse hashedSecret="%s" instead',
+          c.id,
+          unbuf(encrypt.hash(c.secret)));
+        process.exit(1);
+      }
+      // ensure booleans are boolean and not undefined
+      c.whitelisted = !!c.whitelisted;
+      c.canGrant = !!c.canGrant;
       return exports.getClient(c.id).then(function(client) {
         if (client) {
-          logger.debug('Client %s exists, skipping', unbuf(c.id));
-        } else {
-          if (c.secret) {
-            logger.error('Do not keep client secrets in the config file.'
-              + ' Use the `hashedSecret` field instead.\n\n'
-              + '\tclient=%s has `secret` field\n'
-              + '\tuse hashedSecret="%s" instead',
-              unbuf(c.id),
-              unbuf(encrypt.hash(c.secret)));
-            process.exit(1);
+          client = convertClientToConfigFormat(client);
+          logger.info('Client %s exists, comparing...', c.id);
+          if (clientEquals(client, c)) {
+            logger.info('Client %s is the same, skipping...', c.id);
+          } else {
+            logger.warn('Client %s differs, updating!\n'
+              + 'Before: %:2j\nAfter: %:2j', c.id, client, c);
+            return exports.updateClient(c);
           }
+        } else {
           return exports.registerClient(c);
         }
       });
