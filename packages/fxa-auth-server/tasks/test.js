@@ -9,6 +9,7 @@ module.exports = function (grunt) {
     test: {
       options: {
         ui: 'bdd',
+        reporter: 'spec',
         require: 'coverage/blanket'
       },
       src: [
@@ -18,9 +19,7 @@ module.exports = function (grunt) {
     },
     coverage: {
       options: {
-        reporter: 'html-cov',
-        quiet: true,
-        captureFile: 'coverage.html'
+        reporter: 'mocha-text-cov'
       },
       src: '<%= mochaTest.test.src %>'
     }
