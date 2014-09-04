@@ -7,58 +7,58 @@
 var path = require('path');
 
 module.exports = function amdload(absoluteFilename, map) {
-    // Store this so we can put it back later.
-    var oldDefine = global.define;
+  // Store this so we can put it back later.
+  var oldDefine = global.define;
 
-    map = map || {};
-    var loaded = {}, dirs = [], exported;
+  map = map || {};
+  var loaded = {}, dirs = [], exported;
 
-    /**
-     * These two functions operate as a pair
-     */
-    var define = function define(deps, factory) {
-        // Load all dependencies
-        var modules = deps.map(amdrequire);
-        // Capture the exported value
-        exported = factory.apply(null, modules);
-    };
-    define.amd = true;
-    var amdrequire = function amdrequire(filepath) {
-        // Return real node modules if we have them mapped
-        if (filepath in map) {
-            return require(map[filepath]);
-        }
+  /**
+   * These two functions operate as a pair
+   */
+  var define = function define(deps, factory) {
+    // Load all dependencies
+    var modules = deps.map(amdrequire);
+    // Capture the exported value
+    exported = factory.apply(null, modules);
+  };
+  define.amd = true;
+  var amdrequire = function amdrequire(filepath) {
+    // Return real node modules if we have them mapped
+    if (filepath in map) {
+      return require(map[filepath]);
+    }
 
-        // Resolve target against 'current working directory'
-        var fullpath = path.resolve(dirs[0], filepath);
+    // Resolve target against 'current working directory'
+    var fullpath = path.resolve(dirs[0], filepath);
 
-        if (!loaded[fullpath]) {
-            // Put current operation on stack
-            dirs.unshift(path.dirname(fullpath));
+    if (!loaded[fullpath]) {
+      // Put current operation on stack
+      dirs.unshift(path.dirname(fullpath));
 
-            // setup fake define and delegate to real require()
-            global.define = define;
+      // setup fake define and delegate to real require()
+      global.define = define;
 
-            require(fullpath);
+      require(fullpath);
 
-            // Capture and store exported module
-            loaded[fullpath] = exported;
-            exported = null;
+      // Capture and store exported module
+      loaded[fullpath] = exported;
+      exported = null;
 
-            // Restore previous define() state
-            if (oldDefine) {
-                global.define = define;
-            } else {
-                delete global.define;
-            }
+      // Restore previous define() state
+      if (oldDefine) {
+        global.define = define;
+      } else {
+        delete global.define;
+      }
 
-            // return to cwd from before define
-            dirs.shift();
-        }
+      // return to cwd from before define
+      dirs.shift();
+    }
 
-        // return value captured by define()
-        return loaded[fullpath];
-    };
+    // return value captured by define()
+    return loaded[fullpath];
+  };
 
-    return amdrequire(absoluteFilename);
+  return amdrequire(absoluteFilename);
 };
