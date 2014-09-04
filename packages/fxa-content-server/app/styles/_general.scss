@@ -620,19 +620,19 @@ button::-moz-focus-inner {
     margin: 20px 0 15px 0;
   }
 
+  .left {
+    float: left;
+  }
+
+  .right {
+    float: right;
+  }
+
   a {
     text-decoration: none;
 
     &:hover {
       text-decoration: underline;
-    }
-
-    .left {
-      float: left;
-    }
-
-    .right {
-      float: right;
     }
   }
 }
