@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const url = require('url');
-
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
 const Hapi = require('hapi');
 const Joi = require('joi');
+const URI = require('URIjs');
 
 const AppError = require('../error');
 const config = require('../config');
@@ -39,15 +38,12 @@ function generateCode(claims, client, scope, req) {
     scope
   ).then(function(code) {
     logger.debug('redirecting with code to %s', req.payload.redirect_uri);
-    var redirect = url.parse(req.payload.redirect_uri, true);
-    if (req.payload.state) {
-      redirect.query.state = req.payload.state;
-    }
-    redirect.query.code = hex(code);
-    delete redirect.search;
-    delete redirect.path;
 
-    return { redirect: url.format(redirect) };
+    var redirect = URI(req.payload.redirect_uri)
+      .addQuery({ state: req.payload.state, code: hex(code) });
+
+
+    return { redirect: String(redirect) };
   });
 }
 

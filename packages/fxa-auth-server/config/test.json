@@ -16,6 +16,14 @@
       "redirectUri": "https://example2.domain/return?foo=bar",
       "whitelisted": true,
       "canGrant": true
+    },
+    {
+      "id": "98e6508e88680e1b",
+      "hashedSecret": "ba5cfb370fd782f7eae1807443ab816288c101a54c0d80a09063273c86d3c435",
+      "name": "URN",
+      "imageUri": "https://example2.domain/logo",
+      "redirectUri": "urn:ietf:wg:oauth:2.0:fx:webchannel",
+      "whitelisted": true
     }
   ],
   "logging": {
