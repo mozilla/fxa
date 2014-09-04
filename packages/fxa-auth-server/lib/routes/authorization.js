@@ -104,8 +104,8 @@ module.exports = {
     }).without('redirect', [
       'access_token',
       'token_type',
-      'scope']
-    ).with('access_token', 'token_type', 'scope')
+      'scope'
+    ]).with('access_token', 'token_type', 'scope')
   },
   handler: function authorizationEndpoint(req, reply) {
     var wantsGrant = req.payload.response_type === TOKEN;
@@ -153,4 +153,3 @@ module.exports = {
     .done(reply, reply);
   }
 };
-

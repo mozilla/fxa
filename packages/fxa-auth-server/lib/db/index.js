@@ -91,4 +91,3 @@ exports.disconnect = function disconnect() {
 exports._initialClients = function() {
   return preClients();
 };
-

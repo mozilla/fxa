@@ -22,6 +22,8 @@ function p() {
 function r(schema, cb) {
   var results = {};
   var name;
+  var prompts = Object.keys(schema);
+
   function prompt() {
     name = prompts.shift();
     var opts = schema[name];
@@ -42,7 +44,7 @@ function r(schema, cb) {
       cb(null, results);
     }
   }
-  var prompts = Object.keys(schema);
+
   prompt();
 }
 
@@ -117,4 +119,3 @@ r({
     p('');
   });
 });
-

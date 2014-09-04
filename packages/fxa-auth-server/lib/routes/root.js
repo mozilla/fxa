@@ -24,7 +24,7 @@ module.exports = {
     function sendReply() {
       reply({
         version: version,
-        commit: commitHash,
+        commit: commitHash
       }).spaces(2);
     }
 

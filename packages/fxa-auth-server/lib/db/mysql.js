@@ -33,31 +33,31 @@ function createSchema(conn, options) {
     ' CHARACTER SET utf8 COLLATE utf8_unicode_ci';
 
   conn.query(createDatabaseQuery, function(err) {
+    if (err) {
+      logger.error('create database', err);
+      return d.reject(err);
+    }
+
+    logger.verbose('changeUser');
+    conn.changeUser({
+      user: options.user,
+      password: options.password,
+      database: database
+    }, function(err) {
       if (err) {
-        logger.error('create database', err);
+        logger.error('changeUser', err);
         return d.reject(err);
       }
+      logger.verbose('creatingSchema');
 
-      logger.verbose('changeUser');
-      conn.changeUser({
-        user: options.user,
-        password: options.password,
-        database: database
-      }, function(err) {
+      conn.query(SCHEMA, function(err) {
         if (err) {
-          logger.error('changeUser', err);
+          logger.error('creatingSchema', err);
           return d.reject(err);
         }
-        logger.verbose('creatingSchema');
-
-        conn.query(SCHEMA, function(err) {
-          if (err) {
-            logger.error('creatingSchema', err);
-            return d.reject(err);
-          }
-          d.resolve();
-        });
+        d.resolve();
       });
+    });
   });
   return d.promise;
 }
