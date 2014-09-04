@@ -56,6 +56,7 @@ module.exports = function (log) {
       }
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
+    if (message.resume) { query.resume = message.resume }
 
     var link = this.verificationUrl + '?' + qs.stringify(query)
 
@@ -92,6 +93,7 @@ module.exports = function (log) {
       }
     if (message.service) { query.service = message.service }
     if (message.redirectTo) { query.redirectTo = message.redirectTo }
+    if (message.resume) { query.resume = message.resume }
 
     var link = this.passwordResetUrl + '?' + qs.stringify(query)
 

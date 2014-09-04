@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-mailer",
-  "version": "0.0.5",
+  "version": "1.0.6",
   "description": "",
   "main": "index.js",
   "scripts": {
