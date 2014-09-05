@@ -222,6 +222,7 @@ ___Payload___
 * exp - expiration timestamp
 * aud - the public DNS name of the auth-server. ex: api.accounts.firefox.com
 * sub - the preverified email address
+* typ - must be `"mozilla/fxa/preVerifyToken/v1"`
 
 ___Example___
 
