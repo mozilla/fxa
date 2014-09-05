@@ -11,15 +11,26 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'app/scripts/lib/constants'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers, Constants) {
   'use strict';
 
+  var FX_DESKTOP_CONTEXT = Constants.FX_DESKTOP_CONTEXT;
+
   var config = intern.config;
+
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
+  // The automatedBrowser query param tells signin/up to stub parts of the flow
+  // that require a functioning desktop channel
   var PAGE_SIGNIN = config.fxaContentRoot + 'signin';
+  var PAGE_SIGNIN_DESKTOP = PAGE_SIGNIN + '?context=' + FX_DESKTOP_CONTEXT;
   var PAGE_SIGNUP = config.fxaContentRoot + 'signup';
+  var PAGE_SIGNUP_DESKTOP = config.fxaContentRoot + 'signup?context=' + FX_DESKTOP_CONTEXT;
+  var PAGE_SETTINGS = config.fxaContentRoot + 'settings';
+
+
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var PASSWORD = 'password';
   var user;
@@ -28,6 +39,22 @@ define([
   var email2;
   var accountData;
   var client;
+
+  function waitForDesktopLogin(context, redirect) {
+    // This will listen for the login event triggered by the submit below
+    return context.get('remote')
+      .execute(function (URL) {
+        /* global addEventListener,window,sessionStorage */
+        addEventListener('FirefoxAccountsCommand', function (e) {
+          if (e.detail.command === 'login') {
+            sessionStorage.clear();
+
+            window.location.href = URL;
+          }
+        });
+        return true;
+      }, [ redirect ]);
+  }
 
   registerSuite({
     name: 'sign in cached',
@@ -88,7 +115,9 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'sign in twice, second attempt is going to be cached': function () {
+    'sign in twice, on second attempt email will be cached': function () {
+      var self = this;
+
       return this.get('remote')
         .get(require.toUrl(PAGE_SIGNIN))
         .findByCssSelector('form input.email')
@@ -108,7 +137,49 @@ define([
         .findById('fxa-settings-header')
         .end()
 
+        .then(function () {
+          // reset prefill and context
+          return FunctionalHelpers.clearSessionStorage(self);
+        })
+
         .get(require.toUrl(PAGE_SIGNIN))
+
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
+
+        .findById('fxa-settings-header')
+        .end();
+    },
+
+    'sign in first in sync context, on second attempt credentials will be cached': function () {
+      var self = this;
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .findByCssSelector('form input.email')
+        .click()
+        .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        // This will listen for the login event triggered by the submit below
+        .then(function () {
+          return waitForDesktopLogin(self, PAGE_SIGNIN);
+        })
+
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
 
         .findByCssSelector('.use-logged-in')
         .click()
@@ -117,6 +188,7 @@ define([
         .findById('fxa-settings-header')
         .end();
     },
+
     'sign in once, use a different account': function () {
       return this.get('remote')
         .get(require.toUrl(PAGE_SIGNIN))
@@ -178,8 +250,10 @@ define([
         .end();
     },
     'sign in with cached credentials but with an expired session': function () {
+      var self = this;
+
       return this.get('remote')
-        .get(require.toUrl(PAGE_SIGNIN))
+        .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
         // signin normally, nothing in session yet
         .findByCssSelector('form input.email')
         .click()
@@ -191,20 +265,26 @@ define([
         .type(PASSWORD)
         .end()
 
+        // This will listen for the login event triggered by the submit below
+        .execute(function (email, context, URL) {
+          /* global addEventListener,window,localStorage */
+          addEventListener('FirefoxAccountsCommand', function (e) {
+            if (e.detail.command === 'login') {
+              localStorage.setItem('__fxa_session', '{"cachedCredentials": {"email":"' + email +
+                '", "sessionToken":"eeead2b45791360e00b162ed37f118abbdae6ee8d3997f4eb48ee31dbdf53802", "sessionTokenContext":"' +
+                context + '"}}');
+
+              window.location.href = URL;
+            }
+          });
+          return true;
+        }, [ email, FX_DESKTOP_CONTEXT, PAGE_SIGNIN ])
+
+
         .findByCssSelector('button[type="submit"]')
         .click()
         .end()
 
-        .findById('fxa-settings-header')
-        .end()
-
-        .execute(function (email) {
-            /* global localStorage */
-          localStorage.setItem('__fxa_session', '{"email":"' + email + '", "sessionToken":"eeead2b45791360e00b162ed37f118abbdae6ee8d3997f4eb48ee31dbdf53802"}');
-          return true;
-        }, [ email ])
-
-        .get(require.toUrl(PAGE_SIGNIN))
         .findByCssSelector('.use-logged-in')
         .click()
         .end()
@@ -223,11 +303,64 @@ define([
         .type(PASSWORD)
         .end()
 
+        .then(function () {
+          return waitForDesktopLogin(self, PAGE_SETTINGS);
+        })
+
         .findByCssSelector('button[type="submit"]')
         .click()
         .end()
 
         .findById('fxa-settings-header')
+        .end();
+    },
+    'unverified cached signin with sync context redirects to confirm email': function () {
+      var email = TestHelpers.createEmail();
+      var self = this;
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_SIGNUP_DESKTOP))
+        .findByCssSelector('form input.email')
+        .clearValue()
+        .click()
+        .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('#fxa-age-year')
+        .click()
+        .end()
+
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+        .pressMouseButton()
+        .releaseMouseButton()
+        .click()
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
+
+        .findById('fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          // reset prefill and context
+          return FunctionalHelpers.clearSessionStorage(self);
+        })
+
+        .get(require.toUrl(PAGE_SIGNIN))
+
+        // cached login should still go to email confirmation screen for unverified accounts
+        .findByCssSelector('.use-logged-in')
+        .click()
+        .end()
+
+        .findById('fxa-confirm-header')
         .end();
     },
     'unverified cached signin redirects to confirm email': function () {
@@ -266,11 +399,152 @@ define([
         .get(require.toUrl(PAGE_SIGNIN))
 
         // cached login should still go to email confirmation screen for unverified accounts
-        .findByCssSelector('.use-logged-in')
+
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
         .click()
         .end()
 
         .findById('fxa-confirm-header')
+        .end();
+    },
+
+    'sign in on desktop then sign in with prefill does not show picker': function () {
+      var self = this;
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .findByCssSelector('form input.email')
+        .click()
+        .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        // This will listen for the login event triggered by the submit below
+        .then(function () {
+          return waitForDesktopLogin(self, PAGE_SIGNIN + '?email=' + email2 );
+        })
+
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
+
+        .waitForDeletedByCssSelector('button[type="submit"]')
+
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
+
+        .findById('fxa-settings-header')
+        .end()
+
+        .then(function () {
+          // reset prefill and context
+          return FunctionalHelpers.clearSessionStorage(self);
+        })
+
+        // testing to make sure cached signin comes back after a refresh
+        .get(require.toUrl(PAGE_SIGNIN))
+
+        .findByCssSelector('.prefill')
+        .getVisibleText()
+        .then(function (text) {
+          // confirm prefilled email
+          assert.ok(text.indexOf(email) > -1);
+        })
+        .end()
+
+        .findByCssSelector('.use-different')
+        .click()
+        .end()
+
+        .findByCssSelector('form input.email')
+        .end()
+
+        .refresh()
+
+        .findByCssSelector('.use-different')
+        .end();
+    },
+
+    'sign in with desktop context then no context, desktop credentials should persist': function () {
+      var self = this;
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .findByCssSelector('form input.email')
+        .click()
+        .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        // This will listen for the login event triggered by the submit below
+        .then(function () {
+          return waitForDesktopLogin(self, PAGE_SIGNIN);
+        })
+
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
+
+        .findByCssSelector('.use-different')
+        .click()
+        .end()
+
+        .findByCssSelector('form input.email')
+        .clearValue()
+        .click()
+        .type(email2)
+        .end()
+
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
+
+        .findById('fxa-settings-header')
+        .end()
+
+        .then(function () {
+          // reset prefill and context
+          return FunctionalHelpers.clearSessionStorage(self);
+        })
+
+        // testing to make sure cached signin comes back after a refresh
+        .get(require.toUrl(PAGE_SIGNIN))
+
+        .findByCssSelector('.prefill')
+        .getVisibleText()
+        .then(function (text) {
+          // confirm prefilled email
+          assert.ok(text.indexOf(email) > -1);
+        })
+        .end()
+
+        .refresh()
+
+        .findByCssSelector('.use-different')
         .end();
     }
   });

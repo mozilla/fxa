@@ -26,6 +26,20 @@ define([
       }, []);
   }
 
+  function clearSessionStorage(context) {
+    // clear localStorage to avoid polluting other tests.
+    return context.get('remote')
+      .execute(function () {
+        try {
+          /* global sessionStorage */
+          sessionStorage.clear();
+        } catch(e) {
+          console.log('Failed to clearSessionStorage');
+        }
+        return true;
+      }, []);
+  }
+
   /**
    * Use document.querySelectorAll to find visible elements
    * used for error and success notification animations.
@@ -50,6 +64,7 @@ define([
 
   return {
     clearBrowserState: clearBrowserState,
+    clearSessionStorage: clearSessionStorage,
     visibleByQSA: visibleByQSA,
     pollUntil: pollUntil
   };

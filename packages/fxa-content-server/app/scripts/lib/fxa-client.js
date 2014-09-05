@@ -126,18 +126,31 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
         return client.signIn(email, password, { keys: true });
       })
       .then(function (accountData) {
+        var cachedCredentials = Session.cachedCredentials;
         // get rid of any old data.
         Session.clear();
 
         var updatedSessionData = {
           email: email,
           uid: accountData.uid,
-          unwrapBKey: accountData.unwrapBKey,
-          keyFetchToken: accountData.keyFetchToken,
           sessionToken: accountData.sessionToken,
-          sessionTokenContext: Session.context,
-          customizeSync: options.customizeSync
+          sessionTokenContext: Session.context
         };
+
+        if (Session.isDesktopContext()) {
+          updatedSessionData.unwrapBKey = accountData.unwrapBKey;
+          updatedSessionData.keyFetchToken = accountData.keyFetchToken;
+          updatedSessionData.customizeSync = options.customizeSync;
+          updatedSessionData.cachedCredentials = {
+            email: email,
+            uid: accountData.uid,
+            sessionToken: accountData.sessionToken,
+            sessionTokenContext: Session.context
+          };
+        } else {
+          // Carry over the old cached credentials
+          updatedSessionData.cachedCredentials = cachedCredentials;
+        }
 
         Session.set(updatedSessionData);
         // Skipping the relink warning is only relevant to the channel
@@ -149,9 +162,17 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
           channel: self._channel
         }).then(function () {
           return accountData;
+        }, function (err) {
+          // We ignore this error unless the service is set to Sync.
+          // This allows us to tests flows with the desktop context
+          // without things blowing up. In production/reality,
+          // the context is set to desktop iff service is Sync.
+          if (Session.service === 'sync') {
+            throw err;
+          }
+          return accountData;
         });
       });
-
     },
 
     signUp: function (originalEmail, password, options) {

@@ -4,6 +4,7 @@
 
 define([
   './functional/sign_in',
+  './functional/sign_in_cached',
   './functional/sign_up',
   './functional/complete_sign_up',
   './functional/legal',
