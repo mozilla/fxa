@@ -1,7 +1,10 @@
-var config = require('./config.json'),
-    crypto = require('crypto'),
-    request = require('request')
-    ;
+'use strict';
+
+var config = require('./config.json');
+var crypto = require('crypto');
+var request = require('request');
+var KeyPair = require('fxa-crypto-utils').KeyPair;
+var PreverifiedEmailTokenGenerator = require('fxa-crypto-utils').PreverifiedEmailTokenGenerator;
 
 var DIFFERENT_BROWSER_ERROR = 3005;
 
@@ -9,17 +12,45 @@ var DIFFERENT_BROWSER_ERROR = 3005;
 var oauthFlows = { };
 
 // construct a redirect URL
-function redirectUrl(action, nonce) {
+function toQueryString(obj) {
+  var fields = Object.keys(obj).map(function (key) {
+    return key + "=" + obj[key];
+  });
 
-  return config.auth_uri +
-    "?client_id=" + config.client_id +
-    "&redirect_uri=" + config.redirect_uri +
-    "&state=" + nonce +
-    "&scope=" + config.scopes +
-    "&action=" + action;
+  return "?" + fields.join("&");
+}
+
+function redirectUrl(action, nonce, email, preVerifyToken) {
+  var oauthParams = {
+    client_id: config.client_id,
+    redirect_uri: config.redirect_uri,
+    state: nonce,
+    scope: config.scopes,
+    action: action
+  };
+
+  if (email) {
+    oauthParams.email = email;
+  }
+
+  if (preVerifyToken) {
+    oauthParams.preVerifyToken = preVerifyToken;
+  }
+
+  return config.auth_uri + toQueryString(oauthParams);
 }
 
 module.exports = function(app, db) {
+  var keyPair = new KeyPair();
+  var secretKeyId = 'dev-1';
+
+  var preVerifyTokenGenerator = new PreverifiedEmailTokenGenerator({
+    keyPair: keyPair,
+    secretKeyId: secretKeyId,
+    // jku is where the corresponding public key can be found.
+    jku: config.preverify_email_jku,
+    audience: config.preverify_email_audience
+  });
 
   // begin a new oauth log in flow
   app.get('/api/login', function(req, res) {
@@ -37,6 +68,30 @@ module.exports = function(app, db) {
     req.session.state = nonce;
     var url = redirectUrl("signup", nonce);
     return res.redirect(url);
+  });
+
+  app.get('/api/preverified-signup', function(req, res) {
+    var email = req.query.email;
+    // A real RP would do some validation on the email address
+    // here to ensure the address is actually verified and that
+    // the user making the request is the current user.
+    preVerifyTokenGenerator.generate(email)
+      .then(function (preVerifyToken) {
+        var nonce = crypto.randomBytes(32).toString('hex');
+        oauthFlows[nonce] = true;
+        req.session.state = nonce;
+        var url = redirectUrl("signup", nonce, email, preVerifyToken);
+        return res.redirect(url);
+      });
+  });
+
+  app.get('/.well-known/public-keys', function (req, res) {
+    keyPair.toPublicKeyResponseObject(secretKeyId)
+      .then(function (responseObject) {
+        res.json({
+          keys: [responseObject]
+        });
+      });
   });
 
   app.get('/api/oauth', function(req, res) {

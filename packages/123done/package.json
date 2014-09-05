@@ -29,7 +29,8 @@
     "connect-fonts-opensans": "0.0.5",
     "connect-fonts-alegreyasans": "0.0.2",
     "request": "2.34.0",
-    "bower": "*"
+    "bower": "*",
+    "fxa-crypto-utils": "shane-tomlinson/fxa-crypto-utils"
   },
   "engines": {
     "node": ">=0.8.0"
