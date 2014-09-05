@@ -21,16 +21,16 @@ define([
 function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion, Constants, AuthErrors) {
   var assert = chai.assert;
   // 1x1 jpeg
-var jpgSrcData = '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBA' +
-'MFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMD' +
-'AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAABAAEDASIAAhEB' +
-'AxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQ' +
-'RBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVF' +
-'VWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx' +
-'8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcI' +
-'CQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChY' +
-'kNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkp' +
-'OUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKAP/2Q==';
+  var jpgSrcData = '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBA' +
+    'MFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMD' +
+    'AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAABAAEDASIAAhEB' +
+    'AxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQ' +
+    'RBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVF' +
+    'VWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx' +
+    '8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcI' +
+    'CQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChY' +
+    'kNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkp' +
+    'OUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9/KKKKAP/2Q==';
 
   // These URLs don't depend on our actual configuration; the servers are mocked out.
   var PROFILE_URL = 'http://127.0.0.1:1111';
@@ -104,8 +104,7 @@ var jpgSrcData = '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAw
 
           server.respondWith('POST', OAUTH_URL + '/v1/authorization',
             [200, { 'Content-Type': 'application/json' },
-              '{ "scope": "profile", "token_type": "bearer", "access_token": "token" }']);
-
+            '{ "scope": "profile", "token_type": "bearer", "access_token": "token" }']);
 
           Assertion.generate = function () {
             return p('assertion');
@@ -126,51 +125,50 @@ var jpgSrcData = '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAw
 
           server.respondWith('GET', PROFILE_URL + '/v1/remote_image/' + src,
             [200, { 'Content-Type': 'text/plain' },
-              'data:image/jpeg;base64,']);
+            'data:image/jpeg;base64,']);
 
-           view.render()
-             .then(function () {
-               view.router.on('navigate', function () {
-                 try {
-                   assert.equal(routerMock.page, 'settings/avatar');
-                   assert.equal(view.ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
-                   done();
-                 } catch (e) {
-                   return done(e);
-                 }
-               });
+          view.render()
+            .then(function () {
+              view.router.on('navigate', function () {
+                try {
+                  assert.equal(routerMock.page, 'settings/avatar');
+                  assert.equal(view.ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
+                  done();
+                } catch (e) {
+                  return done(e);
+                }
+              });
 
-               view.$('.url').val('http://example.com/logo.jpg');
-               view.submit();
-             })
-             .fail(done);
+              view.$('.url').val('http://example.com/logo.jpg');
+              view.submit();
+            })
+            .fail(done);
         });
 
         it('submits', function (done) {
           var src = encodeURIComponent('http://example.com/logo.jpg');
 
           server.respondWith('GET', PROFILE_URL + '/v1/remote_image/' + src,
-            [200, { 'Content-Type': 'text/plain' },
-                  jpgSrcData]);
+            [200, { 'Content-Type': 'text/plain' }, jpgSrcData]);
 
-           view.render()
-             .then(function () {
-               view.router.on('navigate', function () {
-                 try {
-                   assert.equal(routerMock.page, 'settings/avatar/crop');
-                   assert.include(Session.cropImgSrc, jpgSrcData);
-                   assert.equal(Session.cropImgWidth, 1);
-                   assert.equal(Session.cropImgHeight, 1);
-                   done();
-                 } catch (e) {
-                   return done(e);
-                 }
-               });
+          view.render()
+            .then(function () {
+              view.router.on('navigate', function () {
+                try {
+                  assert.equal(routerMock.page, 'settings/avatar/crop');
+                  assert.include(Session.cropImgSrc, jpgSrcData);
+                  assert.equal(Session.cropImgWidth, 1);
+                  assert.equal(Session.cropImgHeight, 1);
+                  done();
+                } catch (e) {
+                  return done(e);
+                }
+              });
 
-               view.$('.url').val('http://example.com/logo.jpg');
-               view.submit();
-             })
-             .fail(done);
+              view.$('.url').val('http://example.com/logo.jpg');
+              view.submit();
+            })
+            .fail(done);
         });
       });
 

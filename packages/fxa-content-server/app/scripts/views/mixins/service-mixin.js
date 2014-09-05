@@ -52,12 +52,12 @@ define([
     }
 
     return Channels.sendExpectResponse(message, data, {
-        window: self.window,
-        channel: self.channel
-      }).then(null, function (err) {
-        self.clearTimeout(self._expectResponseTimeout);
-        throw err;
-      });
+      window: self.window,
+      channel: self.channel
+    }).then(null, function (err) {
+      self.clearTimeout(self._expectResponseTimeout);
+      throw err;
+    });
   }
 
   /**
@@ -151,9 +151,9 @@ define([
 
     finishOAuthFlowDifferentBrowser: function () {
       return _notifyChannel.call(this, 'oauth_complete', {
-            redirect: this.serviceRedirectURI,
-            error: RP_DIFFERENT_BROWSER_ERROR_CODE
-          });
+        redirect: this.serviceRedirectURI,
+        error: RP_DIFFERENT_BROWSER_ERROR_CODE
+      });
     },
 
     finishOAuthFlow: buttonProgressIndicator(function (viewOptions) {

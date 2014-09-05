@@ -45,26 +45,26 @@ module.exports = function (grunt) {
 
 
   grunt.registerTask('l10n-compile-templates',
-      'Generate localized versions of the static pages', function () {
+    'Generate localized versions of the static pages', function () {
 
-    var done = this.async();
+      var done = this.async();
 
-    var i18n = require('../server/lib/i18n')(grunt.config.get('server.i18n'));
+      var i18n = require('../server/lib/i18n')(grunt.config.get('server.i18n'));
 
-    // server config is set in the selectconfig task
-    var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages');
-    defaultLang = grunt.config.get('server.i18n.defaultLang');
+      // server config is set in the selectconfig task
+      var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages');
+      defaultLang = grunt.config.get('server.i18n.defaultLang');
 
-    templateSrc = grunt.config.get('yeoman.page_template_src');
-    templateDest = grunt.config.get('yeoman.page_template_dist');
+      templateSrc = grunt.config.get('yeoman.page_template_src');
+      templateDest = grunt.config.get('yeoman.page_template_dist');
 
-    // Legal templates have already been generated and placed in the template destination directory.
-    var getTemplate = legalTemplates(i18n, templateDest);
+      // Legal templates have already been generated and placed in the template destination directory.
+      var getTemplate = legalTemplates(i18n, templateDest);
 
-    // Create a cache of the templates so we can reference them synchronously later
-    Promise.settle(supportedLanguages.map(function (lang) {
+      // Create a cache of the templates so we can reference them synchronously later
+      Promise.settle(supportedLanguages.map(function (lang) {
 
-      return Promise.all([
+        return Promise.all([
           getTemplate('terms', lang, defaultLang),
           getTemplate('privacy', lang, defaultLang)
         ])
@@ -75,14 +75,14 @@ module.exports = function (grunt) {
           };
         });
 
-    })).then(function () {
-      supportedLanguages.forEach(function (lang) {
-        generatePagesForLanguage(i18n, lang);
-      });
-      done();
-    }).then(null, done);
+      })).then(function () {
+        supportedLanguages.forEach(function (lang) {
+          generatePagesForLanguage(i18n, lang);
+        });
+        done();
+      }).then(null, done);
 
-  });
+    });
 
 
   function generatePagesForLanguage(i18n, language) {
@@ -93,10 +93,9 @@ module.exports = function (grunt) {
 
     grunt.file.recurse(templateSrc,
                     function (srcPath, rootDir, subDir, fileName) {
-
-      var destPath = path.join(destRoot, (subDir || ''), fileName);
-      generatePage(srcPath, destPath, context);
-    });
+                      var destPath = path.join(destRoot, (subDir || ''), fileName);
+                      generatePage(srcPath, destPath, context);
+                    });
   }
 
   function generatePage(srcPath, destPath, context) {

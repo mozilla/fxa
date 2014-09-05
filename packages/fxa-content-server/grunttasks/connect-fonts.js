@@ -27,34 +27,35 @@ module.exports = function (grunt) {
   grunt.task.renameTask('connect_fonts', 'do_connect_fonts');
 
   grunt.task.registerTask('connect_fonts',
-      'configure connect fonts based on the currently selected config', function () {
-    // server config is not available on startup and is set in the
-    // selectconfig task. configure_connect_fonts should be run after
-    // selectconfig and before connect_fonts.
-    var fontsDisabled = grunt.config.get('server.i18n.fonts.unsupportedLanguages');
-    var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages')
-                              .filter(function (lang) {
-                                return fontsDisabled.indexOf(lang) === -1;
-                              });
+      'configure connect fonts based on the currently selected config',
+      function () {
+        // server config is not available on startup and is set in the
+        // selectconfig task. configure_connect_fonts should be run after
+        // selectconfig and before connect_fonts.
+        var fontsDisabled = grunt.config.get('server.i18n.fonts.unsupportedLanguages');
+        var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages')
+                                  .filter(function (lang) {
+                                    return fontsDisabled.indexOf(lang) === -1;
+                                  });
 
-    grunt.config('do_connect_fonts', {
-      dist: {
-        options: {
-          fontPacks: fontPacks,
-          fontNames: fontNamesNeeded,
-          // languages will be configured in configure_connect_fonts
-          languages: supportedLanguages,
-          dest: '<%= yeoman.app %>/styles/fonts',
-          destFileName: function (root, language) {
-            // items on disk are stored by locale, not language.
-            return path.join(root, i18n.localeFrom(language) + '.css');
+        grunt.config('do_connect_fonts', {
+          dist: {
+            options: {
+              fontPacks: fontPacks,
+              fontNames: fontNamesNeeded,
+              // languages will be configured in configure_connect_fonts
+              languages: supportedLanguages,
+              dest: '<%= yeoman.app %>/styles/fonts',
+              destFileName: function (root, language) {
+                // items on disk are stored by locale, not language.
+                return path.join(root, i18n.localeFrom(language) + '.css');
+              }
+            }
           }
-        }
-      }
-    });
+        });
 
-    grunt.task.run(['do_connect_fonts']);
-  });
+        grunt.task.run(['do_connect_fonts']);
+      });
 
   grunt.config('connect_fonts_copy', {
     dist: {

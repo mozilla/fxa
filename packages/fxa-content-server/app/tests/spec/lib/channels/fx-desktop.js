@@ -75,12 +75,12 @@ function (chai, WindowMock, Session, FxDesktopChannel, TestHelpers) {
       it('registers a callback to be called when the browser sends ' +
             'the registered message', function (done) {
 
-        channel.on('call-the-callback', function () {
-          done();
-        });
+              channel.on('call-the-callback', function () {
+                done();
+              });
 
-        dispatchEvent('call-the-callback');
-      });
+              dispatchEvent('call-the-callback');
+            });
     });
   });
 });

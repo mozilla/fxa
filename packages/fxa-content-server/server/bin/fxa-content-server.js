@@ -93,7 +93,7 @@ function makeApp() {
   // workaround for reserved word bug:
   // https://github.com/marijnh/acorn/issues/85
   app.use(express['static'](STATIC_DIRECTORY, {
-      maxAge: config.get('static_max_age')
+    maxAge: config.get('static_max_age')
   }));
 
   // it's a four-oh-four not found.
@@ -116,8 +116,8 @@ function listen(theApp) {
     // Development only... Ops runs this behind nginx
     port = config.get('port');
     var tlsoptions = {
-        key: fs.readFileSync(config.get('key_path')),
-        cert: fs.readFileSync(config.get('cert_path'))
+      key: fs.readFileSync(config.get('key_path')),
+      cert: fs.readFileSync(config.get('cert_path'))
     };
 
     https.createServer(tlsoptions, app).listen(port);

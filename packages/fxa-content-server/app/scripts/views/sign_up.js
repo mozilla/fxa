@@ -67,13 +67,13 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
 
       var self = this;
       return p().then(function () {
-          return FormView.prototype.beforeRender.call(self);
-        })
-        .then(function () {
-          if (self.hasService() && self.isSync()) {
-            return self.setServiceInfo();
-          }
-        });
+        return FormView.prototype.beforeRender.call(self);
+      })
+      .then(function () {
+        if (self.hasService() && self.isSync()) {
+          return self.setServiceInfo();
+        }
+      });
     },
 
     // afterRender fucnction to handle select-row hack (issue 822)
@@ -189,30 +189,30 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
 
       var self = this;
       return this.fxaClient.signUp(email, password, {
-          customizeSync: customizeSync,
-          preVerifyToken: preVerifyToken
-        }).then(_.bind(self.onSignUpSuccess, self))
-        .then(null, function (err) {
-          // Account already exists. No attempt is made at signing the
-          // user in directly, instead, point the user to the signin page
-          // where the entered email/password will be prefilled.
-          if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
-            return self._suggestSignIn(err);
-          } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login:canceled');
-            // if user canceled login, just stop
-            return;
-          } else if (self._preVerifyToken && AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
-            // The token was invalid and the auth server could not pre-verify
-            // the user. Now, just create a new user and force them to verify
-            // their email.
-            self._preVerifyToken = null;
-            return self._createAccount();
-          }
+        customizeSync: customizeSync,
+        preVerifyToken: preVerifyToken
+      }).then(_.bind(self.onSignUpSuccess, self))
+      .then(null, function (err) {
+        // Account already exists. No attempt is made at signing the
+        // user in directly, instead, point the user to the signin page
+        // where the entered email/password will be prefilled.
+        if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
+          return self._suggestSignIn(err);
+        } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+          self.logEvent('login:canceled');
+          // if user canceled login, just stop
+          return;
+        } else if (self._preVerifyToken && AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
+          // The token was invalid and the auth server could not pre-verify
+          // the user. Now, just create a new user and force them to verify
+          // their email.
+          self._preVerifyToken = null;
+          return self._createAccount();
+        }
 
-          // re-throw error, it will be handled at a lower level.
-          throw err;
-        });
+        // re-throw error, it will be handled at a lower level.
+        throw err;
+      });
     },
 
     onSignUpSuccess: function(accountData) {

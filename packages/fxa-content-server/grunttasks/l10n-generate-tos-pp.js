@@ -7,14 +7,14 @@ module.exports = function (grunt) {
   'use strict';
 
   grunt.registerTask('l10n-generate-tos-pp',
-      'Generate translated TOS/PP agreement partial templates',
-      function () {
+    'Generate translated TOS/PP agreement partial templates',
+    function () {
 
-    grunt.task.run([
-      'clean:tos_pp',
-      'replace:tos_pp',
-      'marked:tos_pp'
-    ]);
-  });
+      grunt.task.run([
+        'clean:tos_pp',
+        'replace:tos_pp',
+        'marked:tos_pp'
+      ]);
+    });
 };
 

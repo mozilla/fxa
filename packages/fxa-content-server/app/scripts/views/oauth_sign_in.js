@@ -23,9 +23,9 @@ function (_, p, SignInView, ServiceMixin) {
     beforeRender: function() {
       var self = this;
       return p().then(function () {
-          return SignInView.prototype.beforeRender.call(self);
-        })
-        .then(_.bind(this.setServiceInfo, this));
+        return SignInView.prototype.beforeRender.call(self);
+      })
+      .then(_.bind(this.setServiceInfo, this));
     },
 
     afterRender: function() {
