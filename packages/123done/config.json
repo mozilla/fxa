@@ -5,5 +5,7 @@
   "auth_uri": "https://oauth.dev.lcip.org/v1/authorization",
   "oauth_uri": "https://oauth.dev.lcip.org/v1",
   "profile_uri": "https://profile.dev.lcip.org/v1",
-  "scopes": "profile"
+  "scopes": "profile",
+  "preverify_email_audience": "accounts.dev.lcip.org",
+  "preverify_email_jku": "https://123done.dev.lcip.org/.well-known/public-keys"
 }

@@ -5,5 +5,7 @@
   "auth_uri": "http://127.0.0.1:9010/v1/authorization",
   "oauth_uri": "http://127.0.0.1:9010/v1",
   "profile_uri": "http://127.0.0.1:1111/v1",
-  "scopes": "profile"
+  "scopes": "profile",
+  "preverify_email_audience": "127.0.0.1:9000",
+  "preverify_email_jku": "http://127.0.0.1:8080/.well-known/public-keys"
 }
