@@ -1,5 +1,9 @@
 language: node_js
 
+env:
+  global:
+    - TMPDIR=/tmp
+
 before_install:
  - sudo apt-get install libgmp3-dev
 
