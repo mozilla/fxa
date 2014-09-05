@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "async": "0.9.0",
-    "browserid-local-verify": "0.0.10",
+    "browserid-local-verify": "0.0.11",
     "compute-cluster": "0.0.9",
     "convict": "0.4.2",
     "express": "3.8.1",
