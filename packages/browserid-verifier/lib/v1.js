@@ -83,6 +83,8 @@ function verify(verifier, req, res) {
       log.info('verify', {
         result: 'failure',
         reason: err,
+        assertion: assertion,
+        trustedIssuers: trustedIssuers,
         rp: audience
       });
     } else {
