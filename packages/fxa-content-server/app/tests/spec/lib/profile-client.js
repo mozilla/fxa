@@ -50,7 +50,7 @@ function (chai, $, sinon,
         it('normally responds with profile', function () {
           server.respondWith('GET', PROFILE_URL + '/v1/profile',
             [200, { 'Content-Type': 'application/json' },
-              '{ "uid": "' + UID + '", "email": "' + EMAIL + '" }']);
+            '{ "uid": "' + UID + '", "email": "' + EMAIL + '" }']);
 
           return client.getProfile()
             .then(function (result) {
@@ -80,31 +80,31 @@ function (chai, $, sinon,
                 code: 403
               })]);
 
-          return client.getProfile()
-            .then(function (result) {
-              assert.fail('unexpected success');
-            }, function (err) {
-              assert.isTrue(ProfileClient.Errors.is(err, 'UNAUTHORIZED'));
+              return client.getProfile()
+                .then(function (result) {
+                  assert.fail('unexpected success');
+                }, function (err) {
+                  assert.isTrue(ProfileClient.Errors.is(err, 'UNAUTHORIZED'));
+                });
             });
         });
-      });
 
-      describe('getRemoteImage', function () {
-        it('normally responds with remote image', function () {
-          var src = encodeURIComponent('http://example.com/logo.jpg');
-          server.respondWith('GET', PROFILE_URL + '/v1/remote_image/' + src,
-            [200, { 'Content-Type': 'text/plain' },
+        describe('getRemoteImage', function () {
+          it('normally responds with remote image', function () {
+            var src = encodeURIComponent('http://example.com/logo.jpg');
+            server.respondWith('GET', PROFILE_URL + '/v1/remote_image/' + src,
+              [200, { 'Content-Type': 'text/plain' },
               'data:image/jpeg;base64,ohhai']);
 
-          return client.getRemoteImage('http://example.com/logo.jpg')
-            .then(function (result) {
-              assert.equal(result, 'data:image/jpeg;base64,ohhai');
-            });
+            return client.getRemoteImage('http://example.com/logo.jpg')
+              .then(function (result) {
+                assert.equal(result, 'data:image/jpeg;base64,ohhai');
+              });
+          });
         });
+
       });
 
     });
-
   });
-});
 

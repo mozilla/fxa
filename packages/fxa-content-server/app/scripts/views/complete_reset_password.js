@@ -54,13 +54,13 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
 
       var self = this;
       return this.fxaClient.isPasswordResetComplete(this.token)
-         .then(function (isComplete) {
-            self._isLinkExpired = isComplete;
-            if (isComplete) {
-              self.logEvent('complete_reset_password:link_expired');
-            }
-            return true;
-          });
+        .then(function (isComplete) {
+          self._isLinkExpired = isComplete;
+          if (isComplete) {
+            self.logEvent('complete_reset_password:link_expired');
+          }
+          return true;
+        });
     },
 
     afterRender: function() {

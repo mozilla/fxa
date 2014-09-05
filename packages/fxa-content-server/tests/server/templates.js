@@ -51,19 +51,19 @@ define([
       var dfd = this.async(1000);
 
       request(serverUrl + '/template' + name, dfd.callback(function(err, res, body) {
-          var json = JSON.parse(body);
+        var json = JSON.parse(body);
 
-          assert.match(json.subject, matches.subject);
-          assert.match(json.text, matches.text);
-          assert.match(json.html, matches.html);
+        assert.match(json.subject, matches.subject);
+        assert.match(json.text, matches.text);
+        assert.match(json.html, matches.html);
 
-          // make sure these variables are present and use {{
-          assert.match(json.text, /{{{link}}}/);
-          assert.match(json.html, /[^{]{{link}}/);
-          assert.match(json.text, /{{{email}}}/);
-          assert.match(json.html, /[^{]{{email}}/);
+        // make sure these variables are present and use {{
+        assert.match(json.text, /{{{link}}}/);
+        assert.match(json.html, /[^{]{{link}}/);
+        assert.match(json.text, /{{{email}}}/);
+        assert.match(json.html, /[^{]{{email}}/);
 
-        }, dfd.reject.bind(dfd)));
+      }, dfd.reject.bind(dfd)));
     };
   }
 

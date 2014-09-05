@@ -56,8 +56,8 @@ function (chai, OAuthErrors) {
     describe('is', function () {
       it('checks if an error returned from the server is of a given type',
           function () {
-        assert.isTrue(OAuthErrors.is({ errno: 101 }, 'UNKNOWN_CLIENT'));
-      });
+            assert.isTrue(OAuthErrors.is({ errno: 101 }, 'UNKNOWN_CLIENT'));
+          });
     });
   });
 });

@@ -46,8 +46,6 @@ function (
   Relier
 ) {
 
-
-
   function isMetricsCollectionEnabled (sampleRate) {
     return Math.random() <= sampleRate;
   }
@@ -76,10 +74,10 @@ function (
 
       // fetch both config and translations in parallel to speed up load.
       return p.all([
-          this.initializeConfig(),
-          this.initializeL10n()
-        ])
-        .then(_.bind(this.allResourcesReady, this));
+        this.initializeConfig(),
+        this.initializeL10n()
+      ])
+      .then(_.bind(this.allResourcesReady, this));
     },
 
     initializeConfig: function () {

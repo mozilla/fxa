@@ -31,9 +31,9 @@ function (_, p, BaseView, SignUpView, ServiceMixin) {
     beforeRender: function() {
       var self = this;
       return p().then(function () {
-          return SignUpView.prototype.beforeRender.call(self);
-        })
-        .then(_.bind(this.setServiceInfo, this));
+        return SignUpView.prototype.beforeRender.call(self);
+      })
+      .then(_.bind(this.setServiceInfo, this));
     },
 
     afterRender: function() {

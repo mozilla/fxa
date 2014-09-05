@@ -38,9 +38,9 @@ define([
 
       var self = this;
       return client.signUp(email, FIRST_PASSWORD, { preVerified: true })
-               .then(function () {
-                  return FunctionalHelpers.clearBrowserState(self);
-                });
+              .then(function () {
+                return FunctionalHelpers.clearBrowserState(self);
+              });
     },
 
     teardown: function () {

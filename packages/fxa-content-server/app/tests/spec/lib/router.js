@@ -64,11 +64,11 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session,
 
       it('preserves window search parameters across screen transition',
         function () {
-        windowMock.location.search = '?context=' + Constants.FX_DESKTOP_CONTEXT;
-        router.navigate('/forgot');
-        assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_CONTEXT);
-        assert.deepEqual(navigateOptions, { trigger: true });
-      });
+          windowMock.location.search = '?context=' + Constants.FX_DESKTOP_CONTEXT;
+          router.navigate('/forgot');
+          assert.equal(navigateUrl, '/forgot?context=' + Constants.FX_DESKTOP_CONTEXT);
+          assert.deepEqual(navigateOptions, { trigger: true });
+        });
     });
 
     describe('redirectToSignupOrSettings', function () {

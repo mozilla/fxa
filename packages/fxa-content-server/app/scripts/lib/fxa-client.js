@@ -112,45 +112,45 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
       options = options || {};
 
       return p().then(function() {
-                // If we already verified in signUp that we can link with
-                // the desktop, don't do it again. Otherwise,
-                // make the call over to the Desktop code to ask if
-                // we can allow the linking.
-                if (!options.verifiedCanLinkAccount) {
-                  return self._checkForDesktopSyncRelinkWarning(email);
-                }
-                return;
-              })
-              .then(_.bind(self._getClientAsync, self))
-              .then(function (client) {
-                return client.signIn(email, password, { keys: true });
-              })
-              .then(function (accountData) {
-                // get rid of any old data.
-                Session.clear();
+        // If we already verified in signUp that we can link with
+        // the desktop, don't do it again. Otherwise,
+        // make the call over to the Desktop code to ask if
+        // we can allow the linking.
+        if (!options.verifiedCanLinkAccount) {
+          return self._checkForDesktopSyncRelinkWarning(email);
+        }
+        return;
+      })
+      .then(_.bind(self._getClientAsync, self))
+      .then(function (client) {
+        return client.signIn(email, password, { keys: true });
+      })
+      .then(function (accountData) {
+        // get rid of any old data.
+        Session.clear();
 
-                var updatedSessionData = {
-                  email: email,
-                  uid: accountData.uid,
-                  unwrapBKey: accountData.unwrapBKey,
-                  keyFetchToken: accountData.keyFetchToken,
-                  sessionToken: accountData.sessionToken,
-                  sessionTokenContext: Session.context,
-                  customizeSync: options.customizeSync
-                };
+        var updatedSessionData = {
+          email: email,
+          uid: accountData.uid,
+          unwrapBKey: accountData.unwrapBKey,
+          keyFetchToken: accountData.keyFetchToken,
+          sessionToken: accountData.sessionToken,
+          sessionTokenContext: Session.context,
+          customizeSync: options.customizeSync
+        };
 
-                Session.set(updatedSessionData);
-                // Skipping the relink warning is only relevant to the channel
-                // communication with the Desktop browser. It may have been
-                // done during a sign up flow.
-                updatedSessionData.verifiedCanLinkAccount = true;
+        Session.set(updatedSessionData);
+        // Skipping the relink warning is only relevant to the channel
+        // communication with the Desktop browser. It may have been
+        // done during a sign up flow.
+        updatedSessionData.verifiedCanLinkAccount = true;
 
-                return Channels.sendExpectResponse('login', updatedSessionData, {
-                  channel: self._channel
-                }).then(function () {
-                  return accountData;
-                });
-              });
+        return Channels.sendExpectResponse('login', updatedSessionData, {
+          channel: self._channel
+        }).then(function () {
+          return accountData;
+        });
+      });
 
     },
 

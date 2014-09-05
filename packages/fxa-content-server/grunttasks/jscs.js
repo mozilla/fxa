@@ -12,7 +12,7 @@ module.exports = function (grunt) {
       '!<%= yeoman.app %>/scripts/vendor/**'
     ],
     options: {
-      config: '.jscs.json'
+      config: '.jscsrc'
     }
   });
 };

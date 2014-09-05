@@ -171,7 +171,7 @@ define([
         .end()
 
         .then(FunctionalHelpers.visibleByQSA('.success'))
-        
+
         .findByClassName('success').isDisplayed()
           .then(function (isDisplayed) {
             assert.equal(isDisplayed, true);

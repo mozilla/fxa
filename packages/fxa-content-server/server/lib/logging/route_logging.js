@@ -29,11 +29,11 @@ module.exports = function () {
   return config.get('disable_route_logging')
           ? disabled
           : expressLogger({
-              format: formats[config.get('route_log_format')],
-              stream: {
-                write: function (x) {
-                  logger.info(typeof x === 'string' ? x.trim() : x);
-                }
+            format: formats[config.get('route_log_format')],
+            stream: {
+              write: function (x) {
+                logger.info(typeof x === 'string' ? x.trim() : x);
               }
-            });
+            }
+          });
 };

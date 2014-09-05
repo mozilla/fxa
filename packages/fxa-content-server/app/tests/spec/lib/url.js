@@ -17,8 +17,8 @@ function (chai, _, Url) {
     describe('searchParam', function () {
       it('returns a parameter from window.location.search, if it exists',
           function() {
-        assert.equal(Url.searchParam('color', '?color=green'), 'green');
-      });
+            assert.equal(Url.searchParam('color', '?color=green'), 'green');
+          });
 
       it('returns undefined if parameter does not exist', function() {
         assert.isUndefined(Url.searchParam('animal', '?color=green'));
@@ -34,18 +34,18 @@ function (chai, _, Url) {
 
       it('returns all parameters from window.location.search, if no whitelist specified',
           function() {
-        var params = Url.searchParams(search);
-        assert.equal(params.color, 'green');
-        assert.equal(params.email, 'testuser@testuser.com');
-      });
+            var params = Url.searchParams(search);
+            assert.equal(params.color, 'green');
+            assert.equal(params.email, 'testuser@testuser.com');
+          });
 
       it('only returns whitelisted parameters from window.location.search, if whitelist specified',
           function() {
-        var params = Url.searchParams(search, ['color', 'notDefined']);
-        assert.equal(params.color, 'green');
-        assert.isFalse('email' in params);
-        assert.isFalse('notDefined' in params);
-      });
+            var params = Url.searchParams(search, ['color', 'notDefined']);
+            assert.equal(params.color, 'green');
+            assert.isFalse('email' in params);
+            assert.isFalse('notDefined' in params);
+          });
 
     });
 

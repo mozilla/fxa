@@ -3,36 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 define([
-    'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!path',
-    'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!execSync'
-  ],
-  function (path, execSync) {
+  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!path',
+  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!execSync'
+],
+function (path, execSync) {
+  'use strict';
 
-    'use strict';
+  var createProfile = function(config) {
+    var profileProcess = null;
+    var encodedProfile = '';
 
-    var createProfile = function(config) {
-      var profileProcess = null;
-      var encodedProfile = '';
-
-      if (path) {
-        console.log('Creating Firefox profile...');
-        var profileArgs = JSON.stringify(JSON.stringify(config));
-        var profileTool = path.join('tests', 'tools', 'firefox_profile_creator.js');
-        try {
-          profileProcess = execSync.exec(['node', profileTool, profileArgs].join(' '));
-        } catch (e) {
-          console.log('Note: execSync failed to run:', e);
-        }
-
-        if (profileProcess && profileProcess.code === 0) {
-          encodedProfile = profileProcess.stdout;
-        } else {
-          console.log('Note: Failed to generate a Firefox profile for this configuration.');
-        }
-
-        return encodedProfile;
+    if (path) {
+      console.log('Creating Firefox profile...');
+      var profileArgs = JSON.stringify(JSON.stringify(config));
+      var profileTool = path.join('tests', 'tools', 'firefox_profile_creator.js');
+      try {
+        profileProcess = execSync.exec(['node', profileTool, profileArgs].join(' '));
+      } catch (e) {
+        console.log('Note: execSync failed to run:', e);
       }
-    };
 
-    return createProfile;
+      if (profileProcess && profileProcess.code === 0) {
+        encodedProfile = profileProcess.stdout;
+      } else {
+        console.log('Note: Failed to generate a Firefox profile for this configuration.');
+      }
+
+      return encodedProfile;
+    }
+  };
+
+  return createProfile;
 });

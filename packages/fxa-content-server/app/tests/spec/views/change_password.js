@@ -155,7 +155,7 @@ function (chai, _, $, AuthErrors, FxaClient, View, RouterMock, TestHelpers, Sess
               });
         });
 
-       it('changes from old to new password, keeps sessionTokenContext', function () {
+        it('changes from old to new password, keeps sessionTokenContext', function () {
           $('#old_password').val('password');
           $('#new_password').val('new_password');
 

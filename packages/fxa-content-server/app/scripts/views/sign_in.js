@@ -66,13 +66,13 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     beforeRender: function() {
       var self = this;
       return p().then(function () {
-          return FormView.prototype.beforeRender.call(self);
-        })
-        .then(function () {
-          if (self.hasService() && self.isSync()) {
-            return self.setServiceInfo();
-          }
-        });
+        return FormView.prototype.beforeRender.call(self);
+      })
+      .then(function () {
+        if (self.hasService() && self.isSync()) {
+          return self.setServiceInfo();
+        }
+      });
     },
 
     submit: function () {

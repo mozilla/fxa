@@ -53,7 +53,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock) {
       it('shows no avatar if Session.avatar is undefined', function (done) {
         Session.set('forceEmail', 'a@a.com');
         assert.isNull(view.context().avatar);
-        
+
         return view.render()
           .then(function () {
             assert.notOk(view.$('.avatar-view img').length);

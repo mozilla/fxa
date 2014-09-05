@@ -169,16 +169,18 @@ var conf = module.exports = convict({
       format: Array,
       // the big list of locales is specified so the production build script
       // can build all the locales before config/production.json is written.
-      default: ['af', 'an', 'ar', 'as', 'ast', 'be', 'bg', 'bn-BD', 'bn-IN', 'br',
-          'bs', 'ca', 'cs', 'cy', 'da', 'de', 'dsb', 'el', 'en-GB', 'en-US', 'en-ZA',
-          'eo', 'es', 'es-AR', 'es-CL', 'es-MX', 'et', 'eu', 'fa', 'ff', 'fi',
-          'fr', 'fy', 'fy-NL', 'ga', 'ga-IE', 'gd', 'gl', 'gu', 'gu-IN', 'he',
-          'hi-IN', 'hr', 'hsb', 'ht', 'hu', 'hy-AM', 'id', 'is', 'it', 'it-CH', 'ja',
-          'kk', 'km', 'kn', 'ko', 'ku', 'lij', 'lt', 'lv', 'mai', 'mk', 'ml',
-          'mr', 'ms', 'nb-NO', 'ne-NP', 'nl', 'nn-NO', 'or', 'pa', 'pa-IN',
-          'pl', 'pt', 'pt-BR', 'pt-PT', 'rm', 'ro', 'ru', 'si', 'sk', 'sl',
-          'son', 'sq', 'sr', 'sr-LATN', 'sv', 'sv-SE', 'ta', 'te', 'th', 'tr',
-          'uk', 'ur', 'vi', 'xh', 'zh-CN', 'zh-TW', 'zu'],
+      default: [
+        'af', 'an', 'ar', 'as', 'ast', 'be', 'bg', 'bn-BD', 'bn-IN', 'br',
+        'bs', 'ca', 'cs', 'cy', 'da', 'de', 'dsb', 'el', 'en-GB', 'en-US', 'en-ZA',
+        'eo', 'es', 'es-AR', 'es-CL', 'es-MX', 'et', 'eu', 'fa', 'ff', 'fi',
+        'fr', 'fy', 'fy-NL', 'ga', 'ga-IE', 'gd', 'gl', 'gu', 'gu-IN', 'he',
+        'hi-IN', 'hr', 'hsb', 'ht', 'hu', 'hy-AM', 'id', 'is', 'it', 'it-CH', 'ja',
+        'kk', 'km', 'kn', 'ko', 'ku', 'lij', 'lt', 'lv', 'mai', 'mk', 'ml',
+        'mr', 'ms', 'nb-NO', 'ne-NP', 'nl', 'nn-NO', 'or', 'pa', 'pa-IN',
+        'pl', 'pt', 'pt-BR', 'pt-PT', 'rm', 'ro', 'ru', 'si', 'sk', 'sl',
+        'son', 'sq', 'sr', 'sr-LATN', 'sv', 'sv-SE', 'ta', 'te', 'th', 'tr',
+        'uk', 'ur', 'vi', 'xh', 'zh-CN', 'zh-TW', 'zu'
+      ],
       env: 'I18N_SUPPORTED_LANGUAGES'
     },
     translationDirectory: {
@@ -197,10 +199,12 @@ var conf = module.exports = convict({
       unsupportedLanguages: {
         doc: 'These languages should use system fonts instead of Fira Sans',
         format: Array,
-        default: [ 'an', 'ar', 'as', 'ast', 'bn-DB', 'bn-IN', 'fa', 'ff', 'gd',
-              'gu', 'gu-IN', 'he', 'hi-IN', 'ht', 'hy-AM', 'ja', 'km', 'kn', 'ko', 'lij',
-              'mai', 'ml', 'mr', 'ne-NP', 'or', 'pa', 'pa-IN', 'si', 'son', 'ta', 'te',
-              'th', 'ur', 'vi', 'zh-CN', 'zh-TW' ]
+        default: [
+          'an', 'ar', 'as', 'ast', 'bn-DB', 'bn-IN', 'fa', 'ff', 'gd',
+          'gu', 'gu-IN', 'he', 'hi-IN', 'ht', 'hy-AM', 'ja', 'km', 'kn', 'ko', 'lij',
+          'mai', 'ml', 'mr', 'ne-NP', 'or', 'pa', 'pa-IN', 'si', 'son', 'ta', 'te',
+          'th', 'ur', 'vi', 'zh-CN', 'zh-TW'
+        ]
       }
     }
   },
@@ -213,12 +217,12 @@ var conf = module.exports = convict({
     }
   },
   key_path: {
-      doc: 'The location of the SSL key in pem format',
-      default: path.resolve(__dirname, '..', '..', 'key.pem')
+    doc: 'The location of the SSL key in pem format',
+    default: path.resolve(__dirname, '..', '..', 'key.pem')
   },
   cert_path: {
-      doc: 'The location of the SSL certificate in pem format',
-      default: path.resolve(__dirname, '..', '..', 'cert.pem')
+    doc: 'The location of the SSL certificate in pem format',
+    default: path.resolve(__dirname, '..', '..', 'cert.pem')
   }
 });
 

@@ -62,23 +62,23 @@ function getCommitHashFromGit() {
 
 var l10nVersion = (function () {
   var version;
-  try { 
+  try {
     var bowerPath = '../../../app/bower_components/fxa-content-server-l10n/.bower.json';
     var bowerInfo = require(bowerPath);
     version = bowerInfo && bowerInfo._release;
   } catch(e) {
-  } 
+  }
   return version || 'unknown';
 })();
 
 var tosPpVersion = (function () {
   var version;
-  try { 
+  try {
     var bowerPath = '../../../app/bower_components/tos-pp/.bower.json';
     var bowerInfo = require(bowerPath);
     version = bowerInfo && bowerInfo._release;
   } catch(e) {
-  } 
+  }
   return version || 'unknown';
 })();
 
@@ -127,4 +127,3 @@ exports.process = function (req, res) {
       res.json(versionInfo);
     });
 };
-

@@ -39,8 +39,8 @@ define([
       var self = this;
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function () {
-           return FunctionalHelpers.clearBrowserState(self);
-         })
+          return FunctionalHelpers.clearBrowserState(self);
+        })
         .then(function () {
           return self.get('remote')
             .get(require.toUrl(SIGNIN_URL))

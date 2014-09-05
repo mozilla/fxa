@@ -155,7 +155,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
       });
 
       it('signUp existing unverified user with different password signs ' +
-              'user up again', function () {
+      'user up again', function () {
         return client.signUp(email, password)
           .then(function () {
             return client.signUp(email, 'different_password');
@@ -182,15 +182,15 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
         });
 
         return client.signUp(email, password, {
-            preVerifyToken: preVerifyToken
-          })
-          .then(function () {
-            assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
-              preVerifyToken: preVerifyToken,
-              keys: true
-            }));
-            assert.isTrue(realClient.signIn.called);
-          });
+          preVerifyToken: preVerifyToken
+        })
+        .then(function () {
+          assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
+            preVerifyToken: preVerifyToken,
+            keys: true
+          }));
+          assert.isTrue(realClient.signIn.called);
+        });
       });
     });
 
