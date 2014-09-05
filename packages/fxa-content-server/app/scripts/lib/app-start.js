@@ -28,7 +28,8 @@ define([
   'lib/channels',
   'lib/config-loader',
   'lib/metrics',
-  'lib/null-metrics'
+  'lib/null-metrics',
+  'models/reliers/relier'
 ],
 function (
   _,
@@ -41,7 +42,8 @@ function (
   Channels,
   ConfigLoader,
   Metrics,
-  NullMetrics
+  NullMetrics,
+  Relier
 ) {
 
 
@@ -82,7 +84,12 @@ function (
 
     initializeConfig: function () {
       return this._configLoader.fetch()
-                    .then(_.bind(this.useConfig, this));
+                    .then(_.bind(this.useConfig, this))
+                    // both the metrics and router depend on the language
+                    // fetched from config.
+                    .then(_.bind(this.initializeMetrics, this))
+                    .then(_.bind(this.initializeRelier, this))
+                    .then(_.bind(this.initializeRouter, this));
     },
 
     useConfig: function (config) {
@@ -90,23 +97,34 @@ function (
       this._configLoader.useConfig(config);
       Session.set('config', config);
 
-      this._metrics = createMetrics(config.metricsSampleRate, {
-        lang: config.language
-      });
-      this._metrics.init();
-
-      if (! this._router) {
-        this._router = new Router({
-          metrics: this._metrics,
-          language: config.language
-        });
-      }
-      this._window.router = this._router;
     },
 
     initializeL10n: function () {
       var translator = this._window.translator = new Translator();
       return translator.fetch();
+    },
+
+    initializeMetrics: function () {
+      this._metrics = createMetrics(this._config.metricsSampleRate, {
+        lang: this._config.language
+      });
+      this._metrics.init();
+    },
+
+    initializeRelier: function () {
+      this._relier = new Relier();
+      return this._relier.fetch();
+    },
+
+    initializeRouter: function () {
+      if (! this._router) {
+        this._router = new Router({
+          metrics: this._metrics,
+          language: this._config.language,
+          relier: this._relier
+        });
+      }
+      this._window.router = this._router;
     },
 
     allResourcesReady: function () {

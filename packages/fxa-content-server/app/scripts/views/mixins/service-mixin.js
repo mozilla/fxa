@@ -98,12 +98,14 @@ define([
   }
 
   return {
-    setupOAuth: function (params) {
+    setupOAuth: function (params, deps) {
+      deps = deps || {};
+
       if (! this._configLoader) {
         this._configLoader = new ConfigLoader();
       }
 
-      this._oAuthClient = new OAuthClient();
+      this._oAuthClient = deps.oAuthClient || new OAuthClient();
 
       if (! params) {
         // params listed in:
@@ -120,7 +122,7 @@ define([
 
       // assertion library to use to generate assertions
       // can be substituted for testing
-      this.assertionLibrary = Assertion;
+      this.assertionLibrary = deps.assertionLibrary || new Assertion();
 
       Session.set('service', this.service);
       // A hint that allows Session to determine whether the user

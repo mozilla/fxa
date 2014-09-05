@@ -46,6 +46,12 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
     initialize: function (options) {
       options = options || {};
 
+      var relier = options.relier;
+
+      // preVerifyToken is an opaque token that indicates to the auth server
+      // that a user has already been verified and they can skip verification.
+      this._preVerifyToken = relier && relier.get('preVerifyToken');
+
       // Reset forceAuth flag so users who visit the reset_password screen
       // see the correct links.
       Session.set('forceAuth', false);
@@ -102,11 +108,11 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
       var autofocusEl = selectAutoFocusEl(email, Session.prefillPassword);
 
       return {
+        service: Session.service,
         serviceName: this.serviceName,
         email: email,
         password: Session.prefillPassword,
         year: Session.prefillYear || 'none',
-        service: Session.service,
         isSync: this.isSync(),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
@@ -179,12 +185,13 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
       var email = this.$('.email').val();
       var password = this.$('.password').val();
       var customizeSync = this.$('.customize-sync').is(':checked');
+      var preVerifyToken = this._preVerifyToken;
 
       var self = this;
-      return this.fxaClient.signUp(email, password, { customizeSync: customizeSync })
-        .then(function (accountData) {
-          return self.onSignUpSuccess(accountData);
-        })
+      return this.fxaClient.signUp(email, password, {
+          customizeSync: customizeSync,
+          preVerifyToken: preVerifyToken
+        }).then(_.bind(self.onSignUpSuccess, self))
         .then(null, function (err) {
           // Account already exists. No attempt is made at signing the
           // user in directly, instead, point the user to the signin page
@@ -195,6 +202,12 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
             self.logEvent('login:canceled');
             // if user canceled login, just stop
             return;
+          } else if (self._preVerifyToken && AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
+            // The token was invalid and the auth server could not pre-verify
+            // the user. Now, just create a new user and force them to verify
+            // their email.
+            self._preVerifyToken = null;
+            return self._createAccount();
           }
 
           // re-throw error, it will be handled at a lower level.
@@ -203,8 +216,9 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
     },
 
     onSignUpSuccess: function(accountData) {
+      // user was pre-verified, just send them to the signup complete screen.
       if (accountData.verified) {
-        this.navigate('settings');
+        this.navigate('signup_complete');
       } else {
         this.navigate('confirm');
       }

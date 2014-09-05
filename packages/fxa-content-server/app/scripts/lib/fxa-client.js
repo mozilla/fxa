@@ -171,13 +171,23 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
               .then(_.bind(this._getClientAsync, this))
               .then(function (client) {
                 var signUpOptions = {
-                  keys: true,
-                  service: service,
-                  redirectTo: redirectTo
+                  keys: true
                 };
+
+                if (service) {
+                  signUpOptions.service = service;
+                }
+
+                if (redirectTo) {
+                  signUpOptions.redirectTo = redirectTo;
+                }
 
                 if (options.preVerified) {
                   signUpOptions.preVerified = true;
+                }
+
+                if (options.preVerifyToken) {
+                  signUpOptions.preVerifyToken = options.preVerifyToken;
                 }
 
                 return client.signUp(email, password, signUpOptions);

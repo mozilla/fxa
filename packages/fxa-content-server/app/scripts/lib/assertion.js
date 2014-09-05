@@ -89,9 +89,13 @@ function (P, jwcrypto, FxaClient) {
     });
   }
 
-  bundle.generate = bundle;
+  function Assertion() {
+  }
 
-  return bundle;
+  Assertion.prototype = {
+    generate: bundle
+  };
 
+  return Assertion;
 });
 

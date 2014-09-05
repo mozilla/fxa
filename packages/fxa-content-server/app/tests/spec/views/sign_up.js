@@ -21,7 +21,8 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator, ServiceName, RouterMock, WindowMock, TestHelpers) {
+function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator, ServiceName,
+      RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
   var translator = new Translator('en-US', ['en-US']);
@@ -49,7 +50,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translat
     beforeEach(function () {
       Session.clear();
 
-      email = 'testuser.' + Math.random() + '@testuser.com';
+      email = TestHelpers.createEmail();
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
       router = new RouterMock();
       windowMock = new WindowMock();
@@ -425,6 +426,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translat
       });
     });
   });
+
 });
 
 

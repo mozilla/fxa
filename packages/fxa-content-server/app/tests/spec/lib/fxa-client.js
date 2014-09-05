@@ -5,6 +5,7 @@
 define([
   'chai',
   'jquery',
+  'sinon',
   'lib/promise',
   '../../mocks/channel',
   '../../lib/helpers',
@@ -16,7 +17,7 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, p, ChannelMock, testHelpers,
+function (chai, $, sinon, p, ChannelMock, testHelpers,
               Session, FxaClientWrapper, AuthErrors, Constants) {
   'use strict';
 
@@ -161,6 +162,33 @@ function (chai, $, p, ChannelMock, testHelpers,
           })
           .then(function () {
             assert.isTrue(realClient.signUp.called);
+            assert.isTrue(realClient.signIn.called);
+          });
+      });
+
+      it('signUp a preverified user using preVerifyToken', function () {
+        var password = 'password';
+        var preVerifyToken = 'somebiglongtoken';
+
+        // we are going to take over from here.
+        testHelpers.removeFxaClientSpy(realClient);
+        sinon.stub(realClient, 'signUp', function () {
+          return true;
+        });
+        sinon.stub(realClient, 'signIn', function () {
+          return {
+            sessionToken: 'asessiontoken'
+          };
+        });
+
+        return client.signUp(email, password, {
+            preVerifyToken: preVerifyToken
+          })
+          .then(function () {
+            assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
+              preVerifyToken: preVerifyToken,
+              keys: true
+            }));
             assert.isTrue(realClient.signIn.called);
           });
       });

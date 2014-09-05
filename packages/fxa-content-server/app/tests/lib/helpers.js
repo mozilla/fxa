@@ -49,7 +49,8 @@ define([
   function removeFxaClientSpy(fxaClient) {
     // return the client to its original state.
     for (var key in fxaClient) {
-      if (typeof fxaClient[key] === 'function') {
+      if (typeof fxaClient[key] === 'function' &&
+          typeof fxaClient[key].restore === 'function') {
         fxaClient[key].restore();
       }
     }

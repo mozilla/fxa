@@ -28,10 +28,12 @@ function (chai, $, P,
   var email;
   var password = 'password';
   var client;
+  var assertionLibrary;
 
   describe('lib/assertion', function () {
     beforeEach(function () {
       Session.clear();
+      assertionLibrary = new Assertion();
       client = new FxaClientWrapper();
       email = ' testuser' + Math.random() + '@testuser.com ';
       return client.signUp(email, password, { preVerified: true });
@@ -44,7 +46,7 @@ function (chai, $, P,
     describe('validate', function () {
       it('generates a valid assertion', function () {
         var assertion;
-        return Assertion.generate(AUDIENCE)
+        return assertionLibrary.generate(AUDIENCE)
           .then(function(ass) {
             assertion = ass;
             assert.isNotNull(ass, 'Assertion is not null');
