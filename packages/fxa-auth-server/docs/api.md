@@ -152,6 +152,7 @@ ___Parameters___
 * authPW - the PBKDF2/HKDF stretched password as a hex string
 * service - (optional) opaque alphanumeric token to be included in verification links
 * redirectTo - (optional) a URL that the client should be redirected to after handling the request
+* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
 * preVerifyToken - (optional) see below
 
 ### Request
@@ -637,7 +638,7 @@ ___Parameters___
 
 * service - (optional) opaque alphanumeric token to be included in verification links
 * redirectTo - (optional) a URL that the client should be redirected to after handling the request
-
+* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
 
 ___Headers___
 
@@ -899,6 +900,7 @@ ___Parameters___
 * email - the recovery email for this account
 * service - (optional) indicates the relying service that the user was interacting with that triggered the password reset
 * redirectTo - (optional) a URL that the client should be redirected to after handling the request
+* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
 
 ### Request
 ```sh
@@ -949,6 +951,7 @@ ___Parameters___
 * email - the recovery email for this account
 * service - (optional) indicates the relying service that the user was interacting with that triggered the password reset
 * redirectTo - (optional) a URL that the client should be redirected to after handling the request
+* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
 
 ### Request
 

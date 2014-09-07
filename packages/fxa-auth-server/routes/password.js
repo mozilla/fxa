@@ -170,7 +170,8 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional()
+            redirectTo: validators.redirectTo(redirectDomain).optional(),
+            resume: isA.string().max(2048).optional()
           }
         },
         response: {
@@ -204,6 +205,7 @@ module.exports = function (
                 {
                   service: request.payload.service,
                   redirectTo: request.payload.redirectTo,
+                  resume: request.payload.resume,
                   acceptLanguage: request.app.acceptLanguage
                 }
               )
@@ -240,7 +242,8 @@ module.exports = function (
           payload: {
             email: validators.email().required(),
             service: isA.string().max(16).alphanum().optional(),
-            redirectTo: validators.redirectTo(redirectDomain).optional()
+            redirectTo: validators.redirectTo(redirectDomain).optional(),
+            resume: isA.string().max(2048).optional()
           }
         },
         response: {
@@ -268,6 +271,7 @@ module.exports = function (
               {
                 service: request.payload.service,
                 redirectTo: request.payload.redirectTo,
+                resume: request.payload.resume,
                 acceptLanguage: request.app.acceptLanguage
               }
             )
