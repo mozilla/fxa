@@ -11,7 +11,6 @@ const validate = require('../../validate');
 const EMPTY = Object.create(null);
 function avatarOrEmpty(avatar) {
   if (avatar) {
-    console.log(avatar.length);
     return {
       id: hex(avatar.id),
       avatar: avatar.url
