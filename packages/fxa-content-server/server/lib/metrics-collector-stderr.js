@@ -14,9 +14,9 @@ var OP = 'client.metrics';
 var VERSION = 1;
 
 function addTime(loggableEvent) {
-  // round the date to the nearest day.
+  // round the date to the nearest hour.
   var today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setMinutes(0, 0, 0);
   loggableEvent.time = today.toISOString();
 }
 
