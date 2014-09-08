@@ -1,3 +1,21 @@
+<a name="0.21.0"></a>
+## 0.21.0 (2014-09-08)
+
+
+#### Bug Fixes
+
+* **avatars:** allow mobile browsers to reposition the image during crop ([74202ea1](https://github.com/mozilla/fxa-content-server/commit/74202ea1b9127786834d8bf387efdd0fd8eb1a63))
+* **hsts:** force hsts headers and use milliseconds ([138756b1](https://github.com/mozilla/fxa-content-server/commit/138756b1df4a12878b67b4c3992e6f9003c73eb2))
+* **signin:** cache credentials for desktop sign-ins, otherwise only cache email ([33675ae8](https://github.com/mozilla/fxa-content-server/commit/33675ae8863a85bf530c4b3bcbd9703b027524df), closes [#1621](https://github.com/mozilla/fxa-content-server/issues/1621))
+* **styles:** Un-nesting some CSS to fix /signin links ([1878d120](https://github.com/mozilla/fxa-content-server/commit/1878d120928ecce25373327a392e90801c4a7fd2))
+
+
+#### Features
+
+* **client:** Add support for `preVerfiyToken`. ([d30dd6d3](https://github.com/mozilla/fxa-content-server/commit/d30dd6d3f4d65ceeb6a195b16cf6fd689eb1f7a4))
+* **signin:** Add cached signin ([7780e49a](https://github.com/mozilla/fxa-content-server/commit/7780e49aa007db60d12e29ea791d60489298ad3a))
+
+
 <a name="0.20.0"></a>
 ## 0.20.0 (2014-08-25)
 
