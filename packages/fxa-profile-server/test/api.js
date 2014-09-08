@@ -23,15 +23,6 @@ const Server = require('./lib/server');
 const Static = require('./lib/static');
 const WORKER = require('../lib/server/worker').create();
 
-const USERID = crypto.randomBytes(16).toString('hex');
-const TOKEN_GOOD = JSON.stringify({
-  user: USERID,
-  scope: ['profile'],
-  email: 'user@example.domain'
-});
-
-const GRAVATAR =
-  'http://www.gravatar.com/avatar/00000000000000000000000000000000';
 
 function randomHex(bytes) {
   return crypto.randomBytes(bytes).toString('hex');
@@ -48,6 +39,16 @@ function avatarId() {
 function token() {
   return randomHex(32);
 }
+
+const USERID = uid();
+const TOKEN_GOOD = JSON.stringify({
+  user: USERID,
+  scope: ['profile'],
+  email: 'user@example.domain'
+});
+
+const GRAVATAR =
+  'http://www.gravatar.com/avatar/00000000000000000000000000000000';
 
 function mockToken() {
   var parts = url.parse(config.get('oauth.url'));
