@@ -20,8 +20,9 @@ define([
   'jquery',
   'speedTrap',
   'lib/promise',
-  'lib/url'
-], function (_, Backbone, $, speedTrap, p, Url) {
+  'lib/url',
+  'lib/strings'
+], function (_, Backbone, $, speedTrap, p, Url, Strings) {
   'use strict';
 
   // Speed trap is a singleton, convert it
@@ -205,17 +206,36 @@ define([
     },
 
     /**
-     * Convert an error to an identifier
+     * Log an error.
      */
-    errorToId: function (err, errors) {
-      return 'error.' + errors.toCode(err);
+    logError: function (error) {
+      this.logEvent(this.errorToId(error));
     },
 
     /**
-     * Convert a pathname from a URL to an identifier
+     * Convert an error to an identifier that can be used for logging.
      */
-    pathToId: function (path) {
-      return 'screen.' + Url.pathToScreenName(path);
+    errorToId: function (error) {
+      var id = Strings.interpolate('error.%s.%s.%s', [
+        error.context || 'unknown context',
+        error.namespace || 'unknown namespace',
+        error.errno || String(error)
+      ]);
+      return id;
+    },
+
+    /**
+     * Log a screen
+     */
+    logScreen: function (screenName) {
+      this.logEvent(this.screenToId(screenName));
+    },
+
+    /**
+     * Convert a screenName an identifier
+     */
+    screenToId: function (screenName) {
+      return 'screen.' + screenName;
     },
 
     /**

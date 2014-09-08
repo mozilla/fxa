@@ -44,6 +44,7 @@ function (_, AuthErrors) {
 
   return _.extend({}, AuthErrors, {
     ERROR_TO_CODE: ERROR_TO_CODE,
-    CODE_TO_MESSAGES: CODE_TO_MESSAGES
+    CODE_TO_MESSAGES: CODE_TO_MESSAGES,
+    NAMESPACE: 'oauth'
   });
 });

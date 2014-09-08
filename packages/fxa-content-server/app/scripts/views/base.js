@@ -162,7 +162,7 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
      * authentication, but this could be extended to other types of
      * authorization as well.
      */
-    isUserAuthorized: function() {
+    isUserAuthorized: function () {
       if (this.mustAuth) {
         return this.fxaClient.isSignedIn(Session.sessionToken);
       }
@@ -381,7 +381,16 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
       }
       err.logged = true;
 
-      this.logEvent(this.metrics.errorToId(err, errors));
+      if (typeof console !== 'undefined' && console) {
+        console.error(err.message || String(err));
+      }
+
+      this.metrics.logError(err);
+    },
+
+    getScreenName: function () {
+      var screenName = Url.pathToScreenName(this.window.location.pathname);
+      return screenName;
     },
 
     _normalizeError: function (err, errors) {
@@ -395,6 +404,10 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
         }
       }
 
+      if (! err.context) {
+        err.context = this.getScreenName();
+      }
+
       return err;
     },
 
@@ -402,8 +415,7 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
      * Log the current screen
      */
     logScreen: function () {
-      var path = this.window.location.pathname;
-      this.logEvent(this.metrics.pathToId(path));
+      this.metrics.logScreen(this.getScreenName());
     },
 
     /**

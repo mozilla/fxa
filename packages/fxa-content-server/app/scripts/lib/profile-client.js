@@ -82,7 +82,8 @@ function ($, _, p, Session, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
 
   var ProfileErrors = ProfileClient.Errors = _.extend({}, AuthErrors, {
     ERROR_TO_CODE: ERROR_TO_CODE,
-    CODE_TO_MESSAGES: CODE_TO_MESSAGES
+    CODE_TO_MESSAGES: CODE_TO_MESSAGES,
+    NAMESPACE: 'profile'
   });
 
   return ProfileClient;

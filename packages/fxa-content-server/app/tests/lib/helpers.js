@@ -99,6 +99,16 @@ define([
     return false;
   }
 
+  function isErrorLogged(metrics, error) {
+    var eventName = metrics.errorToId(error);
+    return isEventLogged(metrics, eventName);
+  }
+
+  function isScreenLogged(metrics, screenName) {
+    var eventName = metrics.screenToId(screenName);
+    return isEventLogged(metrics, eventName);
+  }
+
   return {
     requiresFocus: requiresFocus,
     addFxaClientSpy: addFxaClientSpy,
@@ -107,6 +117,8 @@ define([
     createRandomHexString: createRandomHexString,
     createEmail: createEmail,
     emailToUser: emailToUser,
-    isEventLogged: isEventLogged
+    isEventLogged: isEventLogged,
+    isErrorLogged: isErrorLogged,
+    isScreenLogged: isScreenLogged
   };
 });
