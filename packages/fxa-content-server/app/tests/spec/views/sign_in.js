@@ -29,7 +29,7 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator,
     var view, email, routerMock, metrics, windowMock, fxaClient;
 
     beforeEach(function () {
-      email = 'testuser.' + Math.random() + '@testuser.com';
+      email = TestHelpers.createEmail();
 
       Session.clear();
 

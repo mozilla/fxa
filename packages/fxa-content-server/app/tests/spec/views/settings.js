@@ -11,11 +11,12 @@ define([
   'jquery',
   'views/settings',
   '../../mocks/router',
+  '../../lib/helpers',
   'lib/session',
   'lib/constants',
   'lib/fxa-client'
 ],
-function (chai, _, $, View, RouterMock, Session, Constants, FxaClient) {
+function (chai, _, $, View, RouterMock, TestHelpers, Session, Constants, FxaClient) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
@@ -49,7 +50,7 @@ function (chai, _, $, View, RouterMock, Session, Constants, FxaClient) {
 
     describe('with session', function () {
       beforeEach(function () {
-        email = 'testuser.' + Math.random() + '@testuser.com';
+        email = TestHelpers.createEmail();
 
         return view.fxaClient.signUp(email, 'password', { preVerified: true })
           .then(function() {

@@ -48,7 +48,7 @@ function (chai, $, View, FxaClient, RouterMock, TestHelpers) {
 
     describe('with session', function () {
       beforeEach(function () {
-        email = 'testuser.' + Math.random() + '@testuser.com';
+        email = TestHelpers.createEmail();
 
         return view.fxaClient.signUp(email, 'password')
           .then(function () {

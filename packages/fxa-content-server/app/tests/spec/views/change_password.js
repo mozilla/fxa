@@ -51,7 +51,7 @@ function (chai, _, $, AuthErrors, FxaClient, View, RouterMock, TestHelpers, Sess
 
     describe('with session', function () {
       beforeEach(function () {
-        email = 'testuser.' + Math.random() + '@testuser.com';
+        email = TestHelpers.createEmail();
 
         return view.fxaClient.signUp(email, 'password', {preVerified: true})
           .then(function () {
@@ -168,7 +168,7 @@ function (chai, _, $, AuthErrors, FxaClient, View, RouterMock, TestHelpers, Sess
         });
 
         it('shows the unverified user message if the user is unverified', function () {
-          email = 'testuser.' + Math.random() + '@testuser.com';
+          email = TestHelpers.createEmail();
 
           // create an unverified user, then change their password.
           return view.fxaClient.signUp(email, 'password')

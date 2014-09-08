@@ -96,7 +96,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, WindowMock, Ro
 
     describe('submit with valid input', function () {
       it('submits the email address', function () {
-        var email = 'testuser.' + Math.random() + '@testuser.com';
+        var email = TestHelpers.createEmail();
         return view.fxaClient.signUp(email, 'password')
               .then(function () {
                 view.$('input[type=email]').val(email);
@@ -111,7 +111,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, WindowMock, Ro
 
     describe('submit with unknown email address', function () {
       it('shows an error message', function () {
-        var email = 'unknown' + Math.random() + '@testuser.com';
+        var email = TestHelpers.createEmail();
         view.$('input[type=email]').val(email);
 
         return view.submit()

@@ -35,7 +35,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
   describe('lib/fxa-client', function () {
     beforeEach(function () {
       channelMock = new ChannelMock();
-      email = ' testuser' + Math.random() + '@testuser.com ';
+      email = ' ' + testHelpers.createEmail() + ' ';
 
       client = new FxaClientWrapper({
         channel: channelMock
