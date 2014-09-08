@@ -155,7 +155,7 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, RouterMock, Wi
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message', function () {
-        var email = 'user' + Math.random() + '@testuser.com';
+        var email = TestHelpers.createEmail();
 
         return view.fxaClient.signUp(email, 'password')
               .then(function () {
@@ -203,7 +203,7 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, RouterMock, Wi
 
     describe('validateAndSubmit', function () {
       it('only called after click on #resend', function () {
-        var email = 'user' + Math.random() + '@testuser.com';
+        var email = TestHelpers.createEmail();
 
         return view.fxaClient.signUp(email, 'password')
               .then(function () {

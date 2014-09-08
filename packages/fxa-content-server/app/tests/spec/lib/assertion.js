@@ -8,6 +8,7 @@
 define([
   'chai',
   'jquery',
+  '../../lib/helpers',
   'lib/promise',
   'lib/session',
   'lib/constants',
@@ -19,7 +20,7 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, P,
+function (chai, $, TestHelpers, P,
               Session, Constants, Assertion, FxaClientWrapper, jwcrypto) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
@@ -35,7 +36,7 @@ function (chai, $, P,
       Session.clear();
       assertionLibrary = new Assertion();
       client = new FxaClientWrapper();
-      email = ' testuser' + Math.random() + '@testuser.com ';
+      email = ' ' + TestHelpers.createEmail() + ' ';
       return client.signUp(email, password, { preVerified: true });
     });
 

@@ -12,9 +12,10 @@ define([
   'lib/session',
   'lib/fxa-client',
   '../../mocks/window',
-  '../../mocks/router'
+  '../../mocks/router',
+  '../../lib/helpers'
 ],
-function (chai, $, View, Session, FxaClient, WindowMock, RouterMock) {
+function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
@@ -108,7 +109,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock) {
       var view, windowMock, router, email;
 
       beforeEach(function () {
-        email = 'testuser.' + Math.random() + '@testuser.com';
+        email = TestHelpers.createEmail();
         Session.set('prefillPassword', 'password');
 
         windowMock = new WindowMock();
