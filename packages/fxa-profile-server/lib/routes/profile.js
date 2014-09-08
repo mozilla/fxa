@@ -4,6 +4,8 @@
 
 const Joi = require('joi');
 
+const db = require('../db');
+
 module.exports = {
   auth: {
     strategy: 'oauth',
@@ -12,14 +14,19 @@ module.exports = {
   response: {
     schema: {
       email: Joi.string().required(),
-      uid: Joi.string().required()
+      uid: Joi.string().required(),
+      avatar: Joi.string().allow(null)
     }
   },
   handler: function email(req, reply) {
-    reply({
-      email: req.auth.credentials.email,
-      uid: req.auth.credentials.user
-    });
+    var creds = req.auth.credentials;
+    db.getSelectedAvatar(creds.user).then(function(avatar) {
+      return {
+        email: creds.email,
+        uid: creds.user,
+        avatar: avatar ? avatar.url : null
+      };
+    }).done(reply, reply);
   }
 };
 
