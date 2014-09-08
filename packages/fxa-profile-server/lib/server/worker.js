@@ -20,6 +20,16 @@ exports.create = function() {
   );
 
   server.route({
+    method: 'GET',
+    path: '/__heartbeat__',
+    config: {
+      handler: function upload(req, reply) {
+        reply({});
+      }
+    }
+  });
+
+  server.route({
     method: 'POST',
     path: '/a/{id}',
     config: {
