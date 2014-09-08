@@ -10,10 +10,10 @@
     },
     {
       "id": "98e6508e88680e1a",
-      "hashedSecret": "ba5cfb370fd782f7eae1807443ab816288c101a54c0d80a09063273c86d3c435",
+      "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
       "name": "Admin",
       "imageUri": "https://example2.domain/logo",
-      "redirectUri": "https://example2.domain/return?foo=bar",
+      "redirectUri": "",
       "whitelisted": true,
       "canGrant": true
     },

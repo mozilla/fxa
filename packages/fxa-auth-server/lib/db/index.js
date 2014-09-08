@@ -37,7 +37,7 @@ function convertClientToConfigFormat(client) {
       out.hashedSecret = unbuf(client.secret);
     } else if (key === 'whitelisted' || key === 'canGrant') {
       out[key] = !!client[key]; // db stores booleans as 0 or 1.
-    } else {
+    } else if (typeof client[key] !== 'function') {
       out[key] = unbuf(client[key]);
     }
   }
