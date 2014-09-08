@@ -57,14 +57,14 @@ module.exports = function (error, config) {
     var p = P(jwkSet)
     if (!jwkSet || !jwkSet[kid]) {
       if (config.trustedJKUs.indexOf(jku) === -1) {
-        return P.reject(error.invalidVerificationCode())
+        return P.reject(error.invalidVerificationCode({ jku: jku }))
       }
       p = getJwkSet(jku).then(saveJwkSet.bind(this, jku))
     }
     return p.then(
       function (set) {
         var jwk = set[kid]
-        if (!jwk) { throw error.invalidVerificationCode() }
+        if (!jwk) { throw error.invalidVerificationCode({ kid: kid }) }
         return jwk
       }
     )

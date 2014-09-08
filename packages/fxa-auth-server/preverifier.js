@@ -10,16 +10,22 @@ module.exports = function (jwks, error, config) {
     try { return JSON.parse(Buffer(str, 'base64')) } catch (e) { return {} }
   }
 
-  function isValidJwt(email, jwt) {
-    return jwt.exp > Date.now() &&
-      jwt.aud === config.domain &&
-      !!jwt.sub &&
-      jwt.sub === email
+  function jwtError(email, jwt) {
+    if (jwt.exp < Date.now()) {
+      return { exp: jwt.exp }
+    }
+    if (jwt.aud !== config.domain) {
+      return { aud: jwt.aud }
+    }
+    if (!jwt.sub || jwt.sub !== email) {
+      return { sub: jwt.sub }
+    }
+    return false
   }
 
   function isValidToken(email, token) {
     var decoded = jws.decode(token)
-    if (!decoded) { return P.reject(error.invalidVerificationCode()) }
+    if (!decoded) { return P.reject(error.invalidVerificationCode({ token: token })) }
 
     return jwks.get(decoded.header.jku, decoded.header.kid)
       .then(
@@ -28,8 +34,9 @@ module.exports = function (jwks, error, config) {
           var parts = token.split('.')
           key.verify(parts[0] + '.' + parts[1], parts[2],
             function (err, result) {
-              if (err || !result || !isValidJwt(email, parseJwt(parts[1]))) {
-                return d.reject(error.invalidVerificationCode())
+              var invalid = err || !result || jwtError(email, parseJwt(parts[1]))
+              if (invalid) {
+                return d.reject(error.invalidVerificationCode(invalid))
               }
               return d.resolve(true)
             }
