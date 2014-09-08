@@ -29,7 +29,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
         this.importSearchParam('uid');
         this.importSearchParam('code');
       } catch(e) {
-        this.logEvent('complete_sign_up:link_damaged');
+        this.logEvent('complete_sign_up.link_damaged');
         // This is an invalid link. Abort and show an error message
         // before doing any more checks.
         return true;
@@ -43,7 +43,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
-        this.logEvent('complete_sign_up:link_damaged');
+        this.logEvent('complete_sign_up.link_damaged');
         return true;
       }
 
@@ -56,12 +56,12 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
           .then(null, function (err) {
             if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
               self._isLinkExpired = true;
-              self.logEvent('complete_sign_up:link_expired');
+              self.logEvent('complete_sign_up.link_expired');
             } else if (AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
                 AuthErrors.is(err, 'INVALID_PARAMETER')) {
               // These errors show a link damaged screen
               self._isLinkDamaged = true;
-              self.logEvent('complete_sign_up:link_damaged');
+              self.logEvent('complete_sign_up.link_damaged');
             } else {
               // all other errors show the standard error box.
               self._error = self.translateError(err);
@@ -97,7 +97,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
     submit: function () {
       var self = this;
 
-      self.logEvent('complete_sign_up:resend');
+      self.logEvent('complete_sign_up.resend');
       return this.fxaClient.signUpResend()
               .then(function () {
                 self.displaySuccess();

@@ -43,7 +43,7 @@ define([
       var self = this;
       // Hide the button after 4 attempts. Redisplay button after a delay.
       if (self._attemptedSubmits === 4) {
-        self.logEvent(self.className + ':too_many_attempts');
+        self.logEvent(self.className + '.too_many_attempts');
         self.$('#resend').hide();
         self.setTimeout(function () {
           self._attemptedSubmits = 0;

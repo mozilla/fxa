@@ -138,7 +138,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, WindowMock, Ro
                     assert.isFalse(view.isErrorVisible());
 
                     assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                      'login:canceled'));
+                                      'login.canceled'));
                   });
       });
     });

@@ -68,7 +68,7 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
     submit: function () {
       var self = this;
 
-      self.logEvent('confirm:resend');
+      self.logEvent('confirm.resend');
       return this.fxaClient.signUpResend()
               .then(function () {
                 self.displaySuccess();

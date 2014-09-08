@@ -119,8 +119,8 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session,
             .then(function () {
               assert.ok($('#fxa-signup-header').length);
 
-              assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signin'));
-              assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signup'));
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.signin'));
+              assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.signup'));
             });
       });
     });
@@ -210,7 +210,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session,
         return router.showView(view)
           .then(function () {
             assert.equal(metrics.getFilteredData().events.length, 1);
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen:signup_complete'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.signup_complete'));
           });
       });
     });

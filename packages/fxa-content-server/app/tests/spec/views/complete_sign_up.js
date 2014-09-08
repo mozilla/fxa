@@ -83,7 +83,7 @@ function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, RouterMock, 
       it('shows an error if uid is not available on the URL', function () {
         return testShowsDamagedScreen('?code=' + validCode)
             .then(function () {
-              testEventLogged('complete_sign_up:link_damaged');
+              testEventLogged('complete_sign_up.link_damaged');
             })
             .then(function () {
               assert.isFalse(view.fxaClient.verifyCode.called);
@@ -93,7 +93,7 @@ function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, RouterMock, 
       it('shows an error if code is not available on the URL', function () {
         return testShowsDamagedScreen('?uid=' + validUid)
             .then(function () {
-              testEventLogged('complete_sign_up:link_damaged');
+              testEventLogged('complete_sign_up.link_damaged');
             })
             .then(function () {
               assert.isFalse(view.fxaClient.verifyCode.called);
@@ -104,7 +104,7 @@ function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, RouterMock, 
         verificationError = AuthErrors.toError('INVALID_PARAMETER', 'code');
         return testShowsDamagedScreen()
             .then(function () {
-              testEventLogged('complete_sign_up:link_damaged');
+              testEventLogged('complete_sign_up.link_damaged');
             })
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.called);
@@ -115,7 +115,7 @@ function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, RouterMock, 
         verificationError = AuthErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
         return testShowsExpiredScreen()
             .then(function () {
-              testEventLogged('complete_sign_up:link_expired');
+              testEventLogged('complete_sign_up.link_expired');
             })
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.called);

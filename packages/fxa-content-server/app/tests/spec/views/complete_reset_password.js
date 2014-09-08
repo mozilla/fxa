@@ -71,7 +71,7 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, RouterMock, WindowMock,
       it('shows form if token, code and email are all present', function () {
         return view.render()
             .then(function () {
-              testEventNotLogged('complete_reset_password:link_expired');
+              testEventNotLogged('complete_reset_password.link_expired');
               assert.ok(view.$('#fxa-complete-reset-password-header').length);
             });
       });
@@ -80,7 +80,7 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, RouterMock, WindowMock,
         windowMock.location.search = '?code=faea&email=testuser@testuser.com';
         return view.render()
             .then(function () {
-              testEventLogged('complete_reset_password:link_damaged');
+              testEventLogged('complete_reset_password.link_damaged');
             })
             .then(function () {
               assert.ok(view.$('#fxa-reset-link-damaged-header').length);
@@ -91,7 +91,7 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, RouterMock, WindowMock,
         windowMock.location.search = '?token=feed&email=testuser@testuser.com';
         return view.render()
             .then(function () {
-              testEventLogged('complete_reset_password:link_damaged');
+              testEventLogged('complete_reset_password.link_damaged');
             })
             .then(function () {
               assert.ok(view.$('#fxa-reset-link-damaged-header').length);
@@ -102,7 +102,7 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, RouterMock, WindowMock,
         windowMock.location.search = '?token=feed&code=dea0fae1abc2fab3bed4dec5eec6ace7';
         return view.render()
             .then(function () {
-              testEventLogged('complete_reset_password:link_damaged');
+              testEventLogged('complete_reset_password.link_damaged');
             })
             .then(function () {
               assert.ok(view.$('#fxa-reset-link-damaged-header').length);
@@ -113,7 +113,7 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, RouterMock, WindowMock,
         isPasswordResetComplete = true;
         return view.render()
             .then(function () {
-              testEventLogged('complete_reset_password:link_expired');
+              testEventLogged('complete_reset_password.link_expired');
             })
             .then(function () {
               assert.ok(view.$('#fxa-reset-link-expired-header').length);

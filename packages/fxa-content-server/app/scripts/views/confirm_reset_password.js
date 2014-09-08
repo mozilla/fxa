@@ -83,7 +83,7 @@ function (_, ConfirmView, BaseView, Template, Session, Constants, AuthErrors, Se
     submit: function () {
       var self = this;
 
-      self.logEvent('confirm_reset_password:resend');
+      self.logEvent('confirm_reset_password.resend');
       return this.fxaClient.passwordResetResend()
               .then(function () {
                 self.displaySuccess();

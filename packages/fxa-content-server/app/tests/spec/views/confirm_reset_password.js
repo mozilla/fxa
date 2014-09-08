@@ -181,7 +181,7 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, RouterMock, Wi
                 assert.equal(routerMock.page, 'reset_password');
 
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm_reset_password:resend'));
+                                  'confirm_reset_password.resend'));
               });
       });
 
