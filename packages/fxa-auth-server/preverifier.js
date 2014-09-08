@@ -10,7 +10,13 @@ module.exports = function (jwks, error, config) {
     try { return JSON.parse(Buffer(str, 'base64')) } catch (e) { return {} }
   }
 
-  function jwtError(email, jwt) {
+  function jwtError(err, result, email, jwt) {
+    if (err) {
+      return { internal: err.message }
+    }
+    if (!result) {
+      return { sig: 'invalid' }
+    }
     if (jwt.exp < Date.now()) {
       return { exp: jwt.exp }
     }
@@ -34,7 +40,7 @@ module.exports = function (jwks, error, config) {
           var parts = token.split('.')
           key.verify(parts[0] + '.' + parts[1], parts[2],
             function (err, result) {
-              var invalid = err || !result || jwtError(email, parseJwt(parts[1]))
+              var invalid = jwtError(err, result, email, parseJwt(parts[1]))
               if (invalid) {
                 return d.reject(error.invalidVerificationCode(invalid))
               }
