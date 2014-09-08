@@ -11,6 +11,7 @@ const P = require('../promise');
 
 const HEIGHT = String(config.get('img.resize.height'));
 const WIDTH = String(config.get('img.resize.width'));
+const CONTENT_TYPE_PNG = 'image/png';
 
 logger.info('Worker starting up %:2j', config.get('img'));
 
@@ -43,7 +44,7 @@ function compute(msg, callback) {
   var src = Buffer(msg.payload);
   processImage(src).then(function(out) {
     logger.debug('Out %d bytes', out.length);
-    return img.upload(id, out);
+    return img.upload(id, out, CONTENT_TYPE_PNG);
   }).done(function() {
     callback({ id: id });
   }, function(err) {

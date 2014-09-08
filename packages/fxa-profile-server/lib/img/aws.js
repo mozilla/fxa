@@ -9,6 +9,7 @@ const config = require('../config');
 const logger = require('../logging').getLogger('fxa.img.aws');
 
 const PUBLIC_BUCKET = config.get('img.uploads.dest.public');
+const CONTENT_TYPE_PNG = 'image/png';
 
 if (!/^[a-zA-Z0-9_\-]+$/.test(PUBLIC_BUCKET)) {
   throw new Error('Illegal Bucket Name: ' + PUBLIC_BUCKET);
@@ -25,7 +26,7 @@ AwsDriver.connect = function awsConnect(options) {
 
 AwsDriver.prototype = {
 
-  upload: function awsUpload(key, buf) {
+  upload: function awsUpload(key, buf, contentType) {
     var s3 = this._s3;
     var bucket = PUBLIC_BUCKET;
     return new P(function(resolve, reject) {
@@ -33,7 +34,8 @@ AwsDriver.prototype = {
       s3.putObject({
         Body: buf,
         Bucket: bucket,
-        Key: key
+        Key: key,
+        ContentType: contentType || CONTENT_TYPE_PNG
       }, function(err, data) {
         if (err) {
           reject(err);
