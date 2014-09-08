@@ -99,6 +99,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
       });
 
       it('informs browser of customizeSync option', function () {
+        Session.set('context', Constants.FX_DESKTOP_CONTEXT);
         return client.signUp(email, password, { customizeSync: true })
           .then(function () {
             assert.isTrue(channelMock.data.customizeSync);
@@ -247,6 +248,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
       });
 
       it('informs browser of customizeSync option', function () {
+        Session.set('context', Constants.FX_DESKTOP_CONTEXT);
         return client.signUp(email, password)
           .then(function () {
             return client.signIn(email, password, { customizeSync: true });

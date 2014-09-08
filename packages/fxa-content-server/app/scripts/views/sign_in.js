@@ -10,7 +10,6 @@ define([
   'views/base',
   'views/form',
   'stache!templates/sign_in',
-  'lib/constants',
   'lib/session',
   'views/mixins/password-mixin',
   'lib/auth-errors',
@@ -18,7 +17,7 @@ define([
   'views/mixins/service-mixin',
   'views/decorators/button_progress_indicator'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, PasswordMixin, AuthErrors, Validate, ServiceMixin, showButtonProgressIndicator) {
+function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, AuthErrors, Validate, ServiceMixin, showButtonProgressIndicator) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -133,7 +132,10 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     onSignInSuccess: function() {
       // Don't switch to settings if we're trying to log in to
       // Firefox. Firefox will show its own landing page
-      if (Session.get('context') !== Constants.FX_DESKTOP_CONTEXT) {
+      // Also show settings if an automatedBrowser flag has been set,
+      // so that webdriver tests have indication that the
+      // flow is done.
+      if (! Session.isDesktopContext()) {
         this.navigate('settings');
       }
 
@@ -172,18 +174,19 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
     useLoggedInAccount: showButtonProgressIndicator(function() {
       var self = this;
 
-      return this._signIn(Session.email, {
-        sessionToken: Session.sessionToken
+      return this._signIn(Session.cachedCredentials.email, {
+        sessionToken: Session.cachedCredentials.sessionToken
       })
-        .then(
-          null,
-          function () {
-            self.chooserAskForPassword = true;
-            return self.render()
-              .then(function () {
-                return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
-              });
-          });
+      .then(
+        null,
+        function () {
+          self.chooserAskForPassword = true;
+          return self.render()
+            .then(function () {
+              Session.clear('cachedCredentials');
+              return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
+            });
+        });
     }),
 
     /**
@@ -203,21 +206,35 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
      * @private
      */
     _suggestedUser: function () {
+      var cachedEmail = Session.email;
+      var cachedSessionToken = Session.sessionToken;
+      var cachedAvatar = Session.avatar;
+
+      if (Session.cachedCredentials) {
+        cachedEmail = Session.cachedCredentials.email;
+        cachedSessionToken = Session.cachedCredentials.sessionToken;
+        cachedAvatar = Session.cachedCredentials.avatar;
+      }
+
       if (
         // confirm that session token and email are present
-        Session.sessionToken && Session.email &&
+        cachedSessionToken && cachedEmail &&
         // prefilled email must be the same or absent
-        (this.prefillEmail === Session.email || ! this.prefillEmail) &&
+        (this.prefillEmail === cachedEmail || ! this.prefillEmail) &&
         // must not be manually disabled
         ! this.skipUserSuggestion
       ) {
         return {
-          email: Session.email,
-          avatar: Session.avatar
+          email: cachedEmail,
+          avatar: cachedAvatar
         };
       } else {
         return null;
       }
+    },
+
+    _areCachedCredentialsFromSync: function () {
+      return !!Session.cachedCredentials;
     },
 
     /**
@@ -230,10 +247,17 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
         return true;
       }
 
+      // We need to ask the user again for their password unless the credentials came from Sync.
+      // Otherwise they aren't able to "fully" log out. Only Sync has a clear path to disconnect/log out
+      // your account that invalidates your sessionToken.
+      if (! this._areCachedCredentialsFromSync()) {
+        return true;
+      }
+
       // shows when 'chooserAskForPassword' already set or
       return !!(this.chooserAskForPassword === true ||
-          // or when a prefill email does not match the session
-          (this.prefillEmail && this.prefillEmail !== Session.email));
+          // or when a prefill email does not match the cached email
+          (this.prefillEmail && this.prefillEmail !== Session.cachedCredentials.email));
     }
   });
 

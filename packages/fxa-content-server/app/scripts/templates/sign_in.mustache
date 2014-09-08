@@ -27,6 +27,7 @@
             {{/avatar}}
           </div>
           <p class="prefill">{{ email }}</p>
+
         {{#chooserAskForPassword}}
           <form novalidate>
             <input type="hidden" class="email" value="{{ email }}" />
@@ -45,14 +46,17 @@
             </div>
            </form>
         {{/chooserAskForPassword}}
+
         {{^chooserAskForPassword}}
           <div class="button-row">
             <button type="submit" class="use-logged-in">{{#t}}Sign in{{/t}}</button>
           </div>
         {{/chooserAskForPassword}}
+
         <div class="links">
           <a href="/#" class="use-different">{{#t}}Use a different account{{/t}}</a><br/>
         </div>
+
       {{/suggestedUser}}
 
       {{^suggestedUser}}
