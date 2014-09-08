@@ -60,6 +60,22 @@
     )
   }
 
+  Customs.prototype.reset = function (email) {
+    log.trace({ op: 'customs.reset', email: email })
+    return this.pool.post(
+      '/passwordReset',
+      {
+        email: email
+      }
+    )
+    .then(
+      function () {},
+      function (err) {
+        log.error({ op: 'customs.reset.1', email: email, err: err })
+      }
+    )
+  }
+
   Customs.prototype.close = function () {
     return this.pool.close()
   }

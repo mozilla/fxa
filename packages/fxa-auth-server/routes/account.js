@@ -527,6 +527,16 @@ module.exports = function (
           )
           .then(
             function () {
+              return db.account(accountResetToken.uid)
+            }
+          )
+          .then(
+            function (accountRecord) {
+              return customs.reset(accountRecord.email)
+            }
+          )
+          .then(
+            function () {
               return {}
             }
           )
