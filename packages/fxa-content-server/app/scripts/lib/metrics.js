@@ -118,7 +118,7 @@ define([
       var self = this;
       this._inactivityFlushTimeout =
           setTimeout(function () {
-            self.logEvent('inactivity:flush');
+            self.logEvent('inactivity.flush');
             self.flush();
           }, this._inactivityFlushMs);
     },
@@ -172,10 +172,10 @@ define([
         data: JSON.stringify(data)
       }))
       .then(function () {
-        self.trigger('flush:success', data);
+        self.trigger('flush.success', data);
         return data;
       }, function(jqXHR) {
-        self.trigger('flush:error');
+        self.trigger('flush.error');
         throw jqXHR.statusText;
       });
     },
@@ -208,14 +208,14 @@ define([
      * Convert an error to an identifier
      */
     errorToId: function (err, errors) {
-      return 'error:' + errors.toCode(err);
+      return 'error.' + errors.toCode(err);
     },
 
     /**
      * Convert a pathname from a URL to an identifier
      */
     pathToId: function (path) {
-      return 'screen:' + Url.pathToScreenName(path);
+      return 'screen.' + Url.pathToScreenName(path);
     },
 
     /**

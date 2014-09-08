@@ -138,7 +138,7 @@ function (chai, $, Metrics, WindowMock) {
         metrics.logEvent('event20');
 
         var filteredData = metrics.getFilteredData();
-        metrics.on('flush:success', function () {
+        metrics.on('flush.success', function () {
           var parsedSentData = JSON.parse(sentData);
 
           // `duration` fields are different if the above `getFilteredData`
@@ -180,7 +180,7 @@ function (chai, $, Metrics, WindowMock) {
         metrics.events.clear();
         metrics.logEvent('event-is-autoflushed');
 
-        metrics.on('flush:success', function (sentData) {
+        metrics.on('flush.success', function (sentData) {
           assert.equal(sentData.events[0].type, 'event-is-autoflushed');
           done();
         });

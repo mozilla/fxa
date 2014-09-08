@@ -121,7 +121,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Constants, Session, Password
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
             return self._suggestSignUp(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login:canceled');
+            self.logEvent('login.canceled');
             // if user canceled login, just stop
             return;
           }

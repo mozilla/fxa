@@ -74,7 +74,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Te
               .then(function () {
                 assert.isTrue(view.$('.success').is(':visible'));
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm:resend'));
+                                  'confirm.resend'));
               });
 
       });
@@ -91,7 +91,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Te
                 assert.equal(routerMock.page, 'signup');
 
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm:resend'));
+                                  'confirm.resend'));
               });
       });
 
@@ -156,9 +156,9 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, RouterMock, Te
                 assert.equal(view.$('#resend:visible').length, 0);
 
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm:resend'));
+                                  'confirm.resend'));
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm:too_many_attempts'));
+                                  'confirm.too_many_attempts'));
               });
       });
     });

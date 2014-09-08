@@ -383,7 +383,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translat
             assert.isFalse(view.isErrorVisible());
 
             assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'login:canceled'));
+                              'login.canceled'));
           });
       });
 

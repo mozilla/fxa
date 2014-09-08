@@ -36,7 +36,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
       } catch(e) {
         // This is an invalid link. Abort and show an error message
         // before doing any more checks.
-        this.logEvent('complete_reset_password:link_damaged');
+        this.logEvent('complete_reset_password.link_damaged');
         return true;
       }
 
@@ -48,7 +48,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
-        this.logEvent('complete_reset_password:link_damaged');
+        this.logEvent('complete_reset_password.link_damaged');
         return true;
       }
 
@@ -57,7 +57,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
         .then(function (isComplete) {
           self._isLinkExpired = isComplete;
           if (isComplete) {
-            self.logEvent('complete_reset_password:link_expired');
+            self.logEvent('complete_reset_password.link_expired');
           }
           return true;
         });

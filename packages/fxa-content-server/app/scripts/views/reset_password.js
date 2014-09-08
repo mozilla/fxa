@@ -76,7 +76,7 @@ function (_, BaseView, FormView, Template, Session, AuthErrors, ServiceMixin) {
             err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
             return self.displayErrorUnsafe(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login:canceled');
+            self.logEvent('login.canceled');
             // if user canceled login, just stop
             return;
           }

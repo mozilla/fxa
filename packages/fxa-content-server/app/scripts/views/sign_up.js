@@ -199,7 +199,7 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
         if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
           return self._suggestSignIn(err);
         } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-          self.logEvent('login:canceled');
+          self.logEvent('login.canceled');
           // if user canceled login, just stop
           return;
         } else if (self._preVerifyToken && AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
