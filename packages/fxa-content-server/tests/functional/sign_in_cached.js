@@ -78,7 +78,9 @@ define([
             .then(function (emails) {
 
               return self.get('remote')
-                .get(require.toUrl(emails[0].headers['x-link']));
+                .get(require.toUrl(emails[0].headers['x-link']))
+                .findById('fxa-sign-up-complete-header')
+                .end();
             });
         })
         // create a second user for testing
@@ -437,7 +439,13 @@ define([
         .click()
         .end()
 
-        .waitForDeletedByCssSelector('button[type="submit"]')
+        .findByCssSelector('form input.email.prefilled')
+        .getAttribute('value')
+        .then(function (val) {
+          // confirm prefilled email
+          assert.ok(val.indexOf(email2) > -1);
+        })
+        .end()
 
         .findByCssSelector('form input.password')
         .click()
