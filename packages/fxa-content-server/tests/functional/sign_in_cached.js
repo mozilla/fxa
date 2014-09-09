@@ -78,7 +78,9 @@ define([
             .then(function (emails) {
 
               return self.get('remote')
-                .get(require.toUrl(emails[0].headers['x-link']));
+                .get(require.toUrl(emails[0].headers['x-link']))
+                .findById('fxa-sign-up-complete-header')
+                .end();
             });
         })
         // create a second user for testing
@@ -437,7 +439,15 @@ define([
         .click()
         .end()
 
-        .waitForDeletedByCssSelector('button[type="submit"]')
+        // Poll until the prefilled email value is set
+        .then(
+          FunctionalHelpers.pollUntil(function (selector, val) {
+          /* global document */
+            var match = document.querySelectorAll(selector);
+
+            return match[0].value === val ? true : null;
+          }, [ 'form input.email', email2 ], 10000)
+        )
 
         .findByCssSelector('form input.password')
         .click()
