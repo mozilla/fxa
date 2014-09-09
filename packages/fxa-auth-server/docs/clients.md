@@ -20,33 +20,17 @@ If you want to pre-approve your own web applications and prevent users in your a
 
 ### Creating the client id and secret keys
 
-At this time, there is no utility to generate id and secret values. We will be creating them manually with a temporary function on the command line.
-
-Note that the client `id` and `secret` are in fact random hexadecimal strings of 8 and 32 bytes respectively.
-
-```sh
-// nodejs
-var crypto = require('crypto');
-var tempGenerator = function (len) {
-  return crypto.randomBytes(Math.ceil(len)).toString('hex');
-};
-```
-
-Generate an 8-byte id:
+You can use the utility in `scripts/generate-client.js` to create new
+ids and secrets.
 
 ```sh
-tempGenerator(8)
-// '4a60bf43fc311d19'
+./scripts/generate-client.js config/prod.json
 ```
 
-Client secret:
+The utility will ask for various inputs related to the client, and then
+generate an id and secret and store them in the config file for you.
 
-```sh
-tempGenerator(32)
-// 'b048895cbc44241bd68b18ab7d34d1aef8ba34441877ef96c28c706fc1e096fc'
-```
-
-With this at hand you can paste it in your config file (e.g. `config/prod.json`) and restart the OAuth server. The entry will be inserted automatically in your configured backend (i.e. database).
+Then you can just start the OAuth server. The entry will be inserted automatically in your configured backend (i.e. database).
 
 ```sh
 CONFIG_FILES=config/prod.json NODE_ENV=prod grunt server
@@ -66,7 +50,7 @@ Add a new object literal within the `clients` array, that would look like:
   "clients": [
     {
       "id": "<8-byte client id in hex>",
-      "secret": "<32-byte client secret in hex>",
+      "hashedSecret": "<32-byte sha256 of the client secret in hex>",
       "name": "123done",
       "imageUri": "https://clientapp.example.com/static/img/logo100.png",
       "redirectUri": "https://clientapp.example.com/api/oauth",

@@ -112,7 +112,7 @@ r({
     p('Added client to clients array.');
     p('');
     p('Give these to the client:');
-    p('(NOTICE) Do not keep this secret. A hashed version was kept for you.');
+    p('(NOTICE) This is the raw secret. A hashed version was kept for you.');
     p('');
     p('  client_id:', client.id);
     p('  client_secret:', secret.toString('hex'));
