@@ -1,3 +1,8 @@
+train-21
+  * added 'preVerifyToken' optional parameter to /account/create #784
+  * reset customs state on password reset #798
+  * added 'resume' optional parameter to email sending endpoints #793
+
 train-20
   * limit the number of pending scrypt hashes #783
 
