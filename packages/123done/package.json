@@ -30,7 +30,8 @@
     "connect-fonts-alegreyasans": "0.0.2",
     "request": "2.34.0",
     "bower": "*",
-    "fxa-crypto-utils": "shane-tomlinson/fxa-crypto-utils"
+    "fxa-crypto-utils": "shane-tomlinson/fxa-crypto-utils",
+    "jwcrypto": "0.4.4"
   },
   "engines": {
     "node": ">=0.8.0"
