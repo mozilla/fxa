@@ -14,42 +14,42 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   ]
 
   function IpEmailRecord() {
-    this.xs = []
+    this.lf = []
   }
 
   IpEmailRecord.parse = function (object) {
     var rec = new IpEmailRecord()
     object = object || {}
     rec.rl = object.rl       // timestamp when the account was rate-limited
-    rec.xs = object.xs || [] // timestamps when a failed login occurred
+    rec.lf = object.lf || [] // timestamps when a login failure occurred
     return rec
   }
 
   IpEmailRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now())
-    return this.xs.length > MAX_BAD_LOGINS
+    return this.lf.length > MAX_BAD_LOGINS
   }
 
   IpEmailRecord.prototype.addBadLogin = function () {
     this.trimBadLogins(now())
-    this.xs.push(now())
+    this.lf.push(now())
   }
 
   IpEmailRecord.prototype.trimBadLogins = function (now) {
-    if (this.xs.length === 0) { return }
-    // xs is naturally ordered from oldest to newest
+    if (this.lf.length === 0) { return }
+    // lf is naturally ordered from oldest to newest
     // and we only need to keep up to MAX_BAD_LOGINS + 1
 
     // start at the end and go backwards until login is old
     // or we have
-    var i = this.xs.length - 1
+    var i = this.lf.length - 1
     var n = 0
-    var login = this.xs[i]
+    var login = this.lf[i]
     while (login > (now - RATE_LIMIT_INTERVAL_MS) && n <= MAX_BAD_LOGINS) {
-      login = this.xs[--i]
+      login = this.lf[--i]
       n++
     }
-    this.xs = this.xs.slice(i + 1)
+    this.lf = this.lf.slice(i + 1)
   }
 
   IpEmailRecord.prototype.isBlocked = function () {
@@ -58,12 +58,12 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
 
   IpEmailRecord.prototype.rateLimit = function () {
     this.rl = now()
-    this.xs = []
+    this.lf = []
   }
 
   IpEmailRecord.prototype.unblockIfReset = function (resetAt) {
     if (resetAt > this.rl) {
-      this.xs = []
+      this.lf = []
       delete this.rl
       return true
     }
