@@ -182,7 +182,12 @@ define([
             .findByCssSelector('#fxa-signin-header .service')
             .end()
 
-            .findByCssSelector('.use-logged-in')
+            .findByCssSelector('form input.password')
+            .click()
+            .type(PASSWORD)
+            .end()
+
+            .findByCssSelector('button[type="submit"]')
             .click()
             .end()
 
@@ -317,7 +322,12 @@ define([
         .findByCssSelector('#fxa-signin-header .service')
         .end()
 
-        .findByCssSelector('.use-logged-in')
+        .findByCssSelector('form input.password')
+        .click()
+        .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
         .click()
         .end()
 
