@@ -21,7 +21,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
     var rec = new IpEmailRecord()
     object = object || {}
     rec.rl = object.rl       // timestamp when the account was rate-limited
-    rec.xs = object.xs || [] // timestamps when emails were sent
+    rec.xs = object.xs || [] // timestamps when a failed login occurred
     return rec
   }
 
