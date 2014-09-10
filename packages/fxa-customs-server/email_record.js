@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Keep track of events tied to just email addresses
-module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS, now) {
+module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS, BAD_LOGIN_LOCKOUT, now) {
 
   now = now || Date.now
 
@@ -16,6 +16,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
 
   function EmailRecord() {
     this.xs = []
+    this.lf = []
   }
 
   EmailRecord.parse = function (object) {
@@ -24,6 +25,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
     rec.bk = object.bk       // timestamp when the account was banned
     rec.rl = object.rl       // timestamp when the account was rate-limited
     rec.xs = object.xs || [] // timestamps when emails were sent
+    rec.lf = object.lf || [] // timestamps when a login failure occurred
     rec.pr = object.pr       // timestamp of the last password reset
     return rec
   }
@@ -31,6 +33,11 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
   EmailRecord.prototype.isOverEmailLimit = function () {
     this.trimHits(now())
     return this.xs.length > MAX_EMAILS
+  }
+
+  EmailRecord.prototype.isWayOverBadLogins = function () {
+    this.trimBadLogins(now())
+    return this.lf.length > BAD_LOGIN_LOCKOUT
   }
 
   EmailRecord.prototype.trimHits = function (now) {
@@ -48,8 +55,28 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
     this.xs = this.xs.slice(i + 1)
   }
 
+  EmailRecord.prototype.trimBadLogins = function (now) {
+    if (this.lf.length === 0) { return }
+    // lf is naturally ordered from oldest to newest
+    // and we only need to keep up to BAD_LOGIN_LOCKOUT + 1
+
+    var i = this.lf.length - 1
+    var n = 0
+    var login = this.lf[i]
+    while (login > (now - RATE_LIMIT_INTERVAL_MS) && n <= BAD_LOGIN_LOCKOUT) {
+      login = this.lf[--i]
+      n++
+    }
+    this.lf = this.lf.slice(i + 1)
+  }
+
   EmailRecord.prototype.addHit = function () {
     this.xs.push(now())
+  }
+
+  EmailRecord.prototype.addBadLogin = function () {
+    this.trimBadLogins(now())
+    this.lf.push(now())
   }
 
   EmailRecord.prototype.isBlocked = function () {
