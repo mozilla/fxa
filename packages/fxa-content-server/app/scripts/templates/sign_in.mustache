@@ -62,7 +62,7 @@
       {{^suggestedUser}}
         <form novalidate>
         <div class="input-row">
-          <input type="email" class="email" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}}>
+          <input type="email" class="email{{#email}} prefilled{{/email}}" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}}>
         </div>
 
         <div class="input-row password-row">
