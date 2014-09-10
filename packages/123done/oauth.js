@@ -41,7 +41,7 @@ function redirectUrl(action, nonce, email, preVerifyToken) {
 }
 
 module.exports = function(app, db) {
-  var keyPair = new KeyPair();
+  var keyPair = new KeyPair(config);
   var secretKeyId = 'dev-1';
 
   var preVerifyTokenGenerator = new PreverifiedEmailTokenGenerator({
