@@ -37,6 +37,7 @@ define([
     'timers',
     'events',
     'context',
+    'entrypoint',
     'service',
     'lang',
     'marketingLink',
@@ -65,10 +66,9 @@ define([
     this._window = options.window || window;
 
     this._lang = options.lang || 'unknown';
-
-    var searchParams = this._window.location.search;
-    this._context = Url.searchParam('context', searchParams) || 'web';
-    this._service = Url.searchParam('service', searchParams) || 'none';
+    this._context = options.context || 'web';
+    this._entrypoint = options.entrypoint || 'none';
+    this._service = options.service || 'none';
 
     this._inactivityFlushMs = options.inactivityFlushMs || TEN_MINS_MS;
   }
@@ -136,6 +136,7 @@ define([
         context: this._context,
         service: this._service,
         lang: this._lang,
+        entrypoint: this._entrypoint,
         marketingType: this._marketingType || 'none',
         marketingLink: this._marketingLink || 'none',
         marketingClicked: this._marketingClicked || false

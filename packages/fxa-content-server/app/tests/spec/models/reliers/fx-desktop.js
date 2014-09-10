@@ -6,13 +6,13 @@
 
 define([
   'chai',
-  'models/reliers/relier',
+  'models/reliers/fx-desktop',
   '../../../mocks/window',
   '../../../lib/helpers'
 ], function (chai, Relier, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
-  describe('reliers/reliers/relier', function () {
+  describe('reliers/reliers/fx-desktop', function () {
     describe('fetch', function () {
       var relier, windowMock;
 
@@ -24,16 +24,16 @@ define([
         });
       });
 
-      it('populates expected fields from the search parameters, unexpected search parameters are ignored', function () {
+      it('populates context & entrypoint from the search parameters', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          preVerifyToken: 'abigtoken',
-          ignored: 'ignored'
+          context: 'fx_desktop_v1',
+          entrypoint: 'menupanel'
         });
 
         return relier.fetch()
             .then(function () {
-              assert.equal(relier.get('preVerifyToken'), 'abigtoken');
-              assert.isUndefined(relier.get('ignored'));
+              assert.equal(relier.get('context'), 'fx_desktop_v1');
+              assert.equal(relier.get('entrypoint'), 'menupanel');
             });
       });
     });

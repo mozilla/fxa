@@ -109,6 +109,17 @@ define([
     return isEventLogged(metrics, eventName);
   }
 
+  function toSearchString(obj) {
+    var searchString = '?';
+    var pairs = [];
+
+    for (var key in obj) {
+      pairs.push(key + '=' + encodeURIComponent(obj[key]));
+    }
+
+    return searchString + pairs.join('&');
+  }
+
   return {
     requiresFocus: requiresFocus,
     addFxaClientSpy: addFxaClientSpy,
@@ -119,6 +130,7 @@ define([
     emailToUser: emailToUser,
     isEventLogged: isEventLogged,
     isErrorLogged: isErrorLogged,
-    isScreenLogged: isScreenLogged
+    isScreenLogged: isScreenLogged,
+    toSearchString: toSearchString
   };
 });
