@@ -9,40 +9,37 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'sinon',
   'views/settings/avatar_camera',
   '../../../mocks/router',
   '../../../mocks/window',
   '../../../mocks/canvas',
+  '../../../mocks/profile',
+  'lib/promise',
   'lib/session',
   'lib/constants',
   'lib/auth-errors',
   'lib/fxa-client',
+  'lib/profile',
   'models/reliers/relier'
 ],
-function (chai, _, $, View, RouterMock, WindowMock, CanvasMock, Session,
-      Constants, AuthErrors, FxaClient, Relier) {
+function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMock, p,
+      Session, Constants, AuthErrors, FxaClient, Profile, Relier) {
   var assert = chai.assert;
 
   describe('views/settings/avatar/camera', function () {
     var view;
     var routerMock;
     var windowMock;
-    var fxaClient;
-    var relier;
+    var profileClientMock;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
-      relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
 
       view = new View({
         router: routerMock,
-        window: windowMock,
-        fxaClient: fxaClient,
-        relier: relier
+        window: windowMock
       });
     });
 
@@ -51,10 +48,14 @@ function (chai, _, $, View, RouterMock, WindowMock, CanvasMock, Session,
       view.destroy();
       view = null;
       routerMock = null;
+      profileClientMock = null;
     });
 
     describe('with no session', function () {
       it('redirects to signin', function() {
+        view.isUserAuthorized = function () {
+          return false;
+        };
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -128,18 +129,26 @@ function (chai, _, $, View, RouterMock, WindowMock, CanvasMock, Session,
       });
 
       it('submits', function (done) {
+        profileClientMock = new ProfileMock();
+
         view = new View({
           router: routerMock,
           window: windowMock,
           displayLength: 240,
           exportLength: 600,
-          fxaClient: fxaClient,
-          relier: relier
+          profileClient: profileClientMock
         });
 
         view.isUserAuthorized = function () {
           return true;
         };
+
+        sinon.stub(profileClientMock, 'uploadAvatar', function () {
+          return p({
+            url: 'test',
+            id: 'foo'
+          });
+        });
 
         view.render()
           .then(function () {
@@ -158,11 +167,13 @@ function (chai, _, $, View, RouterMock, WindowMock, CanvasMock, Session,
                 stopped = true;
               };
 
-              view.submit();
-
-              assert.isTrue(stopped);
-              assert.ok(! view.stream);
-              assert.ok(Session.avatar, 'avatar is set');
+              view.submit()
+                .then(function () {
+                  assert.isTrue(stopped, 'stream stopped');
+                  assert.ok(! view.stream, 'stream is gone');
+                  assert.equal(Session.avatar, 'test');
+                  assert.equal(Session.avatarId, 'foo');
+                }, done);
 
               // check canvas drawImage args
               assert.equal(view.canvas._context._args[0], view.video[0]);

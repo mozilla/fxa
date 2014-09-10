@@ -15,12 +15,14 @@ var cspMiddleware = helmet.csp({
                       'connect-src': [
                         '\'self\'',
                         config.get('fxaccount_url'),
-                        config.get('oauth_url')
+                        config.get('oauth_url'),
+                        config.get('profile_url')
                       ],
                       'img-src': [
                         '\'self\'',
                         'data:',
-                        'https://www.gravatar.com'
+                        config.get('profile_images_url'),
+                        'https://secure.gravatar.com'
                       ],
                       'report-uri': '/_/csp-violation'
                     });

@@ -18,10 +18,11 @@ define([
   'lib/constants',
   'lib/auth-errors',
   'lib/fxa-client',
+  'lib/profile',
   'models/reliers/relier'
 ],
 function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
-      Constants, AuthErrors, FxaClient, Relier) {
+      Constants, AuthErrors, FxaClient, Profile, Relier) {
   var assert = chai.assert;
   // 1x1 jpeg
   var jpgSrcData = '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBA' +
@@ -37,7 +38,6 @@ function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
 
   // These URLs don't depend on our actual configuration; the servers are mocked out.
   var PROFILE_URL = 'http://127.0.0.1:1111';
-  var OAUTH_URL = 'http://127.0.0.1:9010';
 
   describe('views/settings/avatar/url', function () {
     var view;
@@ -105,32 +105,18 @@ function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
 
       describe('when submitting a url', function () {
         beforeEach(function () {
-          Session.set('config', {
-            oauthClientId: 'client_id',
-            oauthUrl: OAUTH_URL,
-            profileUrl: PROFILE_URL
-          });
-
           // mocks
           server = sinon.fakeServer.create();
           server.autoRespond = true;
 
-          server.respondWith('POST', OAUTH_URL + '/v1/authorization',
-            [200, { 'Content-Type': 'application/json' },
-            '{ "scope": "profile", "token_type": "bearer", "access_token": "token" }']);
-
-          Assertion.generate = function () {
-            return p('assertion');
-          };
+          view.profileClient = new Profile({
+            config: { profileUrl: PROFILE_URL },
+            token: 'deadbeef'
+          });
         });
 
         afterEach(function () {
-          // The Assertion module aliases Assertion() to Assertion.generate().
-          // We reset it here since it was overwritten in beforeEach.
-          Assertion.generate = Assertion;
-
           server.restore();
-          Session.clear();
         });
 
         it('errors on a bad image', function (done) {
@@ -153,7 +139,7 @@ function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
               });
 
               view.$('.url').val('http://example.com/logo.jpg');
-              view.submit();
+              view.submit().fail(done);
             })
             .fail(done);
         });
@@ -179,7 +165,7 @@ function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
               });
 
               view.$('.url').val('http://example.com/logo.jpg');
-              view.submit();
+              view.submit().fail(done);
             })
             .fail(done);
         });

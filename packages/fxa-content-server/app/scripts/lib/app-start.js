@@ -30,6 +30,8 @@ define([
   'lib/metrics',
   'lib/null-metrics',
   'lib/fxa-client',
+  'lib/assertion',
+  'lib/profile',
   'models/reliers/relier'
 ],
 function (
@@ -45,6 +47,8 @@ function (
   Metrics,
   NullMetrics,
   FxaClient,
+  Assertion,
+  Profile,
   Relier
 ) {
 
@@ -90,6 +94,7 @@ function (
                     .then(_.bind(this.initializeMetrics, this))
                     .then(_.bind(this.initializeRelier, this))
                     .then(_.bind(this.initializeFxaClient, this))
+                    .then(_.bind(this.initializeProfileClient, this))
                     // router depends on all of the above
                     .then(_.bind(this.initializeRouter, this));
     },
@@ -125,13 +130,23 @@ function (
       }
     },
 
+    initializeProfileClient: function () {
+      if (! this._profileClient) {
+        this._profileClient = new Profile({
+          config: this._config,
+          assertion: new Assertion({ fxaClient: this._fxaClient })
+        });
+      }
+    },
+
     initializeRouter: function () {
       if (! this._router) {
         this._router = new Router({
           metrics: this._metrics,
           language: this._config.language,
           relier: this._relier,
-          fxaClient: this._fxaClient
+          fxaClient: this._fxaClient,
+          profileClient: this._profileClient
         });
       }
       this._window.router = this._router;

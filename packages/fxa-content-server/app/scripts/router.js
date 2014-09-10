@@ -79,7 +79,8 @@ function (
         router: this,
         language: this.language,
         relier: this.relier,
-        fxaClient: this.fxaClient
+        fxaClient: this.fxaClient,
+        profileClient: this.profileClient
       }, options || {});
 
       this.showView(new View(options));
@@ -127,6 +128,7 @@ function (
       this.language = options.language;
       this.relier = options.relier;
       this.fxaClient = options.fxaClient;
+      this.profileClient = options.profileClient;
 
       this.$stage = $('#stage');
 

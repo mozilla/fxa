@@ -82,6 +82,7 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
       this.relier = options.relier;
 
       this.fxaClient = options.fxaClient;
+      this.profileClient = options.profileClient;
 
       this.automatedBrowser = !!this.searchParam('automatedBrowser');
 

@@ -93,7 +93,7 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('img[src*="https://www.gravatar.com"]')
+        .findByCssSelector('img[src*="https://secure.gravatar.com"]')
         .end()
 
         .findById('submit-btn')
@@ -114,7 +114,7 @@ define([
         .end()
 
         // check for an image with the gravatar url
-        .findByCssSelector('img[src*="https://www.gravatar.com"]')
+        .findByCssSelector('img[src*="https://secure.gravatar.com"]')
         .end();
     },
 
@@ -127,7 +127,7 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('img[src*="https://www.gravatar.com"]')
+        .findByCssSelector('img[src*="https://secure.gravatar.com"]')
         .end()
 
         .findByCssSelector('a.cancel')

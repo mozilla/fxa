@@ -26,6 +26,7 @@ function (chai, $, sinon,
   var server;
   var EMAIL = 'user@example.domain';
   var UID = '6d940dd41e636cc156074109b8092f96';
+  var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
   describe('lib/profile-client', function () {
     beforeEach(function () {
@@ -45,8 +46,8 @@ function (chai, $, sinon,
     });
 
     describe('profile-client', function () {
-
       describe('getProfile', function () {
+
         it('normally responds with profile', function () {
           server.respondWith('GET', PROFILE_URL + '/v1/profile',
             [200, { 'Content-Type': 'application/json' },
@@ -73,38 +74,88 @@ function (chai, $, sinon,
         });
 
         it('converts returned errors to Profile server error objects', function () {
-          server.respondWith('GET', PROFILE_URL + '/v1/profile',
-            [403, { 'Content-Type': 'application/json' },
-              JSON.stringify({
-                errno: ProfileClient.Errors.toCode('UNAUTHORIZED'),
-                code: 403
-              })]);
+          server.respondWith('GET', PROFILE_URL + '/v1/profile', [
+            403,
+            { 'Content-Type': 'application/json' },
+            JSON.stringify(ProfileClient.Errors.toError('IMAGE_PROCESSING_ERROR'))
+          ]);
 
-              return client.getProfile()
-                .then(function (result) {
-                  assert.fail('unexpected success');
-                }, function (err) {
-                  assert.isTrue(ProfileClient.Errors.is(err, 'UNAUTHORIZED'));
-                });
+          return client.getProfile()
+            .then(function (result) {
+              assert.fail('unexpected success');
+            }, function (err) {
+              assert.isTrue(ProfileClient.Errors.is(err, 'IMAGE_PROCESSING_ERROR'));
             });
         });
+      });
 
-        describe('getRemoteImage', function () {
-          it('normally responds with remote image', function () {
-            var src = encodeURIComponent('http://example.com/logo.jpg');
-            server.respondWith('GET', PROFILE_URL + '/v1/remote_image/' + src,
-              [200, { 'Content-Type': 'text/plain' },
-              'data:image/jpeg;base64,ohhai']);
+      describe('getAvatar', function () {
+        it('normally responds with avatar', function () {
+          server.respondWith('GET', PROFILE_URL + '/v1/avatar',
+            [200, { 'Content-Type': 'application/json' },
+            '{ "avatar": "' + URL + '" }']);
 
-            return client.getRemoteImage('http://example.com/logo.jpg')
-              .then(function (result) {
-                assert.equal(result, 'data:image/jpeg;base64,ohhai');
-              });
-          });
+          return client.getAvatar()
+            .then(function (result) {
+              assert.ok(result);
+              assert.equal(result.avatar, URL);
+            });
         });
+      });
 
+      describe('getAvatars', function () {
+        it('normally responds with avatar', function () {
+          server.respondWith('GET', PROFILE_URL + '/v1/avatars',
+            [200, { 'Content-Type': 'application/json' },
+              JSON.stringify({
+                avatars: [
+                  { id: 'foo', selected: true, url: URL },
+                  { id: 'bar', selected: false, url: 'barurl' }
+                ]
+              })
+            ]);
+
+          return client.getAvatars()
+            .then(function (result) {
+              assert.ok(result.avatars);
+              assert.equal(result.avatars.length, 2);
+              assert.equal(result.avatars[0].url, URL);
+            });
+        });
+      });
+
+      describe('postAvatar', function () {
+        it('post an avatar url', function () {
+          server.respondWith('POST', PROFILE_URL + '/v1/avatar',
+            [201, {}, '']);
+
+          return client.postAvatar('https://secure.gravatar.com/deadbeef', true);
+        });
+      });
+
+      describe('uploadAvatar', function () {
+        it('upload an image', function () {
+          server.respondWith('POST', PROFILE_URL + '/v1/avatar/upload',
+            [201, { 'Content-Type': 'application/json' },
+            '{ "url": "' + URL + '" }']);
+
+          return client.uploadAvatar('image blob goes here')
+            .then(function (result) {
+              assert.equal(result.url, URL);
+            });
+        });
+      });
+
+      describe('deleteAvatar', function () {
+        it('delete an avatar url', function () {
+          server.respondWith('DELETE', PROFILE_URL + '/v1/avatar/deadbeef',
+            [201, {}, '']);
+
+          return client.deleteAvatar('deadbeef', true);
+        });
       });
 
     });
   });
+});
 

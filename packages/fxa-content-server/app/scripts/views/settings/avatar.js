@@ -22,7 +22,27 @@ function (_, FormView, Template, Session) {
       return {
         avatar: Session.avatar
       };
+    },
+
+    beforeRender: function () {
+      if (! Session.avatar || !Session.avatarId) {
+        return this._fetchProfileImage();
+      }
+    },
+
+    // When profile images are more widely released (#1582)
+    // we would fetch the image right after sign in, or only for
+    // specific email domains (#1567).
+    _fetchProfileImage: function () {
+      return this.profileClient.getAvatar()
+        .then(function (result) {
+          if (result.avatar) {
+            Session.set('avatar', result.avatar);
+            Session.set('avatarId', result.id);
+          }
+        });
     }
+
   });
 
   return View;

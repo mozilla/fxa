@@ -26,7 +26,13 @@ define([
     },
     toDataURL: function () {
       this._args = arguments;
-      return 'data:';
+      return 'data:image/jpeg';
+    },
+    toBlob: function (cb) {
+      this._args = arguments;
+      setTimeout(function () {
+        cb({ type: 'image/jpeg' });
+      }, 0);
     }
   };
 
