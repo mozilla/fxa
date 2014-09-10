@@ -89,8 +89,9 @@ test(
             t.equal(res.statusCode, 200, 'second login attempt noted')
 
             mcHelper.badLoginCheck(
-              function (isOverBadLogins) {
+              function (isOverBadLogins, isWayOverBadLogins) {
                 t.equal(isOverBadLogins, false, 'is still not over bad logins')
+                t.equal(isWayOverBadLogins, false, 'is still not locked out')
 
                 client.post('/check', { email: TEST_EMAIL, ip: TEST_IP, action: 'accountLogin' },
                   function (err, req, res, obj) {

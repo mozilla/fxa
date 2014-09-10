@@ -13,7 +13,7 @@ var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
 var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
 
 var IpEmailRecord = require('../ip_email_record')(RATE_LIMIT_INTERVAL_MS, config.limits.maxBadLogins)
-var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, config.limits.maxEmails)
+var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
 var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS)
 
 var P = require('bluebird')
@@ -144,18 +144,25 @@ api.post(
       next()
     }
 
-    mc.getAsync(ip + email)
-      .then(IpEmailRecord.parse, IpEmailRecord.parse)
-      .then(
-        function (ipEmailRecord) {
+    fetchRecords(email, ip)
+      .spread(
+        function (emailRecord, ipRecord, ipEmailRecord) {
+          emailRecord.addBadLogin()
           ipEmailRecord.addBadLogin()
-          return mc.setAsync(ip + email, ipEmailRecord, LIFETIME).catch(ignore)
+          return setRecords(email, ip, emailRecord, ipRecord, ipEmailRecord)
+            .then(
+              function () {
+                return {
+                  lockout: emailRecord.isWayOverBadLogins()
+                }
+              }
+            )
         }
       )
       .then(
-        function () {
+        function (result) {
           log.info({ op: 'request.failedLoginAttempt', email: email, ip: ip })
-          res.send({})
+          res.send(result)
         },
         function (err) {
           log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, err: err })

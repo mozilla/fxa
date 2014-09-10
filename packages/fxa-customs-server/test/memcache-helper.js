@@ -13,7 +13,8 @@ var config = {
     blockIntervalSeconds: 1,
     rateLimitIntervalSeconds: 1,
     maxEmails: 3,
-    maxBadLogins: 2
+    maxBadLogins: 2,
+    badLoginLockout: 3
   }
 }
 
@@ -34,7 +35,7 @@ module.exports.mc = mc
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
 
-var EmailRecord = require('../email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.blockIntervalSeconds * 1000, config.limits.maxEmails)
+var EmailRecord = require('../email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.blockIntervalSeconds * 1000, config.limits.maxEmails, config.limits.badLoginLockout)
 var IpEmailRecord = require('../ip_email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.maxBadLogins)
 var IpRecord = require('../ip_record')(config.limits.blockIntervalSeconds * 1000)
 
@@ -74,10 +75,16 @@ function badLoginCheck(cb) {
   setTimeout( // give memcache time to flush the writes
     function () {
       mc.get(TEST_IP + TEST_EMAIL,
-        function (err, data) {
-          var ier = IpEmailRecord.parse(data)
-          mc.end()
-          cb(ier.isOverBadLogins())
+        function (err, data1) {
+          var ier = IpEmailRecord.parse(data1)
+
+          mc.get(TEST_EMAIL,
+            function (err, data2) {
+              var er = EmailRecord.parse(data2)
+              mc.end()
+              cb(ier.isOverBadLogins(), er.isWayOverBadLogins())
+            }
+          )
         }
       )
     }
@@ -106,8 +113,8 @@ function clearEverything(cb) {
               }
 
               badLoginCheck(
-                function (isOverBadLogins) {
-                  if (isOverBadLogins) {
+                function (isOverBadLogins, isWayOverBadLogins) {
+                  if (isOverBadLogins || isWayOverBadLogins) {
                     return cb('there are still some bad logins')
                   }
 

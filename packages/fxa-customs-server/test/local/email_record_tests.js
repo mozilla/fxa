@@ -10,7 +10,7 @@ function now() {
 }
 
 function simpleEmailRecord() {
-  return new (emailRecord(500, 800, 2, now))()
+  return new (emailRecord(500, 800, 2, 5, now))()
 }
 
 test(
@@ -115,9 +115,27 @@ test(
 )
 
 test(
+  'isWayOverBadLogins works',
+  function (t) {
+    var er = simpleEmailRecord()
+
+    t.equal(er.isWayOverBadLogins(), false, 'record has never seen a bad login')
+    er.addBadLogin()
+    er.addBadLogin()
+    er.addBadLogin()
+    er.addBadLogin()
+    t.equal(er.isWayOverBadLogins(), false, 'record has not reached the bad login limit')
+    er.addBadLogin()
+    er.addBadLogin()
+    t.equal(er.isWayOverBadLogins(), true, 'record has reached the bad login limit')
+    t.end()
+  }
+)
+
+test(
   'retryAfter works',
   function (t) {
-    var er = new (emailRecord(5000, 8000, 2, function () {
+    var er = new (emailRecord(5000, 8000, 2, 5, function () {
       return 10000
     }))()
 
@@ -160,7 +178,7 @@ test(
     t.equal(er.isBlocked(), false, 'original object is not blocked')
     t.equal(er.xs.length, 0, 'original object has no hits')
 
-    var erCopy1 = (emailRecord(50, 50, 2, now)).parse(er)
+    var erCopy1 = (emailRecord(50, 50, 2, 5, now)).parse(er)
     t.equal(erCopy1.isBlocked(), false, 'copied object is not blocked')
     t.equal(erCopy1.xs.length, 0, 'copied object has no hits')
 
@@ -169,7 +187,7 @@ test(
     t.equal(er.isBlocked(), true, 'original object is now blocked')
     t.equal(er.xs.length, 1, 'original object now has one hit')
 
-    var erCopy2 = (emailRecord(50, 50, 2, now)).parse(er)
+    var erCopy2 = (emailRecord(50, 50, 2, 5, now)).parse(er)
     t.equal(erCopy2.isBlocked(), true, 'copied object is blocked')
     t.equal(erCopy2.xs.length, 1, 'copied object has one hit')
     t.end()

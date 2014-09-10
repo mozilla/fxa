@@ -32,12 +32,12 @@ test(
   function (t) {
     var ier = simpleIpEmailRecord()
 
-    t.equal(ier.xs.length, 0, 'record has never had a bad login')
+    t.equal(ier.lf.length, 0, 'record has never had a bad login')
     ier.addBadLogin()
-    t.equal(ier.xs.length, 1, 'record has had one bad login')
+    t.equal(ier.lf.length, 1, 'record has had one bad login')
     ier.addBadLogin()
     ier.addBadLogin()
-    t.equal(ier.xs.length, 3, 'record has three bad logins')
+    t.equal(ier.lf.length, 3, 'record has three bad logins')
     t.end()
   }
 )
@@ -49,10 +49,10 @@ test(
 
     ier.addBadLogin()
     t.equal(ier.isBlocked(), false, 'record is not blocked')
-    t.equal(ier.xs.length, 1, 'record has been emailed once')
+    t.equal(ier.lf.length, 1, 'record has been emailed once')
     ier.rateLimit()
     t.equal(ier.isBlocked(), true, 'record is blocked')
-    t.equal(ier.xs.length, 0, 'record has an empty list of emails')
+    t.equal(ier.lf.length, 0, 'record has an empty list of emails')
     t.end()
   }
 )
@@ -62,14 +62,14 @@ test(
   function (t) {
     var ier = simpleIpEmailRecord()
 
-    t.equal(ier.xs.length, 0, 'record has nothing to trim')
+    t.equal(ier.lf.length, 0, 'record has nothing to trim')
     ier.addBadLogin()
     ier.addBadLogin()
     ier.addBadLogin()
     ier.addBadLogin()
-    t.equal(ier.xs.length, 4, 'record contains too many bad logins')
+    t.equal(ier.lf.length, 4, 'record contains too many bad logins')
     ier.trimBadLogins(now())
-    t.equal(ier.xs.length, 3, 'record has trimmed excess bad logins')
+    t.equal(ier.lf.length, 3, 'record has trimmed excess bad logins')
     t.end()
   }
 )
@@ -79,15 +79,15 @@ test(
   function (t) {
     var ier = simpleIpEmailRecord()
 
-    t.equal(ier.xs.length, 0, 'record has nothing to trim')
+    t.equal(ier.lf.length, 0, 'record has nothing to trim')
     ier.trimBadLogins(now())
-    t.equal(ier.xs.length, 0, 'trimming did not do anything')
-    ier.xs.push(400)
-    ier.xs.push(400)
-    ier.xs.push(now())
-    t.equal(ier.xs.length, 3, 'record contains expired and fresh logins')
+    t.equal(ier.lf.length, 0, 'trimming did not do anything')
+    ier.lf.push(400)
+    ier.lf.push(400)
+    ier.lf.push(now())
+    t.equal(ier.lf.length, 3, 'record contains expired and fresh logins')
     ier.trimBadLogins(now())
-    t.equal(ier.xs.length, 1, 'record has trimmed expired bad logins')
+    t.equal(ier.lf.length, 1, 'record has trimmed expired bad logins')
     t.end()
   }
 )
@@ -131,20 +131,20 @@ test(
   function (t) {
     var ier = simpleIpEmailRecord()
 
-    t.equal(ier.xs.length, 0, 'record does not have any bad logins')
+    t.equal(ier.lf.length, 0, 'record does not have any bad logins')
     t.equal(ier.rl, undefined, 'record is not blocked')
     ier.unblockIfReset(now())
-    t.equal(ier.xs.length, 0, 'record still does not have any bad logins')
+    t.equal(ier.lf.length, 0, 'record still does not have any bad logins')
     t.equal(ier.rl, undefined, 'record is still not blocked')
     ier.rateLimit()
     ier.addBadLogin()
-    t.equal(ier.xs.length, 1, 'record has one bad login')
+    t.equal(ier.lf.length, 1, 'record has one bad login')
     t.equal(ier.rl, now(), 'record is blocked')
     ier.unblockIfReset(500)
-    t.equal(ier.xs.length, 1, 'bad logins are not cleared when resetting prior to blocking')
+    t.equal(ier.lf.length, 1, 'bad logins are not cleared when resetting prior to blocking')
     t.equal(ier.rl, now(), 'record is not unblocked when resetting prior to blocking')
     ier.unblockIfReset(2000)
-    t.equal(ier.xs.length, 0, 'bad logins are cleared when resetting after blocking')
+    t.equal(ier.lf.length, 0, 'bad logins are cleared when resetting after blocking')
     t.equal(ier.rl, undefined, 'record is unblocked when resetting after blocking')
     t.end()
   }
@@ -155,20 +155,20 @@ test(
   function (t) {
     var ier = simpleIpEmailRecord()
     t.equal(ier.isBlocked(), false, 'original object is not blocked')
-    t.equal(ier.xs.length, 0, 'original object has no bad logins')
+    t.equal(ier.lf.length, 0, 'original object has no bad logins')
 
     var ierCopy1 = (ipEmailRecord(50, 2, now)).parse(ier)
     t.equal(ierCopy1.isBlocked(), false, 'copied object is not blocked')
-    t.equal(ierCopy1.xs.length, 0, 'copied object has no bad logins')
+    t.equal(ierCopy1.lf.length, 0, 'copied object has no bad logins')
 
     ier.rateLimit()
     ier.addBadLogin()
     t.equal(ier.isBlocked(), true, 'original object is now blocked')
-    t.equal(ier.xs.length, 1, 'original object now has one bad login')
+    t.equal(ier.lf.length, 1, 'original object now has one bad login')
 
     var ierCopy2 = (ipEmailRecord(50, 2, now)).parse(ier)
     t.equal(ierCopy2.isBlocked(), true, 'copied object is blocked')
-    t.equal(ierCopy2.xs.length, 1, 'copied object has one bad login')
+    t.equal(ierCopy2.lf.length, 1, 'copied object has one bad login')
     t.end()
   }
 )
