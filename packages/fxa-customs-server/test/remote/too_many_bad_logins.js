@@ -48,7 +48,7 @@ var client = restify.createJsonClient({
 });
 
 test(
-  'too many failed logins',
+  'too many failed logins from the same IP',
   function (t) {
     client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
       function (err, req, res, obj) {
@@ -58,14 +58,20 @@ test(
           function (err, req, res, obj) {
             t.equal(res.statusCode, 200, 'second login attempt noted')
 
-            client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
-              function (err, req, res, obj) {
-                t.equal(res.statusCode, 200, 'third login attempt noted')
+            mcHelper.badLoginCheck(
+              function (isOverBadLogins) {
+                t.equal(isOverBadLogins, false, 'is not yet over bad logins')
 
-                mcHelper.badLoginCheck(
-                  function (isOverBadLogins) {
-                    t.equal(isOverBadLogins, true, 'is now over bad logins')
-                    t.end()
+                client.post('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP },
+                  function (err, req, res, obj) {
+                    t.equal(res.statusCode, 200, 'third login attempt noted')
+
+                    mcHelper.badLoginCheck(
+                      function (isOverBadLogins) {
+                        t.equal(isOverBadLogins, true, 'is now over bad logins')
+                        t.end()
+                      }
+                    )
                   }
                 )
               }
