@@ -61,13 +61,14 @@ define([
           );
       });
 
-      test('#create account with service and redirectTo', function () {
+      test('#create account with service, redirectTo, and resume', function () {
         var user = "test" + new Date().getTime();
         var email = user + "@restmail.net";
         var password = "iliketurtles";
         var opts = {
           service: 'sync',
-          redirectTo: 'https://sync.firefox.com/after_reset'
+          redirectTo: 'https://sync.firefox.com/after_reset',
+          resume: 'resumejwt'
         };
 
         return respond(client.signUp(email, password, opts), RequestMocks.signUp)
@@ -80,10 +81,12 @@ define([
               var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
               var service = emails[0].html.match(/service=([A-Za-z0-9]+)/)[1];
               var redirectTo = emails[0].html.match(/redirectTo=([A-Za-z0-9]+)/)[1];
+              var resume = emails[0].html.match(/resume=([A-Za-z0-9]+)/)[1];
 
               assert.ok(code, 'code is returned');
               assert.ok(service, 'service is returned');
               assert.ok(redirectTo, 'redirectTo is returned');
+              assert.ok(resume, 'resume is returned');
 
             },
             assert.notOk
@@ -135,6 +138,32 @@ define([
 
               assert.ok(code, 'code is returned');
               assert.ok(redirectTo, 'redirectTo is returned');
+
+            },
+            assert.notOk
+          );
+      });
+
+      test('#withResume', function () {
+        var user = "test" + new Date().getTime();
+        var email = user + "@restmail.net";
+        var password = "iliketurtles";
+        var opts = {
+          resume: 'resumejwt'
+        };
+
+        return respond(client.signUp(email, password, opts), RequestMocks.signUp)
+          .then(function (res) {
+            assert.ok(res.uid);
+            return respond(mail.wait(user), RequestMocks.mailServiceAndRedirect);
+          })
+          .then(
+            function (emails) {
+              var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+              var resume = emails[0].html.match(/resume=([A-Za-z0-9]+)/)[1];
+
+              assert.ok(code, 'code is returned');
+              assert.ok(resume, 'resume is returned');
 
             },
             assert.notOk

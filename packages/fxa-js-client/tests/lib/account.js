@@ -164,11 +164,12 @@ define([
           )
       });
 
-      test('#passwordForgotSendCode with service and redirectTo', function () {
+      test('#passwordForgotSendCode with service, redirectTo, and resume', function () {
         var account;
         var opts = {
           service: 'sync',
-          redirectTo: 'https://sync.firefox.com/after_reset'
+          redirectTo: 'https://sync.firefox.com/after_reset',
+          resume: 'resumejwt'
         };
 
         return accountHelper.newVerifiedAccount()
@@ -189,19 +190,23 @@ define([
             assert.ok(service, 'service found');
             var redirectTo = emails[1].html.match(/redirectTo=([A-Za-z0-9]+)/);
             assert.ok(redirectTo, 'redirectTo found');
+            var resume = emails[1].html.match(/resume=([A-Za-z0-9]+)/);
+            assert.ok(resume, 'resume found');
 
             assert.ok(code[1], 'code is returned');
             assert.equal(service[1], 'sync', 'service is returned');
             assert.equal(redirectTo[1], 'https', 'redirectTo is returned');
+            assert.equal(resume[1], 'resumejwt', 'resume is returned');
           })
       });
 
-      test('#passwordForgotResendCode with service and redirectTo', function () {
+      test('#passwordForgotResendCode with service, redirectTo, and resume', function () {
         var account;
         var passwordForgotToken;
         var opts = {
           service: 'sync',
-          redirectTo: 'https://sync.firefox.com/after_reset'
+          redirectTo: 'https://sync.firefox.com/after_reset',
+          resume: 'resumejwt'
         };
 
         return accountHelper.newVerifiedAccount()
@@ -234,10 +239,13 @@ define([
             assert.ok(service, 'service found');
             var redirectTo = emails[2].html.match(/redirectTo=([A-Za-z0-9]+)/);
             assert.ok(redirectTo, 'redirectTo found');
+            var resume = emails[2].html.match(/resume=([A-Za-z0-9]+)/);
+            assert.ok(resume, 'resume found');
 
             assert.ok(code[1], 'code is returned');
             assert.equal(service[1], 'sync', 'service is returned');
             assert.equal(redirectTo[1], 'https', 'redirectTo is returned');
+            assert.equal(resume[1], 'resumejwt', 'resume is returned');
           })
       });
 
