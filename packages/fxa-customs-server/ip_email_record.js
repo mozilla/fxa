@@ -40,8 +40,6 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
     // lf is naturally ordered from oldest to newest
     // and we only need to keep up to MAX_BAD_LOGINS + 1
 
-    // start at the end and go backwards until login is old
-    // or we have
     var i = this.lf.length - 1
     var n = 0
     var login = this.lf[i]
