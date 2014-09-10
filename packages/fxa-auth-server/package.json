@@ -7,6 +7,12 @@
     "test": "tap test/local"
   },
   "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa-auth-mailer"
+  },
+  "homepage": "https://github.com/mozilla/fxa-auth-mailer",
+  "bugs": "https://github.com/mozilla/fxa-auth-mailer/issues",
   "license": "MPL 2.0",
   "dependencies": {
     "bluebird": "2.2.2",
