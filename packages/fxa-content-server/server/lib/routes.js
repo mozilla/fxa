@@ -79,7 +79,6 @@ module.exports = function (config, templates, i18n) {
       '/settings/avatar',
       '/settings/avatar/change',
       '/settings/avatar/crop',
-      '/settings/avatar/url',
       '/settings/avatar/gravatar',
       '/settings/avatar/camera',
       '/change_password',
