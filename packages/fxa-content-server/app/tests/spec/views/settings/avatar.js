@@ -13,9 +13,10 @@ define([
   '../../../mocks/router',
   'lib/session',
   'lib/constants',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'models/reliers/relier'
 ],
-function (chai, _, $, View, RouterMock, Session, Constants, FxaClient) {
+function (chai, _, $, View, RouterMock, Session, Constants, FxaClient, Relier) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -23,14 +24,19 @@ function (chai, _, $, View, RouterMock, Session, Constants, FxaClient) {
     var view;
     var routerMock;
     var fxaClient;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: routerMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
     });
 

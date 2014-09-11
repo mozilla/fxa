@@ -10,22 +10,30 @@ define([
   'views/ready',
   'lib/session',
   'lib/fxa-client',
+  'models/reliers/relier',
   '../../mocks/window'
 ],
-function (chai, View, Session, FxaClient, WindowMock) {
+function (chai, View, Session, FxaClient, Relier, WindowMock) {
   var assert = chai.assert;
   //var redirectUri =  'https://sync.firefox.com';
 
   describe('views/ready', function () {
-    var view, windowMock, fxaClient;
+    var view;
+    var windowMock;
+    var fxaClient;
+    var relier;
 
     function createView(surveyPercentage) {
       windowMock = new WindowMock();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         window: windowMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
     }
 

@@ -14,6 +14,7 @@ define([
   'lib/constants',
   'lib/assertion',
   'lib/fxa-client',
+  'models/reliers/relier',
   'vendor/jwcrypto',
   'vendor/jwcrypto/lib/algs/rs'
 ],
@@ -21,7 +22,7 @@ define([
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, TestHelpers, P,
-              Session, Constants, Assertion, FxaClientWrapper, jwcrypto) {
+              Session, Constants, Assertion, FxaClientWrapper, Relier, jwcrypto) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';
@@ -30,11 +31,15 @@ function (chai, $, TestHelpers, P,
   var password = 'password';
   var client;
   var assertionLibrary;
+  var relier;
 
   describe('lib/assertion', function () {
     beforeEach(function () {
       Session.clear();
-      client = new FxaClientWrapper();
+      relier = new Relier();
+      client = new FxaClientWrapper({
+        relier: relier
+      });
       assertionLibrary = new Assertion({
         fxaClient: client
       });

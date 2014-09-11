@@ -17,10 +17,11 @@ define([
   'lib/assertion',
   'lib/constants',
   'lib/auth-errors',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'models/reliers/relier'
 ],
 function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
-      Constants, AuthErrors, FxaClient) {
+      Constants, AuthErrors, FxaClient, Relier) {
   var assert = chai.assert;
   // 1x1 jpeg
   var jpgSrcData = '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBA' +
@@ -43,13 +44,18 @@ function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
     var routerMock;
     var server;
     var fxaClient;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
       view = new View({
         router: routerMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
     });
 

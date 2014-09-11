@@ -13,15 +13,22 @@ define([
   'lib/metrics',
   'lib/constants',
   'lib/fxa-client',
+  'models/reliers/relier',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, RouterMock, WindowMock, TestHelpers) {
+function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, Relier, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
-    var view, routerMock, windowMock, verificationError, metrics, fxaClient;
+    var view;
+    var routerMock;
+    var windowMock;
+    var verificationError;
+    var metrics;
+    var fxaClient;
+    var relier;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
@@ -49,13 +56,17 @@ function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, RouterMock, 
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: routerMock,
         window: windowMock,
         metrics: metrics,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
 
       verificationError = null;

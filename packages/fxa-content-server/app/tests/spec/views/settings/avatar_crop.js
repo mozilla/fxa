@@ -15,25 +15,31 @@ define([
   'lib/session',
   'lib/constants',
   'lib/auth-errors',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'models/reliers/relier'
 ],
 function (chai, _, $, ui, View, RouterMock, Session, Constants, AuthErrors,
-    FxaClient) {
+    FxaClient, Relier) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   describe('views/settings/avatar/crop', function () {
     var view;
     var routerMock;
+    var relier;
     var fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: routerMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
     });
 
@@ -61,7 +67,9 @@ function (chai, _, $, ui, View, RouterMock, Session, Constants, AuthErrors,
         Session.clear('cropImgSrc');
 
         view = new View({
-          router: routerMock
+          router: routerMock,
+          fxaClient: fxaClient,
+          relier: relier
         });
         view.isUserAuthorized = function () {
           return true;
@@ -79,7 +87,11 @@ function (chai, _, $, ui, View, RouterMock, Session, Constants, AuthErrors,
         Session.set('cropImgWidth', 1);
         Session.set('cropImgHeight', 1);
 
-        view = new View();
+        view = new View({
+          router: routerMock,
+          fxaClient: fxaClient,
+          relier: relier
+        });
         view.isUserAuthorized = function () {
           return true;
         };
@@ -99,7 +111,9 @@ function (chai, _, $, ui, View, RouterMock, Session, Constants, AuthErrors,
         Session.set('cropImgHeight', 1);
 
         view = new View({
-          router: routerMock
+          router: routerMock,
+          fxaClient: fxaClient,
+          relier: relier
         });
         view.isUserAuthorized = function () {
           return true;

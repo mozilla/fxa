@@ -14,17 +14,26 @@ define([
   '../../lib/helpers',
   'lib/session',
   'lib/constants',
-  'lib/fxa-client'
+  'lib/fxa-client',
+  'models/reliers/relier'
 ],
-function (chai, _, $, View, RouterMock, TestHelpers, Session, Constants, FxaClient) {
+function (chai, _, $, View, RouterMock, TestHelpers, Session, Constants,
+      FxaClient, Relier) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
-    var view, routerMock, email, fxaClient;
+    var view;
+    var routerMock;
+    var email;
+    var fxaClient;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: routerMock,

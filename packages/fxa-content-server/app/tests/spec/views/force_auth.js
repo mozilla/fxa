@@ -11,27 +11,36 @@ define([
   'views/force_auth',
   'lib/session',
   'lib/fxa-client',
+  'models/reliers/relier',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, View, Session, FxaClient, Relier, WindowMock,
+      RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
     describe('missing email address', function () {
-      var view, windowMock, fxaClient;
+      var view;
+      var windowMock;
+      var fxaClient;
+      var relier;
 
       beforeEach(function () {
         windowMock = new WindowMock();
         windowMock.location.search = '';
 
-        fxaClient = new FxaClient();
+        relier = new Relier();
+        fxaClient = new FxaClient({
+          relier: relier
+        });
 
         Session.clear();
         view = new View({
           window: windowMock,
-          fxaClient: fxaClient
+          fxaClient: fxaClient,
+          relier: relier
         });
         return view.render()
             .then(function () {
@@ -111,6 +120,7 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
       var router;
       var email;
       var fxaClient;
+      var relier;
 
       beforeEach(function () {
         email = TestHelpers.createEmail();
@@ -118,13 +128,17 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
 
         windowMock = new WindowMock();
         windowMock.location.search = '?email=' + encodeURIComponent(email);
-        fxaClient = new FxaClient();
+        relier = new Relier();
+        fxaClient = new FxaClient({
+          relier: relier
+        });
         router = new RouterMock();
 
         view = new View({
           window: windowMock,
           router: router,
-          fxaClient: fxaClient
+          fxaClient: fxaClient,
+          relier: relier
         });
         return view.render()
             .then(function () {

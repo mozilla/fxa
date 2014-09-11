@@ -15,6 +15,7 @@ define([
   'lib/metrics',
   'lib/auth-errors',
   'lib/fxa-client',
+  'models/reliers/relier',
   'stache!templates/test_template',
   '../../mocks/dom-event',
   '../../mocks/router',
@@ -22,7 +23,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
-          AuthErrors, FxaClient, Template, DOMEventMock, RouterMock, WindowMock,
+          AuthErrors, FxaClient, Relier, Template, DOMEventMock, RouterMock, WindowMock,
           TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -30,7 +31,14 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
   var assert = chai.assert;
 
   describe('views/base', function () {
-    var view, router, windowMock, ephemeralMessages, translator, metrics, fxaClient;
+    var view;
+    var router;
+    var windowMock;
+    var ephemeralMessages;
+    var translator;
+    var metrics;
+    var fxaClient;
+    var relier;
 
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
@@ -43,7 +51,10 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
       windowMock = new WindowMock();
       ephemeralMessages = new EphemeralMessages();
       metrics = new Metrics();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       var View = BaseView.extend({
         template: Template
