@@ -5,11 +5,6 @@ Firefox Accounts Customs Server
 
 This project is used by the [Firefox Accounts Auth Server](https://github.com/mozilla/fxa-auth-server) to detect and deter [fraud and abuse](https://wiki.mozilla.org/Identity/Firefox_Accounts/Fraud_and_abuse).
 
-## Prerequisites
-
-* node 0.10.x or higher
-* npm
-
 ## Install
 
 You'll need node 0.10.x or higher and npm to run the server.
