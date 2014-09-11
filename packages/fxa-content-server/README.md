@@ -34,7 +34,7 @@ Note: If you have issues with `npm install` please downgrade to npm 1.3 using `n
 
 #### Prerequisites:
   * Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-  * Selenium Server ([Download](http://selenium-release.storage.googleapis.com/2.41/selenium-server-standalone-2.41.0.jar))
+  * Selenium Server 2.43.1 ([Download](http://selenium-release.storage.googleapis.com/2.43/selenium-server-standalone-2.43.1.jar))
 
 ### Setup
 
@@ -45,7 +45,7 @@ Note: If you have issues with `npm install` please downgrade to npm 1.3 using `n
 e.g. in shell form:
 
 ```sh
-java -jar selenium-server-standalone-2.39.0.jar &
+java -jar selenium-server-standalone-2.43.1.jar &
 cd fxa-auth-server
 npm start &
 cd ../fxa-content-server
