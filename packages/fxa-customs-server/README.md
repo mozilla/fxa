@@ -38,3 +38,7 @@ Here are the main components of this project:
 - `scripts`: helper scripts only used for development/testing
 - `test/local`: unit tests
 - `test/remote`: tests exercising the HTTP API
+
+### API
+
+See our [detailed API spec](/docs/api.md).
