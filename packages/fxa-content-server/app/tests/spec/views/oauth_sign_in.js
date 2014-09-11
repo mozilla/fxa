@@ -10,23 +10,30 @@ define([
   'views/oauth_sign_in',
   'lib/session',
   'lib/fxa-client',
+  'models/reliers/relier',
   '../../mocks/window',
   '../../mocks/router',
   '../../mocks/oauth_servers',
   '../../lib/helpers'
 ],
-function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, OAuthServersMock, TestHelpers) {
+function (chai, $, View, Session, FxaClient, Relier, WindowMock,
+      RouterMock, OAuthServersMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('views/oauth_sign_in', function () {
-    var view, email, router, windowMock, CLIENT_ID, STATE, SCOPE, CLIENT_NAME, BASE_REDIRECT_URL, fxaClient, oAuthServersMock;
+    var view;
+    var email;
+    var router;
+    var windowMock;
+    var fxaClient;
+    var oAuthServersMock;
+    var relier;
 
-    CLIENT_ID = 'dcdb5ae7add825d2';
-    STATE = '123';
-    SCOPE = 'profile:email';
-    CLIENT_NAME = '123Done';
-    BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
+    var CLIENT_ID = 'dcdb5ae7add825d2';
+    var STATE = '123';
+    var SCOPE = 'profile:email';
+    var CLIENT_NAME = '123Done';
 
     beforeEach(function () {
       Session.clear();
@@ -37,12 +44,16 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, OAuthServer
 
       oAuthServersMock = new OAuthServersMock();
 
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: router,
         window: windowMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
 
       return view.render()

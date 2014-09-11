@@ -81,7 +81,9 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       });
 
       assertionLibrary = new Assertion();
-      fxaClient = new FxaClient();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: router,

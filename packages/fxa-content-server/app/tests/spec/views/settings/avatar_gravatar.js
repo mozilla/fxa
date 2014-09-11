@@ -11,19 +11,31 @@ define([
   'jquery',
   'views/settings/avatar_gravatar',
   '../../../mocks/router',
-  'lib/session'
+  'lib/session',
+  'lib/fxa-client',
+  'models/reliers/relier'
 ],
-function (chai, _, $, View, RouterMock, Session) {
+function (chai, _, $, View, RouterMock, Session, FxaClient, Relier) {
   var assert = chai.assert;
   var GRAVATAR_URL = 'https://www.gravatar.com/avatar/';
 
   describe('views/settings/avatar/gravatar', function () {
-    var view, routerMock;
+    var view;
+    var routerMock;
+    var fxaClient;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
+
       view = new View({
-        router: routerMock
+        router: routerMock,
+        fxaClient: fxaClient,
+        relier: relier
       });
     });
 
@@ -48,7 +60,11 @@ function (chai, _, $, View, RouterMock, Session) {
         var email = 'MyEmailAddress@example.com  ';
         Session.set('email', email);
 
-        view = new View();
+        view = new View({
+          router: routerMock,
+          fxaClient: fxaClient,
+          relier: relier
+        });
         assert.equal(view.hashedEmail, '0bc83cb571cd1c50ba6f3e8a78ef1346');
       });
 
@@ -69,7 +85,9 @@ function (chai, _, $, View, RouterMock, Session) {
         Session.set('email', email);
 
         view = new View({
-          router: routerMock
+          router: routerMock,
+          fxaClient: fxaClient,
+          relier: relier
         });
         view.isUserAuthorized = function () {
           return true;

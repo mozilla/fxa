@@ -12,13 +12,14 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/auth-errors',
-  'lib/constants'
+  'lib/constants',
+  'models/reliers/relier'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, sinon, p, ChannelMock, testHelpers,
-              Session, FxaClientWrapper, AuthErrors, Constants) {
+              Session, FxaClientWrapper, AuthErrors, Constants, Relier) {
   'use strict';
 
   var assert = chai.assert;
@@ -27,6 +28,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
   var client;
   var realClient;
   var channelMock;
+  var relier;
 
   function trim(str) {
     return str && str.replace(/^\s+|\s+$/g, '');
@@ -36,9 +38,11 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
     beforeEach(function () {
       channelMock = new ChannelMock();
       email = ' ' + testHelpers.createEmail() + ' ';
+      relier = new Relier();
 
       client = new FxaClientWrapper({
-        channel: channelMock
+        channel: channelMock,
+        relier: relier
       });
       return client._getClientAsync()
               .then(function (_realClient) {
@@ -88,7 +92,8 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
 
         return new FxaClientWrapper({
           client: FxaClientMock,
-          channel: channelMock
+          channel: channelMock,
+          relier: relier
         }).signUp(email, password)
           .then(
             assert.fail,

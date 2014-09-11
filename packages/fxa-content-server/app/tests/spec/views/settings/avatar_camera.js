@@ -15,21 +15,34 @@ define([
   '../../../mocks/canvas',
   'lib/session',
   'lib/constants',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/fxa-client',
+  'models/reliers/relier'
 ],
-function (chai, _, $, View, RouterMock, WindowMock, CanvasMock, Session, Constants, AuthErrors) {
+function (chai, _, $, View, RouterMock, WindowMock, CanvasMock, Session,
+      Constants, AuthErrors, FxaClient, Relier) {
   var assert = chai.assert;
 
   describe('views/settings/avatar/camera', function () {
-    var view, routerMock, windowMock;
+    var view;
+    var routerMock;
+    var windowMock;
+    var fxaClient;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: routerMock,
-        window: windowMock
+        window: windowMock,
+        fxaClient: fxaClient,
+        relier: relier
       });
     });
 
@@ -119,7 +132,9 @@ function (chai, _, $, View, RouterMock, WindowMock, CanvasMock, Session, Constan
           router: routerMock,
           window: windowMock,
           displayLength: 240,
-          exportLength: 600
+          exportLength: 600,
+          fxaClient: fxaClient,
+          relier: relier
         });
 
         view.isUserAuthorized = function () {

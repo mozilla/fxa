@@ -17,12 +17,13 @@ define([
   'lib/fxa-client',
   'lib/translator',
   'lib/service-name',
+  'models/reliers/relier',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator, ServiceName,
-      RouterMock, WindowMock, TestHelpers) {
+function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
+      Translator, ServiceName, Relier, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
   var translator = new Translator('en-US', ['en-US']);
@@ -45,7 +46,13 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translat
   }
 
   describe('views/sign_up', function () {
-    var view, router, email, metrics, windowMock, fxaClient;
+    var view;
+    var router;
+    var email;
+    var metrics;
+    var windowMock;
+    var fxaClient;
+    var relier;
 
     beforeEach(function () {
       Session.clear();
@@ -55,13 +62,17 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translat
       router = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: router,
         metrics: metrics,
         window: windowMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
       return view.render()
           .then(function () {
@@ -331,7 +342,9 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translat
         // simulate user re-visiting the /signup page after being rejected
         var revisitRouter = new RouterMock();
         var revisitView = new View({
-          router: revisitRouter
+          router: revisitRouter,
+          relier: relier,
+          fxaClient: fxaClient
         });
 
         return revisitView.render()

@@ -10,23 +10,33 @@ define([
   'jquery',
   'views/delete_account',
   'lib/fxa-client',
+  'models/reliers/relier',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, View, FxaClient, RouterMock, TestHelpers) {
+function (chai, $, View, FxaClient, Relier, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/delete_account', function () {
-    var view, routerMock, email, password = 'password', fxaClient;
+    var view;
+    var routerMock;
+    var email;
+    var password = 'password';
+    var fxaClient;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: routerMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
     });
 

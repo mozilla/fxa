@@ -29,6 +29,7 @@ define([
   'lib/config-loader',
   'lib/metrics',
   'lib/null-metrics',
+  'lib/fxa-client',
   'models/reliers/relier'
 ],
 function (
@@ -43,6 +44,7 @@ function (
   ConfigLoader,
   Metrics,
   NullMetrics,
+  FxaClient,
   Relier
 ) {
 
@@ -87,6 +89,8 @@ function (
                     // fetched from config.
                     .then(_.bind(this.initializeMetrics, this))
                     .then(_.bind(this.initializeRelier, this))
+                    .then(_.bind(this.initializeFxaClient, this))
+                    // router depends on all of the above
                     .then(_.bind(this.initializeRouter, this));
     },
 
@@ -94,7 +98,6 @@ function (
       this._config = config;
       this._configLoader.useConfig(config);
       Session.set('config', config);
-
     },
 
     initializeL10n: function () {
@@ -114,12 +117,21 @@ function (
       return this._relier.fetch();
     },
 
+    initializeFxaClient: function () {
+      if (! this._fxaClient) {
+        this._fxaClient = new FxaClient({
+          relier: this._relier
+        });
+      }
+    },
+
     initializeRouter: function () {
       if (! this._router) {
         this._router = new Router({
           metrics: this._metrics,
           language: this._config.language,
-          relier: this._relier
+          relier: this._relier,
+          fxaClient: this._fxaClient
         });
       }
       this._window.router = this._router;

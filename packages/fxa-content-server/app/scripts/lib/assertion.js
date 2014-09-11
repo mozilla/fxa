@@ -6,11 +6,9 @@
 
 define([
   'lib/promise',
-  'vendor/jwcrypto',
-  'lib/fxa-client'
+  'vendor/jwcrypto'
 ],
-function (P, jwcrypto, FxaClient) {
-  var client = new FxaClient();
+function (P, jwcrypto) {
   var CERT_DURATION_MS = 1000 * 60 * 60 * 6; // 6hrs
   var ASSERTION_DURATION_MS = 1000 * 60 * 5; // 5mins
 
@@ -33,14 +31,16 @@ function (P, jwcrypto, FxaClient) {
     }
 
     // wah wah, we need to get entropy from the server.
-    return client.getRandomBytes()
+    //jshint validthis: true
+    return this._fxaClient.getRandomBytes()
         .then(function(bytes) {
           jwcrypto.addEntropy(bytes);
         });
   }
 
   function generateKeyPair() {
-    return ensureCryptoIsSeeded()
+    //jshint validthis: true
+    return ensureCryptoIsSeeded.call(this)
       .then(function() {
         var d = P.defer();
         // for DSA-128 reasons, see http://goo.gl/uAjE41
@@ -59,11 +59,13 @@ function (P, jwcrypto, FxaClient) {
 
   function certificate(audience) {
     //TODO: check for a valid cert in localStorage first?
-    return generateKeyPair().then(function (kp) {
+    //jshint validthis: true
+    var self = this;
+    return generateKeyPair.call(self).then(function (kp) {
       // while certSign is going over the wire, we can also sign the
       // assertion here on the machine
       return P.all([
-        client.certificateSign(kp.publicKey.toSimpleObject(), CERT_DURATION_MS),
+        self._fxaClient.certificateSign(kp.publicKey.toSimpleObject(), CERT_DURATION_MS),
         assertion(kp.secretKey, audience)
       ]);
     });
@@ -84,12 +86,15 @@ function (P, jwcrypto, FxaClient) {
   }
 
   function bundle(audience) {
-    return certificate(audience).spread(function (cert, ass) {
+    //jshint validthis: true
+    return certificate.call(this, audience).spread(function (cert, ass) {
       return jwcrypto.cert.bundle([cert.cert], ass);
     });
   }
 
-  function Assertion() {
+  function Assertion(options) {
+    options = options || {};
+    this._fxaClient = options.fxaClient;
   }
 
   Assertion.prototype = {

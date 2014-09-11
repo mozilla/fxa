@@ -16,17 +16,25 @@ define([
   'lib/fxa-client',
   'lib/translator',
   'lib/service-name',
+  'models/reliers/relier',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator, ServiceName, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
+      Translator, ServiceName, Relier, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
   var translator = new Translator('en-US', ['en-US']);
 
   describe('views/sign_in', function () {
-    var view, email, routerMock, metrics, windowMock, fxaClient;
+    var view;
+    var email;
+    var routerMock;
+    var metrics;
+    var windowMock;
+    var fxaClient;
+    var relier;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -36,13 +44,17 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient, Translator,
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       view = new View({
         router: routerMock,
         metrics: metrics,
         window: windowMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
 
       return view.render()

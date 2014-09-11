@@ -12,16 +12,23 @@ define([
   'lib/metrics',
   'lib/fxa-client',
   'views/complete_reset_password',
+  'models/reliers/relier',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, AuthErrors, Metrics, FxaClient, View, RouterMock, WindowMock, TestHelpers) {
+function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/complete_reset_password', function () {
-    var view, routerMock, windowMock, isPasswordResetComplete, metrics, fxaClient;
+    var view;
+    var routerMock;
+    var windowMock;
+    var isPasswordResetComplete;
+    var metrics;
+    var fxaClient;
+    var relier;
 
     function testEventLogged(eventName) {
       assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
@@ -35,7 +42,10 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, RouterMock, WindowMock,
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
-      fxaClient = new FxaClient();
+      relier = new Relier();
+      fxaClient = new FxaClient({
+        relier: relier
+      });
 
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
 
@@ -43,7 +53,8 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, RouterMock, WindowMock,
         router: routerMock,
         window: windowMock,
         metrics: metrics,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
 
       // mock in isPasswordResetComplete
