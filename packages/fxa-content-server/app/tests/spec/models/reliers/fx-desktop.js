@@ -12,29 +12,49 @@ define([
 ], function (chai, Relier, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
-  describe('reliers/reliers/fx-desktop', function () {
-    describe('fetch', function () {
-      var relier, windowMock;
+  describe('models/reliers/fx-desktop', function () {
+    var windowMock;
+    var relier;
 
-      beforeEach(function () {
-        windowMock = new WindowMock();
+    beforeEach(function () {
+      windowMock = new WindowMock();
 
-        relier = new Relier({
-          window: windowMock
-        });
+      relier = new Relier({
+        window: windowMock
       });
+    });
 
-      it('populates context & entrypoint from the search parameters', function () {
+    describe('fetch', function () {
+      it('populates model from the search parameters', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           context: 'fx_desktop_v1',
-          entrypoint: 'menupanel'
+          entrypoint: 'menupanel',
+          service: 'sync'
         });
 
         return relier.fetch()
             .then(function () {
               assert.equal(relier.get('context'), 'fx_desktop_v1');
               assert.equal(relier.get('entrypoint'), 'menupanel');
+              assert.equal(relier.get('service'), 'sync');
             });
+      });
+
+      it('translates `service` to `serviceName`', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: 'sync'
+        });
+
+        return relier.fetch()
+            .then(function () {
+              assert.equal(relier.get('serviceName'), 'Firefox Sync');
+            });
+      });
+    });
+
+    describe('isFxDesktop', function () {
+      it('returns `true`', function () {
+        assert.isTrue(relier.isFxDesktop());
       });
     });
   });

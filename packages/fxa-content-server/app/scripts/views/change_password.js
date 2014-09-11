@@ -34,7 +34,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
 
     context: function () {
       return {
-        isSync: this.isSync()
+        isSync: this.relier.isSync()
       };
     },
 

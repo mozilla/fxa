@@ -10,10 +10,10 @@ define([
   'views/ready',
   'lib/session',
   'lib/fxa-client',
-  'models/reliers/relier',
+  'models/reliers/fx-desktop',
   '../../mocks/window'
 ],
-function (chai, View, Session, FxaClient, Relier, WindowMock) {
+function (chai, View, Session, FxaClient, FxDesktopRelier, WindowMock) {
   var assert = chai.assert;
   //var redirectUri =  'https://sync.firefox.com';
 
@@ -25,7 +25,9 @@ function (chai, View, Session, FxaClient, Relier, WindowMock) {
 
     function createView(surveyPercentage) {
       windowMock = new WindowMock();
-      relier = new Relier();
+      relier = new FxDesktopRelier({
+        window: windowMock
+      });
       fxaClient = new FxaClient({
         relier: relier
       });
@@ -66,7 +68,7 @@ function (chai, View, Session, FxaClient, Relier, WindowMock) {
       });
 
       it('shows service name if available', function () {
-        Session.set('service', 'sync');
+        relier.set('serviceName', 'Firefox Sync');
 
         return view.render()
             .then(function () {
@@ -94,7 +96,7 @@ function (chai, View, Session, FxaClient, Relier, WindowMock) {
         //// This would be fetched from the OAuth server, but set it
         //// explicitly for tests that use the mock `sync` service ID.
         //view.serviceRedirectURI = redirectUri;
-        //Session.set('service', 'sync');
+        //relier.set('service', 'sync');
 
         //return view.render()
             //.then(function () {
@@ -108,7 +110,7 @@ function (chai, View, Session, FxaClient, Relier, WindowMock) {
 
       //it('shows redirectTo link and service name if continuing OAuth flow', function () {
         //[> jshint camelcase: false <]
-        //Session.set('service', 'sync');
+        //relier.set('service', 'sync');
 
         //// oauth is set if using the same browser
         //Session.set('oauth', {
@@ -140,7 +142,7 @@ function (chai, View, Session, FxaClient, Relier, WindowMock) {
       it('shows some form of marketing for english speakers', function () {
         view.type = 'sign_up';
         Session.set('language', 'en');
-        Session.set('service', 'sync');
+        relier.set('service', 'sync');
 
         return view.render()
             .then(function () {
@@ -149,12 +151,12 @@ function (chai, View, Session, FxaClient, Relier, WindowMock) {
       });
 
       it('formats the service name correctly depending on the redirect uris', function () {
-        view.serviceRedirectURI = 'https://find.firefox.com';
-        view.serviceName = 'Find My Device';
+        relier.set('redirectUri', 'https://find.firefox.com');
+        relier.set('serviceName', 'Find My Device');
         assert.equal(view.context().serviceName, '<a href="https://find.firefox.com" class="no-underline" id="redirectTo">Find My Device</a>');
 
-        view.serviceRedirectURI = 'urn:ietf:wg:oauth:2.0:fx:webchannel';
-        assert.equal(view.context().serviceName, view.serviceName);
+        relier.set('redirectUri', 'urn:ietf:wg:oauth:2.0:fx:webchannel');
+        assert.equal(view.context().serviceName, 'Find My Device');
       });
     });
   });

@@ -14,11 +14,9 @@ define([
   var NAMESPACE = '__fxa_session';
 
   // and should not be saved to sessionStorage
-  var DO_NOT_PERSIST = ['client_id', 'prefillPassword', 'prefillYear', 'error', 'service', 'cropImgWidth', 'cropImgHeight', 'cropImgSrc'];
+  var DO_NOT_PERSIST = ['prefillPassword', 'prefillYear', 'error', 'cropImgWidth', 'cropImgHeight', 'cropImgSrc'];
 
-  // Don't clear service because the signup page needs that state
-  //  even when user credentials are cleared.
-  var DO_NOT_CLEAR = ['client_id', 'context', 'service', 'config'];
+  var DO_NOT_CLEAR = ['config'];
 
   // these keys will be persisted to localStorage so that they live between browser sessions
   var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext', 'oauth', 'cachedCredentials'];
@@ -132,22 +130,6 @@ define([
         delete this[key];
         this.persist();
       }
-    },
-
-    // Convenience functions for data stored in session
-
-    isDesktopContext: function () {
-      return this.get('context') === Constants.FX_DESKTOP_CONTEXT;
-    },
-
-    // Check whether the user is in the OAuth flow.
-    //
-    // This is done here instead of in service-mixin to eliminate
-    // a circular dependency that causes the FxaClientWrapper to not
-    // load.
-    isOAuth: function () {
-      // It is OAuth if client_id is set, or service is present (service that is not sync)
-      return !! ( this.get('client_id') || (this.get('service') && this.service !== 'sync'));
     },
 
     // BEGIN TEST API

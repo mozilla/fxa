@@ -45,6 +45,7 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
       oAuthServersMock = new OAuthServersMock();
 
       relier = new Relier();
+      relier.set('serviceName', CLIENT_NAME);
       fxaClient = new FxaClient({
         relier: relier
       });

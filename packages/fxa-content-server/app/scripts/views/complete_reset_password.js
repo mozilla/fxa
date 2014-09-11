@@ -79,7 +79,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
 
       // damaged and expired links have special messages.
       return {
-        isSync: this.isSync(),
+        isSync: this.relier.isSync(),
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
         isLinkValid: doesLinkValidate && ! isLinkExpired

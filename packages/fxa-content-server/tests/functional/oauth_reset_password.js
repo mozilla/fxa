@@ -21,26 +21,19 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var CONTENT_SERVER = config.fxaContentRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
-  var COMPLETE_PAGE_URL_ROOT = CONTENT_SERVER + 'complete_reset_password';
 
   var PASSWORD = 'password';
   var user;
   var email;
-  var code;
-  var token;
-  var service;
   var client;
   var accountData;
 
-  function setTokenAndCodeFromEmail(user, emailNumber) {
+  function getVerificationUrlFromEmail(user, emailNumber) {
     var fetchCount = emailNumber + 1;
     return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, fetchCount)
       .then(function (emails) {
-        // token and code are hex values
         try {
-          token = emails[emailNumber].html.match(/token=([a-f\d]+)/)[1];
-          code = emails[emailNumber].html.match(/code=([a-f\d]+)/)[1];
-          service = emails[emailNumber].html.match(/service=([a-f\d]+)/)[1];
+          return emails[emailNumber].headers['x-link'];
         } catch (e) {
           console.error(emails);
         }
@@ -127,14 +120,9 @@ define([
 
             .findById('fxa-confirm-reset-password-header')
             .then(function () {
-              return setTokenAndCodeFromEmail(user, 1);
+              return getVerificationUrlFromEmail(user, 1);
             })
-            .then(function () {
-              var url = COMPLETE_PAGE_URL_ROOT +
-                '?token=' + token +
-                '&code=' + code +
-                '&service=' + service +
-                '&email=' + encodeURIComponent(email);
+            .then(function (url) {
               return self.get('remote').get(require.toUrl(url));
             })
             .end()

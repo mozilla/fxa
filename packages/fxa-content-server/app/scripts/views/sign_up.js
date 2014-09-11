@@ -46,12 +46,6 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
     initialize: function (options) {
       options = options || {};
 
-      var relier = options.relier;
-
-      // preVerifyToken is an opaque token that indicates to the auth server
-      // that a user has already been verified and they can skip verification.
-      this._preVerifyToken = relier && relier.get('preVerifyToken');
-
       // Reset forceAuth flag so users who visit the reset_password screen
       // see the correct links.
       Session.set('forceAuth', false);
@@ -63,17 +57,7 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
         return p(false);
       }
 
-      this.service = Session.service;
-
-      var self = this;
-      return p().then(function () {
-        return FormView.prototype.beforeRender.call(self);
-      })
-      .then(function () {
-        if (self.hasService() && self.isSync()) {
-          return self.setServiceInfo();
-        }
-      });
+      return FormView.prototype.beforeRender.call(this);
     },
 
     // afterRender fucnction to handle select-row hack (issue 822)
@@ -108,12 +92,12 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
       var autofocusEl = selectAutoFocusEl(email, Session.prefillPassword);
 
       return {
-        service: Session.service,
-        serviceName: this.serviceName,
+        service: this.relier.get('service'),
+        serviceName: this.relier.get('serviceName'),
         email: email,
         password: Session.prefillPassword,
         year: Session.prefillYear || 'none',
-        isSync: this.isSync(),
+        isSync: this.relier.isSync(),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
         shouldFocusYear: autofocusEl === 'year',
@@ -182,15 +166,14 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
     },
 
     _createAccount: function () {
-      var email = this.$('.email').val();
-      var password = this.$('.password').val();
-      var customizeSync = this.$('.customize-sync').is(':checked');
-      var preVerifyToken = this._preVerifyToken;
-
       var self = this;
-      return this.fxaClient.signUp(email, password, {
+      var email = self.$('.email').val();
+      var password = self.$('.password').val();
+      var customizeSync = self.$('.customize-sync').is(':checked');
+
+      return self.fxaClient.signUp(email, password, {
         customizeSync: customizeSync,
-        preVerifyToken: preVerifyToken
+        preVerifyToken: self.relier.get('preVerifyToken')
       }).then(_.bind(self.onSignUpSuccess, self))
       .then(null, function (err) {
         // Account already exists. No attempt is made at signing the
@@ -202,11 +185,11 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
           self.logEvent('login.canceled');
           // if user canceled login, just stop
           return;
-        } else if (self._preVerifyToken && AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
+        } else if (self.relier.has('preVerifyToken') && AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
           // The token was invalid and the auth server could not pre-verify
           // the user. Now, just create a new user and force them to verify
           // their email.
-          self._preVerifyToken = null;
+          self.relier.unset('preVerifyToken');
           return self._createAccount();
         }
 

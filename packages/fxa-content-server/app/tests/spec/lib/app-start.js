@@ -10,11 +10,14 @@ define([
   'lib/app-start',
   'lib/session',
   'lib/constants',
+  'lib/channels',
   '../../mocks/window',
   '../../mocks/router',
-  '../../mocks/history'
+  '../../mocks/history',
+  '../../lib/helpers'
 ],
-function (chai, AppStart, Session, Constants, WindowMock, RouterMock, HistoryMock) {
+function (chai, AppStart, Session, Constants, Channels, WindowMock, RouterMock,
+      HistoryMock, TestHelpers) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
 
@@ -26,7 +29,9 @@ function (chai, AppStart, Session, Constants, WindowMock, RouterMock, HistoryMoc
 
 
     function getFxDesktopContextSearchString() {
-      return '?context=' + Constants.FX_DESKTOP_CONTEXT;
+      return TestHelpers.toSearchString({
+        context: Constants.FX_DESKTOP_CONTEXT
+      });
     }
 
     function dispatchEventFromWindowMock(status, data) {
@@ -51,6 +56,12 @@ function (chai, AppStart, Session, Constants, WindowMock, RouterMock, HistoryMoc
         router: routerMock,
         history: historyMock
       });
+    });
+
+    afterEach(function () {
+      // Reset the Channels context or else we end up using the
+      // FxDesktopChannel and tests are *really* slow.
+      Channels.initialize({relier: null});
     });
 
     describe('startApp', function () {
@@ -122,14 +133,6 @@ function (chai, AppStart, Session, Constants, WindowMock, RouterMock, HistoryMoc
             .then(function () {
               assert.equal(routerMock.page, 'signin');
             });
-      });
-
-      it('sets the session service from a client_id query parameter', function () {
-        windowMock.location.search = '?client_id=testing';
-        return appStart.startApp()
-                    .then(function () {
-                      assert.equal(Session.service, 'testing');
-                    });
       });
     });
   });

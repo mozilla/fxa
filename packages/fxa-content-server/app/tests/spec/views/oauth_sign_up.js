@@ -63,13 +63,21 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
     beforeEach(function () {
       Session.clear();
       email = TestHelpers.createEmail();
+
       router = new RouterMock();
+
       windowMock = new WindowMock();
-      windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE + '&redirect_uri=' + encodeURIComponent(BASE_REDIRECT_URL);
-
-
       metrics = new Metrics();
-      relier = new Relier();
+      relier = new Relier({
+        window: windowMock
+      });
+      relier.set({
+        clientId: CLIENT_ID,
+        redirectUri: BASE_REDIRECT_URL,
+        state: STATE,
+        scope: SCOPE,
+        serviceName: CLIENT_NAME
+      });
 
       oAuthClient = new OAuthClient();
       sinon.stub(oAuthClient, 'getClientInfo', function () {
@@ -80,9 +88,11 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         });
       });
 
-      assertionLibrary = new Assertion();
       fxaClient = new FxaClient({
         relier: relier
+      });
+      assertionLibrary = new Assertion({
+        fxaClient: fxaClient
       });
 
       view = new View({
@@ -119,7 +129,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
     });
 
     describe('submit without a preVerifyToken', function () {
-      it('sets up the user\'s ouath session on success', function () {
+      it('sets up the user\'s oauth session on success', function () {
         fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
         sinon.stub(fxaClient, 'signUp', function () {
@@ -131,8 +141,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
 
         return view.submit()
           .then(function () {
-            assert.equal(Session.oauth.state, STATE);
-            assert.equal(Session.service, CLIENT_ID);
+            //jshint camelcase: false
+            assert.equal(Session.oauth.client_id, CLIENT_ID);
           });
       });
     });
@@ -150,20 +160,16 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
-        sinon.stub(oAuthClient, 'getCode', function () {
-          return {
-            redirect: BASE_REDIRECT_URL + '?state=fakestate&code=faketcode'
-          };
-        });
-
-        sinon.stub(assertionLibrary, 'generate', function () {
-          return 'fakeassertion';
-        });
-
         fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+
+        var isOAuthFlowFinished = false;
+        view.finishOAuthFlow = function () {
+          isOAuthFlowFinished = true;
+          return p(true);
+        };
         return view.submit()
             .then(function () {
-              assert.include(windowMock.location.href, BASE_REDIRECT_URL);
+              assert.isTrue(isOAuthFlowFinished);
             });
       });
 

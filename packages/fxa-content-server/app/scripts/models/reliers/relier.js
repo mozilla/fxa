@@ -16,6 +16,7 @@ define([
 
   var Relier = Backbone.Model.extend({
     defaults: {
+      service: null,
       preVerifyToken: null
     },
 
@@ -43,8 +44,18 @@ define([
       var self = this;
       return p()
           .then(function () {
+            self.importSearchParam('service');
             self.importSearchParam('preVerifyToken');
           });
+    },
+
+    /**
+     * Get a value from the URL search parameter
+     *
+     * @param {String} paramName - name of the search parameter to get
+     */
+    getSearchParam: function (paramName) {
+      return Url.searchParam(paramName, this._window.location.search);
     },
 
     /**
@@ -58,10 +69,31 @@ define([
     importSearchParam: function (paramName, modelName) {
       modelName = modelName || paramName;
 
-      var value = Url.searchParam(paramName, this._window.location.search);
+      var value = this.getSearchParam(paramName);
       if (typeof value !== 'undefined') {
         this.set(modelName, value);
       }
+    },
+
+    /**
+     * Check if the relier is using the oauth flow
+     */
+    isOAuth: function () {
+      return false;
+    },
+
+    /**
+     * Check if the relier is Firefox Desktop
+     */
+    isFxDesktop: function () {
+      return false;
+    },
+
+    /**
+     * Check if the relier is Sync for Firefox Desktop
+     */
+    isSync: function () {
+      return this.get('service') === 'sync';
     }
   });
 

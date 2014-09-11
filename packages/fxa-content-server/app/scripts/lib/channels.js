@@ -17,6 +17,11 @@ define([
   'use strict';
 
   return {
+    initialize: function (options) {
+      options = options || {};
+      this._relier = options.relier;
+    },
+
     /**
      * Get a channel.
      *
@@ -36,12 +41,14 @@ define([
       // try to get the webChannelId from Session and URL params
       var webChannelId = this.getWebChannelId(context);
 
-      if (Session.isDesktopContext()) {
+      var relier = this._relier;
+
+      if (relier && relier.isFxDesktop()) {
         channel = new FxDesktopChannel();
       } else if (webChannelId) {
         // use WebChannel if "webChannelId" is set
         channel = new WebChannel(webChannelId);
-      } else if (Session.isOAuth()) {
+      } else if (relier && relier.isOAuth()) {
         // By default, all OAuth communication happens via redirects.
         channel = new RedirectChannel();
       } else {

@@ -34,6 +34,7 @@ define([
   'lib/profile',
   'lib/constants',
   'models/reliers/relier',
+  'models/reliers/oauth',
   'models/reliers/fx-desktop'
 ],
 function (
@@ -53,6 +54,7 @@ function (
   Profile,
   Constants,
   Relier,
+  OAuthRelier,
   FxDesktopRelier
 ) {
 
@@ -80,8 +82,6 @@ function (
 
   Start.prototype = {
     startApp: function () {
-      this.initSessionFromUrl();
-
       // fetch both config and translations in parallel to speed up load.
       return p.all([
         this.initializeConfig(),
@@ -96,6 +96,8 @@ function (
                     // both the metrics and router depend on the language
                     // fetched from config.
                     .then(_.bind(this.initializeRelier, this))
+                    // channels relies on the relier
+                    .then(_.bind(this.initializeChannels, this))
                     // fxaClient depends on the relier.
                     .then(_.bind(this.initializeFxaClient, this))
                     // profileClient dependsd on fxaClient.
@@ -113,8 +115,8 @@ function (
     },
 
     initializeL10n: function () {
-      var translator = this._window.translator = new Translator();
-      return translator.fetch();
+      this._translator = this._window.translator = new Translator();
+      return this._translator.fetch();
     },
 
     initializeMetrics: function () {
@@ -129,22 +131,33 @@ function (
 
     initializeRelier: function () {
       if (! this._relier) {
-        if (this._isFxDesktop()) {
-          this._relier = new FxDesktopRelier({
-            window: this._window
-          });
-        } else {
-          this._relier = new Relier({
-            window: this._window
-          });
-        }
+        var Relier = this._getRelierConstructor();
+
+        this._relier = new Relier({
+          window: this._window,
+          translator: this._translator
+        });
 
         return this._relier.fetch();
       }
     },
 
+    _getRelierConstructor: function () {
+      if (this._isFxDesktop()) {
+        return FxDesktopRelier;
+      } else if (this._isOAuth()) {
+        return OAuthRelier;
+      }
+
+      return Relier;
+    },
+
     _isFxDesktop: function () {
       return this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT;
+    },
+
+    _isOAuth: function () {
+      return !! (this._searchParam('client_id') || this._searchParam('code'));
     },
 
     initializeFxaClient: function () {
@@ -177,6 +190,12 @@ function (
       this._window.router = this._router;
     },
 
+    initializeChannels: function () {
+      Channels.initialize({
+        relier: this._relier
+      });
+    },
+
     allResourcesReady: function () {
       // These must be initialized after Backbone.history so that
       // Backbone does not override the page the channel sets.
@@ -192,7 +211,7 @@ function (
 
           if (! areCookiesEnabled) {
             self._router.navigate('cookies_disabled');
-          } else if (Session.isDesktopContext()) {
+          } else if (self._isFxDesktop()) {
             return self._selectFxDesktopStartPage();
           }
         });
@@ -222,31 +241,6 @@ function (
               }
             }
           });
-    },
-
-    setSessionValueFromUrl: function (paramName, sessionName) {
-      var value = this._searchParam(paramName);
-      var name = sessionName || paramName;
-      if (value) {
-        Session.set(name, value);
-      } else {
-        Session.clear(name);
-      }
-    },
-
-    initSessionFromUrl: function () {
-      this.setSessionValueFromUrl('service');
-      this.setSessionValueFromUrl('redirectTo');
-      this.setSessionValueFromUrl('context');
-      this.initOAuthService();
-    },
-
-    // If Session.service hasn't been set,
-    // look for the service in the `client_id` parameter.
-    initOAuthService: function () {
-      if (! Session.service) {
-        this.setSessionValueFromUrl('client_id', 'service');
-      }
     }
   };
 
