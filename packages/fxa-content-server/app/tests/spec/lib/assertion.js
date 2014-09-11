@@ -34,8 +34,10 @@ function (chai, $, TestHelpers, P,
   describe('lib/assertion', function () {
     beforeEach(function () {
       Session.clear();
-      assertionLibrary = new Assertion();
       client = new FxaClientWrapper();
+      assertionLibrary = new Assertion({
+        fxaClient: client
+      });
       email = ' ' + TestHelpers.createEmail() + ' ';
       return client.signUp(email, password, { preVerified: true });
     });

@@ -11,14 +11,14 @@ define([
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
-  'lib/fxa-client',
   'lib/url',
   'lib/strings',
   'lib/ephemeral-messages',
   'lib/null-metrics',
   'views/mixins/timer-mixin'
 ],
-function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, EphemeralMessages, NullMetrics, TimerMixin) {
+function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
+      EphemeralMessages, NullMetrics, TimerMixin) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
@@ -31,10 +31,6 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
   // when a view is initialized, an initialized Metrics instance
   // is passed in to the contstructor.
   var nullMetrics = new NullMetrics();
-
-  // Share one fxa client across all views. View can be initialized
-  // with an fxaClient for testing.
-  var fxaClient = new FxaClient();
 
   function displaySuccess(displayStrategy, msg) {
     /*jshint validthis: true*/
@@ -83,8 +79,9 @@ function (_, Backbone, $, p, Session, AuthErrors, FxaClient, Url, Strings, Ephem
       this.router = options.router || this.window.router;
       this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
       this.metrics = options.metrics || nullMetrics;
+      this.relier = options.relier;
 
-      this.fxaClient = options.fxaClient || fxaClient;
+      this.fxaClient = options.fxaClient;
 
       this.automatedBrowser = !!this.searchParam('automatedBrowser');
 

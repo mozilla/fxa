@@ -11,19 +11,25 @@ define([
   'jquery',
   'views/settings/avatar_gravatar',
   '../../../mocks/router',
-  'lib/session'
+  'lib/session',
+  'lib/fxa-client'
 ],
-function (chai, _, $, View, RouterMock, Session) {
+function (chai, _, $, View, RouterMock, Session, FxaClient) {
   var assert = chai.assert;
   var GRAVATAR_URL = 'https://www.gravatar.com/avatar/';
 
   describe('views/settings/avatar/gravatar', function () {
-    var view, routerMock;
+    var view;
+    var routerMock;
+    var fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      fxaClient = new FxaClient();
+
       view = new View({
-        router: routerMock
+        router: routerMock,
+        fxaClient: fxaClient
       });
     });
 

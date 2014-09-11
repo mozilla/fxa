@@ -14,19 +14,26 @@ define([
   '../../../mocks/router',
   'lib/session',
   'lib/constants',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/fxa-client'
 ],
-function (chai, _, $, ui, View, RouterMock, Session, Constants, AuthErrors) {
+function (chai, _, $, ui, View, RouterMock, Session, Constants, AuthErrors,
+    FxaClient) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   describe('views/settings/avatar/crop', function () {
-    var view, routerMock;
+    var view;
+    var routerMock;
+    var fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      fxaClient = new FxaClient();
+
       view = new View({
-        router: routerMock
+        router: routerMock,
+        fxaClient: fxaClient
       });
     });
 

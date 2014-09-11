@@ -15,21 +15,28 @@ define([
   '../../../mocks/canvas',
   'lib/session',
   'lib/constants',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/fxa-client'
 ],
-function (chai, _, $, View, RouterMock, WindowMock, CanvasMock, Session, Constants, AuthErrors) {
+function (chai, _, $, View, RouterMock, WindowMock, CanvasMock, Session,
+      Constants, AuthErrors, FxaClient) {
   var assert = chai.assert;
 
   describe('views/settings/avatar/camera', function () {
-    var view, routerMock, windowMock;
+    var view;
+    var routerMock;
+    var windowMock;
+    var fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
-        window: windowMock
+        window: windowMock,
+        fxaClient: fxaClient
       });
     });
 

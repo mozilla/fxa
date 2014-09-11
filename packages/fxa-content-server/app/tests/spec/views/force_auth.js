@@ -106,7 +106,11 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
     });
 
     describe('with email', function () {
-      var view, windowMock, router, email;
+      var view;
+      var windowMock;
+      var router;
+      var email;
+      var fxaClient;
 
       beforeEach(function () {
         email = TestHelpers.createEmail();
@@ -114,11 +118,13 @@ function (chai, $, View, Session, FxaClient, WindowMock, RouterMock, TestHelpers
 
         windowMock = new WindowMock();
         windowMock.location.search = '?email=' + encodeURIComponent(email);
+        fxaClient = new FxaClient();
         router = new RouterMock();
 
         view = new View({
           window: windowMock,
-          router: router
+          router: router,
+          fxaClient: fxaClient
         });
         return view.render()
             .then(function () {

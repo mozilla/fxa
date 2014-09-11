@@ -16,9 +16,11 @@ define([
   'lib/session',
   'lib/assertion',
   'lib/constants',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/fxa-client'
 ],
-function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion, Constants, AuthErrors) {
+function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
+      Constants, AuthErrors, FxaClient) {
   var assert = chai.assert;
   // 1x1 jpeg
   var jpgSrcData = '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBA' +
@@ -37,12 +39,17 @@ function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion, Constants,
   var OAUTH_URL = 'http://127.0.0.1:9010';
 
   describe('views/settings/avatar/url', function () {
-    var view, routerMock, server;
+    var view;
+    var routerMock;
+    var server;
+    var fxaClient;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      fxaClient = new FxaClient();
       view = new View({
-        router: routerMock
+        router: routerMock,
+        fxaClient: fxaClient
       });
     });
 

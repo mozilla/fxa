@@ -122,7 +122,7 @@ define([
 
       // assertion library to use to generate assertions
       // can be substituted for testing
-      this.assertionLibrary = deps.assertionLibrary || new Assertion();
+      this.assertionLibrary = deps.assertionLibrary || new Assertion({ fxaClient: this.fxaClient });
 
       Session.set('service', this.service);
       // A hint that allows Session to determine whether the user

@@ -80,7 +80,8 @@ function (
         window: this.window,
         router: this,
         language: this.language,
-        relier: this.relier
+        relier: this.relier,
+        fxaClient: this.fxaClient
       }, options || {});
 
       this.showView(new View(options));
@@ -128,6 +129,7 @@ function (
       this.metrics = options.metrics;
       this.language = options.language;
       this.relier = options.relier;
+      this.fxaClient = options.fxaClient;
 
       this.$stage = $('#stage');
 
