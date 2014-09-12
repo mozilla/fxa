@@ -97,6 +97,7 @@ function () {
   return {
     ERROR_TO_CODE: ERROR_TO_CODE,
     CODE_TO_MESSAGES: CODE_TO_MESSAGES,
+    NAMESPACE: 'auth',
 
     /**
      * Convert an error, a numeric code or string type to a message
@@ -161,11 +162,23 @@ function () {
     },
 
     /**
-     * Synthesize an error of the given type with the supplied message.
+     * Synthesize an error of the given type
+     *
+     * @param {String || Number || Object} type
+     * @param {String} [context]
      */
-    toError: function (type, message) {
+    toError: function (type, context) {
+      var message = this.toMessage(type);
+
       var err = new Error(message);
       err.errno = this.toCode(type);
+      err.namespace = this.NAMESPACE;
+      err.message = message;
+
+      if (context) {
+        err.context = context;
+      }
+
       return err;
     },
 

@@ -39,6 +39,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
     var metrics;
     var fxaClient;
     var relier;
+    var screenName = 'screen';
 
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
@@ -49,6 +50,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
 
       router = new RouterMock();
       windowMock = new WindowMock();
+      windowMock.location.pathname = '/' + screenName;
       ephemeralMessages = new EphemeralMessages();
       metrics = new Metrics();
       relier = new Relier();
@@ -223,11 +225,10 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
       });
 
       it('adds an entry into the event stream', function () {
-        var err = AuthErrors.toError('INVALID_TOKEN', 'bad token, man');
+        var err = AuthErrors.toError('INVALID_TOKEN', screenName);
         view.displayError(err);
 
-        assert.isTrue(TestHelpers.isEventLogged(metrics,
-                          metrics.errorToId('INVALID_TOKEN', AuthErrors)));
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
 
       it('displays an `Unexpected Error` if no error passed in', function () {
@@ -249,11 +250,11 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
       });
 
       it('adds an entry into the event stream', function () {
-        var err = AuthErrors.toError('INVALID_TOKEN', 'bad token, man');
+        var err = AuthErrors.toError('INVALID_TOKEN', screenName);
+
         view.displayError(err);
 
-        assert.isTrue(TestHelpers.isEventLogged(metrics,
-                          metrics.errorToId('INVALID_TOKEN', AuthErrors)));
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
 
       it('displays an `Unexpected Error` if no error passed in', function () {
@@ -279,7 +280,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
     describe('navigate', function () {
       it('navigates to a page', function (done) {
         router.on('navigate', function (newPage) {
-          wrapAssertion(function() {
+          wrapAssertion(function () {
             assert.equal(newPage, 'signin');
           }, done);
         });
@@ -287,12 +288,12 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
       });
 
       it('logs an error if an error is passed in the options', function () {
+        var err = AuthErrors.toError('SESSION_EXPIRED', screenName);
         view.navigate('signin', {
-          error: AuthErrors.toError('SESSION_EXPIRED')
+          error: err
         });
 
-        assert.isTrue(TestHelpers.isEventLogged(metrics,
-                          metrics.errorToId('SESSION_EXPIRED', AuthErrors)));
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
     });
 
@@ -332,7 +333,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
     describe('BaseView.preventDefaultThen', function () {
       it('can take the name of a function as the name of the event handler', function (done) {
         view.eventHandler = function (event) {
-          wrapAssertion(function() {
+          wrapAssertion(function () {
             assert.isTrue(event.isDefaultPrevented());
           }, done);
         };
@@ -343,7 +344,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
 
       it('can take a function as the event handler', function (done) {
         function eventHandler(event) {
-          wrapAssertion(function() {
+          wrapAssertion(function () {
             assert.isTrue(event.isDefaultPrevented());
           }, done);
         }
@@ -365,7 +366,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
     describe('BaseView.cancelEventThen', function () {
       it('can take the name of a function as the name of the event handler', function (done) {
         view.eventHandler = function (event) {
-          wrapAssertion(function() {
+          wrapAssertion(function () {
             assert.isTrue(event.isDefaultPrevented());
             assert.isTrue(event.isPropagationStopped());
           }, done);
@@ -377,7 +378,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
 
       it('can take a function as the event handler', function (done) {
         function eventHandler(event) {
-          wrapAssertion(function() {
+          wrapAssertion(function () {
             assert.isTrue(event.isDefaultPrevented());
             assert.isTrue(event.isPropagationStopped());
           }, done);
@@ -440,9 +441,10 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
 
     describe('logError', function () {
       it('logs an error to the event stream', function () {
-        view.logError(AuthErrors.toError('INVALID_TOKEN'));
-        assert.isTrue(TestHelpers.isEventLogged(metrics,
-                          metrics.errorToId('INVALID_TOKEN', AuthErrors)));
+        var err = AuthErrors.toError('INVALID_TOKEN', screenName);
+
+        view.logError(err);
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
 
       it('does not log already logged errors', function () {
@@ -460,7 +462,8 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
         view.metrics.events.clear();
         view.logError();
 
-        assert.isTrue(TestHelpers.isEventLogged(metrics, metrics.errorToId('UNEXPECTED_ERROR', AuthErrors)));
+        var err = AuthErrors.toError('UNEXPECTED_ERROR', screenName);
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
 
       it('prints a stack trace via console.trace to facilitate debugging if no error object is passed in', function () {

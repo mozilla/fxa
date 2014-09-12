@@ -15,6 +15,24 @@ function (chai, AuthErrors) {
   var assert = chai.assert;
 
   describe('lib/auth-errors', function () {
+    describe('toError', function () {
+      it('converts a string to an Error object with expected fields', function () {
+        var err = AuthErrors.toError('INVALID_TOKEN');
+        assert.isTrue(err instanceof Error);
+
+        assert.equal(err.errno, 110);
+        assert.equal(err.namespace, 'auth');
+        assert.equal(err.message, AuthErrors.toMessage('INVALID_TOKEN'));
+      });
+
+      it('sets `context` field of error if given', function () {
+        var err = AuthErrors.toError('INVALID_TOKEN', 'the context');
+        assert.isTrue(err instanceof Error);
+
+        assert.equal(err.context, 'the context');
+      });
+    });
+
     describe('toMessage', function () {
       it('converts a code to a message', function () {
         assert.equal(AuthErrors.toMessage(102), 'Unknown account');

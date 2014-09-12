@@ -70,10 +70,6 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors, TestHe
                   });
     }
 
-    function testEventLogged(eventName) {
-      assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
-    }
-
     beforeEach(function () {
       metrics = new Metrics();
       view = new View({
@@ -265,7 +261,7 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors, TestHe
         var err = AuthErrors.toError('EMAIL_REQUIRED');
         view.on('validation_error', function () {
           TestHelpers.wrapAssertion(function () {
-            testEventLogged(metrics.errorToId(err, AuthErrors));
+            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
           }, done);
         });
         view.showValidationError('#focusMe', err);

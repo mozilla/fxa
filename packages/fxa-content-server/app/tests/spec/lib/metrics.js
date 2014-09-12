@@ -8,9 +8,11 @@ define([
   'chai',
   'jquery',
   'lib/metrics',
-  '../../mocks/window'
+  'lib/auth-errors',
+  '../../mocks/window',
+  '../../lib/helpers'
 ],
-function (chai, $, Metrics, WindowMock) {
+function (chai, $, Metrics, AuthErrors, WindowMock, TestHelpers) {
   'use strict';
 
   /*global describe, it*/
@@ -184,6 +186,31 @@ function (chai, $, Metrics, WindowMock) {
           assert.equal(sentData.events[0].type, 'event-is-autoflushed');
           done();
         });
+      });
+    });
+
+    describe('errorToId', function () {
+      it('converts an error into an id that can be used for logging', function () {
+        var error = AuthErrors.toError('UNEXPECTED_ERROR', 'signup');
+
+        var id = metrics.errorToId(error);
+        assert.equal(id, 'error.signup.auth.999');
+      });
+    });
+
+    describe('logError', function () {
+      it('logs an error', function () {
+        var error = AuthErrors.toError('UNEXPECTED_ERROR', 'signup');
+
+        metrics.logError(error);
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, error));
+      });
+    });
+
+    describe('logScreen', function () {
+      it('logs the screen', function () {
+        metrics.logScreen('signup');
+        assert.isTrue(TestHelpers.isScreenLogged(metrics, 'signup'));
       });
     });
   });
