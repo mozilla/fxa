@@ -33,6 +33,8 @@ function (chai, $, TestHelpers, P,
   var assertionLibrary;
   var relier;
 
+  var LONG_LIVED_ASSERTION_DURATION = 1000 * 3600 * 24 * 365 * 25; // 25 years
+
   describe('lib/assertion', function () {
     beforeEach(function () {
       Session.clear();
@@ -91,6 +93,10 @@ function (chai, $, TestHelpers, P,
 
                 if (components.payload.exp > (components.payload.exp + 5000)) {
                   throw new Error('assertion was likely issued after cert expired');
+                }
+
+                if (assertionComponents.payload.exp < (Date.now() + LONG_LIVED_ASSERTION_DURATION - 5000)) {
+                  throw new Error('assertion should be long lived');
                 }
 
                 jwcrypto.assertion.verify(jwcrypto,

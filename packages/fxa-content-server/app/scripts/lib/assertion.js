@@ -10,7 +10,7 @@ define([
 ],
 function (P, jwcrypto) {
   var CERT_DURATION_MS = 1000 * 60 * 60 * 6; // 6hrs
-  var ASSERTION_DURATION_MS = 1000 * 60 * 5; // 5mins
+  var ASSERTION_DURATION_MS = 1000 * 3600 * 24 * 365 * 25; // 25 years
 
   function ensureCryptoIsSeeded() {
     // The jwcrypto RNG needs to be seeded with entropy. If the browser
