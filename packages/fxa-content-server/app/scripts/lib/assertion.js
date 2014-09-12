@@ -33,7 +33,7 @@ function (P, jwcrypto) {
     // wah wah, we need to get entropy from the server.
     //jshint validthis: true
     return this._fxaClient.getRandomBytes()
-        .then(function(bytes) {
+        .then(function (bytes) {
           jwcrypto.addEntropy(bytes);
         });
   }
@@ -41,21 +41,16 @@ function (P, jwcrypto) {
   function generateKeyPair() {
     //jshint validthis: true
     return ensureCryptoIsSeeded.call(this)
-      .then(function() {
-        var d = P.defer();
+      .then(function () {
+        var genKeypair = P.denodeify(jwcrypto.generateKeypair);
         // for DSA-128 reasons, see http://goo.gl/uAjE41
-        jwcrypto.generateKeypair({
+        return genKeypair({
           algorithm: 'DS',
           keysize: 128
-        }, function (err, keypair) {
-          if (err) {
-            return d.reject(err);
-          }
-          d.resolve(keypair);
         });
-        return d.promise;
       });
   }
+
 
   function certificate(audience) {
     //TODO: check for a valid cert in localStorage first?
@@ -72,17 +67,12 @@ function (P, jwcrypto) {
   }
 
   function assertion(secretKey, audience) {
-    var d = P.defer();
-    jwcrypto.assertion.sign(jwcrypto, {}, {
+    var createAssertion = P.denodeify(jwcrypto.assertion.sign);
+
+    return createAssertion(jwcrypto, {}, {
       audience: audience,
       expiresAt: Date.now() + ASSERTION_DURATION_MS
-    }, secretKey, function (err, ass) {
-      if (err) {
-        return d.reject(err);
-      }
-      d.resolve(ass);
-    });
-    return d.promise;
+    }, secretKey);
   }
 
   function bundle(audience) {
