@@ -10,9 +10,11 @@ const P = require('../../promise');
 const AppError = require('../../error');
 const config = require('../../config');
 const db = require('../../db');
+const hex = require('buf').to.hex;
 const img = require('../../img');
 const logger = require('../../logging').getLogger('fxa.routes.avatar.upload');
 const request = require('../../request');
+const validate = require('../../validate');
 
 const WORKER_URL = config.get('worker.url');
 
@@ -66,6 +68,9 @@ module.exports = {
   },
   response: {
     schema: {
+      id: Joi.string()
+        .regex(validate.hex)
+        .length(32),
       url: Joi.string().required()
     }
   },
@@ -79,7 +84,7 @@ module.exports = {
         return db.addAvatar(id, uid, url, FXA_PROVIDER, true);
       })
       .done(function uploadDone() {
-        reply({ url: url }).code(201);
+        reply({ url: url, id: hex(id) }).code(201);
       }, reply);
   }
 };

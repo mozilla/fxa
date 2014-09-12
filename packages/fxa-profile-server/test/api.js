@@ -222,14 +222,14 @@ describe('/avatar', function() {
   var tok = token();
   var PROVIDER = 'gravatar';
   var user = uid();
+  var id1 = avatarId();
+  var id2 = avatarId();
+  var id3 = avatarId();
 
   describe('GET', function() {
     before(function() {
       var grav1 = GRAVATAR.slice(0, -1) + '1';
       var grav2 = GRAVATAR.slice(0, -1) + '2';
-      var id1 = avatarId();
-      var id2 = avatarId();
-      var id3 = avatarId();
       return db.addAvatar(id1, user, grav1, PROVIDER, true)
         .then(function() {
           // replace grav1 as selected
@@ -252,6 +252,7 @@ describe('/avatar', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.avatar, GRAVATAR);
+        assert.equal(res.result.id, id2);
       });
     });
   });
@@ -273,6 +274,7 @@ describe('/avatar', function() {
         }
       }).then(function(res) {
         assert.equal(res.statusCode, 201);
+        assert(res.result.id);
       });
     });
     it('should check url matches a provider', function() {
@@ -322,6 +324,7 @@ describe('/avatar', function() {
       }).then(function(res) {
         assert.equal(res.statusCode, 201);
         assert(res.result.url);
+        assert(res.result.id);
         return res.result.url;
       }).then(Static.get).then(function(res) {
         assert.equal(res.statusCode, 200);
@@ -411,6 +414,7 @@ describe('/avatars', function() {
       assert.equal(res.result.avatars.length, 3);
       var selected = false;
       res.result.avatars.forEach(function(av) {
+        assert(av.id);
         if (av.url === GRAVATAR) {
           assert(av.selected);
           selected = true;

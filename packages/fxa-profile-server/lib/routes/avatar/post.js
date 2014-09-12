@@ -6,10 +6,11 @@ const Joi = require('joi');
 
 const AppError = require('../../error');
 const db = require('../../db');
+const hex = require('buf').to.hex;
 const img = require('../../img');
+const validate = require('../../validate');
 
 
-const EMPTY = Object.create(null);
 const PROVIDERS = (function(providers) {
   var ret = Object.create(null);
   var keys = Object.keys(providers);
@@ -31,7 +32,11 @@ module.exports = {
     }
   },
   response: {
-    schema: false
+    schema: {
+      id: Joi.string()
+        .regex(validate.hex)
+        .length(32)
+    }
   },
   handler: function avatarPost(req, reply) {
     var uid = req.auth.credentials.user;
@@ -50,7 +55,7 @@ module.exports = {
     var id = img.id();
     db.addAvatar(id, uid, payload.url, provider, payload.selected)
     .done(function() {
-      reply(EMPTY).code(201);
+      reply({ id: hex(id) }).code(201);
     }, reply);
   }
 };
