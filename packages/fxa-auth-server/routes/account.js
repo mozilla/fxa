@@ -97,6 +97,9 @@ module.exports = function (
                   )
                   .then(
                     function (account) {
+                      if (account.emailVerified) {
+                        log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
+                      }
                       return db.createSessionToken(
                         {
                           uid: account.uid,
@@ -481,6 +484,7 @@ module.exports = function (
               if (!butil.buffersAreEqual(code, account.emailCode)) {
                 throw error.invalidVerificationCode()
               }
+              log.event('verified', { email: account.email, uid: account.uid, locale: account.locale })
               return db.verifyEmail(account)
             }
           )
