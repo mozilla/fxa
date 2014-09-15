@@ -1,3 +1,12 @@
+<a name="0.1.25"></a>
+### 0.1.25 (2014-09-15)
+
+
+#### Features
+
+* **client:** Pass along the `resume` parameter to the auth-server ([07cff4ec](https://github.com/mozilla/fxa-js-client/commit/07cff4ec9568f2243400755dbed7ce4c077aa02b))
+
+
 <a name="0.1.24"></a>
 ### 0.1.24 (2014-09-03)
 
