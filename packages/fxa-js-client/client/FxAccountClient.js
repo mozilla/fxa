@@ -50,6 +50,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    *   set email to be verified if possible
    *   @param {String} [options.preVerifyToken]
    *   Opaque alphanumeric token that can be used to pre-verify a user.
+   *   @param {String} [options.resume]
+   *   Opaque url-encoded string that will be included in the verification link
+   *   as a querystring parameter, useful for continuing an OAuth flow for
+   *   example.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
@@ -90,6 +94,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
 
             if (options.preVerifyToken) {
               data.preVerifyToken = options.preVerifyToken;
+            }
+
+            if (options.resume) {
+              data.resume = options.resume;
             }
 
             if (options.keys) {
@@ -203,6 +211,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    *   Opaque alphanumeric token to be included in verification links
    *   @param {String} [options.redirectTo]
    *   a URL that the client should be redirected to after handling the request
+   *   @param {String} [options.resume]
+   *   Opaque url-encoded string that will be included in the verification link
+   *   as a querystring parameter, useful for continuing an OAuth flow for
+   *   example.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
@@ -221,6 +233,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
 
       if (options.redirectTo) {
         data.redirectTo = options.redirectTo;
+      }
+
+      if (options.resume) {
+        data.resume = options.resume;
       }
 
       if (options.lang) {
@@ -247,6 +263,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    *   Opaque alphanumeric token to be included in verification links
    *   @param {String} [options.redirectTo]
    *   a URL that the client should be redirected to after handling the request
+   *   @param {String} [options.resume]
+   *   Opaque url-encoded string that will be included in the verification link
+   *   as a querystring parameter, useful for continuing an OAuth flow for
+   *   example.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
@@ -266,6 +286,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
 
       if (options.redirectTo) {
         data.redirectTo = options.redirectTo;
+      }
+
+      if (options.resume) {
+        data.resume = options.resume;
       }
 
       if (options.lang) {
@@ -290,6 +314,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
    *   Opaque alphanumeric token to be included in verification links
    *   @param {String} [options.redirectTo]
    *   a URL that the client should be redirected to after handling the request
+   *   @param {String} [options.resume]
+   *   Opaque url-encoded string that will be included in the verification link
+   *   as a querystring parameter, useful for continuing an OAuth flow for
+   *   example.
    *   @param {String} [options.lang]
    *   set the language for the 'Accept-Language' header
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
@@ -311,6 +339,10 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
 
       if (options.redirectTo) {
         data.redirectTo = options.redirectTo;
+      }
+
+      if (options.resume) {
+        data.resume = options.resume;
       }
 
       if (options.lang) {
