@@ -29,7 +29,7 @@
     "connect-restreamer": "1.0.0",
     "consolidate": "0.10.0",
     "convict": "0.4.2",
-    "express": "3.16.0",
+    "express": "3.17.1",
     "grunt": "0.4.5",
     "grunt-autoprefixer": "1.0.0",
     "grunt-cli": "0.1.13",
