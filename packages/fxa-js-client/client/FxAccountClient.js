@@ -1,8 +1,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredentials', './lib/errors'],
-  function (Request, sjcl, P, credentials, hawkCredentials, ERRORS) {
+define([
+  './lib/request',
+  'sjcl',
+  'p',
+  './lib/credentials',
+  './lib/hawkCredentials',
+  './lib/errors'
+], function (Request, sjcl, P, credentials, hawkCredentials, ERRORS) {
   'use strict';
 
   var VERSION = 'v1';
@@ -158,9 +164,9 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
               },
               function(error) {
                 if (error && error.email && error.errno === ERRORS.INCORRECT_EMAIL_CASE && !options.skipCaseError) {
-                    options.skipCaseError = true;
+                  options.skipCaseError = true;
 
-                    return self.signIn(error.email, password, options);
+                  return self.signIn(error.email, password, options);
                 } else {
                   throw error;
                 }
@@ -457,7 +463,7 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
             function(payload) {
 
               return credentials.unbundleKeyFetchResponse(bundleKey, payload.bundle);
-              });
+            });
       })
       .then(function(keys) {
         return {
@@ -636,7 +642,7 @@ define(['./lib/request', 'sjcl', 'p', './lib/credentials', './lib/hawkCredential
           .then(function (keys) {
 
             return self._passwordChangeFinish(email, newPassword, oldCreds, keys);
-        });
+          });
       });
 
   };

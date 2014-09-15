@@ -15,7 +15,7 @@ module.exports = function (grunt) {
       '!tests/**'
     ],
     options: {
-        config: '.jscs.json'
+      config: '.jscsrc'
     }
   });
 };
