@@ -22,7 +22,8 @@
     "underscore": "1.5.2",
     "jquery-ui": "1.11.0",
     "JavaScript-MD5": "1.1.0",
-    "jquery-ui-touch-punch": "https://github.com/zaach/jquery-ui-touch-punch.git#89e5a9159494de37df1e09cccf9036dda5429830"
+    "jquery-ui-touch-punch": "https://github.com/zaach/jquery-ui-touch-punch.git#89e5a9159494de37df1e09cccf9036dda5429830",
+    "blueimp-canvas-to-blob": "2.1.0"
   },
   "devDependencies": {}
 }

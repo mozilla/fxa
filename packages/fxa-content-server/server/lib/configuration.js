@@ -111,8 +111,14 @@ var conf = module.exports = convict({
   profile_url: {
     doc: 'The url of the Firefox Account Profile Server',
     format: 'url',
-    default: 'https://profile.dev.lcip.org',
+    default: 'http://127.0.0.1:1111',
     env: 'FXA_PROFILE_URL'
+  },
+  profile_images_url: {
+    doc: 'The url of the Firefox Account Profile Image Server',
+    format: 'url',
+    default: 'http://127.0.0.1:1112',
+    env: 'FXA_PROFILE_IMAGES_URL'
   },
   oauth_client_id: {
     doc: 'The client_id of the content server',
@@ -152,7 +158,8 @@ var conf = module.exports = convict({
     coverage: {
       globalThreshold: 90,
       threshold: 50,
-      excludeFiles: ['/scripts/../tests/', '/scripts/vendor/', '/scripts/../bower_components/', 'require_config']
+      // Avatar tests are disabled until #1581 is resolved
+      excludeFiles: ['/scripts/../tests/', '/scripts/vendor/', '/scripts/../bower_components/', 'require_config', 'avatar_url']
     }
   },
   i18n: {

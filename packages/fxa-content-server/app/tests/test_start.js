@@ -27,6 +27,7 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/lib/auth-errors',
     '../tests/spec/lib/oauth-errors',
     '../tests/spec/lib/profile-client',
+    '../tests/spec/lib/profile',
     '../tests/spec/lib/app-start',
     '../tests/spec/lib/validate',
     '../tests/spec/lib/service-name',
@@ -47,7 +48,8 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/views/settings/avatar_change',
     '../tests/spec/views/settings/avatar_crop',
     '../tests/spec/views/settings/avatar_gravatar',
-    '../tests/spec/views/settings/avatar_url',
+    // TODO Disabled until #1581
+    //'../tests/spec/views/settings/avatar_url',
     '../tests/spec/views/settings/avatar_camera',
     '../tests/spec/views/change_password',
     '../tests/spec/views/delete_account',

@@ -16,7 +16,8 @@ require.config({
     'p-promise': '../bower_components/p/p',
     sinon: '../bower_components/sinon/index',
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',
-    md5: '../bower_components/JavaScript-MD5/js/md5'
+    md5: '../bower_components/JavaScript-MD5/js/md5',
+    canvasToBlob: '../bower_components/blueimp-canvas-to-blob/js/canvas-to-blob'
   },
   packages: [
     { name: 'draggable',

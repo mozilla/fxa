@@ -237,7 +237,7 @@ function () {
   };
 
   // Get the final cropped image data
-  Cropper.prototype.toDataURL = function (type, quality) {
+  Cropper.prototype._export = function () {
     var context = this.canvas.getContext('2d');
     var sourcePos = this.cropPosition();
     var destLength = this.exportLength;
@@ -254,8 +254,18 @@ function () {
       sourcePos.length,
       0, 0, destLength, destLength
     );
+  };
 
-    return this.canvas.toDataURL(type || 'image/png', quality);
+  // Get the final cropped image data as a datauri
+  Cropper.prototype.toDataURL = function (type, quality) {
+    this._export();
+    return this.canvas.toDataURL(type, quality);
+  };
+
+  // Get the final cropped image data as a blob
+  Cropper.prototype.toBlob = function (cb, type, quality) {
+    this._export();
+    return this.canvas.toBlob(cb, type, quality);
   };
 
   return Cropper;

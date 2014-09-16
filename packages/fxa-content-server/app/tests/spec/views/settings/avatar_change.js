@@ -9,36 +9,31 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'sinon',
   'views/settings/avatar_change',
   '../../../mocks/router',
   '../../../mocks/file-reader',
+  '../../../mocks/profile',
+  'lib/promise',
   'lib/session',
   'lib/auth-errors',
-  'lib/fxa-client',
-  'models/reliers/relier'
+  'lib/profile'
 ],
-function (chai, _, $, View, RouterMock, FileReaderMock, Session, AuthErrors,
-      FxaClient, Relier) {
+function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
+            p, Session, AuthErrors, Profile) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   describe('views/settings/avatar/change', function () {
     var view;
     var routerMock;
-    var fxaClient;
-    var relier;
+    var profileClientMock;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
 
       view = new View({
-        router: routerMock,
-        fxaClient: fxaClient,
-        relier: relier
+        router: routerMock
       });
     });
 
@@ -47,10 +42,14 @@ function (chai, _, $, View, RouterMock, FileReaderMock, Session, AuthErrors,
       view.destroy();
       view = null;
       routerMock = null;
+      profileClientMock = null;
     });
 
     describe('with no session', function () {
       it('redirects to signin', function() {
+        view.isUserAuthorized = function () {
+          return false;
+        };
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -60,6 +59,12 @@ function (chai, _, $, View, RouterMock, FileReaderMock, Session, AuthErrors,
 
     describe('with session', function () {
       beforeEach(function () {
+        profileClientMock = new ProfileMock();
+
+        view = new View({
+          router: routerMock,
+          profileClient: profileClientMock
+        });
         view.isUserAuthorized = function () {
           return true;
         };
@@ -74,13 +79,22 @@ function (chai, _, $, View, RouterMock, FileReaderMock, Session, AuthErrors,
 
       it('can remove the avatar', function () {
         Session.set('avatar', pngSrc);
+        Session.set('avatarId', 'foo');
+
+        sinon.stub(profileClientMock, 'deleteAvatar', function (id) {
+          assert.equal(id, 'foo');
+          return p('');
+        });
+
         return view.render()
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').attr('src'), pngSrc);
 
-            view.remove();
-            assert.equal(routerMock.page, 'settings/avatar');
-            assert.ok(! Session.avatar);
+            return view.remove()
+              .then(function () {
+                assert.equal(routerMock.page, 'settings/avatar');
+                assert.ok(! Session.avatar);
+              });
           });
       });
 

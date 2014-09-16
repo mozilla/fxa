@@ -10,37 +10,13 @@ define([
   'stache!templates/settings/avatar_url',
   'lib/session',
   'lib/oauth-client',
-  'lib/profile-client',
+  'lib/profile',
   'lib/assertion',
   'lib/auth-errors'
 ],
-function (_, FormView, Template, Session, OAuthClient, ProfileClient, Assertion, AuthErrors) {
+function (_, FormView, Template, Session, OAuthClient, Profile, Assertion, AuthErrors) {
   // A short/effective regex taken from http://mathiasbynens.be/demo/url-regex
   var urlRegex = /https?:\/\/(-\.)?([^\s\/?\.#-]+\.?)+(\/[^\s]*)?$/i;
-
-  function getProfileClient() {
-    /* jshint camelcase: false */
-    var config = Session.config;
-    var params = {
-      client_id: config.oauthClientId
-    };
-    var oauthClient = new OAuthClient({
-      oauthUrl: config.oauthUrl
-    });
-
-    return Assertion.generate(config.oauthUrl)
-      .then(function(assertion) {
-        params.assertion = assertion;
-        return oauthClient.getToken(params);
-      })
-      .then(function(result) {
-        var profileClient = new ProfileClient({
-          token: result.access_token,
-          profileUrl: config.profileUrl
-        });
-        return profileClient;
-      });
-  }
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
@@ -100,14 +76,13 @@ function (_, FormView, Template, Session, OAuthClient, ProfileClient, Assertion,
           img.onerror = imgOnerrer;
 
           Session.set('cropImgSrc', src);
+          // TODO How we determine the actual image type depends on #1581
+          Session.set('cropImgType', 'image/jpeg');
         });
     },
 
     getRemoteImageSrc: function (url) {
-      return getProfileClient()
-        .then(function(profileClient) {
-          return profileClient.getRemoteImage(url);
-        })
+      return this.profileClient.getRemoteImage(url)
         .then(function(src) {
           return 'data:image/jpeg;base64,' + src;
         });

@@ -6,18 +6,23 @@
 
 define([
   'underscore',
+  'canvasToBlob',
   'views/form',
   'stache!templates/settings/avatar_camera',
+  'lib/constants',
+  'lib/promise',
   'lib/session',
   'lib/auth-errors',
   'lib/url'
 ],
-function (_, FormView, Template, Session, AuthErrors, Url) {
+function (_, canvasToBlob, FormView, Template, Constants, p, Session, AuthErrors, Url) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
-  var EXPORT_LENGTH = 600;
-  var DISPLAY_LENGTH = 240;
+  var EXPORT_LENGTH = Constants.PROFILE_IMAGE_EXPORT_SIZE;
+  var DISPLAY_LENGTH = Constants.PROFILE_IMAGE_DISPLAY_SIZE;
+  var JPEG_QUALITY = Constants.PROFILE_IMAGE_JPEG_QUALITY;
+  var MIME_TYPE = Constants.DEFAULT_PROFILE_IMAGE_MIME_TYPE;
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
@@ -47,9 +52,6 @@ function (_, FormView, Template, Session, AuthErrors, Url) {
         };
         this.stream = {
           stop: function () {}
-        };
-        this.takePicture = function () {
-          return pngSrc;
         };
       }
     },
@@ -125,13 +127,21 @@ function (_, FormView, Template, Session, AuthErrors, Url) {
     },
 
     submit: function () {
-      var data = this.takePicture();
-      Session.set('avatar', data);
+      var self = this;
 
-      this.stream.stop();
-      delete this.stream;
+      return this.takePicture()
+        .then(function (data) {
+          return self.profileClient.uploadAvatar(data);
+        })
+        .then(function (result) {
+          Session.set('avatar', result.url);
+          Session.set('avatarId', result.id);
 
-      this.navigate('settings/avatar');
+          self.stream.stop();
+          delete self.stream;
+
+          self.navigate('settings/avatar');
+        });
     },
 
     beforeDestroy: function () {
@@ -142,6 +152,8 @@ function (_, FormView, Template, Session, AuthErrors, Url) {
     },
 
     takePicture: function takepicture() {
+      var defer = p.defer();
+
       var w = this.video[0].videoWidth;
       var h = this.video[0].videoHeight;
       var minValue = Math.min(h, w);
@@ -151,8 +163,14 @@ function (_, FormView, Template, Session, AuthErrors, Url) {
 
       var pos = this.centeredPos(w, h, minValue);
 
+      var dataSrc = this.video[0];
+      if (this.automatedBrowser) {
+        dataSrc = new Image();
+        dataSrc.src = pngSrc;
+      }
+
       this.canvas.getContext('2d').drawImage(
-        this.video[0],
+        dataSrc,
         Math.abs(pos.left),
         Math.abs(pos.top),
         minValue,
@@ -160,7 +178,11 @@ function (_, FormView, Template, Session, AuthErrors, Url) {
         0, 0, this.exportLength, this.exportLength
       );
 
-      return this.canvas.toDataURL('image/jpeg', 0.9);
+      this.canvas.toBlob(function (data) {
+        defer.resolve(data);
+      }, MIME_TYPE, JPEG_QUALITY);
+
+      return defer.promise;
     },
 
     // Calculates the position offset needed to center a rectangular image

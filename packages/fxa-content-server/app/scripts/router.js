@@ -28,7 +28,6 @@ define([
   'views/settings/avatar',
   'views/settings/avatar_change',
   'views/settings/avatar_crop',
-  'views/settings/avatar_url',
   'views/settings/avatar_gravatar',
   'views/settings/avatar_camera',
   'views/change_password',
@@ -61,7 +60,6 @@ function (
   AvatarView,
   AvatarChangeView,
   AvatarCropView,
-  AvatarURLView,
   AvatarGravatarView,
   AvatarCameraView,
   ChangePasswordView,
@@ -81,7 +79,8 @@ function (
         router: this,
         language: this.language,
         relier: this.relier,
-        fxaClient: this.fxaClient
+        fxaClient: this.fxaClient,
+        profileClient: this.profileClient
       }, options || {});
 
       this.showView(new View(options));
@@ -103,7 +102,6 @@ function (
       'settings/avatar(/)': showView(AvatarView),
       'settings/avatar/change(/)': showView(AvatarChangeView),
       'settings/avatar/crop(/)': showView(AvatarCropView),
-      'settings/avatar/url(/)': showView(AvatarURLView),
       'settings/avatar/gravatar(/)': showView(AvatarGravatarView),
       'settings/avatar/camera(/)': showView(AvatarCameraView),
       'change_password(/)': showView(ChangePasswordView),
@@ -130,6 +128,7 @@ function (
       this.language = options.language;
       this.relier = options.relier;
       this.fxaClient = options.fxaClient;
+      this.profileClient = options.profileClient;
 
       this.$stage = $('#stage');
 

@@ -9,11 +9,14 @@ define([
   'underscore',
   'views/form',
   'stache!templates/settings/avatar_crop',
+  'lib/constants',
   'lib/session',
   'lib/cropper',
   'lib/auth-errors'
 ],
-function (p, _, FormView, Template, Session, Cropper, AuthErrors) {
+function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
+  var HORIZONTAL_GUTTER = 90;
+  var VERTICAL_GUTTER = 0;
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
@@ -25,7 +28,8 @@ function (p, _, FormView, Template, Session, Cropper, AuthErrors) {
     initialize: function (options) {
       options = options || {};
 
-      this.cropImgSrc = Session.cropImgSrc;
+      this.imgSrc = Session.cropImgSrc;
+      this.imgType = Session.cropImgType;
     },
 
     context: function () {
@@ -35,7 +39,7 @@ function (p, _, FormView, Template, Session, Cropper, AuthErrors) {
     },
 
     beforeRender: function () {
-      if (! this.cropImgSrc) {
+      if (! this.imgSrc) {
         this.navigate('settings/avatar/change', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
@@ -55,13 +59,13 @@ function (p, _, FormView, Template, Session, Cropper, AuthErrors) {
       try {
         this.cropper = new Cropper({
           container: this.$('.cropper'),
-          src: this.cropImgSrc,
+          src: this.imgSrc,
           width: width,
           height: height,
-          displayLength: 240,
-          exportLength: 600,
-          verticalGutter: 0,
-          horizontalGutter: 90
+          displayLength: Constants.PROFILE_IMAGE_DISPLAY_SIZE,
+          exportLength: Constants.PROFILE_IMAGE_EXPORT_SIZE,
+          verticalGutter: VERTICAL_GUTTER,
+          horizontalGutter: HORIZONTAL_GUTTER
         });
       } catch (e) {
         this.navigate('settings/avatar/change', {
@@ -70,14 +74,29 @@ function (p, _, FormView, Template, Session, Cropper, AuthErrors) {
       }
     },
 
+    toBlob: function () {
+      var defer = p.defer();
+
+      this.cropper.toBlob(function (data) {
+        defer.resolve(data);
+      }, this.imgType || Constants.DEFAULT_PROFILE_IMAGE_MIME_TYPE,
+      Constants.PROFILE_IMAGE_JPEG_QUALITY);
+
+      return defer.promise;
+    },
+
     submit: function () {
       var self = this;
-      return p().then(function () {
-        var data = self.cropper.toDataURL();
-        // TODO upload to the server
-        Session.set('avatar', data);
-        self.navigate('settings/avatar');
-      });
+
+      return this.toBlob()
+        .then(function (data) {
+          return self.profileClient.uploadAvatar(data);
+        })
+        .then(function (result) {
+          Session.set('avatar', result.url);
+          Session.set('avatarId', result.id);
+          self.navigate('settings/avatar');
+        });
     }
 
   });

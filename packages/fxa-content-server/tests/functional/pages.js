@@ -25,7 +25,6 @@ define([
     'settings',
     'settings/avatar',
     'settings/avatar/change',
-    'settings/avatar/url',
     'settings/avatar/gravatar',
     'settings/avatar/camera',
     'settings/avatar/crop',

@@ -49,8 +49,13 @@ function ($, _, FormView, Template, Session, AuthErrors) {
     },
 
     remove: function () {
-      Session.clear('avatar');
-      this.navigate('settings/avatar');
+      var self = this;
+      return this.profileClient.deleteAvatar(Session.avatarId)
+        .then(function () {
+          Session.clear('avatar');
+          Session.clear('avatarId');
+          self.navigate('settings/avatar');
+        });
     },
 
     filePicker: function () {
@@ -96,6 +101,7 @@ function ($, _, FormView, Template, Session, AuthErrors) {
           var src = event.target.result;
 
           Session.set('cropImgSrc', src);
+          Session.set('cropImgType', file.type);
 
           var img = new Image();
           img.src = src;

@@ -9,33 +9,29 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'sinon',
   'views/settings/avatar_gravatar',
   '../../../mocks/router',
+  '../../../mocks/profile',
   'lib/session',
-  'lib/fxa-client',
-  'models/reliers/relier'
+  'lib/promise',
+  'lib/profile'
 ],
-function (chai, _, $, View, RouterMock, Session, FxaClient, Relier) {
+function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile) {
   var assert = chai.assert;
-  var GRAVATAR_URL = 'https://www.gravatar.com/avatar/';
+  var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';
+  var EMAIL_HASH = '0bc83cb571cd1c50ba6f3e8a78ef1346';
+  var email = 'MyEmailAddress@example.com  ';
 
   describe('views/settings/avatar/gravatar', function () {
     var view;
     var routerMock;
-    var fxaClient;
-    var relier;
+    var profileClientMock;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
-
       view = new View({
-        router: routerMock,
-        fxaClient: fxaClient,
-        relier: relier
+        router: routerMock
       });
     });
 
@@ -44,10 +40,14 @@ function (chai, _, $, View, RouterMock, Session, FxaClient, Relier) {
       view.destroy();
       view = null;
       routerMock = null;
+      profileClientMock = null;
     });
 
     describe('with no session', function () {
       it('redirects to signin', function() {
+        view.isUserAuthorized = function () {
+          return false;
+        };
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -57,13 +57,10 @@ function (chai, _, $, View, RouterMock, Session, FxaClient, Relier) {
 
     describe('with session', function () {
       it('hashed email', function () {
-        var email = 'MyEmailAddress@example.com  ';
         Session.set('email', email);
 
         view = new View({
-          router: routerMock,
-          fxaClient: fxaClient,
-          relier: relier
+          router: routerMock
         });
         assert.equal(view.hashedEmail, '0bc83cb571cd1c50ba6f3e8a78ef1346');
       });
@@ -80,26 +77,61 @@ function (chai, _, $, View, RouterMock, Session, FxaClient, Relier) {
           });
       });
 
-      it('submits', function () {
-        var email = 'MyEmailAddress@example.com  ';
-        Session.set('email', email);
+      describe('submitting', function () {
 
-        view = new View({
-          router: routerMock,
-          fxaClient: fxaClient,
-          relier: relier
-        });
-        view.isUserAuthorized = function () {
-          return true;
-        };
-        return view.render()
-          .then(function () {
-            view.submit();
-            assert.include(Session.avatar, GRAVATAR_URL + '0bc83cb571cd1c50ba6f3e8a78ef1346');
-            assert.equal(routerMock.page, 'settings/avatar');
-            assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
+        beforeEach(function () {
+          Session.set('email', email);
+
+          profileClientMock = new ProfileMock();
+
+          view = new View({
+            router: routerMock,
+            profileClient: profileClientMock
           });
+          view.isUserAuthorized = function () {
+            return true;
+          };
+        });
+
+
+        it('submits', function () {
+          sinon.stub(profileClientMock, 'postAvatar', function (url) {
+            return p({
+              id: 'foo'
+            });
+          });
+
+          return view.render()
+            .then(function () {
+              return view.submit();
+            })
+            .then(function () {
+              assert.include(Session.avatar, GRAVATAR_URL + EMAIL_HASH);
+              assert.equal(Session.avatarId, 'foo');
+              assert.equal(routerMock.page, 'settings/avatar');
+              assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
+            });
+        });
+
+        it('submits and errors', function () {
+          sinon.stub(profileClientMock, 'postAvatar', function (url) {
+            return p.reject(Profile.Errors.toError('UNSUPPORTED_PROVIDER'));
+          });
+
+          return view.render()
+            .then(function () {
+              return view.validateAndSubmit();
+            })
+            .then(function () {
+              assert.fail('unexpected success');
+            }, function (err) {
+              assert.isTrue(Profile.Errors.is(err, 'UNSUPPORTED_PROVIDER'));
+              assert.isTrue(view.isErrorVisible());
+            });
+        });
+
       });
+
     });
   });
 });

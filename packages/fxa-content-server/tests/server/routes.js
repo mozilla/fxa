@@ -34,7 +34,6 @@ define([
     '/settings': { statusCode: 200 },
     '/settings/avatar': { statusCode: 200 },
     '/settings/avatar/change': { statusCode: 200 },
-    '/settings/avatar/url': { statusCode: 200 },
     '/settings/avatar/gravatar': { statusCode: 200 },
     '/settings/avatar/camera': { statusCode: 200 },
     '/settings/avatar/crop': { statusCode: 200 },

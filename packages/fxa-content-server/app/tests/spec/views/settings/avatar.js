@@ -9,34 +9,31 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'sinon',
   'views/settings/avatar',
   '../../../mocks/router',
+  '../../../mocks/profile',
+  'lib/promise',
   'lib/session',
-  'lib/constants',
-  'lib/fxa-client',
-  'models/reliers/relier'
+  'lib/profile'
 ],
-function (chai, _, $, View, RouterMock, Session, Constants, FxaClient, Relier) {
+function (chai, _, $, sinon, View, RouterMock, ProfileMock, p, Session, Profile) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+  var IMG_URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
   describe('views/settings/avatar', function () {
     var view;
     var routerMock;
-    var fxaClient;
-    var relier;
+    var profileClientMock;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      profileClientMock = new ProfileMock();
 
       view = new View({
         router: routerMock,
-        fxaClient: fxaClient,
-        relier: relier
+        profileClient: profileClientMock
       });
     });
 
@@ -45,18 +42,23 @@ function (chai, _, $, View, RouterMock, Session, Constants, FxaClient, Relier) {
       view.destroy();
       view = null;
       routerMock = null;
+      profileClientMock = null;
     });
 
     describe('with no session', function () {
       it('redirects to signin', function() {
+        view.isUserAuthorized = function () {
+          return false;
+        };
         return view.render()
-            .then(function () {
-              assert.equal(routerMock.page, 'signin');
-            });
+          .then(function () {
+            assert.equal(routerMock.page, 'signin');
+          });
       });
     });
 
     describe('with session', function () {
+
       beforeEach(function () {
         view.isUserAuthorized = function () {
           return true;
@@ -66,6 +68,10 @@ function (chai, _, $, View, RouterMock, Session, Constants, FxaClient, Relier) {
       it('has no avatar set', function () {
         Session.clear('avatar');
 
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p({});
+        });
+
         return view.render()
           .then(function () {
             assert.isTrue(view.$('.avatar-wrapper img.default').length > 0);
@@ -74,10 +80,29 @@ function (chai, _, $, View, RouterMock, Session, Constants, FxaClient, Relier) {
 
       it('has an avatar set', function () {
         Session.set('avatar', pngSrc);
+        Session.set('avatarId', 'foo');
 
         return view.render()
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').attr('src'), pngSrc);
+          });
+      });
+
+      it('loads an avatar from the server', function () {
+        Session.clear('avatar');
+        var id = 'foo';
+
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p({
+            avatar: IMG_URL,
+            id: id
+          });
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('.avatar-wrapper img').attr('src'), IMG_URL);
+            assert.equal(Session.avatarId, id);
           });
       });
     });

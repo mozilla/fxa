@@ -25,7 +25,7 @@ function (chai, jquery, RouterMock, CanvasMock, Cropper, View) {
       view = new View({
         router: routerMock
       });
-      view.cropImgSrc = pngSrc;
+      view.imgSrc = pngSrc;
       view.isUserAuthorized = function () {
         return true;
       };

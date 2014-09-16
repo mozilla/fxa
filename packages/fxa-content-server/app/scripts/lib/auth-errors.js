@@ -174,6 +174,7 @@ function () {
       err.errno = this.toCode(type);
       err.namespace = this.NAMESPACE;
       err.message = message;
+      err.errorContext = this;
 
       if (context) {
         err.context = context;
