@@ -184,8 +184,9 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
             }
           })
           .then(null, function (err) {
-            // surface returned message for testing.
-            throw self.displayError(err);
+            // display error and surface for testing.
+            self.displayError(err);
+            throw err;
           })
           .then(_.bind(self.afterSubmit, self));
     })),

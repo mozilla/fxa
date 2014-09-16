@@ -115,17 +115,17 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
 
         it('submits and errors', function () {
           sinon.stub(profileClientMock, 'postAvatar', function (url) {
-            return p.reject(Profile.Errors.toError('UNAUTHORIZED'));
+            return p.reject(Profile.Errors.toError('UNSUPPORTED_PROVIDER'));
           });
 
           return view.render()
             .then(function () {
-              return view.submit();
+              return view.validateAndSubmit();
             })
             .then(function () {
               assert.fail('unexpected success');
             }, function (err) {
-              assert.isTrue(Profile.Errors.is(err, 'UNAUTHORIZED'));
+              assert.isTrue(Profile.Errors.is(err, 'UNSUPPORTED_PROVIDER'));
               assert.isTrue(view.isErrorVisible());
             });
         });

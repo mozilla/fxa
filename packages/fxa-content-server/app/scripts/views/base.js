@@ -11,14 +11,16 @@ define([
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
+  'lib/oauth-errors',
+  'lib/profile',
   'lib/url',
   'lib/strings',
   'lib/ephemeral-messages',
   'lib/null-metrics',
   'views/mixins/timer-mixin'
 ],
-function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
-      EphemeralMessages, NullMetrics, TimerMixin) {
+function (_, Backbone, $, p, Session, AuthErrors, OAuthErrors, Profile,
+      Url, Strings, EphemeralMessages, NullMetrics, TimerMixin) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
@@ -45,16 +47,15 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
     this._isSuccessVisible = true;
   }
 
-  function displayError(displayStrategy, err, errors) {
+  function displayError(displayStrategy, err) {
     /*jshint validthis: true*/
     this.hideSuccess();
     this.$('.spinner').hide();
 
-    errors = errors || AuthErrors;
-    err = this._normalizeError(err, errors);
+    err = this._normalizeError(err);
 
-    this.logError(err, errors);
-    var translated = this.translateError(err, errors);
+    this.logError(err);
+    var translated = this.translateError(err);
 
     if (translated) {
       this.$('.error')[displayStrategy](translated);
@@ -319,16 +320,27 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
     },
 
     /**
+     * Return the error module that produced the error, based on the error's
+     * namespace.
+     */
+    _errorContext: function (err) {
+      if (err && err.errorContext) {
+        return err.errorContext;
+      } else {
+        return AuthErrors;
+      }
+    },
+
+    /**
      * Display an error message.
      * @method translateError
      * @param {string} err - an error object
-     * @param {object} errors - optional Errors object that transforms codes into messages
      *
      * @return {string} translated error text (if available), untranslated
      *   error text otw.
      */
-    translateError: function (err, errors) {
-      errors = errors || AuthErrors;
+    translateError: function (err) {
+      var errors = this._errorContext(err);
 
       var msg = errors.toMessage(err);
       var context = errors.toContext(err);
@@ -342,7 +354,6 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
      * @method displayError
      * @param {string} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
-     * @param {object} errors - optional Errors object that transforms codes into messages
      *
      * @return {string} translated error text (if available), untranslated
      *   error text otw.
@@ -357,7 +368,6 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
      * @method displayErrorUnsafe
      * @param {string} err - If err is not given, the contents of the
      *   `.error` element's text will not be updated.
-     * @param {object} errors - optional Errors object that transforms codes into messages
      *
      * @return {string} translated error text (if available), untranslated
      *   error text otw.
@@ -367,10 +377,8 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
     /**
      * Log an error to the event stream
      */
-    logError: function (err, errors) {
-      errors = errors || AuthErrors;
-
-      err = this._normalizeError(err, errors);
+    logError: function (err) {
+      err = this._normalizeError(err);
 
       // The error could already be logged, if so, abort mission.
       // This can occur when `navigate` redirects a user to a different
@@ -394,7 +402,8 @@ function (_, Backbone, $, p, Session, AuthErrors, Url, Strings,
       return screenName;
     },
 
-    _normalizeError: function (err, errors) {
+    _normalizeError: function (err) {
+      var errors = this._errorContext(err);
       if (! err) {
         // likely an error in logic, display an unexpected error to the
         // user and show a console trace to help us debug.

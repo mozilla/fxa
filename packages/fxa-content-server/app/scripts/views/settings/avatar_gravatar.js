@@ -88,9 +88,6 @@ function ($, _, md5, FormView, Template, Constants, Session, Profile) {
           self.navigate('settings/avatar', {
             successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')
           });
-        }, function (err) {
-          self.displayError(Profile.Errors.toMessage(err));
-          throw err;
         });
     }
   });
