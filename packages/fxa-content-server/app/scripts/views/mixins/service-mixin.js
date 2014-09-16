@@ -47,7 +47,7 @@ define([
     // error to the user
     if (data && data.timeout) {
       self._expectResponseTimeout = self.setTimeout(function () {
-        self.displayError(OAuthErrors.toError('TRY_AGAIN'), OAuthErrors);
+        self.displayError(OAuthErrors.toError('TRY_AGAIN'));
       }, data.timeout);
     }
 
@@ -188,7 +188,7 @@ define([
       })
       .fail(function(err) {
         Session.clear('oauth');
-        self.displayError(err, OAuthErrors);
+        self.displayError(err);
       });
     }),
 
@@ -223,8 +223,8 @@ define([
     },
 
     // override this method so we can fix signup/signin links in errors
-    displayErrorUnsafe: function (err, errors) {
-      var result = BaseView.prototype.displayErrorUnsafe.call(this, err, errors);
+    displayErrorUnsafe: function (err) {
+      var result = BaseView.prototype.displayErrorUnsafe.call(this, err);
 
       if (shouldSetupOAuthLinksOnError.call(this)) {
         this.setupOAuthLinks();

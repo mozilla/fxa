@@ -11,15 +11,13 @@ define([
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
-  'lib/oauth-errors',
-  'lib/profile',
   'lib/url',
   'lib/strings',
   'lib/ephemeral-messages',
   'lib/null-metrics',
   'views/mixins/timer-mixin'
 ],
-function (_, Backbone, $, p, Session, AuthErrors, OAuthErrors, Profile,
+function (_, Backbone, $, p, Session, AuthErrors,
       Url, Strings, EphemeralMessages, NullMetrics, TimerMixin) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
