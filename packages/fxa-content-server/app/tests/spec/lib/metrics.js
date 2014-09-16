@@ -24,10 +24,12 @@ function (chai, $, Metrics, AuthErrors, WindowMock, TestHelpers) {
     beforeEach(function () {
       windowMock = new WindowMock();
 
-      windowMock.location.search = '?service=sync&context=fxa_desktop_v1';
       metrics = new Metrics({
         window: windowMock,
-        lang: 'db_LB'
+        lang: 'db_LB',
+        service: 'sync',
+        context: 'fxa_desktop_v1',
+        entrypoint: 'menupanel'
       });
       metrics.init();
     });
@@ -57,6 +59,7 @@ function (chai, $, Metrics, AuthErrors, WindowMock, TestHelpers) {
         assert.isTrue(filteredData.hasOwnProperty('context'));
         assert.isTrue(filteredData.hasOwnProperty('service'));
         assert.isTrue(filteredData.hasOwnProperty('lang'));
+        assert.isTrue(filteredData.hasOwnProperty('entrypoint'));
         assert.equal(filteredData.screen.width, window.screen.width);
         assert.equal(filteredData.screen.height, window.screen.height);
       });

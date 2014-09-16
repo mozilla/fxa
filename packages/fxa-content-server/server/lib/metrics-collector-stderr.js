@@ -100,6 +100,7 @@ function toLoggableEvent(event) {
     'agent',
     'duration',
     'context',
+    'entrypoint',
     'service',
     'marketingLink',
     'marketingType',

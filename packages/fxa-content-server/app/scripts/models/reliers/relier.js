@@ -39,15 +39,23 @@ define([
      *       });
      * }
      */
-    fetch: function (options) {
+    fetch: function () {
       var self = this;
       return p()
           .then(function () {
-            self._setFromSearchParam('preVerifyToken');
+            self.importSearchParam('preVerifyToken');
           });
     },
 
-    _setFromSearchParam: function (paramName, modelName) {
+    /**
+     * Set a value based on a value in window.location.search. Only updates
+     * model if parameter exists in window.location.search.
+     *
+     * @param {String} paramName - name of the search parameter
+     * @param {String} [modelName] - name to set in model. If not specified,
+     *      use the same value as `paramName`
+     */
+    importSearchParam: function (paramName, modelName) {
       modelName = modelName || paramName;
 
       var value = Url.searchParam(paramName, this._window.location.search);

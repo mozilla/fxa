@@ -32,7 +32,9 @@ define([
   'lib/fxa-client',
   'lib/assertion',
   'lib/profile',
-  'models/reliers/relier'
+  'lib/constants',
+  'models/reliers/relier',
+  'models/reliers/fx-desktop'
 ],
 function (
   _,
@@ -49,7 +51,9 @@ function (
   FxaClient,
   Assertion,
   Profile,
-  Relier
+  Constants,
+  Relier,
+  FxDesktopRelier
 ) {
 
   function isMetricsCollectionEnabled (sampleRate) {
@@ -91,10 +95,13 @@ function (
                     .then(_.bind(this.useConfig, this))
                     // both the metrics and router depend on the language
                     // fetched from config.
-                    .then(_.bind(this.initializeMetrics, this))
                     .then(_.bind(this.initializeRelier, this))
+                    // fxaClient depends on the relier.
                     .then(_.bind(this.initializeFxaClient, this))
+                    // profileClient dependsd on fxaClient.
                     .then(_.bind(this.initializeProfileClient, this))
+                    // metrics depends on the relier.
+                    .then(_.bind(this.initializeMetrics, this))
                     // router depends on all of the above
                     .then(_.bind(this.initializeRouter, this));
     },
@@ -112,14 +119,32 @@ function (
 
     initializeMetrics: function () {
       this._metrics = createMetrics(this._config.metricsSampleRate, {
-        lang: this._config.language
+        lang: this._config.language,
+        service: this._relier.get('service'),
+        context: this._relier.get('context'),
+        entrypoint: this._relier.get('entrypoint')
       });
       this._metrics.init();
     },
 
     initializeRelier: function () {
-      this._relier = new Relier();
-      return this._relier.fetch();
+      if (! this._relier) {
+        if (this._isFxDesktop()) {
+          this._relier = new FxDesktopRelier({
+            window: this._window
+          });
+        } else {
+          this._relier = new Relier({
+            window: this._window
+          });
+        }
+
+        return this._relier.fetch();
+      }
+    },
+
+    _isFxDesktop: function () {
+      return this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT;
     },
 
     initializeFxaClient: function () {
