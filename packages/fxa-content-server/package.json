@@ -7,6 +7,7 @@
     "postinstall": "bower update --config.interactive=false -s; node scripts/post_install.js",
     "test": "intern-runner config=tests/intern",
     "test-functional": "intern-runner config=tests/intern_functional",
+    "test-functional-oauth": "intern-runner config=tests/intern_functional_oauth",
     "test-sauce": "intern-runner config=tests/intern_sauce",
     "test-travis": "intern-runner config=tests/intern_travis",
     "test-server": "intern-client config=tests/intern_server",
