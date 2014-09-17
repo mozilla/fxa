@@ -10,9 +10,10 @@ define([
   'views/form',
   'stache!templates/settings/avatar_change',
   'lib/session',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'lib/image-loader'
 ],
-function ($, _, FormView, Template, Session, AuthErrors) {
+function ($, _, FormView, Template, Session, AuthErrors, ImageLoader) {
 
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
@@ -78,17 +79,16 @@ function ($, _, FormView, Template, Session, AuthErrors) {
       var self = this;
       var file = e.target.files[0];
 
-      // Define our callbacks here to avoid a circular DOM reference
-      var imgOnload = function () {
+      var imgOnload = function (img) {
         // Store the width and height for the cropper view
-        Session.set('cropImgWidth', this.width);
-        Session.set('cropImgHeight', this.height);
+        Session.set('cropImgWidth', img.width);
+        Session.set('cropImgHeight', img.height);
         require(['draggable', 'touch-punch'], function () {
           self.navigate('settings/avatar/crop');
         });
       };
 
-      var imgOnerrer = function () {
+      var imgOnerrer = function (e) {
         self.navigate('settings/avatar', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
@@ -103,10 +103,9 @@ function ($, _, FormView, Template, Session, AuthErrors) {
           Session.set('cropImgSrc', src);
           Session.set('cropImgType', file.type);
 
-          var img = new Image();
-          img.src = src;
-          img.onload = imgOnload;
-          img.onerror = imgOnerrer;
+          ImageLoader.load(src)
+            .then(imgOnload)
+            .then(null, imgOnerrer);
         };
         reader.readAsDataURL(file);
       } else {

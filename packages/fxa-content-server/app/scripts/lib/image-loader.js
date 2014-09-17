@@ -5,8 +5,8 @@
 // A utility for pre-loading images
 'use strict';
 
-define(['lib/promise'],
-function (p) {
+define(['underscore', 'lib/promise'],
+function (_, p) {
 
   /**
    * Returns true if given "uri" has HTTP or HTTPS scheme
@@ -19,7 +19,7 @@ function (p) {
 
     var img = new Image();
     img.onerror = defer.reject;
-    img.onload = defer.resolve;
+    img.onload = _.partial(defer.resolve, img);
     img.src = src;
 
     return defer.promise;

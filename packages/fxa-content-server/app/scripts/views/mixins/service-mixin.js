@@ -10,7 +10,7 @@
 define([
   'lib/promise',
   'views/base',
-  'views/decorators/button_progress_indicator',
+  'views/decorators/progress_indicator',
   'lib/url',
   'lib/oauth-client',
   'lib/assertion',
@@ -19,8 +19,8 @@ define([
   'lib/session',
   'lib/service-name',
   'lib/channels'
-], function (p, BaseView, buttonProgressIndicator, Url, OAuthClient,
-    Assertion, OAuthErrors, ConfigLoader, Session, ServiceName, Channels) {
+], function (p, BaseView, progressIndicator, Url, OAuthClient, Assertion,
+    OAuthErrors, ConfigLoader, Session, ServiceName, Channels) {
   /* jshint camelcase: false */
 
   // If the user completes an OAuth flow using a different browser than
@@ -129,7 +129,7 @@ define([
       });
     },
 
-    finishOAuthFlow: buttonProgressIndicator(function (viewOptions) {
+    finishOAuthFlow: progressIndicator(function (viewOptions) {
       var self = this;
       return this._configLoader.fetch().then(function(config) {
         return self.assertionLibrary.generate(config.oauthUrl);

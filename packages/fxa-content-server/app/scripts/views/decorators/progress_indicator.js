@@ -16,19 +16,20 @@
 
 define([
   'lib/promise',
-  'views/button_progress_indicator'
+  'views/progress_indicator'
 ],
-function (p, ButtonProgressIndicator) {
+function (p, ProgressIndicator) {
 
-  function showButtonProgressIndicator(handler, _el) {
+  function showProgressIndicator(handler, _el, _property) {
     var el = _el || 'button[type=submit]';
+    var property = _property || '_progressIndicator';
 
     return function () {
       var self = this;
       var args = arguments;
 
-      var buttonProgressIndicator = getButtonProgressIndicator.call(self);
-      buttonProgressIndicator.start(self.$(el));
+      var progressIndicator = getProgressIndicator.call(self, property);
+      progressIndicator.start(self.$(el));
 
       return p()
           .then(function () {
@@ -37,26 +38,26 @@ function (p, ButtonProgressIndicator) {
           .then(function (value) {
             // Stop the progress indicator unless the page is navigating
             if (! (value && value.pageNavigation)) {
-              buttonProgressIndicator.done();
+              progressIndicator.done();
             }
             return value;
           }, function(err) {
-            buttonProgressIndicator.done();
+            progressIndicator.done();
             throw err;
           });
     };
   }
 
-  function getButtonProgressIndicator() {
+  function getProgressIndicator(property) {
     /*jshint validthis: true*/
     var self = this;
-    if (! self._buttonProgressIndicator) {
-      self._buttonProgressIndicator = new ButtonProgressIndicator();
-      self.trackSubview(self._buttonProgressIndicator);
+    if (! self[property]) {
+      self[property] = new ProgressIndicator();
+      self.trackSubview(self[property]);
     }
 
-    return self._buttonProgressIndicator;
+    return self[property];
   }
 
-  return showButtonProgressIndicator;
+  return showProgressIndicator;
 });

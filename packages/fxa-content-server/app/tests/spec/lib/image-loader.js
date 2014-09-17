@@ -17,7 +17,10 @@ function (chai, ImageLoader) {
 
   describe('lib/image-loader', function () {
     it('loads an image', function () {
-      return ImageLoader.load(pngSrc);
+      return ImageLoader.load(pngSrc)
+        .then(function (img) {
+          assert.equal(img.src, pngSrc);
+        });
     });
 
     it('fails to load an image', function () {

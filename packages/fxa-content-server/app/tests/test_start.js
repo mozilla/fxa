@@ -64,7 +64,7 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/views/cookies_disabled',
     '../tests/spec/views/clear_storage',
     '../tests/spec/views/unexpected_error',
-    '../tests/spec/views/button_progress_indicator',
+    '../tests/spec/views/progress_indicator',
     '../tests/spec/views/marketing_snippet',
     '../tests/spec/views/mixins/floating-placeholder-mixin',
     '../tests/spec/views/mixins/timer-mixin',

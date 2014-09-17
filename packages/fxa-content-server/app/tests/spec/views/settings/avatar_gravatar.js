@@ -71,14 +71,27 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
         };
         return view.render()
           .then(function () {
-            view.notFound();
-            assert.equal(routerMock.page, 'settings/avatar');
-            assert.equal(view.ephemeralMessages.get('error'), 'No Gravatar found');
+            return view._showGravatar()
+              .then(null, function () {
+                assert.equal(routerMock.page, 'settings/avatar');
+                assert.equal(view.ephemeralMessages.get('error'), 'No Gravatar found');
+              });
+          });
+      });
+
+      it('found', function () {
+        view.isUserAuthorized = function () {
+          return true;
+        };
+        view.automatedBrowser = true;
+
+        return view.render()
+          .then(function () {
+            return view._showGravatar();
           });
       });
 
       describe('submitting', function () {
-
         beforeEach(function () {
           Session.set('email', email);
 
@@ -92,7 +105,6 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
             return true;
           };
         });
-
 
         it('submits', function () {
           sinon.stub(profileClientMock, 'postAvatar', function (url) {
@@ -129,7 +141,6 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
               assert.isTrue(view.isErrorVisible());
             });
         });
-
       });
 
     });

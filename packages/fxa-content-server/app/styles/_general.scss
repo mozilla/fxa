@@ -833,17 +833,17 @@ input[type="text"] {
   width: 36px;
 }
 
-.spinner-white {
-  animation: 0.9s spin infinite linear;
+.button-row .spinner
+{
   background-image: image-url('spinnerwhite.png');
   background-size: 33px 33px;
-  display: block;
   height: 33px;
   margin: 0 auto;
-  overflow: hidden;
-  text-indent: 100%;
-  white-space: nowrap;
   width: 33px;
+}
+
+.progress-hidden {
+  display: none;
 }
 
 .hidden {

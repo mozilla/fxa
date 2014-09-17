@@ -12,9 +12,11 @@ define([
   'stache!templates/settings/avatar_gravatar',
   'lib/constants',
   'lib/session',
-  'lib/profile'
+  'lib/profile',
+  'lib/image-loader',
+  'views/decorators/progress_indicator'
 ],
-function ($, _, md5, FormView, Template, Constants, Session, Profile) {
+function ($, _, md5, FormView, Template, Constants, Session, Profile, ImageLoader, showProgressIndicator) {
 
   function t (s) { return s; }
 
@@ -44,20 +46,21 @@ function ($, _, md5, FormView, Template, Constants, Session, Profile) {
 
     afterRender: function () {
       if (! this.gravatar) {
-        var img = new Image();
-        img.onerror = _.bind(this.notFound, this);
-
-        img.onload = _.bind(this.found, this);
-        img.src = this.gravatarUrl();
+        this._showGravatar();
       }
     },
 
-    found: function () {
+    _showGravatar: showProgressIndicator(function () {
+      return ImageLoader.load(this.gravatarUrl())
+        .then(_.bind(this._found, this), _.bind(this._notFound, this));
+    }, '.avatar-wrapper', '_gravatarProgressIndicator'),
+
+    _found: function () {
       this.gravatar = this.gravatarUrl();
       this.render();
     },
 
-    notFound: function () {
+    _notFound: function () {
       this.navigate('settings/avatar', {
         error: t('No Gravatar found')
       });
