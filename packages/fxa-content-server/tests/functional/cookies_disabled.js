@@ -6,8 +6,9 @@ define([
   'intern',
   'intern!object',
   'intern/chai!assert',
-  'require'
-], function (intern, registerSuite, assert, require) {
+  'require',
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, FunctionalHelpers) {
   'use strict';
 
   // there is no way to disable cookies using wd. Add `disable_cookies`
@@ -38,6 +39,7 @@ define([
         .end()
 
         // show an error message after second try
+        .then(FunctionalHelpers.visibleByQSA('#stage .error'))
         .findByCssSelector('#stage .error').isDisplayed()
         .then(function (isDisplayed) {
           assert.equal(isDisplayed, true);
