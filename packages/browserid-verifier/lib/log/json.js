@@ -32,11 +32,17 @@ JsonFormatter.prototype.format = function jsonFormat(record) {
   for (var k in logRecordInfo) {
     rec[k] = logRecordInfo[k];
   }
-  if (typeof record.args[0] === 'string') {
-    rec.message = record.message;
-  } else {
-    for (k in record.args[0]) {
-      rec[k] = record.args[0][k];
+  for (var i = 0; i < record.args.length; i++) {
+    if (typeof record.args[i] === 'string') {
+      if (!rec.hasOwnProperty('message')) {
+        rec.message = record.args[i];
+      }
+    } else if (typeof record.args[i] === 'object') {
+      for (k in record.args[i]) {
+        if (!rec.hasOwnProperty(k)) {
+          rec[k] = record.args[i][k];
+        }
+      }
     }
   }
   return intel.Formatter.prototype.format.call(this, rec);
