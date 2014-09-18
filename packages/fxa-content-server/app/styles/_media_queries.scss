@@ -130,14 +130,6 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
   }
 }
 
-@media only screen and (max-width: 320px) {
-  #main-content {
-    margin: 0 auto;
-    min-height: 0;
-    width: 94%;
-  }
-}
-
 //You know...for the trusted UI
 @media only screen and (max-width:319px) {
 
