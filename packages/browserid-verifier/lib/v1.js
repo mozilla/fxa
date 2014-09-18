@@ -43,7 +43,7 @@ function verify(verifier, req, res) {
         rp: audience
       });
       res._summary.err = e;
-      return res.json({ status: "failure", reason: reason}, 415);
+      return res.json(415, { status: "failure", reason: reason});
     }
     reason = util.format("missing %s parameter", assertion ? "audience" : "assertion");
     log.info('verify', {
@@ -52,7 +52,7 @@ function verify(verifier, req, res) {
       rp: audience
     });
     res._summary.err = reason;
-    return res.json({ status: "failure", reason: reason}, 400);
+    return res.json(400, { status: "failure", reason: reason});
   }
 
   var trustedIssuers = [ ];
@@ -74,10 +74,10 @@ function verify(verifier, req, res) {
     if (err) {
       if (err.indexOf("compute cluster") === 0) {
         log.info("service_failure");
-        res.json({"status":"failure", reason: "service unavailable"}, 503);
+        res.json(503, {"status":"failure", reason: "service unavailable"});
       } else {
         log.info("assertion_failure");
-        res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
+        res.json(200, {"status":"failure", reason: err});  //Could be 500 or 200 OK if invalid cert
       }
       res._summary.err = err;
       log.info('verify', {
