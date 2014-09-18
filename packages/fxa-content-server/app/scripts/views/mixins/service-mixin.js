@@ -8,7 +8,6 @@
 'use strict';
 
 define([
-  'underscore',
   'lib/promise',
   'views/base',
   'views/decorators/button_progress_indicator',
@@ -20,7 +19,7 @@ define([
   'lib/session',
   'lib/service-name',
   'lib/channels'
-], function (_, p, BaseView, buttonProgressIndicator, Url, OAuthClient,
+], function (p, BaseView, buttonProgressIndicator, Url, OAuthClient,
     Assertion, OAuthErrors, ConfigLoader, Session, ServiceName, Channels) {
   /* jshint camelcase: false */
 
@@ -68,9 +67,10 @@ define([
    */
   function _decorateOAuthResult(result, options) {
     options = options || {};
+    // jshint validthis: true
 
     // if specific to the WebChannel flow
-    if (Channels.getWebChannelId(options.context)) {
+    if (this.relier.has('webChannelId')) {
       // set closeWindow
       result.closeWindow = options.viewOptions && options.viewOptions.source === 'signin';
       // if the source is "signin" then set a timeout for a successful WebChannel signin
@@ -106,30 +106,25 @@ define([
 
       this._oAuthClient = deps.oAuthClient || new OAuthClient();
 
-      var params = {
-        webChannelId: Url.searchParam('webChannelId',
-                          this.window.location.search),
-        client_id: this.relier.get('clientId'),
-        state: this.relier.get('state'),
-        scope: this.relier.get('scope'),
-        action: this.relier.get('action')
-      };
-
-      this._oAuthParams = params;
-
-
       // assertion library to use to generate assertions
       // can be substituted for testing
       this.assertionLibrary = deps.assertionLibrary || new Assertion({ fxaClient: this.fxaClient });
     },
 
     persistOAuthParams: function () {
-      Session.set('oauth', this._oAuthParams);
+      // The OAuth relier reads these out of Session when it starts up.
+      Session.set('oauth', {
+        webChannelId: this.relier.get('webChannelId'),
+        client_id: this.relier.get('clientId'),
+        state: this.relier.get('state'),
+        scope: this.relier.get('scope'),
+        action: this.relier.get('action')
+      });
     },
 
     finishOAuthFlowDifferentBrowser: function () {
       return _notifyChannel.call(this, 'oauth_complete', {
-        redirect: this.serviceRedirectURI,
+        redirect: this.relier.get('redirectUri'),
         error: RP_DIFFERENT_BROWSER_ERROR_CODE
       });
     },
@@ -151,8 +146,7 @@ define([
       })
       .then(_formatOAuthResult)
       .then(function(result) {
-        return _decorateOAuthResult(result, {
-          context: self.window,
+        return _decorateOAuthResult.call(self, result, {
           viewOptions: viewOptions
         });
       })

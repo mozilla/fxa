@@ -53,7 +53,8 @@ define([
 
       relier = new OAuthRelier({
         window: windowMock,
-        oAuthClient: oAuthClient
+        oAuthClient: oAuthClient,
+        session: Session
       });
     });
 
@@ -116,6 +117,19 @@ define([
               assert.equal(relier.get('state'), STATE);
               assert.equal(relier.get('clientId'), CLIENT_ID);
               assert.equal(relier.get('scope'), SCOPE);
+            });
+      });
+
+      it('populates `clientId` and `service` from the `service` URL search parameter if verifying in a second browser', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          code: '123',
+          service: CLIENT_ID
+        });
+
+        return relier.fetch()
+            .then(function () {
+              assert.equal(relier.get('clientId'), CLIENT_ID);
+              assert.equal(relier.get('service'), CLIENT_ID);
             });
       });
 

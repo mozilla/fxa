@@ -19,17 +19,17 @@ define([
 ], function (_, Relier, ServiceNameTranslator) {
 
   var FxDesktopRelier = Relier.extend({
-    defaults: _.extend({
+    defaults: _.extend({}, Relier.prototype.defaults, {
       context: null,
       entrypoint: null
-    }, Relier.prototype.defaults),
+    }),
 
     initialize: function (options) {
       options = options || {};
 
-      Relier.prototype.initialize.call(this, options);
+      this._translator = options.translator;
 
-      this._translator = options.translator || this._window.translator;
+      Relier.prototype.initialize.call(this, options);
     },
 
     fetch: function () {
@@ -38,7 +38,7 @@ define([
           .then(function () {
             self.importSearchParam('context');
             self.importSearchParam('entrypoint');
-            return self._setServiceName();
+            return self._setupServiceName();
           });
     },
 
@@ -46,7 +46,7 @@ define([
       return true;
     },
 
-    _setServiceName: function () {
+    _setupServiceName: function () {
       var service = this.get('service');
       if (service) {
         var serviceNameTranslator = new ServiceNameTranslator(this._translator);

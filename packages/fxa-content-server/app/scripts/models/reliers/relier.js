@@ -9,12 +9,13 @@
 'use strict';
 
 define([
-  'backbone',
+  'models/reliers/base',
   'lib/promise',
-  'lib/url'
-], function (Backbone, p, Url) {
+  'lib/url',
+  'lib/constants'
+], function (BaseRelier, p, Url, Constants) {
 
-  var Relier = Backbone.Model.extend({
+  var Relier = BaseRelier.extend({
     defaults: {
       service: null,
       preVerifyToken: null
@@ -76,24 +77,10 @@ define([
     },
 
     /**
-     * Check if the relier is using the oauth flow
-     */
-    isOAuth: function () {
-      return false;
-    },
-
-    /**
-     * Check if the relier is Firefox Desktop
-     */
-    isFxDesktop: function () {
-      return false;
-    },
-
-    /**
      * Check if the relier is Sync for Firefox Desktop
      */
     isSync: function () {
-      return this.get('service') === 'sync';
+      return this.get('service') === Constants.FX_DESKTOP_SYNC;
     }
   });
 

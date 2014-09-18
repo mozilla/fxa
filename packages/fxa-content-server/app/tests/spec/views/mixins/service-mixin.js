@@ -29,13 +29,6 @@ define([
   var CLIENT_ID = 'dcdb5ae7add825d2';
   var STATE = '123';
   var CODE = 'code1';
-  var SCOPE = 'profile:email';
-  var DEFAULT_SEARCH_STRING = TestHelpers.toSearchString({
-    //jshint camelcase: false
-    client_id: CLIENT_ID,
-    state: STATE,
-    scope: SCOPE
-  });
   var DEFAULT_REDIRECT_STRING = TestHelpers.toSearchString({
     code: CODE,
     state: STATE
@@ -80,13 +73,10 @@ define([
           });
       });
 
-      it('decorates WebChannel from Session with signin source', function () {
-        Session.set('oauth', {
-          webChannelId: 'id'
-        });
+      it('decorates WebChannel from the relier', function () {
+        relier.set('webChannelId', 'id');
 
         return view._decorateOAuthResult({}, {
-          context: windowMock,
           viewOptions: {
             source: 'signin'
           }
@@ -94,20 +84,6 @@ define([
           assert.isTrue(result.closeWindow);
           assert.ok(result.timeout);
           Session.clear('oauth');
-        });
-      });
-
-      it('decorates WebChannel from location param with signin source', function () {
-        windowMock.location.search = DEFAULT_SEARCH_STRING + '&webChannelId=id';
-
-        return view._decorateOAuthResult({}, {
-          context: windowMock,
-          viewOptions: {
-            source: 'signin'
-          }
-        }).then(function (result) {
-          assert.isTrue(result.closeWindow);
-          assert.ok(result.timeout);
         });
       });
     });

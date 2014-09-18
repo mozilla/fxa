@@ -5,12 +5,14 @@
 define([
   'intern',
   'require',
+  'tests/lib/restmail',
   'intern/dojo/node!leadfoot/helpers/pollUntil'
-], function (intern, require, pollUntil) {
+], function (intern, require, restmail, pollUntil) {
   'use strict';
 
   var config = intern.config;
   var CONTENT_SERVER = config.fxaContentRoot;
+  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 
   function clearBrowserState(context) {
     // clear localStorage to avoid polluting other tests.
@@ -75,10 +77,18 @@ define([
     }, [ selector ], 10000);
   }
 
+  function getVerificationLink(user, index) {
+    return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
+      .then(function (emails) {
+        return require.toUrl(emails[index].headers['x-link']);
+      });
+  }
+
   return {
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
     visibleByQSA: visibleByQSA,
-    pollUntil: pollUntil
+    pollUntil: pollUntil,
+    getVerificationLink: getVerificationLink
   };
 });

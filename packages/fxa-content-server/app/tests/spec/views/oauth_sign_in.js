@@ -7,17 +7,18 @@
 define([
   'chai',
   'jquery',
+  'sinon',
   'views/oauth_sign_in',
   'lib/session',
   'lib/fxa-client',
+  'lib/promise',
   'models/reliers/relier',
   '../../mocks/window',
   '../../mocks/router',
-  '../../mocks/oauth_servers',
   '../../lib/helpers'
 ],
-function (chai, $, View, Session, FxaClient, Relier, WindowMock,
-      RouterMock, OAuthServersMock, TestHelpers) {
+function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
+      RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -27,7 +28,6 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
     var router;
     var windowMock;
     var fxaClient;
-    var oAuthServersMock;
     var relier;
 
     var CLIENT_ID = 'dcdb5ae7add825d2';
@@ -41,8 +41,6 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
       router = new RouterMock();
       windowMock = new WindowMock();
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
-
-      oAuthServersMock = new OAuthServersMock();
 
       relier = new Relier();
       relier.set('serviceName', CLIENT_NAME);
@@ -67,7 +65,6 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
       Session.clear();
       view.remove();
       view.destroy();
-      oAuthServersMock.destroy();
     });
 
     describe('render', function () {
@@ -90,11 +87,14 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
       });
     });
 
-    /*
-    // TODO Renable (issue #1141)
     describe('submit', function () {
-      it('signs the user in on success', function () {
+      it('signs in a verified user on success', function () {
         var password = 'password';
+
+        sinon.stub(view, 'finishOAuthFlow', function () {
+          return p(true);
+        });
+
         return view.fxaClient.signUp(email, password, { preVerified: true })
           .then(function () {
             $('.email').val(email);
@@ -102,17 +102,33 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
             return view.submit();
           })
           .then(function () {
-            assert.include(windowMock.location.href, BASE_REDIRECT_URL);
+            assert.isTrue(view.finishOAuthFlow.called);
+          });
+      });
+
+      it('sends an unverified user to the confirm screen after persisting oauth values', function () {
+        var password = 'password';
+
+        sinon.stub(view, 'persistOAuthParams', function () {
+          return p(true);
+        });
+
+        return view.fxaClient.signUp(email, password)
+          .then(function () {
+            $('.email').val(email);
+            $('[type=password]').val(password);
+            return view.submit();
+          })
+          .then(function () {
+            assert.isTrue(view.persistOAuthParams.called);
+            assert.equal(router.page, 'confirm');
           });
       });
     });
-    */
 
     describe('resetPasswordIfKnownValidEmail', function () {
       it('goes to the reset_password page if user types a valid, known email', function () {
         // the screen is rendered, we can take over from here.
-        oAuthServersMock.destroy();
-
         var password = 'password';
         return view.fxaClient.signUp(email, password, { preVerified: true })
               .then(function () {
@@ -127,8 +143,6 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
 
       it('goes to the reset_password screen if a blank email', function () {
         // the screen is rendered, we can take over from here.
-        oAuthServersMock.destroy();
-
         $('[type=email]').val('');
         return view.resetPasswordIfKnownValidEmail()
             .then(function () {

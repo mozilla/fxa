@@ -44,7 +44,6 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
         suggestedUser: this._suggestedUser(),
         chooserAskForPassword: this._suggestedUserAskPassword(),
         password: Session.prefillPassword,
-        isSync: this.relier.isSync(),
         error: this.error
       };
     },

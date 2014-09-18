@@ -16,9 +16,10 @@ define([
   'lib/session',
   'lib/auth-errors',
   'lib/constants',
-  'lib/channels'
+  'lib/channels',
+  'models/reliers/base'
 ],
-function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
+function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseRelier) {
   // IE 8 doesn't support String.prototype.trim
   function trim(str) {
     return str && str.replace(/^\s+|\s+$/g, '');
@@ -31,7 +32,8 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
     this._channel = options.channel;
-    this._relier = options.relier;
+    // BaseRelier is used as a NullRelier for testing.
+    this._relier = options.relier || new BaseRelier();
   }
 
   FxaClientWrapper.prototype = {
@@ -194,12 +196,13 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
                   keys: true
                 };
 
-                if (self._relierHas('service')) {
-                  signUpOptions.service = self._relierGet('service');
+                var relier = self._relier;
+                if (relier.has('service')) {
+                  signUpOptions.service = relier.get('service');
                 }
 
-                if (self._relierHas('redirectTo')) {
-                  signUpOptions.redirectTo = self._relierGet('redirectTo');
+                if (relier.has('redirectTo')) {
+                  signUpOptions.redirectTo = relier.get('redirectTo');
                 }
 
                 if (options.preVerified) {
@@ -234,8 +237,8 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
           }
 
           var clientOptions = {
-            service: self._relierGet('service'),
-            redirectTo: self._relierGet('redirectTo')
+            service: self._relier.get('service'),
+            redirectTo: self._relier.get('redirectTo')
           };
 
           return client.recoveryEmailResendCode(
@@ -278,8 +281,8 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
       return this._getClientAsync()
               .then(function (client) {
                 var clientOptions = {
-                  service: self._relierGet('service'),
-                  redirectTo: self._relierGet('redirectTo')
+                  service: self._relier.get('service'),
+                  redirectTo: self._relier.get('redirectTo')
                 };
 
                 return client.passwordForgotSendCode(email, clientOptions);
@@ -311,8 +314,8 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
           // the linters complain if this is defined in the call to
           // passwordForgotResendCode
           var clientOptions = {
-            service: self._relierGet('service'),
-            redirectTo: self._relierGet('redirectTo')
+            service: self._relier.get('service'),
+            redirectTo: self._relier.get('redirectTo')
           };
 
           return client.passwordForgotResendCode(
@@ -428,14 +431,6 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
         .then(function (client) {
           return client.recoveryEmailStatus(sessionToken);
         });
-    },
-
-    _relierHas: function (itemName) {
-      return !! (this._relier && this._relier.has(itemName));
-    },
-
-    _relierGet: function (itemName) {
-      return this._relier && this._relier.get(itemName);
     }
   };
 

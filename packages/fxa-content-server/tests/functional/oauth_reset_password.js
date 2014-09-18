@@ -19,7 +19,6 @@ define([
   var OAUTH_APP = config.fxaOauthApp;
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var CONTENT_SERVER = config.fxaContentRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 
   var PASSWORD = 'password';
@@ -27,18 +26,6 @@ define([
   var email;
   var client;
   var accountData;
-
-  function getVerificationUrlFromEmail(user, emailNumber) {
-    var fetchCount = emailNumber + 1;
-    return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, fetchCount)
-      .then(function (emails) {
-        try {
-          return emails[emailNumber].headers['x-link'];
-        } catch (e) {
-          console.error(emails);
-        }
-      });
-  }
 
   registerSuite({
     name: 'oauth reset password',
@@ -72,7 +59,7 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'oath reset password': function () {
+    'oauth reset password': function () {
       var self = this;
 
       // verify account
@@ -120,7 +107,7 @@ define([
 
             .findById('fxa-confirm-reset-password-header')
             .then(function () {
-              return getVerificationUrlFromEmail(user, 1);
+              return FunctionalHelpers.getVerificationLink(user, 1);
             })
             .then(function (url) {
               return self.get('remote').get(require.toUrl(url));
@@ -183,6 +170,100 @@ define([
             .then(function (text) {
               // confirm logged out
               assert.ok(text.length === 0);
+            })
+            .end();
+        });
+    },
+
+    'oauth reset password, verify in a second browser': function () {
+      var self = this;
+
+      // verify account
+      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
+        .then(function (emails) {
+          var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+          return client.verifyCode(accountData.uid, code);
+        })
+        .then(function () {
+          return self.get('remote')
+            .get(require.toUrl(OAUTH_APP))
+            .setFindTimeout(intern.config.pageLoadTimeout)
+            .findByCssSelector('.signin')
+            .click()
+            .end()
+
+            .findByCssSelector('#fxa-signin-header')
+            .getCurrentUrl()
+            .then(function (url) {
+              assert.ok(url.indexOf('oauth/signin?') > -1);
+              assert.ok(url.indexOf('client_id=') > -1);
+              assert.ok(url.indexOf('redirect_uri=') > -1);
+              assert.ok(url.indexOf('state=') > -1);
+            })
+            .end()
+
+            .findByCssSelector('#fxa-signin-header .service')
+            .end()
+
+            .findByCssSelector('a[href="/reset_password"]')
+            .click()
+            .end()
+
+            .findById('fxa-reset-password-header')
+            .end()
+
+            .findByCssSelector('input[type=email]')
+            .click()
+            .type(email)
+            .end()
+
+            .findByCssSelector('button[type="submit"]')
+            .click()
+            .end()
+
+            .findById('fxa-confirm-reset-password-header')
+            .then(function () {
+              // clear all browser state, simulate opening in a new
+              // browser
+              return FunctionalHelpers.clearBrowserState(self);
+            })
+            .then(function () {
+              return FunctionalHelpers.getVerificationLink(user, 1);
+            })
+            .then(function (url) {
+              return self.get('remote').get(require.toUrl(url));
+            })
+            .end()
+
+            .findById('fxa-complete-reset-password-header')
+            .end()
+
+            .findByCssSelector('form input#password')
+            .click()
+            .type(PASSWORD)
+            .end()
+
+            .findByCssSelector('form input#vpassword')
+            .click()
+            .type(PASSWORD)
+            .end()
+
+            .findByCssSelector('button[type="submit"]')
+            .click()
+            .end()
+
+            .findById('fxa-reset-password-complete-header')
+            .end()
+
+            .findByCssSelector('#redirectTo')
+            .click()
+            .end()
+
+            // user is redirect to 123done, but not signed in.
+            .findByCssSelector('button.sign-in-button')
+            .isDisplayed()
+            .then(function(isSignInButtonDisplayed) {
+              assert.isTrue(isSignInButtonDisplayed);
             })
             .end();
         });

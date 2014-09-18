@@ -10,13 +10,11 @@
 
 define([
   'underscore',
-  'models/reliers/relier',
-  'lib/session',
-  'lib/oauth-client'
-], function (_, Relier, Session, OAuthClient) {
+  'models/reliers/relier'
+], function (_, Relier) {
 
   var OAuthRelier = Relier.extend({
-    defaults: _.extend({
+    defaults: _.extend({}, Relier.prototype.defaults, {
       // standard oauth parameters.
       state: null,
       clientId: null,
@@ -25,15 +23,19 @@ define([
       scope: null,
       // redirectTo is for future use by the oauth flow. redirectTo
       // would have redirectUri as its base.
-      redirectTo: null
-    }, Relier.prototype.defaults),
+      redirectTo: null,
+
+      // webChannelId is used by the Loop OAuth flow.
+      webChannelId: null
+    }),
 
     initialize: function (options) {
       options = options || {};
 
       Relier.prototype.initialize.call(this, options);
 
-      this._oAuthClient = options.oAuthClient || new OAuthClient();
+      this._session = options.session;
+      this._oAuthClient = options.oAuthClient;
     },
 
     fetch: function () {
@@ -50,8 +52,12 @@ define([
               self.set('service', self.get('clientId'));
             }
 
-            return self._setServiceName();
+            return self._setupOAuthRPInfo();
           });
+    },
+
+    isOAuth: function () {
+      return true;
     },
 
     _isVerificationFlow: function () {
@@ -61,9 +67,17 @@ define([
     _setupVerificationFlow: function () {
       var self = this;
 
-      var resumeObj = Session.oauth;
+      var resumeObj = self._session.oauth;
       if (! resumeObj) {
-        return;
+        // The user is verifying in a second browser. `service` is
+        // available in the link. Use it to populate the `service`
+        // and `clientId` fields which will allow the user to
+        // redirect back to the RP but not sign in.
+        resumeObj = {
+          service: self.getSearchParam('service'),
+          //jshint camelcase: false
+          client_id: self.getSearchParam('service')
+        };
       }
 
       self.set({
@@ -71,7 +85,8 @@ define([
         //jshint camelcase: false
         clientId: resumeObj.client_id,
         redirectUri: resumeObj.redirect_uri,
-        scope: resumeObj.scope
+        scope: resumeObj.scope,
+        webChannelId: resumeObj.webChannelId
       });
     },
 
@@ -86,23 +101,20 @@ define([
       self.importSearchParam('scope');
 
       self.importSearchParam('redirectTo');
+      self.importSearchParam('webChannelId');
     },
 
-    isOAuth: function () {
-      return true;
-    },
-
-    _setServiceName: function () {
+    _setupOAuthRPInfo: function () {
       var self = this;
       var clientId = self.get('clientId');
 
       if (clientId) {
         return this._oAuthClient.getClientInfo(clientId)
-          .then(function(clientInfo) {
-            self.set('serviceName', clientInfo.name);
+          .then(function(serviceInfo) {
+            self.set('serviceName', serviceInfo.name);
             //jshint camelcase: false
             // server version always takes precedent over the search parameter
-            self.set('redirectUri', clientInfo.redirect_uri);
+            self.set('redirectUri', serviceInfo.redirect_uri);
           });
       }
     }

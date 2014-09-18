@@ -33,6 +33,7 @@ define([
   'lib/assertion',
   'lib/profile',
   'lib/constants',
+  'lib/oauth-client',
   'models/reliers/relier',
   'models/reliers/oauth',
   'models/reliers/fx-desktop'
@@ -53,6 +54,7 @@ function (
   Assertion,
   Profile,
   Constants,
+  OAuthClient,
   Relier,
   OAuthRelier,
   FxDesktopRelier
@@ -131,29 +133,39 @@ function (
 
     initializeRelier: function () {
       if (! this._relier) {
-        var Relier = this._getRelierConstructor();
+        var relier;
 
-        this._relier = new Relier({
-          window: this._window,
-          translator: this._translator
-        });
+        if (this._isFxDesktopSignInSignUp() || this._isFxDesktopVerification()) {
+          // Use the FxDesktopRelier for sync verification so that
+          // the service name is translated correctly.
+          relier = new FxDesktopRelier({
+            window: this._window,
+            translator: this._translator
+          });
+        } else if (this._isOAuth()) {
+          relier = new OAuthRelier({
+            window: this._window,
+            oAuthClient: new OAuthClient(),
+            session: Session
+          });
+        } else {
+          relier = new Relier({
+            window: this._window
+          });
+        }
 
-        return this._relier.fetch();
+        this._relier = relier;
+        return relier.fetch();
       }
     },
 
-    _getRelierConstructor: function () {
-      if (this._isFxDesktop()) {
-        return FxDesktopRelier;
-      } else if (this._isOAuth()) {
-        return OAuthRelier;
-      }
-
-      return Relier;
-    },
-
-    _isFxDesktop: function () {
+    _isFxDesktopSignInSignUp: function () {
       return this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT;
+    },
+
+    _isFxDesktopVerification: function () {
+      return this._searchParam('uid') &&
+             this._searchParam('service') === Constants.FX_DESKTOP_SYNC;
     },
 
     _isOAuth: function () {
@@ -211,7 +223,7 @@ function (
 
           if (! areCookiesEnabled) {
             self._router.navigate('cookies_disabled');
-          } else if (self._isFxDesktop()) {
+          } else if (self._isFxDesktopSignInSignUp()) {
             return self._selectFxDesktopStartPage();
           }
         });

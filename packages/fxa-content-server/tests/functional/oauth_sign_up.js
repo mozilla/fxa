@@ -27,12 +27,10 @@ define([
   registerSuite({
     name: 'oauth sign up',
 
-    setup: function () {
+    beforeEach: function () {
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
-    },
 
-    beforeEach: function () {
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
@@ -115,6 +113,82 @@ define([
         .then(function (text) {
           // confirm logged out
           assert.ok(text.length === 0);
+        })
+        .end();
+    },
+
+
+    'verify in a second browser': function () {
+      var self = this;
+
+      return this.get('remote')
+        .get(require.toUrl(OAUTH_APP))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('.signup')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-signup-header .service')
+        .end()
+        .getCurrentUrl()
+        .then(function (url) {
+          assert.ok(url.indexOf('client_id=') > -1);
+          assert.ok(url.indexOf('redirect_uri=') > -1);
+          assert.ok(url.indexOf('state=') > -1);
+        })
+        .end()
+
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('#fxa-age-year')
+          .click()
+        .end()
+
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-confirm-header')
+        .getCurrentUrl()
+        .then(function (url) {
+          assert.ok(url.indexOf('client_id=') > -1);
+
+          // clear all browser state, simulate opening in a new
+          // browser
+          return FunctionalHelpers.clearBrowserState(self);
+        })
+        .then(function () {
+          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
+            .then(function (emails) {
+              return self.get('remote')
+                .get(require.toUrl(emails[0].headers['x-link']));
+            });
+        })
+        .end()
+
+        .findByCssSelector('#redirectTo')
+          .click()
+        .end()
+
+        // user is redirect to 123done, but not signed in.
+        .findByCssSelector('button.sign-in-button')
+        .isDisplayed()
+        .then(function(isSignInButtonDisplayed) {
+          assert.isTrue(isSignInButtonDisplayed);
         })
         .end();
     }

@@ -13,8 +13,9 @@
 
 define([
   'views/base',
+  'lib/constants',
   'stache!templates/marketing_snippet'
-], function (BaseView, Template) {
+], function (BaseView, Constants, Template) {
 
   var View = BaseView.extend({
     template: Template,
@@ -49,7 +50,7 @@ define([
 
     _shouldShowSignUpMarketing: function () {
       var isSignUp = this._type === 'sign_up';
-      var isSync = this._service === 'sync';
+      var isSync = this._service === Constants.FX_DESKTOP_SYNC;
       var isFirefoxMobile = this._isFirefoxMobile();
 
       // user can only be randomly selected for survey if

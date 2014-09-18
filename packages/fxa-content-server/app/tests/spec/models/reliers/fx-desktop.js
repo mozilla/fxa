@@ -7,20 +7,24 @@
 define([
   'chai',
   'models/reliers/fx-desktop',
+  'lib/translator',
   '../../../mocks/window',
   '../../../lib/helpers'
-], function (chai, Relier, WindowMock, TestHelpers) {
+], function (chai, Relier, Translator, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('models/reliers/fx-desktop', function () {
     var windowMock;
+    var translator;
     var relier;
 
     beforeEach(function () {
       windowMock = new WindowMock();
+      translator = new Translator('en-US', ['en-US']);
 
       relier = new Relier({
-        window: windowMock
+        window: windowMock,
+        translator: translator
       });
     });
 

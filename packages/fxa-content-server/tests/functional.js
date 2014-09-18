@@ -7,6 +7,7 @@ define([
   './functional/sign_in_cached',
   './functional/sign_up',
   './functional/complete_sign_up',
+  './functional/sync_sign_up',
   './functional/legal',
   './functional/tos',
   './functional/pp',

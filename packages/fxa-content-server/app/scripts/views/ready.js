@@ -73,7 +73,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, AuthError
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
       // Finish the WebChannel flow
-      if (Session.oauth && Session.oauth.webChannelId) {
+      if (this.relier.get('webChannelId')) {
         this.submit();
       }
 

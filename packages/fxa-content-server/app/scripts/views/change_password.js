@@ -32,12 +32,6 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
       'click #resend': 'resendVerificationEmail'
     },
 
-    context: function () {
-      return {
-        isSync: this.relier.isSync()
-      };
-    },
-
     afterRender: function() {
       this.initializePlaceholderFields();
     },

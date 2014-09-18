@@ -13,6 +13,7 @@ define([], function () {
     URL_MAX_LENGTH: 2048,
 
     FX_DESKTOP_CONTEXT: 'fx_desktop_v1',
+    FX_DESKTOP_SYNC: 'sync',
 
     SIGNUP_RESEND_MAX_TRIES: 3,
     PASSWORD_RESET_RESEND_MAX_TRIES: 3,
