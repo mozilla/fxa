@@ -19,7 +19,7 @@
     }
   }
 
-  Customs.prototype.check = function (ip, agent, email, action) {
+  Customs.prototype.check = function (ip, email, action) {
     log.trace({ op: 'customs.check', email: email, action: action })
     return this.pool.post(
       '/check',
@@ -27,7 +27,6 @@
         ip: ip,
         email: email,
         action: action,
-        agent: agent
       }
     )
     .then(

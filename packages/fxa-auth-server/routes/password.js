@@ -188,7 +188,6 @@ module.exports = function (
         var email = request.payload.email
         customs.check(
           request.app.clientAddress,
-          request.headers['user-agent'],
           email,
           'passwordForgotSendCode')
           .then(db.emailRecord.bind(db, email))
@@ -260,7 +259,6 @@ module.exports = function (
         var passwordForgotToken = request.auth.credentials
         customs.check(
           request.app.clientAddress,
-          request.headers['user-agent'],
           passwordForgotToken.email,
           'passwordForgotResendCode')
           .then(

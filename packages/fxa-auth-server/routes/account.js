@@ -53,7 +53,6 @@ module.exports = function (
         var locale = request.app.acceptLanguage
         customs.check(
           request.app.clientAddress,
-          request.headers['user-agent'],
           email,
           'accountCreate'
           )
@@ -208,7 +207,6 @@ module.exports = function (
         var authPW = Buffer(form.authPW, 'hex')
         customs.check(
           request.app.clientAddress,
-          request.headers['user-agent'],
           email,
           'accountLogin')
           .then(db.emailRecord.bind(db, email))
@@ -439,7 +437,6 @@ module.exports = function (
         }
         customs.check(
           request.app.clientAddress,
-          request.headers['user-agent'],
           sessionToken.email,
           'recoveryEmailResendCode')
           .then(
