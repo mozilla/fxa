@@ -74,10 +74,10 @@ function verify(verifier, req, res) {
       if (err) {
         if (err.indexOf("compute cluster") === 0) {
           log.info("service_failure");
-          res.json({"status":"failure", reason: "service unavailable"}, 503);
+          res.json(503, {"status":"failure", reason: "service unavailable"});
         } else {
           log.info("assertion_failure");
-          res.json({"status":"failure", reason: err}, 200);  //Could be 500 or 200 OK if invalid cert
+          res.json(200, {"status":"failure", reason: err});  //Could be 500 or 200 OK if invalid cert
         }
         res._summary.err = err;
         log.info('verify', {
@@ -110,10 +110,10 @@ function verify(verifier, req, res) {
       rp: req.body.audience
     });
 
-    res.json({
+    res.json(err.code ? err.code : 500, {
       status: 'failure',
       reason: reason
-    }, err.code ? err.code : 500);
+    });
   }
 }
 
