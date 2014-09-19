@@ -16,7 +16,6 @@ define([
   'use strict';
 
   var config = intern.config;
-  //var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
 
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;

@@ -164,7 +164,10 @@ function (
     },
 
     _isFxDesktopVerification: function () {
-      return this._searchParam('uid') &&
+      // uid is used for signup
+      // token is used for password reset
+      // code is used by both
+      return this._searchParam('code') &&
              this._searchParam('service') === Constants.FX_DESKTOP_SYNC;
     },
 
