@@ -70,13 +70,7 @@ define([
         })
         .then(function () {
           // clear localStorage to avoid polluting other tests.
-          return self.get('remote')
-            // always go to the content server so the browser state is cleared
-            .get(require.toUrl(CONTENT_SERVER))
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            .then(function () {
-              return FunctionalHelpers.clearBrowserState(self);
-            });
+          return FunctionalHelpers.clearBrowserState(self);
         });
     },
 

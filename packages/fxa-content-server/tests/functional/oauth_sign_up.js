@@ -16,7 +16,6 @@ define([
   'use strict';
 
   var config = intern.config;
-  var CONTENT_SERVER = config.fxaContentRoot;
   var OAUTH_APP = config.fxaOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
@@ -34,17 +33,10 @@ define([
     },
 
     beforeEach: function () {
-      var self = this;
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
-      return self.get('remote')
-        // always go to the content server so the browser state is cleared
-        .get(require.toUrl(CONTENT_SERVER))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'basic sign up': function () {

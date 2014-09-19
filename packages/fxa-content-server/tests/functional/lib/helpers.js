@@ -9,9 +9,22 @@ define([
 ], function (intern, require, pollUntil) {
   'use strict';
 
+  var config = intern.config;
+  var CONTENT_SERVER = config.fxaContentRoot;
+
   function clearBrowserState(context) {
     // clear localStorage to avoid polluting other tests.
     return context.get('remote')
+      // always go to the content server so the browser state is cleared
+      .setFindTimeout(config.pageLoadTimeout)
+      .getCurrentUrl()
+      .then(function (url) {
+        // only load up the content server if we aren't
+        // already at the content server.
+        if (url.indexOf(CONTENT_SERVER) === -1) {
+          return context.get('remote').get(require.toUrl(CONTENT_SERVER));
+        }
+      })
       .execute(function () {
         try {
           /* global document, localStorage, sessionStorage */
