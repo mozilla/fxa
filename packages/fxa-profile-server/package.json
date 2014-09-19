@@ -45,7 +45,12 @@
     "through": "^2.3.4",
     "time-grunt": "^0.4.0"
   },
-  "repo": "mozilla/fxa-profile-server",
+  "repository": "mozilla/fxa-profile-server",
+  "bugs": "https://github.com/mozilla/fxa-profile-server/issues",
+  "homepage": "https://github.com/mozilla/fxa-profile-server",
   "author": "Sean McArthur <sean.monstar@gmail.com>",
-  "license": "MPLv2.0"
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "license": "MPL 2.0"
 }
