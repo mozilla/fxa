@@ -260,7 +260,9 @@ define([
         .end()
 
         // uh oh, user must verify their account.
+        .then(FunctionalHelpers.visibleByQSA('#resend'))
         .findById('resend')
+          .moveMouseTo()
           .click()
         .end()
 
