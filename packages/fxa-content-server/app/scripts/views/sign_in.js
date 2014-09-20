@@ -29,7 +29,6 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
 
       // reset any force auth status.
       Session.set('forceAuth', false);
-      this.service = Session.service;
     },
 
     context: function () {
@@ -39,13 +38,12 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       this.prefillEmail = Session.prefillEmail || this.searchParam('email');
 
       return {
-        service: this.service,
-        serviceName: this.serviceName,
+        service: this.relier.get('service'),
+        serviceName: this.relier.get('serviceName'),
         email: this.prefillEmail,
         suggestedUser: this._suggestedUser(),
         chooserAskForPassword: this._suggestedUserAskPassword(),
         password: Session.prefillPassword,
-        isSync: this.isSync(),
         error: this.error
       };
     },
@@ -60,18 +58,6 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
     beforeDestroy: function () {
       Session.set('prefillEmail', this.$('.email').val());
       Session.set('prefillPassword', this.$('.password').val());
-    },
-
-    beforeRender: function() {
-      var self = this;
-      return p().then(function () {
-        return FormView.prototype.beforeRender.call(self);
-      })
-      .then(function () {
-        if (self.hasService() && self.isSync()) {
-          return self.setServiceInfo();
-        }
-      });
     },
 
     submit: function () {
@@ -135,7 +121,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       // Also show settings if an automatedBrowser flag has been set,
       // so that webdriver tests have indication that the
       // flow is done.
-      if (! Session.isDesktopContext()) {
+      if (! this.relier.isFxDesktop()) {
         this.navigate('settings');
       }
 
@@ -243,7 +229,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
      */
     _suggestedUserAskPassword: function () {
       // sync must always use a password login to generate keys, skip the login chooser at all cost
-      if (this.isSync()) {
+      if (this.relier.isSync()) {
         return true;
       }
 

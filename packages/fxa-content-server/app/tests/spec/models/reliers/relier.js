@@ -12,29 +12,47 @@ define([
 ], function (chai, Relier, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
-  describe('reliers/reliers/relier', function () {
-    describe('fetch', function () {
-      var relier, windowMock;
+  describe('models/reliers/relier', function () {
+    var relier;
+    var windowMock;
 
-      beforeEach(function () {
-        windowMock = new WindowMock();
+    var SERVICE = 'service';
+    var PREVERIFY_TOKEN = 'abigtoken';
 
-        relier = new Relier({
-          window: windowMock
-        });
+    beforeEach(function () {
+      windowMock = new WindowMock();
+
+      relier = new Relier({
+        window: windowMock
       });
+    });
 
+    describe('fetch', function () {
       it('populates expected fields from the search parameters, unexpected search parameters are ignored', function () {
         windowMock.location.search = TestHelpers.toSearchString({
-          preVerifyToken: 'abigtoken',
+          preVerifyToken: PREVERIFY_TOKEN,
+          service: SERVICE,
           ignored: 'ignored'
         });
 
         return relier.fetch()
             .then(function () {
-              assert.equal(relier.get('preVerifyToken'), 'abigtoken');
-              assert.isUndefined(relier.get('ignored'));
+              assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
+              assert.equal(relier.get('service'), SERVICE);
+              assert.isFalse(relier.has('ignored'));
             });
+      });
+    });
+
+    describe('isOAuth', function () {
+      it('returns `false`', function () {
+        assert.isFalse(relier.isOAuth());
+      });
+    });
+
+    describe('isFxDesktop', function () {
+      it('returns `false`', function () {
+        assert.isFalse(relier.isFxDesktop());
       });
     });
   });

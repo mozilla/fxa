@@ -33,7 +33,9 @@ define([
   'lib/assertion',
   'lib/profile',
   'lib/constants',
+  'lib/oauth-client',
   'models/reliers/relier',
+  'models/reliers/oauth',
   'models/reliers/fx-desktop'
 ],
 function (
@@ -52,7 +54,9 @@ function (
   Assertion,
   Profile,
   Constants,
+  OAuthClient,
   Relier,
+  OAuthRelier,
   FxDesktopRelier
 ) {
 
@@ -80,8 +84,6 @@ function (
 
   Start.prototype = {
     startApp: function () {
-      this.initSessionFromUrl();
-
       // fetch both config and translations in parallel to speed up load.
       return p.all([
         this.initializeConfig(),
@@ -96,6 +98,8 @@ function (
                     // both the metrics and router depend on the language
                     // fetched from config.
                     .then(_.bind(this.initializeRelier, this))
+                    // channels relies on the relier
+                    .then(_.bind(this.initializeChannels, this))
                     // fxaClient depends on the relier.
                     .then(_.bind(this.initializeFxaClient, this))
                     // profileClient dependsd on fxaClient.
@@ -113,8 +117,8 @@ function (
     },
 
     initializeL10n: function () {
-      var translator = this._window.translator = new Translator();
-      return translator.fetch();
+      this._translator = this._window.translator = new Translator();
+      return this._translator.fetch();
     },
 
     initializeMetrics: function () {
@@ -129,22 +133,46 @@ function (
 
     initializeRelier: function () {
       if (! this._relier) {
-        if (this._isFxDesktop()) {
-          this._relier = new FxDesktopRelier({
-            window: this._window
+        var relier;
+
+        if (this._isFxDesktopSignInSignUp() || this._isFxDesktopVerification()) {
+          // Use the FxDesktopRelier for sync verification so that
+          // the service name is translated correctly.
+          relier = new FxDesktopRelier({
+            window: this._window,
+            translator: this._translator
+          });
+        } else if (this._isOAuth()) {
+          relier = new OAuthRelier({
+            window: this._window,
+            oAuthClient: new OAuthClient(),
+            session: Session
           });
         } else {
-          this._relier = new Relier({
+          relier = new Relier({
             window: this._window
           });
         }
 
-        return this._relier.fetch();
+        this._relier = relier;
+        return relier.fetch();
       }
     },
 
-    _isFxDesktop: function () {
+    _isFxDesktopSignInSignUp: function () {
       return this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT;
+    },
+
+    _isFxDesktopVerification: function () {
+      // uid is used for signup
+      // token is used for password reset
+      // code is used by both
+      return this._searchParam('code') &&
+             this._searchParam('service') === Constants.FX_DESKTOP_SYNC;
+    },
+
+    _isOAuth: function () {
+      return !! (this._searchParam('client_id') || this._searchParam('code'));
     },
 
     initializeFxaClient: function () {
@@ -177,6 +205,12 @@ function (
       this._window.router = this._router;
     },
 
+    initializeChannels: function () {
+      Channels.initialize({
+        relier: this._relier
+      });
+    },
+
     allResourcesReady: function () {
       // These must be initialized after Backbone.history so that
       // Backbone does not override the page the channel sets.
@@ -192,7 +226,7 @@ function (
 
           if (! areCookiesEnabled) {
             self._router.navigate('cookies_disabled');
-          } else if (Session.isDesktopContext()) {
+          } else if (self._isFxDesktopSignInSignUp()) {
             return self._selectFxDesktopStartPage();
           }
         });
@@ -222,31 +256,6 @@ function (
               }
             }
           });
-    },
-
-    setSessionValueFromUrl: function (paramName, sessionName) {
-      var value = this._searchParam(paramName);
-      var name = sessionName || paramName;
-      if (value) {
-        Session.set(name, value);
-      } else {
-        Session.clear(name);
-      }
-    },
-
-    initSessionFromUrl: function () {
-      this.setSessionValueFromUrl('service');
-      this.setSessionValueFromUrl('redirectTo');
-      this.setSessionValueFromUrl('context');
-      this.initOAuthService();
-    },
-
-    // If Session.service hasn't been set,
-    // look for the service in the `client_id` parameter.
-    initOAuthService: function () {
-      if (! Session.service) {
-        this.setSessionValueFromUrl('client_id', 'service');
-      }
     }
   };
 

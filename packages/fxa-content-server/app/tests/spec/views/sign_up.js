@@ -15,18 +15,15 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
-  'lib/translator',
-  'lib/service-name',
-  'models/reliers/relier',
+  'models/reliers/fx-desktop',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
-      Translator, ServiceName, Relier, RouterMock, WindowMock, TestHelpers) {
+      Relier, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
-  var translator = new Translator('en-US', ['en-US']);
 
   function fillOutSignUp (email, password, opts) {
     opts = opts || {};
@@ -115,7 +112,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('shows choose what to sync checkbox when service is sync even after session is cleared', function () {
-        Session.set('service', 'sync');
+        relier.set('service', 'sync');
         Session.clear();
 
         return view.render()
@@ -124,14 +121,13 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
             });
       });
 
-      it('Shows Sync service name', function () {
-        Session.set('service', 'sync');
-        var syncName = new ServiceName(translator).get('sync');
+      it('Shows serviceName', function () {
+        var serviceName = 'my service name';
+        relier.set('serviceName', serviceName);
 
-        // create a new view so that it initializes with the service from Session
         return view.render()
             .then(function () {
-              assert.include(view.$('#fxa-signup-header').text(), syncName);
+              assert.include(view.$('#fxa-signup-header').text(), serviceName);
             });
       });
     });

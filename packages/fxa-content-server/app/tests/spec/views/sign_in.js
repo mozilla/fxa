@@ -14,18 +14,15 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
-  'lib/translator',
-  'lib/service-name',
   'models/reliers/relier',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
-      Translator, ServiceName, Relier, WindowMock, RouterMock, TestHelpers) {
+      Relier, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
-  var translator = new Translator('en-US', ['en-US']);
 
   describe('views/sign_in', function () {
     var view;
@@ -84,19 +81,23 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
             });
       });
 
-      it('Shows Sync service name', function () {
-        Session.set('service', 'sync');
-        var syncName = new ServiceName(translator).get('sync');
+      it('Shows serviceName from the relier', function () {
+        relier.isSync = function () {
+          return true;
+        };
+        var serviceName = 'another awesome service by Mozilla';
+        relier.set('serviceName', serviceName);
 
         // initialize a new view to set the service name
         view = new View({
           router: routerMock,
           metrics: metrics,
-          window: windowMock
+          window: windowMock,
+          relier: relier
         });
         return view.render()
             .then(function () {
-              assert.include(view.$('#fxa-signin-header').text(), syncName);
+              assert.include(view.$('#fxa-signin-header').text(), serviceName);
             });
       });
     });
@@ -418,11 +419,14 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('_suggestedUserAskPassword', function () {
       it('asks for password right away if service is sync', function (done) {
+        relier.isSync = function () {
+          return true;
+        };
         Session.set('cachedCredentials', {
           sessionToken: 'abc123',
           email: 'a@a.com'
         });
-        Session.set('service', 'sync');
+        relier.set('service', 'sync');
 
         return view.render()
           .then(function () {
@@ -438,7 +442,7 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
           sessionToken: 'abc123',
           email: 'a@a.com'
         });
-        Session.set('service', 'loop');
+        relier.set('service', 'loop');
 
         return view.render()
           .then(function () {

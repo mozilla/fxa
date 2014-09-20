@@ -18,8 +18,8 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, sinon, p, ChannelMock, testHelpers,
-              Session, FxaClientWrapper, AuthErrors, Constants, Relier) {
+function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
+    FxaClientWrapper, AuthErrors, Constants, Relier) {
   'use strict';
 
   var assert = chai.assert;
@@ -62,8 +62,8 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
 
     describe('signUp/signUpResend', function () {
       it('signUp signs up a user with email/password', function () {
-        Session.set('service', 'sync');
-        Session.set('redirectTo', 'https://sync.firefox.com');
+        relier.set('service', 'sync');
+        relier.set('redirectTo', 'https://sync.firefox.com');
 
         return client.signUp(email, password)
           .then(function () {
@@ -104,7 +104,10 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
       });
 
       it('informs browser of customizeSync option', function () {
-        Session.set('context', Constants.FX_DESKTOP_CONTEXT);
+        relier.isFxDesktop = function () {
+          return true;
+        };
+
         return client.signUp(email, password, { customizeSync: true })
           .then(function () {
             assert.isTrue(channelMock.data.customizeSync);
@@ -112,8 +115,8 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
       });
 
       it('signUpResend resends the validation email', function () {
-        Session.set('service', 'sync');
-        Session.set('redirectTo', 'https://sync.firefox.com');
+        relier.set('service', 'sync');
+        relier.set('redirectTo', 'https://sync.firefox.com');
 
         return client.signUp(email, password)
           .then(function () {
@@ -253,7 +256,10 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
       });
 
       it('informs browser of customizeSync option', function () {
-        Session.set('context', Constants.FX_DESKTOP_CONTEXT);
+        relier.isFxDesktop = function () {
+          return true;
+        };
+
         return client.signUp(email, password)
           .then(function () {
             return client.signIn(email, password, { customizeSync: true });
@@ -321,8 +327,8 @@ function (chai, $, sinon, p, ChannelMock, testHelpers,
       it('requests a password reset', function () {
         return client.signUp(email, password)
           .then(function () {
-            Session.set('service', 'sync');
-            Session.set('redirectTo', 'https://sync.firefox.com');
+            relier.set('service', 'sync');
+            relier.set('redirectTo', 'https://sync.firefox.com');
             return client.passwordReset(email);
           })
           .then(function () {

@@ -69,6 +69,7 @@ function (Translator, Session, FxaClientWrapper) {
     '../tests/spec/views/mixins/timer-mixin',
     '../tests/spec/views/mixins/service-mixin',
     '../tests/spec/models/reliers/relier',
+    '../tests/spec/models/reliers/oauth',
     '../tests/spec/models/reliers/fx-desktop'
   ];
 

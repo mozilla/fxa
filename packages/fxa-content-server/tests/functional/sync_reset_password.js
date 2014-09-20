@@ -16,7 +16,7 @@ define([
   'use strict';
 
   var config = intern.config;
-  var OAUTH_APP = config.fxaOauthApp;
+  var PAGE_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v1&service=sync';
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
@@ -28,7 +28,7 @@ define([
   var accountData;
 
   registerSuite({
-    name: 'oauth reset password',
+    name: 'Firefox Desktop Sync reset password',
 
     setup: function () {
       // timeout after 90 seconds
@@ -59,7 +59,7 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'oauth reset password': function () {
+    'sync reset password, verify same browswer': function () {
       var self = this;
 
       // verify account
@@ -70,28 +70,8 @@ define([
         })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(OAUTH_APP))
+            .get(require.toUrl(PAGE_URL))
             .setFindTimeout(intern.config.pageLoadTimeout)
-            .findByCssSelector('.signin')
-            .click()
-            .end()
-
-            .findByCssSelector('#fxa-signin-header')
-            .getCurrentUrl()
-            .then(function (url) {
-              assert.ok(url.indexOf('oauth/signin?') > -1);
-              assert.ok(url.indexOf('client_id=') > -1);
-              assert.ok(url.indexOf('redirect_uri=') > -1);
-              assert.ok(url.indexOf('state=') > -1);
-            })
-            .end()
-
-            .findByCssSelector('#fxa-signin-header .service')
-            .end()
-
-            .findByCssSelector('a[href="/reset_password"]')
-            .click()
-            .end()
 
             .findById('fxa-reset-password-header')
             .end()
@@ -134,48 +114,17 @@ define([
             .findById('fxa-reset-password-complete-header')
             .end()
 
-            .findByCssSelector('#redirectTo')
-            .click()
-            .end()
-
-            // let items load
-            .findByCssSelector('#todolist li')
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getCurrentUrl()
-            .then(function (url) {
-              // redirected back to the App
-              assert.ok(url.indexOf(OAUTH_APP) > -1);
-            })
-            .end()
-
-            .findByCssSelector('#loggedin span')
+            .findByCssSelector('.account-ready-service')
             .getVisibleText()
             .then(function (text) {
-              // confirm logged in email
-              assert.ok(text.indexOf(email) > -1);
+              assert.ok(text.indexOf('Firefox Sync') > -1);
             })
-            .end()
 
-            .findByCssSelector('#logout')
-            .click()
-            .end()
-
-            .findByCssSelector('.signup')
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getVisibleText()
-            .then(function (text) {
-              // confirm logged out
-              assert.ok(text.length === 0);
-            })
             .end();
         });
     },
 
-    'oauth reset password, verify in a second browser': function () {
+    'sync reset password, verify in a second browser': function () {
       var self = this;
 
       // verify account
@@ -186,28 +135,8 @@ define([
         })
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(OAUTH_APP))
+            .get(require.toUrl(PAGE_URL))
             .setFindTimeout(intern.config.pageLoadTimeout)
-            .findByCssSelector('.signin')
-            .click()
-            .end()
-
-            .findByCssSelector('#fxa-signin-header')
-            .getCurrentUrl()
-            .then(function (url) {
-              assert.ok(url.indexOf('oauth/signin?') > -1);
-              assert.ok(url.indexOf('client_id=') > -1);
-              assert.ok(url.indexOf('redirect_uri=') > -1);
-              assert.ok(url.indexOf('state=') > -1);
-            })
-            .end()
-
-            .findByCssSelector('#fxa-signin-header .service')
-            .end()
-
-            .findByCssSelector('a[href="/reset_password"]')
-            .click()
-            .end()
 
             .findById('fxa-reset-password-header')
             .end()
@@ -255,16 +184,12 @@ define([
             .findById('fxa-reset-password-complete-header')
             .end()
 
-            .findByCssSelector('#redirectTo')
-            .click()
-            .end()
-
-            // user is redirect to 123done, but not signed in.
-            .findByCssSelector('button.sign-in-button')
-            .isDisplayed()
-            .then(function(isSignInButtonDisplayed) {
-              assert.isTrue(isSignInButtonDisplayed);
+            .findByCssSelector('.account-ready-service')
+            .getVisibleText()
+            .then(function (text) {
+              assert.ok(text.indexOf('Firefox Sync') > -1);
             })
+
             .end();
         });
     }

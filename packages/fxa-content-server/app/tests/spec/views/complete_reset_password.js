@@ -220,6 +220,9 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
         view.fxaClient.completePasswordReset = function () {
           return p(true);
         };
+        view.fxaClient.signIn = function () {
+          return p(true);
+        };
         return view.validateAndSubmit()
             .then(function () {
               assert.equal(routerMock.page, 'reset_password_complete');

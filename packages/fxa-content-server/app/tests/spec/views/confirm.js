@@ -178,7 +178,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
         /* jshint camelcase: false */
         var email = TestHelpers.createEmail();
 
-        Session.set('service', 'sync');
+        relier.set('service', 'sync');
 
         view.VERIFICATION_POLL_IN_MS = 100;
 

@@ -17,15 +17,24 @@ define([
   'lib/constants',
   'lib/metrics',
   'lib/ephemeral-messages',
+  'models/reliers/relier',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session, Constants, Metrics, EphemeralMessages, WindowMock, TestHelpers) {
+function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
+      Session, Constants, Metrics, EphemeralMessages, Relier,
+      WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
   describe('lib/router', function () {
-    var router, windowMock, origNavigate, navigateUrl, navigateOptions, metrics;
+    var router;
+    var windowMock;
+    var origNavigate;
+    var navigateUrl;
+    var navigateOptions;
+    var metrics;
+    var relier;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
@@ -34,6 +43,10 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session,
 
       windowMock = new WindowMock();
       metrics = new Metrics();
+
+      relier = new Relier({
+        window: windowMock
+      });
 
       router = new Router({
         window: windowMock,
@@ -95,11 +108,13 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session,
       beforeEach(function () {
         signInView = new SignInView({
           metrics: metrics,
-          window: windowMock
+          window: windowMock,
+          relier: relier
         });
         signUpView = new SignUpView({
           metrics: metrics,
-          window: windowMock
+          window: windowMock,
+          relier: relier
         });
       });
 
@@ -134,7 +149,8 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session,
           window: windowMock,
           router: router,
           // ensure there is no cross talk with other tests.
-          ephemeralMessages: new EphemeralMessages()
+          ephemeralMessages: new EphemeralMessages(),
+          relier: relier
         });
       });
 
@@ -204,7 +220,8 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView, Session,
           window: windowMock,
           router: router,
           // ensure there is no cross talk with other tests.
-          ephemeralMessages: new EphemeralMessages()
+          ephemeralMessages: new EphemeralMessages(),
+          relier: relier
         });
 
         return router.showView(view)

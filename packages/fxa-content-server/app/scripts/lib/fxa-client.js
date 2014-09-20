@@ -16,9 +16,10 @@ define([
   'lib/session',
   'lib/auth-errors',
   'lib/constants',
-  'lib/channels'
+  'lib/channels',
+  'models/reliers/base'
 ],
-function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
+function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseRelier) {
   // IE 8 doesn't support String.prototype.trim
   function trim(str) {
     return str && str.replace(/^\s+|\s+$/g, '');
@@ -31,6 +32,8 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
     this._channel = options.channel;
+    // BaseRelier is used as a NullRelier for testing.
+    this._relier = options.relier || new BaseRelier();
   }
 
   FxaClientWrapper.prototype = {
@@ -134,10 +137,10 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
           email: email,
           uid: accountData.uid,
           sessionToken: accountData.sessionToken,
-          sessionTokenContext: Session.context
+          sessionTokenContext: self._relier.get('context')
         };
 
-        if (Session.isDesktopContext()) {
+        if (self._relier.isFxDesktop()) {
           updatedSessionData.unwrapBKey = accountData.unwrapBKey;
           updatedSessionData.keyFetchToken = accountData.keyFetchToken;
           updatedSessionData.customizeSync = options.customizeSync;
@@ -145,7 +148,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
             email: email,
             uid: accountData.uid,
             sessionToken: accountData.sessionToken,
-            sessionTokenContext: Session.context
+            sessionTokenContext: self._relier.get('context')
           };
         } else {
           // Carry over the old cached credentials
@@ -167,7 +170,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
           // This allows us to tests flows with the desktop context
           // without things blowing up. In production/reality,
           // the context is set to desktop iff service is Sync.
-          if (Session.service === 'sync') {
+          if (self._relier.isSync()) {
             throw err;
           }
           return accountData;
@@ -179,8 +182,6 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
       options = options || {};
       var email = trim(originalEmail);
       var self = this;
-      var service = Session.service;
-      var redirectTo = Session.redirectTo;
       // ensure resend works again
       this._signUpResendCount = 0;
 
@@ -195,12 +196,13 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
                   keys: true
                 };
 
-                if (service) {
-                  signUpOptions.service = service;
+                var relier = self._relier;
+                if (relier.has('service')) {
+                  signUpOptions.service = relier.get('service');
                 }
 
-                if (redirectTo) {
-                  signUpOptions.redirectTo = redirectTo;
+                if (relier.has('redirectTo')) {
+                  signUpOptions.redirectTo = relier.get('redirectTo');
                 }
 
                 if (options.preVerified) {
@@ -219,17 +221,6 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
                   verifiedCanLinkAccount: true // skip the warning, beacuse we already triggered it above
                 };
                 return self.signIn(email, password, signInOptions);
-              })
-              .then(function (accountData) {
-                // signIn clears the Session. Restore service and redirectTo
-                // in case the user clicks on the "resend" link and a new
-                // email must be sent.
-                Session.set({
-                  service: service,
-                  redirectTo: redirectTo
-                });
-
-                return accountData;
               });
     },
 
@@ -245,12 +236,13 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
             self._signUpResendCount++;
           }
 
+          var clientOptions = {
+            service: self._relier.get('service'),
+            redirectTo: self._relier.get('redirectTo')
+          };
+
           return client.recoveryEmailResendCode(
-            Session.sessionToken,
-            {
-              service: Session.service,
-              redirectTo: Session.redirectTo
-            });
+                    Session.sessionToken, clientOptions);
         });
     },
 
@@ -278,8 +270,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
     },
 
     passwordReset: function (originalEmail) {
-      var service = Session.service;
-      var redirectTo = Session.redirectTo;
+      var self = this;
       var email = trim(originalEmail);
       var forceAuth = Session.forceAuth;
       var oauth = Session.oauth;
@@ -289,10 +280,12 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
 
       return this._getClientAsync()
               .then(function (client) {
-                return client.passwordForgotSendCode(email, {
-                  service: service,
-                  redirectTo: redirectTo
-                });
+                var clientOptions = {
+                  service: self._relier.get('service'),
+                  redirectTo: self._relier.get('redirectTo')
+                };
+
+                return client.passwordForgotSendCode(email, clientOptions);
               })
               .then(function (result) {
                 Session.clear();
@@ -300,8 +293,6 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
                 // The user may resend the password reset email, in which case
                 // we have to keep around some state so the email can be
                 // resent.
-                Session.set('service', service);
-                Session.set('redirectTo', redirectTo);
                 Session.set('email', email);
                 Session.set('forceAuth', forceAuth);
                 Session.set('passwordForgotToken', result.passwordForgotToken);
@@ -322,14 +313,15 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
           }
           // the linters complain if this is defined in the call to
           // passwordForgotResendCode
-          var options = {
-            service: Session.service,
-            redirectTo: Session.redirectTo
+          var clientOptions = {
+            service: self._relier.get('service'),
+            redirectTo: self._relier.get('redirectTo')
           };
+
           return client.passwordForgotResendCode(
                    Session.email,
                    Session.passwordForgotToken,
-                   options
+                   clientOptions
                  );
         });
     },

@@ -62,10 +62,10 @@ function (chai, Session) {
       });
 
       it('will not clear items in DO_NOT_CLEAR', function() {
-        var context = 'fxa_desktop_v1';
-        Session.set('context', context);
-        Session.clear('context');
-        assert.strictEqual(Session.context, context);
+        var config = 'config';
+        Session.set('config', config);
+        Session.clear('config');
+        assert.strictEqual(Session.config, config);
       });
     });
 

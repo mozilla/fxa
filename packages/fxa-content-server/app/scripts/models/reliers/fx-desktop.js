@@ -13,16 +13,24 @@
 'use strict';
 
 define([
-  'backbone',
   'underscore',
-  'models/reliers/relier'
-], function (Backbone, _, Relier) {
+  'models/reliers/relier',
+  'lib/service-name'
+], function (_, Relier, ServiceNameTranslator) {
 
   var FxDesktopRelier = Relier.extend({
-    defaults: _.extend({
+    defaults: _.extend({}, Relier.prototype.defaults, {
       context: null,
       entrypoint: null
-    }, Relier.prototype.defaults),
+    }),
+
+    initialize: function (options) {
+      options = options || {};
+
+      this._translator = options.translator;
+
+      Relier.prototype.initialize.call(this, options);
+    },
 
     fetch: function () {
       var self = this;
@@ -30,7 +38,21 @@ define([
           .then(function () {
             self.importSearchParam('context');
             self.importSearchParam('entrypoint');
+            return self._setupServiceName();
           });
+    },
+
+    isFxDesktop: function () {
+      return true;
+    },
+
+    _setupServiceName: function () {
+      var service = this.get('service');
+      if (service) {
+        var serviceNameTranslator = new ServiceNameTranslator(this._translator);
+        var serviceName = serviceNameTranslator.get(service);
+        this.set('serviceName', serviceName);
+      }
     }
   });
 

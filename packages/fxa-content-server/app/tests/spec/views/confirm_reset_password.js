@@ -21,6 +21,8 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
 
   var assert = chai.assert;
 
+  var CLIENT_ID = 'dcdb5ae7add825d2';
+
   describe('views/confirm_reset_password', function () {
     var view;
     var routerMock;
@@ -141,8 +143,8 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
       it('redirects to /oauth/signin if user has verified in oauth flow', function () {
         /* jshint camelcase: false */
 
-        Session.set('service', 'sync');
-        Session.set('oauth', { client_id: 'sync' });
+        relier.set('clientId', CLIENT_ID);
+        Session.set('oauth', { client_id: CLIENT_ID });
 
         view.fxaClient.isPasswordResetComplete = function () {
           return p().then(function () {

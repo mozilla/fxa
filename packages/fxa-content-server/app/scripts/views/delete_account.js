@@ -31,7 +31,6 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, ServiceMixin)
 
     context: function () {
       return {
-        isSync: this.isSync(),
         email: Session.email
       };
     },

@@ -22,18 +22,10 @@ function (_, p, BaseView, SignUpView, ServiceMixin) {
       SignUpView.prototype.initialize.call(this, options);
 
       // Set up OAuth so we can retrieve the pretty service name
-      this.setupOAuth(null, {
+      this.setupOAuth({
         assertionLibrary: options.assertionLibrary,
         oAuthClient: options.oAuthClient
       });
-    },
-
-    beforeRender: function() {
-      var self = this;
-      return p().then(function () {
-        return SignUpView.prototype.beforeRender.call(self);
-      })
-      .then(_.bind(this.setServiceInfo, this));
     },
 
     afterRender: function() {

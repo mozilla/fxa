@@ -37,35 +37,28 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, AuthError
     },
 
     beforeRender: function () {
-      if (this.isOAuthSameBrowser()) {
-        // We're continuing an OAuth flow from the same browser
-        this.setupOAuth(Session.oauth);
-        return this.setServiceInfo();
-      } else if (this.hasService()) {
-        // We're continuing an OAuth flow in a different browser
+      if (this.relier.has('service')) {
         this.setupOAuth();
-        return this.setServiceInfo();
       }
     },
 
     context: function () {
-      var serviceName = this.serviceName;
+      var serviceName = this.relier.get('serviceName');
+      var redirectUri = this.relier.get('redirectUri');
 
-      if (this.serviceRedirectURI) {
-        // if the given redirect uri is an URN based uri, such as "urn:ietf:wg:oauth:2.0:fx:webchannel"
-        // then we don't show clickable service links. The flow should be completed automatically depending
-        // on the flow it is using (such as iFrame or WebChannel).
-        if (Url.isHTTP(this.serviceRedirectURI)) {
-          serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-            Xss.href(this.serviceRedirectURI), serviceName
-          ]);
-        } else {
-          serviceName = Strings.interpolate('%s', [serviceName]);
-        }
+      // if the given redirect uri is an URN based uri, such as
+      // "urn:ietf:wg:oauth:2.0:fx:webchannel" then we don't show
+      // clickable service links. The flow should be completed
+      // automatically depending on the flow it is using
+      // (such as iFrame or WebChannel).
+      if (redirectUri && Url.isHTTP(redirectUri)) {
+        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
+          Xss.href(redirectUri), serviceName
+        ]);
       }
 
       return {
-        service: this.service,
+        service: this.relier.get('service'),
         serviceName: serviceName,
         signUp: this.is('sign_up'),
         resetPassword: this.is('reset_password')
@@ -80,7 +73,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, AuthError
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
       // Finish the WebChannel flow
-      if (Session.oauth && Session.oauth.webChannelId) {
+      if (this.relier.get('webChannelId')) {
         this.submit();
       }
 
@@ -90,7 +83,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, AuthError
     _createMarketingSnippet: function () {
       var marketingSnippet = new MarketingSnippet({
         type: this.type,
-        service: Session.service,
+        service: this.relier.get('service'),
         language: this.language,
         el: this.$('.marketing-area'),
         metrics: this.metrics
