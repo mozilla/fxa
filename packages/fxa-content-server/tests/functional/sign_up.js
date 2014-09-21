@@ -189,7 +189,9 @@ define([
             .end()
 
             // The error area shows a link to /signin
+            .then(FunctionalHelpers.visibleByQSA('.error a[href="/signin"]'))
             .findByCssSelector('.error a[href="/signin"]')
+              .moveMouseTo()
               .click()
             .end()
 
