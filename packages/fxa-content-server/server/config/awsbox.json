@@ -1,6 +1,7 @@
 {
   "fxaccount_url": "https://api-accounts.dev.lcip.org",
   "oauth_url": "https://oauth.dev.lcip.org",
+  "oauth_client_id": "ea3ca969f8c6bb0d",
   "static_directory": "dist",
   "page_template_subdirectory": "dist",
   "static_max_age" : 0,
