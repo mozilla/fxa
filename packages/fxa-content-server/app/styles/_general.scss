@@ -481,6 +481,7 @@ label:focus ~ .input-help-focused {
 */
 .select-row-wrapper {
   position: relative;
+  height: 45px;
 }
 
 .select-row {
@@ -494,6 +495,18 @@ label:focus ~ .input-help-focused {
   transition-property: border-color;
   width: 100%;
 
+  &.half-width {
+    float:left;
+    width: 48%;
+    &:first-child {
+      margin-right:4%;
+    }
+    select {
+      padding: 9px 10% 9px $input-left-right-padding * .5;
+      width:94%;
+    }
+  }
+
   &:hover {
     background-image: image-url('ddarrow_active.png');
     border-color: $input-row-hover-border-color;
@@ -501,6 +514,16 @@ label:focus ~ .input-help-focused {
     select {
       color: $input-text-color;
     }
+
+  &.disabled {
+     background: $content-background-color image-url('ddarrow_inactive.png') 96% center no-repeat;
+     border: 1px solid $input-row-border-color;
+     cursor: default;
+
+     select {
+      color: $input-placeholder-color;
+     }
+  }
   }
 
   select {

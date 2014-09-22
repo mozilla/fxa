@@ -29,15 +29,13 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
 
   var now = new Date();
 
-  // If COPPA says 13, why 14 here? To make UX simpler, we only ask
-  // for their year of birth, we do not ask for month and day.
-  // To make this safe and ensure we do not let *any* 12 year olds pass,
-  // we are saying that it is acceptable for some 13 year olds to be
-  // caught in the snare.
-  // This is written on 2014-01-16. 13 years ago is 2001-01-16. Somebody born
-  // in 2001-01-15 is now 13. Somebody born 2001-01-17 is still only 12.
-  // To avoid letting the 12 year old in, add an extra year.
-  var TOO_YOUNG_YEAR = now.getFullYear() - 14;
+  var CUTOFF_AGE = {
+    year: now.getFullYear() - 13,
+    month: now.getMonth() + 1, //makes cutoff month indexed to 1
+    date: now.getDate()
+  };
+  
+  var userAge = {};
 
   var View = FormView.extend({
     template: Template,
@@ -64,7 +62,7 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
     afterRender: function() {
       var select = this.$el.find('.select-row select');
       select.focus(function(){
-        select.parent().addClass('select-focus');
+        $(this).parent().addClass('select-focus');
       });
       select.blur(function(){
         select.parent().removeClass('select-focus');
@@ -80,7 +78,10 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'keydown #fxa-age-year': 'submitOnEnter'
+      'keydown #fxa-age-year': 'submitOnEnter',
+      'change #fxa-age-year': 'onUserYearSelect',
+      'change #fxa-age-month': 'onUserMonthSelect',
+      'change #fxa-age-date': 'onUserDateSelect'
     },
 
     context: function () {
@@ -118,16 +119,27 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
     },
 
     isValidEnd: function () {
-      return this._validateYear();
+      if (userAge.year > CUTOFF_AGE.year || userAge.year < CUTOFF_AGE.year) {
+        return this._validateYear();
+      }
+      return ( this._validateYear() && this._validateMonthAndDate() );
     },
 
     showValidationErrorsEnd: function () {
       if (! this._validateYear()) {
         //next two lines deal with ff30's select list regression
-        var selectRow = this.$el.find('.select-row');
-        selectRow.addClass('invalid-row');
+        var selectYearRow = $('#fxa-age-year').parent();
+        selectYearRow.addClass('invalid-row');
 
         this.showValidationError('#fxa-age-year', AuthErrors.toError('YEAR_OF_BIRTH_REQUIRED'));
+      } else if (userAge.year === CUTOFF_AGE.year) {
+        if (! this._validateMonthAndDate()) {
+
+          var selectMonthDateRow = this.$('#fxa-age-month, #fxa-age-date').parent();
+          selectMonthDateRow.addClass('invalid-row');
+
+          this.showValidationError('#fxa-age-month', AuthErrors.toError('BIRTHDAY_REQUIRED'));
+        }
       }
     },
 
@@ -143,14 +155,33 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
       return ! isNaN(this._getYear());
     },
 
+    _validateMonthAndDate: function() {
+      return ! (isNaN(this._getMonth()) || isNaN(this._getDate()));
+    },
+
     _getYear: function () {
       return this.$('#fxa-age-year').val();
     },
 
-    _isUserOldEnough: function () {
-      var year = parseInt(this._getYear(), 10);
+    _getMonth: function() {
+      return this.$('#fxa-age-month').val();
+    },
 
-      return year <= TOO_YOUNG_YEAR;
+    _getDate: function() {
+      return this.$('#fxa-age-date').val();
+    },
+
+    _isUserOldEnough: function () {
+      if (userAge.year < CUTOFF_AGE.year) {
+        return true;
+      } else if (userAge.year === CUTOFF_AGE.year) {
+        
+        if (userAge.month <= CUTOFF_AGE.month && userAge.date <= CUTOFF_AGE.date) {
+          return true;
+        }
+
+      }
+      return false;
     },
 
     _cannotCreateAccount: function () {
@@ -196,6 +227,72 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
         // re-throw error, it will be handled at a lower level.
         throw err;
       });
+    },
+
+    onUserYearSelect: function() {
+      userAge.year = parseInt(this._getYear(), 10);
+      if (userAge.year === CUTOFF_AGE.year) {
+        this._toggleDatePicker(); 
+      }
+    },
+
+    onUserMonthSelect: function() {
+      userAge.month = parseInt(this._getMonth(), 10);
+      var days = this._daysInMonth(userAge.year, userAge.month);
+      var datePickerEl = this.$('#fxa-age-date');
+
+      if (isNaN(userAge.month)) {
+        this._disableDatePicker(datePickerEl);
+        userAge.date = 'none';
+      } else {
+        this._enableDatePicker(datePickerEl);
+      }
+
+      this._updateDatePickerValues(datePickerEl, days);
+      
+      if (this._isDateValidOnMonthChange(days)) {
+        datePickerEl.val(userAge.date);
+      }
+    },
+
+    onUserDateSelect: function() {
+      userAge.date = parseInt(this._getDate(), 10); 
+    },
+
+    //if the user changes from march to february (or similar),
+    //we need to reset out-of-bounds dates, or keep in-bounds dates
+    _isDateValidOnMonthChange: function(days) {
+      if (typeof userAge.date === 'number') {
+        return userAge.date <= days;
+      }
+    },
+
+    _disableDatePicker: function(datePickerEl) {
+      datePickerEl.attr('disabled', 'true');
+      datePickerEl.parent().addClass('disabled');
+    },
+
+    _enableDatePicker: function(datePickerEl) {
+      datePickerEl.removeAttr('disabled');
+      datePickerEl.parent().removeClass('disabled');
+    },
+
+    _updateDatePickerValues: function(datePickerEl, days) {
+      var defaultValue = datePickerEl.children(':eq(0)');
+      datePickerEl.empty();
+      datePickerEl.append(defaultValue);
+      for (var i = 1; i <= days; i++) {
+        datePickerEl.append('<option id="fxa-day-' + i + 'value="' + i + ' " >' + i + ' </option>');
+      }
+    },
+
+    _daysInMonth: function(year, month) {
+      return new Date(year, month, 0).getDate();
+    },
+
+    _toggleDatePicker: function() {
+      this.$('#year-picker').addClass('hidden');
+      this.$('#month-date-picker').removeClass('hidden').find("#fxa-age-month").focus();
     },
 
     onSignUpSuccess: function(accountData) {
