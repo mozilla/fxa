@@ -6,10 +6,8 @@ define([
   './functional/oauth_sign_in',
   './functional/oauth_sign_up',
   './functional/oauth_reset_password',
-  './functional/oauth_webchannel'/*,
-  TODO - enable this whenever 123done and the oauth-server are patched to handle
-  preverified emails.
-  './functional/oauth_preverified_sign_up'*/
+  './functional/oauth_webchannel',
+  './functional/oauth_preverified_sign_up'
 ], function () {
   'use strict';
 });

@@ -49,46 +49,43 @@ define([
     'preverified sign up': function () {
       var self = this;
 
-      return TestHelpers.getEmailPreverifyToken(email)
-        .then(function (token) {
-          var SIGNUP_URL = OAUTH_APP + 'api/preverified-signup?' +
-                            'email=' + encodeURIComponent(email);
+      var SIGNUP_URL = OAUTH_APP + 'api/preverified-signup?' +
+                        'email=' + encodeURIComponent(email);
 
-          return self.get('remote')
-            .get(require.toUrl(SIGNUP_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout)
+      return self.get('remote')
+        .get(require.toUrl(SIGNUP_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
 
-            .findByCssSelector('#fxa-signup-header')
-            .end()
+        .findByCssSelector('#fxa-signup-header')
+        .end()
 
-            .findByCssSelector('form input.password')
-              .click()
-              .type(PASSWORD)
-            .end()
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
 
-            .findByCssSelector('#fxa-age-year')
-              .click()
-            .end()
+        .findByCssSelector('#fxa-age-year')
+          .click()
+        .end()
 
-            .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-              .pressMouseButton()
-              .releaseMouseButton()
-              .click()
-            .end()
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
 
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
 
-            // user is pre-verified and sent directly to the RP.
-            .findByCssSelector('#loggedin')
-            .getVisibleText()
-            .then(function (text) {
-              // user is signed in as pre-verified email
-              assert.equal(text, email);
-            })
-            .end();
-        });
+        // user is pre-verified and sent directly to the RP.
+        .findByCssSelector('#loggedin')
+        .getVisibleText()
+        .then(function (text) {
+          // user is signed in as pre-verified email
+          assert.equal(text, email);
+        })
+        .end();
     }
   });
 
