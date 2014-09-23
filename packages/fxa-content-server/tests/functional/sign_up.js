@@ -19,7 +19,7 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var PAGE_URL = config.fxaContentRoot + 'signup';
 
-  var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
+  var CUTOFF_YEAR = new Date().getFullYear() - 13;
 
   registerSuite({
     name: 'sign_up',
@@ -53,7 +53,7 @@ define([
           .click()
         .end()
 
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+        .findById('fxa-' + (CUTOFF_YEAR - 1))
           .pressMouseButton()
           .releaseMouseButton()
           .click()
@@ -73,7 +73,7 @@ define([
         .end();
     },
 
-    'select an age that is too young': function () {
+    'select a year that is 1 year too young, no month/day picker is shown': function () {
       var email = TestHelpers.createEmail();
       var password = '12345678';
 
@@ -93,7 +93,7 @@ define([
           .click()
         .end()
 
-        .findById('fxa-' + TOO_YOUNG_YEAR)
+        .findById('fxa-' + (CUTOFF_YEAR + 1))
           .pressMouseButton()
           .releaseMouseButton()
           .click()
@@ -105,6 +105,121 @@ define([
 
         // Success is being redirected to the cannot create screen.
         .findById('fxa-cannot-create-account-header')
+        .end();
+    },
+
+    'select an age that is one day too young': function () {
+      var email = TestHelpers.createEmail();
+      var password = '12345678';
+
+      var now = new Date();
+      // the getDate/setDate bit causes the date to automatically wrap
+      // on the month boundaries - see
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/setDate
+      // If the dayValue is outside of the range of date values for the month,
+      // setDate will update the Date object accordingly. For example, if 0 is
+      // provided for dayValue, the date will be set to the last day of the
+      // previous month.
+      now.setDate(now.getDate() + 1);
+      var monthToSelect = now.getMonth();
+      var dateToSelect = now.getDate();
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(password)
+        .end()
+
+        .findByCssSelector('#fxa-age-year')
+          .click()
+        .end()
+
+        .findById('fxa-' + CUTOFF_YEAR)
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findById('fxa-month-' + monthToSelect)
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findById('fxa-day-' + dateToSelect)
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        // Success is being redirected to the cannot create screen.
+        .findById('fxa-cannot-create-account-header')
+        .end();
+    },
+
+    'select a 13 year old, on their birthday': function () {
+      var email = TestHelpers.createEmail();
+      var password = '12345678';
+
+      var now = new Date();
+      var monthToSelect = now.getMonth();
+      var dateToSelect = now.getDate();
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(password)
+        .end()
+
+        .findByCssSelector('#fxa-age-year')
+          .click()
+        .end()
+
+        .findById('fxa-' + CUTOFF_YEAR)
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findById('fxa-month-' + monthToSelect)
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findById('fxa-day-' + dateToSelect)
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        // A 13 year old is allowed, on their birthday
+        .findByCssSelector('.verification-email-message')
+          .getVisibleText()
+          .then(function (resultText) {
+            // check the email address was written
+            assert.ok(resultText.indexOf(email) > -1);
+          })
         .end();
     },
 
@@ -130,7 +245,7 @@ define([
           .click()
         .end()
 
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+        .findById('fxa-' + (CUTOFF_YEAR - 1))
           .pressMouseButton()
           .releaseMouseButton()
           .click()
@@ -178,7 +293,7 @@ define([
               .click()
             .end()
 
-            .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+            .findById('fxa-' + (CUTOFF_YEAR - 1))
               .pressMouseButton()
               .releaseMouseButton()
               .click()
@@ -241,7 +356,7 @@ define([
               .click()
             .end()
 
-            .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+            .findById('fxa-' + (CUTOFF_YEAR - 1))
               .pressMouseButton()
               .releaseMouseButton()
               .click()
@@ -276,7 +391,7 @@ define([
     var self = this;
     var email = TestHelpers.createEmail();
     var password = '12345678';
-    var year = TOO_YOUNG_YEAR - 1;
+    var year = CUTOFF_YEAR - 1;
 
     return self.get('remote')
       .get(require.toUrl(PAGE_URL))

@@ -51,7 +51,8 @@ function () {
     YEAR_OF_BIRTH_REQUIRED: 1012,
     UNUSABLE_IMAGE: 1013,
     NO_CAMERA: 1014,
-    URL_REQUIRED: 1015
+    URL_REQUIRED: 1015,
+    BIRTHDAY_REQUIRED: 1016
   };
 
   var CODE_TO_MESSAGES = {
@@ -91,7 +92,8 @@ function () {
     1012: t('Year of birth required'),
     1013: t('A usable image was not found'),
     1014: t('Could not initialize camera'),
-    1015: t('Valid URL required')
+    1015: t('Valid URL required'),
+    1016: t('Valid birthday required')
   };
 
   return {

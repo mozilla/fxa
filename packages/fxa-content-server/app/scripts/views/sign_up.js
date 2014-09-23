@@ -6,16 +6,18 @@
 
 define([
   'underscore',
-  'p-promise',
+  'lib/promise',
   'views/base',
   'views/form',
   'stache!templates/sign_up',
   'lib/session',
-  'views/mixins/password-mixin',
   'lib/auth-errors',
+  'lib/strings',
+  'views/mixins/password-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors, ServiceMixin) {
+function (_, p, BaseView, FormView, Template, Session, AuthErrors,
+      Strings, PasswordMixin, ServiceMixin) {
   var t = BaseView.t;
 
   function selectAutoFocusEl(email, password) {
@@ -28,16 +30,11 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
   }
 
   var now = new Date();
-
-  // If COPPA says 13, why 14 here? To make UX simpler, we only ask
-  // for their year of birth, we do not ask for month and day.
-  // To make this safe and ensure we do not let *any* 12 year olds pass,
-  // we are saying that it is acceptable for some 13 year olds to be
-  // caught in the snare.
-  // This is written on 2014-01-16. 13 years ago is 2001-01-16. Somebody born
-  // in 2001-01-15 is now 13. Somebody born 2001-01-17 is still only 12.
-  // To avoid letting the 12 year old in, add an extra year.
-  var TOO_YOUNG_YEAR = now.getFullYear() - 14;
+  var CUTOFF_AGE = {
+    year: now.getFullYear() - 13,
+    month: now.getMonth(),
+    date: now.getDate()
+  };
 
   var View = FormView.extend({
     template: Template,
@@ -61,15 +58,15 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
     },
 
     // afterRender fucnction to handle select-row hack (issue 822)
-    afterRender: function() {
+    afterRender: function () {
       var select = this.$el.find('.select-row select');
-      select.focus(function(){
-        select.parent().addClass('select-focus');
+      select.focus(function (){
+        $(this).parent().addClass('select-focus');
       });
-      select.blur(function(){
+      select.blur(function (){
         select.parent().removeClass('select-focus');
       });
-      select.change(function(){
+      select.change(function (){
         select.parent().removeClass('invalid-row');
       });
 
@@ -80,7 +77,11 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'keydown #fxa-age-year': 'submitOnEnter'
+      'keydown #fxa-age-year': 'submitOnEnter',
+      'keydown #fxa-age-month': 'submitOnEnter',
+      'keydown #fxa-age-date': 'submitOnEnter',
+      'change #fxa-age-year': 'onUserYearSelect',
+      'change #fxa-age-month': 'onUserMonthSelect'
     },
 
     context: function () {
@@ -118,39 +119,89 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
     },
 
     isValidEnd: function () {
-      return this._validateYear();
+      if (! this._validateYear()) {
+        return false;
+      }
+
+      if (this._getYear() === CUTOFF_AGE.year) {
+        return this._validateMonthAndDate();
+      }
+
+      return true;
     },
 
     showValidationErrorsEnd: function () {
       if (! this._validateYear()) {
         //next two lines deal with ff30's select list regression
-        var selectRow = this.$el.find('.select-row');
-        selectRow.addClass('invalid-row');
+        var selectYearRow = $('#fxa-age-year').parent();
+        selectYearRow.addClass('invalid-row');
 
-        this.showValidationError('#fxa-age-year', AuthErrors.toError('YEAR_OF_BIRTH_REQUIRED'));
+        this.showValidationError('#fxa-age-year',
+                AuthErrors.toError('YEAR_OF_BIRTH_REQUIRED'));
+      } else if (this._getYear() === CUTOFF_AGE.year &&
+               ! this._validateMonthAndDate()) {
+        var selectMonthDateRow =
+              this.$('#fxa-age-month, #fxa-age-date').parent();
+        selectMonthDateRow.addClass('invalid-row');
+
+        this.showValidationError('#fxa-age-month',
+                AuthErrors.toError('BIRTHDAY_REQUIRED'));
       }
     },
 
     submit: function () {
-      if (! this._isUserOldEnough()) {
-        return this._cannotCreateAccount();
-      }
+      var self = this;
+      return p()
+        .then(function () {
+          if (! self._isUserOldEnough()) {
+            return self._cannotCreateAccount();
+          }
 
-      return this._createAccount();
+          return self._createAccount();
+        });
+    },
+
+    _getSelectedUserAge: function () {
+      var self = this;
+      return {
+        year: self._getYear(),
+        month: self._getMonth(),
+        date: self._getDate()
+      };
     },
 
     _validateYear: function () {
       return ! isNaN(this._getYear());
     },
 
-    _getYear: function () {
-      return this.$('#fxa-age-year').val();
+    _validateMonthAndDate: function () {
+      return ! (isNaN(this._getMonth()) || isNaN(this._getDate()));
     },
 
-    _isUserOldEnough: function () {
-      var year = parseInt(this._getYear(), 10);
+    _getYear: function () {
+      return parseInt(this.$('#fxa-age-year').val(), 10);
+    },
 
-      return year <= TOO_YOUNG_YEAR;
+    _getMonth: function () {
+      return parseInt(this.$('#fxa-age-month').val(), 10);
+    },
+
+    _getDate: function () {
+      return parseInt(this.$('#fxa-age-date').val(), 10);
+    },
+
+    _isUserOldEnough: function (userAge) {
+      userAge = userAge || this._getSelectedUserAge();
+      if (userAge.year < CUTOFF_AGE.year) {
+        return true;
+      } else if (userAge.year === CUTOFF_AGE.year &&
+                 userAge.month < CUTOFF_AGE.month) {
+        return true;
+      }
+
+      return (userAge.year === CUTOFF_AGE.year &&
+                 userAge.month === CUTOFF_AGE.month &&
+                 userAge.date <= CUTOFF_AGE.date);
     },
 
     _cannotCreateAccount: function () {
@@ -198,7 +249,70 @@ function (_, p, BaseView, FormView, Template, Session, PasswordMixin, AuthErrors
       });
     },
 
-    onSignUpSuccess: function(accountData) {
+    onUserYearSelect: function () {
+      if (this._getYear() === CUTOFF_AGE.year) {
+        this._toggleDatePicker();
+      }
+    },
+
+    onUserMonthSelect: function () {
+      var datePickerEl = this.$('#fxa-age-date');
+      var selectedYear = this._getYear();
+      var selectedMonth = this._getMonth();
+      var selectedDate = this._getDate();
+
+      if (isNaN(selectedMonth)) {
+        this._disableDatePicker(datePickerEl);
+      } else {
+        this._enableDatePicker(datePickerEl);
+      }
+
+      var daysInMonth = this._daysInMonth(selectedYear, selectedMonth);
+      this._updateDatePickerValues(datePickerEl, daysInMonth);
+
+      if (this._isValidDateForMonth(selectedDate, daysInMonth)) {
+        datePickerEl.val(selectedDate);
+      }
+    },
+
+    //if the user changes from march to february (or similar),
+    //we need to reset out-of-bounds dates, or keep in-bounds dates
+    _isValidDateForMonth: function (date, daysInMonth) {
+      return (! isNaN(date)) && date <= daysInMonth;
+    },
+
+    _disableDatePicker: function (datePickerEl) {
+      datePickerEl.attr('disabled', 'true');
+      datePickerEl.parent().addClass('disabled');
+    },
+
+    _enableDatePicker: function (datePickerEl) {
+      datePickerEl.removeAttr('disabled');
+      datePickerEl.parent().removeClass('disabled');
+    },
+
+    _updateDatePickerValues: function (datePickerEl, days) {
+      var defaultValue = datePickerEl.children(':eq(0)');
+      datePickerEl.empty();
+      datePickerEl.append(defaultValue);
+      for (var i = 1; i <= days; i++) {
+        var optionHtml = Strings.interpolate(
+          '<option id="fxa-day-%s" value="%s">%s</option>', [i, i, i]);
+        datePickerEl.append(optionHtml);
+      }
+    },
+
+    _daysInMonth: function (year, month) {
+      return new Date(year, month + 1, 0).getDate();
+    },
+
+    _toggleDatePicker: function () {
+      this.$('#year-picker').addClass('hidden');
+      this.$('#month-date-picker').removeClass('hidden');
+      this.focus('#fxa-age-month');
+    },
+
+    onSignUpSuccess: function (accountData) {
       // user was pre-verified, just send them to the signup complete screen.
       if (accountData.verified) {
         this.navigate('signup_complete');
