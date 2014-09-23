@@ -1,3 +1,7 @@
+0.3.0
+  * Add support for account lockout on excessive login attempts - #58, #60
+  * normalize email addresses (compare the lower case values) - #59, #62
+
 0.2.0
   * update request and restify for new qs module
   * update ass version
