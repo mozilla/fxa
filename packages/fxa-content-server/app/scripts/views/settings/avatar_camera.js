@@ -46,14 +46,18 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
 
       var self = this;
       if (this.automatedBrowser) {
+        var ARTIFICIAL_DELAY = 3000; // 3 seconds
         // mock some things out for automated browser testing
         this.streaming = true;
         this._getMedia = function () {
           self.enableSubmitIfValid();
+          return true;
         };
         this.stream = {
           stop: function () {}
         };
+
+        this.window.setTimeout(_.bind(this.canPlay, this), ARTIFICIAL_DELAY);
       }
     },
 
@@ -98,8 +102,6 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
     },
 
     afterRender: function () {
-      var self = this;
-
       if (! this._getMedia()) {
         return;
       }
@@ -107,32 +109,33 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
       this._avatarProgressIndicator = new ProgressIndicator();
       this.video = this.$('#video');
 
-      self._avatarProgressIndicator.start(self.$('.progress-container'));
+      this._avatarProgressIndicator.start(this.$('.progress-container'));
 
       this.canvas = this.$('#canvas')[0];
       this.width = 320;
       this.height = 0;
 
-      self.video[0].addEventListener('canplay', function(ev){
-        if (! self.streaming) {
-          var pos = self.centeredPos(self.width, self.height, self.displayLength);
-          self.height = self.video[0].videoHeight / (self.video[0].videoWidth / self.width);
-          self.video.width(self.width);
-          self.video.height(self.height);
-          self.video.css(pos);
-          self.canvas.width = self.width;
-          self.canvas.height = self.height;
-          self._avatarProgressIndicator.done();
-          self.$('.progress-container').addClass('hidden');
-          self.video.removeClass('hidden');
-          self.streaming = true;
+      this.video[0].addEventListener('canplay', _.bind(this.canPlay, this), false);
+    },
 
-          self.enableSubmitIfValid();
-        } else {
-          self._avatarProgressIndicator.done();
-        }
-      }, false);
+    canPlay: function () {
+      if (! this.streaming) {
+        var pos = this.centeredPos(this.width, this.height, this.displayLength);
+        this.height = this.video[0].videoHeight / (this.video[0].videoWidth / this.width);
+        this.video.width(this.width);
+        this.video.height(this.height);
+        this.video.css(pos);
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+        this._avatarProgressIndicator.done();
+        this.$('.progress-container').addClass('hidden');
+        this.video.removeClass('hidden');
+        this.streaming = true;
 
+        this.enableSubmitIfValid();
+      } else {
+        this._avatarProgressIndicator.done();
+      }
     },
 
     isValidEnd: function () {
