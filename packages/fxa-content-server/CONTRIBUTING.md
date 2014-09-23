@@ -84,6 +84,23 @@ reference GitHub issues that this commit **Closes**.
 | `grunt version` | stamp a new version. Updates the version number and creates a new CHANGELOG.md file. |
 | `grunt imagemin` | if you added a new image to the project, then run this to optimize the images before committing |
 
+## Test Options
+
+| Command | Description |
+|------|-------------|
+| `npm test` | Run unit and functional tests locally. |
+| `npm run test-functional` | Run functional tests locally. |
+| `npm run test-functional-oauth` | Run OAuth functional tests locally. |
+| `npm run test-sauce` | Run functional tests on Sauce Labs. Requires credentials. |
+| `npm run test-server` | Run server tests. |
+| `npm run test-latest` | Run full functional tests (OAuth, Firefox Sync UI) against http://latest.dev.lcip.org. |
+
+## Intern Runner custom arguments
+
+
+
+
+
 ## Servers
 
 - **latest development** - https://accounts-latest.dev.lcip.org/
