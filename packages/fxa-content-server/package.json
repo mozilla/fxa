@@ -4,7 +4,7 @@
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "start": "grunt server",
-    "postinstall": "bower update --config.interactive=false -s; node scripts/post_install.js",
+    "postinstall": "bower update --config.interactive=false -s",
     "test": "intern-runner config=tests/intern",
     "test-functional": "intern-runner config=tests/intern_functional",
     "test-functional-oauth": "intern-runner config=tests/intern_functional_oauth",
@@ -66,7 +66,6 @@
     "coveralls": "2.11.1",
     "execSync": "1.0.1-pre",
     "firefox-profile": "0.3.3",
-    "grunt-blanket-mocha": "0.4.1",
     "grunt-bump": "0.0.15",
     "grunt-contrib-csslint": "0.2.0",
     "grunt-contrib-imagemin": "git://github.com/vladikoff/grunt-contrib-imagemin#keepOldImage",
