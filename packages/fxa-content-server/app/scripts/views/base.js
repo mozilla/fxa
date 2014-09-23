@@ -218,10 +218,6 @@ function (_, Backbone, $, p, Session, AuthErrors,
       // it's a desktop device and autofocus can be applied without
       // hiding part of the screen. The no-touch class is added by env-test
       if ($('html').hasClass('no-touch')) {
-        // only elements that are visibile can be focused. When embedded in
-        // about:accounts, the content is hidden when the first "focus" is
-        // done. Keep trying to focus until the element is actually focused,
-        // and then stop trying.
         var autofocusEl = this.$('[autofocus]');
         if (! autofocusEl.length) {
           return;
@@ -233,7 +229,14 @@ function (_, Backbone, $, p, Session, AuthErrors,
             return;
           }
           self.focus(autofocusEl);
-          self.setTimeout(attemptFocus, 50);
+
+          // only elements that are visible can be focused. When embedded in
+          // about:accounts, the content is hidden when the first "focus" is
+          // done. Keep trying to focus until the element is actually focused,
+          // and then stop trying.
+          if (! autofocusEl.is(':visible')) {
+            self.setTimeout(attemptFocus, 50);
+          }
         };
 
         attemptFocus();
