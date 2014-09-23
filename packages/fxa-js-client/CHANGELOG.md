@@ -1,3 +1,12 @@
+<a name="0.1.26"></a>
+### 0.1.26 (2014-09-23)
+
+
+#### Bug Fixes
+
+* **request:** return an error object when the response is an HTML error page ([38a25556](https://github.com/mozilla/fxa-js-client/commit/38a25556001c2afcc9f9e87901964bca04bca624))
+
+
 <a name="0.1.25"></a>
 ### 0.1.25 (2014-09-15)
 
