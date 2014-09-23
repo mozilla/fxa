@@ -58,6 +58,20 @@ define([
           }
         );
       });
+
+      test('#bad response format error', function () {
+        request = new Request('http://example.com/', env.xhr);
+
+        // Trigger an error response that's in HTML
+        var response = env.respond(request.send("/nonexistent", "GET"), ErrorMocks.badResponseFormat);
+
+        return response.then(
+          assert.notOk,
+          function (err) {
+            assert.equal(err.error, 'Unknown error');
+          }
+        );
+      });
     });
   }
 });

@@ -85,7 +85,7 @@ define(['./hawk', 'p', './errors'], function (hawk, P, ERRORS) {
           if (result.length === 0) {
             return deferred.reject({ error: 'Timeout error', errno: 999 });
           } else {
-            return deferred.reject(result);
+            return deferred.reject({ error: 'Unknown error', message: result, errno: 999, code: xhr.status });
           }
         }
 
