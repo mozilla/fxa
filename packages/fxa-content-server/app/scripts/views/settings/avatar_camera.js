@@ -8,6 +8,7 @@ define([
   'underscore',
   'canvasToBlob',
   'views/form',
+  'views/progress_indicator',
   'stache!templates/settings/avatar_camera',
   'lib/constants',
   'lib/promise',
@@ -15,7 +16,7 @@ define([
   'lib/auth-errors',
   'lib/url'
 ],
-function (_, canvasToBlob, FormView, Template, Constants, p, Session, AuthErrors, Url) {
+function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, Session, AuthErrors, Url) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -66,7 +67,8 @@ function (_, canvasToBlob, FormView, Template, Constants, p, Session, AuthErrors
                              nav.msGetUserMedia;
 
       if (! getUserMedia) {
-        return this.displayError(AuthErrors.toCode('NO_CAMERA'));
+        this.displayError(AuthErrors.toCode('NO_CAMERA'));
+        return false;
       }
 
       var getMedia = _.bind(getUserMedia, nav);
@@ -87,25 +89,32 @@ function (_, canvasToBlob, FormView, Template, Constants, p, Session, AuthErrors
           self.video[0].play();
         },
         function(err) {
+          self._avatarProgressIndicator.done();
           self.displayError(AuthErrors.toCode('NO_CAMERA'));
         }
       );
 
+      return true;
     },
 
     afterRender: function () {
       var self = this;
 
-      this._getMedia();
+      if (! this._getMedia()) {
+        return;
+      }
 
+      this._avatarProgressIndicator = new ProgressIndicator();
       this.video = this.$('#video');
+
+      self._avatarProgressIndicator.start(self.$('.progress-container'));
+
       this.canvas = this.$('#canvas')[0];
-      this.img = this.$('img');
       this.width = 320;
       this.height = 0;
 
       self.video[0].addEventListener('canplay', function(ev){
-        if (!self.streaming) {
+        if (! self.streaming) {
           var pos = self.centeredPos(self.width, self.height, self.displayLength);
           self.height = self.video[0].videoHeight / (self.video[0].videoWidth / self.width);
           self.video.width(self.width);
@@ -113,13 +122,17 @@ function (_, canvasToBlob, FormView, Template, Constants, p, Session, AuthErrors
           self.video.css(pos);
           self.canvas.width = self.width;
           self.canvas.height = self.height;
+          self._avatarProgressIndicator.done();
+          self.$('.progress-container').addClass('hidden');
           self.video.removeClass('hidden');
-          self.img.addClass('hidden');
           self.streaming = true;
 
           self.enableSubmitIfValid();
+        } else {
+          self._avatarProgressIndicator.done();
         }
       }, false);
+
     },
 
     isValidEnd: function () {

@@ -7,13 +7,13 @@
 define([
   'chai',
   'jquery',
-  'views/button_progress_indicator'
+  'views/progress_indicator'
 ],
 function (chai, $, ProgressIndicator) {
   var assert = chai.assert;
   var progressIndicator;
 
-  describe('views/button_progress_indicator', function () {
+  describe('views/progress_indicator', function () {
     beforeEach(function () {
       progressIndicator = new ProgressIndicator();
       $('#container').html('<button id="indicate">Button</button>');

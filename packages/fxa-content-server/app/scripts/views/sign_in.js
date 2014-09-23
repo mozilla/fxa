@@ -15,9 +15,9 @@ define([
   'lib/auth-errors',
   'lib/validate',
   'views/mixins/service-mixin',
-  'views/decorators/button_progress_indicator'
+  'views/decorators/progress_indicator'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, AuthErrors, Validate, ServiceMixin, showButtonProgressIndicator) {
+function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, AuthErrors, Validate, ServiceMixin, showProgressIndicator) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -157,7 +157,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
      * Used for the special "Sign In" button
      * which is present when there is already a logged in user in the session
      */
-    useLoggedInAccount: showButtonProgressIndicator(function() {
+    useLoggedInAccount: showProgressIndicator(function() {
       var self = this;
 
       return this._signIn(Session.cachedCredentials.email, {

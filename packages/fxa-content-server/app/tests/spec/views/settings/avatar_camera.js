@@ -74,8 +74,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMo
         return view.render()
           .then(function () {
             assert.equal(view.video.length, 1);
-            assert.equal(view.img.length, 1);
-            assert.ok(view.canvas);
+            assert.equal(view.$('img').length, 1);
             assert.isFalse(view.streaming);
           });
       });

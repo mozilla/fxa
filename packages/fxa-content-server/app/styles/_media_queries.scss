@@ -267,7 +267,7 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     background-image: image-url('spinnerlight@2x.png');
   }
 
-  .spinner-white {
+  button .spinner, .spinner-white {
     background-image: image-url('spinnerwhite@2x.png');
   }
 

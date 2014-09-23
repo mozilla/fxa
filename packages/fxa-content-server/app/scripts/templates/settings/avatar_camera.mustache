@@ -5,15 +5,17 @@
   </header>
 
   <section>
-    <p class="avatar-wrapper">
+    <div class="avatar-wrapper">
+      <div class="progress-container">
       {{#avatar}}
         <img src="{{ avatar }}" />
       {{/avatar}}
       {{^avatar}}
         <img class="default"/>
       {{/avatar}}
+      </div>
       <video id="video" class="hidden"></video>
-    </p>
+    </div>
 
     <div class="error"></div>
     <div class="success"></div>

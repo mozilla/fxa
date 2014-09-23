@@ -27,7 +27,7 @@ define([
   'lib/auth-errors',
   'views/base',
   'views/tooltip',
-  'views/decorators/button_progress_indicator',
+  'views/decorators/progress_indicator',
   'views/decorators/notify_delayed_request',
   'views/decorators/allow_only_one_submit'
 ],

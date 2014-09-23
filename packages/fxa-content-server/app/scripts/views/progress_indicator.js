@@ -30,7 +30,7 @@ define([
 
   var View = Backbone.View.extend({
     tagName: 'div',
-    className: 'spinner-white',
+    className: 'spinner',
 
     // `_count` ensures the progress indicator is only hidden if all calls
     // to `start` have a matching call to `done`.
@@ -41,7 +41,7 @@ define([
      *
      * @method start
      */
-    start: function (buttonEl) {
+    start: function (progressEl) {
       var self = this;
 
       self._count++;
@@ -63,7 +63,7 @@ define([
       self._showIndicatorTimeout = setTimeout(function () {
         self._showIndicatorTimeout = null;
 
-        self.showIndicator(buttonEl);
+        self.showIndicator(progressEl);
       }, SHOW_DELAY_MS);
     },
 
@@ -118,22 +118,22 @@ define([
     /**
      * Show the progress indicator now
      */
-    showIndicator: function (buttonEl) {
-      buttonEl = $(buttonEl);
-      if (buttonEl.length) {
-        this._buttonEl = buttonEl;
-        this._buttonHTML = buttonEl.html();
-        buttonEl.html(this.$el);
+    showIndicator: function (progressEl) {
+      progressEl = $(progressEl);
+      if (progressEl.length) {
+        this._progressEl = progressEl;
+        this._progressHTML = progressEl.html();
+        progressEl.html(this.$el);
       }
     },
 
     /**
      * Remove the progress indicator now
      */
-    removeIndicator: function (buttonEl) {
-      buttonEl = this._buttonEl;
-      if (buttonEl && buttonEl.length) {
-        buttonEl.html(this._buttonHTML);
+    removeIndicator: function (progressEl) {
+      progressEl = this._progressEl;
+      if (progressEl && progressEl.length) {
+        progressEl.html(this._progressHTML);
       }
     },
 
