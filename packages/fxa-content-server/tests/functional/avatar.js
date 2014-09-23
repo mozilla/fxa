@@ -25,12 +25,14 @@ define([
   var PASSWORD = 'password';
   var email;
   var client;
+  var email2;
 
   registerSuite({
     name: 'settings/avatar',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
+      email2 = TestHelpers.createEmail();
 
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
@@ -68,6 +70,41 @@ define([
 
     teardown: function () {
       return FunctionalHelpers.clearBrowserState(this);
+    },
+
+    'go to avatars with unverified account': function () {
+      var self = this;
+
+      return client.signUp(email2, PASSWORD)
+        .then(function () {
+          return FunctionalHelpers.clearBrowserState(self);
+        })
+        .then(function () {
+          return self.get('remote')
+            .get(require.toUrl(SIGNIN_URL))
+            .findByCssSelector('form input.email')
+              .click()
+              .type(email2)
+            .end()
+
+            .findByCssSelector('form input.password')
+              .click()
+              .type(PASSWORD)
+            .end()
+
+            .findByCssSelector('button[type="submit"]')
+              .click()
+            .end()
+
+            .findById('fxa-confirm-header')
+            .end()
+
+            .get(require.toUrl(AVATAR_URL))
+
+            // success is going to the confirm page
+            .findById('fxa-confirm-header')
+            .end();
+        });
     },
 
     'go to avatars then avatar change': function () {

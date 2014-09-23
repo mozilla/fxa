@@ -8,9 +8,10 @@ define([
   'underscore',
   'views/form',
   'stache!templates/settings/avatar',
+  'lib/auth-errors',
   'lib/session'
 ],
-function (_, FormView, Template, Session) {
+function (_, FormView, Template, AuthErrors, Session) {
   var View = FormView.extend({
     // user must be authenticated to see Settings
     mustAuth: true,
@@ -34,12 +35,24 @@ function (_, FormView, Template, Session) {
     // we would fetch the image right after sign in, or only for
     // specific email domains (#1567).
     _fetchProfileImage: function () {
+      var self = this;
+
       return this.profileClient.getAvatar()
         .then(function (result) {
           if (result.avatar) {
             Session.set('avatar', result.avatar);
             Session.set('avatarId', result.id);
           }
+        }, function (err) {
+          if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
+            return self.fxaClient.signUpResend()
+              .then(function () {
+                self.navigate('confirm');
+                return false;
+              });
+          }
+
+          throw err;
         });
     }
 
