@@ -9,6 +9,8 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'moment',
+  'sinon',
   'lib/promise',
   'views/sign_up',
   'lib/session',
@@ -20,21 +22,34 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
-      Relier, RouterMock, WindowMock, TestHelpers) {
+function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
+      FxaClient, Relier, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   function fillOutSignUp (email, password, opts) {
     opts = opts || {};
     var context = opts.context || window;
-    var year = opts.year || '1960';
+    var year = opts.year || '1990';
+    var month = opts.month || '1';
+    var date = opts.date || '1';
 
     context.$('[type=email]').val(email);
     context.$('[type=password]').val(password);
 
-    if (!opts.ignoreYear) {
+    if (! opts.ignoreYear) {
       $('#fxa-age-year').val(year);
+      $('#fxa-age-year').change();
+    }
+
+    if (! opts.ignoreMonth) {
+      $('#fxa-age-month').val(month);
+      $('#fxa-age-month').change();
+    }
+
+    if (! opts.ignoreDate) {
+      $('#fxa-age-date').val(date);
+      $('#fxa-age-date').change();
     }
 
     if (context.enableSubmitIfValid) {
@@ -50,6 +65,9 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
     var windowMock;
     var fxaClient;
     var relier;
+
+    var now = new Date();
+    var CURRENT_YEAR = now.getFullYear();
 
     beforeEach(function () {
       Session.clear();
@@ -246,8 +264,25 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
         assert.isFalse(view.isValid());
       });
 
-      it('returns false if age is invalid', function () {
+      it('returns false if no year selected', function () {
         fillOutSignUp(email, 'password', { ignoreYear: true });
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns false if no month selected and the full DOB should be checked', function () {
+        fillOutSignUp(email, 'password', {
+          year: moment().subtract(13, 'years').year(),
+          ignoreMonth: true
+        });
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns false if no date selected and the full DOB should be checked', function () {
+        fillOutSignUp(email, 'password', {
+          year: moment().subtract(13, 'years').year(),
+          month: moment().subtract(13, 'years').month(),
+          ignoreDate: true
+        });
         assert.isFalse(view.isValid());
       });
     });
@@ -292,8 +327,13 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('submit', function () {
       it('sends the user to confirm screen if form filled out, >= 14 years ago', function () {
-        var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+        var ageToCheck = moment().subtract(14, 'years');
+        fillOutSignUp(email, 'password', {
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date(),
+          contex: view
+        });
 
         return view.submit()
             .then(function () {
@@ -302,13 +342,16 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('submits form if user presses enter on the year', function (done) {
-        var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+        var ageToCheck = moment().subtract(14, 'years');
+        fillOutSignUp(email, 'password', {
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date(),
+          contex: view
+        });
 
-        router.on('navigate', function () {
-          wrapAssertion(function () {
-            assert.equal(router.page, 'confirm');
-          }, done);
+        sinon.stub(view, 'submit', function () {
+          done();
         });
 
         // submit using the enter key
@@ -316,26 +359,31 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
         $('#fxa-age-year').trigger(e);
       });
 
-      it('sends the user to cannot_create_account screen if user selects <= 13 years ago', function (done) {
-        var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 13, context: view });
+      it('sends the user to cannot_create_account screen if user selects < 13 years ago', function () {
 
-        router.on('navigate', function () {
-          wrapAssertion(function () {
-            assert.equal(router.page, 'cannot_create_account');
-          }, done);
+        var ageToCheck = moment().subtract(12, 'years');
+        fillOutSignUp(email, 'password', {
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date(),
+          contex: view
         });
-        view.submit();
+
+        return view.submit()
+            .then(function () {
+              assert.equal(router.page, 'cannot_create_account');
+            });
       });
 
       it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function () {
-        var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 13, context: view });
+        var ageToCheck = moment().subtract(12, 'years');
+        fillOutSignUp(email, 'password', {
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date(),
+          contex: view
+        });
 
-        view.submit();
-        assert.equal(router.page, 'cannot_create_account');
-
-        // simulate user re-visiting the /signup page after being rejected
         var revisitRouter = new RouterMock();
         var revisitView = new View({
           router: revisitRouter,
@@ -343,8 +391,14 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
           fxaClient: fxaClient
         });
 
-        return revisitView.render()
+        return view.submit()
             .then(function () {
+              assert.equal(router.page, 'cannot_create_account');
+            })
+            .then(function () {
+              // simulate user re-visiting the /signup page after being rejected
+              return revisitView.render();
+            }).then(function () {
               assert.equal(revisitRouter.page, 'cannot_create_account');
             });
       });
@@ -352,8 +406,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
       it('shows message allowing the user to sign in if user enters existing verified account', function () {
         return view.fxaClient.signUp(email, 'password', { preVerified: true })
             .then(function () {
-              var nowYear = (new Date()).getFullYear();
-              fillOutSignUp(email, 'incorrect', { year: nowYear - 14, context: view });
+              fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });
 
               return view.submit();
             })
@@ -366,8 +419,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
       it('re-signs up unverified user with new password', function () {
         return view.fxaClient.signUp(email, 'password')
             .then(function () {
-              var nowYear = (new Date()).getFullYear();
-              fillOutSignUp(email, 'incorrect', { year: nowYear - 14, context: view });
+              fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });
 
               return view.submit();
             })
@@ -384,8 +436,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
               });
         };
 
-        var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+        fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
 
         return view.submit()
           .then(function () {
@@ -404,8 +455,7 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
               });
         };
 
-        var nowYear = (new Date()).getFullYear();
-        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+        fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
 
         return view.submit()
           .then(null, function (err) {
@@ -434,8 +484,81 @@ function (chai, _, $, p, View, Session, AuthErrors, Metrics, FxaClient,
         assert.equal($('[type=password]').attr('type'), 'password');
       });
     });
-  });
 
+    describe('_isUserOldEnough', function () {
+      it('returns true if user is 14 year old', function () {
+        var ageToCheck = moment().subtract(14, 'years');
+        assert.isTrue(view._isUserOldEnough({
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date()
+        }));
+      });
+
+      it('returns true if user is 13 years + 1 days old', function () {
+        var ageToCheck = moment().subtract(13, 'years').subtract(1, 'days');
+        assert.isTrue(view._isUserOldEnough({
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date()
+        }));
+      });
+
+      it('returns true if user is 13 years and 29 days old', function () {
+        var ageToCheck = moment().subtract(13, 'years').subtract(29, 'days');
+        assert.isTrue(view._isUserOldEnough({
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date()
+        }));
+      });
+
+      it('returns true if user is 13 years and 1 month old', function () {
+        var ageToCheck = moment().subtract(13, 'years').subtract(1, 'months');
+        assert.isTrue(view._isUserOldEnough({
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date()
+        }));
+      });
+
+      it('returns true if user is 13 years old today - HOORAY!', function () {
+        var ageToCheck = moment().subtract(13, 'years');
+        assert.isTrue(view._isUserOldEnough({
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date()
+        }));
+      });
+
+      it ('returns false if user is 13 years - 1 day old - wait until tomorrow', function () {
+        var ageToCheck = moment().subtract(13, 'years').add(1, 'days');
+        assert.isFalse(view._isUserOldEnough({
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date()
+        }));
+      });
+
+      it('returns false if user is 13 years - 1 month old - wait another month', function () {
+        var ageToCheck = moment().subtract(13, 'years').add(1, 'months');
+        assert.isFalse(view._isUserOldEnough({
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date()
+        }));
+      });
+
+      it('returns false if user is 12 years old - wait another year', function () {
+        var ageToCheck = moment().subtract(12, 'years');
+        assert.isFalse(view._isUserOldEnough({
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date()
+        }));
+      });
+    });
+  });
 });
 
 
