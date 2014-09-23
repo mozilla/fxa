@@ -1,3 +1,31 @@
+<a name="0.22.0"></a>
+## 0.22.0 (2014-09-22)
+
+
+#### Bug Fixes
+
+* **avatars:**
+  * show a spinner icon when loading images with latency ([ae1e17f1](https://github.com/mozilla/fxa-content-server/commit/ae1e17f1b1878469bc08add6cc3112d801e76c84), closes [#1527](https://github.com/mozilla/fxa-content-server/issues/1527))
+  * set the correct OAuth client ID for fxa-dev environment ([f6374760](https://github.com/mozilla/fxa-content-server/commit/f637476099cecca239f6bd4ba2146d86acdbfb1e), closes [#1683](https://github.com/mozilla/fxa-content-server/issues/1683))
+  * integrate profile server backend for profile images ([66ebc83a](https://github.com/mozilla/fxa-content-server/commit/66ebc83a45c42ac10b10791cfb5e7f8c59f36dd9))
+  * disable remote URL option ([17e76acd](https://github.com/mozilla/fxa-content-server/commit/17e76acdb274c9842658acb8786caded78fbdc87))
+* **client:**
+  * autofocus the password field on /oauth/signin if the user already has a session. ([c4228b2f](https://github.com/mozilla/fxa-content-server/commit/c4228b2fcbae528cdc6e02807d7ccc1d06c2c2e6))
+  * Auto-focus the password field on the /delete_account page. ([31fc11d2](https://github.com/mozilla/fxa-content-server/commit/31fc11d260d60dbb67ed465028b001846a4c677b))
+* **errors:** use the correct context for error messages ([a3c4f2a2](https://github.com/mozilla/fxa-content-server/commit/a3c4f2a2063a3c61ee455ebcc6ad0182fd427386), closes [#1660](https://github.com/mozilla/fxa-content-server/issues/1660))
+* **oauth:** increase the assertion lifetime to avoid clock skew issues ([132bbf57](https://github.com/mozilla/fxa-content-server/commit/132bbf572d71b3f8d58c909fb23f8aba8a7fd45e))
+* **test:** Fix and enable the oauth-preverified-sign-up functional test. ([7cade58a](https://github.com/mozilla/fxa-content-server/commit/7cade58a6147a28bf40ec76d50e76a7e432afba6))
+* **tests:**
+  * Fix some places that race with an XHR response return ([f49e3de6](https://github.com/mozilla/fxa-content-server/commit/f49e3de67d55d22e8c81b260f0222ae95be3bb96))
+  * Fix the oauth_webchannel tests when run by themselves. ([f19d2d58](https://github.com/mozilla/fxa-content-server/commit/f19d2d58f615081672627a7dbada8d816af22246))
+
+
+#### Features
+
+* **metrics:** Log `entrypoint` to the metrics. ([9ecf71bb](https://github.com/mozilla/fxa-content-server/commit/9ecf71bb514e42072c23ea0e1f256ab43b665d07))
+* **test:** Add the ability to run `npm run-script test-functional-oauth` from the command l ([6ca4fe4d](https://github.com/mozilla/fxa-content-server/commit/6ca4fe4dc802272eaf1d8ed78e53e7c2b9e36802))
+
+
 <a name="0.21.0"></a>
 ## 0.21.0 (2014-09-08)
 
