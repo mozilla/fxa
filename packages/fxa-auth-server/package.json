@@ -1,19 +1,22 @@
 {
   "name": "fxa-auth-mailer",
   "version": "1.0.6",
-  "description": "",
+  "description": "Library to send out verification emails in the fxa-auth-server which renders emails from a template (and handles localization).",
   "main": "index.js",
   "scripts": {
     "test": "tap test/local"
   },
-  "author": "",
+  "author": "Mozilla (https://mozilla.org/)",
   "repository": {
     "type": "git",
     "url": "https://github.com/mozilla/fxa-auth-mailer"
   },
   "homepage": "https://github.com/mozilla/fxa-auth-mailer",
   "bugs": "https://github.com/mozilla/fxa-auth-mailer/issues",
-  "license": "MPL 2.0",
+  "license": {
+    "type": "MPL 2.0",
+    "url": "https://raw.githubusercontent.com/mozilla/fxa-auth-mailer/master/LICENSE"
+  },
   "dependencies": {
     "bluebird": "2.2.2",
     "bunyan": "1.0.0",
