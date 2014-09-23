@@ -140,6 +140,11 @@ define([], function () {
       status: 400,
       headers: {},
       body: ''
+    },
+    badResponseFormat: {
+      status: 404,
+      headers: {},
+      body: '<html><body>Something is wrong.</body></html>'
     }
   };
 });
