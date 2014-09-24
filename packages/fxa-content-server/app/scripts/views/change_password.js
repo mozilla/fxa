@@ -32,7 +32,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
       'click #resend': 'resendVerificationEmail'
     },
 
-    afterRender: function() {
+    afterRender: function () {
       this.initializePlaceholderFields();
     },
 

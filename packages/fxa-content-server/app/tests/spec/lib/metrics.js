@@ -176,7 +176,7 @@ function (chai, $, Metrics, AuthErrors, WindowMock, TestHelpers) {
               // success or failure.
               return err;
             })
-            .then(function(err) {
+            .then(function (err) {
               assert.equal(err, 'server down');
             });
       });

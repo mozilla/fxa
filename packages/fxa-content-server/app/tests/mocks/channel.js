@@ -7,7 +7,7 @@
 define([
   'underscore',
   'lib/channels/base'
-], function(_, BaseChannel) {
+], function (_, BaseChannel) {
   'use strict';
 
   function noOp() {
@@ -20,11 +20,11 @@ define([
   }
 
   _.extend(ChannelMock.prototype, new BaseChannel(), {
-    getMessageCount: function(message) {
+    getMessageCount: function (message) {
       return this._messageCount[message] || 0;
     },
 
-    send: function(message, data, done) {
+    send: function (message, data, done) {
       done = done || noOp;
 
       this.message = message;
@@ -43,7 +43,7 @@ define([
       }
     },
 
-    onCanLinkAccount: function(data, done) {
+    onCanLinkAccount: function (data, done) {
       done(null, { data: { ok: this.canLinkAccountOk } });
     }
   });

@@ -118,7 +118,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         });
       });
 
-      afterEach(function() {
+      afterEach(function () {
         signInView = signUpView = null;
       });
 
@@ -154,7 +154,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         });
       });
 
-      afterEach(function() {
+      afterEach(function () {
         view = null;
       });
 

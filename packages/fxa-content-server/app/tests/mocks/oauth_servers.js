@@ -4,7 +4,7 @@
 
 define([
   'sinon'
-], function(sinon) {
+], function (sinon) {
   'use strict';
 
   /**

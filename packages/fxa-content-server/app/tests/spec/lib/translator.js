@@ -44,7 +44,7 @@ function (chai, Translator) {
     describe('fetch', function () {
       it('fetches translations from the server', function () {
         return translator.fetch()
-          .then(function() {
+          .then(function () {
             // Check that an expected key is empty
             assert.isDefined(translator.translations['Show']);
           });
@@ -52,12 +52,12 @@ function (chai, Translator) {
 
       it('fails gracefully when receiving a 404', function () {
         // Monkey patch jQuery ajax to to request an invalid URL
-        $(document).one('ajaxSend', function(event, jqXHR, ajaxOptions) {
+        $(document).one('ajaxSend', function (event, jqXHR, ajaxOptions) {
           ajaxOptions.url = '/i18n/client-not-here.json';
         });
 
         return translator.fetch()
-          .then(function() {
+          .then(function () {
             // Check that an expected key is undefined
             assert.isUndefined(translator.translations['Show']);
           });

@@ -66,7 +66,7 @@ function (chai, _, XSS, Constants) {
         _.each(disallowedItems, expectEmpty);
       });
 
-      it('allows hrefs of the max length', function() {
+      it('allows hrefs of the max length', function () {
         var maxLength = Constants.URL_MAX_LENGTH;
         var allowed = 'http://';
 
@@ -77,7 +77,7 @@ function (chai, _, XSS, Constants) {
         assert.equal(XSS.href(allowed), allowed);
       });
 
-      it('disallowed hrefs that are too long', function() {
+      it('disallowed hrefs that are too long', function () {
         var maxLength = Constants.URL_MAX_LENGTH;
         var tooLong = 'http://';
 

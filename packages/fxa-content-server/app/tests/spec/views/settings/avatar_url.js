@@ -67,7 +67,7 @@ function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function() {
+      it('redirects to signin', function () {
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');

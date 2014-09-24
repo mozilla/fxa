@@ -155,7 +155,7 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
 
 
       it('is able to submit the form', function (done) {
-        view._signIn = function() {
+        view._signIn = function () {
           done();
         };
         $('#submit-btn').click();

@@ -57,12 +57,12 @@ function (chai, $, TestHelpers, P,
       it('generates a valid assertion', function () {
         var assertion;
         return assertionLibrary.generate(AUDIENCE)
-          .then(function(ass) {
+          .then(function (ass) {
             assertion = ass;
             assert.isNotNull(ass, 'Assertion is not null');
             assert.include(ass, '~', 'Result has the ~');
           })
-          .then(function() {
+          .then(function () {
             var defer = P.defer();
             $.getJSON(ISSUER + '/.well-known/browserid', function (data) {
               try {
@@ -122,7 +122,7 @@ function (chai, $, TestHelpers, P,
                 defer.reject(e);
               }
             })
-            .fail(function() {
+            .fail(function () {
               defer.reject(new Error('failed to feth .well-known/browserid'));
             });
 

@@ -48,11 +48,11 @@ function ($, _, p, OAuthClient, Assertion, AuthErrors, ProfileClient) {
     };
 
     return this._assertion.generate(config.oauthUrl)
-      .then(function(assertion) {
+      .then(function (assertion) {
         params.assertion = assertion;
         return self._oauthClient.getToken(params);
       })
-      .then(function(result) {
+      .then(function (result) {
         self._client = new ProfileClient({
           token: result.access_token,
           profileUrl: config.profileUrl

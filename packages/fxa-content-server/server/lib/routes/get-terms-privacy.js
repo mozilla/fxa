@@ -68,7 +68,7 @@ module.exports = function verRoute (i18n) {
             res.render(page, context);
           }
         });
-      }, function(err) {
+      }, function (err) {
         logger.error(err);
         return res.send(500, 'uh oh: ' + String(err));
       });
@@ -83,4 +83,4 @@ module.exports = function verRoute (i18n) {
 
   return route;
 
-}
+};

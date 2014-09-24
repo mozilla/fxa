@@ -36,7 +36,7 @@ function (chai, View, Session) {
 
     it('fetches translated text from the backend', function () {
       return view.render()
-        .then(function() {
+        .then(function () {
           assert.ok(view.$('#fxa-pp-header').length);
         });
     });

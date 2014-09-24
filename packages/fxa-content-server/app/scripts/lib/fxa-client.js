@@ -78,7 +78,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseReli
       return defer.promise;
     },
 
-    _getFxAccountUrl: function() {
+    _getFxAccountUrl: function () {
       if (Session.config && Session.config.fxaccountUrl) {
         return p(Session.config.fxaccountUrl);
       }
@@ -114,7 +114,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseReli
       var self = this;
       options = options || {};
 
-      return p().then(function() {
+      return p().then(function () {
         // If we already verified in signUp that we can link with
         // the desktop, don't do it again. Otherwise,
         // make the call over to the Desktop code to ask if
@@ -413,9 +413,9 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseReli
 
         // Validate session token
       return this.sessionStatus(sessionToken)
-        .then(function() {
+        .then(function () {
           return true;
-        }, function(err) {
+        }, function (err) {
           // the only error that we expect is INVALID_TOKEN,
           // rethrow all others.
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {

@@ -114,7 +114,7 @@ module.exports = function (config, templates, i18n) {
     });
 
     if (config.get('env') === 'development') {
-      app.post('/_/csp-violation', function(req, res) {
+      app.post('/_/csp-violation', function (req, res) {
         logger.warn('Content-Security-Policy Violation Report:');
         logger.warn(req.body);
         res.json({result: 'ok'});
@@ -123,7 +123,7 @@ module.exports = function (config, templates, i18n) {
 
     // Add a route in dev mode to test 500 errors
     if (config.get('env') === 'development') {
-      app.get('/boom', function(req, res, next) {
+      app.get('/boom', function (req, res, next) {
         next(new Error('Uh oh!'));
       });
     }

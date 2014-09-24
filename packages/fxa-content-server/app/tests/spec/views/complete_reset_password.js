@@ -173,13 +173,13 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
       });
     });
 
-    describe('showValidationErrors', function() {
+    describe('showValidationErrors', function () {
       it('shows an error if the password is invalid', function (done) {
         view.$('#password').val('passwor');
         view.$('#vpassword').val('password');
 
-        view.on('validation_error', function(which, msg) {
-          wrapAssertion(function() {
+        view.on('validation_error', function (which, msg) {
+          wrapAssertion(function () {
             assert.ok(msg);
           }, done);
         });
@@ -191,8 +191,8 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
         view.$('#password').val('password');
         view.$('#vpassword').val('passwor');
 
-        view.on('validation_error', function(which, msg) {
-          wrapAssertion(function() {
+        view.on('validation_error', function (which, msg) {
+          wrapAssertion(function () {
             assert.ok(msg);
           }, done);
         });
@@ -201,7 +201,7 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
       });
     });
 
-    describe('validateAndSubmit', function() {
+    describe('validateAndSubmit', function () {
       it('shows an error if passwords are different', function () {
         view.$('#password').val('password1');
         view.$('#vpassword').val('password2');
@@ -270,7 +270,7 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
       });
     });
 
-    describe('resendResetEmail', function() {
+    describe('resendResetEmail', function () {
       it('redirects to /confirm_reset_password if auth server is happy', function () {
         view.fxaClient.passwordReset = function (email) {
           assert.equal(email, 'testuser@testuser.com');

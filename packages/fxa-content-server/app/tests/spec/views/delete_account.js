@@ -87,13 +87,13 @@ function (chai, $, View, FxaClient, Relier, RouterMock, TestHelpers) {
         });
       });
 
-      describe('showValidationErrors', function() {
+      describe('showValidationErrors', function () {
         it('shows an error if the password is invalid', function (done) {
           view.$('[type=email]').val('testuser@testuser.com');
           view.$('[type=password]').val('passwor');
 
-          view.on('validation_error', function(which, msg) {
-            wrapAssertion(function() {
+          view.on('validation_error', function (which, msg) {
+            wrapAssertion(function () {
               assert.ok(msg);
             }, done);
           });

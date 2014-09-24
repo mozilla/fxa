@@ -69,7 +69,7 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, AuthError
       'click #redirectTo': BaseView.preventDefaultThen('submit')
     },
 
-    afterRender: function() {
+    afterRender: function () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
       // Finish the WebChannel flow

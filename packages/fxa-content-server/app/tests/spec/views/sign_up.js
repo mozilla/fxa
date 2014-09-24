@@ -287,11 +287,11 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       });
     });
 
-    describe('showValidationErrors', function() {
+    describe('showValidationErrors', function () {
       it('shows an error if the email is invalid', function (done) {
         fillOutSignUp('testuser', 'password', { context: view });
 
-        view.on('validation_error', function(which, msg) {
+        view.on('validation_error', function (which, msg) {
           wrapAssertion(function () {
             assert.ok(msg);
           }, done);
@@ -303,7 +303,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       it('shows an error if the password is invalid', function (done) {
         fillOutSignUp('testuser@testuser.com', 'passwor', { context: view });
 
-        view.on('validation_error', function(which, msg) {
+        view.on('validation_error', function (which, msg) {
           wrapAssertion(function () {
             assert.ok(msg);
           }, done);
@@ -315,7 +315,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       it('shows an error if no year is selected', function (done) {
         fillOutSignUp('testuser@testuser.com', 'password', { ignoreYear: true, context: view });
 
-        view.on('validation_error', function(which, msg) {
+        view.on('validation_error', function (which, msg) {
           wrapAssertion(function () {
             assert.ok(msg);
           }, done);
@@ -465,7 +465,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
             // the error along and check its type.
             return err;
           })
-          .then(function(err) {
+          .then(function (err) {
             assert.isTrue(AuthErrors.is(err, 'SERVER_BUSY'));
           });
       });

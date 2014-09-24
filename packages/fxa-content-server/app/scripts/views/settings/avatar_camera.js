@@ -82,7 +82,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
           video: true,
           audio: false
         },
-        function(stream) {
+        function (stream) {
           self.stream = stream;
           if (nav.mozGetUserMedia) {
             self.video[0].mozSrcObject = stream;
@@ -92,7 +92,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
           }
           self.video[0].play();
         },
-        function(err) {
+        function (err) {
           self._avatarProgressIndicator.done();
           self.displayError(AuthErrors.toCode('NO_CAMERA'));
         }

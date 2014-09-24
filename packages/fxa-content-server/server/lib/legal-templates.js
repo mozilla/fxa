@@ -51,7 +51,7 @@ module.exports = function (i18n, root) {
         return resolver.resolve(null);
       }
 
-      fs.readFile(templatePath, 'utf8', function(err, data) {
+      fs.readFile(templatePath, 'utf8', function (err, data) {
         if (err) {
           return resolver.reject(err);
         }

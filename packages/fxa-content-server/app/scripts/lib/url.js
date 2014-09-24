@@ -29,7 +29,7 @@ function (_) {
     // whitelist is in effect.
     var allowedTerms = {};
 
-    _.each(whitelist, function(allowedTerm) {
+    _.each(whitelist, function (allowedTerm) {
       if (allowedTerm in terms) {
         allowedTerms[allowedTerm] = terms[allowedTerm];
       }

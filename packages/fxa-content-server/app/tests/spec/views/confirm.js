@@ -128,7 +128,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
         return view.fxaClient.signUp(email, 'password')
               .then(function () {
                 var count = 0;
-                view.validateAndSubmit = function() {
+                view.validateAndSubmit = function () {
                   count++;
                 };
 
@@ -146,7 +146,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
 
         return view.fxaClient.signUp(email, 'password')
               .then(function () {
-                view.fxaClient.signUpResend = function() {
+                view.fxaClient.signUpResend = function () {
                   count++;
                   return p(true);
                 };

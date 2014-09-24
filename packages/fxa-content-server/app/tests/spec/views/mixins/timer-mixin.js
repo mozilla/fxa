@@ -18,7 +18,7 @@ define([
 
   _.extend(TimerView.prototype, TimerMixin);
 
-  describe('views/mixins/timer-mixin', function() {
+  describe('views/mixins/timer-mixin', function () {
     var view;
 
     beforeEach(function () {

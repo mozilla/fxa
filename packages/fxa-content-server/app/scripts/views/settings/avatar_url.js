@@ -83,7 +83,7 @@ function (_, FormView, Template, Session, OAuthClient, Profile, Assertion, AuthE
 
     getRemoteImageSrc: function (url) {
       return this.profileClient.getRemoteImage(url)
-        .then(function(src) {
+        .then(function (src) {
           return 'data:image/jpeg;base64,' + src;
         });
     }

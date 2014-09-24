@@ -67,7 +67,7 @@ define([
      * on success, and rejected with an error if channel responds with an
      * error.
      */
-    sendExpectResponse: function(message, data, options) {
+    sendExpectResponse: function (message, data, options) {
       options = options || {};
 
       var deferred = p.defer();

@@ -110,7 +110,7 @@ define([
 
       if (clientId) {
         return this._oAuthClient.getClientInfo(clientId)
-          .then(function(serviceInfo) {
+          .then(function (serviceInfo) {
             self.set('serviceName', serviceInfo.name);
             //jshint camelcase: false
             // server version always takes precedent over the search parameter

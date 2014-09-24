@@ -52,7 +52,7 @@ function ($, _, p, Session, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
           throw ProfileErrors.toError(result);
         }
         return result;
-      }, function(xhr) {
+      }, function (xhr) {
         throw ProfileErrors.normalizeXHRError(xhr);
       });
   };

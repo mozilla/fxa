@@ -51,7 +51,7 @@ function ($, p, Session, ConfigLoader, OAuthErrors) {
     getCode: function getCode(params) {
       return this._getOauthUrl().then(function (url) {
         return p.jQueryXHR($.post(url + GET_CODE, params))
-            .then(null, function(xhr) {
+            .then(null, function (xhr) {
               var err = OAuthErrors.normalizeXHRError(xhr);
               throw err;
             });
@@ -61,7 +61,7 @@ function ($, p, Session, ConfigLoader, OAuthErrors) {
     getClientInfo: function getClientInfo(id) {
       return this._getOauthUrl().then(function (url) {
         return p.jQueryXHR($.get(url + GET_CLIENT + id))
-            .then(null, function(xhr) {
+            .then(null, function (xhr) {
               var err = OAuthErrors.normalizeXHRError(xhr);
               throw err;
             });
