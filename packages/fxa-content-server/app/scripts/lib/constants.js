@@ -27,7 +27,9 @@ define([], function () {
     PROFILE_IMAGE_DISPLAY_SIZE: 240,
     PROFILE_IMAGE_EXPORT_SIZE: 600,
     PROFILE_IMAGE_JPEG_QUALITY: 0.8,
-    DEFAULT_PROFILE_IMAGE_MIME_TYPE: 'image/jpeg'
+    DEFAULT_PROFILE_IMAGE_MIME_TYPE: 'image/jpeg',
+
+    INTERNAL_ERROR_PAGE: '/500.html'
   };
 });
 

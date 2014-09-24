@@ -34,6 +34,7 @@ define([
   'lib/profile',
   'lib/constants',
   'lib/oauth-client',
+  'lib/auth-errors',
   'models/reliers/relier',
   'models/reliers/oauth',
   'models/reliers/fx-desktop'
@@ -55,6 +56,7 @@ function (
   Profile,
   Constants,
   OAuthClient,
+  AuthErrors,
   Relier,
   OAuthRelier,
   FxDesktopRelier
@@ -84,12 +86,29 @@ function (
 
   Start.prototype = {
     startApp: function () {
+      var self = this;
+
       // fetch both config and translations in parallel to speed up load.
       return p.all([
         this.initializeConfig(),
         this.initializeL10n()
       ])
-      .then(_.bind(this.allResourcesReady, this));
+      .then(_.bind(this.allResourcesReady, this))
+      .then(null, function (err) {
+        if (console && console.error) {
+          console.error('Critical error:', err);
+        }
+        if (self._metrics) {
+          self._metrics.logError(err);
+        }
+        // TODO This error goes uncaught in many tests
+        if (AuthErrors.is(err, 'DESKTOP_CHANNEL_TIMEOUT')) {
+          return;
+        }
+
+        //Something terrible happened. Let's bail.
+        self._window.location.href = Constants.INTERNAL_ERROR_PAGE;
+      });
     },
 
     initializeConfig: function () {

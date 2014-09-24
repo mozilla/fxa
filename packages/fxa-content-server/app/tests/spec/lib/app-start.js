@@ -7,6 +7,8 @@
 
 define([
   'chai',
+  'sinon',
+  'lib/promise',
   'lib/app-start',
   'lib/session',
   'lib/constants',
@@ -16,7 +18,7 @@ define([
   '../../mocks/history',
   '../../lib/helpers'
 ],
-function (chai, AppStart, Session, Constants, Channels, WindowMock, RouterMock,
+function (chai, sinon, p, AppStart, Session, Constants, Channels, WindowMock, RouterMock,
       HistoryMock, TestHelpers) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
@@ -132,6 +134,21 @@ function (chai, AppStart, Session, Constants, Channels, WindowMock, RouterMock,
         return appStart.startApp()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
+            });
+      });
+
+      it('redirects to /500.html if an error occurs and it has no router', function () {
+        appStart = new AppStart({
+          window: windowMock,
+          history: historyMock
+        });
+        sinon.stub(appStart, 'initializeConfig', function () {
+          return p.reject(new Error('boom'));
+        });
+
+        return appStart.startApp()
+            .then(function () {
+              assert.equal(windowMock.location.href, Constants.INTERNAL_ERROR_PAGE);
             });
       });
     });

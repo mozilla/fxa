@@ -119,6 +119,14 @@ module.exports = function (config, templates, i18n) {
         logger.warn(req.body);
         res.json({result: 'ok'});
       });
+
+      app.get('/500.html', function (req, res) {
+        return res.render('500');
+      });
+
+      app.get('/503.html', function (req, res) {
+        return res.render('503');
+      });
     }
 
     // Add a route in dev mode to test 500 errors
