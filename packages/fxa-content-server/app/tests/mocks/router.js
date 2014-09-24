@@ -15,7 +15,7 @@ define([
   }
 
   _.extend(RouterMock.prototype, Backbone.Events, {
-    navigate: function(page, opts) {
+    navigate: function (page, opts) {
       this.page = page;
       this.opts = opts;
 

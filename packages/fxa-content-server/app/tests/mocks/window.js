@@ -88,19 +88,19 @@ function (_, Backbone) {
       return !! (this.dispatchedEvents && this.dispatchedEvents[eventName]);
     },
 
-    addEventListener: function(msg, callback, bubbles) {
+    addEventListener: function (msg, callback, bubbles) {
       this.on(msg, callback);
     },
 
-    removeEventListener: function(msg, callback, bubbles) {
+    removeEventListener: function (msg, callback, bubbles) {
       this.off(msg, callback);
     },
 
-    CustomEvent: function(command, data) {
+    CustomEvent: function (command, data) {
       return data;
     },
 
-    scrollTo: function(x, y) {
+    scrollTo: function (x, y) {
     },
 
     setTimeout: function (callback, timeoutMS) {

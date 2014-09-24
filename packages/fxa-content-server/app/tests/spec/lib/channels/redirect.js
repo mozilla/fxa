@@ -17,7 +17,7 @@ function (chai, RedirectChannel, WindowMock, TestHelpers) {
   describe('lib/channel/redirect', function () {
     var channel, windowMock;
 
-    beforeEach(function() {
+    beforeEach(function () {
       windowMock = new WindowMock();
 
       channel = new RedirectChannel();

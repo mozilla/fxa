@@ -47,10 +47,10 @@ define([
   }
 
   function emailTemplateTest(name, matches) {
-    suite['#get email template for ' + name] = function() {
+    suite['#get email template for ' + name] = function () {
       var dfd = this.async(1000);
 
-      request(serverUrl + '/template' + name, dfd.callback(function(err, res, body) {
+      request(serverUrl + '/template' + name, dfd.callback(function (err, res, body) {
         var json = JSON.parse(body);
 
         assert.match(json.subject, matches.subject);
@@ -67,7 +67,7 @@ define([
     };
   }
 
-  Object.keys(emailTemplates).forEach(function(key) {
+  Object.keys(emailTemplates).forEach(function (key) {
     emailTemplateTest(key, emailTemplates[key]);
   });
 

@@ -45,7 +45,7 @@ module.exports = function (templatePath, i18n) {
   }
 
   // Make the 'gettext' function available in the templates.
-  handlebars.registerHelper('t', function(string) {
+  handlebars.registerHelper('t', function (string) {
     if (this.gettext && string.fn) {
       // translate a view template from res.render. There is
       // some funky stuff going on here, string has an fn
@@ -72,7 +72,7 @@ module.exports = function (templatePath, i18n) {
   };
 
   // now turn file contents into compiled templates
-  Object.keys(templates).forEach(function(type) {
+  Object.keys(templates).forEach(function (type) {
     templates[type].text = handlebars.compile(templates[type].text.toString());
     templates[type].html = handlebars.compile(templates[type].html.toString());
   });

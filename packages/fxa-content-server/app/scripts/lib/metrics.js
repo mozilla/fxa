@@ -27,7 +27,7 @@ define([
 
   // Speed trap is a singleton, convert it
   // to an instantiable function.
-  var SpeedTrap = function() {};
+  var SpeedTrap = function () {};
   SpeedTrap.prototype = speedTrap;
 
   var ALLOWED_FIELDS = [
@@ -176,7 +176,7 @@ define([
       .then(function () {
         self.trigger('flush.success', data);
         return data;
-      }, function(jqXHR) {
+      }, function (jqXHR) {
         self.trigger('flush.error');
         throw jqXHR.statusText;
       });

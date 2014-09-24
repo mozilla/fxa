@@ -49,7 +49,7 @@ function (chai, _, $, View, RouterMock, TestHelpers, Session, Constants,
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function() {
+      it('redirects to signin', function () {
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -62,7 +62,7 @@ function (chai, _, $, View, RouterMock, TestHelpers, Session, Constants,
         email = TestHelpers.createEmail();
 
         return view.fxaClient.signUp(email, 'password', { preVerified: true })
-          .then(function() {
+          .then(function () {
             return view.render();
           })
           .then(function () {

@@ -36,7 +36,7 @@ function (p, AuthErrors) {
               self.hideError();
             }
             return value;
-          }, function(err) {
+          }, function (err) {
             self.clearTimeout(self._workingTimeout);
             throw err;
           });

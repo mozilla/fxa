@@ -46,7 +46,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, p, Session, Profile)
     });
 
     describe('with no session', function () {
-      it('redirects to signin', function() {
+      it('redirects to signin', function () {
         view.isUserAuthorized = function () {
           return false;
         };

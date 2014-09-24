@@ -44,7 +44,7 @@ define([
   });
   _.extend(OAuthView.prototype, ServiceMixin);
 
-  describe('views/mixins/service-mixin', function() {
+  describe('views/mixins/service-mixin', function () {
     var view;
     var windowMock;
     var channelMock;
@@ -103,17 +103,17 @@ define([
 
     describe('_notifyChannel', function () {
       var mockChannel = {
-        init: function() {},
-        send: function(msg, data, done) { done(); },
-        teardown: function() {}
+        init: function () {},
+        send: function (msg, data, done) { done(); },
+        teardown: function () {}
       };
 
       it('throws timeout errors', function (done) {
         view.channel = mockChannel;
-        view.setTimeout = function(func) { func(); };
+        view.setTimeout = function (func) { func(); };
 
         var displayedError = false;
-        view.displayError = function() {
+        view.displayError = function () {
           displayedError = true;
           done();
         };
@@ -128,18 +128,20 @@ define([
         };
 
         return view._notifyChannel({})
-          .then(assert.fail, function() { assert.ok('Error thrown'); });
+          .then(assert.fail, function () {
+            assert.ok('Error thrown');
+          });
       });
     });
 
     describe('finishOAuthFlow', function () {
       var mockAssertionLibrary = {
-        generate: function() {
+        generate: function () {
           return p('mockAssertion');
         }
       };
       var mockConfigLoader = {
-        fetch: function() {
+        fetch: function () {
           return p({oauthUrl: ''});
         }
       };
@@ -149,7 +151,7 @@ define([
         view._configLoader = mockConfigLoader;
         view._oAuthParams = {};
         view._oAuthClient = {
-          getCode: function() {
+          getCode: function () {
             return p({redirect: DEFAULT_REDIRECT_STRING});
           }
         };
@@ -165,12 +167,12 @@ define([
         view._configLoader = mockConfigLoader;
         view._oAuthParams = {};
         view._oAuthClient = {
-          getCode: function() {
+          getCode: function () {
             return p({});
           }
         };
         var displayedError = false;
-        view.displayError = function() {
+        view.displayError = function () {
           displayedError = true;
         };
 

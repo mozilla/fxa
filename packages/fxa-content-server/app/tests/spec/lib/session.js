@@ -29,7 +29,7 @@ function (chai, Session) {
         assert.equal(Session.key3, 'value3');
       });
 
-      it('will not overwrite items in Session.prototype', function() {
+      it('will not overwrite items in Session.prototype', function () {
         Session.set('set', 1);
         assert.notEqual(Session.set, 1);
       });
@@ -56,12 +56,12 @@ function (chai, Session) {
         assert.isUndefined(Session.key6);
       });
 
-      it('will not clear items in Session.prototype', function() {
+      it('will not clear items in Session.prototype', function () {
         Session.clear('set');
         assert.isFunction(Session.set);
       });
 
-      it('will not clear items in DO_NOT_CLEAR', function() {
+      it('will not clear items in DO_NOT_CLEAR', function () {
         var config = 'config';
         Session.set('config', config);
         Session.clear('config');
@@ -97,7 +97,7 @@ function (chai, Session) {
         assert.equal(Session.key8, 'value8');
       });
 
-      it('does not load up items in DO_NOT_PERSIST', function() {
+      it('does not load up items in DO_NOT_PERSIST', function () {
         var prefillPassword = 'password';
         Session.set('prefillPassword', prefillPassword);
         Session.persist();

@@ -7,7 +7,7 @@
 
 'use strict';
 
-module.exports = function(i18n) {
+module.exports = function (i18n) {
   var route = {};
   route.method = 'get';
   route.path = '/i18n/client.json';

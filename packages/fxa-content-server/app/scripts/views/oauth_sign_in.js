@@ -20,18 +20,18 @@ function (_, p, SignInView, ServiceMixin) {
       this.setupOAuth();
     },
 
-    afterRender: function() {
+    afterRender: function () {
       this.setupOAuthLinks();
       return SignInView.prototype.afterRender.call(this);
     },
 
-    onSignInSuccess: function() {
+    onSignInSuccess: function () {
       return this.finishOAuthFlow({
         source: 'signin'
       });
     },
 
-    onSignInUnverified: function() {
+    onSignInUnverified: function () {
       // set the oauth parameters in the session so they are available
       // in the email confirmation
       this.persistOAuthParams();

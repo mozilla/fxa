@@ -34,7 +34,7 @@ module.exports = function (grunt) {
       }
     });
 
-    clientWalker.on('end', function() {
+    clientWalker.on('end', function () {
       var authWalker = extract({
         'input-dir': path.join(__dirname, '..', 'server'),
         exclude: /pages\/dist/,
@@ -49,7 +49,7 @@ module.exports = function (grunt) {
         }
       });
 
-      authWalker.on('end', function() {
+      authWalker.on('end', function () {
         done();
       });
     });

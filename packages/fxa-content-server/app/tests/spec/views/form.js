@@ -218,7 +218,7 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors, TestHe
         };
 
         return view.validateAndSubmit()
-                  .then(null, function(err) {
+                  .then(null, function (err) {
                     assert.equal(err.message, 'error that is not displayed');
                     assert.isFalse(view.isFormEnabled());
                   });
@@ -237,7 +237,7 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors, TestHe
     });
 
     describe('showValidationError', function () {
-      it('creates a tooltip', function() {
+      it('creates a tooltip', function () {
         view.on('validation_error', function (done) {
           assert.ok(view.$('.tooltip').length);
           done();

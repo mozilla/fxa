@@ -18,7 +18,7 @@ define([
     // do nothing
   }
 
-  _.forEach(_.keys(Metrics.prototype), function(key) {
+  _.forEach(_.keys(Metrics.prototype), function (key) {
     NullMetrics.prototype[key] = function () {
       // do nothing
     };

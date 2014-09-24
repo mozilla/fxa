@@ -95,7 +95,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
         view.$('[type=email]').val('testuser');
 
         view.on('validation_error', function (which, msg) {
-          wrapAssertion(function() {
+          wrapAssertion(function () {
             assert.ok(msg);
           }, done);
         });
@@ -141,7 +141,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
         };
 
         return view.submit()
-                  .then(null, function(err) {
+                  .then(null, function (err) {
                     assert.isTrue(false, 'unexpected failure');
                   })
                   .then(function (err) {
@@ -163,7 +163,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
         };
 
         return view.submit()
-                  .then(null, function(err) {
+                  .then(null, function (err) {
                     // The errorback will not be called if the submit
                     // succeeds, but the following callback always will
                     // be. To ensure the errorback was called, pass

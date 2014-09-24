@@ -26,7 +26,7 @@ function (
     /**
      * Pass in a configuration to use. Useful for unit testing.
      */
-    useConfig: function(config) {
+    useConfig: function (config) {
       this._config = config;
     },
 
@@ -89,7 +89,7 @@ function (
     },
 
     // HACK: Part of a temporary work around for Firefox Nightly (2014-04-18)
-    isLocalStorageEnabled: function() {
+    isLocalStorageEnabled: function () {
       var testData = 'local-storage-test';
 
       try {

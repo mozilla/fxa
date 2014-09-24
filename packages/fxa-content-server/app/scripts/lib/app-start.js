@@ -60,7 +60,7 @@ function (
   FxDesktopRelier
 ) {
 
-  function isMetricsCollectionEnabled (sampleRate) {
+  function isMetricsCollectionEnabled(sampleRate) {
     return Math.random() <= sampleRate;
   }
 

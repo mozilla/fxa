@@ -28,7 +28,7 @@ function (_, p, BaseView, SignUpView, ServiceMixin) {
       });
     },
 
-    afterRender: function() {
+    afterRender: function () {
       this.setupOAuthLinks();
       return SignUpView.prototype.afterRender.call(this);
     },

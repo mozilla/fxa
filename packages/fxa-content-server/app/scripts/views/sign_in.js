@@ -115,7 +115,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
         });
     },
 
-    onSignInSuccess: function() {
+    onSignInSuccess: function () {
       // Don't switch to settings if we're trying to log in to
       // Firefox. Firefox will show its own landing page
       // Also show settings if an automatedBrowser flag has been set,
@@ -128,7 +128,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       return true;
     },
 
-    onSignInUnverified: function() {
+    onSignInUnverified: function () {
       var self = this;
 
       return self.fxaClient.signUpResend()
@@ -157,7 +157,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
      * Used for the special "Sign In" button
      * which is present when there is already a logged in user in the session
      */
-    useLoggedInAccount: showProgressIndicator(function() {
+    useLoggedInAccount: showProgressIndicator(function () {
       var self = this;
 
       return this._signIn(Session.cachedCredentials.email, {

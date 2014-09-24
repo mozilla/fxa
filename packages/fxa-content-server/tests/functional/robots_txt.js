@@ -22,7 +22,7 @@ define([
         .setFindTimeout(intern.config.pageLoadTimeout)
         .findByTagName('body')
         .getVisibleText()
-        .then(function(source) {
+        .then(function (source) {
           assert.isTrue(/Disallow: \//g.test(source));
         })
         .end();

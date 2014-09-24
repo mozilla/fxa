@@ -262,7 +262,7 @@ define([
             // user is redirect to 123done, but not signed in.
             .findByCssSelector('button.sign-in-button')
             .isDisplayed()
-            .then(function(isSignInButtonDisplayed) {
+            .then(function (isSignInButtonDisplayed) {
               assert.isTrue(isSignInButtonDisplayed);
             })
             .end();

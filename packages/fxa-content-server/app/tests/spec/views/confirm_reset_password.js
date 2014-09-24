@@ -221,7 +221,7 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
         return view.fxaClient.signUp(email, 'password')
               .then(function () {
                 var count = 0;
-                view.validateAndSubmit = function() {
+                view.validateAndSubmit = function () {
                   count++;
                 };
 

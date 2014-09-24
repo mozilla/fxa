@@ -66,7 +66,7 @@ define([
      *        Message object
      * @returns CustomEvent
      */
-    createEvent: function(command, data) {
+    createEvent: function (command, data) {
       return new this._window.CustomEvent('WebChannelMessageToChrome', {
         detail: {
           id: this.id,

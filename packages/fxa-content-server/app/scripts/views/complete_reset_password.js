@@ -63,7 +63,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
         });
     },
 
-    afterRender: function() {
+    afterRender: function () {
       this.initializePlaceholderFields();
     },
 

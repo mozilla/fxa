@@ -39,11 +39,11 @@ define([
       errData += data;
     });
 
-    proc.on('error', function(err) {
+    proc.on('error', function (err) {
       cb(err);
     });
 
-    proc.on('exit', function(code) {
+    proc.on('exit', function (code) {
       cb(null, errData);
     });
 

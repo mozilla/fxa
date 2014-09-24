@@ -101,12 +101,12 @@ function (chai, _, $, AuthErrors, FxaClient, View, Relier, RouterMock, TestHelpe
         });
       });
 
-      describe('showValidationErrors', function() {
+      describe('showValidationErrors', function () {
         it('shows an error if the password is invalid', function (done) {
           view.$('#old_password').val('passwor');
           view.$('#new_password').val('password');
 
-          view.on('validation_error', function(which, msg) {
+          view.on('validation_error', function (which, msg) {
             wrapAssertion(function () {
               assert.ok(msg);
             }, done);
@@ -119,7 +119,7 @@ function (chai, _, $, AuthErrors, FxaClient, View, Relier, RouterMock, TestHelpe
           view.$('#old_password').val('password');
           view.$('#new_password').val('passwor');
 
-          view.on('validation_error', function(which, msg) {
+          view.on('validation_error', function (which, msg) {
             wrapAssertion(function () {
               assert.ok(msg);
             }, done);

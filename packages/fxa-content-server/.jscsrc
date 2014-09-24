@@ -10,7 +10,7 @@
     "requireCurlyBraces": ["for", "while", "do"],
     "requireLineFeedAtFileEnd": true,
     "requireSpaceAfterBinaryOperators": ["=", ",", "+", "-", "/", "*", "==", "===", "!=", "!=="],
-    "requireSpaceAfterKeywords": ["if", "else", "for", "while", "do", "switch", "return"],
+    "requireSpaceAfterKeywords": ["if", "else", "for", "function", "while", "do", "switch", "return"],
     "requireSpaceAfterPrefixUnaryOperators": ["~"],
     "requireSpaceBeforeBinaryOperators": ["+", "-", "/", "*", "=", "==", "===", "!=", "!=="],
     "requireSpacesInConditionalExpression": true,

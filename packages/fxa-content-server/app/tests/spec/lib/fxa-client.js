@@ -206,7 +206,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     describe('signUp when another user has previously signed in to browser and user accepts', function () {
       it('sends verifiedCanLinkAccount along with the login message', function () {
         return client.signUp(email, password)
-          .then(function() {
+          .then(function () {
             // check that login was the last message sent over the channel
             assert.equal(channelMock.message, 'login');
             // check can_link_account was called once
@@ -223,7 +223,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
         // simulate the user rejecting
         channelMock.canLinkAccountOk = false;
         return client.signUp(email, password)
-          .then(function() {
+          .then(function () {
             assert(false, 'should throw USER_CANCELED_LOGIN');
           }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
@@ -274,10 +274,10 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     describe('signIn with verifiedCanLinkAccount=true option', function () {
       it('sends verifiedCanLinkAccount along with the login message', function () {
         return realClient.signUp(trim(email), password)
-          .then(function() {
+          .then(function () {
             return client.signIn(email, password, { verifiedCanLinkAccount: true });
           })
-          .then(function() {
+          .then(function () {
             // check that login was the last message sent over the channel
             assert.equal(channelMock.message, 'login');
             // check can_link_account was called zero times
@@ -293,10 +293,10 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     describe('signIn when another user has previously signed in to browser and user accepts', function () {
       it('sends verifiedCanLinkAccount along with the login message', function () {
         return realClient.signUp(trim(email), password)
-          .then(function() {
+          .then(function () {
             return client.signIn(email, password);
           })
-          .then(function() {
+          .then(function () {
             // check that login was the last message sent over the channel
             assert.equal(channelMock.message, 'login');
             // check can_link_account was called once
@@ -313,7 +313,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
         // simulate the user rejecting
         channelMock.canLinkAccountOk = false;
         return client.signIn(email, password)
-          .then(function() {
+          .then(function () {
             assert(false, 'should throw USER_CANCELED_LOGIN');
           }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
@@ -404,12 +404,12 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       it('returns error if password is incorrect', function () {
         email = trim(email);
         return realClient.signUp(email, password, { preverified: true })
-          .then(function() {
+          .then(function () {
             return client.checkPassword(email, 'badpassword');
           })
           .then(function () {
             assert.fail('unexpected success');
-          }, function(err) {
+          }, function (err) {
             assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
           });
       });
@@ -417,7 +417,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       it('succeeds if password is correct', function () {
         email = trim(email);
         return realClient.signUp(email, password, { preverified: true })
-          .then(function() {
+          .then(function () {
             return client.checkPassword(email, password);
           });
       });

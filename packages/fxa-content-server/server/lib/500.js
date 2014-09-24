@@ -8,7 +8,7 @@ var logger = require('intel').getLogger('route.500');
 
 // It's a 500 server error response.
 
-module.exports = function(err, req, res, next) {
+module.exports = function (err, req, res, next) {
   res.status(500);
 
   logger.error(err);

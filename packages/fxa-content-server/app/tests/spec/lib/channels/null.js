@@ -4,7 +4,6 @@
 
 'use strict';
 
-
 define([
   'chai',
   'lib/channels/null'
@@ -13,13 +12,13 @@ function (chai, NullChannel) {
   var channel;
 
   describe('lib/channel/null', function () {
-    beforeEach(function() {
+    beforeEach(function () {
       channel = new NullChannel();
       channel.init();
     });
 
     describe('send', function () {
-      it('is a standin that does nothing', function(done) {
+      it('is a standin that does nothing', function (done) {
         channel.send('heya', {}, done);
       });
     });

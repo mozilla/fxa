@@ -209,7 +209,7 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
         $('[type=password]').val('incorrect');
 
         return view.submit()
-            .then(function(msg) {
+            .then(function (msg) {
               assert.ok(msg.indexOf('/signup') > -1);
             });
       });
@@ -226,7 +226,7 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
         };
 
         return view.submit()
-                  .then(null, function(err) {
+                  .then(null, function (err) {
                     // The errorback will not be called if the submit
                     // succeeds, but the following callback always will
                     // be. To ensure the errorback was called, pass

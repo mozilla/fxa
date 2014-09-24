@@ -131,10 +131,10 @@ define([
 
     finishOAuthFlow: progressIndicator(function (viewOptions) {
       var self = this;
-      return this._configLoader.fetch().then(function(config) {
+      return this._configLoader.fetch().then(function (config) {
         return self.assertionLibrary.generate(config.oauthUrl);
       })
-      .then(function(assertion) {
+      .then(function (assertion) {
         var relier = self.relier;
         var oauthParams = {
           assertion: assertion,
@@ -145,21 +145,21 @@ define([
         return self._oAuthClient.getCode(oauthParams);
       })
       .then(_formatOAuthResult)
-      .then(function(result) {
+      .then(function (result) {
         return _decorateOAuthResult.call(self, result, {
           viewOptions: viewOptions
         });
       })
-      .then(function(result) {
+      .then(function (result) {
         return _notifyChannel.call(self, 'oauth_complete', result);
       })
-      .then(function() {
+      .then(function () {
         Session.clear('oauth');
         // on success, keep the button progress indicator going until the
         // window closes.
         return { pageNavigation: true };
       })
-      .fail(function(err) {
+      .fail(function (err) {
         Session.clear('oauth');
         self.displayError(err);
       });

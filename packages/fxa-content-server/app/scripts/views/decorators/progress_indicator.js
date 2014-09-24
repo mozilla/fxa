@@ -41,7 +41,7 @@ function (p, ProgressIndicator) {
               progressIndicator.done();
             }
             return value;
-          }, function(err) {
+          }, function (err) {
             progressIndicator.done();
             throw err;
           });

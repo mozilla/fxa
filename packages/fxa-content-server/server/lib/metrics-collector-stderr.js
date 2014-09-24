@@ -37,7 +37,7 @@ function addVersion(loggableEvent) {
 }
 
 function copyFields(fields, to, from) {
-  fields.forEach(function(field) {
+  fields.forEach(function (field) {
     to[field] = from.hasOwnProperty(field) ? from[field] : 'unknown';
   });
 }

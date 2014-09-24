@@ -10,10 +10,10 @@ define([
   'underscore',
   'lib/constants'
 ],
-function(_, Constants) {
+function (_, Constants) {
   return {
     // only allow http or https URLs, encoding the URL.
-    href: function(text) {
+    href: function (text) {
       if (! _.isString(text)) {
         return;
       }

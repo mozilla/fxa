@@ -42,7 +42,7 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
       }
     },
 
-    afterRender: function() {
+    afterRender: function () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 

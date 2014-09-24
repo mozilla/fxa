@@ -6,13 +6,13 @@
 
 var MetricsCollector = require('../metrics-collector-stderr');
 
-module.exports = function(options) {
+module.exports = function (options) {
   var metricsCollector = new MetricsCollector();
 
   return {
     method: 'post',
     path: '/metrics',
-    process: function(req, res) {
+    process: function (req, res) {
       // don't wait around to send a response.
       res.json({ success: true });
 

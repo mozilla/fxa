@@ -26,11 +26,11 @@ function ($, BaseView, Template, p, AuthErrors) {
         },
         dataType: 'text'
       }))
-      .then(function(template) {
+      .then(function (template) {
         self.$('#legal-copy').html(template);
         self.$('.hidden').removeClass('hidden');
       })
-      .fail(function() {
+      .fail(function () {
         var err = AuthErrors.toError('COULD_NOT_GET_PP');
         self.displayError(err);
         self.$('.hidden').removeClass('hidden');

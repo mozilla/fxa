@@ -41,13 +41,13 @@ function getProfileServerUrl(userAgent) {
   return profileServerUrl;
 }
 
-module.exports = function(i18n) {
+module.exports = function (i18n) {
   var route = {};
 
   route.method = 'get';
   route.path = '/config';
 
-  route.process = function(req, res) {
+  route.process = function (req, res) {
     // `language` and `cookiesEnabled` are dynamic so don't cache.
     res.header('Cache-Control', 'no-cache, max-age=0');
 

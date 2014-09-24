@@ -108,7 +108,7 @@ define([
         .end();
     },
 
-    'visit settings page with an invalid sessionToken redirects to signin': function() {
+    'visit settings page with an invalid sessionToken redirects to signin': function () {
       // Changing the password invalidates the current sessionToken
       var self = this;
 

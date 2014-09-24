@@ -9,7 +9,7 @@ define([
 function (path, execSync) {
   'use strict';
 
-  var createProfile = function(config) {
+  var createProfile = function (config) {
     var profileProcess = null;
     var encodedProfile = '';
 

@@ -20,7 +20,7 @@ define([
           return result;
         } else {
           var dfd = new Deferred();
-          setTimeout(function() {
+          setTimeout(function () {
             waitForEmail(uri, number)
               .then(dfd.resolve, dfd.reject);
           }, 1000);
