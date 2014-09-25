@@ -90,6 +90,10 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     height: 104px;
   }
 
+  #legal-copy {
+    height: 225px;
+  }
+
   .marketing {
     margin: 20px -20px -10px -20px;
 
@@ -219,6 +223,15 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
 
   .marketing {
     display: none;
+  }
+
+  #legal-copy {
+    height: 200px;
+    margin-bottom: 10px;
+    
+    h2 {
+      font-size: $base-font;
+    }
   }
 
   #legal-footer {
