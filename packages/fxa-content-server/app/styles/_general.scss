@@ -203,6 +203,10 @@ section p {
 }
 
 #legal-copy {
+  border: 1px solid $marketing-border-color;
+  height: 250px;
+  overflow: auto;
+  padding: 10px;
   text-align: left;
 
   p {
