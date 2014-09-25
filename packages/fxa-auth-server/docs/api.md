@@ -17,8 +17,7 @@ Note that:
 * All API access must be over a properly-validated HTTPS connection.
 * The URL embeds a version identifier "v1"; future revisions of this API may introduce new version numbers.
 * The base URL of the server may be configured on a per-client basis:
-  * There is a development server available at [https://api-accounts.dev.lcip.org/](https://api-accounts.dev.lcip.org);
-    data stored on this may be periodically purged.
+  * For a list of development servers see [Firefox Accounts deployments on MDN](https://developer.mozilla.org/en-US/Firefox_Accounts#Firefox_Accounts_deployments).
   * The canonical URL for Mozilla's hosted Firefox Accounts server is TODO-DEFINE-ME.
 
 
