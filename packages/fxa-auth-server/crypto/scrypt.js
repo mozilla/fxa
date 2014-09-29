@@ -6,8 +6,8 @@ var P = require('../promise')
 var scrypt_hash = require('scrypt-hash')
  
 // The maximum numer of hash operations allowed concurrently.
-// This can be customized by setting the `max_pending` attribute
-// on the exported object.
+// This can be customized by setting the `maxPending` attribute on the
+// exported object, or by setting the `scrypt.maxPending` config option.
 const DEFAULT_MAX_PENDING = 100
 
 module.exports = function(log, config) {
@@ -15,9 +15,12 @@ module.exports = function(log, config) {
   var scrypt = {
     hash: hash,
     // The current number of hash operations in progress.
-    num_pending: 0,
-     // The maximum number of hash operations that may be in progress.
-    max_pending: DEFAULT_MAX_PENDING
+    numPending: 0,
+    // The maximum number of hash operations that may be in progress.
+    maxPending: DEFAULT_MAX_PENDING
+  }
+  if (config.scrypt && config.scrypt.hasOwnProperty("maxPending")) {
+    scrypt.maxPending = config.scrypt.maxPending
   }
 
   /**  hash - Creates an scrypt hash asynchronously
@@ -28,13 +31,13 @@ module.exports = function(log, config) {
    */
   function hash(input, salt, N, r, p, len) {
     var d = P.defer()
-    if (scrypt.max_pending > 0 && scrypt.num_pending > scrypt.max_pending) {
+    if (scrypt.maxPending > 0 && scrypt.numPending > scrypt.maxPending) {
       d.reject(new Error('too many pending scrypt hashes'))
     } else {
-      scrypt.num_pending += 1
+      scrypt.numPending += 1
       scrypt_hash(input, salt, N, r, p, len,
         function (err, hash) {
-          scrypt.num_pending -= 1
+          scrypt.numPending -= 1
           return err ? d.reject(err) : d.resolve(hash.toString('hex'))
         }
       )

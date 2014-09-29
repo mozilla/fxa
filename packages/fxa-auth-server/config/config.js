@@ -146,6 +146,13 @@ module.exports = function (fs, path, url, convict) {
         env: 'TOOBUSY_MAX_LAG'
       }
     },
+    scrypt: {
+      maxPending: {
+        doc: "Max number of scrypt hash operations that can be pending",
+        default: 0,
+        env: 'SCRYPT_MAX_PENDING'
+      }
+    },
     i18n: {
       defaultLanguage: {
         format: String,
