@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var log = {}
+var log = { stat: function(){} }
 var config = {}
 var Password = require('../../crypto/password')(log, config)
 

@@ -16,6 +16,8 @@ module.exports = function(log, config) {
     hash: hash,
     // The current number of hash operations in progress.
     numPending: 0,
+    // The high-water-mark on number of hash operations in progress.
+    numPendingHWM: 0,
     // The maximum number of hash operations that may be in progress.
     maxPending: DEFAULT_MAX_PENDING
   }
@@ -35,6 +37,9 @@ module.exports = function(log, config) {
       d.reject(new Error('too many pending scrypt hashes'))
     } else {
       scrypt.numPending += 1
+      if (scrypt.numPending > scrypt.numPendingHWM) {
+        scrypt.numPendingHWM = scrypt.numPending
+      }
       scrypt_hash(input, salt, N, r, p, len,
         function (err, hash) {
           scrypt.numPending -= 1

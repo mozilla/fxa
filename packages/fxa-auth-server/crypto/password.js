@@ -63,5 +63,6 @@ module.exports = function(log, config) {
     return hkdf(stretched, 'verifyHash', null, 32)
   }
 
+  Password.scrypt = scrypt
   return Password
 }

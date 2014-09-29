@@ -8,14 +8,25 @@ var config = require('../config').root()
 function main() {
   var log = require('../log')(config.log.level)
 
-  function logMemoryStats() {
+  function logServerStats() {
+    // Memory usage info.
     log.stat(
       {
         stat: 'mem',
-        rss: this.rss,
-        heapUsed: this.heapUsed
+        rss: server.load.rss,
+        heapUsed: server.load.heapUsed
       }
     )
+    // Scrypt work queue status.
+    log.stat(
+      {
+        stat: 'scrypt',
+        maxPending: Password.scrypt.maxPending,
+        numPending: Password.scrypt.numPending,
+        numPendingHWM: Password.scrypt.numPendingHWM
+      }
+    )
+    Password.scrypt.numPendingHWM = Password.scrypt.numPending
   }
 
   log.event('config', config)
@@ -36,7 +47,7 @@ function main() {
   var Server = require('../server')
   var server = null
   var mailer = null
-  var memInterval = null
+  var statsInterval = null
   var database = null
   var customs = null
 
@@ -80,7 +91,7 @@ function main() {
                   log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
                 }
               )
-              memInterval = setInterval(logMemoryStats.bind(server.load), 15000)
+              statsInterval = setInterval(logServerStats, 15000)
             },
             function (err) {
               log.error({ op: 'DB.connect', err: { message: err.message } })
@@ -103,7 +114,7 @@ function main() {
 
   function shutdown() {
     log.info({ op: 'shutdown' })
-    clearInterval(memInterval)
+    clearInterval(statsInterval)
     server.stop(
       function () {
         customs.close()
