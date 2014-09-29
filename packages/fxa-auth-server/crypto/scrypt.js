@@ -34,6 +34,7 @@ module.exports = function(log, config) {
   function hash(input, salt, N, r, p, len) {
     var d = P.defer()
     if (scrypt.maxPending > 0 && scrypt.numPending > scrypt.maxPending) {
+      log.warn({ op: 'scrypt.maxPendingExceeded' })
       d.reject(new Error('too many pending scrypt hashes'))
     } else {
       scrypt.numPending += 1

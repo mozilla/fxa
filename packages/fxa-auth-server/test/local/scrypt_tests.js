@@ -4,8 +4,12 @@
 
 var test = require('../ptaptest')
 var promise = require('../../promise')
-var log = { stat: function(){} }
 var config = { scrypt: { maxPending: 5 } }
+var log = {
+  buffer: [],
+  warn: function(obj){ log.buffer.push(obj) },
+  stat: function(){}
+}
 
 var scrypt = require('../../crypto/scrypt')(log, config)
 
@@ -44,6 +48,7 @@ test(
       function (err) {
         t.equal(err.message, 'too many pending scrypt hashes')
         t.equal(scrypt.numPendingHWM, 6, 'HWM should be maxPending+1')
+        t.equal(log.buffer[0].op, 'scrypt.maxPendingExceeded')
       }
     );
   }
