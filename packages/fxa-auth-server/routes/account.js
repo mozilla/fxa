@@ -6,7 +6,6 @@ var validators = require('./validators')
 var HEX_STRING = validators.HEX_STRING
 var BASE64_JWT = validators.BASE64_JWT
 
-var Password = require('../crypto/password')
 var butil = require('../crypto/butil')
 
 module.exports = function (
@@ -18,6 +17,7 @@ module.exports = function (
   error,
   db,
   mailer,
+  Password,
   redirectDomain,
   verifierVersion,
   isProduction,

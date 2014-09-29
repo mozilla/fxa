@@ -16,6 +16,7 @@ module.exports = function (
   signer,
   db,
   mailer,
+  Password,
   config,
   customs
   ) {
@@ -33,6 +34,7 @@ module.exports = function (
     error,
     db,
     mailer,
+    Password,
     config.smtp.redirectDomain,
     config.verifierVersion,
     isProduction,
@@ -46,6 +48,7 @@ module.exports = function (
     isA,
     error,
     db,
+    Password,
     config.smtp.redirectDomain,
     mailer,
     config.verifierVersion,

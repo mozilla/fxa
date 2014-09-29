@@ -4,7 +4,10 @@
 
 var test = require('../ptaptest')
 var promise = require('../../promise')
-var scrypt = require('../../crypto/scrypt')
+var log = {}
+var config = {}
+
+var scrypt = require('../../crypto/scrypt')(log, config)
 
 test(
   'scrypt basic',
@@ -26,16 +29,16 @@ test(
   function (t) {
     var K1 = Buffer('f84913e3d8e6d624689d0a3e9678ac8dcc79d2c2f3d9641488cd9d6ef6cd83dd', 'hex')
     var salt = Buffer('identity.mozilla.com/picl/v1/scrypt')
-    // Set a lower MAX_PENDING so the test runs quicker.
-    var orig_max_pending = scrypt.MAX_PENDING;
-    scrypt.MAX_PENDING = 5;
+    // Set a lower max_pending so the test runs quicker.
+    var orig_max_pending = scrypt.max_pending;
+    scrypt.max_pending = 5;
     // Send many concurent requests.
     // Not yielding the event loop ensures they will pile up quickly.
     var promises = [];
     for (var i = 0; i < 10; i++) {
       promises.push(scrypt.hash(K1, salt, 65536, 8, 1, 32))
     }
-    scrypt.MAX_PENDING = orig_max_pending;
+    scrypt.max_pending = orig_max_pending;
     return promise.all(promises).then(
       function () {
         t.fail('too many pending scrypt hashes were allowed')

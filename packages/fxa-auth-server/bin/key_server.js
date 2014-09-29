@@ -25,6 +25,7 @@ function main() {
 
   var error = require('../error')
   var Token = require('../tokens')(log, config.tokenLifetimes)
+  var Password = require('../crypto/password')(log, config)
 
   var CC = require('compute-cluster')
   var signer = new CC({ module: __dirname + '/signer.js' })
@@ -68,6 +69,7 @@ function main() {
                 signer,
                 db,
                 mailer,
+                Password,
                 config,
                 customs
               )
