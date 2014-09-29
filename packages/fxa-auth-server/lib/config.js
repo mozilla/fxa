@@ -71,6 +71,10 @@ const conf = convict({
       default: ''
     }
   },
+  localRedirects: {
+    doc: 'When true, `localhost` and `127.0.0.1` always are legal redirects.',
+    default: false
+  },
   logging: {
     formatters: {
       doc: 'http://seanmonstar.github.io/intel/#formatters',

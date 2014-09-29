@@ -18,7 +18,7 @@ const unique = require('../lib/unique');
 
 require('jwcrypto/lib/algs/ds');
 
-/*global describe,it,before,afterEach*/
+/*global describe,it,before,beforeEach,afterEach*/
 /*jshint camelcase: false*/
 
 const USERID = unique(16).toString('hex');
@@ -240,17 +240,67 @@ describe('/v1', function() {
         }).done(done, done);
       });
 
-      it('must be same as registered redirect', function(done) {
+      it('must be same as registered redirect', function() {
         mockAssertion().reply(200, VERIFY_GOOD);
-        Server.api.post({
+        return Server.api.post({
           url: '/authorization',
           payload: authParams({
-            redirect_uri: 'http://herp.derp'
+            redirect_uri: 'http://localhost:8080/derp'
           })
         }).then(function(res) {
           assert.equal(res.result.code, 400);
           assert.equal(res.result.message, 'Incorrect redirect_uri');
-        }).done(done, done);
+        });
+      });
+
+      describe('with config.localRedirects', function() {
+        beforeEach(function() {
+          config.set('localRedirects', true);
+        });
+
+        afterEach(function() {
+          config.set('localRedirects', false);
+        });
+
+        it('must be same as registered redirect with config set', function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              redirect_uri: 'http://bad.uri/derp'
+            })
+          }).then(function(res) {
+            assert.equal(res.result.code, 400);
+            assert.equal(res.result.message, 'Incorrect redirect_uri');
+          });
+        });
+
+        it('can be localhost with config set', function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              redirect_uri: 'http://localhost:8080/derp'
+            })
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert(res.result.redirect);
+          });
+        });
+
+        it('can be 127.0.0.1 with config set', function() {
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api.post({
+            url: '/authorization',
+            payload: authParams({
+              redirect_uri: 'http://127.0.0.1:8080/derp'
+            })
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert(res.result.redirect);
+          });
+        });
+
       });
 
       it('can be a URN', function() {

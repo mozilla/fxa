@@ -11,6 +11,13 @@ const hapiLogger = require('./logging').getLogger('fxa.server.hapi');
 const summary = require('./logging/summary');
 
 exports.create = function createServer() {
+
+  if (config.localRedirects && config.env !== 'dev') {
+    // nightly, latest, etc will probably set this to true, but it's
+    // worth explicitly yelling about it.
+    logger.warn('*** localRedirects is set to TRUE.' +
+      'Should only be used for developers. ***');
+  }
   var isProd = config.env === 'prod';
   var server = Hapi.createServer(
     config.server.host,

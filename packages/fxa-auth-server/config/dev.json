@@ -23,6 +23,7 @@
       "canGrant": true
     }
   ],
+  "localRedirects": true,
   "logging": {
     "handlers": {
       "console": {

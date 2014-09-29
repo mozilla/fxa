@@ -29,6 +29,12 @@ function set(arr) {
   return Object.keys(obj);
 }
 
+
+function isLocalHost(url) {
+  var host = new URI(url).hostname();
+  return host === 'localhost' || host === '127.0.0.1';
+}
+
 function generateCode(claims, client, scope, req) {
 
   return db.generateCode(
@@ -122,13 +128,18 @@ module.exports = {
           throw Hapi.error.notImplemented();
         }
 
-        if (!req.payload.redirect_uri) {
-          req.payload.redirect_uri = client.redirectUri;
-        }
-        if (req.payload.redirect_uri !== client.redirectUri) {
+        var uri = req.payload.redirect_uri || client.redirectUri;
+
+        if (uri !== client.redirectUri) {
           logger.debug('redirect_uri [%s] does not match registered [%s]',
-            req.payload.redirect_uri, client.redirectUri);
-          throw AppError.incorrectRedirect(req.payload.redirect_uri);
+            uri, client.redirectUri);
+
+          if (config.get('localRedirects') && isLocalHost(uri)) {
+            logger.debug('local_redirects ON, matched');
+          } else {
+            throw AppError.incorrectRedirect(uri);
+          }
+
         }
 
         if (wantsGrant && !client.canGrant) {
@@ -138,6 +149,8 @@ module.exports = {
           );
           throw AppError.invalidResponseType();
         }
+
+        req.payload.redirect_uri = uri;
 
         return client;
       }),
