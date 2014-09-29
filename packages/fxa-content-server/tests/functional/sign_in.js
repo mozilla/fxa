@@ -248,12 +248,12 @@ define([
         .end();
     },
 
-    'visiting the tos/pp links saves information for return': function () {
-      var self = this;
-      return testRepopulateFields.call(self, '/legal/terms', 'fxa-tos-header')
-              .then(function () {
-                return testRepopulateFields.call(self, '/legal/privacy', 'fxa-pp-header');
-              });
+    'visiting the pp links saves information for return': function () {
+      return testRepopulateFields.call(this, '/legal/terms', 'fxa-tos-header');
+    },
+
+    'visiting the tos links saves information for return': function () {
+      return testRepopulateFields.call(this, '/legal/privacy', 'fxa-pp-header');
     }
   });
 
