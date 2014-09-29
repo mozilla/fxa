@@ -196,6 +196,28 @@ module.exports = function (fs, path, url, convict) {
         default: ''
       }
     },
+    basket: {
+      region: {
+        doc: 'The region where the queues live, most likely the same region we are sending email e.g. us-east-1, us-west-2',
+        format: String,
+        default: ''
+      },
+      apiUrl: {
+        doc: 'Url for the Basket API server',
+        format: String,
+        default: ''
+      },
+      apiKey: {
+        doc: 'Basket API key',
+        format: String,
+        default: ''
+      },
+      queueUrl: {
+        doc: 'The bounce queue URL',
+        format: String,
+        default: ''
+      }
+    },
     useHttps: {
       doc: "set to true to serve directly over https",
       default: false

@@ -8,13 +8,12 @@ var EventEmitter = require('events').EventEmitter
 
 module.exports = function (log) {
 
-  function SQSBounceQueue(config) {
-    this.sqs = new AWS.SQS({ region : config.region })
-    this.bounceQueueUrl = config.bounceQueueUrl
-    this.complaintQueueUrl = config.complaintQueueUrl
+  function SQSReceiver(region, urls) {
+    this.sqs = new AWS.SQS({ region : region })
+    this.queueUrls = urls || []
     EventEmitter.call(this)
   }
-  inherits(SQSBounceQueue, EventEmitter)
+  inherits(SQSReceiver, EventEmitter)
 
   function checkDeleteError(err) {
     if (err) {
@@ -22,7 +21,7 @@ module.exports = function (log) {
     }
   }
 
-  SQSBounceQueue.prototype.fetch = function (url) {
+  SQSReceiver.prototype.fetch = function (url) {
     var errTimer = null
     this.sqs.receiveMessage(
       {
@@ -41,39 +40,40 @@ module.exports = function (log) {
           }
           return
         }
-        data.Messages = data.Messages || []
-        for (var i = 0; i < data.Messages.length; i++) {
-          // yes, delete the message before processing. zero $&%@s given
-          // why?
-          // 1. if they're malformed we don't want them anyway
-          // 2. bounces aren't super critical
-          //   a. its ok if we don't handle them all perfectly
-          //   b. so we can be more lax in our handling
-          //   c. and use a simple event mechanism
-          var msg = data.Messages[i]
+        function deleteMessage(message) {
           this.sqs.deleteMessage(
             {
               QueueUrl: url,
-              ReceiptHandle: msg.ReceiptHandle
+              ReceiptHandle: message.ReceiptHandle
             },
             checkDeleteError
           )
+        }
+        data.Messages = data.Messages || []
+        for (var i = 0; i < data.Messages.length; i++) {
+          var msg = data.Messages[i]
+          var deleteFromQueue = deleteMessage.bind(this, msg)
           try {
             var body = JSON.parse(msg.Body)
             var message = JSON.parse(body.Message)
+            message.del = deleteFromQueue
             this.emit('data', message)
           }
-          catch (e) {}
+          catch (e) {
+            log.error({ op: 'fetch', url: url, err: e })
+            deleteFromQueue()
+          }
         }
         this.fetch(url)
       }.bind(this)
     )
   }
 
-  SQSBounceQueue.prototype.start = function () {
-    this.fetch(this.bounceQueueUrl)
-    this.fetch(this.complaintQueueUrl)
+  SQSReceiver.prototype.start = function () {
+    for (var i = 0; i < this.queueUrls.length; i++) {
+      this.fetch(this.queueUrls[i])
+    }
   }
 
-  return SQSBounceQueue
+  return SQSReceiver
 }

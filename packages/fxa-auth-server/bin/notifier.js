@@ -9,7 +9,7 @@ var log = require('../log')('info')
 var snsTopicArn = ''
 var sns = {
   publish: function (msg, cb) {
-    cb('delete before config')
+    cb('event before config')
   }
 }
 
@@ -30,14 +30,13 @@ function handleEvent(json) {
   if (json.event === 'config') {
     init(json.data)
   }
-  else if (json.event === 'delete') {
+  else {
+    var msg = json.data
+    msg.event = json.event
     sns.publish(
       {
         TopicArn: snsTopicArn,
-        Message: JSON.stringify({
-          event: 'delete',
-          uid: json.data.uid
-        })
+        Message: JSON.stringify(msg)
       },
       function (err) {
         if (err) {
