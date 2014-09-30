@@ -123,7 +123,7 @@ var conf = module.exports = convict({
   oauth_client_id: {
     doc: 'The client_id of the content server',
     format: String,
-    default: '98e6508e88680e1a',
+    default: 'ea3ca969f8c6bb0d',
     env: 'FXA_OAUTH_CLIENT_ID'
   },
   static_directory: {
