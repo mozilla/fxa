@@ -25,7 +25,7 @@ function ($, chai, p, View, WindowMock) {
       // $.getJSON so that we do not have to actually make a request to
       // the backend and can control the return value.
 
-      $.getJSON = function (url) {
+      $.getJSON = function () {
         var deferred = jQuery.Deferred();
         deferred.resolve(serverConfig);
         return deferred.promise();

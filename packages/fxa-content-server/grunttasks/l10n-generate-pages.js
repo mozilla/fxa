@@ -102,7 +102,7 @@ module.exports = function (grunt) {
     grunt.log.writeln('generating `%s`', destPath);
 
     grunt.file.copy(srcPath, destPath, {
-      process: function (contents, path) {
+      process: function (contents) {
         var terms = templates[context.lang].terms || templates[defaultLang].terms;
         var privacy = templates[context.lang].privacy || templates[defaultLang].privacy;
         var template = Handlebars.compile(contents);

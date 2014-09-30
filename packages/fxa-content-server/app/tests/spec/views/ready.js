@@ -23,7 +23,7 @@ function (chai, View, Session, FxaClient, FxDesktopRelier, WindowMock) {
     var fxaClient;
     var relier;
 
-    function createView(surveyPercentage) {
+    function createView() {
       windowMock = new WindowMock();
       relier = new FxDesktopRelier({
         window: windowMock

@@ -419,7 +419,7 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors, TestHe
         };
 
         return view.validateAndSubmit()
-          .then(null, function (err) {
+          .then(null, function () {
             assert.isTrue(view._isErrorVisible);
             assert.equal(view.$('.error').text(), 'BOOM');
           });
@@ -437,7 +437,7 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors, TestHe
         };
 
         return view.validateAndSubmit()
-          .then(function (err) {
+          .then(function () {
             assert.equal(view.$('.error').text(), 'BOOM');
             assert.isTrue(view._isErrorVisible);
           });

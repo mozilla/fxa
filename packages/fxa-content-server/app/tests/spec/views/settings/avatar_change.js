@@ -16,11 +16,10 @@ define([
   '../../../mocks/profile',
   'lib/promise',
   'lib/session',
-  'lib/auth-errors',
-  'lib/profile'
+  'lib/auth-errors'
 ],
 function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            p, Session, AuthErrors, Profile) {
+            p, Session, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 

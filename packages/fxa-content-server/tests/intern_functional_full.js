@@ -4,7 +4,7 @@
 
 define([
   './intern'
-], function (intern, functional) {
+], function (intern) {
   'use strict';
 
   intern.functionalSuites = [

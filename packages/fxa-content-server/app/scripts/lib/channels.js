@@ -11,9 +11,8 @@ define([
   'lib/channels/null',
   'lib/channels/fx-desktop',
   'lib/channels/redirect',
-  'lib/channels/web',
-  'lib/url'
-], function (Session, p, NullChannel, FxDesktopChannel, RedirectChannel, WebChannel, Url) {
+  'lib/channels/web'
+], function (Session, p, NullChannel, FxDesktopChannel, RedirectChannel, WebChannel) {
   'use strict';
 
   return {

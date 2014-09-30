@@ -70,7 +70,7 @@ function () {
     });
 
     this.slider = container.find('[type=range]');
-    this.slider.on('input', function (e) {
+    this.slider.on('input', function () {
       self.resize(parseInt(this.value, 10));
     });
     this.scale = parseInt(this.slider.val() || 0, 10);

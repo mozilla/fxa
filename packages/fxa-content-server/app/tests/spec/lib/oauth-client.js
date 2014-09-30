@@ -12,14 +12,13 @@ define([
   'sinon',
   'lib/session',
   'lib/oauth-client',
-  'lib/oauth-errors',
-  'lib/constants'
+  'lib/oauth-errors'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, testHelpers, sinon,
-              Session, OAuthClient, OAuthErrors, Constants) {
+              Session, OAuthClient, OAuthErrors) {
   /*global beforeEach, afterEach, describe, it*/
 
   var OAUTH_URL = 'http://127.0.0.1:9010';
@@ -77,7 +76,7 @@ function (chai, $, testHelpers, sinon,
             [0, {}, '']);
 
           return client.getCode(params)
-            .then(function (result) {
+            .then(function () {
               assert.fail('unexpected success');
             }, function (err) {
               assert.isTrue(OAuthErrors.is(err, 'SERVICE_UNAVAILABLE'));
@@ -94,7 +93,7 @@ function (chai, $, testHelpers, sinon,
 
 
               return client.getCode(params)
-                .then(function (result) {
+                .then(function () {
                   assert.fail('unexpected success');
                 }, function (err) {
                   assert.isTrue(OAuthErrors.is(err, 'INCORRECT_REDIRECT'));
@@ -124,7 +123,7 @@ function (chai, $, testHelpers, sinon,
               [0, {}, '']);
 
             return client.getClientInfo(clientId)
-              .then(function (result) {
+              .then(function () {
                 assert.fail('unexpected success');
               }, function (err) {
                 assert.isTrue(OAuthErrors.is(err, 'SERVICE_UNAVAILABLE'));
@@ -142,7 +141,7 @@ function (chai, $, testHelpers, sinon,
                 })]);
 
                 return client.getClientInfo(clientId)
-                  .then(function (result) {
+                  .then(function () {
                     assert.fail('unexpected success');
                   }, function (err) {
                     assert.isTrue(OAuthErrors.is(err, 'EXPIRED_CODE'));
@@ -182,7 +181,7 @@ function (chai, $, testHelpers, sinon,
               };
 
               return client.getToken(params)
-                .then(function (result) {
+                .then(function () {
                   assert.fail('unexpected success');
                 }, function (err) {
                   assert.isTrue(OAuthErrors.is(err, 'SERVICE_UNAVAILABLE'));
@@ -204,7 +203,7 @@ function (chai, $, testHelpers, sinon,
                   };
 
                   return client.getToken(params)
-                    .then(function (result) {
+                    .then(function () {
                       assert.fail('unexpected success');
                     }, function (err) {
                       assert.isTrue(OAuthErrors.is(err, 'INVALID_ASSERTION'));

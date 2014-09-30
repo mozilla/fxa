@@ -43,7 +43,7 @@ define([
       cb(err);
     });
 
-    proc.on('exit', function (code) {
+    proc.on('exit', function (/*code*/) {
       cb(null, errData);
     });
 

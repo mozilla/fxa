@@ -21,7 +21,7 @@
   "sub": true,
   "trailing": true,
   "undef": true,
-  "unused": "vars",
+  "unused": true,
   "globals": {
     "console": false,
     "define": false,

@@ -88,7 +88,7 @@ function ($, _, FormView, Template, Session, AuthErrors, ImageLoader) {
         });
       };
 
-      var imgOnerrer = function (e) {
+      var imgOnerrer = function () {
         self.navigate('settings/avatar', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });

@@ -16,10 +16,9 @@ define([
   'lib/constants',
   'lib/profile',
   'lib/profile-client',
-  'lib/oauth-client',
-  'lib/auth-errors'
+  'lib/oauth-client'
 ],
-function (chai, _, $, p, sinon, Session, Assertion, Constants, Profile, ProfileClient, OAuthClient, AuthErrors) {
+function (chai, _, $, p, sinon, Session, Assertion, Constants, Profile, ProfileClient, OAuthClient) {
   var assert = chai.assert;
 
   // These URLs don't depend on our actual configuration; the servers are mocked out.
@@ -133,7 +132,7 @@ function (chai, _, $, p, sinon, Session, Assertion, Constants, Profile, ProfileC
           });
 
           return client.getProfile()
-            .then(function (result) {
+            .then(function () {
               assert.fail('unexpected success');
             }, function (err) {
               assert.isTrue(Profile.Errors.is(err, 'UNAUTHORIZED'));

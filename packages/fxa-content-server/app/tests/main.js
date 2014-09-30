@@ -6,7 +6,7 @@ require([
   '../scripts/require_config',
   './test_start'
 ],
-function (RequireConfig, TestStart) {
+function () {
   'use strict';
   // don't need to do anything.
 });

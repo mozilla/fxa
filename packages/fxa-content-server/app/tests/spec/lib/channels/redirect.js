@@ -8,10 +8,9 @@
 define([
   'chai',
   'lib/channels/redirect',
-  '../../../mocks/window',
-  '../../../lib/helpers'
+  '../../../mocks/window'
 ],
-function (chai, RedirectChannel, WindowMock, TestHelpers) {
+function (chai, RedirectChannel, WindowMock) {
   var assert = chai.assert;
 
   describe('lib/channel/redirect', function () {

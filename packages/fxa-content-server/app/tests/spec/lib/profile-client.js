@@ -10,14 +10,13 @@ define([
   'jquery',
   'sinon',
   'lib/session',
-  'lib/profile-client',
-  'lib/constants'
+  'lib/profile-client'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, sinon,
-              Session, ProfileClient, Constants) {
+              Session, ProfileClient) {
   /*global beforeEach, afterEach, describe, it*/
 
   var PROFILE_URL = 'http://127.0.0.1:1111';
@@ -66,7 +65,7 @@ function (chai, $, sinon,
             [0, {}, '']);
 
           return client.getProfile()
-            .then(function (result) {
+            .then(function () {
               assert.fail('unexpected success');
             }, function (err) {
               assert.isTrue(ProfileClient.Errors.is(err, 'SERVICE_UNAVAILABLE'));
@@ -81,7 +80,7 @@ function (chai, $, sinon,
           ]);
 
           return client.getProfile()
-            .then(function (result) {
+            .then(function () {
               assert.fail('unexpected success');
             }, function (err) {
               assert.isTrue(ProfileClient.Errors.is(err, 'IMAGE_PROCESSING_ERROR'));
