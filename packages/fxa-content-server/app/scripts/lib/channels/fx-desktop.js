@@ -8,9 +8,10 @@
 
 define([
   'underscore',
-  'lib/channels/base'
+  'lib/channels/base',
+  'lib/auth-errors'
 ],
-function (_, BaseChannel) {
+function (_, BaseChannel, AuthErrors) {
   var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 1000;
 
   function noOp() {
@@ -33,7 +34,7 @@ function (_, BaseChannel) {
     outstandingRequest.timeout = setTimeout(function () {
       // only called if the request has not been responded to.
       console.error('no response from browser');
-      outstandingRequest.done(new Error('Unexpected error'));
+      outstandingRequest.done(AuthErrors.toError('DESKTOP_CHANNEL_TIMEOUT'));
     }, this.sendTimeoutLength);
   }
 
