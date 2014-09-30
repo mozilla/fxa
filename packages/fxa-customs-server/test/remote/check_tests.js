@@ -50,7 +50,7 @@ test(
   function (t) {
     client.post('/check', { email: TEST_EMAIL, ip: TEST_IP },
       function (err, req, res, obj) {
-        t.equal(res.statusCode, 500, 'bad request returns a 500')
+        t.equal(res.statusCode, 400, 'bad request returns a 400')
         t.type(obj.code, 'string', 'bad request returns an error code')
         t.type(obj.message, 'string', 'bad request returns an error message')
         t.end()
@@ -64,7 +64,7 @@ test(
   function (t) {
     client.post('/check', {},
       function (err, req, res, obj) {
-        t.equal(res.statusCode, 500, 'bad request returns a 500')
+        t.equal(res.statusCode, 400, 'bad request returns a 400')
         t.type(obj.code, 'string', 'bad request returns an error code')
         t.type(obj.message, 'string', 'bad request returns an error message')
         t.end()

@@ -90,16 +90,17 @@ function normalizedEmail(rawEmail) {
 api.post(
   '/check',
   function (req, res, next) {
-    var email = normalizedEmail(req.body.email)
+    var email = req.body.email
     var ip = req.body.ip
     var action = req.body.action
 
     if (!email || !ip || !action) {
       var err = {code: 'MissingParameters', message: 'email, ip and action are all required'}
       log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, action: action, err: err })
-      res.send(500, err)
+      res.send(400, err)
       return next()
     }
+    email = normalizedEmail(email)
 
     fetchRecords(email, ip)
       .spread(
@@ -141,14 +142,15 @@ api.post(
 api.post(
   '/failedLoginAttempt',
   function (req, res, next) {
-    var email = normalizedEmail(req.body.email)
+    var email = req.body.email
     var ip = req.body.ip
     if (!email || !ip) {
       var err = {code: 'MissingParameters', message: 'email and ip are both required'}
       log.error({ op: 'request.failedLoginAttempt', email: email, ip: ip, err: err })
-      res.send(500, err)
-      next()
+      res.send(400, err)
+      return next()
     }
+    email = normalizedEmail(email)
 
     fetchRecords(email, ip)
       .spread(
@@ -182,13 +184,14 @@ api.post(
 api.post(
   '/passwordReset',
   function (req, res, next) {
-    var email = normalizedEmail(req.body.email)
+    var email = req.body.email
     if (!email) {
       var err = {code: 'MissingParameters', message: 'email is required'}
       log.error({ op: 'request.passwordReset', email: email, err: err })
-      res.send(500, err)
-      next()
+      res.send(400, err)
+      return next()
     }
+    email = normalizedEmail(email)
 
     mc.getAsync(email)
       .then(EmailRecord.parse, EmailRecord.parse)
@@ -215,13 +218,14 @@ api.post(
 api.post(
   '/blockEmail',
   function (req, res, next) {
-    var email = normalizedEmail(req.body.email)
+    var email = req.body.email
     if (!email) {
       var err = {code: 'MissingParameters', message: 'email is required'}
       log.error({ op: 'request.blockEmail', email: email, err: err })
-      res.send(500, err)
-      next()
+      res.send(400, err)
+      return next()
     }
+    email = normalizedEmail(email)
 
     handleBan({ ban: { email: email } })
       .then(
@@ -247,8 +251,8 @@ api.post(
     if (!ip) {
       var err = {code: 'MissingParameters', message: 'ip is required'}
       log.error({ op: 'request.blockIp', ip: ip, err: err })
-      res.send(500, err)
-      next()
+      res.send(400, err)
+      return next()
     }
 
     handleBan({ ban: { ip: ip } })
