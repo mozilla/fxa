@@ -5,37 +5,19 @@
 // stub out the fxa-client object for testing.
 
 define([
-], function () {
+  'lib/promise',
+  'lib/fxa-client'
+], function (p, FxaClientWrapper) {
   'use strict';
 
-  function FxaClientWrapper() {
+  function FxaClientWrapperMock() {
   }
 
-  [
-    '_checkForDesktopSyncRelinkWarning',
-    '_getClientAsync',
-    '_getFxAccountUrl',
-    'getRandomBytes',
-    'checkPassword',
-    'signIn',
-    'signUp',
-    'signUpResend',
-    'signOut',
-    'verifyCode',
-    'passwordReset',
-    'passwordResetResend',
-    'completePasswordReset',
-    'isPasswordResetComplete',
-    'changePassword',
-    'deleteAccount',
-    'certificateSign',
-    'sessionStatus',
-    'isSignedIn',
-    'recoveryEmailStatus'
-  ]
-  .forEach(function (method) {
-    FxaClientWrapper.prototype[method] = function () { };
+  Object.keys(FxaClientWrapper.prototype).forEach(function (method) {
+    FxaClientWrapperMock.prototype[method] = function () {
+      return p.reject(new Error('method "' + method + '" should be stubbed'));
+    };
   });
 
-  return FxaClientWrapper;
+  return FxaClientWrapperMock;
 });
