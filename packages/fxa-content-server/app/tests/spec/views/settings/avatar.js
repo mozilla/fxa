@@ -13,11 +13,14 @@ define([
   'views/settings/avatar',
   '../../../mocks/router',
   '../../../mocks/profile',
+  '../../../mocks/fxa-client',
   'lib/promise',
   'lib/session',
-  'lib/profile'
+  'lib/profile',
+  'lib/auth-errors'
 ],
-function (chai, _, $, sinon, View, RouterMock, ProfileMock, p, Session, Profile) {
+function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
+    p, Session, Profile, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
   var IMG_URL = 'http://127.0.0.1:1112/avatar/example.jpg';
@@ -26,14 +29,17 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, p, Session, Profile)
     var view;
     var routerMock;
     var profileClientMock;
+    var fxaClientMock;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       profileClientMock = new ProfileMock();
+      fxaClientMock = new FxaClientMock();
 
       view = new View({
         router: routerMock,
-        profileClient: profileClientMock
+        profileClient: profileClientMock,
+        fxaClient: fxaClientMock
       });
     });
 
@@ -43,6 +49,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, p, Session, Profile)
       view = null;
       routerMock = null;
       profileClientMock = null;
+      fxaClientMock = null;
     });
 
     describe('with no session', function () {
@@ -85,6 +92,23 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, p, Session, Profile)
         return view.render()
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').attr('src'), pngSrc);
+          });
+      });
+
+      it('has an unverified account', function () {
+        Session.clear('avatar');
+
+        sinon.stub(fxaClientMock, 'signUpResend', function () {
+          return p();
+        });
+
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'confirm');
           });
       });
 
