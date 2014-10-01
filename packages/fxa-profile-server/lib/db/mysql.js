@@ -18,7 +18,7 @@ function MysqlStore(options) {
   } else {
     options.charset = 'UTF8_UNICODE_CI';
   }
-  this._connection = mysql.createConnection(options);
+  this._pool = mysql.createPool(options);
 }
 
 function createSchema(client, options) {
@@ -81,10 +81,6 @@ MysqlStore.connect = function mysqlConnect(options) {
   }
 };
 
-function firstRow(rows) {
-  return rows[0];
-}
-
 const Q_AVATAR_INSERT = 'INSERT INTO avatars (id, url, userId, providerId) ' +
   'VALUES (?, ?, ?, ?)';
 const Q_AVATAR_UPDATE = 'INSERT INTO avatar_selected (userId, avatarId) '
@@ -101,20 +97,30 @@ const Q_AVATAR_DELETE = 'DELETE FROM avatars WHERE id=?';
 const Q_PROVIDER_INSERT = 'INSERT INTO avatar_providers (name) VALUES (?)';
 const Q_PROVIDER_GET = 'SELECT * FROM avatar_providers WHERE name=?';
 
+function firstRow(rows) {
+  return rows[0];
+}
+
+function releaseConn(connection) {
+  connection.release();
+}
+
 MysqlStore.prototype = {
 
   ping: function ping() {
     logger.debug('ping');
-    var conn = this._connection;
-    return new P(function(resolve, reject) {
-      conn.ping(function(err) {
-        if (err) {
-          logger.error('ping:', err);
-          reject(err);
-        } else {
-          logger.debug('pong');
-          resolve();
-        }
+    // see bluebird.using():
+    // https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management
+    return P.using(this._getConnection(), function(conn) {
+      return new P(function(resolve, reject) {
+        conn.ping(function(err) {
+          if (err) {
+            logger.error('ping:', err);
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
       });
     });
   },
@@ -164,15 +170,34 @@ MysqlStore.prototype = {
   },
 
   _write: function _write(sql, params) {
-    return this._query(this._connection, sql, params);
+    return this._query(this._pool, sql, params);
   },
 
   _read: function _read(sql, params) {
-    return this._query(this._connection, sql, params);
+    return this._query(this._pool, sql, params);
   },
 
   _readOne: function _readOne(sql, params) {
     return this._read(sql, params).then(firstRow);
+  },
+
+  _getConnection: function _getConnection() {
+    // see bluebird.using()/disposer():
+    // https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management
+    //
+    // tl;dr: using() and disposer() ensures that the dispose method will
+    // ALWAYS be called at the end of the promise stack, regardless of
+    // various errors thrown. So this should ALWAYS release the connection.
+    var pool = this._pool;
+    return new P(function(resolve, reject) {
+      pool.getConnection(function(err, conn) {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(conn);
+        }
+      });
+    }).disposer(releaseConn);
   },
 
   _query: function _query(connection, sql, params) {
