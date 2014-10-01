@@ -59,6 +59,7 @@
     "hawk": "2.3.0",
     "load-grunt-tasks": "0.6.0",
     "mailparser": "0.4.6",
+    "nock": "0.48.0",
     "simplesmtp": "0.3.33",
     "sjcl": "1.0.1",
     "tap": "0.4.12"
