@@ -8,7 +8,6 @@ var config = { scrypt: { maxPending: 5 } }
 var log = {
   buffer: [],
   warn: function(obj){ log.buffer.push(obj) },
-  stat: function(){}
 }
 
 var scrypt = require('../../crypto/scrypt')(log, config)

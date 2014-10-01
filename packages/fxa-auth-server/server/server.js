@@ -205,6 +205,14 @@ module.exports = function (path, url, Hapi) {
       }
     )
 
+    server.stat = function() {
+      return {
+        stat: 'mem',
+        rss: server.load.rss,
+        heapUsed: server.load.heapUsed
+      }
+    }
+
     return server
   }
 

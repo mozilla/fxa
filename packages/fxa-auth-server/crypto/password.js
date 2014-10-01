@@ -63,6 +63,17 @@ module.exports = function(log, config) {
     return hkdf(stretched, 'verifyHash', null, 32)
   }
 
-  Password.scrypt = scrypt
+  Password.stat = function () {
+    // Reset the high-water-mark whenever it is read.
+    var numPendingHWM = scrypt.numPendingHWM
+    scrypt.numPendingHWM = scrypt.numPending
+    return {
+      stat: 'scrypt',
+      maxPending: scrypt.maxPending,
+      numPending: scrypt.numPending,
+      numPendingHWM: numPendingHWM
+    }
+  }
+
   return Password
 }

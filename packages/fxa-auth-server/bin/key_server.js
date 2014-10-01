@@ -8,25 +8,9 @@ var config = require('../config').root()
 function main() {
   var log = require('../log')(config.log.level)
 
-  function logServerStats() {
-    // Memory usage info.
-    log.stat(
-      {
-        stat: 'mem',
-        rss: server.load.rss,
-        heapUsed: server.load.heapUsed
-      }
-    )
-    // Scrypt work queue status.
-    log.stat(
-      {
-        stat: 'scrypt',
-        maxPending: Password.scrypt.maxPending,
-        numPending: Password.scrypt.numPending,
-        numPendingHWM: Password.scrypt.numPendingHWM
-      }
-    )
-    Password.scrypt.numPendingHWM = Password.scrypt.numPending
+  function logStatInfo() {
+    log.stat(server.stat())
+    log.stat(Password.stat())
   }
 
   log.event('config', config)
@@ -91,7 +75,7 @@ function main() {
                   log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
                 }
               )
-              statsInterval = setInterval(logServerStats, 15000)
+              statsInterval = setInterval(logStatInfo, 15000)
             },
             function (err) {
               log.error({ op: 'DB.connect', err: { message: err.message } })
