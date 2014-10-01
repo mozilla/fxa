@@ -97,23 +97,19 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
     },
 
     submit: function () {
-      var password = this._getPassword();
-
       var self = this;
-      return this.fxaClient.completePasswordReset(this.email, password, this.token, this.code)
-          .then(function () {
-            // Get a new sessionToken if we're in an OAuth flow
-            // so that we can generate FxA assertions
-            if (self.isOAuthSameBrowser()) {
-              // cache oauth params because signIn will clear them
-              var params = Session.oauth;
-              return self.fxaClient.signIn(self.email, password)
-                .then(function () {
-                  // restore oauth params
-                  Session.set('oauth', params);
-                });
-            }
-          })
+      var password = self._getPassword();
+
+      // If the user verifies in the same browser and the original tab
+      // is still open, we want the original tab to redirect back to
+      // the RP. The only way to do that is for this tab to sign in and
+      // get a sessionToken. When the reset password complete poll
+      // completes in the original tab, it will fetch the sessionToken
+      // from localStorage and go to town.
+      return self.fxaClient.completePasswordReset(
+              self.email, password, self.token, self.code, {
+                shouldSignIn: self._shouldSignIn()
+              })
           .then(function () {
             self.navigate('reset_password_complete');
           }, function (err) {
@@ -127,6 +123,10 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
             // all other errors are unexpected, bail.
             throw err;
           });
+    },
+
+    _shouldSignIn: function () {
+      return this.isOAuthSameBrowser() || this.relier.isSync();
     },
 
     _getPassword: function () {

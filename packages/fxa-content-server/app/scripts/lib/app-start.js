@@ -35,6 +35,7 @@ define([
   'lib/constants',
   'lib/oauth-client',
   'lib/auth-errors',
+  'lib/channels/inter-tab',
   'models/reliers/relier',
   'models/reliers/oauth',
   'models/reliers/fx-desktop'
@@ -57,6 +58,7 @@ function (
   Constants,
   OAuthClient,
   AuthErrors,
+  InterTabChannel,
   Relier,
   OAuthRelier,
   FxDesktopRelier
@@ -91,7 +93,8 @@ function (
       // fetch both config and translations in parallel to speed up load.
       return p.all([
         this.initializeConfig(),
-        this.initializeL10n()
+        this.initializeL10n(),
+        this.initializeInterTabChannel()
       ])
       .then(_.bind(this.allResourcesReady, this))
       .then(null, function (err) {
@@ -111,6 +114,10 @@ function (
       });
     },
 
+    initializeInterTabChannel: function () {
+      this._interTabChannel = new InterTabChannel();
+    },
+
     initializeConfig: function () {
       return this._configLoader.fetch()
                     .then(_.bind(this.useConfig, this))
@@ -119,7 +126,8 @@ function (
                     .then(_.bind(this.initializeRelier, this))
                     // channels relies on the relier
                     .then(_.bind(this.initializeChannels, this))
-                    // fxaClient depends on the relier.
+                    // fxaClient depends on the relier and
+                    // inter tab communication.
                     .then(_.bind(this.initializeFxaClient, this))
                     // profileClient dependsd on fxaClient.
                     .then(_.bind(this.initializeProfileClient, this))
@@ -197,7 +205,8 @@ function (
     initializeFxaClient: function () {
       if (! this._fxaClient) {
         this._fxaClient = new FxaClient({
-          relier: this._relier
+          relier: this._relier,
+          interTabChannel: this._interTabChannel
         });
       }
     },
@@ -218,7 +227,8 @@ function (
           language: this._config.language,
           relier: this._relier,
           fxaClient: this._fxaClient,
-          profileClient: this._profileClient
+          profileClient: this._profileClient,
+          interTabChannel: this._interTabChannel
         });
       }
       this._window.router = this._router;

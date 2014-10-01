@@ -4,24 +4,25 @@
 
 define([
   'chai',
+  'sinon',
   'lib/promise',
   'lib/auth-errors',
   'views/confirm_reset_password',
   'lib/session',
   'lib/metrics',
-  'lib/fxa-client',
+  'lib/channels/inter-tab',
+  '../../mocks/fxa-client',
   'models/reliers/relier',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
-      RouterMock, WindowMock, TestHelpers) {
+function (chai, sinon, p, AuthErrors, View, Session, Metrics,
+      InterTabChannel, FxaClient, Relier, RouterMock,
+      WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
-
-  var CLIENT_ID = 'dcdb5ae7add825d2';
 
   describe('views/confirm_reset_password', function () {
     var view;
@@ -30,26 +31,33 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
     var metrics;
     var fxaClient;
     var relier;
+    var interTabChannel;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
+      interTabChannel = new InterTabChannel();
 
       Session.set('passwordForgotToken', 'fake password reset token');
       Session.set('email', 'testuser@testuser.com');
+
+      sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+        return p(true);
+      });
 
       view = new View({
         router: routerMock,
         window: windowMock,
         metrics: metrics,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        interTabChannel: interTabChannel,
+        sessionUpdateTimeoutMS: 100
       });
+
       return view.render()
             .then(function () {
               $('#container').html(view.el);
@@ -68,7 +76,7 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
     describe('constructor', function () {
       it('redirects to /reset_password if no passwordForgotToken', function () {
         Session.clear('passwordForgotToken');
-        view.render()
+        return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'reset_password');
           });
@@ -83,7 +91,7 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
 
       it('`sign in` link goes to /force_auth in force auth flow', function () {
         Session.set('forceAuth', true);
-        view.render()
+        return view.render()
           .then(function () {
             // Check to make sure the signin link goes "back"
             assert.equal(view.$('a[href="/signin"]').length, 0);
@@ -92,10 +100,11 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
       });
 
       it('`sign in` link goes to /oauth/signin in oauth flow', function () {
-        /* jshint camelcase: false */
-        Session.set('service', 'sync');
-        Session.set('oauth', { client_id: 'sync' });
-        view.render()
+        sinon.stub(relier, 'isOAuth', function () {
+          return true;
+        });
+
+        return view.render()
           .then(function () {
             // Check to make sure the signin link goes "back"
             assert.equal(view.$('a[href="/oauth/signin"]').length, 1);
@@ -105,89 +114,174 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
       });
     });
 
-    describe('afterRender', function () {
+    describe('_waitForVerification', function () {
       it('polls to check if user has verified, if not, retry', function () {
-        view.fxaClient.isPasswordResetComplete = function () {
-          return p().then(function () {
-            return false;
-          });
-        };
+        var count = 0;
+        fxaClient.isPasswordResetComplete.restore();
+        sinon.stub(view.fxaClient, 'isPasswordResetComplete', function () {
+          // force at least one cycle through the poll
+          count++;
+          return p(count === 2);
+        });
 
-        return view.afterRender()
-              .then(function (isComplete) {
-                assert.isFalse(isComplete);
-                assert.isTrue(windowMock.isTimeoutSet());
-              });
+        sinon.stub(view, 'setTimeout', function (callback) {
+          callback();
+        });
+
+        return view._waitForVerification()
+            .then(function () {
+              assert.equal(view.fxaClient.isPasswordResetComplete.callCount, 2);
+            });
+      });
+    });
+
+    describe('render', function () {
+      it('finishes non-OAuth flow at /reset_password_complete if user has verified in the same browser', function (done) {
+        fxaClient.isPasswordResetComplete.restore();
+        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+          // simulate the login occurring in another tab.
+          interTabChannel.emit('login', {
+            sessionToken: 'sessiontoken'
+          });
+          return p(true);
+        });
+
+        sinon.stub(relier, 'isOAuth', function () {
+          return false;
+        });
+
+        sinon.stub(view, 'navigate', function (page) {
+          TestHelpers.wrapAssertion(function () {
+            assert.equal(page, 'reset_password_complete');
+          }, done);
+        });
+
+        view.render();
       });
 
-      it('redirects to /signin if user has verified', function () {
-        view.fxaClient.isPasswordResetComplete = function () {
-          return p().then(function () {
-            return true;
+      it('finishes the OAuth flow if user has verified in the same browser', function (done) {
+        fxaClient.isPasswordResetComplete.restore();
+        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+          // simulate the sessionToken being set in another tab.
+          // simulate the login occurring in another tab.
+          interTabChannel.emit('login', {
+            sessionToken: 'sessiontoken'
           });
-        };
+          return p(true);
+        });
+
+        sinon.stub(relier, 'isOAuth', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'finishOAuthFlow', function () {
+          done();
+        });
+
+        view.render();
+      });
+
+      it('finishes the Sync flow if user has verified in the same browser', function (done) {
+        fxaClient.isPasswordResetComplete.restore();
+        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+          // simulate the sessionToken being set in another tab.
+          // simulate the login occurring in another tab.
+          interTabChannel.emit('login', {
+            sessionToken: 'sessiontoken'
+          });
+          return p(true);
+        });
+
+        sinon.stub(relier, 'isSync', function () {
+          return true;
+        });
+
+        sinon.stub(fxaClient, 'notifyChannelOfLogin', function () {
+          done();
+        });
+
+        view.render();
+      });
+
+      it('normal flow redirects to /signin if user verifies in a second browser', function (done) {
+        sinon.stub(relier, 'isOAuth', function () {
+          return false;
+        });
+
+        testSecondBrowserVerifyForcesSignIn('signin', done);
+      });
+
+      it('oauth flow redirects to /oauth/signin if user verifies in a second browser', function (done) {
+        sinon.stub(relier, 'isOAuth', function () {
+          return true;
+        });
+
+        testSecondBrowserVerifyForcesSignIn('oauth/signin', done);
+      });
+
+      function testSecondBrowserVerifyForcesSignIn(expectedPage, done) {
+        fxaClient.isPasswordResetComplete.restore();
+        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+          return p(true);
+        });
+
+        sinon.stub(view, 'setTimeout', function (callback) {
+          callback();
+        });
+
+        sinon.stub(view, 'navigate', function (page) {
+          TestHelpers.wrapAssertion(function () {
+            assert.equal(page, expectedPage);
+            // session.email is used to pre-fill the email on
+            // the signin page.
+            assert.equal(Session.prefillEmail, 'testuser@testuser.com');
+          }, done);
+        });
 
         // email is cleared in initial render in beforeEach, reset it to
         // see if it makes it through to the redirect.
         Session.set('email', 'testuser@testuser.com');
-        return view.afterRender()
-              .then(function (isComplete) {
-                assert.isTrue(isComplete);
-                assert.equal(routerMock.page, 'signin');
-                // session.email is used to pre-fill the email on
-                // the signin page.
-                assert.equal(Session.prefillEmail, 'testuser@testuser.com');
-              });
-      });
+        view.render();
+      }
 
-      it('redirects to /oauth/signin if user has verified in oauth flow', function () {
-        /* jshint camelcase: false */
+      it('displays an error if isPasswordResetComplete blows up', function (done) {
+        fxaClient.isPasswordResetComplete.restore();
 
-        relier.set('clientId', CLIENT_ID);
-        Session.set('oauth', { client_id: CLIENT_ID });
-
-        view.fxaClient.isPasswordResetComplete = function () {
+        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
           return p().then(function () {
-            return true;
+            throw AuthErrors.toError('UNEXPECTED_ERROR');
           });
-        };
+        });
 
-        // email is cleared in initial render in beforeEach, reset it to
-        // see if it makes it through to the redirect.
-        Session.set('email', 'testuser@testuser.com');
-        return view.afterRender()
-              .then(function (isComplete) {
-                assert.isTrue(isComplete);
-                assert.equal(routerMock.page, 'oauth/signin');
-                // session.email is used to pre-fill the email on
-                // the signin page.
-                assert.equal(Session.prefillEmail, 'testuser@testuser.com');
-              });
+        sinon.stub(view, 'displayError', function () {
+          // if isPasswordResetComplete blows up, it will be after
+          // view.render()'s promise has already resolved. Wait for the
+          // error to be displayed.
+          done();
+        });
+
+        view.render();
       });
     });
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message', function () {
-        var email = TestHelpers.createEmail();
+        sinon.stub(fxaClient, 'passwordResetResend', function () {
+          return p(true);
+        });
 
-        return view.fxaClient.signUp(email, 'password')
-              .then(function () {
-                return view.fxaClient.passwordReset(email);
-              })
-              .then(function () {
-                return view.submit();
-              })
-              .then(function () {
-                assert.isTrue(view.$('.success').is(':visible'));
-              });
+        return view.submit()
+            .then(function () {
+              assert.isTrue(view.$('.success').is(':visible'));
+            });
       });
 
       it('redirects to `/reset_password` if the resend token is invalid', function () {
-        view.fxaClient.passwordResetResend = function () {
+        sinon.stub(fxaClient, 'passwordResetResend', function () {
           return p().then(function () {
             throw AuthErrors.toError('INVALID_TOKEN', 'Invalid token');
           });
-        };
+        });
 
         return view.submit()
               .then(function () {
@@ -199,11 +293,11 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
       });
 
       it('displays other error messages if there is a problem', function () {
-        view.fxaClient.passwordResetResend = function () {
+        sinon.stub(fxaClient, 'passwordResetResend', function () {
           return p().then(function () {
             throw new Error('synthesized error from auth server');
           });
-        };
+        });
 
         return view.submit()
               .then(function () {
@@ -216,21 +310,16 @@ function (chai, p, AuthErrors, View, Session, Metrics, FxaClient, Relier,
 
     describe('validateAndSubmit', function () {
       it('only called after click on #resend', function () {
-        var email = TestHelpers.createEmail();
+        var count = 0;
+        view.validateAndSubmit = function () {
+          count++;
+        };
 
-        return view.fxaClient.signUp(email, 'password')
-              .then(function () {
-                var count = 0;
-                view.validateAndSubmit = function () {
-                  count++;
-                };
+        view.$('section').click();
+        assert.equal(count, 0);
 
-                view.$('section').click();
-                assert.equal(count, 0);
-
-                view.$('#resend').click();
-                assert.equal(count, 1);
-              });
+        view.$('#resend').click();
+        assert.equal(count, 1);
       });
     });
 

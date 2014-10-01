@@ -78,9 +78,16 @@ define([
   }
 
   function getVerificationLink(user, index) {
+    return getVerificationHeaders(user, index)
+      .then(function (headers) {
+        return require.toUrl(headers['x-link']);
+      });
+  }
+
+  function getVerificationHeaders(user, index) {
     return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
       .then(function (emails) {
-        return require.toUrl(emails[index].headers['x-link']);
+        return emails[index].headers;
       });
   }
 
@@ -89,6 +96,7 @@ define([
     clearSessionStorage: clearSessionStorage,
     visibleByQSA: visibleByQSA,
     pollUntil: pollUntil,
-    getVerificationLink: getVerificationLink
+    getVerificationLink: getVerificationLink,
+    getVerificationHeaders: getVerificationHeaders
   };
 });

@@ -4,6 +4,7 @@
 
 define([
   'chai',
+  'sinon',
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
@@ -14,8 +15,8 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
-      RouterMock, TestHelpers) {
+function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
+      Relier, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -70,6 +71,20 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
           .then(function () {
             assert.equal(routerMock.page, 'signup');
           });
+      });
+
+      it('redirects the normal flow to /signup_complete when verification completes', function (done) {
+        sinon.stub(view, 'navigate', function (page) {
+          TestHelpers.wrapAssertion(function () {
+            assert.equal(page, 'signup_complete');
+          }, done);
+        });
+
+        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+          return p({ verified: true });
+        });
+
+        return view.render();
       });
     });
 
@@ -174,35 +189,25 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
     });
 
     describe('oauth', function () {
-      it('redirects to signup_complete after account is verified', function () {
+      it('completes the oauth flow after the account is verified', function (done) {
         /* jshint camelcase: false */
-        var email = TestHelpers.createEmail();
+        sinon.stub(relier, 'isOAuth', function () {
+          return true;
+        });
 
-        relier.set('service', 'sync');
+        sinon.stub(view, 'finishOAuthFlow', function () {
+          done();
+        });
+
+        var count = 0;
+        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+          // force at least one cycle through the poll
+          count++;
+          return p({ verified: count === 2 });
+        });
 
         view.VERIFICATION_POLL_IN_MS = 100;
-
-        return view.fxaClient.signUp(email, 'password', { preVerified: true })
-          .then(function () {
-            Session.set('oauth', {
-              client_id: 'sync'
-            });
-            return view.render();
-          })
-          .then(function () {
-            var defer = p.defer();
-            setTimeout(function () {
-              try {
-                assert.equal(routerMock.page, 'signup_complete');
-                defer.resolve();
-              } catch (e) {
-                defer.reject(e);
-              }
-            }, view.VERIFICATION_POLL_IN_MS + 1000);
-
-            return defer.promise;
-          });
-
+        return view.render();
       });
     });
 

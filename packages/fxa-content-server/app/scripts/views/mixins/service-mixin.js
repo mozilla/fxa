@@ -23,11 +23,6 @@ define([
     OAuthErrors, ConfigLoader, Session, ServiceName, Channels) {
   /* jshint camelcase: false */
 
-  // If the user completes an OAuth flow using a different browser than
-  // they started with, we redirect them back to the RP with this code
-  // in the `error_code` query param.
-  var RP_DIFFERENT_BROWSER_ERROR_CODE = 3005;
-
   var EXPECT_CHANNEL_RESPONSE_TIMEOUT = 5000;
 
   function shouldSetupOAuthLinksOnError () {
@@ -119,13 +114,6 @@ define([
         state: this.relier.get('state'),
         scope: this.relier.get('scope'),
         action: this.relier.get('action')
-      });
-    },
-
-    finishOAuthFlowDifferentBrowser: function () {
-      return _notifyChannel.call(this, 'oauth_complete', {
-        redirect: this.relier.get('redirectUri'),
-        error: RP_DIFFERENT_BROWSER_ERROR_CODE
       });
     },
 

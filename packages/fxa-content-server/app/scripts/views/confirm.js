@@ -10,10 +10,13 @@ define([
   'views/base',
   'stache!templates/confirm',
   'lib/session',
+  'lib/promise',
   'lib/auth-errors',
-  'views/mixins/resend-mixin'
+  'views/mixins/resend-mixin',
+  'views/mixins/service-mixin'
 ],
-function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
+function (_, FormView, BaseView, Template, Session, p, AuthErrors, ResendMixin,
+    ServiceMixin) {
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
   var View = FormView.extend({
@@ -39,6 +42,8 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
       if (! Session.sessionToken) {
         this.navigate('signup');
         return false;
+      } else if (this.relier.isOAuth()) {
+        this.setupOAuth();
       }
     },
 
@@ -46,23 +51,40 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
 
-      // If we're in an OAuth flow, start polling the user's verification
-      // status and transistion to the signup complete screen to complete the flow
-      if (Session.oauth) {
-        var self = this;
-        var pollFn = function () {
-          self.fxaClient.recoveryEmailStatus(Session.sessionToken)
-            .then(function (result) {
-              if (result.verified) {
-                self.navigate('signup_complete');
-              } else {
-                self.setTimeout(pollFn, self.VERIFICATION_POLL_IN_MS);
-              }
+      var self = this;
+      self._waitForVerification()
+        .then(function () {
+          // The original window should always finish the OAuth flow.
+          if (self.relier.isOAuth()) {
+            self.finishOAuthFlow({
+              source: 'signup'
             });
-        };
+          } else {
+            self.navigate('signup_complete');
+          }
+        }, function (err) {
+          self.displayError(err);
+        });
+    },
 
-        this.setTimeout(pollFn, self.VERIFICATION_POLL_IN_MS);
-      }
+    _waitForVerification: function () {
+      var self = this;
+      return self.fxaClient.recoveryEmailStatus(Session.sessionToken)
+        .then(function (result) {
+          if (result.verified) {
+            return true;
+          }
+
+          var deferred = p.defer();
+
+          // _waitForVerification will return a promise and the
+          // promise chain remains unbroken.
+          self.setTimeout(function () {
+            deferred.resolve(self._waitForVerification());
+          }, self.VERIFICATION_POLL_IN_MS);
+
+          return deferred.promise;
+        });
     },
 
     submit: function () {
@@ -85,7 +107,7 @@ function (_, FormView, BaseView, Template, Session, AuthErrors, ResendMixin) {
     }
   });
 
-  _.extend(View.prototype, ResendMixin);
+  _.extend(View.prototype, ResendMixin, ServiceMixin);
 
   return View;
 });
