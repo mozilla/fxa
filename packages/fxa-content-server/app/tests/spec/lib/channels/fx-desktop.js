@@ -9,11 +9,11 @@ define([
   'chai',
   '/tests/mocks/window.js',
   'lib/session',
+  'lib/auth-errors',
   'lib/channels/fx-desktop',
   '/tests/lib/helpers.js'
 ],
-function (chai, WindowMock, Session, FxDesktopChannel, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
+function (chai, WindowMock, Session, AuthErrors, FxDesktopChannel, TestHelpers) {
   var assert = chai.assert;
   var channel;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -59,7 +59,7 @@ function (chai, WindowMock, Session, FxDesktopChannel, TestHelpers) {
       it('times out if browser does not respond', function (done) {
         channel.send('wait-for-response', { key: 'value' }, function (err) {
           wrapAssertion(function () {
-            assert.equal(String(err), 'Error: Unexpected error');
+            assert.isTrue(AuthErrors.is(err, 'DESKTOP_CHANNEL_TIMEOUT'));
           }, done);
         });
       });

@@ -11,13 +11,14 @@ define([
   'lib/metrics',
   'lib/fxa-client',
   'views/confirm',
-  'models/reliers/relier',
-  '../../mocks/router',
+  'models/reliers/oauth',
+  'models/auth_brokers/oauth',
   '../../mocks/window',
+  '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
-      Relier, RouterMock, WindowMock, TestHelpers) {
+      OAuthRelier, OAuthBroker, WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -29,6 +30,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
     var metrics;
     var fxaClient;
     var relier;
+    var broker;
 
     beforeEach(function () {
       Session.set('sessionToken', 'fake session token');
@@ -36,9 +38,15 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       windowMock.location.pathname = 'confirm';
-
       metrics = new Metrics();
-      relier = new Relier();
+      relier = new OAuthRelier({
+        window: windowMock
+      });
+      broker = new OAuthBroker({
+        session: Session,
+        window: windowMock,
+        relier: relier
+      });
       fxaClient = new FxaClient();
 
       view = new View({
@@ -46,7 +54,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         window: windowMock,
         metrics: metrics,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
 
       return view.render()
@@ -64,8 +73,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
       view = metrics = null;
     });
 
-    describe('constructor creates it', function () {
-      it('is drawn', function () {
+    describe('render', function () {
+      it('draws the template', function () {
         assert.ok($('#fxa-confirm-header').length);
       });
 
@@ -77,18 +86,34 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
           });
       });
 
-      it('redirects the normal flow to /signup_complete when verification completes', function (done) {
-        sinon.stub(view, 'navigate', function (page) {
+      it('tells the broker to prepare for a confirmation', function () {
+        sinon.spy(broker, 'beforeSignUpConfirmationPoll');
+        return view.render()
+          .then(function () {
+            assert.isTrue(broker.beforeSignUpConfirmationPoll.called);
+          });
+      });
+
+      it('notifies the broker of afterSignUpConfirmationPoll after the account is confirmed', function (done) {
+        sinon.stub(broker, 'afterSignUpConfirmationPoll', function (_view) {
           TestHelpers.wrapAssertion(function () {
-            assert.equal(page, 'signup_complete');
+            assert.equal(_view, view);
           }, done);
         });
 
+        var count = 0;
         sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
-          return p({ verified: true });
+          // force at least one cycle through the poll
+          count++;
+          return p({ verified: count === 2 });
         });
 
-        return view.render();
+        sinon.stub(view, 'setTimeout', function (callback) {
+          callback();
+        });
+
+        view.VERIFICATION_POLL_IN_MS = 100;
+        view.render();
       });
     });
 
@@ -182,33 +207,5 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
               });
       });
     });
-
-    describe('oauth', function () {
-      it('completes the oauth flow after the account is verified', function (done) {
-        /* jshint camelcase: false */
-        sinon.stub(relier, 'isOAuth', function () {
-          return true;
-        });
-
-        sinon.stub(view, 'finishOAuthFlow', function () {
-          done();
-        });
-
-        var count = 0;
-        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
-          // force at least one cycle through the poll
-          count++;
-          return p({ verified: count === 2 });
-        });
-
-        sinon.stub(view, 'setTimeout', function (callback) {
-          callback();
-        });
-
-        view.VERIFICATION_POLL_IN_MS = 100;
-        return view.render();
-      });
-    });
-
   });
 });

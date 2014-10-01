@@ -28,33 +28,25 @@ function (p, BaseView, SignInView, Template, Session) {
       // forceAuth means a user must sign in as a specific user.
       // kill the user's local session, set forceAuth flag
       Session.clear();
-      Session.set('forceAuth', true);
-
-      var email = this.searchParam('email');
-      if (email) {
-        // email indicates the signed in email. Use forceEmail to avoid
-        // collisions across sessions.
-        Session.set('forceEmail', email);
-      }
     },
 
     context: function () {
       var fatalError = '';
-      if (! Session.forceEmail) {
+      var email = this.relier.get('email');
+      if (! email) {
         fatalError = t('/force_auth requires an email');
       }
 
       return {
-        email: Session.forceEmail,
+        email: email,
         avatar: this._getAvatar(),
         password: this._prefillPassword,
-        forceAuth: Session.forceAuth,
         fatalError: fatalError
       };
     },
 
     events: {
-      'click a[href="/confirm_reset_password"]': 'resetPasswordNow',
+      'click a[href="/confirm_reset_password"]': BaseView.cancelEventThen('resetPasswordNow'),
       // Backbone does not add SignInView's events, so this must be duplicated.
       'change .show-password': 'onPasswordVisibilityChange'
     },
@@ -64,7 +56,7 @@ function (p, BaseView, SignInView, Template, Session) {
     },
 
     submit: function () {
-      var email = Session.forceEmail;
+      var email = this.relier.get('email');
       var password = this.$('.password').val();
 
       return this._signIn(email, {
@@ -72,7 +64,7 @@ function (p, BaseView, SignInView, Template, Session) {
       });
     },
 
-    resetPasswordNow: BaseView.cancelEventThen(function () {
+    resetPasswordNow: function () {
       var self = this;
       return p().then(function () {
         // If the user is already making a request, ban submission.
@@ -80,7 +72,7 @@ function (p, BaseView, SignInView, Template, Session) {
           throw new Error('submit already in progress');
         }
 
-        var email = Session.forceEmail;
+        var email = self.relier.get('email');
         self._isSubmitting = true;
         return self.fxaClient.passwordReset(email, self.relier)
                 .then(function () {
@@ -91,7 +83,7 @@ function (p, BaseView, SignInView, Template, Session) {
                   self.displayError(err);
                 });
       });
-    }),
+    },
 
     /**
      * Return user's "Session.avatar" if the session email is the same as the force email.
@@ -99,7 +91,8 @@ function (p, BaseView, SignInView, Template, Session) {
      * @private
      */
     _getAvatar: function () {
-      if (Session.forceEmail && Session.avatar && Session.forceEmail === Session.email) {
+      var email = this.relier.get('email');
+      if (email && Session.avatar && email === Session.email) {
         return Session.avatar;
       } else {
         return null;

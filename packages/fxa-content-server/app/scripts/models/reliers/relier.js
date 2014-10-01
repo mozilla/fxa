@@ -9,11 +9,12 @@
 'use strict';
 
 define([
+  'underscore',
   'models/reliers/base',
+  'models/mixins/search-param',
   'lib/promise',
-  'lib/url',
   'lib/constants'
-], function (BaseRelier, p, Url, Constants) {
+], function (_, BaseRelier, SearchParamMixin, p, Constants) {
 
   var Relier = BaseRelier.extend({
     defaults: {
@@ -24,7 +25,7 @@ define([
     initialize: function (options) {
       options = options || {};
 
-      this._window = options.window || window;
+      this.window = options.window || window;
     },
 
     /**
@@ -47,33 +48,8 @@ define([
           .then(function () {
             self.importSearchParam('service');
             self.importSearchParam('preVerifyToken');
+            self.importSearchParam('email');
           });
-    },
-
-    /**
-     * Get a value from the URL search parameter
-     *
-     * @param {String} paramName - name of the search parameter to get
-     */
-    getSearchParam: function (paramName) {
-      return Url.searchParam(paramName, this._window.location.search);
-    },
-
-    /**
-     * Set a value based on a value in window.location.search. Only updates
-     * model if parameter exists in window.location.search.
-     *
-     * @param {String} paramName - name of the search parameter
-     * @param {String} [modelName] - name to set in model. If not specified,
-     *      use the same value as `paramName`
-     */
-    importSearchParam: function (paramName, modelName) {
-      modelName = modelName || paramName;
-
-      var value = this.getSearchParam(paramName);
-      if (typeof value !== 'undefined') {
-        this.set(modelName, value);
-      }
     },
 
     /**
@@ -83,6 +59,8 @@ define([
       return this.get('service') === Constants.FX_DESKTOP_SYNC;
     }
   });
+
+  _.extend(Relier.prototype, SearchParamMixin);
 
   return Relier;
 });

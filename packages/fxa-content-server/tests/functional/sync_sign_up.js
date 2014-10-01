@@ -54,10 +54,10 @@ define([
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
 
         .findByCssSelector('#fxa-signup-header')
         .end()
-        .execute(listenForFxaCommands)
 
         .findByCssSelector('form input.email')
           .click()
@@ -123,10 +123,10 @@ define([
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
 
         .findByCssSelector('#fxa-signup-header')
         .end()
-        .execute(listenForFxaCommands)
 
         .findByCssSelector('form input.email')
           .clearValue()
@@ -174,10 +174,10 @@ define([
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
 
         .findByCssSelector('#fxa-signup-header')
         .end()
-        .execute(listenForFxaCommands)
 
         .findByCssSelector('form input.email')
           .click()

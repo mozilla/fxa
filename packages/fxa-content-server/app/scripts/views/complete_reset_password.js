@@ -99,7 +99,11 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
 
     submit: function () {
       var self = this;
+      var email = self.email;
       var password = self._getPassword();
+      var relier = self.relier;
+      var token = self.token;
+      var code = self.code;
 
       // If the user verifies in the same browser and the original tab
       // is still open, we want the original tab to redirect back to
@@ -107,27 +111,23 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
       // get a sessionToken. When the reset password complete poll
       // completes in the original tab, it will fetch the sessionToken
       // from localStorage and go to town.
-      return self.fxaClient.completePasswordReset(
-              self.email, password, self.token, self.code, self.relier, {
-                shouldSignIn: self._shouldSignIn()
-              })
-          .then(function () {
-            self.navigate('reset_password_complete');
-          }, function (err) {
-            if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-              self.logError(err);
-              // The token has expired since the first check, re-render to
-              // show a screen that allows the user to receive a new link.
-              return self.render();
-            }
+      return self.fxaClient.completePasswordReset(email, password, token, code)
+        .then(function () {
+          return self.fxaClient.signIn(email, password, relier);
+        }).then(function () {
+          self.navigate('reset_password_complete');
+        })
+        .then(null, function (err) {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            self.logError(err);
+            // The token has expired since the first check, re-render to
+            // show a screen that allows the user to receive a new link.
+            return self.render();
+          }
 
-            // all other errors are unexpected, bail.
-            throw err;
-          });
-    },
-
-    _shouldSignIn: function () {
-      return this.isOAuthSameBrowser() || this.relier.isSync();
+          // all other errors are unexpected, bail.
+          throw err;
+        });
     },
 
     _getPassword: function () {

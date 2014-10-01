@@ -54,7 +54,18 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
             }
 
             return self.fxaClient.changePassword(
-                     email, oldPassword, newPassword, self.relier);
+                     email, oldPassword, newPassword);
+          })
+          .then(function () {
+            // sign the user in, keeping the current sessionTokenContext. This
+            // prevents sync users from seeing the `sign out` button on the
+            // settings screen.
+
+            var sessionTokenContext = Session.sessionTokenContext;
+            Session.clear();
+            return self.fxaClient.signIn(email, newPassword, self.relier, {
+              sessionTokenContext: sessionTokenContext
+            });
           })
           .then(function () {
             self.navigate('settings', {

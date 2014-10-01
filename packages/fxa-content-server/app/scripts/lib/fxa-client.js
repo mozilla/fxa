@@ -16,10 +16,9 @@ define([
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
-  'lib/constants',
-  'lib/channels'
+  'lib/constants'
 ],
-function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
+function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
   function trim(str) {
     return $.trim(str);
   }
@@ -30,33 +29,10 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
     this._client = options.client;
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
-    this._channel = options.channel;
     this._interTabChannel = options.interTabChannel;
   }
 
   FxaClientWrapper.prototype = {
-    // If there exists a channel, this will send a message over the channel to determine
-    // whether we should cancel the login to sync or not based on Desktop specific
-    // checks and dialogs. It throws an error with message='USER_CANCELED_LOGIN' and
-    // errno=1001 if that's the case.
-    _checkForDesktopSyncRelinkWarning: function (email) {
-      return Channels.sendExpectResponse('can_link_account', { email: email }, {
-        // A testing channel that was passed in on client creation. If no
-        // channel is sent, the appropriate one will be created.
-        channel: this._channel
-      }).then(function (response) {
-        if (response && response.data && ! response.data.ok) {
-          throw AuthErrors.toError('USER_CANCELED_LOGIN');
-        }
-      }, function (err) {
-        console.error('_checkForDesktopSyncRelinkWarning failed with', err);
-        // If the browser doesn't implement this command, then it will handle
-        // prompting the relink warning after sign in completes. This can likely
-        // be changed to 'reject' after Fx31 hits nightly, because all browsers
-        // will likely support 'can_link_account'
-      });
-    },
-
     _getClientAsync: function () {
       var defer = p.defer();
 
@@ -112,86 +88,54 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
       var self = this;
       options = options || {};
 
-      return p().then(function () {
-        // If we already verified in signUp that we can link with
-        // the desktop, don't do it again. Otherwise,
-        // make the call over to the Desktop code to ask if
-        // we can allow the linking.
-        if (! options.verifiedCanLinkAccount) {
-          return self._checkForDesktopSyncRelinkWarning(email);
-        }
-        return;
-      })
-      .then(_.bind(self._getClientAsync, self))
-      .then(function (client) {
-        return client.signIn(email, password, { keys: true });
-      })
-      .then(function (accountData) {
-        var cachedCredentials = Session.cachedCredentials;
-        // get rid of any old data.
-        Session.clear();
+      return self._getClientAsync()
+        .then(function (client) {
+          return client.signIn(email, password, { keys: true });
+        })
+        .then(function (accountData) {
+          var cachedCredentials = Session.cachedCredentials;
+          // get rid of any old data.
+          Session.clear();
 
-        var updatedSessionData = {
-          email: email,
-          uid: accountData.uid,
-          sessionToken: accountData.sessionToken,
-          sessionTokenContext: relier.get('context')
-        };
+          // sessionTokenContext is passed in on password change to
+          // keep the same context.
+          var sessionTokenContext = options.sessionTokenContext ||
+                                    relier.get('context');
 
-        // isSync is added in case the user verifies in a second tab
-        // on the first browser, the context will not be available. We
-        // need to ship the keyFetchToken and unwrapBKey to the first tab,
-        // so generate these any time we are using sync as well.
-        if (relier.isFxDesktop() || relier.isSync()) {
-          updatedSessionData.unwrapBKey = accountData.unwrapBKey;
-          updatedSessionData.keyFetchToken = accountData.keyFetchToken;
-          updatedSessionData.customizeSync = options.customizeSync;
-          updatedSessionData.cachedCredentials = {
+          var updatedSessionData = {
             email: email,
             uid: accountData.uid,
             sessionToken: accountData.sessionToken,
-            sessionTokenContext: relier.get('context')
+            sessionTokenContext: sessionTokenContext
           };
-        } else {
-          // Carry over the old cached credentials
-          updatedSessionData.cachedCredentials = cachedCredentials;
-        }
 
-        Session.set(updatedSessionData);
-        if (self._interTabChannel) {
-          self._interTabChannel.emit('login', updatedSessionData);
-        }
+          // isSync is added in case the user verifies in a second tab
+          // on the first browser, the context will not be available. We
+          // need to ship the keyFetchToken and unwrapBKey to the first tab,
+          // so generate these any time we are using sync as well.
+          if (relier.isFxDesktop() || relier.isSync()) {
+            updatedSessionData.unwrapBKey = accountData.unwrapBKey;
+            updatedSessionData.keyFetchToken = accountData.keyFetchToken;
+            updatedSessionData.customizeSync = options.customizeSync;
+            updatedSessionData.cachedCredentials = {
+              email: email,
+              uid: accountData.uid,
+              sessionToken: accountData.sessionToken,
+              sessionTokenContext: relier.get('context')
+            };
+          } else {
+            // Carry over the old cached credentials
+            updatedSessionData.cachedCredentials = cachedCredentials;
+          }
 
-        if (options.notifyChannel !== false) {
-          return self.notifyChannelOfLogin(updatedSessionData)
-              .then(function () {
-                return accountData;
-              }).then(null, function (err) {
-                // We ignore this error unless the service is set to Sync.
-                // This allows us to tests flows with the desktop context
-                // without things blowing up. In production/reality,
-                // the context is set to desktop iff service is Sync.
-                if (relier.isSync()) {
-                  throw err;
-                }
-                return accountData;
-              });
-        }
-      });
-    },
+          Session.set(updatedSessionData);
 
-    // TODO - this should go on the broker when that
-    // functionality is available.
-    notifyChannelOfLogin: function (dataToSend) {
-      // Skipping the relink warning is only relevant to the channel
-      // communication with the Desktop browser. It may have been
-      // done during a sign up flow.
-      dataToSend.verifiedCanLinkAccount = true;
+          if (self._interTabChannel) {
+            self._interTabChannel.emit('login', updatedSessionData);
+          }
 
-      var self = this;
-      return Channels.sendExpectResponse('login', dataToSend, {
-        channel: self._channel
-      });
+          return accountData;
+        });
     },
 
     signUp: function (originalEmail, password, relier, options) {
@@ -202,50 +146,45 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
       // ensure resend works again
       this._signUpResendCount = 0;
 
-      // We need to check for the relink warning here *before*
-      // we do the account creation. Otherwise, the user may
-      // cancel later in the relink warning during sign in,
-      // but still have an account created for her.
-      return this._checkForDesktopSyncRelinkWarning(email)
-              .then(_.bind(this._getClientAsync, this))
-              .then(function (client) {
-                var signUpOptions = {
-                  keys: true
-                };
+      return self._getClientAsync()
+        .then(function (client) {
+          var signUpOptions = {
+            keys: true
+          };
 
-                if (relier.has('service')) {
-                  signUpOptions.service = relier.get('service');
-                }
+          if (relier.has('service')) {
+            signUpOptions.service = relier.get('service');
+          }
 
-                if (relier.has('redirectTo')) {
-                  signUpOptions.redirectTo = relier.get('redirectTo');
-                }
+          if (relier.has('redirectTo')) {
+            signUpOptions.redirectTo = relier.get('redirectTo');
+          }
 
-                if (relier.has('preVerifyToken')) {
-                  signUpOptions.preVerifyToken = relier.get('preVerifyToken');
-                }
+          if (relier.has('preVerifyToken')) {
+            signUpOptions.preVerifyToken = relier.get('preVerifyToken');
+          }
 
-                if (options.preVerified) {
-                  signUpOptions.preVerified = true;
-                }
+          if (options.preVerified) {
+            signUpOptions.preVerified = true;
+          }
 
-                signUpOptions.resume = self._createResumeToken(relier);
+          signUpOptions.resume = self._createResumeToken(relier);
 
-                return client.signUp(email, password, signUpOptions)
-                  .then(null, function (err) {
-                    if (relier.has('preVerifyToken') &&
-                        AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
-                      // The token was invalid and the auth server could
-                      // not pre-verify the user. Now, just create a new
-                      // user and force them to verify their email.
-                      relier.unset('preVerifyToken');
+          return client.signUp(email, password, signUpOptions)
+            .then(null, function (err) {
+              if (relier.has('preVerifyToken') &&
+                  AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
+                // The token was invalid and the auth server could
+                // not pre-verify the user. Now, just create a new
+                // user and force them to verify their email.
+                relier.unset('preVerifyToken');
 
-                      return self.signUp(email, password, relier, options);
-                    }
+                return self.signUp(email, password, relier, options);
+              }
 
-                    throw err;
-                  });
-              });
+              throw err;
+            });
+        });
     },
 
     signUpResend: function (relier) {
@@ -297,8 +236,6 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
     passwordReset: function (originalEmail, relier) {
       var self = this;
       var email = trim(originalEmail);
-      var forceAuth = Session.forceAuth;
-      var oauth = Session.oauth;
 
       // ensure resend works again
       this._passwordResetResendCount = 0;
@@ -320,9 +257,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
                 // we have to keep around some state so the email can be
                 // resent.
                 Session.set('email', email);
-                Session.set('forceAuth', forceAuth);
                 Session.set('passwordForgotToken', result.passwordForgotToken);
-                Session.set('oauth', oauth);
               });
     },
 
@@ -353,12 +288,9 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
         });
     },
 
-    completePasswordReset: function (originalEmail, newPassword, token, code,
-        relier, options) {
+    completePasswordReset: function (originalEmail, newPassword, token, code) {
       var email = trim(originalEmail);
       var client;
-      var self = this;
-      options = options || {};
 
       return this._getClientAsync()
               .then(function (_client) {
@@ -369,17 +301,6 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
                 return client.accountReset(email,
                            newPassword,
                            result.accountResetToken);
-              })
-              .then(function () {
-                if (options.shouldSignIn) {
-                  // Sync should not notify the channel on password reset
-                  // because nobody will be listening for the message and
-                  // a channel timeout will occur if the message is sent.
-                  // If the original tab is still open, it'll handle things.
-                  return self.signIn(email, newPassword, relier, {
-                    notifyChannel: ! relier.isSync()
-                  });
-                }
               });
     },
 
@@ -399,24 +320,12 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
         });
     },
 
-    changePassword: function (originalEmail, oldPassword, newPassword, relier) {
+    changePassword: function (originalEmail, oldPassword, newPassword) {
       var email = trim(originalEmail);
-      var self = this;
-      var sessionTokenContext = Session.sessionTokenContext;
       return this._getClientAsync()
-              .then(function (client) {
-                return client.passwordChange(email, oldPassword, newPassword);
-              })
-              .then(function () {
-                // Clear old info on password change.
-                Session.clear();
-                return self.signIn(email, newPassword, relier);
-              }).then(function (result) {
-                // Restore the sessionTokenContext because it indicates if we're
-                // in a Sync flow or not.
-                Session.set('sessionTokenContext', sessionTokenContext);
-                return result;
-              });
+        .then(function (client) {
+          return client.passwordChange(email, oldPassword, newPassword);
+        });
     },
 
     deleteAccount: function (originalEmail, password) {

@@ -44,7 +44,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       return {
         email: Session.email,
         encodedEmail: encodeURIComponent(Session.email),
-        forceAuth: Session.forceAuth
+        forceAuth: this.broker.isForceAuth()
       };
     },
 
@@ -69,7 +69,6 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       var self = this;
 
       if (self.relier.isOAuth()) {
-        this.setupOAuth();
         this.setupOAuthLinks();
       }
 
@@ -115,27 +114,30 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       // force a manual signin of the user.
       //
       // If a message is received before the timeout hits, HOORAY!
-      self._waitForVerification()
-        .then(function (sessionInfo) {
-          // The original window should finish the flow if the user
-          // completes verification in the same browser and has sessionInfo
-          // passed over from tab 2.
-          if (sessionInfo) {
-            return self._finishPasswordResetSameBrowser(sessionInfo);
-          }
+      return self.broker.beforeResetPasswordConfirmationPoll()
+        .then(function () {
+          self._waitForConfirmation()
+            .then(function (sessionInfo) {
+              // The original window should finish the flow if the user
+              // completes verification in the same browser and has sessionInfo
+              // passed over from tab 2.
+              if (sessionInfo) {
+                return self._finishPasswordResetSameBrowser(sessionInfo);
+              }
 
-          return self._finishPasswordResetDifferentBrowser();
-        })
-        .then(null, function (err) {
-          self.displayError(err);
+              return self._finishPasswordResetDifferentBrowser();
+            })
+            .then(null, function (err) {
+              self.displayError(err);
+            });
         });
     },
 
-    _waitForVerification: function () {
+    _waitForConfirmation: function () {
       var self = this;
       return p.all([
         self._waitForSessionUpdate(),
-        self._waitForServerVerificationNotice()
+        self._waitForServerConfirmationNotice()
           .then(function () {
             if (! self._isWaitForSessionUpdateComplete) {
               self._startSessionUpdateWaitTimeout();
@@ -152,23 +154,17 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       // The OAuth flow needs the sessionToken to finish the flow.
       Session.set(sessionInfo);
 
-      // TODO - This should move to the broker when that is ready.
-      if (self.relier.isOAuth()) {
-        return self.finishOAuthFlow({
-          source: 'reset_password'
+      self.displaySuccess(t('Password reset'));
+
+      return self.broker.afterResetPasswordConfirmationPoll(self)
+        .then(function () {
+          return self.broker.shouldShowResetPasswordCompleteAfterPoll();
+        })
+        .then(function (shouldShowResetPasswordComplete) {
+          if (shouldShowResetPasswordComplete) {
+            self.navigate('reset_password_complete');
+          }
         });
-      } else if (self.relier.isSync()) {
-        // This should only happen for Sync if the user complete the
-        // password reset flow in the same browser. The tab the user
-        // completes the flow in should show the user a complete screen.
-
-        // show a little placeholder message to facilitate manual testing.
-        // In real life, FxDesktop should display the "manage" screen.
-        self.displaySuccess(t('Password reset'));
-        return self.fxaClient.notifyChannelOfLogin(sessionInfo);
-      }
-
-      self.navigate('reset_password_complete');
     },
 
     _finishPasswordResetDifferentBrowser: function () {
@@ -184,7 +180,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       });
     },
 
-    _waitForServerVerificationNotice: function () {
+    _waitForServerConfirmationNotice: function () {
       var self = this;
       return self.fxaClient.isPasswordResetComplete(Session.passwordForgotToken)
         .then(function (isComplete) {
@@ -195,9 +191,9 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
           var deferred = p.defer();
 
           self.setTimeout(function () {
-            // _waitForServerVerificationNotice will return a promise and the
+            // _waitForServerConfirmationNotice will return a promise and the
             // promise chain remains unbroken.
-            deferred.resolve(self._waitForServerVerificationNotice());
+            deferred.resolve(self._waitForServerConfirmationNotice());
           }, self.VERIFICATION_POLL_IN_MS);
 
           return deferred.promise;

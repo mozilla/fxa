@@ -42,8 +42,6 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors, ResendMixin,
       if (! Session.sessionToken) {
         this.navigate('signup');
         return false;
-      } else if (this.relier.isOAuth()) {
-        this.setupOAuth();
       }
     },
 
@@ -52,22 +50,26 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors, ResendMixin,
       graphic.addClass('pulse');
 
       var self = this;
-      self._waitForVerification()
+      return self.broker.beforeSignUpConfirmationPoll(self)
         .then(function () {
-          // The original window should always finish the OAuth flow.
-          if (self.relier.isOAuth()) {
-            self.finishOAuthFlow({
-              source: 'signup'
+          self._waitForConfirmation()
+            .then(function () {
+              return self.broker.afterSignUpConfirmationPoll(self);
+            })
+            .then(function () {
+              return self.broker.shouldShowSignUpCompleteAfterPoll();
+            })
+            .then(function (shouldShowSignUpComplete) {
+              if (shouldShowSignUpComplete) {
+                self.navigate('signup_complete');
+              }
+            }, function (err) {
+              self.displayError(err);
             });
-          } else {
-            self.navigate('signup_complete');
-          }
-        }, function (err) {
-          self.displayError(err);
         });
     },
 
-    _waitForVerification: function () {
+    _waitForConfirmation: function () {
       var self = this;
       return self.fxaClient.recoveryEmailStatus(Session.sessionToken)
         .then(function (result) {
@@ -77,10 +79,10 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors, ResendMixin,
 
           var deferred = p.defer();
 
-          // _waitForVerification will return a promise and the
+          // _waitForConfirmation will return a promise and the
           // promise chain remains unbroken.
           self.setTimeout(function () {
-            deferred.resolve(self._waitForVerification());
+            deferred.resolve(self._waitForConfirmation());
           }, self.VERIFICATION_POLL_IN_MS);
 
           return deferred.promise;

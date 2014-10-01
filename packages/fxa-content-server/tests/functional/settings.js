@@ -11,9 +11,14 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'app/scripts/lib/constants',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Constants, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/fx-desktop'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
+      FxaClient, Constants, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   'use strict';
+
+  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -76,8 +81,12 @@ define([
     },
 
     'sign in to desktop context, go to settings, no way to sign out': function () {
+      var self = this;
       return this.get('remote')
         .get(require.toUrl(SIGNIN_URL + '?context=' + Constants.FX_DESKTOP_CONTEXT))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -92,17 +101,17 @@ define([
           .click()
         .end()
 
-        .then(FunctionalHelpers.visibleByQSA('#stage .error'))
-        // We need to wait for the sign in to finish. When the desktop context
-        // this will manifest itself in the "Unexpected Error" error being
-        // shown, which signals the desktop channel didn't get a response.
-        .findByCssSelector('#stage .error').isDisplayed()
-        .then(function (isDisplayed) {
-          assert.equal(isDisplayed, true);
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
         })
 
         .get(require.toUrl(SETTINGS_URL))
+
+        .findById('fxa-settings-header')
+        .end()
+
         // make sure the sign out element doesn't exist
+        .setFindTimeout(0)
         .findById('signout')
           .then(assert.fail, assert.ok)
         .end();

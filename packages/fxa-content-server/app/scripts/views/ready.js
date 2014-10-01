@@ -36,12 +36,6 @@ function (_, BaseView, Template, Session, Xss, Strings,
       this.language = options.language;
     },
 
-    beforeRender: function () {
-      if (this.relier.has('service')) {
-        this.setupOAuth();
-      }
-    },
-
     context: function () {
       var serviceName = this.relier.get('serviceName');
 
@@ -64,6 +58,7 @@ function (_, BaseView, Template, Session, Xss, Strings,
       return this._createMarketingSnippet();
     },
 
+    /*
     afterVisible: function () {
       // Finish the WebChannel flow
       var self = this;
@@ -77,6 +72,7 @@ function (_, BaseView, Template, Session, Xss, Strings,
           }
         });
     },
+    */
 
     _createMarketingSnippet: function () {
       var marketingSnippet = new MarketingSnippet({
@@ -94,14 +90,10 @@ function (_, BaseView, Template, Session, Xss, Strings,
     submit: function () {
       var self = this;
       return p().then(function () {
-        if (self.isOAuthSameBrowser()) {
-          return self.finishOAuthFlow({
-            source: self.type
-          })
-          .then(function () {
-            // clear any stale OAuth information
-            Session.clear('oauth');
-          });
+        if (self.type === 'sign_up') {
+          return self.broker.afterSignUpVerified(self);
+        } else if (self.type === 'reset_password') {
+          return self.broker.afterResetPasswordVerified(self);
         } else {
           // We aren't expecting this case to happen.
           self.displayError(AuthErrors.toError('UNEXPECTED_ERROR'));

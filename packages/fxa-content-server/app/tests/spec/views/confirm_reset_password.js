@@ -13,12 +13,13 @@ define([
   'lib/channels/inter-tab',
   '../../mocks/fxa-client',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, AuthErrors, View, Session, Metrics,
-      InterTabChannel, FxaClient, Relier, RouterMock,
+      InterTabChannel, FxaClient, Relier, Broker, RouterMock,
       WindowMock, TestHelpers) {
   'use strict';
 
@@ -31,6 +32,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
     var metrics;
     var fxaClient;
     var relier;
+    var broker;
     var interTabChannel;
 
     beforeEach(function () {
@@ -40,6 +42,9 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
 
       metrics = new Metrics();
       relier = new Relier();
+      broker = new Broker({
+        relier: relier
+      });
       fxaClient = new FxaClient();
       interTabChannel = new InterTabChannel();
 
@@ -56,6 +61,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
         metrics: metrics,
         fxaClient: fxaClient,
         relier: relier,
+        broker: broker,
         interTabChannel: interTabChannel,
         sessionUpdateTimeoutMS: 100
       });
@@ -75,7 +81,15 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
       view = metrics = null;
     });
 
-    describe('constructor', function () {
+    describe('render', function () {
+      it('tells the broker to prepare for a password reset confirmation', function () {
+        sinon.spy(broker, 'beforeResetPasswordConfirmationPoll');
+        return view.render()
+          .then(function () {
+            assert.isTrue(broker.beforeResetPasswordConfirmationPoll.called);
+          });
+      });
+
       it('redirects to /reset_password if no passwordForgotToken', function () {
         Session.clear('passwordForgotToken');
         return view.render()
@@ -92,7 +106,10 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
       });
 
       it('`sign in` link goes to /force_auth in force auth flow', function () {
-        Session.set('forceAuth', true);
+        sinon.stub(broker, 'isForceAuth', function () {
+          return true;
+        });
+
         return view.render()
           .then(function () {
             // Check to make sure the signin link goes "back"
@@ -101,22 +118,23 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
           });
       });
 
-      it('`sign in` link goes to /oauth/signin in oauth flow', function () {
-        sinon.stub(relier, 'isOAuth', function () {
+      it('does not allow XSS emails through for forceAuth', function () {
+        sinon.stub(broker, 'isForceAuth', function () {
           return true;
         });
 
+        var xssEmail = 'testuser@testuser.com" onclick="javascript:alert(1)"';
+        Session.set('email', xssEmail);
+
         return view.render()
           .then(function () {
-            // Check to make sure the signin link goes "back"
-            assert.equal(view.$('a[href="/oauth/signin"]').length, 1);
-            assert.equal(view.$('a[href="/signin"]').length, 0);
-            assert.equal(view.$('a[href="/force_auth?email=testuser%40testuser.com"]').length, 0);
+            assert.equal(view.$('a.sign-in').attr('href'), '/force_auth?email=' + encodeURIComponent(xssEmail));
+            assert.isFalse(!! view.$('a.sign-in').attr('onclick'));
           });
       });
     });
 
-    describe('_waitForVerification', function () {
+    describe('_waitForConfirmation', function () {
       it('polls to check if user has verified, if not, retry', function () {
         var count = 0;
         fxaClient.isPasswordResetComplete.restore();
@@ -130,7 +148,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
           callback();
         });
 
-        return view._waitForVerification()
+        return view._waitForConfirmation()
             .then(function () {
               assert.equal(view.fxaClient.isPasswordResetComplete.callCount, 2);
             });
@@ -138,9 +156,10 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
     });
 
     describe('render', function () {
-      it('finishes non-OAuth flow at /reset_password_complete if user has verified in the same browser', function (done) {
+      it('notifies the broker when the user has confirmed', function (done) {
         fxaClient.isPasswordResetComplete.restore();
         sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+          // simulate the sessionToken being set in another tab.
           // simulate the login occurring in another tab.
           interTabChannel.emit('login', {
             sessionToken: 'sessiontoken'
@@ -148,64 +167,24 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
           return p(true);
         });
 
-        sinon.stub(relier, 'isOAuth', function () {
-          return false;
+        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
+          return p();
         });
 
-        sinon.stub(view, 'navigate', function (page) {
+        sinon.stub(broker, 'shouldShowResetPasswordCompleteAfterPoll', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'navigate', function (url) {
           TestHelpers.wrapAssertion(function () {
-            assert.equal(page, 'reset_password_complete');
+            assert.equal(url, 'reset_password_complete');
           }, done);
         });
 
         view.render();
       });
 
-      it('finishes the OAuth flow if user has verified in the same browser', function (done) {
-        fxaClient.isPasswordResetComplete.restore();
-        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
-          // simulate the sessionToken being set in another tab.
-          // simulate the login occurring in another tab.
-          interTabChannel.emit('login', {
-            sessionToken: 'sessiontoken'
-          });
-          return p(true);
-        });
-
-        sinon.stub(relier, 'isOAuth', function () {
-          return true;
-        });
-
-        sinon.stub(view, 'finishOAuthFlow', function () {
-          done();
-        });
-
-        view.render();
-      });
-
-      it('finishes the Sync flow if user has verified in the same browser', function (done) {
-        fxaClient.isPasswordResetComplete.restore();
-        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
-          // simulate the sessionToken being set in another tab.
-          // simulate the login occurring in another tab.
-          interTabChannel.emit('login', {
-            sessionToken: 'sessiontoken'
-          });
-          return p(true);
-        });
-
-        sinon.stub(relier, 'isSync', function () {
-          return true;
-        });
-
-        sinon.stub(fxaClient, 'notifyChannelOfLogin', function () {
-          done();
-        });
-
-        view.render();
-      });
-
-      it('normal flow redirects to /signin if user verifies in a second browser', function (done) {
+      it('redirects to /signin if user verifies in a second browser', function (done) {
         sinon.stub(relier, 'isOAuth', function () {
           return false;
         });

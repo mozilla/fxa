@@ -24,13 +24,6 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
     template: SignInTemplate,
     className: 'sign-in',
 
-    initialize: function (options) {
-      options = options || {};
-
-      // reset any force auth status.
-      Session.set('forceAuth', false);
-    },
-
     context: function () {
       // Session.prefillEmail comes first because users can edit the email,
       // go to another screen, edit the email again, and come back here. We
@@ -90,7 +83,11 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
 
       return p().then(function () {
         if (credentials.password) {
-          return self.fxaClient.signIn(email, credentials.password, self.relier);
+          return self.broker.checkCanLinkAccount(email)
+            .then(function () {
+              return self.fxaClient.signIn(
+                  email, credentials.password, self.relier);
+            });
         } else if (credentials.sessionToken) {
           return self.fxaClient.recoveryEmailStatus(credentials.sessionToken);
         } else {
@@ -119,16 +116,16 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
     },
 
     onSignInSuccess: function () {
-      // Don't switch to settings if we're trying to log in to
-      // Firefox. Firefox will show its own landing page
-      // Also show settings if an automatedBrowser flag has been set,
-      // so that webdriver tests have indication that the
-      // flow is done.
-      if (! this.relier.isFxDesktop()) {
-        this.navigate('settings');
-      }
-
-      return true;
+      var self = this;
+      return self.broker.afterSignIn(self)
+        .then(function () {
+          return self.broker.shouldShowSettingsAfterSignIn();
+        })
+        .then(function (shouldShowSettings) {
+          if (shouldShowSettings) {
+            self.navigate('settings');
+          }
+        });
     },
 
     onSignInUnverified: function () {

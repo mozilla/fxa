@@ -14,12 +14,13 @@ define([
   'lib/fxa-client',
   'views/complete_reset_password',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
-      RouterMock, WindowMock, TestHelpers) {
+      Broker, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -31,8 +32,10 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
     var metrics;
     var fxaClient;
     var relier;
+    var broker;
 
     var EMAIL = 'testuser@testuser.com';
+    var PASSWORD = 'password';
     var TOKEN = 'feed';
     var CODE = 'dea0fae1abc2fab3bed4dec5eec6ace7';
 
@@ -49,6 +52,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
+      broker = new Broker();
       fxaClient = new FxaClient();
 
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
@@ -58,7 +62,8 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         window: windowMock,
         metrics: metrics,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
 
       // mock in isPasswordResetComplete
@@ -202,15 +207,15 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       it('pw field set to password when clicked again', function () {
         $('.show-password').click();
         $('.show-password').click();
-        assert.equal($('#password').attr('type'), 'password');
-        assert.equal($('#vpassword').attr('type'), 'password');
+        assert.equal($('#password').attr('type'), PASSWORD);
+        assert.equal($('#vpassword').attr('type'), PASSWORD);
       });
     });
 
     describe('isValid', function () {
       it('returns true if password & vpassword valid and the same', function () {
-        view.$('#password').val('password');
-        view.$('#vpassword').val('password');
+        view.$('#password').val(PASSWORD);
+        view.$('#vpassword').val(PASSWORD);
         assert.isTrue(view.isValid());
       });
 
@@ -274,19 +279,23 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
             });
       });
 
-      it('redirects to reset_password_complete if all is well', function () {
-        var password = 'password';
-        view.$('[type=password]').val(password);
+      it('signs the user in and redirects to `/reset_password_complete`', function () {
+        view.$('[type=password]').val(PASSWORD);
 
-        sinon.stub(view.fxaClient, 'completePasswordReset', function () {
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p(true);
+        });
+        sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p(true);
         });
 
         return view.validateAndSubmit()
             .then(function () {
+              assert.isTrue(fxaClient.completePasswordReset.calledWith(
+                  EMAIL, PASSWORD, TOKEN, CODE));
+              assert.isTrue(fxaClient.signIn.calledWith(
+                  EMAIL, PASSWORD, relier));
               assert.equal(routerMock.page, 'reset_password_complete');
-              assert.isTrue(view.fxaClient.completePasswordReset.calledWith(
-                  EMAIL, password, TOKEN, CODE, relier));
             });
       });
 
@@ -320,51 +329,6 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
             .then(assert.fail, function () {
               assert.ok(view.$('.error').text().length);
             });
-      });
-
-      it('signs the user in if completing the OAuth flow', function () {
-        view.$('[type=password]').val('password');
-
-        sinon.stub(view, 'isOAuthSameBrowser', function () {
-          return true;
-        });
-
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p(true);
-        });
-
-        sinon.stub(fxaClient, 'completePasswordReset', function (
-          email, password, token, code, relier, options) {
-
-          assert.isTrue(options.shouldSignIn);
-          return p(true);
-        });
-
-        return view.validateAndSubmit()
-            .then(function () {
-              assert.isTrue(view.isOAuthSameBrowser.called);
-            });
-      });
-
-      it('signs the user in if completing the Sync flow', function () {
-        view.$('[type=password]').val('password');
-
-        sinon.stub(relier, 'isSync', function () {
-          return true;
-        });
-
-        sinon.stub(fxaClient, 'signIn', function () {
-          return p(true);
-        });
-
-        sinon.stub(fxaClient, 'completePasswordReset', function (
-          email, password, token, code, relier, options) {
-
-          assert.isTrue(options.shouldSignIn);
-          return p(true);
-        });
-
-        return view.validateAndSubmit();
       });
     });
 

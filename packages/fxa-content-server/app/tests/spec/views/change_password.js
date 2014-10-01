@@ -15,12 +15,13 @@ define([
   'lib/promise',
   'views/change_password',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   '../../mocks/router',
   '../../lib/helpers',
   'lib/session'
 ],
 function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
-      RouterMock, TestHelpers, Session) {
+      Broker, RouterMock, TestHelpers, Session) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -29,16 +30,23 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
     var routerMock;
     var fxaClient;
     var relier;
+    var broker;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
-      fxaClient = new FxaClient();
+      broker = new Broker({
+        relier: relier
+      });
+      fxaClient = new FxaClient({
+        broker: broker
+      });
 
       view = new View({
         router: routerMock,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
     });
 
@@ -161,7 +169,11 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
         it('changes from old to new password, redirects user to /settings', function () {
           $('#old_password').val('password');
           $('#new_password').val('new_password');
-          Session.set('email', 'testuser@testuser.com');
+
+          var email = 'testuser@testuser.com';
+          Session.set('email', email);
+          var oldPassword = 'password';
+          var newPassword = 'new_password';
 
           sinon.stub(view.fxaClient, 'checkPassword', function () {
             return p();
@@ -171,20 +183,29 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
             return p();
           });
 
+          sinon.stub(view.fxaClient, 'signIn', function () {
+            return p({});
+          });
+
           return view.submit()
-              .then(function () {
-                assert.equal(routerMock.page, 'settings');
-                assert.isTrue(view.fxaClient.checkPassword.calledWith(
-                    'testuser@testuser.com', 'password'));
-                assert.isTrue(view.fxaClient.changePassword.calledWith(
-                    'testuser@testuser.com', 'password', 'new_password', relier));
-              });
+            .then(function () {
+              assert.equal(routerMock.page, 'settings');
+              assert.isTrue(view.fxaClient.checkPassword.calledWith(
+                  email, oldPassword));
+              assert.isTrue(view.fxaClient.changePassword.calledWith(
+                  email, oldPassword, newPassword));
+              assert.isTrue(view.fxaClient.signIn.calledWith(
+                      email, newPassword, relier));
+            });
         });
 
         it('changes from old to new password, keeps sessionTokenContext', function () {
           $('#old_password').val('password');
           $('#new_password').val('new_password');
 
+          var email = 'testuser@testuser.com';
+          Session.set('email', email);
+
           sinon.stub(view.fxaClient, 'checkPassword', function () {
             return p();
           });
@@ -193,11 +214,17 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
             return p();
           });
 
+          sinon.stub(view.fxaClient, 'signIn', function () {
+            return p({});
+          });
+
           Session.set('sessionTokenContext', 'foo');
 
           return view.submit()
               .then(function () {
-                assert.equal(Session.sessionTokenContext, 'foo');
+                assert.isTrue(fxaClient.signIn.calledWith(
+                    email, 'new_password', relier,
+                    { sessionTokenContext: 'foo' }));
               });
         });
 

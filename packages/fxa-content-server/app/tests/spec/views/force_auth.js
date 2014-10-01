@@ -14,12 +14,13 @@ define([
   'lib/fxa-client',
   'lib/promise',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
-      RouterMock, TestHelpers) {
+function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
+      WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
@@ -28,19 +29,22 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
       var windowMock;
       var fxaClient;
       var relier;
+      var broker;
 
       beforeEach(function () {
         windowMock = new WindowMock();
         windowMock.location.search = '';
 
         relier = new Relier();
+        broker = new Broker();
         fxaClient = new FxaClient();
 
         Session.clear();
         view = new View({
           window: windowMock,
           fxaClient: fxaClient,
-          relier: relier
+          relier: relier,
+          broker: broker
         });
         return view.render()
             .then(function () {
@@ -61,7 +65,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
       });
 
       it('shows no avatar if Session.avatar is undefined', function (done) {
-        Session.set('forceEmail', 'a@a.com');
+        relier.set('email', 'a@a.com');
         assert.isNull(view.context().avatar);
 
         return view.render()
@@ -73,7 +77,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
       });
 
       it('shows no avatar when there is no Session.email', function (done) {
-        Session.set('forceEmail', 'a@a.com');
+        relier.set('email', 'a@a.com');
         Session.set('avatar', 'avatar.jpg');
         assert.isNull(view.context().avatar);
 
@@ -85,8 +89,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
           .fail(done);
       });
 
-      it('shows avatar when Session.email and Session.forceEmail match', function (done) {
-        Session.set('forceEmail', 'a@a.com');
+      it('shows avatar when Session.email and relier.email match', function (done) {
+        relier.set('email', 'a@a.com');
         Session.set('email', 'a@a.com');
         Session.set('avatar', 'avatar.jpg');
         assert.equal(view.context().avatar, 'avatar.jpg');
@@ -99,8 +103,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
           .fail(done);
       });
 
-      it('shows no avatar when Session.email and Session.forceEmail do not match', function (done) {
-        Session.set('forceEmail', 'a@a.com');
+      it('shows no avatar when Session.email and relier.email do not match', function (done) {
+        relier.set('email', 'a@a.com');
         Session.set('email', 'b@b.com');
         Session.set('avatar', 'avatar.jpg');
         assert.isNull(view.context().avatar);
@@ -121,6 +125,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
       var email;
       var fxaClient;
       var relier;
+      var broker;
 
       beforeEach(function () {
         email = TestHelpers.createEmail();
@@ -129,6 +134,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
         windowMock = new WindowMock();
         windowMock.location.search = '?email=' + encodeURIComponent(email);
         relier = new Relier();
+        relier.set('email', email);
+        broker = new Broker();
         fxaClient = new FxaClient();
         router = new RouterMock();
 
@@ -136,7 +143,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
           window: windowMock,
           router: router,
           fxaClient: fxaClient,
-          relier: relier
+          relier: relier,
+          broker: broker
         });
         return view.render()
             .then(function () {
@@ -153,10 +161,31 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
 
 
       it('is able to submit the form', function (done) {
-        view._signIn = function () {
+        sinon.stub(view.fxaClient, 'signIn', function () {
           done();
-        };
+        });
         $('#submit-btn').click();
+      });
+
+      describe('submit', function () {
+        it('submits the sign in', function () {
+          var password = 'password';
+          sinon.stub(view.fxaClient, 'signIn', function () {
+            return p({
+              verified: true
+            });
+          });
+          sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+            return p.reject(assert.fail);
+          });
+          view.$('input[type=password]').val(password);
+
+          return view.submit()
+            .then(function () {
+              assert.isTrue(view.fxaClient.signIn.calledWith(
+                  email, password, relier));
+            });
+        });
       });
 
       it('does not print an error message', function () {
@@ -181,19 +210,16 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
       });
 
       it('forgot password request redirects directly to confirm_reset_password', function () {
-        var event = $.Event('click');
-
         sinon.stub(view.fxaClient, 'passwordReset', function () {
           return p();
         });
 
-        return view.resetPasswordNow(event)
+        relier.set('email', email);
+
+        return view.resetPasswordNow()
           .then(function () {
+
             assert.equal(router.page, 'confirm_reset_password');
-
-            assert.isTrue(event.isDefaultPrevented());
-            assert.isTrue(event.isPropagationStopped());
-
             assert.isTrue(view.fxaClient.passwordReset.calledWith(
                 email, relier));
           });
@@ -204,11 +230,9 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
 
         view.resetPasswordNow(event);
         return view.resetPasswordNow(event)
-                .then(function () {
-                  assert(false, 'unexpected success');
-                }, function (err) {
-                  assert.equal(err.message, 'submit already in progress');
-                });
+          .then(assert.fail, function (err) {
+            assert.equal(err.message, 'submit already in progress');
+          });
       });
     });
   });

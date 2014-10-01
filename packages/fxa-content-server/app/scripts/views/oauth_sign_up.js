@@ -6,44 +6,16 @@
 
 define([
   'underscore',
-  'lib/promise',
-  'views/base',
   'views/sign_up',
   'views/mixins/service-mixin'
 ],
-function (_, p, BaseView, SignUpView, ServiceMixin) {
+function (_, SignUpView, ServiceMixin) {
   var View = SignUpView.extend({
     className: 'sign-up oauth-sign-up',
-
-    initialize: function (options) {
-      options = options || {};
-
-      /* jshint camelcase: false */
-      SignUpView.prototype.initialize.call(this, options);
-
-      // Set up OAuth so we can retrieve the pretty service name
-      this.setupOAuth({
-        assertionLibrary: options.assertionLibrary,
-        oAuthClient: options.oAuthClient
-      });
-    },
 
     afterRender: function () {
       this.setupOAuthLinks();
       return SignUpView.prototype.afterRender.call(this);
-    },
-
-    onSignUpSuccess: function (accountData) {
-      // Store oauth state for when/if the oauth flow completes
-      // in this browser
-      this.persistOAuthParams();
-      if (accountData.verified) {
-        // the account is verified using the pre-verify flow. Send the user
-        // back to the RP without further interaction.
-        return this.finishOAuthFlow();
-      } else {
-        return SignUpView.prototype.onSignUpSuccess.call(this, accountData);
-      }
     }
   });
 

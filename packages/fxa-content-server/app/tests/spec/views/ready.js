@@ -13,10 +13,11 @@ define([
   'lib/fxa-client',
   'lib/promise',
   'models/reliers/fx-desktop',
+  'models/auth_brokers/oauth',
   '../../mocks/window'
 ],
 function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
-      WindowMock) {
+      OAuthBroker, WindowMock) {
   var assert = chai.assert;
 
   describe('views/ready', function () {
@@ -24,18 +25,25 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
     var windowMock;
     var fxaClient;
     var relier;
+    var broker;
 
     function createView() {
       windowMock = new WindowMock();
       relier = new FxDesktopRelier({
         window: windowMock
       });
+      broker = new OAuthBroker({
+        session: Session,
+        window: windowMock,
+        relier: relier
+      });
       fxaClient = new FxaClient();
 
       view = new View({
         window: windowMock,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
     }
 
@@ -101,10 +109,10 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
               assert.equal(view.$('.marketing').length, 1);
             });
       });
-
     });
 
 
+    /*
     describe('afterVisible', function () {
       it('auto-completes the OAuth flow if using the WebChannel on the same browser', function () {
         relier.set('webChannelId', 'channel_id');
@@ -122,21 +130,19 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
             });
       });
     });
+    */
 
     describe('submit', function () {
-      it('completes the oauth flow if completing in the same browser', function () {
-        relier.set('clientId', 'fmd');
-        //jshint camelcase: false
-        Session.set('oauth', { client_id: 'fmd' });
-
-        sinon.stub(view, 'finishOAuthFlow', function () {
+      it('notifies the broker of completion', function () {
+        sinon.stub(broker, 'afterResetPasswordVerified', function () {
           return p(true);
         });
 
+        view.type = 'reset_password';
         return view.submit()
-            .then(function () {
-              assert.isTrue(view.finishOAuthFlow.called);
-            });
+          .then(function () {
+            assert.isTrue(broker.afterResetPasswordVerified.calledWith(view));
+          });
       });
 
       it('shows an error if submitting and not an oauth flow on the same browser', function () {
