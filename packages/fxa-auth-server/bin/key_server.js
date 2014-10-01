@@ -8,14 +8,9 @@ var config = require('../config').root()
 function main() {
   var log = require('../log')(config.log.level)
 
-  function logMemoryStats() {
-    log.stat(
-      {
-        stat: 'mem',
-        rss: this.rss,
-        heapUsed: this.heapUsed
-      }
-    )
+  function logStatInfo() {
+    log.stat(server.stat())
+    log.stat(Password.stat())
   }
 
   log.event('config', config)
@@ -25,6 +20,7 @@ function main() {
 
   var error = require('../error')
   var Token = require('../tokens')(log, config.tokenLifetimes)
+  var Password = require('../crypto/password')(log, config)
 
   var CC = require('compute-cluster')
   var signer = new CC({ module: __dirname + '/signer.js' })
@@ -35,7 +31,7 @@ function main() {
   var Server = require('../server')
   var server = null
   var mailer = null
-  var memInterval = null
+  var statsInterval = null
   var database = null
   var customs = null
 
@@ -68,6 +64,7 @@ function main() {
                 signer,
                 db,
                 mailer,
+                Password,
                 config,
                 customs
               )
@@ -78,7 +75,7 @@ function main() {
                   log.info({ op: 'server.start.1', msg: 'running on ' + server.info.uri })
                 }
               )
-              memInterval = setInterval(logMemoryStats.bind(server.load), 15000)
+              statsInterval = setInterval(logStatInfo, 15000)
             },
             function (err) {
               log.error({ op: 'DB.connect', err: { message: err.message } })
@@ -101,7 +98,7 @@ function main() {
 
   function shutdown() {
     log.info({ op: 'shutdown' })
-    clearInterval(memInterval)
+    clearInterval(statsInterval)
     server.stop(
       function () {
         customs.close()

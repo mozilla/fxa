@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
-var Password = require('../../crypto/password')
+var log = {}
+var config = {}
+var Password = require('../../crypto/password')(log, config)
 
 test(
   'password version zero',
@@ -69,5 +71,16 @@ test(
         t.ok(!matched, 'passwords should not match')
       }
     )
+  }
+)
+
+test(
+  'scrypt queue stats can be reported',
+  function (t) {
+    var stat = Password.stat()
+    t.equal(stat.stat, 'scrypt')
+    t.ok(stat.hasOwnProperty('numPending'))
+    t.ok(stat.hasOwnProperty('numPendingHWM'))
+    t.end()
   }
 )
