@@ -8,11 +8,12 @@ define([
   'underscore',
   'views/form',
   'views/base',
+  'views/mixins/avatar-mixin',
   'stache!templates/settings',
   'lib/session',
   'lib/constants'
 ],
-function (_, FormView, BaseView, Template, Session, Constants) {
+function (_, FormView, BaseView, AvatarMixin, Template, Session, Constants) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -26,7 +27,7 @@ function (_, FormView, BaseView, Template, Session, Constants) {
       return {
         email: Session.email,
         avatar: Session.avatar,
-        showSignOut: Session.get('sessionTokenContext') !== Constants.FX_DESKTOP_CONTEXT
+        showSignOut: Session.sessionTokenContext !== Constants.FX_DESKTOP_CONTEXT
       };
     },
 
@@ -43,8 +44,29 @@ function (_, FormView, BaseView, Template, Session, Constants) {
                   success: t('Signed out')
                 });
               });
+    },
+
+    afterVisible: function () {
+      FormView.prototype.afterVisible.call(this);
+      return this.loadProfileImage();
+    },
+
+    loadProfileImage: function () {
+      var self = this;
+
+      return this._fetchProfileImage()
+        .then(function () {
+          if (Session.avatar) {
+            self.$('.avatar-wrapper').append(new Image());
+            self.$('.avatar-wrapper img').attr('src', Session.avatar);
+          }
+        }, function () {
+          // Ignore other errors and just show the default image
+        });
     }
   });
+
+  _.extend(View.prototype, AvatarMixin);
 
   return View;
 });

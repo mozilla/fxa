@@ -8,10 +8,11 @@ define([
   'underscore',
   'views/form',
   'stache!templates/settings/avatar',
+  'views/mixins/avatar-mixin',
   'lib/auth-errors',
   'lib/session'
 ],
-function (_, FormView, Template, AuthErrors, Session) {
+function (_, FormView, Template, AvatarMixin, AuthErrors, Session) {
   var View = FormView.extend({
     // user must be authenticated to see Settings
     mustAuth: true,
@@ -26,24 +27,14 @@ function (_, FormView, Template, AuthErrors, Session) {
     },
 
     beforeRender: function () {
-      if (! Session.avatar || !Session.avatarId) {
-        return this._fetchProfileImage();
-      }
+      return this.loadProfileImage();
     },
 
-    // When profile images are more widely released (#1582)
-    // we would fetch the image right after sign in, or only for
-    // specific email domains (#1567).
-    _fetchProfileImage: function () {
+    loadProfileImage: function () {
       var self = this;
 
-      return this.profileClient.getAvatar()
-        .then(function (result) {
-          if (result.avatar) {
-            Session.set('avatar', result.avatar);
-            Session.set('avatarId', result.id);
-          }
-        }, function (err) {
+      return this._fetchProfileImage()
+        .fail(function (err) {
           if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
             return self.fxaClient.signUpResend(self.relier)
               .then(function () {
@@ -55,8 +46,9 @@ function (_, FormView, Template, AuthErrors, Session) {
           throw err;
         });
     }
-
   });
+
+  _.extend(View.prototype, AvatarMixin);
 
   return View;
 });

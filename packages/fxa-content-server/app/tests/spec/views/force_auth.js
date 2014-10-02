@@ -24,13 +24,15 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
-    describe('missing email address', function () {
-      var view;
-      var windowMock;
-      var fxaClient;
-      var relier;
-      var broker;
+    var email;
+    var view;
+    var router;
+    var windowMock;
+    var fxaClient;
+    var relier;
+    var profileClientMock;
 
+    describe('missing email address', function () {
       beforeEach(function () {
         windowMock = new WindowMock();
         windowMock.location.search = '';
@@ -38,11 +40,13 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
         relier = new Relier();
         broker = new Broker();
         fxaClient = new FxaClient();
+        profileClientMock = TestHelpers.stubbedProfileClient();
 
         Session.clear();
         view = new View({
           window: windowMock,
           fxaClient: fxaClient,
+          profileClient: profileClientMock,
           relier: relier,
           broker: broker
         });
@@ -119,14 +123,6 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
     });
 
     describe('with email', function () {
-      var view;
-      var windowMock;
-      var router;
-      var email;
-      var fxaClient;
-      var relier;
-      var broker;
-
       beforeEach(function () {
         email = TestHelpers.createEmail();
         Session.set('prefillPassword', 'password');
@@ -137,12 +133,14 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
         relier.set('email', email);
         broker = new Broker();
         fxaClient = new FxaClient();
+        profileClientMock = TestHelpers.stubbedProfileClient();
         router = new RouterMock();
 
         view = new View({
           window: windowMock,
           router: router,
           fxaClient: fxaClient,
+          profileClient: profileClientMock,
           relier: relier,
           broker: broker
         });

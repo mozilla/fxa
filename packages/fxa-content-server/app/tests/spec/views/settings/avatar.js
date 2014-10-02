@@ -23,7 +23,6 @@ define([
 function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
     p, Session, Profile, AuthErrors, Relier) {
   var assert = chai.assert;
-  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
   var IMG_URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
   describe('views/settings/avatar', function () {
@@ -90,12 +89,13 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
       });
 
       it('has an avatar set', function () {
-        Session.set('avatar', pngSrc);
-        Session.set('avatarId', 'foo');
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p({ avatar: IMG_URL, id: 'bar' });
+        });
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('.avatar-wrapper img').attr('src'), pngSrc);
+            assert.equal(view.$('.avatar-wrapper img').attr('src'), IMG_URL);
           });
       });
 

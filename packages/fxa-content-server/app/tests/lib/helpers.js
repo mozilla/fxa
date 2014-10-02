@@ -5,8 +5,10 @@
 'use strict';
 
 define([
-  'sinon'
-], function (sinon) {
+  'sinon',
+  'lib/promise',
+  '../mocks/profile.js'
+], function (sinon, p, ProfileMock) {
   function requiresFocus(callback, done) {
     // Give the document focus
     window.focus();
@@ -120,6 +122,16 @@ define([
     return searchString + pairs.join('&');
   }
 
+  function stubbedProfileClient () {
+    var profileClientMock = new ProfileMock();
+
+    sinon.stub(profileClientMock, 'getAvatar', function () {
+      return p({});
+    });
+
+    return profileClientMock;
+  }
+
   return {
     requiresFocus: requiresFocus,
     addFxaClientSpy: addFxaClientSpy,
@@ -131,6 +143,7 @@ define([
     isEventLogged: isEventLogged,
     isErrorLogged: isErrorLogged,
     isScreenLogged: isScreenLogged,
-    toSearchString: toSearchString
+    toSearchString: toSearchString,
+    stubbedProfileClient: stubbedProfileClient
   };
 });

@@ -15,9 +15,11 @@ define([
   'lib/auth-errors',
   'lib/validate',
   'views/mixins/service-mixin',
+  'views/mixins/avatar-mixin',
   'views/decorators/progress_indicator'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, AuthErrors, Validate, ServiceMixin, showProgressIndicator) {
+function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
+      AuthErrors, Validate, ServiceMixin, AvatarMixin, showProgressIndicator) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -48,6 +50,22 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail',
       'click .use-logged-in': 'useLoggedInAccount',
       'click .use-different': 'useDifferentAccount'
+    },
+
+    afterVisible: function () {
+      var self = this;
+
+      FormView.prototype.afterVisible.call(this);
+
+      return this._fetchProfileImage()
+        .then(function () {
+          if (Session.avatar) {
+            self.$('.avatar-wrapper').append(new Image());
+            self.$('.avatar-wrapper img').attr('src', Session.avatar);
+          }
+        }, function () {
+          // Ignore errors and just show the default image
+        });
     },
 
     beforeDestroy: function () {
@@ -246,6 +264,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
 
   _.extend(View.prototype, PasswordMixin);
   _.extend(View.prototype, ServiceMixin);
+  _.extend(View.prototype, AvatarMixin);
 
   return View;
 });

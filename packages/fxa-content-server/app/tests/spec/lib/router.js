@@ -37,11 +37,14 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
     var metrics;
     var relier;
     var broker;
+    var profileClientMock;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
 
       $('#container').html('<div id="stage"></div>');
+
+      profileClientMock = TestHelpers.stubbedProfileClient();
 
       windowMock = new WindowMock();
       metrics = new Metrics();
@@ -115,11 +118,13 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         signInView = new SignInView({
           metrics: metrics,
           window: windowMock,
+          profileClient: profileClientMock,
           relier: relier
         });
         signUpView = new SignUpView({
           metrics: metrics,
           window: windowMock,
+          profileClient: profileClientMock,
           relier: relier
         });
       });

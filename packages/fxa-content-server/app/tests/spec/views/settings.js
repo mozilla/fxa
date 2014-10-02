@@ -12,6 +12,7 @@ define([
   'sinon',
   'views/settings',
   '../../mocks/router',
+  '../../mocks/profile',
   '../../lib/helpers',
   'lib/session',
   'lib/constants',
@@ -19,7 +20,7 @@ define([
   'lib/promise',
   'models/reliers/relier'
 ],
-function (chai, _, $, sinon, View, RouterMock, TestHelpers, Session, Constants,
+function (chai, _, $, sinon, View, RouterMock, ProfileMock, TestHelpers, Session, Constants,
       FxaClient, p, Relier) {
   var assert = chai.assert;
 
@@ -27,17 +28,20 @@ function (chai, _, $, sinon, View, RouterMock, TestHelpers, Session, Constants,
     var view;
     var routerMock;
     var fxaClient;
+    var profileClientMock;
     var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
       fxaClient = new FxaClient();
+      profileClientMock = new ProfileMock();
 
       view = new View({
         router: routerMock,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        profileClient: profileClientMock
       });
     });
 
@@ -64,6 +68,12 @@ function (chai, _, $, sinon, View, RouterMock, TestHelpers, Session, Constants,
         });
         Session.set('sessionToken', 'sessiontoken');
 
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p({});
+        });
+
+        email = TestHelpers.createEmail();
+
         return view.render()
           .then(function () {
             $('body').append(view.el);
@@ -72,6 +82,35 @@ function (chai, _, $, sinon, View, RouterMock, TestHelpers, Session, Constants,
 
       it('shows the settings page', function () {
         assert.ok(view.$('#fxa-settings-header').length);
+      });
+
+      it('has no avatar set', function () {
+        Session.clear('avatar');
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.equal(view.$('.avatar-wrapper img').length, 0);
+          });
+      });
+
+      it('has an avatar set', function () {
+        var url = 'https://example.com/avatar.jpg';
+        var id = 'foo';
+        profileClientMock.getAvatar.restore();
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p({ avatar: url, id: id });
+        });
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.equal(view.$('.avatar-wrapper img').attr('src'), url);
+          });
       });
 
       describe('submit', function () {

@@ -32,6 +32,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
     var relier;
     var metrics;
     var broker;
+    var profileClientMock;
 
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var STATE = '123';
@@ -55,6 +56,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       });
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      profileClientMock = TestHelpers.stubbedProfileClient();
 
       view = new View({
         router: router,
@@ -62,6 +64,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
+        profileClient: profileClientMock,
         metrics: metrics
       });
 

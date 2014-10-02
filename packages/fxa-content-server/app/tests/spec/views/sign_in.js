@@ -34,7 +34,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
     var windowMock;
     var fxaClient;
     var relier;
+<<<<<<< HEAD
     var broker;
+=======
+    var profileClientMock;
+>>>>>>> fix(avatars): load profile image on settings and sign in pages if available
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -48,14 +52,20 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
+      profileClientMock = TestHelpers.stubbedProfileClient();
 
       view = new View({
         router: routerMock,
         metrics: metrics,
         window: windowMock,
         fxaClient: fxaClient,
+<<<<<<< HEAD
         relier: relier,
         broker: broker
+=======
+        profileClient: profileClientMock,
+        relier: relier
+>>>>>>> fix(avatars): load profile image on settings and sign in pages if available
       });
 
       return view.render()
@@ -97,6 +107,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           router: routerMock,
           metrics: metrics,
           window: windowMock,
+          profileClient: profileClientMock,
           relier: relier,
           broker: broker
         });
