@@ -1,0 +1,49 @@
+{
+  "name": "fxa-oauth-console",
+  "version": "0.1.0",
+  "description": "Firefox Accounts OAuth Credential Management Dashboard",
+  "scripts": {
+    "start": "grunt server",
+    "test": "grunt test --node-env=test",
+    "outdated": "npm outdated --depth 0",
+    "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa-oauth-console"
+  },
+  "homepage": "https://github.com/mozilla/fxa-oauth-console",
+  "bugs": "https://github.com/mozilla/fxa-oauth-console/issues",
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL 2.0",
+  "dependencies": {
+    "bluebird": "2.3.4",
+    "body-parser": "1.8.1",
+    "bower": "1.3.12",
+    "convict": "0.4.2",
+    "cookie-parser": "1.3.3",
+    "express": "4.9.5",
+    "grunt-sass": "0.14.2",
+    "intel": "1.0.0-b6",
+    "jade": "1.6.0",
+    "mysql": "2.5.1",
+    "node-sass": "0.9.5-rc1"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-concurrent": "^1.0.0",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-copyright": "^0.1.0",
+    "grunt-jscs": "^0.7.1",
+    "grunt-node-inspector": "^0.1.5",
+    "grunt-nodemon": "^0.3.0",
+    "jshint-stylish": "^1.0.0",
+    "load-grunt-tasks": "^0.6.0",
+    "opn": "^1.0.0"
+  },
+  "engines": {
+    "node": "0.10.0"
+  },
+  "readmeFilename": "README.md"
+}

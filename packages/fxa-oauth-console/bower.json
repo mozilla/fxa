@@ -1,0 +1,8 @@
+{
+  "name": "fxa-oauth-console",
+  "dependencies": {
+    "angular": "1.2.26",
+    "moment": "2.8.3",
+    "foundation": "zurb/bower-foundation#5.4.5"
+  }
+}
