@@ -33,10 +33,15 @@ function pipeToWorker(id, payload, headers) {
     var opts = { headers: headers, json: true };
     logger.verbose('posting to worker', url);
     payload.pipe(request.post(url, opts, function(err, res, body) {
-      err = err || body.error;
       if (err) {
-        logger.error('Processing error', err);
+        logger.error('Network Error to worker', err);
         reject(AppError.processingError(err));
+        return;
+      }
+
+      if (body.error) {
+        logger.error('Worker Error', body);
+        reject(AppError.processingError(body));
         return;
       }
 

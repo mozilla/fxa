@@ -7,6 +7,7 @@ const path = require('path');
 const ComputeCluster = require('compute-cluster');
 const toArray = require('stream-to-array');
 
+const AppError = require('../error');
 const config = require('../config');
 const logger = require('../logging').getLogger('fxa.compute');
 const P  = require('../promise');
@@ -54,7 +55,8 @@ exports.image = function image(id, payload) {
         payload: buf
       }, function(err, res) {
         if (err) {
-          reject(err);
+          logger.error(err);
+          reject(AppError.processingError(err));
         } else {
           resolve(res);
         }
