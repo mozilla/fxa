@@ -42,10 +42,16 @@ function processImage(src) {
 function compute(msg, callback) {
   var id = msg.id;
   var src = Buffer(msg.payload);
+  var start = Date.now();
+  var s3Start = start;
+  logger.debug('In %d bytes', src.length);
   processImage(src).then(function(out) {
+    s3Start = Date.now();
+    logger.info('time.ms.gm', s3Start - start);
     logger.debug('Out %d bytes', out.length);
     return img.upload(id, out, CONTENT_TYPE_PNG);
   }).done(function() {
+    logger.info('time.ms.s3', Date.now() - s3Start);
     callback({ id: id });
   }, function(err) {
     logger.error('compute', err);
