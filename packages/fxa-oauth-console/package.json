@@ -44,6 +44,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-copyright": "^0.1.0",
     "grunt-jscs": "^0.7.1",
+    "ember-cli": "0.1.1",
     "grunt-node-inspector": "^0.1.5",
     "grunt-nodemon": "^0.3.0",
     "jshint-stylish": "^1.0.0",
