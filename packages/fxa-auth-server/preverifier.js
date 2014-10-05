@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 var jws = require('jws')
+var b64urltohex = require('jwcrypto/lib/utils').b64urltohex
 var P = require('./promise')
 
 module.exports = function (jwks, error, config) {
@@ -38,7 +39,7 @@ module.exports = function (jwks, error, config) {
         function (key) {
           var d = P.defer()
           var parts = token.split('.')
-          key.verify(parts[0] + '.' + parts[1], parts[2],
+          key.verify(parts[0] + '.' + parts[1], b64urltohex(parts[2]),
             function (err, result) {
               var invalid = jwtError(err, result, email, parseJwt(parts[1]))
               if (invalid) {
