@@ -1,3 +1,4 @@
 {
-  "directory": "public/js/components"
+  "directory": "bower_components",
+  "analytics": false
 }

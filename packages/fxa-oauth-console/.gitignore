@@ -25,7 +25,10 @@ build/Release
 node_modules
 
 # Bower Components
-public/js/components
+bower_components
 
 # Users Environment Variables
 .lock-wscript
+
+dist
+tmp

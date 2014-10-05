@@ -1,7 +1,16 @@
 language: node_js
 
+addons:
+  firefox: "32.0"
+
+before_install:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - npm install
+
 node_js:
   - '0.10'
 
 script:
-  - grunt lint
+  - bower install
+  - ember test
