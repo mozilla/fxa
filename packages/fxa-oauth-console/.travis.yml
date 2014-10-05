@@ -6,10 +6,9 @@ addons:
 before_install:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
-  - npm install
 
 node_js:
   - '0.10'
 
 script:
-  - ember test
+  - node_modules/.bin/ember test
