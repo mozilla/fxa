@@ -12,7 +12,7 @@
 (function () {
   //takes the option: toHTML {boolean}
 
-  var appendHtml = function (filename, data, toHTML) {
+  var appendHtml = function (filename, data) {
 
     var str = '';
     str += 'SF:app/' + filename + '\n';

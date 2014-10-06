@@ -7,9 +7,8 @@ define([
   'intern!object',
   'intern/chai!assert',
   'intern/dojo/node!../../server/lib/configuration',
-  'intern/dojo/node!request',
-  'tests/lib/helpers'
-], function (intern, registerSuite, assert, config, request, TestHelpers) {
+  'intern/dojo/node!request'
+], function (intern, registerSuite, assert, config, request) {
   'use strict';
 
   var httpsUrl = config.get('public_url');

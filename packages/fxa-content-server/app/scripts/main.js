@@ -7,7 +7,7 @@
 require([
   './require_config'
 ],
-function (RequireConfig) {
+function () {
   // Ensure config is loaded before trying to load any other scripts.
   require(['./lib/app-start'], function (AppStart) {
     var appStart = new AppStart();

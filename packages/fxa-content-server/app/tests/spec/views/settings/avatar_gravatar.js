@@ -107,7 +107,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
         });
 
         it('submits', function () {
-          sinon.stub(profileClientMock, 'postAvatar', function (url) {
+          sinon.stub(profileClientMock, 'postAvatar', function () {
             return p({
               id: 'foo'
             });
@@ -126,7 +126,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
         });
 
         it('submits and errors', function () {
-          sinon.stub(profileClientMock, 'postAvatar', function (url) {
+          sinon.stub(profileClientMock, 'postAvatar', function () {
             return p.reject(Profile.Errors.toError('UNSUPPORTED_PROVIDER'));
           });
 

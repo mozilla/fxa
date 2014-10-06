@@ -14,9 +14,9 @@ define([
   p.jQueryXHR = function (jQueryDeferred) {
     var defer = p.defer();
 
-    jQueryDeferred.then(function (data, textStatus, jqXHR) {
+    jQueryDeferred.then(function (data/*,textStatus, jqXHR*/) {
       defer.resolve(data);
-    }, function (jqXHR, textStatus, errorThrown) {
+    }, function (jqXHR/*, textStatus, errorThrown*/) {
       defer.reject(jqXHR);
     });
 

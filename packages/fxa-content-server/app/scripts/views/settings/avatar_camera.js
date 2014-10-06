@@ -13,10 +13,9 @@ define([
   'lib/constants',
   'lib/promise',
   'lib/session',
-  'lib/auth-errors',
-  'lib/url'
+  'lib/auth-errors'
 ],
-function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, Session, AuthErrors, Url) {
+function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, Session, AuthErrors) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -92,7 +91,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
           }
           self.video[0].play();
         },
-        function (err) {
+        function () {
           self._avatarProgressIndicator.done();
           self.displayError(AuthErrors.toCode('NO_CAMERA'));
         }

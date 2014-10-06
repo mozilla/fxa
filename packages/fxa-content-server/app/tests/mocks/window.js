@@ -52,7 +52,7 @@ function (_, Backbone) {
     };
 
     this.URL = {
-      createObjectURL: function (stream) {
+      createObjectURL: function (/*stream*/) {
         return '';
       }
     };
@@ -88,11 +88,11 @@ function (_, Backbone) {
       return !! (this.dispatchedEvents && this.dispatchedEvents[eventName]);
     },
 
-    addEventListener: function (msg, callback, bubbles) {
+    addEventListener: function (msg, callback/*, bubbles*/) {
       this.on(msg, callback);
     },
 
-    removeEventListener: function (msg, callback, bubbles) {
+    removeEventListener: function (msg, callback/*, bubbles*/) {
       this.off(msg, callback);
     },
 
@@ -100,10 +100,10 @@ function (_, Backbone) {
       return data;
     },
 
-    scrollTo: function (x, y) {
+    scrollTo: function (/*x, y*/) {
     },
 
-    setTimeout: function (callback, timeoutMS) {
+    setTimeout: function (/*callback, timeoutMS*/) {
       this._isTimeoutSet = true;
       return 'timeout';
     },
@@ -112,7 +112,7 @@ function (_, Backbone) {
       return !!this._isTimeoutSet;
     },
 
-    clearTimeout: function (timeout) {
+    clearTimeout: function (/*timeout*/) {
     },
 
     navigator: {

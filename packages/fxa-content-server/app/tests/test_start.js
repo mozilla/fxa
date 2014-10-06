@@ -4,10 +4,9 @@
 require([
   'lib/translator',
   'lib/session',
-  'lib/fxa-client',
   '../tests/setup'
 ],
-function (Translator, Session, FxaClientWrapper) {
+function (Translator, Session) {
   'use strict';
 
   var tests = [

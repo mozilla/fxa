@@ -8,9 +8,8 @@
 'use strict';
 
 define([
-  'underscore',
-  'lib/constants'
-], function (_, Constants) {
+  'underscore'
+], function (_) {
   var NAMESPACE = '__fxa_session';
 
   // and should not be saved to sessionStorage

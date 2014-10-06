@@ -8,9 +8,8 @@ define([
   'intern/chai!assert',
   'require',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers',
-  'intern/dojo/node!leadfoot/helpers/pollUntil'
-], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers, pollUntil) {
+  'tests/functional/lib/helpers'
+], function (intern, registerSuite, assert, require, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;

@@ -40,7 +40,7 @@ function (_, chai, Router, View, WebChannel, WindowMock) {
           window: windowMock
         });
 
-        channel.send('after_render', {}, function (err, response) {
+        channel.send('after_render', {}, function (err) {
           assert.notOk(err);
           assert.ok(windowMock.dispatchedEvents['after_render']);
           done();

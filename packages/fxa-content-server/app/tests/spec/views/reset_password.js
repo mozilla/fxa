@@ -133,7 +133,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
 
     describe('submit when user cancelled login', function () {
       it('logs an error', function () {
-        view.fxaClient.passwordReset = function (email) {
+        view.fxaClient.passwordReset = function () {
           return p()
               .then(function () {
                 throw AuthErrors.toError('USER_CANCELED_LOGIN');
@@ -141,10 +141,10 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
         };
 
         return view.submit()
-                  .then(null, function (err) {
+                  .then(null, function () {
                     assert.isTrue(false, 'unexpected failure');
                   })
-                  .then(function (err) {
+                  .then(function () {
                     assert.isFalse(view.isErrorVisible());
 
                     assert.isTrue(TestHelpers.isEventLogged(metrics,
@@ -155,7 +155,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
 
     describe('submit with other error', function () {
       it('passes other errors along', function () {
-        view.fxaClient.passwordReset = function (email) {
+        view.fxaClient.passwordReset = function () {
           return p()
               .then(function () {
                 throw AuthErrors.toError('INVALID_JSON');

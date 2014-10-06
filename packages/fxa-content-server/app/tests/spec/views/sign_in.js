@@ -218,7 +218,7 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
         $('[type=email]').val(email);
         $('[type=password]').val('incorrect');
 
-        view.fxaClient.signIn = function (email) {
+        view.fxaClient.signIn = function () {
           return p()
               .then(function () {
                 throw AuthErrors.toError('INVALID_JSON');

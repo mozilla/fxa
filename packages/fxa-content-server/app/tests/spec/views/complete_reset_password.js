@@ -284,7 +284,7 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
       });
 
       it('shows server response as an error otherwise', function () {
-        view.fxaClient.passwordReset = function (email) {
+        view.fxaClient.passwordReset = function () {
           return p()
               .then(function () {
                 throw new Error('server error');

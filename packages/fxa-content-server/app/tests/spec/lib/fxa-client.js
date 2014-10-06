@@ -236,9 +236,9 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     describe('signIn', function () {
       it('signin with unknown user should call errorback', function () {
         return client.signIn('unknown@unknown.com', 'password')
-              .then(function (info) {
+              .then(function () {
                 assert(false, 'unknown user cannot sign in');
-              }, function (err) {
+              }, function () {
                 assert.isTrue(true);
               });
       });
@@ -513,7 +513,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
         var duration = 86400000;
 
         return client.signUp(email, password, { preVerified: true })
-          .then(function (kp) {
+          .then(function () {
             return client.certificateSign(publicKey, duration);
           })
           .then(function (cert) {

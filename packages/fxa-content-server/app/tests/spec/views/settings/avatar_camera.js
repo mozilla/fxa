@@ -16,15 +16,10 @@ define([
   '../../../mocks/canvas',
   '../../../mocks/profile',
   'lib/promise',
-  'lib/session',
-  'lib/constants',
-  'lib/auth-errors',
-  'lib/fxa-client',
-  'lib/profile',
-  'models/reliers/relier'
+  'lib/session'
 ],
 function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMock, p,
-      Session, Constants, AuthErrors, FxaClient, Profile, Relier) {
+      Session) {
   var assert = chai.assert;
 
   describe('views/settings/avatar/camera', function () {

@@ -7,10 +7,9 @@
 
 define([
   'chai',
-  'views/tos',
-  'lib/session'
+  'views/tos'
 ],
-function (chai, View, Session) {
+function (chai, View) {
   var assert = chai.assert;
 
   describe('views/tos', function () {
