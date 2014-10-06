@@ -12,7 +12,6 @@ define([
   'use strict';
 
   var PAGE_URL = intern.config.fxaContentRoot + 'signup';
-  var TOS_URL = intern.config.fxaContentRoot + 'legal/terms';
 
   registerSuite({
     name: 'tos',
@@ -36,24 +35,6 @@ define([
 
         // success is going back to the signup
         .findByCssSelector('#fxa-signup-header')
-        .end();
-    },
-
-    'start at terms': function () {
-
-      return this.get('remote')
-        .get(require.toUrl(TOS_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        .findById('fxa-tos-header')
-        .end()
-
-        .findById('fxa-tos-home')
-          .click()
-        .end()
-
-        // success is going home
-        .findById('fxa-signup-header')
         .end();
     }
   });
