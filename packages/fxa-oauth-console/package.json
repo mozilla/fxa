@@ -52,7 +52,8 @@
     "opn": "^1.0.0"
   },
   "engines": {
-    "node": "0.10.0"
+    "node": ">=0.10.0",
+    "npm" : ">=1.4"
   },
   "readmeFilename": "README.md"
 }
