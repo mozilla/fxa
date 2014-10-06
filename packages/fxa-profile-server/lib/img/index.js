@@ -37,7 +37,7 @@ function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function withDriverProxiedThen(driver) {
-      logger.verbose('proxied', method, [].slice.call(args));
+      logger.verbose('proxied', method, args.length);
       return driver[method].apply(driver, args);
     }).catch(function(err) {
       logger.error('%s(): %s', method, err);
