@@ -17,6 +17,10 @@ var config = require('../../config').root()
 var secretKey = jwcrypto.loadSecretKey(fs.readFileSync(config.secretKeyFile))
 function fail() { throw new Error('call succeeded when it should have failed')}
 
+function nowSeconds() {
+  return Math.floor(Date.now() / 1000)
+}
+
 TestServer.start(config)
 .then(function main(server) {
 
@@ -34,7 +38,7 @@ TestServer.start(config)
       ))
       var payload = b64(JSON.stringify(
         {
-          exp: Date.now() + 10000,
+          exp: nowSeconds() + 10,
           aud: config.domain,
           sub: email
         }
@@ -70,7 +74,7 @@ TestServer.start(config)
       ))
       var payload = b64(JSON.stringify(
         {
-          exp: Date.now() + 10000,
+          exp: nowSeconds() + 10,
           aud: config.domain,
           sub: 'wrong@example.com'
         }
@@ -110,7 +114,7 @@ TestServer.start(config)
             ))
             var payload = b64(JSON.stringify(
               {
-                exp: Date.now() + 10000,
+                exp: nowSeconds() + 10,
                 aud: config.domain,
                 sub: email
               }

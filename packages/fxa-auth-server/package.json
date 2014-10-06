@@ -28,7 +28,7 @@
     "node": "0.10.x"
   },
   "dependencies": {
-    "aws-sdk": "2.0.15",
+    "aws-sdk": "2.0.18",
     "bigint": "0.4.2",
     "binary-split": "0.1.2",
     "bunyan": "1.0.1",
@@ -43,9 +43,9 @@
     "jws": "0.2.6",
     "p-promise": "0.4.8",
     "poolee": "0.4.15",
-    "request": "2.42.0",
+    "request": "2.45.0",
     "scrypt-hash": "1.1.8",
-    "through": "2.3.4",
+    "through": "2.3.6",
     "uuid": "1.4.1"
   },
   "devDependencies": {
@@ -62,6 +62,6 @@
     "nock": "0.48.0",
     "simplesmtp": "0.3.33",
     "sjcl": "1.0.1",
-    "tap": "0.4.12"
+    "tap": "0.4.13"
   }
 }

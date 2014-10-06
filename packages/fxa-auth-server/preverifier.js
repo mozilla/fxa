@@ -7,6 +7,10 @@ var P = require('./promise')
 
 module.exports = function (jwks, error, config) {
 
+  function nowSeconds() {
+    return Math.floor(Date.now() / 1000)
+  }
+
   function parseJwt(str) {
     try { return JSON.parse(Buffer(str, 'base64')) } catch (e) { return {} }
   }
@@ -18,7 +22,7 @@ module.exports = function (jwks, error, config) {
     if (!result) {
       return { sig: 'invalid' }
     }
-    if (jwt.exp < Date.now()) {
+    if (jwt.exp < nowSeconds()) {
       return { exp: jwt.exp }
     }
     if (jwt.aud !== config.domain) {
