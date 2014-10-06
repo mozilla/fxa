@@ -1,3 +1,7 @@
+0.4.0
+  * Validation errors should return 400 errors, not 500 - #68
+  * Document the current blocking and rate-limiting policies - #63
+
 0.3.0
   * Add support for account lockout on excessive login attempts - #58, #60
   * normalize email addresses (compare the lower case values) - #59, #62
