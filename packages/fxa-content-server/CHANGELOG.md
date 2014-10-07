@@ -1,3 +1,25 @@
+<a name="0.23.0"></a>
+## 0.23.0 (2014-10-07)
+
+
+#### Bug Fixes
+
+* **appStart:** show an error screen when errors occur during app start ([e457eae4](https://github.com/mozilla/fxa-content-server/commit/e457eae409c8b5674c3bfb7a888025781c1f94f4))
+* **avatars:** redirect unverified users to confirm screen ([d440e4d7](https://github.com/mozilla/fxa-content-server/commit/d440e4d74a1893d50a38bf7fd615e1ed4ab57130), closes [#1662](https://github.com/mozilla/fxa-content-server/issues/1662))
+* **fxa-client:** update to latest client ([fdb6dbbb](https://github.com/mozilla/fxa-content-server/commit/fdb6dbbbaf392d6a9e28120c9170dfbf8bcedb22))
+* **style:** ensure legal pages are no taller than /signup ([1698922b](https://github.com/mozilla/fxa-content-server/commit/1698922bda64dd09e50e59bb91b014a768db6fd7))
+* **tests:**
+  * run tos and pp test for saving information separately - fixes #1640 ([d2f52126](https://github.com/mozilla/fxa-content-server/commit/d2f5212642f4b8275f9eaca94bc0e3503fad5df6))
+  * Only set the autofocus timeout if the element to be focused is hidden. ([ce2ce9d0](https://github.com/mozilla/fxa-content-server/commit/ce2ce9d03e428fcb7ba1be021114482d0bd7fd4a))
+
+
+#### Features
+
+* **client:**
+  * Smooth out the verification flow. ([02b0d351](https://github.com/mozilla/fxa-content-server/commit/02b0d3514586fc2759c1af7cecd3ba420d16385d))
+  * Fix the COPPA flow to allow 13 year olds that are born this year to register. ([61ec08bd](https://github.com/mozilla/fxa-content-server/commit/61ec08bd98cf21605b95b284c60156ac9f580e20))
+
+
 <a name="0.22.0"></a>
 ## 0.22.0 (2014-09-22)
 
