@@ -151,6 +151,13 @@ define([
         assert.isTrue(relier.isOAuth());
       });
     });
+
+    describe('toResumeToken', function () {
+      it('returns an opaque token to be passed along with email verification links', function () {
+        relier.set('state', 'STATE');
+        assert.equal(typeof relier.toResumeToken(), 'string');
+      });
+    });
   });
 });
 

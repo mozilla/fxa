@@ -10,8 +10,10 @@
 
 define([
   'underscore',
-  'models/reliers/relier'
-], function (_, Relier) {
+  'models/reliers/relier',
+  'lib/resume-token'
+], function (_, Relier, ResumeToken) {
+  var RELIER_FIELDS_IN_RESUME_TOKEN = ['state'];
 
   var OAuthRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
@@ -58,6 +60,18 @@ define([
 
     isOAuth: function () {
       return true;
+    },
+
+    toResumeToken: function () {
+      var resumeObj = {};
+
+      _.each(RELIER_FIELDS_IN_RESUME_TOKEN, function (itemName) {
+        if (this.has(itemName)) {
+          resumeObj[itemName] = this.get(itemName);
+        }
+      }, this);
+
+      return ResumeToken.stringify(resumeObj);
     },
 
     _isVerificationFlow: function () {

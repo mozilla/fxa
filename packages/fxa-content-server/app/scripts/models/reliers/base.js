@@ -40,6 +40,14 @@ define([
      */
     isSync: function () {
       return false;
+    },
+
+    /**
+     * Create a resume token to be passed along in the email
+     * verification links
+     */
+    toResumeToken: function () {
+      return null;
     }
   });
 
