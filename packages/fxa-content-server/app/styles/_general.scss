@@ -531,6 +531,7 @@ label:focus ~ .input-help-focused {
   }
 
   select {
+    @include font();
     // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
     -moz-appearance: none;
     -webkit-appearance: none;
