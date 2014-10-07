@@ -45,17 +45,23 @@
               <button id="submit-btn" type="submit" class="disabled">{{#t}}Sign in{{/t}}</button>
             </div>
            </form>
+
+           <div class="links">
+             <a href="/reset_password" class="left reset-password">{{#t}}Forgot password?{{/t}}</a>
+             <a href="/#" class="right use-different">{{#t}}Use a different account{{/t}}</a><br/>
+           </div>
         {{/chooserAskForPassword}}
 
         {{^chooserAskForPassword}}
           <div class="button-row">
             <button type="submit" class="use-logged-in">{{#t}}Sign in{{/t}}</button>
           </div>
+
+          <div class="links">
+            <a href="/#" class="use-different">{{#t}}Use a different account{{/t}}</a><br/>
+          </div>
         {{/chooserAskForPassword}}
 
-        <div class="links">
-          <a href="/#" class="use-different">{{#t}}Use a different account{{/t}}</a><br/>
-        </div>
 
       {{/suggestedUser}}
 
