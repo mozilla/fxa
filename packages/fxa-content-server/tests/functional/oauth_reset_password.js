@@ -134,42 +134,12 @@ define([
             .findById('fxa-reset-password-complete-header')
             .end()
 
-            .findByCssSelector('#redirectTo')
-            .click()
-            .end()
-
-            // let items load
-            .findByCssSelector('#todolist li')
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getCurrentUrl()
-            .then(function (url) {
-              // redirected back to the App
-              assert.ok(url.indexOf(OAUTH_APP) > -1);
-            })
-            .end()
-
-            .findByCssSelector('#loggedin span')
+            .findByCssSelector('.account-ready-service')
             .getVisibleText()
             .then(function (text) {
-              // confirm logged in email
-              assert.ok(text.indexOf(email) > -1);
-            })
-            .end()
-
-            .findByCssSelector('#logout')
-            .click()
-            .end()
-
-            .findByCssSelector('.signup')
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getVisibleText()
-            .then(function (text) {
-              // confirm logged out
-              assert.ok(text.length === 0);
+              // user sees the name of the rp,
+              // but cannot redirect
+              assert.isTrue(/123done/i.test(text));
             })
             .end();
         });
@@ -255,15 +225,12 @@ define([
             .findById('fxa-reset-password-complete-header')
             .end()
 
-            .findByCssSelector('#redirectTo')
-            .click()
-            .end()
-
-            // user is redirect to 123done, but not signed in.
-            .findByCssSelector('button.sign-in-button')
-            .isDisplayed()
-            .then(function (isSignInButtonDisplayed) {
-              assert.isTrue(isSignInButtonDisplayed);
+            .findByCssSelector('.account-ready-service')
+            .getVisibleText()
+            .then(function (text) {
+              // user sees the name of the rp,
+              // but cannot redirect
+              assert.isTrue(/123done/i.test(text));
             })
             .end();
         });

@@ -18,7 +18,8 @@ require.config({
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',
     md5: '../bower_components/JavaScript-MD5/js/md5',
     canvasToBlob: '../bower_components/blueimp-canvas-to-blob/js/canvas-to-blob',
-    moment: '../bower_components/moment/moment'
+    moment: '../bower_components/moment/moment',
+    crosstab: 'vendor/crosstab'
   },
   config: {
     moment: {
@@ -48,6 +49,9 @@ require.config({
     },
     sinon: {
       exports: 'sinon'
+    },
+    crosstab: {
+      exports: 'crosstab'
     }
   },
   stache: {

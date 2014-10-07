@@ -7,15 +7,17 @@
 
 define([
   'chai',
+  'sinon',
   'views/ready',
   'lib/session',
   'lib/fxa-client',
+  'lib/promise',
   'models/reliers/fx-desktop',
   '../../mocks/window'
 ],
-function (chai, View, Session, FxaClient, FxDesktopRelier, WindowMock) {
+function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
+      WindowMock) {
   var assert = chai.assert;
-  //var redirectUri =  'https://sync.firefox.com';
 
   describe('views/ready', function () {
     var view;
@@ -39,6 +41,10 @@ function (chai, View, Session, FxaClient, FxDesktopRelier, WindowMock) {
       });
     }
 
+    beforeEach(function () {
+      createView();
+    });
+
     afterEach(function () {
       view.remove();
       view.destroy();
@@ -46,10 +52,6 @@ function (chai, View, Session, FxaClient, FxDesktopRelier, WindowMock) {
     });
 
     describe('render', function () {
-      beforeEach(function () {
-        createView();
-      });
-
       it('renders with correct header for reset_password type', function () {
         view.type = 'reset_password';
 
@@ -91,54 +93,6 @@ function (chai, View, Session, FxaClient, FxDesktopRelier, WindowMock) {
             });
       });
 
-      // TODO Renable these (issue #1141)
-      //it('shows redirectTo link and service name if available', function () {
-        //// This would be fetched from the OAuth server, but set it
-        //// explicitly for tests that use the mock `sync` service ID.
-        //view.serviceRedirectURI = redirectUri;
-        //relier.set('service', 'sync');
-
-        //return view.render()
-            //.then(function () {
-              //assert.equal(view.$('#redirectTo').length, 1);
-              //var html = view.$('section').text();
-              //assert.include(html, 'Firefox Sync');
-              //assert.ok(view.hasService());
-              //assert.notOk(view.isOAuthSameBrowser());
-            //});
-      //});
-
-      //it('shows redirectTo link and service name if continuing OAuth flow', function () {
-        //[> jshint camelcase: false <]
-        //relier.set('service', 'sync');
-
-        //// oauth is set if using the same browser
-        //Session.set('oauth', {
-          //client_id: 'sync'
-        //});
-
-        //// This would be fetched from the OAuth server, but set it
-        //// explicitly for tests that use the mock `sync` service ID.
-        //view.serviceRedirectURI = redirectUri;
-
-        //return view.render()
-            //.then(function () {
-              //assert.ok(view.hasService());
-              //assert.ok(view.isOAuthSameBrowser());
-
-              //assert.equal(view.$('#redirectTo').length, 1);
-              //var html = view.$('section').text();
-              //assert.include(html, 'Firefox Sync');
-            //});
-      //});
-
-      it('does not show redirectTo link if unavailable', function () {
-        return view.render()
-            .then(function () {
-              assert.equal(view.$('#redirectTo').length, 0);
-            });
-      });
-
       it('shows some form of marketing for english speakers', function () {
         view.type = 'sign_up';
         Session.set('language', 'en');
@@ -150,13 +104,44 @@ function (chai, View, Session, FxaClient, FxDesktopRelier, WindowMock) {
             });
       });
 
-      it('formats the service name correctly depending on the redirect uris', function () {
-        relier.set('redirectUri', 'https://find.firefox.com');
-        relier.set('serviceName', 'Find My Device');
-        assert.equal(view.context().serviceName, '<a href="https://find.firefox.com" class="no-underline" id="redirectTo">Find My Device</a>');
+      it('auto-completes the OAuth flow if using the WebChannel on the same browser', function () {
+        relier.set('webChannelId', 'channel_id');
+        relier.set('clientId', 'fmd');
+        //jshint camelcase: false
+        Session.set('oauth', { client_id: 'fmd' });
 
-        relier.set('redirectUri', 'urn:ietf:wg:oauth:2.0:fx:webchannel');
-        assert.equal(view.context().serviceName, 'Find My Device');
+        sinon.stub(view, 'finishOAuthFlow', function () {
+          return p(true);
+        });
+
+        return view.render()
+            .then(function () {
+              assert.isTrue(view.finishOAuthFlow.called);
+            });
+      });
+    });
+
+    describe('submit', function () {
+      it('completes the oauth flow if completing in the same browser', function () {
+        relier.set('clientId', 'fmd');
+        //jshint camelcase: false
+        Session.set('oauth', { client_id: 'fmd' });
+
+        sinon.stub(view, 'finishOAuthFlow', function () {
+          return p(true);
+        });
+
+        return view.submit()
+            .then(function () {
+              assert.isTrue(view.finishOAuthFlow.called);
+            });
+      });
+
+      it('shows an error if submitting and not an oauth flow on the same browser', function () {
+        return view.submit()
+            .then(function () {
+              assert.isTrue(view.isErrorVisible());
+            });
       });
     });
   });

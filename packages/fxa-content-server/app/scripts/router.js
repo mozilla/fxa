@@ -80,7 +80,8 @@ function (
         language: this.language,
         relier: this.relier,
         fxaClient: this.fxaClient,
-        profileClient: this.profileClient
+        profileClient: this.profileClient,
+        interTabChannel: this.interTabChannel
       }, options || {});
 
       this.showView(new View(options));
@@ -129,6 +130,7 @@ function (
       this.relier = options.relier;
       this.fxaClient = options.fxaClient;
       this.profileClient = options.profileClient;
+      this.interTabChannel = options.interTabChannel;
 
       this.$stage = $('#stage');
 

@@ -13,17 +13,17 @@
 define([
   'underscore',
   'views/base',
-  'views/form',
   'stache!templates/ready',
   'lib/session',
   'lib/xss',
-  'lib/url',
   'lib/strings',
   'lib/auth-errors',
+  'lib/promise',
   'views/mixins/service-mixin',
   'views/marketing_snippet'
 ],
-function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, AuthErrors, ServiceMixin, MarketingSnippet) {
+function (_, BaseView, Template, Session, Xss, Strings,
+      AuthErrors, p, ServiceMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
     template: Template,
@@ -44,18 +44,6 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, AuthError
 
     context: function () {
       var serviceName = this.relier.get('serviceName');
-      var redirectUri = this.relier.get('redirectUri');
-
-      // if the given redirect uri is an URN based uri, such as
-      // "urn:ietf:wg:oauth:2.0:fx:webchannel" then we don't show
-      // clickable service links. The flow should be completed
-      // automatically depending on the flow it is using
-      // (such as iFrame or WebChannel).
-      if (redirectUri && Url.isHTTP(redirectUri)) {
-        serviceName = Strings.interpolate('<a href="%s" class="no-underline" id="redirectTo">%s</a>', [
-          Xss.href(redirectUri), serviceName
-        ]);
-      }
 
       return {
         service: this.relier.get('service'),
@@ -94,16 +82,21 @@ function (_, BaseView, FormView, Template, Session, Xss, Url, Strings, AuthError
     },
 
     submit: function () {
-      if (this.isOAuthSameBrowser()) {
-        return this.finishOAuthFlow({
-          source: this.type
-        });
-      } else if (this.isOAuthDifferentBrowser()) {
-        return this.finishOAuthFlowDifferentBrowser();
-      } else {
-        // We aren't expecting this case to happen.
-        this.displayError(AuthErrors.toError('UNEXPECTED_ERROR'));
-      }
+      var self = this;
+      return p().then(function () {
+        if (self.isOAuthSameBrowser()) {
+          return self.finishOAuthFlow({
+            source: self.type
+          })
+          .then(function () {
+            // clear any stale OAuth information
+            Session.clear('oauth');
+          });
+        } else {
+          // We aren't expecting this case to happen.
+          self.displayError(AuthErrors.toError('UNEXPECTED_ERROR'));
+        }
+      });
     },
 
     is: function (type) {

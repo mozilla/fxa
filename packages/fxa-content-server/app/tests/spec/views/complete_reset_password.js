@@ -7,6 +7,7 @@
 
 define([
   'chai',
+  'sinon',
   'lib/promise',
   'lib/auth-errors',
   'lib/metrics',
@@ -17,7 +18,8 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, WindowMock, TestHelpers) {
+function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
+      RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -88,7 +90,27 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
       });
 
       it('shows malformed screen if the token is missing', function () {
-        windowMock.location.search = '?code=faea&email=testuser@testuser.com';
+        windowMock.location.search = TestHelpers.toSearchString({
+          code: 'faea',
+          email: 'testuser@testuser.com'
+        });
+
+        return view.render()
+            .then(function () {
+              testEventLogged('complete_reset_password.link_damaged');
+            })
+            .then(function () {
+              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+            });
+      });
+
+      it('shows malformed screen if the token is invalid', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          token: 'invalid_token', // not a hex string
+          code: 'dea0fae1abc2fab3bed4dec5eec6ace7',
+          email: 'testuser@testuser.com'
+        });
+
         return view.render()
             .then(function () {
               testEventLogged('complete_reset_password.link_damaged');
@@ -99,7 +121,27 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
       });
 
       it('shows malformed screen if the code is missing', function () {
-        windowMock.location.search = '?token=feed&email=testuser@testuser.com';
+        windowMock.location.search = TestHelpers.toSearchString({
+          token: 'feed',
+          email: 'testuser@testuser.com'
+        });
+
+        return view.render()
+            .then(function () {
+              testEventLogged('complete_reset_password.link_damaged');
+            })
+            .then(function () {
+              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+            });
+      });
+
+      it('shows malformed screen if the code is invalid', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          token: 'feed',
+          code: 'invalid_code', // not a hex string
+          email: 'testuser@testuser.com'
+        });
+
         return view.render()
             .then(function () {
               testEventLogged('complete_reset_password.link_damaged');
@@ -111,6 +153,22 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
 
       it('shows malformed screen if the email is missing', function () {
         windowMock.location.search = '?token=feed&code=dea0fae1abc2fab3bed4dec5eec6ace7';
+        return view.render()
+            .then(function () {
+              testEventLogged('complete_reset_password.link_damaged');
+            })
+            .then(function () {
+              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+            });
+      });
+
+      it('shows malformed screen if the email is invalid', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          token: 'feed',
+          code: 'dea0fae1abc2fab3bed4dec5eec6ace7',
+          email: 'does_not_validate'
+        });
+
         return view.render()
             .then(function () {
               testEventLogged('complete_reset_password.link_damaged');
@@ -267,6 +325,51 @@ function (chai, p, AuthErrors, Metrics, FxaClient, View, Relier, RouterMock, Win
             }, function () {
               assert.ok(view.$('.error').text().length);
             });
+      });
+
+      it('signs the user in if completing the OAuth flow', function () {
+        view.$('[type=password]').val('password');
+
+        sinon.stub(view, 'isOAuthSameBrowser', function () {
+          return true;
+        });
+
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p(true);
+        });
+
+        sinon.stub(fxaClient, 'completePasswordReset', function (
+          email, password, token, code, options) {
+
+          assert.isTrue(options.shouldSignIn);
+          return p(true);
+        });
+
+        return view.validateAndSubmit()
+            .then(function () {
+              assert.isTrue(view.isOAuthSameBrowser.called);
+            });
+      });
+
+      it('signs the user in if completing the Sync flow', function () {
+        view.$('[type=password]').val('password');
+
+        sinon.stub(relier, 'isSync', function () {
+          return true;
+        });
+
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p(true);
+        });
+
+        sinon.stub(fxaClient, 'completePasswordReset', function (
+          email, password, token, code, options) {
+
+          assert.isTrue(options.shouldSignIn);
+          return p(true);
+        });
+
+        return view.validateAndSubmit();
       });
     });
 

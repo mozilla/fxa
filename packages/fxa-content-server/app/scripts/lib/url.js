@@ -38,16 +38,6 @@ function (_) {
     return allowedTerms;
   }
 
-  /**
-   * Returns true if given "uri" has HTTP or HTTPS scheme
-   *
-   * @param {String} uri
-   * @returns {boolean}
-   */
-  function isHTTP (uri) {
-    return /^(http|https):\/\//.test(uri);
-  }
-
   return {
     searchParams: searchParams,
     searchParam: function (name, str) {
@@ -63,8 +53,7 @@ function (_) {
                 .replace(/\/$/, '')
                 // search params can contain sensitive info
                 .replace(/\?.*/, '');
-    },
-    isHTTP: isHTTP
+    }
   };
 });
 

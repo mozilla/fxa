@@ -104,9 +104,9 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       });
 
       it('informs browser of customizeSync option', function () {
-        relier.isFxDesktop = function () {
+        sinon.stub(relier, 'isSync', function () {
           return true;
-        };
+        });
 
         return client.signUp(email, password, { customizeSync: true })
           .then(function () {
@@ -256,9 +256,9 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       });
 
       it('informs browser of customizeSync option', function () {
-        relier.isFxDesktop = function () {
+        sinon.stub(relier, 'isSync', function () {
           return true;
-        };
+        });
 
         return client.signUp(email, password)
           .then(function () {
@@ -378,6 +378,36 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     });
 
     describe('completePasswordReset', function () {
+      it('completes the password reset, signs the user in', function () {
+        var email = 'testuser@testuser.com';
+        var password = 'password';
+        var token = 'token';
+        var code = 'code';
+
+        realClient.passwordForgotVerifyCode.restore();
+        sinon.stub(realClient, 'passwordForgotVerifyCode', function () {
+          return p({
+            accountResetToken: 'reset_token'
+          });
+        });
+
+        realClient.accountReset.restore();
+        sinon.stub(realClient, 'accountReset', function () {
+          return p(true);
+        });
+
+        sinon.stub(client, 'signIn', function () {
+          return p(true);
+        });
+
+        return client.completePasswordReset(email, password, token, code, {
+          shouldSignIn: true
+        }).then(function () {
+          assert.isTrue(realClient.passwordForgotVerifyCode.called);
+          assert.isTrue(realClient.accountReset.called);
+          assert.isTrue(client.signIn.called);
+        });
+      });
     });
 
     describe('signOut', function () {

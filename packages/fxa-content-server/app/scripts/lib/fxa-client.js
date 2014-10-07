@@ -32,6 +32,8 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseReli
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
     this._channel = options.channel;
+    this._interTabChannel = options.interTabChannel;
+
     // BaseRelier is used as a NullRelier for testing.
     this._relier = options.relier || new BaseRelier();
   }
@@ -140,7 +142,11 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseReli
           sessionTokenContext: self._relier.get('context')
         };
 
-        if (self._relier.isFxDesktop()) {
+        // isSync is added in case the user verifies in a second tab
+        // on the first browser, the context will not be available. We
+        // need to ship the keyFetchToken and unwrapBKey to the first tab,
+        // so generate these any time we are using sync as well.
+        if (self._relier.isFxDesktop() || self._relier.isSync()) {
           updatedSessionData.unwrapBKey = accountData.unwrapBKey;
           updatedSessionData.keyFetchToken = accountData.keyFetchToken;
           updatedSessionData.customizeSync = options.customizeSync;
@@ -156,25 +162,38 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseReli
         }
 
         Session.set(updatedSessionData);
-        // Skipping the relink warning is only relevant to the channel
-        // communication with the Desktop browser. It may have been
-        // done during a sign up flow.
-        updatedSessionData.verifiedCanLinkAccount = true;
+        if (self._interTabChannel) {
+          self._interTabChannel.emit('login', updatedSessionData);
+        }
 
-        return Channels.sendExpectResponse('login', updatedSessionData, {
-          channel: self._channel
-        }).then(function () {
-          return accountData;
-        }, function (err) {
-          // We ignore this error unless the service is set to Sync.
-          // This allows us to tests flows with the desktop context
-          // without things blowing up. In production/reality,
-          // the context is set to desktop iff service is Sync.
-          if (self._relier.isSync()) {
-            throw err;
-          }
-          return accountData;
-        });
+        if (options.notifyChannel !== false) {
+          return self.notifyChannelOfLogin(updatedSessionData)
+              .then(function () {
+                return accountData;
+              });
+        }
+      });
+    },
+
+    // TODO - this should go on the broker when that
+    // functionality is available.
+    notifyChannelOfLogin: function (dataToSend) {
+      // Skipping the relink warning is only relevant to the channel
+      // communication with the Desktop browser. It may have been
+      // done during a sign up flow.
+      dataToSend.verifiedCanLinkAccount = true;
+
+      var self = this;
+      return Channels.sendExpectResponse('login', dataToSend, {
+        channel: self._channel
+      }).then(null, function (err) {
+        // We ignore this error unless the service is set to Sync.
+        // This allows us to tests flows with the desktop context
+        // without things blowing up. In production/reality,
+        // the context is set to desktop iff service is Sync.
+        if (self._relier.isSync()) {
+          throw err;
+        }
       });
     },
 
@@ -326,9 +345,12 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseReli
         });
     },
 
-    completePasswordReset: function (originalEmail, newPassword, token, code) {
+    completePasswordReset: function (originalEmail, newPassword, token, code,
+        options) {
+      options = options || {};
       var email = trim(originalEmail);
       var client;
+      var self = this;
       return this._getClientAsync()
               .then(function (_client) {
                 client = _client;
@@ -338,6 +360,17 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels, BaseReli
                 return client.accountReset(email,
                            newPassword,
                            result.accountResetToken);
+              })
+              .then(function () {
+                if (options.shouldSignIn) {
+                  // Sync should not notify the channel on password reset
+                  // because nobody will be listening for the message and
+                  // a channel timeout will occur if the message is sent.
+                  // If the original tab is still open, it'll handle things.
+                  return self.signIn(email, newPassword, {
+                    notifyChannel: ! self._relier.isSync()
+                  });
+                }
               });
     },
 
