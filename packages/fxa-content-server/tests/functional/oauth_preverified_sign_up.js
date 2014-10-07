@@ -16,7 +16,6 @@ define([
   'use strict';
 
   var config = intern.config;
-  var CONTENT_SERVER = config.fxaContentRoot;
   var OAUTH_APP = config.fxaOauthApp;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
 
@@ -33,17 +32,13 @@ define([
     },
 
     beforeEach: function () {
-      var self = this;
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
-      return self.get('remote')
-        // always go to the content server so the browser state is cleared
-        .get(require.toUrl(CONTENT_SERVER))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        });
+      return FunctionalHelpers.clearBrowserState(this, {
+        contentServer: true,
+        '123done': true
+      });
     },
 
     'preverified sign up': function () {
@@ -78,7 +73,18 @@ define([
           .click()
         .end()
 
+        // user is redirected to 123done, wait for the footer first,
+        // and then for the loggedin user to be visible. If we go
+        // straight for the loggedin user, visibleByQSA blows up
+        // because 123done isn't loaded yet and it complains about
+        // the unload event of the content server.
+        .findByCssSelector('#footer-main')
+        .end()
+
         // user is pre-verified and sent directly to the RP.
+        .then(FunctionalHelpers.visibleByQSA('#loggedin'))
+        .end()
+
         .findByCssSelector('#loggedin')
         .getVisibleText()
         .then(function (text) {

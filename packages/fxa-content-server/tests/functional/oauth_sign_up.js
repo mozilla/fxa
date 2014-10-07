@@ -38,7 +38,10 @@ define([
       // clear localStorage to avoid polluting other tests.
       // Without the clear, /signup tests fail because of the info stored
       // in prefillEmail
-      return FunctionalHelpers.clearBrowserState(this);
+      return FunctionalHelpers.clearBrowserState(this, {
+        contentServer: true,
+        '123done': true
+      });
     },
 
     'basic signup, from first tab\'s perspective - tab should redirect to RP automatically': function () {
@@ -107,18 +110,6 @@ define([
         .end()
 
         .findByCssSelector('#loggedin')
-        .end()
-
-        .findByCssSelector('#logout')
-        .click()
-        .end()
-
-        .findByCssSelector('#loggedin')
-        .getVisibleText()
-        .then(function (text) {
-          // confirm logged out
-          assert.ok(text.length === 0);
-        })
         .end();
     },
 
@@ -242,7 +233,10 @@ define([
 
         .then(function () {
           // clear browser state to simulate opening link in a new browser
-          return FunctionalHelpers.clearBrowserState(self);
+          return FunctionalHelpers.clearBrowserState(self, {
+            contentServer: true,
+            '123done': true
+          });
         })
 
         .then(function () {
