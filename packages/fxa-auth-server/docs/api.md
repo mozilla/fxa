@@ -492,6 +492,7 @@ Successful requests will produce a "200 OK" response with empty JSON body:
 Failing requests may be due to the following errors:
 
 * status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 103:  incorrect password
 * status code 400, errno 106:  request body was not valid json
 * status code 401, errno 109:  invalid request signature
 * status code 401, errno 110:  invalid authentication token
