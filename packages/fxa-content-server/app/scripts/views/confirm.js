@@ -90,7 +90,7 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors, ResendMixin,
     submit: function () {
       var self = this;
 
-      self.logEvent('confirm.resend');
+      self.logScreenEvent('resend');
       return self.fxaClient.signUpResend(self.relier)
               .then(function () {
                 self.displaySuccess();

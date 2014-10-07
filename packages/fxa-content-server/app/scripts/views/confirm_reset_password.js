@@ -14,10 +14,11 @@ define([
   'lib/session',
   'lib/constants',
   'lib/auth-errors',
+  'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
 function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
-      AuthErrors, ServiceMixin) {
+      AuthErrors, ResendMixin, ServiceMixin) {
   var t = BaseView.t;
 
   var SESSION_UPDATE_TIMEOUT_MS = 10000;
@@ -240,7 +241,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
     submit: function () {
       var self = this;
 
-      self.logEvent('confirm_reset_password.resend');
+      self.logScreenEvent('resend');
       return self.fxaClient.passwordResetResend(self.relier)
               .then(function () {
                 self.displaySuccess();
@@ -261,7 +262,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
     }
   });
 
-  _.extend(View.prototype, ServiceMixin);
+  _.extend(View.prototype, ResendMixin, ServiceMixin);
 
   return View;
 });

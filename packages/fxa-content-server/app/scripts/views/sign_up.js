@@ -221,6 +221,11 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       var email = self.$('.email').val();
       var password = self.$('.password').val();
       var customizeSync = self.$('.customize-sync').is(':checked');
+      var preVerifyToken = self.relier.get('preVerifyToken');
+
+      if (preVerifyToken) {
+        self.logScreenEvent('preverified');
+      }
 
       return self.fxaClient.signUp(email, password, self.relier)
         .then(function () {
@@ -229,6 +234,13 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
             // already done in signUp, no need to do it again.
             verifiedCanLinkAccount: true
           });
+        }).then(function (accountData) {
+          if (preVerifyToken && accountData.verified) {
+            self.logScreenEvent('preverified.success');
+          }
+          self.logScreenEvent('success');
+
+          return accountData;
         })
         .then(_.bind(self.onSignUpSuccess, self))
         .then(null, function (err) {

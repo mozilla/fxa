@@ -12,13 +12,14 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/promise',
+  'lib/metrics',
   'models/reliers/relier',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
-      RouterMock, TestHelpers) {
+function (chai, $, sinon, View, Session, FxaClient, p, Metrics,
+      Relier, WindowMock, RouterMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -29,6 +30,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
     var windowMock;
     var fxaClient;
     var relier;
+    var metrics;
 
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var STATE = '123';
@@ -40,17 +42,20 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
       email = TestHelpers.createEmail();
       router = new RouterMock();
       windowMock = new WindowMock();
+      windowMock.location.pathname = 'oauth/signin';
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
 
       relier = new Relier();
       relier.set('serviceName', CLIENT_NAME);
       fxaClient = new FxaClient();
+      metrics = new Metrics();
 
       view = new View({
         router: router,
         window: windowMock,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        metrics: metrics
       });
 
       return view.render()
@@ -102,6 +107,9 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
         return view.submit()
           .then(function () {
             assert.isTrue(view.finishOAuthFlow.called);
+
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'oauth.signin.success'));
           });
       });
 

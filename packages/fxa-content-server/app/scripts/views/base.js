@@ -436,6 +436,18 @@ function (_, Backbone, $, p, Session, AuthErrors,
       this.metrics.logEvent(eventName);
     },
 
+    /**
+     * Log an event with the screen name as a prefix
+     */
+    logScreenEvent: function (eventName) {
+      var event = Strings.interpolate('%(screenName)s.%(eventName)s', {
+        screenName: this.getScreenName(),
+        eventName: eventName
+      });
+
+      this.metrics.logEvent(event);
+    },
+
     hideError: function () {
       this.$('.error').slideUp(EPHEMERAL_MESSAGE_ANIMATION_MS);
       this._isErrorVisible = false;

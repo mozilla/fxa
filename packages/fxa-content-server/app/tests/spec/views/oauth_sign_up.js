@@ -67,6 +67,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       router = new RouterMock();
 
       windowMock = new WindowMock();
+      windowMock.location.pathname = 'oauth/signup';
       metrics = new Metrics();
       relier = new Relier({
         window: windowMock
@@ -147,6 +148,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
             assert.equal(Session.oauth.client_id, CLIENT_ID);
             assert.isTrue(fxaClient.signUp.calledWith(email, 'password'));
             assert.equal(router.page, 'confirm');
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'oauth.signup.success'));
           });
       });
     });
@@ -176,9 +179,15 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           return p(true);
         };
         return view.submit()
-            .then(function () {
-              assert.isTrue(isOAuthFlowFinished);
-            });
+          .then(function () {
+            assert.isTrue(isOAuthFlowFinished);
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'oauth.signup.preverified'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'oauth.signup.preverified.success'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'oauth.signup.success'));
+          });
       });
 
       it('redirects to /confirm if pre-verification is not successful', function () {
@@ -201,9 +210,9 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
 
         fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
         return view.submit()
-            .then(function () {
-              assert.equal(router.page, 'confirm');
-            });
+          .then(function () {
+            assert.equal(router.page, 'confirm');
+          });
       });
     });
   });

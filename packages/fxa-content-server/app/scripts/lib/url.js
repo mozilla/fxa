@@ -51,6 +51,8 @@ function (_) {
       return path.replace(/^\//, '')
                 // strip trailing /
                 .replace(/\/$/, '')
+                // any other slashes get converted to '.'
+                .replace(/\//g, '.')
                 // search params can contain sensitive info
                 .replace(/\?.*/, '');
     }
