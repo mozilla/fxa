@@ -23,15 +23,15 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "URIjs": "1.13.2",
-    "bluebird": "2.3.2",
+    "URIjs": "1.14.1",
+    "bluebird": "2.3.5",
     "buf": "0.1.0",
     "convict": "0.4.2",
-    "hapi": "6.7.1",
-    "intel": "1.0.0-b4",
-    "joi": "4.6.2",
-    "mysql": "2.4.3",
-    "request": "2.40.0"
+    "hapi": "6.11.1",
+    "intel": "1.0.0-b6",
+    "joi": "4.7.0",
+    "mysql": "2.5.1",
+    "request": "2.45.0"
   },
   "devDependencies": {
     "awsbox": "^0.7.0",
@@ -41,15 +41,15 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-copyright": "^0.1.0",
     "grunt-jscs": "^0.7.1",
-    "grunt-mocha-test": "^0.11.0",
+    "grunt-mocha-test": "^0.12.0",
     "grunt-nodemon": "^0.3.0",
     "grunt-nsp-shrinkwrap": "^0.0.3",
     "insist": "0.x",
-    "jshint-stylish": "^0.4.0",
+    "jshint-stylish": "^1.0.0",
     "jwcrypto": "^0.5.0",
     "mocha-text-cov": "^0.1.0",
     "load-grunt-tasks": "^0.6.0",
-    "nock": "^0.46.0",
+    "nock": "^0.48.0",
     "read": "^1.0.5",
     "time-grunt": "^1.0.0"
   }
