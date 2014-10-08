@@ -101,6 +101,7 @@ content-server page.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A space-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
 - `action`: Optional. If provided, should be either `signup` or `signin`. Send to improve user experience, based on whether they clicked on a Sign In or Sign Up button.
+- `email`: Optional. If provided, this email address will be pre-filled into the account form, but the user is free to change it.
 
 **Example:**
 
