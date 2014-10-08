@@ -6,14 +6,18 @@ define([
   'intern',
   'require',
   'tests/lib/restmail',
-  'intern/dojo/node!leadfoot/helpers/pollUntil'
-], function (intern, require, restmail, pollUntil) {
+  'tests/lib/helpers',
+  'intern/dojo/node!leadfoot/helpers/pollUntil',
+  'intern/node_modules/dojo/node!url',
+  'intern/node_modules/dojo/node!querystring'
+], function (intern, require, restmail, TestHelpers, pollUntil,
+        Url, Querystring) {
   'use strict';
 
   var config = intern.config;
   var CONTENT_SERVER = config.fxaContentRoot;
-  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var OAUTH_APP = config.fxaOauthApp;
+  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 
   function clearBrowserState(context, options) {
     options = options || {};
@@ -27,16 +31,16 @@ define([
     }
 
     return context.get('remote')
-        .then(function () {
-          if (options.contentServer) {
-            return clearContentServerState(context);
-          }
-        })
-        .then(function () {
-          if (options['123done']) {
-            return clear123DoneState(context);
-          }
-        });
+      .then(function () {
+        if (options.contentServer) {
+          return clearContentServerState(context);
+        }
+      })
+      .then(function () {
+        if (options['123done']) {
+          return clear123DoneState(context);
+        }
+      });
   }
 
   function clearContentServerState(context) {
@@ -54,12 +58,13 @@ define([
                     .findById('fxa-clear-storage-header');
         }
       })
+
+      .clearCookies()
       .execute(function () {
         try {
-          /* global document, localStorage, sessionStorage */
+          /* global sessionStorage, localStorage */
           localStorage.clear();
           sessionStorage.clear();
-          document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
         } catch(e) {
           console.log('Failed to clearBrowserState');
           // if cookies are disabled, this will blow up some browsers.
@@ -123,7 +128,9 @@ define([
    * @param {String} selector
    *        QSA compatible selector string
    */
-  function visibleByQSA(selector) {
+  function visibleByQSA(selector, timeout) {
+    timeout = timeout || 10000;
+
     return pollUntil(function (selector) {
       /* global document */
       var match = document.querySelectorAll(selector);
@@ -133,10 +140,14 @@ define([
       }
 
       return match[0] && match[0].offsetWidth > 0 ? true : null;
-    }, [ selector ], 10000);
+    }, [ selector ], timeout);
   }
 
   function getVerificationLink(user, index) {
+    if (/@/.test(user)) {
+      user = TestHelpers.emailToUser(user);
+    }
+
     return getVerificationHeaders(user, index)
       .then(function (headers) {
         return require.toUrl(headers['x-link']);
@@ -144,11 +155,94 @@ define([
   }
 
   function getVerificationHeaders(user, index) {
+    if (/@/.test(user)) {
+      user = TestHelpers.emailToUser(user);
+    }
+
     // restmail takes an index that is 1 based instead of 0 based.
     return restmail(EMAIL_SERVER_ROOT + '/mail/' + user, index + 1)
       .then(function (emails) {
         return emails[index].headers;
       });
+  }
+
+  function openVerificationLinkSameBrowser(context, email, index, windowName) {
+    var user = TestHelpers.emailToUser(email);
+    windowName = windowName || 'newwindow';
+
+    /* global window*/
+
+    return getVerificationLink(user, index)
+      .then(function (verificationLink) {
+        return context.get('remote')
+          .execute(function (verificationLink, windowName) {
+            window.open(verificationLink, windowName);
+
+            return true;
+          }, [ verificationLink, windowName ]);
+      });
+  }
+
+  function openVerificationLinkDifferentBrowser(client, email) {
+    var user = TestHelpers.emailToUser(email);
+
+    return getVerificationHeaders(user, 0)
+      .then(function (headers) {
+        var uid = headers['x-uid'];
+        var code = headers['x-verify-code'];
+
+        return client.verifyCode(uid, code);
+      });
+  }
+
+  function openPasswordResetLinkDifferentBrowser(client, email, password) {
+    var user = TestHelpers.emailToUser(email);
+
+    return getVerificationHeaders(user, 0)
+      .then(function (headers) {
+        var code = headers['x-recovery-code'];
+        // there is no x-recovery-token header, so we have to parse it
+        // out of the link.
+        var link = headers['x-link'];
+        var search = Url.parse(link).query;
+        var queryParams = Querystring.parse(search);
+        var token = queryParams.token;
+
+        return client.passwordForgotVerifyCode(code, token);
+      })
+      .then(function (result) {
+        return client.accountReset(email, password, result.accountResetToken);
+      });
+  }
+
+  function openFxaFromRp(context, page, urlSuffix) {
+    return context.get('remote')
+      .get(require.toUrl(OAUTH_APP))
+      .setFindTimeout(intern.config.pageLoadTimeout)
+
+      .findByCssSelector('#splash .' + page)
+        .click()
+      .end()
+
+      // wait until the page fully loads or else the re-load with
+      // the suffix will blow its lid when run against latest.
+      .findByCssSelector('#fxa-' + page + '-header')
+      .end()
+
+      .then(function () {
+        if (urlSuffix) {
+          return context.get('remote')
+            .getCurrentUrl()
+            .then(function (url) {
+              url += urlSuffix;
+
+              return context.get('remote').get(require.toUrl(url));
+            });
+        }
+      })
+
+      .findByCssSelector('#fxa-' + page + '-header')
+      .end();
   }
 
   return {
@@ -157,6 +251,10 @@ define([
     visibleByQSA: visibleByQSA,
     pollUntil: pollUntil,
     getVerificationLink: getVerificationLink,
-    getVerificationHeaders: getVerificationHeaders
+    getVerificationHeaders: getVerificationHeaders,
+    openVerificationLinkSameBrowser: openVerificationLinkSameBrowser,
+    openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
+    openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
+    openFxaFromRp: openFxaFromRp
   };
 });
