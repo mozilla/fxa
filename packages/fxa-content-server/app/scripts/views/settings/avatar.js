@@ -8,11 +8,9 @@ define([
   'underscore',
   'views/form',
   'stache!templates/settings/avatar',
-  'views/mixins/avatar-mixin',
-  'lib/auth-errors',
-  'lib/session'
+  'views/mixins/avatar-mixin'
 ],
-function (_, FormView, Template, AvatarMixin, AuthErrors, Session) {
+function (_, FormView, Template, AvatarMixin) {
   var View = FormView.extend({
     // user must be authenticated to see Settings
     mustAuth: true,
@@ -20,32 +18,10 @@ function (_, FormView, Template, AvatarMixin, AuthErrors, Session) {
     template: Template,
     className: 'avatar',
 
-    context: function () {
-      return {
-        avatar: Session.avatar
-      };
-    },
-
-    beforeRender: function () {
-      return this.loadProfileImage();
-    },
-
-    loadProfileImage: function () {
-      var self = this;
-
-      return this._fetchProfileImage()
-        .fail(function (err) {
-          if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-            return self.fxaClient.signUpResend(self.relier)
-              .then(function () {
-                self.navigate('confirm');
-                return false;
-              });
-          }
-
-          throw err;
-        });
+    afterVisible: function () {
+      return this._displayProfileImage();
     }
+
   });
 
   _.extend(View.prototype, AvatarMixin);

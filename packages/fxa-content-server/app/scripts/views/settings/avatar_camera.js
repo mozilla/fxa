@@ -12,10 +12,9 @@ define([
   'stache!templates/settings/avatar_camera',
   'lib/constants',
   'lib/promise',
-  'lib/session',
   'lib/auth-errors'
 ],
-function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, Session, AuthErrors) {
+function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, AuthErrors) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -33,7 +32,6 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
 
     context: function () {
       return {
-        avatar: Session.avatar,
         streaming: this.streaming
       };
     },
@@ -149,13 +147,11 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
           return self.profileClient.uploadAvatar(data);
         })
         .then(function (result) {
-          Session.set('avatar', result.url);
-          Session.set('avatarId', result.id);
-
           self.stream.stop();
           delete self.stream;
 
           self.navigate('settings/avatar');
+          return result;
         });
     },
 

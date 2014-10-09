@@ -17,10 +17,16 @@ define([
   'models/auth_brokers/base',
   '../../mocks/window',
   '../../mocks/router',
+  '../../mocks/profile',
   '../../lib/helpers'
 ],
+<<<<<<< HEAD
 function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
       WindowMock, RouterMock, TestHelpers) {
+=======
+function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
+      RouterMock, ProfileMock, TestHelpers) {
+>>>>>>> refactor(avatars): remove Session cache and load avatar from server
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
@@ -40,7 +46,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
         relier = new Relier();
         broker = new Broker();
         fxaClient = new FxaClient();
-        profileClientMock = TestHelpers.stubbedProfileClient();
+        profileClientMock = new ProfileMock();
 
         Session.clear();
         view = new View({
@@ -68,19 +74,23 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
         assert.notEqual(view.$('.error').text(), '');
       });
 
-      it('shows no avatar if Session.avatar is undefined', function (done) {
+      it('shows no avatar if Session.avatar is undefined', function () {
         relier.set('email', 'a@a.com');
-        assert.isNull(view.context().avatar);
+
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p({});
+        });
 
         return view.render()
           .then(function () {
-            assert.notOk(view.$('.avatar-view img').length);
-            done();
+            return view.afterVisible();
           })
-          .fail(done);
+          .then(function () {
+            assert.notOk(view.$('.avatar-view img').length);
+          });
       });
 
-      it('shows no avatar when there is no Session.email', function (done) {
+      it('shows no avatar when there is no Session.email', function () {
         relier.set('email', 'a@a.com');
         Session.set('avatar', 'avatar.jpg');
         assert.isNull(view.context().avatar);
@@ -88,37 +98,41 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
         return view.render()
           .then(function () {
             assert.notOk(view.$('.avatar-view img').length);
-            done();
-          })
-          .fail(done);
+          });
       });
 
-      it('shows avatar when Session.email and relier.email match', function (done) {
+      it('shows avatar when Session.email and relier.email match', function () {
         relier.set('email', 'a@a.com');
         Session.set('email', 'a@a.com');
-        Session.set('avatar', 'avatar.jpg');
-        assert.equal(view.context().avatar, 'avatar.jpg');
+
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p({ avatar: 'avatar.jpg', id: 'foo' });
+        });
 
         return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
           .then(function () {
             assert.ok(view.$('.avatar-view img').length);
-            done();
-          })
-          .fail(done);
+          });
       });
 
-      it('shows no avatar when Session.email and relier.email do not match', function (done) {
+      it('shows no avatar when Session.email and relier.email do not match', function () {
         relier.set('email', 'a@a.com');
         Session.set('email', 'b@b.com');
-        Session.set('avatar', 'avatar.jpg');
-        assert.isNull(view.context().avatar);
+
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p({ avatar: 'avatar.jpg', id: 'foo' });
+        });
 
         return view.render()
           .then(function () {
-            assert.notOk(view.$('.avatar-view img').length);
-            done();
+            return view.afterVisible();
           })
-          .fail(done);
+          .then(function () {
+            assert.notOk(view.$('.avatar-view img').length);
+          });
       });
     });
 

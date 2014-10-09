@@ -112,21 +112,22 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
               id: 'foo'
             });
           });
+          view.automatedBrowser = true;
 
           return view.render()
             .then(function () {
               return view.submit();
             })
-            .then(function () {
-              assert.include(Session.avatar, GRAVATAR_URL + EMAIL_HASH);
-              assert.equal(Session.avatarId, 'foo');
+            .then(function (result) {
+              assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings/avatar');
               assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
             });
         });
 
         it('submits and errors', function () {
-          sinon.stub(profileClientMock, 'postAvatar', function () {
+          sinon.stub(profileClientMock, 'postAvatar', function (url) {
+            assert.include(url, GRAVATAR_URL + EMAIL_HASH);
             return p.reject(Profile.Errors.toError('UNSUPPORTED_PROVIDER'));
           });
 

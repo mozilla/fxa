@@ -72,41 +72,6 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'go to avatars with unverified account': function () {
-      var self = this;
-
-      return client.signUp(email2, PASSWORD)
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        })
-        .then(function () {
-          return self.get('remote')
-            .get(require.toUrl(SIGNIN_URL))
-            .findByCssSelector('form input.email')
-              .click()
-              .type(email2)
-            .end()
-
-            .findByCssSelector('form input.password')
-              .click()
-              .type(PASSWORD)
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
-
-            .findById('fxa-confirm-header')
-            .end()
-
-            .get(require.toUrl(AVATAR_URL))
-
-            // success is going to the confirm page
-            .findById('fxa-confirm-header')
-            .end();
-        });
-    },
-
     'go to avatars then avatar change': function () {
       return this.get('remote')
         .get(require.toUrl(AVATAR_URL))
@@ -185,8 +150,8 @@ define([
           })
         .end()
 
-        // success is seeing the default avatar image
-        .findByCssSelector('.default')
+        // success is seeing no profile image set
+        .waitForDeletedByCssSelector('.avatar-wrapper img')
         .end();
     },
     'visit gravatar with no gravatar set': function () {

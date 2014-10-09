@@ -32,12 +32,6 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
       this.imgType = Session.cropImgType;
     },
 
-    context: function () {
-      return {
-        avatar: Session.avatar
-      };
-    },
-
     beforeRender: function () {
       if (! this.imgSrc) {
         this.navigate('settings/avatar/change', {
@@ -93,9 +87,8 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
           return self.profileClient.uploadAvatar(data);
         })
         .then(function (result) {
-          Session.set('avatar', result.url);
-          Session.set('avatarId', result.id);
           self.navigate('settings/avatar');
+          return result;
         });
     }
 

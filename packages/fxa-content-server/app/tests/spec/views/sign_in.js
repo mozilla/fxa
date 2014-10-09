@@ -397,17 +397,14 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         });
 
         assert.equal(view._suggestedUser().email, 'a@a.com');
-        assert.equal(view._suggestedUser().avatar, undefined);
 
         Session.clear();
 
         Session.set('cachedCredentials', {
           sessionToken: 'abc123',
-          avatar: 'avatar.jpg',
           email: 'a@a.com'
         });
         assert.equal(view._suggestedUser().email, 'a@a.com');
-        assert.equal(view._suggestedUser().avatar, 'avatar.jpg');
 
         Session.clear();
         Session.set('email', 'a@a.com');

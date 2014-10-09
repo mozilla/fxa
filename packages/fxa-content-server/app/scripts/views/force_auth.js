@@ -7,11 +7,12 @@
 define([
   'lib/promise',
   'views/base',
+  'views/form',
   'views/sign_in',
   'stache!templates/force_auth',
   'lib/session'
 ],
-function (p, BaseView, SignInView, Template, Session) {
+function (p, BaseView, FormView, SignInView, Template, Session) {
   var t = BaseView.t;
 
   var View = SignInView.extend({
@@ -87,15 +88,17 @@ function (p, BaseView, SignInView, Template, Session) {
 
     /**
      * Return user's "Session.avatar" if the session email is the same as the force email.
-     *
-     * @private
      */
-    _getAvatar: function () {
+
+    afterVisible: function () {
       var email = this.relier.get('email');
-      if (email && Session.avatar && email === Session.email) {
-        return Session.avatar;
-      } else {
-        return null;
+
+      FormView.prototype.afterVisible.call(this);
+
+      // Only display the profile image if it's for the same account as the
+      // forced email
+      if (email === Session.email) {
+        return this._displayProfileImage();
       }
     }
   });

@@ -15,11 +15,9 @@ define([
   '../../../mocks/window',
   '../../../mocks/canvas',
   '../../../mocks/profile',
-  'lib/promise',
-  'lib/session'
+  'lib/promise'
 ],
-function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMock, p,
-      Session) {
+function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMock, p) {
   var assert = chai.assert;
 
   describe('views/settings/avatar/camera', function () {
@@ -69,7 +67,6 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMo
         return view.render()
           .then(function () {
             assert.equal(view.video.length, 1);
-            assert.equal(view.$('img').length, 1);
             assert.isFalse(view.streaming);
           });
       });
@@ -162,11 +159,11 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMo
               };
 
               view.submit()
-                .then(function () {
+                .then(function (result) {
                   assert.isTrue(stopped, 'stream stopped');
                   assert.ok(! view.stream, 'stream is gone');
-                  assert.equal(Session.avatar, 'test');
-                  assert.equal(Session.avatarId, 'foo');
+                  assert.equal(result.url, 'test');
+                  assert.equal(result.id, 'foo');
                 }, done);
 
               // check canvas drawImage args

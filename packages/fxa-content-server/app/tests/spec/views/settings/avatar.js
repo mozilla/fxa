@@ -16,12 +16,11 @@ define([
   '../../../mocks/fxa-client',
   'lib/promise',
   'lib/session',
-  'lib/profile',
   'lib/auth-errors',
   'models/reliers/relier'
 ],
 function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
-    p, Session, Profile, AuthErrors, Relier) {
+    p, Session, AuthErrors, Relier) {
   var assert = chai.assert;
   var IMG_URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
@@ -76,15 +75,16 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
       });
 
       it('has no avatar set', function () {
-        Session.clear('avatar');
-
         sinon.stub(profileClientMock, 'getAvatar', function () {
           return p({});
         });
 
         return view.render()
           .then(function () {
-            assert.isTrue(view.$('.avatar-wrapper img.default').length > 0);
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.equal(view.$('.avatar-wrapper img').length, 0);
           });
       });
 
@@ -95,45 +95,13 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('.avatar-wrapper img').attr('src'), IMG_URL);
-          });
-      });
-
-      it('has an unverified account', function () {
-        Session.clear('avatar');
-
-        sinon.stub(fxaClientMock, 'signUpResend', function () {
-          return p();
-        });
-
-        sinon.stub(profileClientMock, 'getAvatar', function () {
-          return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
-        });
-
-        return view.render()
-          .then(function () {
-            assert.equal(routerMock.page, 'confirm');
-            assert.isTrue(fxaClientMock.signUpResend.calledWith(relierMock));
-          });
-      });
-
-      it('loads an avatar from the server', function () {
-        Session.clear('avatar');
-        var id = 'foo';
-
-        sinon.stub(profileClientMock, 'getAvatar', function () {
-          return p({
-            avatar: IMG_URL,
-            id: id
-          });
-        });
-
-        return view.render()
+            return view.afterVisible();
+          })
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').attr('src'), IMG_URL);
-            assert.equal(Session.avatarId, id);
           });
       });
+
     });
   });
 });

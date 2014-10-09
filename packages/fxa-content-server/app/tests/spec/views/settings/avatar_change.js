@@ -59,6 +59,9 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
     describe('with session', function () {
       beforeEach(function () {
         profileClientMock = new ProfileMock();
+        sinon.stub(profileClientMock, 'getAvatar', function () {
+          return p({ avatar: pngSrc, id: 'foo' });
+        });
 
         view = new View({
           router: routerMock,
@@ -77,9 +80,6 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       });
 
       it('can remove the avatar', function () {
-        Session.set('avatar', pngSrc);
-        Session.set('avatarId', 'foo');
-
         sinon.stub(profileClientMock, 'deleteAvatar', function (id) {
           assert.equal(id, 'foo');
           return p('');
@@ -87,12 +87,11 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
 
         return view.render()
           .then(function () {
-            assert.equal(view.$('.avatar-wrapper img').attr('src'), pngSrc);
+            assert.equal(view.$('.avatar-wrapper img').length, 1);
 
             return view.remove()
               .then(function () {
                 assert.equal(routerMock.page, 'settings/avatar');
-                assert.ok(! Session.avatar);
               });
           });
       });

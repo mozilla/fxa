@@ -53,19 +53,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
     },
 
     afterVisible: function () {
-      var self = this;
-
       FormView.prototype.afterVisible.call(this);
-
-      return this._fetchProfileImage()
-        .then(function () {
-          if (Session.avatar) {
-            self.$('.avatar-wrapper').append(new Image());
-            self.$('.avatar-wrapper img').attr('src', Session.avatar);
-          }
-        }, function () {
-          // Ignore errors and just show the default image
-        });
+      return this._displayProfileImage();
     },
 
     beforeDestroy: function () {
@@ -211,12 +200,10 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
     _suggestedUser: function () {
       var cachedEmail = Session.email;
       var cachedSessionToken = Session.sessionToken;
-      var cachedAvatar = Session.avatar;
 
       if (Session.cachedCredentials) {
         cachedEmail = Session.cachedCredentials.email;
         cachedSessionToken = Session.cachedCredentials.sessionToken;
-        cachedAvatar = Session.cachedCredentials.avatar;
       }
 
       if (
@@ -226,8 +213,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
         (this.prefillEmail === cachedEmail || ! this.prefillEmail)
       ) {
         return {
-          email: cachedEmail,
-          avatar: cachedAvatar
+          email: cachedEmail
         };
       } else {
         return null;

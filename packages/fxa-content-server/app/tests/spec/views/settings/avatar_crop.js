@@ -121,9 +121,9 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, p, Session, Cons
             .then(function () {
               return view.submit();
             })
-            .then(function () {
-              assert.equal(Session.avatar, 'test');
-              assert.equal(Session.avatarId, 'foo');
+            .then(function (result) {
+              assert.equal(result.url, 'test');
+              assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings/avatar');
             });
         });

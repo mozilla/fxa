@@ -26,7 +26,6 @@ function (_, FormView, BaseView, AvatarMixin, Template, Session, Constants) {
     context: function () {
       return {
         email: Session.email,
-        avatar: Session.avatar,
         showSignOut: Session.sessionTokenContext !== Constants.FX_DESKTOP_CONTEXT
       };
     },
@@ -48,21 +47,7 @@ function (_, FormView, BaseView, AvatarMixin, Template, Session, Constants) {
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this.loadProfileImage();
-    },
-
-    loadProfileImage: function () {
-      var self = this;
-
-      return this._fetchProfileImage()
-        .then(function () {
-          if (Session.avatar) {
-            self.$('.avatar-wrapper').append(new Image());
-            self.$('.avatar-wrapper img').attr('src', Session.avatar);
-          }
-        }, function () {
-          // Ignore other errors and just show the default image
-        });
+      return this._displayProfileImage();
     }
   });
 

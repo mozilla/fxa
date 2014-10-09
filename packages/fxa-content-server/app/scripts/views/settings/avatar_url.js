@@ -25,10 +25,10 @@ function (_, FormView, Template, Session, OAuthClient, Profile, Assertion, AuthE
     template: Template,
     className: 'avatar_url',
 
-    context: function () {
-      return {
-        avatar: Session.avatar
-      };
+    afterVisible: function () {
+      FormView.prototype.afterVisible.call(this);
+
+      return this._displayProfileImage();
     },
 
     isValidEnd: function () {

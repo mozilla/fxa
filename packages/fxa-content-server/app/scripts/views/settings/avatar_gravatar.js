@@ -86,11 +86,10 @@ function ($, _, md5, FormView, Template, Constants, Session, Profile, ImageLoade
 
       return this.profileClient.postAvatar(url)
         .then(function (result) {
-          Session.set('avatar', url);
-          Session.set('avatarId', result.id);
           self.navigate('settings/avatar', {
             successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')
           });
+          return result;
         });
     }
   });

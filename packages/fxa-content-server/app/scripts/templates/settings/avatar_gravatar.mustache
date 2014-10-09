@@ -5,12 +5,9 @@
   </header>
 
   <section>
-    <div class="avatar-wrapper">
+    <div class="avatar-wrapper with-default">
       {{#gravatar}}
         <img src="{{ gravatar }}" id="gravatar"/>
-      {{/gravatar}}
-      {{^gravatar}}
-        <img class="default" id="gravatar" />
       {{/gravatar}}
     </div>
 
