@@ -55,6 +55,12 @@ define([
         assert.isFalse(relier.isFxDesktop());
       });
     });
+
+    describe('getResumeToken', function () {
+      it('returns null', function () {
+        assert.isNull(relier.getResumeToken());
+      });
+    });
   });
 });
 

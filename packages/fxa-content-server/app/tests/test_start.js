@@ -35,6 +35,7 @@ function (Translator, Session) {
     '../tests/spec/lib/null-metrics',
     '../tests/spec/lib/cropper',
     '../tests/spec/lib/image-loader',
+    '../tests/spec/lib/resume-token',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',
     '../tests/spec/views/form',

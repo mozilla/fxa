@@ -13,14 +13,19 @@ define([
   'lib/fxa-client',
   'lib/auth-errors',
   'lib/constants',
-  'models/reliers/relier'
+  'lib/resume-token',
+  'models/reliers/oauth'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
-    FxaClientWrapper, AuthErrors, Constants, Relier) {
+    FxaClientWrapper, AuthErrors, Constants, ResumeToken, OAuthRelier) {
   'use strict';
+
+  var STATE = 'state';
+  var SERVICE = 'sync';
+  var REDIRECT_TO = 'https://sync.firefox.com';
 
   var assert = chai.assert;
   var email;
@@ -29,6 +34,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
   var realClient;
   var channelMock;
   var relier;
+  var expectedResumeToken;
 
   function trim(str) {
     return str && str.replace(/^\s+|\s+$/g, '');
@@ -38,7 +44,12 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     beforeEach(function () {
       channelMock = new ChannelMock();
       email = ' ' + testHelpers.createEmail() + ' ';
-      relier = new Relier();
+      relier = new OAuthRelier();
+      relier.set('state', STATE);
+      relier.set('service', SERVICE);
+      relier.set('redirectTo', REDIRECT_TO);
+
+      expectedResumeToken = ResumeToken.stringify({ state: STATE });
 
       client = new FxaClientWrapper({
         channel: channelMock,
@@ -62,8 +73,6 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
 
     describe('signUp/signUpResend', function () {
       it('signUp signs up a user with email/password', function () {
-        relier.set('service', 'sync');
-        relier.set('redirectTo', 'https://sync.firefox.com');
 
         return client.signUp(email, password)
           .then(function () {
@@ -72,8 +81,9 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
 
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
-              service: 'sync',
-              redirectTo: 'https://sync.firefox.com'
+              service: SERVICE,
+              redirectTo: REDIRECT_TO,
+              resume: expectedResumeToken
             }));
           });
       });
@@ -115,17 +125,15 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       });
 
       it('signUpResend resends the validation email', function () {
-        relier.set('service', 'sync');
-        relier.set('redirectTo', 'https://sync.firefox.com');
-
         return client.signUp(email, password)
           .then(function () {
             return client.signUpResend();
           })
           .then(function () {
             var params = {
-              service: 'sync',
-              redirectTo: 'https://sync.firefox.com'
+              service: SERVICE,
+              redirectTo: REDIRECT_TO,
+              resume: expectedResumeToken
             };
             assert.isTrue(
                 realClient.recoveryEmailResendCode.calledWith(
@@ -176,7 +184,6 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       });
 
       it('signUp a preverified user using preVerifyToken', function () {
-        var password = 'password';
         var preVerifyToken = 'somebiglongtoken';
 
         // we are going to take over from here.
@@ -196,7 +203,10 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
         .then(function () {
           assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
             preVerifyToken: preVerifyToken,
-            keys: true
+            keys: true,
+            redirectTo: REDIRECT_TO,
+            service: SERVICE,
+            resume: expectedResumeToken
           }));
           assert.isTrue(realClient.signIn.called);
         });
@@ -327,14 +337,13 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       it('requests a password reset', function () {
         return client.signUp(email, password)
           .then(function () {
-            relier.set('service', 'sync');
-            relier.set('redirectTo', 'https://sync.firefox.com');
             return client.passwordReset(email);
           })
           .then(function () {
             var params = {
-              service: 'sync',
-              redirectTo: 'https://sync.firefox.com'
+              service: SERVICE,
+              redirectTo: REDIRECT_TO,
+              resume: expectedResumeToken
             };
             assert.isTrue(
                 realClient.passwordForgotSendCode.calledWith(
@@ -345,8 +354,9 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           })
           .then(function () {
             var params = {
-              service: 'sync',
-              redirectTo: 'https://sync.firefox.com'
+              service: SERVICE,
+              redirectTo: REDIRECT_TO,
+              resume: expectedResumeToken
             };
             assert.isTrue(
                 realClient.passwordForgotResendCode.calledWith(
@@ -380,7 +390,6 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     describe('completePasswordReset', function () {
       it('completes the password reset, signs the user in', function () {
         var email = 'testuser@testuser.com';
-        var password = 'password';
         var token = 'token';
         var code = 'code';
 
