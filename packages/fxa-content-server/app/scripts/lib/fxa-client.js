@@ -233,11 +233,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
                   signUpOptions.preVerifyToken = options.preVerifyToken;
                 }
 
-                // only send the resume token if we are not trying to
-                // pre-verify.
-                if (! options.preVerifyToken) {
-                  signUpOptions.resume = self._createResumeToken();
-                }
+                signUpOptions.resume = self._createResumeToken();
 
                 return client.signUp(email, password, signUpOptions);
               })
@@ -480,7 +476,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
     // user verifies in a second client, with the goal of allowing
     // users to continueback to the original RP.
     _createResumeToken: function () {
-      return this._relier.toResumeToken();
+      return this._relier.getResumeToken();
     }
   };
 

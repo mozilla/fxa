@@ -152,10 +152,10 @@ define([
       });
     });
 
-    describe('toResumeToken', function () {
+    describe('getResumeToken', function () {
       it('returns an opaque token to be passed along with email verification links', function () {
         relier.set('state', 'STATE');
-        assert.equal(typeof relier.toResumeToken(), 'string');
+        assert.equal(typeof relier.getResumeToken(), 'string');
       });
     });
   });

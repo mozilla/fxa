@@ -46,7 +46,7 @@ define([
      * Create a resume token to be passed along in the email
      * verification links
      */
-    toResumeToken: function () {
+    getResumeToken: function () {
       return null;
     }
   });

@@ -205,7 +205,8 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
             preVerifyToken: preVerifyToken,
             keys: true,
             redirectTo: REDIRECT_TO,
-            service: SERVICE
+            service: SERVICE,
+            resume: expectedResumeToken
           }));
           assert.isTrue(realClient.signIn.called);
         });

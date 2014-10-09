@@ -62,7 +62,7 @@ define([
       return true;
     },
 
-    toResumeToken: function () {
+    getResumeToken: function () {
       var resumeObj = {};
 
       _.each(RELIER_FIELDS_IN_RESUME_TOKEN, function (itemName) {

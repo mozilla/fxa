@@ -56,9 +56,9 @@ define([
       });
     });
 
-    describe('toResumeToken', function () {
+    describe('getResumeToken', function () {
       it('returns null', function () {
-        assert.isNull(relier.toResumeToken());
+        assert.isNull(relier.getResumeToken());
       });
     });
   });
