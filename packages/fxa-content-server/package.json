@@ -77,7 +77,7 @@
     "grunt-jsonlint": "1.0.4",
     "grunt-nsp-shrinkwrap": "0.0.3",
     "grunt-todo": "0.4.0",
-    "intern-geezer": "2.0.1",
+    "intern-geezer": "2.1.1",
     "jshint": "2.5.3",
     "jshint-stylish": "0.4.0",
     "request": "2.40.0",
