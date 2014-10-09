@@ -60,6 +60,16 @@ module.exports = function (grunt) {
       cwd: '<%= yeoman.app %>/styles',
       dest: '<%= yeoman.tmp %>/styles/',
       src: '{,*/}*.css'
+    },
+    build: {
+      files: [
+        {
+          expand: true,
+          cwd: '<%= yeoman.tmp %>/scripts',
+          src: ['**/*.js'],
+          dest: '<%= yeoman.dist %>/scripts'
+        }
+      ]
     }
   });
 };

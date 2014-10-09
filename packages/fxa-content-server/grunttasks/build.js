@@ -5,6 +5,13 @@
 module.exports = function (grunt) {
   'use strict';
 
+  var scriptsToDistTask = 'uglify';
+  if (grunt.option('no-minify')) {
+    // if the app is built with `grunt build --no-minify`.
+    // used when deploying a production version with non-minified JavaScript files
+    scriptsToDistTask = 'copy:build';
+  }
+
   grunt.registerTask('build', [
     // Clean files and folders from any previous build
     'clean',
@@ -52,8 +59,8 @@ module.exports = function (grunt) {
     // copy all static resources from 'app' to 'dist'
     'copy:dist',
 
-    // uglify overwrites the files in the dist directory.
-    'uglify',
+    // uglify or copy the JavaScript files in the dist directory.
+    scriptsToDistTask,
 
     // static file asset revisioning through content hashing
     'rev',
