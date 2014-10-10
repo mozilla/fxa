@@ -218,8 +218,12 @@ define([
         .click()
         .end()
 
+        // the form should not be prefilled
         .findByCssSelector('form input.email')
-        .clearValue()
+        .getAttribute('value')
+        .then(function (val) {
+          assert.equal(val, '');
+        })
         .click()
         .type(email2)
         .end()
@@ -246,9 +250,13 @@ define([
         .findByCssSelector('form input.email')
         .end()
 
-        .refresh()
+        .get(require.toUrl(PAGE_SIGNIN))
 
-        .findByCssSelector('.use-different')
+        .findByCssSelector('form input.email')
+        .getAttribute('value')
+        .then(function (val) {
+          assert.equal(val, '');
+        })
         .end();
     },
     'sign in with cached credentials but with an expired session': function () {
@@ -480,15 +488,10 @@ define([
         .end()
 
         .findByCssSelector('form input.email')
-        .end()
-
-        .refresh()
-
-        .findByCssSelector('.use-different')
         .end();
     },
 
-    'sign in with desktop context then no context, desktop credentials should persist': function () {
+    'sign in with desktop context then no context, desktop credentials should not persist': function () {
       var self = this;
 
       return this.get('remote')
@@ -512,12 +515,12 @@ define([
         .click()
         .end()
 
+        // This will clear the desktop credentials
         .findByCssSelector('.use-different')
         .click()
         .end()
 
         .findByCssSelector('form input.email')
-        .clearValue()
         .click()
         .type(email2)
         .end()
@@ -546,7 +549,7 @@ define([
         .getVisibleText()
         .then(function (text) {
           // confirm prefilled email
-          assert.ok(text.indexOf(email) > -1);
+          assert.ok(text.indexOf(email) === -1);
         })
         .end()
 

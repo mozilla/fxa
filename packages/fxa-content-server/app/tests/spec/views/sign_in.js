@@ -286,7 +286,7 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
     });
 
     describe('useLoggedInAccount', function () {
-      it('shows an error if session is expired', function (done) {
+      it('shows an error if session is expired', function () {
         Session.set('cachedCredentials', {
           sessionToken: 'abc123',
           email: 'a@a.com'
@@ -300,12 +300,10 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
             // show password input
             assert.ok(view.$('#password').length);
             assert.equal(view.$('.error').text(), 'Session expired. Sign in to continue.');
-            done();
-          })
-          .fail(done);
+          });
       });
 
-      it('signs in with a valid session', function (done) {
+      it('signs in with a valid session', function () {
         Session.set('cachedCredentials', {
           sessionToken: 'abc123',
           email: 'a@a.com'
@@ -319,14 +317,12 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
           .then(function () {
             assert.notOk(view._isErrorVisible);
             assert.equal(view.$('.error').text(), '');
-            done();
-          })
-          .fail(done);
+          });
       });
     });
 
     describe('useDifferentAccount', function () {
-      it('can switch to signin with the useDifferentAccount button', function (done) {
+      it('can switch to signin with the useDifferentAccount button', function () {
         Session.set('cachedCredentials', {
           sessionToken: 'abc123',
           email: 'a@a.com'
@@ -334,12 +330,15 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
 
         return view.useLoggedInAccount()
           .then(function () {
-            $('.use-different').click();
+            assert.ok($('.use-different').length, 'has use different button');
+            return view.useDifferentAccount();
+          })
+          .then(function () {
             assert.ok($('.email').length, 'should show email input');
             assert.ok($('.password').length, 'should show password input');
-            done();
-          })
-          .fail(done);
+
+            assert.equal($('.email').val(), '', 'should have an empty email input');
+          });
       });
     });
 

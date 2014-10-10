@@ -37,11 +37,13 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       // want the last used email.
       this.prefillEmail = Session.prefillEmail || this.searchParam('email');
 
+      var suggestedUser = this._suggestedUser();
+
       return {
         service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName'),
         email: this.prefillEmail,
-        suggestedUser: this._suggestedUser(),
+        suggestedUser: suggestedUser,
         chooserAskForPassword: this._suggestedUserAskPassword(),
         password: Session.prefillPassword,
         error: this.error
@@ -95,24 +97,24 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
           p.reject();
         }
       })
-        .then(function (accountData) {
-          if (accountData.verified) {
-            return self.onSignInSuccess();
-          } else {
-            return self.onSignInUnverified();
-          }
-        })
-        .then(null, function (err) {
-          if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-            return self._suggestSignUp(err);
-          } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-            self.logEvent('login.canceled');
-            // if user canceled login, just stop
-            return;
-          }
-          // re-throw error, it will be handled at a lower level.
-          throw err;
-        });
+      .then(function (accountData) {
+        if (accountData.verified) {
+          return self.onSignInSuccess();
+        } else {
+          return self.onSignInUnverified();
+        }
+      })
+      .then(null, function (err) {
+        if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+          return self._suggestSignUp(err);
+        } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+          self.logEvent('login.canceled');
+          // if user canceled login, just stop
+          return;
+        }
+        // re-throw error, it will be handled at a lower level.
+        throw err;
+      });
     },
 
     onSignInSuccess: function () {
@@ -179,7 +181,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
      * Render to a basic sign in view, used with "Use a different account" button
      */
     useDifferentAccount: BaseView.preventDefaultThen(function () {
-      this.skipUserSuggestion = true;
+      Session.clear();
       return this.render();
     }),
 
@@ -206,9 +208,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
         // confirm that session token and email are present
         cachedSessionToken && cachedEmail &&
         // prefilled email must be the same or absent
-        (this.prefillEmail === cachedEmail || ! this.prefillEmail) &&
-        // must not be manually disabled
-        ! this.skipUserSuggestion
+        (this.prefillEmail === cachedEmail || ! this.prefillEmail)
       ) {
         return {
           email: cachedEmail,
