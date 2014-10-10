@@ -37,11 +37,10 @@ define([
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
 
-      return FunctionalHelpers.clearBrowserState(this);
-    },
-
-    teardown: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      return FunctionalHelpers.clearBrowserState(this, {
+        contentServer: true,
+        '123done': true
+      });
     },
 
     'signin using an oauth app': function () {
@@ -76,7 +75,7 @@ define([
         .click()
         .end()
 
-        .findByCssSelector('form input.email')
+        .findByCssSelector('#fxa-signin-header')
         .end()
 
         .getCurrentUrl()
@@ -85,6 +84,9 @@ define([
             // add "&webChannelId=test" to the OAuth login url to signal that this is a WebChannel flow
             .get(require.toUrl(url + '&webChannelId=test'));
         })
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
 
         .execute(function (OAUTH_APP) {
           // this event will fire once the form is submitted below, helping it redirect to the application
@@ -132,6 +134,10 @@ define([
         .findByCssSelector('#splash .signup')
         .click()
         .end()
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+
         .getCurrentUrl()
         .then(function (url) {
 
@@ -139,6 +145,10 @@ define([
             // add '&webChannelId=test' to the current url, which is the confirmation screen
             .get(require.toUrl(url + '&webChannelId=test'));
         })
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+
         .execute(function (OAUTH_APP) {
           // this event will fire once the account is confirmed, helping it redirect to the application
           // if the window redirect does not happen then the sign in page will hang on the confirmation screen

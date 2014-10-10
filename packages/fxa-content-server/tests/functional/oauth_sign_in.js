@@ -15,225 +15,46 @@ define([
   'use strict';
 
   var config = intern.config;
-  var CONTENT_SERVER = config.fxaContentRoot;
   var OAUTH_APP = config.fxaOauthApp;
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
   var PASSWORD = 'password';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var user;
   var email;
 
+  var client;
+
   registerSuite({
     name: 'oauth sign in',
-
-    setup: function () {
-    },
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
-      var self = this;
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
 
-      return self.get('remote')
-        // always go to the content server so the browser state is cleared
-        .get(require.toUrl(CONTENT_SERVER))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        })
-        // sign up, do not verify steps
-        .get(require.toUrl(OAUTH_APP))
-        .findByCssSelector('#splash .signup')
-        .click()
-        .end()
-
-        .findByCssSelector('form input.email')
-        .clearValue()
-        .click()
-        .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-        .click()
-        .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-        .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-        .pressMouseButton()
-        .releaseMouseButton()
-        .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-        .click()
-        .end()
-
-        .findByCssSelector('#fxa-confirm-header')
-        .end();
+      return FunctionalHelpers.clearBrowserState(this, {
+        contentServer: true,
+        '123done': true
+      });
     },
 
     'verified': function () {
       var self = this;
-      // verify account
-      return FunctionalHelpers.getVerificationLink(user, 0)
-        .then(function (verificationUrl) {
 
-          return self.get('remote')
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            .get(verificationUrl)
-
-            // wait for confirmation
-            .findById('fxa-sign-up-complete-header')
-            .end()
-            // sign in with a verified account
-            .get(require.toUrl(OAUTH_APP))
-            .findByCssSelector('#splash .signin')
-            .click()
-            .end()
-
-            .findByCssSelector('#fxa-signin-header .service')
-            .end()
-
-            .getCurrentUrl()
-            .then(function (url) {
-              assert.ok(url.indexOf('oauth/signin?') > -1);
-              assert.ok(url.indexOf('client_id=') > -1);
-              assert.ok(url.indexOf('redirect_uri=') > -1);
-              assert.ok(url.indexOf('state=') > -1);
-            })
-            .end()
-
-            .findByCssSelector('.use-different')
-            .click()
-            .end()
-
-            .findByCssSelector('form input.email')
-            .clearValue()
-            .click()
-            .type(email)
-            .end()
-
-            .findByCssSelector('form input.password')
-            .click()
-            .type(PASSWORD)
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-            .click()
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getCurrentUrl()
-            .then(function (url) {
-              // redirected back to the App
-              assert.ok(url.indexOf(OAUTH_APP) > -1);
-            })
-            .end()
-
-            // let items load
-            .findByCssSelector('#todolist li')
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getVisibleText()
-            .then(function (text) {
-              // confirm logged in email
-              assert.ok(text.indexOf(email) > -1);
-            })
-            .end()
-
-            .findByCssSelector('#logout')
-            .click()
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getVisibleText()
-            .then(function (text) {
-              // confirm logged out
-              assert.ok(text.length === 0);
-            })
-            .end();
-        });
-    },
-
-    'verified using a cached login': function () {
-      var self = this;
-      // verify account
-      return FunctionalHelpers.getVerificationLink(user, 0)
-        .then(function (verificationUrl) {
-
-          return self.get('remote')
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            .get(verificationUrl)
-
-            // wait for confirmation
-            .findById('fxa-sign-up-complete-header')
-            .end()
-            // sign in with a verified account
-            .get(require.toUrl(OAUTH_APP))
-            .findByCssSelector('#splash .signin')
-            .click()
-            .end()
-
-            .findByCssSelector('#fxa-signin-header .service')
-            .end()
-
-            .findByCssSelector('form input.password')
-            .click()
-            .type(PASSWORD)
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-            .click()
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getCurrentUrl()
-            .then(function (url) {
-              // redirected back to the App
-              assert.ok(url.indexOf(OAUTH_APP) > -1);
-            })
-            .end()
-
-            // let items load
-            .findByCssSelector('#todolist li')
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getVisibleText()
-            .then(function (text) {
-              // confirm logged in email
-              assert.ok(text.indexOf(email) > -1);
-            })
-            .end()
-
-            .findByCssSelector('#logout')
-            .click()
-            .end()
-
-            .findByCssSelector('#loggedin')
-            .getVisibleText()
-            .then(function (text) {
-              // confirm logged out
-              assert.ok(text.length === 0);
-            })
-            .end();
-        });
-    },
-
-    'unverified': function () {
-      var self = this;
-
-      return this.get('remote')
-        // Step 2: Try to sign in, unverified
+      return self.get('remote')
         .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(OAUTH_APP))
+
+        .then(function () {
+          return client.signUp(email, PASSWORD, { preVerified: true });
+        })
+
+        // sign in with a verified account
         .findByCssSelector('#splash .signin')
-        .click()
+          .click()
         .end()
 
         .findByCssSelector('#fxa-signin-header .service')
@@ -248,61 +69,207 @@ define([
         })
         .end()
 
-        .findByCssSelector('.use-different')
-        .click()
-        .end()
-
         .findByCssSelector('form input.email')
-        .clearValue()
-        .click()
-        .type(email)
+          .clearValue()
+          .click()
+          .type(email)
         .end()
 
         .findByCssSelector('form input.password')
-        .click()
-        .type(PASSWORD)
+          .click()
+          .type(PASSWORD)
         .end()
 
         .findByCssSelector('button[type="submit"]')
-        .click()
+          .click()
+        .end()
+
+        .findByCssSelector('#loggedin')
+        .getCurrentUrl()
+        .then(function (url) {
+          // redirected back to the App
+          assert.ok(url.indexOf(OAUTH_APP) > -1);
+        })
+        .end();
+    },
+
+    'verified using a cached login': function () {
+      var self = this;
+      // verify account
+      return self.get('remote')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .get(require.toUrl(OAUTH_APP))
+
+        .then(function () {
+          return client.signUp(email, PASSWORD, { preVerified: true });
+        })
+
+        // sign in with a verified account to cache credentials
+        .get(require.toUrl(OAUTH_APP))
+        .findByCssSelector('#splash .signin')
+          .click()
+        .end()
+
+        .findByCssSelector('form input.email')
+          .clearValue()
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findByCssSelector('#loggedin')
+        .getCurrentUrl()
+        .then(function (url) {
+          // redirected back to the App
+          assert.ok(url.indexOf(OAUTH_APP) > -1);
+        })
+        .end()
+
+        // let items load
+        .findByCssSelector('#logout')
+          .click()
+        .end()
+
+        .then(FunctionalHelpers.visibleByQSA('#splash .signin'))
+        .end()
+
+        // round 2 - with the cached credentials
+        .findByCssSelector('#splash .signin')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findByCssSelector('#loggedin')
+        .getCurrentUrl()
+        .then(function (url) {
+          // redirected back to the App
+          assert.ok(url.indexOf(OAUTH_APP) > -1);
+        })
+        .end();
+    },
+
+    'unverified': function () {
+      var self = this;
+
+      return this.get('remote')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .get(require.toUrl(OAUTH_APP))
+
+        .then(function () {
+          return client.signUp(email, PASSWORD, { preVerified: false });
+        })
+
+        .findByCssSelector('#splash .signin')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-signin-header .service')
+        .end()
+
+        .findByCssSelector('form input.email')
+          .clearValue()
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
         .end()
 
         .findByCssSelector('#fxa-confirm-header')
-        .then(function () {
-          return FunctionalHelpers.getVerificationLink(user, 0)
-            .then(function (verifyUrl) {
-              return self.get('remote')
-                .get(require.toUrl(verifyUrl))
-                .findByCssSelector('.account-ready-service')
-                .getVisibleText()
-                .then(function (text) {
-                  // user sees the name of the rp,
-                  // but cannot redirect
-                  assert.isTrue(/123done/i.test(text));
-                })
-                .end();
-            });
 
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(user, 0);
+        })
+        .then(function (verifyUrl) {
+          return self.get('remote')
+            .get(require.toUrl(verifyUrl))
+            .findByCssSelector('.account-ready-service')
+            .getVisibleText()
+            .then(function (text) {
+              // user sees the name of the rp,
+              // but cannot redirect
+              assert.isTrue(/123done/i.test(text));
+            })
+            .end();
         });
+
     },
+
     'unverified with a cached login': function () {
       return this.get('remote')
         .setFindTimeout(intern.config.pageLoadTimeout)
         .get(require.toUrl(OAUTH_APP))
+
+        // first, sign the user up to cache the login
+        .findByCssSelector('#splash .signup')
+          .click()
+        .end()
+
+        .findByCssSelector('form input.email')
+          .clearValue()
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        // round 2 - try to sign in with the unverified user.
+        .get(require.toUrl(OAUTH_APP))
         .findByCssSelector('#splash .signin')
-        .click()
+          .click()
         .end()
 
         .findByCssSelector('#fxa-signin-header .service')
         .end()
 
         .findByCssSelector('form input.password')
-        .click()
-        .type(PASSWORD)
+          .click()
+          .type(PASSWORD)
         .end()
 
         .findByCssSelector('button[type="submit"]')
-        .click()
+          .click()
         .end()
 
         // success is using a cached login and being redirected to a confirmation screen

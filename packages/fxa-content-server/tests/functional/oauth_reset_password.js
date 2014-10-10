@@ -50,13 +50,11 @@ define([
         })
         .then(function () {
           // clear localStorage to avoid polluting other tests.
-          return FunctionalHelpers.clearBrowserState(self);
+          return FunctionalHelpers.clearBrowserState(self, {
+            contentServer: true,
+            '123done': true
+          });
         });
-    },
-
-    teardown: function () {
-      // clear localStorage to avoid polluting other tests.
-      return FunctionalHelpers.clearBrowserState(this);
     },
 
     'oauth reset password': function () {
@@ -195,7 +193,10 @@ define([
             .then(function () {
               // clear all browser state, simulate opening in a new
               // browser
-              return FunctionalHelpers.clearBrowserState(self);
+              return FunctionalHelpers.clearBrowserState(self, {
+                contentServer: true,
+                '123done': true
+              });
             })
             .then(function () {
               return FunctionalHelpers.getVerificationLink(user, 1);
