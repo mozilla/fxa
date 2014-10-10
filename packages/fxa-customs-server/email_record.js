@@ -81,8 +81,11 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
 
   EmailRecord.prototype.isBlocked = function () {
     var rateLimited = !!(this.rl && (now() - this.rl < RATE_LIMIT_INTERVAL_MS))
-    var banned = !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
-    return rateLimited || banned
+    return rateLimited || this.isBanned()
+  }
+
+  EmailRecord.prototype.isBanned = function () {
+    return !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
   }
 
   EmailRecord.prototype.block = function () {
@@ -105,7 +108,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
   }
 
   EmailRecord.prototype.update = function (action) {
-    if (EMAIL_ACTIONS.indexOf(action) === -1) {
+    if (!this.isBanned() && EMAIL_ACTIONS.indexOf(action) === -1) {
       return 0
     }
 
