@@ -3,6 +3,7 @@
   "api_proxy": {
     "enabled": true
   },
+  "oauth_client_id": "98e6508e88680e1a",
   "oauth_url": "http://127.0.0.1:9010",
   "profile_url": "http://127.0.0.1:1111",
   "profile_images_url": "http://127.0.0.1:1112",
