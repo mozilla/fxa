@@ -8,6 +8,12 @@ const path = require('path');
 const convict = require('convict');
 
 const conf = convict({
+  admin: {
+    whitelist: {
+      doc: 'An array of regexes. Passing any one will get through.',
+      default: ['@mozilla\\.com$']
+    }
+  },
   api: {
     version: {
       doc: 'Number part of versioned endpoints - ex: /v1/token',

@@ -43,6 +43,8 @@ The currently-defined error responses are:
 | 400 | 108 | invalid token |
 | 400 | 109 | invalid request parameter |
 | 400 | 110 | invalid response_type |
+| 401 | 111 | unauthorized |
+| 403 | 112 | forbidden |
 | 500 | 999 | internal server error |
 
 ## API Endpoints
@@ -52,7 +54,12 @@ The currently-defined error responses are:
 - [POST /v1/authorization][authorization]
 - [POST /v1/token][token]
 - [POST /v1/destroy][delete]
-- [GET /v1/client/:id][client]
+- Clients
+  - [GET /v1/client/:id][client]
+  - [GET /v1/clients][clients]
+  - [POST /v1/client][register]
+  - [POST /v1/client/:id][client-update]
+  - [DELETE /v1/client/:id][client-delete]
 - [POST /v1/verify][verify]
 
 ### GET /v1/client/:id
@@ -87,6 +94,159 @@ A valid 200 response will be a JSON blob with the following properties:
   "redirect_uri": "https://wheres.my.firefox.com/oauth"
 }
 ```
+
+### GET /v1/clients
+
+Get a list of all registered clients.
+
+**Required scope:** `oauth`
+
+#### Request
+
+**Example:**
+
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://oauth.accounts.firefox.com/v1/clients"
+```
+
+#### Response
+
+A valid 200 response will be a JSON object with a property of `clients`,
+which contains an array of client objects.
+
+**Example:**
+
+```json
+{
+  "clients": [
+    {
+      "id": "5901bd09376fadaa",
+      "name": "Example",
+      "redirect_uri": "https://ex.am.ple/path",
+      "image_uri": "https://ex.am.ple/logo.png",
+      "can_grant": false,
+      "whitelisted": false
+    }
+  ]
+}
+```
+
+### POST /v1/client
+
+Register a new client (FxA relier).
+
+**Required scope:** `oauth`
+
+#### Request Parameters
+
+- `name`: The name of the client.
+- `redirect_uri`: The URI to redirect to after logging in.
+- `image_uri`: A URI to an image to show to a user when logging in.
+- `whitelisted`: A whitelisted client is whitelisted.
+- `can_grant`: A client needs permission to get implicit grants.
+
+**Example:**
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://oauth.accounts.firefox.com/v1/client" \
+-d '{
+  "name": "Example",
+  "redirect_uri": "https://ex.am.ple/path",
+  "image_uri": "https://ex.am.ple/logo.png",
+  "whitelisted": false,
+  "can_grant": false
+}'
+```
+
+#### Response
+
+A valid 201 response will be a JSON blob with the following properties:
+
+- `client_id`: The generated id for this client.
+- `client_secret`: The generated secret for this client. *NOTE: This is
+  the only time you can get the secret, because we only keep a hashed
+  version.*
+- `name`: A string name of the client.
+- `image_uri`: A url to a logo or image that represents the client.
+- `redirect_uri`: The url registered to redirect to after successful oauth.
+- `can_grant`: If the client can get implicit grants.
+- `whitelisted`: If the client is whitelisted.
+
+**Example:**
+
+```json
+{
+  "client_id": "5901bd09376fadaa",
+  "client_secret": "4ab433e31ef3a7cf7c20590f047987922b5c9ceb1faff56f0f8164df053dd94c",
+  "name": "Example",
+  "redirect_uri": "https://ex.am.ple/path",
+  "image_uri": "https://ex.am.ple/logo.png",
+  "can_grant": false,
+  "whitelisted": false
+}
+```
+
+### POST /v1/client/:id
+
+Update the details of a client. Any parameter not included in the
+request will stay unchanged.
+
+**Required scope:** `oauth`
+
+#### Request Parameters
+
+- `name`: The name of the client.
+- `redirect_uri`: The URI to redirect to after logging in.
+- `image_uri`: A URI to an image to show to a user when logging in.
+- `whitelisted`: A whitelisted client is whitelisted.
+- `can_grant`: A client needs permission to get implicit grants.
+
+**Example:**
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://oauth.accounts.firefox.com/v1/client/5901bd09376fadaa" \
+-d '{
+  "name": "Example2",
+  "redirect_uri": "https://ex.am.ple/path/2",
+  "image_uri": "https://ex.am.ple/logo2.png",
+}'
+```
+
+#### Response
+
+A valid reponse will have a 200 status code and empty body.
+
+### DELETE /v1/client/:id
+
+Delete a client. It will be no more. Zilch. Nada. Nuked from orbit.
+
+**Required scope:** `oauth`
+
+#### Request Parameters
+
+**Example:**
+
+```sh
+curl -v \
+-X DELETE \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://oauth.accounts.firefox.com/v1/client/5901bd09376fadaa"
+```
+
+#### Response
+
+A valid reponse will have a 204 response code and an empty body.
 
 ### GET /v1/authorization
 
@@ -272,6 +432,10 @@ A valid request will return JSON with these properties:
 ```
 
 [client]: #get-v1clientid
+[register]: #post-v1clientregister
+[clients]: #get-v1clients
+[client-update]: #post-v1clientid
+[client-delete]: #delete-v1clientid
 [redirect]: #get-v1authorization
 [authorization]: #post-v1authorization
 [token]: #post-v1token

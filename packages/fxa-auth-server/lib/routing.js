@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const version = require('./config').get('api.version');
+const config = require('./config');
+const version = config.get('api.version');
 
 function v(url) {
   return '/v' + version + url;
@@ -29,7 +30,7 @@ module.exports = [
   {
     method: 'GET',
     path: v('/client/{client_id}'),
-    config: require('./routes/client')
+    config: require('./routes/client/get')
   },
   {
     method: 'GET',
@@ -57,3 +58,28 @@ module.exports = [
     config: require('./routes/verify')
   }
 ];
+
+if (config.get('env') !== 'prod') {
+  module.exports.push.apply(module.exports, [
+    {
+      method: 'GET',
+      path: v('/clients'),
+      config: require('./routes/client/list')
+    },
+    {
+      method: 'POST',
+      path: v('/client'),
+      config: require('./routes/client/register')
+    },
+    {
+      method: 'POST',
+      path: v('/client/{client_id}'),
+      config: require('./routes/client/update')
+    },
+    {
+      method: 'DELETE',
+      path: v('/client/{client_id}'),
+      config: require('./routes/client/delete')
+    }
+  ]);
+}

@@ -5,6 +5,7 @@
 const Hapi = require('hapi');
 
 const AppError = require('./error');
+const auth = require('./auth');
 const config = require('./config').root();
 const logger = require('./logging').getLogger('fxa.server');
 const hapiLogger = require('./logging').getLogger('fxa.server.hapi');
@@ -43,6 +44,11 @@ exports.create = function createServer() {
       }
     }
   );
+
+
+
+  server.auth.scheme(auth.AUTH_SCHEME, auth.strategy);
+  server.auth.strategy(auth.AUTH_STRATEGY, auth.AUTH_SCHEME);
 
   var routes = require('./routing');
   if (isProd) {

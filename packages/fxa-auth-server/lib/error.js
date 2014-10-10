@@ -169,5 +169,24 @@ AppError.invalidResponseType = function invalidResponseType() {
   });
 };
 
+AppError.unauthorized = function unauthorized(reason) {
+  return new AppError({
+    code: 401,
+    error: 'Unauthorized',
+    errno: 111,
+    message: 'Unauthorized for route'
+  }, {
+    detail: reason
+  });
+};
+
+AppError.forbidden = function forbidden() {
+  return new AppError({
+    code: 403,
+    error: 'Forbidden',
+    errno: 112,
+    message: 'Forbidden'
+  });
+};
 
 module.exports = AppError;
