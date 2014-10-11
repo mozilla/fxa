@@ -7,14 +7,11 @@ const path = require('path');
 
 const convict = require('convict');
 
+
 const conf = convict({
-  db: {
-    driver: {
-      env: 'DB',
-      format: ['mysql', 'memory'],
-      default: 'memory'
-    }
-  },
+  /**
+   * Environment
+   */
   env: {
     arg: 'node-env',
     doc: 'The current node.js environment',
@@ -29,6 +26,64 @@ const conf = convict({
       default: ''
     }
   },
+  /**
+   * Server Properties
+   */
+  server: {
+    host: {
+      env: 'HOST',
+      default: '127.0.0.1'
+    },
+    port: {
+      env: 'PORT',
+      format: 'port',
+      default: 10137
+    }
+  },
+  /**
+   * FxA OAuth
+   */
+   //TODO: update with production settings
+  fxaOAuth: {
+    client_id: {
+      doc: "The FxA client_id (8 bytes key encoded as hex)",
+      format: String,
+      default: ""
+    },
+    client_secret: {
+      doc: "The FxA client secret (32 bytes key encoded as hex)",
+      format: String,
+      default: ""
+    },
+    oauth_uri: {
+      doc: "The location of the FxA OAuth server.",
+      format: "url",
+      default: "https://oauth-latest.dev.lcip.org/v1"
+    },
+    content_uri: {
+      doc: "The location of the FxA content server.",
+      format: "url",
+      default: "https://latest.dev.lcip.org"
+    },
+    redirect_uri: {
+      doc: "The redirect_uri.",
+      format: String,
+      default: "https://127.0.0.1:10137/oauth/redirect"
+    },
+    profile_uri: {
+      doc: "The FxA profile uri.",
+      format: "url",
+      default: "https://latest.dev.lcip.org/profile/v1"
+    },
+    scope: {
+      doc: "The scope we're requesting access to",
+      format: String,
+      default: "profile"
+    }
+  },
+  /**
+   * Logging
+   */
   logging: {
     formatters: {
       doc: 'http://seanmonstar.github.io/intel/#formatters',
@@ -74,55 +129,6 @@ const conf = convict({
       doc: 'Path to find relative classes',
       default: __dirname
     }
-  },
-  mysql: {
-    createSchema: {
-      env: 'CREATE_MYSQL_SCHEMA',
-      default: true
-    },
-    user: {
-      default: 'root',
-      env: 'MYSQL_USERNAME'
-    },
-    password: {
-      default: '',
-      env: 'MYSQL_PASSWORD'
-    },
-    database: {
-      default: 'fxa_oauth_console',
-      env: 'MYSQL_DATABASE'
-    },
-    host: {
-      default: '127.0.0.1',
-      env: 'MYSQL_HOST'
-    },
-    port: {
-      default: '3306',
-      env: 'MYSQL_PORT'
-    }
-  },
-  oauth: {
-    url: {
-      doc: 'URL of fxa-oauth-server',
-      format: 'url',
-      default: 'http://127.0.0.1:9010/v1'
-    }
-  },
-  publicUrl: {
-    format: 'url',
-    env: 'PUBLIC_URL',
-    default: 'http://127.0.0.1:10137'
-  },
-  server: {
-    host: {
-      env: 'HOST',
-      default: '127.0.0.1'
-    },
-    port: {
-      env: 'PORT',
-      format: 'port',
-      default: 10137
-    }
   }
 });
 
@@ -131,16 +137,12 @@ var files = (envConfig + ',' + process.env.CONFIG_FILES)
   .split(',').filter(fs.existsSync);
 conf.loadFile(files);
 
-if (conf.get('env') === 'test') {
-  process.env.AWS_ACCESS_KEY_ID = 'TESTME';
-  process.env.AWS_SECRET_ACCESS_KEY = 'TESTME';
-}
-
 if (process.env.LOG_LEVEL) {
   conf.set('logging.loggers.fxa.level', process.env.LOG_LEVEL);
 }
 process.env.NODE_ENV = conf.get('env');
 
 conf.validate();
+
 
 module.exports = conf;

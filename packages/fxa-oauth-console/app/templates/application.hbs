@@ -3,11 +3,21 @@
     <li class="name">
       <h1>
         <a href="#">
-          <img src="assets/firefox.png" alt="Firefox Accounts" />FxA OAuth Credential Management
+          <img src="assets/firefox.png" alt="Firefox Accounts"/>FxA OAuth Credential Management
         </a>
       </h1>
     </li>
   </ul>
+  <section class="top-bar-section">
+    <ul class="right">
+      {{#if session.isAuthenticated}}
+        <li></li>
+        <a {{ action 'invalidateSession' }}>Logout</a></li>
+      {{else}}
+        <li class="active"><a {{ action 'authenticateSession' }}>Login</a></li>
+      {{/if}}
+    </ul>
+  </section>
 </nav>
 
 <div class="row">

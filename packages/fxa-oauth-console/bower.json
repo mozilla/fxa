@@ -13,7 +13,8 @@
     "ember-qunit": "0.1.8",
     "ember-qunit-notifications": "0.0.4",
     "qunit": "~1.15.0",
-    "foundation": "zurb/bower-foundation#~5.4.5"
+    "foundation": "zurb/bower-foundation#~5.4.5",
+    "ember-simple-auth": "0.6.7"
   },
   "resolutions": {
     "jquery": ">= 1.7.0 < 2.2.0"
