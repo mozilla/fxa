@@ -11,19 +11,35 @@ define([
   'intern/node_modules/dojo/node!leadfoot/helpers/pollUntil',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, pollUntil, FxaClient, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/fx-desktop'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
+        pollUntil, FxaClient, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   'use strict';
 
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
 
+  var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
+
+  var client;
+  var email;
+  var PASSWORD = '12345678';
+
+  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
   registerSuite({
     name: 'Firefox Desktop Sync sign_up',
 
     beforeEach: function () {
+      email = TestHelpers.createEmail();
+
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+
       return FunctionalHelpers.clearBrowserState(this);
     },
 
@@ -32,15 +48,17 @@ define([
     },
 
     'sign up & verify same browser': function () {
-      var email = TestHelpers.createEmail();
-      var user = TestHelpers.emailToUser(email);
-      var password = '12345678';
 
       var self = this;
 
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+        .execute(listenForFxaCommands)
+
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -48,7 +66,7 @@ define([
 
         .findByCssSelector('form input.password')
           .click()
-          .type(password)
+          .type(PASSWORD)
         .end()
 
         .findByCssSelector('#fxa-age-year')
@@ -65,18 +83,12 @@ define([
           .click()
         .end()
 
-        // Functional tests are going to receive an error because
-        // the browser does not respond to the Channel message.
-        .then(FunctionalHelpers.visibleByQSA('.error'))
-        .end()
-
         // verify the user
         .then(function () {
-          return FunctionalHelpers.getVerificationLink(user, 0);
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                self, email, 0);
         })
-        .then(function (link) {
-          return self.get('remote').get(link);
-        })
+        .switchToWindow('newwindow')
 
         // user should be redirected to "Success!" screen.
         // In real life, the original browser window would show
@@ -91,27 +103,40 @@ define([
           assert.ok(text.indexOf('Firefox Sync') > -1);
         })
 
-        .end();
+        .end()
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('')
+        .end()
+
+        .findByCssSelector('#fxa-sign-up-complete-header')
+        .end()
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        });
     },
 
-    'sign up & verify in a different browser': function () {
-      var email = TestHelpers.createEmail();
-      var user = TestHelpers.emailToUser(email);
-      var password = '12345678';
-
+    'signup, verify different browser - from original tab\'s P.O.V.': function () {
       var self = this;
 
       return this.get('remote')
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+        .execute(listenForFxaCommands)
+
         .findByCssSelector('form input.email')
+          .clearValue()
           .click()
           .type(email)
         .end()
 
         .findByCssSelector('form input.password')
           .click()
-          .type(password)
+          .type(PASSWORD)
         .end()
 
         .findByCssSelector('#fxa-age-year')
@@ -128,9 +153,54 @@ define([
           .click()
         .end()
 
-        // Functional tests are going to receive an error because
-        // the browser does not respond to the Channel message.
-        .then(FunctionalHelpers.visibleByQSA('.error'))
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
+        })
+
+        .findByCssSelector('#fxa-sign-up-complete-header')
+        .end()
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        });
+    },
+
+    'signup, verify different browser - from new browser\'s P.O.V.': function () {
+      var self = this;
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+        .execute(listenForFxaCommands)
+
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('#fxa-age-year')
+          .click()
+        .end()
+
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
         .end()
 
         // clear local/sessionStorage to synthesize continuing in
@@ -141,7 +211,7 @@ define([
 
         // verify the user
         .then(function () {
-          return FunctionalHelpers.getVerificationLink(user, 0);
+          return FunctionalHelpers.getVerificationLink(email, 0);
         })
         .then(function (link) {
           return self.get('remote').get(link);

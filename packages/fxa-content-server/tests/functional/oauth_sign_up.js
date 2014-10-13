@@ -16,7 +16,6 @@ define([
   'use strict';
 
   var config = intern.config;
-  var OAUTH_APP = config.fxaOauthApp;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
@@ -44,16 +43,12 @@ define([
       });
     },
 
-    'basic signup, from first tab\'s perspective - tab should redirect to RP automatically': function () {
-      return this.get('remote')
-        .get(require.toUrl(OAUTH_APP))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('.signup')
-          .click()
-        .end()
-
+    'signup, verify same browser': function () {
+      var self = this;
+      return FunctionalHelpers.openFxaFromRp(self, 'signup')
         .findByCssSelector('#fxa-signup-header .service')
         .end()
+
         .getCurrentUrl()
         .then(function (url) {
           assert.ok(url.indexOf('client_id=') > -1);
@@ -90,50 +85,36 @@ define([
         .end()
 
         .then(function () {
-          // simulate the verification in a second browser,
-          // though the effect should be the same if we open
-          // in the same browser. I'm just not sure how to get
-          // selenium to open a second tab.
-          return FunctionalHelpers.getVerificationHeaders(user, 0)
-            .then(function (headers) {
-              var uid = headers['x-uid'];
-              var code = headers['x-verify-code'];
-              return fxaClient.verifyCode(uid, code);
-            });
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        // wait for the verified window in the new tab
+        .findById('fxa-sign-up-complete-header')
+        .end()
+
+        .findByCssSelector('.account-ready-service')
+        .getVisibleText()
+        .then(function (text) {
+          // user sees the name of the RP,
+          // but cannot redirect
+          assert.ok(/123done/i.test(text));
         })
         .end()
 
-        // user auto-redirects to 123done
-
-        // let items load
-        .findByCssSelector('#todolist li')
-        .end()
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('')
 
         .findByCssSelector('#loggedin')
         .end();
     },
 
-
-    'verify in the same browser - from second tab\'s perspective - link to redirect to RP': function () {
+    'signup, verify different browser - from original tab\'s P.O.V.': function () {
       var self = this;
 
-      return this.get('remote')
-        .get(require.toUrl(OAUTH_APP))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('.signup')
-          .click()
-        .end()
-
-        .findByCssSelector('#fxa-signup-header .service')
-        .end()
-        .getCurrentUrl()
-        .then(function (url) {
-          assert.ok(url.indexOf('client_id=') > -1);
-          assert.ok(url.indexOf('redirect_uri=') > -1);
-          assert.ok(url.indexOf('state=') > -1);
-        })
-        .end()
-
+      return FunctionalHelpers.openFxaFromRp(self, 'signup')
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -159,51 +140,21 @@ define([
         .end()
 
         .findByCssSelector('#fxa-confirm-header')
-        .getCurrentUrl()
-        .then(function (url) {
-          assert.ok(url.indexOf('client_id=') > -1);
-          assert.ok(url.indexOf('redirect_uri=') > -1);
-          assert.ok(url.indexOf('state=') > -1);
-
-          return FunctionalHelpers.getVerificationLink(user, 0)
-            .then(function (verificationLink) {
-              // overwrite the url in the same browser simulates
-              // the second tab's perspective
-              return self.get('remote').get(verificationLink);
-            });
-        })
         .end()
 
-        .findByCssSelector('.account-ready-service')
-        .getVisibleText()
-        .then(function (text) {
-          // user sees the name of the RP,
-          // but cannot redirect
-          assert.ok(/123done/i.test(text));
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkDifferentBrowser(fxaClient, email);
         })
+
+        // original tab redirects back to 123done
+        .findByCssSelector('#loggedin')
         .end();
     },
 
-    'verify in a second browser - from the second browser\'s perspective - no option to redirect to RP': function () {
+    'signup, verify different browser - from new browser\'s P.O.V.': function () {
       var self = this;
 
-      return this.get('remote')
-        .get(require.toUrl(OAUTH_APP))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('.signup')
-          .click()
-        .end()
-
-        .findByCssSelector('#fxa-signup-header .service')
-        .end()
-        .getCurrentUrl()
-        .then(function (url) {
-          assert.ok(url.indexOf('client_id=') > -1);
-          assert.ok(url.indexOf('redirect_uri=') > -1);
-          assert.ok(url.indexOf('state=') > -1);
-        })
-        .end()
-
+      return FunctionalHelpers.openFxaFromRp(self, 'signup')
         .findByCssSelector('form input.email')
           .click()
           .type(email)
@@ -240,14 +191,14 @@ define([
         })
 
         .then(function () {
-          return FunctionalHelpers.getVerificationLink(user, 0)
-            .then(function (verificationLink) {
-              return self.get('remote').get(verificationLink);
-            });
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
         })
 
-        // user is shown the ready page, without an option to redirect
-        .findById('fxa-sign-up-complete-header')
+        // new browser dead ends at the 'account verified' screen.
+        .findByCssSelector('#fxa-sign-up-complete-header')
         .end()
 
         .findByCssSelector('.account-ready-service')

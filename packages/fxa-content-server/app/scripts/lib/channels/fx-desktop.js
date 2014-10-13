@@ -33,7 +33,7 @@ function (_, BaseChannel, AuthErrors) {
     /*jshint validthis: true*/
     outstandingRequest.timeout = setTimeout(function () {
       // only called if the request has not been responded to.
-      console.error('no response from browser');
+      console.error('no response from browser: ' + outstandingRequest.command);
       outstandingRequest.done(AuthErrors.toError('DESKTOP_CHANNEL_TIMEOUT'));
     }, this.sendTimeoutLength);
   }

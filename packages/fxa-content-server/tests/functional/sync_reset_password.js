@@ -11,21 +11,25 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/fx-desktop'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
+        FxaClient, restmail, TestHelpers, FunctionalHelpers, FxDesktopHelpers) {
   'use strict';
 
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'reset_password?context=fx_desktop_v1&service=sync';
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
 
   var PASSWORD = 'password';
   var user;
   var email;
   var client;
   var accountData;
+
+  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
   registerSuite({
     name: 'Firefox Desktop Sync reset password',
@@ -44,7 +48,7 @@ define([
       user = TestHelpers.emailToUser(email);
       var self = this;
 
-      return client.signUp(email, PASSWORD)
+      return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function (result) {
           accountData = result;
         })
@@ -63,137 +67,191 @@ define([
       var self = this;
 
       // verify account
-      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
-        .then(function (emails) {
-          var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-          return client.verifyCode(accountData.uid, code);
-        })
+      return self.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findById('fxa-reset-password-header')
+        .end()
+
+        .execute(listenForFxaCommands)
+
+        .findByCssSelector('input[type=email]')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-confirm-reset-password-header')
+        .end()
+
         .then(function () {
-          return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout)
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                self, email, 0);
+        })
+        .switchToWindow('newwindow')
 
-            .findById('fxa-reset-password-header')
-            .end()
+        .findById('fxa-complete-reset-password-header')
+        .end()
 
-            .findByCssSelector('input[type=email]')
-            .click()
-            .type(email)
-            .end()
+        .findByCssSelector('form input#password')
+          .click()
+          .type(PASSWORD)
+        .end()
 
-            .findByCssSelector('button[type="submit"]')
-            .click()
-            .end()
+        .findByCssSelector('form input#vpassword')
+          .click()
+          .type(PASSWORD)
+        .end()
 
-            .findById('fxa-confirm-reset-password-header')
-            .then(function () {
-              return FunctionalHelpers.getVerificationLink(user, 1);
-            })
-            .then(function (url) {
-              return self.get('remote').get(require.toUrl(url));
-            })
-            .end()
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
 
-            .findById('fxa-complete-reset-password-header')
-            .end()
+        .findById('fxa-reset-password-complete-header')
+        .end()
 
-            .findByCssSelector('form input#password')
-            .click()
-            .type(PASSWORD)
-            .end()
+        .findByCssSelector('.account-ready-service')
+        .getVisibleText()
+        .then(function (text) {
+          assert.ok(text.indexOf('Firefox Sync') > -1);
+        })
 
-            .findByCssSelector('form input#vpassword')
-            .click()
-            .type(PASSWORD)
-            .end()
+        .end()
 
-            .findByCssSelector('button[type="submit"]')
-            .click()
-            .end()
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('')
+        .end()
 
-            .findById('fxa-reset-password-complete-header')
-            .end()
+        .then(FunctionalHelpers.visibleByQSA('.success'))
+        .end()
 
-            .findByCssSelector('.account-ready-service')
-            .getVisibleText()
-            .then(function (text) {
-              assert.ok(text.indexOf('Firefox Sync') > -1);
-            })
-
-            .end();
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
         });
     },
 
-    'sync reset password, verify in a second browser': function () {
+    'reset password, verify different browser - from original tab\'s P.O.V.': function () {
       var self = this;
 
       // verify account
-      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
-        .then(function (emails) {
-          var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-          return client.verifyCode(accountData.uid, code);
+      return self.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findById('fxa-reset-password-header')
+        .end()
+
+        .execute(listenForFxaCommands)
+
+        .findByCssSelector('input[type=email]')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-confirm-reset-password-header')
+        .then(function () {
+          return FunctionalHelpers.openPasswordResetLinkDifferentBrowser(
+                      client, email, PASSWORD);
+        })
+
+        // for an unknown reason, it sometimes takes an exceptionally
+        // long time to transition to the new screen.
+
+        // user verified in a new browser, they have to enter
+        // their updated credentials in the original tab.
+        .then(FunctionalHelpers.visibleByQSA('.success', 20000))
+        .end()
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .findByCssSelector('#password')
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type=submit]')
+          .click()
+        .end()
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        });
+    },
+
+    'reset password, verify different browser - from new browser\'s P.O.V.': function () {
+
+      var self = this;
+
+      // verify account
+      return self.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findById('fxa-reset-password-header')
+        .end()
+
+        .execute(listenForFxaCommands)
+
+        .findByCssSelector('input[type=email]')
+        .click()
+        .type(email)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
+
+        .findById('fxa-confirm-reset-password-header')
+        .then(function () {
+          // clear all browser state, simulate opening in a new
+          // browser
+          return FunctionalHelpers.clearBrowserState(self);
         })
         .then(function () {
-          return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout)
+          return FunctionalHelpers.getVerificationLink(user, 0);
+        })
+        .then(function (url) {
+          return self.get('remote').get(require.toUrl(url));
+        })
+        .end()
 
-            .findById('fxa-reset-password-header')
-            .end()
+        .findById('fxa-complete-reset-password-header')
+        .end()
 
-            .findByCssSelector('input[type=email]')
-            .click()
-            .type(email)
-            .end()
+        .findByCssSelector('form input#password')
+        .click()
+        .type(PASSWORD)
+        .end()
 
-            .findByCssSelector('button[type="submit"]')
-            .click()
-            .end()
+        .findByCssSelector('form input#vpassword')
+        .click()
+        .type(PASSWORD)
+        .end()
 
-            .findById('fxa-confirm-reset-password-header')
-            .then(function () {
-              // clear all browser state, simulate opening in a new
-              // browser
-              return FunctionalHelpers.clearBrowserState(self);
-            })
-            .then(function () {
-              return FunctionalHelpers.getVerificationLink(user, 1);
-            })
-            .then(function (url) {
-              return self.get('remote').get(require.toUrl(url));
-            })
-            .end()
+        .findByCssSelector('button[type="submit"]')
+        .click()
+        .end()
 
-            .findById('fxa-complete-reset-password-header')
-            .end()
+        .findById('fxa-reset-password-complete-header')
+        .end()
 
-            .findByCssSelector('form input#password')
-            .click()
-            .type(PASSWORD)
-            .end()
+        .findByCssSelector('.account-ready-service')
+        .getVisibleText()
+        .then(function (text) {
+          assert.ok(text.indexOf('Firefox Sync') > -1);
+        })
 
-            .findByCssSelector('form input#vpassword')
-            .click()
-            .type(PASSWORD)
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-            .click()
-            .end()
-
-            .findById('fxa-reset-password-complete-header')
-            .end()
-
-            .findByCssSelector('.account-ready-service')
-            .getVisibleText()
-            .then(function (text) {
-              assert.ok(text.indexOf('Firefox Sync') > -1);
-            })
-
-            .end();
-        });
+        .end();
     }
-
   });
 
 });

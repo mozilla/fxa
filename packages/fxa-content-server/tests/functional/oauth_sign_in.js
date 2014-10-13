@@ -44,30 +44,10 @@ define([
     'verified': function () {
       var self = this;
 
-      return self.get('remote')
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(OAUTH_APP))
-
+      return FunctionalHelpers.openFxaFromRp(self, 'signin')
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
-
-        // sign in with a verified account
-        .findByCssSelector('#splash .signin')
-          .click()
-        .end()
-
-        .findByCssSelector('#fxa-signin-header .service')
-        .end()
-
-        .getCurrentUrl()
-        .then(function (url) {
-          assert.ok(url.indexOf('oauth/signin?') > -1);
-          assert.ok(url.indexOf('client_id=') > -1);
-          assert.ok(url.indexOf('redirect_uri=') > -1);
-          assert.ok(url.indexOf('state=') > -1);
-        })
-        .end()
 
         .findByCssSelector('form input.email')
           .clearValue()
@@ -96,20 +76,12 @@ define([
     'verified using a cached login': function () {
       var self = this;
       // verify account
-      return self.get('remote')
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(OAUTH_APP))
-
+      return FunctionalHelpers.openFxaFromRp(self, 'signin')
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
 
         // sign in with a verified account to cache credentials
-        .get(require.toUrl(OAUTH_APP))
-        .findByCssSelector('#splash .signin')
-          .click()
-        .end()
-
         .findByCssSelector('form input.email')
           .clearValue()
           .click()
@@ -170,20 +142,10 @@ define([
     'unverified': function () {
       var self = this;
 
-      return this.get('remote')
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(OAUTH_APP))
-
+      return FunctionalHelpers.openFxaFromRp(self, 'signin')
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: false });
         })
-
-        .findByCssSelector('#splash .signin')
-          .click()
-        .end()
-
-        .findByCssSelector('#fxa-signin-header .service')
-        .end()
 
         .findByCssSelector('form input.email')
           .clearValue()
@@ -221,15 +183,12 @@ define([
     },
 
     'unverified with a cached login': function () {
-      return this.get('remote')
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(OAUTH_APP))
-
-        // first, sign the user up to cache the login
-        .findByCssSelector('#splash .signup')
-          .click()
+      var self = this;
+      return FunctionalHelpers.openFxaFromRp(self, 'signup')
+        .findByCssSelector('#fxa-signup-header')
         .end()
 
+        // first, sign the user up to cache the login
         .findByCssSelector('form input.email')
           .clearValue()
           .click()
@@ -255,10 +214,9 @@ define([
         .end()
 
         // round 2 - try to sign in with the unverified user.
-        .get(require.toUrl(OAUTH_APP))
-        .findByCssSelector('#splash .signin')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.openFxaFromRp(self, 'signin');
+        })
 
         .findByCssSelector('#fxa-signin-header .service')
         .end()
@@ -272,7 +230,8 @@ define([
           .click()
         .end()
 
-        // success is using a cached login and being redirected to a confirmation screen
+        // success is using a cached login and being redirected
+        // to a confirmation screen
         .findByCssSelector('#fxa-confirm-header')
         .end();
     }
