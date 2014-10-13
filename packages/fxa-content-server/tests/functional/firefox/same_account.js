@@ -43,13 +43,23 @@ define([
         .setFindTimeout(intern.config.pageLoadTimeout)
         // open Firefox preferences
         .get(require.toUrl('about:preferences'))
+        .findById('header-general')
+        .end()
 
         .findById('category-sync')
         .click()
         .end()
 
-        .findByCssSelector('label[value="Create Account"]')
+        .findById('noFxaAccount')
+        .end()
+
+        // Create Account button
+        .findByCssSelector('#noFxaAccount > label:nth-child(2)')
         .click()
+        .end()
+
+        .refresh()
+        .findById('stage')
         .end()
 
         // wait for the iframe to load
@@ -124,10 +134,12 @@ define([
         .end()
 
         // wait for the verified email
-        .findByCssSelector('#fxaLoginStatus label[value="Manage"]')
+        .findByCssSelector('#fxaLoginStatus > hbox:nth-child(1) > vbox:nth-child(2) > label:nth-child(1)')
         .click()
         .end()
 
+        .sleep(3000)
+        .refresh()
         // being logged in on /settings is success!
         .findByCssSelector('#fxa-settings-header')
         .end()
@@ -169,9 +181,12 @@ define([
         .end()
         .acceptAlert()
 
-        .findByCssSelector('label[value="Create Account"]')
+        .findByCssSelector('#noFxaAccount > label:nth-child(2)')
         .click()
         .end()
+
+        .sleep(3000)
+        .refresh()
         // wait for the iframe to load
         .findById('remote')
         .end();
