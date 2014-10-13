@@ -33,7 +33,7 @@ function redirectUrl(action, nonce, email, preVerifyToken) {
     oauthParams.preVerifyToken = preVerifyToken;
   }
 
-  return fxaOAuthConfig.auth_uri + toQueryString(oauthParams);
+  return fxaOAuthConfig.oauth_uri + '/authorization' + toQueryString(oauthParams);
 }
 
 module.exports = {

@@ -1,1 +1,1 @@
-web: ember server --port=$PORT --environment=production
+web: ember build --environment=production && node ./bin/server.js
