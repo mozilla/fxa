@@ -208,6 +208,19 @@ test(
     t.equal(er.update('accountCreate'), 0, 'email action above the email limit')
     t.equal(er.isBlocked(), true, 'account is now blocked')
     t.equal(er.update('accountCreate'), 0, 'email action in a blocked account')
+
+    er.rl = 2000
+    t.equal(er.isBlocked(), true, 'account is blocked')
+    t.equal(er.isBanned(), false, 'account is not outright banned')
+    t.equal(er.update('accountCreate'), 1, 'email action is blocked')
+    t.equal(er.update('accountLogin'), 0, 'non-email action is not blocked')
+    er.rl = 0
+    er.bk = 2000
+    t.equal(er.isBlocked(), true, 'account is blocked')
+    t.equal(er.isBanned(), true, 'account is outright banned')
+    t.equal(er.update('accountCreate'), 1, 'email action is blocked')
+    t.equal(er.update('accountLogin'), 1, 'non-email action is blocked')
+
     t.end()
   }
 )
