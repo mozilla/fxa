@@ -8,12 +8,13 @@ define([
   'use strict';
 
   intern.functionalSuites = [
-    'tests/functional/firefox/functional_firefox'
+    // NOTE: these are disabled for now, see https://github.com/mozilla/fxa-content-server/issues/1769
+    // 'tests/functional/firefox/functional_firefox'
   ];
 
   intern.environments = [
     // these tests can only run in Firefox
-    { browserName: 'firefox', version: '31' }
+    { browserName: 'firefox', version: '32' }
   ];
 
   return intern;
