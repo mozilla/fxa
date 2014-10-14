@@ -14,15 +14,15 @@ function simpleIpEmailRecord() {
 }
 
 test(
-  'isBlocked works',
+  'shouldBlock works',
   function (t) {
     var ier = simpleIpEmailRecord()
 
-    t.equal(ier.isBlocked(), false, 'record has never been blocked')
+    t.equal(ier.shouldBlock(), false, 'record has never been blocked')
     ier.rl = 499
-    t.equal(ier.isBlocked(), false, 'blockedAt is older than rate-limit interval')
+    t.equal(ier.shouldBlock(), false, 'blockedAt is older than rate-limit interval')
     ier.rl = 501
-    t.equal(ier.isBlocked(), true, 'blockedAt is within the rate-limit interval')
+    t.equal(ier.shouldBlock(), true, 'blockedAt is within the rate-limit interval')
     t.end()
   }
 )
@@ -48,10 +48,10 @@ test(
     var ier = simpleIpEmailRecord()
 
     ier.addBadLogin()
-    t.equal(ier.isBlocked(), false, 'record is not blocked')
+    t.equal(ier.shouldBlock(), false, 'record is not blocked')
     t.equal(ier.lf.length, 1, 'record has been emailed once')
     ier.rateLimit()
-    t.equal(ier.isBlocked(), true, 'record is blocked')
+    t.equal(ier.shouldBlock(), true, 'record is blocked')
     t.equal(ier.lf.length, 0, 'record has an empty list of emails')
     t.end()
   }
@@ -154,20 +154,20 @@ test(
   'parse works',
   function (t) {
     var ier = simpleIpEmailRecord()
-    t.equal(ier.isBlocked(), false, 'original object is not blocked')
+    t.equal(ier.shouldBlock(), false, 'original object is not blocked')
     t.equal(ier.lf.length, 0, 'original object has no bad logins')
 
     var ierCopy1 = (ipEmailRecord(50, 2, now)).parse(ier)
-    t.equal(ierCopy1.isBlocked(), false, 'copied object is not blocked')
+    t.equal(ierCopy1.shouldBlock(), false, 'copied object is not blocked')
     t.equal(ierCopy1.lf.length, 0, 'copied object has no bad logins')
 
     ier.rateLimit()
     ier.addBadLogin()
-    t.equal(ier.isBlocked(), true, 'original object is now blocked')
+    t.equal(ier.shouldBlock(), true, 'original object is now blocked')
     t.equal(ier.lf.length, 1, 'original object now has one bad login')
 
     var ierCopy2 = (ipEmailRecord(50, 2, now)).parse(ier)
-    t.equal(ierCopy2.isBlocked(), true, 'copied object is blocked')
+    t.equal(ierCopy2.shouldBlock(), true, 'copied object is blocked')
     t.equal(ierCopy2.lf.length, 1, 'copied object has one bad login')
     t.end()
   }
@@ -184,9 +184,9 @@ test(
     ier.addBadLogin()
     ier.addBadLogin()
     ier.addBadLogin()
-    t.equal(ier.isBlocked(), false, 'account is not blocked')
+    t.equal(ier.shouldBlock(), false, 'account is not blocked')
     t.equal(ier.update('accountLogin'), 0, 'action above the login limit')
-    t.equal(ier.isBlocked(), true, 'account is now blocked')
+    t.equal(ier.shouldBlock(), true, 'account is now blocked')
     t.equal(ier.update('accountLogin'), 0, 'login action in a blocked account')
     t.end()
   }

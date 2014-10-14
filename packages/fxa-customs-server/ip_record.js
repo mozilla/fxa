@@ -16,6 +16,10 @@ module.exports = function (BLOCK_INTERVAL_MS, now) {
     return rec
   }
 
+  IpRecord.prototype.shouldBlock = function () {
+    return this.isBlocked()
+  }
+
   IpRecord.prototype.isBlocked = function () {
     return !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
   }
