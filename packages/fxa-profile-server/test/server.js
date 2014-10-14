@@ -16,6 +16,21 @@ describe('server', function() {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.version, require('../package.json').version);
         assert(res.result.commit);
+
+       // and must return an STS header 
+       var stsHeader = res.headers['strict-transport-security'];
+       assert.equal(stsHeader, 'max-age=15552000; includeSubdomains');
+
+       // but the other security builtin headers from hapi are not set
+       var other = {
+         'x-content-type-options': 1,
+         'x-download-options': 1,
+         'x-frame-options': 1,
+         'x-xss-protection': 1
+       };
+       Object.keys(res.headers).forEach(function(header) {
+         assert.ok(!other[header.toLowerCase()]);
+       });
       });
     });
   });

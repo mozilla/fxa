@@ -28,7 +28,17 @@ exports.create = function createServer() {
     config.server.port,
     {
       cors: true,
-      debug: false
+      debug: false,
+      security: {
+        hsts: {
+          maxAge: 15552000,
+          includeSubdomains: true
+        },
+        xframe: false,
+        xss: false,
+        noOpen: false,
+        noSniff: false
+      }
     }
   );
 
