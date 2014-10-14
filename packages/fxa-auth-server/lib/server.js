@@ -30,6 +30,16 @@ exports.create = function createServer() {
       },
       payload: {
         maxBytes: 16384
+      },
+      security: {
+        hsts: {
+          maxAge: 15552000,
+          includeSubdomains: true
+        },
+        xframe: false,
+        xss: false,
+        noOpen: false,
+        noSniff: false
       }
     }
   );
