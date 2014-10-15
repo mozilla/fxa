@@ -3,7 +3,7 @@ import {
   test
 } from 'ember-qunit';
 
-moduleForModel('server', 'Server', {
+moduleForModel('client', 'Client', {
   // Specify the other units that are required for this test.
   needs: []
 });

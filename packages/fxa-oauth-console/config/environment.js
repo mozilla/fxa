@@ -1,8 +1,23 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* jshint node: true */
 
+
+/**
+ * These is the environment configuration for the front-end application.
+ * @param environment {String}
+ *        Application environment, such as "development", "production", test"
+ */
 module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'fxa-oauth-console',
+    'simple-auth': {
+      authorizer: 'authorizer:custom'
+    },
+    servers: {
+      oauth: 'http://127.0.0.1:9010/'
+    },
     environment: environment,
     baseURL: '/',
     locationType: 'auto',

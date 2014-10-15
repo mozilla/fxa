@@ -16,5 +16,5 @@ server.on('exit', process.exit);
 
 setTimeout(function() {
   opn('http://127.0.0.1:10137');
-}, 3000);
+}, 5000);
 

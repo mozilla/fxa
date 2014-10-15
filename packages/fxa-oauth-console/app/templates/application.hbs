@@ -13,8 +13,6 @@
       {{#if session.isAuthenticated}}
         <li></li>
         <a {{ action 'invalidateSession' }}>Logout</a></li>
-      {{else}}
-        <li class="active"><a {{ action 'authenticateSession' }}>Login</a></li>
       {{/if}}
     </ul>
   </section>

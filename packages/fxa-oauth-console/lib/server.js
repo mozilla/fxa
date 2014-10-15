@@ -8,12 +8,14 @@ const logger = require('../lib/logging').getLogger('fxa.bin.server');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const routesOAuth = require('./routes/oauth');
+const session = require('./session');
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session);
 app.use('/oauth', routesOAuth);
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 

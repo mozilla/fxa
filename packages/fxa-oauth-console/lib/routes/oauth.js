@@ -11,8 +11,17 @@ var fxaOAuthConfig = config.get('fxaOAuth');
 var crypto = require('crypto');
 var request = require('request');
 
-var DIFFERENT_BROWSER_ERROR = 3005;
+// a function to verify that the current user is authenticated
+function checkAuth(req, res, next) {
+  console.log(req.session);
+  if (!req.session.user) {
+    res.send("authentication required\n", 401);
+  } else {
+    next();
+  }
+}
 
+var DIFFERENT_BROWSER_ERROR = 3005;
 // oauth flows are stored in memory
 var oauthFlows = { };
 
@@ -22,7 +31,7 @@ var oauthFlows = { };
 router.get('/login', function(req, res) {
   var nonce = crypto.randomBytes(32).toString('hex');
   oauthFlows[nonce] = true;
-  //req.session.state = nonce;
+  req.session.state = nonce;
   return res.redirect(redirectUrl("signin", nonce));
 });
 
@@ -30,11 +39,13 @@ router.get('/login', function(req, res) {
  * Session Status
  */
 router.get('/status', function(req, res) {
-  console.log(req.session);
-
-  res.send(JSON.stringify({
-    email: req.session.email || null
-  }));
+  if (req.session && req.session.email) {
+    return res.send(JSON.stringify({
+      email: req.session.email
+    }));
+  } else {
+    return res.status(403).end();
+  }
 });
 
 /**
@@ -42,7 +53,7 @@ router.get('/status', function(req, res) {
  */
 router.get('/logout', function(req, res) {
   req.session.reset();
-  res.send(200);
+  res.redirect('/');
 });
 
 /**
