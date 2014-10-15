@@ -9,35 +9,35 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'sinon',
   'views/settings',
   '../../mocks/router',
   '../../lib/helpers',
   'lib/session',
   'lib/constants',
   'lib/fxa-client',
+  'lib/promise',
   'models/reliers/relier'
 ],
-function (chai, _, $, View, RouterMock, TestHelpers, Session, Constants,
-      FxaClient, Relier) {
+function (chai, _, $, sinon, View, RouterMock, TestHelpers, Session, Constants,
+      FxaClient, p, Relier) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
     var view;
     var routerMock;
-    var email;
     var fxaClient;
     var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        relier: relier
       });
     });
 
@@ -59,12 +59,12 @@ function (chai, _, $, View, RouterMock, TestHelpers, Session, Constants,
 
     describe('with session', function () {
       beforeEach(function () {
-        email = TestHelpers.createEmail();
+        sinon.stub(view.fxaClient, 'sessionStatus', function () {
+          return p(true);
+        });
+        Session.set('sessionToken', 'sessiontoken');
 
-        return view.fxaClient.signUp(email, 'password', { preVerified: true })
-          .then(function () {
-            return view.render();
-          })
+        return view.render()
           .then(function () {
             $('body').append(view.el);
           });

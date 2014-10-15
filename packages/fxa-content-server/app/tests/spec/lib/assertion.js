@@ -46,7 +46,12 @@ function (chai, $, TestHelpers, P,
         fxaClient: client
       });
       email = ' ' + TestHelpers.createEmail() + ' ';
-      return client.signUp(email, password, { preVerified: true });
+      return client.signUp(email, password, relier, {
+        preVerified: true
+      })
+      .then(function () {
+        return client.signIn(email, password, relier);
+      });
     });
 
     afterEach(function () {

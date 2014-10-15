@@ -30,9 +30,7 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
       relier = new FxDesktopRelier({
         window: windowMock
       });
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         window: windowMock,

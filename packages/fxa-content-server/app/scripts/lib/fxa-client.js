@@ -16,14 +16,11 @@ define([
   'lib/session',
   'lib/auth-errors',
   'lib/constants',
-  'lib/channels',
-  'models/reliers/base'
+  'lib/channels'
 ],
-function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
-      BaseRelier) {
-  // IE 8 doesn't support String.prototype.trim
+function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
   function trim(str) {
-    return str && str.replace(/^\s+|\s+$/g, '');
+    return $.trim(str);
   }
 
   function FxaClientWrapper(options) {
@@ -34,9 +31,6 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
     this._passwordResetResendCount = 0;
     this._channel = options.channel;
     this._interTabChannel = options.interTabChannel;
-
-    // BaseRelier is used as a NullRelier for testing.
-    this._relier = options.relier || new BaseRelier();
   }
 
   FxaClientWrapper.prototype = {
@@ -112,7 +106,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
           });
     },
 
-    signIn: function (originalEmail, password, options) {
+    signIn: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
       options = options || {};
@@ -122,7 +116,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
         // the desktop, don't do it again. Otherwise,
         // make the call over to the Desktop code to ask if
         // we can allow the linking.
-        if (!options.verifiedCanLinkAccount) {
+        if (! options.verifiedCanLinkAccount) {
           return self._checkForDesktopSyncRelinkWarning(email);
         }
         return;
@@ -140,14 +134,14 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
           email: email,
           uid: accountData.uid,
           sessionToken: accountData.sessionToken,
-          sessionTokenContext: self._relier.get('context')
+          sessionTokenContext: relier.get('context')
         };
 
         // isSync is added in case the user verifies in a second tab
         // on the first browser, the context will not be available. We
         // need to ship the keyFetchToken and unwrapBKey to the first tab,
         // so generate these any time we are using sync as well.
-        if (self._relier.isFxDesktop() || self._relier.isSync()) {
+        if (relier.isFxDesktop() || relier.isSync()) {
           updatedSessionData.unwrapBKey = accountData.unwrapBKey;
           updatedSessionData.keyFetchToken = accountData.keyFetchToken;
           updatedSessionData.customizeSync = options.customizeSync;
@@ -155,7 +149,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
             email: email,
             uid: accountData.uid,
             sessionToken: accountData.sessionToken,
-            sessionTokenContext: self._relier.get('context')
+            sessionTokenContext: relier.get('context')
           };
         } else {
           // Carry over the old cached credentials
@@ -170,6 +164,15 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
         if (options.notifyChannel !== false) {
           return self.notifyChannelOfLogin(updatedSessionData)
               .then(function () {
+                return accountData;
+              }).then(null, function (err) {
+                // We ignore this error unless the service is set to Sync.
+                // This allows us to tests flows with the desktop context
+                // without things blowing up. In production/reality,
+                // the context is set to desktop iff service is Sync.
+                if (relier.isSync()) {
+                  throw err;
+                }
                 return accountData;
               });
         }
@@ -187,21 +190,14 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
       var self = this;
       return Channels.sendExpectResponse('login', dataToSend, {
         channel: self._channel
-      }).then(null, function (err) {
-        // We ignore this error unless the service is set to Sync.
-        // This allows us to tests flows with the desktop context
-        // without things blowing up. In production/reality,
-        // the context is set to desktop iff service is Sync.
-        if (self._relier.isSync()) {
-          throw err;
-        }
       });
     },
 
-    signUp: function (originalEmail, password, options) {
-      options = options || {};
+    signUp: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
+      options = options || {};
+
       // ensure resend works again
       this._signUpResendCount = 0;
 
@@ -216,7 +212,6 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
                   keys: true
                 };
 
-                var relier = self._relier;
                 if (relier.has('service')) {
                   signUpOptions.service = relier.get('service');
                 }
@@ -233,7 +228,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
                   signUpOptions.preVerified = true;
                 }
 
-                signUpOptions.resume = self._createResumeToken();
+                signUpOptions.resume = self._createResumeToken(relier);
 
                 return client.signUp(email, password, signUpOptions)
                   .then(null, function (err) {
@@ -244,22 +239,15 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
                       // user and force them to verify their email.
                       relier.unset('preVerifyToken');
 
-                      return self.signUp(email, password, options);
+                      return self.signUp(email, password, relier, options);
                     }
 
                     throw err;
                   });
-              })
-              .then(function () {
-                var signInOptions = {
-                  customizeSync: options.customizeSync,
-                  verifiedCanLinkAccount: true // skip the warning, beacuse we already triggered it above
-                };
-                return self.signIn(email, password, signInOptions);
               });
     },
 
-    signUpResend: function () {
+    signUpResend: function (relier) {
       var self = this;
       return this._getClientAsync()
         .then(function (client) {
@@ -272,9 +260,9 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
           }
 
           var clientOptions = {
-            service: self._relier.get('service'),
-            redirectTo: self._relier.get('redirectTo'),
-            resume: self._createResumeToken()
+            service: relier.get('service'),
+            redirectTo: relier.get('redirectTo'),
+            resume: self._createResumeToken(relier)
           };
 
           return client.recoveryEmailResendCode(
@@ -305,7 +293,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
               });
     },
 
-    passwordReset: function (originalEmail) {
+    passwordReset: function (originalEmail, relier) {
       var self = this;
       var email = trim(originalEmail);
       var forceAuth = Session.forceAuth;
@@ -317,9 +305,9 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
       return this._getClientAsync()
               .then(function (client) {
                 var clientOptions = {
-                  service: self._relier.get('service'),
-                  redirectTo: self._relier.get('redirectTo'),
-                  resume: self._createResumeToken()
+                  service: relier.get('service'),
+                  redirectTo: relier.get('redirectTo'),
+                  resume: self._createResumeToken(relier)
                 };
 
                 return client.passwordForgotSendCode(email, clientOptions);
@@ -337,7 +325,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
               });
     },
 
-    passwordResetResend: function () {
+    passwordResetResend: function (relier) {
       var self = this;
       return this._getClientAsync()
         .then(function (client) {
@@ -351,9 +339,9 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
           // the linters complain if this is defined in the call to
           // passwordForgotResendCode
           var clientOptions = {
-            service: self._relier.get('service'),
-            redirectTo: self._relier.get('redirectTo'),
-            resume: self._createResumeToken()
+            service: relier.get('service'),
+            redirectTo: relier.get('redirectTo'),
+            resume: self._createResumeToken(relier)
           };
 
           return client.passwordForgotResendCode(
@@ -365,11 +353,12 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
     },
 
     completePasswordReset: function (originalEmail, newPassword, token, code,
-        options) {
-      options = options || {};
+        relier, options) {
       var email = trim(originalEmail);
       var client;
       var self = this;
+      options = options || {};
+
       return this._getClientAsync()
               .then(function (_client) {
                 client = _client;
@@ -386,8 +375,8 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
                   // because nobody will be listening for the message and
                   // a channel timeout will occur if the message is sent.
                   // If the original tab is still open, it'll handle things.
-                  return self.signIn(email, newPassword, {
-                    notifyChannel: ! self._relier.isSync()
+                  return self.signIn(email, newPassword, relier, {
+                    notifyChannel: ! relier.isSync()
                   });
                 }
               });
@@ -409,7 +398,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
         });
     },
 
-    changePassword: function (originalEmail, oldPassword, newPassword) {
+    changePassword: function (originalEmail, oldPassword, newPassword, relier) {
       var email = trim(originalEmail);
       var self = this;
       var sessionTokenContext = Session.sessionTokenContext;
@@ -420,7 +409,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
               .then(function () {
                 // Clear old info on password change.
                 Session.clear();
-                return self.signIn(email, newPassword);
+                return self.signIn(email, newPassword, relier);
               }).then(function (result) {
                 // Restore the sessionTokenContext because it indicates if we're
                 // in a Sync flow or not.
@@ -488,8 +477,8 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
     // The resume token is eventually for post-verification if the
     // user verifies in a second client, with the goal of allowing
     // users to continueback to the original RP.
-    _createResumeToken: function () {
-      return this._relier.getResumeToken();
+    _createResumeToken: function (relier) {
+      return relier.getResumeToken();
     }
   };
 

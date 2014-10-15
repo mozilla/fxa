@@ -44,9 +44,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
 
       relier = new Relier();
       relier.set('serviceName', CLIENT_NAME);
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         router: router,
@@ -95,12 +93,13 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
           return p(true);
         });
 
-        return view.fxaClient.signUp(email, password, { preVerified: true })
-          .then(function () {
-            $('.email').val(email);
-            $('[type=password]').val(password);
-            return view.submit();
-          })
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p({ verified: true });
+        });
+
+        $('.email').val(email);
+        $('[type=password]').val(password);
+        return view.submit()
           .then(function () {
             assert.isTrue(view.finishOAuthFlow.called);
           });
@@ -113,12 +112,17 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
           return p(true);
         });
 
-        return view.fxaClient.signUp(email, password)
-          .then(function () {
-            $('.email').val(email);
-            $('[type=password]').val(password);
-            return view.submit();
-          })
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p({ verified: false });
+        });
+
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p();
+        });
+
+        $('.email').val(email);
+        $('[type=password]').val(password);
+        return view.submit()
           .then(function () {
             assert.isTrue(view.persistOAuthParams.called);
             assert.equal(router.page, 'confirm');
@@ -129,16 +133,12 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
     describe('resetPasswordIfKnownValidEmail', function () {
       it('goes to the reset_password page if user types a valid, known email', function () {
         // the screen is rendered, we can take over from here.
-        var password = 'password';
-        return view.fxaClient.signUp(email, password, { preVerified: true })
-              .then(function () {
-                $('.email').val(email);
-                return view.resetPasswordIfKnownValidEmail();
-              })
-              .then(function () {
-                assert.ok(Session.oauth, 'oauth params are set');
-                assert.equal(router.page, 'reset_password');
-              });
+        $('.email').val(email);
+        return view.resetPasswordIfKnownValidEmail()
+          .then(function () {
+            assert.ok(Session.oauth, 'oauth params are set');
+            assert.equal(router.page, 'reset_password');
+          });
       });
 
       it('goes to the reset_password screen if a blank email', function () {

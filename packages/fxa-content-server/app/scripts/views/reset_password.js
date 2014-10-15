@@ -62,7 +62,7 @@ function (_, BaseView, FormView, Template, Session, AuthErrors, ServiceMixin) {
       var email = this.$('.email').val();
 
       var self = this;
-      return this.fxaClient.passwordReset(email)
+      return self.fxaClient.passwordReset(email, self.relier)
         .then(function () {
           self.navigate('confirm_reset_password');
         })

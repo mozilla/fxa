@@ -222,24 +222,30 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       var password = self.$('.password').val();
       var customizeSync = self.$('.customize-sync').is(':checked');
 
-      return self.fxaClient.signUp(email, password, {
-        customizeSync: customizeSync
-      }).then(_.bind(self.onSignUpSuccess, self))
-      .then(null, function (err) {
-        // Account already exists. No attempt is made at signing the
-        // user in directly, instead, point the user to the signin page
-        // where the entered email/password will be prefilled.
-        if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
-          return self._suggestSignIn(err);
-        } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-          self.logEvent('login.canceled');
-          // if user canceled login, just stop
-          return;
-        }
+      return self.fxaClient.signUp(email, password, self.relier)
+        .then(function () {
+          return self.fxaClient.signIn(email, password, self.relier, {
+            customizeSync: customizeSync,
+            // already done in signUp, no need to do it again.
+            verifiedCanLinkAccount: true
+          });
+        })
+        .then(_.bind(self.onSignUpSuccess, self))
+        .then(null, function (err) {
+          // Account already exists. No attempt is made at signing the
+          // user in directly, instead, point the user to the signin page
+          // where the entered email/password will be prefilled.
+          if (AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS')) {
+            return self._suggestSignIn(err);
+          } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+            self.logEvent('login.canceled');
+            // if user canceled login, just stop
+            return;
+          }
 
-        // re-throw error, it will be handled at a lower level.
-        throw err;
-      });
+          // re-throw error, it will be handled at a lower level.
+          throw err;
+        });
     },
 
     onUserYearSelect: function () {

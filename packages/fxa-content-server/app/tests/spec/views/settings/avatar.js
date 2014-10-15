@@ -17,10 +17,11 @@ define([
   'lib/promise',
   'lib/session',
   'lib/profile',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'models/reliers/relier'
 ],
 function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
-    p, Session, Profile, AuthErrors) {
+    p, Session, Profile, AuthErrors, Relier) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
   var IMG_URL = 'http://127.0.0.1:1112/avatar/example.jpg';
@@ -30,16 +31,19 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
     var routerMock;
     var profileClientMock;
     var fxaClientMock;
+    var relierMock;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       profileClientMock = new ProfileMock();
       fxaClientMock = new FxaClientMock();
+      relierMock = new Relier();
 
       view = new View({
         router: routerMock,
         profileClient: profileClientMock,
-        fxaClient: fxaClientMock
+        fxaClient: fxaClientMock,
+        relier: relierMock
       });
     });
 
@@ -109,6 +113,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'confirm');
+            assert.isTrue(fxaClientMock.signUpResend.calledWith(relierMock));
           });
       });
 

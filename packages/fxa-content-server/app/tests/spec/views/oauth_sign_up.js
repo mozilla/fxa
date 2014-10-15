@@ -88,9 +88,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         });
       });
 
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
       assertionLibrary = new Assertion({
         fxaClient: fxaClient
       });
@@ -129,10 +127,14 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
     });
 
     describe('submit without a preVerifyToken', function () {
-      it('sets up the user\'s oauth session on success', function () {
+      it('sets up the user\'s oauth session and redirects to confirm on success', function () {
         fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
         sinon.stub(fxaClient, 'signUp', function () {
+          return p({});
+        });
+
+        sinon.stub(fxaClient, 'signIn', function () {
           return p({
             sessionToken: 'asessiontoken',
             verified: false
@@ -143,6 +145,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           .then(function () {
             //jshint camelcase: false
             assert.equal(Session.oauth.client_id, CLIENT_ID);
+            assert.isTrue(fxaClient.signUp.calledWith(email, 'password'));
+            assert.equal(router.page, 'confirm');
           });
       });
     });
@@ -154,6 +158,10 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
 
       it('redirects to the rp if pre-verification is successful', function () {
         sinon.stub(fxaClient, 'signUp', function () {
+          return p({});
+        });
+
+        sinon.stub(fxaClient, 'signIn', function () {
           return p({
             sessionToken: 'asessiontoken',
             verified: true
@@ -177,16 +185,19 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         sinon.stub(fxaClient, 'signUp', function (email, password, options) {
           // force the preVerifyToken to be invalid
           if (options.preVerifyToken) {
-            return p().then(function () {
-              throw AuthErrors.toError('INVALID_VERIFICATION_CODE');
-            });
+            return p.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE'));
           } else {
-            return p({
-              sessionToken: 'sessiontoken',
-              verified: false
-            });
+            return p({});
           }
         });
+
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p({
+            sessionToken: 'asessiontoken',
+            verified: false
+          });
+        });
+
 
         fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
         return view.submit()

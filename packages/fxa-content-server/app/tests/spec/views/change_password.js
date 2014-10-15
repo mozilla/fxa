@@ -9,31 +9,31 @@ define([
   'chai',
   'underscore',
   'jquery',
+  'sinon',
   'lib/auth-errors',
   'lib/fxa-client',
+  'lib/promise',
   'views/change_password',
   'models/reliers/relier',
   '../../mocks/router',
   '../../lib/helpers',
   'lib/session'
 ],
-function (chai, _, $, AuthErrors, FxaClient, View, Relier, RouterMock, TestHelpers, Session) {
+function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
+      RouterMock, TestHelpers, Session) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('views/change_password', function () {
     var view;
     var routerMock;
-    var email;
     var fxaClient;
     var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
@@ -60,14 +60,14 @@ function (chai, _, $, AuthErrors, FxaClient, View, Relier, RouterMock, TestHelpe
 
     describe('with session', function () {
       beforeEach(function () {
-        email = TestHelpers.createEmail();
+        Session.set('sessionToken', 'sessiontoken');
+        sinon.stub(view.fxaClient, 'isSignedIn', function () {
+          return true;
+        });
 
-        return view.fxaClient.signUp(email, 'password', {preVerified: true})
+        return view.render()
           .then(function () {
-            return view.render()
-              .then(function () {
-                $('body').append(view.el);
-              });
+            $('body').append(view.el);
           });
       });
 
@@ -134,39 +134,64 @@ function (chai, _, $, AuthErrors, FxaClient, View, Relier, RouterMock, TestHelpe
           $('#old_password').val('bad_password');
           $('#new_password').val('bad_password');
 
+          sinon.stub(view.fxaClient, 'checkPassword', function () {
+            return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
+          });
+
           return view.submit()
-              .then(function () {
-                assert.ok(false, 'unexpected success');
-              }, function (err) {
-                assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
-              });
+            .then(assert.fail, function (err) {
+              assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+            });
         });
 
         it('prints passwords must be different message if both passwords are the same and the first password is correct', function () {
           $('#old_password').val('password');
           $('#new_password').val('password');
 
+          sinon.stub(view.fxaClient, 'checkPassword', function () {
+            return p();
+          });
+
           return view.submit()
-              .then(function () {
-                assert.ok(false, 'unexpected success');
-              }, function (err) {
-                assert.ok(AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT'));
-              });
+            .then(assert.fail, function (err) {
+              assert.ok(AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT'));
+            });
         });
 
         it('changes from old to new password, redirects user to /settings', function () {
           $('#old_password').val('password');
           $('#new_password').val('new_password');
+          Session.set('email', 'testuser@testuser.com');
+
+          sinon.stub(view.fxaClient, 'checkPassword', function () {
+            return p();
+          });
+
+          sinon.stub(view.fxaClient, 'changePassword', function () {
+            return p();
+          });
 
           return view.submit()
               .then(function () {
                 assert.equal(routerMock.page, 'settings');
+                assert.isTrue(view.fxaClient.checkPassword.calledWith(
+                    'testuser@testuser.com', 'password'));
+                assert.isTrue(view.fxaClient.changePassword.calledWith(
+                    'testuser@testuser.com', 'password', 'new_password', relier));
               });
         });
 
         it('changes from old to new password, keeps sessionTokenContext', function () {
           $('#old_password').val('password');
           $('#new_password').val('new_password');
+
+          sinon.stub(view.fxaClient, 'checkPassword', function () {
+            return p();
+          });
+
+          sinon.stub(view.fxaClient, 'changePassword', function () {
+            return p();
+          });
 
           Session.set('sessionTokenContext', 'foo');
 
@@ -177,15 +202,18 @@ function (chai, _, $, AuthErrors, FxaClient, View, Relier, RouterMock, TestHelpe
         });
 
         it('shows the unverified user message if the user is unverified', function () {
-          email = TestHelpers.createEmail();
+          sinon.stub(view.fxaClient, 'checkPassword', function () {
+            return p();
+          });
 
-          // create an unverified user, then change their password.
-          return view.fxaClient.signUp(email, 'password')
-            .then(function () {
-              $('#old_password').val('password');
-              $('#new_password').val('new_password');
-              return view.submit();
-            })
+          sinon.stub(view.fxaClient, 'changePassword', function () {
+            return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
+          });
+
+          $('#old_password').val('password');
+          $('#new_password').val('new_password');
+
+          return view.submit()
             .then(function () {
               assert.ok(view.$('#resend').length);
             });
@@ -194,9 +222,26 @@ function (chai, _, $, AuthErrors, FxaClient, View, Relier, RouterMock, TestHelpe
 
       describe('resendVerificationEmail', function () {
         it('resends a verification email, and sends user to /confirm', function () {
+          sinon.stub(view.fxaClient, 'signUpResend', function () {
+            return p();
+          });
+
           return view.resendVerificationEmail()
             .then(function () {
               assert.equal(routerMock.page, 'confirm');
+
+              assert.isTrue(view.fxaClient.signUpResend.calledWith(relier));
+            });
+        });
+
+        it('sends users to the signup page if their signUp token is invalid', function () {
+          sinon.stub(view.fxaClient, 'signUpResend', function () {
+            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+          });
+
+          return view.resendVerificationEmail()
+            .then(function () {
+              assert.equal(routerMock.page, 'signup');
             });
         });
       });

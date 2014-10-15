@@ -32,6 +32,10 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
     var fxaClient;
     var relier;
 
+    var EMAIL = 'testuser@testuser.com';
+    var TOKEN = 'feed';
+    var CODE = 'dea0fae1abc2fab3bed4dec5eec6ace7';
+
     function testEventLogged(eventName) {
       assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
     }
@@ -45,9 +49,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
 
@@ -273,37 +275,34 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       });
 
       it('redirects to reset_password_complete if all is well', function () {
-        view.$('[type=password]').val('password');
+        var password = 'password';
+        view.$('[type=password]').val(password);
 
-        view.fxaClient.completePasswordReset = function () {
+        sinon.stub(view.fxaClient, 'completePasswordReset', function () {
           return p(true);
-        };
-        view.fxaClient.signIn = function () {
-          return p(true);
-        };
+        });
+
         return view.validateAndSubmit()
             .then(function () {
               assert.equal(routerMock.page, 'reset_password_complete');
+              assert.isTrue(view.fxaClient.completePasswordReset.calledWith(
+                  EMAIL, password, TOKEN, CODE, relier));
             });
       });
 
       it('reload view to allow user to resend an email on INVALID_TOKEN error', function () {
         view.$('[type=password]').val('password');
 
-        view.fxaClient.completePasswordReset = function () {
-          return p()
-              .then(function () {
-                throw AuthErrors.toError('INVALID_TOKEN', 'invalid token, man');
-              });
-        };
+        sinon.stub(view.fxaClient, 'completePasswordReset', function () {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        });
+
         // isPasswordResetComplete needs to be overridden as well for when
         // render is re-loaded the token needs to be expired.
-        view.fxaClient.isPasswordResetComplete = function () {
-          return p()
-              .then(function () {
-                return true;
-              });
-        };
+        sinon.stub(view.fxaClient, 'isPasswordResetComplete', function () {
+          return p(true);
+        });
+
         return view.validateAndSubmit()
             .then(function () {
               assert.ok(view.$('#fxa-reset-link-expired-header').length);
@@ -313,16 +312,12 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       it('shows error message if server returns an error', function () {
         view.$('[type=password]').val('password');
 
-        view.fxaClient.completePasswordReset = function () {
-          return p()
-              .then(function () {
-                throw new Error('uh oh');
-              });
-        };
+        sinon.stub(view.fxaClient, 'completePasswordReset', function () {
+          return p.reject(new Error('uh oh'));
+        });
+
         return view.validateAndSubmit()
-            .then(function () {
-              assert(false, 'unexpected success');
-            }, function () {
+            .then(assert.fail, function () {
               assert.ok(view.$('.error').text().length);
             });
       });
@@ -339,7 +334,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         });
 
         sinon.stub(fxaClient, 'completePasswordReset', function (
-          email, password, token, code, options) {
+          email, password, token, code, relier, options) {
 
           assert.isTrue(options.shouldSignIn);
           return p(true);
@@ -363,7 +358,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         });
 
         sinon.stub(fxaClient, 'completePasswordReset', function (
-          email, password, token, code, options) {
+          email, password, token, code, relier, options) {
 
           assert.isTrue(options.shouldSignIn);
           return p(true);
@@ -375,24 +370,22 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
 
     describe('resendResetEmail', function () {
       it('redirects to /confirm_reset_password if auth server is happy', function () {
-        view.fxaClient.passwordReset = function (email) {
-          assert.equal(email, 'testuser@testuser.com');
+        sinon.stub(view.fxaClient, 'passwordReset', function () {
           return p(true);
-        };
+        });
 
         return view.resendResetEmail()
             .then(function () {
               assert.equal(routerMock.page, 'confirm_reset_password');
+              assert.isTrue(view.fxaClient.passwordReset.calledWith(
+                  EMAIL, relier));
             });
       });
 
       it('shows server response as an error otherwise', function () {
-        view.fxaClient.passwordReset = function () {
-          return p()
-              .then(function () {
-                throw new Error('server error');
-              });
-        };
+        sinon.stub(view.fxaClient, 'passwordReset', function () {
+          return p.reject(new Error('server error'));
+        });
 
         return view.resendResetEmail()
             .then(function () {

@@ -8,13 +8,17 @@
 define([
   'chai',
   'jquery',
+  'sinon',
   'views/delete_account',
   'lib/fxa-client',
+  'lib/session',
+  'lib/promise',
   'models/reliers/relier',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, View, FxaClient, Relier, RouterMock, TestHelpers) {
+function (chai, $, sinon, View, FxaClient, Session, p, Relier, RouterMock,
+    TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -29,9 +33,7 @@ function (chai, $, View, FxaClient, Relier, RouterMock, TestHelpers) {
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
@@ -59,11 +61,13 @@ function (chai, $, View, FxaClient, Relier, RouterMock, TestHelpers) {
     describe('with session', function () {
       beforeEach(function () {
         email = TestHelpers.createEmail();
+        Session.set('email', email);
+        Session.set('sessionToken', 'sessiontoken');
+        sinon.stub(view.fxaClient, 'isSignedIn', function () {
+          return true;
+        });
 
-        return view.fxaClient.signUp(email, 'password')
-          .then(function () {
-            return view.render();
-          })
+        return view.render()
           .then(function () {
             $('body').append(view.el);
           });
@@ -106,6 +110,10 @@ function (chai, $, View, FxaClient, Relier, RouterMock, TestHelpers) {
         it('deletes the users account, redirect to signup', function () {
           $('form input[type=email]').val(email);
           $('form input[type=password]').val(password);
+
+          sinon.stub(view.fxaClient, 'deleteAccount', function () {
+            return p();
+          });
 
           return view.submit()
               .then(function () {

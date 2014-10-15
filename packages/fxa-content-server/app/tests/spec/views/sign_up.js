@@ -78,9 +78,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         router: router,
@@ -328,16 +326,31 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     describe('submit', function () {
       it('sends the user to confirm screen if form filled out, >= 14 years ago', function () {
         var ageToCheck = moment().subtract(14, 'years');
-        fillOutSignUp(email, 'password', {
+        var password = 'password';
+        fillOutSignUp(email, password, {
           year: ageToCheck.year(),
           month: ageToCheck.month(),
           date: ageToCheck.date(),
           contex: view
         });
 
+        sinon.stub(view.fxaClient, 'signUp', function () {
+          return p({});
+        });
+
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p({
+            verified: false
+          });
+        });
+
         return view.submit()
             .then(function () {
               assert.equal(router.page, 'confirm');
+              assert.isTrue(view.fxaClient.signUp.calledWith(
+                  email, password, relier));
+              assert.isTrue(view.fxaClient.signIn.calledWith(
+                  email, password, relier));
             });
       });
 
@@ -404,37 +417,42 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       });
 
       it('shows message allowing the user to sign in if user enters existing verified account', function () {
-        return view.fxaClient.signUp(email, 'password', { preVerified: true })
-            .then(function () {
-              fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });
+        sinon.stub(view.fxaClient, 'signUp', function () {
+          return p.reject(AuthErrors.toError('ACCOUNT_ALREADY_EXISTS'));
+        });
 
-              return view.submit();
-            })
-            .then(function (msg) {
-              assert.include(msg, '/signin');
-              assert.isTrue(view.isErrorVisible());
-            });
+        fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });
+
+        return view.submit()
+          .then(function (msg) {
+            assert.include(msg, '/signin');
+            assert.isTrue(view.isErrorVisible());
+          });
       });
 
       it('re-signs up unverified user with new password', function () {
-        return view.fxaClient.signUp(email, 'password')
-            .then(function () {
-              fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });
+        sinon.stub(view.fxaClient, 'signUp', function () {
+          return p({});
+        });
 
-              return view.submit();
-            })
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p({
+            verified: false
+          });
+        });
+
+        fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });
+
+        return view.submit()
             .then(function () {
               assert.equal(router.page, 'confirm');
             });
       });
 
       it('logs an error if user cancels signup', function () {
-        view.fxaClient.signUp = function () {
-          return p()
-              .then(function () {
-                throw AuthErrors.toError('USER_CANCELED_LOGIN');
-              });
-        };
+        sinon.stub(view.fxaClient, 'signUp', function () {
+          return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
+        });
 
         fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
 
@@ -448,12 +466,9 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       });
 
       it('re-throws any other errors for display', function () {
-        view.fxaClient.signUp = function () {
-          return p()
-              .then(function () {
-                throw AuthErrors.toError('SERVER_BUSY');
-              });
-        };
+        sinon.stub(view.fxaClient, 'signUp', function () {
+          return p.reject(AuthErrors.toError('SERVER_BUSY'));
+        });
 
         fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
 

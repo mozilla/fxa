@@ -49,9 +49,7 @@ function (chai, _, $, p, sinon, View, RouterMock, Session, Assertion,
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
       view = new View({
         router: routerMock,
         fxaClient: fxaClient,
