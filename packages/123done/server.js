@@ -8,7 +8,7 @@ var express       = require('express'),
                   = require('connect-fonts-alegreyasans'),
     url           = require('url'),
     oauth         = require('./oauth'),
-    config        = require('./config.json');
+    config        = require('./config');
 
 
 
