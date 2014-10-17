@@ -112,7 +112,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
     describe('submit with valid input', function () {
       it('submits the email address', function () {
         sinon.stub(view.fxaClient, 'passwordReset', function () {
-          return p();
+          return p({ passwordForgotToken: 'foo' });
         });
 
         var email = TestHelpers.createEmail();
@@ -121,6 +121,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
         return view.submit()
           .then(function () {
             assert.equal(router.page, 'confirm_reset_password');
+            assert.equal(view.ephemeralMessages.get('data').passwordForgotToken, 'foo');
             assert.isTrue(view.fxaClient.passwordReset.calledWith(
                 email, relier));
           });

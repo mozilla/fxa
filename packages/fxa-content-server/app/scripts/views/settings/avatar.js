@@ -13,13 +13,14 @@ define([
 function (_, FormView, Template, AvatarMixin) {
   var View = FormView.extend({
     // user must be authenticated to see Settings
-    mustAuth: true,
+    mustVerify: true,
 
     template: Template,
     className: 'avatar',
 
     afterVisible: function () {
-      return this._displayProfileImage();
+      FormView.prototype.afterVisible.call(this);
+      return this._displayProfileImage(this.currentAccount());
     }
 
   });

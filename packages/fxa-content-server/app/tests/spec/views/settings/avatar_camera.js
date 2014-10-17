@@ -15,9 +15,11 @@ define([
   '../../../mocks/window',
   '../../../mocks/canvas',
   '../../../mocks/profile',
+  'models/user',
   'lib/promise'
 ],
-function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMock, p) {
+function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
+    ProfileMock, User, p) {
   var assert = chai.assert;
 
   describe('views/settings/avatar/camera', function () {
@@ -25,14 +27,23 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMo
     var routerMock;
     var windowMock;
     var profileClientMock;
+    var user;
+    var account;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      user = new User();
 
       view = new View({
         router: routerMock,
+        user: user,
         window: windowMock
+      });
+
+      account = user.createAccount({
+        email: 'a@a.com',
+        verified: true
       });
     });
 
@@ -46,9 +57,6 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMo
 
     describe('with no session', function () {
       it('redirects to signin', function () {
-        view.isUserAuthorized = function () {
-          return false;
-        };
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -61,6 +69,9 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMo
         view.isUserAuthorized = function () {
           return true;
         };
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
+        });
       });
 
       it('initializes', function () {
@@ -124,15 +135,23 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock, ProfileMo
 
         view = new View({
           router: routerMock,
+          user: user,
           window: windowMock,
           displayLength: 240,
-          exportLength: 600,
-          profileClient: profileClientMock
+          exportLength: 600
         });
 
         view.isUserAuthorized = function () {
           return true;
         };
+
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
+        });
+
+        sinon.stub(account, 'profileClient', function () {
+          return p(profileClientMock);
+        });
 
         sinon.stub(profileClientMock, 'uploadAvatar', function () {
           return p({

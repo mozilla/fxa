@@ -49,6 +49,7 @@ define([
       options = options || {};
 
       this.session = options.session;
+      this._user = options.user;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
       this._oAuthUrl = options.oAuthUrl;
@@ -59,7 +60,8 @@ define([
 
     getOAuthResult: function () {
       var self = this;
-      return self._assertionLibrary.generate(self._oAuthUrl)
+      var sessionToken = this._user.getCurrentAccount().sessionToken;
+      return self._assertionLibrary.generate(sessionToken)
         .then(function (assertion) {
           var relier = self.relier;
           var oauthParams = {

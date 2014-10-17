@@ -14,12 +14,13 @@ define([
   '../../../mocks/router',
   '../../../mocks/file-reader',
   '../../../mocks/profile',
+  'models/user',
   'lib/promise',
   'lib/session',
   'lib/auth-errors'
 ],
 function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            p, Session, AuthErrors) {
+            User, p, Session, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -27,11 +28,16 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
     var view;
     var routerMock;
     var profileClientMock;
+    var user;
+    var account;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      user = new User();
+      profileClientMock = new ProfileMock();
 
       view = new View({
+        user: user,
         router: routerMock
       });
     });
@@ -46,9 +52,6 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
 
     describe('with no session', function () {
       it('redirects to signin', function () {
-        view.isUserAuthorized = function () {
-          return false;
-        };
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -57,19 +60,29 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
     });
 
     describe('with session', function () {
+      var accessToken = 'token';
       beforeEach(function () {
-        profileClientMock = new ProfileMock();
-        sinon.stub(profileClientMock, 'getAvatar', function () {
-          return p({ avatar: pngSrc, id: 'foo' });
-        });
-
         view = new View({
           router: routerMock,
-          profileClient: profileClientMock
+          user: user
         });
         view.isUserAuthorized = function () {
           return true;
         };
+        account = user.createAccount({
+          email: 'a@a.com',
+          verified: true,
+          accessToken: accessToken
+        });
+        sinon.stub(account, 'getAvatar', function () {
+          return p({ avatar: pngSrc, id: 'foo' });
+        });
+        sinon.stub(account, 'profileClient', function () {
+          return p(profileClientMock);
+        });
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
+        });
       });
 
       it('hides the file picker', function () {
@@ -80,8 +93,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       });
 
       it('can remove the avatar', function () {
-        sinon.stub(profileClientMock, 'deleteAvatar', function (id) {
-          assert.equal(id, 'foo');
+        sinon.stub(profileClientMock, 'deleteAvatar', function () {
           return p('');
         });
 
@@ -91,6 +103,8 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
 
             return view.remove()
               .then(function () {
+                assert.isTrue(profileClientMock.deleteAvatar.calledWith(
+                  accessToken, 'foo'));
                 assert.equal(routerMock.page, 'settings/avatar');
               });
           });

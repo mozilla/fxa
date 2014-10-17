@@ -12,34 +12,34 @@ define([
   'sinon',
   'views/settings/avatar',
   '../../../mocks/router',
-  '../../../mocks/profile',
   '../../../mocks/fxa-client',
   'lib/promise',
-  'lib/session',
   'lib/auth-errors',
-  'models/reliers/relier'
+  'models/reliers/relier',
+  'models/user'
 ],
-function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
-    p, Session, AuthErrors, Relier) {
+function (chai, _, $, sinon, View, RouterMock, FxaClientMock,
+    p, AuthErrors, Relier, User) {
   var assert = chai.assert;
   var IMG_URL = 'http://127.0.0.1:1112/avatar/example.jpg';
 
   describe('views/settings/avatar', function () {
     var view;
     var routerMock;
-    var profileClientMock;
     var fxaClientMock;
     var relierMock;
+    var user;
+    var account;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      profileClientMock = new ProfileMock();
       fxaClientMock = new FxaClientMock();
       relierMock = new Relier();
+      user = new User();
 
       view = new View({
         router: routerMock,
-        profileClient: profileClientMock,
+        user: user,
         fxaClient: fxaClientMock,
         relier: relierMock
       });
@@ -50,15 +50,11 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
       view.destroy();
       view = null;
       routerMock = null;
-      profileClientMock = null;
       fxaClientMock = null;
     });
 
     describe('with no session', function () {
       it('redirects to signin', function () {
-        view.isUserAuthorized = function () {
-          return false;
-        };
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'signin');
@@ -72,10 +68,18 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
         view.isUserAuthorized = function () {
           return true;
         };
+        account = user.createAccount({
+          email: 'a@a.com',
+          verified: true
+        });
+
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
+        });
       });
 
       it('has no avatar set', function () {
-        sinon.stub(profileClientMock, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar', function () {
           return p({});
         });
 
@@ -88,8 +92,22 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, FxaClientMock,
           });
       });
 
+      it('avatar fetch fails', function () {
+        sinon.stub(account, 'getAvatar', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.equal(view.$('.avatar-wrapper img').length, 0);
+          });
+      });
+
       it('has an avatar set', function () {
-        sinon.stub(profileClientMock, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar', function () {
           return p({ avatar: IMG_URL, id: 'bar' });
         });
 

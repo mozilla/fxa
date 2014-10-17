@@ -27,8 +27,9 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
       this._prefillPassword = Session.prefillPassword;
 
       // forceAuth means a user must sign in as a specific user.
-      // kill the user's local session, set forceAuth flag
+      // kill the user's local session.
       Session.clear();
+      this.user.clearCurrentAccount();
     },
 
     context: function () {
@@ -40,7 +41,6 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
 
       return {
         email: email,
-        avatar: this._getAvatar(),
         password: this._prefillPassword,
         fatalError: fatalError
       };
@@ -75,10 +75,16 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
 
         var email = self.relier.get('email');
         self._isSubmitting = true;
+
         return self.fxaClient.passwordReset(email, self.relier)
-                .then(function () {
+                .then(function (result) {
                   self._isSubmitting = false;
-                  self.navigate('confirm_reset_password');
+                  self.navigate('confirm_reset_password', {
+                    data: {
+                      email: email,
+                      passwordForgotToken: result.passwordForgotToken
+                    }
+                  });
                 }, function (err) {
                   self._isSubmitting = false;
                   self.displayError(err);
@@ -92,13 +98,13 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
 
     afterVisible: function () {
       var email = this.relier.get('email');
+      var account = this.user.getAccountByEmail(email);
 
       FormView.prototype.afterVisible.call(this);
 
-      // Only display the profile image if it's for the same account as the
-      // forced email
-      if (email === Session.email) {
-        return this._displayProfileImage();
+      // Only display the profile image if we have a cached account
+      if (account && account.email === email) {
+        return this._displayProfileImage(account);
       }
     }
   });

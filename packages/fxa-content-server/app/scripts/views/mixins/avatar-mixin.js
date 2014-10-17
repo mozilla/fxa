@@ -11,12 +11,12 @@ define([
 
   return {
     // Attempt to load a profile image from the profile server
-    _fetchProfileImage: function () {
+    _fetchProfileImage: function (account) {
       var self = this;
 
-      return this.profileClient.getAvatar()
+      return account.getAvatar()
         .then(function (result) {
-          if (result.avatar && result.id) {
+          if (result && result.avatar && result.id) {
             self.logEvent(self.className + '.profile_image_shown');
           } else {
             self.logEvent(self.className + '.profile_image_not_shown');
@@ -32,10 +32,13 @@ define([
         });
     },
 
-    _displayProfileImage: function () {
+    _displayProfileImage: function (account) {
       var self = this;
+      if (! account) {
+        return;
+      }
 
-      return this._fetchProfileImage()
+      return this._fetchProfileImage(account)
         .then(function (result) {
           if (result.avatar) {
             self.$('.avatar-wrapper').append(new Image());

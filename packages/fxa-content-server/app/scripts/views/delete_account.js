@@ -30,17 +30,21 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, ServiceMixin)
     },
 
     context: function () {
+      var email = this.currentAccount().email;
       return {
-        email: Session.email
+        email: email
       };
     },
 
     submit: function () {
-      var email = this.context().email;
-      var password = this.$('.password').val();
       var self = this;
-      return this.fxaClient.deleteAccount(email, password)
+      var account = self.currentAccount();
+      var password = self.$('.password').val();
+      return self.fxaClient.deleteAccount(account.email, password)
                 .then(function () {
+                  Session.clear();
+                  self.user.removeAccount(account);
+
                   self.navigate('signup', {
                     success: t('Account deleted successfully')
                   });

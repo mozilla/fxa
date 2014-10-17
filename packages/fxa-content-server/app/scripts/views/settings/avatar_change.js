@@ -21,7 +21,7 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
-    mustAuth: true,
+    mustVerify: true,
 
     template: Template,
     className: 'avatar_change',
@@ -48,7 +48,7 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
     beforeRender: function () {
       var self = this;
 
-      return this._fetchProfileImage()
+      return self._fetchProfileImage(self.currentAccount())
         .then(function (result) {
           self.avatarId = result.id;
           self.avatar = result.avatar;
@@ -64,16 +64,16 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
 
     remove: function () {
       var self = this;
-      return this.profileClient.deleteAvatar(this.avatarId)
+      return self.currentAccount().deleteAvatar(self.avatarId)
         .then(function () {
           self.navigate('settings/avatar');
         });
     },
 
     filePicker: function () {
+      var self = this;
       // skip the file picker if this is an automater browser
-      if (this.automatedBrowser) {
-        var self = this;
+      if (self.automatedBrowser) {
         require(['draggable', 'touch-punch'], function () {
           Session.set('cropImgSrc', pngSrc);
           Session.set('cropImgWidth', 1);
@@ -83,7 +83,7 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
         });
         return;
       }
-      this.$('#imageLoader').click();
+      self.$('#imageLoader').click();
     },
 
     fileSet: function (e) {

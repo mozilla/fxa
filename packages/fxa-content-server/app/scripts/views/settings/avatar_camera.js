@@ -25,7 +25,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
-    mustAuth: true,
+    mustVerify: true,
 
     template: Template,
     className: 'avatar_camera',
@@ -60,7 +60,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
 
     _getMedia: function () {
       var self = this;
-      var nav = this.navigator;
+      var nav = self.navigator;
 
       var getUserMedia = nav.getUserMedia ||
                              nav.webkitGetUserMedia ||
@@ -68,7 +68,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
                              nav.msGetUserMedia;
 
       if (! getUserMedia) {
-        this.displayError(AuthErrors.toError('NO_CAMERA'));
+        self.displayError(AuthErrors.toError('NO_CAMERA'));
         return false;
       }
 
@@ -142,9 +142,9 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
     submit: function () {
       var self = this;
 
-      return this.takePicture()
+      return self.takePicture()
         .then(function (data) {
-          return self.profileClient.uploadAvatar(data);
+          return self.currentAccount().uploadAvatar(data);
         })
         .then(function (result) {
           self.stream.stop();

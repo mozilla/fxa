@@ -253,9 +253,10 @@ define([
           /* global addEventListener,window,localStorage */
           addEventListener('FirefoxAccountsCommand', function (e) {
             if (e.detail.command === 'login') {
-              localStorage.setItem('__fxa_session', '{"cachedCredentials": {"email":"' + email +
-                '", "sessionToken":"eeead2b45791360e00b162ed37f118abbdae6ee8d3997f4eb48ee31dbdf53802", "sessionTokenContext":"' +
-                context + '"}}');
+              var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
+              var uid = Object.keys(accounts)[0];
+              accounts[uid].sessionToken = 'eeead2b45791360e00b162ed37f118abbdae6ee8d3997f4eb48ee31dbdf53802';
+              localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
 
               window.location.href = URL;
             }

@@ -256,7 +256,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
                         email, password, self.relier);
         })
         .then(function () {
-          return self.fxaClient.signIn(email, password, self.relier, {
+          return self.fxaClient.signIn(email, password, self.relier, self.user, {
             customizeSync: customizeSync,
             // already done in signUp, no need to do it again.
             verifiedCanLinkAccount: true

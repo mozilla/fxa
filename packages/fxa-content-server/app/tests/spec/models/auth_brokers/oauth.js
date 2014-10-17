@@ -15,10 +15,11 @@ define([
   'lib/auth-errors',
   'lib/oauth-errors',
   'models/reliers/relier',
+  'models/user',
   'models/auth_brokers/oauth'
 ],
 function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
-      OAuthErrors, Relier, OAuthAuthenticationBroker) {
+      OAuthErrors, Relier, User, OAuthAuthenticationBroker) {
   var assert = chai.assert;
 
   var HEX_CHARSET = '0123456789abcdef';
@@ -42,6 +43,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
     var oAuthClient;
     var assertionLibrary;
     var relier;
+    var user;
 
     beforeEach(function () {
       oAuthClient = new OAuthClient();
@@ -65,12 +67,17 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
         action: 'action'
       });
 
+      user = new User();
+      sinon.stub(user, 'getCurrentAccount', function () {
+        return {};
+      });
 
       broker = new OAuthAuthenticationBroker({
         session: Session,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
         oAuthUrl: BASE_REDIRECT_URL,
+        user: user,
         relier: relier
       });
     });

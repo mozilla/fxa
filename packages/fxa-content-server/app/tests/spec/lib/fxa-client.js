@@ -13,13 +13,14 @@ define([
   'lib/auth-errors',
   'lib/constants',
   'lib/resume-token',
+  'models/user',
   'models/reliers/oauth'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
-      AuthErrors, Constants, ResumeToken, OAuthRelier) {
+      AuthErrors, Constants, ResumeToken, User, OAuthRelier) {
   'use strict';
 
   var STATE = 'state';
@@ -32,6 +33,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
   var client;
   var realClient;
   var relier;
+  var user;
   var expectedResumeToken;
 
   function trim(str) {
@@ -47,6 +49,8 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
       relier.set('redirectTo', REDIRECT_TO);
 
       expectedResumeToken = ResumeToken.stringify({ state: STATE });
+
+      user = new User();
 
       Session.set('config', {
         fxaccountUrl: 'http://127.0.0.1:9000'
@@ -159,11 +163,13 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
 
     describe('signUpResend', function () {
       it('resends the validation email', function () {
+        var sessionToken = 'session token';
+
         sinon.stub(realClient, 'recoveryEmailResendCode', function () {
           return p();
         });
 
-        return client.signUpResend(relier)
+        return client.signUpResend(relier, sessionToken)
           .then(function () {
             var params = {
               service: SERVICE,
@@ -172,7 +178,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
             };
             assert.isTrue(
                 realClient.recoveryEmailResendCode.calledWith(
-                    Session.sessionToken,
+                    sessionToken,
                     params
                 ));
           });
@@ -242,7 +248,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        return client.signIn(email, password, relier)
+        return client.signIn(email, password, relier, user)
           .then(function () {
             assert.isTrue(realClient.signIn.calledWith(trim(email)));
           });
@@ -257,11 +263,13 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        return client.signIn(email, password, relier, {
+        sinon.stub(user, 'setCurrentAccount', function (accountData) {
+          assert.isTrue(accountData.customizeSync);
+          return p({});
+        });
+
+        return client.signIn(email, password, relier, user, {
           customizeSync: true
-        })
-        .then(function () {
-          assert.isTrue(Session.customizeSync);
         });
       });
     });
@@ -292,9 +300,10 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
 
     describe('passwordResetResend', function () {
       it('resends the validation email', function () {
+        var passwordForgotToken = 'token';
         sinon.stub(realClient, 'passwordForgotSendCode', function () {
           return p({
-            passwordForgotToken: 'token'
+            passwordForgotToken: passwordForgotToken
           });
         });
 
@@ -304,7 +313,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
 
         return client.passwordReset(email, relier)
           .then(function () {
-            return client.passwordResetResend(relier);
+            return client.passwordResetResend(email, passwordForgotToken, relier);
           })
           .then(function () {
             var params = {
@@ -315,7 +324,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
             assert.isTrue(
                 realClient.passwordForgotResendCode.calledWith(
                     trim(email),
-                    Session.passwordForgotToken,
+                    passwordForgotToken,
                     params
                 ));
           });
@@ -330,12 +339,12 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
         var promises = [];
         // exhaust all tries
         for (var i = 0; i < triesLeft; i++) {
-          promises.push(client.passwordResetResend(relier));
+          promises.push(client.passwordResetResend(email, 'token', relier));
         }
 
         return p.all(promises)
           .then(function () {
-            return client.passwordResetResend(relier);
+            return client.passwordResetResend(email, 'token', relier);
           })
           .then(function (result) {
             assert.ok(result);
@@ -374,27 +383,9 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p();
         });
 
-        return client.signOut()
+        return client.signOut('session token')
           .then(function () {
             assert.isTrue(realClient.sessionDestroy.called);
-          });
-      });
-
-      it('resolves to success on XHR failure', function () {
-        var count = 0;
-        sinon.stub(realClient, 'sessionDestroy', function () {
-          count++;
-          if (count === 1) {
-            return p();
-          } else if (count === 2) {
-            return p.reject(new Error('no session'));
-          }
-        });
-
-        return client.signOut()
-          .then(function () {
-            // user has no session, this will cause an XHR error.
-            return client.signOut();
           });
       });
     });

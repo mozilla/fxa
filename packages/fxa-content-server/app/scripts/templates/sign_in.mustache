@@ -20,11 +20,8 @@
       <div class="error"></div>
       <div class="success"></div>
 
-      {{#suggestedUser}}
+      {{#suggestedAccount}}
           <div class="avatar-wrapper avatar-view">
-            {{#avatar}}
-              <img src="{{ avatar }}" alt="{{ email }}"/>
-            {{/avatar}}
           </div>
           <p class="prefill">{{ email }}</p>
 
@@ -63,9 +60,9 @@
         {{/chooserAskForPassword}}
 
 
-      {{/suggestedUser}}
+      {{/suggestedAccount}}
 
-      {{^suggestedUser}}
+      {{^suggestedAccount}}
         <form novalidate>
         <div class="input-row">
           <input type="email" class="email{{#email}} prefilled{{/email}}" placeholder="{{#t}}Email{{/t}}" value="{{ email }}" {{^email}}autofocus{{/email}}>
@@ -93,7 +90,7 @@
       <div class="privacy-links">
         {{#t}}By proceeding, I agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a> of Firefox cloud services.{{/t}}
       </div>
-      {{/suggestedUser}}
+      {{/suggestedAccount}}
 
     {{/error}}
   </section>

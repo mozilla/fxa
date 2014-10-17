@@ -8,6 +8,7 @@
 define([
   'chai',
   'jquery',
+  'sinon',
   '../../lib/helpers',
   'lib/promise',
   'lib/session',
@@ -15,14 +16,15 @@ define([
   'lib/assertion',
   'lib/fxa-client',
   'models/reliers/relier',
+  'models/user',
   'vendor/jwcrypto',
   'vendor/jwcrypto/lib/algs/rs'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, TestHelpers, P,
-      Session, Constants, Assertion, FxaClientWrapper, Relier, jwcrypto) {
+function (chai, $, sinon, TestHelpers, P,
+      Session, Constants, Assertion, FxaClientWrapper, Relier, User, jwcrypto) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';
@@ -32,6 +34,8 @@ function (chai, $, TestHelpers, P,
   var client;
   var assertionLibrary;
   var relier;
+  var user;
+  var sessionToken;
 
   var LONG_LIVED_ASSERTION_DURATION = 1000 * 3600 * 24 * 365 * 25; // 25 years
 
@@ -39,6 +43,10 @@ function (chai, $, TestHelpers, P,
     beforeEach(function () {
       Session.clear();
       relier = new Relier();
+      user = new User();
+      sinon.stub(user, 'setCurrentAccount', function (data) {
+        sessionToken = data.sessionToken;
+      });
       client = new FxaClientWrapper({
         relier: relier
       });
@@ -50,7 +58,7 @@ function (chai, $, TestHelpers, P,
         preVerified: true
       })
       .then(function () {
-        return client.signIn(email, password, relier);
+        return client.signIn(email, password, relier, user);
       });
     });
 
@@ -61,7 +69,7 @@ function (chai, $, TestHelpers, P,
     describe('validate', function () {
       it('generates a valid assertion', function () {
         var assertion;
-        return assertionLibrary.generate(AUDIENCE)
+        return assertionLibrary.generate(sessionToken, AUDIENCE)
           .then(function (ass) {
             assertion = ass;
             assert.isNotNull(ass, 'Assertion is not null');

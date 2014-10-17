@@ -12,36 +12,49 @@ define([
   'sinon',
   'views/settings',
   '../../mocks/router',
-  '../../mocks/profile',
+  '../../mocks/window',
   '../../lib/helpers',
-  'lib/session',
   'lib/constants',
   'lib/fxa-client',
   'lib/promise',
-  'models/reliers/relier'
+  'models/reliers/relier',
+  'models/user'
 ],
-function (chai, _, $, sinon, View, RouterMock, ProfileMock, TestHelpers, Session, Constants,
-      FxaClient, p, Relier) {
+function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
+      Constants, FxaClient, p, Relier, User) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
     var view;
     var routerMock;
+    var windowMock;
     var fxaClient;
-    var profileClientMock;
     var relier;
+    var user;
+    var account;
+    var UID = 'uid';
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      windowMock = new WindowMock();
       relier = new Relier();
       fxaClient = new FxaClient();
-      profileClientMock = new ProfileMock();
+      user = new User();
+      account = user.createAccount({
+        uid: UID,
+        email: 'a@a.com',
+        verified: true
+      });
 
       view = new View({
         router: routerMock,
         fxaClient: fxaClient,
         relier: relier,
-        profileClient: profileClientMock
+        user: user
+      });
+
+      sinon.stub(user, 'getCurrentAccount', function () {
+        return account;
       });
     });
 
@@ -54,6 +67,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, TestHelpers, Session
 
     describe('with no session', function () {
       it('redirects to signin', function () {
+        user.getCurrentAccount.restore();
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -61,18 +75,74 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, TestHelpers, Session
       });
     });
 
-    describe('with session', function () {
+    describe('with uid', function () {
       beforeEach(function () {
-        sinon.stub(view.fxaClient, 'sessionStatus', function () {
+        sinon.stub(view.fxaClient, 'isSignedIn', function () {
           return p(true);
         });
-        Session.set('sessionToken', 'sessiontoken');
+        windowMock.location.search = '?uid=' + UID;
+      });
 
-        sinon.stub(profileClientMock, 'getAvatar', function () {
-          return p({});
+      it('shows the settings page for a selected uid', function () {
+        sinon.stub(user, 'getAccountByUid', function () {
+          return account;
+        });
+        sinon.stub(user, 'setCurrentAccountByUid', function () {
+          return p();
         });
 
-        email = TestHelpers.createEmail();
+        view = new View({
+          window: windowMock,
+          router: routerMock,
+          fxaClient: fxaClient,
+          relier: relier,
+          user: user
+        });
+
+        return view.render()
+          .then(function () {
+            $('body').append(view.el);
+          })
+          .then(function () {
+            assert.ok(view.$('#fxa-settings-header').length);
+            assert.isTrue(user.getAccountByUid.calledWith(UID));
+            assert.isTrue(user.setCurrentAccountByUid.calledWith(UID));
+          });
+      });
+
+      it('redirects to signin if uid is not found', function () {
+        sinon.stub(user, 'getAccountByUid', function () {
+          return null;
+        });
+
+        sinon.stub(user, 'clearCurrentAccount', function () {
+        });
+
+        view = new View({
+          window: windowMock,
+          router: routerMock,
+          fxaClient: fxaClient,
+          relier: relier,
+          user: user
+        });
+
+        return view.render()
+          .then(function () {
+            $('body').append(view.el);
+          })
+          .then(function () {
+            assert.ok(view.$('#fxa-settings-header').length);
+            assert.isTrue(user.getAccountByUid.calledWith(UID));
+            assert.isTrue(user.clearCurrentAccount.called);
+          });
+      });
+    });
+
+    describe('with session', function () {
+      beforeEach(function () {
+        sinon.stub(view.fxaClient, 'isSignedIn', function () {
+          return p(true);
+        });
 
         return view.render()
           .then(function () {
@@ -85,7 +155,9 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, TestHelpers, Session
       });
 
       it('has no avatar set', function () {
-        Session.clear('avatar');
+        sinon.stub(account, 'getAvatar', function () {
+          return p({});
+        });
 
         return view.render()
           .then(function () {
@@ -99,8 +171,8 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, TestHelpers, Session
       it('has an avatar set', function () {
         var url = 'https://example.com/avatar.jpg';
         var id = 'foo';
-        profileClientMock.getAvatar.restore();
-        sinon.stub(profileClientMock, 'getAvatar', function () {
+
+        sinon.stub(account, 'getAvatar', function () {
           return p({ avatar: url, id: id });
         });
 
@@ -124,7 +196,9 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, TestHelpers, Session
 
       describe('desktop context', function () {
         it('does not show sign out link', function () {
-          Session.set('sessionTokenContext', Constants.FX_DESKTOP_CONTEXT);
+          sinon.stub(account, 'isFromSync', function () {
+            return true;
+          });
 
           return view.render()
             .then(function () {

@@ -16,12 +16,13 @@ define([
   'lib/fxa-client',
   'models/reliers/relier',
   'models/auth_brokers/base',
+  'models/user',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
-      FxaClient, Relier, Broker, RouterMock, WindowMock, TestHelpers) {
+      FxaClient, Relier, Broker, User, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
@@ -33,6 +34,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
     var fxaClient;
     var relier;
     var broker;
+    var user;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
@@ -64,11 +66,13 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
+      user = new User();
 
       view = new View({
         router: routerMock,
         window: windowMock,
         metrics: metrics,
+        user: user,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker
@@ -186,6 +190,16 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
     });
 
     describe('submit - attempt to resend the verification email', function () {
+      var sessionToken = 'abc123';
+
+      beforeEach(function () {
+        sinon.stub(user, 'getCurrentAccount', function () {
+          return {
+            sessionToken: sessionToken
+          };
+        });
+      });
+
       it('displays a success message on success', function () {
         sinon.stub(view.fxaClient, 'signUpResend', function () {
           return p();
@@ -195,7 +209,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
           .then(function () {
             assert.isTrue(view.isSuccessVisible());
 
-            assert.isTrue(view.fxaClient.signUpResend.calledWith(relier));
+            assert.isTrue(view.fxaClient.signUpResend.calledWith(relier, sessionToken));
           });
       });
 

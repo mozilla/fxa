@@ -14,12 +14,14 @@ define([
   'views/settings/avatar_crop',
   '../../../mocks/router',
   '../../../mocks/profile',
+  'models/user',
   'lib/promise',
   'lib/session',
   'lib/constants',
   'lib/auth-errors'
 ],
-function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, p, Session, Constants, AuthErrors) {
+function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock,
+    User, p, Session, Constants, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -27,11 +29,15 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, p, Session, Cons
     var view;
     var routerMock;
     var profileClientMock;
+    var user;
+    var account;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      user = new User();
 
       view = new View({
+        user: user,
         router: routerMock
       });
     });
@@ -46,9 +52,6 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, p, Session, Cons
 
     describe('with no session', function () {
       it('redirects to signin', function () {
-        view.isUserAuthorized = function () {
-          return false;
-        };
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -61,6 +64,13 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, p, Session, Cons
         view.isUserAuthorized = function () {
           return true;
         };
+        account = user.createAccount({
+          email: 'a@a.com',
+          verified: true
+        });
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
+        });
       });
 
       it('has no cropper image', function () {
@@ -85,11 +95,17 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, p, Session, Cons
 
           view = new View({
             router: routerMock,
-            profileClient: profileClientMock
+            user: user
           });
           view.isUserAuthorized = function () {
             return true;
           };
+          sinon.stub(view, 'currentAccount', function () {
+            return account;
+          });
+          sinon.stub(account, 'profileClient', function () {
+            return p(profileClientMock);
+          });
         });
 
         it('has a cropper image', function () {

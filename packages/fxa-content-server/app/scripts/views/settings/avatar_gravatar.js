@@ -11,12 +11,10 @@ define([
   'views/form',
   'stache!templates/settings/avatar_gravatar',
   'lib/constants',
-  'lib/session',
-  'lib/profile',
   'lib/image-loader',
   'views/decorators/progress_indicator'
 ],
-function ($, _, md5, FormView, Template, Constants, Session, Profile, ImageLoader, showProgressIndicator) {
+function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressIndicator) {
 
   function t (s) { return s; }
 
@@ -26,13 +24,14 @@ function ($, _, md5, FormView, Template, Constants, Session, Profile, ImageLoade
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
-    mustAuth: true,
+    mustVerify: true,
 
     template: Template,
     className: 'avatar_gravatar',
 
     initialize: function () {
-      this.email = Session.email;
+      var account = this.currentAccount();
+      this.email = account && account.email;
       if (this.email) {
         this.hashedEmail = this._hashEmail(this.email);
       }
@@ -80,11 +79,11 @@ function ($, _, md5, FormView, Template, Constants, Session, Profile, ImageLoade
 
     submit: function () {
       var self = this;
-      var url = this.gravatarUrl();
+      var url = self.gravatarUrl();
       // Use the URL for a full size image
       url = url.slice(0, url.indexOf('?')) + '?s=' + EXPORT_LENGTH;
 
-      return this.profileClient.postAvatar(url)
+      return self.currentAccount().postAvatar(url, true)
         .then(function (result) {
           self.navigate('settings/avatar', {
             successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')

@@ -15,14 +15,16 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
+  'lib/constants',
   'models/reliers/relier',
+  'models/user',
   'models/auth_brokers/base',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
-      Relier, Broker, WindowMock, RouterMock, TestHelpers) {
+      Constants, Relier, User, Broker, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -34,11 +36,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
     var windowMock;
     var fxaClient;
     var relier;
-<<<<<<< HEAD
     var broker;
-=======
-    var profileClientMock;
->>>>>>> fix(avatars): load profile image on settings and sign in pages if available
+    var user;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -51,21 +50,17 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       metrics = new Metrics();
       relier = new Relier();
       broker = new Broker();
+      user = new User();
       fxaClient = new FxaClient();
-      profileClientMock = TestHelpers.stubbedProfileClient();
 
       view = new View({
         router: routerMock,
         metrics: metrics,
         window: windowMock,
         fxaClient: fxaClient,
-<<<<<<< HEAD
+        user: user,
         relier: relier,
         broker: broker
-=======
-        profileClient: profileClientMock,
-        relier: relier
->>>>>>> fix(avatars): load profile image on settings and sign in pages if available
       });
 
       return view.render()
@@ -107,7 +102,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           router: routerMock,
           metrics: metrics,
           window: windowMock,
-          profileClient: profileClientMock,
+          user: user,
           relier: relier,
           broker: broker
         });
@@ -163,12 +158,20 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('submit', function () {
       it('redirects unverified users to the confirm page on success', function () {
+        var sessionToken = 'abc123';
+
         sinon.stub(view.fxaClient, 'signIn', function () {
           return p({ verified: false });
         });
 
         sinon.stub(view.fxaClient, 'signUpResend', function () {
           return p();
+        });
+
+        sinon.stub(view, 'currentAccount', function () {
+          return {
+            sessionToken: sessionToken
+          };
         });
 
         var password = 'password';
@@ -179,9 +182,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           .then(function () {
             assert.equal(routerMock.page, 'confirm');
             assert.isTrue(view.fxaClient.signIn.calledWith(
-                email, password, relier));
+                email, password, relier, user));
             assert.isTrue(view.fxaClient.signUpResend.calledWith(
-                relier));
+                relier, sessionToken));
           });
       });
 
@@ -320,9 +323,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('useLoggedInAccount', function () {
       it('shows an error if session is expired', function () {
-        Session.set('cachedCredentials', {
-          sessionToken: 'abc123',
-          email: 'a@a.com'
+        sinon.stub(user, 'getChooserAccount', function () {
+          return {
+            sessionToken: 'abc123',
+            email: 'a@a.com'
+          };
         });
 
         return view.useLoggedInAccount()
@@ -337,9 +342,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('signs in with a valid session', function () {
-        Session.set('cachedCredentials', {
-          sessionToken: 'abc123',
-          email: 'a@a.com'
+        sinon.stub(user, 'getChooserAccount', function () {
+          return {
+            sessionToken: 'abc123',
+            email: 'a@a.com'
+          };
         });
 
         view.fxaClient.recoveryEmailStatus = function () {
@@ -356,80 +363,91 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('useDifferentAccount', function () {
       it('can switch to signin with the useDifferentAccount button', function () {
-        Session.set('cachedCredentials', {
+        var account = {
           sessionToken: 'abc123',
           email: 'a@a.com'
+        };
+        sinon.stub(user, 'getChooserAccount', function () {
+          return account;
+        });
+        sinon.stub(user, 'removeAllAccounts', function () {
+          account = null;
         });
 
         return view.useLoggedInAccount()
           .then(function () {
-            assert.ok($('.use-different').length, 'has use different button');
+            assert.ok(view.$('.use-different').length, 'has use different button');
             return view.useDifferentAccount();
           })
           .then(function () {
-            assert.ok($('.email').length, 'should show email input');
-            assert.ok($('.password').length, 'should show password input');
+            assert.ok(view.$('.email').length, 'should show email input');
+            assert.ok(view.$('.password').length, 'should show password input');
 
-            assert.equal($('.email').val(), '', 'should have an empty email input');
+            assert.equal(view.$('.email').val(), '', 'should have an empty email input');
           });
       });
     });
 
-    describe('_suggestedUser', function () {
+    describe('_suggestedAccount', function () {
       it('can suggest the user based on session variables', function () {
-        assert.isNull(view._suggestedUser(), 'null when no session set');
+        assert.isNull(view._suggestedAccount(), 'null when no session set');
 
-        Session.set('cachedCredentials', {
-          sessionToken: 'abc123'
+        sinon.stub(user, 'getChooserAccount', function () {
+          return { sessionToken: 'abc123' };
         });
-        assert.isNull(view._suggestedUser(), 'null when no email set');
+        assert.isNull(view._suggestedAccount(), 'null when no email set');
 
-        Session.clear();
-        Session.set('cachedCredentials', {
-          email: 'a@a.com'
+
+        user.getChooserAccount.restore();
+        sinon.stub(user, 'getChooserAccount', function () {
+          return { email: 'a@a.com' };
         });
-        assert.isNull(view._suggestedUser(), 'null when no session token set');
+        assert.isNull(view._suggestedAccount(), 'null when no session token set');
 
-        Session.clear();
-        Session.set('cachedCredentials', {
-          sessionToken: 'abc123',
-          email: 'a@a.com'
+        user.getChooserAccount.restore();
+        view.prefillEmail = 'a@a.com';
+        sinon.stub(user, 'getChooserAccount', function () {
+          return { sessionToken: 'abc123', email: 'b@b.com' };
         });
+        assert.isNull(view._suggestedAccount(), 'null when prefill does not match');
 
-        assert.equal(view._suggestedUser().email, 'a@a.com');
-
-        Session.clear();
-
-        Session.set('cachedCredentials', {
-          sessionToken: 'abc123',
-          email: 'a@a.com'
+        delete view.prefillEmail;
+        user.getChooserAccount.restore();
+        sinon.stub(user, 'getChooserAccount', function () {
+          return { sessionToken: 'abc123', email: 'a@a.com' };
         });
-        assert.equal(view._suggestedUser().email, 'a@a.com');
+        assert.equal(view._suggestedAccount().email, 'a@a.com');
 
-        Session.clear();
-        Session.set('email', 'a@a.com');
-        Session.set('sessionToken', 'abc123');
-
-        assert.equal(view._suggestedUser().email, 'a@a.com');
       });
 
-      it('does shows if there is the same email in query params', function (done) {
+      it('does shows if there is the same email in query params', function () {
         windowMock.location.search = '?email=a@a.com';
-        Session.set('cachedCredentials', {
+        var account = user.createAccount({
           sessionToken: 'abc123',
-          email: 'a@a.com'
+          email: 'a@a.com',
+          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          verified: true,
+          accessToken: 'foo'
+        });
+
+        sinon.stub(user, 'getChooserAccount', function () {
+          return account;
         });
 
         return view.render()
           .then(function () {
-            assert.ok($('.avatar-view').length, 'should show suggested avatar');
-            assert.notOk($('.password').length, 'should not show password input');
-            done();
+            sinon.stub(account, 'getAvatar', function () {
+              return p({ avatar: 'foo', id: 'bar' });
+            });
+            return view.afterVisible();
           })
-          .fail(done);
+          .then(function () {
+            assert.notOk(view.$('.password').length, 'should not show password input');
+            assert.ok(view.$('.avatar-view').length, 'should show suggested avatar');
+          });
       });
 
-      it('does not show if there is an email in query params that does not match', function (done) {
+      it('does not show if there is an email in query params that does not match', function () {
         windowMock.location.search = '?email=b@b.com';
         Session.set('cachedCredentials', {
           sessionToken: 'abc123',
@@ -438,48 +456,58 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
         return view.render()
           .then(function () {
-            assert.equal($('.email')[0].type, 'email', 'should show email input');
-            assert.ok($('.password').length, 'should show password input');
-            done();
-          })
-          .fail(done);
+            assert.equal(view.$('.email')[0].type, 'email', 'should show email input');
+            assert.ok(view.$('.password').length, 'should show password input');
+          });
       });
     });
 
-    describe('_suggestedUserAskPassword', function () {
-      it('asks for password right away if service is sync', function (done) {
+    describe('_suggestedAccountAskPassword', function () {
+      it('asks for password right away if service is sync', function () {
         relier.isSync = function () {
           return true;
         };
-        Session.set('cachedCredentials', {
+        var account = user.createAccount({
           sessionToken: 'abc123',
-          email: 'a@a.com'
+          email: 'a@a.com',
+          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          verified: true,
+          accessToken: 'foo'
         });
+
+        sinon.stub(user, 'getChooserAccount', function () {
+          return account;
+        });
+
         relier.set('service', 'sync');
 
         return view.render()
           .then(function () {
             assert.equal($('.email')[0].type, 'hidden', 'should not show email input');
             assert.ok($('.password').length, 'should show password input');
-            done();
-          })
-          .fail(done);
+          });
       });
 
-      it('does not ask for password right away if service is not sync', function (done) {
-        Session.set('cachedCredentials', {
+      it('does not ask for password right away if service is not sync', function () {
+        var account = user.createAccount({
           sessionToken: 'abc123',
-          email: 'a@a.com'
+          email: 'a@a.com',
+          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          verified: true,
+          accessToken: 'foo'
         });
+
+        sinon.stub(user, 'getChooserAccount', function () {
+          return account;
+        });
+
         relier.set('service', 'loop');
 
         return view.render()
           .then(function () {
             assert.ok($('.avatar-view').length, 'should show suggested avatar');
             assert.notOk($('.password').length, 'should show password input');
-            done();
-          })
-          .fail(done);
+          });
       });
     });
 

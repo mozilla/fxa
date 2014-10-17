@@ -82,9 +82,9 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
     submit: function () {
       var self = this;
 
-      return this.toBlob()
+      return self.toBlob()
         .then(function (data) {
-          return self.profileClient.uploadAvatar(data);
+          return self.currentAccount().uploadAvatar(data);
         })
         .then(function (result) {
           self.navigate('settings/avatar');

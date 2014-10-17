@@ -7,24 +7,25 @@
 
 define([
   'chai',
+  'sinon',
   'underscore',
   'backbone',
   'router',
   'views/sign_in',
   'views/sign_up',
   'views/ready',
-  'lib/session',
   'lib/constants',
   'lib/metrics',
   'lib/ephemeral-messages',
   'models/reliers/relier',
+  'models/user',
   'models/auth_brokers/base',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
-      Session, Constants, Metrics, EphemeralMessages, Relier,
-      NullBroker, WindowMock, TestHelpers) {
+function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
+      Constants, Metrics, EphemeralMessages, Relier,
+      User, NullBroker, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -37,14 +38,12 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
     var metrics;
     var relier;
     var broker;
-    var profileClientMock;
+    var user;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
 
       $('#container').html('<div id="stage"></div>');
-
-      profileClientMock = TestHelpers.stubbedProfileClient();
 
       windowMock = new WindowMock();
       metrics = new Metrics();
@@ -52,6 +51,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       relier = new Relier({
         window: windowMock
       });
+      user = new User();
 
       broker = new NullBroker();
 
@@ -59,7 +59,8 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         window: windowMock,
         metrics: metrics,
         relier: relier,
-        broker: broker
+        broker: broker,
+        user: user
       });
 
       origNavigate = Backbone.Router.prototype.navigate;
@@ -94,17 +95,20 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
     });
 
     describe('redirectToSignupOrSettings', function () {
-      it('replaces current page with the signup page if there is no sessionToken', function () {
+      it('replaces current page with the signup page if there is no current account', function () {
         windowMock.location.search = '';
-        Session.set('sessionToken', null);
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/signup');
         assert.deepEqual(navigateOptions, { trigger: true, replace: true });
       });
 
-      it('replaces the current page with the settings page if there is a sessionToken', function () {
+      it('replaces the current page with the settings page if there is a current account', function () {
         windowMock.location.search = '';
-        Session.set('sessionToken', 'abc123');
+        sinon.stub(user, 'getCurrentAccount', function () {
+          return {
+            sessionToken: 'abc123'
+          };
+        });
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/settings');
         assert.deepEqual(navigateOptions, { trigger: true, replace: true });
@@ -118,13 +122,13 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         signInView = new SignInView({
           metrics: metrics,
           window: windowMock,
-          profileClient: profileClientMock,
+          user: user,
           relier: relier
         });
         signUpView = new SignUpView({
           metrics: metrics,
           window: windowMock,
-          profileClient: profileClientMock,
+          user: user,
           relier: relier
         });
       });
@@ -159,6 +163,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           metrics: metrics,
           window: windowMock,
           router: router,
+          user: user,
           // ensure there is no cross talk with other tests.
           ephemeralMessages: new EphemeralMessages(),
           relier: relier
@@ -230,6 +235,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           metrics: metrics,
           window: windowMock,
           router: router,
+          user: user,
           // ensure there is no cross talk with other tests.
           ephemeralMessages: new EphemeralMessages(),
           relier: relier,

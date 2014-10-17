@@ -15,18 +15,13 @@ define([
   'lib/promise',
   'models/reliers/relier',
   'models/auth_brokers/base',
+  'models/user',
   '../../mocks/window',
   '../../mocks/router',
-  '../../mocks/profile',
   '../../lib/helpers'
 ],
-<<<<<<< HEAD
 function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
-      WindowMock, RouterMock, TestHelpers) {
-=======
-function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
-      RouterMock, ProfileMock, TestHelpers) {
->>>>>>> refactor(avatars): remove Session cache and load avatar from server
+      User, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
@@ -36,7 +31,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
     var windowMock;
     var fxaClient;
     var relier;
-    var profileClientMock;
+    var broker;
+    var user;
 
     describe('missing email address', function () {
       beforeEach(function () {
@@ -46,13 +42,13 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
         relier = new Relier();
         broker = new Broker();
         fxaClient = new FxaClient();
-        profileClientMock = new ProfileMock();
+        user = new User();
 
         Session.clear();
         view = new View({
           window: windowMock,
           fxaClient: fxaClient,
-          profileClient: profileClientMock,
+          user: user,
           relier: relier,
           broker: broker
         });
@@ -74,11 +70,11 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
         assert.notEqual(view.$('.error').text(), '');
       });
 
-      it('shows no avatar if Session.avatar is undefined', function () {
+      it('shows no avatar if there is no account', function () {
         relier.set('email', 'a@a.com');
 
-        sinon.stub(profileClientMock, 'getAvatar', function () {
-          return p({});
+        sinon.stub(user, 'getAccountByEmail', function () {
+          return null;
         });
 
         return view.render()
@@ -90,23 +86,18 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
           });
       });
 
-      it('shows no avatar when there is no Session.email', function () {
+      it('shows avatar when account.email and relier.email match', function () {
         relier.set('email', 'a@a.com');
-        Session.set('avatar', 'avatar.jpg');
-        assert.isNull(view.context().avatar);
+        var account = user.createAccount({
+          email: 'a@a.com'
+        });
 
-        return view.render()
-          .then(function () {
-            assert.notOk(view.$('.avatar-view img').length);
-          });
-      });
-
-      it('shows avatar when Session.email and relier.email match', function () {
-        relier.set('email', 'a@a.com');
-        Session.set('email', 'a@a.com');
-
-        sinon.stub(profileClientMock, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar', function () {
           return p({ avatar: 'avatar.jpg', id: 'foo' });
+        });
+
+        sinon.stub(user, 'getAccountByEmail', function () {
+          return account;
         });
 
         return view.render()
@@ -120,10 +111,16 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
 
       it('shows no avatar when Session.email and relier.email do not match', function () {
         relier.set('email', 'a@a.com');
-        Session.set('email', 'b@b.com');
+        var account = user.createAccount({
+          email: 'b@b.com'
+        });
 
-        sinon.stub(profileClientMock, 'getAvatar', function () {
+        sinon.stub(account, 'getAvatar', function () {
           return p({ avatar: 'avatar.jpg', id: 'foo' });
+        });
+
+        sinon.stub(user, 'getAccountByEmail', function () {
+          return account;
         });
 
         return view.render()
@@ -147,14 +144,14 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
         relier.set('email', email);
         broker = new Broker();
         fxaClient = new FxaClient();
-        profileClientMock = TestHelpers.stubbedProfileClient();
         router = new RouterMock();
+        user = new User();
 
         view = new View({
           window: windowMock,
           router: router,
           fxaClient: fxaClient,
-          profileClient: profileClientMock,
+          user: user,
           relier: relier,
           broker: broker
         });
@@ -222,8 +219,9 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
       });
 
       it('forgot password request redirects directly to confirm_reset_password', function () {
+        var passwordForgotToken = 'foo';
         sinon.stub(view.fxaClient, 'passwordReset', function () {
-          return p();
+          return p({ passwordForgotToken: passwordForgotToken });
         });
 
         relier.set('email', email);
@@ -232,6 +230,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
           .then(function () {
 
             assert.equal(router.page, 'confirm_reset_password');
+            assert.equal(view.ephemeralMessages.get('data').passwordForgotToken, passwordForgotToken);
             assert.isTrue(view.fxaClient.passwordReset.calledWith(
                 email, relier));
           });

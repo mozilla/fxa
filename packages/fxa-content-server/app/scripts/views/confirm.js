@@ -9,13 +9,12 @@ define([
   'views/form',
   'views/base',
   'stache!templates/confirm',
-  'lib/session',
   'lib/promise',
   'lib/auth-errors',
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, FormView, BaseView, Template, Session, p, AuthErrors,
+function (_, FormView, BaseView, Template, p, AuthErrors,
     ResendMixin, ServiceMixin) {
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
@@ -26,9 +25,13 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
     // used by unit tests
     VERIFICATION_POLL_IN_MS: VERIFICATION_POLL_IN_MS,
 
+    initialize: function () {
+      this.account = this.currentAccount();
+    },
+
     context: function () {
       return {
-        email: Session.email
+        email: this.account && this.account.email
       };
     },
 
@@ -45,7 +48,7 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a sign up.
-      if (! Session.sessionToken) {
+      if (! this.account || ! this.account.sessionToken) {
         this.navigate('signup');
         return false;
       }
@@ -85,10 +88,11 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
 
     _waitForConfirmation: function () {
       var self = this;
-      return self.fxaClient.recoveryEmailStatus(
-          Session.sessionToken, Session.uid)
+      return self.fxaClient.recoveryEmailStatus(self.account.sessionToken, self.account.uid)
         .then(function (result) {
           if (result.verified) {
+            self.account.verified = true;
+            self.user.setAccount(self.account);
             return true;
           }
 
@@ -108,7 +112,7 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
       var self = this;
 
       self.logScreenEvent('resend');
-      return self.fxaClient.signUpResend(self.relier)
+      return self.fxaClient.signUpResend(self.relier, self.account.sessionToken)
               .then(function () {
                 self.displaySuccess();
               }, function (err) {

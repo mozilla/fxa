@@ -9,13 +9,12 @@ define([
   'views/base',
   'views/form',
   'stache!templates/change_password',
-  'lib/session',
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
   'lib/auth-errors',
   'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, AuthErrors, ServiceMixin) {
+function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMixin, AuthErrors, ServiceMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -37,7 +36,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
     },
 
     submit: function () {
-      var email = Session.email;
+      var account = this.currentAccount();
+      var email = account.email;
       var oldPassword = this.$('#old_password').val();
       var newPassword = this.$('#new_password').val();
 
@@ -61,10 +61,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
             // prevents sync users from seeing the `sign out` button on the
             // settings screen.
 
-            var sessionTokenContext = Session.sessionTokenContext;
-            Session.clear();
-            return self.fxaClient.signIn(email, newPassword, self.relier, {
-              sessionTokenContext: sessionTokenContext
+            return self.fxaClient.signIn(email, newPassword, self.relier, self.user, {
+              sessionTokenContext: account.sessionTokenContext
             });
           })
           .then(function () {
@@ -83,8 +81,9 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
 
     resendVerificationEmail: BaseView.preventDefaultThen(function () {
       var self = this;
+      var sessionToken = this.currentAccount().sessionToken;
 
-      return self.fxaClient.signUpResend(self.relier)
+      return self.fxaClient.signUpResend(self.relier, sessionToken)
               .then(function () {
                 self.navigate('confirm');
               }, function (err) {

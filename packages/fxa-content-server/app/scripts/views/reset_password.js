@@ -63,8 +63,13 @@ function (_, BaseView, FormView, Template, Session, AuthErrors, ServiceMixin) {
 
       var self = this;
       return self.fxaClient.passwordReset(email, self.relier)
-        .then(function () {
-          self.navigate('confirm_reset_password');
+        .then(function (result) {
+          self.navigate('confirm_reset_password', {
+            data: {
+              email: email,
+              passwordForgotToken: result.passwordForgotToken
+            }
+          });
         })
         .then(null, function (err) {
           // clear oauth session

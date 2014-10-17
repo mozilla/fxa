@@ -6,27 +6,42 @@
 
 define([
   'underscore',
+  'lib/session',
   'views/form',
   'views/base',
   'views/mixins/avatar-mixin',
-  'stache!templates/settings',
-  'lib/session',
-  'lib/constants'
+  'stache!templates/settings'
 ],
-function (_, FormView, BaseView, AvatarMixin, Template, Session, Constants) {
+function (_, Session, FormView, BaseView, AvatarMixin, Template) {
   var t = BaseView.t;
 
   var View = FormView.extend({
-    // user must be authenticated to see Settings
-    mustAuth: true,
+    // user must be authenticated and verified to see Settings
+    mustVerify: true,
 
     template: Template,
     className: 'settings',
 
+    initialize: function () {
+      var self = this;
+      var uid = self.searchParam('uid');
+
+      // We set the current account to the one with `uid` if
+      // it exists in our list of cached accounts. If it doesn't,
+      // clear the current account.
+      // The `mustVerify` flag will ensure that the account is valid.
+      if (uid && self.user.getAccountByUid(uid)) {
+        self.user.setCurrentAccountByUid(uid);
+      } else if (uid) {
+        Session.clear();
+        self.user.clearCurrentAccount();
+      }
+    },
+
     context: function () {
       return {
-        email: Session.email,
-        showSignOut: Session.sessionTokenContext !== Constants.FX_DESKTOP_CONTEXT
+        email: this.currentAccount().email,
+        showSignOut: !this.currentAccount().isFromSync()
       };
     },
 
@@ -37,7 +52,18 @@ function (_, FormView, BaseView, AvatarMixin, Template, Session, Constants) {
 
     submit: function () {
       var self = this;
-      return this.fxaClient.signOut()
+      return self.fxaClient.signOut(self.currentAccount().sessionToken)
+              .then(function () {
+                // user's session is gone
+                self.user.clearCurrentAccount();
+                Session.clear();
+              }, function () {
+                // Clear the session, even on failure. Everything is A-OK.
+                // See issue #616
+                // - https://github.com/mozilla/fxa-content-server/issues/616
+                self.user.clearCurrentAccount();
+                Session.clear();
+              })
               .then(function () {
                 self.navigate('signin', {
                   success: t('Signed out')
@@ -47,7 +73,7 @@ function (_, FormView, BaseView, AvatarMixin, Template, Session, Constants) {
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this._displayProfileImage();
+      return this._displayProfileImage(this.currentAccount());
     }
   });
 
