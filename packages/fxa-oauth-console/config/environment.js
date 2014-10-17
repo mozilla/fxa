@@ -16,7 +16,7 @@ module.exports = function(environment) {
       authorizer: 'authorizer:custom'
     },
     servers: {
-      oauth: 'http://127.0.0.1:9010/'
+      oauth: 'http://127.0.0.1:9010'
     },
     environment: environment,
     baseURL: '/',

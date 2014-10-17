@@ -41,7 +41,8 @@ router.get('/login', function(req, res) {
 router.get('/status', function(req, res) {
   if (req.session && req.session.email) {
     return res.send(JSON.stringify({
-      email: req.session.email
+      email: req.session.email,
+      token: req.session.token
     }));
   } else {
     return res.status(403).end();
@@ -107,6 +108,7 @@ router.get('/redirect', function(req, res) {
         var data = JSON.parse(body);
         req.session.email = data.email;
         req.session.uid = data.uid;
+        req.session.token = token;
         res.redirect('/');
       });
     });

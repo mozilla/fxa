@@ -19,7 +19,7 @@ app.use(session);
 app.use('/oauth', routesOAuth);
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 
-// TODO: there should be a better way to do this
+// TODO: there should be a better way to do send through requested routes with pushState
 app.get('*', function(request, response){
   response.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });

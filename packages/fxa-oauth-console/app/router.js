@@ -5,15 +5,13 @@ var Router = Ember.Router.extend({
   location: config.locationType
 });
 
-Router.map(function() {
+Router.map(function () {
   this.route('login');
 
-  this.resource('clients',     {path:'/clients' });
-  // create a new client
-  this.resource('client.register',  {path:'/client/register'});
-  // view client by id
-  this.resource('client',      {path:'/client/:guid'}, function(){
-    // edit a client by id
+  this.route('clients');
+  this.resource('client', {path: '/client/:id'}, function () {
+    this.route('view');
+    this.route('register');
     this.route('update');
   });
 });
