@@ -223,8 +223,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       var customizeSync = self.$('.customize-sync').is(':checked');
 
       return self.fxaClient.signUp(email, password, {
-        customizeSync: customizeSync,
-        preVerifyToken: self.relier.get('preVerifyToken')
+        customizeSync: customizeSync
       }).then(_.bind(self.onSignUpSuccess, self))
       .then(null, function (err) {
         // Account already exists. No attempt is made at signing the
@@ -236,12 +235,6 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
           self.logEvent('login.canceled');
           // if user canceled login, just stop
           return;
-        } else if (self.relier.has('preVerifyToken') && AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
-          // The token was invalid and the auth server could not pre-verify
-          // the user. Now, just create a new user and force them to verify
-          // their email.
-          self.relier.unset('preVerifyToken');
-          return self._createAccount();
         }
 
         // re-throw error, it will be handled at a lower level.

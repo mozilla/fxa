@@ -185,11 +185,12 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
 
       it('signUp a preverified user using preVerifyToken', function () {
         var preVerifyToken = 'somebiglongtoken';
+        relier.set('preVerifyToken', preVerifyToken);
 
         // we are going to take over from here.
         testHelpers.removeFxaClientSpy(realClient);
         sinon.stub(realClient, 'signUp', function () {
-          return true;
+          return p();
         });
         sinon.stub(realClient, 'signIn', function () {
           return {
@@ -210,6 +211,50 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           }));
           assert.isTrue(realClient.signIn.called);
         });
+      });
+
+      it('signup a user with an invalid preverify token retries the signup without the token', function () {
+        var preVerifyToken = 'somebiglongtoken';
+        relier.set('preVerifyToken', preVerifyToken);
+
+        // we are going to take over from here.
+        testHelpers.removeFxaClientSpy(realClient);
+
+        var count = 0;
+        sinon.stub(realClient, 'signUp', function () {
+          count++;
+          if (count === 1) {
+            assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
+              preVerifyToken: preVerifyToken,
+              keys: true,
+              redirectTo: REDIRECT_TO,
+              service: SERVICE,
+              resume: expectedResumeToken
+            }));
+
+            return p.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE'));
+          } else if (count === 2) {
+            assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
+              keys: true,
+              redirectTo: REDIRECT_TO,
+              service: SERVICE,
+              resume: expectedResumeToken
+            }));
+
+            return p(true);
+          }
+        });
+
+        sinon.stub(realClient, 'signIn', function () {
+          return {
+            sessionToken: 'asessiontoken'
+          };
+        });
+
+        return client.signUp(email, password)
+          .then(function () {
+            assert.isTrue(realClient.signIn.called);
+          });
       });
     });
 

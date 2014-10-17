@@ -225,17 +225,30 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels,
                   signUpOptions.redirectTo = relier.get('redirectTo');
                 }
 
+                if (relier.has('preVerifyToken')) {
+                  signUpOptions.preVerifyToken = relier.get('preVerifyToken');
+                }
+
                 if (options.preVerified) {
                   signUpOptions.preVerified = true;
                 }
 
-                if (options.preVerifyToken) {
-                  signUpOptions.preVerifyToken = options.preVerifyToken;
-                }
-
                 signUpOptions.resume = self._createResumeToken();
 
-                return client.signUp(email, password, signUpOptions);
+                return client.signUp(email, password, signUpOptions)
+                  .then(null, function (err) {
+                    if (relier.has('preVerifyToken') &&
+                        AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
+                      // The token was invalid and the auth server could
+                      // not pre-verify the user. Now, just create a new
+                      // user and force them to verify their email.
+                      relier.unset('preVerifyToken');
+
+                      return self.signUp(email, password, options);
+                    }
+
+                    throw err;
+                  });
               })
               .then(function () {
                 var signInOptions = {
