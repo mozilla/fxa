@@ -1,22 +1,24 @@
-<button {{action 'goToNewClient'}} class="small button success">Create a new OAuth Client</button>
+<button {{action 'goToNewClient' }} class="small button success">Create a new OAuth Client</button>
 <hr/>
-{{outlet}}
+
 <table class="table">
   <tbody>
   <tr>
+    <th>ID</th>
     <th>Name</th>
     <th>Redirect URI</th>
   </tr>
   {{#each client in content}}
     <tr>
-      <td>{{#link-to 'clients.view' client.id}}{{client.id}}{{/link-to}}</td>
-      <td {{action 'goToClient' id}}>{{name}}</td>
-      <td {{action 'goToClient' id}}>{{redirect_uri}}</td>
+      <td {{action 'goToClient' client.id}}>{{client.id}}</td>
+      <td>{{client.name}}</td>
+      <td>{{client.redirect_uri}}</td>
       <td>
-        <button class="small button " {{action 'update' id}}>Update</button>
-        <button class="small button alert" {{action 'remove' id}}>Delete</button>
+        <button class="small button " {{action 'update' client.id}}>Update</button>
+        <button class="small button alert" {{action 'remove' client.id}}>Delete</button>
       </td>
     </tr>
   {{/each}}
   </tbody>
 </table>
+{{outlet}}

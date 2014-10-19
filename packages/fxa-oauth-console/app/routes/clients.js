@@ -7,6 +7,12 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     goToNewClient: function () {
       this.transitionTo('client.register');
     },
+    goToClient: function( id ) {
+      console.log(id);
+      // TODO: fix force request transition
+      location.href = document.location.origin + '/client/' + id;
+      //this.transitionTo('client', id);
+    },
     update: function (model) {
       this.transitionTo('client.update', model);
     },
@@ -18,13 +24,20 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       this.storage.update(model);
       this.transitionTo('clients');
     },
-    remove: function (model) {
-      this.storage.remove(model);
+    remove: function (id) {
+      console.log(id);
+      return this.store.find('client', id).then(function (client) {
+        console.log(client);
+        client.destroyRecord();
+      });
     },
     cancel: function (model) {
       Ember.run(model, "destroy");
       this.storage.refresh(Client);
       this.transitionTo('clients');
+    },
+    error: function(/*error, transition*/) {
+      this.transitionTo('login');
     }
   },
   model: function () {

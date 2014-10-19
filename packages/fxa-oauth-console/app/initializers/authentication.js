@@ -1,14 +1,6 @@
 import Ember from 'ember';
 import Base from 'simple-auth/authenticators/base';
 
-var CustomAuthorizer = Base.extend({
-  authorize: function (jqXHR/*, requestOptions*/) {
-    if (this.get('session.email') && !Ember.isEmpty(this.get('session.token'))) {
-      jqXHR.setRequestHeader('Authorization', 'Token: ' + this.get('session.token'));
-    }
-  }
-});
-
 var CustomAuthenticator = Base.extend({
   tokenEndpoint: '/oauth',
 
@@ -24,9 +16,14 @@ var CustomAuthenticator = Base.extend({
         response = JSON.parse(response);
 
         Ember.run(function () {
-          if (response && response.email) {
-            return resolve({ email: response.email });
+          if (response && response.email && response.token) {
+
+            return resolve({
+              email: response.email,
+              token: response.token
+            });
           } else {
+
             return reject();
           }
         });
@@ -64,6 +61,5 @@ export default {
   before: 'simple-auth',
   initialize: function (container/*, application*/) {
     container.register('authenticator:custom', CustomAuthenticator);
-    container.register('authorizer:custom', CustomAuthorizer);
   }
 };

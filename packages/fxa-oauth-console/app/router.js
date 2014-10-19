@@ -8,10 +8,9 @@ var Router = Ember.Router.extend({
 Router.map(function () {
   this.route('login');
 
-  this.route('clients');
-  this.resource('client', {path: '/client/:id'}, function () {
-    this.route('view');
-    this.route('register');
+  this.route('clients', {path: '/clients'});
+  this.route('client.register',  {path:'/client/register'});
+  this.resource('client', {path: '/client/:client_id'}, function () {
     this.route('update');
   });
 });

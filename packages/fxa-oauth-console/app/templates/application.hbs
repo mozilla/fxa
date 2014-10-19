@@ -11,8 +11,7 @@
   <section class="top-bar-section">
     <ul class="right">
       {{#if session.email}}
-        <li></li>
-        <a {{ action 'invalidateSession' }}>Logout</a></li>
+        <li><a {{ action 'invalidateSession' }}>Logout</a></li>
       {{/if}}
     </ul>
   </section>
