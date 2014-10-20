@@ -42,6 +42,14 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     max-width: 340px;
   }
 
+  .links .left,
+  .links .right {
+    display: block;
+    float: none;
+    margin: 5px 0;
+    text-align: center;
+  }
+
   .input-row input[type='text'],
   .input-row input[type='email'],
   .input-row input[type='password'],
@@ -74,7 +82,7 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
   }
 
   .button-row {
-    margin-top: 20px;
+    margin: 20px 0;
   }
 
   .button-row button,
@@ -161,6 +169,16 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     width: 250px;
   }
 
+  section p.prefill {
+    margin: 10px 0;
+  }
+
+  .avatar-wrapper.avatar-view {
+    background-size:100px auto;
+    height:100px;
+    width:100px;
+  }
+
   header h1 {
     font-size: $medium-font;
     margin: 0 0 10px 0;
@@ -179,8 +197,9 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     margin: 0;
   }
 
-  .privacy-links {
-    margin-bottom: 0;
+  .privacy-links,
+  .links + .privacy-links {
+    margin: 5px auto;
   }
 
   .graphic {
@@ -194,9 +213,9 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
   }
 
   .input-row {
-    margin-bottom: 14px;
+    margin-bottom: 9px;
 
-    input-help-focused {
+    .input-help-focused {
       opacity: 1;
     }
 
@@ -211,9 +230,13 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     padding-left: $input-left-right-padding * 0.5;
   }
 
+  .privacy-links + 
   .button-row {
-    margin: 0 0 10px 0;
+    margin: 0;
+  }
 
+  .button-row {
+    margin: 10px 0 0 0;
     button,
     a.button {
       font-size: $medium-font;
