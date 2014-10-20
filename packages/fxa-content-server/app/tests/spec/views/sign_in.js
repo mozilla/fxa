@@ -41,6 +41,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      windowMock.location.pathname = 'signin';
       metrics = new Metrics();
       relier = new Relier();
       fxaClient = new FxaClient();
@@ -181,6 +182,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         return view.submit()
           .then(function () {
             assert.equal(routerMock.page, 'settings');
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'signin.success'));
           });
       });
 
@@ -196,7 +199,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
             assert.isFalse(view.isErrorVisible());
 
             assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'login.canceled'));
+                              'signin.canceled'));
           });
       });
 

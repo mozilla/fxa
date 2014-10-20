@@ -36,6 +36,8 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      windowMock.location.pathname = 'confirm_reset_password';
+
       metrics = new Metrics();
       relier = new Relier();
       fxaClient = new FxaClient();
@@ -323,6 +325,35 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
 
         view.$('#resend').click();
         assert.equal(count, 1);
+      });
+
+      it('debounces resend calls - submit on first and forth attempt', function () {
+        var count = 0;
+
+        sinon.stub(fxaClient, 'passwordResetResend', function () {
+          count++;
+          return p(true);
+        });
+
+        return view.validateAndSubmit()
+              .then(function () {
+                assert.equal(count, 1);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(count, 1);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(count, 1);
+                return view.validateAndSubmit();
+              }).then(function () {
+                assert.equal(count, 2);
+                assert.equal(view.$('#resend:visible').length, 0);
+
+                assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                  'confirm_reset_password.resend'));
+                assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                  'confirm_reset_password.too_many_attempts'));
+              });
       });
     });
 

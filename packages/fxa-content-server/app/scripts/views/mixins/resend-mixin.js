@@ -9,6 +9,7 @@
 define([
 ], function () {
   var SHOW_RESEND_IN_MS = 5 * 60 * 1000; // 5 minutes.
+  var TOO_MANY_ATTEMPTS = 4;
 
   return {
     _attemptedSubmits: 0,
@@ -42,8 +43,8 @@ define([
     _updateResendButton: function () {
       var self = this;
       // Hide the button after 4 attempts. Redisplay button after a delay.
-      if (self._attemptedSubmits === 4) {
-        self.logEvent(self.className + '.too_many_attempts');
+      if (self._attemptedSubmits === TOO_MANY_ATTEMPTS) {
+        self.logScreenEvent('too_many_attempts');
         self.$('#resend').hide();
         self.setTimeout(function () {
           self._attemptedSubmits = 0;

@@ -13,10 +13,11 @@ define([
   'views/confirm',
   'models/reliers/relier',
   '../../mocks/router',
+  '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
-      Relier, RouterMock, TestHelpers) {
+      Relier, RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -24,6 +25,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
   describe('views/confirm', function () {
     var view;
     var routerMock;
+    var windowMock;
     var metrics;
     var fxaClient;
     var relier;
@@ -32,12 +34,16 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
       Session.set('sessionToken', 'fake session token');
 
       routerMock = new RouterMock();
+      windowMock = new WindowMock();
+      windowMock.location.pathname = 'confirm';
+
       metrics = new Metrics();
       relier = new Relier();
       fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
+        window: windowMock,
         metrics: metrics,
         fxaClient: fxaClient,
         relier: relier
@@ -150,7 +156,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
       it('debounces resend calls - submit on first and forth attempt', function () {
         var count = 0;
 
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
+        sinon.stub(fxaClient, 'signUpResend', function () {
           count++;
           return p(true);
         });
@@ -193,6 +199,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
           // force at least one cycle through the poll
           count++;
           return p({ verified: count === 2 });
+        });
+
+        sinon.stub(view, 'setTimeout', function (callback) {
+          callback();
         });
 
         view.VERIFICATION_POLL_IN_MS = 100;

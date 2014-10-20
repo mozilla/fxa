@@ -76,6 +76,8 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
       router = new RouterMock();
       windowMock = new WindowMock();
+      windowMock.location.pathname = 'signup';
+
       metrics = new Metrics();
       relier = new Relier();
       fxaClient = new FxaClient();
@@ -324,14 +326,14 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     });
 
     describe('submit', function () {
-      it('sends the user to confirm screen if form filled out, >= 14 years ago', function () {
+      it('sends the user to `/confirm` if form filled out, >= 14 years ago', function () {
         var ageToCheck = moment().subtract(14, 'years');
         var password = 'password';
         fillOutSignUp(email, password, {
           year: ageToCheck.year(),
           month: ageToCheck.month(),
           date: ageToCheck.date(),
-          contex: view
+          context: view
         });
 
         sinon.stub(view.fxaClient, 'signUp', function () {
@@ -345,13 +347,50 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         return view.submit()
-            .then(function () {
-              assert.equal(router.page, 'confirm');
-              assert.isTrue(view.fxaClient.signUp.calledWith(
-                  email, password, relier));
-              assert.isTrue(view.fxaClient.signIn.calledWith(
-                  email, password, relier));
-            });
+          .then(function () {
+            assert.equal(router.page, 'confirm');
+            assert.isTrue(view.fxaClient.signUp.calledWith(
+                email, password, relier));
+            assert.isTrue(view.fxaClient.signIn.calledWith(
+                email, password, relier));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'signup.success'));
+          });
+      });
+
+      it('sends preverified users to /signup_complete if form filled out, >= 14 years ago, user is preverified', function () {
+        relier.set('preVerifyToken', 'preverifytoken');
+
+        var ageToCheck = moment().subtract(14, 'years');
+        fillOutSignUp(email, 'password', {
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date(),
+          context: view
+        });
+
+        sinon.stub(fxaClient, 'signUp', function () {
+          return p();
+        });
+
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p({
+            verified: true
+          });
+        });
+
+
+        return view.submit()
+          .then(function () {
+            assert.equal(router.page, 'signup_complete');
+
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'signup.preverified'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'signup.preverified.success'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'signup.success'));
+          });
       });
 
       it('submits form if user presses enter on the year', function (done) {
@@ -360,7 +399,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           year: ageToCheck.year(),
           month: ageToCheck.month(),
           date: ageToCheck.date(),
-          contex: view
+          context: view
         });
 
         sinon.stub(view, 'submit', function () {
@@ -379,13 +418,13 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           year: ageToCheck.year(),
           month: ageToCheck.month(),
           date: ageToCheck.date(),
-          contex: view
+          context: view
         });
 
         return view.submit()
-            .then(function () {
-              assert.equal(router.page, 'cannot_create_account');
-            });
+          .then(function () {
+            assert.equal(router.page, 'cannot_create_account');
+          });
       });
 
       it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function () {
@@ -394,7 +433,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           year: ageToCheck.year(),
           month: ageToCheck.month(),
           date: ageToCheck.date(),
-          contex: view
+          context: view
         });
 
         var revisitRouter = new RouterMock();

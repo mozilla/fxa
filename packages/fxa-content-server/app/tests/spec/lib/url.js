@@ -58,8 +58,8 @@ function (chai, _, Url) {
         assert.equal(Url.pathToScreenName('signup/'), 'signup');
       });
 
-      it('leaves middle / alone', function () {
-        assert.equal(Url.pathToScreenName('/legal/tos/'), 'legal/tos');
+      it('converts middle / to .', function () {
+        assert.equal(Url.pathToScreenName('/legal/tos/'), 'legal.tos');
       });
 
       it('strips search parameters', function () {

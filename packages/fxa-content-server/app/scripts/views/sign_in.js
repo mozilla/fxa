@@ -99,6 +99,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       })
       .then(function (accountData) {
         if (accountData.verified) {
+          self.logScreenEvent('success');
           return self.onSignInSuccess();
         } else {
           return self.onSignInUnverified();
@@ -108,7 +109,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
         if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
           return self._suggestSignUp(err);
         } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-          self.logEvent('login.canceled');
+          self.logScreenEvent('canceled');
           // if user canceled login, just stop
           return;
         }
