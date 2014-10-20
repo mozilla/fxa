@@ -34,9 +34,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
       routerMock = new RouterMock();
       metrics = new Metrics();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
@@ -90,26 +88,25 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
 
     describe('submit', function () {
       it('resends the confirmation email, shows success message, logs the event', function () {
-        var email = TestHelpers.createEmail();
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p();
+        });
 
-        return view.fxaClient.signUp(email, 'password')
-              .then(function () {
-                return view.submit();
-              })
-              .then(function () {
-                assert.isTrue(view.$('.success').is(':visible'));
-                assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                  'confirm.resend'));
-              });
+        return view.submit()
+          .then(function () {
+            assert.isTrue(view.$('.success').is(':visible'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'confirm.resend'));
 
+            assert.isTrue(view.fxaClient.signUpResend.calledWith(
+                relier));
+          });
       });
 
       it('redirects to `/signup` if the resend token is invalid', function () {
-        view.fxaClient.signUpResend = function () {
-          return p().then(function () {
-            throw AuthErrors.toError('INVALID_TOKEN', 'Invalid token');
-          });
-        };
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        });
 
         return view.submit()
               .then(function () {
@@ -121,16 +118,12 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
       });
 
       it('displays other error messages if there is a problem', function () {
-        view.fxaClient.signUpResend = function () {
-          return p().then(function () {
-            throw new Error('synthesized error from auth server');
-          });
-        };
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p.reject(new Error('synthesized error from auth server'));
+        });
 
         return view.submit()
-              .then(function () {
-                assert(false, 'unexpected success');
-              }, function (err) {
+              .then(assert.fail, function (err) {
                 assert.equal(err.message, 'synthesized error from auth server');
               });
       });
@@ -138,36 +131,32 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
 
     describe('validateAndSubmit', function () {
       it('only called after click on #resend', function () {
-        var email = TestHelpers.createEmail();
+        var count = 0;
+        view.validateAndSubmit = function () {
+          count++;
+        };
 
-        return view.fxaClient.signUp(email, 'password')
-              .then(function () {
-                var count = 0;
-                view.validateAndSubmit = function () {
-                  count++;
-                };
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p();
+        });
 
-                view.$('section').click();
-                assert.equal(count, 0);
+        view.$('section').click();
+        assert.equal(count, 0);
 
-                view.$('#resend').click();
-                assert.equal(count, 1);
-              });
+        view.$('#resend').click();
+        assert.equal(count, 1);
       });
 
       it('debounces resend calls - submit on first and forth attempt', function () {
-        var email = TestHelpers.createEmail();
         var count = 0;
 
-        return view.fxaClient.signUp(email, 'password')
-              .then(function () {
-                view.fxaClient.signUpResend = function () {
-                  count++;
-                  return p(true);
-                };
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          count++;
+          return p(true);
+        });
 
-                return view.validateAndSubmit();
-              }).then(function () {
+        return view.validateAndSubmit()
+              .then(function () {
                 assert.equal(count, 1);
                 return view.validateAndSubmit();
               }).then(function () {

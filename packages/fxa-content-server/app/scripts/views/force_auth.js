@@ -82,7 +82,7 @@ function (p, BaseView, SignInView, Template, Session) {
 
         var email = Session.forceEmail;
         self._isSubmitting = true;
-        return self.fxaClient.passwordReset(email)
+        return self.fxaClient.passwordReset(email, self.relier)
                 .then(function () {
                   self._isSubmitting = false;
                   self.navigate('confirm_reset_password');

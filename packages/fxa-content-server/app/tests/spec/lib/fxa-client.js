@@ -51,34 +51,31 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
 
       expectedResumeToken = ResumeToken.stringify({ state: STATE });
 
+      Session.set('config', {
+        fxaccountUrl: 'http://127.0.0.1:9000'
+      });
+
       client = new FxaClientWrapper({
-        channel: channelMock,
-        relier: relier
+        channel: channelMock
       });
       return client._getClientAsync()
               .then(function (_realClient) {
                 realClient = _realClient;
-                // create spies that can be used to check
-                // parameters that are passed to the FxaClient
-                testHelpers.addFxaClientSpy(realClient);
               });
     });
 
     afterEach(function () {
       channelMock = null;
-
-      // return the client to its original state.
-      testHelpers.removeFxaClientSpy(realClient);
     });
 
-    describe('signUp/signUpResend', function () {
+    describe('signUp', function () {
       it('signUp signs up a user with email/password', function () {
+        sinon.stub(realClient, 'signUp', function () {
+          return p({});
+        });
 
-        return client.signUp(email, password)
+        return client.signUp(email, password, relier)
           .then(function () {
-            assert.equal(channelMock.message, 'login');
-            assert.isUndefined(channelMock.data.customizeSync);
-
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
               service: SERVICE,
@@ -89,22 +86,16 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       });
 
       it('a throttled signUp returns a THROTTLED error', function () {
-        var FxaClientMock = {
-          signUp: function () {
-            return p.reject({
-              code: 429,
-              errno: 114,
-              error: 'Too Many Requests',
-              message: 'Client has sent too many requests'
-            });
-          }
-        };
+        sinon.stub(realClient, 'signUp', function () {
+          return p.reject({
+            code: 429,
+            errno: 114,
+            error: 'Too Many Requests',
+            message: 'Client has sent too many requests'
+          });
+        });
 
-        return new FxaClientWrapper({
-          client: FxaClientMock,
-          channel: channelMock,
-          relier: relier
-        }).signUp(email, password)
+        return client.signUp(email, password, relier)
           .then(
             assert.fail,
             function (err) {
@@ -113,92 +104,15 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           );
       });
 
-      it('informs browser of customizeSync option', function () {
-        sinon.stub(relier, 'isSync', function () {
-          return true;
-        });
-
-        return client.signUp(email, password, { customizeSync: true })
-          .then(function () {
-            assert.isTrue(channelMock.data.customizeSync);
-          });
-      });
-
-      it('signUpResend resends the validation email', function () {
-        return client.signUp(email, password)
-          .then(function () {
-            return client.signUpResend();
-          })
-          .then(function () {
-            var params = {
-              service: SERVICE,
-              redirectTo: REDIRECT_TO,
-              resume: expectedResumeToken
-            };
-            assert.isTrue(
-                realClient.recoveryEmailResendCode.calledWith(
-                    Session.sessionToken,
-                    params
-                ));
-          });
-      });
-
-      it('signUpResend still shows success after max tries', function () {
-        var triesLeft = Constants.SIGNUP_RESEND_MAX_TRIES;
-
-        return client.signUp(email, password)
-          .then(function () {
-            // exhaust all tries
-            for (var i = 0; i < triesLeft; i++) {
-              client.signUpResend();
-            }
-            return client.signUpResend();
-          })
-          .then(function (result) {
-            assert.ok(result);
-          });
-      });
-
-      it('signUp existing verified user returns ACCOUNT_ALREADY_EXISTS error', function () {
-        return client.signUp(email, password, { preVerified: true })
-          .then(function () {
-            return client.signUp(email, password);
-          })
-          .then(function () {
-            assert(false, 'unexpected success');
-          }, function (err) {
-            assert.isTrue(AuthErrors.is(err, 'ACCOUNT_ALREADY_EXISTS'));
-          });
-      });
-
-      it('signUp existing unverified user with different password signs ' +
-      'user up again', function () {
-        return client.signUp(email, password)
-          .then(function () {
-            return client.signUp(email, 'different_password');
-          })
-          .then(function () {
-            assert.isTrue(realClient.signUp.called);
-            assert.isTrue(realClient.signIn.called);
-          });
-      });
-
       it('signUp a preverified user using preVerifyToken', function () {
         var preVerifyToken = 'somebiglongtoken';
         relier.set('preVerifyToken', preVerifyToken);
 
-        // we are going to take over from here.
-        testHelpers.removeFxaClientSpy(realClient);
         sinon.stub(realClient, 'signUp', function () {
           return p();
         });
-        sinon.stub(realClient, 'signIn', function () {
-          return {
-            sessionToken: 'asessiontoken'
-          };
-        });
 
-        return client.signUp(email, password, {
+        return client.signUp(email, password, relier, {
           preVerifyToken: preVerifyToken
         })
         .then(function () {
@@ -209,11 +123,10 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
             service: SERVICE,
             resume: expectedResumeToken
           }));
-          assert.isTrue(realClient.signIn.called);
         });
       });
 
-      it('signup a user with an invalid preverify token retries the signup without the token', function () {
+      it('signUp a user with an invalid preVerifyToken retries the signup without the token', function () {
         var preVerifyToken = 'somebiglongtoken';
         relier.set('preVerifyToken', preVerifyToken);
 
@@ -245,64 +158,129 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           }
         });
 
-        sinon.stub(realClient, 'signIn', function () {
-          return {
-            sessionToken: 'asessiontoken'
-          };
+        return client.signUp(email, password, relier)
+          .then(function () {
+            assert.equal(realClient.signUp.callCount, 2);
+          });
+      });
+
+      it('sends the `can_link_account` message to check if the user is overwriting browser Sync creds', function () {
+        sinon.stub(realClient, 'signUp', function () {
+          return p({});
         });
 
-        return client.signUp(email, password)
+        return client.signUp(email, password, relier)
           .then(function () {
-            assert.isTrue(realClient.signIn.called);
+            // check can_link_account was called once
+            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
+          });
+      });
+
+      describe('if users cancels when `can_link_account` message is triggered', function () {
+        it('a USER_CANCELED_LOGIN error is thrown', function () {
+          // simulate the user rejecting
+          channelMock.canLinkAccountOk = false;
+
+          sinon.stub(realClient, 'signUp', function () {
+            return p.reject('user cancelled signUp from browser and the auth server\'s signUp should not be called');
+          });
+
+          return client.signUp(email, password, relier)
+            .then(assert.fail, function (err) {
+              assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
+              // check can_link_account was called once
+              assert.equal(channelMock.getMessageCount('can_link_account'), 1);
+            });
+        });
+      });
+    });
+
+    describe('signUpResend', function () {
+      it('resends the validation email', function () {
+        sinon.stub(realClient, 'recoveryEmailResendCode', function () {
+          return p();
+        });
+
+        return client.signUpResend(relier)
+          .then(function () {
+            var params = {
+              service: SERVICE,
+              redirectTo: REDIRECT_TO,
+              resume: expectedResumeToken
+            };
+            assert.isTrue(
+                realClient.recoveryEmailResendCode.calledWith(
+                    Session.sessionToken,
+                    params
+                ));
+          });
+      });
+
+      it('still shows success after max tries', function () {
+        sinon.stub(realClient, 'recoveryEmailResendCode', function () {
+          return p();
+        });
+        var triesLeft = Constants.SIGNUP_RESEND_MAX_TRIES;
+
+        // exhaust all tries
+        var promises = [];
+        for (var i = 0; i < triesLeft; i++) {
+          promises.push(client.signUpResend(relier));
+        }
+
+        return p.all(promises)
+          .then(function () {
+            return client.signUpResend(relier);
+          })
+          .then(function (result) {
+            assert.ok(result);
           });
       });
     });
 
-    describe('signUp when another user has previously signed in to browser and user accepts', function () {
-      it('sends verifiedCanLinkAccount along with the login message', function () {
-        return client.signUp(email, password)
+    describe('verifyCode', function () {
+      it('can successfully complete', function () {
+        sinon.stub(realClient, 'verifyCode', function () {
+          return p({});
+        });
+
+        return client.verifyCode('uid', 'code')
           .then(function () {
-            // check that login was the last message sent over the channel
-            assert.equal(channelMock.message, 'login');
-            // check can_link_account was called once
-            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
-            // and it includes that it has already verified that it is allowed to link
-            assert.isTrue(channelMock.data.verifiedCanLinkAccount);
-            assert.isTrue(realClient.signIn.calledWith(trim(email)));
+            assert.isTrue(realClient.verifyCode.calledWith('uid', 'code'));
           });
       });
-    });
 
-    describe('signUp when another user has previously signed in to browser and user rejects', function () {
-      it('throws a USER_CANCELED_LOGIN error', function () {
-        // simulate the user rejecting
-        channelMock.canLinkAccountOk = false;
-        return client.signUp(email, password)
-          .then(function () {
-            assert(false, 'should throw USER_CANCELED_LOGIN');
-          }, function (err) {
-            assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
-            // check can_link_account was called once
-            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
+      it('throws any errors', function () {
+        sinon.stub(realClient, 'verifyCode', function () {
+          return p.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE'));
+        });
+
+        return client.verifyCode('uid', 'code')
+          .then(assert.fail, function (err) {
+            assert.isTrue(realClient.verifyCode.calledWith('uid', 'code'));
+            assert.isTrue(AuthErrors.is(err, 'INVALID_VERIFICATION_CODE'));
           });
       });
     });
 
     describe('signIn', function () {
       it('signin with unknown user should call errorback', function () {
-        return client.signIn('unknown@unknown.com', 'password')
-              .then(function () {
-                assert(false, 'unknown user cannot sign in');
-              }, function () {
-                assert.isTrue(true);
-              });
+        sinon.stub(realClient, 'signIn', function () {
+          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+        });
+
+        return client.signIn('unknown@unknown.com', 'password', relier)
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
+          });
       });
 
       it('signs a user in with email/password', function () {
-        return client.signUp(email, password)
-          .then(function () {
-            return client.signIn(email, password);
-          })
+        sinon.stub(realClient, 'signIn', function () {
+          return p({});
+        });
+
+        return client.signIn(email, password, relier)
           .then(function () {
             assert.isTrue(realClient.signIn.calledWith(trim(email)));
             assert.equal(channelMock.message, 'login');
@@ -315,22 +293,66 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           return true;
         });
 
-        return client.signUp(email, password)
-          .then(function () {
-            return client.signIn(email, password, { customizeSync: true });
-          })
-          .then(function () {
-            assert.equal(channelMock.message, 'login');
-            assert.isTrue(channelMock.data.customizeSync);
+        sinon.stub(realClient, 'signIn', function () {
+          return p({});
+        });
+
+        return client.signIn(email, password, relier, {
+          customizeSync: true
+        })
+        .then(function () {
+          assert.equal(channelMock.message, 'login');
+          assert.isTrue(channelMock.data.customizeSync);
+        });
+      });
+
+      it('throws errors sent back from channel notification if sync', function () {
+        sinon.stub(realClient, 'signIn', function () {
+          return p({});
+        });
+
+        sinon.stub(client, 'notifyChannelOfLogin', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+
+        sinon.stub(relier, 'isSync', function () {
+          return true;
+        });
+
+        return client.signIn(email, password, relier)
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
           });
       });
-    });
 
-    describe('signIn with verifiedCanLinkAccount=true option', function () {
-      it('sends verifiedCanLinkAccount along with the login message', function () {
-        return realClient.signUp(trim(email), password)
+      it('does not throw errors sent back from channel notification if not sync', function () {
+        sinon.stub(realClient, 'signIn', function () {
+          return p({});
+        });
+
+        sinon.stub(client, 'notifyChannelOfLogin', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+
+        sinon.stub(relier, 'isSync', function () {
+          return false;
+        });
+
+        return client.signIn(email, password, relier)
           .then(function () {
-            return client.signIn(email, password, { verifiedCanLinkAccount: true });
+            assert.isTrue(client.notifyChannelOfLogin.called);
+          }, assert.fail);
+      });
+
+      describe('signIn with verifiedCanLinkAccount=true option', function () {
+        it('sends verifiedCanLinkAccount along with the login message', function ()
+ {
+          sinon.stub(realClient, 'signIn', function () {
+            return p({});
+          });
+
+          return client.signIn(email, password, relier, {
+            verifiedCanLinkAccount: true
           })
           .then(function () {
             // check that login was the last message sent over the channel
@@ -341,49 +363,58 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
             assert.isTrue(channelMock.data.verifiedCanLinkAccount);
             assert.isTrue(realClient.signIn.calledWith(trim(email)));
           });
+        });
       });
-    });
 
 
-    describe('signIn when another user has previously signed in to browser and user accepts', function () {
-      it('sends verifiedCanLinkAccount along with the login message', function () {
-        return realClient.signUp(trim(email), password)
-          .then(function () {
-            return client.signIn(email, password);
-          })
-          .then(function () {
-            // check that login was the last message sent over the channel
-            assert.equal(channelMock.message, 'login');
-            // check can_link_account was called once
-            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
-            // and it includes that it has already verified that it is allowed to link
-            assert.isTrue(channelMock.data.verifiedCanLinkAccount);
-            assert.isTrue(realClient.signIn.calledWith(trim(email)));
+      describe('signIn when another user has previously signed in to browser and user accepts', function () {
+        it('sends verifiedCanLinkAccount along with the login message', function () {
+          sinon.stub(realClient, 'signIn', function () {
+            return p({});
           });
-      });
-    });
 
-    describe('signIn when another user has previously signed in to browser and user rejects', function () {
-      it('throws a USER_CANCELED_LOGIN error', function () {
-        // simulate the user rejecting
-        channelMock.canLinkAccountOk = false;
-        return client.signIn(email, password)
-          .then(function () {
-            assert(false, 'should throw USER_CANCELED_LOGIN');
-          }, function (err) {
-            assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
-            // check can_link_account was called once
-            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
+          return client.signIn(email, password, relier)
+            .then(function () {
+              // check that login was the last message sent over the channel
+              assert.equal(channelMock.message, 'login');
+              // check can_link_account was called once
+              assert.equal(channelMock.getMessageCount('can_link_account'), 1);
+              // and it includes that it has already verified that it is allowed to link
+              assert.isTrue(channelMock.data.verifiedCanLinkAccount);
+              assert.isTrue(realClient.signIn.calledWith(trim(email)));
+            });
+        });
+      });
+
+      describe('signIn when another user has previously signed in to browser and user rejects', function () {
+        it('throws a USER_CANCELED_LOGIN error', function () {
+          sinon.stub(realClient, 'signIn', function () {
+            return p({});
           });
+
+          // simulate the user rejecting
+          channelMock.canLinkAccountOk = false;
+          return client.signIn(email, password, relier)
+            .then(function () {
+              assert(false, 'should throw USER_CANCELED_LOGIN');
+            }, function (err) {
+              assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
+              // check can_link_account was called once
+              assert.equal(channelMock.getMessageCount('can_link_account'), 1);
+            });
+        });
       });
     });
 
-    describe('passwordReset/passwordResetResend', function () {
+    describe('passwordReset', function () {
       it('requests a password reset', function () {
-        return client.signUp(email, password)
-          .then(function () {
-            return client.passwordReset(email);
-          })
+        sinon.stub(realClient, 'passwordForgotSendCode', function () {
+          return p({
+            passwordForgotToken: 'token'
+          });
+        });
+
+        return client.passwordReset(email, relier)
           .then(function () {
             var params = {
               service: SERVICE,
@@ -395,7 +426,25 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
                     trim(email),
                     params
                 ));
-            return client.passwordResetResend();
+          });
+      });
+    });
+
+    describe('passwordResetResend', function () {
+      it('resends the validation email', function () {
+        sinon.stub(realClient, 'passwordForgotSendCode', function () {
+          return p({
+            passwordForgotToken: 'token'
+          });
+        });
+
+        sinon.stub(realClient, 'passwordForgotResendCode', function () {
+          return p({});
+        });
+
+        return client.passwordReset(email, relier)
+          .then(function () {
+            return client.passwordResetResend(relier);
           })
           .then(function () {
             var params = {
@@ -412,19 +461,21 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           });
       });
 
-      it('passwordResetResend still shows success after max tries', function () {
-        var triesLeft = Constants.PASSWORD_RESET_RESEND_MAX_TRIES;
+      it('still shows success after max tries', function () {
+        sinon.stub(realClient, 'passwordForgotResendCode', function () {
+          return p({});
+        });
 
-        return client.signUp(email, password)
+        var triesLeft = Constants.PASSWORD_RESET_RESEND_MAX_TRIES;
+        var promises = [];
+        // exhaust all tries
+        for (var i = 0; i < triesLeft; i++) {
+          promises.push(client.passwordResetResend(relier));
+        }
+
+        return p.all(promises)
           .then(function () {
-            return client.passwordReset(email);
-          })
-          .then(function () {
-            // exhaust all tries
-            for (var i = 0; i < triesLeft; i++) {
-              client.passwordResetResend();
-            }
-            return client.passwordResetResend();
+            return client.passwordResetResend(relier);
           })
           .then(function (result) {
             assert.ok(result);
@@ -438,14 +489,12 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
         var token = 'token';
         var code = 'code';
 
-        realClient.passwordForgotVerifyCode.restore();
         sinon.stub(realClient, 'passwordForgotVerifyCode', function () {
           return p({
             accountResetToken: 'reset_token'
           });
         });
 
-        realClient.accountReset.restore();
         sinon.stub(realClient, 'accountReset', function () {
           return p(true);
         });
@@ -454,29 +503,43 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           return p(true);
         });
 
-        return client.completePasswordReset(email, password, token, code, {
+        return client.completePasswordReset(email, password, token, code, relier, {
           shouldSignIn: true
         }).then(function () {
-          assert.isTrue(realClient.passwordForgotVerifyCode.called);
-          assert.isTrue(realClient.accountReset.called);
-          assert.isTrue(client.signIn.called);
+          assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
+              code, token));
+          assert.isTrue(realClient.accountReset.calledWith(
+              email, password));
+          assert.isTrue(client.signIn.calledWith(
+              email, password));
         });
       });
     });
 
     describe('signOut', function () {
       it('signs the user out', function () {
-        return client.signUp(email, password)
+        sinon.stub(realClient, 'sessionDestroy', function () {
+          return p();
+        });
+
+        return client.signOut()
           .then(function () {
-            return client.signOut();
+            assert.isTrue(realClient.sessionDestroy.called);
           });
       });
 
       it('resolves to success on XHR failure', function () {
-        return client.signUp(email, password)
-          .then(function () {
-            return client.signOut();
-          })
+        var count = 0;
+        sinon.stub(realClient, 'sessionDestroy', function () {
+          count++;
+          if (count === 1) {
+            return p();
+          } else if (count === 2) {
+            return p.reject(new Error('no session'));
+          }
+        });
+
+        return client.signOut()
           .then(function () {
             // user has no session, this will cause an XHR error.
             return client.signOut();
@@ -487,34 +550,47 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     describe('checkPassword', function () {
       it('returns error if password is incorrect', function () {
         email = trim(email);
-        return realClient.signUp(email, password, { preverified: true })
-          .then(function () {
-            return client.checkPassword(email, 'badpassword');
-          })
-          .then(function () {
-            assert.fail('unexpected success');
-          }, function (err) {
+
+        sinon.stub(realClient, 'signIn', function () {
+          return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
+        });
+
+        return client.checkPassword(email, 'badpassword')
+          .then(assert.fail, function (err) {
             assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
           });
       });
 
       it('succeeds if password is correct', function () {
         email = trim(email);
-        return realClient.signUp(email, password, { preverified: true })
+
+        sinon.stub(realClient, 'signIn', function () {
+          return p({});
+        });
+
+        return client.checkPassword(email, password)
           .then(function () {
-            return client.checkPassword(email, password);
+            assert.isTrue(realClient.signIn.called);
           });
       });
     });
 
     describe('changePassword', function () {
       it('changes the user\'s password', function () {
-        return client.signUp(email, password, {preVerified: true})
+        sinon.stub(realClient, 'passwordChange', function () {
+          return p();
+        });
+
+        sinon.stub(realClient, 'signIn', function () {
+          return p({});
+        });
+
+        return client.changePassword(email, password, 'new_password', relier)
           .then(function () {
-            return client.changePassword(email, password, 'new_password');
-          })
-          .then(function () {
-            assert.isTrue(realClient.passwordChange.calledWith(trim(email)));
+            assert.isTrue(realClient.passwordChange.calledWith(
+                    trim(email), password, 'new_password'));
+            assert.isTrue(realClient.signIn.calledWith(
+                    trim(email), 'new_password'));
             // user is automatically re-authenticated with their new password
             assert.equal(channelMock.message, 'login');
           });
@@ -523,65 +599,66 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
 
     describe('isPasswordResetComplete', function () {
       it('password status incomplete', function () {
-        var token;
-        return client.signUp(email, password, {preVerified: true})
-          .then(function () {
-            return client.passwordReset(email);
-          })
-          .then(function () {
-            assert.ok(Session.passwordForgotToken);
-            token = Session.passwordForgotToken;
-            return client.isPasswordResetComplete(token);
-          })
+        sinon.stub(realClient, 'passwordForgotStatus', function () {
+          return p();
+        });
+
+        return client.isPasswordResetComplete('token')
           .then(function (complete) {
             // cache the token so it's not cleared after the password change
             assert.isFalse(complete);
+          });
+      });
 
-            // change password to force password reset to return true
-            return client.changePassword(email, password, 'new_password');
-          })
-          .then(function () {
-            return client.isPasswordResetComplete(token);
-          })
+      it('password status complete', function () {
+        sinon.stub(realClient, 'passwordForgotStatus', function () {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        });
+
+        return client.isPasswordResetComplete('token')
           .then(function (complete) {
             assert.isTrue(complete);
+          });
+      });
+
+      it('throws other errors', function () {
+        sinon.stub(realClient, 'passwordForgotStatus', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+
+        return client.isPasswordResetComplete('token')
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
           });
       });
     });
 
     describe('deleteAccount', function () {
       it('deletes the user\'s account', function () {
-        return client.signUp(email, password)
-          .then(function () {
-            return client.deleteAccount(email, password);
-          })
+        sinon.stub(realClient, 'accountDestroy', function () {
+          return p();
+        });
+
+        return client.deleteAccount(email, password)
           .then(null, function (err) {
             assert.isTrue(realClient.accountDestroy.calledWith(trim(email)));
             // this test is necessary because errors in deleteAccount
             // should not be propagated to the final done's error
             // handler
             throw new Error('unexpected failure: ' + err.message);
-          })
-          .then(function () {
-            return client.signIn(email, password);
-          })
-          .then(function () {
-            throw new Error('should not be able to signin after account deletion');
-          }, function () {
-            // positive test to ensure sign in failure case has an assertion
-            assert.isTrue(true);
           });
       });
     });
 
     describe('sessionStatus', function () {
       it('checks sessionStatus', function () {
-        return client.signUp(email, password)
+        sinon.stub(realClient, 'sessionStatus', function () {
+          return p();
+        });
+
+        return client.sessionStatus('sessiontoken')
           .then(function () {
-            return client.sessionStatus(Session.sessionToken);
-          })
-          .then(function () {
-            assert.isTrue(realClient.sessionStatus.calledWith(Session.sessionToken));
+            assert.isTrue(realClient.sessionStatus.calledWith('sessiontoken'));
           });
       });
     });
@@ -596,12 +673,12 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
         };
         var duration = 86400000;
 
-        return client.signUp(email, password, { preVerified: true })
-          .then(function () {
-            return client.certificateSign(publicKey, duration);
-          })
+        sinon.stub(realClient, 'certificateSign', function () {
+          return p('cert_is_returned');
+        });
+
+        return client.certificateSign(publicKey, duration)
           .then(function (cert) {
-            console.log(cert);
             assert.ok(cert);
           });
       });
@@ -616,6 +693,10 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       });
 
       it('resolves to false if invalid sessionToken passed in', function () {
+        sinon.stub(realClient, 'sessionStatus', function () {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        });
+
         return client.isSignedIn('not a real token')
             .then(function (isSignedIn) {
               assert.isFalse(isSignedIn);
@@ -623,21 +704,38 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
       });
 
       it('resolves to true with a valid sessionToken', function () {
-        return client.signUp(email, password)
-          .then(function () {
-            return client.isSignedIn(Session.sessionToken);
-          })
+        sinon.stub(realClient, 'sessionStatus', function () {
+          return p({});
+        });
+
+        return client.isSignedIn('token')
           .then(function (isSignedIn) {
             assert.isTrue(isSignedIn);
+          });
+      });
+
+      it('throws any other errors', function () {
+        sinon.stub(realClient, 'sessionStatus', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+
+        return client.isSignedIn('token')
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
           });
       });
     });
 
     describe('getRandomBytes', function () {
       it('snags some entropy from somewhere', function () {
+        sinon.stub(realClient, 'getRandomBytes', function () {
+          return p('some random bytes');
+        });
+
         return client.getRandomBytes()
             .then(function (bytes) {
               assert.ok(bytes);
+              assert.isTrue(realClient.getRandomBytes.called);
             });
       });
     });

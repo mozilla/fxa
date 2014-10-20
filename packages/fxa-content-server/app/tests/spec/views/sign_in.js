@@ -8,6 +8,7 @@
 define([
   'chai',
   'jquery',
+  'sinon',
   'lib/promise',
   'views/sign_in',
   'lib/session',
@@ -19,7 +20,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
+function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       Relier, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -42,9 +43,7 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
@@ -147,38 +146,49 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('submit', function () {
       it('redirects unverified users to the confirm page on success', function () {
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p({ verified: false });
+        });
+
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p();
+        });
+
         var password = 'password';
-        return view.fxaClient.signUp(email, password)
-              .then(function () {
-                $('[type=email]').val(email);
-                $('[type=password]').val(password);
-                return view.submit();
-              })
-              .then(function () {
-                assert.equal(routerMock.page, 'confirm');
-              });
+        $('[type=email]').val(email);
+        $('[type=password]').val(password);
+
+        return view.submit()
+          .then(function () {
+            assert.equal(routerMock.page, 'confirm');
+            assert.isTrue(view.fxaClient.signIn.calledWith(
+                email, password, relier));
+            assert.isTrue(view.fxaClient.signUpResend.calledWith(
+                relier));
+          });
       });
 
       it('redirects verified users to the settings page on success', function () {
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p({
+            verified: true
+          });
+        });
+
         var password = 'password';
-        return view.fxaClient.signUp(email, password, { preVerified: true })
-              .then(function () {
-                $('[type=email]').val(email);
-                $('[type=password]').val(password);
-                return view.submit();
-              })
-              .then(function () {
-                assert.equal(routerMock.page, 'settings');
-              });
+        $('[type=email]').val(email);
+        $('[type=password]').val(password);
+        return view.submit()
+          .then(function () {
+            assert.equal(routerMock.page, 'settings');
+          });
       });
 
       it('logs an error if user cancels login', function () {
-        view.fxaClient.signIn = function () {
-          return p()
-              .then(function () {
-                throw AuthErrors.toError('USER_CANCELED_LOGIN');
-              });
-        };
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
+        });
+
         $('[type=email]').val(email);
         $('[type=password]').val('password');
         return view.submit()
@@ -191,17 +201,16 @@ function (chai, $, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('rejects promise with incorrect password message on incorrect password', function () {
-        return view.fxaClient.signUp(email, 'password')
-              .then(function () {
-                $('[type=email]').val(email);
-                $('[type=password]').val('incorrect');
-                return view.submit();
-              })
-              .then(function () {
-                assert(false, 'unexpected success');
-              }, function (err) {
-                assert.ok(err.message.indexOf('Incorrect') > -1);
-              });
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
+        });
+
+        $('[type=email]').val(email);
+        $('[type=password]').val('incorrect');
+        return view.submit()
+          .then(assert.fail, function (err) {
+            assert.ok(err.message.indexOf('Incorrect') > -1);
+          });
       });
 
       it('shows message allowing the user to sign up if user enters unknown account', function () {

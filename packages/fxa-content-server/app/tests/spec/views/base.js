@@ -54,9 +54,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
       ephemeralMessages = new EphemeralMessages();
       metrics = new Metrics();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       var View = BaseView.extend({
         template: Template

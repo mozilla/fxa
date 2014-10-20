@@ -241,7 +241,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       var self = this;
 
       self.logEvent('confirm_reset_password.resend');
-      return this.fxaClient.passwordResetResend()
+      return self.fxaClient.passwordResetResend(self.relier)
               .then(function () {
                 self.displaySuccess();
               }, function (err) {

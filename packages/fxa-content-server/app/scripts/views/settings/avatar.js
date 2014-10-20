@@ -45,7 +45,7 @@ function (_, FormView, Template, AuthErrors, Session) {
           }
         }, function (err) {
           if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-            return self.fxaClient.signUpResend()
+            return self.fxaClient.signUpResend(self.relier)
               .then(function () {
                 self.navigate('confirm');
                 return false;

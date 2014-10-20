@@ -54,7 +54,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
             }
 
             return self.fxaClient.changePassword(
-                          email, oldPassword, newPassword);
+                     email, oldPassword, newPassword, self.relier);
           })
           .then(function () {
             self.navigate('settings', {
@@ -73,7 +73,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
     resendVerificationEmail: BaseView.preventDefaultThen(function () {
       var self = this;
 
-      return this.fxaClient.signUpResend()
+      return self.fxaClient.signUpResend(self.relier)
               .then(function () {
                 self.navigate('confirm');
               }, function (err) {

@@ -90,7 +90,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
 
       return p().then(function () {
         if (credentials.password) {
-          return self.fxaClient.signIn(email, credentials.password);
+          return self.fxaClient.signIn(email, credentials.password, self.relier);
         } else if (credentials.sessionToken) {
           return self.fxaClient.recoveryEmailStatus(credentials.sessionToken);
         } else {
@@ -133,7 +133,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
     onSignInUnverified: function () {
       var self = this;
 
-      return self.fxaClient.signUpResend()
+      return self.fxaClient.signUpResend(self.relier)
         .then(function () {
           self.navigate('confirm');
         });

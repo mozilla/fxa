@@ -8,15 +8,17 @@
 define([
   'chai',
   'jquery',
+  'sinon',
   'views/force_auth',
   'lib/session',
   'lib/fxa-client',
+  'lib/promise',
   'models/reliers/relier',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, View, Session, FxaClient, Relier, WindowMock,
+function (chai, $, sinon, View, Session, FxaClient, p, Relier, WindowMock,
       RouterMock, TestHelpers) {
   var assert = chai.assert;
 
@@ -32,9 +34,7 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
         windowMock.location.search = '';
 
         relier = new Relier();
-        fxaClient = new FxaClient({
-          relier: relier
-        });
+        fxaClient = new FxaClient();
 
         Session.clear();
         view = new View({
@@ -129,9 +129,7 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
         windowMock = new WindowMock();
         windowMock.location.search = '?email=' + encodeURIComponent(email);
         relier = new Relier();
-        fxaClient = new FxaClient({
-          relier: relier
-        });
+        fxaClient = new FxaClient();
         router = new RouterMock();
 
         view = new View({
@@ -183,23 +181,22 @@ function (chai, $, View, Session, FxaClient, Relier, WindowMock,
       });
 
       it('forgot password request redirects directly to confirm_reset_password', function () {
-        var password = 'password';
         var event = $.Event('click');
-        return view.fxaClient.signUp(email, password)
-              .then(function () {
-                // the call to client.signUp clears Session.
-                // These fields are reset to complete the test.
-                Session.set('forceAuth', true);
-                Session.set('forceEmail', email);
 
-                return view.resetPasswordNow(event);
-              })
-              .then(function () {
-                assert.equal(router.page, 'confirm_reset_password');
+        sinon.stub(view.fxaClient, 'passwordReset', function () {
+          return p();
+        });
 
-                assert.isTrue(event.isDefaultPrevented());
-                assert.isTrue(event.isPropagationStopped());
-              });
+        return view.resetPasswordNow(event)
+          .then(function () {
+            assert.equal(router.page, 'confirm_reset_password');
+
+            assert.isTrue(event.isDefaultPrevented());
+            assert.isTrue(event.isPropagationStopped());
+
+            assert.isTrue(view.fxaClient.passwordReset.calledWith(
+                email, relier));
+          });
       });
 
       it('only one forget password request at a time', function () {

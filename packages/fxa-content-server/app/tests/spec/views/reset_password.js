@@ -7,6 +7,7 @@
 
 define([
   'chai',
+  'sinon',
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
@@ -18,7 +19,7 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
+function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
       WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -34,9 +35,7 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
       router = new RouterMock();
       metrics = new Metrics();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         router: router,
@@ -106,21 +105,28 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
 
     describe('submit with valid input', function () {
       it('submits the email address', function () {
-        var email = TestHelpers.createEmail();
-        return view.fxaClient.signUp(email, 'password')
-              .then(function () {
-                view.$('input[type=email]').val(email);
+        sinon.stub(view.fxaClient, 'passwordReset', function () {
+          return p();
+        });
 
-                return view.submit();
-              })
-              .then(function () {
-                assert.equal(router.page, 'confirm_reset_password');
-              });
+        var email = TestHelpers.createEmail();
+        view.$('input[type=email]').val(email);
+
+        return view.submit()
+          .then(function () {
+            assert.equal(router.page, 'confirm_reset_password');
+            assert.isTrue(view.fxaClient.passwordReset.calledWith(
+                email, relier));
+          });
       });
     });
 
     describe('submit with unknown email address', function () {
       it('shows an error message', function () {
+        sinon.stub(view.fxaClient, 'passwordReset', function () {
+          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+        });
+
         var email = TestHelpers.createEmail();
         view.$('input[type=email]').val(email);
 
@@ -133,34 +139,28 @@ function (chai, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
 
     describe('submit when user cancelled login', function () {
       it('logs an error', function () {
-        view.fxaClient.passwordReset = function () {
-          return p()
-              .then(function () {
-                throw AuthErrors.toError('USER_CANCELED_LOGIN');
-              });
-        };
+        sinon.stub(view.fxaClient, 'passwordReset', function () {
+          return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
+        });
 
         return view.submit()
-                  .then(null, function () {
-                    assert.isTrue(false, 'unexpected failure');
-                  })
-                  .then(function () {
-                    assert.isFalse(view.isErrorVisible());
+          .then(null, function () {
+            assert.isTrue(false, 'unexpected failure');
+          })
+          .then(function () {
+            assert.isFalse(view.isErrorVisible());
 
-                    assert.isTrue(TestHelpers.isEventLogged(metrics,
-                                      'login.canceled'));
-                  });
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                              'login.canceled'));
+          });
       });
     });
 
     describe('submit with other error', function () {
       it('passes other errors along', function () {
-        view.fxaClient.passwordReset = function () {
-          return p()
-              .then(function () {
-                throw AuthErrors.toError('INVALID_JSON');
-              });
-        };
+        sinon.stub(view.fxaClient, 'passwordReset', function () {
+          return p.reject(AuthErrors.toError('INVALID_JSON'));
+        });
 
         return view.submit()
                   .then(null, function (err) {

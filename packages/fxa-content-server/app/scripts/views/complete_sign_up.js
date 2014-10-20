@@ -98,7 +98,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
       var self = this;
 
       self.logEvent('complete_sign_up.resend');
-      return this.fxaClient.signUpResend()
+      return self.fxaClient.signUpResend(self.relier)
               .then(function () {
                 self.displaySuccess();
               }, function (err) {

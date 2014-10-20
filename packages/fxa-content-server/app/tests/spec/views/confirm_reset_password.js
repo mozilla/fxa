@@ -271,9 +271,12 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
         });
 
         return view.submit()
-            .then(function () {
-              assert.isTrue(view.$('.success').is(':visible'));
-            });
+          .then(function () {
+            assert.isTrue(view.$('.success').is(':visible'));
+
+            assert.isTrue(fxaClient.passwordResetResend.calledWith(
+                relier));
+          });
       });
 
       it('redirects to `/reset_password` if the resend token is invalid', function () {

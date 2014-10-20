@@ -16,7 +16,8 @@ define([
   'lib/auth-errors',
   'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, Validate, AuthErrors, ServiceMixin) {
+function (_, BaseView, FormView, Template, Session, PasswordMixin,
+      FloatingPlaceholderMixin, Validate, AuthErrors, ServiceMixin) {
   var View = FormView.extend({
     template: Template,
     className: 'complete_reset_password',
@@ -107,7 +108,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
       // completes in the original tab, it will fetch the sessionToken
       // from localStorage and go to town.
       return self.fxaClient.completePasswordReset(
-              self.email, password, self.token, self.code, {
+              self.email, password, self.token, self.code, self.relier, {
                 shouldSignIn: self._shouldSignIn()
               })
           .then(function () {
@@ -139,7 +140,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
 
     resendResetEmail: function () {
       var self = this;
-      return this.fxaClient.passwordReset(this.email)
+      return self.fxaClient.passwordReset(self.email, self.relier)
               .then(function () {
                 self.navigate('confirm_reset_password');
               }, function (err) {

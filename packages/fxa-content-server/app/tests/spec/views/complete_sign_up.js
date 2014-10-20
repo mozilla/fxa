@@ -7,6 +7,7 @@
 
 define([
   'chai',
+  'sinon',
   'lib/promise',
   'views/complete_sign_up',
   'lib/auth-errors',
@@ -18,7 +19,8 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, Relier, RouterMock, WindowMock, TestHelpers) {
+function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
+      FxaClient, Relier, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
@@ -57,9 +59,7 @@ function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, Relier, Rout
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
-      fxaClient = new FxaClient({
-        relier: relier
-      });
+      fxaClient = new FxaClient();
 
       view = new View({
         router: routerMock,
@@ -70,15 +70,13 @@ function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, Relier, Rout
       });
 
       verificationError = null;
-      view.fxaClient.verifyCode = function () {
-        view.fxaClient.verifyCode.called = true;
-        return p().then(function () {
-          if (verificationError) {
-            throw verificationError;
-          }
-        });
-      };
-      view.fxaClient.verifyCode.called = false;
+      sinon.stub(view.fxaClient, 'verifyCode', function () {
+        if (verificationError) {
+          return p.reject(verificationError);
+        } else {
+          return p();
+        }
+      });
     });
 
     afterEach(function () {
@@ -162,7 +160,54 @@ function (chai, p, View, AuthErrors, Metrics, Constants, FxaClient, Relier, Rout
               assert.equal(routerMock.page, 'signup_complete');
             });
       });
+    });
 
+    describe('submit - attempt to resend the verification email', function () {
+      it('displays a success message on success', function () {
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p();
+        });
+
+        return view.submit()
+          .then(function () {
+            assert.isTrue(view.isSuccessVisible());
+
+            assert.isTrue(view.fxaClient.signUpResend.calledWith(relier));
+          });
+      });
+
+      it('logs the attempt at resending', function () {
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p();
+        });
+
+        return view.submit()
+          .then(function () {
+            testEventLogged('complete_sign_up.resend');
+          });
+      });
+
+      it('sends the user to the signup page if the resend token is invalid', function () {
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        });
+
+        return view.submit()
+          .then(function () {
+            assert.equal(routerMock.page, 'signup');
+          });
+      });
+
+      it('throws other errors for display', function () {
+        sinon.stub(view.fxaClient, 'signUpResend', function () {
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+        });
+
+        return view.submit()
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+          });
+      });
     });
   });
 });
