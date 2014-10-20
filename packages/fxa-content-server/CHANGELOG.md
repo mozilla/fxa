@@ -1,3 +1,27 @@
+<a name="0.24.0"></a>
+## 0.24.0 (2014-10-20)
+
+
+#### Bug Fixes
+
+* **client:**
+  * Change the "Next" button to say "Sign up" ([08a008c0](https://github.com/mozilla/fxa-content-server/commit/08a008c069ca226f28ce7ca4136d7ea89496f6a6))
+  * Add a "forgot password?" link when using cached credentials. ([99754f76](https://github.com/mozilla/fxa-content-server/commit/99754f76adb340cff02c831196ec9e4e53e39f62))
+* **oauth:** use the correct client_id for local oauth server ([8e1c288c](https://github.com/mozilla/fxa-content-server/commit/8e1c288c46f7dd1434cd50e637358a0b4543a725))
+* **signin:** choosing to use a different account clears cached credentials ([4919e1d1](https://github.com/mozilla/fxa-content-server/commit/4919e1d18bf9a7346e315615436f6911f44bf82e), closes [#1721](https://github.com/mozilla/fxa-content-server/issues/1721))
+* **styles:** Ensure the year of birth select box uses Clear Sans. ([4f796b29](https://github.com/mozilla/fxa-content-server/commit/4f796b29070f38bb103fb0de163b298390e95360))
+* **test:** Fix `test-latest` functional tests. ([37696cb0](https://github.com/mozilla/fxa-content-server/commit/37696cb0c337e112151bd473ba7df428114d0a04))
+* **tests:** remove about:prefs tests from full testing ([cccdeb09](https://github.com/mozilla/fxa-content-server/commit/cccdeb09b1d89b926a60fa6134a3ad74d66c6c54))
+* **trusted-ui-style:** make layout shorter ([02c7d7fb](https://github.com/mozilla/fxa-content-server/commit/02c7d7fb559b054be522110c4e8430860d4b1fc1))
+
+
+#### Features
+
+* **client:** Create and send a resume token to the OAuth server. ([8dd01b07](https://github.com/mozilla/fxa-content-server/commit/8dd01b072ceda0d868056aab9b4de9771f88696a))
+* **metrics:** Add metrics for signup, preverified signup, signin, hide the resend button. ([76ecb248](https://github.com/mozilla/fxa-content-server/commit/76ecb24855cb9112d72e60c73369c1c42df2bf80))
+* **test:** Add more functional tests sign up/reset password flows. ([483ba166](https://github.com/mozilla/fxa-content-server/commit/483ba16602010006eda5d7725fc8fdd945d88fe7))
+
+
 <a name="0.23.0"></a>
 ## 0.23.0 (2014-10-07)
 
