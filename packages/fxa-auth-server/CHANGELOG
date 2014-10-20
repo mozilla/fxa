@@ -1,4 +1,5 @@
 train-24
+  * added uid to /session/status #830
   * updated dependencies
 
 train-23
