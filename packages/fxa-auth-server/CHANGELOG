@@ -1,3 +1,6 @@
+train-24
+  * updated dependencies
+
 train-23
   * improved operational affordances for scrypt max-pending limit #819
   * Fixed JWT related bugs for preVerifyToken #824 #825
