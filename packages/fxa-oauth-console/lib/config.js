@@ -16,7 +16,7 @@ const conf = convict({
     arg: 'node-env',
     doc: 'The current node.js environment',
     env: 'NODE_ENV',
-    format: ['dev', 'test', 'stage', 'prod'],
+    format: ['dev', 'test', 'staging', 'prod'],
     default: 'dev'
   },
   git: {

@@ -55,7 +55,7 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
-
+    ENV.servers.oauth = 'https://oauth-vlad.dev.lcip.org';
   }
 
   return ENV;

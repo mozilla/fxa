@@ -6,10 +6,8 @@ export default DS.RESTAdapter.extend({
   namespace: 'v1',
   host: config.servers.oauth,
   headers: Ember.computed(function () {
-    var token = this.get('session.content.token');
-
     return {
-      'Authorization': 'Bearer ' + token
+      'Authorization': 'Bearer ' + this.get('session.content.token')
     };
   }),
   find: function(store, type, id, record) {
