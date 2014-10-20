@@ -1,15 +1,8 @@
 {
   "logging": {
-    "handlers": {
-      "console": {
-        "formatter": "pretty"
-      }
-    },
-    "loggers": {
-      "fxa": {
-        "level": "warn"
-      }
-    }
+    "fmt": "heka",
+    "debug": true,
+    "level": "warn"
   },
   "img": {
     "driver": "local",

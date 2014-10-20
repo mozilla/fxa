@@ -1,15 +1,7 @@
 {
   "logging": {
-    "handlers": {
-      "console": {
-        "formatter": "pretty_with_time"
-      }
-    },
-    "loggers": {
-      "fxa": {
-        "level": "verbose"
-      }
-    }
+    "fmt": "pretty",
+    "level": "verbose"
   },
   "oauth": {
     "url": "https://oauth.dev.lcip.org/v1"

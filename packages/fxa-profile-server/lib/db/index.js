@@ -5,18 +5,18 @@
 const P = require('../promise');
 
 const config = require('../config');
-const logger = require('../logging').getLogger('fxa.db');
+const logger = require('../logging')('db');
 
 const klass = config.get('db.driver') === 'mysql' ?
   require('./mysql') : require('./memory');
 
 function loadProviders() {
   var providers = Object.keys(config.get('img.providers'));
-  logger.debug('Loading pre-defined providers:', providers);
+  logger.debug('providers.from-config', { providers: providers });
   return P.all(providers.map(function(name) {
     return exports.getProvider(name).then(function(provider) {
       if (provider) {
-        logger.debug('Provider %s exists, skipping', name);
+        logger.debug('providers.exists',  { name: name });
       } else {
         return exports.addProvider(name);
       }
@@ -36,7 +36,7 @@ function withDriver() {
     p = klass.connect();
   }
   return p.then(function(store) {
-    logger.debug('connected to [%s] store', config.get('db.driver'));
+    logger.debug('connected', config.get('db.driver'));
     driver = store;
   }).then(loadProviders).then(function() {
     return driver;
@@ -47,10 +47,10 @@ function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function proxiedWithDriverThen(driver) {
-      logger.verbose('proxied', method, [].slice.call(args));
+      logger.verbose('proxied', { method: method, args: [].slice.call(args) });
       return driver[method].apply(driver, args);
     }).catch(function(err) {
-      logger.error('%s: %s', method, err);
+      logger.error('proxied.error.' + method, err);
       throw err;
     });
   };

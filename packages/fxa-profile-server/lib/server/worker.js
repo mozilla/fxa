@@ -8,7 +8,7 @@ const Joi = require('joi');
 const AppError = require('../error');
 const compute = require('../compute');
 const config = require('../config').root();
-const logger = require('../logging').getLogger('fxa.server.worker');
+const logger = require('../logging')('server.worker');
 
 exports.create = function() {
   var server = Hapi.createServer(
@@ -56,18 +56,6 @@ exports.create = function() {
       response = AppError.translate(response);
     }
     next(response);
-  });
-
-  // response logging
-  server.on('response', function onResponse(req) {
-    logger.info(
-      '%s %s - %d (%dms) <%s>',
-      req.method.toUpperCase(),
-      req.path,
-      req.response.statusCode,
-      Date.now() - req.info.received,
-      req.id
-    );
   });
 
   return server;

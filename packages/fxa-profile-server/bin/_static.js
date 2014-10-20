@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const config = require('../lib/config').root();
-const logger = require('../lib/logging').getLogger('fxa.bin.static');
+const logger = require('../lib/logging')('bin._static');
 const server = require('../lib/server/_static').create();
 
 if (config.env !== 'dev') {
@@ -12,5 +12,5 @@ if (config.env !== 'dev') {
 
 
 server.start(function() {
-  logger.info('Static started at:', server.info.uri);
+  logger.info('listening', server.info.uri);
 });

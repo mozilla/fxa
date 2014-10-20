@@ -6,17 +6,16 @@ const gm = require('gm');
 
 const config = require('../config');
 const img = require('../img');
-const logger = require('../logging').getLogger('fxa.compute.image-cc');
+const logger = require('../logging')('compute.image-cc');
 const P = require('../promise');
 
 const HEIGHT = String(config.get('img.resize.height'));
 const WIDTH = String(config.get('img.resize.width'));
 const CONTENT_TYPE_PNG = 'image/png';
 
-logger.info('Worker starting up %:2j', config.get('img'));
+logger.info('worker.config', { config: config.get('img') });
 
 function processImage(src) {
-  logger.debug('Src %d bytes', src.length);
   return new P(function(resolve, reject) {
     // gm uses GraphicsMagick
     // for resizing images, we want to DOWN-size any image that has it's
@@ -44,11 +43,11 @@ function compute(msg, callback) {
   var src = Buffer(msg.payload);
   var start = Date.now();
   var s3Start = start;
-  logger.debug('In %d bytes', src.length);
+  logger.debug('process.start', { bytes: src.length });
   processImage(src).then(function(out) {
     s3Start = Date.now();
     logger.info('time.ms.gm', s3Start - start);
-    logger.debug('Out %d bytes', out.length);
+    logger.debug('process.end', { bytes: out.length });
     return img.upload(id, out, CONTENT_TYPE_PNG);
   }).done(function() {
     logger.info('time.ms.s3', Date.now() - s3Start);

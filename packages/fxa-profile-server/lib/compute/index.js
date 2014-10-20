@@ -9,7 +9,7 @@ const toArray = require('stream-to-array');
 
 const AppError = require('../error');
 const config = require('../config');
-const logger = require('../logging').getLogger('fxa.compute');
+const logger = require('../logging')('compute');
 const P  = require('../promise');
 
 const MAX_PROCESSES = config.get('img.compute.maxProcesses');
@@ -25,7 +25,7 @@ if (MAX_PROCESSES > 0) {
   });
 
   imageCc.on('error', function(e) {
-    logger.critical('Fatal IPC error with image-cc.js', e);
+    logger.critical('image-cc.error', e);
     process.exit(1);
   }).on('info', function(msg) {
     logger.info('image-cc', msg);
@@ -33,7 +33,7 @@ if (MAX_PROCESSES > 0) {
     logger.debug('image-cc', msg);
   });
 } else {
-  logger.info('compute-cluster disabled');
+  logger.info('compute-cluster.disabled');
   imageCc = {
     enqueue: function sameProcessEnqueue(msg, callback) {
       require('./image-cc').compute(msg, function(res) {
@@ -55,7 +55,7 @@ exports.image = function image(id, payload) {
         payload: buf
       }, function(err, res) {
         if (err) {
-          logger.error(err);
+          logger.error('process.error', err);
           reject(AppError.processingError(err));
         } else {
           resolve(res);

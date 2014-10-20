@@ -12,7 +12,7 @@ const config = require('../../config');
 const db = require('../../db');
 const hex = require('buf').to.hex;
 const img = require('../../img');
-const logger = require('../../logging').getLogger('fxa.routes.avatar.upload');
+const logger = require('../../logging')('routes.avatar.upload');
 const request = require('../../request');
 const validate = require('../../validate');
 
@@ -31,25 +31,25 @@ function pipeToWorker(id, payload, headers) {
   return new P(function(resolve, reject) {
     var url = WORKER_URL + '/a/' + id;
     var opts = { headers: headers, json: true };
-    logger.verbose('posting to worker', url);
+    logger.verbose('pipeToWorker', url);
     payload.pipe(request.post(url, opts, function(err, res, body) {
       if (err) {
-        logger.error('Network Error to worker', err);
+        logger.error('network', err);
         reject(AppError.processingError(err));
         return;
       }
 
       if (body.error) {
-        logger.error('Worker Error', body);
+        logger.error('worker', body);
         reject(AppError.processingError(body));
         return;
       }
 
-      logger.verbose('worker response', body);
+      logger.verbose('worker', body);
       resolve(body);
     }));
     payload.on('error', function(err) {
-      logger.error('Payload stream error', err);
+      logger.error('payload', err);
       reject(err);
     });
   });
@@ -83,7 +83,6 @@ module.exports = {
     var id = img.id();
     var url = fxaUrl(id);
     var uid = req.auth.credentials.user;
-    logger.debug('Upload %d bytes', req.headers['content-length']);
     pipeToWorker(id, req.payload, req.headers)
       .then(function save() {
         return db.addAvatar(id, uid, url, FXA_PROVIDER, true);

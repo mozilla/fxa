@@ -5,7 +5,7 @@
 const Hapi = require('hapi');
 
 const config = require('../config').root();
-const logger = require('../logging').getLogger('fxa.server.static');
+const logger = require('../logging')('server.static');
 
 exports.create = function() {
   var server = Hapi.createServer(
@@ -32,18 +32,6 @@ exports.create = function() {
 
   server.on('request', function onRequest(req, evt) {
     logger.verbose('hapi.request', evt);
-  });
-
-  // response logging
-  server.on('response', function onResponse(req) {
-    logger.info(
-      '%s %s - %d (%dms) <%s>',
-      req.method.toUpperCase(),
-      req.path,
-      req.response.statusCode,
-      Date.now() - req.info.received,
-      req.id
-    );
   });
 
   return server;

@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const config = require('../lib/config').root();
-const logger = require('../lib/logging').getLogger('fxa.bin.server');
+const logger = require('../lib/logging')('bin.server');
 const server = require('../lib/server').create();
 
-logger.debug('Starting with config: %:2j', config);
+logger.debug('config', config);
 server.start(function() {
-  logger.info('Server started at:', server.info.uri);
+  logger.info('listening', server.info.uri);
 });

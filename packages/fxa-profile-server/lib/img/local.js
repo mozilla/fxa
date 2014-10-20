@@ -8,7 +8,7 @@ const path = require('path');
 const P = require('../promise');
 
 const config = require('../config');
-const logger = require('../logging').getLogger('fxa.img.local');
+const logger = require('../logging')('img.local');
 
 const PUBLIC_DIR = config.get('img.uploads.dest.public');
 
@@ -32,14 +32,13 @@ LocalDriver.prototype = {
   upload: function localUpload(name, buf) {
     return new P(function uploadPromise(resolve, reject) {
       var dir = PUBLIC_DIR;
-      logger.debug('upload', name);
-      logger.verbose(path.join(dir, name));
+      logger.debug('upload.start', name);
       fs.writeFile(path.join(dir, name), buf, function(err) {
         if (err) {
-          logger.error('Upload', name, err);
+          logger.error('upload', err);
           reject(err);
         } else {
-          logger.debug('upload finish', name);
+          logger.debug('upload.end', name);
           resolve(name);
         }
       });

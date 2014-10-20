@@ -7,14 +7,14 @@ const buf = require('buf').hex;
 
 const AppError = require('../error');
 const config = require('../config');
-const logger = require('../logging').getLogger('fxa.db.mysql');
+const logger = require('../logging')('db.mysql');
 const P = require('../promise');
 
 const SCHEMA = require('fs').readFileSync(__dirname + '/schema.sql').toString();
 
 function MysqlStore(options) {
   if (options.charset && options.charset !== 'UTF8_UNICODE_CI') {
-    logger.warn('createDatabase: using charset ' + options.charset);
+    logger.warn('createDatabase', { charset:  options.charset });
   } else {
     options.charset = 'UTF8_UNICODE_CI';
   }
@@ -31,7 +31,7 @@ function createSchema(client, options) {
   client.query('CREATE DATABASE IF NOT EXISTS ' + database
     + ' CHARACTER SET utf8 COLLATE utf8_unicode_ci', function(err) {
       if (err) {
-        logger.error('create database', err);
+        logger.error('createDatabase', err);
         return d.reject(err);
       }
 
@@ -115,7 +115,7 @@ MysqlStore.prototype = {
       return new P(function(resolve, reject) {
         conn.ping(function(err) {
           if (err) {
-            logger.error('ping:', err);
+            logger.error('ping', err);
             reject(err);
           } else {
             resolve();
@@ -131,7 +131,6 @@ MysqlStore.prototype = {
     var store = this;
     return this.getProvider(provider).then(function(prov) {
       if (!prov) {
-        logger.error('provider not found', provider);
         throw AppError.unsupportedProvider(url);
       }
       var p = store._write(Q_AVATAR_INSERT, [id, url, uid, prov.id]);

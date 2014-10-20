@@ -6,7 +6,7 @@ const crypto = require('crypto');
 
 const P = require('../promise');
 const config = require('../config');
-const logger = require('../logging').getLogger('fxa.img');
+const logger = require('../logging')('img');
 
 const klass = config.get('img.driver') === 'aws' ?
   require('./aws') : require('./local');
@@ -28,7 +28,7 @@ function withDriver() {
   }
   return p.then(function(store) {
     store.id = unique;
-    logger.debug('connected to [%s] store', config.get('img.driver'));
+    logger.debug('connected', config.get('img.driver'));
     return driver = store;
   });
 }
@@ -37,10 +37,10 @@ function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function withDriverProxiedThen(driver) {
-      logger.verbose('proxied', method, args.length);
+      logger.verbose('proxied', { method: method, args: args.length });
       return driver[method].apply(driver, args);
     }).catch(function(err) {
-      logger.error('%s(): %s', method, err);
+      logger.error('proxied.error.' + method, err);
       throw err;
     });
   };

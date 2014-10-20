@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const logger = require('./').getLogger('fxa.summary');
+const logger = require('./')('server');
 
 module.exports = function summary(request, response) {
   if (request.method === 'options') {
@@ -11,6 +11,7 @@ module.exports = function summary(request, response) {
 
   var line = {
     code: response.isBoom ? response.output.statusCode : response.statusCode,
+    method: request.method,
     errno: response.errno || 0,
     path: request.path,
     agent: request.headers['user-agent'],
@@ -19,9 +20,9 @@ module.exports = function summary(request, response) {
 
   if (line.code >= 500) {
     line.stack = response.stack;
-    logger.error(line);
+    logger.error('summary', line);
   } else {
-    logger.info(line);
+    logger.info('summary', line);
   }
 };
 

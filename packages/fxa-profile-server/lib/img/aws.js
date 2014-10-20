@@ -6,7 +6,7 @@ const aws = require('aws-sdk');
 const P = require('../promise');
 
 const config = require('../config');
-const logger = require('../logging').getLogger('fxa.img.aws');
+const logger = require('../logging')('img.aws');
 
 const PUBLIC_BUCKET = config.get('img.uploads.dest.public');
 const CONTENT_TYPE_PNG = 'image/png';
@@ -30,7 +30,7 @@ AwsDriver.prototype = {
     var s3 = this._s3;
     var bucket = PUBLIC_BUCKET;
     return new P(function(resolve, reject) {
-      logger.debug('Uploading', bucket, key);
+      logger.debug('upload.start', { bucket: bucket, key: key });
       s3.putObject({
         Body: buf,
         Bucket: bucket,
@@ -40,7 +40,7 @@ AwsDriver.prototype = {
         if (err) {
           reject(err);
         } else {
-          logger.debug('Uploaded', key, data);
+          logger.debug('upload.end', { key: key, data: data });
           resolve(key);
         }
       });

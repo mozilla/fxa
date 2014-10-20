@@ -528,6 +528,17 @@
         }
       }
     },
+    "mozlog": {
+      "version": "0.2.0",
+      "from": "mozlog@0.2.0",
+      "dependencies": {
+        "merge": {
+          "version": "1.2.0",
+          "from": "merge@1.2.0",
+          "resolved": "https://registry.npmjs.org/merge/-/merge-1.2.0.tgz"
+        }
+      }
+    },
     "mysql": {
       "version": "2.5.1",
       "from": "mysql@2.5.1",

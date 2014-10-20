@@ -6,8 +6,7 @@ const Hapi = require('hapi');
 
 const AppError = require('../error');
 const config = require('../config').root();
-const logger = require('../logging').getLogger('fxa.server.web');
-const hapiLogger = require('../logging').getLogger('fxa.server.web.hapi');
+const logger = require('../logging')('server.web');
 const request = require('../request');
 const summary = require('../logging/summary');
 
@@ -47,7 +46,7 @@ exports.create = function createServer() {
       authenticate: function(req, reply) {
         var auth = req.headers.authorization;
         var url = config.oauth.url + '/verify';
-        logger.debug('checking auth', auth);
+        logger.debug('auth', auth);
         if (!auth || auth.indexOf('Bearer') !== 0) {
           return reply(AppError.unauthorized('Bearer token not provided'));
         }
@@ -59,14 +58,14 @@ exports.create = function createServer() {
           }
         }, function(err, resp, body) {
           if (err) {
-            logger.error('auth verify error', err, body);
+            logger.error('auth', err);
             return reply(AppError.oauthError(err));
           }
           if (body.code >= 400) {
             logger.debug('unauthorized', body);
             return reply(AppError.unauthorized(body.message));
           }
-          logger.debug('Token valid', body);
+          logger.debug('auth.valid', body);
           reply(null, {
             credentials: body
           });
@@ -79,7 +78,7 @@ exports.create = function createServer() {
 
   var routes = require('../routing');
   if (isProd) {
-    logger.info('Disabling response schema validation');
+    logger.info('prod', 'Disabling response schema validation');
     routes.forEach(function(route) {
       delete route.config.response;
     });
@@ -103,23 +102,6 @@ exports.create = function createServer() {
   });
   server.route(routes);
 
-  // hapi internal logging: server and request
-  server.on('log', function onServerLog(ev, tags) {
-    if (tags.error && tags.implementation) {
-      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
-    } else {
-      hapiLogger.verbose('Server', ev.tags, ev.data);
-    }
-  });
-
-  server.on('request', function onRequestLog(req, ev, tags) {
-    if (tags.error && tags.implementation) {
-      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
-    } else {
-      hapiLogger.verbose('Request <%s>', req.id, ev.tags, ev.data);
-    }
-  });
-
   server.ext('onPreResponse', function(request, next) {
     var response = request.response;
     if (response.isBoom) {
@@ -127,19 +109,6 @@ exports.create = function createServer() {
     }
     summary(request, response);
     next(response);
-  });
-
-  // response logging
-  server.on('response', function onResponse(req) {
-    logger.info(
-      '%s %s - %d (%dms) <%s>',
-      req.method.toUpperCase(),
-      req.path,
-      req.response.statusCode,
-      Date.now() - req.info.received,
-      req.id
-    );
-    logger.verbose('Response: %:2j <%s>', req.response.source, req.id);
   });
 
   return server;

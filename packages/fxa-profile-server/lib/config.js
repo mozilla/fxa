@@ -86,49 +86,16 @@ const conf = convict({
     }
   },
   logging: {
-    formatters: {
-      doc: 'http://seanmonstar.github.io/intel/#formatters',
-      default: {
-        pretty: {
-          format: '[p%(pid)s] %(name)s.%(levelname)s: %(message)s',
-          colorize: true
-        },
-        'pretty_with_time': {
-          format: '[%(date)s] %(name)s.%(levelname)s: %(message)s',
-          datefmt: '%Y-%m-%d %H:%M:%S.%L'
-        },
-        json: {
-          class: './logging/json'
-        }
-      }
+    app: {
+      default: 'fxa-profile-server'
     },
-    handlers: {
-      doc: 'http://seanmonstar.github.io/intel/#handlers',
-      default: {
-        console: {
-          class: 'intel/handlers/stream',
-          formatter: 'json',
-          stream: 'stderr'
-        }
-      }
+    fmt: {
+      format: ['heka', 'pretty'],
+      default: 'heka'
     },
-    loggers: {
-      doc: 'http://seanmonstar.github.io/intel/#logging',
-      default: {
-        fxa: {
-          handlers: ['console'],
-          handleExceptions: true,
-          level: 'INFO',
-          propagate: false
-        },
-        'fxa.server.web.hapi': {
-          level: 'ERROR'
-        }
-      }
-    },
-    root: {
-      doc: 'Path to find relative classes',
-      default: __dirname
+    level: {
+      env: 'LOG_LEVEL',
+      default: 'info'
     }
   },
   mysql: {
@@ -211,9 +178,6 @@ if (conf.get('env') === 'test') {
   process.env.AWS_SECRET_ACCESS_KEY = 'TESTME';
 }
 
-if (process.env.LOG_LEVEL) {
-  conf.set('logging.loggers.fxa.level', process.env.LOG_LEVEL);
-}
 process.env.NODE_ENV = conf.get('env');
 
 conf.validate();
