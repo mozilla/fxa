@@ -5,5 +5,8 @@
   ],
   "hooks": {
     "postcreate": "./scripts/post_create.sh"
-  }
+  },
+  "packages": [
+    "gmp-devel"
+  ]
 }
