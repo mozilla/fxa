@@ -30,6 +30,7 @@
     "grunt": "^0.4.3",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-jshint": "^0.10.0",
+    "grunt-conventional-changelog": "~1.1.0",
     "grunt-copyright": "^0.1.0",
     "grunt-jscs": "^0.7.1",
     "grunt-mocha-test": "^0.12.1",
