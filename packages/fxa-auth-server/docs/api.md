@@ -527,10 +527,12 @@ https://api-accounts.dev.lcip.org/v1/session/status \
 
 ### Response
 
-Successful requests will produce a "200 OK" response with an empty JSON body object:
+Successful requests will produce a "200 OK" response with the account uid in the JSON body object:
 
 ```json
-{}
+{
+  "uid": "80dc2f2e373b4b3bb992468e6d578cd2"
+}
 ```
 
 Failing requests may be due to the following errors:

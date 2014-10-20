@@ -54,9 +54,11 @@ TestServer.start(config)
     function (t) {
       var email = server.uniqueEmail()
       var password = 'testx'
+      var uid = null
       return Client.create(config.publicUrl, email, password)
         .then(
           function (c) {
+            uid = c.uid
             return c.login()
               .then(
                 function () {
@@ -67,7 +69,7 @@ TestServer.start(config)
         )
         .then(
           function (x) {
-            t.deepEqual(x, {}, 'good status')
+            t.deepEqual(x, { uid: uid }, 'good status')
           }
         )
     }
