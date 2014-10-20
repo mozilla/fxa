@@ -4,19 +4,16 @@
 
 const Joi = require('joi');
 
-const AppError = require('../error');
 const config = require('../config');
-const db = require('../db');
-const encrypt = require('../encrypt');
-
-const HEX_STRING = /^[0-9a-f]+$/;
+const token = require('../token');
+const validators = require('../validators');
 
 module.exports = {
   validate: {
     payload: {
       token: Joi.string()
         .length(config.get('unique.token') * 2)
-        .regex(HEX_STRING)
+        .regex(validators.HEX_STRING)
         .required()
     }
   },
@@ -28,23 +25,6 @@ module.exports = {
     }
   },
   handler: function verify(req, reply) {
-    db.getToken(encrypt.hash(req.payload.token))
-    .then(function(token) {
-      if (!token) {
-        throw AppError.invalidToken();
-      }
-      var blob = {
-        user: token.userId.toString('hex'),
-        scope: token.scope
-      };
-
-      // token.scope is a Set/Array
-      if (token.scope.indexOf('profile') !== -1 ||
-          token.scope.indexOf('profile:email') !== -1) {
-        blob.email = token.email;
-      }
-
-      return blob;
-    }).done(reply, reply);
+    token.verify(req.payload.token).done(reply, reply);
   }
 };

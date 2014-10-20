@@ -80,6 +80,8 @@ MemoryStore.prototype = {
     var hex = unbuf(client.id);
     logger.debug('registerClient', client.name, hex);
     client.createdAt = new Date();
+    client.canGrant = !!client.canGrant;
+    client.whitelisted = !!client.whitelisted;
     this.clients[hex] = client;
     client.secret = client.hashedSecret;
     return P.resolve(client);
@@ -98,7 +100,7 @@ MemoryStore.prototype = {
         // nothing
       } else if (key === 'hashedSecret') {
         old.secret = buf(client[key]);
-      } else {
+      } else if (client[key] !== undefined) {
         old[key] = client[key];
       }
     }
@@ -106,6 +108,19 @@ MemoryStore.prototype = {
   },
   getClient: function getClient(id) {
     return P.resolve(this.clients[unbuf(id)]);
+  },
+  getClients: function getClients() {
+    return P.resolve(Object.keys(this.clients).map(function(id) {
+      var client = this.clients[id];
+      return {
+        id: client.id,
+        name: client.name,
+        imageUri: client.imageUri,
+        redirectUri: client.redirectUri,
+        canGrant: client.canGrant,
+        whitelisted: client.whitelisted
+      };
+    }, this));
   },
   removeClient: function removeClient(id) {
     delete this.clients[unbuf(id)];

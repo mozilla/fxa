@@ -7,8 +7,9 @@ const url = require('url');
 const assert = require('insist');
 const jwcrypto = require('jwcrypto');
 const nock = require('nock');
+const buf = require('buf').hex;
 
-
+const auth = require('../lib/auth');
 const config = require('../lib/config');
 const db = require('../lib/db');
 const encrypt = require('../lib/encrypt');
@@ -22,7 +23,7 @@ require('jwcrypto/lib/algs/ds');
 /*jshint camelcase: false*/
 
 const USERID = unique(16).toString('hex');
-const VEMAIL = 'user@example.domain';
+const VEMAIL = unique(4).toString('hex') + '@mozilla.com';
 const VERIFY_GOOD = JSON.stringify({
   status: 'okay',
   email: USERID + '@' + config.get('browserid.issuer'),
@@ -639,7 +640,7 @@ describe('/v1', function() {
         }).done(done, done);
       });
     });
-    
+
     it('should work if no scope was requested', function(done) {
       mockAssertion().reply(200, VERIFY_GOOD);
       Server.api.post({
@@ -669,17 +670,239 @@ describe('/v1', function() {
 
   });
 
-  describe('/client/:id', function() {
-    describe('response', function() {
-      it('should return the correct response', function(done) {
-        Server.api.get('/client/' + clientId)
-        .then(function(res) {
+  describe('/client', function() {
+    var clientName = 'test/api/client';
+    var clientUri = 'http://test.api/client';
+
+    var tok;
+    var badTok;
+
+    before(function() {
+      return db.generateToken({
+        clientId: buf(clientId),
+        userId: buf(USERID),
+        email: VEMAIL,
+        scope: [auth.SCOPE_CLIENT_MANAGEMENT]
+      }).then(function(token) {
+        tok = token.token.toString('hex');
+        return db.generateToken({
+          clientId: buf(clientId),
+          userId: unique(16),
+          email: 'user@not.white.list.ed',
+          scope: [auth.SCOPE_CLIENT_MANAGEMENT]
+        });
+      }).then(function(token) {
+        badTok = token.token.toString('hex');
+      });
+    });
+
+    describe('GET /:id', function() {
+      describe('response', function() {
+        it('should return the correct response', function(done) {
+          Server.api.get('/client/' + clientId)
+          .then(function(res) {
+            assert.equal(res.statusCode, 200);
+            var body = res.result;
+            assert.equal(body.name, client.name);
+            assert(body.image_uri);
+            assert(body.redirect_uri);
+          }).done(done, done);
+        });
+      });
+    });
+
+    describe('GET /clients', function() {
+      it('should require authorization', function() {
+        return Server.api.get({
+          url: '/clients'
+        }).then(function(res) {
+          assert.equal(res.statusCode, 401);
+        });
+      });
+
+      it('should check the whitelist', function() {
+        return Server.api.get({
+          url: '/clients',
+          headers: {
+            authorization: 'Bearer ' + badTok
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 403);
+        });
+      });
+
+      it('should return a list of clients', function() {
+        return Server.api.get({
+          url: '/clients',
+          headers: {
+            authorization: 'Bearer ' + tok
+          }
+        }).then(function(res) {
           assert.equal(res.statusCode, 200);
-          var body = res.result;
-          assert.equal(body.name, client.name);
-          assert(body.image_uri);
-          assert(body.redirect_uri);
-        }).done(done, done);
+          return db.getClients().then(function(clients) {
+            assert.equal(res.result.clients.length, clients.length);
+          });
+        });
+      });
+    });
+
+    describe('POST', function() {
+      it('should register a client', function() {
+        return Server.api.post({
+          url: '/client',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+          payload: {
+            name: clientName,
+            redirect_uri: clientUri,
+            image_uri: clientUri,
+            can_grant: true,
+            whitelisted: true
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 201);
+          var client = res.result;
+          assert(client.id);
+          return db.getClient(client.id).then(function(klient) {
+            assert.equal(klient.id.toString('hex'), client.id);
+            assert.equal(klient.name, client.name);
+            assert.equal(klient.redirectUri, client.redirect_uri);
+            assert.equal(klient.canGrant, true);
+            assert.equal(klient.whitelisted, true);
+          });
+        });
+      });
+
+      it('should require authorization', function() {
+        return Server.api.post({
+          url: '/client',
+          payload: {
+            name: 'dont matter'
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 401);
+        });
+      });
+
+      it('should check the whitelist', function() {
+        return Server.api.post({
+          url: '/client',
+          headers: {
+            authorization: 'Bearer ' + badTok
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 403);
+        });
+      });
+    });
+
+    describe('POST /:id', function() {
+      var id = unique.id();
+      it('should update the client', function() {
+        var secret = unique.secret();
+        var imageUri = 'https://example.foo.domain/logo.png';
+        var client = {
+          name: 'test/api/update',
+          id: id,
+          hashedSecret: encrypt.hash(secret),
+          redirectUri: 'https://example.domain',
+          imageUri: imageUri,
+          whitelisted: true
+        };
+        return db.registerClient(client).then(function() {
+          return Server.api.post({
+            url: '/client/' + id.toString('hex'),
+            headers: {
+              authorization: 'Bearer ' + tok,
+            },
+            payload: {
+              name: 'updated',
+              redirect_uri: clientUri
+            }
+          });
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          return db.getClient(id);
+        }).then(function(klient) {
+          assert.equal(klient.name, 'updated');
+          assert.equal(klient.redirectUri, clientUri);
+          assert.equal(klient.imageUri, imageUri);
+          assert.equal(klient.whitelisted, true);
+          assert.equal(klient.canGrant, false);
+        });
+      });
+
+      it('should require authorization', function() {
+        return Server.api.post({
+          url: '/client/' + id.toString('hex'),
+          payload: {
+            name: 'dont matter'
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 401);
+        });
+      });
+
+      it('should check the whitelist', function() {
+        return Server.api.post({
+          url: '/client/' + id.toString('hex'),
+          headers: {
+            authorization: 'Bearer ' + badTok
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 403);
+        });
+      });
+    });
+
+    describe('DELETE /:id', function() {
+      var id = unique.id();
+      it('should delete the client', function() {
+        var secret = unique.secret();
+        var client = {
+          name: 'test/api/delete',
+          id: id,
+          hashedSecret: encrypt.hash(secret),
+          redirectUri: clientUri,
+          imageUri: clientUri,
+          whitelisted: true
+        };
+        return db.registerClient(client).then(function() {
+          return Server.api.delete({
+            url: '/client/' + id.toString('hex'),
+            headers: {
+              authorization: 'Bearer ' + tok,
+            }
+          });
+        }).then(function(res) {
+          assert.equal(res.statusCode, 204);
+          return db.getClient(id);
+        }).then(function(client) {
+          assert.equal(client, undefined);
+        });
+      });
+
+      it('should require authorization', function() {
+        return Server.api.delete({
+          url: '/client/' + id.toString('hex'),
+          payload: {
+            name: 'dont matter'
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 401);
+        });
+      });
+
+      it('should check the whitelist', function() {
+        return Server.api.delete({
+          url: '/client/' + id.toString('hex'),
+          headers: {
+            authorization: 'Bearer ' + badTok
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 403);
+        });
       });
     });
   });

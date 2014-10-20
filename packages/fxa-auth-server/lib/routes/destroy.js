@@ -11,19 +11,16 @@ const AppError = require('../error');
 const config = require('../config');
 const db = require('../db');
 const encrypt = require('../encrypt');
-const HEX_STRING = /^[0-9a-f]+$/;
+const validators = require('../validators');
 
 module.exports = {
   validate: {
     payload: {
       token: Joi.string()
         .length(config.get('unique.token') * 2) // hex = bytes*2
-        .regex(HEX_STRING)
+        .regex(validators.HEX_STRING)
         .required(),
-      client_secret: Joi.string()
-        .length(config.get('unique.clientSecret') * 2) // hex = bytes*2
-        .regex(HEX_STRING)
-        .required()
+      client_secret: validators.clientSecret
     }
   },
   handler: function destroyToken(req, reply) {

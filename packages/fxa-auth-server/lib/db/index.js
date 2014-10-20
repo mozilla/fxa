@@ -102,7 +102,7 @@ function withDriver() {
 const proxyReturn = logger.isEnabledFor(logger.VERBOSE) ?
   function verboseReturn(promise, method) {
     return promise.then(function(ret) {
-      logger.verbose('proxied %s < %j', method, ret);
+      logger.verbose('proxied %s < %:2j', method, ret);
       return ret;
     });
   } : function identity(x) {
@@ -113,7 +113,7 @@ function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function(driver) {
-      logger.verbose('proxying %s > %j', method, args);
+      logger.verbose('proxying %s > %:2j', method, args);
       return proxyReturn(driver[method].apply(driver, args), method);
     }).catch(function(err) {
       logger.error('%s: %s', method, err);

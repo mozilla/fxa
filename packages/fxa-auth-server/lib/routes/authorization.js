@@ -13,9 +13,9 @@ const config = require('../config');
 const db = require('../db');
 const logger = require('../logging').getLogger('fxa.routes.authorization');
 const P = require('../promise');
+const validators = require('../validators');
 const verify = require('../browserid');
 
-const HEX_STRING = /^(?:[0-9a-f]{2})+$/;
 const CODE = 'code';
 const TOKEN = 'token';
 
@@ -71,10 +71,7 @@ function generateGrant(claims, client, scope) {
 module.exports = {
   validate: {
     payload: {
-      client_id: Joi.string()
-        .length(config.get('unique.id') * 2) // hex = bytes*2
-        .regex(HEX_STRING)
-        .required(),
+      client_id: validators.clientId,
       assertion: Joi.string()
         // taken from mozilla/persona/lib/validate.js
         .min(50)
@@ -100,7 +97,7 @@ module.exports = {
   response: {
     schema: Joi.object().keys({
       redirect: Joi.string(),
-      access_token: Joi.string().regex(HEX_STRING),
+      access_token: Joi.string().regex(validators.HEX_STRING),
       token_type: Joi.string().valid('bearer'),
       scope: Joi.string()
     }).without('redirect', [

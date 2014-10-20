@@ -11,8 +11,8 @@ const config = require('../config');
 const db = require('../db');
 const encrypt = require('../encrypt');
 const logger = require('../logging').getLogger('fxa.routes.token');
+const validators = require('../validators');
 
-const HEX_STRING = /^[0-9a-f]+$/;
 
 function generateToken(code) {
   return [db.removeCode(code.code), db.generateToken(code)];
@@ -31,17 +31,11 @@ module.exports = {
   validate: {
     payload: {
       /*jshint camelcase: false*/
-      client_id: Joi.string()
-        .length(config.get('unique.id') * 2) // hex = bytes * 2
-        .regex(HEX_STRING)
-        .required(),
-      client_secret: Joi.string()
-        .length(config.get('unique.clientSecret') * 2)
-        .regex(HEX_STRING)
-        .required(),
+      client_id: validators.clientId,
+      client_secret: validators.clientSecret,
       code: Joi.string()
         .length(config.get('unique.code') * 2)
-        .regex(HEX_STRING)
+        .regex(validators.HEX_STRING)
         .required()
     }
   },
