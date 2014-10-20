@@ -13,3 +13,7 @@
 
 
 <input type="text" disabled="disabled" {{bind-attr value=id}} id="id"/>
+{{#if client_secret}}
+  <label for="client_secret" style="color:red; font-size: 20px;">Save this secret below, you will never see it again:</label>
+  <input type="text" disabled="disabled" {{bind-attr value=client_secret}} id="client_secret"/>
+{{/if}}

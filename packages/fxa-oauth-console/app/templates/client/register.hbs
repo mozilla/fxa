@@ -1,10 +1,17 @@
 <form class="form-horizontal" role="form">
 <fieldset>
-  <legend>New Client</legend>
+  {{#if name}}
+    <legend>Client: {{name}}</legend>
+  {{else}}
+    <legend>New Client</legend>
+  {{/if}}
+
   {{partial 'client/form'}}
 </fieldset>
 </form>
+{{#unless client_secret}}
 <div class="btn-group">
   <button class="button alert " {{action 'cancel' this}}>Cancel</button>
   <button class="button success" {{action 'create' this}}>Create</button>
 </div>
+{{/unless}}

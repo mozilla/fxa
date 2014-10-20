@@ -8,10 +8,9 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       this.transitionTo('client.register');
     },
     goToClient: function( id ) {
-      console.log(id);
-      // TODO: fix force request transition
-      location.href = document.location.origin + '/client/' + id;
-      //this.transitionTo('client', id);
+      // unload all stored client data to make sure we fetch the client again in the client view
+      this.store.unloadAll('client');
+      this.transitionTo('client', id);
     },
     update: function (model) {
       this.transitionTo('client.update', model);

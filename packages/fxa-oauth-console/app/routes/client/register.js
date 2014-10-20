@@ -4,7 +4,7 @@ import AuthenticatedRouteMixin from 'simple-auth/mixins/authenticated-route-mixi
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
   actions: {
     create: function(model) {
-      model.save();
+      return model.save();
     },
     cancel: function() {
       this.transitionTo('clients');

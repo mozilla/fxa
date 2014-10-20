@@ -17,6 +17,20 @@ export default DS.RESTAdapter.extend({
       return { client: resp };
     });
   },
+  createRecord: function(store, type, record) {
+    var data = {};
+    var serializer = store.serializerFor(type.typeKey);
+
+    serializer.serializeIntoHash(data, type, record, { includeId: true });
+
+    return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data }).then(function (resp) {
+
+      resp.id = resp.client_id;
+      delete resp.client_id;
+
+      return { client: resp };
+    });
+  },
   buildURL: function(type, id, record) {
     var url = [],
       host = this.host,
