@@ -937,6 +937,7 @@ describe('/v1', function() {
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
           assert.equal(res.result.user, USERID);
+          assert.equal(res.result.client_id, clientId);
           assert.equal(res.result.scope[0], 'profile');
           assert.equal(res.result.email, VEMAIL);
         }).done(done, done);
