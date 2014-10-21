@@ -9,7 +9,7 @@ module.exports = require('rc')(
     host: "127.0.0.1",
     port: 8000,
     patchKey: 'schema-patch-level',
-    patchLevel: 2,
+    patchLevel: 5,
     master: {
       user: 'root',
       password: '',
