@@ -8,6 +8,8 @@ const config = require('../config');
 const token = require('../token');
 const validators = require('../validators');
 
+/*jshint camelcase: false*/
+
 module.exports = {
   validate: {
     payload: {
@@ -20,6 +22,7 @@ module.exports = {
   response: {
     schema: {
       user: Joi.string().required(),
+      client_id: Joi.string().required(),
       scope: Joi.array(),
       email: Joi.string()
     }

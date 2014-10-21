@@ -7,6 +7,8 @@ const auth = require('./auth');
 const db = require('./db');
 const encrypt = require('./encrypt');
 
+/*jshint camelcase: false*/
+
 exports.verify = function verify(token) {
   return db.getToken(encrypt.hash(token))
   .then(function(token) {
@@ -15,6 +17,7 @@ exports.verify = function verify(token) {
     }
     var tokenInfo = {
       user: token.userId.toString('hex'),
+      client_id: token.clientId.toString('hex'),
       scope: token.scope
     };
 
