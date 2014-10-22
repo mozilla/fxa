@@ -4,12 +4,11 @@
 
 const express = require('express');
 const path = require('path');
-const logger = require('../lib/logging').getLogger('fxa.bin.server');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const routesOAuth = require('./routes/oauth');
+const routesVersion = require('./routes/ver');
 const session = require('./session');
-
 const app = express();
 
 app.use(bodyParser.json());
@@ -17,11 +16,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session);
 app.use('/oauth', routesOAuth);
+app.use('/ver.json', routesVersion);
 app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 // TODO: there should be a better way to do send through requested routes with pushState
-app.get('*', function(request, response){
-  response.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+app.get('/*', function(req, res){
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });
 
 // catch 404 and forward to error handler

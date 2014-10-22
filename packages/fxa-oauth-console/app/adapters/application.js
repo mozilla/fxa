@@ -3,7 +3,13 @@ import DS from 'ember-data';
 import config from '../config/environment';
 
 export default DS.RESTAdapter.extend({
+  /**
+   * API Namespace
+   */
   namespace: 'v1',
+  /**
+   * API Host
+   */
   host: config.servers.oauth,
   headers: Ember.computed(function () {
     return {

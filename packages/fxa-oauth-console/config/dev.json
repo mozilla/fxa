@@ -6,5 +6,9 @@
     "oauth_uri": "http://127.0.0.1:9010/v1",
     "profile_uri": "http://127.0.0.1:1111/v1",
     "scopes": "profile oauth"
+  },
+  "logging": {
+    "level": "verbose",
+    "fmt": "pretty"
   }
 }

@@ -7,7 +7,6 @@ const path = require('path');
 
 const convict = require('convict');
 
-
 const conf = convict({
   /**
    * Environment
@@ -78,71 +77,26 @@ const conf = convict({
     scope: {
       doc: "The scope we're requesting access to",
       format: String,
-      default: "profile"
+      default: "profile oauth"
     }
   },
   /**
    * Logging
    */
   logging: {
-    formatters: {
-      doc: 'http://seanmonstar.github.io/intel/#formatters',
-      default: {
-        pretty: {
-          format: '[p%(pid)s] %(name)s.%(levelname)s: %(message)s',
-          colorize: true
-        },
-        'pretty_with_time': {
-          format: '[%(date)s] %(name)s.%(levelname)s: %(message)s',
-          datefmt: '%Y-%m-%d %H:%M:%S.%L'
-        },
-        json: {
-          class: './logging/json'
-        }
-      }
-    },
-    handlers: {
-      doc: 'http://seanmonstar.github.io/intel/#handlers',
-      default: {
-        console: {
-          class: 'intel/handlers/stream',
-          formatter: 'json',
-          stream: 'stderr'
-        }
-      }
-    },
-    loggers: {
-      doc: 'http://seanmonstar.github.io/intel/#logging',
-      default: {
-        fxa: {
-          handlers: ['console'],
-          handleExceptions: true,
-          level: 'INFO',
-          propagate: false
-        },
-        'fxa.server.web.hapi': {
-          level: 'ERROR'
-        }
-      }
-    },
-    root: {
-      doc: 'Path to find relative classes',
-      default: __dirname
+    default: {
+      app: 'fxa-oauth-server'
     }
   }
 });
 
 var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json');
-var files = (envConfig + ',' + process.env.CONFIG_FILES)
-  .split(',').filter(fs.existsSync);
+var files = (envConfig + ',' + process.env.CONFIG_FILES).split(',').filter(fs.existsSync);
 conf.loadFile(files);
 
-if (process.env.LOG_LEVEL) {
-  conf.set('logging.loggers.fxa.level', process.env.LOG_LEVEL);
-}
+require('mozlog').config(conf.get('logging'));
 process.env.NODE_ENV = conf.get('env');
 
 conf.validate();
-
 
 module.exports = conf;

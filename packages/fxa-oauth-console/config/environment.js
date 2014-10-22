@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 /* jshint node: true */
 
+var url = require('url');
 
 /**
  * These is the environment configuration for the front-end application.
@@ -10,13 +11,17 @@
  *        Application environment, such as "development", "production", test"
  */
 module.exports = function(environment) {
+  var config = require('../lib/config');
+  var oauthUriRaw = url.parse(config.get('fxaOAuth').oauth_uri);
+  var oauthUri = oauthUriRaw.protocol + '//' + oauthUriRaw.host;
+
   var ENV = {
     modulePrefix: 'fxa-oauth-console',
     'simple-auth': {
       authorizer: 'authorizer:custom'
     },
     servers: {
-      oauth: 'http://127.0.0.1:9010'
+      oauth: oauthUri
     },
     environment: environment,
     baseURL: '/',
@@ -55,7 +60,7 @@ module.exports = function(environment) {
   }
 
   if (environment === 'production') {
-    ENV.servers.oauth = 'https://oauth-vlad.dev.lcip.org';
+    // Production settings go here
   }
 
   return ENV;

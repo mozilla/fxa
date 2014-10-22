@@ -7,19 +7,10 @@ var router = express.Router();
 var redirectUrl = require('./lib/oauth').redirectUrl;
 var config = require('../config');
 var fxaOAuthConfig = config.get('fxaOAuth');
+var log = require('mozlog')('server.ver.json');
 
 var crypto = require('crypto');
 var request = require('request');
-
-// a function to verify that the current user is authenticated
-function checkAuth(req, res, next) {
-  console.log(req.session);
-  if (!req.session.user) {
-    res.send("authentication required\n", 401);
-  } else {
-    next();
-  }
-}
 
 var DIFFERENT_BROWSER_ERROR = 3005;
 // oauth flows are stored in memory
@@ -45,7 +36,7 @@ router.get('/status', function(req, res) {
       token: req.session.token
     }));
   } else {
-    return res.status(403).end();
+    return res.status(401).end();
   }
 });
 
@@ -87,7 +78,7 @@ router.get('/redirect', function(req, res) {
     }, function(err, r, body) {
       if (err) return res.send(r.status, err);
 
-      console.log(err, body);
+      log.verbose(err, body);
       req.session.scopes = body.scopes;
       req.session.token_type = body.token_type;
       var token = req.session.token = body.access_token;
@@ -101,7 +92,7 @@ router.get('/redirect', function(req, res) {
           Authorization: 'Bearer ' + token
         }
       }, function (err, r, body) {
-        console.log(err, body);
+        log.verbose(err, body);
         if (err || r.status >= 400) {
           return res.send(r ? r.status : 400, err || body);
         }
