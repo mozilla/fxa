@@ -8,7 +8,7 @@
     "fxa-auth-db-mysql": "db_patcher.js"
   },
   "scripts": {
-    "test": "grunt jshint",
+    "test": "node test/local/db_tests.js",
     "start": "node bin/server.js",
     "outdated": "npm outdated --depth 0"
   },
@@ -26,7 +26,7 @@
     "request": "2.36.0"
   },
   "devDependencies": {
-    "ass": "0.0.4",
+    "ass": "git://github.com/jrgm/ass.git#5be99ee",
     "grunt": "0.4.5",
     "grunt-contrib-jshint": "0.10.0",
     "grunt-copyright": "0.1.0",
