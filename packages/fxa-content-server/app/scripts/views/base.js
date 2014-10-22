@@ -392,7 +392,7 @@ function (_, Backbone, $, p, Session, AuthErrors,
       err.logged = true;
 
       if (typeof console !== 'undefined' && console) {
-        console.error(err.message || String(err));
+        console.error(err.message);
       }
 
       this.metrics.logError(err);
@@ -413,6 +413,10 @@ function (_, Backbone, $, p, Session, AuthErrors,
         if (this.window.console && this.window.console.trace) {
           this.window.console.trace();
         }
+      }
+
+      if (typeof err === 'string') {
+        err = new Error(err);
       }
 
       if (! err.context) {

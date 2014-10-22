@@ -464,6 +464,15 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
         assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
 
+      it('can log a string as an error', function () {
+        view.metrics.events.clear();
+        view.logError('foo');
+        var err = new Error('foo');
+        err.context = view.getScreenName();
+
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+      });
+
       it('prints a stack trace via console.trace to facilitate debugging if no error object is passed in', function () {
         view.metrics.events.clear();
         sinon.spy(view.window.console, 'trace');

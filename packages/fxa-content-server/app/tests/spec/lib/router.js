@@ -166,7 +166,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
 
         var navigate = view.navigate;
         view.navigate = function (url, options) {
-          assert.equal(options.error, 'boom');
+          assert.equal(options.error.message, 'boom');
           return navigate.call(this, url, options);
         };
 
@@ -184,7 +184,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
 
         var navigate = view.navigate;
         view.navigate = function (url, options) {
-          assert.equal(options.error, 'boom');
+          assert.equal(options.error.message, 'boom');
           return navigate.call(this, url, options);
         };
 
@@ -202,7 +202,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
 
         var navigate = view.navigate;
         view.navigate = function (url, options) {
-          assert.equal(options.error, 'boom');
+          assert.equal(options.error.message, 'boom');
           return navigate.call(this, url, options);
         };
 
