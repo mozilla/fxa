@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const fs = require('fs')
-const jwcrypto = require('jwcrypto')
+const bidcrypto = require('browserid-crypto')
 const config = require('../config')
 const DOMAIN = config.get('domain')
 
-require('jwcrypto/lib/algs/rs')
-require('jwcrypto/lib/algs/ds')
+require('browserid-crypto/lib/algs/rs')
+require('browserid-crypto/lib/algs/ds')
 
-const _privKey = jwcrypto.loadSecretKey(fs.readFileSync(config.get('secretKeyFile')))
+const _privKey = bidcrypto.loadSecretKey(fs.readFileSync(config.get('secretKeyFile')))
 
 process.on('message', function (message) {
   if (message.crash === true) { throw new Error('FML') }
@@ -22,9 +22,9 @@ process.on('message', function (message) {
   }
   try {
     var now = Date.now()
-    jwcrypto.cert.sign(
+    bidcrypto.cert.sign(
       {
-        publicKey: jwcrypto.loadPublicKeyFromObject(message.publicKey),
+        publicKey: bidcrypto.loadPublicKeyFromObject(message.publicKey),
         principal: { email: message.email }
       },
       {

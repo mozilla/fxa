@@ -5,7 +5,7 @@
 var test = require('../ptaptest')
 var Client = require('../client')
 var TestServer = require('../test_server')
-var jwcrypto = require('jwcrypto')
+var bidcrypto = require('browserid-crypto')
 
 
 var config = require('../../config').root()
@@ -50,7 +50,7 @@ TestServer.start(config)
         .then(
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
-            var payload = jwcrypto.extractComponents(cert).payload
+            var payload = bidcrypto.extractComponents(cert).payload
             t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
           }
         )

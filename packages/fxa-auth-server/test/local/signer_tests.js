@@ -5,7 +5,8 @@
 var test = require('../ptaptest')
 var path = require('path')
 var CC = require('compute-cluster')
-var jwcrypto = require('jwcrypto')
+var bidcrypto = require('browserid-crypto')
+require('browserid-crypto/lib/algs/rs')
 var config = require('../../config').root()
 var signer = new CC({ module: path.join(__dirname, '../signer-stub.js')})
 signer.on('error', function () {}) // don't die
@@ -62,7 +63,7 @@ test(
         duration: 100
       },
       function (err, result) {
-        t.equal(result.err.message, 'bad key', 'bad key')
+        t.ok(result.err.message.indexOf('bad key') === 0, 'bad key')
         t.end()
       }
     )
@@ -83,7 +84,7 @@ test(
         duration: 100
       },
       function (err, result) {
-        t.equal(result.err.message, 'bad key', 'bad key')
+        t.ok(result.err.message.indexOf('bad key') === 0, 'bad key')
         t.end()
       }
     )
@@ -216,7 +217,7 @@ test(
       },
       function (err, result) {
         t.ok(result, 'got cert')
-        var payload = jwcrypto.extractComponents(result.cert).payload
+        var payload = bidcrypto.extractComponents(result.cert).payload
         t.deepEqual(payload['public-key'], validKey, 'key, check')
         t.equal(payload.principal.email, email, 'email, check')
         t.equal(payload.iss, config.domain, 'issuer, check')
@@ -242,7 +243,7 @@ test(
       },
       function (err, result) {
         t.ok(result, 'got cert')
-        var payload = jwcrypto.extractComponents(result.cert).payload
+        var payload = bidcrypto.extractComponents(result.cert).payload
         t.equal(payload['fxa-generation'], generation, 'generation, check')
         t.end()
       }
@@ -265,7 +266,7 @@ test(
       },
       function (err, result) {
         t.ok(result, 'got cert')
-        var payload = jwcrypto.extractComponents(result.cert).payload
+        var payload = bidcrypto.extractComponents(result.cert).payload
         t.equal(payload['fxa-lastAuthAt'], lastAuthAt, 'lastAuthAt, check')
         t.end()
       }
