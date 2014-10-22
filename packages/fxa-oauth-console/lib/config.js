@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* global require, module, process, __dirname */
 
 const fs = require('fs');
 const path = require('path');
@@ -15,7 +16,7 @@ const conf = convict({
     arg: 'node-env',
     doc: 'The current node.js environment',
     env: 'NODE_ENV',
-    format: ['dev', 'test', 'staging', 'prod'],
+    format: ['dev', 'test', 'staging', 'production'],
     default: 'dev'
   },
   git: {
@@ -37,6 +38,10 @@ const conf = convict({
       env: 'PORT',
       format: 'port',
       default: 10137
+    },
+    session: {
+      format: String,
+      default: null
     }
   },
   /**
@@ -45,39 +50,34 @@ const conf = convict({
    //TODO: update with production settings
   fxaOAuth: {
     client_id: {
-      doc: "The FxA client_id (8 bytes key encoded as hex)",
+      doc: 'The FxA client_id (8 bytes key encoded as hex)',
       format: String,
-      default: ""
+      default: ''
     },
     client_secret: {
-      doc: "The FxA client secret (32 bytes key encoded as hex)",
+      doc: 'The FxA client secret (32 bytes key encoded as hex)',
       format: String,
-      default: ""
+      default: ''
     },
     oauth_uri: {
-      doc: "The location of the FxA OAuth server.",
-      format: "url",
-      default: "https://oauth-latest.dev.lcip.org/v1"
-    },
-    content_uri: {
-      doc: "The location of the FxA content server.",
-      format: "url",
-      default: "https://latest.dev.lcip.org"
+      doc: 'The location of the FxA OAuth server.',
+      format: 'url',
+      default: 'https://oauth-latest.dev.lcip.org/v1'
     },
     redirect_uri: {
-      doc: "The redirect_uri.",
+      doc: 'The redirect_uri.',
       format: String,
-      default: "https://127.0.0.1:10137/oauth/redirect"
+      default: 'https://127.0.0.1:10137/oauth/redirect'
     },
     profile_uri: {
-      doc: "The FxA profile uri.",
-      format: "url",
-      default: "https://latest.dev.lcip.org/profile/v1"
+      doc: 'The FxA profile uri.',
+      format: 'url',
+      default: 'https://latest.dev.lcip.org/profile/v1'
     },
-    scope: {
-      doc: "The scope we're requesting access to",
+    scopes: {
+      doc: 'The oauth server scopes',
       format: String,
-      default: "profile oauth"
+      default: 'profile oauth'
     }
   },
   /**

@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* global require, module */
 
 module.exports = function (grunt) {
   'use strict';
@@ -13,14 +14,5 @@ module.exports = function (grunt) {
   });
 
   grunt.loadTasks('tasks');
-
   grunt.registerTask('lint', [ 'copyright', 'jshint', 'jscs' ]);
-  grunt.registerTask('server', ['nodemon:dev']);
-  grunt.registerTask('build', ['nodemon:dev']);
-  grunt.registerTask('default', ['server']);
-
-
-  grunt.registerTask('dev', ['concurrent:dev']);
-
-
 };

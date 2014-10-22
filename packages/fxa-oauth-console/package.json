@@ -4,7 +4,7 @@
   "description": "Firefox Accounts OAuth Credential Management Dashboard",
   "scripts": {
     "start": "./scripts/run_dev.js",
-    "test": "ember test",
+    "test": "ember test && grunt lint",
     "postinstall": "./scripts/postinstall.sh",
     "outdated": "npm outdated --depth 0",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS"
@@ -30,32 +30,28 @@
     "ember-cli": "0.1.1",
     "ember-cli-content-security-policy": "0.2.0",
     "ember-cli-ic-ajax": "0.1.1",
-    "ember-cli-qunit": "0.1.0",
     "ember-cli-simple-auth": "0.6.7",
     "ember-data": "1.0.0-beta.10",
     "express": "4.9.5",
     "glob": "4.0.5",
-    "intel": "1.0.0-b6",
-    "mozlog": "^0.2.0",
+    "mozlog": "0.2.0",
     "request": "2.45.0"
   },
   "devDependencies": {
     "ember-cli": "0.1.1",
+    "ember-cli-qunit": "0.1.0",
     "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
     "grunt-concurrent": "^1.0.0",
     "grunt-contrib-jshint": "^0.10.0",
-    "grunt-contrib-watch": "^0.6.1",
     "grunt-copyright": "^0.1.0",
     "grunt-jscs": "^0.7.1",
-    "grunt-node-inspector": "^0.1.5",
-    "grunt-nodemon": "^0.3.0",
-    "jshint-stylish": "^1.0.0",
     "load-grunt-tasks": "^0.6.0",
     "nodemon": "^1.2.1",
     "opn": "^1.0.0"
   },
   "engines": {
-    "node": ">=0.10.0",
+    "node": "0.10.0",
     "npm": ">=1.4"
   },
   "readmeFilename": "README.md"

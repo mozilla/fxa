@@ -1,17 +1,17 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* global require, module */
 
 var express = require('express');
+var crypto = require('crypto');
+var request = require('request');
+
 var router = express.Router();
 var redirectUrl = require('./lib/oauth').redirectUrl;
 var config = require('../config');
 var fxaOAuthConfig = config.get('fxaOAuth');
 var log = require('mozlog')('server.ver.json');
-
-var crypto = require('crypto');
-var request = require('request');
-
 var DIFFERENT_BROWSER_ERROR = 3005;
 // oauth flows are stored in memory
 var oauthFlows = { };
@@ -19,17 +19,17 @@ var oauthFlows = { };
 /**
  * OAuth Login, redirects to FxA
  */
-router.get('/login', function(req, res) {
+router.get('/login', function (req, res) {
   var nonce = crypto.randomBytes(32).toString('hex');
   oauthFlows[nonce] = true;
   req.session.state = nonce;
-  return res.redirect(redirectUrl("signin", nonce));
+  return res.redirect(redirectUrl('signin', nonce));
 });
 
 /**
  * Session Status
  */
-router.get('/status', function(req, res) {
+router.get('/status', function (req, res) {
   if (req.session && req.session.email) {
     return res.send(JSON.stringify({
       email: req.session.email,
@@ -43,7 +43,7 @@ router.get('/status', function(req, res) {
 /**
  * Clears local session
  */
-router.get('/logout', function(req, res) {
+router.get('/logout', function (req, res) {
   req.session.reset();
   res.redirect('/');
 });
@@ -51,7 +51,7 @@ router.get('/logout', function(req, res) {
 /**
  * OAuth redirect flow, redirects from FxA
  */
-router.get('/redirect', function(req, res) {
+router.get('/redirect', function (req, res) {
   var state = req.query.state;
   var code = req.query.code;
   var error = parseInt(req.query.error, 10);
@@ -75,8 +75,10 @@ router.get('/redirect', function(req, res) {
         client_id: fxaOAuthConfig.client_id,
         client_secret: fxaOAuthConfig.client_secret
       }
-    }, function(err, r, body) {
-      if (err) return res.send(r.status, err);
+    }, function (err, r, body) {
+      if (err) {
+        return res.send(r.status, err);
+      }
 
       log.verbose(err, body);
       req.session.scopes = body.scopes;
@@ -109,7 +111,9 @@ router.get('/redirect', function(req, res) {
   } else {
 
     var msg = 'Bad request ';
-    if (!code) msg += ' - missing code';
+    if (!code) {
+      msg += ' - missing code';
+    }
 
     if (!state) {
       msg += ' - missing state';
@@ -119,7 +123,7 @@ router.get('/redirect', function(req, res) {
       msg += ' - state cookie doesn\'t match';
     }
 
-    console.error('msg', msg);
+    log.error('msg', msg);
 
     res.send(400, msg);
   }

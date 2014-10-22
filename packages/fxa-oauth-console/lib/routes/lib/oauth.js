@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* global require, module */
 
 var config = require('../../config');
 var fxaOAuthConfig = config.get('fxaOAuth');
@@ -9,10 +10,10 @@ var fxaOAuthConfig = config.get('fxaOAuth');
 // construct a redirect URL
 function toQueryString(obj) {
   var fields = Object.keys(obj).map(function (key) {
-    return key + "=" + obj[key];
+    return key + '=' + obj[key];
   });
 
-  return "?" + fields.join("&");
+  return '?' + fields.join('&');
 }
 
 

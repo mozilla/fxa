@@ -1,8 +1,15 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* global require, module */
 
 var sessions = require('client-sessions');
+
+var sessionSecret = require('./config').get('server').session;
+
+if (! sessionSecret) {
+  throw new Error('Session secret not configured.');
+}
 
 module.exports = function (req, res, next) {
   if (/^\/oauth/.test(req.url)) {
@@ -10,8 +17,7 @@ module.exports = function (req, res, next) {
 
     return sessions({
       cookieName: 'fxa-oauth-console',
-      // TODO: add cookie_secret to config
-      secret: process.env['COOKIE_SECRET'] || 'define a real secret, please',
+      secret: sessionSecret,
       requestKey: 'session',
       cookie: {
         path: '/oauth',
