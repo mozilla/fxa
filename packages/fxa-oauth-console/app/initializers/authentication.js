@@ -4,6 +4,16 @@ import Base from 'simple-auth/authenticators/base';
 var CustomAuthenticator = Base.extend({
   tokenEndpoint: '/oauth',
 
+  restore: function(data) {
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      if (!Ember.isEmpty(data.token)) {
+        resolve(data);
+      } else {
+        reject();
+      }
+    });
+  },
+
   authenticate: function () {
     var _this = this;
 
@@ -50,7 +60,7 @@ var CustomAuthenticator = Base.extend({
         url: _this.tokenEndpoint + '/logout',
         type: 'GET'
       }).always(function() {
-        resolve();
+        return resolve();
       });
     });
   }
