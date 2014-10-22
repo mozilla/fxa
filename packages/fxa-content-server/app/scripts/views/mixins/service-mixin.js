@@ -18,9 +18,10 @@ define([
   'lib/config-loader',
   'lib/session',
   'lib/service-name',
-  'lib/channels'
+  'lib/channels',
+  'lib/validate'
 ], function (p, BaseView, progressIndicator, Url, OAuthClient, Assertion,
-    OAuthErrors, ConfigLoader, Session, ServiceName, Channels) {
+    OAuthErrors, ConfigLoader, Session, ServiceName, Channels, Validate) {
   /* jshint camelcase: false */
 
   var EXPECT_CHANNEL_RESPONSE_TIMEOUT = 5000;
@@ -85,10 +86,20 @@ define([
    */
   function _formatOAuthResult(result) {
     // get code and state from redirect params
-    var redirectParams = result.redirect.split('?')[1];
-    result.state = Url.searchParam('state', redirectParams);
-    result.code = Url.searchParam('code', redirectParams);
-    return p(result);
+    if (result && result.redirect) {
+      var redirectParams = result.redirect.split('?')[1];
+
+      result.state = Url.searchParam('state', redirectParams);
+      result.code = Url.searchParam('code', redirectParams);
+
+      if (! Validate.isOAuthCodeValid(result.code)) {
+        return p.reject(OAuthErrors.toError('UNEXPECTED_ERROR'));
+      }
+
+      return p(result);
+    } else {
+      return p.reject(OAuthErrors.toError('UNEXPECTED_ERROR'));
+    }
   }
 
   return {

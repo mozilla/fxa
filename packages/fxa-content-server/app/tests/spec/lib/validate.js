@@ -71,6 +71,28 @@ function (chai, _, Validate, Constants, TestHelpers) {
       });
     });
 
+    describe('isOAuthCodeValid', function () {
+      it('returns false for non-hex value', function () {
+        assert.isFalse(Validate.isOAuthCodeValid('this is a normal string'));
+      });
+
+      it('returns false for an empty string', function () {
+        assert.isFalse(Validate.isOAuthCodeValid(''));
+      });
+
+      it('returns false for one too few characters', function () {
+        assert.isFalse(Validate.isOAuthCodeValid(createRandomHexString(Constants.OAUTH_CODE_LENGTH - 1)));
+      });
+
+      it('returns false for one too many characters', function () {
+        assert.isFalse(Validate.isOAuthCodeValid(createRandomHexString(Constants.OAUTH_CODE_LENGTH + 1)));
+      });
+
+      it('returns true for just the right number', function () {
+        assert.isTrue(Validate.isOAuthCodeValid(createRandomHexString(Constants.OAUTH_CODE_LENGTH)));
+      });
+    });
+
     describe('isUidValid', function () {
       it('returns false for non-hex value', function () {
         assert.isFalse(Validate.isUidValid('this is a normal string'));
