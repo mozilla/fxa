@@ -70,7 +70,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
                              nav.msGetUserMedia;
 
       if (! getUserMedia) {
-        this.displayError(AuthErrors.toCode('NO_CAMERA'));
+        this.displayError(AuthErrors.toError('NO_CAMERA'));
         return false;
       }
 
@@ -93,7 +93,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
         },
         function () {
           self._avatarProgressIndicator.done();
-          self.displayError(AuthErrors.toCode('NO_CAMERA'));
+          self.displayError(AuthErrors.toError('NO_CAMERA'));
         }
       );
 

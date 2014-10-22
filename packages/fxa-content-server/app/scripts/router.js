@@ -198,7 +198,7 @@ function (
           // The router's navigate method doesn't set ephemeral messages,
           // so use the view's higher level navigate method.
           return viewToShow.navigate('unexpected_error', {
-            error: err && err.message
+            error: err
           });
         });
     },
