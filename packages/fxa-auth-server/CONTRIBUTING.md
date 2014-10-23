@@ -45,7 +45,7 @@ This is an example workflow to make it easier to submit Pull Requests. Imagine y
 
     ```sh
     $ git clone https://github.com/mozilla/fxa-oauth-server.git
-    $ cd fxa-auth-server
+    $ cd fxa-oauth-server
     $ git remote add user1 git@github.com:user1/fxa-oauth-server.git
 ```
 
