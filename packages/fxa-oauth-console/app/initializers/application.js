@@ -6,6 +6,7 @@ import Ember from 'ember';
 
 export var initialize = function(container, application) {
   Ember.A(['adapter', 'controller', 'route']).forEach(function(component) {
+    // inject session into adapters, controllers and routes
     application.inject(component, 'session', 'simple-auth-session:main');
   });
 };

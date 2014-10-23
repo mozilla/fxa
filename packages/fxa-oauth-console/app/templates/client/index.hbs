@@ -1,19 +1,46 @@
-<div class="form-group">
-  <label for="inputImage">ID</label>
-  <input type="text" disabled="disabled" {{bind-attr value=id}} id="id"/>
+<h3>OAuth Client: <strong>{{name}}</strong></h3>
+
+<table class="table">
+  <tbody>
+    <tr>
+      <th>Client ID:</th>
+      <td>{{id}}</td>
+    </tr>
+    <tr>
+      <th>Redirect URI</th>
+      <td>{{redirect_uri}}</td>
+    </tr>
+    <tr>
+      <th>Image URI</th>
+      <td>{{image_uri}}</td>
+    </tr>
+    <tr>
+      <th>Client Secret</th>
+      <td>
+        <button class="tiny button">Reset Client Secret</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="row">
+  <div class="large-6 columns">
+    <ul class="inline-list ">
+      <li>
+        {{#link-to 'clients' classNames="small button success"}}< Back to Clients{{/link-to}}
+      </li>
+    </ul>
+  </div>
+  <div class="large-6 columns">
+    <ul class="inline-list right">
+      <li>
+        <button class="small button " {{action 'update' id}}>Update Client</button>
+      </li>
+      <li>
+        <button class="small button alert" {{action 'remove' id}}>Delete Client</button>
+      </li>
+    </ul>
+  </div>
 </div>
 
-<div class="form-group">
-  <label for="inputTitle">Client Name</label>
-  {{name}}
-</div>
-
-<div class="form-group">
-  <label for="inputRedirect">Redirect URI</label>
-  {{redirect_uri}}
-</div>
-
-<div class="form-group">
-  <label for="inputImage">Image URI</label>
-  {{image_uri}}
-</div>
+{{outlet}}

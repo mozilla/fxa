@@ -51,6 +51,18 @@
 
 .table {
   width: 100%;
+  &.table-clients {
+    a {
+      font-weight: bold;
+      font-size: 20px;
+      padding: 10px 0;
+      display: block;
+    }
+  }
+  td.table-actions {
+    width: 25%;
+    text-align: center;
+  }
 }
 
 

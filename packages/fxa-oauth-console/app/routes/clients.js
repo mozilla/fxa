@@ -28,9 +28,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       this.transitionTo('clients');
     },
     remove: function (id) {
-      console.log(id);
       return this.store.find('client', id).then(function (client) {
-        console.log(client);
         client.destroyRecord();
       });
     },

@@ -33,7 +33,8 @@ router.get('/status', function (req, res) {
   if (req.session && req.session.email) {
     return res.send(JSON.stringify({
       email: req.session.email,
-      token: req.session.token
+      token: req.session.token,
+      code: req.session.code
     }));
   } else {
     return res.status(401).end();
@@ -81,6 +82,7 @@ router.get('/redirect', function (req, res) {
       }
 
       log.verbose(err, body);
+      req.session.code = code;
       req.session.scopes = body.scopes;
       req.session.token_type = body.token_type;
       var token = req.session.token = body.access_token;

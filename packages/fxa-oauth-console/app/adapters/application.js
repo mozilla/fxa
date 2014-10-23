@@ -15,49 +15,102 @@ export default DS.RESTAdapter.extend({
    * API Host
    */
   host: config.servers.oauth,
+  /**
+   * Request headers
+   *
+   * Sets Authorization headers
+   */
   headers: Ember.computed(function () {
     return {
       'Authorization': 'Bearer ' + this.get('session.content.token')
     };
   }),
+  /**
+   * Overrides default RESTAdapter 'find'.
+   *
+   * @param store
+   * @param type
+   * @param id
+   * @param record
+   * @returns {*}
+   */
   find: function(store, type, id, record) {
+    // post process the resuld of 'find'. Need to add the Model type 'client' into the response
     return this.ajax(this.buildURL(type.typeKey, id, record), 'GET').then(function (resp) {
-      resp.id = id;
-
       return { client: resp };
     });
   },
+  /**
+   * Overrides default RESTAdapter 'createRecord'
+   *
+   * @param store
+   * @param type
+   * @param record
+   * @returns {*}
+   */
   createRecord: function(store, type, record) {
     var data = {};
     var serializer = store.serializerFor(type.typeKey);
 
     serializer.serializeIntoHash(data, type, record, { includeId: true });
 
+    // post process the resuld of 'find'. Need to add the Model type 'client' into the response
     return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data }).then(function (resp) {
-
-      resp.id = resp.client_id;
-      delete resp.client_id;
-
       return { client: resp };
     });
   },
-  buildURL: function(type, id, record) {
-    var url = [],
-      host = this.host,
-      prefix = this.urlPrefix();
+  /**
+   * Overrides default RESTAdapter 'updateRecord'
+   * @param store
+   * @param type
+   * @param record
+   * @returns {*}
+   */
+  updateRecord: function(store, type, record) {
+    var data = {};
+    var serializer = store.serializerFor(type.typeKey);
+    serializer.serializeIntoHash(data, type, record);
 
+    var id = record.id;
+    // set POST instead of PUT
+    return this.ajax(this.buildURL(type.typeKey, id, record), "POST", { data: data }).then(function () {
+      data.id = id;
+
+      return { client: data };
+    });
+  },
+  /**
+  /**
+   * Overrides default RESTAdapter 'buildURL'.
+   * @param type
+   * @param id
+   * @param record
+   * @returns {Array}
+   */
+  buildURL: function(type, id, record) {
+    var url = [];
+    var host = this.host;
+    var prefix = this.urlPrefix();
+
+    // FxA OAuth API requires singular 'client' when the record id is set
     if (record) {
       url.push('client');
     } else {
       url.push('clients');
     }
 
-    if (id && !Ember.isArray(id)) { url.push(encodeURIComponent(id)); }
+    if (id && !Ember.isArray(id)) {
+      url.push(encodeURIComponent(id));
+    }
 
-    if (prefix) { url.unshift(prefix); }
+    if (prefix) {
+      url.unshift(prefix);
+    }
 
     url = url.join('/');
-    if (!host && url) { url = '/' + url; }
+    if (!host && url) {
+      url = '/' + url;
+    }
 
     return url;
   }

@@ -5,7 +5,7 @@
 
 ## Development
 
-Installation:
+Install:
 
 ```
 git clone https://github.com/mozilla/fxa-oauth-console
@@ -13,16 +13,18 @@ cd fxa-oauth-console
 npm install
 ```
 
-Running tests:
-
-```
-npm test
-```
-
-Running the server locally:
+Run development server locally:
 
 ```
 npm start
+```
+
+**You will need a local Firefox Accounts stack.**
+
+Run tests:
+
+```
+npm test
 ```
 
 ## License
