@@ -5,7 +5,7 @@
 const url = require('url');
 
 const assert = require('insist');
-const jwcrypto = require('jwcrypto');
+const bidcrypto = require('browserid-crypto');
 const nock = require('nock');
 const buf = require('buf').hex;
 
@@ -17,7 +17,7 @@ const P = require('../lib/promise');
 const Server = require('./lib/server');
 const unique = require('../lib/unique');
 
-require('jwcrypto/lib/algs/ds');
+require('browserid-crypto/lib/algs/ds');
 
 /*global describe,it,before,beforeEach,afterEach*/
 /*jshint camelcase: false*/
@@ -38,9 +38,9 @@ function mockAssertion() {
   return nock(parts.protocol + '//' + parts.host).post(parts.path);
 }
 
-var genKeypair = P.promisify(jwcrypto.generateKeypair);
-var certSign = P.promisify(jwcrypto.cert.sign);
-var assertionSign = P.promisify(jwcrypto.assertion.sign);
+var genKeypair = P.promisify(bidcrypto.generateKeypair);
+var certSign = P.promisify(bidcrypto.cert.sign);
+var assertionSign = P.promisify(bidcrypto.assertion.sign);
 function genAssertion(email) {
   // seriously wtf. creating assertions is atrocious
   return P.all([
@@ -76,7 +76,7 @@ function genAssertion(email) {
       }, user.secretKey)
     ]);
   }).spread(function (cert, assertion) {
-    return jwcrypto.cert.bundle([cert], assertion);
+    return bidcrypto.cert.bundle([cert], assertion);
   });
 }
 
