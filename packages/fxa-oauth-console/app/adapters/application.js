@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import Ember from 'ember';
 import DS from 'ember-data';
 import config from '../config/environment';
@@ -56,11 +60,5 @@ export default DS.RESTAdapter.extend({
     if (!host && url) { url = '/' + url; }
 
     return url;
-  },
-  ajaxError: function(jqXHR) {
-    var error = this._super(jqXHR);
-    console.log(error);
-
-    return error;
   }
 });

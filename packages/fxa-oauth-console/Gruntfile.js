@@ -10,7 +10,7 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('./package.json'),
-    mainJsFiles: '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/}*.js'
+    mainJsFiles: '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/,app/**/}*.js'
   });
 
   grunt.loadTasks('tasks');

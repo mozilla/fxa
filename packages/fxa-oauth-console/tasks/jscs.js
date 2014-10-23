@@ -8,7 +8,7 @@ module.exports = function (grunt) {
 
   grunt.config('jscs', {
     app: [
-      '<%= mainJsFiles %>'
+      '{,lib/**/,scripts/**/,test/**/,tasks/**/,bin/**/}*.js'
     ],
     options: {
       config: '.jscsrc'

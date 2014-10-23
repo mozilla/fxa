@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import Ember from 'ember';
 import AuthenticatedRouteMixin from 'simple-auth/mixins/authenticated-route-mixin';
 import Client from '../models/client';
@@ -35,8 +39,10 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       this.storage.refresh(Client);
       this.transitionTo('clients');
     },
-    error: function(/*error, transition*/) {
-      this.transitionTo('login');
+    error: function(/*error , transition*/) {
+      // if there is an error fetching the client list
+      // then for now just invalidate the session
+      this.get('session').invalidate();
     }
   },
   model: function () {
