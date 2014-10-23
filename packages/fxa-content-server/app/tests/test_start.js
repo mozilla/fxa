@@ -14,6 +14,7 @@ function (Translator, Session) {
     '../tests/spec/lib/channels/fx-desktop',
     '../tests/spec/lib/channels/web',
     '../tests/spec/lib/channels/inter-tab',
+    '../tests/spec/lib/channels/iframe',
     '../tests/spec/lib/xss',
     '../tests/spec/lib/url',
     '../tests/spec/lib/session',
@@ -67,6 +68,7 @@ function (Translator, Session) {
     '../tests/spec/views/progress_indicator',
     '../tests/spec/views/marketing_snippet',
     '../tests/spec/views/cannot_create_account',
+    '../tests/spec/views/close_button',
     '../tests/spec/views/mixins/floating-placeholder-mixin',
     '../tests/spec/views/mixins/timer-mixin',
     '../tests/spec/views/mixins/service-mixin',
@@ -80,7 +82,8 @@ function (Translator, Session) {
     '../tests/spec/models/auth_brokers/fx-desktop',
     '../tests/spec/models/auth_brokers/web-channel',
     '../tests/spec/models/auth_brokers/redirect',
-    '../tests/spec/models/auth_brokers/oauth'
+    '../tests/spec/models/auth_brokers/oauth',
+    '../tests/spec/models/auth_brokers/iframe'
   ];
 
   /*global mocha */

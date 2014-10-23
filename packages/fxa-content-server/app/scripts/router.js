@@ -32,7 +32,8 @@ define([
   'views/delete_account',
   'views/cookies_disabled',
   'views/clear_storage',
-  'views/unexpected_error'
+  'views/unexpected_error',
+  'views/illegal_iframe'
 ],
 function (
   _,
@@ -62,7 +63,8 @@ function (
   DeleteAccountView,
   CookiesDisabledView,
   ClearStorageView,
-  UnexpectedErrorView
+  UnexpectedErrorView,
+  IllegalIframeView
 ) {
 
   function showView(View, options) {
@@ -70,16 +72,17 @@ function (
       // passed in options block can override
       // default options.
       var viewOptions = _.extend({
-        metrics: this.metrics,
-        window: this.window,
-        router: this,
-        language: this.language,
-        relier: this.relier,
         broker: this.broker,
+        canGoBack: this.canGoBack,
         fxaClient: this.fxaClient,
-        user: this.user,
         interTabChannel: this.interTabChannel,
-        canGoBack: this.canGoBack
+        language: this.language,
+        metrics: this.metrics,
+        profileClient: this.profileClient,
+        relier: this.relier,
+        router: this,
+        user: this.user,
+        window: this.window
       }, options || {});
 
       this.showView(new View(viewOptions));
@@ -118,7 +121,8 @@ function (
       'force_auth(/)': showView(ForceAuthView),
       'cookies_disabled(/)': showView(CookiesDisabledView),
       'clear(/)': showView(ClearStorageView),
-      'unexpected_error(/)': showView(UnexpectedErrorView)
+      'unexpected_error(/)': showView(UnexpectedErrorView),
+      'illegal_iframe(/)': showView(IllegalIframeView)
     },
 
     initialize: function (options) {

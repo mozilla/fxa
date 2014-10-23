@@ -7,7 +7,8 @@ define([
   './functional/oauth_sign_up',
   './functional/oauth_reset_password',
   './functional/oauth_webchannel',
-  './functional/oauth_preverified_sign_up'
+  './functional/oauth_preverified_sign_up',
+  './functional/oauth_iframe'
 ], function () {
   'use strict';
 });

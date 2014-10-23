@@ -26,6 +26,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
     var windowMock;
     var relierMock;
     var channelMock;
+    var view;
 
     beforeEach(function () {
       windowMock = new WindowMock();
@@ -41,6 +42,23 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
         session: Session
       });
     });
+
+    function setupCompletesOAuthTest() {
+      view = new BaseView({
+        window: windowMock
+      });
+
+      sinon.stub(broker, 'getOAuthResult', function () {
+        return p({});
+      });
+
+      sinon.stub(broker, 'sendOAuthResultToRelier', function () {
+        return p();
+      });
+
+      sinon.spy(view, 'displayError');
+    }
+
 
     describe('fetch', function () {
       describe('for the signin/signup flow', function () {
@@ -117,17 +135,33 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
         var view = new BaseView({
           window: windowMock
         });
+        setupCompletesOAuthTest();
 
-        sinon.stub(broker, 'getOAuthResult', function () {
-          return p({});
-        });
+        return broker.afterSignIn(view)
+          .then(function () {
+            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isFalse(view.displayError.called);
+          });
+      });
+    });
 
-        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
-          return p();
-        });
+    describe('afterCompleteSignUp', function () {
+      it('calls sendOAuthResultToRelier', function () {
+        setupCompletesOAuthTest();
 
-        sinon.spy(view, 'displayError');
+        return broker.afterCompleteSignUp(view)
+          .then(function () {
+            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isFalse(view.displayError.called);
+          });
+      });
+    });
 
+    describe('afterCompleteResetPassword', function () {
+      it('calls sendOAuthResultToRelier', function () {
+        setupCompletesOAuthTest();
+
+<<<<<<< HEAD
         return broker.afterSignIn(view)
           .then(function () {
             assert.isTrue(
@@ -166,6 +200,12 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
         return broker.afterCompleteResetPassword()
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
+=======
+        return broker.afterCompleteResetPassword(view)
+          .then(function () {
+            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isFalse(view.displayError.called);
+>>>>>>> feat(client): Add the iframe flow.
           });
       });
     });

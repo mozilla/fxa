@@ -9,15 +9,9 @@
 define([
   'underscore',
   'lib/channels/base',
-  'lib/auth-errors'
-],
-function (_, BaseChannel, AuthErrors) {
-  var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 5000;
-
-  function noOp() {
-    // Nothing to do here.
-  }
-
+  'lib/auth-errors',
+  'lib/channels/mixins/postmessage_receiver'
+], function (_, BaseChannel, AuthErrors, PostMessageReceiverMixin) {
   function createEvent(command, data) {
     /*jshint validthis: true*/
     return new this.window.CustomEvent('FirefoxAccountsCommand', {
@@ -29,94 +23,34 @@ function (_, BaseChannel, AuthErrors) {
     });
   }
 
-  function errorIfNoResponse(outstandingRequest) {
-    /*jshint validthis: true*/
-    outstandingRequest.timeout = setTimeout(function () {
-      // only called if the request has not been responded to.
-      console.error('no response from browser: ' + outstandingRequest.command);
-      outstandingRequest.done(AuthErrors.toError('DESKTOP_CHANNEL_TIMEOUT'));
-    }, this.sendTimeoutLength);
-  }
-
-  function receiveMessage(event) {
-    /*jshint validthis: true*/
-    var result = event.data.content;
-    if (! result) {
-      return;
-    }
-
-    var type = event.data.type;
-    var command = result.status;
-
-    if (type === 'message') {
-      var outstandingRequest = this.outstandingRequests[command];
-      if (outstandingRequest) {
-        clearTimeout(outstandingRequest.timeout);
-        delete this.outstandingRequests[command];
-
-        outstandingRequest.done(null, result);
-      }
-
-      this.trigger(command, result);
-    }
-  }
-
   function Channel() {
     // nothing to do here.
   }
 
   _.extend(Channel.prototype, new BaseChannel(), {
-    init: function init(options) {
-      options = options || {};
+    parseMessage: function (message) {
+      var type = message.type;
 
-      this.outstandingRequests = {};
+      if (type !== 'message') {
+        return; // not an expected type of message
+      }
 
-      this.window = options.window || window;
+      var result = message.content;
+      if (! result) {
+        throw new Error('malformed message');
+      }
 
-      this._boundReceiveMessage = _.bind(receiveMessage, this);
-      this.window.addEventListener('message', this._boundReceiveMessage, false);
-
-      this.sendTimeoutLength = options.sendTimeoutLength || DEFAULT_SEND_TIMEOUT_LENGTH_MS;
+      return {
+        command: result.status,
+        data: result
+      };
     },
 
-    teardown: function () {
-      for (var key in this.outstandingRequests) {
-        var item = this.outstandingRequests[key];
-        clearTimeout(item.timeout);
-      }
-
-      this.window.removeEventListener('message', this._boundReceiveMessage, false);
-    },
-
-    send: function (command, data, done) {
-      done = done || noOp;
-
-      var outstanding = this.outstandingRequests[command];
-      if (! outstanding) {
-        // if this is a resend, retriesCompleted has already been updated
-        // and none of the other data needs to be updated.
-        outstanding = this.outstandingRequests[command] = {
-          done: done,
-          command: command,
-          data: data
-        };
-      }
-
-      try {
-        // Browsers can blow up dispatching the event.
-        // Ignore the blowups and return without retrying.
-        var event = createEvent.call(this, command, data);
-        this.window.dispatchEvent(event);
-      } catch (e) {
-        // something went wrong sending the message and we are not going to
-        // retry, no need to keep track of it any longer.
-        delete this.outstandingRequests[command];
-        return done && done(e);
-      }
-
-      errorIfNoResponse.call(this, outstanding);
+    dispatchCommand: function (command, data) {
+      var event = createEvent.call(this, command, data);
+      this.window.dispatchEvent(event);
     }
-  });
+  }, PostMessageReceiverMixin);
 
   return Channel;
 

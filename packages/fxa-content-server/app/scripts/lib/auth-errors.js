@@ -56,7 +56,9 @@ function () {
     DESKTOP_CHANNEL_TIMEOUT: 1017,
     SIGNUP_EMAIL_BOUNCE: 1018,
     DIFFERENT_EMAIL_REQUIRED: 1019,
-    DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN: 1020
+    DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN: 1020,
+    CHANNEL_TIMEOUT: 1021,
+    ILLEGAL_IFRAME_PARENT: 1022
   };
 
   var CODE_TO_MESSAGES = {
@@ -101,7 +103,9 @@ function () {
     1017: t('Unexpected error'),
     1018: t('Your verification email was just returned. Mistyped email?'),
     1019: t('Valid email required'),
-    1020: t('Enter a valid email address. firefox.com does not offer email.')
+    1020: t('Enter a valid email address. firefox.com does not offer email.'),
+    1021: t('Channel timeout'),
+    1022: t('Firefox Accounts can only be placed into an IFRAME on approved sites')
   };
 
   return {

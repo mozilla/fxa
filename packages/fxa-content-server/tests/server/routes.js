@@ -69,7 +69,9 @@ define([
 
   var iframeAllowedRoutes = [
     '/legal/terms',
-    '/legal/privacy'
+    '/legal/privacy',
+    '/oauth/signin',
+    '/oauth/signup'
   ];
 
   function routeTest(route, expectedStatusCode, requestOptions) {

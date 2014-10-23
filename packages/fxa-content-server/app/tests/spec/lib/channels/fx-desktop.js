@@ -7,18 +7,20 @@
 
 define([
   'chai',
-  '/tests/mocks/window.js',
+  'sinon',
   'lib/auth-errors',
   'lib/channels/fx-desktop',
-  '/tests/lib/helpers.js'
+  '../../../mocks/window',
+  '../../../lib/helpers'
 ],
-function (chai, WindowMock, AuthErrors, FxDesktopChannel, TestHelpers) {
+function (chai, sinon, AuthErrors, FxDesktopChannel, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var channel;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('lib/channel/fx-desktop', function () {
     var windowMock;
+    var parentMock;
 
     function dispatchEvent(status, data) {
       windowMock.dispatchEvent({
@@ -34,6 +36,8 @@ function (chai, WindowMock, AuthErrors, FxDesktopChannel, TestHelpers) {
 
     beforeEach(function () {
       windowMock = new WindowMock();
+      parentMock = new WindowMock();
+      windowMock.parent = parentMock;
 
       channel = new FxDesktopChannel();
       channel.init({
@@ -56,9 +60,16 @@ function (chai, WindowMock, AuthErrors, FxDesktopChannel, TestHelpers) {
 
 
       it('times out if browser does not respond', function (done) {
-        channel.send('wait-for-response', { key: 'value' }, function (err) {
+        sinon.stub(parentMock, 'postMessage', function () {
+        });
+
+        sinon.stub(windowMock, 'setTimeout', function (callback) {
+          callback();
+        });
+
+        channel.send('wait-for-response', {}, function (err) {
           wrapAssertion(function () {
-            assert.isTrue(AuthErrors.is(err, 'DESKTOP_CHANNEL_TIMEOUT'));
+            assert.isTrue(AuthErrors.is(err, 'CHANNEL_TIMEOUT'));
           }, done);
         });
       });

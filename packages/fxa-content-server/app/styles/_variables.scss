@@ -51,6 +51,9 @@ $settings-ui-height: 630px;
 //Avatar Variables
 $avatar-size: 240px;
 
+//IFrame close button
+$close-button-color: #c5cdd4;
+
 //Font Mixins
 @mixin font() {
   font-family: $default-font;
