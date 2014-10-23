@@ -37,7 +37,7 @@ module.exports = {
       imageUri: payload.image_uri,
       canGrant: payload.can_grant
     }).done(function() {
-      reply();
+      reply({});
     }, reply);
   }
 };
