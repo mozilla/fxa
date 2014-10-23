@@ -17,13 +17,39 @@ define([
 
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PAGE_URL = config.fxaContentRoot + 'signin';
   var PASSWORD = 'password';
   var user;
   var email;
   var accountData;
   var client;
+
+  function verifyUser(user, index) {
+    return FunctionalHelpers.getVerificationHeaders(user, index)
+      .then(function (headers) {
+        var code = headers['x-verify-code'];
+        return client.verifyCode(accountData.uid, code);
+      });
+  }
+
+  function fillOutSignIn(context, email, password) {
+    return context.get('remote')
+      .get(require.toUrl(PAGE_URL))
+      .setFindTimeout(intern.config.pageLoadTimeout)
+      .findByCssSelector('form input.email')
+        .click()
+        .type(email)
+      .end()
+
+      .findByCssSelector('form input.password')
+        .click()
+        .type(password)
+      .end()
+
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
 
   registerSuite({
     name: 'sign_in',
@@ -58,23 +84,7 @@ define([
     },
 
     'sign in unverified': function () {
-      return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
+      return fillOutSignIn(this, email, PASSWORD)
         .findByCssSelector('.verification-email-message')
           .getVisibleText()
           .then(function (resultText) {
@@ -86,30 +96,9 @@ define([
 
     'sign in verified with correct password': function () {
       var self = this;
-      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
-        .then(function (emails) {
-          var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-          return client.verifyCode(accountData.uid, code);
-        })
+      return verifyUser(email, 0)
         .then(function () {
-          return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
-            .findByCssSelector('form input.email')
-              .clearValue()
-              .click()
-              .type(email)
-            .end()
-
-            .findByCssSelector('form input.password')
-              .clearValue()
-              .click()
-              .type(PASSWORD)
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
-
+          return fillOutSignIn(self, email, PASSWORD)
             // success is seeing the sign-in-complete screen.
             .findById('fxa-settings-header')
             .end();
@@ -118,30 +107,9 @@ define([
 
     'sign in verified with incorrect password, click `forgot password?`': function () {
       var self = this;
-      return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
-        .then(function (emails) {
-          var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-          return client.verifyCode(accountData.uid, code);
-        })
+      return verifyUser(email, 0)
         .then(function () {
-          return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
-            .findByCssSelector('form input.email')
-              .clearValue()
-              .click()
-              .type(email)
-            .end()
-
-            .findByCssSelector('form input.password')
-              .clearValue()
-              .click()
-              .type('incorrect password')
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
-
+          return fillOutSignIn(self, email, 'incorrect password')
             // success is seeing the error message.
             .findByClassName('error')
             .end()
@@ -158,27 +126,8 @@ define([
     },
 
     'sign in with an unknown account allows the user to sign up': function () {
-      var self = this;
-      email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
-
-      return self.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        .findByCssSelector('input[type=email]')
-          .click()
-          .clearValue()
-          .type(email)
-        .end()
-
-        .findByCssSelector('input[type=password]')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
+      var email = TestHelpers.createEmail();
+      return fillOutSignIn(this, email, PASSWORD)
         // The error area shows a link to /signup
         .then(FunctionalHelpers.visibleByQSA('.error a[href="/signup"]'))
         .findByCssSelector('.error a[href="/signup"]')
@@ -203,11 +152,36 @@ define([
         .end();
     },
 
+    'sign in with email with leading space strips space': function () {
+      var self = this;
+      return verifyUser(email, 0)
+        .then(function () {
+          return fillOutSignIn(self, '   ' + email, PASSWORD)
+            // success is seeing the sign-in-complete screen.
+            .findById('fxa-settings-header')
+            .end();
+        });
+    },
+
+    'sign in with email with trailing space strips space': function () {
+      var self = this;
+
+      return verifyUser(email, 0)
+        .then(function () {
+          return fillOutSignIn(self, email + '   ', PASSWORD)
+            // success is seeing the sign-in-complete screen.
+            .findById('fxa-settings-header')
+            .end();
+        });
+    },
+
     'click `forgot password?` link with no email redirects to /forgot_password': function () {
       var self = this;
 
       return self.get('remote')
         .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
         .findByCssSelector('input[type=email]')
           .click()
           .clearValue()
@@ -226,6 +200,8 @@ define([
 
       return self.get('remote')
         .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
         .findByCssSelector('input[type=email]')
           .click()
           .clearValue()
@@ -265,6 +241,8 @@ define([
 
     return self.get('remote')
       .get(require.toUrl(PAGE_URL))
+      .setFindTimeout(intern.config.pageLoadTimeout)
+
       .findByCssSelector('input[type=email]')
         .clearValue()
         .click()

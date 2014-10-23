@@ -86,7 +86,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
         // are not added to the values.
         if (typeof el.attr('data-novalue') === 'undefined') {
           var name = el.attr('name') || el.attr('id');
-          values[name] = el.val();
+          values[name] = this.getElementValue(el);
         }
       }
 
@@ -291,6 +291,20 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       this.showValidationErrorsEnd();
     },
 
+    /**
+     * Get an element value, trimming the value of whitespace if necesary
+     */
+    getElementValue: function (el) {
+      var value = this.$(el).val();
+
+      if (value && this.getElementType(el) === 'email') {
+        value = value.trim();
+      }
+
+      return value;
+    },
+
+
     getElementType: function (el) {
       var fieldType = $(el).attr('type');
 
@@ -332,10 +346,9 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * @return true if email is valid, false otw.
      */
     validateEmail: function (selector) {
-      var email = this.$(selector).val();
+      var email = this.getElementValue(selector);
       return Validate.isEmailValid(email);
     },
-
 
     showEmailValidationError: function (which) {
       return this.showValidationError(which, AuthErrors.toError('EMAIL_REQUIRED'));
@@ -347,7 +360,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * @return true if password is valid, false otw.
      */
     validatePassword: function (selector) {
-      var password = this.$(selector).val();
+      var password = this.getElementValue(selector);
       return Validate.isPasswordValid(password);
     },
 
@@ -361,7 +374,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       var el = this.$(selector);
       var isRequired = typeof el.attr('required') !== 'undefined';
 
-      var value = el.val();
+      var value = this.getElementValue(el);
 
       if (isRequired && value.length === 0) {
         return false;
@@ -378,7 +391,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     },
 
     showPasswordValidationError: function (which) {
-      var passwordVal = this.$(which).val();
+      var passwordVal = this.getElementValue(which);
 
       var errType = passwordVal ? 'PASSWORD_TOO_SHORT' : 'PASSWORD_REQUIRED';
 

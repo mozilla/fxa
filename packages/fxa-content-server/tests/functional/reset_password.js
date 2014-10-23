@@ -43,6 +43,19 @@ define([
       });
   }
 
+  function fillOutResetPassword(context, email) {
+    return context.get('remote')
+      .get(require.toUrl(RESET_PAGE_URL))
+
+      .findByCssSelector('input[type=email]')
+        .click()
+        .type(email)
+      .end()
+
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
 
   registerSuite({
     name: 'reset_password same browser flow',
@@ -76,21 +89,29 @@ define([
     },
 
     'open /reset_password page from /signin': function () {
+      var self = this;
       return this.get('remote')
         .get(require.toUrl(SIGNIN_PAGE_URL))
         .findByCssSelector('a[href="/reset_password"]')
           .click()
         .end()
 
-        .findByCssSelector('input[type=email]')
-          .click()
-          .type(email)
-        .end()
+        .then(function () {
+          return fillOutResetPassword(self, email);
+        })
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .findById('fxa-confirm-reset-password-header')
+        .end();
+    },
 
+    'enter an email with leading whitespace': function () {
+      return fillOutResetPassword(this, '   ' + email)
+        .findById('fxa-confirm-reset-password-header')
+        .end();
+    },
+
+    'enter an email with trailing whitespace': function () {
+      return fillOutResetPassword(this, email + '   ')
         .findById('fxa-confirm-reset-password-header')
         .end();
     },
@@ -337,17 +358,7 @@ define([
     },
 
     'page transitions after completion': function () {
-      return this.get('remote')
-        .get(require.toUrl(RESET_PAGE_URL))
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
+      return fillOutResetPassword(this, email)
         .findById('fxa-confirm-reset-password-header')
           .then(function () {
             return client.passwordChange(email, PASSWORD, 'newpassword');
@@ -368,18 +379,7 @@ define([
     },
 
     'open /reset_password page, enter unknown email': function () {
-      return this.get('remote')
-        .get(require.toUrl(RESET_PAGE_URL))
-        .findByCssSelector('input[type=email]')
-          .click()
-          .clearValue()
-          .type(email)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
+      return fillOutResetPassword(this, email)
         // The error area shows a link to /signup
         .then(FunctionalHelpers.visibleByQSA('.error a[href="/signup"]'))
         .findByCssSelector('.error a[href="/signup"]')
