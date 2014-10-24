@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const buf = require('buf').hex;
+const hex = require('buf').to.hex;
 const mysql = require('mysql');
 
 const encrypt = require('../encrypt');
-const logger = require('../logging').getLogger('fxa.db.mysql');
+const logger = require('../logging')('db.mysql');
 const P = require('../promise');
 const unique = require('../unique');
 
@@ -14,7 +15,7 @@ const SCHEMA = require('fs').readFileSync(__dirname + '/schema.sql').toString();
 
 function MysqlStore(options) {
   if (options.charset && options.charset !== 'UTF8_UNICODE_CI') {
-    logger.warn('createDatabase: using charset ' + options.charset);
+    logger.warn('createDatabase', { charset: options.charset });
   } else {
     options.charset = 'UTF8_UNICODE_CI';
   }
@@ -40,7 +41,7 @@ function createSchema(conn, options) {
 
   conn.query(createDatabaseQuery, function(err) {
     if (err) {
-      logger.error('create database', err);
+      logger.error('createDatabase', err);
       return d.reject(err);
     }
 
@@ -146,12 +147,11 @@ MysqlStore.prototype = {
   registerClient: function registerClient(client) {
     var id;
     if (client.id) {
-      logger.debug('registerClient: client already has ID?', client.id);
       id = buf(client.id);
     } else {
       id = unique.id();
     }
-    logger.debug('registerClient', client.name, id.toString('hex'));
+    logger.debug('registerClient', { name: client.name, id: hex(id) });
     return this._write(QUERY_CLIENT_REGISTER, [
       id,
       client.name,
@@ -161,7 +161,7 @@ MysqlStore.prototype = {
       !!client.whitelisted,
       !!client.canGrant
     ]).then(function() {
-      logger.debug('registerClient: success [%s]', id.toString('hex'));
+      logger.debug('registerClient.success', { id: hex(id) });
       client.id = id;
       return client;
     });

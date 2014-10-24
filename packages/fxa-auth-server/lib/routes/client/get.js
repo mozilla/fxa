@@ -7,7 +7,7 @@ const Joi = require('joi');
 
 const AppError = require('../../error');
 const db = require('../../db');
-const logger = require('../../logging').getLogger('fxa.routes.request.client');
+const logger = require('../../logging')('routes.client.get');
 const validators = require('../../validators');
 
 /*jshint camelcase: false*/
@@ -29,7 +29,7 @@ module.exports = {
     var params = req.params;
     db.getClient(Buffer(params.client_id, 'hex')).then(function(client) {
       if (!client) {
-        logger.debug('client:id="%s" not found', params.client_id);
+        logger.debug('notFound', { id: params.client_id });
         throw AppError.unknownClient(params.client_id);
       }
       return client;

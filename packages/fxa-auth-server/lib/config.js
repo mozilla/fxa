@@ -82,45 +82,16 @@ const conf = convict({
     default: false
   },
   logging: {
-    formatters: {
-      doc: 'http://seanmonstar.github.io/intel/#formatters',
-      default: {
-        pretty: {
-          format: '%(name)s.%(levelname)s: %(message)s',
-          colorize: true
-        },
-        json: {
-          class: './logging/json'
-        }
-      }
+    app: {
+      default: 'fxa-oauth-server'
     },
-    handlers: {
-      doc: 'http://seanmonstar.github.io/intel/#handlers',
-      default: {
-        console: {
-          class: 'intel/handlers/stream',
-          stream: 'stderr',
-          formatter: 'json'
-        }
-      }
+    level: {
+      env: 'LOG_LEVEL',
+      default: 'info'
     },
-    loggers: {
-      doc: 'http://seanmonstar.github.io/intel/#logging',
-      default: {
-        fxa: {
-          handlers: ['console'],
-          handleExceptions: true,
-          level: 'INFO',
-          propagate: false
-        },
-        'fxa.server.hapi': {
-          level: 'ERROR'
-        }
-      }
-    },
-    root: {
-      doc: 'Path used for finding relative classes',
-      default: __dirname
+    fmt: {
+      format: ['heka', 'pretty'],
+      default: 'heka'
     }
   },
   mysql: {
@@ -189,10 +160,6 @@ var envConfig = path.join(__dirname, '..', 'config', conf.get('env') + '.json');
 var files = (envConfig + ',' + process.env.CONFIG_FILES)
   .split(',').filter(fs.existsSync);
 conf.loadFile(files);
-
-if (process.env.LOG_LEVEL) {
-  conf.set('logging.loggers.fxa.level', process.env.LOG_LEVEL);
-}
 
 conf.validate();
 
