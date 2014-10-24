@@ -12,7 +12,14 @@ function (BaseView, CannotCreateAccountTemplate) {
 
   var CannotCreateAccountView = BaseView.extend({
     template: CannotCreateAccountTemplate,
-    className: 'cannot-create-account'
+    className: 'cannot-create-account',
+
+    context: function () {
+      return {
+        isSync: this.relier.isSync()
+      };
+    }
+
   });
 
   return CannotCreateAccountView;
