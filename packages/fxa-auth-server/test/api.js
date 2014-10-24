@@ -823,6 +823,7 @@ describe('/v1', function() {
           });
         }).then(function(res) {
           assert.equal(res.statusCode, 200);
+          assert.equal(res.payload, '{}');
           return db.getClient(id);
         }).then(function(klient) {
           assert.equal(klient.name, 'updated');

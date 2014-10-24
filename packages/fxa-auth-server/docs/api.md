@@ -225,7 +225,7 @@ curl -v \
 
 #### Response
 
-A valid reponse will have a 200 status code and empty body.
+A valid reponse will have a 200 status code and empty object `{}`.
 
 ### DELETE /v1/client/:id
 
