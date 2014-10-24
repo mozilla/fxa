@@ -226,8 +226,18 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     }
   }
 
-  .select-row select {
-    padding-left: $input-left-right-padding * 0.5;
+  .select-row {
+    background-image: none;
+    &.select-focus {
+      background-image: none;
+    }
+    &:hover,
+    &:focus {
+      background-image: none;
+    }
+    select {
+      padding-left: $input-left-right-padding * 0.5;
+    }
   }
 
   .privacy-links + 
