@@ -243,18 +243,18 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     /**
      * Check to see if an element passes HTML5 form validation.
      */
-    isElementValid: function (selector) {
-      var el = this.$(selector);
+    isElementValid: function (el) {
+      el = this.$(el);
       var type = this.getElementType(el);
 
       // email and password follow our own rules.
       if (type === 'email') {
-        return this.validateEmail(selector);
+        return this.validateEmail(el);
       } else if (type === 'password') {
-        return this.validatePassword(selector);
+        return this.validatePassword(el);
       }
 
-      return this.validateInput(selector);
+      return this.validateInput(el);
     },
 
     /**
@@ -345,13 +345,13 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return true if email is valid, false otw.
      */
-    validateEmail: function (selector) {
-      var email = this.getElementValue(selector);
+    validateEmail: function (el) {
+      var email = this.getElementValue(el);
       return Validate.isEmailValid(email);
     },
 
-    showEmailValidationError: function (which) {
-      return this.showValidationError(which, AuthErrors.toError('EMAIL_REQUIRED'));
+    showEmailValidationError: function (el) {
+      return this.showValidationError(el, AuthErrors.toError('EMAIL_REQUIRED'));
     },
 
     /**
@@ -359,8 +359,8 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      *
      * @return true if password is valid, false otw.
      */
-    validatePassword: function (selector) {
-      var password = this.getElementValue(selector);
+    validatePassword: function (el) {
+      var password = this.getElementValue(el);
       return Validate.isPasswordValid(password);
     },
 
@@ -370,8 +370,8 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * browser validation will kick in. If validating an email or password
      * field, call validateEmail or validatePassword instead.
      */
-    validateInput: function (selector) {
-      var el = this.$(selector);
+    validateInput: function (el) {
+      el = this.$(el);
       var isRequired = typeof el.attr('required') !== 'undefined';
 
       var value = this.getElementValue(el);
@@ -390,21 +390,21 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       return true;
     },
 
-    showPasswordValidationError: function (which) {
-      var passwordVal = this.getElementValue(which);
+    showPasswordValidationError: function (el) {
+      var passwordVal = this.getElementValue(el);
 
       var errType = passwordVal ? 'PASSWORD_TOO_SHORT' : 'PASSWORD_REQUIRED';
 
-      return this.showValidationError(which, AuthErrors.toError(errType));
+      return this.showValidationError(el, AuthErrors.toError(errType));
     },
 
     /**
      * Show a form validation error to the user in the form of a tooltip.
      */
-    showValidationError: function (which, err) {
+    showValidationError: function (el, err) {
       this.logError(err);
 
-      var invalidEl = this.$(which);
+      var invalidEl = this.$(el);
       var message = AuthErrors.toMessage(err);
 
       var tooltip = new Tooltip({
@@ -415,10 +415,10 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       var self = this;
       tooltip.on('destroyed', function () {
         invalidEl.removeClass('invalid');
-        self.trigger('validation_error_removed', which);
+        self.trigger('validation_error_removed', el);
       }).render().then(function () {
         // used for testing
-        self.trigger('validation_error', which, message);
+        self.trigger('validation_error', el, message);
       });
 
       this.trackSubview(tooltip);
