@@ -11,7 +11,7 @@ const URI = require('URIjs');
 const AppError = require('../error');
 const config = require('../config');
 const db = require('../db');
-const logger = require('../logging').getLogger('fxa.routes.authorization');
+const logger = require('../logging')('routes.authorization');
 const P = require('../promise');
 const validators = require('../validators');
 const verify = require('../browserid');
@@ -43,7 +43,7 @@ function generateCode(claims, client, scope, req) {
     claims['fxa-verifiedEmail'],
     scope
   ).then(function(code) {
-    logger.debug('redirecting with code to %s', req.payload.redirect_uri);
+    logger.debug('redirecting', { uri: req.payload.redirect_uri });
 
     var redirect = URI(req.payload.redirect_uri)
       .addQuery({ state: req.payload.state, code: hex(code) });
@@ -117,10 +117,10 @@ module.exports = {
       }),
       db.getClient(Buffer(req.payload.client_id, 'hex')).then(function(client) {
         if (!client) {
-          logger.debug('client_id="%s" not found', req.payload.client_id);
+          logger.debug('notFound', { id: req.payload.client_id });
           throw AppError.unknownClient(req.payload.client_id);
         } else if (!client.whitelisted) {
-          logger.error('client_id="%s" not whitelisted', req.payload.client_id);
+          logger.error('notWhitelisted', { id: req.payload.client_id });
           // TODO: implement external clients so we can remove this
           throw Hapi.error.notImplemented();
         }
@@ -128,11 +128,13 @@ module.exports = {
         var uri = req.payload.redirect_uri || client.redirectUri;
 
         if (uri !== client.redirectUri) {
-          logger.debug('redirect_uri [%s] does not match registered [%s]',
-            uri, client.redirectUri);
+          logger.debug('redirect.mismatch', {
+            param: uri,
+            registered: client.redirectUri
+          });
 
           if (config.get('localRedirects') && isLocalHost(uri)) {
-            logger.debug('local_redirects ON, matched');
+            logger.debug('redirect.local', { uri: uri });
           } else {
             throw AppError.incorrectRedirect(uri);
           }
@@ -140,10 +142,9 @@ module.exports = {
         }
 
         if (wantsGrant && !client.canGrant) {
-          logger.warn(
-            'client_id [%s] tried to get implicit grant without permission',
-            req.payload.client_id
-          );
+          logger.warn('implicitGrant.notAllowed', {
+            id: req.payload.client_id
+          });
           throw AppError.invalidResponseType();
         }
 

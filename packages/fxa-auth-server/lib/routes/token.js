@@ -10,7 +10,7 @@ const Joi = require('joi');
 const config = require('../config');
 const db = require('../db');
 const encrypt = require('../encrypt');
-const logger = require('../logging').getLogger('fxa.routes.token');
+const logger = require('../logging')('routes.token');
 const validators = require('../validators');
 
 
@@ -50,15 +50,18 @@ module.exports = {
     var params = req.payload;
     db.getClient(buf(params.client_id)).then(function(client) {
       if (!client) {
-        logger.debug('client_id="%s" not found', params.client_id);
+        logger.debug('client.notFound', { id: params.client_id });
         throw AppError.unknownClient(params.client_id);
       }
 
       var submitted = hex(encrypt.hash(buf(params.client_secret)));
       var stored = hex(client.secret);
       if (submitted !== stored) {
-        logger.debug('client id=%s did not match secrets', params.client_id);
-        logger.verbose('mismatched secret: param=%s, db=%s', submitted, stored);
+        logger.info('client.mismatchSecret', { client: params.client_id });
+        logger.verbose('client.mismatchSecret.details', {
+          submitted: submitted,
+          db: stored
+        });
         throw AppError.incorrectSecret(params.client_id);
       }
 
@@ -67,17 +70,19 @@ module.exports = {
     .then(function(client) {
       return db.getCode(Buffer(req.payload.code, 'hex')).then(function(code) {
         if (!code) {
-          logger.debug('code [%s] not found', req.payload.code);
+          logger.debug('code.notFound', { code: req.payload.code });
           throw AppError.unknownCode(req.payload.code);
         } else if (String(code.clientId) !== String(client.id)) {
-          logger.debug('client_id [%s] does not match on our code [%s]',
-            client.id.toString('hex'), code.clientId.toString('hex'));
+          logger.debug('code.mismatch', {
+            client: client.id.toString('hex'),
+            code: code.clientId.toString('hex')
+          });
           throw AppError.mismatchCode(req.payload.code, client.id);
         } else {
           // + because loldatemath. without it, it does string concat
           var expiresAt = +code.createdAt + config.get('expiration.code');
           if (Date.now() > expiresAt) {
-            logger.debug('code [%j] has expired', code);
+            logger.debug('code.expired', { code: code });
             throw AppError.expiredCode(req.payload.code, expiresAt);
           }
         }

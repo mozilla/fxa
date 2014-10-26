@@ -6,7 +6,7 @@ const request = require('request');
 
 const AppError = require('./error');
 const config = require('./config');
-const logger = require('./logging').getLogger('fxa.assertion');
+const logger = require('./logging')('assertion');
 const P = require('./promise');
 
 const HEX_STRING = /^[0-9a-f]+$/;
@@ -37,7 +37,7 @@ Assertion.prototype.toJSON = function() {
 };
 
 module.exports = function verifyAssertion(assertion) {
-  logger.verbose('assertion %:2j', new Assertion(assertion));
+  logger.verbose('assertion', new Assertion(assertion));
   var d = P.defer();
   var opts = {
     url: VERIFICATION_URL,
@@ -48,12 +48,12 @@ module.exports = function verifyAssertion(assertion) {
   };
   request.post(opts, function(err, res, body) {
     if (err) {
-      logger.error('error verifying assertion', err);
+      logger.error('verify.error', err);
       return d.reject(err);
     }
 
     function error(msg, val) {
-      logger.debug('invalidAssertion', msg, val);
+      logger.debug('invalidAssertion', { msg: msg, val: val });
       d.reject(AppError.invalidAssertion());
     }
 

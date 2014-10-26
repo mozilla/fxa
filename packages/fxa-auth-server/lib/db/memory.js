@@ -6,7 +6,7 @@ const buf = require('buf').hex;
 const unbuf = require('buf').unbuf.hex;
 
 const encrypt = require('../encrypt');
-const logger = require('../logging').getLogger('fxa.db.memory');
+const logger = require('../logging')('db.memory');
 const P = require('../promise');
 const unique = require('../unique');
 
@@ -72,13 +72,12 @@ MemoryStore.prototype = {
   },
   registerClient: function registerClient(client) {
     if (client.id) {
-      logger.debug('registerClient: client already has ID?', client.id);
       client.id = buf(client.id);
     } else {
       client.id = unique.id();
     }
     var hex = unbuf(client.id);
-    logger.debug('registerClient', client.name, hex);
+    logger.debug('registerClient', { name: client.name, id: hex });
     client.createdAt = new Date();
     client.canGrant = !!client.canGrant;
     client.whitelisted = !!client.whitelisted;

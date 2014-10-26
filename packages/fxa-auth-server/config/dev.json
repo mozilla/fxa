@@ -34,15 +34,7 @@
   ],
   "localRedirects": true,
   "logging": {
-    "handlers": {
-      "console": {
-        "formatter": "pretty"
-      }
-    },
-    "loggers": {
-      "fxa": {
-        "level": "ALL"
-      }
-    }
+    "level": "ALL",
+    "fmt": "pretty"
   }
 }

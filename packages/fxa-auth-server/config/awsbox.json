@@ -15,21 +15,6 @@
   ],
   "env": "stage",
   "logging": {
-    "formatters": {
-      "pretty": {
-        "format": "[%(date)s] %(name)s.%(levelname)s: %(message)s",
-        "colorize": false
-      }
-    },
-    "handlers": {
-      "console": {
-        "formatter": "pretty"
-      }
-    },
-    "loggers": {
-      "fxa": {
-        "level": "verbose"
-      }
-    }
+    "level": "verbose"
   }
 }

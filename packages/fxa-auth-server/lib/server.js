@@ -7,8 +7,8 @@ const Hapi = require('hapi');
 const AppError = require('./error');
 const auth = require('./auth');
 const config = require('./config').root();
-const logger = require('./logging').getLogger('fxa.server');
-const hapiLogger = require('./logging').getLogger('fxa.server.hapi');
+const logger = require('./logging')('server');
+const hapiLogger = require('./logging')('server.hapi');
 const summary = require('./logging/summary');
 
 exports.create = function createServer() {
@@ -16,8 +16,8 @@ exports.create = function createServer() {
   if (config.localRedirects && config.env !== 'dev') {
     // nightly, latest, etc will probably set this to true, but it's
     // worth explicitly yelling about it.
-    logger.warn('*** localRedirects is set to TRUE.' +
-      'Should only be used for developers. ***');
+    logger.warn('localRedirect',
+      '*** localRedirects is set to TRUE. Should only be used for developers.');
   }
   var isProd = config.env === 'prod';
   var server = Hapi.createServer(
@@ -52,7 +52,7 @@ exports.create = function createServer() {
 
   var routes = require('./routing');
   if (isProd) {
-    logger.info('Disabling response schema validation');
+    logger.info('prod', 'Disabling response schema validation');
     routes.forEach(function(route) {
       delete route.config.response;
     });
@@ -62,17 +62,13 @@ exports.create = function createServer() {
   // hapi internal logging: server and request
   server.on('log', function onServerLog(ev, tags) {
     if (tags.error && tags.implementation) {
-      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
-    } else {
-      hapiLogger.verbose('Server', ev.tags, ev.data);
+      hapiLogger.critical('error.uncaught', { tags: ev.tags, error: ev.data });
     }
   });
 
   server.on('request', function onRequestLog(req, ev, tags) {
     if (tags.error && tags.implementation) {
-      hapiLogger.critical('Uncaught internal error', ev.tags, ev.data);
-    } else {
-      hapiLogger.verbose('Request <%s>', req.id, ev.tags, ev.data);
+      hapiLogger.critical('error.uncaught', { tags: ev.tags, error: ev.data });
     }
   });
 
@@ -83,19 +79,6 @@ exports.create = function createServer() {
     }
     summary(request, response);
     next(response);
-  });
-
-  // response logging
-  server.on('response', function onResponse(req) {
-    logger.info(
-      '%s %s - %d (%dms) <%s>',
-      req.method.toUpperCase(),
-      req.path,
-      req.response.statusCode,
-      Date.now() - req.info.received,
-      req.id
-    );
-    logger.verbose('Response: %:2j <%s>', req.response.source, req.id);
   });
 
   return server;

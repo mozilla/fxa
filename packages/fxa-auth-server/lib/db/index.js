@@ -8,20 +8,22 @@ const P = require('../promise');
 
 const config = require('../config');
 const encrypt = require('../encrypt');
-const logger = require('../logging').getLogger('fxa.db');
+const logger = require('../logging')('db');
 const klass = config.get('db.driver') === 'mysql' ?
   require('./mysql') : require('./memory');
 
-function clientEquals(client, other) {
-  var props = Object.keys(client);
+function clientEquals(configClient, dbClient) {
+  var props = Object.keys(configClient);
   for (var i = 0; i < props.length; i++) {
     var prop = props[i];
-    logger.verbose('comparing %s', prop);
-    var clientProp = unbuf(client[prop]);
-    var otherProp = unbuf(other[prop]);
-    if (clientProp !== otherProp) {
-      logger.debug('Clients differ on %s: %s vs %s',
-        prop, clientProp, otherProp);
+    var configProp = unbuf(configClient[prop]);
+    var dbProp = unbuf(dbClient[prop]);
+    if (configProp !== dbProp) {
+      logger.debug('clients.differ', {
+        prop: prop,
+        configProp: configProp,
+        dbProp: dbProp
+      });
       return false;
     }
   }
@@ -47,10 +49,10 @@ function convertClientToConfigFormat(client) {
 function preClients() {
   var clients = config.get('clients');
   if (clients && clients.length) {
-    logger.debug('Loading pre-defined clients: %:2j', clients);
+    logger.debug('predefined.loading', { clients: clients });
     return P.all(clients.map(function(c) {
       if (c.secret) {
-        logger.error('Do not keep client secrets in the config file.'
+        console.error('Do not keep client secrets in the config file.'
           + ' Use the `hashedSecret` field instead.\n\n'
           + '\tclient=%s has `secret` field\n'
           + '\tuse hashedSecret="%s" instead',
@@ -64,12 +66,15 @@ function preClients() {
       return exports.getClient(c.id).then(function(client) {
         if (client) {
           client = convertClientToConfigFormat(client);
-          logger.info('Client %s exists, comparing...', c.id);
+          logger.info('client.compare', { id: c.id });
           if (clientEquals(client, c)) {
-            logger.info('Client %s is the same, skipping...', c.id);
+            logger.info('client.compare.equal', { id: c.id });
           } else {
-            logger.warn('Client %s differs, updating!\n'
-              + 'Before: %:2j\nAfter: %:2j', c.id, client, c);
+            logger.warn('client.compare.differs', {
+              id: c.id,
+              before: client,
+              after: c
+            });
             return exports.updateClient(c);
           }
         } else {
@@ -92,7 +97,7 @@ function withDriver() {
     p = klass.connect();
   }
   return p.then(function(store) {
-    logger.debug('connected to "%s" store', config.get('db.driver'));
+    logger.debug('connected', { driver: config.get('db.driver') });
     driver = store;
   }).then(preClients).then(function() {
     return driver;
@@ -102,7 +107,7 @@ function withDriver() {
 const proxyReturn = logger.isEnabledFor(logger.VERBOSE) ?
   function verboseReturn(promise, method) {
     return promise.then(function(ret) {
-      logger.verbose('proxied %s < %:2j', method, ret);
+      logger.verbose('proxied', { method: method, ret: ret });
       return ret;
     });
   } : function identity(x) {
@@ -113,10 +118,10 @@ function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function(driver) {
-      logger.verbose('proxying %s > %:2j', method, args);
+      logger.verbose('proxying', { method: method, args: args });
       return proxyReturn(driver[method].apply(driver, args), method);
     }).catch(function(err) {
-      logger.error('%s: %s', method, err);
+      logger.error(method, err);
       throw err;
     });
   };

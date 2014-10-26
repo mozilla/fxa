@@ -2,21 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const intel = require('intel');
+const mozlog = require('mozlog');
 
-const config = require('../config');
+const config = require('../config').get('logging');
 
-var conf = config.get('logging');
-if (typeof conf.handlers.console.stream === 'string') {
-  conf.handlers.console.stream = process[conf.handlers.console.stream];
-}
+mozlog.config(config);
 
-intel.config(conf);
 
-var root = intel.getLogger('fxa');
-if (root.isEnabledFor(intel.DEBUG)) {
+var root = mozlog(config.app);
+if (root.isEnabledFor('debug')) {
   root.warn('\t*** CAREFUL! Louder logs (less than INFO)' +
     ' may include SECRETS! ***');
 }
 
-module.exports = intel;
+module.exports = mozlog;
