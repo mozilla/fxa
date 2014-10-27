@@ -383,7 +383,6 @@ define([
         // The error area shows a link to /signup
         .then(FunctionalHelpers.visibleByQSA('.error a[href="/signup"]'))
         .findByCssSelector('.error a[href="/signup"]')
-          .moveMouseTo()
           .click()
         .end()
 

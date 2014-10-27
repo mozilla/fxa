@@ -298,7 +298,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       var value = this.$(el).val();
 
       if (value && this.getElementType(el) === 'email') {
-        value = value.trim();
+        value = $.trim(value);
       }
 
       return value;

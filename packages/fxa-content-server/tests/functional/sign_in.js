@@ -33,22 +33,7 @@ define([
   }
 
   function fillOutSignIn(context, email, password) {
-    return context.get('remote')
-      .get(require.toUrl(PAGE_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
-      .findByCssSelector('form input.email')
-        .click()
-        .type(email)
-      .end()
-
-      .findByCssSelector('form input.password')
-        .click()
-        .type(password)
-      .end()
-
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
+    return FunctionalHelpers.fillOutSignIn(context, email, password);
   }
 
   registerSuite({
@@ -77,9 +62,6 @@ define([
     },
 
     teardown: function () {
-      // clear localStorage to avoid polluting other tests.
-      // Without the clear, /signup tests fail because of the info stored
-      // in prefillEmail
       return FunctionalHelpers.clearBrowserState(this);
     },
 
@@ -131,7 +113,6 @@ define([
         // The error area shows a link to /signup
         .then(FunctionalHelpers.visibleByQSA('.error a[href="/signup"]'))
         .findByCssSelector('.error a[href="/signup"]')
-          .moveMouseTo()
           .click()
         .end()
 
@@ -171,6 +152,17 @@ define([
           return fillOutSignIn(self, email + '   ', PASSWORD)
             // success is seeing the sign-in-complete screen.
             .findById('fxa-settings-header')
+            .end();
+        });
+    },
+
+    'sign in verified with password that incorrectly has leading whitespace': function () {
+      var self = this;
+      return verifyUser(email, 0)
+        .then(function () {
+          return fillOutSignIn(self, email, '  ' + PASSWORD)
+            // success is seeing the error message.
+            .findByClassName('error')
             .end();
         });
     },
