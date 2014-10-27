@@ -16,7 +16,8 @@ define([
   'lib/auth-errors',
   '../../lib/helpers'
 ],
-function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors, TestHelpers) {
+function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors,
+      TestHelpers) {
   var assert = chai.assert;
 
   describe('views/form', function () {
@@ -441,6 +442,26 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors, TestHe
             assert.equal(view.$('.error').text(), 'BOOM');
             assert.isTrue(view._isErrorVisible);
           });
+      });
+    });
+
+    describe('getElementValue', function () {
+      it('gets an element\'s value, does not trim by default', function () {
+        var elementVal = 'this is the value of an element ';
+        $('#required').val(elementVal);
+        assert.equal(view.getElementValue('#required'), elementVal);
+      });
+
+      it('trims the value of an email element', function () {
+        var elementVal = '   testuser@testuser.com ';
+        $('#email').val(elementVal);
+        assert.equal(view.getElementValue('#email'), $.trim(elementVal));
+      });
+
+      it('does not trim the value of a password element', function () {
+        var elementVal = '  password  ';
+        $('#password').val(elementVal);
+        assert.equal(view.getElementValue('#password'), elementVal);
       });
     });
   });

@@ -21,10 +21,33 @@ define([
 
   var CUTOFF_YEAR = new Date().getFullYear() - 13;
 
+  var email;
+  var PASSWORD = '12345678';
+
+  function fillOutSignUp(context, email, password, year) {
+    return FunctionalHelpers.fillOutSignUp(context, email, password, year);
+  }
+
+  function fillOutSignIn(context, email, password) {
+    return FunctionalHelpers.fillOutSignIn(context, email, password);
+  }
+
+  function testAtConfirmScreen(context, email) {
+    return context.get('remote')
+      .findByCssSelector('.verification-email-message')
+        .getVisibleText()
+        .then(function (resultText) {
+          // check the email address was written
+          assert.ok(resultText.indexOf(email) > -1);
+        })
+      .end();
+  }
+
   registerSuite({
     name: 'sign_up',
 
     beforeEach: function () {
+      email = TestHelpers.createEmail();
       return FunctionalHelpers.clearBrowserState(this);
     },
 
@@ -33,76 +56,51 @@ define([
     },
 
     'sign up': function () {
-      var email = TestHelpers.createEmail();
-      var password = '12345678';
+      var self = this;
+      return fillOutSignUp(this, email, PASSWORD, CUTOFF_YEAR - 1)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        });
+    },
 
-      return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
+    'sign up with email with leading whitespace on the email': function () {
+      var emailWithoutSpace = email;
+      var emailWithSpace = ('   ' + email);
+      var self = this;
+      return fillOutSignUp(this, emailWithSpace, PASSWORD, CUTOFF_YEAR - 1)
+        .then(function () {
+          return testAtConfirmScreen(self, emailWithoutSpace);
+        })
+        .then(function () {
+          return fillOutSignIn(self, emailWithoutSpace, PASSWORD);
+        })
 
-        .findByCssSelector('form input.password')
-          .click()
-          .type(password)
-        .end()
+        // user is not confirmed, success is seeing the confirm screen.
+        .findById('fxa-confirm-header')
+        .end();
+    },
 
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
+    'sign up with email with trailing whitespace on the email': function () {
+      var emailWithoutSpace = email;
+      var emailWithSpace = ('   ' + email);
 
-        .findById('fxa-' + (CUTOFF_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
+      var self = this;
+      return fillOutSignUp(this, emailWithSpace, PASSWORD, CUTOFF_YEAR - 1)
+        .then(function () {
+          return testAtConfirmScreen(self, emailWithoutSpace);
+        })
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return fillOutSignIn(self, emailWithoutSpace, PASSWORD);
+        })
 
-        // Being pushed to the confirmation screen is success.
-        .findByCssSelector('.verification-email-message')
-          .getVisibleText()
-          .then(function (resultText) {
-            // check the email address was written
-            assert.ok(resultText.indexOf(email) > -1);
-          })
+        // user is not confirmed, success is seeing the confirm screen.
+        .findById('fxa-confirm-header')
         .end();
     },
 
     'select a year that is 1 year too young, no month/day picker is shown': function () {
-      var email = TestHelpers.createEmail();
-      var password = '12345678';
-
-      return this.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(password)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (CUTOFF_YEAR + 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
+      return fillOutSignUp(this, email, PASSWORD, CUTOFF_YEAR + 1)
         // Success is being redirected to the cannot create screen.
         .findById('fxa-cannot-create-account-header')
         .end();
@@ -306,7 +304,6 @@ define([
             // The error area shows a link to /signin
             .then(FunctionalHelpers.visibleByQSA('.error a[href="/signin"]'))
             .findByCssSelector('.error a[href="/signin"]')
-              .moveMouseTo()
               .click()
             .end()
 

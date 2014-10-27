@@ -18,6 +18,8 @@ define([
   var CONTENT_SERVER = config.fxaContentRoot;
   var OAUTH_APP = config.fxaOauthApp;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
+  var SIGNIN_URL = config.fxaContentRoot + 'signin';
+  var SIGNUP_URL = config.fxaContentRoot + 'signup';
 
   function clearBrowserState(context, options) {
     options = options || {};
@@ -245,6 +247,59 @@ define([
       .end();
   }
 
+  function fillOutSignIn(context, email, password) {
+    return context.get('remote')
+      .get(require.toUrl(SIGNIN_URL))
+      .setFindTimeout(intern.config.pageLoadTimeout)
+      .findByCssSelector('form input.email')
+        .click()
+        .clearValue()
+        .type(email)
+      .end()
+
+      .findByCssSelector('form input.password')
+        .click()
+        .clearValue()
+        .type(password)
+      .end()
+
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
+
+  function fillOutSignUp(context, email, password, year) {
+    return context.get('remote')
+      .get(require.toUrl(SIGNUP_URL))
+      .setFindTimeout(intern.config.pageLoadTimeout)
+
+      .findByCssSelector('form input.email')
+        .click()
+        .clearValue()
+        .type(email)
+      .end()
+
+      .findByCssSelector('form input.password')
+        .click()
+        .clearValue()
+        .type(password)
+      .end()
+
+      .findByCssSelector('#fxa-age-year')
+        .click()
+      .end()
+
+      .findById('fxa-' + year)
+        .pressMouseButton()
+        .releaseMouseButton()
+        .click()
+      .end()
+
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
+
   return {
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
@@ -255,6 +310,9 @@ define([
     openVerificationLinkSameBrowser: openVerificationLinkSameBrowser,
     openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
     openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
-    openFxaFromRp: openFxaFromRp
+    openFxaFromRp: openFxaFromRp,
+
+    fillOutSignIn: fillOutSignIn,
+    fillOutSignUp: fillOutSignUp
   };
 });
