@@ -4,7 +4,7 @@
 
 const config = require('../lib/config').root();
 const db = require('../lib/db');
-const logger = require('../lib/logging').getLogger('fxa.bin.server');
+const logger = require('../lib/logging')('server');
 const server = require('../lib/server').create();
 
 logger.debug('Starting with config: %:2j', config);
