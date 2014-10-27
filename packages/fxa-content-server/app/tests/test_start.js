@@ -67,6 +67,7 @@ function (Translator, Session) {
     '../tests/spec/views/unexpected_error',
     '../tests/spec/views/progress_indicator',
     '../tests/spec/views/marketing_snippet',
+    '../tests/spec/views/cannot_create_account',
     '../tests/spec/views/mixins/floating-placeholder-mixin',
     '../tests/spec/views/mixins/timer-mixin',
     '../tests/spec/views/mixins/service-mixin',
