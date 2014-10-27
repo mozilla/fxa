@@ -27,9 +27,10 @@
     "bluebird": "2.3.5",
     "buf": "0.1.0",
     "convict": "0.4.2",
+    "fxa-notifier-aws": "1.0.0",
     "hapi": "6.11.1",
-    "mozlog": "0.2.0",
     "joi": "4.7.0",
+    "mozlog": "0.2.0",
     "mysql": "2.5.1",
     "request": "2.45.0"
   },

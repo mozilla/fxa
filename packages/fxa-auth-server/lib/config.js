@@ -63,6 +63,18 @@ const conf = convict({
     format: ['dev', 'test', 'stage', 'prod'],
     default: 'prod'
   },
+  events: {
+    region: {
+      doc: 'AWS Region of fxa account events',
+      format: String,
+      default: ''
+    },
+    queueUrl: {
+      doc: 'SQS queue url for fxa account events',
+      format: String,
+      default: ''
+    }
+  },
   expiration: {
     code: {
       doc: 'Clients must trade codes for tokens before they expire',

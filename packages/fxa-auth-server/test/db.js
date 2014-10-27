@@ -91,4 +91,48 @@ describe('db', function() {
     });
   });
 
+  describe('removeUser', function () {
+    it('should delete tokens and codes for the given userId', function () {
+      var clientId = randomString(8);
+      var userId = randomString(8);
+      var email = 'a@b.c';
+      var scope = 'no-scope';
+      var code = null;
+      var token = null;
+
+      return db.registerClient({
+        id: clientId,
+        name: 'removeUserTest',
+        hashedSecret: randomString(32),
+        imageUri: 'https://example.domain/logo',
+        redirectUri: 'https://example.domain/return?foo=bar',
+        whitelisted: true
+      }).then(function () {
+        return db.generateCode(clientId, userId, email, scope);
+      }).then(function (c) {
+        code = c;
+        return db.getCode(code);
+      }).then(function(code) {
+        assert.equal(code.userId, userId, 'code userId');
+        return db.generateToken({
+          clientId: clientId,
+          userId: userId,
+          email: email,
+          scope: scope
+        });
+      }).then(function (t) {
+        token = t.token;
+        assert.equal(t.userId, userId, 'token userId');
+        return db.removeUser(userId);
+      }).then(function () {
+        return db.getCode(code);
+      }).then(function (c) {
+        assert.equal(c, undefined, 'code deleted');
+        return db.getToken(token);
+      }).then(function (t) {
+        assert.equal(t, undefined, 'token deleted');
+      });
+    });
+  });
+
 });
