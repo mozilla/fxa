@@ -11,16 +11,18 @@ define([
   'views/form',
   'stache!templates/sign_in',
   'lib/session',
-  'views/mixins/password-mixin',
   'lib/auth-errors',
   'lib/validate',
+  'views/mixins/password-mixin',
   'views/mixins/service-mixin',
   'views/mixins/avatar-mixin',
+  'views/mixins/account-locked-mixin',
   'views/decorators/allow_only_one_submit',
   'views/decorators/progress_indicator'
 ],
-function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
-      AuthErrors, Validate, ServiceMixin, AvatarMixin, allowOnlyOneSubmit,
+function (Cocktail, p, BaseView, FormView, SignInTemplate, Session,
+      AuthErrors, Validate, PasswordMixin, ServiceMixin,
+      AvatarMixin, AccountLockedMixin, allowOnlyOneSubmit,
       showProgressIndicator) {
   var t = BaseView.t;
 
@@ -111,6 +113,10 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
         return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
+      // saved in case there is an error and the
+      // account becomes locked in onSignInError
+      self._signInAccount = account;
+
       return p().then(function () {
         if (account.get('password')) {
           return self.broker.beforeSignIn(account.get('email'))
@@ -160,6 +166,8 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
         self.logScreenEvent('canceled');
         // if user canceled login, just stop
         return;
+      } else if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
+        return self.notifyOfLockedAccount(self._signInAccount);
       }
       // re-throw error, it will be handled at a lower level.
       throw err;
@@ -284,7 +292,8 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
     View,
     PasswordMixin,
     ServiceMixin,
-    AvatarMixin
+    AvatarMixin,
+    AccountLockedMixin
   );
 
   return View;

@@ -213,6 +213,23 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
+      it('shows error message to locked out users', function () {
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
+        });
+
+        var password = 'password';
+        $('[type=email]').val(email);
+        $('[type=password]').val(password);
+        return view.submit()
+          .then(function () {
+            assert.isTrue(view.isErrorVisible());
+            assert.include(view.$('.error').text().toLowerCase(), 'locked');
+            var err = view._normalizeError(AuthErrors.toError('ACCOUNT_LOCKED'));
+            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+          });
+      });
+
       it('logs an error if user cancels login', function () {
         sinon.stub(broker, 'beforeSignIn', function () {
           return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));

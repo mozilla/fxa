@@ -34,6 +34,46 @@ define([
     return FunctionalHelpers.clearBrowserState(this);
   }
 
+  function fillOutChangePassword(context, oldPassword, newPassword) {
+    return context.get('remote')
+      .findByCssSelector('#old_password')
+        .click()
+        .type(oldPassword)
+      .end()
+
+      .findByCssSelector('#new_password')
+        .click()
+        .type(newPassword)
+      .end()
+
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
+
+  function initiateLockedAccountChangePassword(context) {
+    return context.get('remote')
+      .get(require.toUrl(PAGE_URL))
+
+      .findByCssSelector('#fxa-change-password-header')
+      .end()
+
+      .then(function () {
+        return client.accountLock(email, FIRST_PASSWORD);
+      })
+
+      .then(function () {
+        return fillOutChangePassword(context, FIRST_PASSWORD, SECOND_PASSWORD);
+      })
+
+      .findByCssSelector('a[href="/confirm_account_unlock"]')
+        .click()
+      .end()
+
+      .findByCssSelector('#fxa-confirm-account-unlock-header')
+      .end();
+  }
+
   registerSuite({
     name: 'settings->change password with verified email',
 
@@ -50,9 +90,12 @@ define([
           return self.get('remote')
             .setFindTimeout(intern.config.pageLoadTimeout);
         })
-          .then(function () {
-            return clearBrowserStorage.call(self);
-          });
+        .then(function () {
+          return clearBrowserStorage.call(self);
+        })
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
+        });
     },
 
     teardown: function () {
@@ -60,30 +103,21 @@ define([
     },
 
     'sign in, try to change password with an incorrect old password': function () {
-      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
+      var self = this;
+      return this.get('remote')
 
         // Go to change password screen
-        .findById('change-password')
+        .findByCssSelector('#change-password')
           .click()
         .end()
 
         // ensure there is a back button
-        .findById('back')
+        .findByCssSelector('#back')
         .end()
 
-        .findById('old_password')
-          .click()
-          .type('INCORRECT')
-        .end()
-
-        .findById('new_password')
-          .click()
-          .type(SECOND_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return fillOutChangePassword(self, 'INCORRECT', SECOND_PASSWORD);
+        })
 
         .then(FunctionalHelpers.visibleByQSA('.error'))
 
@@ -105,7 +139,7 @@ define([
         .end()
 
         // Change form so that it is valid, error should be hidden.
-        .findById('old_password')
+        .findByCssSelector('#old_password')
           .click()
           .type(FIRST_PASSWORD)
         .end()
@@ -124,28 +158,18 @@ define([
 
     'sign in, change password, sign in with new password': function () {
       var self = this;
-      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
+      return this.get('remote')
 
         // Go to change password screen
-        .findById('change-password')
+        .findByCssSelector('#change-password')
           .click()
         .end()
 
-        .findById('old_password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
+        .then(function () {
+          return fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
+        })
 
-        .findById('new_password')
-          .click()
-          .type(SECOND_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        .findById('fxa-settings-header')
+        .findByCssSelector('#fxa-settings-header')
         .end()
 
         .then(FunctionalHelpers.visibleByQSA('.success'))
@@ -166,23 +190,127 @@ define([
           return FunctionalHelpers.fillOutSignIn(self, email, SECOND_PASSWORD);
         })
 
-        .findById('fxa-settings-header')
+        .findByCssSelector('#fxa-settings-header')
         .end();
     },
 
     'browse directly to page - no back button': function () {
       var self = this;
-      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
+      return this.get('remote')
         // check that signin is complete before proceeding
-        .findById('fxa-settings-header')
+        .findByCssSelector('#fxa-settings-header')
         .end()
-        
+
         .get(require.toUrl(PAGE_URL))
 
-        .findById('fxa-change-password-header')
+        .findByCssSelector('#fxa-change-password-header')
         .end()
 
         .then(Test.noElementById(self, 'back'));
+    },
+
+    'locked account, verify same browser': function () {
+      var self = this;
+      return initiateLockedAccountChangePassword(this)
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        // wait for the verified window in the new tab
+        .findByCssSelector('#fxa-account-unlock-complete-header')
+        .end()
+
+        // switch to the original window
+        .closeCurrentWindow()
+        .switchToWindow('')
+
+        .then(FunctionalHelpers.visibleByQSA('.success'))
+        .end()
+
+        // account is unlocked, re-try the password change
+        .then(function () {
+          return fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
+        })
+
+        .findByCssSelector('#fxa-settings-header')
+        .end();
+    },
+
+    'locked account, verify same browser with original tab closed': function () {
+      var self = this;
+      return initiateLockedAccountChangePassword(this)
+        // user browses to another site.
+        .switchToFrame(null)
+
+        .then(FunctionalHelpers.openExternalSite(self))
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        // wait for the verified window in the new tab
+        .findByCssSelector('#fxa-account-unlock-complete-header')
+        .end()
+
+        // switch to the original window
+        .closeCurrentWindow()
+        .switchToWindow('');
+    },
+
+    'locked account, verify same browser by replacing original tab': function () {
+      var self = this;
+      return initiateLockedAccountChangePassword(this)
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
+        })
+
+        .findByCssSelector('#fxa-account-unlock-complete-header')
+        .end();
+    },
+
+    'locked account, verify different browser - from original tab\'s P.O.V.': function () {
+      var self = this;
+      return initiateLockedAccountChangePassword(this)
+        .then(function () {
+          return FunctionalHelpers.openUnlockLinkDifferentBrowser(client, email, 'x-unlock-code');
+        })
+
+        .then(FunctionalHelpers.visibleByQSA('.success'))
+        .end()
+
+        // account is unlocked, re-try the password change
+        .then(function () {
+          return fillOutChangePassword(self, FIRST_PASSWORD, SECOND_PASSWORD);
+        })
+
+        .findByCssSelector('#fxa-settings-header')
+        .end();
+    },
+
+    'locked account, verify different browser - from new browser\'s P.O.V.': function () {
+      var self = this;
+      return initiateLockedAccountChangePassword(this)
+        .then(function () {
+          return FunctionalHelpers.clearBrowserState(self);
+        })
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
+        })
+
+        // new browser dead ends at the 'account verified' screen.
+        .findByCssSelector('#fxa-account-unlock-complete-header')
+        .end();
     }
   });
 });

@@ -8,15 +8,16 @@ define([
   'cocktail',
   'views/base',
   'views/form',
+  'lib/auth-errors',
   'stache!templates/change_password',
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
-  'lib/auth-errors',
   'views/mixins/service-mixin',
-  'views/mixins/back-mixin'
+  'views/mixins/back-mixin',
+  'views/mixins/account-locked-mixin'
 ],
-function (Cocktail, BaseView, FormView, Template, PasswordMixin,
-  FloatingPlaceholderMixin, AuthErrors, ServiceMixin, BackMixin) {
+function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
+  FloatingPlaceholderMixin, ServiceMixin, BackMixin, AccountLockedMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -74,9 +75,17 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
             self.navigate('settings', {
               success: t('Password changed successfully')
             });
+          }, function (err) {
+            if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
+              // the password is needed to poll whether the account has
+              // been unlocked.
+              account.set('password', oldPassword);
+              return self.notifyOfLockedAccount(account);
+            }
+
+            throw err;
           });
     }
-
   });
 
   Cocktail.mixin(
@@ -84,7 +93,8 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
     PasswordMixin,
     FloatingPlaceholderMixin,
     ServiceMixin,
-    BackMixin
+    BackMixin,
+    AccountLockedMixin
   );
 
   return View;

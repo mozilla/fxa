@@ -53,7 +53,15 @@ define([
     '/reset_password_complete': { statusCode: 200 },
     '/delete_account': { statusCode: 200 },
     '/ver.json': { statusCode: 200, headerAccept: 'application/json' },
-    '/cookies_disabled': { statusCode: 200 }
+    '/cookies_disabled': { statusCode: 200 },
+    '/confirm_account_unlock': { statusCode: 200 },
+    '/complete_unlock_account': { statusCode: 200 },
+    '/account_unlock_complete': { statusCode: 200 },
+
+    // the following have a version prefix
+    '/v1/verify_email': { statusCode: 200 },
+    '/v1/complete_reset_password': { statusCode: 200 },
+    '/v1/complete_unlock_account': { statusCode: 200 }
   };
 
   if (config.get('are_dist_resources')) {

@@ -21,6 +21,8 @@ define([
   'views/reset_password',
   'views/confirm_reset_password',
   'views/complete_reset_password',
+  'views/confirm_account_unlock',
+  'views/complete_account_unlock',
   'views/ready',
   'views/settings',
   'views/settings/avatar',
@@ -52,6 +54,8 @@ function (
   ResetPasswordView,
   ConfirmResetPasswordView,
   CompleteResetPasswordView,
+  ConfirmAccountUnlockView,
+  CompleteAccountUnlockView,
   ReadyView,
   SettingsView,
   AvatarView,
@@ -104,7 +108,10 @@ function (
       'cookies_disabled(/)': showView(CookiesDisabledView),
       'clear(/)': showView(ClearStorageView),
       'unexpected_error(/)': showView(UnexpectedErrorView),
-      'illegal_iframe(/)': showView(IllegalIframeView)
+      'illegal_iframe(/)': showView(IllegalIframeView),
+      'confirm_account_unlock(/)': showView(ConfirmAccountUnlockView),
+      'complete_unlock_account(/)': showView(CompleteAccountUnlockView),
+      'account_unlock_complete(/)': showView(ReadyView, { type: 'account_unlock' })
     },
 
     initialize: function (options) {

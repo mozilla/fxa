@@ -15,10 +15,12 @@ function (_, Errors) {
     return msg;
   };
 
+  var UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');
+
   var ERRORS = {
     UNEXPECTED_ERROR: {
       errno: 999,
-      message: t('Unexpected error')
+      message: UNEXPECTED_ERROR_MESSAGE
     },
     INVALID_TOKEN: {
       errno: 110,
@@ -83,6 +85,14 @@ function (_, Errors) {
     THROTTLED: {
       errno: 114,
       message: t('Attempt limit exceeded')
+    },
+    ACCOUNT_LOCKED: {
+      errno: 121,
+      message: t('Your account has been locked for security reasons')
+    },
+    ACCOUNT_NOT_LOCKED: {
+      errno: 122,
+      message: UNEXPECTED_ERROR_MESSAGE
     },
     SERVER_BUSY: {
       errno: 201,
@@ -162,7 +172,7 @@ function (_, Errors) {
     },
     DESKTOP_CHANNEL_TIMEOUT: {
       errno: 1017,
-      message: t('Unexpected error')
+      message: UNEXPECTED_ERROR_MESSAGE
     },
     SIGNUP_EMAIL_BOUNCE: {
       errno: 1018,
@@ -178,7 +188,7 @@ function (_, Errors) {
     },
     CHANNEL_TIMEOUT: {
       errno: 1021,
-      message: t('Unexpected error')
+      message: UNEXPECTED_ERROR_MESSAGE
     },
     ILLEGAL_IFRAME_PARENT: {
       errno: 1022,

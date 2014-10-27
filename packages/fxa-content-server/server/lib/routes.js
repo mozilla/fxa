@@ -7,6 +7,8 @@
 
 var logger = require('mozlog')('server.routes');
 
+var VERSION_PREFIX = '/v1';
+var VERSION_PREFIX_REGEXP = new RegExp('^' + VERSION_PREFIX);
 
 /**
  * Each route has 3 attributes: method, path and process.
@@ -40,15 +42,28 @@ module.exports = function (config, i18n) {
     );
   }
 
+  function addVersionPrefix(unversionedUrl) {
+    return VERSION_PREFIX + unversionedUrl;
+  }
+
+  function removeVersionPrefix(versionedUrl) {
+    return versionedUrl.replace(VERSION_PREFIX_REGEXP, '');
+  }
+
   return function (app) {
     // handle password reset links
-    app.get('/v1/complete_reset_password', function (req, res) {
-      res.redirect(req.originalUrl.slice(3));
+    app.get(addVersionPrefix('/complete_reset_password'), function (req, res) {
+      res.redirect(removeVersionPrefix(req.originalUrl));
+    });
+
+    // handle account unlock links
+    app.get(addVersionPrefix('/complete_unlock_account'), function (req, res) {
+      res.redirect(removeVersionPrefix(req.originalUrl));
     });
 
     // handle email verification links
-    app.get('/v1/verify_email', function (req, res) {
-      res.redirect(req.originalUrl.slice(3));
+    app.get(addVersionPrefix('/verify_email'), function (req, res) {
+      res.redirect(removeVersionPrefix(req.originalUrl));
     });
 
     // front end mocha tests
@@ -92,7 +107,10 @@ module.exports = function (config, i18n) {
       '/oauth/signup',
       '/oauth/force_auth',
       '/cookies_disabled',
-      '/clear'
+      '/clear',
+      '/confirm_account_unlock',
+      '/complete_unlock_account',
+      '/account_unlock_complete'
     ];
 
     var ALLOWED_TO_FRAME = {

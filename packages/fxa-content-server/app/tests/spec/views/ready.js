@@ -62,9 +62,9 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
         view.type = 'reset_password';
 
         return view.render()
-            .then(function () {
-              assert.ok(view.$('#fxa-reset-password-complete-header').length);
-            });
+          .then(function () {
+            assert.ok(view.$('#fxa-reset-password-complete-header').length);
+          });
       });
 
       it('renders with correct header for sign_up type', function () {
@@ -72,6 +72,14 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
         return view.render()
             .then(function () {
               assert.ok(view.$('#fxa-sign-up-complete-header').length);
+            });
+      });
+
+      it('renders with correct header for account_unlock type', function () {
+        view.type = 'account_unlock';
+        return view.render()
+            .then(function () {
+              assert.ok(view.$('#fxa-account-unlock-complete-header').length);
             });
       });
 

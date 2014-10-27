@@ -12,20 +12,20 @@ define([
   'stache!templates/confirm',
   'lib/promise',
   'lib/auth-errors',
+  'lib/constants',
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (Cocktail, _, FormView, BaseView, Template, p, AuthErrors,
+function (Cocktail, _, FormView, BaseView, Template, p, AuthErrors, Constants,
     ResendMixin, ServiceMixin) {
   var t = BaseView.t;
-  var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
   var View = FormView.extend({
     template: Template,
     className: 'confirm',
 
     // used by unit tests
-    VERIFICATION_POLL_IN_MS: VERIFICATION_POLL_IN_MS,
+    VERIFICATION_POLL_IN_MS: Constants.VERIFICATION_POLL_IN_MS,
 
     initialize: function () {
       // Account data is passed in from sign up and sign in flows.
