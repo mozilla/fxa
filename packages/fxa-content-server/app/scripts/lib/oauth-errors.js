@@ -25,7 +25,10 @@ function (_, AuthErrors) {
     // local only errors.
     SERVICE_UNAVAILABLE: 998,
     UNEXPECTED_ERROR: 999,
-    TRY_AGAIN: 1000
+    TRY_AGAIN: 1000,
+    INVALID_RESULT: 1001,
+    INVALID_RESULT_REDIRECT: 1002,
+    INVALID_RESULT_CODE: 1003
   };
 
   var CODE_TO_MESSAGES = {
@@ -39,7 +42,10 @@ function (_, AuthErrors) {
     // local only errors.
     998: t('System unavailable, try again soon'),
     999: t('Unexpected error'),
-    1000: t('Something went wrong. Please close this tab and try again.')
+    1000: t('Something went wrong. Please close this tab and try again.'),
+    1001: t('Unexpected error'),
+    1002: t('Unexpected error'),
+    1003: t('Unexpected error')
   };
 
   return _.extend({}, AuthErrors, {

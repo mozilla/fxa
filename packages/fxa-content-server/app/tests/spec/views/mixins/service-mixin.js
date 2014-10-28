@@ -19,16 +19,17 @@ define([
   'stache!templates/test_template',
   'models/reliers/relier',
   'models/reliers/fx-desktop',
-  'models/reliers/oauth'
+  'models/reliers/oauth',
+  'lib/oauth-errors'
 ], function (Chai, Backbone, _, p, MockOAuthServers, WindowMock, ChannelMock,
         TestHelpers, ServiceMixin, BaseView, Session, TestTemplate,
-        Relier, FxDesktopRelier, OAuthRelier) {
+        Relier, FxDesktopRelier, OAuthRelier, OAuthErrors) {
   var assert = Chai.assert;
 
 
   var CLIENT_ID = 'dcdb5ae7add825d2';
   var STATE = '123';
-  var CODE = 'code1';
+  var CODE = 'd74e7d9b2c5e8be20fbff978b7804f648369b3f1f87ba7426cbe96bc2c5e360f';
   var DEFAULT_REDIRECT_STRING = TestHelpers.toSearchString({
     code: CODE,
     state: STATE
@@ -89,6 +90,33 @@ define([
     });
 
     describe('_formatOAuthResult', function () {
+      it('throws on null', function () {
+        relier.set('state', STATE);
+        return view._formatOAuthResult().then(assert.fail, function (err) {
+          assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT'));
+        });
+      });
+
+      it('throws on an empty object', function () {
+        relier.set('state', STATE);
+        return view._formatOAuthResult({}).then(assert.fail, function (err) {
+          assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT_REDIRECT'));
+        });
+      });
+
+      it('catches invalid codes', function () {
+        var redirectBadCode = TestHelpers.toSearchString({
+          code: 'a',
+          state: 'state1'
+        });
+        relier.set('state', STATE);
+        return view._formatOAuthResult({
+          redirect: redirectBadCode
+        }).then(assert.fail, function (err) {
+          assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT_CODE'));
+        });
+      });
+
       it('formats the redirect params', function () {
         relier.set('state', STATE);
         return view._formatOAuthResult({

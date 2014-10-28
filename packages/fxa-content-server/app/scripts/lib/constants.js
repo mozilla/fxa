@@ -22,6 +22,8 @@ define([], function () {
     CODE_LENGTH: 32,
     UID_LENGTH: 32,
 
+    OAUTH_CODE_LENGTH: 64,
+
     PASSWORD_MIN_LENGTH: 8,
 
     PROFILE_IMAGE_DISPLAY_SIZE: 240,

@@ -45,7 +45,7 @@ define([
     },
 
     /**
-     * Check if a verification code is valid
+     * Check if an email verification code is valid
      */
     isCodeValid: function (code) {
       if (typeof code !== 'string') {
@@ -55,6 +55,19 @@ define([
       // codes are fixed length hex strings.
       return code.length === Constants.CODE_LENGTH &&
              HEX_STRING.test(code);
+    },
+
+    /**
+     * Check if an OAuth code is valid
+     */
+    isOAuthCodeValid: function (code) {
+      if (typeof code !== 'string') {
+        return false;
+      }
+
+      // codes are fixed length hex strings.
+      return code.length === Constants.OAUTH_CODE_LENGTH &&
+        HEX_STRING.test(code);
     },
 
     /**
