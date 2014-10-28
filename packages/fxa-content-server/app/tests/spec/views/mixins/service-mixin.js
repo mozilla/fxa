@@ -93,14 +93,14 @@ define([
       it('throws on null', function () {
         relier.set('state', STATE);
         return view._formatOAuthResult().then(assert.fail, function (err) {
-          assert.isTrue(OAuthErrors.is(err, 'UNEXPECTED_ERROR'));
+          assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT'));
         });
       });
 
       it('throws on an empty object', function () {
         relier.set('state', STATE);
         return view._formatOAuthResult({}).then(assert.fail, function (err) {
-          assert.isTrue(OAuthErrors.is(err, 'UNEXPECTED_ERROR'));
+          assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT_REDIRECT'));
         });
       });
 
@@ -113,7 +113,7 @@ define([
         return view._formatOAuthResult({
           redirect: redirectBadCode
         }).then(assert.fail, function (err) {
-          assert.isTrue(OAuthErrors.is(err, 'UNEXPECTED_ERROR'));
+          assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT_CODE'));
         });
       });
 

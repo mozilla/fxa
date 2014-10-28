@@ -86,20 +86,22 @@ define([
    */
   function _formatOAuthResult(result) {
     // get code and state from redirect params
-    if (result && result.redirect) {
-      var redirectParams = result.redirect.split('?')[1];
-
-      result.state = Url.searchParam('state', redirectParams);
-      result.code = Url.searchParam('code', redirectParams);
-
-      if (! Validate.isOAuthCodeValid(result.code)) {
-        return p.reject(OAuthErrors.toError('UNEXPECTED_ERROR'));
-      }
-
-      return p(result);
-    } else {
-      return p.reject(OAuthErrors.toError('UNEXPECTED_ERROR'));
+    if (! result) {
+      return p.reject(OAuthErrors.toError('INVALID_RESULT'));
+    } else if (! result.redirect) {
+      return p.reject(OAuthErrors.toError('INVALID_RESULT_REDIRECT'));
     }
+
+    var redirectParams = result.redirect.split('?')[1];
+
+    result.state = Url.searchParam('state', redirectParams);
+    result.code = Url.searchParam('code', redirectParams);
+
+    if (! Validate.isOAuthCodeValid(result.code)) {
+      return p.reject(OAuthErrors.toError('INVALID_RESULT_CODE'));
+    }
+
+    return p(result);
   }
 
   return {
