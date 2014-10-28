@@ -34,9 +34,9 @@ function (chai, sinon, BaseAuthenticationBroker, BaseView, WindowMock) {
       });
     });
 
-    describe('beforeSignUpConfirmationPoll', function () {
+    describe('persist', function () {
       it('returns a promise', function () {
-        return broker.beforeSignUpConfirmationPoll(view)
+        return broker.persist(view)
           .then(assert.pass);
       });
     });
@@ -48,30 +48,9 @@ function (chai, sinon, BaseAuthenticationBroker, BaseView, WindowMock) {
       });
     });
 
-    describe('afterSignUpVerified', function () {
-      it('returns a promise', function () {
-        return broker.afterSignUpVerified(view)
-          .then(assert.pass);
-      });
-    });
-
-    describe('beforeResetPasswordConfirmationPoll', function () {
-      it('returns a promise', function () {
-        return broker.beforeResetPasswordConfirmationPoll(view)
-          .then(assert.pass);
-      });
-    });
-
     describe('afterResetPasswordConfirmationPoll', function () {
       it('returns a promise', function () {
         return broker.afterResetPasswordConfirmationPoll(view)
-          .then(assert.pass);
-      });
-    });
-
-    describe('afterResetPasswordVerified', function () {
-      it('returns a promise', function () {
-        return broker.afterResetPasswordVerified(view)
           .then(assert.pass);
       });
     });

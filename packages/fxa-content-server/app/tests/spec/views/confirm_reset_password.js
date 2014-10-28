@@ -83,10 +83,10 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
 
     describe('render', function () {
       it('tells the broker to prepare for a password reset confirmation', function () {
-        sinon.spy(broker, 'beforeResetPasswordConfirmationPoll');
+        sinon.spy(broker, 'persist');
         return view.render()
           .then(function () {
-            assert.isTrue(broker.beforeResetPasswordConfirmationPoll.called);
+            assert.isTrue(broker.persist.called);
           });
       });
 
@@ -169,10 +169,6 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
 
         sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
           return p();
-        });
-
-        sinon.stub(broker, 'shouldShowResetPasswordCompleteAfterPoll', function () {
-          return true;
         });
 
         sinon.stub(view, 'navigate', function (url) {

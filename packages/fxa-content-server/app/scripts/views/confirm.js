@@ -15,8 +15,8 @@ define([
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, FormView, BaseView, Template, Session, p, AuthErrors, ResendMixin,
-    ServiceMixin) {
+function (_, FormView, BaseView, Template, Session, p, AuthErrors,
+    ResendMixin, ServiceMixin) {
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
   var View = FormView.extend({
@@ -50,17 +50,14 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors, ResendMixin,
       graphic.addClass('pulse');
 
       var self = this;
-      return self.broker.beforeSignUpConfirmationPoll(self)
+      return self.broker.persist()
         .then(function () {
           self._waitForConfirmation()
             .then(function () {
-              return self.broker.afterSignUpConfirmationPoll(self);
+              return self.broker.afterSignUpConfirmationPoll();
             })
-            .then(function () {
-              return self.broker.shouldShowSignUpCompleteAfterPoll();
-            })
-            .then(function (shouldShowSignUpComplete) {
-              if (shouldShowSignUpComplete) {
+            .then(function (result) {
+              if (! (result && result.halt)) {
                 self.navigate('signup_complete');
               }
             }, function (err) {

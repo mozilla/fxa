@@ -179,7 +179,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
-        sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
+        sinon.stub(broker, 'afterSignIn', function () {
           return p();
         });
 
@@ -187,7 +187,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
 
         return view.submit()
           .then(function () {
-            assert.isTrue(broker.afterSignUpConfirmationPoll.called);
+            assert.isTrue(broker.afterSignIn.called);
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signup.preverified'));
             assert.isTrue(TestHelpers.isEventLogged(metrics,

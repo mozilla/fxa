@@ -10,8 +10,6 @@
 define([
   'views/base'
 ], function (BaseView) {
-  /* jshint camelcase: false */
-
   return {
     setupOAuthLinks: function () {
       this.$('a[href~="/signin"]').attr('href',

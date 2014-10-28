@@ -47,10 +47,6 @@ function (_, BaseView, Template, Session, Xss, Strings,
       };
     },
 
-    events: {
-      'click #redirectTo': BaseView.preventDefaultThen('submit')
-    },
-
     afterRender: function () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
@@ -85,20 +81,6 @@ function (_, BaseView, Template, Session, Xss, Strings,
       this.trackSubview(marketingSnippet);
 
       return marketingSnippet.render();
-    },
-
-    submit: function () {
-      var self = this;
-      return p().then(function () {
-        if (self.type === 'sign_up') {
-          return self.broker.afterSignUpVerified(self);
-        } else if (self.type === 'reset_password') {
-          return self.broker.afterResetPasswordVerified(self);
-        } else {
-          // We aren't expecting this case to happen.
-          self.displayError(AuthErrors.toError('UNEXPECTED_ERROR'));
-        }
-      });
     },
 
     is: function (type) {

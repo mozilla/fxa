@@ -149,26 +149,6 @@ define([
             });
       });
 
-      it('returns /force_auth if /force_auth was loaded up', function () {
-        sinon.stub(broker, 'isForceAuth', function () {
-          return true;
-        });
-
-        sinon.stub(channelMock, 'send', function (message, data, done) {
-          if (message === 'session_status') {
-            return done(null, {
-              data: {}
-            });
-          }
-        });
-
-        return broker.fetch()
-            .then(_.bind(broker.selectStartPage, broker))
-            .then(function (page) {
-              assert.equal(page, 'force_auth');
-            });
-      });
-
       it('returns nothing if a route is present in the path', function () {
         windowMock.location.pathname = '/signin';
 
@@ -188,7 +168,7 @@ define([
       });
     });
 
-    describe('checkCanLinkAccount', function () {
+    describe('beforeSignIn', function () {
       it('is happy if the user clicks `yes`', function () {
         sinon.stub(channelMock, 'send', function (message, data, done) {
           if (message === 'can_link_account') {
@@ -196,7 +176,7 @@ define([
           }
         });
 
-        return broker.checkCanLinkAccount('testuser@testuser.com');
+        return broker.beforeSignIn('testuser@testuser.com');
       });
 
       it('throws a USER_CANCELED_LOGIN error if user rejects', function () {
@@ -206,7 +186,7 @@ define([
           }
         });
 
-        return broker.checkCanLinkAccount('testuser@testuser.com')
+        return broker.beforeSignIn('testuser@testuser.com')
           .then(function () {
             assert(false, 'should throw USER_CANCELED_LOGIN');
           }, function (err) {
@@ -223,7 +203,7 @@ define([
 
         sinon.spy(console, 'error');
 
-        return broker.checkCanLinkAccount('testuser@testuser.com')
+        return broker.beforeSignIn('testuser@testuser.com')
           .then(function () {
             assert.isTrue(console.error.called);
             console.error.restore();
@@ -231,7 +211,7 @@ define([
       });
     });
 
-    describe('notifyOfLogin', function () {
+    describe('_notifyRelierOfLogin', function () {
       it('sends a `login` message to the channel', function () {
         var data;
         sinon.stub(channelMock, 'send', function (message, _data, done) {
@@ -243,7 +223,7 @@ define([
         });
 
         Session.set('email', 'testuser@testuser.com');
-        return broker.notifyOfLogin()
+        return broker._notifyRelierOfLogin()
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
             assert.isFalse(data.verifiedCanLinkAccount);
@@ -262,9 +242,9 @@ define([
         });
 
         Session.set('email', 'testuser@testuser.com');
-        return broker.checkCanLinkAccount('testuser@testuser.com')
+        return broker.beforeSignIn('testuser@testuser.com')
           .then(function () {
-            return broker.notifyOfLogin();
+            return broker._notifyRelierOfLogin();
           })
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
@@ -275,54 +255,41 @@ define([
 
     describe('afterSignIn', function () {
       it('notifies the channel of login', function () {
-        sinon.stub(broker, 'notifyOfLogin', function () {
+        sinon.stub(broker, '_notifyRelierOfLogin', function () {
           return p();
         });
 
         return broker.afterSignIn()
           .then(function () {
-            assert.isTrue(broker.notifyOfLogin.called);
+            assert.isTrue(broker._notifyRelierOfLogin.called);
           });
-      });
-    });
-
-    describe('shouldShowSettingsAfterSignIn', function () {
-      it('should return false, the browser is notified and will show its own screen', function () {
-        assert.isFalse(broker.shouldShowSettingsAfterSignIn());
       });
     });
 
     describe('afterSignUpConfirmationPoll', function () {
       it('notifies the channel of login', function () {
-        sinon.stub(broker, 'notifyOfLogin', function () {
+        sinon.stub(broker, '_notifyRelierOfLogin', function () {
           return p();
         });
 
         return broker.afterSignUpConfirmationPoll()
           .then(function () {
-            assert.isTrue(broker.notifyOfLogin.called);
+            assert.isTrue(broker._notifyRelierOfLogin.called);
           });
       });
     });
 
     describe('afterResetPasswordConfirmationPoll', function () {
       it('notifies the channel of login', function () {
-        sinon.stub(broker, 'notifyOfLogin', function () {
+        sinon.stub(broker, '_notifyRelierOfLogin', function () {
           return p();
         });
 
         return broker.afterResetPasswordConfirmationPoll()
           .then(function () {
-            assert.isTrue(broker.notifyOfLogin.called);
+            assert.isTrue(broker._notifyRelierOfLogin.called);
           });
       });
     });
-
-    describe('shouldShowResetPasswordCompleteAfterPoll', function () {
-      it('should return false, the browser is notified and will show its own screen', function () {
-        assert.isFalse(broker.shouldShowResetPasswordCompleteAfterPoll());
-      });
-    });
-
   });
 });

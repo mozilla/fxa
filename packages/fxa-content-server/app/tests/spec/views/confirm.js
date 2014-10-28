@@ -87,18 +87,16 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
       });
 
       it('tells the broker to prepare for a confirmation', function () {
-        sinon.spy(broker, 'beforeSignUpConfirmationPoll');
+        sinon.spy(broker, 'persist');
         return view.render()
           .then(function () {
-            assert.isTrue(broker.beforeSignUpConfirmationPoll.called);
+            assert.isTrue(broker.persist.called);
           });
       });
 
       it('notifies the broker of afterSignUpConfirmationPoll after the account is confirmed', function (done) {
-        sinon.stub(broker, 'afterSignUpConfirmationPoll', function (_view) {
-          TestHelpers.wrapAssertion(function () {
-            assert.equal(_view, view);
-          }, done);
+        sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
+          done();
         });
 
         var count = 0;

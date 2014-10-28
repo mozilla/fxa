@@ -96,14 +96,25 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state',
               code: VALID_OAUTH_CODE
-            }, 'signin'));
+            }));
+          });
+      });
+
+      it('returns any errors returned by getOAuthResult', function () {
+        sinon.stub(broker, 'getOAuthResult', function () {
+          return p.reject(new Error('uh oh'));
+        });
+
+        return broker.afterSignIn()
+          .then(assert.fail, function (err) {
+            assert.equal(err.message, 'uh oh');
           });
       });
     });
 
-    describe('beforeSignUpConfirmationPoll', function () {
+    describe('persist', function () {
       it('saves OAuth params to session', function () {
-        return broker.beforeSignUpConfirmationPoll()
+        return broker.persist()
           .then(function () {
             assert.ok(!! Session.oauth);
           });
@@ -122,28 +133,10 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state',
               code: VALID_OAUTH_CODE
-            }, 'signup'));
+            }));
           });
       });
     });
-
-    describe('afterSignUpVerified', function () {
-      it('for future use', function () {
-        sinon.spy(broker, 'finishOAuthFlow');
-
-        return broker.afterSignUpVerified();
-      });
-    });
-
-    describe('beforeResetPasswordConfirmationPoll', function () {
-      it('saves OAuth params to session', function () {
-        return broker.beforeResetPasswordConfirmationPoll()
-          .then(function () {
-            assert.ok(!! Session.oauth);
-          });
-      });
-    });
-
 
     describe('afterResetPasswordConfirmationPoll', function () {
       it('calls finishOAuthFlow with the expected options', function () {
@@ -157,7 +150,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state',
               code: VALID_OAUTH_CODE
-            }, 'reset_password'));
+            }));
           });
       });
     });

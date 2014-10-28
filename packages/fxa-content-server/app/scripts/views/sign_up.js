@@ -220,7 +220,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       }
 
 
-      return self.broker.checkCanLinkAccount(email)
+      return self.broker.beforeSignIn(email)
         .then(function () {
           return self.fxaClient.signUp(
                         email, password, self.relier);
@@ -324,9 +324,11 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       var self = this;
       if (accountData.verified) {
         // user was pre-verified, notify the broker.
-        return self.broker.afterSignUpConfirmationPoll(self)
-          .then(function () {
-            self.navigate('signup_complete');
+        return self.broker.afterSignIn()
+          .then(function (result) {
+            if (! (result && result.halt)) {
+              self.navigate('signup_complete');
+            }
           });
       } else {
         self.navigate('confirm');

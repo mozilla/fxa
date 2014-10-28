@@ -111,7 +111,6 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
       });
     });
 
-
     /*
     describe('afterVisible', function () {
       it('auto-completes the OAuth flow if using the WebChannel on the same browser', function () {
@@ -131,27 +130,6 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
       });
     });
     */
-
-    describe('submit', function () {
-      it('notifies the broker of completion', function () {
-        sinon.stub(broker, 'afterResetPasswordVerified', function () {
-          return p(true);
-        });
-
-        view.type = 'reset_password';
-        return view.submit()
-          .then(function () {
-            assert.isTrue(broker.afterResetPasswordVerified.calledWith(view));
-          });
-      });
-
-      it('shows an error if submitting and not an oauth flow on the same browser', function () {
-        return view.submit()
-            .then(function () {
-              assert.isTrue(view.isErrorVisible());
-            });
-      });
-    });
   });
 });
 

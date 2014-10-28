@@ -79,45 +79,32 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
     });
 
     describe('finishOAuthFlow', function () {
-      describe('for signin', function () {
-        it('prepares window to be closed', function () {
-          return broker.finishOAuthFlow({}, 'signin')
-            .then(function () {
-              assert.isTrue(channelMock.send.calledWith('oauth_complete', {
-                closeWindow: true
-              }));
-            });
-        });
-      });
-
-      describe('for all other pages', function () {
-        it('doesn\'t decorate anything', function () {
-          return broker.finishOAuthFlow({}, 'signup')
-            .then(function () {
-              assert.isTrue(channelMock.send.calledWith('oauth_complete', {
-                closeWindow: false
-              }));
-            });
-        });
-      });
-
-      describe('getChannel', function () {
-        it('creates a WebChannel with the id set in the broker', function () {
-          var broker = new WebChannelAuthenticationBroker({
-            windowMock: windowMock,
-            relier: relierMock
+      it('prepares window to be closed', function () {
+        return broker.finishOAuthFlow({})
+          .then(function () {
+            assert.isTrue(channelMock.send.calledWith('oauth_complete', {
+              closeWindow: true
+            }));
           });
+      });
+    });
 
-          broker.set('webChannelId', 'test');
-
-          var channel = broker.getChannel();
-          assert.equal(channel.id, 'test');
+    describe('getChannel', function () {
+      it('creates a WebChannel with the id set in the broker', function () {
+        var broker = new WebChannelAuthenticationBroker({
+          windowMock: windowMock,
+          relier: relierMock
         });
+
+        broker.set('webChannelId', 'test');
+
+        var channel = broker.getChannel();
+        assert.equal(channel.id, 'test');
       });
     });
 
     describe('afterSignIn', function () {
-      it('calls finishOAuthFlow, then sets a timer that expects the window to be closed', function () {
+      it('calls finishOAuthFlow', function () {
         var view = new BaseView({
           window: windowMock
         });
@@ -130,17 +117,9 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
           return p();
         });
 
-        sinon.stub(view, 'setTimeout', function (callback) {
-          callback();
-        });
-
         sinon.spy(view, 'displayError');
 
-        return broker.afterSignIn(view)
-          .then(function () {
-            assert.isTrue(view.setTimeout.called);
-            assert.isTrue(view.displayError.called);
-          });
+        return broker.afterSignIn(view);
       });
     });
   });

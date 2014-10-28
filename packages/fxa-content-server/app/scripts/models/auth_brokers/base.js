@@ -47,85 +47,61 @@ define([
     },
 
     /**
-     * Check whether the can link account warning should be shown
+     * Called before sign in. Can be used to prevent sign in.
      */
-    checkCanLinkAccount: function () {
+    beforeSignIn: function () {
       return p();
     },
 
     /**
-     * Called after sign in
+     * Called after sign in. Can be used to notify the RP that the user
+     * has signed in or signed up with a valid preVerifyToken.
+     *
+     * Resolve promise with an object that contains `{ halt: true }` to
+     * inicate to the caller "no need to continue". An example is prevening
+     * the "signin" screen from transitioning to "settings" if the browser
+     * or OAuth flow completes the action.
+     *
+     * @return {promise}
      */
     afterSignIn: function () {
       return p();
     },
 
     /**
-     * Should the settings screen be shown after the user signs in.
+     * Called before confirmation polls to persist any data
      */
-    shouldShowSettingsAfterSignIn: function () {
-      return true;
-    },
-
-    /**
-     * Called in the original tab before the poll to check if the email is
-     * confirmed starts.
-     */
-    beforeSignUpConfirmationPoll: function () {
+    persist: function () {
       return p();
     },
 
     /**
-     * Called in the original tab after the poll that checks if the email is
-     * confirmed has finished.
+     * Called after signup email confirmation poll completes. Can be used
+     * to notify the RP that the user has sucessfully signed up.
+     *
+     * Resolve promise with an object that contains `{ halt: true }` to
+     * inicate to the caller "no need to continue". An example is prevening
+     * the "signup" screen from transitioning to "signup_complete" if the
+     * browser or OAuth flow completes the action.
+     *
+     * @return {promise}
      */
     afterSignUpConfirmationPoll: function () {
       return p();
     },
 
     /**
-     * Should the signup_complete screen be shown in the original
-     * tab after the confirmation poll completes
-     */
-    shouldShowSignUpCompleteAfterPoll: function () {
-      return true;
-    },
-
-    /**
-     * Called in the verification tab after an email is verified.
-     */
-    afterSignUpVerified: function () {
-      return p();
-    },
-
-    /**
-     * Called in the original tab before the poll to check if the password
-     * is reset starts.
-     */
-    beforeResetPasswordConfirmationPoll: function () {
-      return p();
-    },
-
-    /**
-     * Called in the original tab after the poll that checks if the password
-     * is reset has finished.
+     * Called after signup email confirmation poll completes. Can be used
+     * to notify the RP that the user has sucessfully signed up.
+     *
+     * Resolve promise with an object that contains `{ halt: true }` to
+     * inicate to the caller "no need to continue". An example is prevening
+     * the "signup" screen from transitioning to "signup_complete" if the
+     * browser or OAuth flow completes the action.
+     *
+     * @return {promise}
      */
     afterResetPasswordConfirmationPoll: function () {
-      return p();
-    },
-
-    /**
-     * Should the reset_password_complete screen be shown in the original
-     * tab after the reset password confirmation poll completes
-     */
-    shouldShowResetPasswordCompleteAfterPoll: function () {
-      return true;
-    },
-
-    /**
-     * Called in the verification tab after the password has been reset.
-     */
-    afterResetPasswordVerified: function () {
       return p();
     },
 

@@ -114,7 +114,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       // force a manual signin of the user.
       //
       // If a message is received before the timeout hits, HOORAY!
-      return self.broker.beforeResetPasswordConfirmationPoll()
+      return self.broker.persist()
         .then(function () {
           self._waitForConfirmation()
             .then(function (sessionInfo) {
@@ -156,12 +156,9 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
 
       self.displaySuccess(t('Password reset'));
 
-      return self.broker.afterResetPasswordConfirmationPoll(self)
-        .then(function () {
-          return self.broker.shouldShowResetPasswordCompleteAfterPoll();
-        })
-        .then(function (shouldShowResetPasswordComplete) {
-          if (shouldShowResetPasswordComplete) {
+      return self.broker.afterResetPasswordConfirmationPoll()
+        .then(function (result) {
+          if (! (result && result.halt)) {
             self.navigate('reset_password_complete');
           }
         });

@@ -13,12 +13,8 @@ define([
   'underscore',
   'models/auth_brokers/oauth',
   'models/auth_brokers/mixins/channel',
-  'lib/channels/web',
-  'lib/oauth-errors'
-], function (_, OAuthAuthenticationBroker, ChannelMixin, WebChannel,
-        OAuthErrors) {
-
-  var EXPECT_CHANNEL_RESPONSE_TIMEOUT = 5000;
+  'lib/channels/web'
+], function (_, OAuthAuthenticationBroker, ChannelMixin, WebChannel) {
 
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({
     defaults: _.extend({}, OAuthAuthenticationBroker.prototype.defaults, {
@@ -46,21 +42,9 @@ define([
         });
     },
 
-    finishOAuthFlow: function (result, source) {
-      result.closeWindow = (source === 'signin');
+    finishOAuthFlow: function (result) {
+      result.closeWindow = true;
       return this.send('oauth_complete', result);
-    },
-
-    afterSignIn: function (view) {
-      return OAuthAuthenticationBroker.prototype.afterSignIn.call(this, view)
-        .then(function () {
-          // expect the window to be closed after sign in (see
-          // finishOAuthFlow). Show an error message if the window is
-          // still open after the timeout expires.
-          view.setTimeout(function () {
-            view.displayError(OAuthErrors.toError('TRY_AGAIN'));
-          }, EXPECT_CHANNEL_RESPONSE_TIMEOUT);
-        });
     },
 
     // used by the ChannelMixin to get a channel.

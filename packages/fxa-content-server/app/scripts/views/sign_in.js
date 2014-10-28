@@ -83,7 +83,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
 
       return p().then(function () {
         if (credentials.password) {
-          return self.broker.checkCanLinkAccount(email)
+          return self.broker.beforeSignIn(email)
             .then(function () {
               return self.fxaClient.signIn(
                   email, credentials.password, self.relier);
@@ -117,12 +117,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
 
     onSignInSuccess: function () {
       var self = this;
-      return self.broker.afterSignIn(self)
-        .then(function () {
-          return self.broker.shouldShowSettingsAfterSignIn();
-        })
-        .then(function (shouldShowSettings) {
-          if (shouldShowSettings) {
+      return self.broker.afterSignIn()
+        .then(function (result) {
+          if (! (result && result.halt)) {
             self.navigate('settings');
           }
         });

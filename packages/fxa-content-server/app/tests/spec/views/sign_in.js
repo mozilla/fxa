@@ -192,12 +192,12 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           .then(function () {
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'signin.success'));
-            assert.isTrue(broker.afterSignIn.calledWith(view));
+            assert.isTrue(broker.afterSignIn.calledWith());
           });
       });
 
       it('logs an error if user cancels login', function () {
-        sinon.stub(broker, 'checkCanLinkAccount', function () {
+        sinon.stub(broker, 'beforeSignIn', function () {
           return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
         });
 
@@ -205,7 +205,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         $('[type=password]').val('password');
         return view.submit()
           .then(function () {
-            assert.isTrue(broker.checkCanLinkAccount.calledWith(email));
+            assert.isTrue(broker.beforeSignIn.calledWith(email));
             assert.isFalse(view.isErrorVisible());
 
             assert.isTrue(TestHelpers.isEventLogged(metrics,

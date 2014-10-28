@@ -56,9 +56,7 @@ define([
       return p().then(function () {
         var canRedirect = self.window.location.pathname === '/';
         if (canRedirect) {
-          if (self.isForceAuth()) {
-            return 'force_auth';
-          } else if (self._isUserAuthenticated()) {
+          if (self._isUserAuthenticated()) {
             return 'settings';
           } else {
             return 'signup';
@@ -67,13 +65,12 @@ define([
       });
     },
 
-    checkCanLinkAccount: function (email) {
+    beforeSignIn: function (email) {
       var self = this;
       // This will send a message over the channel to determine whether
       // we should cancel the login to sync or not based on Desktop
       // specific checks and dialogs. It throws an error with
       // message='USER_CANCELED_LOGIN' and errno=1001 if that's the case.
-      self._verifiedCanLinkAccount = true;
       return self.send('can_link_account', { email: email })
         .then(function (response) {
           if (response && response.data && ! response.data.ok) {
@@ -82,7 +79,7 @@ define([
 
           self._verifiedCanLinkAccount = true;
         }, function (err) {
-          console.error('checkCanLinkAccount failed with', err);
+          console.error('beforeSignIn failed with', err);
           // If the browser doesn't implement this command, then it will
           // handle prompting the relink warning after sign in completes.
           // This can likely be changed to 'reject' after Fx31 hits nightly,
@@ -90,28 +87,26 @@ define([
         });
     },
 
-    notifyOfLogin: function () {
-      return this.send('login', this._getLoginData());
-    },
-
     afterSignIn: function () {
-      return this.notifyOfLogin();
-    },
-
-    shouldShowSettingsAfterSignIn: function () {
-      return false;
+      return this._notifyRelierOfLogin()
+        .then(function () {
+          // the browser will take over from here,
+          // don't let the screen transition.
+          return { halt: true };
+        });
     },
 
     afterSignUpConfirmationPoll: function () {
-      return this.notifyOfLogin();
+      return this._notifyRelierOfLogin();
     },
 
     afterResetPasswordConfirmationPoll: function () {
-      return this.notifyOfLogin();
-    },
-
-    shouldShowResetPasswordCompleteAfterPoll: function () {
-      return false;
+      return this._notifyRelierOfLogin()
+        .then(function () {
+          // the browser will take over from here,
+          // don't let the screen transition.
+          return { halt: true };
+        });
     },
 
     // used by the ChannelMixin to get a channel.
@@ -148,6 +143,10 @@ define([
 
     _isUserAuthenticated: function () {
       return !! (this._sessionStatus && this._sessionStatus.email);
+    },
+
+    _notifyRelierOfLogin: function () {
+      return this.send('login', this._getLoginData());
     },
 
     _getLoginData: function () {
