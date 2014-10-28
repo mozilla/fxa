@@ -1,16 +1,15 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/* Any copyright is dedicated to the Public Domain.
+ * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 require('ass')
-var P = require('../../promise')
-var test = require('tap').test
-var error = require('../../error')
+var dbServer = require('fxa-auth-db-server')
+var log = { trace: console.log, error: console.log, stat: console.log, info: console.log }
+var DB = require('../../db/mysql')(log, dbServer.errors)
 var config = require('../../config')
-var log = { trace: console.log, error: console.log }
-var DB = require('../../db/mysql')(log, error)
+var test = require('../ptaptest')
+var patch = require('../../db/patch')
 
-config.patchLevel = 1000000
+patch.level = 1000000
 
 DB.connect(config)
   .then(
@@ -28,7 +27,6 @@ DB.connect(config)
       test(
         'an incorrect patchVersion should throw',
         function (t) {
-          debugger
           t.type(err, 'object', 'err is an object')
           t.ok(err instanceof Error, 'err is instanceof Error')
           t.equals(err.message, 'dbIncorrectPatchLevel', 'err.message is dbIncorrectPatchLevel')
@@ -39,5 +37,3 @@ DB.connect(config)
       )
     }
   )
-
-

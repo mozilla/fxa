@@ -8,7 +8,7 @@
     "fxa-auth-db-mysql": "db_patcher.js"
   },
   "scripts": {
-    "test": "node test/local/db_tests.js",
+    "test": "./scripts/tap-coverage.js test/backend test/local",
     "start": "node bin/server.js",
     "outdated": "npm outdated --depth 0"
   },

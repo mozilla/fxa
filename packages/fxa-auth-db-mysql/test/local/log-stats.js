@@ -1,7 +1,7 @@
 require('ass')
+var dbServer = require('fxa-auth-db-server')
 var test = require('../ptaptest')
 var P = require('../../promise')
-var error = require('../../error')
 var config = require('../../config')
 
 config.logLevel = 'info'
@@ -15,7 +15,7 @@ log.stat = function(stats) {
   dfd.resolve(stats)
 }
 
-var DB = require('../../db/mysql')(log, error)
+var DB = require('../../db/mysql')(log, dbServer.errors)
 
 DB.connect(config)
   .then(
