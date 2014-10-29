@@ -18,9 +18,9 @@
       "resolved": "https://registry.npmjs.org/buf/-/buf-0.1.0.tgz"
     },
     "convict": {
-      "version": "0.5.0",
-      "from": "convict@0.5.0",
-      "resolved": "https://registry.npmjs.org/convict/-/convict-0.5.0.tgz",
+      "version": "0.5.1",
+      "from": "convict@0.5.1",
+      "resolved": "https://registry.npmjs.org/convict/-/convict-0.5.1.tgz",
       "dependencies": {
         "cjson": {
           "version": "0.3.0",
@@ -66,19 +66,13 @@
             }
           }
         },
-        "validator": {
-          "version": "1.5.1",
-          "from": "validator@1.5.1",
-          "resolved": "https://registry.npmjs.org/validator/-/validator-1.5.1.tgz"
-        },
         "moment": {
-          "version": "2.6.0",
-          "from": "moment@2.6.0",
-          "resolved": "https://registry.npmjs.org/moment/-/moment-2.6.0.tgz"
+          "version": "2.8.3",
+          "from": "moment@2.8.3"
         },
         "optimist": {
-          "version": "0.6.0",
-          "from": "optimist@0.6.0",
+          "version": "0.6.1",
+          "from": "optimist@0.6.1",
           "dependencies": {
             "wordwrap": {
               "version": "0.0.2",
@@ -89,6 +83,10 @@
               "from": "minimist@~0.0.1"
             }
           }
+        },
+        "validator": {
+          "version": "2.1.0",
+          "from": "validator@2.1.0"
         }
       }
     },
