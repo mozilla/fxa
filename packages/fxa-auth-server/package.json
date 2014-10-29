@@ -24,15 +24,15 @@
   },
   "dependencies": {
     "URIjs": "1.14.1",
-    "bluebird": "2.3.5",
+    "bluebird": "2.3.10",
     "buf": "0.1.0",
-    "convict": "0.4.2",
+    "convict": "0.5.0",
     "fxa-notifier-aws": "1.0.0",
-    "hapi": "6.11.1",
+    "hapi": "7.1.1",
     "joi": "4.7.0",
-    "mozlog": "0.2.0",
-    "mysql": "2.5.1",
-    "request": "2.45.0"
+    "mozlog": "1.0.0",
+    "mysql": "2.5.2",
+    "request": "2.47.0"
   },
   "devDependencies": {
     "awsbox": "^0.7.0",
@@ -43,15 +43,15 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-conventional-changelog": "^1.1.0",
     "grunt-copyright": "^0.1.0",
-    "grunt-jscs": "^0.7.1",
-    "grunt-mocha-test": "^0.12.0",
+    "grunt-jscs": "^0.8.1",
+    "grunt-mocha-test": "^0.12.2",
     "grunt-nodemon": "^0.3.0",
     "grunt-nsp-shrinkwrap": "^0.0.3",
     "insist": "0.x",
     "jshint-stylish": "^1.0.0",
-    "load-grunt-tasks": "^0.6.0",
+    "load-grunt-tasks": "^1.0.0",
     "mocha-text-cov": "^0.1.0",
-    "nock": "^0.48.0",
+    "nock": "^0.48.2",
     "read": "^1.0.5",
     "time-grunt": "^1.0.0"
   }
