@@ -5,27 +5,26 @@
 'use strict';
 
 define([
-  'jquery',
+  'lib/xhr',
   'views/base',
   'stache!templates/tos',
-  'lib/promise',
   'lib/session',
   'lib/auth-errors'
 ],
-function ($, BaseView, Template, p, AuthErrors) {
+function (xhr, BaseView, Template, AuthErrors) {
   var View = BaseView.extend({
     template: Template,
     className: 'tos',
 
     afterRender: function () {
       var self = this;
-      return p.jQueryXHR($.ajax({
+      return xhr.ajax({
         url: '/legal/terms',
         accepts: {
           text: 'text/partial'
         },
         dataType: 'text'
-      }))
+      })
       .then(function (template) {
         self.$('#legal-copy').html(template);
         self.$('.hidden').removeClass('hidden');

@@ -5,13 +5,13 @@
 'use strict';
 
 define([
-  'jquery',
+  'lib/xhr',
   'lib/promise',
   'lib/session',
   'lib/config-loader',
   'lib/oauth-errors'
 ],
-function ($, p, Session, ConfigLoader, OAuthErrors) {
+function (xhr, p, Session, ConfigLoader, OAuthErrors) {
   var oauthUrl;
 
   var GET_CLIENT = '/v1/client/';
@@ -50,7 +50,7 @@ function ($, p, Session, ConfigLoader, OAuthErrors) {
     // params = { assertion, client_id, redirect_uri, scope, state }
     getCode: function getCode(params) {
       return this._getOauthUrl().then(function (url) {
-        return p.jQueryXHR($.post(url + GET_CODE, params))
+        return xhr.post(url + GET_CODE, params)
             .then(null, function (xhr) {
               var err = OAuthErrors.normalizeXHRError(xhr);
               throw err;
@@ -60,7 +60,7 @@ function ($, p, Session, ConfigLoader, OAuthErrors) {
 
     getClientInfo: function getClientInfo(id) {
       return this._getOauthUrl().then(function (url) {
-        return p.jQueryXHR($.get(url + GET_CLIENT + id))
+        return xhr.get(url + GET_CLIENT + id)
             .then(null, function (xhr) {
               var err = OAuthErrors.normalizeXHRError(xhr);
               throw err;

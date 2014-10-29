@@ -12,13 +12,14 @@ define([
   'underscore',
   'fxaClient',
   'jquery',
+  'lib/xhr',
   'lib/promise',
   'lib/session',
   'lib/auth-errors',
   'lib/constants',
   'lib/channels'
 ],
-function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
+function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants, Channels) {
   function trim(str) {
     return $.trim(str);
   }
@@ -80,7 +81,7 @@ function (_, FxaClient, $, p, Session, AuthErrors, Constants, Channels) {
         return p(Session.config.fxaccountUrl);
       }
 
-      return p.jQueryXHR($.getJSON('/config'))
+      return xhr.getJSON('/config')
           .then(function (data) {
             return data.fxaccountUrl;
           });
