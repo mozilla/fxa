@@ -19,10 +19,11 @@ define([
   'backbone',
   'jquery',
   'speedTrap',
+  'lib/xhr',
   'lib/promise',
   'lib/url',
   'lib/strings'
-], function (_, Backbone, $, speedTrap, p, Url, Strings) {
+], function (_, Backbone, $, speedTrap, xhr, p, Url, Strings) {
   'use strict';
 
   // Speed trap is a singleton, convert it
@@ -54,7 +55,7 @@ define([
     // by default, send the metrics to the content server.
     this._collector = options.collector || '';
 
-    this._ajax = options.ajax || $.ajax;
+    this._ajax = options.ajax || xhr.ajax;
 
     this._speedTrap = new SpeedTrap();
     this._speedTrap.init();
@@ -166,13 +167,13 @@ define([
 
     _send: function (data, url, async) {
       var self = this;
-      return p.jQueryXHR(this._ajax({
+      return this._ajax({
         async: async !== false,
         type: 'POST',
         url: url,
         contentType: 'application/json',
         data: JSON.stringify(data)
-      }))
+      })
       .then(function () {
         self.trigger('flush.success', data);
         return data;

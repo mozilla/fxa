@@ -36,6 +36,7 @@ function (Translator, Session) {
     '../tests/spec/lib/cropper',
     '../tests/spec/lib/image-loader',
     '../tests/spec/lib/resume-token',
+    '../tests/spec/lib/xhr',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',
     '../tests/spec/views/form',

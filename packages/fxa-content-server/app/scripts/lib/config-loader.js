@@ -8,13 +8,13 @@
 
 define([
   'underscore',
-  'jquery',
-  'p-promise',
+  'lib/xhr',
+  'lib/promise',
   'lib/url'
 ],
 function (
   _,
-  $,
+  xhr,
   p,
   Url
 ) {
@@ -54,7 +54,7 @@ function (
       }
 
       var self = this;
-      return p.jQueryXHR($.getJSON('/config'))
+      return xhr.getJSON('/config')
           .then(function (config) {
             self._config = config;
             return config;

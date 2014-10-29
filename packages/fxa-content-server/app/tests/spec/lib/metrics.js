@@ -7,12 +7,13 @@
 define([
   'chai',
   'jquery',
+  'lib/promise',
   'lib/metrics',
   'lib/auth-errors',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, $, Metrics, AuthErrors, WindowMock, TestHelpers) {
+function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
   'use strict';
 
   /*global describe, it*/
@@ -100,15 +101,11 @@ function (chai, $, Metrics, AuthErrors, WindowMock, TestHelpers) {
       function ajaxMock(options) {
         sentData = options.data;
 
-        var deferred = $.Deferred();
-
         if (serverError) {
-          deferred.reject({ statusText: serverError }, 'bad jiji', serverError);
-        } else {
-          deferred.resolve({});
+          return p.reject({ statusText: serverError });
         }
 
-        return deferred.promise();
+        return p({});
       }
 
       beforeEach(function () {

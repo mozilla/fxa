@@ -5,16 +5,15 @@
 'use strict';
 
 define([
-  'jquery',
+  'lib/xhr',
   'underscore',
-  'lib/promise',
   'lib/session',
   'lib/config-loader',
   'lib/oauth-client',
   'lib/assertion',
   'lib/auth-errors'
 ],
-function ($, _, p, Session, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
+function (xhr, _, Session, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
 
   function ProfileClient(options) {
     this.profileUrl = options.profileUrl;
@@ -46,7 +45,7 @@ function ($, _, p, Session, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
       request.processData = false;
     }
 
-    return p.jQueryXHR($.ajax(request))
+    return xhr.ajax(request)
       .then(function (result) {
         if (result.error) {
           throw ProfileErrors.toError(result);
