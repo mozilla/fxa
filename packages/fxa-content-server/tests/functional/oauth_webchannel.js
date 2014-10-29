@@ -25,6 +25,7 @@ define([
   var user;
   var email;
   var client;
+  var ANIMATION_DELAY_MS = 1000;
   /* global window, addEventListener */
 
   /**
@@ -333,6 +334,14 @@ define([
 
         // this tab's success is seeing the reset password complete header.
         .findByCssSelector('#fxa-reset-password-complete-header')
+        .end()
+
+        .sleep(ANIMATION_DELAY_MS)
+
+        .findByCssSelector('.error').isDisplayed()
+        .then(function (isDisplayed) {
+          assert.isFalse(isDisplayed);
+        })
         .end()
 
         .closeCurrentWindow()

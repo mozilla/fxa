@@ -61,7 +61,7 @@ function (_, BaseView, Template, Session, Xss, Strings,
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
       // Finish the WebChannel flow
-      if (this.relier.get('webChannelId')) {
+      if (this.isOAuthSameBrowser() && this.relier.get('webChannelId')) {
         this.submit();
       }
 
