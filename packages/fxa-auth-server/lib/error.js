@@ -11,10 +11,21 @@ const DEFAULTS = {
   message: 'Unspecified error'
 };
 
+function merge(target, other) {
+  var keys = Object.keys(other || {});
+  for (var i = 0; i < keys.length; i++) {
+    target[keys[i]] = other[keys[i]];
+  }
+}
+
 function AppError(options, extra, headers) {
   this.message = options.message || DEFAULTS.message;
   this.isBoom = true;
-  this.stack = options.stack;
+  if (options.stack) {
+    this.stack = options.stack;
+  } else {
+    Error.captureStackTrace(this, AppError);
+  }
   this.errno = options.errno || DEFAULTS.errno;
   this.output = {
     statusCode: options.code || DEFAULTS.code,
@@ -27,10 +38,7 @@ function AppError(options, extra, headers) {
     },
     headers: headers || {}
   };
-  var keys = Object.keys(extra || {});
-  for (var i = 0; i < keys.length; i++) {
-    this.output.payload[keys[i]] = extra[keys[i]];
-  }
+  merge(this.output.payload, extra);
 }
 util.inherits(AppError, Error);
 
