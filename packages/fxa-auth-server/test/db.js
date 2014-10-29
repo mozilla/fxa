@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const db = require('../lib/db');
-const config = require('../lib/config');
-const assert = require('insist');
 const crypto = require('crypto');
 
-/*global describe,it*/
+const assert = require('insist');
+const buf = require('buf').hex;
+const hex = require('buf').to.hex;
+
+const db = require('../lib/db');
+const config = require('../lib/config');
+
+/*global describe,it,before*/
 
 function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');
@@ -92,14 +96,14 @@ describe('db', function() {
   });
 
   describe('removeUser', function () {
-    it('should delete tokens and codes for the given userId', function () {
-      var clientId = randomString(8);
-      var userId = randomString(8);
-      var email = 'a@b.c';
-      var scope = 'no-scope';
-      var code = null;
-      var token = null;
+    var clientId = buf(randomString(8));
+    var userId = buf(randomString(16));
+    var email = 'a@b.c';
+    var scope = ['no-scope'];
+    var code = null;
+    var token = null;
 
+    before(function() {
       return db.registerClient({
         id: clientId,
         name: 'removeUserTest',
@@ -113,7 +117,7 @@ describe('db', function() {
         code = c;
         return db.getCode(code);
       }).then(function(code) {
-        assert.equal(code.userId, userId, 'code userId');
+        assert.equal(hex(code.userId), hex(userId));
         return db.generateToken({
           clientId: clientId,
           userId: userId,
@@ -122,9 +126,12 @@ describe('db', function() {
         });
       }).then(function (t) {
         token = t.token;
-        assert.equal(t.userId, userId, 'token userId');
-        return db.removeUser(userId);
-      }).then(function () {
+        assert.equal(hex(t.userId), hex(userId), 'token userId');
+      });
+    });
+
+    it('should delete tokens and codes for the given userId', function () {
+      return db.removeUser(userId).then(function () {
         return db.getCode(code);
       }).then(function (c) {
         assert.equal(c, undefined, 'code deleted');
