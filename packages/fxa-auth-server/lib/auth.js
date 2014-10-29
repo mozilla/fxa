@@ -31,7 +31,7 @@ exports.strategy = function() {
         return reply(AppError.unauthorized('Illegal Bearer token'));
       }
 
-      token.verify(tok).done(function(details) {
+      token.verify(tok).done(function tokenFound(details) {
         if (details.scope.indexOf(exports.SCOPE_CLIENT_MANAGEMENT) !== -1) {
           logger.debug('check.whitelist');
           var blocked = !WHITELIST.some(function(re) {
@@ -50,7 +50,7 @@ exports.strategy = function() {
         reply(null, {
           credentials: details
         });
-      }, function(err) {
+      }, function noToken(err) {
         logger.debug('error', err);
         reply(AppError.unauthorized('Bearer token invalid'));
       });
