@@ -66,6 +66,16 @@ function clone(obj) {
   return clone;
 }
 
+function deleteByUserId(object, userId) {
+  var ids = Object.keys(object);
+  for (var i = 0; i < ids.length; i++) {
+    var id = ids[i];
+    if (object[id].userId === userId) {
+      delete object[id];
+    }
+  }
+}
+
 MemoryStore.prototype = {
   ping: function ping() {
     return P.resolve();
@@ -169,6 +179,11 @@ MemoryStore.prototype = {
   getEncodingInfo: function getEncodingInfo() {
     console.warn('getEncodingInfo has no meaning with memory implementation');
     return P.resolve({});
+  },
+  removeUser: function removeUser(userId) {
+    deleteByUserId(this.tokens, userId);
+    deleteByUserId(this.codes, userId);
+    return P.resolve();
   }
 };
 

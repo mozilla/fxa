@@ -6,12 +6,14 @@ const config = require('../lib/config').root();
 const db = require('../lib/db');
 const logger = require('../lib/logging')('server');
 const server = require('../lib/server').create();
+const events = require('../lib/events');
 
 logger.debug('Starting with config: %:2j', config);
 db.ping().done(function() {
   server.start(function() {
     logger.info('Server started at:', server.info.uri);
   });
+  events.start();
 }, function(err) {
   logger.critical('DB ping error', err);
 });

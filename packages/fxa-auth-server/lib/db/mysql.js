@@ -114,6 +114,8 @@ const QUERY_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
 const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
 const QUERY_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
+const QUERY_TOKEN_DELETE_USER = 'DELETE FROM tokens WHERE userId=?';
+const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
 
 function firstRow(rows) {
   return rows[0];
@@ -281,6 +283,13 @@ MysqlStore.prototype = {
         return info;
       });
     });
+  },
+
+  removeUser: function removeUser(userId) {
+    // TODO this should be a transaction or stored procedure
+    var id = buf(userId);
+    return this._write(QUERY_TOKEN_DELETE_USER, [id])
+      .then(this._write.bind(this, QUERY_CODE_DELETE_USER, [id]));
   },
 
   _write: function _write(sql, params) {
