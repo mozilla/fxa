@@ -54,9 +54,11 @@ define([
           isTimeoutCalled = true;
         }, 10);
 
-        setTimeout(TestHelpers.wrapAssertion(function () {
-          assert.isFalse(isTimeoutCalled);
-        }, done), 20);
+        setTimeout(function () {
+          TestHelpers.wrapAssertion(function () {
+            assert.isFalse(isTimeoutCalled);
+          }, done);
+        }, 20);
 
         view.clearTimeout(timeout);
       });
@@ -69,9 +71,11 @@ define([
           isTimeoutCalled = true;
         }, 10);
 
-        setTimeout(TestHelpers.wrapAssertion(function () {
-          assert.isFalse(isTimeoutCalled);
-        }, done), 20);
+        setTimeout(function () {
+          TestHelpers.wrapAssertion(function () {
+            assert.isFalse(isTimeoutCalled);
+          }, done);
+        }, 20);
 
         view.destroy();
       });
