@@ -34,7 +34,7 @@
     "ember-data": "1.0.0-beta.10",
     "express": "4.9.5",
     "glob": "4.0.5",
-    "mozlog": "0.2.0",
+    "mozlog": "1.0.0",
     "request": "2.45.0",
     "ember-export-application-global": "1.0.0"
   },
