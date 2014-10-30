@@ -21,7 +21,7 @@ if (require.main === module) {
   DB.connect(config).done(
     function (db) {
       var server = dbServer.createServer(db)
-      server.listen(config.port, config.host)
+      server.listen(config.port, config.hostname)
       server.on('failure', function (d) { console.error(d.err.code, d.url)})
       server.on('success', function (d) { console.log(d.method, d.url)})
     }
@@ -32,7 +32,7 @@ else {
     return DB.connect(config)
       .then(
         function (db) {
-          return api.createServer(db)
+          return dbServer.createServer(db)
         }
       )
   }
