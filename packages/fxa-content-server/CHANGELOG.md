@@ -1,3 +1,26 @@
+<a name="0.25.0"></a>
+## 0.25.0 (2014-10-29)
+
+
+#### Bug Fixes
+
+* **chrome:** fix a "read-only" strict mode error in Chrome ([c15de01b](https://github.com/mozilla/fxa-content-server/commit/c15de01b706e5cadeb59965182267c3bdb73cbc9))
+* **client:**
+  * Fix CORS requests not being decoded for Fx<21 ([a92ab607](https://github.com/mozilla/fxa-content-server/commit/a92ab607cd8e14068b44a6f12c2fbf693446246c))
+  * COPPA - make learn more link target _blank only on sync ([ae06e403](https://github.com/mozilla/fxa-content-server/commit/ae06e403931f26bf3370140313c77e9f7baced3d))
+  * Allow leading/trailing whitespace on email addresses. ([2385500d](https://github.com/mozilla/fxa-content-server/commit/2385500df7b9895b509dbd098d1ee9015e8a9d53))
+* **coppa:** better align error message in pop up ([7bc43ca4](https://github.com/mozilla/fxa-content-server/commit/7bc43ca432c5a41c566509abebf68cde0f585057))
+* **oauth:**
+  * fixes WebChannel double submit during password reset ([c4ad6289](https://github.com/mozilla/fxa-content-server/commit/c4ad6289303190c87b6559a6270faba4408e138d))
+  * validate that redirect param exists. ([a8c63fd0](https://github.com/mozilla/fxa-content-server/commit/a8c63fd0991dacaf4a944fe7c0ae4d8ed4cafa4c), closes [#1786](https://github.com/mozilla/fxa-content-server/issues/1786))
+* **test:** fixes setTimeout tests in FF18 ([ab270636](https://github.com/mozilla/fxa-content-server/commit/ab2706363f33068ad0e7ab9f1b4f50d169546a1f))
+
+
+#### Features
+
+* **metrics:** Add three new auth-errors ([ca2e1c46](https://github.com/mozilla/fxa-content-server/commit/ca2e1c46639aaf84041c7b79985dedb7f191e050))
+
+
 <a name="0.24.0"></a>
 ## 0.24.0 (2014-10-20)
 
