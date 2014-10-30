@@ -85,7 +85,7 @@ const conf = convict({
    */
   logging: {
     default: {
-      app: 'fxa-oauth-server'
+      app: 'fxa-oauth-console'
     }
   }
 });
