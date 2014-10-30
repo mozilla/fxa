@@ -40,6 +40,7 @@ const conf = convict({
       default: 10137
     },
     session: {
+      env: 'COOKIE_SECRET',
       format: String,
       default: null
     }
