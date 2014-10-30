@@ -5,7 +5,7 @@
   "scripts": {
     "start": "./scripts/run_dev.js",
     "test": "ember test && grunt lint",
-    "postinstall": "./scripts/postinstall.sh",
+    "postinstall": "node_modules/.bin/bower install --config.interactive=false -s",
     "outdated": "npm outdated --depth 0",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS"
   },
