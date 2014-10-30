@@ -13,6 +13,7 @@ var url = require('url');
 module.exports = function(environment) {
   var config = require('../lib/config');
   var oauthUriRaw = url.parse(config.get('fxaOAuth').oauth_uri);
+  var baseURL = config.get('base_url');
   var oauthUri = oauthUriRaw.protocol + '//' + oauthUriRaw.host;
 
   var ENV = {
@@ -24,7 +25,7 @@ module.exports = function(environment) {
       oauth: oauthUri
     },
     environment: environment,
-    baseURL: '/',
+    baseURL: baseURL,
     locationType: 'auto',
     EmberENV: {
       FEATURES: {

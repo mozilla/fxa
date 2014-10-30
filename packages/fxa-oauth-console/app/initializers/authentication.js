@@ -4,6 +4,7 @@
 
 import Ember from 'ember';
 import Base from 'simple-auth/authenticators/base';
+import config from '../config/environment';
 
 /**
  * Custom Ember Simple Auth Authenticator
@@ -13,7 +14,7 @@ var CustomAuthenticator = Base.extend({
   /**
    * Token endpoint
    */
-  tokenEndpoint: '/oauth',
+  tokenEndpoint: config.baseURL + 'oauth',
   /**
    * Restores application session data
    *

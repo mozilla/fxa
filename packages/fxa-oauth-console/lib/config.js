@@ -44,6 +44,12 @@ const conf = convict({
       default: null
     }
   },
+  base_url: {
+    doc: 'Base URL of the application. Note: MUST end with a trailing slash',
+    format: String,
+    env: 'BASE_URL',
+    default: '/'
+  },
   /**
    * FxA OAuth
    */
