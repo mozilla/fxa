@@ -5,7 +5,9 @@
 
 var sessions = require('client-sessions');
 
-var sessionSecret = require('./config').get('server').session;
+var conf = require('./config');
+var baseUrl = conf.get('base_url');
+var sessionSecret = conf.get('server').session;
 
 if (! sessionSecret) {
   throw new Error('Session secret not configured.');
@@ -20,7 +22,7 @@ module.exports = function (req, res, next) {
       secret: sessionSecret,
       requestKey: 'session',
       cookie: {
-        path: '/oauth',
+        path: baseUrl + 'oauth',
         httpOnly: true
       }
     })(req, res, next);

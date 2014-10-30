@@ -42,7 +42,7 @@ const conf = convict({
     session: {
       env: 'COOKIE_SECRET',
       format: String,
-      default: "cookie_secret"
+      default: 'cookie_secret'
     }
   },
   base_url: {

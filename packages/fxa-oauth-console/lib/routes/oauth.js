@@ -10,6 +10,7 @@ var request = require('request');
 var router = express.Router();
 var redirectUrl = require('./lib/oauth').redirectUrl;
 var config = require('../config');
+var baseUrl = config.get('base_url');
 var fxaOAuthConfig = config.get('fxaOAuth');
 var log = require('mozlog')('server.ver.json');
 var DIFFERENT_BROWSER_ERROR = 3005;
@@ -46,7 +47,7 @@ router.get('/status', function (req, res) {
  */
 router.get('/logout', function (req, res) {
   req.session.reset();
-  res.redirect('/');
+  res.redirect(baseUrl);
 });
 
 /**
@@ -60,7 +61,7 @@ router.get('/redirect', function (req, res) {
   // The user finished the flow in a different browser.
   // Prompt them to log in again
   if (error === DIFFERENT_BROWSER_ERROR) {
-    return res.redirect('/?oauth_incomplete=true');
+    return res.redirect(baseUrl + '?oauth_incomplete=true');
   }
 
   // state should exists in our set of active flows and the user should
@@ -104,12 +105,12 @@ router.get('/redirect', function (req, res) {
         req.session.email = data.email;
         req.session.uid = data.uid;
         req.session.token = token;
-        res.redirect('/');
+        res.redirect(baseUrl);
       });
     });
   } else if (req.session.email) {
     // already logged in
-    res.redirect('/');
+    res.redirect(baseUrl);
   } else {
 
     var msg = 'Bad request ';
