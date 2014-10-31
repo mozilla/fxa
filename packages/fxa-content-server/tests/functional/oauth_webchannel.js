@@ -237,16 +237,9 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('#fxa-reset-password-header')
-        .end()
-
-        .findByCssSelector('input[type=email]')
-          .type(email)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
@@ -259,20 +252,10 @@ define([
         // Complete the password reset in the new tab
         .switchToWindow('newwindow')
 
-        .findById('fxa-complete-reset-password-header')
-        .end()
-
-        .findByCssSelector('#password')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#vpassword')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
 
         // this tab's success is seeing the reset password complete header.
         .findByCssSelector('#fxa-reset-password-complete-header')
@@ -309,16 +292,9 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('#fxa-reset-password-header')
-        .end()
-
-        .findByCssSelector('input[type=email]')
-          .type(email)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
@@ -360,16 +336,9 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('#fxa-reset-password-header')
-        .end()
-
-        .findByCssSelector('input[type=email]')
-          .type(email)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
@@ -387,20 +356,10 @@ define([
           return self.get('remote').get(require.toUrl(verificationLink));
         })
 
-        .findById('fxa-complete-reset-password-header')
-        .end()
-
-        .findByCssSelector('#password')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#vpassword')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
 
         // this tab's success is seeing the reset password complete header.
         .findByCssSelector('#fxa-reset-password-complete-header')
