@@ -4,7 +4,7 @@
 
 /**
  * A broker that knows how to finish an OAuth flow. Should be subclassed
- * to override `finishOAuthFlow`
+ * to override `sendOAuthResultToRelier`
  */
 
 'use strict';
@@ -82,37 +82,17 @@ define([
      * @param {string} result.redirect - URL that can be used to redirect to
      * the RP.
      */
-    finishOAuthFlow: function (/*result*/) {
-      return p.reject(new Error('subclasses must override finishOAuthFlow'));
+    sendOAuthResultToRelier: function (/*result*/) {
+      return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
-    _getOAuthResultFinishFlow: function () {
+    finishOAuthFlow: function () {
       var self = this;
       self.session.clear('oauth');
       return self.getOAuthResult()
         .then(function (result) {
-          return self.finishOAuthFlow(result);
-        }, function (err) {
-          throw err;
-        })
-        .then(function () {
-          // the RP will take over from here, no need for a screen transition.
-          return { halt: true };
+          return self.sendOAuthResultToRelier(result);
         });
-    },
-
-    afterSignIn: function () {
-      return this._getOAuthResultFinishFlow();
-    },
-
-    afterSignUpConfirmationPoll: function () {
-      // The original tab always finishes the OAuth flow if it is still open.
-      return this._getOAuthResultFinishFlow();
-    },
-
-    afterResetPasswordConfirmationPoll: function () {
-      // The original tab always finishes the OAuth flow if it is still open.
-      return this._getOAuthResultFinishFlow();
     },
 
     persist: function () {
@@ -129,6 +109,33 @@ define([
         });
       });
     },
+
+    afterSignIn: function () {
+      return this.finishOAuthFlow()
+        .then(function () {
+          // the RP will take over from here, no need for a screen transition.
+          return { halt: true };
+        });
+    },
+
+    afterSignUpConfirmationPoll: function () {
+      // The original tab always finishes the OAuth flow if it is still open.
+      return this.finishOAuthFlow()
+        .then(function () {
+          // the RP will take over from here, no need for a screen transition.
+          return { halt: true };
+        });
+    },
+
+    afterResetPasswordConfirmationPoll: function () {
+      // The original tab always finishes the OAuth flow if it is still open.
+      return this.finishOAuthFlow()
+        .then(function () {
+          // the RP will take over from here, no need for a screen transition.
+          return { halt: true };
+        });
+    },
+
 
     transformLink: function (link) {
       return '/oauth' + link;

@@ -293,11 +293,20 @@ function (
     },
 
     _isWebChannel: function () {
-      return !! this._searchParam('webChannelId');
+      return !! (this._searchParam('webChannelId') || // signup/signin
+                (this._isOAuthVerificationSameBrowser() &&
+                  Session.oauth && Session.oauth.webChannelId));
     },
 
     _isOAuth: function () {
       return !! (this._searchParam('client_id') || this._searchParam('code'));
+    },
+
+    _isOAuthVerificationSameBrowser: function () {
+      //jshint camelcase: false
+      var savedClientId = Session.oauth && Session.oauth.client_id;
+      return !! (this._searchParam('code') &&
+                (this._searchParam('service') === savedClientId));
     },
 
     _searchParam: function (name) {

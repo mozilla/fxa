@@ -12,7 +12,7 @@ define([
 ], function (p, OAuthAuthenticationBroker) {
 
   var RedirectAuthenticationBroker = OAuthAuthenticationBroker.extend({
-    finishOAuthFlow: function (result) {
+    sendOAuthResultToRelier: function (result) {
       var win = this.window;
       return p()
         .then(function () {

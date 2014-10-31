@@ -54,22 +54,6 @@ function (_, BaseView, Template, Session, Xss, Strings,
       return this._createMarketingSnippet();
     },
 
-    /*
-    afterVisible: function () {
-      // Finish the WebChannel flow
-      var self = this;
-      return p()
-        .then(function () {
-          if (self.isOAuthSameBrowser() && self.relier.get('webChannelId')) {
-            // The delay is to give the functional tests time to bind an event
-            // handler to listen for the `oauth_complete` message on the
-            // web channel.
-            return p().delay(100).then(_.bind(self.submit, self));
-          }
-        });
-    },
-    */
-
     _createMarketingSnippet: function () {
       var marketingSnippet = new MarketingSnippet({
         type: this.type,

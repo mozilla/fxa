@@ -110,26 +110,6 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
             });
       });
     });
-
-    /*
-    describe('afterVisible', function () {
-      it('auto-completes the OAuth flow if using the WebChannel on the same browser', function () {
-        relier.set('webChannelId', 'channel_id');
-        relier.set('clientId', 'fmd');
-        //jshint camelcase: false
-        Session.set('oauth', { client_id: 'fmd' });
-
-        sinon.stub(view, 'finishOAuthFlow', function () {
-          return p(true);
-        });
-
-        return view.afterVisible()
-            .then(function () {
-              assert.isTrue(view.finishOAuthFlow.called);
-            });
-      });
-    });
-    */
   });
 });
 

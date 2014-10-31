@@ -279,7 +279,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
             });
       });
 
-      it('signs the user in and redirects to `/reset_password_complete`', function () {
+      it('signs the user in and redirects to `/reset_password_complete` if broker does not say halt', function () {
         view.$('[type=password]').val(PASSWORD);
 
         sinon.stub(fxaClient, 'signIn', function () {
@@ -288,6 +288,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p(true);
         });
+        sinon.spy(broker, 'afterCompleteResetPassword');
 
         return view.validateAndSubmit()
             .then(function () {
@@ -296,6 +297,31 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
               assert.isTrue(fxaClient.signIn.calledWith(
                   EMAIL, PASSWORD, relier));
               assert.equal(routerMock.page, 'reset_password_complete');
+              assert.isTrue(broker.afterCompleteResetPassword.called);
+            });
+      });
+
+      it('halts if the broker says halt', function () {
+        view.$('[type=password]').val(PASSWORD);
+
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p(true);
+        });
+        sinon.stub(fxaClient, 'completePasswordReset', function () {
+          return p(true);
+        });
+        sinon.stub(broker, 'afterCompleteResetPassword', function () {
+          return p({ halt: true });
+        });
+
+        return view.validateAndSubmit()
+            .then(function () {
+              assert.isTrue(fxaClient.completePasswordReset.calledWith(
+                  EMAIL, PASSWORD, TOKEN, CODE));
+              assert.isTrue(fxaClient.signIn.calledWith(
+                  EMAIL, PASSWORD, relier));
+              assert.notEqual(routerMock.page, 'reset_password_complete');
+              assert.isTrue(broker.afterCompleteResetPassword.called);
             });
       });
 

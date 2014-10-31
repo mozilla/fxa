@@ -58,9 +58,8 @@ define([
      * has signed in or signed up with a valid preVerifyToken.
      *
      * Resolve promise with an object that contains `{ halt: true }` to
-     * inicate to the caller "no need to continue". An example is prevening
-     * the "signin" screen from transitioning to "settings" if the browser
-     * or OAuth flow completes the action.
+     * prevent the "signin" screen from transitioning to "settings" if
+     * the browser or OAuth flow completes the action.
      *
      * @return {promise}
      */
@@ -69,7 +68,9 @@ define([
     },
 
     /**
-     * Called before confirmation polls to persist any data
+     * Called before confirmation polls to persist any data that is needed
+     * for email verification. Useful for storing data that may be needed
+     * by the verification tab.
      */
     persist: function () {
       return p();
@@ -80,9 +81,8 @@ define([
      * to notify the RP that the user has sucessfully signed up.
      *
      * Resolve promise with an object that contains `{ halt: true }` to
-     * inicate to the caller "no need to continue". An example is prevening
-     * the "signup" screen from transitioning to "signup_complete" if the
-     * browser or OAuth flow completes the action.
+     * prevent the "confirm" screen from transitioning to "signup_complete"
+     * if the browser or OAuth flow completes the action.
      *
      * @return {promise}
      */
@@ -91,17 +91,44 @@ define([
     },
 
     /**
+     * Called after signup email verification, in the verification tab.
+     *
+     * Resolve promise with an object that contains `{ halt: true }` to
+     * prevent the "complete_signup" screen from transitioning to
+     * "signup_complete" if the browser or OAuth flow completes the action.
+     *
+     * @return {promise}
+     */
+    afterCompleteSignUp: function () {
+      return p();
+    },
+
+    /**
      * Called after signup email confirmation poll completes. Can be used
      * to notify the RP that the user has sucessfully signed up.
      *
      * Resolve promise with an object that contains `{ halt: true }` to
-     * inicate to the caller "no need to continue". An example is prevening
-     * the "signup" screen from transitioning to "signup_complete" if the
-     * browser or OAuth flow completes the action.
+     * prevent the "reset_password" screen from transitioning to
+     * "reset_password_complete" if the browser or OAuth flow completes
+     * the action.
      *
      * @return {promise}
      */
     afterResetPasswordConfirmationPoll: function () {
+      return p();
+    },
+
+    /**
+     * Called after password reset email verification, in the verification tab.
+     *
+     * Resolve promise with an object that contains `{ halt: true }` to
+     * prevent the "complete_reset_password" screen from transitioning to
+     * "reset_password_complete" if the browser or OAuth flow completes
+     * the action.
+     *
+     * @return {promise}
+     */
+    afterCompleteResetPassword: function () {
       return p();
     },
 

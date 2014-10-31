@@ -75,9 +75,9 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
       });
     });
 
-    describe('finishOAuthFlow', function () {
+    describe('sendOAuthResultToRelier', function () {
       it('must be overridden', function () {
-        return broker.finishOAuthFlow()
+        return broker.sendOAuthResultToRelier()
           .then(assert.fail, function (err) {
             assert.ok(err);
           });
@@ -85,14 +85,14 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
     });
 
     describe('afterSignIn', function () {
-      it('calls finishOAuthFlow with the correct options', function () {
-        sinon.stub(broker, 'finishOAuthFlow', function () {
+      it('calls sendOAuthResultToRelier with the correct options', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
           return p();
         });
 
         return broker.afterSignIn()
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.calledWith({
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state',
               code: VALID_OAUTH_CODE
@@ -122,14 +122,14 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
     });
 
     describe('afterSignUpConfirmationPoll', function () {
-      it('calls finishOAuthFlow with the correct options', function () {
-        sinon.stub(broker, 'finishOAuthFlow', function () {
+      it('calls sendOAuthResultToRelier with the correct options', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
           return p();
         });
 
         return broker.afterSignUpConfirmationPoll()
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.calledWith({
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state',
               code: VALID_OAUTH_CODE
@@ -139,14 +139,14 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
     });
 
     describe('afterResetPasswordConfirmationPoll', function () {
-      it('calls finishOAuthFlow with the expected options', function () {
-        sinon.stub(broker, 'finishOAuthFlow', function () {
+      it('calls sendOAuthResultToRelier with the expected options', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
           return p();
         });
 
         return broker.afterResetPasswordConfirmationPoll()
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.calledWith({
+            assert.isTrue(broker.sendOAuthResultToRelier.calledWith({
               redirect:  VALID_OAUTH_CODE_REDIRECT_URL,
               state: 'state',
               code: VALID_OAUTH_CODE

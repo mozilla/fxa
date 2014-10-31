@@ -78,9 +78,9 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       });
     });
 
-    describe('finishOAuthFlow', function () {
+    describe('sendOAuthResultToRelier', function () {
       it('prepares window to be closed', function () {
-        return broker.finishOAuthFlow({})
+        return broker.sendOAuthResultToRelier({})
           .then(function () {
             assert.isTrue(channelMock.send.calledWith('oauth_complete', {
               closeWindow: true
@@ -104,7 +104,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
     });
 
     describe('afterSignIn', function () {
-      it('calls finishOAuthFlow', function () {
+      it('calls sendOAuthResultToRelier', function () {
         var view = new BaseView({
           window: windowMock
         });
@@ -113,7 +113,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
           return p({});
         });
 
-        sinon.stub(broker, 'finishOAuthFlow', function () {
+        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
           return p();
         });
 

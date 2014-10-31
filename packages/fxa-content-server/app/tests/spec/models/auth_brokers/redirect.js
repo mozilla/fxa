@@ -27,10 +27,10 @@ function (chai, sinon, RedirectAuthenticationBroker, WindowMock) {
       });
     });
 
-    describe('finishOAuthFlow', function () {
+    describe('sendOAuthResultToRelier', function () {
       describe('with no error', function () {
         it('prepares window to be closed', function () {
-          return broker.finishOAuthFlow({
+          return broker.sendOAuthResultToRelier({
             redirect: REDIRECT_TO
           })
           .then(function () {
@@ -41,7 +41,7 @@ function (chai, sinon, RedirectAuthenticationBroker, WindowMock) {
 
       describe('with an error', function () {
         it('appends an error query parameter', function () {
-          return broker.finishOAuthFlow({
+          return broker.sendOAuthResultToRelier({
             redirect: REDIRECT_TO,
             error: 'error'
           })

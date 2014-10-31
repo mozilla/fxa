@@ -113,9 +113,17 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
       // from localStorage and go to town.
       return self.fxaClient.completePasswordReset(email, password, token, code)
         .then(function () {
-          return self.fxaClient.signIn(email, password, relier);
+          var oauthData = Session.oauth;
+          return self.fxaClient.signIn(email, password, relier)
+            .then(function () {
+              Session.set('oauth', oauthData);
+            });
         }).then(function () {
-          self.navigate('reset_password_complete');
+          return self.broker.afterCompleteResetPassword();
+        }).then(function (result) {
+          if (! (result && result.halt)) {
+            self.navigate('reset_password_complete');
+          }
         })
         .then(null, function (err) {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {

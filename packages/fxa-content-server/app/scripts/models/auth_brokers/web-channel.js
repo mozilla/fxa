@@ -13,8 +13,9 @@ define([
   'underscore',
   'models/auth_brokers/oauth',
   'models/auth_brokers/mixins/channel',
+  'lib/promise',
   'lib/channels/web'
-], function (_, OAuthAuthenticationBroker, ChannelMixin, WebChannel) {
+], function (_, OAuthAuthenticationBroker, ChannelMixin, p, WebChannel) {
 
   var WebChannelAuthenticationBroker = OAuthAuthenticationBroker.extend({
     defaults: _.extend({}, OAuthAuthenticationBroker.prototype.defaults, {
@@ -42,9 +43,28 @@ define([
         });
     },
 
-    finishOAuthFlow: function (result) {
+    sendOAuthResultToRelier: function (result) {
       result.closeWindow = true;
-      return this.send('oauth_complete', result);
+      // the WebChannel does not respond, create a promise
+      // that immediately resolves.
+      this.send('oauth_complete', result);
+      return p();
+    },
+
+    afterCompleteSignUp: function () {
+      // The original tab may be closed, so the verification tab should
+      // send the OAuth result to the browser to ensure the flow completes.
+      //
+      // The slight delay is to allow the functional tests time to bind
+      // event handlers before the flow completes.
+      var self = this;
+      return p().delay(100).then(_.bind(self.finishOAuthFlow, self));
+    },
+
+    afterCompleteResetPassword: function () {
+      // The original tab may be closed, so the verification tab should
+      // send the OAuth result to the browser to ensure the flow completes.
+      return this.finishOAuthFlow();
     },
 
     // used by the ChannelMixin to get a channel.

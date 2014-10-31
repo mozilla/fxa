@@ -15,12 +15,13 @@ define([
   'lib/constants',
   'lib/fxa-client',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
-      FxaClient, Relier, RouterMock, WindowMock, TestHelpers) {
+      FxaClient, Relier, Broker, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/complete_sign_up', function () {
@@ -31,6 +32,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
     var metrics;
     var fxaClient;
     var relier;
+    var broker;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
@@ -59,6 +61,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       windowMock = new WindowMock();
       metrics = new Metrics();
       relier = new Relier();
+      broker = new Broker();
       fxaClient = new FxaClient();
 
       view = new View({
@@ -66,7 +69,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         window: windowMock,
         metrics: metrics,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
 
       verificationError = null;
@@ -151,13 +155,29 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
             });
       });
 
-      it('redirects to /signup_complete if verification successful', function () {
+      it('redirects to /signup_complete if verification successful and broker does not halt', function () {
         windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+        sinon.spy(broker, 'afterCompleteSignUp');
 
         return view.render()
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.called);
               assert.equal(routerMock.page, 'signup_complete');
+              assert.isTrue(broker.afterCompleteSignUp.called);
+            });
+      });
+
+      it('halts if the broker says halt', function () {
+        windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+        sinon.stub(broker, 'afterCompleteSignUp', function () {
+          return p({ halt: true });
+        });
+
+        return view.render()
+            .then(function () {
+              assert.isTrue(view.fxaClient.verifyCode.called);
+              assert.notEqual(routerMock.page, 'signup_complete');
+              assert.isTrue(broker.afterCompleteSignUp.called);
             });
       });
     });

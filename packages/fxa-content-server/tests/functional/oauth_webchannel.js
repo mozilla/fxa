@@ -278,6 +278,45 @@ define([
         .end();
     },
 
+    'password reset, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return openFxaFromRp(self, 'signin')
+        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
+
+        .then(function () {
+          return client.signUp(email, PASSWORD, { preVerified: true });
+        })
+
+        .findByCssSelector('.reset-password')
+          .click()
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
+
+        .findByCssSelector('#fxa-confirm-reset-password-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink))
+            .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ]);
+        })
+
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
+
+        // the tab should automatically sign in
+        .findByCssSelector('#loggedin')
+        .end();
+    },
+
     'password reset, verify in different browser, from the original tab\'s P.O.V.': function () {
       var self = this;
 
