@@ -2,10 +2,8 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
 var test = require('tap').test
-var restify = require('restify')
 var TestServer = require('../test_server')
 var pkg = require('../../package.json')
-var config = require('../../config')
 var clientThen = require('../client-then')
 
 var cfg = {

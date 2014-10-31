@@ -1,13 +1,10 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var uuid = require('uuid')
-var restify = require('restify')
 var test = require('tap').test
 
 var fake = require('../fake')
 var TestServer = require('../test_server')
-var config = require('../../config')
 var clientThen = require('../client-then')
 
 function emailToHex(email) {

@@ -8,7 +8,7 @@
     "fxa-auth-db-mysql": "db_patcher.js"
   },
   "scripts": {
-    "test": "./scripts/tap-coverage.js test/backend test/local",
+    "test": "grunt && ./scripts/tap-coverage.js test/backend test/local",
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js 2>&1 | bunyan -o short -c 'this.op !== \"stat\"'",
     "outdated": "npm outdated --depth 0"
   },

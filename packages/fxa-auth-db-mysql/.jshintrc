@@ -1,0 +1,18 @@
+{
+  "asi": true,
+  "eqeqeq": true,
+  "esnext": true,
+  "forin": false,
+  "maxerr": 100,
+  "noarg": true,
+  "node": true,
+  "predef": [
+    "exports",
+    "process",
+    "require"
+  ],
+  "shadow": false,
+  "strict": false,
+  "undef": true,
+  "unused": "vars"
+}
