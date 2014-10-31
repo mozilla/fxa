@@ -249,8 +249,16 @@ define([
 
   function fillOutSignIn(context, email, password) {
     return context.get('remote')
-      .get(require.toUrl(SIGNIN_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        // only load the signin page if not already at a signin page.
+        if (currentUrl.indexOf('signin') === -1) {
+          return context.get('remote')
+            .get(require.toUrl(SIGNIN_URL))
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        }
+      })
+
       .findByCssSelector('form input.email')
         .click()
         .clearValue()
@@ -270,8 +278,15 @@ define([
 
   function fillOutSignUp(context, email, password, year) {
     return context.get('remote')
-      .get(require.toUrl(SIGNUP_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        // only load the signup page if not already at a signup page.
+        if (currentUrl.indexOf('signup') === -1) {
+          return context.get('remote')
+            .get(require.toUrl(SIGNUP_URL))
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        }
+      })
 
       .findByCssSelector('form input.email')
         .click()

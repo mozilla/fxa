@@ -102,6 +102,10 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
             });
       });
 
+    });
+
+
+    describe('afterVisible', function () {
       it('auto-completes the OAuth flow if using the WebChannel on the same browser', function () {
         relier.set('webChannelId', 'channel_id');
         relier.set('clientId', 'fmd');
@@ -112,7 +116,7 @@ function (chai, sinon, View, Session, FxaClient, p, FxDesktopRelier,
           return p(true);
         });
 
-        return view.render()
+        return view.afterVisible()
             .then(function () {
               assert.isTrue(view.finishOAuthFlow.called);
             });
