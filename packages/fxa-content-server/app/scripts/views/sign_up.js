@@ -40,14 +40,6 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
     template: Template,
     className: 'sign-up',
 
-    initialize: function (options) {
-      options = options || {};
-
-      // Reset forceAuth flag so users who visit the reset_password screen
-      // see the correct links.
-      Session.set('forceAuth', false);
-    },
-
     beforeRender: function () {
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.navigate('cannot_create_account');
@@ -227,7 +219,12 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         self.logScreenEvent('preverified');
       }
 
-      return self.fxaClient.signUp(email, password, self.relier)
+
+      return self.broker.beforeSignIn(email)
+        .then(function () {
+          return self.fxaClient.signUp(
+                        email, password, self.relier);
+        })
         .then(function () {
           return self.fxaClient.signIn(email, password, self.relier, {
             customizeSync: customizeSync,
@@ -324,11 +321,17 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
     },
 
     onSignUpSuccess: function (accountData) {
-      // user was pre-verified, just send them to the signup complete screen.
+      var self = this;
       if (accountData.verified) {
-        this.navigate('signup_complete');
+        // user was pre-verified, notify the broker.
+        return self.broker.afterSignIn()
+          .then(function (result) {
+            if (! (result && result.halt)) {
+              self.navigate('signup_complete');
+            }
+          });
       } else {
-        this.navigate('confirm');
+        self.navigate('confirm');
       }
     },
 

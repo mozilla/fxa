@@ -36,12 +36,6 @@ function (_, BaseView, Template, Session, Xss, Strings,
       this.language = options.language;
     },
 
-    beforeRender: function () {
-      if (this.relier.has('service')) {
-        this.setupOAuth();
-      }
-    },
-
     context: function () {
       var serviceName = this.relier.get('serviceName');
 
@@ -53,17 +47,9 @@ function (_, BaseView, Template, Session, Xss, Strings,
       };
     },
 
-    events: {
-      'click #redirectTo': BaseView.preventDefaultThen('submit')
-    },
-
     afterRender: function () {
       var graphic = this.$el.find('.graphic');
       graphic.addClass('pulse');
-      // Finish the WebChannel flow
-      if (this.isOAuthSameBrowser() && this.relier.get('webChannelId')) {
-        this.submit();
-      }
 
       return this._createMarketingSnippet();
     },
@@ -79,24 +65,6 @@ function (_, BaseView, Template, Session, Xss, Strings,
       this.trackSubview(marketingSnippet);
 
       return marketingSnippet.render();
-    },
-
-    submit: function () {
-      var self = this;
-      return p().then(function () {
-        if (self.isOAuthSameBrowser()) {
-          return self.finishOAuthFlow({
-            source: self.type
-          })
-          .then(function () {
-            // clear any stale OAuth information
-            Session.clear('oauth');
-          });
-        } else {
-          // We aren't expecting this case to happen.
-          self.displayError(AuthErrors.toError('UNEXPECTED_ERROR'));
-        }
-      });
     },
 
     is: function (type) {

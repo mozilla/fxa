@@ -12,7 +12,6 @@ function (Translator, Session) {
   var tests = [
     '../tests/spec/lib/channels/null',
     '../tests/spec/lib/channels/fx-desktop',
-    '../tests/spec/lib/channels/redirect',
     '../tests/spec/lib/channels/web',
     '../tests/spec/lib/channels/inter-tab',
     '../tests/spec/lib/xss',
@@ -72,9 +71,15 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/floating-placeholder-mixin',
     '../tests/spec/views/mixins/timer-mixin',
     '../tests/spec/views/mixins/service-mixin',
+    '../tests/spec/models/reliers/base',
     '../tests/spec/models/reliers/relier',
     '../tests/spec/models/reliers/oauth',
-    '../tests/spec/models/reliers/fx-desktop'
+    '../tests/spec/models/reliers/fx-desktop',
+    '../tests/spec/models/auth_brokers/base',
+    '../tests/spec/models/auth_brokers/fx-desktop',
+    '../tests/spec/models/auth_brokers/web-channel',
+    '../tests/spec/models/auth_brokers/redirect',
+    '../tests/spec/models/auth_brokers/oauth'
   ];
 
   /*global mocha */

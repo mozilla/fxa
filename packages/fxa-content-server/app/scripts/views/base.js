@@ -79,6 +79,7 @@ function (_, Backbone, $, p, Session, AuthErrors,
       this.ephemeralMessages = options.ephemeralMessages || ephemeralMessages;
       this.metrics = options.metrics || nullMetrics;
       this.relier = options.relier;
+      this.broker = options.broker;
 
       this.fxaClient = options.fxaClient;
       this.profileClient = options.profileClient;

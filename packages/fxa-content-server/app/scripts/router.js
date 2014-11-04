@@ -79,6 +79,7 @@ function (
         router: this,
         language: this.language,
         relier: this.relier,
+        broker: this.broker,
         fxaClient: this.fxaClient,
         profileClient: this.profileClient,
         interTabChannel: this.interTabChannel
@@ -128,6 +129,7 @@ function (
       this.metrics = options.metrics;
       this.language = options.language;
       this.relier = options.relier;
+      this.broker = options.broker;
       this.fxaClient = options.fxaClient;
       this.profileClient = options.profileClient;
       this.interTabChannel = options.interTabChannel;

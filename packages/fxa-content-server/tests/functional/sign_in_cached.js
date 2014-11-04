@@ -12,16 +12,19 @@ define([
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers',
+  'tests/functional/lib/fx-desktop',
   'app/scripts/lib/constants'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers, Constants) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
+        FxaClient, restmail, TestHelpers, FunctionalHelpers, FxDesktopHelpers,
+        Constants) {
   'use strict';
 
   var FX_DESKTOP_CONTEXT = Constants.FX_DESKTOP_CONTEXT;
+  var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
 
   var config = intern.config;
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   // The automatedBrowser query param tells signin/up to stub parts of the flow
   // that require a functioning desktop channel
   var PAGE_SIGNIN = config.fxaContentRoot + 'signin';
@@ -37,7 +40,6 @@ define([
   var user2;
   var email;
   var email2;
-  var accountData;
   var client;
 
   function waitForDesktopLogin(context, redirect) {
@@ -68,49 +70,14 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
       var self = this;
-      return client.signUp(email, PASSWORD)
-        .then(function (result) {
-          accountData = result;
-          return result;
+      return client.signUp(email, PASSWORD, { preVerified: true })
+        .then(function () {
+          return client.signUp(email2, PASSWORD, { preVerified: true });
         })
         .then(function () {
-          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user)
-            .then(function (emails) {
-
-              return self.get('remote')
-                .get(require.toUrl(emails[0].headers['x-link']))
-                .findById('fxa-sign-up-complete-header')
-                .end();
-            });
-        })
-        // create a second user for testing
-        .then(function () {
-          return client.signUp(email2, PASSWORD);
-        })
-        .then(function (result) {
-          accountData = result;
-          return result;
-        })
-        .then(function () {
-          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user2)
-            .then(function (emails) {
-
-              return self.get('remote')
-                .get(require.toUrl(emails[0].headers['x-link']));
-            });
-        })
-        .then(function () {
-          return self.get('remote')
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            // wait for confirmation
-            .findById('fxa-sign-up-complete-header')
-            .end()
-            .then(function () {
-              // clear localStorage to avoid pollution from other tests.
-              return FunctionalHelpers.clearBrowserState(self);
-            });
+          // clear localStorage to avoid pollution from other tests.
+          return FunctionalHelpers.clearBrowserState(self);
         });
-
     },
 
     teardown: function () {
@@ -164,6 +131,9 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
         .findByCssSelector('form input.email')
         .click()
         .type(email)
@@ -264,6 +234,9 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
         // signin normally, nothing in session yet
         .findByCssSelector('form input.email')
         .click()
@@ -330,6 +303,9 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(PAGE_SIGNUP_DESKTOP))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
         .findByCssSelector('form input.email')
         .clearValue()
         .click()
@@ -428,6 +404,9 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
         .findByCssSelector('form input.email')
         .click()
         .type(email)
@@ -496,6 +475,9 @@ define([
 
       return this.get('remote')
         .get(require.toUrl(PAGE_SIGNIN_DESKTOP))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
         .findByCssSelector('form input.email')
         .click()
         .type(email)

@@ -22,7 +22,7 @@ define([
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, TestHelpers, P,
-              Session, Constants, Assertion, FxaClientWrapper, Relier, jwcrypto) {
+      Session, Constants, Assertion, FxaClientWrapper, Relier, jwcrypto) {
   /*global beforeEach, afterEach, describe, it*/
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';

@@ -25,10 +25,7 @@ define([
       scope: null,
       // redirectTo is for future use by the oauth flow. redirectTo
       // would have redirectUri as its base.
-      redirectTo: null,
-
-      // webChannelId is used by the Loop OAuth flow.
-      webChannelId: null
+      redirectTo: null
     }),
 
     initialize: function (options) {
@@ -99,8 +96,7 @@ define([
         //jshint camelcase: false
         clientId: resumeObj.client_id,
         redirectUri: resumeObj.redirect_uri,
-        scope: resumeObj.scope,
-        webChannelId: resumeObj.webChannelId
+        scope: resumeObj.scope
       });
     },
 
@@ -115,7 +111,6 @@ define([
       self.importSearchParam('scope');
 
       self.importSearchParam('redirectTo');
-      self.importSearchParam('webChannelId');
     },
 
     _setupOAuthRPInfo: function () {

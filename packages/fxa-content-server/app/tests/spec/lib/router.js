@@ -18,12 +18,13 @@ define([
   'lib/metrics',
   'lib/ephemeral-messages',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       Session, Constants, Metrics, EphemeralMessages, Relier,
-      WindowMock, TestHelpers) {
+      NullBroker, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -35,6 +36,7 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
     var navigateOptions;
     var metrics;
     var relier;
+    var broker;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
@@ -48,9 +50,13 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         window: windowMock
       });
 
+      broker = new NullBroker();
+
       router = new Router({
         window: windowMock,
-        metrics: metrics
+        metrics: metrics,
+        relier: relier,
+        broker: broker
       });
 
       origNavigate = Backbone.Router.prototype.navigate;
@@ -221,7 +227,9 @@ function (chai, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           router: router,
           // ensure there is no cross talk with other tests.
           ephemeralMessages: new EphemeralMessages(),
-          relier: relier
+          relier: relier,
+          broker: broker,
+          type: 'sign_up'
         });
 
         return router.showView(view)

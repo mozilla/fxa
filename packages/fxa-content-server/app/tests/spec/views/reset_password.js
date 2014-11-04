@@ -15,12 +15,13 @@ define([
   'lib/fxa-client',
   'views/reset_password',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
-      WindowMock, RouterMock, TestHelpers) {
+      Broker, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -30,18 +31,23 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
     var metrics;
     var fxaClient;
     var relier;
+    var broker;
 
     beforeEach(function () {
       router = new RouterMock();
       metrics = new Metrics();
       relier = new Relier();
+      broker = new Broker({
+        relier: relier
+      });
       fxaClient = new FxaClient();
 
       view = new View({
         router: router,
         metrics: metrics,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
       return view.render()
           .then(function () {
@@ -179,14 +185,23 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
   });
 
   describe('views/reset_password with email specified as query param', function () {
-    var view, windowMock;
+    var view;
+    var windowMock;
+    var relier;
+    var broker;
 
     beforeEach(function () {
       windowMock = new WindowMock();
       windowMock.location.search = '?email=testuser@testuser.com';
+      relier = new Relier();
+      broker = new Broker({
+        relier: relier
+      });
 
       view = new View({
-        window: windowMock
+        window: windowMock,
+        broker: broker,
+        relier: relier
       });
       return view.render()
           .then(function () {

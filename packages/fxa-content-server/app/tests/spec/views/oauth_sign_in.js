@@ -13,14 +13,14 @@ define([
   'lib/fxa-client',
   'lib/promise',
   'lib/metrics',
-  'models/reliers/relier',
+  'models/reliers/oauth',
+  'models/auth_brokers/oauth',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, Session, FxaClient, p, Metrics,
-      Relier, WindowMock, RouterMock, TestHelpers) {
-  /*global describe, beforeEach, afterEach, it*/
+function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
+      OAuthBroker, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/oauth_sign_in', function () {
@@ -31,6 +31,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics,
     var fxaClient;
     var relier;
     var metrics;
+    var broker;
 
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var STATE = '123';
@@ -45,8 +46,13 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics,
       windowMock.location.pathname = 'oauth/signin';
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
 
-      relier = new Relier();
+      relier = new OAuthRelier();
       relier.set('serviceName', CLIENT_NAME);
+      broker = new OAuthBroker({
+        relier: relier,
+        session: Session,
+        window: windowMock
+      });
       fxaClient = new FxaClient();
       metrics = new Metrics();
 
@@ -55,6 +61,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics,
         window: windowMock,
         fxaClient: fxaClient,
         relier: relier,
+        broker: broker,
         metrics: metrics
       });
 
@@ -91,34 +98,31 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics,
     });
 
     describe('submit', function () {
-      it('signs in a verified user on success', function () {
+      it('notifies the broker when a verified user signs in', function () {
         var password = 'password';
-
-        sinon.stub(view, 'finishOAuthFlow', function () {
-          return p(true);
-        });
 
         sinon.stub(view.fxaClient, 'signIn', function () {
           return p({ verified: true });
+        });
+
+        sinon.stub(broker, 'afterSignIn', function () {
+          return p();
         });
 
         $('.email').val(email);
         $('[type=password]').val(password);
         return view.submit()
           .then(function () {
-            assert.isTrue(view.finishOAuthFlow.called);
-
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signin.success'));
+            assert.isTrue(view.fxaClient.signIn.calledWith(
+                email, password, relier));
+            assert.isTrue(broker.afterSignIn.called);
           });
       });
 
-      it('sends an unverified user to the confirm screen after persisting oauth values', function () {
+      it('sends an unverified user to the confirm screen', function () {
         var password = 'password';
-
-        sinon.stub(view, 'persistOAuthParams', function () {
-          return p(true);
-        });
 
         sinon.stub(view.fxaClient, 'signIn', function () {
           return p({ verified: false });
@@ -132,7 +136,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics,
         $('[type=password]').val(password);
         return view.submit()
           .then(function () {
-            assert.isTrue(view.persistOAuthParams.called);
+            assert.isTrue(view.fxaClient.signIn.calledWith(
+                email, password, relier));
             assert.equal(router.page, 'confirm');
           });
       });
@@ -144,7 +149,6 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics,
         $('.email').val(email);
         return view.resetPasswordIfKnownValidEmail()
           .then(function () {
-            assert.ok(Session.oauth, 'oauth params are set');
             assert.equal(router.page, 'reset_password');
           });
       });
@@ -154,7 +158,6 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics,
         $('[type=email]').val('');
         return view.resetPasswordIfKnownValidEmail()
             .then(function () {
-              assert.ok(Session.oauth, 'oauth params are set');
               assert.ok(router.page, 'reset_password');
             });
       });

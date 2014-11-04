@@ -16,13 +16,15 @@ define([
   'lib/auth-errors',
   'lib/oauth-client',
   'lib/assertion',
-  'models/reliers/relier',
+  'models/reliers/oauth',
+  'models/auth_brokers/oauth',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
-      OAuthClient, Assertion, Relier, WindowMock, RouterMock, TestHelpers) {
+      OAuthClient, Assertion, OAuthRelier, OAuthBroker, WindowMock, RouterMock,
+      TestHelpers) {
   var assert = chai.assert;
 
   function fillOutSignUp (email, password, opts) {
@@ -59,6 +61,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
     var oAuthClient;
     var assertionLibrary;
     var relier;
+    var broker;
 
     beforeEach(function () {
       Session.clear();
@@ -69,7 +72,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       windowMock = new WindowMock();
       windowMock.location.pathname = 'oauth/signup';
       metrics = new Metrics();
-      relier = new Relier({
+      relier = new OAuthRelier({
         window: windowMock
       });
       relier.set({
@@ -78,6 +81,11 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         state: STATE,
         scope: SCOPE,
         serviceName: CLIENT_NAME
+      });
+      broker = new OAuthBroker({
+        session: Session,
+        relier: relier,
+        window: windowMock
       });
 
       oAuthClient = new OAuthClient();
@@ -100,6 +108,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         window: windowMock,
         fxaClient: fxaClient,
         relier: relier,
+        broker: broker,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient
       });
@@ -128,7 +137,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
     });
 
     describe('submit without a preVerifyToken', function () {
-      it('sets up the user\'s oauth session and redirects to confirm on success', function () {
+      it('redirects to confirm on success', function () {
         fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
         sinon.stub(fxaClient, 'signUp', function () {
@@ -144,9 +153,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
 
         return view.submit()
           .then(function () {
-            //jshint camelcase: false
-            assert.equal(Session.oauth.client_id, CLIENT_ID);
-            assert.isTrue(fxaClient.signUp.calledWith(email, 'password'));
+            assert.isTrue(fxaClient.signUp.calledWith(
+                email, 'password', relier));
             assert.equal(router.page, 'confirm');
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signup.success'));
@@ -159,7 +167,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         relier.set('preVerifyToken', 'preverifytoken');
       });
 
-      it('redirects to the rp if pre-verification is successful', function () {
+      it('notifies the broker when a pre-verified user signs up', function () {
         sinon.stub(fxaClient, 'signUp', function () {
           return p({});
         });
@@ -171,16 +179,15 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
+        sinon.stub(broker, 'afterSignIn', function () {
+          return p();
+        });
+
         fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
 
-        var isOAuthFlowFinished = false;
-        view.finishOAuthFlow = function () {
-          isOAuthFlowFinished = true;
-          return p(true);
-        };
         return view.submit()
           .then(function () {
-            assert.isTrue(isOAuthFlowFinished);
+            assert.isTrue(broker.afterSignIn.called);
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signup.preverified'));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
@@ -191,27 +198,28 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       });
 
       it('redirects to /confirm if pre-verification is not successful', function () {
-        sinon.stub(fxaClient, 'signUp', function (email, password, options) {
-          // force the preVerifyToken to be invalid
-          if (options.preVerifyToken) {
-            return p.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE'));
-          } else {
-            return p({});
-          }
+        sinon.stub(fxaClient, 'signUp', function () {
+          return p({});
         });
 
         sinon.stub(fxaClient, 'signIn', function () {
           return p({
             sessionToken: 'asessiontoken',
+            // verified: false simulates the preVerifyToken failing.
             verified: false
           });
         });
 
 
-        fillOutSignUp(email, 'password', { year: nowYear - 14, context: view });
+        var password = 'password';
+        fillOutSignUp(email, password, { year: nowYear - 14, context: view });
         return view.submit()
           .then(function () {
             assert.equal(router.page, 'confirm');
+            assert.isTrue(fxaClient.signUp.calledWith(
+                email, password, relier));
+            assert.isTrue(fxaClient.signIn.calledWith(
+                email, password, relier));
           });
       });
     });

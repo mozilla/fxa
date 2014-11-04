@@ -70,11 +70,10 @@ define([
       return self.get('remote')
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
 
         .findById('fxa-reset-password-header')
         .end()
-
-        .execute(listenForFxaCommands)
 
         .findByCssSelector('input[type=email]')
           .click()
@@ -142,11 +141,11 @@ define([
       return self.get('remote')
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
 
         .findById('fxa-reset-password-header')
         .end()
-
-        .execute(listenForFxaCommands)
 
         .findByCssSelector('input[type=email]')
           .click()
@@ -195,11 +194,11 @@ define([
       return self.get('remote')
         .get(require.toUrl(PAGE_URL))
         .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
 
         .findById('fxa-reset-password-header')
         .end()
-
-        .execute(listenForFxaCommands)
 
         .findByCssSelector('input[type=email]')
         .click()

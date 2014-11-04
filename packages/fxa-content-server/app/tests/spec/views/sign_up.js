@@ -18,12 +18,13 @@ define([
   'lib/metrics',
   'lib/fxa-client',
   'models/reliers/fx-desktop',
+  'models/auth_brokers/base',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
-      FxaClient, Relier, RouterMock, WindowMock, TestHelpers) {
+      FxaClient, Relier, Broker, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -65,6 +66,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     var windowMock;
     var fxaClient;
     var relier;
+    var broker;
 
     var now = new Date();
     var CURRENT_YEAR = now.getFullYear();
@@ -80,6 +82,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
 
       metrics = new Metrics();
       relier = new Relier();
+      broker = new Broker();
       fxaClient = new FxaClient();
 
       view = new View({
@@ -87,7 +90,8 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         metrics: metrics,
         window: windowMock,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
       return view.render()
           .then(function () {
@@ -326,7 +330,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     });
 
     describe('submit', function () {
-      it('sends the user to `/confirm` if form filled out, >= 14 years ago', function () {
+      it('sends the user to `/confirm` if form filled out, not pre-verified, >= 14 years ago', function () {
         var ageToCheck = moment().subtract(14, 'years');
         var password = 'password';
         fillOutSignUp(email, password, {
@@ -358,19 +362,19 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
       });
 
-      it('sends preverified users to /signup_complete if form filled out, >= 14 years ago, user is preverified', function () {
+      it('notifies the broker if form filled out, pre-verified, >= 14 years ago', function () {
         relier.set('preVerifyToken', 'preverifytoken');
-
         var ageToCheck = moment().subtract(14, 'years');
-        fillOutSignUp(email, 'password', {
+        var password = 'password';
+        fillOutSignUp(email, password, {
           year: ageToCheck.year(),
           month: ageToCheck.month(),
           date: ageToCheck.date(),
-          context: view
+          contex: view
         });
 
-        sinon.stub(fxaClient, 'signUp', function () {
-          return p();
+        sinon.stub(view.fxaClient, 'signUp', function () {
+          return p({});
         });
 
         sinon.stub(view.fxaClient, 'signIn', function () {
@@ -379,18 +383,14 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
         });
 
+        sinon.stub(broker, 'afterSignIn', function () {
+          return p();
+        });
 
         return view.submit()
-          .then(function () {
-            assert.equal(router.page, 'signup_complete');
-
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'signup.preverified'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'signup.preverified.success'));
-            assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'signup.success'));
-          });
+            .then(function () {
+              assert.isTrue(broker.afterSignIn.called);
+            });
       });
 
       it('submits form if user presses enter on the year', function (done) {
@@ -488,8 +488,8 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
             });
       });
 
-      it('logs an error if user cancels signup', function () {
-        sinon.stub(view.fxaClient, 'signUp', function () {
+      it('logs, but does not display an error if user cancels signup', function () {
+        sinon.stub(broker, 'beforeSignIn', function () {
           return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
         });
 
@@ -497,10 +497,11 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
 
         return view.submit()
           .then(function () {
-            assert.isFalse(view.isErrorVisible());
+            assert.isTrue(broker.beforeSignIn.calledWith(email));
 
+            assert.isFalse(view.isErrorVisible());
             assert.isTrue(TestHelpers.isEventLogged(metrics,
-                              'login.canceled'));
+                'login.canceled'));
           });
       });
 

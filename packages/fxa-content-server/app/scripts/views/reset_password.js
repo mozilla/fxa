@@ -51,7 +51,7 @@ function (_, BaseView, FormView, Template, Session, AuthErrors, ServiceMixin) {
         this.focus('.email');
       }
 
-      if (this.isOAuthSameBrowser()) {
+      if (this.relier.isOAuth()) {
         this.setupOAuthLinks();
       }
 

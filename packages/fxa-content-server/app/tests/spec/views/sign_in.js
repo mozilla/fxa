@@ -16,12 +16,13 @@ define([
   'lib/metrics',
   'lib/fxa-client',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
-      Relier, WindowMock, RouterMock, TestHelpers) {
+      Relier, Broker, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -33,6 +34,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
     var windowMock;
     var fxaClient;
     var relier;
+    var broker;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -44,6 +46,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       windowMock.location.pathname = 'signin';
       metrics = new Metrics();
       relier = new Relier();
+      broker = new Broker();
       fxaClient = new FxaClient();
 
       view = new View({
@@ -51,7 +54,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         metrics: metrics,
         window: windowMock,
         fxaClient: fxaClient,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
 
       return view.render()
@@ -93,7 +97,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           router: routerMock,
           metrics: metrics,
           window: windowMock,
-          relier: relier
+          relier: relier,
+          broker: broker
         });
         return view.render()
             .then(function () {
@@ -169,7 +174,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
-      it('redirects verified users to the settings page on success', function () {
+      it('notifies the broker when a verified user signs in', function () {
         sinon.stub(view.fxaClient, 'signIn', function () {
           return p({
             verified: true
@@ -179,16 +184,20 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         var password = 'password';
         $('[type=email]').val(email);
         $('[type=password]').val(password);
+        sinon.stub(broker, 'afterSignIn', function () {
+          return p();
+        });
+
         return view.submit()
           .then(function () {
-            assert.equal(routerMock.page, 'settings');
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'signin.success'));
+            assert.isTrue(broker.afterSignIn.calledWith());
           });
       });
 
       it('logs an error if user cancels login', function () {
-        sinon.stub(view.fxaClient, 'signIn', function () {
+        sinon.stub(broker, 'beforeSignIn', function () {
           return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
         });
 
@@ -196,6 +205,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         $('[type=password]').val('password');
         return view.submit()
           .then(function () {
+            assert.isTrue(broker.beforeSignIn.calledWith(email));
             assert.isFalse(view.isErrorVisible());
 
             assert.isTrue(TestHelpers.isEventLogged(metrics,

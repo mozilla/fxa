@@ -7,7 +7,6 @@ define([
   'jquery',
   'sinon',
   'lib/promise',
-  '../../mocks/channel',
   '../../lib/helpers',
   'lib/session',
   'lib/fxa-client',
@@ -19,8 +18,8 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
-    FxaClientWrapper, AuthErrors, Constants, ResumeToken, OAuthRelier) {
+function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
+      AuthErrors, Constants, ResumeToken, OAuthRelier) {
   'use strict';
 
   var STATE = 'state';
@@ -32,17 +31,15 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
   var password = 'password';
   var client;
   var realClient;
-  var channelMock;
   var relier;
   var expectedResumeToken;
 
   function trim(str) {
-    return str && str.replace(/^\s+|\s+$/g, '');
+    return $.trim(str);
   }
 
   describe('lib/fxa-client', function () {
     beforeEach(function () {
-      channelMock = new ChannelMock();
       email = ' ' + testHelpers.createEmail() + ' ';
       relier = new OAuthRelier();
       relier.set('state', STATE);
@@ -55,9 +52,8 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
         fxaccountUrl: 'http://127.0.0.1:9000'
       });
 
-      client = new FxaClientWrapper({
-        channel: channelMock
-      });
+      client = new FxaClientWrapper();
+
       return client._getClientAsync()
               .then(function (_realClient) {
                 realClient = _realClient;
@@ -65,7 +61,6 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     });
 
     afterEach(function () {
-      channelMock = null;
     });
 
     describe('signUp', function () {
@@ -96,12 +91,9 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
         });
 
         return client.signUp(email, password, relier)
-          .then(
-            assert.fail,
-            function (err) {
-              assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
-            }
-          );
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
+          });
       });
 
       it('signUp a preverified user using preVerifyToken', function () {
@@ -162,36 +154,6 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           .then(function () {
             assert.equal(realClient.signUp.callCount, 2);
           });
-      });
-
-      it('sends the `can_link_account` message to check if the user is overwriting browser Sync creds', function () {
-        sinon.stub(realClient, 'signUp', function () {
-          return p({});
-        });
-
-        return client.signUp(email, password, relier)
-          .then(function () {
-            // check can_link_account was called once
-            assert.equal(channelMock.getMessageCount('can_link_account'), 1);
-          });
-      });
-
-      describe('if users cancels when `can_link_account` message is triggered', function () {
-        it('a USER_CANCELED_LOGIN error is thrown', function () {
-          // simulate the user rejecting
-          channelMock.canLinkAccountOk = false;
-
-          sinon.stub(realClient, 'signUp', function () {
-            return p.reject('user cancelled signUp from browser and the auth server\'s signUp should not be called');
-          });
-
-          return client.signUp(email, password, relier)
-            .then(assert.fail, function (err) {
-              assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
-              // check can_link_account was called once
-              assert.equal(channelMock.getMessageCount('can_link_account'), 1);
-            });
-        });
       });
     });
 
@@ -283,8 +245,6 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
         return client.signIn(email, password, relier)
           .then(function () {
             assert.isTrue(realClient.signIn.calledWith(trim(email)));
-            assert.equal(channelMock.message, 'login');
-            assert.isUndefined(channelMock.data.customizeSync);
           });
       });
 
@@ -301,107 +261,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           customizeSync: true
         })
         .then(function () {
-          assert.equal(channelMock.message, 'login');
-          assert.isTrue(channelMock.data.customizeSync);
-        });
-      });
-
-      it('throws errors sent back from channel notification if sync', function () {
-        sinon.stub(realClient, 'signIn', function () {
-          return p({});
-        });
-
-        sinon.stub(client, 'notifyChannelOfLogin', function () {
-          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-        });
-
-        sinon.stub(relier, 'isSync', function () {
-          return true;
-        });
-
-        return client.signIn(email, password, relier)
-          .then(assert.fail, function (err) {
-            assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
-          });
-      });
-
-      it('does not throw errors sent back from channel notification if not sync', function () {
-        sinon.stub(realClient, 'signIn', function () {
-          return p({});
-        });
-
-        sinon.stub(client, 'notifyChannelOfLogin', function () {
-          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
-        });
-
-        sinon.stub(relier, 'isSync', function () {
-          return false;
-        });
-
-        return client.signIn(email, password, relier)
-          .then(function () {
-            assert.isTrue(client.notifyChannelOfLogin.called);
-          }, assert.fail);
-      });
-
-      describe('signIn with verifiedCanLinkAccount=true option', function () {
-        it('sends verifiedCanLinkAccount along with the login message', function ()
- {
-          sinon.stub(realClient, 'signIn', function () {
-            return p({});
-          });
-
-          return client.signIn(email, password, relier, {
-            verifiedCanLinkAccount: true
-          })
-          .then(function () {
-            // check that login was the last message sent over the channel
-            assert.equal(channelMock.message, 'login');
-            // check can_link_account was called zero times
-            assert.equal(channelMock.getMessageCount('can_link_account'), 0);
-            // and it includes that it has already verified that it is allowed to link
-            assert.isTrue(channelMock.data.verifiedCanLinkAccount);
-            assert.isTrue(realClient.signIn.calledWith(trim(email)));
-          });
-        });
-      });
-
-
-      describe('signIn when another user has previously signed in to browser and user accepts', function () {
-        it('sends verifiedCanLinkAccount along with the login message', function () {
-          sinon.stub(realClient, 'signIn', function () {
-            return p({});
-          });
-
-          return client.signIn(email, password, relier)
-            .then(function () {
-              // check that login was the last message sent over the channel
-              assert.equal(channelMock.message, 'login');
-              // check can_link_account was called once
-              assert.equal(channelMock.getMessageCount('can_link_account'), 1);
-              // and it includes that it has already verified that it is allowed to link
-              assert.isTrue(channelMock.data.verifiedCanLinkAccount);
-              assert.isTrue(realClient.signIn.calledWith(trim(email)));
-            });
-        });
-      });
-
-      describe('signIn when another user has previously signed in to browser and user rejects', function () {
-        it('throws a USER_CANCELED_LOGIN error', function () {
-          sinon.stub(realClient, 'signIn', function () {
-            return p({});
-          });
-
-          // simulate the user rejecting
-          channelMock.canLinkAccountOk = false;
-          return client.signIn(email, password, relier)
-            .then(function () {
-              assert(false, 'should throw USER_CANCELED_LOGIN');
-            }, function (err) {
-              assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
-              // check can_link_account was called once
-              assert.equal(channelMock.getMessageCount('can_link_account'), 1);
-            });
+          assert.isTrue(Session.customizeSync);
         });
       });
     });
@@ -484,8 +344,7 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
     });
 
     describe('completePasswordReset', function () {
-      it('completes the password reset, signs the user in', function () {
-        var email = 'testuser@testuser.com';
+      it('completes the password reset', function () {
         var token = 'token';
         var code = 'code';
 
@@ -499,20 +358,13 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           return p(true);
         });
 
-        sinon.stub(client, 'signIn', function () {
-          return p(true);
-        });
-
-        return client.completePasswordReset(email, password, token, code, relier, {
-          shouldSignIn: true
-        }).then(function () {
-          assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
-              code, token));
-          assert.isTrue(realClient.accountReset.calledWith(
-              email, password));
-          assert.isTrue(client.signIn.calledWith(
-              email, password));
-        });
+        return client.completePasswordReset(email, password, token, code)
+          .then(function () {
+            assert.isTrue(realClient.passwordForgotVerifyCode.calledWith(
+                code, token));
+            assert.isTrue(realClient.accountReset.calledWith(
+                trim(email), password));
+          });
       });
     });
 
@@ -581,18 +433,10 @@ function (chai, $, sinon, p, ChannelMock, testHelpers, Session,
           return p();
         });
 
-        sinon.stub(realClient, 'signIn', function () {
-          return p({});
-        });
-
         return client.changePassword(email, password, 'new_password', relier)
           .then(function () {
             assert.isTrue(realClient.passwordChange.calledWith(
                     trim(email), password, 'new_password'));
-            assert.isTrue(realClient.signIn.calledWith(
-                    trim(email), 'new_password'));
-            // user is automatically re-authenticated with their new password
-            assert.equal(channelMock.message, 'login');
           });
       });
     });

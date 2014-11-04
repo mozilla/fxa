@@ -25,7 +25,6 @@ define([
   'lib/translator',
   'lib/session',
   'lib/url',
-  'lib/channels',
   'lib/config-loader',
   'lib/metrics',
   'lib/null-metrics',
@@ -38,7 +37,11 @@ define([
   'lib/channels/inter-tab',
   'models/reliers/relier',
   'models/reliers/oauth',
-  'models/reliers/fx-desktop'
+  'models/reliers/fx-desktop',
+  'models/auth_brokers/base',
+  'models/auth_brokers/fx-desktop',
+  'models/auth_brokers/web-channel',
+  'models/auth_brokers/redirect'
 ],
 function (
   _,
@@ -48,7 +51,6 @@ function (
   Translator,
   Session,
   Url,
-  Channels,
   ConfigLoader,
   Metrics,
   NullMetrics,
@@ -61,7 +63,11 @@ function (
   InterTabChannel,
   Relier,
   OAuthRelier,
-  FxDesktopRelier
+  FxDesktopRelier,
+  BaseAuthenticationBroker,
+  FxDesktopAuthenticationBroker,
+  WebChannelAuthenticationBroker,
+  RedirectAuthenticationBroker
 ) {
 
   function isMetricsCollectionEnabled(sampleRate) {
@@ -81,6 +87,8 @@ function (
 
     this._window = options.window || window;
     this._router = options.router;
+    this._relier = options.relier;
+    this._authenticationBroker = options.broker;
 
     this._history = options.history || Backbone.history;
     this._configLoader = new ConfigLoader();
@@ -104,10 +112,6 @@ function (
         if (self._metrics) {
           self._metrics.logError(err);
         }
-        // TODO This error goes uncaught in many tests
-        if (AuthErrors.is(err, 'DESKTOP_CHANNEL_TIMEOUT')) {
-          return;
-        }
 
         //Something terrible happened. Let's bail.
         self._window.location.href = Constants.INTERNAL_ERROR_PAGE;
@@ -121,15 +125,18 @@ function (
     initializeConfig: function () {
       return this._configLoader.fetch()
                     .then(_.bind(this.useConfig, this))
+                    .then(_.bind(this.initializeOAuthClient, this))
                     // both the metrics and router depend on the language
                     // fetched from config.
                     .then(_.bind(this.initializeRelier, this))
-                    // channels relies on the relier
-                    .then(_.bind(this.initializeChannels, this))
                     // fxaClient depends on the relier and
                     // inter tab communication.
                     .then(_.bind(this.initializeFxaClient, this))
-                    // profileClient dependsd on fxaClient.
+                    // assertionLibrary depends on fxaClient
+                    .then(_.bind(this.initializeAssertionLibrary, this))
+                    // broker relies on the relier and assertionLibrary
+                    .then(_.bind(this.initializeAuthenticationBroker, this))
+                    // profileClient dependsd on fxaClient and assertionLibrary
                     .then(_.bind(this.initializeProfileClient, this))
                     // metrics depends on the relier.
                     .then(_.bind(this.initializeMetrics, this))
@@ -158,11 +165,17 @@ function (
       this._metrics.init();
     },
 
+    initializeOAuthClient: function () {
+      if (this._isOAuth()) {
+        this._oAuthClient = new OAuthClient();
+      }
+    },
+
     initializeRelier: function () {
       if (! this._relier) {
         var relier;
 
-        if (this._isFxDesktopSignInSignUp() || this._isFxDesktopVerification()) {
+        if (this._isFxDesktop()) {
           // Use the FxDesktopRelier for sync verification so that
           // the service name is translated correctly.
           relier = new FxDesktopRelier({
@@ -172,7 +185,7 @@ function (
         } else if (this._isOAuth()) {
           relier = new OAuthRelier({
             window: this._window,
-            oAuthClient: new OAuthClient(),
+            oAuthClient: this._oAuthClient,
             session: Session
           });
         } else {
@@ -186,20 +199,44 @@ function (
       }
     },
 
-    _isFxDesktopSignInSignUp: function () {
-      return this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT;
+    initializeAssertionLibrary: function () {
+      this._assertionLibrary = new Assertion({
+        fxaClient: this._fxaClient
+      });
     },
 
-    _isFxDesktopVerification: function () {
-      // uid is used for signup
-      // token is used for password reset
-      // code is used by both
-      return this._searchParam('code') &&
-             this._searchParam('service') === Constants.FX_DESKTOP_SYNC;
-    },
+    initializeAuthenticationBroker: function () {
+      if (! this._authenticationBroker) {
+        if (this._isFxDesktop()) {
+          this._authenticationBroker = new FxDesktopAuthenticationBroker({
+            window: this._window,
+            relier: this._relier,
+            session: Session
+          });
+        } else if (this._isWebChannel()) {
+          this._authenticationBroker = new WebChannelAuthenticationBroker({
+            window: this._window,
+            relier: this._relier,
+            assertionLibrary: this._assertionLibrary,
+            oAuthClient: this._oAuthClient,
+            oAuthUrl: this._config.oauthUrl,
+            session: Session
+          });
+        } else if (this._isOAuth()) {
+          this._authenticationBroker = new RedirectAuthenticationBroker({
+            window: this._window,
+            relier: this._relier,
+            assertionLibrary: this._assertionLibrary,
+            oAuthClient: this._oAuthClient,
+            oAuthUrl: this._config.oauthUrl,
+            session: Session
+          });
+        } else {
+          this._authenticationBroker = new BaseAuthenticationBroker();
+        }
 
-    _isOAuth: function () {
-      return !! (this._searchParam('client_id') || this._searchParam('code'));
+        return this._authenticationBroker.fetch();
+      }
     },
 
     initializeFxaClient: function () {
@@ -215,7 +252,7 @@ function (
       if (! this._profileClient) {
         this._profileClient = new Profile({
           config: this._config,
-          assertion: new Assertion({ fxaClient: this._fxaClient })
+          assertion: this._assertionLibrary
         });
       }
     },
@@ -226,6 +263,7 @@ function (
           metrics: this._metrics,
           language: this._config.language,
           relier: this._relier,
+          broker: this._authenticationBroker,
           fxaClient: this._fxaClient,
           profileClient: this._profileClient,
           interTabChannel: this._interTabChannel
@@ -234,56 +272,57 @@ function (
       this._window.router = this._router;
     },
 
-    initializeChannels: function () {
-      Channels.initialize({
-        relier: this._relier
-      });
+    allResourcesReady: function () {
+      var self = this;
+      return this._selectStartPage()
+          .then(function (startPage) {
+            // Get the party started.
+            // If a new start page is specified, do not attempt to render
+            // the route displayed in the URL because the user is
+            // immediately redirected
+            self._history.start({ pushState: true, silent: !! startPage });
+            if (startPage) {
+              self._router.navigate(startPage);
+            }
+          });
     },
 
-    allResourcesReady: function () {
-      // These must be initialized after Backbone.history so that
-      // Backbone does not override the page the channel sets.
-      var self = this;
-      return this._configLoader.areCookiesEnabled()
-        .then(function (areCookiesEnabled) {
-          // Get the party started.
-          // If cookies are disabled, do not attempt to render the
-          // route displayed in the URL because the user is immediately
-          // redirected to cookies_disabled
-          var shouldRenderFirstView = ! areCookiesEnabled;
-          self._history.start({ pushState: true, silent: shouldRenderFirstView });
+    _isFxDesktop: function () {
+      return ((this._searchParam('service') === Constants.FX_DESKTOP_SYNC) ||
+              (this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT));
+    },
 
-          if (! areCookiesEnabled) {
-            self._router.navigate('cookies_disabled');
-          } else if (self._isFxDesktopSignInSignUp()) {
-            return self._selectFxDesktopStartPage();
-          }
-        });
+    _isWebChannel: function () {
+      return !! (this._searchParam('webChannelId') || // signup/signin
+                (this._isOAuthVerificationSameBrowser() &&
+                  Session.oauth && Session.oauth.webChannelId));
+    },
+
+    _isOAuth: function () {
+      return !! (this._searchParam('client_id') || this._searchParam('code'));
+    },
+
+    _isOAuthVerificationSameBrowser: function () {
+      //jshint camelcase: false
+      var savedClientId = Session.oauth && Session.oauth.client_id;
+      return !! (this._searchParam('code') &&
+                (this._searchParam('service') === savedClientId));
     },
 
     _searchParam: function (name) {
       return Url.searchParam(name, this._window.location.search);
     },
 
-    // XXX - does this belong here?
-    _selectFxDesktopStartPage: function () {
+    _selectStartPage: function () {
       // Firefox for desktop native=>FxA glue code.
       var self = this;
-      return Channels.sendExpectResponse('session_status', {}, { window: this._window })
-          .then(function (response) {
-            // Don't perform any redirection if a pathname is present
-            var canRedirect = self._window.location.pathname === '/';
-            if (response && response.data) {
-              Session.set('email', response.data.email);
-              if (! Session.forceAuth && canRedirect) {
-                self._router.navigate('settings', { trigger: true });
-              }
-            } else {
-              Session.clear();
-              if (canRedirect) {
-                self._router.navigate('signup', { trigger: true });
-              }
+      return self._configLoader.areCookiesEnabled()
+          .then(function (areCookiesEnabled) {
+            if (! areCookiesEnabled) {
+              return 'cookies_disabled';
             }
+
+            return self._authenticationBroker.selectStartPage();
           });
     }
   };

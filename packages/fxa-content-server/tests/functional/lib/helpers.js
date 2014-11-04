@@ -20,6 +20,7 @@ define([
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
+  var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
 
   function clearBrowserState(context, options) {
     options = options || {};
@@ -249,8 +250,16 @@ define([
 
   function fillOutSignIn(context, email, password) {
     return context.get('remote')
-      .get(require.toUrl(SIGNIN_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        // only load the signin page if not already at a signin page.
+        if (currentUrl.indexOf('signin') === -1) {
+          return context.get('remote')
+            .get(require.toUrl(SIGNIN_URL))
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        }
+      })
+
       .findByCssSelector('form input.email')
         .click()
         .clearValue()
@@ -270,8 +279,15 @@ define([
 
   function fillOutSignUp(context, email, password, year) {
     return context.get('remote')
-      .get(require.toUrl(SIGNUP_URL))
-      .setFindTimeout(intern.config.pageLoadTimeout)
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        // only load the signup page if not already at a signup page.
+        if (currentUrl.indexOf('signup') === -1) {
+          return context.get('remote')
+            .get(require.toUrl(SIGNUP_URL))
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        }
+      })
 
       .findByCssSelector('form input.email')
         .click()
@@ -300,6 +316,51 @@ define([
       .end();
   }
 
+  function fillOutResetPassword(context, email) {
+    return context.get('remote')
+      .getCurrentUrl()
+      .then(function (currentUrl) {
+        // only load the reset_password page if not already at
+        // the reset_password page.
+        if (currentUrl.indexOf('reset_password') === -1) {
+          return context.get('remote')
+            .get(require.toUrl(RESET_PASSWORD_URL))
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        }
+      })
+
+      .findByCssSelector('#fxa-reset-password-header')
+      .end()
+
+      .findByCssSelector('form input.email')
+        .click()
+        .clearValue()
+        .type(email)
+      .end()
+
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
+
+  function fillOutCompleteResetPassword(context, password, vpassword) {
+    return context.get('remote')
+      .findById('fxa-complete-reset-password-header')
+      .end()
+
+      .findByCssSelector('#password')
+        .type(password)
+      .end()
+
+      .findByCssSelector('#vpassword')
+        .type(vpassword)
+      .end()
+
+      .findByCssSelector('button[type=submit]')
+        .click()
+      .end();
+  }
+
   return {
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
@@ -313,6 +374,8 @@ define([
     openFxaFromRp: openFxaFromRp,
 
     fillOutSignIn: fillOutSignIn,
-    fillOutSignUp: fillOutSignUp
+    fillOutSignUp: fillOutSignUp,
+    fillOutResetPassword: fillOutResetPassword,
+    fillOutCompleteResetPassword: fillOutCompleteResetPassword
   };
 });

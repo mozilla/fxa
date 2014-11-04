@@ -22,6 +22,7 @@ define([
 
   var PASSWORD = 'password';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
+  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
   var user;
   var email;
   var client;
@@ -81,20 +82,9 @@ define([
           return client.signUp(email, PASSWORD, { preVerified: false });
         })
 
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+        })
 
         // wah wah, user has to verify.
         .findByCssSelector('#fxa-confirm-header')
@@ -114,20 +104,9 @@ define([
 
         .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
 
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+        })
 
         // user should be redirected back to 123done
 
@@ -141,30 +120,9 @@ define([
       return openFxaFromRp(self, 'signup')
         .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
 
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -186,36 +144,41 @@ define([
         .end();
     },
 
+    'signup, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return openFxaFromRp(self, 'signup')
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink))
+            .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ]);
+        })
+
+        // window should automatically sign in.
+
+        .findByCssSelector('#loggedin')
+        .end();
+    },
+
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
       var self = this;
 
       return openFxaFromRp(self, 'signup')
         .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
 
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -235,30 +198,9 @@ define([
       return openFxaFromRp(self, 'signup')
         .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
 
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-        .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -295,16 +237,9 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('#fxa-reset-password-header')
-        .end()
-
-        .findByCssSelector('input[type=email]')
-          .type(email)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
@@ -317,20 +252,10 @@ define([
         // Complete the password reset in the new tab
         .switchToWindow('newwindow')
 
-        .findById('fxa-complete-reset-password-header')
-        .end()
-
-        .findByCssSelector('#password')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#vpassword')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
 
         // this tab's success is seeing the reset password complete header.
         .findByCssSelector('#fxa-reset-password-complete-header')
@@ -353,6 +278,45 @@ define([
         .end();
     },
 
+    'password reset, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return openFxaFromRp(self, 'signin')
+        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
+
+        .then(function () {
+          return client.signUp(email, PASSWORD, { preVerified: true });
+        })
+
+        .findByCssSelector('.reset-password')
+          .click()
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
+
+        .findByCssSelector('#fxa-confirm-reset-password-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink))
+            .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ]);
+        })
+
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
+
+        // the tab should automatically sign in
+        .findByCssSelector('#loggedin')
+        .end();
+    },
+
     'password reset, verify in different browser, from the original tab\'s P.O.V.': function () {
       var self = this;
 
@@ -367,16 +331,9 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('#fxa-reset-password-header')
-        .end()
-
-        .findByCssSelector('input[type=email]')
-          .type(email)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
@@ -418,16 +375,9 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('#fxa-reset-password-header')
-        .end()
-
-        .findByCssSelector('input[type=email]')
-          .type(email)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
 
         .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
@@ -445,20 +395,10 @@ define([
           return self.get('remote').get(require.toUrl(verificationLink));
         })
 
-        .findById('fxa-complete-reset-password-header')
-        .end()
-
-        .findByCssSelector('#password')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#vpassword')
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type=submit]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
 
         // this tab's success is seeing the reset password complete header.
         .findByCssSelector('#fxa-reset-password-complete-header')
