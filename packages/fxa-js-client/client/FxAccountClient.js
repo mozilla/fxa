@@ -597,7 +597,7 @@ define([
    * @method certificateSign
    * @param {String} sessionToken User session token
    * @param {Object} publicKey The key to sign
-   * @param {int} duration Time interval from now when the certificate will expire in seconds
+   * @param {int} duration Time interval from now when the certificate will expire in milliseconds
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.certificateSign = function(sessionToken, publicKey, duration) {
