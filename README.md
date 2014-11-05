@@ -1,6 +1,8 @@
 ## fxa-local-dev
 > An easy way to contribute to Firefox Accounts
 
+[![Build Status](https://travis-ci.org/vladikoff/fxa-local-dev.svg?branch=master)](https://travis-ci.org/vladikoff/fxa-local-dev)
+
 ### Getting Started
 
 - Install required system [dependencies](#dependencies)
