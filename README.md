@@ -13,11 +13,9 @@ git clone https://github.com/vladikoff/fxa-local-dev.git && fxa-local-dev && npm
 
 ### Dependencies
 
-### Global
-
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git), [node.js](http://nodejs.org/), Redis, libgmp.
 
-### OSX (with [Brew](http://brew.sh/)
+#### OSX (with [Brew](http://brew.sh/))
 
 ```
 brew install gmp redis
@@ -25,7 +23,7 @@ brew install gmp redis
 
 (You might also need to run `xcode-select --install` to get OS X Command Line Tools)
 
-### Ubuntu
+#### Ubuntu
 
 ```
 sudo apt-get install libgmp3-dev
