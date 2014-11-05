@@ -3,7 +3,7 @@
 
 ### Getting Started
 
-1. Install required system [#dependencies](dependencies)
+1. Install required system [dependencies](#dependencies)
 1. Clone this repository and run `npm install`.
 ```
 git clone https://github.com/vladikoff/fxa-local-dev.git && fxa-local-dev && npm i
