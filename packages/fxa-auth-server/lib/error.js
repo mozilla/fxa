@@ -8,6 +8,9 @@ const DEFAULTS = {
   code: 500,
   error: 'Internal Server Error',
   errno: 999,
+  /*jshint ignore:start,-W101*/
+  info: 'https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#errors',
+  /*jshint ignore:end,+W101*/
   message: 'Unspecified error'
 };
 
