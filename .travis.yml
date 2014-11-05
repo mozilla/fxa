@@ -8,7 +8,9 @@ os:
   - osx
 
 before_install:
+  - sudo apt-get install libgmp3-dev
   - node --version
+  - npm config set spin false
 
 script:
   - npm i
