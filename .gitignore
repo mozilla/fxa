@@ -1,0 +1,7 @@
+fxa-*
+123done
+browserid-verifier
+loop-server
+selenium-*
+
+node_modules
