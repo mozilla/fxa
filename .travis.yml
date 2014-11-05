@@ -8,7 +8,7 @@ os:
   - osx
 
 before_install:
-  - brew install node
+  - node --version
 
 script:
   - npm i
