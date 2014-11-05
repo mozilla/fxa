@@ -12,6 +12,8 @@ define([
   'views/base'
 ], function (_, $, BaseView) {
   var displayedTooltip;
+  var PADDING_BELOW_TOOLTIP_PX = 2;
+  var PADDING_ABOVE_TOOLTIP_PX = 4;
 
   var Tooltip = BaseView.extend({
     tagName: 'aside',
@@ -39,10 +41,10 @@ define([
       }
       displayedTooltip = this;
 
-      this.setPosition();
-
       var tooltipContainer = this.invalidEl.closest('.input-row,.select-row-wrapper');
       this.$el.appendTo(tooltipContainer);
+
+      this.setPosition();
 
       this.bindDOMEvents();
     },
@@ -67,9 +69,12 @@ define([
       if (invalidEl.hasClass('tooltip-below')) {
         tooltipEl.addClass('tooltip-below fade-up-tt');
         tooltipEl.css({
-          top: invalidEl.outerHeight() + 4  // magic number alert.
+          top: invalidEl.outerHeight() + PADDING_ABOVE_TOOLTIP_PX
         });
       } else {
+        tooltipEl.css({
+          top: -tooltipEl.outerHeight() - PADDING_BELOW_TOOLTIP_PX
+        });
         tooltipEl.addClass('fade-down-tt');
       }
     },

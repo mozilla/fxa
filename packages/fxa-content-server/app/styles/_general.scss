@@ -290,7 +290,6 @@ strong.email {
   padding: 5px 12px;
   position: absolute;
   top: -32px;
-  white-space: nowrap;
   z-index: 5;
 }
 
@@ -303,20 +302,12 @@ strong.email {
   left: 12px;
   position: absolute;
   text-indent: -999px;
-  top: 21px;
+  bottom: -8px;
   transform: rotate(45deg);
   white-space: nowrap;
   width: 16px;
   // The z-index must be -1 or else the caret is displayed on top of the tooltip text
   z-index: -1;
-}
-
-//RTL languages need adjusted caret position
-html[dir='rtl'] {
-  .tooltip:before,
-  .tooltip::before {
-    top: 19px;
-  }
 }
 
 /**
