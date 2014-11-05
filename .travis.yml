@@ -4,11 +4,10 @@ services:
   - redis-server
 
 os:
-  - linux
   - osx
 
 before_install:
-  - sudo apt-get install libgmp3-dev
+  - brew install libgmp
   - node --version
   - npm config set spin false
 
