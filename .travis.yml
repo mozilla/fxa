@@ -1,0 +1,14 @@
+language: ruby
+
+services:
+  - redis-server
+
+os:
+  - linux
+  - osx
+
+before_install:
+  - brew install node
+
+script:
+  - npm i

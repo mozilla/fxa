@@ -1,0 +1,13 @@
+{
+  "name": "fxa-local-dev",
+  "version": "1.0.0",
+  "description": "An easy way to contribute to Firefox Accounts",
+  "scripts": {
+    "postinstall": "_scripts/postinstall.sh"
+  },
+  "author": "",
+  "license": "MPL",
+  "dependencies": {
+    "pm2": "^0.11.1"
+  }
+}

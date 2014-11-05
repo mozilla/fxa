@@ -5,3 +5,4 @@ loop-server
 selenium-*
 
 node_modules
+pm2

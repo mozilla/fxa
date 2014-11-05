@@ -1,0 +1,102 @@
+{
+  "apps": [
+    {
+      "name": "auth-server mailer",
+      "script": "test/mail_helper.js",
+      "cwd": "fxa-auth-server",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+      "max_restarts": "1"
+    },
+    {
+      "name": "auth-server db memory",
+      "script": "node_modules/fxa-auth-db-mem",
+      "cwd": "fxa-auth-server",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+      "max_restarts": "1"
+    },
+    {
+      "name": "auth-server key server",
+      "script": "bin/key_server.js",
+      "cwd": "fxa-auth-server",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+      "max_restarts": "1"
+    },
+    {
+      "name": "content-server PORT 3030",
+      "script": "node_modules/.bin/grunt",
+      "args": ["server"],
+      "cwd": "fxa-content-server",
+      "max_restarts": "1"      
+    },
+    {
+      "name": "oauth-server",
+      "script": "bin/server.js",
+      "cwd": "fxa-oauth-server",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+      "max_restarts": "1"      
+    },
+    {
+      "name": "profile-server PORT 1111",
+      "script": "bin/server.js",
+      "cwd": "fxa-profile-server",
+      "max_restarts": "1",
+      "env": {
+        "NODE_ENV": "dev"
+      }
+    },
+    {
+      "name": "profile-server worker PORT 1112",
+      "script": "bin/_static.js",
+      "cwd": "fxa-profile-server",
+      "max_restarts": "1",
+      "env": {
+        "NODE_ENV": "dev"
+      }
+    },
+    {
+      "name": "123done",
+      "script": "server.js",
+      "cwd": "123done",
+      "max_restarts": "1",
+      "env": {
+        "NODE_ENV": "dev"
+      }      
+    },
+    {
+      "name": "loop-server PORT 5000",
+      "script": "loop/index.js",
+      "cwd": "loop-server",
+      "env": {
+        "NODE_ENV": "test",
+        "PORT": "5000"
+      },
+      "max_restarts": "1"      
+    },
+    {
+      "name": "fxa-oauth-console PORT 10137",
+      "script": "bin/server.js",
+      "cwd": "fxa-oauth-console",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+      "max_restarts": "1"      
+    },
+    {
+      "name": "browserid-verifier PORT 5050",
+      "script": "server.js",
+      "cwd": "browserid-verifier",
+      "env": {
+        "PORT": "5050"
+      },
+      "max_restarts": "1"      
+    }
+  ]
+}
