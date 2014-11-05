@@ -28,5 +28,5 @@ brew install gmp redis
 #### Ubuntu
 
 ```
-sudo apt-get install libgmp3-dev
+sudo apt-get install libgmp3-dev redis-server
 ```
