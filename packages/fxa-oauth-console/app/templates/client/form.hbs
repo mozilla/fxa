@@ -10,10 +10,15 @@
   <label for="inputImage">Image URI</label>
   {{view Ember.TextField value=image_uri id="inputImage"}}
 </div>
+{{#if id}}
+<div class="form-group">
+  <label for="id">Client Id:</label>
+  <pre>{{id}}</pre>
+</div>
+{{/if}}
 
-
-<input type="text" disabled="disabled" {{bind-attr value=id}} id="id"/>
-{{#if client_secret}}
-  <label for="client_secret" style="color:red; font-size: 20px;">Save this secret below, you will never see it again:</label>
-  <input type="text" disabled="disabled" {{bind-attr value=client_secret}} id="client_secret"/>
+{{#if secret}}
+  <label for="secret" >Client Secret</label>
+  <pre>{{secret}}</pre>
+  <p style="color:red; font-size: 20px;">Save this secret above, you will never see it again.</p>
 {{/if}}

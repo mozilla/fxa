@@ -17,7 +17,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
      */
     requestToken: function() {
       var tokenUrl = config.baseURL + 'oauth/generate-token';
-      var form = Ember.$('<form style="display:none"/>', {
+      var form = Ember.$('<form />', {
         action: tokenUrl,
         method: 'POST'
       });

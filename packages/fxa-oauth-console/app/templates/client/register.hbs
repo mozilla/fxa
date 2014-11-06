@@ -9,7 +9,7 @@
   {{partial 'client/form'}}
 </fieldset>
 </form>
-{{#unless client_secret}}
+{{#unless secret}}
 <div class="btn-group">
   <button class="button alert " {{action 'cancel' this}}>Cancel</button>
   <button class="button success" {{action 'create' this}}>Create</button>
