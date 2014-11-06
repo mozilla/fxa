@@ -13,6 +13,12 @@ export default Ember.Route.extend(ApplicationRouteMixin, {
     sessionAuthenticationFailed: function (/*error*/) {
       this.transitionTo('login');
     },
+    sessionInvalidationSucceeded: function() {
+      this.transitionTo('login');
+    },
+    sessionInvalidationFailed: function(/*error*/) {
+      this.transitionTo('login');
+    },
     sessionAuthenticationSucceeded: function () {
       this.transitionTo('index');
     }
