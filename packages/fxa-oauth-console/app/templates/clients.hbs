@@ -25,7 +25,7 @@
       <td>{{client.redirect_uri}}</td>
       <td class="table-actions">
         <button class="small button " {{action 'update' client.id}}>Update</button>
-        <button class="small button alert" {{action 'remove' client.id}}>Delete</button>
+        <button class="small button alert" {{action 'goToClientDelete' client.id}}>Delete</button>
       </td>
     </tr>
   {{/each}}

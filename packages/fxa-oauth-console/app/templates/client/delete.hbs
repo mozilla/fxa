@@ -1,0 +1,18 @@
+<fieldset>
+  <legend>Are you sure you want to delete <em>{{name}}</em>?</legend>
+
+  <table class="table">
+    <tbody>
+    <tr>
+      <th>Client ID:</th>
+      <td>{{id}}</td>
+    </tr>
+    <tr>
+      <th>Redirect URI</th>
+      <td>{{redirect_uri}}</td>
+    </tr>
+  </table>
+
+  <button class="small button alert" {{action 'remove' id}}>Confirm</button>
+</fieldset>
+{{outlet}}

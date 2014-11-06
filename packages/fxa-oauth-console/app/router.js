@@ -17,6 +17,7 @@ Router.map(function () {
   this.route('clients.token', {path: '/clients/token'});
   this.route('client.register',  {path:'/client/register'});
   this.resource('client', {path: '/client/:client_id'}, function () {
+    this.route('delete');
     this.route('update');
   });
 });

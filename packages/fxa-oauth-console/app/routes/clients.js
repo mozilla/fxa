@@ -11,6 +11,9 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     goToNewClient: function () {
       this.transitionTo('client.register');
     },
+    goToClientDelete: function (model) {
+      this.transitionTo('client.delete', model);
+    },
     goToScopedToken: function () {
       this.transitionTo('clients.token');
     },
@@ -29,11 +32,6 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     updated: function (model) {
       this.storage.update(model);
       this.transitionTo('clients');
-    },
-    remove: function (id) {
-      return this.store.find('client', id).then(function (client) {
-        client.destroyRecord();
-      });
     },
     cancel: function (model) {
       Ember.run(model, "destroy");
