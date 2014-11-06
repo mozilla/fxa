@@ -2,7 +2,7 @@
   "author": "Lloyd <lloyd@hilaiel.com> (http://lloyd.io)",
   "name": "browserid-verifier",
   "description": "A node.js verification server for BrowserID assertions.",
-  "version": "0.2.5",
+  "version": "0.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mozilla/browserid-verifier"
@@ -15,14 +15,14 @@
   },
   "dependencies": {
     "async": "0.9.0",
-    "browserid-local-verify": "0.0.12",
+    "browserid-local-verify": "0.1.0",
     "compute-cluster": "0.0.9",
-    "convict": "0.4.2",
+    "convict": "0.5.1",
     "express": "3.8.1",
     "intel": "0.5.2",
     "optimist": "0.6.1",
     "toobusy": "0.2.4",
-    "underscore": "1.6.0"
+    "underscore": "1.7.0"
   },
   "devDependencies": {
     "ass": "0.0.4",
