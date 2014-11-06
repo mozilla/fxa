@@ -11,6 +11,9 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
     goToNewClient: function () {
       this.transitionTo('client.register');
     },
+    goToScopedToken: function () {
+      this.transitionTo('clients.token');
+    },
     goToClient: function( id ) {
       // unload all stored client data to make sure we fetch the client again in the client view
       this.store.unloadAll('client');

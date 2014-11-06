@@ -52,10 +52,9 @@ var CustomAuthenticator = Base.extend({
         }
 
         Ember.run(function () {
-          if (response && response.email && response.token && response.code) {
+          if (response && response.email && response.token) {
 
             return resolve({
-              code: response.code,
               email: response.email,
               token: response.token
             });

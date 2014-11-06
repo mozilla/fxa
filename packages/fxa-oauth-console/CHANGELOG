@@ -1,0 +1,12 @@
+v0.3.0:
+  date: 2014-11-06
+  changes:
+    - Added a way to request tokens with custom scopes.
+v0.2.0:
+  date: 2014-10-01
+  changes:
+    - Ability to create clients, update, delete.
+v0.1.0
+  date: 2014-09-28
+  changes:
+    - Initial app

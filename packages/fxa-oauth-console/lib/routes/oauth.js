@@ -9,13 +9,16 @@ var request = require('request');
 
 var router = express.Router();
 var redirectUrl = require('./lib/oauth').redirectUrl;
+var requestToken = require('./lib/oauth').requestToken;
 var config = require('../config');
 var baseUrl = config.get('base_url');
 var fxaOAuthConfig = config.get('fxaOAuth');
 var log = require('mozlog')('server.ver.json');
-var DIFFERENT_BROWSER_ERROR = 3005;
+
 // oauth flows are stored in memory
 var oauthFlows = { };
+var GENERATE_OAUTH_TOKEN_STATE = 'GENERATE_OAUTH_TOKEN';
+var DIFFERENT_BROWSER_ERROR = 3005;
 
 /**
  * OAuth Login, redirects to FxA
@@ -34,8 +37,7 @@ router.get('/status', function (req, res) {
   if (req.session && req.session.email) {
     return res.send(JSON.stringify({
       email: req.session.email,
-      token: req.session.token,
-      code: req.session.code
+      token: req.session.token
     }));
   } else {
     return res.status(401).end();
@@ -48,6 +50,18 @@ router.get('/status', function (req, res) {
 router.get('/logout', function (req, res) {
   req.session.reset();
   res.redirect(baseUrl);
+});
+
+/**
+ * Generates an OAuth Token based on scope
+ */
+router.post('/generate-token', function (req, res) {
+  log.verbose('/generate-token', req.body);
+  if (req.body.scopes) {
+    return res.redirect(redirectUrl('signin', GENERATE_OAUTH_TOKEN_STATE, req.body.scopes));
+  } else {
+    return res.redirect(baseUrl + 'clients/token');
+  }
 });
 
 /**
@@ -64,32 +78,30 @@ router.get('/redirect', function (req, res) {
     return res.redirect(baseUrl + '?oauth_incomplete=true');
   }
 
-  // state should exists in our set of active flows and the user should
-  // have a cookie with that state
-  if (code && state && state in oauthFlows && state === req.session.state) {
+  if (state && state === GENERATE_OAUTH_TOKEN_STATE) {
+    requestToken(code, function (err, r, body) {
+      log.verbose(GENERATE_OAUTH_TOKEN_STATE, body);
+
+      return res.redirect(baseUrl + 'clients/token?' +
+      'access_token=' + body.access_token +
+      '&scopes=' + body.scope
+      );
+    });
+  } else if (code && state && state in oauthFlows && state === req.session.state) {
+    // state should exists in our set of active flows and the user should
+    // have a cookie with that state
     delete oauthFlows[state];
     delete req.session.state;
 
-    request.post({
-      uri: fxaOAuthConfig.oauth_uri + '/token',
-      json: {
-        code: code,
-        client_id: fxaOAuthConfig.client_id,
-        client_secret: fxaOAuthConfig.client_secret
-      }
-    }, function (err, r, body) {
+    requestToken(code, function (err, r, body) {
       if (err) {
         return res.send(r.status, err);
       }
 
       log.verbose(err, body);
-      req.session.code = code;
-      req.session.scopes = body.scopes;
+      req.session.scope = body.scope;
       req.session.token_type = body.token_type;
       var token = req.session.token = body.access_token;
-
-      // store the bearer token
-      //db.set(code, body.access_token);
 
       request.get({
         uri: fxaOAuthConfig.profile_uri + '/profile',
