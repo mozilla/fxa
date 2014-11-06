@@ -6,7 +6,6 @@ import Ember from 'ember';
 import config from './config/environment';
 
 var Router = Ember.Router.extend({
-  rootURL: config.baseURL,
   location: config.locationType
 });
 
