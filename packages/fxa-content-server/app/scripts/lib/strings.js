@@ -13,21 +13,8 @@ function () {
 
   // temporary strings that can be extracted for the
   // l10n team to start translations.
-  //
-  // tooltips specified by rfeeley and johngruen
-  t('Valid email required');
-  t('Valid password required');
-  t('Invalid password');
-  t('Invalid email and password');
-  t('Invalid email or password');
-  t('Must be at least 8 characters');
-  t('Year of birth required');
-  t('Account already exists');
-  t('Old password invalid');
-  t('New password invalid');
-  t('Passwords don\'t match');
-  t('Please enter an email');
-  t('Cannot connect to the internet');
+  // for use in #1801 when implemented.
+  t('Your verification email was just returned. Mistyped email? <a href="/signup">Start over.</a>');
 
   // Intended for email marketing opt-in
   // Should be removed in favor of #992 and #993 when implemented
