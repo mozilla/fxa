@@ -58,6 +58,8 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
     },
 
     afterRender: function () {
+      // Wrapper hides the browser's file picker widget so we can use
+      // our own
       var wrapper = $('<div/>').css({ height: 0, width: 0, 'overflow': 'hidden' });
       this.$(':file').wrap(wrapper);
     },

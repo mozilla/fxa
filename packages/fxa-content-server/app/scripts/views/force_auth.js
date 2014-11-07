@@ -100,6 +100,8 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
       var email = this.relier.get('email');
       var account = this.user.getAccountByEmail(email);
 
+      // Use FormView's afterVisible because SignIn attemps to
+      // display a profile image for the "suggested" account.
       FormView.prototype.afterVisible.call(this);
 
       // Only display the profile image if we have a cached account

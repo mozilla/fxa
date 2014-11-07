@@ -9,10 +9,11 @@
 
 define([
   'backbone',
+  'underscore',
   'lib/promise',
   'lib/auth-errors',
   'lib/constants'
-], function (Backbone, p, AuthErrors, Constants) {
+], function (Backbone, _, p, AuthErrors, Constants) {
 
   var DEFAULTS = {
     uid: undefined,

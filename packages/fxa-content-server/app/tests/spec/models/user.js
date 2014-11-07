@@ -160,7 +160,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       sinon.stub(user, 'getCurrentAccount', function () {
         return user.createAccount({
           email: 'b@b.com',
-          sessionToken: 'session token',
+          sessionToken: 'session token'
         });
       });
 

@@ -139,7 +139,25 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
         });
 
         var xssEmail = 'testuser@testuser.com" onclick="javascript:alert(1)"';
-        view.email = xssEmail;
+
+        ephemeralMessages.set('data', {
+          email: xssEmail,
+          passwordForgotToken: PASSWORD_FORGOT_TOKEN
+        });
+
+        // create a new view because ephemeralData is bound in the initializer
+        view = new View({
+          router: routerMock,
+          window: windowMock,
+          metrics: metrics,
+          fxaClient: fxaClient,
+          relier: relier,
+          broker: broker,
+          user: user,
+          interTabChannel: interTabChannel,
+          sessionUpdateTimeoutMS: 100,
+          ephemeralMessages: ephemeralMessages
+        });
 
         return view.render()
           .then(function () {
@@ -233,15 +251,10 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
         sinon.stub(view, 'navigate', function (page) {
           TestHelpers.wrapAssertion(function () {
             assert.equal(page, expectedPage);
-            // session.email is used to pre-fill the email on
-            // the signin page.
-            assert.equal(Session.prefillEmail, 'atestuser@testuser.com');
+            assert.equal(Session.prefillEmail, EMAIL);
           }, done);
         });
 
-        // email is cleared in initial render in beforeEach, reset it to
-        // see if it makes it through to the redirect.
-        view.email = 'atestuser@testuser.com';
         view.render();
       }
 
@@ -358,10 +371,8 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
 
     describe('a click on the signin link', function () {
       it('saves view.email to Session.prefillEmail so user\'s email address is prefilled when browsing to /signin', function () {
-        view.email = 'ztestuser@testuser.com';
-
         view.$('a[href="/signin"]').click();
-        assert.equal(Session.prefillEmail, 'ztestuser@testuser.com');
+        assert.equal(Session.prefillEmail, EMAIL);
       });
     });
   });

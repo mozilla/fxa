@@ -22,8 +22,6 @@ define([
 ], function (Backbone, _, p, Assertion, OAuthClient, Account, Storage) {
 
   var User = Backbone.Model.extend({
-    defaults: {},
-
     initialize: function (options) {
       options = options || {};
       this._oAuthClientId = options.oAuthClientId;
