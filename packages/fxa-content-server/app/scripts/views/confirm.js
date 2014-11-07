@@ -34,7 +34,13 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
 
     events: {
       // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
+      'click #resend': BaseView.preventDefaultThen('validateAndSubmit'),
+      'click a[href="/signup"]': 'bouncedEmailSignup'
+    },
+
+    bouncedEmailSignup: function () {
+      // TODO add `bouncedEmail` to the User model when ready.
+      this.ephemeralMessages.set('bouncedEmail', Session.email);
     },
 
     beforeRender: function () {
@@ -54,6 +60,7 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
         .then(function () {
           self._waitForConfirmation()
             .then(function () {
+              self.logScreenEvent('verification.success');
               return self.broker.afterSignUpConfirmationPoll();
             })
             .then(function (result) {
@@ -61,14 +68,22 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
                 self.navigate('signup_complete');
               }
             }, function (err) {
-              self.displayError(err);
+              // The user's email may have bounced because it was invalid.
+              // Show a message allowing the user to sign up again.
+              if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
+                // the email bounce error message contains a link.
+                self.displayErrorUnsafe(err);
+              } else {
+                self.displayError(err);
+              }
             });
         });
     },
 
     _waitForConfirmation: function () {
       var self = this;
-      return self.fxaClient.recoveryEmailStatus(Session.sessionToken)
+      return self.fxaClient.recoveryEmailStatus(
+          Session.sessionToken, Session.uid)
         .then(function (result) {
           if (result.verified) {
             return true;

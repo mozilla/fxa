@@ -20,8 +20,10 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       Strings, PasswordMixin, ServiceMixin) {
   var t = BaseView.t;
 
-  function selectAutoFocusEl(email, password) {
-    if (! email) {
+  function selectAutoFocusEl(bouncedEmail, email, password) {
+    if (bouncedEmail) {
+      return 'email';
+    } else if (! email) {
       return 'email';
     } else if (! password) {
       return 'password';
@@ -46,11 +48,21 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         return p(false);
       }
 
+      // TODO - get from the User model when ready.
+      this._bouncedEmail = this.ephemeralMessages.get('bouncedEmail');
+
       return FormView.prototype.beforeRender.call(this);
     },
 
-    // afterRender fucnction to handle select-row hack (issue 822)
     afterRender: function () {
+      this._addSelectRowBehavior();
+      this._selectPrefillYear();
+
+      return FormView.prototype.afterRender.call(this);
+    },
+
+    // handles select-row hack (issue 822)
+    _addSelectRowBehavior: function () {
       var select = this.$el.find('.select-row select');
       select.focus(function (){
         $(this).parent().addClass('select-focus');
@@ -61,10 +73,13 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       select.change(function (){
         select.parent().removeClass('invalid-row');
       });
+    },
 
-      this._selectPrefillYear();
-
-      FormView.prototype.afterRender.call(this);
+    afterVisible: function () {
+      if (this._bouncedEmail) {
+        this.showValidationError('input[type=email]',
+                  AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
+      }
     },
 
     events: {
@@ -82,7 +97,8 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       // want the last used email.
       var email = Session.prefillEmail || this.searchParam('email');
 
-      var autofocusEl = selectAutoFocusEl(email, Session.prefillPassword);
+      var autofocusEl = selectAutoFocusEl(
+        this._bouncedEmail, email, Session.prefillPassword);
 
       return {
         service: this.relier.get('service'),
@@ -111,6 +127,10 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
     },
 
     isValidEnd: function () {
+      if (this._isEmailSameAsBouncedEmail()) {
+        return false;
+      }
+
       if (! this._validateYear()) {
         return false;
       }
@@ -119,11 +139,14 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         return this._validateMonthAndDate();
       }
 
-      return true;
+      return FormView.prototype.isValidEnd.call(this);
     },
 
     showValidationErrorsEnd: function () {
-      if (! this._validateYear()) {
+      if (this._isEmailSameAsBouncedEmail()) {
+        this.showValidationError('input[type=email]',
+                AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
+      } else if (! this._validateYear()) {
         //next two lines deal with ff30's select list regression
         var selectYearRow = $('#fxa-age-year').parent();
         selectYearRow.addClass('invalid-row');
@@ -151,6 +174,11 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
 
           return self._createAccount();
         });
+    },
+
+    _isEmailSameAsBouncedEmail: function () {
+      return (this._bouncedEmail &&
+             (this.getElementValue('input[type=email]') === this._bouncedEmail));
     },
 
     _getSelectedUserAge: function () {

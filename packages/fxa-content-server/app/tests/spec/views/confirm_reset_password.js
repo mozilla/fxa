@@ -174,6 +174,8 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
         sinon.stub(view, 'navigate', function (url) {
           TestHelpers.wrapAssertion(function () {
             assert.equal(url, 'reset_password_complete');
+            assert.isTrue(TestHelpers.isEventLogged(
+                    metrics, 'confirm_reset_password.verification.success'));
           }, done);
         });
 

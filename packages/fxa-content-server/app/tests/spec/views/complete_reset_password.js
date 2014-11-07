@@ -50,6 +50,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      windowMock.location.pathname = 'complete_reset_password';
       metrics = new Metrics();
       relier = new Relier();
       broker = new Broker();
@@ -298,6 +299,8 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
                   EMAIL, PASSWORD, relier));
               assert.equal(routerMock.page, 'reset_password_complete');
               assert.isTrue(broker.afterCompleteResetPassword.called);
+              assert.isTrue(TestHelpers.isEventLogged(
+                      metrics, 'complete_reset_password.verification.success'));
             });
       });
 

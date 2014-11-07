@@ -399,6 +399,41 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
       });
     });
 
+    describe('checkAccountExists', function () {
+      it('returns true if an account exists', function () {
+        sinon.stub(realClient, 'accountStatus', function () {
+          return p({ exists: true });
+        });
+
+        return client.checkAccountExists('uid')
+          .then(function (accountExists) {
+            assert.isTrue(accountExists);
+          });
+      });
+
+      it('returns false if an account does not exist', function () {
+        sinon.stub(realClient, 'accountStatus', function () {
+          return p({ exists: false });
+        });
+
+        return client.checkAccountExists('uid')
+          .then(function (accountExists) {
+            assert.isFalse(accountExists);
+          });
+      });
+
+      it('throws other errors from the auth server', function () {
+        sinon.stub(realClient, 'accountStatus', function () {
+          return p.reject(new Error('missing uid'));
+        });
+
+        return client.checkAccountExists()
+          .then(assert.fail, function (err) {
+            assert.equal(err.message, 'missing uid');
+          });
+      });
+    });
+
     describe('checkPassword', function () {
       it('returns error if password is incorrect', function () {
         email = trim(email);
