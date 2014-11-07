@@ -34,8 +34,8 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
               SESSION_UPDATE_TIMEOUT_MS;
 
       var data = this.ephemeralData();
-      this.email = data.email;
-      this.passwordForgotToken = data.passwordForgotToken;
+      this._email = data.email;
+      this._passwordForgotToken = data.passwordForgotToken;
     },
 
     events: {

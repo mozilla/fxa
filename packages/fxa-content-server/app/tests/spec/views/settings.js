@@ -43,6 +43,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
       account = user.createAccount({
         uid: UID,
         email: 'a@a.com',
+        sessionToken: 'abc123',
         verified: true
       });
 
@@ -112,7 +113,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
 
       it('redirects to signin if uid is not found', function () {
         sinon.stub(user, 'getAccountByUid', function () {
-          return null;
+          return user.createAccount();
         });
 
         sinon.stub(user, 'clearCurrentAccount', function () {

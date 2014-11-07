@@ -14,26 +14,30 @@ define([
   'lib/constants'
 ], function (Backbone, p, AuthErrors, Constants) {
 
-  var ACCOUNT_DATA_KEYS = [
-    'uid',
-    'email',
-    'sessionToken',
-    'sessionTokenContext',
-    'accessToken',
-    'verified',
-    'lastLogin'
-  ];
+  var DEFAULTS = {
+    uid: undefined,
+    email: undefined,
+    sessionToken: undefined,
+    sessionTokenContext: undefined,
+    accessToken: undefined,
+    verified: undefined,
+    lastLogin: undefined
+  };
+
+  var ALLOWED_KEYS = Object.keys(DEFAULTS);
 
   var Account = Backbone.Model.extend({
-    defaults: {},
+    defaults: DEFAULTS,
 
     initialize: function (options) {
       options = options || {};
       var self = this;
 
-      ACCOUNT_DATA_KEYS.forEach(function (key) {
-        self[key] = options.accountData[key];
-      });
+      if (options.accountData) {
+        ALLOWED_KEYS.forEach(function (key) {
+          self.set(key, options.accountData[key]);
+        });
+      }
 
       self._oAuthClientId = options.oAuthClientId;
       self._oAuthClient = options.oAuthClient;
@@ -47,14 +51,14 @@ define([
 
       // upgrade the credentials with an accessToken
       if (self._needsAccessToken()) {
-        return self._getAccessTokenFromSessionToken(self.sessionToken)
+        return self._getAccessTokenFromSessionToken(self.get('sessionToken'))
           .then(function (accessToken) {
-            self.accessToken = accessToken;
+            self.set('accessToken', accessToken);
             // if we can sign a cert, we must be verified
-            self.verified = true;
+            self.set('verified', true);
           }, function (err) {
             if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-              self.verified = false;
+              self.set('verified', false);
               return;
             }
           });
@@ -72,7 +76,13 @@ define([
     },
 
     isFromSync: function () {
-      return this.sessionTokenContext === Constants.FX_DESKTOP_CONTEXT;
+      return this.get('sessionTokenContext') === Constants.FX_DESKTOP_CONTEXT;
+    },
+
+    isEmpty: function () {
+      return ! _.find(this.attributes, function (attr) {
+        return !!attr;
+      });
     },
 
     // If the account doesn't have an accessToken (or isn't verified),
@@ -80,7 +90,8 @@ define([
     // the account has since been verified and retrieve said access token.
     // The sessionToken is needed to perform the fetch.
     _needsAccessToken: function () {
-      return this.sessionToken && (! this.accessToken || ! this.verified);
+      return this.get('sessionToken') &&
+        (! this.get('accessToken') || ! this.get('verified'));
     },
 
     _getAccessTokenFromSessionToken: function (sessionToken) {
@@ -101,17 +112,8 @@ define([
         });
     },
 
-    toData: function () {
-      var self = this;
-      return ACCOUNT_DATA_KEYS.reduce(function (data, key) {
-        data[key] = self[key];
-        return data;
-      }, {});
-    },
-
     isVerified: function () {
-      var self = this;
-      return self._getAccessTokenFromSessionToken(self.sessionToken)
+      return this._getAccessTokenFromSessionToken(this.get('sessionToken'))
         .then(function () {
           return true;
         }, function (err) {
@@ -132,7 +134,7 @@ define([
         var args = Array.prototype.slice.call(arguments, 0);
         return self.profileClient()
           .then(function (profileClient) {
-            return profileClient[method].apply(profileClient, [self.accessToken].concat(args));
+            return profileClient[method].apply(profileClient, [self.get('accessToken')].concat(args));
           });
       };
     });

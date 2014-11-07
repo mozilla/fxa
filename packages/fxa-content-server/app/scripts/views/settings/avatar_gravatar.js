@@ -29,14 +29,6 @@ function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressInd
     template: Template,
     className: 'avatar_gravatar',
 
-    initialize: function () {
-      var account = this.currentAccount();
-      this.email = account && account.email;
-      if (this.email) {
-        this.hashedEmail = this._hashEmail(this.email);
-      }
-    },
-
     context: function () {
       return {
         gravatar: this.gravatar
@@ -66,15 +58,17 @@ function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressInd
     },
 
     gravatarUrl: function () {
+      var hashedEmail = this.hashedEmail();
       if (this.automatedBrowser) {
         // Don't return a 404 so we can test the success flow
-        return GRAVATAR_URL + this.hashedEmail + '?s=' + DISPLAY_LENGTH;
+        return GRAVATAR_URL + hashedEmail + '?s=' + DISPLAY_LENGTH;
       }
-      return GRAVATAR_URL + this.hashedEmail + '?s=' + DISPLAY_LENGTH + '&d=404';
+      return GRAVATAR_URL + hashedEmail + '?s=' + DISPLAY_LENGTH + '&d=404';
     },
 
-    _hashEmail: function (email) {
-      return md5($.trim(email.toLowerCase()));
+    hashedEmail: function () {
+      var email = this.currentAccount().get('email');
+      return email ? md5($.trim(email.toLowerCase())) : '';
     },
 
     submit: function () {

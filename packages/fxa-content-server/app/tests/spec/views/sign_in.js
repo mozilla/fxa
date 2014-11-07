@@ -111,6 +111,21 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
               assert.include(view.$('#fxa-signin-header').text(), serviceName);
             });
       });
+
+      it('shows a prefilled email and password field of cached session', function () {
+        sinon.stub(user, 'getChooserAccount', function () {
+          return user.createAccount({
+            email: 'a@a.com',
+            sessionToken: 'abc123'
+          });
+        });
+        return view.render()
+            .then(function () {
+              assert.ok($('#fxa-signin-header').length);
+              assert.equal(view.$('.prefill').html(), 'a@a.com');
+              assert.equal(view.$('[type=password]').val(), '');
+            });
+      });
     });
 
 
@@ -161,7 +176,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         var sessionToken = 'abc123';
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({ verified: false });
+          return p(user.createAccount({ verified: false }));
         });
 
         sinon.stub(view.fxaClient, 'signUpResend', function () {
@@ -169,9 +184,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         });
 
         sinon.stub(view, 'currentAccount', function () {
-          return {
+          return user.createAccount({
             sessionToken: sessionToken
-          };
+          });
         });
 
         var password = 'password';
@@ -190,9 +205,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
       it('notifies the broker when a verified user signs in', function () {
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({
+          return p(user.createAccount({
             verified: true
-          });
+          }));
         });
 
         var password = 'password';
@@ -324,10 +339,10 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
     describe('useLoggedInAccount', function () {
       it('shows an error if session is expired', function () {
         sinon.stub(user, 'getChooserAccount', function () {
-          return {
+          return user.createAccount({
             sessionToken: 'abc123',
             email: 'a@a.com'
-          };
+          });
         });
 
         return view.useLoggedInAccount()
@@ -343,35 +358,35 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
       it('signs in with a valid session', function () {
         sinon.stub(user, 'getChooserAccount', function () {
-          return {
+          return user.createAccount({
             sessionToken: 'abc123',
             email: 'a@a.com'
-          };
+          });
         });
 
         view.fxaClient.recoveryEmailStatus = function () {
-          return p({verified: true});
+          return p({ verified: true });
         };
 
         return view.useLoggedInAccount()
           .then(function () {
-            assert.notOk(view._isErrorVisible);
             assert.equal(view.$('.error').text(), '');
+            assert.notOk(view._isErrorVisible);
           });
       });
     });
 
     describe('useDifferentAccount', function () {
       it('can switch to signin with the useDifferentAccount button', function () {
-        var account = {
+        var account = user.createAccount({
           sessionToken: 'abc123',
           email: 'a@a.com'
-        };
+        });
         sinon.stub(user, 'getChooserAccount', function () {
           return account;
         });
         sinon.stub(user, 'removeAllAccounts', function () {
-          account = null;
+          account = user.createAccount();
         });
 
         return view.useLoggedInAccount()
@@ -390,33 +405,33 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('_suggestedAccount', function () {
       it('can suggest the user based on session variables', function () {
-        assert.isNull(view._suggestedAccount(), 'null when no session set');
+        assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no account set');
 
         sinon.stub(user, 'getChooserAccount', function () {
-          return { sessionToken: 'abc123' };
+          return user.createAccount({ sessionToken: 'abc123' });
         });
-        assert.isNull(view._suggestedAccount(), 'null when no email set');
+        assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no email set');
 
 
         user.getChooserAccount.restore();
         sinon.stub(user, 'getChooserAccount', function () {
-          return { email: 'a@a.com' };
+          return user.createAccount({ email: 'a@a.com' });
         });
-        assert.isNull(view._suggestedAccount(), 'null when no session token set');
+        assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no session token set');
 
         user.getChooserAccount.restore();
         view.prefillEmail = 'a@a.com';
         sinon.stub(user, 'getChooserAccount', function () {
-          return { sessionToken: 'abc123', email: 'b@b.com' };
+          return user.createAccount({ sessionToken: 'abc123', email: 'b@b.com' });
         });
-        assert.isNull(view._suggestedAccount(), 'null when prefill does not match');
+        assert.isTrue(view._suggestedAccount().isEmpty(), 'null when prefill does not match');
 
         delete view.prefillEmail;
         user.getChooserAccount.restore();
         sinon.stub(user, 'getChooserAccount', function () {
-          return { sessionToken: 'abc123', email: 'a@a.com' };
+          return user.createAccount({ sessionToken: 'abc123', email: 'a@a.com' });
         });
-        assert.equal(view._suggestedAccount().email, 'a@a.com');
+        assert.equal(view._suggestedAccount().get('email'), 'a@a.com');
 
       });
 
@@ -449,9 +464,16 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
       it('does not show if there is an email in query params that does not match', function () {
         windowMock.location.search = '?email=b@b.com';
-        Session.set('cachedCredentials', {
+        var account = user.createAccount({
           sessionToken: 'abc123',
-          email: 'a@a.com'
+          email: 'a@a.com',
+          sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+          verified: true,
+          accessToken: 'foo'
+        });
+
+        sinon.stub(user, 'getChooserAccount', function () {
+          return account;
         });
 
         return view.render()

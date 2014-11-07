@@ -84,15 +84,15 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
     context: function () {
       var doesLinkValidate = this._doesLinkValidate();
       var isLinkExpired = this._isLinkExpired;
-      // This is only the case if you've signed up in the
-      // same browser you opened the verification link in.
-      var account = this.currentAccount();
 
       return {
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
-        canResend: !!(account && account.sessionToken),
+
+        // This is only the case if you've signed up in the
+        // same browser you opened the verification link in.
+        canResend: !!this.currentAccount().get('sessionToken'),
         error: this._error
       };
     },
@@ -101,7 +101,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
     // and clicks the "Resend" link.
     submit: function () {
       var self = this;
-      var sessionToken = self.currentAccount().sessionToken;
+      var sessionToken = self.currentAccount().get('sessionToken');
 
       self.logEvent('complete_sign_up.resend');
       return self.fxaClient.signUpResend(self.relier, sessionToken)

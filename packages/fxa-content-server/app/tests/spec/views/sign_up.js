@@ -20,12 +20,13 @@ define([
   'lib/ephemeral-messages',
   'models/reliers/fx-desktop',
   'models/auth_brokers/base',
+  'models/user',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
-      FxaClient, EphemeralMessages, Relier, Broker, RouterMock, WindowMock,
+      FxaClient, EphemeralMessages, Relier, Broker, User, RouterMock, WindowMock,
       TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -70,6 +71,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     var relier;
     var broker;
     var ephemeralMessages;
+    var user;
 
     var now = new Date();
     var CURRENT_YEAR = now.getFullYear();
@@ -88,12 +90,14 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       broker = new Broker();
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
+      user = new User();
 
       view = new View({
         router: router,
         metrics: metrics,
         window: windowMock,
         fxaClient: fxaClient,
+        user: user,
         relier: relier,
         broker: broker,
         ephemeralMessages: ephemeralMessages
@@ -416,9 +420,9 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({
+          return p(user.createAccount({
             verified: false
-          });
+          }));
         });
 
         return view.submit()
@@ -449,9 +453,9 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({
+          return p(user.createAccount({
             verified: true
-          });
+          }));
         });
 
         sinon.stub(broker, 'afterSignIn', function () {
@@ -546,9 +550,9 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({
+          return p(user.createAccount({
             verified: false
-          });
+          }));
         });
 
         fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });

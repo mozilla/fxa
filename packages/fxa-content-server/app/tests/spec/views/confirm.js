@@ -19,14 +19,9 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-<<<<<<< HEAD
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
-      EphemeralMessages, View, OAuthRelier, OAuthBroker, WindowMock,
+      EphemeralMessages, View, OAuthRelier, OAuthBroker, User, WindowMock,
       RouterMock, TestHelpers) {
-=======
-function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
-      OAuthRelier, OAuthBroker, User, WindowMock, RouterMock, TestHelpers) {
->>>>>>> refactor(Session): use User and Account models in lieu of Session
   'use strict';
 
   var assert = chai.assert;
@@ -39,12 +34,9 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
     var fxaClient;
     var relier;
     var broker;
-<<<<<<< HEAD
     var ephemeralMessages;
-=======
     var user;
     var account;
->>>>>>> refactor(Session): use User and Account models in lieu of Session
 
     beforeEach(function () {
 
@@ -61,9 +53,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         relier: relier
       });
       fxaClient = new FxaClient();
-<<<<<<< HEAD
       ephemeralMessages = new EphemeralMessages();
-=======
       user = new User();
 
       account = user.createAccount({
@@ -75,7 +65,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
       sinon.stub(user, 'getCurrentAccount', function () {
         return account;
       });
->>>>>>> refactor(Session): use User and Account models in lieu of Session
 
       view = new View({
         router: routerMock,
@@ -86,6 +75,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         relier: relier,
         broker: broker,
         ephemeralMessages: ephemeralMessages
+      });
+
+      sinon.stub(view, 'currentAccount', function () {
+        return account;
       });
 
       return view.render()
@@ -108,16 +101,11 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         assert.ok($('#fxa-confirm-header').length);
       });
 
-      it('redirects to /signup if no account', function () {
-        delete view.account;
-        return view.render()
-          .then(function () {
-            assert.equal(routerMock.page, 'signup');
-          });
-      });
-
       it('redirects to /signup if no account sessionToken', function () {
-        delete account.sessionToken;
+        view.currentAccount.restore();
+        sinon.stub(view, 'currentAccount', function () {
+          return user.createAccount();
+        });
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'signup');
@@ -136,7 +124,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
           TestHelpers.wrapAssertion(function () {
             assert.isTrue(user.setAccount.calledWith(account));
-            assert.isTrue(account.verified);
+            assert.isTrue(account.get('verified'));
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm.verification.success'));
           }, done);
@@ -189,7 +177,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
                               'confirm.resend'));
 
             assert.isTrue(view.fxaClient.signUpResend.calledWith(
-                relier, account.sessionToken));
+                relier, account.get('sessionToken')));
           });
       });
 

@@ -30,7 +30,6 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
     this._interTabChannel = options.interTabChannel;
-    this._user = options.user;
   }
 
   FxaClientWrapper.prototype = {

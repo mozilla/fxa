@@ -30,9 +30,8 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, ServiceMixin)
     },
 
     context: function () {
-      var email = this.currentAccount().email;
       return {
-        email: email
+        email: this.currentAccount().get('email')
       };
     },
 
@@ -40,7 +39,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, ServiceMixin)
       var self = this;
       var account = self.currentAccount();
       var password = self.$('.password').val();
-      return self.fxaClient.deleteAccount(account.email, password)
+      return self.fxaClient.deleteAccount(account.get('email'), password)
                 .then(function () {
                   Session.clear();
                   self.user.removeAccount(account);

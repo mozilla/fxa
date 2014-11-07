@@ -105,9 +105,9 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       it('replaces the current page with the settings page if there is a current account', function () {
         windowMock.location.search = '';
         sinon.stub(user, 'getCurrentAccount', function () {
-          return {
+          return user.createAccount({
             sessionToken: 'abc123'
-          };
+          });
         });
         router.redirectToSignupOrSettings();
         assert.equal(navigateUrl, '/settings');

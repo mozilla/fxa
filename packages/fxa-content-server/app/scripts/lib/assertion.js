@@ -77,7 +77,7 @@ function (P, jwcrypto) {
 
   function bundle(sessionToken, audience) {
     //jshint validthis: true
-    return certificate.call(this, audience || this.audience, sessionToken).spread(function (cert, ass) {
+    return certificate.call(this, audience || this._audience, sessionToken).spread(function (cert, ass) {
       return jwcrypto.cert.bundle([cert.cert], ass);
     });
   }
@@ -85,7 +85,7 @@ function (P, jwcrypto) {
   function Assertion(options) {
     options = options || {};
     this._fxaClient = options.fxaClient;
-    this.audience = options.audience;
+    this._audience = options._audience;
   }
 
   Assertion.prototype = {

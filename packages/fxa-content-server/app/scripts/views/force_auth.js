@@ -93,7 +93,7 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
     },
 
     /**
-     * Return user's "Session.avatar" if the session email is the same as the force email.
+     * Displays the account's avatar
      */
 
     afterVisible: function () {
@@ -103,7 +103,7 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
       FormView.prototype.afterVisible.call(this);
 
       // Only display the profile image if we have a cached account
-      if (account && account.email === email) {
+      if (account.get('email') === email) {
         return this._displayProfileImage(account);
       }
     }

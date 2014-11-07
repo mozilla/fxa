@@ -74,7 +74,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
         relier.set('email', 'a@a.com');
 
         sinon.stub(user, 'getAccountByEmail', function () {
-          return null;
+          return user.createAccount();
         });
 
         return view.render()

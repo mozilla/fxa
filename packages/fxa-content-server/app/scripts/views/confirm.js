@@ -25,13 +25,9 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
     // used by unit tests
     VERIFICATION_POLL_IN_MS: VERIFICATION_POLL_IN_MS,
 
-    initialize: function () {
-      this.account = this.currentAccount();
-    },
-
     context: function () {
       return {
-        email: this.account && this.account.email
+        email: this.currentAccount().get('email')
       };
     },
 
@@ -48,7 +44,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a sign up.
-      if (! this.account || ! this.account.sessionToken) {
+      if (! this.currentAccount().get('sessionToken')) {
         this.navigate('signup');
         return false;
       }
@@ -88,11 +84,12 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     _waitForConfirmation: function () {
       var self = this;
-      return self.fxaClient.recoveryEmailStatus(self.account.sessionToken, self.account.uid)
+      return self.fxaClient.recoveryEmailStatus(
+          self.currentAccount().get('sessionToken'), self.currentAccount().get('uid'))
         .then(function (result) {
           if (result.verified) {
-            self.account.verified = true;
-            self.user.setAccount(self.account);
+            self.currentAccount().set('verified', true);
+            self.user.setAccount(self.currentAccount());
             return true;
           }
 
@@ -112,19 +109,20 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       var self = this;
 
       self.logScreenEvent('resend');
-      return self.fxaClient.signUpResend(self.relier, self.account.sessionToken)
-              .then(function () {
-                self.displaySuccess();
-              }, function (err) {
-                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-                  return self.navigate('signup', {
-                    error: err
-                  });
-                }
+      return self.fxaClient.signUpResend(self.relier,
+          self.currentAccount().get('sessionToken'))
+        .then(function () {
+          self.displaySuccess();
+        }, function (err) {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            return self.navigate('signup', {
+              error: err
+            });
+          }
 
-                // unexpected error, rethrow for display.
-                throw err;
-              });
+          // unexpected error, rethrow for display.
+          throw err;
+        });
     }
   });
 

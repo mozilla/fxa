@@ -30,12 +30,14 @@ function (chai, $, sinon, View, FxaClient, p,
     var fxaClient;
     var relier;
     var user;
+    var account;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
       fxaClient = new FxaClient();
       user = new User();
+
 
       view = new View({
         router: routerMock,
@@ -68,10 +70,13 @@ function (chai, $, sinon, View, FxaClient, p,
           return true;
         });
 
+        account = user.createAccount({
+          email: email,
+          sessionToken: 'abc123'
+        });
+
         sinon.stub(view, 'currentAccount', function () {
-          return {
-            email: email
-          };
+          return account;
         });
 
         return view.render()
@@ -130,9 +135,7 @@ function (chai, $, sinon, View, FxaClient, p,
                 assert.equal(routerMock.page, 'signup');
                 assert.isTrue(view.fxaClient.deleteAccount
                   .calledWith(email, password));
-                assert.isTrue(user.removeAccount.calledWith({
-                  email: email
-                }));
+                assert.isTrue(user.removeAccount.calledWith(account));
               });
         });
       });

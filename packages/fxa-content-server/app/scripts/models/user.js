@@ -2,6 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This module represents a user of the fxa-content-server site.
+// It persists accounts the user has logged in with and potentially
+// other state about the user that might be useful.
+//
+// i.e. User hasMany Accounts.
+
 
 'use strict';
 
@@ -50,17 +56,10 @@ define([
       this._storage.set('accounts', accounts);
     },
 
-    // persists account data and sets it as the current account
-    _setCurrentAccount: function (account) {
-      this._setAccount(account);
-      this._storage.set('currentAccountUid', account.uid);
-    },
-
-    // Initializes an account instance from raw account data
+    // A conveinience method that initializes an account instance from
+    // raw account data.
     createAccount: function (accountData) {
-      if (! accountData) {
-        return null;
-      } else if (accountData.toData) {
+      if (accountData instanceof Account) {
         // we already have an account instance
         return accountData;
       }
@@ -75,7 +74,7 @@ define([
     },
 
     isSyncAccount: function (account) {
-      return !!account && this.createAccount(account).isFromSync();
+      return this.createAccount(account).isFromSync();
     },
 
     getCurrentAccount: function () {
@@ -90,16 +89,12 @@ define([
 
     getAccountByUid: function (uid) {
       var account = this._accounts()[uid];
-      return account ? this.createAccount(account) : null;
+      return this.createAccount(account);
     },
 
     getAccountByEmail: function (email) {
-      var accounts = this._accounts();
-      var account = null;
-      Object.keys(accounts).forEach(function (uid) {
-        if (accounts[uid].email === email) {
-          account = accounts[uid];
-        }
+      var account = _.find(this._accounts(), function (account) {
+        return account.email === email;
       });
       return this.createAccount(account);
     },
@@ -108,17 +103,13 @@ define([
     // Defaults to the last logged in account unless a desktop session
     // has been stored.
     getChooserAccount: function () {
-      var accounts = this._accounts();
-      var account = this._getCurrentAccount();
+      var self = this;
 
-      // Use the last desktop session if one exists
-      for (var uid in accounts) {
-        if (this.isSyncAccount(accounts[uid])) {
-          account = accounts[uid];
-        }
-      }
+      var account = _.find(self._accounts(), function (account) {
+        return self.isSyncAccount(account);
+      }) || self._getCurrentAccount();
 
-      return this.createAccount(account);
+      return self.createAccount(account);
     },
 
     // Used to clear the current account, but keeps the account details
@@ -132,12 +123,12 @@ define([
     },
 
     // Delete the account from storage
-    removeAccount: function (account) {
-      var uid = account.uid;
+    removeAccount: function (accountData) {
+      var account = this.createAccount(accountData);
+      var uid = account.get('uid');
       var accounts = this._accounts();
-      var currentAccount = this.getCurrentAccount();
 
-      if (currentAccount && uid === currentAccount.uid) {
+      if (uid === this.getCurrentAccount().get('uid')) {
         this.clearCurrentAccount();
       }
       delete accounts[uid];
@@ -148,11 +139,12 @@ define([
     setCurrentAccount: function (accountData) {
       var self = this;
 
-      accountData.lastLogin = Date.now();
+      var account = self.createAccount(accountData);
+      account.set('lastLogin', Date.now());
 
-      return self.setAccount(accountData)
+      return self.setAccount(account)
         .then(function (account) {
-          self._storage.set('currentAccountUid', account.uid);
+          self._storage.set('currentAccountUid', account.get('uid'));
           return account;
         });
     },
@@ -163,7 +155,7 @@ define([
       var account = self.createAccount(accountData);
       return account.fetch()
         .then(function () {
-          self._setAccount(account.toData());
+          self._setAccount(account.toJSON());
           return account;
         });
     },
@@ -176,7 +168,7 @@ define([
 
       return p()
         .then(function () {
-          if (self.getCurrentAccount()) {
+          if (! self.getCurrentAccount().isEmpty()) {
             // We've already upgraded the session
             return;
           }

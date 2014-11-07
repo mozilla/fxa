@@ -56,14 +56,14 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       it('does not fetch without a sessionToken', function () {
         return account.fetch()
           .then(function () {
-            assert.isUndefined(account.verified);
-            assert.isUndefined(account.accessToken);
-            assert.isUndefined(account.sessionToken);
+            assert.isUndefined(account.get('verified'));
+            assert.isUndefined(account.get('accessToken'));
+            assert.isUndefined(account.get('sessionToken'));
           });
       });
 
       it('fetches access token and sets verified state', function () {
-        account.sessionToken = 'abc123';
+        account.set('sessionToken', 'abc123');
         sinon.stub(assertion, 'generate', function () {
           return p('assertion');
         });
@@ -80,40 +80,40 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
               scope: 'profile:write'
             }));
 
-            assert.isTrue(account.verified);
-            assert.equal(account.accessToken, 'access token');
+            assert.isTrue(account.get('verified'));
+            assert.equal(account.get('accessToken'), 'access token');
           });
       });
 
       it('fails to fetch access token with an unverified account', function () {
-        account.sessionToken = 'abc123';
+        account.set('sessionToken', 'abc123');
         sinon.stub(assertion, 'generate', function () {
           return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
         });
 
         return account.fetch()
           .then(function () {
-            assert.isFalse(account.verified);
-            assert.isUndefined(account.accessToken);
+            assert.isFalse(account.get('verified'));
+            assert.isUndefined(account.get('accessToken'));
           });
       });
 
       it('fails to fetch with other errors', function () {
-        account.sessionToken = 'abc123';
+        account.set('sessionToken', 'abc123');
         sinon.stub(assertion, 'generate', function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
         return account.fetch()
           .then(function () {
-            assert.isUndefined(account.accessToken);
-            assert.isUndefined(account.verified);
+            assert.isUndefined(account.get('accessToken'));
+            assert.isUndefined(account.get('verified'));
           });
       });
 
     });
 
     it('isVerified returns false if account is unverified', function () {
-      account.sessionToken = 'abc123';
+      account.set('sessionToken', 'abc123');
       sinon.stub(assertion, 'generate', function () {
         return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
       });
@@ -125,7 +125,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     });
 
     it('isVerified fails if an error occurs', function () {
-      account.sessionToken = 'abc123';
+      account.set('sessionToken', 'abc123');
       sinon.stub(assertion, 'generate', function () {
         return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
       });
@@ -141,7 +141,7 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       var accessToken = 'access token';
 
       beforeEach(function () {
-        account.sessionToken = 'abc123';
+        account.set('sessionToken', 'abc123');
         sinon.stub(assertion, 'generate', function () {
           return p('assertion');
         });
@@ -237,12 +237,12 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
     });
 
     it('isFromSync returns true in the right context', function () {
-      account.sessionTokenContext = Constants.FX_DESKTOP_CONTEXT;
+      account.set('sessionTokenContext', Constants.FX_DESKTOP_CONTEXT);
       assert.isTrue(account.isFromSync());
     });
 
     it('isFromSync returns false in the wrong context', function () {
-      delete account.sessionTokenContext;
+      account.set('sessionTokenContext', 'foo');
       assert.isFalse(account.isFromSync());
     });
 
@@ -256,11 +256,17 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         }
       });
 
-      assert.ok(account.email);
-      assert.isUndefined(account.foo);
+      assert.ok(account.get('email'));
+      assert.isUndefined(account.get('foo'));
     });
 
-    it('toData returns data for the right keys', function () {
+    it('initializes with no data', function () {
+      account = new Account();
+
+      assert.isUndefined(account.get('email'));
+    });
+
+    it('toJSON returns data for the right keys', function () {
       account = new Account({
         accountData: {
           email: EMAIL,
@@ -270,10 +276,20 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         }
       });
 
-      var data = account.toData();
+      var data = account.toJSON();
 
       assert.isUndefined(data.foo);
       assert.ok(data.email);
+    });
+
+    describe('isEmpty', function () {
+      it('true for empty account', function () {
+        assert.isTrue(new Account().isEmpty());
+      });
+
+      it('not true for account with data', function () {
+        assert.isFalse(new Account({ email: 'a@a.com' }).isEmpty());
+      });
     });
 
   });

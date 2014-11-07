@@ -36,18 +36,18 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
     },
 
     submit: function () {
-      var account = this.currentAccount();
-      var email = account.email;
-      var oldPassword = this.$('#old_password').val();
-      var newPassword = this.$('#new_password').val();
-
-      this.hideError();
-
       var self = this;
+      var account = self.currentAccount();
+      var email = account.get('email');
+      var oldPassword = self.$('#old_password').val();
+      var newPassword = self.$('#new_password').val();
+
+      self.hideError();
+
       // Try to sign the user in before checking whether the
       // passwords are the same. If the user typed the incorrect old
       // password, they should know that first.
-      return this.fxaClient.checkPassword(email, oldPassword)
+      return self.fxaClient.checkPassword(email, oldPassword)
           .then(function () {
             if (oldPassword === newPassword) {
               throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
@@ -62,7 +62,7 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
             // settings screen.
 
             return self.fxaClient.signIn(email, newPassword, self.relier, self.user, {
-              sessionTokenContext: account.sessionTokenContext
+              sessionTokenContext: account.get('sessionTokenContext')
             });
           })
           .then(function () {
@@ -81,7 +81,7 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
 
     resendVerificationEmail: BaseView.preventDefaultThen(function () {
       var self = this;
-      var sessionToken = this.currentAccount().sessionToken;
+      var sessionToken = self.currentAccount().get('sessionToken');
 
       return self.fxaClient.signUpResend(self.relier, sessionToken)
               .then(function () {

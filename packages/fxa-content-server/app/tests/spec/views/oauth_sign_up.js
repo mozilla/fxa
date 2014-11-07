@@ -18,13 +18,14 @@ define([
   'lib/assertion',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
+  'models/user',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
-      OAuthClient, Assertion, OAuthRelier, OAuthBroker, WindowMock, RouterMock,
-      TestHelpers) {
+      OAuthClient, Assertion, OAuthRelier, OAuthBroker, User, WindowMock,
+      RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   function fillOutSignUp (email, password, opts) {
@@ -62,6 +63,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
     var assertionLibrary;
     var relier;
     var broker;
+    var user;
 
     beforeEach(function () {
       Session.clear();
@@ -101,6 +103,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       assertionLibrary = new Assertion({
         fxaClient: fxaClient
       });
+      user = new User();
 
       view = new View({
         router: router,
@@ -109,6 +112,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
+        user: user,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient
       });
@@ -145,10 +149,10 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         });
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p({
+          return p(user.createAccount({
             sessionToken: 'asessiontoken',
             verified: false
-          });
+          }));
         });
 
         return view.submit()
@@ -173,10 +177,10 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         });
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p({
+          return p(user.createAccount({
             sessionToken: 'asessiontoken',
             verified: true
-          });
+          }));
         });
 
         sinon.stub(broker, 'afterSignIn', function () {
@@ -203,11 +207,11 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         });
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p({
+          return p(user.createAccount({
             sessionToken: 'asessiontoken',
             // verified: false simulates the preVerifyToken failing.
             verified: false
-          });
+          }));
         });
 
 

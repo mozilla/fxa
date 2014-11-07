@@ -33,12 +33,15 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       this.prefillEmail = Session.prefillEmail || this.searchParam('email');
 
       var suggestedAccount = this._suggestedAccount();
+      var hasSuggestedAccount = suggestedAccount.get('email');
+      var email = hasSuggestedAccount ?
+                    suggestedAccount.get('email') : this.prefillEmail;
 
       return {
         service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName'),
-        email: this.prefillEmail,
-        suggestedAccount: suggestedAccount,
+        email: email,
+        suggestedAccount: hasSuggestedAccount,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         password: Session.prefillPassword,
         error: this.error
@@ -102,7 +105,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
         }
       })
       .then(function (accountData) {
-        if (accountData.verified) {
+        if (self.user.createAccount(accountData).get('verified')) {
           self.logScreenEvent('success');
           return self.onSignInSuccess();
         } else {
@@ -136,7 +139,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
 
     onSignInUnverified: function () {
       var self = this;
-      var sessionToken = self.currentAccount().sessionToken;
+      var sessionToken = self.currentAccount().get('sessionToken');
 
       return self.fxaClient.signUpResend(self.relier, sessionToken)
         .then(function () {
@@ -168,8 +171,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       var self = this;
       var account = this._suggestedAccount();
 
-      return this._signIn(account.email, {
-        sessionToken: account.sessionToken
+      return this._signIn(account.get('email'), {
+        sessionToken: account.get('sessionToken')
       })
       .fail(
         function () {
@@ -207,13 +210,13 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
 
       if (
         // confirm that session email is present
-        account && account.email && account.sessionToken &&
+        account.get('email') && account.get('sessionToken') &&
         // prefilled email must be the same or absent
-        (this.prefillEmail === account.email || ! this.prefillEmail)
+        (this.prefillEmail === account.get('email') || ! this.prefillEmail)
       ) {
         return account;
       } else {
-        return null;
+        return this.user.createAccount();
       }
     },
 
@@ -237,7 +240,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       // shows when 'chooserAskForPassword' already set or
       return !!(this.chooserAskForPassword === true ||
           // or when a prefill email does not match the account email
-          (this.prefillEmail && this.prefillEmail !== account.email));
+          (this.prefillEmail && this.prefillEmail !== account.get('email')));
     }
   });
 

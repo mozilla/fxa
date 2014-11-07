@@ -64,23 +64,19 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(user, 'getCurrentAccount', function () {
+        sinon.stub(view, 'currentAccount', function () {
           return account;
         });
-      });
-
-      it('hashed email', function () {
-        view = new View({
-          user: user,
-          router: routerMock
-        });
-        assert.equal(view.hashedEmail, '0bc83cb571cd1c50ba6f3e8a78ef1346');
-      });
-
-      it('not found', function () {
         view.isUserAuthorized = function () {
           return true;
         };
+      });
+
+      it('hashed email', function () {
+        assert.equal(view.hashedEmail(), '0bc83cb571cd1c50ba6f3e8a78ef1346');
+      });
+
+      it('not found', function () {
         return view.render()
           .then(function () {
             return view._showGravatar()
@@ -92,10 +88,6 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
       });
 
       it('found', function () {
-        view.isUserAuthorized = function () {
-          return true;
-        };
-        view.hashedEmail = EMAIL_HASH;
         view.automatedBrowser = true;
 
         return view.render()
@@ -107,13 +99,6 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
       describe('submitting', function () {
         beforeEach(function () {
           profileClientMock = new ProfileMock();
-          view = new View({
-            user: user,
-            router: routerMock
-          });
-          view.isUserAuthorized = function () {
-            return true;
-          };
           sinon.stub(account, 'profileClient', function () {
             return p(profileClientMock);
           });

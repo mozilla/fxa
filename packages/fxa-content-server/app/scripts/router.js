@@ -154,7 +154,8 @@ function (
     },
 
     redirectToSignupOrSettings: function () {
-      var url = this.user.getCurrentAccount() ? '/settings' : '/signup';
+      var url = this.user.getCurrentAccount().get('sessionToken') ?
+                  '/settings' : '/signup';
       this.navigate(url, { trigger: true, replace: true });
     },
 

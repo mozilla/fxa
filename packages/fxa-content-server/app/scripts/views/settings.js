@@ -30,7 +30,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
       // it exists in our list of cached accounts. If it doesn't,
       // clear the current account.
       // The `mustVerify` flag will ensure that the account is valid.
-      if (uid && self.user.getAccountByUid(uid)) {
+      if (self.user.getAccountByUid(uid).get('uid')) {
         self.user.setCurrentAccountByUid(uid);
       } else if (uid) {
         Session.clear();
@@ -40,7 +40,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
 
     context: function () {
       return {
-        email: this.currentAccount().email,
+        email: this.currentAccount().get('email'),
         showSignOut: !this.currentAccount().isFromSync()
       };
     },
@@ -52,7 +52,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
 
     submit: function () {
       var self = this;
-      return self.fxaClient.signOut(self.currentAccount().sessionToken)
+      return self.fxaClient.signOut(self.currentAccount().get('sessionToken'))
               .then(function () {
                 // user's session is gone
                 self.user.clearCurrentAccount();

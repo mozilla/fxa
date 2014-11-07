@@ -35,8 +35,8 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       var account = user.createAccount({
         email: email
       });
-      assert.equal(account.email, email);
-      assert.ok(account.toData());
+      assert.equal(account.get('email'), email);
+      assert.ok(account.toJSON());
     });
 
     it('isSyncAccount', function () {
@@ -51,14 +51,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
     it('getAccountByUid', function () {
       return user.setAccount({ uid: 'uid', email: 'email' })
         .then(function () {
-          assert.ok(user.getAccountByUid('uid'));
+          assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
         });
     });
 
     it('getAccountByEmail', function () {
       return user.setAccount({ uid: 'uid', email: 'email' })
         .then(function () {
-          assert.ok(user.getAccountByEmail('email'));
+          assert.equal(user.getAccountByEmail('email').get('email'), 'email');
         });
     });
 
@@ -66,7 +66,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       var account = user.createAccount({ uid: 'uid', email: 'email' });
       return user.setCurrentAccount(account)
         .then(function () {
-          assert.equal(user.getCurrentAccount().uid, account.uid);
+          assert.equal(user.getCurrentAccount().get('uid'), account.get('uid'));
         });
     });
 
@@ -78,7 +78,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
           return user.setCurrentAccount({ uid: 'uid', email: 'email' });
         })
         .then(function () {
-          assert.equal(user.getChooserAccount().uid, 'uid2');
+          assert.equal(user.getChooserAccount().get('uid'), 'uid2');
         });
     });
 
@@ -86,8 +86,8 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       return user.setCurrentAccount({ uid: 'uid', email: 'email' })
         .then(function () {
           user.clearCurrentAccount();
-          assert.isNull(user.getCurrentAccount());
-          assert.ok(user.getAccountByUid('uid'));
+          assert.isTrue(user.getCurrentAccount().isEmpty());
+          assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
         });
     });
 
@@ -96,8 +96,8 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       return user.setCurrentAccount(account)
         .then(function () {
           user.removeAccount(account);
-          assert.isNull(user.getAccountByUid(account.uid));
-          assert.isNull(user.getCurrentAccount());
+          assert.isTrue(user.getAccountByUid(account.uid).isEmpty());
+          assert.isTrue(user.getCurrentAccount().isEmpty());
         });
     });
 
@@ -108,8 +108,8 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         })
         .then(function () {
           user.removeAllAccounts();
-          assert.isNull(user.getAccountByUid('uid'));
-          assert.isNull(user.getAccountByUid('uid2'));
+          assert.isTrue(user.getAccountByUid('uid').isEmpty());
+          assert.isTrue(user.getAccountByUid('uid2').isEmpty());
         });
     });
 
@@ -120,7 +120,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
     it('setCurrentAccount', function () {
       return user.setCurrentAccount({ uid: 'uid', email: 'email' })
         .then(function () {
-          assert.equal(user.getCurrentAccount().uid, 'uid');
+          assert.equal(user.getCurrentAccount().get('uid'), 'uid');
         });
     });
 
@@ -132,7 +132,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
           return user.setAccount({ uid: uid, email: 'email' })
             .then(function () {
               user.setCurrentAccountByUid(uid);
-              assert.equal(user.getCurrentAccount().uid, uid);
+              assert.equal(user.getCurrentAccount().get('uid'), uid);
             });
         });
     });
@@ -143,7 +143,33 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       return user.setCurrentAccount({ uid: 'uid', email: 'email' })
         .then(function () {
           user.setCurrentAccountByUid(uid);
-          assert.equal(user.getCurrentAccount().uid, 'uid');
+          assert.equal(user.getCurrentAccount().get('uid'), 'uid');
+        });
+    });
+
+
+    it('does not upgrade if already upgraded', function () {
+      var accountData = {
+        email: 'a@a.com',
+        sessionToken: 'session token',
+        sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+        uid: 'uid'
+      };
+      Session.set('cachedCredentials', accountData);
+
+      sinon.stub(user, 'getCurrentAccount', function () {
+        return user.createAccount({
+          email: 'b@b.com',
+          sessionToken: 'session token',
+        });
+      });
+
+      sinon.stub(user, 'setCurrentAccount', function () { });
+
+      return user.upgradeFromSession(Session, fxaClientMock)
+        .then(function () {
+          assert.isTrue(user.getCurrentAccount.called);
+          assert.isTrue(user.getAccountByEmail('b@b.com').isEmpty());
         });
     });
 

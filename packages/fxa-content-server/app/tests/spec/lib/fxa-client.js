@@ -270,7 +270,10 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
 
         return client.signIn(email, password, relier, user, {
           customizeSync: true
-        });
+        })
+          .then(function () {
+            assert.isTrue(user.setCurrentAccount.called);
+          });
       });
     });
 

@@ -77,6 +77,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
         });
         account = user.createAccount({
           email: 'a@a.com',
+          sessionToken: 'abc123',
           verified: true
         });
 
@@ -182,7 +183,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
           $('#new_password').val('new_password');
 
           var email = 'testuser@testuser.com';
-          account.email = email;
+          account.set('email', email);
           var oldPassword = 'password';
           var newPassword = 'new_password';
 
@@ -215,8 +216,8 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
           $('#new_password').val('new_password');
 
           var email = 'testuser@testuser.com';
-          account.email = email;
-          account.sessionTokenContext = 'foo';
+          account.set('email', email);
+          account.set('sessionTokenContext', 'foo');
 
           sinon.stub(view.fxaClient, 'checkPassword', function () {
             return p();

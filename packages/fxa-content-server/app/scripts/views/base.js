@@ -150,15 +150,19 @@ function (_, Backbone, $, p, AuthErrors,
             return false;
           }
 
-          return self.isUserVerified()
-            .then(function (isUserVerified) {
-              if (! isUserVerified) {
-                // user is not verified, prompt them to verify.
-                self.navigate('confirm');
-              }
+          if (self.mustVerify) {
+            return self.isUserVerified()
+              .then(function (isUserVerified) {
+                if (! isUserVerified) {
+                  // user is not verified, prompt them to verify.
+                  self.navigate('confirm');
+                }
 
-              return isUserVerified;
-            });
+                return isUserVerified;
+              });
+          }
+
+          return true;
         });
     },
 
@@ -201,32 +205,29 @@ function (_, Backbone, $, p, AuthErrors,
      * authorization as well.
      */
     isUserAuthorized: function () {
-      var account;
+      var sessionToken;
 
       if (this.mustAuth || this.mustVerify) {
-        account = this.currentAccount();
-        return !!account && this.fxaClient.isSignedIn(account.sessionToken);
+        sessionToken = this.currentAccount().get('sessionToken');
+        return !!sessionToken && this.fxaClient.isSignedIn(sessionToken);
       }
       return true;
     },
 
     isUserVerified: function () {
       var self = this;
-      var account;
-      if (self.mustVerify) {
-        account = self.currentAccount();
-        // If the cached account data shows it hasn't been verified,
-        // check again and update the data if it has.
-        if (! account.verified) {
-          return account.isVerified()
-            .then(function (hasVerified) {
-              if (hasVerified) {
-                account.verified = hasVerified;
-                self.user.setAccount(account);
-              }
-              return hasVerified;
-            });
-        }
+      var account = self.currentAccount();
+      // If the cached account data shows it hasn't been verified,
+      // check again and update the data if it has.
+      if (! account.get('verified')) {
+        return account.isVerified()
+          .then(function (hasVerified) {
+            if (hasVerified) {
+              account.set('verified', hasVerified);
+              self.user.setAccount(account);
+            }
+            return hasVerified;
+          });
       }
 
       return p(true);

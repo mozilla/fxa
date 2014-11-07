@@ -193,10 +193,10 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       var sessionToken = 'abc123';
 
       beforeEach(function () {
-        sinon.stub(user, 'getCurrentAccount', function () {
-          return {
+        sinon.stub(view, 'currentAccount', function () {
+          return user.createAccount({
             sessionToken: sessionToken
-          };
+          });
         });
       });
 
