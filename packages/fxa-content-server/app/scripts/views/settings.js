@@ -30,7 +30,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
       // it exists in our list of cached accounts. If it doesn't,
       // clear the current account.
       // The `mustVerify` flag will ensure that the account is valid.
-      if (self.user.getAccountByUid(uid).get('uid')) {
+      if (! self.user.getAccountByUid(uid).isEmpty()) {
         self.user.setCurrentAccountByUid(uid);
       } else if (uid) {
         Session.clear();

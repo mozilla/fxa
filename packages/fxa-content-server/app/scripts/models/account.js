@@ -80,9 +80,11 @@ define([
       return this.get('sessionTokenContext') === Constants.FX_DESKTOP_CONTEXT;
     },
 
+    // returns true if all attributes within ALLOWED_KEYS are undefined
     isEmpty: function () {
-      return ! _.find(this.attributes, function (attr) {
-        return !!attr;
+      var self = this;
+      return ! _.find(ALLOWED_KEYS, function (key) {
+        return typeof self.get(key) !== 'undefined';
       });
     },
 

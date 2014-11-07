@@ -29,6 +29,7 @@ define([
   var SECOND_PASSWORD = 'new_password';
   var email;
   var client;
+  var accountData;
 
 
   registerSuite({
@@ -43,7 +44,8 @@ define([
 
       var self = this;
       return client.signUp(email, FIRST_PASSWORD, { preVerified: true })
-              .then(function () {
+              .then(function (result) {
+                accountData = result;
                 return FunctionalHelpers.clearBrowserState(self);
               });
     },
@@ -176,6 +178,116 @@ define([
         // success is going to the signup page
         .findById('fxa-signup-header')
         .end();
+    },
+
+    'visit settings page with an unknown uid parameter redirects to signin': function () {
+      var self = this;
+
+      return self.get('remote')
+        .get(require.toUrl(SIGNIN_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-settings-header')
+        .end()
+
+        .get(require.toUrl(SETTINGS_URL + '?uid=baduid'))
+        // Expect to get redirected to sign in since the uid is unknown
+        .findById('fxa-signin-header')
+        .end();
+    },
+
+    'visit settings page with a known uid does not redirect': function () {
+      var self = this;
+
+      return self.get('remote')
+        .get(require.toUrl(SIGNIN_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-settings-header')
+        .end()
+
+        .get(require.toUrl(SETTINGS_URL + '?uid=' + accountData.uid))
+        .findById('fxa-settings-header')
+        .end();
     }
+
+  });
+
+  registerSuite({
+    name: 'settings unverified',
+
+    beforeEach: function () {
+      email = TestHelpers.createEmail();
+
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+
+      var self = this;
+      return client.signUp(email, FIRST_PASSWORD)
+              .then(function () {
+                return FunctionalHelpers.clearBrowserState(self);
+              });
+    },
+
+    teardown: function () {
+      return FunctionalHelpers.clearBrowserState(this);
+    },
+
+    'visit settings page with an unverified account redirects to confirm': function () {
+      var self = this;
+
+      return self.get('remote')
+        .get(require.toUrl(SIGNIN_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(FIRST_PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-confirm-header')
+        .end()
+
+        .get(require.toUrl(SETTINGS_URL))
+        // Expect to get redirected to confirm since the account is unverified
+        .findById('fxa-confirm-header')
+        .end();
+    }
+
   });
 });

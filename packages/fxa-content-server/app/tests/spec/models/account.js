@@ -287,6 +287,10 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
         assert.isTrue(new Account().isEmpty());
       });
 
+      it('true for account with data that is not in one of its allowed keys', function () {
+        assert.isTrue(new Account({ assertion: 'blah' }).isEmpty());
+      });
+
       it('not true for account with data', function () {
         assert.isFalse(new Account({ email: 'a@a.com' }).isEmpty());
       });
