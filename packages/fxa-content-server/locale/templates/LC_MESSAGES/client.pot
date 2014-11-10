@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2014-10-10 00:13+0000\n"
+"POT-Creation-Date: 2014-11-10 18:39+0000\n"
 
 #: app/scripts/templates/sign_up.mustache:15
 msgid "1991"
@@ -78,26 +78,26 @@ msgstr ""
 msgid "2007"
 msgstr ""
 
-#: app/scripts/views/base.js:551
+#: app/scripts/views/base.js:568
 msgid "missing search parameter: %(itemName)s"
 msgstr ""
 
-#: app/scripts/views/change_password.js:61
+#: app/scripts/views/change_password.js:72
 msgid "Password changed"
 msgstr ""
 
-#: app/scripts/views/change_password.js:65
+#: app/scripts/views/change_password.js:76
 msgid ""
 "Unverified account. <a href=\"#\" id=\"resend\">Resend verification "
 "email</a>."
 msgstr ""
 
-#: app/scripts/views/confirm_reset_password.js:166
+#: app/scripts/views/confirm_reset_password.js:157
 #: app/scripts/templates/ready.mustache:3
 msgid "Password reset"
 msgstr ""
 
-#: app/scripts/views/confirm_reset_password.js:182
+#: app/scripts/views/confirm_reset_password.js:176
 msgid "Password reset. Sign in to continue."
 msgstr ""
 
@@ -105,12 +105,12 @@ msgstr ""
 msgid "Account deleted successfully"
 msgstr ""
 
-#: app/scripts/views/force_auth.js:44
+#: app/scripts/views/force_auth.js:37
 msgid "/force_auth requires an email"
 msgstr ""
 
 #: app/scripts/views/reset_password.js:76
-#: app/scripts/views/sign_in.js:145
+#: app/scripts/views/sign_in.js:142
 msgid "Unknown account. <a href=\"/signup\">Sign up</a>"
 msgstr ""
 
@@ -118,7 +118,7 @@ msgstr ""
 msgid "Signed out"
 msgstr ""
 
-#: app/scripts/views/sign_up.js:325
+#: app/scripts/views/sign_up.js:339
 msgid "Account already exists. <a href=\"/signin\">Sign in</a>"
 msgstr ""
 
@@ -132,8 +132,11 @@ msgstr ""
 
 #: app/scripts/lib/auth-errors.js:61
 #: app/scripts/lib/auth-errors.js:98
-#: app/scripts/lib/oauth-errors.js:41
-#: app/scripts/lib/profile-client.js:121
+#: app/scripts/lib/oauth-errors.js:44
+#: app/scripts/lib/oauth-errors.js:46
+#: app/scripts/lib/oauth-errors.js:47
+#: app/scripts/lib/oauth-errors.js:48
+#: app/scripts/lib/profile-client.js:120
 #: app/scripts/templates/unexpected_error.mustache:1
 msgid "Unexpected error"
 msgstr ""
@@ -151,7 +154,6 @@ msgid "Invalid nonce in request signature"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:65
-#: app/scripts/lib/strings.js:25
 msgid "Account already exists"
 msgstr ""
 
@@ -180,8 +182,8 @@ msgid "Invalid JSON in request body"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:72
-#: app/scripts/lib/oauth-errors.js:36
-#: app/scripts/lib/profile-client.js:115
+#: app/scripts/lib/oauth-errors.js:39
+#: app/scripts/lib/profile-client.js:114
 msgid "Invalid parameter in request body: %(param)s"
 msgstr ""
 
@@ -190,7 +192,7 @@ msgid "Missing parameter in request body: %(param)s"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:74
-#: app/scripts/lib/oauth-errors.js:37
+#: app/scripts/lib/oauth-errors.js:40
 msgid "Invalid request signature"
 msgstr ""
 
@@ -215,8 +217,8 @@ msgid "This endpoint is no longer supported"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:82
-#: app/scripts/lib/oauth-errors.js:40
-#: app/scripts/lib/profile-client.js:120
+#: app/scripts/lib/oauth-errors.js:43
+#: app/scripts/lib/profile-client.js:119
 msgid "System unavailable, try again soon"
 msgstr ""
 
@@ -249,7 +251,6 @@ msgid "Your new password must be different"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:90
-#: app/scripts/lib/strings.js:23
 #: app/scripts/templates/change_password.mustache:7
 #: app/scripts/templates/complete_reset_password.mustache:14
 #: app/scripts/templates/sign_up.mustache:11
@@ -257,17 +258,14 @@ msgid "Must be at least 8 characters"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:91
-#: app/scripts/lib/strings.js:19
 msgid "Valid password required"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:92
-#: app/scripts/lib/strings.js:18
 msgid "Valid email required"
 msgstr ""
 
 #: app/scripts/lib/auth-errors.js:93
-#: app/scripts/lib/strings.js:24
 msgid "Year of birth required"
 msgstr ""
 
@@ -287,31 +285,31 @@ msgstr ""
 msgid "Valid birthday required"
 msgstr ""
 
-#: app/scripts/lib/oauth-errors.js:33
+#: app/scripts/lib/oauth-errors.js:36
 msgid "Unknown client"
 msgstr ""
 
-#: app/scripts/lib/oauth-errors.js:34
+#: app/scripts/lib/oauth-errors.js:37
 msgid "Incorrect redirect_uri"
 msgstr ""
 
-#: app/scripts/lib/oauth-errors.js:35
+#: app/scripts/lib/oauth-errors.js:38
 msgid "Invalid assertion"
 msgstr ""
 
-#: app/scripts/lib/oauth-errors.js:42
+#: app/scripts/lib/oauth-errors.js:45
 msgid "Something went wrong. Please close this tab and try again."
 msgstr ""
 
-#: app/scripts/lib/profile-client.js:114
+#: app/scripts/lib/profile-client.js:113
 msgid "Unauthorized"
 msgstr ""
 
-#: app/scripts/lib/profile-client.js:116
+#: app/scripts/lib/profile-client.js:115
 msgid "Unsupported image provider"
 msgstr ""
 
-#: app/scripts/lib/profile-client.js:117
+#: app/scripts/lib/profile-client.js:116
 msgid "Image processing error"
 msgstr ""
 
@@ -319,39 +317,13 @@ msgstr ""
 msgid "Firefox Sync"
 msgstr ""
 
-#: app/scripts/lib/strings.js:20
-msgid "Invalid password"
+#: app/scripts/lib/strings.js:17
+msgid ""
+"Your verification email was just returned. Mistyped email? <a "
+"href=\"/signup\">Start over.</a>"
 msgstr ""
 
 #: app/scripts/lib/strings.js:21
-msgid "Invalid email and password"
-msgstr ""
-
-#: app/scripts/lib/strings.js:22
-msgid "Invalid email or password"
-msgstr ""
-
-#: app/scripts/lib/strings.js:26
-msgid "Old password invalid"
-msgstr ""
-
-#: app/scripts/lib/strings.js:27
-msgid "New password invalid"
-msgstr ""
-
-#: app/scripts/lib/strings.js:28
-msgid "Passwords don't match"
-msgstr ""
-
-#: app/scripts/lib/strings.js:29
-msgid "Please enter an email"
-msgstr ""
-
-#: app/scripts/lib/strings.js:30
-msgid "Cannot connect to the internet"
-msgstr ""
-
-#: app/scripts/lib/strings.js:34
 msgid "Subscribe to Firefox news and tips"
 msgstr ""
 
@@ -363,7 +335,7 @@ msgstr ""
 msgid "You must meet certain age requirements to create a Firefox&nbsp;Account."
 msgstr ""
 
-#: app/scripts/templates/cannot_create_account.mustache:3
+#: app/scripts/templates/cannot_create_account.mustache:4
 msgid "Learn more."
 msgstr ""
 
