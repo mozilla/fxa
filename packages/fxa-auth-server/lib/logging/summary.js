@@ -12,14 +12,22 @@ module.exports = function summary(request, response) {
   var query = request.query || {};
   var params = request.params || {};
 
+  var auth = request.auth && request.auth.credentials && {
+    user: request.auth.credentials.user,
+    scope: request.auth.credentials.scope
+  };
+
   var line = {
     code: response.isBoom ? response.output.statusCode : response.statusCode,
     errno: response.errno || 0,
+    method: request.method,
     path: request.path,
     agent: request.headers['user-agent'],
     t: Date.now() - request.info.received,
     /*jshint camelcase: false*/
-    client_id: payload.client_id || query.client_id || params.client_id
+    client_id: payload.client_id || query.client_id || params.client_id,
+    auth: auth,
+    payload: Object.keys(payload)
   };
 
   if (line.code >= 500) {
