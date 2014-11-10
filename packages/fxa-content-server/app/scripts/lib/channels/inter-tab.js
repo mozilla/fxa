@@ -23,13 +23,13 @@ define([
       // Sensitive data is sent across the channel and should only
       // be in localStorage if absolutely necessary. Only send
       // data if another tab is listening.
-      if (this._crosstab.util.tabCount() > 1) {
-        try {
+      try {
+        if (this._crosstab.util.tabCount() > 1) {
           this._crosstab.broadcast(name, data, null);
-        } catch (e) {
-          // this can blow up if the browser does not support localStorage
-          // or if on a mobile device. Ignore the error.
         }
+      } catch (e) {
+        // this can blow up if the browser does not support localStorage
+        // or if on a mobile device. Ignore the error.
       }
     },
 
