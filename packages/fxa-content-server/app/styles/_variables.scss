@@ -45,8 +45,13 @@ $short-transition: 150ms;
 $medium-transition: $short-transition * 3;
 $long-transition: $short-transition * 7;
 
+//Settings UI Height Hack
+$settings-ui-height: 630px;
+
+//Avatar Variables
 $avatar-size: 240px;
 
+//Font Mixins
 @mixin font() {
   font-family: $default-font;
 }
