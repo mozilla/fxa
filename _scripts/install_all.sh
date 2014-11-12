@@ -2,18 +2,20 @@
 
 # Clone all the projects
 
-git clone https://github.com/mozilla/fxa-content-server.git
-git clone https://github.com/mozilla/fxa-auth-server.git
-git clone https://github.com/vladikoff/browserid-verifier.git -b http
+git clone https://github.com/mozilla/fxa-content-server.git &
+git clone https://github.com/mozilla/fxa-auth-server.git &
+git clone https://github.com/vladikoff/browserid-verifier.git -b http &
 
-git clone https://github.com/mozilla/fxa-oauth-server.git
-git clone https://github.com/mozilla/fxa-oauth-console.git
+git clone https://github.com/mozilla/fxa-oauth-server.git &
+git clone https://github.com/mozilla/fxa-oauth-console.git &
 
-git clone https://github.com/mozilla/fxa-profile-server.git
+git clone https://github.com/mozilla/fxa-profile-server.git &
 
-git clone https://github.com/mozilla/123done.git -b oauth
+git clone https://github.com/mozilla/123done.git -b oauth &
 
-git clone https://github.com/mozilla-services/loop-server.git
+git clone https://github.com/mozilla-services/loop-server.git &
+
+wait
 
 # Install and Setup all the projects
 

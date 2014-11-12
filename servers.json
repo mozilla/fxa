@@ -97,6 +97,12 @@
         "PORT": "5050"
       },
       "max_restarts": "1"      
+    },
+    {
+      "name": "redis-server PORT 6379",
+      "script": "redis.sh",
+      "cwd": "_scripts",
+      "max_restarts": "1"
     }
   ]
 }
