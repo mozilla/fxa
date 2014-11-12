@@ -6,14 +6,19 @@
 ### Getting Started
 
 - Install required system [dependencies](#dependencies)
-- Clone this repository and run `npm install`. This is the command:
+- Clone this repository and run `npm install`. Here is the full command:
 ```
 git clone https://github.com/vladikoff/fxa-local-dev.git && cd fxa-local-dev && npm i
 ``` 
 
-- Run `pm2 status` to display running servers, such as [127.0.0.1:3030](http://127.0.0.1:3030/) and [127.0.0.1:8080](http://127.0.0.1:8080/). 
-- Run `pm2 logs` and make sure there are no startup errors from the servers.
+After installation completes you can visit [127.0.0.1:3030](http://127.0.0.1:3030/) and use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to start, stop and read server logs.  Most common commands are as follows:
 
+- `pm2 start servers.json` **- start all servers.** (warning: running this multiple times will spawn more of the same servers).
+- `pm2 kill` **- stop all servers.**
+- `pm2 status` - display running servers. 
+- `pm2 logs` - logs for all servers (note: this must be used to verify accounts).
+- `pm2 logs 1` - display logs for process `1`.
+- More commands on the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
 ### Dependencies
 
