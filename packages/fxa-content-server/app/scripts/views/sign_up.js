@@ -133,6 +133,10 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         return false;
       }
 
+      if (this._isEmailFirefoxDomain()) {
+        return false;
+      }
+
       if (! this._validateYear()) {
         return false;
       }
@@ -148,6 +152,9 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       if (this._isEmailSameAsBouncedEmail()) {
         this.showValidationError('input[type=email]',
                 AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
+      } else if (this._isEmailFirefoxDomain()) {
+        this.showValidationError('input[type=email]',
+                AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN'));
       } else if (! this._validateYear()) {
         //next two lines deal with ff30's select list regression
         var selectYearRow = $('#fxa-age-year').parent();
@@ -224,6 +231,18 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       return (userAge.year === CUTOFF_AGE.year &&
                  userAge.month === CUTOFF_AGE.month &&
                  userAge.date <= CUTOFF_AGE.date);
+    },
+
+    _isEmailFirefoxDomain: function () {
+      var email = this.$('.email').val();
+
+      // some users input a "@firefox.com" email.
+      // this is not a valid email at this time, therefore we block the attempt.
+      if (email.indexOf('@firefox.com') >= 0) {
+        return true;
+      }
+
+      return false;
     },
 
     _cannotCreateAccount: function () {
