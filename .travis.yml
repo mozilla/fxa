@@ -14,7 +14,7 @@ before_install:
 
 script:
   - npm i
-  - sleep 20
+  - sleep 30
   - curl 127.0.0.1:3030
   - curl 127.0.0.1:9000
   - curl 127.0.0.1:9001
