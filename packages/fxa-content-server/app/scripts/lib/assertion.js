@@ -85,7 +85,7 @@ function (P, jwcrypto) {
   function Assertion(options) {
     options = options || {};
     this._fxaClient = options.fxaClient;
-    this._audience = options._audience;
+    this._audience = options.audience;
   }
 
   Assertion.prototype = {

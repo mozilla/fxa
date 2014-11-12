@@ -9,33 +9,35 @@ define([
   'sinon',
   'underscore',
   'models/auth_brokers/fx-desktop',
-  'models/reliers/relier',
+  'models/user',
   'lib/constants',
   'lib/auth-errors',
   'lib/channels/null',
   'lib/promise',
   'lib/session',
   '../../../mocks/window'
-], function (chai, sinon, _, FxDesktopAuthenticationBroker, Relier, Constants,
-        AuthErrors, NullChannel, p, Session, WindowMock) {
+], function (chai, sinon, _, FxDesktopAuthenticationBroker, User,
+        Constants, AuthErrors, NullChannel, p, Session, WindowMock) {
   var assert = chai.assert;
 
   describe('models/auth_brokers/fx-desktop', function () {
     var windowMock;
-    var relierMock;
     var channelMock;
     var broker;
+    var user;
+    var account;
 
     beforeEach(function () {
       windowMock = new WindowMock();
-      relierMock = new Relier();
       channelMock = new NullChannel();
+      user = new User();
+      account = user.createAccount();
 
       broker = new FxDesktopAuthenticationBroker({
         window: windowMock,
-        relier: relierMock,
         channel: channelMock,
-        session: Session
+        session: Session,
+        user: user
       });
     });
 
@@ -93,8 +95,29 @@ define([
           }
         });
 
-        Session.set('email', 'testuser@testuser.com');
-        return broker._notifyRelierOfLogin()
+        var account = {
+          email: 'testuser@testuser.com'
+        };
+        return broker._notifyRelierOfLogin(account)
+          .then(function () {
+            assert.equal(data.email, 'testuser@testuser.com');
+            assert.isFalse(data.verifiedCanLinkAccount);
+          });
+      });
+      it('sends a `login` message to the channel using current account data', function () {
+        var data;
+        sinon.stub(channelMock, 'send', function (message, _data, done) {
+          if (message === 'login') {
+            data = _data;
+
+            done(null);
+          }
+        });
+
+        var account = {
+          email: 'testuser@testuser.com'
+        };
+        return broker._notifyRelierOfLogin(account)
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
             assert.isFalse(data.verifiedCanLinkAccount);
@@ -112,10 +135,12 @@ define([
           }
         });
 
-        Session.set('email', 'testuser@testuser.com');
+        var account = {
+          email: 'testuser@testuser.com'
+        };
         return broker.beforeSignIn('testuser@testuser.com')
           .then(function () {
-            return broker._notifyRelierOfLogin();
+            return broker._notifyRelierOfLogin(account);
           })
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
@@ -130,9 +155,13 @@ define([
           return p();
         });
 
-        return broker.afterSignIn()
+        var account = {
+          email: 'testuser@testuser.com'
+        };
+
+        return broker.afterSignIn(account)
           .then(function () {
-            assert.isTrue(broker._notifyRelierOfLogin.called);
+            assert.isTrue(broker._notifyRelierOfLogin.calledWith(account));
           });
       });
     });
@@ -143,9 +172,13 @@ define([
           return p();
         });
 
-        return broker.beforeSignUpConfirmationPoll()
+        var account = {
+          email: 'testuser@testuser.com'
+        };
+
+        return broker.beforeSignUpConfirmationPoll(account)
           .then(function () {
-            assert.isTrue(broker._notifyRelierOfLogin.called);
+            assert.isTrue(broker._notifyRelierOfLogin.calledWith(account));
           });
       });
     });

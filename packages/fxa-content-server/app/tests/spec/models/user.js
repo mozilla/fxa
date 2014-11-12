@@ -222,7 +222,9 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         };
       });
 
-      sinon.stub(user, 'setCurrentAccount', function () { });
+      sinon.stub(user, 'setCurrentAccount', function () {
+        return p();
+      });
 
       return user.upgradeFromSession(Session, fxaClientMock)
         .then(function () {

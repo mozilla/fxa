@@ -60,7 +60,7 @@ define([
 
     getOAuthResult: function () {
       var self = this;
-      var sessionToken = this._user.getCurrentAccount().sessionToken;
+      var sessionToken = this._user.getCurrentAccount().get('sessionToken');
       return self._assertionLibrary.generate(sessionToken)
         .then(function (assertion) {
           var relier = self.relier;

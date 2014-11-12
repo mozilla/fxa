@@ -5,7 +5,8 @@
 'use strict';
 
 define([
-], function () {
+  'intern/chai!assert'
+], function (assert) {
 
   /**
    * Listens for FirefoxAccountsCommand events coming from FxA and
@@ -42,7 +43,7 @@ define([
 
       var element = document.createElement('div');
       element.setAttribute('id', 'message-' + command);
-      element.innerText = command;
+      element.innerText = JSON.stringify(e.detail.data);
       document.body.appendChild(element);
 
       sendMessageToFxa({
@@ -53,9 +54,16 @@ define([
     return true;
   }
 
-  function testIsBrowserNotifiedOfLogin(context) {
+  function testIsBrowserNotifiedOfLogin(context, email) {
     return context.get('remote')
       .findByCssSelector('#message-login')
+        .getProperty('innerText')
+        .then(function (innerText) {
+          var data = JSON.parse(innerText);
+          assert.equal(data.email, email);
+          assert.ok(data.unwrapBKey);
+          assert.ok(data.keyFetchToken);
+        })
       .end();
   }
 

@@ -226,7 +226,8 @@ function (
           this._authenticationBroker = new FxDesktopAuthenticationBroker({
             window: this._window,
             relier: this._relier,
-            session: Session
+            session: Session,
+            user: this._user
           });
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({

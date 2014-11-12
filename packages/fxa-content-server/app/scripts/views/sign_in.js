@@ -107,9 +107,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       .then(function (accountData) {
         if (self.user.createAccount(accountData).get('verified')) {
           self.logScreenEvent('success');
-          return self.onSignInSuccess();
+          return self.onSignInSuccess(accountData);
         } else {
-          return self.onSignInUnverified();
+          return self.onSignInUnverified(accountData);
         }
       })
       .then(null, function (err) {
@@ -125,9 +125,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       });
     },
 
-    onSignInSuccess: function () {
+    onSignInSuccess: function (accountData) {
       var self = this;
-      return self.broker.afterSignIn()
+      return self.broker.afterSignIn(accountData)
         .then(function (result) {
           if (! (result && result.halt)) {
             self.navigate('settings');
@@ -137,13 +137,17 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
         });
     },
 
-    onSignInUnverified: function () {
+    onSignInUnverified: function (accountData) {
       var self = this;
       var sessionToken = self.currentAccount().get('sessionToken');
 
       return self.fxaClient.signUpResend(self.relier, sessionToken)
         .then(function () {
-          self.navigate('confirm');
+          self.navigate('confirm', {
+            data: {
+              accountData: accountData
+            }
+          });
         });
     },
 

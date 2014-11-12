@@ -161,7 +161,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
         .then(function () {
           self.displaySuccess(t('Password reset'));
 
-          return self.broker.afterResetPasswordConfirmationPoll()
+          return self.broker.afterResetPasswordConfirmationPoll(sessionInfo)
             .then(function (result) {
               if (! (result && result.halt)) {
                 self.navigate('reset_password_complete');

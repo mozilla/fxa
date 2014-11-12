@@ -40,7 +40,7 @@ define([
 
       return this._fetchProfileImage(account)
         .then(function (result) {
-          if (result.avatar) {
+          if (result && result.avatar) {
             self.$('.avatar-wrapper').append(new Image());
             self.$('.avatar-wrapper img').attr('src', result.avatar);
           }

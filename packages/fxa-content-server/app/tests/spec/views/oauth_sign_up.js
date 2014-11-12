@@ -149,10 +149,10 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         });
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p(user.createAccount({
+          return p({
             sessionToken: 'asessiontoken',
             verified: false
-          }));
+          });
         });
 
         return view.submit()
@@ -177,10 +177,10 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         });
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p(user.createAccount({
+          return p({
             sessionToken: 'asessiontoken',
             verified: true
-          }));
+          });
         });
 
         sinon.stub(broker, 'afterSignIn', function () {
@@ -207,11 +207,11 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         });
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p(user.createAccount({
+          return p({
             sessionToken: 'asessiontoken',
             // verified: false simulates the preVerifyToken failing.
             verified: false
-          }));
+          });
         });
 
 

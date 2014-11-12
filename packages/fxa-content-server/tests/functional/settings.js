@@ -104,7 +104,7 @@ define([
         .end()
 
         .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
+          return testIsBrowserNotifiedOfLogin(self, email);
         })
 
         .get(require.toUrl(SETTINGS_URL))

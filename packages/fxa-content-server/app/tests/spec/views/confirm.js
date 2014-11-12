@@ -20,8 +20,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
-      EphemeralMessages, View, OAuthRelier, OAuthBroker, User, WindowMock,
-      RouterMock, TestHelpers) {
+      EphemeralMessages, View, OAuthRelier, OAuthBroker, User,
+      WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -34,12 +34,14 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
     var fxaClient;
     var relier;
     var broker;
-    var ephemeralMessages;
     var user;
     var account;
+    var accountData;
+    var ephemeralMessages;
 
     beforeEach(function () {
 
+      ephemeralMessages = new EphemeralMessages();
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       windowMock.location.pathname = 'confirm';
@@ -65,6 +67,12 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       sinon.stub(user, 'getCurrentAccount', function () {
         return account;
       });
+      accountData = {
+        email: 'a@a.com'
+      };
+      ephemeralMessages.set('data', {
+        accountData: accountData
+      });
 
       view = new View({
         router: routerMock,
@@ -73,8 +81,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         user: user,
         fxaClient: fxaClient,
         relier: relier,
-        broker: broker,
-        ephemeralMessages: ephemeralMessages
+        ephemeralMessages: ephemeralMessages,
+        broker: broker
       });
 
       sinon.stub(view, 'currentAccount', function () {
@@ -121,10 +129,11 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('notifies the broker of afterSignUpConfirmationPoll after the account is confirmed', function (done) {
-        sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
+        sinon.stub(broker, 'afterSignUpConfirmationPoll', function (data) {
           TestHelpers.wrapAssertion(function () {
             assert.isTrue(user.setAccount.calledWith(account));
             assert.isTrue(account.get('verified'));
+            assert.equal(data, accountData);
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm.verification.success'));
           }, done);
@@ -257,7 +266,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
     describe('bouncedEmailSignup', function () {
       it('saves the email address to ephemeralMessages', function () {
-        Session.set('email', 'testuser@testuser.com');
+        account.set('email', 'testuser@testuser.com');
         view.bouncedEmailSignup();
         assert.equal(
             ephemeralMessages.get('bouncedEmail'), 'testuser@testuser.com');

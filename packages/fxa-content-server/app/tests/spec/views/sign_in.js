@@ -176,7 +176,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         var sessionToken = 'abc123';
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p(user.createAccount({ verified: false }));
+          return p({ verified: false });
         });
 
         sinon.stub(view.fxaClient, 'signUpResend', function () {
@@ -205,9 +205,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
       it('notifies the broker when a verified user signs in', function () {
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p(user.createAccount({
+          return p({
             verified: true
-          }));
+          });
         });
 
         var password = 'password';

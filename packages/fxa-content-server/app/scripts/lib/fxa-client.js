@@ -131,7 +131,10 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
             self._interTabChannel.emit('login', updatedSessionData);
           }
 
-          return user.setCurrentAccount(updatedSessionData);
+          return user.setCurrentAccount(updatedSessionData)
+            .then(function () {
+              return updatedSessionData;
+            });
         });
     },
 

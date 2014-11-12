@@ -420,9 +420,9 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p(user.createAccount({
+          return p({
             verified: false
-          }));
+          });
         });
 
         return view.submit()
@@ -453,9 +453,9 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p(user.createAccount({
+          return p({
             verified: true
-          }));
+          });
         });
 
         sinon.stub(broker, 'afterSignIn', function () {
@@ -550,9 +550,9 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p(user.createAccount({
+          return p({
             verified: false
-          }));
+          });
         });
 
         fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });

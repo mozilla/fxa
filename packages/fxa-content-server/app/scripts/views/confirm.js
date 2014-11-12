@@ -25,6 +25,11 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
     // used by unit tests
     VERIFICATION_POLL_IN_MS: VERIFICATION_POLL_IN_MS,
 
+    initialize: function () {
+      var data = this.ephemeralData();
+      this._accountData = data && data.accountData;
+    },
+
     context: function () {
       return {
         email: this.currentAccount().get('email')
@@ -39,7 +44,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     bouncedEmailSignup: function () {
       // TODO add `bouncedEmail` to the User model when ready.
-      this.ephemeralMessages.set('bouncedEmail', Session.email);
+      this.ephemeralMessages.set('bouncedEmail', this.currentAccount().get('email'));
     },
 
     beforeRender: function () {
@@ -63,7 +68,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
           self._waitForConfirmation()
             .then(function () {
               self.logScreenEvent('verification.success');
-              return self.broker.afterSignUpConfirmationPoll();
+              return self.broker.afterSignUpConfirmationPoll(self._accountData);
             })
             .then(function (result) {
               if (! (result && result.halt)) {
@@ -84,12 +89,13 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     _waitForConfirmation: function () {
       var self = this;
+      var account = self.currentAccount();
       return self.fxaClient.recoveryEmailStatus(
-          self.currentAccount().get('sessionToken'), self.currentAccount().get('uid'))
+          account.get('sessionToken'), account.get('uid'))
         .then(function (result) {
           if (result.verified) {
-            self.currentAccount().set('verified', true);
-            self.user.setAccount(self.currentAccount());
+            account.set('verified', true);
+            self.user.setAccount(account);
             return true;
           }
 

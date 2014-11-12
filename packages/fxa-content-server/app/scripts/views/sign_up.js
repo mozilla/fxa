@@ -261,13 +261,13 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
             // already done in signUp, no need to do it again.
             verifiedCanLinkAccount: true
           });
-        }).then(function (account) {
-          if (preVerifyToken && account.get('verified')) {
+        }).then(function (accountData) {
+          if (preVerifyToken && accountData.verified) {
             self.logScreenEvent('preverified.success');
           }
           self.logScreenEvent('success');
 
-          return account;
+          return accountData;
         })
         .then(_.bind(self.onSignUpSuccess, self))
         .then(null, function (err) {
@@ -350,18 +350,22 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       this.focus('#fxa-age-month');
     },
 
-    onSignUpSuccess: function (account) {
+    onSignUpSuccess: function (accountData) {
       var self = this;
-      if (account.get('verified')) {
+      if (accountData.verified) {
         // user was pre-verified, notify the broker.
-        return self.broker.afterSignIn()
+        return self.broker.afterSignIn(accountData)
           .then(function (result) {
             if (! (result && result.halt)) {
               self.navigate('signup_complete');
             }
           });
       } else {
-        self.navigate('confirm');
+        self.navigate('confirm', {
+          data: {
+            accountData: accountData
+          }
+        });
       }
     },
 

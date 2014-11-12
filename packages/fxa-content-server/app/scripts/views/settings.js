@@ -26,11 +26,14 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
       var self = this;
       var uid = self.searchParam('uid');
 
+      // A uid param is set by RPs linking directly to the settings
+      // page for a particular account.
       // We set the current account to the one with `uid` if
       // it exists in our list of cached accounts. If it doesn't,
       // clear the current account.
       // The `mustVerify` flag will ensure that the account is valid.
       if (! self.user.getAccountByUid(uid).isEmpty()) {
+        // The account with uid exists; set it to our current account.
         self.user.setCurrentAccountByUid(uid);
       } else if (uid) {
         Session.clear();

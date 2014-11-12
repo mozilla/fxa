@@ -11,7 +11,6 @@ define([
   'sinon',
   '../../lib/helpers',
   'lib/promise',
-  'lib/session',
   'lib/constants',
   'lib/assertion',
   'lib/fxa-client',
@@ -23,9 +22,8 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, sinon, TestHelpers, P,
-      Session, Constants, Assertion, FxaClientWrapper, Relier, User, jwcrypto) {
-  /*global beforeEach, afterEach, describe, it*/
+function (chai, $, sinon, TestHelpers, p,
+      Constants, Assertion, FxaClientWrapper, Relier, User, jwcrypto) {
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';
   var ISSUER = 'http://' + document.location.hostname + ':9000';
@@ -41,11 +39,11 @@ function (chai, $, sinon, TestHelpers, P,
 
   describe('lib/assertion', function () {
     beforeEach(function () {
-      Session.clear();
       relier = new Relier();
       user = new User();
       sinon.stub(user, 'setCurrentAccount', function (data) {
         sessionToken = data.sessionToken;
+        return p();
       });
       client = new FxaClientWrapper({
         relier: relier
@@ -62,10 +60,6 @@ function (chai, $, sinon, TestHelpers, P,
       });
     });
 
-    afterEach(function () {
-      Session.clear();
-    });
-
     describe('validate', function () {
       it('generates a valid assertion', function () {
         var assertion;
@@ -76,7 +70,7 @@ function (chai, $, sinon, TestHelpers, P,
             assert.include(ass, '~', 'Result has the ~');
           })
           .then(function () {
-            var defer = P.defer();
+            var defer = p.defer();
             $.getJSON(ISSUER + '/.well-known/browserid', function (data) {
               try {
                 assert.ok(data, 'Received .well-known data');

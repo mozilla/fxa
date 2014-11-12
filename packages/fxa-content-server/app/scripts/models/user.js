@@ -181,6 +181,7 @@ define([
               sessionTokenContext: Session.cachedCredentials.sessionTokenContext,
               uid: Session.cachedCredentials.uid
             });
+            Session.clear('cachedCredentials');
           }
 
           if (self._shouldAddOldSessionAccount(Session)) {
@@ -193,6 +194,11 @@ define([
                   sessionToken: Session.sessionToken,
                   sessionTokenContext: Session.sessionTokenContext,
                   uid: result.uid
+                })
+                .then(function () {
+                  Session.clear('email');
+                  Session.clear('sessionToken');
+                  Session.clear('sessionTokenContext');
                 });
               }, function () {
                 // if there's an error, just ignore the account
