@@ -239,49 +239,6 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
               });
         });
 
-        it('shows the unverified user message if the user is unverified', function () {
-          sinon.stub(view.fxaClient, 'checkPassword', function () {
-            return p();
-          });
-
-          sinon.stub(view.fxaClient, 'changePassword', function () {
-            return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
-          });
-
-          $('#old_password').val('password');
-          $('#new_password').val('new_password');
-
-          return view.submit()
-            .then(function () {
-              assert.ok(view.$('#resend').length);
-            });
-        });
-      });
-
-      describe('resendVerificationEmail', function () {
-        it('resends a verification email, and sends user to /confirm', function () {
-          sinon.stub(view.fxaClient, 'signUpResend', function () {
-            return p();
-          });
-
-          return view.resendVerificationEmail()
-            .then(function () {
-              assert.equal(routerMock.page, 'confirm');
-
-              assert.isTrue(view.fxaClient.signUpResend.calledWith(relier));
-            });
-        });
-
-        it('sends users to the signup page if their signUp token is invalid', function () {
-          sinon.stub(view.fxaClient, 'signUpResend', function () {
-            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
-          });
-
-          return view.resendVerificationEmail()
-            .then(function () {
-              assert.equal(routerMock.page, 'signup');
-            });
-        });
       });
     });
   });

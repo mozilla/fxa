@@ -27,8 +27,7 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
     events: {
       'click #back': 'back',
       'keyup #back': 'backOnEnter',
-      'change .show-password': 'onPasswordVisibilityChange',
-      'click #resend': 'resendVerificationEmail'
+      'change .show-password': 'onPasswordVisibilityChange'
     },
 
     afterRender: function () {
@@ -69,33 +68,8 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
             self.navigate('settings', {
               success: t('Password changed')
             });
-          }, function (err) {
-            if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-              err.forceMessage = t('Unverified account. <a href="#" id="resend">Resend verification email</a>.');
-              return self.displayErrorUnsafe(err);
-            }
-
-            throw err;
           });
-    },
-
-    resendVerificationEmail: BaseView.preventDefaultThen(function () {
-      var self = this;
-      var sessionToken = self.currentAccount().get('sessionToken');
-
-      return self.fxaClient.signUpResend(self.relier, sessionToken)
-              .then(function () {
-                self.navigate('confirm');
-              }, function (err) {
-                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-                  return self.navigate('signup', {
-                    error: err
-                  });
-                }
-
-                throw self.displayError(err);
-              });
-    })
+    }
 
   });
 

@@ -17,7 +17,6 @@ define([
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
-  var CHANGE_PASSWORD_URL = config.fxaContentRoot + 'change_password';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
@@ -200,74 +199,4 @@ define([
     }
 
   });
-
-  registerSuite({
-    name: 'settings->change password with unverified email',
-
-    beforeEach: function () {
-      email = TestHelpers.createEmail();
-
-      client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
-
-      var self = this;
-      return client.signUp(email, FIRST_PASSWORD, { preVerified: false })
-          .then(function () {
-            return clearBrowserStorage.call(self);
-          });
-    },
-
-    teardown: function () {
-      return clearBrowserStorage.call(this);
-    },
-
-    'sign in, change password screen, user must verifiy account': function () {
-      return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        .findById('fxa-confirm-header')
-        .end()
-
-        // unverified user browses directly to change password page.
-        .get(require.toUrl(CHANGE_PASSWORD_URL))
-        .findById('old_password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .findById('new_password')
-          .click()
-          .type(SECOND_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        // uh oh, user must verify their account.
-        .then(FunctionalHelpers.visibleByQSA('#resend'))
-        .findById('resend')
-          .click()
-        .end()
-
-        .findById('fxa-confirm-header')
-        .end();
-    }
-  });
-
 });

@@ -26,6 +26,10 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
     VERIFICATION_POLL_IN_MS: VERIFICATION_POLL_IN_MS,
 
     initialize: function () {
+      // Account data is passed in from sign up and sign in flows.
+      // It's important for Sync flows where account data holds
+      // ephemeral properties like unwrapBKey and keyFetchToken
+      // that need to be sent to the browser.
       var data = this.ephemeralData();
       this._accountData = data && data.accountData;
     },
