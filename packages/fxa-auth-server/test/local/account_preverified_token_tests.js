@@ -7,14 +7,14 @@ var path = require('path')
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../client')
-var jwcrypto = require('jwcrypto')
-require('jwcrypto/lib/algs/rs')
-var hex2b64urlencode = require('jwcrypto/lib/utils').hex2b64urlencode
-var b64 = require('jwcrypto/lib/utils').base64urlencode
+var bidcrypto = require('browserid-crypto')
+require('browserid-crypto/lib/algs/rs')
+var hex2b64urlencode = require('browserid-crypto/lib/utils').hex2b64urlencode
+var b64 = require('browserid-crypto/lib/utils').base64urlencode
 
 process.env.CONFIG_FILES = path.join(__dirname, '../config/preverify_secret.json')
 var config = require('../../config').root()
-var secretKey = jwcrypto.loadSecretKey(fs.readFileSync(config.secretKeyFile))
+var secretKey = bidcrypto.loadSecretKey(fs.readFileSync(config.secretKeyFile))
 function fail() { throw new Error('call succeeded when it should have failed')}
 
 function nowSeconds() {

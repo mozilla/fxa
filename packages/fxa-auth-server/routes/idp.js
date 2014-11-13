@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var b64 = require('jwcrypto/lib/utils').base64urlencode
+var b64 = require('browserid-crypto/lib/utils').base64urlencode
 var bigint = require('bigint')
 
 module.exports = function (log, serverPublicKey) {

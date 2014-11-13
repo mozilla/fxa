@@ -5,7 +5,7 @@
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../client')
-var jwcrypto = require('jwcrypto')
+var bidcrypto = require('browserid-crypto')
 
 var config = require('../../config').root()
 
@@ -35,7 +35,7 @@ TestServer.start(config)
         .then(
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
-            var payload = jwcrypto.extractComponents(cert).payload
+            var payload = bidcrypto.extractComponents(cert).payload
             t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
             t.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
             t.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')

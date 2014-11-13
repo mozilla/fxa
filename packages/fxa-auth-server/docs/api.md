@@ -730,7 +730,7 @@ This request will fail unless the account's email address has been verified.
 
 ___Parameters___
 
-* publicKey - the key to sign (run `bin/generate-keypair` from [jwcrypto](https://github.com/mozilla/jwcrypto))
+* publicKey - the key to sign (run `bin/generate-keypair` from [browserid-crypto](https://github.com/mozilla/browserid-crypto))
     * algorithm - "RS" or "DS"
     * n - RS only
     * e - RS only

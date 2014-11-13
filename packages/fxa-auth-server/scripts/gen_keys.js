@@ -20,7 +20,7 @@
    keypair.
 */
 
-const jwcrypto = require("jwcrypto")
+const bidcrypto = require("browserid-crypto")
 const fs = require('fs')
 const assert = require("assert")
 const config = require('../config')
@@ -28,7 +28,7 @@ const config = require('../config')
 const pubKeyFile = config.get('publicKeyFile')
 const secretKeyFile = config.get('secretKeyFile')
 
-require("jwcrypto/lib/algs/rs")
+require("browserid-crypto/lib/algs/rs")
 
 try {
   var keysExist = fs.existsSync(pubKeyFile) && fs.existsSync(secretKeyFile)
@@ -41,10 +41,10 @@ console.log("Generating keypair. (install libgmp if this takes more than a secon
 
 // wondering about `keysize: 256`?
 // well, 257 = 2048bit key
-// still confused? see: https://github.com/mozilla/jwcrypto/blob/master/lib/algs/ds.js#L37-L57
+// still confused? see: https://github.com/mozilla/browserid-crypto/blob/master/lib/algs/ds.js#L37-L57
 
 function main(cb) {
-  jwcrypto.generateKeypair(
+  bidcrypto.generateKeypair(
     { algorithm: 'RS', keysize: 256 },
     function(err, keypair) {
 
