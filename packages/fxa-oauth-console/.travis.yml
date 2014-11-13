@@ -11,4 +11,5 @@ node_js:
   - '0.10'
 
 script:
+  - npm i
   - node_modules/.bin/ember test
