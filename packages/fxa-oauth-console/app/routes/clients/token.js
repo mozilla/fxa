@@ -21,7 +21,7 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
         action: tokenUrl,
         method: 'POST'
       });
-      form.append('<input type=text name=scopes value="' + Ember.$('#scopes').val() + '" />');
+      form.append('<input type=hidden name=scopes value="' + Ember.$('#scopes').val() + '" />');
       form.appendTo('body').submit();
     }
   }

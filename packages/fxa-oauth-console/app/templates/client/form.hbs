@@ -10,6 +10,10 @@
   <label for="inputImage">Image URI</label>
   {{view Ember.TextField value=image_uri id="inputImage"}}
 </div>
+<div class="form-group">
+  <label for="whitelisted">Whitelisted Client</label>
+  {{view Ember.Checkbox name=whitelisted checked=whitelisted id="whitelisted"}}
+</div>
 {{#if id}}
 <div class="form-group">
   <label for="id">Client Id:</label>

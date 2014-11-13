@@ -47,6 +47,7 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-copyright": "^0.1.0",
     "grunt-jscs": "^0.7.1",
+    "intern": "^2.1.1",
     "load-grunt-tasks": "^0.6.0",
     "nodemon": "^1.2.1",
     "opn": "^1.0.0"
