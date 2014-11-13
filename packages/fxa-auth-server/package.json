@@ -34,7 +34,7 @@
     "browserid-crypto": "0.7.0",
     "bunyan": "1.2.0",
     "compute-cluster": "0.0.9",
-    "convict": "0.5.1",
+    "convict": "0.6",
     "fxa-auth-mailer": "1.0.6",
     "hapi": "7.0.0",
     "hapi-auth-hawk": "1.1.1",
