@@ -314,16 +314,24 @@ function (
     },
 
     _selectStartPage: function () {
-      // Firefox for desktop native=>FxA glue code.
       var self = this;
-      return self._configLoader.areCookiesEnabled()
-          .then(function (areCookiesEnabled) {
-            if (! areCookiesEnabled) {
-              return 'cookies_disabled';
-            }
+      return p().then(function () {
+        if (self._window.location.pathname === '/cookies_disabled') {
+          // If the user is already at the cookies_disabled page, don't even
+          // attempt the cookie check or else a blank screen is rendered if
+          // cookies are actually disabled.
+          return;
+        }
 
-            return self._authenticationBroker.selectStartPage();
-          });
+        return self._configLoader.areCookiesEnabled()
+            .then(function (areCookiesEnabled) {
+              if (! areCookiesEnabled) {
+                return 'cookies_disabled';
+              }
+
+              return self._authenticationBroker.selectStartPage();
+            });
+      });
     }
   };
 

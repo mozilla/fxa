@@ -1,26 +1,28 @@
-/**
- * crosstab - A utility library from cross-tab communication using
- * localStorage.
+/*!
+ * crosstab JavaScript Library v0.1.0
+ * https://github.com/tejacques/crosstab
  *
- * Written by Tom Jacques
- *
- * Source: https://github.com/tejacques/crosstab
- *
- * Apache 2.0 License
- * - https://github.com/tejacques/crosstab/blob/master/LICENSE
- *
- * Our local modifications remove the frozen tab check.
+ * License: Apache 2.0 https://github.com/tejacques/crosstab/blob/master/LICENSE
  */
-'use strict';
-
-define([], function () {
+; (function (define) {
+define(function(require,exports,module){
 
     // --- Handle Support ---
     // See: http://detectmobilebrowsers.com/about
     var useragent = navigator.userAgent || navigator.vendor || window.opera;
     window.isMobile = (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(useragent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(useragent.substr(0, 4)));
 
-    var localStorage = window.localStorage;
+    var localStorage;
+    try {
+        localStorage = window.localStorage;
+    } catch (e) {
+        // New versions of Firefox throw a Security exception
+        // if cookies are disabled. See
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1028153
+    }
+
+    // Other reasons
+    var frozenTabEnvironment = false;
 
     function notSupported() {
         var errorMsg = 'crosstab not supported';
@@ -33,6 +35,9 @@ define([], function () {
         }
         if (window.isMobile) {
             reasons.push('mobile browser');
+        }
+        if (frozenTabEnvironment) {
+            reasons.push('frozen tab environment detected');
         }
 
         if(reasons.length > 0) {
@@ -48,7 +53,8 @@ define([], function () {
             MESSAGE_KEY: 'crosstab.MESSAGE_KEY',
             TABS_KEY: 'crosstab.TABS_KEY',
             MASTER_TAB: 'MASTER_TAB',
-            SUPPORTED_KEY: 'crosstab.SUPPORTED'
+            SUPPORTED_KEY: 'crosstab.SUPPORTED',
+            FROZEN_TAB_ENVIRONMENT: 'crosstab.FROZEN_TAB_ENVIRONMENT'
         }
     };
 
@@ -114,7 +120,7 @@ define([], function () {
     };
 
     util.clearMessages = function () {
-      broadcast('overwrite_all');
+        broadcast('overwrite_all');
     };
 
     util.eventTypes = {
@@ -253,7 +259,7 @@ define([], function () {
     }
 
     function getLocalStorageRaw(key) {
-        var json = localStorage.getItem(key);
+        var json = localStorage ? localStorage.getItem(key) : null;
         var item = json ? JSON.parse(json) : {};
         return item;
     }
@@ -410,9 +416,13 @@ define([], function () {
     }
 
     function clear() {
-      for (var key in util.keys) {
-        localStorage.removeItem(util.keys[key]);
-      }
+        for (var key in util.keys) {
+            try {
+                localStorage.removeItem(util.keys[key]);
+            } catch (e) {
+                // ignore errors because cookies are disabled.
+            }
+        }
     }
 
     // ---- Return ----
@@ -438,7 +448,7 @@ define([], function () {
 
     // --- Crosstab supported ---
     // Check to see if the global supported key has been set.
-    if (!setupComplete) {
+    if (!setupComplete && crosstab.supported) {
         var supportedRaw = getLocalStorageRaw(util.keys.SUPPORTED_KEY);
         var supported = supportedRaw.data;
         if (supported === false || supported === true) {
@@ -446,6 +456,24 @@ define([], function () {
             crosstab.supported = supported;
             util.events.emit('setupComplete');
         }
+    }
+
+    // Check to see if the global frozen tab environment key has been set.
+    if (!setupComplete && crosstab.supported) {
+        var frozenTabsRaw = getLocalStorageRaw(util.keys.FROZEN_TAB_ENVIRONMENT);
+        var frozenTabs = frozenTabsRaw.data;
+        if (frozenTabs === true) {
+            frozenTabEnvironmentDetected();
+            util.events.emit('setupComplete');
+        }
+    }
+
+    function frozenTabEnvironmentDetected() {
+        crosstab.supported = false;
+        frozenTabEnvironment = true;
+        setLocalStorageItem(util.keys.FROZEN_TAB_ENVIRONMENT, true);
+        setLocalStorageItem(util.keys.SUPPORTED_KEY, false);
+        crosstab.broadcast = notSupported;
     }
 
     // --- Tab Setup ---
@@ -506,6 +534,9 @@ define([], function () {
                         setLocalStorageItem(
                             util.keys.SUPPORTED_KEY,
                             true);
+                        setLocalStorageItem(
+                            util.keys.FROZEN_TAB_ENVIRONMENT,
+                            false);
                         util.events.emit('setupComplete');
                     }
                 });
@@ -521,6 +552,7 @@ define([], function () {
 
                     if (!setupComplete) {
                         if (iters <= 0 && diff > PING_TIMEOUT) {
+                            frozenTabEnvironmentDetected();
                             util.events.emit('setupComplete');
                         } else {
                             timeout = setTimeout(function () {
@@ -570,6 +602,34 @@ define([], function () {
         keepaliveLoop();
     }
 
-    return crosstab;
-});
+    module.exports = crosstab;
 
+/*!
+ * UMD/AMD/Global context Module Loader wrapper
+ * based off https://gist.github.com/wilsonpage/8598603
+ *
+ * This wrapper will try to use a module loader with the
+ * following priority:
+ *
+ *  1.) AMD
+ *  2.) CommonJS
+ *  3.) Context Variable (window in the browser)
+ */
+});})(typeof define == 'function' && define.amd ? define
+    : (function (name, context) {
+        'use strict';
+        return typeof module == 'object' ? function (define) {
+            define(require, exports, module);
+        }
+        : function (define) {
+            var module = {
+                exports: {}
+            };
+            var require = function (n) {
+                return context[n];
+            };
+
+            define(require, module.exports, module);
+            context[name] = module.exports;
+        };
+    })('crosstab', this));

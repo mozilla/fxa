@@ -69,6 +69,24 @@ function (chai, sinon, AppStart, Session, Constants, p,
             });
       });
 
+      it('does not redirect if at /cookies_disabled and cookies are disabled', function () {
+        windowMock.location.pathname = '/cookies_disabled';
+        appStart.useConfig({
+          localStorageEnabled: false,
+          i18n: {
+            supportedLanguages: ['en'],
+            defaultLang: 'en'
+          }
+        });
+
+        sinon.spy(routerMock, 'navigate');
+
+        return appStart.startApp()
+          .then(function () {
+            assert.isFalse(routerMock.navigate.called);
+          });
+      });
+
       it('redirects to the start page specified by the broker', function () {
         sinon.stub(brokerMock, 'selectStartPage', function () {
           return p('settings');
