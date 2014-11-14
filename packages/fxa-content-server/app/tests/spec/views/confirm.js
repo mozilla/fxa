@@ -128,12 +128,15 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
-      it('notifies the broker of afterSignUpConfirmationPoll after the account is confirmed', function (done) {
-        sinon.stub(broker, 'afterSignUpConfirmationPoll', function (data) {
+      it('notifies the broker after the account is confirmed', function (done) {
+        sinon.stub(broker, 'beforeSignUpConfirmationPoll', function () {
+          return p();
+        });
+        sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
           TestHelpers.wrapAssertion(function () {
             assert.isTrue(user.setAccount.calledWith(account));
             assert.isTrue(account.get('verified'));
-            assert.equal(data, accountData);
+            assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(accountData));
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm.verification.success'));
           }, done);

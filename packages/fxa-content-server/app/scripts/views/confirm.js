@@ -66,13 +66,13 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       var self = this;
       return self.broker.persist()
         .then(function () {
-          return self.broker.beforeSignUpConfirmationPoll();
+          return self.broker.beforeSignUpConfirmationPoll(self._accountData);
         })
         .then(function () {
           self._waitForConfirmation()
             .then(function () {
               self.logScreenEvent('verification.success');
-              return self.broker.afterSignUpConfirmationPoll(self._accountData);
+              return self.broker.afterSignUpConfirmationPoll();
             })
             .then(function (result) {
               if (! (result && result.halt)) {

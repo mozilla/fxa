@@ -66,7 +66,7 @@ define([
         .findByCssSelector('#fxa-confirm-header')
 
         .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
+          return testIsBrowserNotifiedOfLogin(self, email);
         })
 
         .end()
@@ -120,7 +120,7 @@ define([
         .findByCssSelector('#fxa-confirm-header')
 
         .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
+          return testIsBrowserNotifiedOfLogin(self, email);
         })
 
         .end()
@@ -153,7 +153,7 @@ define([
         .findByCssSelector('#fxa-confirm-header')
 
         .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
+          return testIsBrowserNotifiedOfLogin(self, email);
         })
         .end()
 
@@ -198,7 +198,7 @@ define([
         })
 
         .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
+          return testIsBrowserNotifiedOfLogin(self, email);
         })
 
         // Being pushed to the confirmation screen is success.
