@@ -138,14 +138,10 @@ define([
     });
 
     describe('afterSignUpConfirmationPoll', function () {
-      it('notifies the channel of login', function () {
-        sinon.stub(broker, '_notifyRelierOfLogin', function () {
-          return p();
-        });
-
+      it('halts', function () {
         return broker.afterSignUpConfirmationPoll()
-          .then(function () {
-            assert.isTrue(broker._notifyRelierOfLogin.called);
+          .then(function (result) {
+            assert.isTrue(result.halt);
           });
       });
     });

@@ -28,7 +28,6 @@ define([
   var PASSWORD = '12345678';
 
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
-  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
   registerSuite({
     name: 'Firefox Desktop Sync sign_up',
@@ -59,28 +58,11 @@ define([
         .findByCssSelector('#fxa-signup-header')
         .end()
 
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
+        })
 
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
+        .findByCssSelector('#fxa-confirm-header')
         .end()
 
         // verify the user
@@ -105,16 +87,13 @@ define([
 
         .end()
         .closeCurrentWindow()
-        // switch to the original window
+
+        // switch to the original window, it should not transition.
         .switchToWindow('')
         .end()
 
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end()
-
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
-        });
+        .findByCssSelector('#fxa-confirm-header')
+        .end();
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
@@ -128,30 +107,9 @@ define([
         .findByCssSelector('#fxa-signup-header')
         .end()
 
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
+        })
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -160,12 +118,9 @@ define([
           return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
         })
 
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end()
-
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
-        });
+        // The original tab should not transition
+        .findByCssSelector('#fxa-confirm-header')
+        .end();
     },
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
@@ -179,29 +134,9 @@ define([
         .findByCssSelector('#fxa-signup-header')
         .end()
 
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
+        })
 
         // clear local/sessionStorage to synthesize continuing in
         // a separate browser.
