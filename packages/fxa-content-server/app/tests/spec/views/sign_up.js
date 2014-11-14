@@ -17,6 +17,7 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
+  'lib/ephemeral-messages',
   'models/reliers/fx-desktop',
   'models/auth_brokers/base',
   '../../mocks/router',
@@ -24,7 +25,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
-      FxaClient, Relier, Broker, RouterMock, WindowMock, TestHelpers) {
+      FxaClient, EphemeralMessages, Relier, Broker, RouterMock, WindowMock,
+      TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -67,6 +69,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     var fxaClient;
     var relier;
     var broker;
+    var ephemeralMessages;
 
     var now = new Date();
     var CURRENT_YEAR = now.getFullYear();
@@ -84,6 +87,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
+      ephemeralMessages = new EphemeralMessages();
 
       view = new View({
         router: router,
@@ -91,8 +95,10 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         window: windowMock,
         fxaClient: fxaClient,
         relier: relier,
-        broker: broker
+        broker: broker,
+        ephemeralMessages: ephemeralMessages
       });
+
       return view.render()
           .then(function () {
             $('#container').append(view.el);
@@ -154,6 +160,22 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       });
     });
 
+    describe('afterVisible', function () {
+      it('shows a tooltip on the email element if ephemeralMessages.bouncedEmail is set', function () {
+        sinon.spy(view, 'showValidationError');
+        ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
+
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.isTrue(view.showValidationError.called);
+          });
+      });
+    });
+
     describe('isValid', function () {
       it('returns true if email, password, and age are all valid', function () {
         fillOutSignUp(email, 'password', { context: view });
@@ -173,6 +195,22 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       it('returns false if email contain one part TLD', function () {
         fillOutSignUp('a@b', 'password', { context: view });
         assert.isFalse(view.isValid());
+      });
+
+      it('returns false if email is the same as the bounced email', function () {
+        ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
+
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            fillOutSignUp('testuser@testuser.com', 'password', { context: view });
+          })
+          .then(function () {
+            assert.isFalse(view.isValid());
+          });
       });
 
       it('returns true if email contain two part TLD', function () {
@@ -302,6 +340,24 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         view.showValidationErrors();
+      });
+
+      it('shows an error if the email is the same as the bounced email', function (done) {
+        ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
+
+        view.render()
+          .then(function () {
+            view.on('validation_error', function (which) {
+              wrapAssertion(function () {
+                assert.equal(which, 'input[type=email]');
+              }, done);
+            });
+
+            fillOutSignUp('testuser@testuser.com', 'password', { context: view });
+
+            view.showValidationErrors();
+          });
+
       });
 
       it('shows an error if the password is invalid', function (done) {

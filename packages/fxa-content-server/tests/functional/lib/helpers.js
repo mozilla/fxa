@@ -253,7 +253,7 @@ define([
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the signin page if not already at a signin page.
-        if (currentUrl.indexOf('signin') === -1) {
+        if (currentUrl.indexOf(/\/signin[$?]/) === -1) {
           return context.get('remote')
             .get(require.toUrl(SIGNIN_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
@@ -282,7 +282,7 @@ define([
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the signup page if not already at a signup page.
-        if (currentUrl.indexOf('signup') === -1) {
+        if (currentUrl.indexOf(/\/signup[$?]/) === -1) {
           return context.get('remote')
             .get(require.toUrl(SIGNUP_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
@@ -322,7 +322,7 @@ define([
       .then(function (currentUrl) {
         // only load the reset_password page if not already at
         // the reset_password page.
-        if (currentUrl.indexOf('reset_password') === -1) {
+        if (currentUrl.indexOf(/\/reset_password[$?]/) === -1) {
           return context.get('remote')
             .get(require.toUrl(RESET_PASSWORD_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);

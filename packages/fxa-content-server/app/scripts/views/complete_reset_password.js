@@ -119,6 +119,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
               Session.set('oauth', oauthData);
             });
         }).then(function () {
+          self.logScreenEvent('verification.success');
           return self.broker.afterCompleteResetPassword();
         }).then(function (result) {
           if (! (result && result.halt)) {

@@ -83,6 +83,19 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           });
     },
 
+    /**
+     * Check whether an account exists for the given uid.
+     */
+    checkAccountExists: function (uid) {
+      return this._getClientAsync()
+          .then(function (client) {
+            return client.accountStatus(uid)
+              .then(function (status) {
+                return status.exists;
+              });
+          });
+    },
+
     signIn: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
@@ -377,10 +390,28 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
         });
     },
 
-    recoveryEmailStatus: function (sessionToken) {
-      return this._getClientAsync()
+    recoveryEmailStatus: function (sessionToken, uid) {
+      var self = this;
+      return self._getClientAsync()
         .then(function (client) {
           return client.recoveryEmailStatus(sessionToken);
+        })
+        .then(null, function (err) {
+          // The user's email may have bounced because it's invalid. Check
+          // if the account still exists, if it doesn't, it means the email
+          // bounced. Show a message allowing the user to sign up again.
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            return self.checkAccountExists(uid)
+              .then(function (accountExists) {
+                if (! accountExists) {
+                  throw AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
+                }
+
+                throw err;
+              });
+          }
+
+          throw err;
         });
     },
 

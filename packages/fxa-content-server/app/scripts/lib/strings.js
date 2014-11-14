@@ -13,8 +13,9 @@ function () {
 
   // temporary strings that can be extracted for the
   // l10n team to start translations.
-  // for use in #1801 when implemented.
-  t('Your verification email was just returned. Mistyped email? <a href="/signup">Start over.</a>');
+  // TODO - remove this string when the update to #1801 which removes the click
+  // from the confirm page and this is an actual error message.
+  t('Your verification email was just returned. Mistyped email?');
 
   // Intended for email marketing opt-in
   // Should be removed in favor of #992 and #993 when implemented

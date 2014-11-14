@@ -10,6 +10,7 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
+  'lib/ephemeral-messages',
   'views/confirm',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
@@ -17,8 +18,9 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
-      OAuthRelier, OAuthBroker, WindowMock, RouterMock, TestHelpers) {
+function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
+      EphemeralMessages, View, OAuthRelier, OAuthBroker, WindowMock,
+      RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -31,6 +33,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
     var fxaClient;
     var relier;
     var broker;
+    var ephemeralMessages;
 
     beforeEach(function () {
       Session.set('sessionToken', 'fake session token');
@@ -48,6 +51,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         relier: relier
       });
       fxaClient = new FxaClient();
+      ephemeralMessages = new EphemeralMessages();
 
       view = new View({
         router: routerMock,
@@ -55,7 +59,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         metrics: metrics,
         fxaClient: fxaClient,
         relier: relier,
-        broker: broker
+        broker: broker,
+        ephemeralMessages: ephemeralMessages
       });
 
       return view.render()
@@ -96,7 +101,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
 
       it('notifies the broker of afterSignUpConfirmationPoll after the account is confirmed', function (done) {
         sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
-          done();
+          TestHelpers.wrapAssertion(function () {
+            assert.isTrue(TestHelpers.isEventLogged(
+                    metrics, 'confirm.verification.success'));
+          }, done);
         });
 
         var count = 0;
@@ -111,6 +119,21 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         });
 
         view.VERIFICATION_POLL_IN_MS = 100;
+        view.render();
+      });
+
+      it('displays an error message allowing the user to re-signup if their email bounces', function (done) {
+        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+          return p.reject(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
+        });
+
+        sinon.stub(view, 'displayErrorUnsafe', function (err) {
+          TestHelpers.wrapAssertion(function () {
+            assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
+            assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
+          }, done);
+        });
+
         view.render();
       });
     });
@@ -203,6 +226,15 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'confirm.too_many_attempts'));
               });
+      });
+    });
+
+    describe('bouncedEmailSignup', function () {
+      it('saves the email address to ephemeralMessages', function () {
+        Session.set('email', 'testuser@testuser.com');
+        view.bouncedEmailSignup();
+        assert.equal(
+            ephemeralMessages.get('bouncedEmail'), 'testuser@testuser.com');
       });
     });
   });

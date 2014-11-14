@@ -53,7 +53,9 @@ function () {
     NO_CAMERA: 1014,
     URL_REQUIRED: 1015,
     BIRTHDAY_REQUIRED: 1016,
-    DESKTOP_CHANNEL_TIMEOUT: 1017
+    DESKTOP_CHANNEL_TIMEOUT: 1017,
+    SIGNUP_EMAIL_BOUNCE: 1018,
+    DIFFERENT_EMAIL_REQUIRED: 1019
   };
 
   var CODE_TO_MESSAGES = {
@@ -95,7 +97,9 @@ function () {
     1014: t('Could not initialize camera'),
     1015: t('Valid URL required'),
     1016: t('Valid birthday required'),
-    1017: t('Unexpected error')
+    1017: t('Unexpected error'),
+    1018: t('Your verification email was just returned. Mistyped email? <a href="/signup">Start over.</a>'),
+    1019: t('Valid email required')
   };
 
   return {

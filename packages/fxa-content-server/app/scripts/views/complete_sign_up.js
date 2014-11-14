@@ -50,6 +50,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
       var self = this;
       return this.fxaClient.verifyCode(this.uid, this.code)
           .then(function () {
+            self.logEvent('complete_sign_up.verification.success');
             return self.broker.afterCompleteSignUp();
           })
           .then(function (result) {

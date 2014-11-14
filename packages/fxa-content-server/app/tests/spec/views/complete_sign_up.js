@@ -59,6 +59,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
+      windowMock.location.pathname = 'verify_email';
       metrics = new Metrics();
       relier = new Relier();
       broker = new Broker();
@@ -164,6 +165,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
               assert.isTrue(view.fxaClient.verifyCode.called);
               assert.equal(routerMock.page, 'signup_complete');
               assert.isTrue(broker.afterCompleteSignUp.called);
+              assert.isTrue(TestHelpers.isEventLogged(
+                      metrics, 'complete_sign_up.verification.success'));
             });
       });
 

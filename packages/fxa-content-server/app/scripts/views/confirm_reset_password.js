@@ -118,6 +118,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
         .then(function () {
           self._waitForConfirmation()
             .then(function (sessionInfo) {
+              self.logScreenEvent('verification.success');
               // The original window should finish the flow if the user
               // completes verification in the same browser and has sessionInfo
               // passed over from tab 2.
