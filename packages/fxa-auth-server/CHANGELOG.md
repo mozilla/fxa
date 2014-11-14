@@ -1,3 +1,12 @@
+<a name="0.26.1"></a>
+### 0.26.1 (2014-11-13)
+
+
+#### Features
+
+* **logging:** log details when generating code ([81933f70](http://github.com/mozilla/fxa-oauth-server/commit/81933f70a61c5783adc89dcea36f9f8213609e6a))
+
+
 <a name="0.26.0"></a>
 ## 0.26.0 (2014-11-12)
 
