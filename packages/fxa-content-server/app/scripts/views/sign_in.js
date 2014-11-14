@@ -122,6 +122,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
           if (! (result && result.halt)) {
             self.navigate('settings');
           }
+
+          return result;
         });
     },
 

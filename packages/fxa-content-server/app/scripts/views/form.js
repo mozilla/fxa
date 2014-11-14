@@ -97,7 +97,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       // the change event can be called after the form is already
       // submitted if the user presses "enter" in the form. If the
       // form is in the midst of being submitted, bail out now.
-      if (this.isSubmitting()) {
+      if (this.isSubmitting() || this.isHalted()) {
         return;
       }
 
@@ -110,7 +110,14 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
       }
     },
 
+    /**
+     * TODO - this should be called disableSubmit
+     */
     disableForm: function () {
+      // the disabled class is used instead of the disabled attribute
+      // so that the submit handler is still called. With the submit attribute
+      // applied, no submit handler is fired, and the form validation does not
+      // take place.
       this.$('button[type=submit]').addClass('disabled');
       this._isFormEnabled = false;
     },
@@ -151,21 +158,21 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
 
       return p()
         .then(function () {
+          if (self.isHalted()) {
+            return;
+          }
+
           if (! self.isValid()) {
             // Validation error is surfaced for testing.
             throw self.showValidationErrors();
           }
-        })
-        .then(function () {
+
           // the form enabled check is done after the validation check
           // so that the form's `submit` handler is triggered and validation
           // error tooltips are displayed, even if the form is disabled.
           if (! self.isFormEnabled()) {
-            return p()
-              .then(function () {
-                // form is disabled, get outta here.
-                throw new Error('form is disabled');
-              });
+            // form is disabled, get outta here.
+            return;
           }
 
           // all good, do the beforeSubmit, submit, and afterSubmit chain.
@@ -467,14 +474,23 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * @return {promise || none} Return a promise if afterSubmit is
      *   an asynchronous operation.
      */
-    afterSubmit: function () {
-      // some views may display an error without throwing an exception.
-      // Check if the form is valid and no errors are visible before
-      // re-enabling the form. The user must modify the form for it to
-      // be re-enabled.
-      if (! this.isErrorVisible()) {
-        this.enableForm();
-      }
+    afterSubmit: function (result) {
+      var self = this;
+      return p().then(function () {
+        // the flow may be halted by an authentication broker after form
+        // submission. Views may display an error without throwing an exception.
+        // Ensure the flow is not halted and and no errors are visible before
+        // re-enabling the form. The user must modify the form for it to
+        // be re-enabled.
+
+        if (result && result.halt) {
+          self.halt();
+        } else if (! self.isErrorVisible()) {
+          self.enableForm();
+        }
+
+        return result;
+      });
     },
 
     /**
@@ -484,6 +500,25 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      */
     isSubmitting: function () {
       return this._isSubmitting;
+    },
+
+    /**
+     * Halt! Disable form edits, submission.
+     *
+     * TODO - this should be named disableForm, but that name is already taken.
+     */
+    halt: function () {
+      this.$('input,textarea,button').attr('disabled', 'disabled').blur();
+      this._isHalted = true;
+    },
+
+    /**
+     * Check if the view is halted
+     *
+     * @return {boolean} true if the view is halted, false otw.
+     */
+    isHalted: function () {
+      return this._isHalted;
     },
 
     /**

@@ -7,6 +7,7 @@
 
 define([
   'chai',
+  'sinon',
   'jquery',
   'lib/promise',
   'views/form',
@@ -16,7 +17,7 @@ define([
   'lib/auth-errors',
   '../../lib/helpers'
 ],
-function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors,
+function (chai, sinon, $, p, FormView, Template, Constants, Metrics, AuthErrors,
       TestHelpers) {
   var assert = chai.assert;
 
@@ -110,6 +111,44 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors,
         view.enableSubmitIfValid();
         assert.isTrue(view.$('button').hasClass('disabled'));
       });
+
+      it('does nothing if submitting', function () {
+        sinon.stub(view, 'isValid', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isHalted', function () {
+          return false;
+        });
+
+        sinon.stub(view, 'isSubmitting', function () {
+          return true;
+        });
+
+        view.disableForm();
+        view.enableSubmitIfValid();
+        assert.isFalse(view.isFormEnabled());
+        assert.isTrue(view.$('button').hasClass('disabled'));
+      });
+
+      it('does nothing if halted', function () {
+        sinon.stub(view, 'isValid', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isHalted', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'isSubmitting', function () {
+          return false;
+        });
+
+        view.disableForm();
+        view.enableSubmitIfValid();
+        assert.isFalse(view.isFormEnabled());
+        assert.isTrue(view.$('button').hasClass('disabled'));
+      });
     });
 
     describe('validateAndSubmit', function () {
@@ -141,12 +180,22 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors,
       it('does not submit if form is disabled', function () {
         view.formIsValid = true;
         view.disableForm();
+        sinon.spy(view, 'submit');
         return view.validateAndSubmit()
-                  .then(function () {
-                    assert(false, 'unexpected success');
-                  }, function (err) {
-                    assert.equal(err.message, 'form is disabled');
-                  });
+          .then(function () {
+            assert.isFalse(view.submit.called);
+          });
+      });
+
+      it('does not submit if form is halted', function () {
+        view.formIsValid = true;
+        view.enableForm();
+        view.halt();
+        sinon.spy(view, 'submit');
+        return view.validateAndSubmit()
+          .then(function () {
+            assert.isFalse(view.submit.called);
+          });
       });
 
       it('displays error message and does not disable form if beforeSubmit throws an error', function () {
@@ -209,32 +258,68 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors,
 
         return testFormSubmitted();
       });
+    });
 
-      it('override afterSubmit to prevent form from being re-enabled - afterSubmit errors are not displayed', function () {
+    describe('afterSubmit', function () {
+      it('override to prevent re-enabling of form', function () {
         view.formIsValid = true;
         view.enableSubmitIfValid();
         view.afterSubmit = function () {
           // do not re-enable form.
+        };
+
+        return view.validateAndSubmit()
+          .then(null, function () {
+            assert.isFalse(view.isFormEnabled());
+          });
+      });
+
+      it('errors in overridde are not disaplayed', function () {
+        view.formIsValid = true;
+        view.enableSubmitIfValid();
+        view.afterSubmit = function () {
           throw new Error('error that is not displayed');
         };
 
         return view.validateAndSubmit()
                   .then(null, function (err) {
                     assert.equal(err.message, 'error that is not displayed');
-                    assert.isFalse(view.isFormEnabled());
+                    assert.isFalse(view.isErrorVisible());
                   });
       });
 
-      it('afterSubmit can return a promise for asynchronous operations', function () {
-        view.formIsValid = true;
-        view.enableSubmitIfValid();
-        view.afterSubmit = function () {
-          return p().delay(10);
-        };
-
-        return testFormSubmitted();
+      it('re-enables form by default', function () {
+        return view.afterSubmit()
+          .then(function () {
+            assert.isTrue(view.isFormEnabled());
+          });
       });
 
+      it('pass in an object with `halt: true` to completely disable form', function () {
+        view.disableForm();
+
+        return view.afterSubmit({ halt: true })
+          .then(function () {
+            assert.isTrue(view.isHalted());
+            assert.isFalse(view.isFormEnabled());
+          });
+      });
+    });
+
+    describe('halt', function () {
+      it('prevents input fields from being changed', function () {
+        view.halt();
+
+        view.$('input').each(function (index, el) {
+          assert.ok(view.$(el).attr('disabled'));
+        });
+      });
+
+      it('prevents the form from being submitted', function () {
+        view.halt();
+
+        assert.ok(view.$('button[type="submit"]').attr('disabled'));
+      });
     });
 
     describe('showValidationError', function () {
@@ -370,6 +455,77 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors,
       });
     });
 
+    describe('showValidationErrors', function () {
+      beforeEach(function () {
+        // View overrides showValidationErrors, create a new View type
+        // with the default showValidationErrors
+        var ShowValidationErrorTestView = FormView.extend({
+          template: Template
+        });
+
+        view = new ShowValidationErrorTestView();
+
+        return view.render()
+          .then(function () {
+            view.$('#focusMe').val('a value');
+            view.$('#required').val('a value');
+            view.$('input[type="email"]').val('testuser@testuser.com');
+            view.$('input[type="password"]').val('password');
+          });
+      });
+
+      it('shows nothing when all elements are valid', function () {
+        sinon.spy(view, 'showValidationError');
+        view.showValidationErrors();
+        assert.isFalse(view.showValidationError.called);
+      });
+
+      it('shows when an email is invalid', function () {
+        view.$('input[type="email"]').val('a');
+        sinon.spy(view, 'showValidationError');
+        view.showValidationErrors();
+        assert.isTrue(view.showValidationError.called);
+      });
+
+      it('shows when a password is invalid', function () {
+        view.$('input[type="password"]').val('');
+        sinon.spy(view, 'showValidationError');
+        view.showValidationErrors();
+        assert.isTrue(view.showValidationError.called);
+      });
+
+      it('shows one message at a time', function () {
+        view.$('input[type="email"]').val('a');
+        view.$('input[type="password"]').val('');
+        sinon.spy(view, 'showValidationError');
+        sinon.spy(view, 'showValidationErrorsEnd');
+        view.showValidationErrors();
+        assert.equal(view.showValidationError.callCount, 1);
+        assert.isFalse(view.showValidationErrorsEnd.called);
+      });
+
+      it('shows one message at a time with text inputs', function () {
+        view.$('input[required]').val('');
+        sinon.spy(view, 'showValidationErrorsEnd');
+        view.showValidationErrors();
+        assert.isFalse(view.showValidationErrorsEnd.called);
+      });
+
+      it('gives subclasses the opportunity to show validation errors at the start', function () {
+        sinon.stub(view, 'showValidationErrorsStart', function () {
+          return true;
+        });
+        view.showValidationErrors();
+        assert.isTrue(view.showValidationErrorsStart.called);
+      });
+
+      it('gives subclasses the opportunity to show validation errors at the end', function () {
+        sinon.spy(view, 'showValidationErrorsEnd');
+        view.showValidationErrors();
+        assert.isTrue(view.showValidationErrorsEnd.called);
+      });
+    });
+
     describe('notifyDelayedRequest', function () {
       it('shows a notification when the response takes too long then hides it', function () {
         // override expectation
@@ -445,6 +601,19 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors,
       });
     });
 
+    describe('getElementType', function () {
+      it('returns the type of the element', function () {
+        assert.equal(view.getElementType('#focusMe'), 'text');
+        assert.equal(view.getElementType('#password'), 'password');
+      });
+
+      it('returns `password` for text inputs with the `password` class', function () {
+        assert.equal(view.getElementType('#focusMe'), 'text');
+        view.$('#focusMe').addClass('password');
+        assert.equal(view.getElementType('#focusMe'), 'password');
+      });
+    });
+
     describe('getElementValue', function () {
       it('gets an element\'s value, does not trim by default', function () {
         var elementVal = 'this is the value of an element ';
@@ -462,6 +631,51 @@ function (chai, $, p, FormView, Template, Constants, Metrics, AuthErrors,
         var elementVal = '  password  ';
         $('#password').val(elementVal);
         assert.equal(view.getElementValue('#password'), elementVal);
+      });
+    });
+
+    describe('isValid', function () {
+      beforeEach(function () {
+        // View overrides isValid, create a new View type
+        // with the default isValid
+        var IsValidTestView = FormView.extend({
+          template: Template
+        });
+
+        view = new IsValidTestView();
+
+        return view.render()
+          .then(function () {
+            view.$('#focusMe').val('a value');
+            view.$('#required').val('a value');
+            view.$('input[type="email"]').val('testuser@testuser.com');
+            view.$('input[type="password"]').val('password');
+          });
+      });
+
+      it('returns true if all elements are valid', function () {
+        assert.isTrue(view.isValid());
+      });
+
+      it('returns false if one element is invalid', function () {
+        view.$('input[type="email"]').val('not_an_email');
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns false if isValidStart returns false', function () {
+        sinon.stub(view, 'isValidStart', function () {
+          return false;
+        });
+
+        assert.isFalse(view.isValid());
+      });
+
+      it('returns false if isValidEnd returns false', function () {
+        sinon.stub(view, 'isValidEnd', function () {
+          return false;
+        });
+
+        assert.isFalse(view.isValid());
       });
     });
   });
