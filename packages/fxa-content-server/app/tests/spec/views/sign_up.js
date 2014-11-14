@@ -174,6 +174,21 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
             assert.isTrue(view.showValidationError.called);
           });
       });
+
+      it('focuses the email element by default', function (done) {
+        $('html').addClass('no-touch');
+        TestHelpers.requiresFocus(function () {
+          view.render()
+            .then(function () {
+
+              view.$('input[type="email"]').one('focus', function () {
+                done();
+              });
+
+              view.afterVisible();
+            });
+        }, done);
+      });
     });
 
     describe('isValid', function () {
