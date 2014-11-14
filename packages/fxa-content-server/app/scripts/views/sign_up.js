@@ -80,6 +80,8 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         this.showValidationError('input[type=email]',
                   AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
       }
+
+      return FormView.prototype.afterVisible.call(this);
     },
 
     events: {
