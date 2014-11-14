@@ -73,7 +73,7 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
   }
 
   .password-row .show-password-label {
-    border-radius: 0 $small-border-radius $small-border-radius 0;
+    border-radius: 0;
     height: 38px;
     line-height: 38px;
   }
