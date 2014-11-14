@@ -61,8 +61,16 @@ define([
         });
     },
 
-    afterSignUpConfirmationPoll: function () {
+    beforeSignUpConfirmationPoll: function () {
+      // The Sync broker notifies the browser of an unverified login
+      // before the user has verified her email. This allows the user
+      // to close the original tab or open the verification link in
+      // the about:accounts tab and have Sync still successfully start.
       return this._notifyRelierOfLogin();
+    },
+
+    afterSignUpConfirmationPoll: function () {
+      return p({ halt: true });
     },
 
     afterResetPasswordConfirmationPoll: function () {

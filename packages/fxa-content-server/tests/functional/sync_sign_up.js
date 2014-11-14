@@ -59,28 +59,16 @@ define([
         .findByCssSelector('#fxa-signup-header')
         .end()
 
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
+        })
 
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
+        .findByCssSelector('#fxa-confirm-header')
 
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        })
 
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
         .end()
 
         // verify the user
@@ -105,16 +93,13 @@ define([
 
         .end()
         .closeCurrentWindow()
-        // switch to the original window
+
+        // switch to the original window, it should not transition.
         .switchToWindow('')
         .end()
 
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end()
-
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
-        });
+        .findByCssSelector('#fxa-confirm-header')
+        .end();
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
@@ -128,44 +113,25 @@ define([
         .findByCssSelector('#fxa-signup-header')
         .end()
 
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
+        })
 
         .findByCssSelector('#fxa-confirm-header')
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        })
+
         .end()
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
         })
 
-        .findByCssSelector('#fxa-sign-up-complete-header')
-        .end()
-
-        .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
-        });
+        // The original tab should not transition
+        .findByCssSelector('#fxa-confirm-header')
+        .end();
     },
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
@@ -179,28 +145,16 @@ define([
         .findByCssSelector('#fxa-signup-header')
         .end()
 
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
+        })
 
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
 
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
+        .findByCssSelector('#fxa-confirm-header')
 
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        })
         .end()
 
         // clear local/sessionStorage to synthesize continuing in
@@ -227,6 +181,28 @@ define([
           assert.ok(text.indexOf('Firefox Sync') > -1);
         })
 
+        .end();
+    },
+
+    'choose option to customize sync': function () {
+      var self = this;
+      return this.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .execute(listenForFxaCommands)
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(
+              self, email, PASSWORD, TOO_YOUNG_YEAR - 1, true);
+        })
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        })
+
+        // Being pushed to the confirmation screen is success.
+        .findById('fxa-confirm-header')
         .end();
     }
   });

@@ -137,15 +137,24 @@ define([
       });
     });
 
-    describe('afterSignUpConfirmationPoll', function () {
+    describe('beforeSignUpConfirmationPoll', function () {
       it('notifies the channel of login', function () {
         sinon.stub(broker, '_notifyRelierOfLogin', function () {
           return p();
         });
 
-        return broker.afterSignUpConfirmationPoll()
+        return broker.beforeSignUpConfirmationPoll()
           .then(function () {
             assert.isTrue(broker._notifyRelierOfLogin.called);
+          });
+      });
+    });
+
+    describe('afterSignUpConfirmationPoll', function () {
+      it('halts', function () {
+        return broker.afterSignUpConfirmationPoll()
+          .then(function (result) {
+            assert.isTrue(result.halt);
           });
       });
     });
