@@ -26,7 +26,7 @@
     "URIjs": "1.14.1",
     "bluebird": "2.3.10",
     "buf": "0.1.0",
-    "convict": "0.5.1",
+    "convict": "0.6",
     "fxa-notifier-aws": "1.0.0",
     "hapi": "7.1.1",
     "joi": "4.7.0",
