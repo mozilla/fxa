@@ -277,7 +277,7 @@ define([
       .end();
   }
 
-  function fillOutSignUp(context, email, password, year) {
+  function fillOutSignUp(context, email, password, year, customizeSync) {
     return context.get('remote')
       .getCurrentUrl()
       .then(function (currentUrl) {
@@ -310,6 +310,15 @@ define([
         .releaseMouseButton()
         .click()
       .end()
+
+      .then(function () {
+        if (customizeSync) {
+          return context.get('remote')
+            .findByCssSelector('form input.customize-sync')
+              .click()
+            .end();
+        }
+      })
 
       .findByCssSelector('button[type="submit"]')
         .click()

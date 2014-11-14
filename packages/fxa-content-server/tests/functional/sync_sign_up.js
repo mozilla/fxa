@@ -182,6 +182,28 @@ define([
         })
 
         .end();
+    },
+
+    'choose option to customize sync': function () {
+      var self = this;
+      return this.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .execute(listenForFxaCommands)
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(
+              self, email, PASSWORD, TOO_YOUNG_YEAR - 1, true);
+        })
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        })
+
+        // Being pushed to the confirmation screen is success.
+        .findById('fxa-confirm-header')
+        .end();
     }
   });
 });

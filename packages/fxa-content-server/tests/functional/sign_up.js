@@ -221,47 +221,6 @@ define([
         .end();
     },
 
-    'choose option to customize sync': function () {
-      var urlForSync = PAGE_URL + '?service=sync';
-
-      var email = TestHelpers.createEmail();
-      var password = '12345678';
-
-      return this.get('remote')
-        .get(require.toUrl(urlForSync))
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(password)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (CUTOFF_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('form input.customize-sync')
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        // Being pushed to the confirmation screen is success.
-        .findById('fxa-confirm-header')
-        .end();
-    },
-
     'sign up with a verified account forces the user to sign in': function () {
 
       var self = this;
