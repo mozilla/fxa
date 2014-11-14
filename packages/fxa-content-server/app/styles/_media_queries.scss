@@ -93,6 +93,7 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
   .button-row a.button {
     border-radius: $small-border-radius;
     font-size: $medium-font + $media-adjustment;
+    height: 44px;
     padding: 8px 0;
   }
 
@@ -258,6 +259,7 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     button,
     a.button {
       font-size: $medium-font;
+      height: 41px;
       padding: 8px 0;
     }
   }

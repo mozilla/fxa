@@ -597,6 +597,7 @@ label:focus ~ .input-help-focused {
     cursor: pointer;
     @include font();
     font-size: $large-font;
+    height: 63px;
     padding: 15px 0;
     transition-duration: $short-transition;
     transition-property: background-color;
