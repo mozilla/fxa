@@ -53,7 +53,11 @@ module.exports = function verifyAssertion(assertion) {
     }
 
     function error(msg, val) {
-      logger.debug('invalidAssertion', { msg: msg, val: val });
+      logger.info('invalidAssertion', {
+        msg: msg,
+        val: val,
+        assertion: assertion
+      });
       d.reject(AppError.invalidAssertion());
     }
 

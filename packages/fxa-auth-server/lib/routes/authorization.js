@@ -30,6 +30,7 @@ function set(arr) {
 }
 
 
+
 function isLocalHost(url) {
   var host = new URI(url).hostname();
   return host === 'localhost' || host === '127.0.0.1';
@@ -49,7 +50,18 @@ function generateCode(claims, client, scope, req) {
       .addQuery({ state: req.payload.state, code: hex(code) });
 
 
-    return { redirect: String(redirect) };
+    var out = { redirect: String(redirect) };
+    logger.info('generateCode', {
+      request: {
+        client_id: req.payload.client_id,
+        redirect_uri: req.payload.redirect_uri,
+        scope: req.payload.scope,
+        state: req.payload.state,
+        response_type: req.payload.response_type
+      },
+      response: out
+    });
+    return out;
   });
 }
 
@@ -107,6 +119,7 @@ module.exports = {
     ]).with('access_token', 'token_type', 'scope')
   },
   handler: function authorizationEndpoint(req, reply) {
+    logger.debug('response_type', req.payload.response_type);
     var wantsGrant = req.payload.response_type === TOKEN;
     P.all([
       verify(req.payload.assertion).then(function(claims) {
