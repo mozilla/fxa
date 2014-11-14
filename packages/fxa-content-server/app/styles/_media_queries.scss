@@ -47,7 +47,9 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     display: block;
     float: none;
     margin: 5px 0;
+    padding: 0;
     text-align: center;
+    width: 100%
   }
   html[dir='ltr'],
   html[dir='rtl'] {
