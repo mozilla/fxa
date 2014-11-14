@@ -27,6 +27,7 @@ define([
       this._oAuthClientId = options.oAuthClientId;
       this._oAuthClient = options.oAuthClient;
       this._profileClient = options.profileClient;
+      this._fxaClient = options.fxaClient;
       this._assertion = options.assertion;
       this._storage = options.storage || new Storage(localStorage);
     },
@@ -67,6 +68,7 @@ define([
         assertion: this._assertion,
         oAuthClient: this._oAuthClient,
         profileClient: this._profileClient,
+        fxaClient: this._fxaClient,
         oAuthClientId: this._oAuthClientId
       });
     },

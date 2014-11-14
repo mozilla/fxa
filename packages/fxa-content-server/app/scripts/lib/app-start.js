@@ -271,6 +271,7 @@ function (
           oAuthClientId: this._config.oauthClientId,
           profileClient: this._profileClient,
           oAuthClient: this._oAuthClient,
+          fxaClient: this._fxaClient,
           assertion: this._assertionLibrary
         });
       }

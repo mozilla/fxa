@@ -45,28 +45,41 @@ define([
       self._oAuthClient = options.oAuthClient;
       self._assertion = options.assertion;
       self._profileClient = options.profileClient;
+      self._fxaClient = options.fxaClient;
     },
 
     // Hydrate the account
     fetch: function () {
       var self = this;
+      var promise = p();
+
+      if (! self.get('sessionToken')) {
+        return promise;
+      }
+
+      // upgrade the credentials with verified state
+      if (! self.get('verified')) {
+        promise = self.isVerified()
+          .then(function (verified) {
+            self.set('verified', verified);
+          }, function () {
+            // Ignore errors; we'll just fetch again when needed
+          });
+      }
 
       // upgrade the credentials with an accessToken
-      if (self._needsAccessToken()) {
-        return self._getAccessTokenFromSessionToken(self.get('sessionToken'))
-          .then(function (accessToken) {
-            self.set('accessToken', accessToken);
-            // if we can sign a cert, we must be verified
-            self.set('verified', true);
-          }, function (err) {
-            if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-              self.set('verified', false);
-              return;
-            }
-          });
-      } else {
-        return p();
-      }
+      promise = promise.then(function () {
+        if (self._needsAccessToken()) {
+          return self._getAccessTokenFromSessionToken(self.get('sessionToken'))
+            .then(function (accessToken) {
+              self.set('accessToken', accessToken);
+            }, function () {
+              // Ignore errors; we'll just fetch again when needed
+            });
+        }
+      });
+
+      return promise;
     },
 
     profileClient: function () {
@@ -89,13 +102,10 @@ define([
       });
     },
 
-    // If the account doesn't have an accessToken (or isn't verified),
-    // we should attempt to fetch an access token. That will determine if
-    // the account has since been verified and retrieve said access token.
-    // The sessionToken is needed to perform the fetch.
+    // If we're verified and don't have an accessToken, we should
+    // go ahead and get one.
     _needsAccessToken: function () {
-      return this.get('sessionToken') &&
-        (! this.get('accessToken') || ! this.get('verified'));
+      return this.get('verified') && ! this.get('accessToken');
     },
 
     _getAccessTokenFromSessionToken: function (sessionToken) {
@@ -117,15 +127,9 @@ define([
     },
 
     isVerified: function () {
-      return this._getAccessTokenFromSessionToken(this.get('sessionToken'))
-        .then(function () {
-          return true;
-        }, function (err) {
-          if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-            return false;
-          }
-
-          throw err;
+      return this._fxaClient.recoveryEmailStatus(this.get('sessionToken'))
+        .then(function (results) {
+          return results.verified;
         });
     }
 
