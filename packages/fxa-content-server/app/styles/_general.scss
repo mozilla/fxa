@@ -821,7 +821,7 @@ input[type="text"] {
 }
 
 .change-password .password-row,
-.complete_reset_password .password-row {
+.complete-reset-password .password-row {
   margin-bottom: 25px;
 }
 
@@ -850,8 +850,7 @@ input[type="text"] {
   width: 36px;
 }
 
-.button-row .spinner
-{
+.button-row .spinner {
   background-image: image-url('spinnerwhite.png');
   background-size: 33px 33px;
   height: 33px;

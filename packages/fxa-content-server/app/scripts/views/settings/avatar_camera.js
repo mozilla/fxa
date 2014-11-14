@@ -28,7 +28,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
     mustVerify: true,
 
     template: Template,
-    className: 'avatar_camera',
+    className: 'avatar-camera',
 
     context: function () {
       return {

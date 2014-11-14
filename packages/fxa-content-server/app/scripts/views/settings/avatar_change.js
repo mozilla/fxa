@@ -24,7 +24,7 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
     mustVerify: true,
 
     template: Template,
-    className: 'avatar_change',
+    className: 'avatar-change',
 
     events: {
       'click #file': 'filePicker',

@@ -23,7 +23,7 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
     mustAuth: true,
 
     template: Template,
-    className: 'avatar_crop',
+    className: 'avatar-crop',
 
     initialize: function (options) {
       options = options || {};
