@@ -28,6 +28,7 @@ define([
   var PASSWORD = '12345678';
 
   var listenForFxaCommands = FxDesktopHelpers.listenForFxaCommands;
+  var testIsBrowserNotifiedOfLogin = FxDesktopHelpers.testIsBrowserNotifiedOfLogin;
 
   registerSuite({
     name: 'Firefox Desktop Sync sign_up',
@@ -63,6 +64,11 @@ define([
         })
 
         .findByCssSelector('#fxa-confirm-header')
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        })
+
         .end()
 
         // verify the user
@@ -112,6 +118,11 @@ define([
         })
 
         .findByCssSelector('#fxa-confirm-header')
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        })
+
         .end()
 
         .then(function () {
@@ -137,6 +148,14 @@ define([
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
         })
+
+
+        .findByCssSelector('#fxa-confirm-header')
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self);
+        })
+        .end()
 
         // clear local/sessionStorage to synthesize continuing in
         // a separate browser.

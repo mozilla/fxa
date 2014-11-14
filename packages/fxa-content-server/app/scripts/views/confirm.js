@@ -57,6 +57,9 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
 
       var self = this;
       return self.broker.persist()
+        .then(function() {
+          self.broker.beforeSignUpConfirmationPoll();
+        })
         .then(function () {
           self._waitForConfirmation()
             .then(function () {

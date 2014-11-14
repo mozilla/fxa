@@ -77,8 +77,20 @@ define([
     },
 
     /**
+     * Called before signup email confirmation poll starts. Can be used
+     * to notify the RP that the user has successfully signed up but
+     * has not yet completed verification.
+     *
+     * @return {promise}
+     */
+    beforeSignUpConfirmationPoll: function () {
+      return p();
+    },
+
+    /**
      * Called after signup email confirmation poll completes. Can be used
-     * to notify the RP that the user has sucessfully signed up.
+     * to notify the RP that the user has successfully signed up and
+     * completed verification.
      *
      * Resolve promise with an object that contains `{ halt: true }` to
      * prevent the "confirm" screen from transitioning to "signup_complete"
