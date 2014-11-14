@@ -137,6 +137,19 @@ define([
       });
     });
 
+    describe('beforeSignUpConfirmationPoll', function () {
+      it('notifies the channel of login', function () {
+        sinon.stub(broker, '_notifyRelierOfLogin', function () {
+          return p();
+        });
+
+        return broker.beforeSignUpConfirmationPoll()
+          .then(function () {
+            assert.isTrue(broker._notifyRelierOfLogin.called);
+          });
+      });
+    });
+
     describe('afterSignUpConfirmationPoll', function () {
       it('halts', function () {
         return broker.afterSignUpConfirmationPoll()

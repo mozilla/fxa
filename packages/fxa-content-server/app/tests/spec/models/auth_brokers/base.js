@@ -41,6 +41,13 @@ function (chai, sinon, BaseAuthenticationBroker, BaseView, WindowMock) {
       });
     });
 
+    describe('beforeSignUpConfirmationPoll', function () {
+      it('returns a promise', function () {
+        return broker.beforeSignUpConfirmationPoll(view)
+          .then(assert.pass);
+      });
+    });
+
     describe('afterSignUpConfirmationPoll', function () {
       it('returns a promise', function () {
         return broker.afterSignUpConfirmationPoll(view)
