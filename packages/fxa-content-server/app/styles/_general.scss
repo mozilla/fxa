@@ -666,9 +666,6 @@ ul.links {
   }
 }
 
-
-
-
 .privacy-links,
 .privacy-links a {
   color: $input-placeholder-color;
@@ -715,7 +712,7 @@ ul.links {
   .show-password-label {
     background-color: $content-background-color;
     border-left: 1px solid $input-row-border-color;
-    border-radius: 0 $big-border-radius $big-border-radius 0;
+    border-radius: 0 $small-border-radius $small-border-radius 0;
     color: $input-placeholder-color;
     cursor: pointer;
     font-size: $base-font;
