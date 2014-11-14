@@ -27,12 +27,6 @@ define([
       }, '*');
     }
 
-    // listenForFxaCommands is not called before session_status is sent
-    // from the browser. Send it now to head off any problems.
-    sendMessageToFxa({
-      status: 'session_status'
-    });
-
     // Add an event listener that auto responds to FirefoxAccountsCommands so
     // that flows can complete and no error messages are displayed.
     window.addEventListener('FirefoxAccountsCommand', function (e) {

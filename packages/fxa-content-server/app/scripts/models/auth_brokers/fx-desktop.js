@@ -14,10 +14,9 @@ define([
   'models/auth_brokers/mixins/channel',
   'lib/promise',
   'lib/auth-errors',
-  'lib/channels/fx-desktop',
-  'lib/constants'
+  'lib/channels/fx-desktop'
 ], function (_, BaseAuthenticationBroker, ChannelMixin, p, AuthErrors,
-        FxDesktopChannel, Constants) {
+        FxDesktopChannel) {
 
   var FxDesktopAuthenticationBroker = BaseAuthenticationBroker.extend({
     initialize: function (options) {
@@ -29,40 +28,6 @@ define([
 
       return BaseAuthenticationBroker.prototype.initialize.call(
           this, options);
-    },
-
-    fetch: function () {
-      var self = this;
-
-      return BaseAuthenticationBroker.prototype.fetch.call(self)
-        .then(function () {
-          // only fetch session_status if the user is trying to sign up or
-          // sign in. If session_status is fetched during verification,
-          // the browser is not listening and a channel timeout occurs.
-          if (! self._isSignUpOrSignIn()) {
-            return;
-          }
-
-          return self.send('session_status', {})
-            .then(function (response) {
-              return response.data;
-            })
-            .then(_.bind(self._initializeSession, self));
-        });
-    },
-
-    selectStartPage: function () {
-      var self = this;
-      return p().then(function () {
-        var canRedirect = self.window.location.pathname === '/';
-        if (canRedirect) {
-          if (self._isUserAuthenticated()) {
-            return 'settings';
-          } else {
-            return 'signup';
-          }
-        }
-      });
     },
 
     beforeSignIn: function (email) {
@@ -118,31 +83,6 @@ define([
       });
 
       return channel;
-    },
-
-    _initializeSession: function (sessionStatus) {
-      var self = this;
-      var session = self._session;
-      self._sessionStatus = sessionStatus;
-
-      return p().then(function () {
-        if (self.isForceAuth()) {
-          session.clear();
-        } else if (! sessionStatus) {
-          session.clear();
-        } else {
-          // TODO - this should go in a User model when ready.
-          session.set('email', sessionStatus.email);
-        }
-      });
-    },
-
-    _isSignUpOrSignIn: function () {
-      return this.getSearchParam('context') === Constants.FX_DESKTOP_CONTEXT;
-    },
-
-    _isUserAuthenticated: function () {
-      return !! (this._sessionStatus && this._sessionStatus.email);
     },
 
     _notifyRelierOfLogin: function () {

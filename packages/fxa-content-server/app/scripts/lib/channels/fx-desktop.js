@@ -12,7 +12,7 @@ define([
   'lib/auth-errors'
 ],
 function (_, BaseChannel, AuthErrors) {
-  var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 1000;
+  var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 5000;
 
   function noOp() {
     // Nothing to do here.
