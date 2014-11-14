@@ -49,14 +49,16 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     margin: 5px 0;
     text-align: center;
   }
-
-  .input-row input[type='text'],
-  .input-row input[type='email'],
-  .input-row input[type='password'],
-  .input-row select {
-    border-radius: $small-border-radius;
-    font-size: $base-font + $media-adjustment;
-    height: 40px;
+  html[dir='ltr'],
+  html[dir='rtl'] {
+    .input-row input[type='text'],
+    .input-row input[type='email'],
+    .input-row input[type='password'],
+    .input-row select {
+      border-radius: $small-border-radius;
+      font-size: $base-font + $media-adjustment;
+      height: 40px;
+    }
   }
 
   .select-row {
