@@ -37,7 +37,7 @@ function (p, ProgressIndicator) {
           })
           .then(function (value) {
             // Stop the progress indicator unless the page is navigating
-            if (! (value && value.pageNavigation)) {
+            if (! (value && value.halt)) {
               progressIndicator.done();
             }
             return value;
