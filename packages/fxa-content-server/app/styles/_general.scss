@@ -68,7 +68,7 @@ noscript {
   margin: 0 auto;
   opacity: 0;
   position: relative;
-  top: 40px;
+  top: 30px;
   width: 80px;
   z-index: 999;
 
@@ -94,9 +94,9 @@ noscript {
   background: $content-background-color;
   border-radius: $big-border-radius;
   box-shadow: 0 1px 5px $input-row-border-color;
-  margin: -5px auto 0 auto;
+  margin: -15px auto 0 auto;
   min-height: 450px;
-  padding: 60px 40px 40px 40px;
+  padding: 50px 40px 40px 40px;
   text-align: center;
   width: 420px;
 
@@ -127,7 +127,7 @@ header {
   h1 {
     font-size: $large-font;
     font-weight: 200;
-    margin: 0 0 32px 0;
+    margin: 0 0 24px 0;
 
     span.service {
       display: block;
@@ -337,7 +337,7 @@ html[dir='rtl'] {
 }
 
 .input-row {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
   position: relative;
   width: 100%;
 
@@ -450,7 +450,7 @@ html[dir='rtl'] {
 
   .input-help {
     color: $input-placeholder-color;
-    margin-top: 8px;
+    margin-top: 6px;
   }
 
   .input-help-focused {
@@ -580,8 +580,7 @@ label:focus ~ .input-help-focused {
 /*end select row rules*/
 
 .button-row {
-  margin-bottom: 20px;
-  margin-top: 45px;
+  margin: 20px 0;
 
   a.button {
     display: inline-block;
@@ -632,7 +631,6 @@ button::-moz-focus-inner {
 }
 
 .links {
-  margin-bottom: 20px;
   overflow: auto;
   // the 1px of padding allows the :focus outline on anchors to show.
   padding: 1px;
@@ -676,12 +674,8 @@ ul.links {
 .privacy-links,
 .privacy-links a {
   color: $input-placeholder-color;
-  margin-top: 35px;
-  transition-duration: $short-transition;
-}
-
-.privacy-links + .button-row {
   margin-top: 20px;
+  transition-duration: $short-transition;
 }
 
 .privacy-links a:active,
@@ -819,7 +813,7 @@ input[type="text"] {
 
 .customize-sync-row {
   color: $input-placeholder-color;
-  margin-bottom: 20px !important;
+  margin-bottom: 10px !important;
 }
 
 .cannot-create-account-content {
