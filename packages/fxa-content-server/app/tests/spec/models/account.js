@@ -236,6 +236,31 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       });
     });
 
+    describe('without an access token', function () {
+      beforeEach(function () {
+        account.set('sessionToken', 'abc123');
+        sinon.stub(assertion, 'generate', function () {
+          return p('assertion');
+        });
+        sinon.stub(oAuthClient, 'getToken', function () {
+          return p.reject(ProfileClient.Errors.toError('UNVERIFIED_ACCOUNT'));
+        });
+      });
+
+      ['getAvatar', 'getAvatars', 'postAvatar', 'deleteAvatar', 'uploadAvatar']
+      .forEach(function (method) {
+        it('fails on ' + method, function () {
+          return account[method]()
+            .then(
+              assert.fail,
+              function (err) {
+                assert.isTrue(ProfileClient.Errors.is(err, 'UNAUTHORIZED'));
+              }
+            );
+        });
+      });
+    });
+
     it('isFromSync returns true in the right context', function () {
       account.set('sessionTokenContext', Constants.FX_DESKTOP_CONTEXT);
       assert.isTrue(account.isFromSync());

@@ -41,6 +41,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
 
       account = user.createAccount({
         email: email,
+        accessToken: 'abc123',
         verified: true
       });
     });

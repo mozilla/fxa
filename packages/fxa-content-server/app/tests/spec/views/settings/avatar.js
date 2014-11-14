@@ -70,6 +70,7 @@ function (chai, _, $, sinon, View, RouterMock, FxaClientMock,
         };
         account = user.createAccount({
           email: 'a@a.com',
+          accessToken: 'abc123',
           verified: true
         });
 

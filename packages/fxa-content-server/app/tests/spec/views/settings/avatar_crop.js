@@ -66,6 +66,7 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock,
         };
         account = user.createAccount({
           email: 'a@a.com',
+          accessToken: 'abc123',
           verified: true
         });
         sinon.stub(view, 'currentAccount', function () {

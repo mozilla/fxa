@@ -12,8 +12,9 @@ define([
   'underscore',
   'lib/promise',
   'lib/auth-errors',
+  'lib/profile-client',
   'lib/constants'
-], function (Backbone, _, p, AuthErrors, Constants) {
+], function (Backbone, _, p, AuthErrors, ProfileClient, Constants) {
 
   var DEFAULTS = {
     uid: undefined,
@@ -137,7 +138,12 @@ define([
         var args = Array.prototype.slice.call(arguments, 0);
         return self.profileClient()
           .then(function (profileClient) {
-            return profileClient[method].apply(profileClient, [self.get('accessToken')].concat(args));
+            var accessToken = self.get('accessToken');
+            if (! accessToken) {
+              return p.reject(ProfileClient.Errors.toError('UNAUTHORIZED'));
+            } else {
+              return profileClient[method].apply(profileClient, [accessToken].concat(args));
+            }
           });
       };
     });

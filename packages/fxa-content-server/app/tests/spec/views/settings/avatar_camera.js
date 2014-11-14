@@ -43,6 +43,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
 
       account = user.createAccount({
         email: 'a@a.com',
+        accessToken: 'abc123',
         verified: true
       });
     });
