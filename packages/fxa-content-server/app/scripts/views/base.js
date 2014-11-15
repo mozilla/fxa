@@ -47,7 +47,6 @@ function (_, Backbone, $, p, AuthErrors,
   function displayError(displayStrategy, err) {
     /*jshint validthis: true*/
     this.hideSuccess();
-    this.$('.spinner').hide();
 
     err = this._normalizeError(err);
 
