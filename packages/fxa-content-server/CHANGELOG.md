@@ -1,3 +1,42 @@
+<a name="0.26.0"></a>
+## 0.26.0 (2014-11-14)
+
+
+#### Bug Fixes
+
+* **accounts:** only fetch access token if verified ([d3168850](https://github.com/mozilla/fxa-content-server/commit/d3168850a23a314cdf6477c5d74794e819561c84))
+* **avatars:**
+  * ensure the default image background is covered by the profile image ([387e3246](https://github.com/mozilla/fxa-content-server/commit/387e3246a9f5fcd3bd474d7df7c93f6ce2f0444f))
+  * load profile image on settings and sign in pages if available ([382c9db9](https://github.com/mozilla/fxa-content-server/commit/382c9db980753300b38b3f767aa071a1163ccf73), closes [#1727](https://github.com/mozilla/fxa-content-server/issues/1727))
+* **broker:** fix desktop broker to forward account data before confirm ([0492140e](https://github.com/mozilla/fxa-content-server/commit/0492140e90cc85535681dce1e2daf24d456f44c6))
+* **client:**
+  * Fixed missing spinner on subsequent requests. ([910ff4dd](https://github.com/mozilla/fxa-content-server/commit/910ff4ddad0768c2d5d796a7abb6701381308271))
+  * Notify Sync of unverified logins and signups before the user verifies her email  ([8943f1f7](https://github.com/mozilla/fxa-content-server/commit/8943f1f7e58f13c1e4297e0c8268be80c8ea41d1))
+  * The Sync flow should not notify the browser of login after the signup confirmati ([3ba53720](https://github.com/mozilla/fxa-content-server/commit/3ba5372020c32fb0eace40e8530137f70c77da56))
+  * Autofocus on /signup works again. ([7f142421](https://github.com/mozilla/fxa-content-server/commit/7f142421495d74f5bd13e4dd3a7f31bab2ac69ea))
+  * The FxDesktop broker no longer sends the `session_status` message on startup. ([8f414c4a](https://github.com/mozilla/fxa-content-server/commit/8f414c4a0b9cc70d2c243897c102368d79021be2))
+  * Ensure the spinner stays spinning after signin for Sync/OAuth. ([5c74b8a2](https://github.com/mozilla/fxa-content-server/commit/5c74b8a228120314412917db1531602f8cdb4c45))
+  * Do not fail on startup if cookies or access to dom.storage is disabled. ([e084cba7](https://github.com/mozilla/fxa-content-server/commit/e084cba7ffc8ba8b2f950024b9576368921c3631))
+  * Ensure the Loop initiated reset password verification flow sends OAuth credentia ([a91e27b5](https://github.com/mozilla/fxa-content-server/commit/a91e27b5ad74798fbf99c5974966da7c0b0469c0))
+* **images:** optimize images with new optipng ([780ff760](https://github.com/mozilla/fxa-content-server/commit/780ff76029cfcd15911ded01ccd80fef977a4135))
+* **style:**
+  * remove end padding from text inputs ([07dacd9d](https://github.com/mozilla/fxa-content-server/commit/07dacd9d423e10bf30c8c7b000de40bf03a8a7ac))
+  * tos/pn layout overlap ([53d8a7b3](https://github.com/mozilla/fxa-content-server/commit/53d8a7b38d220c9323af57a4cb06cf9f258cfc77))
+* **styles:**
+  * spinning wheel affects button height ([3d536417](https://github.com/mozilla/fxa-content-server/commit/3d536417bd96c6d291a848c5459e821e25b77db1))
+  * show password border radius ([20270acd](https://github.com/mozilla/fxa-content-server/commit/20270acd423387cc4deb5826b2d0b020230d2434))
+  * odd wrapping on choose account and reset pwd links on sign in in some l10ns ([f454d9d3](https://github.com/mozilla/fxa-content-server/commit/f454d9d3c86c77d162498a18f2129a59d926cb22))
+* **test:** Ensure the web channel tests complete. ([46b578d6](https://github.com/mozilla/fxa-content-server/commit/46b578d67e01a6fc4eb17f59ab4c0c22c510706a))
+
+
+#### Features
+
+* **client:**
+  * Allow the user to restart the signup flow on email bounce. ([896d1f47](https://github.com/mozilla/fxa-content-server/commit/896d1f470fc70614feb8e66a1bd57a1e0dedb3fb))
+  * Add some brokers! ([83ee1861](https://github.com/mozilla/fxa-content-server/commit/83ee186129cf28e49d88942aaef47bd5d48e6eb1))
+* **test:** Add functional test for web channel flow when user signs up, closes original tab ([c2b51b9d](https://github.com/mozilla/fxa-content-server/commit/c2b51b9d5e580fa1575d73236a00dc445cc77c51))
+
+
 <a name="0.25.0"></a>
 ## 0.25.0 (2014-10-29)
 
