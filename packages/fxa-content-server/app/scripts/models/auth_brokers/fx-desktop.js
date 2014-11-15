@@ -25,6 +25,7 @@ define([
       // channel can be passed in for testing.
       this._channel = options.channel;
       this._session = options.session;
+      this._user = options.user;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
           this, options);
@@ -52,8 +53,8 @@ define([
         });
     },
 
-    afterSignIn: function () {
-      return this._notifyRelierOfLogin()
+    afterSignIn: function (accountData) {
+      return this._notifyRelierOfLogin(accountData)
         .then(function () {
           // the browser will take over from here,
           // don't let the screen transition.
@@ -61,20 +62,20 @@ define([
         });
     },
 
-    beforeSignUpConfirmationPoll: function () {
+    beforeSignUpConfirmationPoll: function (accountData) {
       // The Sync broker notifies the browser of an unverified login
       // before the user has verified her email. This allows the user
       // to close the original tab or open the verification link in
       // the about:accounts tab and have Sync still successfully start.
-      return this._notifyRelierOfLogin();
+      return this._notifyRelierOfLogin(accountData);
     },
 
     afterSignUpConfirmationPoll: function () {
       return p({ halt: true });
     },
 
-    afterResetPasswordConfirmationPoll: function () {
-      return this._notifyRelierOfLogin()
+    afterResetPasswordConfirmationPoll: function (accountData) {
+      return this._notifyRelierOfLogin(accountData)
         .then(function () {
           // the browser will take over from here,
           // don't let the screen transition.
@@ -93,11 +94,11 @@ define([
       return channel;
     },
 
-    _notifyRelierOfLogin: function () {
-      return this.send('login', this._getLoginData());
+    _notifyRelierOfLogin: function (accountData) {
+      return this.send('login', this._getLoginData(accountData));
     },
 
-    _getLoginData: function () {
+    _getLoginData: function (accountData) {
       var ALLOWED_FIELDS = [
         'email',
         'uid',
@@ -109,10 +110,9 @@ define([
         'cachedCredentials'
       ];
 
-      var session = this._session;
       var loginData = {};
       _.each(ALLOWED_FIELDS, function (field) {
-        loginData[field] = session[field];
+        loginData[field] = accountData[field];
       });
 
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkAccount;

@@ -14,13 +14,14 @@ define([
   'views/confirm',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
+  'models/user',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
-      EphemeralMessages, View, OAuthRelier, OAuthBroker, WindowMock,
-      RouterMock, TestHelpers) {
+      EphemeralMessages, View, OAuthRelier, OAuthBroker, User,
+      WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -33,11 +34,14 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
     var fxaClient;
     var relier;
     var broker;
+    var user;
+    var account;
+    var accountData;
     var ephemeralMessages;
 
     beforeEach(function () {
-      Session.set('sessionToken', 'fake session token');
 
+      ephemeralMessages = new EphemeralMessages();
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       windowMock.location.pathname = 'confirm';
@@ -52,15 +56,37 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
+      user = new User();
+
+      account = user.createAccount({
+        email: 'a@a.com',
+        uid: 'uid',
+        sessionToken: 'fake session token'
+      });
+
+      sinon.stub(user, 'getCurrentAccount', function () {
+        return account;
+      });
+      accountData = {
+        email: 'a@a.com'
+      };
+      ephemeralMessages.set('data', {
+        accountData: accountData
+      });
 
       view = new View({
         router: routerMock,
         window: windowMock,
         metrics: metrics,
+        user: user,
         fxaClient: fxaClient,
         relier: relier,
-        broker: broker,
-        ephemeralMessages: ephemeralMessages
+        ephemeralMessages: ephemeralMessages,
+        broker: broker
+      });
+
+      sinon.stub(view, 'currentAccount', function () {
+        return account;
       });
 
       return view.render()
@@ -83,8 +109,11 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         assert.ok($('#fxa-confirm-header').length);
       });
 
-      it('redirects to /signup if no sessionToken', function () {
-        Session.clear('sessionToken');
+      it('redirects to /signup if no account sessionToken', function () {
+        view.currentAccount.restore();
+        sinon.stub(view, 'currentAccount', function () {
+          return user.createAccount();
+        });
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'signup');
@@ -99,12 +128,21 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
-      it('notifies the broker of afterSignUpConfirmationPoll after the account is confirmed', function (done) {
+      it('notifies the broker after the account is confirmed', function (done) {
+        sinon.stub(broker, 'beforeSignUpConfirmationPoll', function () {
+          return p();
+        });
         sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
           TestHelpers.wrapAssertion(function () {
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.isTrue(account.get('verified'));
+            assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(accountData));
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm.verification.success'));
           }, done);
+        });
+        sinon.stub(user, 'setAccount', function () {
+          return p();
         });
 
         var count = 0;
@@ -151,7 +189,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
                               'confirm.resend'));
 
             assert.isTrue(view.fxaClient.signUpResend.calledWith(
-                relier));
+                relier, account.get('sessionToken')));
           });
       });
 
@@ -231,7 +269,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
     describe('bouncedEmailSignup', function () {
       it('saves the email address to ephemeralMessages', function () {
-        Session.set('email', 'testuser@testuser.com');
+        account.set('email', 'testuser@testuser.com');
         view.bouncedEmailSignup();
         assert.equal(
             ephemeralMessages.get('bouncedEmail'), 'testuser@testuser.com');

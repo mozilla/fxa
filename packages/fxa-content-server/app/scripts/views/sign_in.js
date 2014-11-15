@@ -15,9 +15,11 @@ define([
   'lib/auth-errors',
   'lib/validate',
   'views/mixins/service-mixin',
+  'views/mixins/avatar-mixin',
   'views/decorators/progress_indicator'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, AuthErrors, Validate, ServiceMixin, showProgressIndicator) {
+function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
+      AuthErrors, Validate, ServiceMixin, AvatarMixin, showProgressIndicator) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -30,14 +32,17 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       // want the last used email.
       this.prefillEmail = Session.prefillEmail || this.searchParam('email');
 
-      var suggestedUser = this._suggestedUser();
+      var suggestedAccount = this._suggestedAccount();
+      var hasSuggestedAccount = suggestedAccount.get('email');
+      var email = hasSuggestedAccount ?
+                    suggestedAccount.get('email') : this.prefillEmail;
 
       return {
         service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName'),
-        email: this.prefillEmail,
-        suggestedUser: suggestedUser,
-        chooserAskForPassword: this._suggestedUserAskPassword(),
+        email: email,
+        suggestedAccount: hasSuggestedAccount,
+        chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
         password: Session.prefillPassword,
         error: this.error
       };
@@ -48,6 +53,11 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail',
       'click .use-logged-in': 'useLoggedInAccount',
       'click .use-different': 'useDifferentAccount'
+    },
+
+    afterVisible: function () {
+      FormView.prototype.afterVisible.call(this);
+      return this._displayProfileImage(this._suggestedAccount());
     },
 
     beforeDestroy: function () {
@@ -86,7 +96,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
           return self.broker.beforeSignIn(email)
             .then(function () {
               return self.fxaClient.signIn(
-                  email, credentials.password, self.relier);
+                  email, credentials.password, self.relier, self.user);
             });
         } else if (credentials.sessionToken) {
           return self.fxaClient.recoveryEmailStatus(credentials.sessionToken);
@@ -95,11 +105,11 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
         }
       })
       .then(function (accountData) {
-        if (accountData.verified) {
+        if (self.user.createAccount(accountData).get('verified')) {
           self.logScreenEvent('success');
-          return self.onSignInSuccess();
+          return self.onSignInSuccess(accountData);
         } else {
-          return self.onSignInUnverified();
+          return self.onSignInUnverified(accountData);
         }
       })
       .then(null, function (err) {
@@ -115,9 +125,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       });
     },
 
-    onSignInSuccess: function () {
+    onSignInSuccess: function (accountData) {
       var self = this;
-      return self.broker.afterSignIn()
+      return self.broker.afterSignIn(accountData)
         .then(function (result) {
           if (! (result && result.halt)) {
             self.navigate('settings');
@@ -127,12 +137,17 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
         });
     },
 
-    onSignInUnverified: function () {
+    onSignInUnverified: function (accountData) {
       var self = this;
+      var sessionToken = self.currentAccount().get('sessionToken');
 
-      return self.fxaClient.signUpResend(self.relier)
+      return self.fxaClient.signUpResend(self.relier, sessionToken)
         .then(function () {
-          self.navigate('confirm');
+          self.navigate('confirm', {
+            data: {
+              accountData: accountData
+            }
+          });
         });
     },
 
@@ -158,17 +173,17 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
      */
     useLoggedInAccount: showProgressIndicator(function () {
       var self = this;
+      var account = this._suggestedAccount();
 
-      return this._signIn(Session.cachedCredentials.email, {
-        sessionToken: Session.cachedCredentials.sessionToken
+      return this._signIn(account.get('email'), {
+        sessionToken: account.get('sessionToken')
       })
-      .then(
-        null,
+      .fail(
         function () {
           self.chooserAskForPassword = true;
           return self.render()
             .then(function () {
-              Session.clear('cachedCredentials');
+              self.user.removeAccount(account);
               return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
             });
         });
@@ -178,7 +193,11 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
      * Render to a basic sign in view, used with "Use a different account" button
      */
     useDifferentAccount: BaseView.preventDefaultThen(function () {
+      // TODO when the UI allows removal of individual accounts,
+      // only clear the current account.
+      this.user.removeAllAccounts();
       Session.clear();
+
       return this.render();
     }),
 
@@ -190,41 +209,26 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
      *          Returns "null" if the current signin view must not suggest users.
      * @private
      */
-    _suggestedUser: function () {
-      var cachedEmail = Session.email;
-      var cachedSessionToken = Session.sessionToken;
-      var cachedAvatar = Session.avatar;
-
-      if (Session.cachedCredentials) {
-        cachedEmail = Session.cachedCredentials.email;
-        cachedSessionToken = Session.cachedCredentials.sessionToken;
-        cachedAvatar = Session.cachedCredentials.avatar;
-      }
+    _suggestedAccount: function () {
+      var account = this.user.getChooserAccount();
 
       if (
-        // confirm that session token and email are present
-        cachedSessionToken && cachedEmail &&
+        // confirm that session email is present
+        account.get('email') && account.get('sessionToken') &&
         // prefilled email must be the same or absent
-        (this.prefillEmail === cachedEmail || ! this.prefillEmail)
+        (this.prefillEmail === account.get('email') || ! this.prefillEmail)
       ) {
-        return {
-          email: cachedEmail,
-          avatar: cachedAvatar
-        };
+        return account;
       } else {
-        return null;
+        return this.user.createAccount();
       }
-    },
-
-    _areCachedCredentialsFromSync: function () {
-      return !!Session.cachedCredentials;
     },
 
     /**
      * Determines if the suggested user must be asked for a password.
      * @private
      */
-    _suggestedUserAskPassword: function () {
+    _suggestedAccountAskPassword: function (account) {
       // sync must always use a password login to generate keys, skip the login chooser at all cost
       if (this.relier.isSync()) {
         return true;
@@ -233,19 +237,20 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin, Auth
       // We need to ask the user again for their password unless the credentials came from Sync.
       // Otherwise they aren't able to "fully" log out. Only Sync has a clear path to disconnect/log out
       // your account that invalidates your sessionToken.
-      if (! this._areCachedCredentialsFromSync()) {
+      if (! this.user.isSyncAccount(account)) {
         return true;
       }
 
       // shows when 'chooserAskForPassword' already set or
       return !!(this.chooserAskForPassword === true ||
-          // or when a prefill email does not match the cached email
-          (this.prefillEmail && this.prefillEmail !== Session.cachedCredentials.email));
+          // or when a prefill email does not match the account email
+          (this.prefillEmail && this.prefillEmail !== account.get('email')));
     }
   });
 
   _.extend(View.prototype, PasswordMixin);
   _.extend(View.prototype, ServiceMixin);
+  _.extend(View.prototype, AvatarMixin);
 
   return View;
 });

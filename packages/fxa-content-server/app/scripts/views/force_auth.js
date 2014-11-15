@@ -7,11 +7,12 @@
 define([
   'lib/promise',
   'views/base',
+  'views/form',
   'views/sign_in',
   'stache!templates/force_auth',
   'lib/session'
 ],
-function (p, BaseView, SignInView, Template, Session) {
+function (p, BaseView, FormView, SignInView, Template, Session) {
   var t = BaseView.t;
 
   var View = SignInView.extend({
@@ -26,8 +27,9 @@ function (p, BaseView, SignInView, Template, Session) {
       this._prefillPassword = Session.prefillPassword;
 
       // forceAuth means a user must sign in as a specific user.
-      // kill the user's local session, set forceAuth flag
+      // kill the user's local session.
       Session.clear();
+      this.user.clearCurrentAccount();
     },
 
     context: function () {
@@ -39,7 +41,6 @@ function (p, BaseView, SignInView, Template, Session) {
 
       return {
         email: email,
-        avatar: this._getAvatar(),
         password: this._prefillPassword,
         fatalError: fatalError
       };
@@ -74,10 +75,16 @@ function (p, BaseView, SignInView, Template, Session) {
 
         var email = self.relier.get('email');
         self._isSubmitting = true;
+
         return self.fxaClient.passwordReset(email, self.relier)
-                .then(function () {
+                .then(function (result) {
                   self._isSubmitting = false;
-                  self.navigate('confirm_reset_password');
+                  self.navigate('confirm_reset_password', {
+                    data: {
+                      email: email,
+                      passwordForgotToken: result.passwordForgotToken
+                    }
+                  });
                 }, function (err) {
                   self._isSubmitting = false;
                   self.displayError(err);
@@ -86,16 +93,20 @@ function (p, BaseView, SignInView, Template, Session) {
     },
 
     /**
-     * Return user's "Session.avatar" if the session email is the same as the force email.
-     *
-     * @private
+     * Displays the account's avatar
      */
-    _getAvatar: function () {
+
+    afterVisible: function () {
       var email = this.relier.get('email');
-      if (email && Session.avatar && email === Session.email) {
-        return Session.avatar;
-      } else {
-        return null;
+      var account = this.user.getAccountByEmail(email);
+
+      // Use FormView's afterVisible because SignIn attemps to
+      // display a profile image for the "suggested" account.
+      FormView.prototype.afterVisible.call(this);
+
+      // Only display the profile image if we have a cached account
+      if (account.get('email') === email) {
+        return this._displayProfileImage(account);
       }
     }
   });

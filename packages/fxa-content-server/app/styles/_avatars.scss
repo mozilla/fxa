@@ -22,8 +22,12 @@
     }
   }
 
+  &.with-default {
+    background: image-url('default-profile.svg') center;
+  }
 
   img {
+    background-color: $content-background-color;
     display: block;
     height: $avatar-size;
     width: $avatar-size;

@@ -130,7 +130,7 @@ define([
         .end()
 
         .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
+          return testIsBrowserNotifiedOfLogin(self, email);
         });
     },
 
@@ -182,7 +182,7 @@ define([
         .end()
 
         .then(function () {
-          return testIsBrowserNotifiedOfLogin(self);
+          return testIsBrowserNotifiedOfLogin(self, email);
         });
     },
 

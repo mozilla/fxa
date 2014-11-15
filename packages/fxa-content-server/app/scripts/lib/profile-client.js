@@ -2,34 +2,33 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// This module handles communication with the fxa-profile-server.
+
 'use strict';
 
 define([
   'lib/xhr',
   'underscore',
-  'lib/session',
   'lib/config-loader',
   'lib/oauth-client',
   'lib/assertion',
   'lib/auth-errors'
 ],
-function (xhr, _, Session, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
+function (xhr, _, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
 
   function ProfileClient(options) {
+    options = options || {};
     this.profileUrl = options.profileUrl;
-
-    // an OAuth access token
-    this.token = options.token;
   }
 
-  ProfileClient.prototype._request = function (path, type, data, headers) {
+  ProfileClient.prototype._request = function (path, type, accessToken, data, headers) {
     var url = this.profileUrl;
 
     var request = {
       url: url + path,
       type: type,
       headers: {
-        Authorization: 'Bearer ' + this.token,
+        Authorization: 'Bearer ' + accessToken,
         Accept: 'application/json'
       }
     };
@@ -58,39 +57,33 @@ function (xhr, _, Session, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
 
   // Returns the user's profile data
   // including: email, uid
-  ProfileClient.prototype.getProfile = function () {
-    return this._request('/v1/profile', 'get');
+  ProfileClient.prototype.getProfile = function (accessToken) {
+    return this._request('/v1/profile', 'get', accessToken);
   };
 
-  ProfileClient.prototype.getAvatar = function () {
-    return this._request('/v1/avatar', 'get');
+  ProfileClient.prototype.getAvatar = function (accessToken) {
+    return this._request('/v1/avatar', 'get', accessToken);
   };
 
-  ProfileClient.prototype.getAvatars = function () {
-    return this._request('/v1/avatars', 'get');
+  ProfileClient.prototype.getAvatars = function (accessToken) {
+    return this._request('/v1/avatars', 'get', accessToken);
   };
 
-  ProfileClient.prototype.postAvatar = function (url, selected) {
-    return this._request('/v1/avatar', 'post', {
+  ProfileClient.prototype.postAvatar = function (accessToken, url, selected) {
+    return this._request('/v1/avatar', 'post', accessToken, {
       url: url,
       selected: selected
     });
   };
 
-  ProfileClient.prototype.deleteAvatar = function (id) {
-    return this._request('/v1/avatar/' + id, 'delete');
+  ProfileClient.prototype.deleteAvatar = function (accessToken, id) {
+    return this._request('/v1/avatar/' + id, 'delete', accessToken);
   };
 
-  ProfileClient.prototype.uploadAvatar = function (data) {
-    return this._request('/v1/avatar/upload', 'post', data, {
+  ProfileClient.prototype.uploadAvatar = function (accessToken, data) {
+    return this._request('/v1/avatar/upload', 'post', accessToken, data, {
       'Content-type': data.type
     });
-  };
-
-  // Returns remote image data
-  // TODO #1581 refactor this to use new remote image proxy
-  ProfileClient.prototype.getRemoteImage = function (url) {
-    return this._request('/v1/remote_image/' + encodeURIComponent(url), 'get');
   };
 
   var t = function (msg) {

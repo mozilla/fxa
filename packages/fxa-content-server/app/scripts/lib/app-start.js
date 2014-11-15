@@ -30,9 +30,9 @@ define([
   'lib/null-metrics',
   'lib/fxa-client',
   'lib/assertion',
-  'lib/profile',
   'lib/constants',
   'lib/oauth-client',
+  'lib/profile-client',
   'lib/auth-errors',
   'lib/channels/inter-tab',
   'models/reliers/relier',
@@ -41,7 +41,8 @@ define([
   'models/auth_brokers/base',
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/web-channel',
-  'models/auth_brokers/redirect'
+  'models/auth_brokers/redirect',
+  'models/user'
 ],
 function (
   _,
@@ -56,9 +57,9 @@ function (
   NullMetrics,
   FxaClient,
   Assertion,
-  Profile,
   Constants,
   OAuthClient,
+  ProfileClient,
   AuthErrors,
   InterTabChannel,
   Relier,
@@ -67,7 +68,8 @@ function (
   BaseAuthenticationBroker,
   FxDesktopAuthenticationBroker,
   WebChannelAuthenticationBroker,
-  RedirectAuthenticationBroker
+  RedirectAuthenticationBroker,
+  User
 ) {
 
   function isMetricsCollectionEnabled(sampleRate) {
@@ -89,6 +91,7 @@ function (
     this._router = options.router;
     this._relier = options.relier;
     this._authenticationBroker = options.broker;
+    this._user = options.user;
 
     this._history = options.history || Backbone.history;
     this._configLoader = new ConfigLoader();
@@ -134,10 +137,15 @@ function (
                     .then(_.bind(this.initializeFxaClient, this))
                     // assertionLibrary depends on fxaClient
                     .then(_.bind(this.initializeAssertionLibrary, this))
-                    // broker relies on the relier and assertionLibrary
-                    .then(_.bind(this.initializeAuthenticationBroker, this))
-                    // profileClient dependsd on fxaClient and assertionLibrary
+                    // profileClient depends on fxaClient and assertionLibrary
                     .then(_.bind(this.initializeProfileClient, this))
+                    // user depends on the profileClient, oAuthClient, and assertionLibrary.
+                    .then(_.bind(this.initializeUser, this))
+                    // broker relies on the user, relier and assertionLibrary
+                    .then(_.bind(this.initializeAuthenticationBroker, this))
+                    // storage format upgrades depend on user
+                    .then(_.bind(this.upgradeStorageFormats, this))
+
                     // metrics depends on the relier.
                     .then(_.bind(this.initializeMetrics, this))
                     // router depends on all of the above
@@ -166,9 +174,15 @@ function (
     },
 
     initializeOAuthClient: function () {
-      if (this._isOAuth()) {
-        this._oAuthClient = new OAuthClient();
-      }
+      this._oAuthClient = new OAuthClient({
+        oauthUrl: this._config.oauthUrl
+      });
+    },
+
+    initializeProfileClient: function () {
+      this._profileClient = new ProfileClient({
+        profileUrl: this._config.profileUrl
+      });
     },
 
     initializeRelier: function () {
@@ -201,7 +215,8 @@ function (
 
     initializeAssertionLibrary: function () {
       this._assertionLibrary = new Assertion({
-        fxaClient: this._fxaClient
+        fxaClient: this._fxaClient,
+        audience: this._config.oauthUrl
       });
     },
 
@@ -211,7 +226,8 @@ function (
           this._authenticationBroker = new FxDesktopAuthenticationBroker({
             window: this._window,
             relier: this._relier,
-            session: Session
+            session: Session,
+            user: this._user
           });
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
@@ -220,6 +236,7 @@ function (
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
             oAuthUrl: this._config.oauthUrl,
+            user: this._user,
             session: Session
           });
         } else if (this._isOAuth()) {
@@ -229,6 +246,7 @@ function (
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
             oAuthUrl: this._config.oauthUrl,
+            user: this._user,
             session: Session
           });
         } else {
@@ -242,20 +260,27 @@ function (
     initializeFxaClient: function () {
       if (! this._fxaClient) {
         this._fxaClient = new FxaClient({
-          relier: this._relier,
           interTabChannel: this._interTabChannel
         });
       }
     },
 
-    initializeProfileClient: function () {
-      if (! this._profileClient) {
-        this._profileClient = new Profile({
-          config: this._config,
+    initializeUser: function () {
+      if (! this._user) {
+        this._user = new User({
+          oAuthClientId: this._config.oauthClientId,
+          profileClient: this._profileClient,
+          oAuthClient: this._oAuthClient,
+          fxaClient: this._fxaClient,
           assertion: this._assertionLibrary
         });
       }
     },
+
+    upgradeStorageFormats: function () {
+      return this._user.upgradeFromSession(Session, this._fxaClient);
+    },
+
 
     initializeRouter: function () {
       if (! this._router) {
@@ -265,7 +290,7 @@ function (
           relier: this._relier,
           broker: this._authenticationBroker,
           fxaClient: this._fxaClient,
-          profileClient: this._profileClient,
+          user: this._user,
           interTabChannel: this._interTabChannel
         });
       }

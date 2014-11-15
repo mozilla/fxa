@@ -32,6 +32,10 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       this._interTabChannel = options.interTabChannel;
       this._sessionUpdateTimeoutMS = options.sessionUpdateTimeoutMS ||
               SESSION_UPDATE_TIMEOUT_MS;
+
+      var data = this.ephemeralData();
+      this._email = data.email;
+      this._passwordForgotToken = data.passwordForgotToken;
     },
 
     events: {
@@ -42,15 +46,15 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
 
     context: function () {
       return {
-        email: Session.email,
-        encodedEmail: encodeURIComponent(Session.email),
+        email: this._email,
+        encodedEmail: encodeURIComponent(this._email),
         forceAuth: this.broker.isForceAuth()
       };
     },
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a reset password
-      if (! Session.passwordForgotToken) {
+      if (! this._passwordForgotToken) {
         this.navigate('reset_password');
         return false;
       }
@@ -153,15 +157,16 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       var self = this;
 
       // The OAuth flow needs the sessionToken to finish the flow.
-      Session.set(sessionInfo);
+      return self.user.setCurrentAccount(sessionInfo)
+        .then(function () {
+          self.displaySuccess(t('Password reset'));
 
-      self.displaySuccess(t('Password reset'));
-
-      return self.broker.afterResetPasswordConfirmationPoll()
-        .then(function (result) {
-          if (! (result && result.halt)) {
-            self.navigate('reset_password_complete');
-          }
+          return self.broker.afterResetPasswordConfirmationPoll(sessionInfo)
+            .then(function (result) {
+              if (! (result && result.halt)) {
+                self.navigate('reset_password_complete');
+              }
+            });
         });
     },
 
@@ -170,9 +175,8 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       // user verified in a different browser, make them sign in. OAuth
       // users will be redirected back to the RP, Sync users will be
       // taken to the Sync controlled completion page.
-      var email = Session.email;
       Session.clear();
-      Session.set('prefillEmail', email);
+      Session.set('prefillEmail', self._email);
       self.navigate(self._getSignInRoute(), {
         success: t('Password reset. Sign in to continue.')
       });
@@ -180,7 +184,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
 
     _waitForServerConfirmationNotice: function () {
       var self = this;
-      return self.fxaClient.isPasswordResetComplete(Session.passwordForgotToken)
+      return self.fxaClient.isPasswordResetComplete(self._passwordForgotToken)
         .then(function (isComplete) {
           if (isComplete) {
             return true;
@@ -234,25 +238,26 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
 
     submit: function () {
       var self = this;
-
       self.logScreenEvent('resend');
-      return self.fxaClient.passwordResetResend(self.relier)
-              .then(function () {
-                self.displaySuccess();
-              }, function (err) {
-                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-                  return self.navigate('reset_password', {
-                    error: err
-                  });
-                }
 
-                // unexpected error, rethrow for display.
-                throw err;
-              });
+      return self.fxaClient.passwordResetResend(self._email,
+                      self._passwordForgotToken, self.relier)
+        .then(function () {
+          self.displaySuccess();
+        }, function (err) {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            return self.navigate('reset_password', {
+              error: err
+            });
+          }
+
+          // unexpected error, rethrow for display.
+          throw err;
+        });
     },
 
     savePrefillEmailForSignin: function () {
-      Session.set('prefillEmail', Session.email);
+      Session.set('prefillEmail', this._email);
     }
   });
 

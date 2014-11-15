@@ -15,12 +15,13 @@ define([
   'lib/metrics',
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
+  'models/user',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
-      OAuthBroker, WindowMock, RouterMock, TestHelpers) {
+      OAuthBroker, User, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/oauth_sign_in', function () {
@@ -32,6 +33,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
     var relier;
     var metrics;
     var broker;
+    var profileClientMock;
+    var user;
 
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var STATE = '123';
@@ -53,8 +56,10 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         session: Session,
         window: windowMock
       });
+      user = new User();
       fxaClient = new FxaClient();
       metrics = new Metrics();
+      profileClientMock = TestHelpers.stubbedProfileClient();
 
       view = new View({
         router: router,
@@ -62,6 +67,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
+        user: user,
+        profileClient: profileClientMock,
         metrics: metrics
       });
 
@@ -116,7 +123,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signin.success'));
             assert.isTrue(view.fxaClient.signIn.calledWith(
-                email, password, relier));
+                email, password, relier, user));
             assert.isTrue(broker.afterSignIn.called);
           });
       });
@@ -128,6 +135,10 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
           return p({ verified: false });
         });
 
+        sinon.stub(view, 'currentAccount', function () {
+          return user.createAccount({ sessionToken: 'abc123' });
+        });
+
         sinon.stub(view.fxaClient, 'signUpResend', function () {
           return p();
         });
@@ -137,7 +148,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         return view.submit()
           .then(function () {
             assert.isTrue(view.fxaClient.signIn.calledWith(
-                email, password, relier));
+                email, password, relier, user));
             assert.equal(router.page, 'confirm');
           });
       });

@@ -13,11 +13,12 @@ define([
   'views/settings/avatar_gravatar',
   '../../../mocks/router',
   '../../../mocks/profile',
-  'lib/session',
+  'models/user',
   'lib/promise',
-  'lib/profile'
+  'lib/profile-client'
 ],
-function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile) {
+function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
+    p, ProfileClient) {
   var assert = chai.assert;
   var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';
   var EMAIL_HASH = '0bc83cb571cd1c50ba6f3e8a78ef1346';
@@ -27,11 +28,21 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
     var view;
     var routerMock;
     var profileClientMock;
+    var user;
+    var account;
 
     beforeEach(function () {
       routerMock = new RouterMock();
+      user = new User();
       view = new View({
+        user: user,
         router: routerMock
+      });
+
+      account = user.createAccount({
+        email: email,
+        accessToken: 'abc123',
+        verified: true
       });
     });
 
@@ -45,9 +56,6 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
 
     describe('with no session', function () {
       it('redirects to signin', function () {
-        view.isUserAuthorized = function () {
-          return false;
-        };
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -56,19 +64,20 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
     });
 
     describe('with session', function () {
-      it('hashed email', function () {
-        Session.set('email', email);
-
-        view = new View({
-          router: routerMock
+      beforeEach(function () {
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
         });
-        assert.equal(view.hashedEmail, '0bc83cb571cd1c50ba6f3e8a78ef1346');
-      });
-
-      it('not found', function () {
         view.isUserAuthorized = function () {
           return true;
         };
+      });
+
+      it('hashed email', function () {
+        assert.equal(view.hashedEmail(), '0bc83cb571cd1c50ba6f3e8a78ef1346');
+      });
+
+      it('not found', function () {
         return view.render()
           .then(function () {
             return view._showGravatar()
@@ -80,9 +89,6 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
       });
 
       it('found', function () {
-        view.isUserAuthorized = function () {
-          return true;
-        };
         view.automatedBrowser = true;
 
         return view.render()
@@ -93,41 +99,36 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
 
       describe('submitting', function () {
         beforeEach(function () {
-          Session.set('email', email);
-
           profileClientMock = new ProfileMock();
-
-          view = new View({
-            router: routerMock,
-            profileClient: profileClientMock
+          sinon.stub(account, 'profileClient', function () {
+            return p(profileClientMock);
           });
-          view.isUserAuthorized = function () {
-            return true;
-          };
         });
 
         it('submits', function () {
-          sinon.stub(profileClientMock, 'postAvatar', function () {
+          sinon.stub(profileClientMock, 'postAvatar', function (token, url, selected) {
+            assert.isTrue(selected);
             return p({
               id: 'foo'
             });
           });
+          view.automatedBrowser = true;
 
           return view.render()
             .then(function () {
               return view.submit();
             })
-            .then(function () {
-              assert.include(Session.avatar, GRAVATAR_URL + EMAIL_HASH);
-              assert.equal(Session.avatarId, 'foo');
+            .then(function (result) {
+              assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings/avatar');
               assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
             });
         });
 
         it('submits and errors', function () {
-          sinon.stub(profileClientMock, 'postAvatar', function () {
-            return p.reject(Profile.Errors.toError('UNSUPPORTED_PROVIDER'));
+          sinon.stub(profileClientMock, 'postAvatar', function (token, url) {
+            assert.include(url, GRAVATAR_URL + EMAIL_HASH);
+            return p.reject(ProfileClient.Errors.toError('UNSUPPORTED_PROVIDER'));
           });
 
           return view.render()
@@ -137,8 +138,9 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, Session, p, Profile)
             .then(function () {
               assert.fail('unexpected success');
             }, function (err) {
-              assert.isTrue(Profile.Errors.is(err, 'UNSUPPORTED_PROVIDER'));
+              assert.isTrue(ProfileClient.Errors.is(err, 'UNSUPPORTED_PROVIDER'));
               assert.isTrue(view.isErrorVisible());
+              assert.isTrue(profileClientMock.postAvatar.called);
             });
         });
       });

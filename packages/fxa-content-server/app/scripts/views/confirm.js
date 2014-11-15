@@ -9,13 +9,12 @@ define([
   'views/form',
   'views/base',
   'stache!templates/confirm',
-  'lib/session',
   'lib/promise',
   'lib/auth-errors',
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, FormView, BaseView, Template, Session, p, AuthErrors,
+function (_, FormView, BaseView, Template, p, AuthErrors,
     ResendMixin, ServiceMixin) {
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
@@ -26,9 +25,18 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
     // used by unit tests
     VERIFICATION_POLL_IN_MS: VERIFICATION_POLL_IN_MS,
 
+    initialize: function () {
+      // Account data is passed in from sign up and sign in flows.
+      // It's important for Sync flows where account data holds
+      // ephemeral properties like unwrapBKey and keyFetchToken
+      // that need to be sent to the browser.
+      var data = this.ephemeralData();
+      this._accountData = data && data.accountData;
+    },
+
     context: function () {
       return {
-        email: Session.email
+        email: this.currentAccount().get('email')
       };
     },
 
@@ -40,12 +48,12 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
 
     bouncedEmailSignup: function () {
       // TODO add `bouncedEmail` to the User model when ready.
-      this.ephemeralMessages.set('bouncedEmail', Session.email);
+      this.ephemeralMessages.set('bouncedEmail', this.currentAccount().get('email'));
     },
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a sign up.
-      if (! Session.sessionToken) {
+      if (! this.currentAccount().get('sessionToken')) {
         this.navigate('signup');
         return false;
       }
@@ -58,7 +66,7 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
       var self = this;
       return self.broker.persist()
         .then(function () {
-          return self.broker.beforeSignUpConfirmationPoll();
+          return self.broker.beforeSignUpConfirmationPoll(self._accountData);
         })
         .then(function () {
           self._waitForConfirmation()
@@ -85,10 +93,13 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
 
     _waitForConfirmation: function () {
       var self = this;
+      var account = self.currentAccount();
       return self.fxaClient.recoveryEmailStatus(
-          Session.sessionToken, Session.uid)
+          account.get('sessionToken'), account.get('uid'))
         .then(function (result) {
           if (result.verified) {
+            account.set('verified', true);
+            self.user.setAccount(account);
             return true;
           }
 
@@ -108,19 +119,20 @@ function (_, FormView, BaseView, Template, Session, p, AuthErrors,
       var self = this;
 
       self.logScreenEvent('resend');
-      return self.fxaClient.signUpResend(self.relier)
-              .then(function () {
-                self.displaySuccess();
-              }, function (err) {
-                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-                  return self.navigate('signup', {
-                    error: err
-                  });
-                }
+      return self.fxaClient.signUpResend(self.relier,
+          self.currentAccount().get('sessionToken'))
+        .then(function () {
+          self.displaySuccess();
+        }, function (err) {
+          if (AuthErrors.is(err, 'INVALID_TOKEN')) {
+            return self.navigate('signup', {
+              error: err
+            });
+          }
 
-                // unexpected error, rethrow for display.
-                throw err;
-              });
+          // unexpected error, rethrow for display.
+          throw err;
+        });
     }
   });
 

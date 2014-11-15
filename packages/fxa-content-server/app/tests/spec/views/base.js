@@ -10,21 +10,23 @@ define([
   'jquery',
   'sinon',
   'views/base',
+  'lib/promise',
   'lib/translator',
   'lib/ephemeral-messages',
   'lib/metrics',
   'lib/auth-errors',
   'lib/fxa-client',
   'models/reliers/relier',
+  'models/user',
   'stache!templates/test_template',
   '../../mocks/dom-event',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
-          AuthErrors, FxaClient, Relier, Template, DOMEventMock, RouterMock, WindowMock,
-          TestHelpers) {
+function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
+          AuthErrors, FxaClient, Relier, User, Template, DOMEventMock, RouterMock,
+          WindowMock, TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -39,6 +41,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
     var metrics;
     var fxaClient;
     var relier;
+    var user;
     var screenName = 'screen';
 
     beforeEach(function () {
@@ -55,6 +58,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
       metrics = new Metrics();
       relier = new Relier();
       fxaClient = new FxaClient();
+      user = new User();
 
       var View = BaseView.extend({
         template: Template
@@ -66,6 +70,7 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
         window: windowMock,
         ephemeralMessages: ephemeralMessages,
         metrics: metrics,
+        user: user,
         fxaClient: fxaClient
       });
 
@@ -148,6 +153,82 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
               // it's a one time message, no error message this time.
               assert.equal(view.$('.error').text(), '');
             });
+      });
+
+      it('has one time use data', function () {
+        var data = { foo: 'bar' };
+        ephemeralMessages.set('data', data);
+
+        assert.equal(view.ephemeralData().foo, 'bar');
+        assert.isUndefined(view.ephemeralData().foo);
+      });
+
+      it('redirects if mustVerify flag is set and account is unverified', function () {
+        view.mustVerify = true;
+        var account = user.createAccount({
+          email: 'a@a.com',
+          sessionToken: 'abc123',
+          uid: 'uid'
+        });
+        sinon.stub(fxaClient, 'sessionStatus', function () {
+          return p(true);
+        });
+        sinon.stub(account, 'isVerified', function () {
+          return p(false);
+        });
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
+        });
+        return view.render()
+          .then(function () {
+            assert.equal(router.page, 'confirm');
+          });
+      });
+
+      it('succeeds if mustVerify flag is set and account has verified since being stored', function () {
+        view.mustVerify = true;
+        var account = user.createAccount({
+          email: 'a@a.com',
+          sessionToken: 'abc123',
+          uid: 'uid'
+        });
+        sinon.stub(fxaClient, 'sessionStatus', function () {
+          return p(true);
+        });
+        sinon.stub(account, 'isVerified', function () {
+          return p(true);
+        });
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
+        });
+        sinon.stub(user, 'setAccount', function () {
+          return account;
+        });
+        return view.render()
+          .then(function (result) {
+            assert.isTrue(user.setAccount.calledWith(account));
+            assert.isTrue(result);
+          });
+      });
+
+      it('succeeds if mustVerify flag is set and account is verified', function () {
+        view.mustVerify = true;
+        var account = user.createAccount({
+          email: 'a@a.com',
+          sessionToken: 'abc123',
+          uid: 'uid',
+          verified: true
+        });
+        sinon.stub(fxaClient, 'sessionStatus', function () {
+          return p(true);
+        });
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
+        });
+        return view.render()
+          .then(function (result) {
+            assert.isTrue(result);
+          });
       });
     });
 
@@ -292,6 +373,14 @@ function (chai, jQuery, sinon, BaseView, Translator, EphemeralMessages, Metrics,
         });
 
         assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+      });
+
+      it('sets ephemeral data from navigate', function () {
+        view.navigate('signin', {
+          data: 'foo'
+        });
+
+        assert.equal(view.ephemeralData(), 'foo');
       });
     });
 

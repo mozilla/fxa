@@ -10,22 +10,26 @@ define([
   'views/confirm_reset_password',
   'lib/session',
   'lib/metrics',
+  'lib/ephemeral-messages',
   'lib/channels/inter-tab',
   '../../mocks/fxa-client',
   'models/reliers/relier',
   'models/auth_brokers/base',
+  'models/user',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, AuthErrors, View, Session, Metrics,
-      InterTabChannel, FxaClient, Relier, Broker, RouterMock,
+function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
+      InterTabChannel, FxaClient, Relier, Broker, User, RouterMock,
       WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
 
   describe('views/confirm_reset_password', function () {
+    var EMAIL = 'testuser@testuser.com';
+    var PASSWORD_FORGOT_TOKEN = 'fake password reset token';
     var view;
     var routerMock;
     var windowMock;
@@ -34,6 +38,8 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
     var relier;
     var broker;
     var interTabChannel;
+    var ephemeralMessages;
+    var user;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -47,12 +53,16 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
       });
       fxaClient = new FxaClient();
       interTabChannel = new InterTabChannel();
-
-      Session.set('passwordForgotToken', 'fake password reset token');
-      Session.set('email', 'testuser@testuser.com');
+      ephemeralMessages = new EphemeralMessages();
+      user = new User();
 
       sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
         return p(true);
+      });
+
+      ephemeralMessages.set('data', {
+        email: EMAIL,
+        passwordForgotToken: PASSWORD_FORGOT_TOKEN
       });
 
       view = new View({
@@ -62,8 +72,10 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
+        user: user,
         interTabChannel: interTabChannel,
-        sessionUpdateTimeoutMS: 100
+        sessionUpdateTimeoutMS: 100,
+        ephemeralMessages: ephemeralMessages
       });
 
       return view.render()
@@ -91,7 +103,10 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
       });
 
       it('redirects to /reset_password if no passwordForgotToken', function () {
-        Session.clear('passwordForgotToken');
+        view = new View({
+          router: routerMock,
+          window: windowMock
+        });
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'reset_password');
@@ -124,7 +139,25 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
         });
 
         var xssEmail = 'testuser@testuser.com" onclick="javascript:alert(1)"';
-        Session.set('email', xssEmail);
+
+        ephemeralMessages.set('data', {
+          email: xssEmail,
+          passwordForgotToken: PASSWORD_FORGOT_TOKEN
+        });
+
+        // create a new view because ephemeralData is bound in the initializer
+        view = new View({
+          router: routerMock,
+          window: windowMock,
+          metrics: metrics,
+          fxaClient: fxaClient,
+          relier: relier,
+          broker: broker,
+          user: user,
+          interTabChannel: interTabChannel,
+          sessionUpdateTimeoutMS: 100,
+          ephemeralMessages: ephemeralMessages
+        });
 
         return view.render()
           .then(function () {
@@ -171,11 +204,18 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
           return p();
         });
 
+        sinon.stub(user, 'setCurrentAccount', function () {
+          return p();
+        });
+
         sinon.stub(view, 'navigate', function (url) {
           TestHelpers.wrapAssertion(function () {
             assert.equal(url, 'reset_password_complete');
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm_reset_password.verification.success'));
+            assert.isTrue(user.setCurrentAccount.calledWith({
+              sessionToken: 'sessiontoken'
+            }));
           }, done);
         });
 
@@ -211,15 +251,10 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
         sinon.stub(view, 'navigate', function (page) {
           TestHelpers.wrapAssertion(function () {
             assert.equal(page, expectedPage);
-            // session.email is used to pre-fill the email on
-            // the signin page.
-            assert.equal(Session.prefillEmail, 'testuser@testuser.com');
+            assert.equal(Session.prefillEmail, EMAIL);
           }, done);
         });
 
-        // email is cleared in initial render in beforeEach, reset it to
-        // see if it makes it through to the redirect.
-        Session.set('email', 'testuser@testuser.com');
         view.render();
       }
 
@@ -254,7 +289,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
             assert.isTrue(view.$('.success').is(':visible'));
 
             assert.isTrue(fxaClient.passwordResetResend.calledWith(
-                relier));
+                EMAIL, PASSWORD_FORGOT_TOKEN, relier));
           });
       });
 
@@ -335,11 +370,9 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics,
     });
 
     describe('a click on the signin link', function () {
-      it('saves Session.email to Session.prefillEmail so user\'s email address is prefilled when browsing to /signin', function () {
-        Session.set('email', 'testuser@testuser.com');
-
+      it('saves view.email to Session.prefillEmail so user\'s email address is prefilled when browsing to /signin', function () {
         view.$('a[href="/signin"]').click();
-        assert.equal(Session.prefillEmail, 'testuser@testuser.com');
+        assert.equal(Session.prefillEmail, EMAIL);
       });
     });
   });

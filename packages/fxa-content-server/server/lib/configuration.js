@@ -158,8 +158,7 @@ var conf = module.exports = convict({
     coverage: {
       globalThreshold: 90,
       threshold: 50,
-      // Avatar tests are disabled until #1581 is resolved
-      excludeFiles: ['/scripts/../tests/', '/scripts/vendor/', '/scripts/../bower_components/', 'require_config', 'avatar_url']
+      excludeFiles: ['/scripts/../tests/', '/scripts/vendor/', '/scripts/../bower_components/', 'require_config']
     }
   },
   i18n: {

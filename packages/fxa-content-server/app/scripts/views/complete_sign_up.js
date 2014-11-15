@@ -11,10 +11,9 @@ define([
   'stache!templates/complete_sign_up',
   'lib/auth-errors',
   'lib/validate',
-  'views/mixins/resend-mixin',
-  'lib/session'
+  'views/mixins/resend-mixin'
 ],
-function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, ResendMixin, Session) {
+function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, ResendMixin) {
   var CompleteSignUpView = FormView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
@@ -85,15 +84,15 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
     context: function () {
       var doesLinkValidate = this._doesLinkValidate();
       var isLinkExpired = this._isLinkExpired;
-      // This is only the case if you've signed up in the same browser
-      // you opened the verification link in.
-      var canResend = !!Session.sessionToken;
 
       return {
         // If the link is invalid, print a special error message.
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
-        canResend: canResend,
+
+        // This is only the case if you've signed up in the
+        // same browser you opened the verification link in.
+        canResend: !!this.currentAccount().get('sessionToken'),
         error: this._error
       };
     },
@@ -102,9 +101,10 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
     // and clicks the "Resend" link.
     submit: function () {
       var self = this;
+      var sessionToken = self.currentAccount().get('sessionToken');
 
       self.logEvent('complete_sign_up.resend');
-      return self.fxaClient.signUpResend(self.relier)
+      return self.fxaClient.signUpResend(self.relier, sessionToken)
               .then(function () {
                 self.displaySuccess();
               }, function (err) {

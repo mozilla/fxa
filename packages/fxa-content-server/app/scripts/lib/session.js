@@ -18,7 +18,7 @@ define([
   var DO_NOT_CLEAR = ['config'];
 
   // these keys will be persisted to localStorage so that they live between browser sessions
-  var PERSIST_TO_LOCAL_STORAGE = ['email', 'sessionToken', 'sessionTokenContext', 'oauth', 'cachedCredentials'];
+  var PERSIST_TO_LOCAL_STORAGE = ['oauth'];
 
   function Session() {
     this.load();

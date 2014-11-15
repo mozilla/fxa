@@ -26,6 +26,7 @@ function (chai, $, sinon,
   var EMAIL = 'user@example.domain';
   var UID = '6d940dd41e636cc156074109b8092f96';
   var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
+  var token = 'deadbeef';
 
   describe('lib/profile-client', function () {
     beforeEach(function () {
@@ -34,8 +35,7 @@ function (chai, $, sinon,
       Session.clear();
 
       client = new ProfileClient({
-        profileUrl: PROFILE_URL,
-        token: 'deadbeef'
+        profileUrl: PROFILE_URL
       });
     });
 
@@ -52,7 +52,7 @@ function (chai, $, sinon,
             [200, { 'Content-Type': 'application/json' },
             '{ "uid": "' + UID + '", "email": "' + EMAIL + '" }']);
 
-          return client.getProfile()
+          return client.getProfile(token)
             .then(function (result) {
               assert.ok(result);
               assert.equal(result.uid, UID);
@@ -64,7 +64,7 @@ function (chai, $, sinon,
           server.respondWith('GET', PROFILE_URL + '/v1/profile',
             [0, {}, '']);
 
-          return client.getProfile()
+          return client.getProfile(token)
             .then(function () {
               assert.fail('unexpected success');
             }, function (err) {
@@ -79,7 +79,7 @@ function (chai, $, sinon,
             JSON.stringify(ProfileClient.Errors.toError('IMAGE_PROCESSING_ERROR'))
           ]);
 
-          return client.getProfile()
+          return client.getProfile(token)
             .then(function () {
               assert.fail('unexpected success');
             }, function (err) {
@@ -94,7 +94,7 @@ function (chai, $, sinon,
             [200, { 'Content-Type': 'application/json' },
             '{ "avatar": "' + URL + '" }']);
 
-          return client.getAvatar()
+          return client.getAvatar(token)
             .then(function (result) {
               assert.ok(result);
               assert.equal(result.avatar, URL);
@@ -114,7 +114,7 @@ function (chai, $, sinon,
               })
             ]);
 
-          return client.getAvatars()
+          return client.getAvatars(token)
             .then(function (result) {
               assert.ok(result.avatars);
               assert.equal(result.avatars.length, 2);
@@ -128,7 +128,7 @@ function (chai, $, sinon,
           server.respondWith('POST', PROFILE_URL + '/v1/avatar',
             [201, {}, '']);
 
-          return client.postAvatar('https://secure.gravatar.com/deadbeef', true);
+          return client.postAvatar(token, 'https://secure.gravatar.com/deadbeef', true);
         });
       });
 
@@ -138,7 +138,7 @@ function (chai, $, sinon,
             [201, { 'Content-Type': 'application/json' },
             '{ "url": "' + URL + '" }']);
 
-          return client.uploadAvatar('image blob goes here')
+          return client.uploadAvatar(token, 'image blob goes here')
             .then(function (result) {
               assert.equal(result.url, URL);
             });
@@ -147,10 +147,10 @@ function (chai, $, sinon,
 
       describe('deleteAvatar', function () {
         it('delete an avatar url', function () {
-          server.respondWith('DELETE', PROFILE_URL + '/v1/avatar/deadbeef',
+          server.respondWith('DELETE', PROFILE_URL + '/v1/avatar/beefcafe',
             [201, {}, '']);
 
-          return client.deleteAvatar('deadbeef', true);
+          return client.deleteAvatar(token, 'beefcafe', true);
         });
       });
 

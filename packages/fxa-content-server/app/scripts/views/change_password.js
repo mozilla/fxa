@@ -9,13 +9,12 @@ define([
   'views/base',
   'views/form',
   'stache!templates/change_password',
-  'lib/session',
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
   'lib/auth-errors',
   'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlaceholderMixin, AuthErrors, ServiceMixin) {
+function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMixin, AuthErrors, ServiceMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -28,8 +27,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
     events: {
       'click #back': 'back',
       'keyup #back': 'backOnEnter',
-      'change .show-password': 'onPasswordVisibilityChange',
-      'click #resend': 'resendVerificationEmail'
+      'change .show-password': 'onPasswordVisibilityChange'
     },
 
     afterRender: function () {
@@ -37,17 +35,18 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
     },
 
     submit: function () {
-      var email = Session.email;
-      var oldPassword = this.$('#old_password').val();
-      var newPassword = this.$('#new_password').val();
-
-      this.hideError();
-
       var self = this;
+      var account = self.currentAccount();
+      var email = account.get('email');
+      var oldPassword = self.$('#old_password').val();
+      var newPassword = self.$('#new_password').val();
+
+      self.hideError();
+
       // Try to sign the user in before checking whether the
       // passwords are the same. If the user typed the incorrect old
       // password, they should know that first.
-      return this.fxaClient.checkPassword(email, oldPassword)
+      return self.fxaClient.checkPassword(email, oldPassword)
           .then(function () {
             if (oldPassword === newPassword) {
               throw AuthErrors.toError('PASSWORDS_MUST_BE_DIFFERENT');
@@ -61,42 +60,16 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, FloatingPlace
             // prevents sync users from seeing the `sign out` button on the
             // settings screen.
 
-            var sessionTokenContext = Session.sessionTokenContext;
-            Session.clear();
-            return self.fxaClient.signIn(email, newPassword, self.relier, {
-              sessionTokenContext: sessionTokenContext
+            return self.fxaClient.signIn(email, newPassword, self.relier, self.user, {
+              sessionTokenContext: account.get('sessionTokenContext')
             });
           })
           .then(function () {
             self.navigate('settings', {
               success: t('Password changed')
             });
-          }, function (err) {
-            if (AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')) {
-              err.forceMessage = t('Unverified account. <a href="#" id="resend">Resend verification email</a>.');
-              return self.displayErrorUnsafe(err);
-            }
-
-            throw err;
           });
-    },
-
-    resendVerificationEmail: BaseView.preventDefaultThen(function () {
-      var self = this;
-
-      return self.fxaClient.signUpResend(self.relier)
-              .then(function () {
-                self.navigate('confirm');
-              }, function (err) {
-                if (AuthErrors.is(err, 'INVALID_TOKEN')) {
-                  return self.navigate('signup', {
-                    error: err
-                  });
-                }
-
-                throw self.displayError(err);
-              });
-    })
+    }
 
   });
 

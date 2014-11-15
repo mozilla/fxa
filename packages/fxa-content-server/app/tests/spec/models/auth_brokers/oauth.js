@@ -15,10 +15,11 @@ define([
   'lib/auth-errors',
   'lib/oauth-errors',
   'models/reliers/relier',
+  'models/user',
   'models/auth_brokers/oauth'
 ],
 function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
-      OAuthErrors, Relier, OAuthAuthenticationBroker) {
+      OAuthErrors, Relier, User, OAuthAuthenticationBroker) {
   var assert = chai.assert;
 
   var HEX_CHARSET = '0123456789abcdef';
@@ -42,6 +43,8 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
     var oAuthClient;
     var assertionLibrary;
     var relier;
+    var user;
+    var account;
 
     beforeEach(function () {
       oAuthClient = new OAuthClient();
@@ -65,12 +68,21 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
         action: 'action'
       });
 
+      user = new User();
+      account = user.createAccount({
+        email: 'a@a.com',
+        sessionToken: 'abc123'
+      });
+      sinon.stub(user, 'getCurrentAccount', function () {
+        return account;
+      });
 
       broker = new OAuthAuthenticationBroker({
         session: Session,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
         oAuthUrl: BASE_REDIRECT_URL,
+        user: user,
         relier: relier
       });
     });
@@ -159,6 +171,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
       it('gets an object with the OAuth login information', function () {
         return broker.getOAuthResult()
           .then(function (result) {
+            assert.isTrue(assertionLibrary.generate.calledWith(account.get('sessionToken')));
             assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
             assert.equal(result.state, 'state');
             assert.equal(result.code, VALID_OAUTH_CODE);

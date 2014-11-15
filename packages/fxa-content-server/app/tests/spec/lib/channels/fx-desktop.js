@@ -8,12 +8,11 @@
 define([
   'chai',
   '/tests/mocks/window.js',
-  'lib/session',
   'lib/auth-errors',
   'lib/channels/fx-desktop',
   '/tests/lib/helpers.js'
 ],
-function (chai, WindowMock, Session, AuthErrors, FxDesktopChannel, TestHelpers) {
+function (chai, WindowMock, AuthErrors, FxDesktopChannel, TestHelpers) {
   var assert = chai.assert;
   var channel;
   var wrapAssertion = TestHelpers.wrapAssertion;

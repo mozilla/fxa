@@ -8,19 +8,20 @@ define([
   'jquery',
   'underscore',
   'views/form',
+  'views/mixins/avatar-mixin',
   'stache!templates/settings/avatar_change',
   'lib/session',
   'lib/auth-errors',
   'lib/image-loader'
 ],
-function ($, _, FormView, Template, Session, AuthErrors, ImageLoader) {
+function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoader) {
 
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
-    mustAuth: true,
+    mustVerify: true,
 
     template: Template,
     className: 'avatar_change',
@@ -38,31 +39,43 @@ function ($, _, FormView, Template, Session, AuthErrors, ImageLoader) {
       this.FileReader = FileReader;
     },
 
+    context: function () {
+      return {
+        avatar: this.avatar
+      };
+    },
+
+    beforeRender: function () {
+      var self = this;
+
+      return self._fetchProfileImage(self.currentAccount())
+        .then(function (result) {
+          self.avatarId = result.id;
+          self.avatar = result.avatar;
+        }, function () {
+          // ignore errors
+        });
+    },
+
     afterRender: function () {
+      // Wrapper hides the browser's file picker widget so we can use
+      // our own
       var wrapper = $('<div/>').css({ height: 0, width: 0, 'overflow': 'hidden' });
       this.$(':file').wrap(wrapper);
     },
 
-    context: function () {
-      return {
-        avatar: Session.avatar
-      };
-    },
-
     remove: function () {
       var self = this;
-      return this.profileClient.deleteAvatar(Session.avatarId)
+      return self.currentAccount().deleteAvatar(self.avatarId)
         .then(function () {
-          Session.clear('avatar');
-          Session.clear('avatarId');
           self.navigate('settings/avatar');
         });
     },
 
     filePicker: function () {
+      var self = this;
       // skip the file picker if this is an automater browser
-      if (this.automatedBrowser) {
-        var self = this;
+      if (self.automatedBrowser) {
         require(['draggable', 'touch-punch'], function () {
           Session.set('cropImgSrc', pngSrc);
           Session.set('cropImgWidth', 1);
@@ -72,7 +85,7 @@ function ($, _, FormView, Template, Session, AuthErrors, ImageLoader) {
         });
         return;
       }
-      this.$('#imageLoader').click();
+      self.$('#imageLoader').click();
     },
 
     fileSet: function (e) {
@@ -115,6 +128,8 @@ function ($, _, FormView, Template, Session, AuthErrors, ImageLoader) {
       }
     }
   });
+
+  _.extend(View.prototype, AvatarMixin);
 
   return View;
 });

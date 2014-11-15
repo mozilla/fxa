@@ -16,12 +16,12 @@ define([
   'views/change_password',
   'models/reliers/relier',
   'models/auth_brokers/base',
+  'models/user',
   '../../mocks/router',
-  '../../lib/helpers',
-  'lib/session'
+  '../../lib/helpers'
 ],
 function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
-      Broker, RouterMock, TestHelpers, Session) {
+      Broker, User, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -31,6 +31,8 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
     var fxaClient;
     var relier;
     var broker;
+    var user;
+    var account;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -41,11 +43,13 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
       fxaClient = new FxaClient({
         broker: broker
       });
+      user = new User();
 
       view = new View({
         router: routerMock,
         fxaClient: fxaClient,
         relier: relier,
+        user: user,
         broker: broker
       });
     });
@@ -68,9 +72,17 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
 
     describe('with session', function () {
       beforeEach(function () {
-        Session.set('sessionToken', 'sessiontoken');
         sinon.stub(view.fxaClient, 'isSignedIn', function () {
           return true;
+        });
+        account = user.createAccount({
+          email: 'a@a.com',
+          sessionToken: 'abc123',
+          verified: true
+        });
+
+        sinon.stub(view, 'currentAccount', function () {
+          return account;
         });
 
         return view.render()
@@ -171,7 +183,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
           $('#new_password').val('new_password');
 
           var email = 'testuser@testuser.com';
-          Session.set('email', email);
+          account.set('email', email);
           var oldPassword = 'password';
           var newPassword = 'new_password';
 
@@ -204,7 +216,8 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
           $('#new_password').val('new_password');
 
           var email = 'testuser@testuser.com';
-          Session.set('email', email);
+          account.set('email', email);
+          account.set('sessionTokenContext', 'foo');
 
           sinon.stub(view.fxaClient, 'checkPassword', function () {
             return p();
@@ -218,59 +231,14 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
             return p({});
           });
 
-          Session.set('sessionTokenContext', 'foo');
-
           return view.submit()
               .then(function () {
-                assert.isTrue(fxaClient.signIn.calledWith(
-                    email, 'new_password', relier,
+                assert.isTrue(view.fxaClient.signIn.calledWith(
+                    email, 'new_password', relier, user,
                     { sessionTokenContext: 'foo' }));
               });
         });
 
-        it('shows the unverified user message if the user is unverified', function () {
-          sinon.stub(view.fxaClient, 'checkPassword', function () {
-            return p();
-          });
-
-          sinon.stub(view.fxaClient, 'changePassword', function () {
-            return p.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
-          });
-
-          $('#old_password').val('password');
-          $('#new_password').val('new_password');
-
-          return view.submit()
-            .then(function () {
-              assert.ok(view.$('#resend').length);
-            });
-        });
-      });
-
-      describe('resendVerificationEmail', function () {
-        it('resends a verification email, and sends user to /confirm', function () {
-          sinon.stub(view.fxaClient, 'signUpResend', function () {
-            return p();
-          });
-
-          return view.resendVerificationEmail()
-            .then(function () {
-              assert.equal(routerMock.page, 'confirm');
-
-              assert.isTrue(view.fxaClient.signUpResend.calledWith(relier));
-            });
-        });
-
-        it('sends users to the signup page if their signUp token is invalid', function () {
-          sinon.stub(view.fxaClient, 'signUpResend', function () {
-            return p.reject(AuthErrors.toError('INVALID_TOKEN'));
-          });
-
-          return view.resendVerificationEmail()
-            .then(function () {
-              assert.equal(routerMock.page, 'signup');
-            });
-        });
       });
     });
   });

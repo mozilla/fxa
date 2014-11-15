@@ -9,14 +9,13 @@ define([
   'views/base',
   'views/form',
   'stache!templates/complete_reset_password',
-  'lib/session',
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
   'lib/validate',
   'lib/auth-errors',
   'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin,
+function (_, BaseView, FormView, Template, PasswordMixin,
       FloatingPlaceholderMixin, Validate, AuthErrors, ServiceMixin) {
   var View = FormView.extend({
     template: Template,
@@ -101,7 +100,6 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
       var self = this;
       var email = self.email;
       var password = self._getPassword();
-      var relier = self.relier;
       var token = self.token;
       var code = self.code;
 
@@ -113,11 +111,7 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
       // from localStorage and go to town.
       return self.fxaClient.completePasswordReset(email, password, token, code)
         .then(function () {
-          var oauthData = Session.oauth;
-          return self.fxaClient.signIn(email, password, relier)
-            .then(function () {
-              Session.set('oauth', oauthData);
-            });
+          return self.fxaClient.signIn(email, password, self.relier, self.user);
         }).then(function () {
           self.logScreenEvent('verification.success');
           return self.broker.afterCompleteResetPassword();
@@ -150,8 +144,13 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin,
     resendResetEmail: function () {
       var self = this;
       return self.fxaClient.passwordReset(self.email, self.relier)
-              .then(function () {
-                self.navigate('confirm_reset_password');
+              .then(function (result) {
+                self.navigate('confirm_reset_password', {
+                  data: {
+                    email: self.email,
+                    passwordForgotToken: result.passwordForgotToken
+                  }
+                });
               }, function (err) {
                 self.displayError(err);
               });

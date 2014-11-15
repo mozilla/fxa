@@ -52,7 +52,7 @@ function (P, jwcrypto) {
   }
 
 
-  function certificate(audience) {
+  function certificate(audience, sessionToken) {
     //TODO: check for a valid cert in localStorage first?
     //jshint validthis: true
     var self = this;
@@ -60,7 +60,7 @@ function (P, jwcrypto) {
       // while certSign is going over the wire, we can also sign the
       // assertion here on the machine
       return P.all([
-        self._fxaClient.certificateSign(kp.publicKey.toSimpleObject(), CERT_DURATION_MS),
+        self._fxaClient.certificateSign(kp.publicKey.toSimpleObject(), CERT_DURATION_MS, sessionToken),
         assertion(kp.secretKey, audience)
       ]);
     });
@@ -75,9 +75,9 @@ function (P, jwcrypto) {
     }, secretKey);
   }
 
-  function bundle(audience) {
+  function bundle(sessionToken, audience) {
     //jshint validthis: true
-    return certificate.call(this, audience).spread(function (cert, ass) {
+    return certificate.call(this, audience || this._audience, sessionToken).spread(function (cert, ass) {
       return jwcrypto.cert.bundle([cert.cert], ass);
     });
   }
@@ -85,6 +85,7 @@ function (P, jwcrypto) {
   function Assertion(options) {
     options = options || {};
     this._fxaClient = options.fxaClient;
+    this._audience = options.audience;
   }
 
   Assertion.prototype = {

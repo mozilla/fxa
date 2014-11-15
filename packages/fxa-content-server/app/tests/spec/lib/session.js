@@ -71,11 +71,11 @@ function (chai, Session) {
 
     describe('persist', function () {
       it('will persist keys in PERSIST_TO_LOCAL_STORAGE to localStorage', function () {
-        Session.set('sessionToken', 'abc123');
+        Session.set('oauth', 'abc123');
 
         var localStorageValues = JSON.parse(localStorage.getItem('__fxa_session'));
 
-        assert.equal(Session.sessionToken, localStorageValues.sessionToken);
+        assert.equal(Session.oauth, localStorageValues.oauth);
       });
     });
 

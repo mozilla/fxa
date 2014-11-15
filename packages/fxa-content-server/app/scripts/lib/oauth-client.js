@@ -18,9 +18,6 @@ function (xhr, p, Session, ConfigLoader, OAuthErrors) {
   var GET_CODE = '/v1/authorization';
 
   function OAuthClient(options) {
-    if (!(this instanceof OAuthClient)) {
-      return new OAuthClient(options);
-    }
     if (options && options.oauthUrl) {
       oauthUrl = options.oauthUrl;
     }

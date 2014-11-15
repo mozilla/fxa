@@ -96,7 +96,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           });
     },
 
-    signIn: function (originalEmail, password, relier, options) {
+    signIn: function (originalEmail, password, relier, user, options) {
       var email = trim(originalEmail);
       var self = this;
       options = options || {};
@@ -106,20 +106,15 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           return client.signIn(email, password, { keys: true });
         })
         .then(function (accountData) {
-          var cachedCredentials = Session.cachedCredentials;
-          // get rid of any old data.
-          Session.clear();
-
-          // sessionTokenContext is passed in on password change to
-          // keep the same context.
           var sessionTokenContext = options.sessionTokenContext ||
-                                    relier.get('context');
+                                      relier.get('context');
 
           var updatedSessionData = {
             email: email,
             uid: accountData.uid,
             sessionToken: accountData.sessionToken,
-            sessionTokenContext: sessionTokenContext
+            sessionTokenContext: sessionTokenContext,
+            verified: accountData.verified
           };
 
           // isSync is added in case the user verifies in a second tab
@@ -130,24 +125,16 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
             updatedSessionData.unwrapBKey = accountData.unwrapBKey;
             updatedSessionData.keyFetchToken = accountData.keyFetchToken;
             updatedSessionData.customizeSync = options.customizeSync;
-            updatedSessionData.cachedCredentials = {
-              email: email,
-              uid: accountData.uid,
-              sessionToken: accountData.sessionToken,
-              sessionTokenContext: relier.get('context')
-            };
-          } else {
-            // Carry over the old cached credentials
-            updatedSessionData.cachedCredentials = cachedCredentials;
           }
-
-          Session.set(updatedSessionData);
 
           if (self._interTabChannel) {
             self._interTabChannel.emit('login', updatedSessionData);
           }
 
-          return accountData;
+          return user.setCurrentAccount(updatedSessionData)
+            .then(function () {
+              return updatedSessionData;
+            });
         });
     },
 
@@ -200,7 +187,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
         });
     },
 
-    signUpResend: function (relier) {
+    signUpResend: function (relier, sessionToken) {
       var self = this;
       return this._getClientAsync()
         .then(function (client) {
@@ -218,24 +205,14 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
             resume: self._createResumeToken(relier)
           };
 
-          return client.recoveryEmailResendCode(
-                    Session.sessionToken, clientOptions);
+          return client.recoveryEmailResendCode(sessionToken, clientOptions);
         });
     },
 
-    signOut: function () {
+    signOut: function (sessionToken) {
       return this._getClientAsync()
               .then(function (client) {
-                return client.sessionDestroy(Session.sessionToken);
-              })
-              .then(function () {
-                // user's session is gone
-                Session.clear();
-              }, function () {
-                // Clear the session, even on failure. Everything is A-OK.
-                // See issue #616
-                // - https://github.com/mozilla/fxa-content-server/issues/616
-                Session.clear();
+                return client.sessionDestroy(sessionToken);
               });
     },
 
@@ -265,17 +242,14 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
               })
               .then(function (result) {
                 Session.clear();
-
-                // The user may resend the password reset email, in which case
-                // we have to keep around some state so the email can be
-                // resent.
-                Session.set('email', email);
-                Session.set('passwordForgotToken', result.passwordForgotToken);
+                return result;
               });
     },
 
-    passwordResetResend: function (relier) {
+    passwordResetResend: function (originalEmail, passwordForgotToken, relier) {
       var self = this;
+      var email = trim(originalEmail);
+
       return this._getClientAsync()
         .then(function (client) {
           if (self._passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
@@ -294,8 +268,8 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           };
 
           return client.passwordForgotResendCode(
-                   Session.email,
-                   Session.passwordForgotToken,
+                   email,
+                   passwordForgotToken,
                    clientOptions
                  );
         });
@@ -346,17 +320,14 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       return this._getClientAsync()
               .then(function (client) {
                 return client.accountDestroy(email, password);
-              })
-              .then(function () {
-                Session.clear();
               });
     },
 
-    certificateSign: function (pubkey, duration) {
+    certificateSign: function (pubkey, duration, sessionToken) {
       return this._getClientAsync()
               .then(function (client) {
                 return client.certificateSign(
-                  Session.sessionToken,
+                  sessionToken,
                   pubkey,
                   duration);
               });

@@ -12,10 +12,9 @@ define([
   'stache!templates/settings/avatar_camera',
   'lib/constants',
   'lib/promise',
-  'lib/session',
   'lib/auth-errors'
 ],
-function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, Session, AuthErrors) {
+function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, AuthErrors) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -26,14 +25,13 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
-    mustAuth: true,
+    mustVerify: true,
 
     template: Template,
     className: 'avatar_camera',
 
     context: function () {
       return {
-        avatar: Session.avatar,
         streaming: this.streaming
       };
     },
@@ -62,7 +60,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
 
     _getMedia: function () {
       var self = this;
-      var nav = this.navigator;
+      var nav = self.navigator;
 
       var getUserMedia = nav.getUserMedia ||
                              nav.webkitGetUserMedia ||
@@ -70,7 +68,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
                              nav.msGetUserMedia;
 
       if (! getUserMedia) {
-        this.displayError(AuthErrors.toError('NO_CAMERA'));
+        self.displayError(AuthErrors.toError('NO_CAMERA'));
         return false;
       }
 
@@ -144,18 +142,16 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
     submit: function () {
       var self = this;
 
-      return this.takePicture()
+      return self.takePicture()
         .then(function (data) {
-          return self.profileClient.uploadAvatar(data);
+          return self.currentAccount().uploadAvatar(data);
         })
         .then(function (result) {
-          Session.set('avatar', result.url);
-          Session.set('avatarId', result.id);
-
           self.stream.stop();
           delete self.stream;
 
           self.navigate('settings/avatar');
+          return result;
         });
     },
 

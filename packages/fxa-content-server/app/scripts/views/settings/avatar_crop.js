@@ -32,12 +32,6 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
       this.imgType = Session.cropImgType;
     },
 
-    context: function () {
-      return {
-        avatar: Session.avatar
-      };
-    },
-
     beforeRender: function () {
       if (! this.imgSrc) {
         this.navigate('settings/avatar/change', {
@@ -88,14 +82,13 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
     submit: function () {
       var self = this;
 
-      return this.toBlob()
+      return self.toBlob()
         .then(function (data) {
-          return self.profileClient.uploadAvatar(data);
+          return self.currentAccount().uploadAvatar(data);
         })
         .then(function (result) {
-          Session.set('avatar', result.url);
-          Session.set('avatarId', result.id);
           self.navigate('settings/avatar');
+          return result;
         });
     }
 

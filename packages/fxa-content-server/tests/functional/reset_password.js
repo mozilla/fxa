@@ -117,8 +117,7 @@ define([
     },
 
     'open confirm_reset_password page, click resend': function () {
-      return this.get('remote')
-        .get(require.toUrl(CONFIRM_PAGE_URL))
+      return fillOutResetPassword(this, email)
         .findById('resend')
           .click()
         .end()

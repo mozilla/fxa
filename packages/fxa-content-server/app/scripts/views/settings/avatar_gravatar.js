@@ -11,12 +11,10 @@ define([
   'views/form',
   'stache!templates/settings/avatar_gravatar',
   'lib/constants',
-  'lib/session',
-  'lib/profile',
   'lib/image-loader',
   'views/decorators/progress_indicator'
 ],
-function ($, _, md5, FormView, Template, Constants, Session, Profile, ImageLoader, showProgressIndicator) {
+function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressIndicator) {
 
   function t (s) { return s; }
 
@@ -26,17 +24,10 @@ function ($, _, md5, FormView, Template, Constants, Session, Profile, ImageLoade
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
-    mustAuth: true,
+    mustVerify: true,
 
     template: Template,
     className: 'avatar_gravatar',
-
-    initialize: function () {
-      this.email = Session.email;
-      if (this.email) {
-        this.hashedEmail = this._hashEmail(this.email);
-      }
-    },
 
     context: function () {
       return {
@@ -67,30 +58,31 @@ function ($, _, md5, FormView, Template, Constants, Session, Profile, ImageLoade
     },
 
     gravatarUrl: function () {
+      var hashedEmail = this.hashedEmail();
       if (this.automatedBrowser) {
         // Don't return a 404 so we can test the success flow
-        return GRAVATAR_URL + this.hashedEmail + '?s=' + DISPLAY_LENGTH;
+        return GRAVATAR_URL + hashedEmail + '?s=' + DISPLAY_LENGTH;
       }
-      return GRAVATAR_URL + this.hashedEmail + '?s=' + DISPLAY_LENGTH + '&d=404';
+      return GRAVATAR_URL + hashedEmail + '?s=' + DISPLAY_LENGTH + '&d=404';
     },
 
-    _hashEmail: function (email) {
-      return md5($.trim(email.toLowerCase()));
+    hashedEmail: function () {
+      var email = this.currentAccount().get('email');
+      return email ? md5($.trim(email.toLowerCase())) : '';
     },
 
     submit: function () {
       var self = this;
-      var url = this.gravatarUrl();
+      var url = self.gravatarUrl();
       // Use the URL for a full size image
       url = url.slice(0, url.indexOf('?')) + '?s=' + EXPORT_LENGTH;
 
-      return this.profileClient.postAvatar(url)
+      return self.currentAccount().postAvatar(url, true)
         .then(function (result) {
-          Session.set('avatar', url);
-          Session.set('avatarId', result.id);
           self.navigate('settings/avatar', {
             successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')
           });
+          return result;
         });
     }
   });
