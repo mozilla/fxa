@@ -44,7 +44,9 @@ exports.create = function() {
         allow: ['image/png', 'image/jpeg']
       },
       handler: function upload(req, reply) {
-        logger.debug('Worker received %d bytes', req.headers['content-length']);
+        logger.debug('worker.receive', {
+          contentLength: req.headers['content-length']
+        });
         compute.image(req.params.id, req.payload).done(reply, reply);
       }
     }
