@@ -14,7 +14,7 @@
     "bluebird": "2.3.10",
     "buf": "0.1.0",
     "compute-cluster": "0.0.9",
-    "convict": "0.5.1",
+    "convict": "0.6.0",
     "gm": "1.17.0",
     "hapi": "7.1.1",
     "joi": "4.7.0",
