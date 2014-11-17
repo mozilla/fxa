@@ -1,3 +1,12 @@
+<a name="0.26.1"></a>
+### 0.26.1 (2014-11-17)
+
+
+#### Bug Fixes
+
+* **l10n:** update the header font mixin name for locales that use system fonts ([60d05bb9](https://github.com/mozilla/fxa-content-server/commit/60d05bb9192c38c57a74364cf5e3c680b4aa2fc4))
+
+
 <a name="0.26.0"></a>
 ## 0.26.0 (2014-11-14)
 
