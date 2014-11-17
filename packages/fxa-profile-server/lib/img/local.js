@@ -19,7 +19,7 @@ if (!fs.existsSync(PUBLIC_DIR)) {
 function LocalDriver() {
   var env = config.get('env');
   if (env !== 'dev' && env !== 'test') {
-    logger.warn('Using img.local driver!');
+    logger.warn('sanity-check', 'using img.local driver with non-dev env!');
   }
 }
 
