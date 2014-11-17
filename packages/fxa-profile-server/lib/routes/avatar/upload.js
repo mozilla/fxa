@@ -34,13 +34,13 @@ function pipeToWorker(id, payload, headers) {
     logger.verbose('pipeToWorker', url);
     payload.pipe(request.post(url, opts, function(err, res, body) {
       if (err) {
-        logger.error('network', err);
+        logger.error('network.error', err);
         reject(AppError.processingError(err));
         return;
       }
 
-      if (body.error) {
-        logger.error('worker', body);
+      if (res.statusCode >= 400 || body.error) {
+        logger.error('worker.error', body);
         reject(AppError.processingError(body));
         return;
       }

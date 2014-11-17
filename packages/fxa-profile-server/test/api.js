@@ -81,6 +81,24 @@ function mockWorker() {
     });
 }
 
+function mockWorkerFailure() {
+  var parts = url.parse(config.get('worker.url'));
+  var path = '';
+  var headers = {
+    'content-type': 'image/png',
+    'content-length': 12696
+  };
+  return nock(parts.protocol + '//' + parts.host, {
+    reqheaders: headers
+  })
+    .filteringPath(function filter(_path) {
+      path = _path;
+      return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
+    })
+    .post('/a/' + MOCK_ID)
+    .reply(500, 'unexpected server error');
+}
+
 function mockAws() {
   var bucket = config.get('img.uploads.dest.public');
   var u = '/' + bucket + '/XXX';
@@ -328,6 +346,27 @@ describe('/avatar', function() {
         return res.result.url;
       }).then(Static.get).then(function(res) {
         assert.equal(res.statusCode, 200);
+      });
+    });
+
+    it('should gracefully handle and report upload failures', function() {
+      mockToken().reply(200, JSON.stringify({
+        user: USERID,
+        email: 'user@example.domain',
+        scope: ['profile:avatar:write']
+      }));
+      mockWorkerFailure();
+      mockAws();
+      return Server.api.post({
+        url: '/avatar/upload',
+        payload: imageData,
+        headers: {
+          authorization: 'Bearer ' + tok,
+          'content-type': 'image/png',
+          'content-length': imageData.length
+        }
+      }).then(function(res) {
+        assert.equal(res.statusCode, 500);
       });
     });
   });
