@@ -379,6 +379,29 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
 
       });
 
+      it('shows an error if the user provides a @firefox.com email', function (done) {
+        var ageToCheck = moment().subtract(14, 'years');
+        var password = 'password';
+        fillOutSignUp('user@firefox.com', password, {
+          year: ageToCheck.year(),
+          month: ageToCheck.month(),
+          date: ageToCheck.date(),
+          contex: view
+        });
+
+        view.on('validation_error', function (which, msg) {
+          var err = AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN');
+          err.context = 'signup';
+          
+          wrapAssertion(function () {
+            assert.equal(msg, err.message);
+            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+          }, done);
+        });
+
+        view.showValidationErrors();
+      });
+
       it('shows an error if the password is invalid', function (done) {
         fillOutSignUp('testuser@testuser.com', 'passwor', { context: view });
 
