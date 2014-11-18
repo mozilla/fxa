@@ -19,7 +19,7 @@ function (_, BaseView, FormView, Template, PasswordMixin,
       FloatingPlaceholderMixin, Validate, AuthErrors, ServiceMixin) {
   var View = FormView.extend({
     template: Template,
-    className: 'complete_reset_password',
+    className: 'complete-reset-password',
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',

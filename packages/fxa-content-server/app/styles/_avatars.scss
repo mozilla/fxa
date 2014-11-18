@@ -89,11 +89,11 @@ a.avatar-wrapper {
 
 
 /* Circle Avatar Styles */
-.avatar_camera canvas {
+.avatar-camera canvas {
   display: none;
 }
 
-.avatar_change {
+.avatar-change {
   .gravatar-logo {
     background: image-url('gravatar.svg') no-repeat top center;
     background-size: contain;

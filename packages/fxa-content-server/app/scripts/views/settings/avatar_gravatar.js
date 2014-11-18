@@ -27,7 +27,7 @@ function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressInd
     mustVerify: true,
 
     template: Template,
-    className: 'avatar_gravatar',
+    className: 'avatar-gravatar',
 
     context: function () {
       return {
