@@ -45,15 +45,9 @@ define([
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-      var self = this;
       return client.signUp(email, PASSWORD)
         .then(function (result) {
           accountData = result;
-          return result;
-        })
-        .then(function () {
-          // clear localStorage to avoid pollution from other tests.
-          return FunctionalHelpers.clearBrowserState(self);
         });
     },
 
@@ -161,59 +155,18 @@ define([
       return verifyUser(email, 0)
         .then(function () {
           return fillOutSignIn(self, email, '  ' + PASSWORD)
+
             // success is seeing the error message.
-            .findByClassName('error')
-            .end();
+           .then(FunctionalHelpers.visibleByQSA('.error'))
+           .end()
+
+           .findByCssSelector('.error')
+             .getVisibleText()
+             .then(function (text) {
+               assert.isTrue(/password/i.test(text));
+             })
+           .end();
         });
-    },
-
-    'click `forgot password?` link with no email redirects to /forgot_password': function () {
-      var self = this;
-
-      return self.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        .findByCssSelector('input[type=email]')
-          .click()
-          .clearValue()
-        .end()
-
-        .findByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
-
-        .findById('fxa-reset-password-header');
-    },
-
-    'click `forgot password?` link with invalid email redirects to /forgot_password and prefills partial email': function () {
-      var self = this;
-      email = 'partial';
-
-      return self.get('remote')
-        .get(require.toUrl(PAGE_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-
-        .findByCssSelector('input[type=email]')
-          .click()
-          .clearValue()
-          .type(email)
-        .end()
-
-        .findByCssSelector('a[href="/reset_password"]')
-          .click()
-        .end()
-
-        .findById('fxa-reset-password-header')
-        .end()
-
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
-        .end();
     },
 
     'visiting the pp links saves information for return': function () {
