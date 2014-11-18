@@ -160,19 +160,18 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         view.render();
       });
 
-      it('displays an error message allowing the user to re-signup if their email bounces', function (done) {
+      it('displays an error message allowing the user to re-signup if their email bounces', function () {
         sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
           return p.reject(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
         });
 
-        sinon.stub(view, 'displayErrorUnsafe', function (err) {
-          TestHelpers.wrapAssertion(function () {
-            assert.isTrue(AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE'));
+        view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'signup');
             assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
-          }, done);
-        });
-
-        view.render();
+            assert.equal(
+                ephemeralMessages.get('bouncedEmail'), 'testuser@testuser.com');
+          });
       });
     });
 
@@ -264,15 +263,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'confirm.too_many_attempts'));
               });
-      });
-    });
-
-    describe('bouncedEmailSignup', function () {
-      it('saves the email address to ephemeralMessages', function () {
-        account.set('email', 'testuser@testuser.com');
-        view.bouncedEmailSignup();
-        assert.equal(
-            ephemeralMessages.get('bouncedEmail'), 'testuser@testuser.com');
       });
     });
   });

@@ -22,6 +22,7 @@ define([
   var PASSWORD = 'password';
   var user;
   var email;
+  var bouncedEmail;
   var fxaClient;
 
   registerSuite({
@@ -29,6 +30,7 @@ define([
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
+      bouncedEmail = TestHelpers.createEmail();
       user = TestHelpers.emailToUser(email);
       fxaClient = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
@@ -208,6 +210,94 @@ define([
           // but cannot redirect
           assert.isTrue(/123done/i.test(text));
         })
+        .end();
+    },
+
+    'sign up, bounce email, allow user to restart flow but force a different email': function () {
+      var self = this;
+      var client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
+
+      return FunctionalHelpers.openFxaFromRp(self, 'signup')
+        .findByCssSelector('form input.email')
+          .click()
+          .type(bouncedEmail)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('#fxa-age-year')
+          .click()
+        .end()
+
+        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
+          .pressMouseButton()
+          .releaseMouseButton()
+          .click()
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return client.accountDestroy(bouncedEmail, PASSWORD);
+        })
+
+        .findById('fxa-signup-header')
+        .end()
+
+        // expect an error message to already be present on redirect
+        .then(FunctionalHelpers.visibleByQSA('.tooltip'))
+
+        // submit button should be disabled.
+        .findByCssSelector('button[type="submit"].disabled')
+        .end()
+
+        .findByCssSelector('input[type="email"]')
+          .clearValue()
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        // wait for the verified window in the new tab
+        .findById('fxa-sign-up-complete-header')
+        .end()
+
+        .findByCssSelector('.account-ready-service')
+        .getVisibleText()
+        .then(function (text) {
+          // user sees the name of the RP,
+          // but cannot redirect
+          assert.ok(/123done/i.test(text));
+        })
+        .end()
+
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('')
+
+        .findByCssSelector('#loggedin')
         .end();
     }
   });

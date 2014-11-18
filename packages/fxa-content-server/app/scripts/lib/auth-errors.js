@@ -99,7 +99,7 @@ function () {
     1015: t('Valid URL required'),
     1016: t('Valid birthday required'),
     1017: t('Unexpected error'),
-    1018: t('Your verification email was just returned. Mistyped email? <a href="/signup">Start over.</a>'),
+    1018: t('Your verification email was just returned. Mistyped email?'),
     1019: t('Valid email required'),
     1020: t('Enter a valid email address. firefox.com does not offer email.')
   };

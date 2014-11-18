@@ -42,13 +42,13 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     events: {
       // validateAndSubmit is used to prevent multiple concurrent submissions.
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit'),
-      'click a[href="/signup"]': 'bouncedEmailSignup'
+      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    bouncedEmailSignup: function () {
-      // TODO add `bouncedEmail` to the User model when ready.
+    _bouncedEmailSignup: function () {
+      // TODO #1913 add `bouncedEmail` to the User model when ready.
       this.ephemeralMessages.set('bouncedEmail', this.currentAccount().get('email'));
+      this.navigate('signup');
     },
 
     beforeRender: function () {
@@ -80,10 +80,9 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
               }
             }, function (err) {
               // The user's email may have bounced because it was invalid.
-              // Show a message allowing the user to sign up again.
+              // Redirect them to the sign up page with an error notice.
               if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
-                // the email bounce error message contains a link.
-                self.displayErrorUnsafe(err);
+                self._bouncedEmailSignup();
               } else {
                 self.displayError(err);
               }
