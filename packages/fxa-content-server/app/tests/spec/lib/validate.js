@@ -22,8 +22,8 @@ function (chai, _, Validate, Constants, TestHelpers) {
         assert.isFalse(Validate.isEmailValid('a'));
       });
 
-      it('returns false for email without a one part domain', function () {
-        assert.isFalse(Validate.isEmailValid('a@b'));
+      it('returns true for email with a one part domain', function () {
+        assert.isTrue(Validate.isEmailValid('a@b'));
       });
 
       it('returns true for valid email', function () {

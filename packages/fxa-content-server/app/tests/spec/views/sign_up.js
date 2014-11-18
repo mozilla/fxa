@@ -211,11 +211,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         assert.isFalse(view.isValid());
       });
 
-      it('returns false if email contain one part TLD', function () {
-        fillOutSignUp('a@b', 'password', { context: view });
-        assert.isFalse(view.isValid());
-      });
-
       it('returns false if email is the same as the bounced email', function () {
         ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
 
@@ -232,7 +227,12 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
       });
 
-      it('returns true if email contain two part TLD', function () {
+      it('returns true if email contains a one part TLD', function () {
+        fillOutSignUp('a@b', 'password', { context: view });
+        assert.isTrue(view.isValid());
+      });
+
+      it('returns true if email contains a two part TLD', function () {
         fillOutSignUp('a@b.c', 'password', { context: view });
         assert.isTrue(view.isValid());
       });
@@ -392,7 +392,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         view.on('validation_error', function (which, msg) {
           var err = AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN');
           err.context = 'signup';
-          
+
           wrapAssertion(function () {
             assert.equal(msg, err.message);
             assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
