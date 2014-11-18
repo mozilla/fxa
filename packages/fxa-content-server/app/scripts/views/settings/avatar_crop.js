@@ -10,11 +10,10 @@ define([
   'views/form',
   'stache!templates/settings/avatar_crop',
   'lib/constants',
-  'lib/session',
   'lib/cropper',
   'lib/auth-errors'
 ],
-function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
+function (p, _, FormView, Template, Constants, Cropper, AuthErrors) {
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;
 
@@ -28,12 +27,12 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
     initialize: function (options) {
       options = options || {};
 
-      this.imgSrc = Session.cropImgSrc;
-      this.imgType = Session.cropImgType;
+      var data = this.ephemeralData() || {};
+      this._cropImg = data.cropImg;
     },
 
     beforeRender: function () {
-      if (! this.imgSrc) {
+      if (! this._cropImg) {
         this.navigate('settings/avatar/change', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
@@ -47,13 +46,14 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
 
     afterVisible: function () {
       // Use pre-set dimensions if available
-      var width = Session.cropImgWidth;
-      var height = Session.cropImgHeight;
+      var width = this._cropImg.get('width');
+      var height = this._cropImg.get('height');
+      var src = this._cropImg.get('src');
 
       try {
         this.cropper = new Cropper({
           container: this.$('.cropper'),
-          src: this.imgSrc,
+          src: src,
           width: width,
           height: height,
           displayLength: Constants.PROFILE_IMAGE_DISPLAY_SIZE,
@@ -73,7 +73,7 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
 
       this.cropper.toBlob(function (data) {
         defer.resolve(data);
-      }, this.imgType || Constants.DEFAULT_PROFILE_IMAGE_MIME_TYPE,
+      }, this._cropImg.get('type'),
       Constants.PROFILE_IMAGE_JPEG_QUALITY);
 
       return defer.promise;

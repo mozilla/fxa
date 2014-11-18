@@ -13,7 +13,7 @@ define([
   var NAMESPACE = '__fxa_session';
 
   // and should not be saved to sessionStorage
-  var DO_NOT_PERSIST = ['prefillPassword', 'prefillYear', 'error', 'cropImgWidth', 'cropImgHeight', 'cropImgSrc'];
+  var DO_NOT_PERSIST = ['prefillPassword', 'prefillYear', 'error'];
 
   var DO_NOT_CLEAR = ['config'];
 

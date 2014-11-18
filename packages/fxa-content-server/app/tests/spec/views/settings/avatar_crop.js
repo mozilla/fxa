@@ -15,13 +15,14 @@ define([
   '../../../mocks/router',
   '../../../mocks/profile',
   'models/user',
+  'models/cropper-image',
   'lib/promise',
-  'lib/session',
   'lib/constants',
+  'lib/ephemeral-messages',
   'lib/auth-errors'
 ],
-function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock,
-    User, p, Session, Constants, AuthErrors) {
+function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperImage,
+    p, Constants, EphemeralMessages, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -29,15 +30,18 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock,
     var view;
     var routerMock;
     var profileClientMock;
+    var ephemeralMessages;
     var user;
     var account;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       user = new User();
+      ephemeralMessages = new EphemeralMessages();
 
       view = new View({
         user: user,
+        ephemeralMessages: ephemeralMessages,
         router: routerMock
       });
     });
@@ -75,27 +79,31 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock,
       });
 
       it('has no cropper image', function () {
-        Session.clear('cropImgSrc');
-
         return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'settings/avatar/change');
-            assert.equal(view.ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
+            assert.equal(ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
           });
       });
 
       describe('with an image', function () {
 
         beforeEach(function () {
-          Session.set('cropImgSrc', pngSrc);
-          Session.set('cropImgType', 'image/png');
-          Session.set('cropImgWidth', 1);
-          Session.set('cropImgHeight', 1);
+          var cropImg = new CropperImage({
+            src: pngSrc,
+            type: 'image/png',
+            width: 1,
+            height: 1
+          });
 
           profileClientMock = new ProfileMock();
+          ephemeralMessages.set('data', {
+            cropImg: cropImg
+          });
 
           view = new View({
             router: routerMock,
+            ephemeralMessages: ephemeralMessages,
             user: user
           });
           view.isUserAuthorized = function () {
@@ -110,9 +118,6 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock,
         });
 
         it('has a cropper image', function () {
-          assert.equal(view.imgSrc, pngSrc);
-          assert.equal(view.imgType, 'image/png');
-
           return view.render()
             .then(function (rendered) {
               assert.isTrue(rendered);

@@ -16,11 +16,10 @@ define([
   '../../../mocks/profile',
   'models/user',
   'lib/promise',
-  'lib/session',
   'lib/auth-errors'
 ],
 function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            User, p, Session, AuthErrors) {
+            User, p, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -153,8 +152,9 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
 
               view.router.on('navigate', function () {
                 try {
+                  var cropImg = view.ephemeralMessages.get('data').cropImg;
                   assert.equal(routerMock.page, 'settings/avatar/crop');
-                  assert.equal(Session.cropImgSrc, pngSrc);
+                  assert.equal(cropImg.get('src'), pngSrc);
                   done();
                 } catch (e) {
                   return done(e);
