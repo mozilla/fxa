@@ -9,11 +9,10 @@ define([
   'require',
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
-  'intern/node_modules/dojo/Deferred',
   'tests/lib/restmail',
   'tests/lib/helpers',
   'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, Deferred, restmail, TestHelpers, FunctionalHelpers) {
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
   'use strict';
 
   var config = intern.config;
@@ -44,23 +43,34 @@ define([
   }
 
   function fillOutResetPassword(context, email) {
-    return context.get('remote')
-      .get(require.toUrl(RESET_PAGE_URL))
+    return FunctionalHelpers.fillOutResetPassword(context, email);
+  }
 
-      .findByCssSelector('input[type=email]')
-        .click()
-        .type(email)
-      .end()
+  function openCompleteResetPassword(context, email, token, code) {
+    var url = COMPLETE_PAGE_URL_ROOT + '?';
 
-      .findByCssSelector('button[type="submit"]')
-        .click()
-      .end();
+    var queryParams = [];
+    if (email) {
+      queryParams.push('email=' + encodeURIComponent(email));
+    }
+
+    if (token) {
+      queryParams.push('token=' + encodeURIComponent(token));
+    }
+
+    if (code) {
+      queryParams.push('code=' + encodeURIComponent(code));
+    }
+
+    url += queryParams.join('&');
+    return context.get('remote').get(require.toUrl(url))
+      .setFindTimeout(intern.config.pageLoadTimeout);
   }
 
   registerSuite({
     name: 'reset_password same browser flow',
 
-    setup: function () {
+    beforeEach: function () {
       // timeout after 90 seconds
       this.timeout = 90000;
 
@@ -92,9 +102,29 @@ define([
       var self = this;
       return this.get('remote')
         .get(require.toUrl(SIGNIN_PAGE_URL))
+
+        .findByCssSelector('input[type="email"]')
+          .clearValue()
+          .click()
+          .type(email)
+        .end()
+
         .findByCssSelector('a[href="/reset_password"]')
           .click()
         .end()
+
+        .findById('fxa-reset-password-header')
+        .end()
+
+        // email should be pre-filled
+        .findByCssSelector('input[type="email"]')
+        .getAttribute('value')
+        .then(function (resultText) {
+          // check the email address was written
+          assert.equal(resultText, email);
+        })
+        .end()
+
 
         .then(function () {
           return fillOutResetPassword(self, email);
@@ -149,94 +179,121 @@ define([
         .end();
     },
 
-    'start reset - get token and code from email': function () {
-      return setTokenAndCodeFromEmail(user, 1);
-    },
-
     'open complete page with missing token shows damaged screen': function () {
-      var url = COMPLETE_PAGE_URL_ROOT + '?code=' + code + '&email=' + encodeURIComponent(email);
+      var self = this;
+      return fillOutResetPassword(this, email)
+        .then(function () {
+          return setTokenAndCodeFromEmail(user, 0);
+        })
+        .then(function () {
+          return openCompleteResetPassword(self, email, null, code);
+        })
 
-      return this.get('remote')
-        .get(require.toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
     'open complete page with malformed token shows damaged screen': function () {
-      var malformedToken = createRandomHexString(token.length - 1);
-      var url = COMPLETE_PAGE_URL_ROOT + '?token=' + malformedToken + '&code=' + code + '&email=' + encodeURIComponent(email);
+      var self = this;
+      return fillOutResetPassword(this, email)
+        .then(function () {
+          return setTokenAndCodeFromEmail(user, 0);
+        })
+        .then(function () {
+          var malformedToken = createRandomHexString(token.length - 1);
+          return openCompleteResetPassword(self, email, malformedToken, code);
+        })
 
-      return this.get('remote')
-        .get(require.toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
     'open complete page with invalid token shows expired screen': function () {
-      var invalidToken = createRandomHexString(token.length);
-      var url = COMPLETE_PAGE_URL_ROOT + '?token=' + invalidToken + '&code=' + code + '&email=' + encodeURIComponent(email);
+      var self = this;
+      return fillOutResetPassword(this, email)
+        .then(function () {
+          return setTokenAndCodeFromEmail(user, 0);
+        })
+        .then(function () {
+          var invalidToken = createRandomHexString(token.length);
+          return openCompleteResetPassword(self, email, invalidToken, code);
+        })
 
-      return this.get('remote')
-        .get(require.toUrl(url))
         .findById('fxa-reset-link-expired-header')
         .end();
     },
 
     'open complete page with missing code shows damaged screen': function () {
-      var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&email=' + encodeURIComponent(email);
+      var self = this;
+      return fillOutResetPassword(this, email)
+        .then(function () {
+          return setTokenAndCodeFromEmail(user, 0);
+        })
+        .then(function () {
+          return openCompleteResetPassword(self, email, token, null);
+        })
 
-      return this.get('remote')
-        .get(require.toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
     'open complete page with malformed code shows damanged screen': function () {
-      var malformedCode = createRandomHexString(code.length - 1);
-      var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + malformedCode + '&email=' + encodeURIComponent(email);
+      var self = this;
+      return fillOutResetPassword(this, email)
+        .then(function () {
+          return setTokenAndCodeFromEmail(user, 0);
+        })
+        .then(function () {
+          var malformedCode = createRandomHexString(code.length - 1);
+          return openCompleteResetPassword(self, email, token, malformedCode);
+        })
 
-      return this.get('remote')
-        .get(require.toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
     'open complete page with missing email shows damaged screen': function () {
-      var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code;
+      var self = this;
+      return fillOutResetPassword(this, email)
+        .then(function () {
+          return setTokenAndCodeFromEmail(user, 0);
+        })
+        .then(function () {
+          return openCompleteResetPassword(self, null, token, code);
+        })
 
-      return this.get('remote')
-        .get(require.toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
     'open complete page with malformed email shows damaged screen': function () {
-      var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code + '&email=invalidemail';
+      var self = this;
+      return fillOutResetPassword(this, email)
+        .then(function () {
+          return setTokenAndCodeFromEmail(user, 0);
+        })
+        .then(function () {
+          return openCompleteResetPassword(self, 'invalidemail', token, code);
+        })
 
-      return this.get('remote')
-        .get(require.toUrl(url))
         .findById('fxa-reset-link-damaged-header')
         .end();
     },
 
     'open complete page with valid parameters': function () {
-      var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code + '&email=' + encodeURIComponent(email);
 
-      return this.get('remote')
-        .get(require.toUrl(url))
-        .findByCssSelector('form input#password')
-          .click()
-          .type(PASSWORD)
-        .end()
+      var self = this;
+      return fillOutResetPassword(this, email)
+        .then(function () {
+          return setTokenAndCodeFromEmail(user, 0);
+        })
+        .then(function () {
+          return openCompleteResetPassword(self, email, token, code);
+        })
 
-        .findByCssSelector('form input#vpassword')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
+        })
 
         .findById('fxa-reset-password-complete-header')
         .end();
@@ -257,44 +314,35 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
+      var self = this;
       return client.signUp(email, PASSWORD, { preVerified: true })
           .then(function () {
             return client.passwordForgotSendCode(email);
           })
           .then(function () {
             return setTokenAndCodeFromEmail(user, 0);
+          })
+          .then(function () {
+            // clear localStorage to avoid pollution from other tests.
+            return FunctionalHelpers.clearBrowserState(self);
           });
     },
 
-    'complete reset': function () {
-      var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code + '&email=' + encodeURIComponent(email);
+    'complete reset, then re-open verification link, click resend': function () {
 
-      return this.get('remote')
-        .get(require.toUrl(url))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('form input#password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('form input#vpassword')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+      var self = this;
+      return openCompleteResetPassword(self, email, token, code)
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
+        })
 
         .findById('fxa-reset-password-complete-header')
-        .end();
-    },
+        .end()
 
-    'attempt to complete page with already used link, click resend': function () {
-      var url = COMPLETE_PAGE_URL_ROOT + '?token=' + token + '&code=' + code + '&email=' + encodeURIComponent(email);
+        .then(function () {
+          return openCompleteResetPassword(self, email, token, code);
+        })
 
-      return this.get('remote')
-        .get(require.toUrl(url))
         .findById('fxa-reset-link-expired-header')
         .end()
 
@@ -316,7 +364,12 @@ define([
       var client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-      return client.signUp(email, PASSWORD, { preVerified: true });
+      var self = this;
+      return client.signUp(email, PASSWORD, { preVerified: true })
+        .then(function () {
+          // clear localStorage to avoid pollution from other tests.
+          return FunctionalHelpers.clearBrowserState(self);
+        });
     },
 
     'open page with email on query params': function () {
@@ -343,7 +396,7 @@ define([
 
 
   registerSuite({
-    name: 'confirm_password page transition',
+    name: 'confirm_reset_password page transition',
 
     setup: function () {
       email = TestHelpers.createEmail();
@@ -353,16 +406,22 @@ define([
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return client.signUp(email, PASSWORD, { preVerified: true });
+      var self = this;
+      return client.signUp(email, PASSWORD, { preVerified: true })
+        .then(function () {
+          // clear localStorage to avoid pollution from other tests.
+          return FunctionalHelpers.clearBrowserState(self);
+        });
     },
 
-    'page transitions after completion': function () {
+    'original page transitions after completion': function () {
       return fillOutResetPassword(this, email)
         .findById('fxa-confirm-reset-password-header')
-          .then(function () {
-            return client.passwordChange(email, PASSWORD, 'newpassword');
-          })
         .end()
+
+        .then(function () {
+          return client.passwordChange(email, PASSWORD, 'newpassword');
+        })
 
         .findById('fxa-signin-header')
         .end();
@@ -377,7 +436,7 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'open /reset_password page, enter unknown email': function () {
+    'open /reset_password page, enter unknown email, wait for error': function () {
       return fillOutResetPassword(this, email)
         // The error area shows a link to /signup
         .then(FunctionalHelpers.visibleByQSA('.error a[href="/signup"]'))
@@ -389,23 +448,11 @@ define([
         .end()
 
         .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
-        .end()
-
-        .findById('fxa-signup-header')
-        .end()
-
-        // email is prefilled on signup page
-        .findByCssSelector('input[type=email]')
-          .getAttribute('value')
-          .then(function (resultText) {
-            // check the email address was written
-            assert.equal(resultText, email);
-          })
+        .getAttribute('value')
+        .then(function (resultText) {
+          // check the email address was written
+          assert.equal(resultText, email);
+        })
         .end();
     }
   });
