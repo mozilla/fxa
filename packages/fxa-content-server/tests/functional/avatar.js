@@ -18,54 +18,59 @@ define([
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
+  var SETTINGS_URL = config.fxaContentRoot + 'settings';
   var AVATAR_URL = config.fxaContentRoot + 'settings/avatar';
   var AVATAR_CHANGE_URL = config.fxaContentRoot + 'settings/avatar/change';
   var AVATAR_CHANGE_URL_AUTOMATED = config.fxaContentRoot + 'settings/avatar/change?automatedBrowser=true';
 
   var PASSWORD = 'password';
+  var EMAIL_AVATAR_AB_PREFIX = 'avatarAB-';
   var email;
   var client;
-  var email2;
+  var emailAvatarAb;
+
+  function signUp(context, email) {
+    return client.signUp(email, PASSWORD, { preVerified: true })
+      .then(function () {
+        return FunctionalHelpers.clearBrowserState(context);
+      })
+      .then(function () {
+        return context.get('remote')
+          .get(require.toUrl(SIGNIN_URL))
+          // This will configure the timeout for the duration of this test suite
+          .setFindTimeout(intern.config.pageLoadTimeout)
+          .findByCssSelector('form input.email')
+            .click()
+            .type(email)
+          .end()
+
+          .findByCssSelector('form input.password')
+            .click()
+            .type(PASSWORD)
+          .end()
+
+          .findByCssSelector('button[type="submit"]')
+            .click()
+          .end()
+
+          // make sure we actually sign in
+          .findById('fxa-settings-header')
+          .end();
+      });
+  }
 
   registerSuite({
     name: 'settings/avatar',
 
     beforeEach: function () {
       email = TestHelpers.createEmail();
-      email2 = TestHelpers.createEmail();
+      emailAvatarAb = EMAIL_AVATAR_AB_PREFIX + TestHelpers.createEmail();
 
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      var self = this;
-      return client.signUp(email, PASSWORD, { preVerified: true })
-        .then(function () {
-          return FunctionalHelpers.clearBrowserState(self);
-        })
-        .then(function () {
-          return self.get('remote')
-            .get(require.toUrl(SIGNIN_URL))
-            // This will configure the timeout for the duration of this test suite
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            .findByCssSelector('form input.email')
-              .click()
-              .type(email)
-            .end()
-
-            .findByCssSelector('form input.password')
-              .click()
-              .type(PASSWORD)
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
-
-            // make sure we actually sign in
-            .findById('fxa-settings-header')
-            .end();
-        });
+      return signUp(this, email);
     },
 
     teardown: function () {
@@ -84,6 +89,60 @@ define([
         // success is going to the change avatar page
         .findById('avatar-options')
         .end();
+    },
+
+    'go to settings with an email NOT selected to see change link should not see one': function () {
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
+
+        // Should not see this anchor
+        .waitForDeletedByCssSelector('a.change-avatar')
+        .end();
+    },
+
+    'go to settings with an email NOT selected to see change link should not see text link': function () {
+      return this.get('remote')
+        .get(require.toUrl(SETTINGS_URL))
+
+        // Should not see this anchor
+        .waitForDeletedByCssSelector('p.change-avatar-text a')
+        .end();
+    },
+
+    'go to settings with an email selected to see change link then click on avatar to change': function () {
+      var self = this;
+      return signUp(self, emailAvatarAb)
+        .then(function () {
+          return self.get('remote')
+            .get(require.toUrl(SETTINGS_URL))
+
+            // go to change avatar
+            .findByCssSelector('a.change-avatar')
+              .click()
+            .end()
+
+            // success is going to the change avatar page
+            .findById('avatar-options')
+            .end();
+        });
+    },
+
+    'go to settings with an email selected to see change link then click on text link to change': function () {
+      var self = this;
+      return signUp(self, emailAvatarAb)
+        .then(function () {
+          return self.get('remote')
+            .get(require.toUrl(SETTINGS_URL))
+
+            // go to change avatar
+            .findByCssSelector('p.change-avatar-text a')
+              .click()
+            .end()
+
+            // success is going to the change avatar page
+            .findById('avatar-options')
+            .end();
+        });
     },
 
     'visit gravatar with gravatar set': function () {
@@ -111,8 +170,8 @@ define([
           })
         .end()
 
-        // redirected back to main avatar page after save
-        .findById('change-avatar')
+        //success is returning to the settings page
+        .findById('fxa-settings-header')
         .end()
 
         // check for an image with the gravatar url
@@ -163,8 +222,8 @@ define([
           .click()
         .end()
 
-        // redirected back to main avatar page after error
-        .findById('change-avatar')
+        //success is returning to the settings page
+        .findById('fxa-settings-header')
         .end()
 
         // success is seeing the error text
@@ -189,8 +248,8 @@ define([
           .click()
         .end()
 
-        // success is returning to the avatar page with the change link
-        .findById('change-avatar')
+        //success is returning to the settings page
+        .findById('fxa-settings-header')
         .end();
     },
 
@@ -243,8 +302,8 @@ define([
           .click()
         .end()
 
-        //success is returning to the avatar page with the change link
-        .findById('change-avatar')
+        //success is returning to the settings page
+        .findById('fxa-settings-header')
         .end();
 
     },

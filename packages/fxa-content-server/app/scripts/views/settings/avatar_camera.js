@@ -150,7 +150,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
           self.stream.stop();
           delete self.stream;
 
-          self.navigate('settings/avatar');
+          self.navigate('settings');
           return result;
         });
     },

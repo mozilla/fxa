@@ -82,7 +82,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
           .then(function () {
             return view._showGravatar()
               .then(null, function () {
-                assert.equal(routerMock.page, 'settings/avatar');
+                assert.equal(routerMock.page, 'settings');
                 assert.equal(view.ephemeralMessages.get('error'), 'No Gravatar found');
               });
           });
@@ -120,7 +120,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
             })
             .then(function (result) {
               assert.equal(result.id, 'foo');
-              assert.equal(routerMock.page, 'settings/avatar');
+              assert.equal(routerMock.page, 'settings');
               assert.equal(view.ephemeralMessages.get('successUnsafe'), 'Courtesy of <a href="https://www.gravatar.com">Gravatar</a>');
             });
         });

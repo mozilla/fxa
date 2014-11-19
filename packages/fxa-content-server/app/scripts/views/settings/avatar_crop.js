@@ -87,7 +87,7 @@ function (p, _, FormView, Template, Constants, Session, Cropper, AuthErrors) {
           return self.currentAccount().uploadAvatar(data);
         })
         .then(function (result) {
-          self.navigate('settings/avatar');
+          self.navigate('settings');
           return result;
         });
     }

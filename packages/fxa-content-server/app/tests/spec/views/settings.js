@@ -155,6 +155,32 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
         assert.ok(view.$('#fxa-settings-header').length);
       });
 
+      it('does not shows avatar change link non-mozilla account', function () {
+        assert.notOk(view.$('.avatar-wrapper a.change-avatar').length);
+        assert.notOk(view.$('.change-avatar-text a').length);
+      });
+
+      describe('with avatar change link enabled', function () {
+        beforeEach(function () {
+          account.set('email', 'test@mozilla.com');
+
+          return view.render()
+            .then(function () {
+              $('body').append(view.el);
+            });
+        });
+
+        it('shows avatar change link for mozilla account', function () {
+          assert.ok(view.$('.avatar-wrapper a.change-avatar').length);
+          assert.ok(view.$('.change-avatar-text a').length);
+        });
+
+        it('shows avatar change link for automated testing account', function () {
+          assert.ok(view.$('.avatar-wrapper a.change-avatar').length);
+          assert.ok(view.$('.change-avatar-text a').length);
+        });
+      });
+
       it('has no avatar set', function () {
         sinon.stub(account, 'getAvatar', function () {
           return p({});
