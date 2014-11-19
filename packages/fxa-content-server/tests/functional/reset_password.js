@@ -148,6 +148,37 @@ define([
         .end();
     },
 
+    'open /reset_password from /signin with partial email': function () {
+      var self = this;
+      email = 'partial';
+
+      return self.get('remote')
+        .get(require.toUrl(SIGNIN_PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+
+        .findByCssSelector('input[type=email]')
+          .click()
+          .clearValue()
+          .type(email)
+        .end()
+
+        .findByCssSelector('a[href="/reset_password"]')
+          .click()
+        .end()
+
+        .findById('fxa-reset-password-header')
+        .end()
+
+        .findByCssSelector('input[type=email]')
+          .getAttribute('value')
+          .then(function (resultText) {
+            // check the email address was written
+            assert.equal(resultText, email);
+          })
+        .end();
+    },
+
+
     'enter an email with leading whitespace': function () {
       return fillOutResetPassword(this, '   ' + email)
         .findById('fxa-confirm-reset-password-header')
