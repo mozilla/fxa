@@ -10,14 +10,12 @@ define([
   'views/form',
   'views/mixins/avatar-mixin',
   'stache!templates/settings/avatar_change',
-  'lib/session',
   'lib/auth-errors',
-  'lib/image-loader'
+  'lib/image-loader',
+  'models/cropper-image'
 ],
-function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoader) {
-
-  // a blank 1x1 png
-  var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+function ($, _, FormView, AvatarMixin, Template, AuthErrors,
+    ImageLoader, CropperImage) {
 
   var View = FormView.extend({
     // user must be authenticated to see Settings
@@ -33,8 +31,6 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
     },
 
     initialize: function () {
-      Session.clear('cropImgWidth');
-      Session.clear('cropImgHeight');
       // override in tests
       this.FileReader = FileReader;
     },
@@ -77,11 +73,12 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
       // skip the file picker if this is an automater browser
       if (self.automatedBrowser) {
         require(['draggable', 'touch-punch'], function () {
-          Session.set('cropImgSrc', pngSrc);
-          Session.set('cropImgWidth', 1);
-          Session.set('cropImgHeight', 1);
-
-          self.navigate('settings/avatar/crop');
+          var cropImg = new CropperImage();
+          self.navigate('settings/avatar/crop', {
+            data: {
+              cropImg: cropImg
+            }
+          });
         });
         return;
       }
@@ -91,15 +88,6 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
     fileSet: function (e) {
       var self = this;
       var file = e.target.files[0];
-
-      var imgOnload = function (img) {
-        // Store the width and height for the cropper view
-        Session.set('cropImgWidth', img.width);
-        Session.set('cropImgHeight', img.height);
-        require(['draggable', 'touch-punch'], function () {
-          self.navigate('settings/avatar/crop');
-        });
-      };
 
       var imgOnerrer = function () {
         self.navigate('settings/avatar', {
@@ -113,12 +101,23 @@ function ($, _, FormView, AvatarMixin, Template, Session, AuthErrors, ImageLoade
         reader.onload = function (event) {
           var src = event.target.result;
 
-          Session.set('cropImgSrc', src);
-          Session.set('cropImgType', file.type);
-
           ImageLoader.load(src)
-            .then(imgOnload)
-            .then(null, imgOnerrer);
+            .then(function (img) {
+              var cropImg = new CropperImage({
+                src: src,
+                type: file.type,
+                width: img.width,
+                height: img.height
+              });
+              require(['draggable', 'touch-punch'], function () {
+                self.navigate('settings/avatar/crop', {
+                  data: {
+                    cropImg: cropImg
+                  }
+                });
+              });
+            })
+            .fail(imgOnerrer);
         };
         reader.readAsDataURL(file);
       } else {

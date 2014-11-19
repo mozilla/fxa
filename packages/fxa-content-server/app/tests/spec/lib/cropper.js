@@ -11,21 +11,32 @@ define([
   '../../mocks/router',
   '../../mocks/canvas',
   'lib/cropper',
-  'views/settings/avatar_crop'
+  'lib/ephemeral-messages',
+  'views/settings/avatar_crop',
+  'models/cropper-image'
 ],
-function (chai, jquery, RouterMock, CanvasMock, Cropper, View) {
+function (chai, jquery, RouterMock, CanvasMock, Cropper, EphemeralMessages,
+    View, CropperImage) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
   describe('lib/cropper', function () {
-    var view, routerMock;
+    var view;
+    var routerMock;
+    var ephemeralMessages;
 
     beforeEach(function () {
       routerMock = new RouterMock();
-      view = new View({
-        router: routerMock
+      ephemeralMessages = new EphemeralMessages();
+      ephemeralMessages.set('data', {
+        cropImg: new CropperImage({
+          src: pngSrc
+        })
       });
-      view.imgSrc = pngSrc;
+      view = new View({
+        router: routerMock,
+        ephemeralMessages: ephemeralMessages
+      });
       view.isUserAuthorized = function () {
         return true;
       };
