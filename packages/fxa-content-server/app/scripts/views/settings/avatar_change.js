@@ -72,14 +72,17 @@ function ($, _, FormView, AvatarMixin, Template, AuthErrors,
       var self = this;
       // skip the file picker if this is an automater browser
       if (self.automatedBrowser) {
-        require(['draggable', 'touch-punch'], function () {
-          var cropImg = new CropperImage();
-          self.navigate('settings/avatar/crop', {
-            data: {
-              cropImg: cropImg
-            }
+        setTimeout(function () {
+          require(['draggable', 'touch-punch'], function () {
+            var cropImg = new CropperImage();
+            self.navigate('settings/avatar/crop', {
+              data: {
+                cropImg: cropImg
+              }
+            });
           });
-        });
+        }, 1000);
+        
         return;
       }
       self.$('#imageLoader').click();
