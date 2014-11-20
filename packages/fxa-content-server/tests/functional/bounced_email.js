@@ -47,12 +47,6 @@ define([
           return client.accountDestroy(bouncedEmail, PASSWORD);
         })
 
-        .then(FunctionalHelpers.visibleByQSA('.error a[href="/signup"]'))
-
-        .findByCssSelector('.error a[href="/signup"]')
-          .click()
-        .end()
-
         .findById('fxa-signup-header')
         .end()
 

@@ -48,7 +48,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         return p(false);
       }
 
-      // TODO - get from the User model when ready.
+      // TODO #1913 - get from the User model when ready.
       this._bouncedEmail = this.ephemeralMessages.get('bouncedEmail');
 
       return FormView.prototype.beforeRender.call(this);
@@ -78,7 +78,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
     afterVisible: function () {
       if (this._bouncedEmail) {
         this.showValidationError('input[type=email]',
-                  AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED'));
+                  AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
       }
 
       return FormView.prototype.afterVisible.call(this);
