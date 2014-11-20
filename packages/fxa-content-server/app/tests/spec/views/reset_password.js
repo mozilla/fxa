@@ -6,6 +6,7 @@
 
 
 define([
+  'underscore',
   'chai',
   'sinon',
   'lib/promise',
@@ -20,8 +21,8 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
-      Broker, WindowMock, RouterMock, TestHelpers) {
+function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
+      Relier, Broker, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -33,6 +34,18 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
     var relier;
     var broker;
 
+    function createView(options) {
+      var viewOptions = _.extend({
+        router: router,
+        metrics: metrics,
+        fxaClient: fxaClient,
+        relier: relier,
+        broker: broker,
+        canGoBack: true
+      }, options || {});
+      return new View(viewOptions);
+    }
+
     beforeEach(function () {
       router = new RouterMock();
       metrics = new Metrics();
@@ -42,13 +55,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
       });
       fxaClient = new FxaClient();
 
-      view = new View({
-        router: router,
-        metrics: metrics,
-        fxaClient: fxaClient,
-        relier: relier,
-        broker: broker
-      });
+      view = createView();
       return view.render()
           .then(function () {
             $('#container').html(view.el);
@@ -73,9 +80,31 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
       it('pre-fills email addresses from Session.prefillEmail', function () {
         Session.set('prefillEmail', 'prefilled@testuser.com');
         return view.render()
-            .then(function () {
-              assert.equal(view.$('.email').val(), 'prefilled@testuser.com');
-            });
+          .then(function () {
+            assert.equal(view.$('.email').val(), 'prefilled@testuser.com');
+          });
+      });
+
+      it('shows the back button if back is enabled', function () {
+        view = createView({
+          canGoBack: true
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('#back').length, 1);
+          });
+      });
+
+      it('does not show the back button if back is disabled', function () {
+        view = createView({
+          canGoBack: false
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('#back').length, 0);
+          });
       });
     });
 
@@ -182,7 +211,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View, Relier,
                   });
       });
     });
-
   });
 
   describe('views/reset_password with email specified as query param', function () {

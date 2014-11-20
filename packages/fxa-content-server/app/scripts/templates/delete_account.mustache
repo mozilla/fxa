@@ -25,8 +25,10 @@
       </div>
     </form>
 
-    <div class="links">
-      <a href="#" id="back">{{#t}}Back{{/t}}</a>
-    </div>
+    {{#canGoBack}}
+      <div class="links">
+        <a href="#" id="back">{{#t}}Back{{/t}}</a>
+      </div>
+    {{/canGoBack}}
   </section>
 </div>

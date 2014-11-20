@@ -11,8 +11,10 @@ define([
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/restmail',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, restmail, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/test'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
+      FxaClient, restmail, TestHelpers, FunctionalHelpers, Test) {
   'use strict';
 
   var config = intern.config;
@@ -128,6 +130,10 @@ define([
         .end()
 
         .findById('fxa-reset-password-header')
+        .end()
+
+        // ensure there is a back button
+        .findById('back')
         .end()
 
         // email should be pre-filled
@@ -383,8 +389,9 @@ define([
         });
     },
 
-    'open page with email on query params': function () {
+    'browse directly to page with email on query params': function () {
       var url = RESET_PAGE_URL + '?email=' + email;
+      var self = this;
       return this.get('remote')
         .get(require.toUrl(url))
         .setFindTimeout(intern.config.pageLoadTimeout)
@@ -395,6 +402,9 @@ define([
             assert.equal(resultText, email);
           })
         .end()
+
+        // ensure there is no back button when browsing directly to page
+        .then(Test.noElementById(self, 'fxa-tos-back'))
 
         .findByCssSelector('button[type="submit"]')
           .click()

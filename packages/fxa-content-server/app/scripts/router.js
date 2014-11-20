@@ -73,7 +73,7 @@ function (
     return function () {
       // passed in options block can override
       // default options.
-      options = _.extend({
+      var viewOptions = _.extend({
         metrics: this.metrics,
         window: this.window,
         router: this,
@@ -82,10 +82,14 @@ function (
         broker: this.broker,
         fxaClient: this.fxaClient,
         user: this.user,
-        interTabChannel: this.interTabChannel
+        interTabChannel: this.interTabChannel,
+        canGoBack: this.canGoBack
       }, options || {});
 
-      this.showView(new View(options));
+      this.showView(new View(viewOptions));
+
+      // back is enabled after the first view is rendered.
+      this.canGoBack = true;
     };
   }
 
@@ -133,6 +137,9 @@ function (
       this.fxaClient = options.fxaClient;
       this.user = options.user;
       this.interTabChannel = options.interTabChannel;
+
+      // back is only enabled after the first view is rendered.
+      this.canGoBack = false;
 
       this.$stage = $('#stage');
 

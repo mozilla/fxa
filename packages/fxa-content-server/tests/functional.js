@@ -14,6 +14,7 @@ define([
   './functional/tos',
   './functional/pp',
   './functional/confirm',
+  './functional/delete_account',
   './functional/reset_password',
   './functional/sync_reset_password',
   './functional/robots_txt',

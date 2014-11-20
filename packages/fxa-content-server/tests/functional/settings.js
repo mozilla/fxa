@@ -136,50 +136,6 @@ define([
         });
     },
 
-    'sign in, delete account': function () {
-      return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        .findById('fxa-settings-header')
-        .end()
-
-        // Go to delete account screen
-        .findById('delete-account')
-          .click()
-        .end()
-
-        // success is going to the delete account page
-        .findById('fxa-delete-account-header')
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        // delete account
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        // success is going to the signup page
-        .findById('fxa-signup-header')
-        .end();
-    },
-
     'visit settings page with an unknown uid parameter redirects to signin': function () {
       var self = this;
 

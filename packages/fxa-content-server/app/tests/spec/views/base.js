@@ -31,6 +31,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   var assert = chai.assert;
+  var ENTER_BUTTON_CODE = 13;
 
   describe('views/base', function () {
     var view;
@@ -43,6 +44,11 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
     var relier;
     var user;
     var screenName = 'screen';
+
+    var View = BaseView.extend({
+      template: Template
+    });
+
 
     beforeEach(function () {
       translator = new Translator('en-US', ['en-US']);
@@ -60,10 +66,6 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
       fxaClient = new FxaClient();
       user = new User();
 
-      var View = BaseView.extend({
-        template: Template
-      });
-
       view = new View({
         translator: translator,
         router: router,
@@ -76,7 +78,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
       return view.render()
           .then(function () {
-            jQuery('body').append(view.el);
+            jQuery('#container').append(view.el);
           });
     });
 
@@ -85,7 +87,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
       if (view) {
         view.destroy();
-        jQuery(view.el).remove();
+        jQuery('#container').empty();
       }
 
       view = router = windowMock = metrics = null;
@@ -570,6 +572,42 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
         assert.isTrue(view.window.console.trace.calledOnce);
         view.window.console.trace.restore();
+      });
+    });
+
+    describe('canGoBack', function () {
+      it('returns true if view created with `canGoBack: true` option', function () {
+        var view = new View({ canGoBack: true });
+        assert.isTrue(view.canGoBack());
+      });
+
+      it('returns false if view created with `canGoBack: false` option', function () {
+        var view = new View({ canGoBack: false });
+        assert.isFalse(view.canGoBack());
+      });
+    });
+
+    describe('back', function () {
+      it('calls window.history.back', function () {
+        view.back();
+        assert.isTrue(windowMock.history.back.called);
+      });
+    });
+
+    describe('backOnEnter', function () {
+      it('calls window.history.back if user presses ENTER key', function () {
+        view.backOnEnter({ which: ENTER_BUTTON_CODE });
+        assert.isTrue(windowMock.history.back.called);
+      });
+
+      it('does not call window.history.back if user presses any key besides ENTER', function () {
+        sinon.spy(windowMock.history, 'back');
+        sinon.stub(view, 'canGoBack', function () {
+          return true;
+        });
+
+        view.backOnEnter({ which: ENTER_BUTTON_CODE + 1});
+        assert.isFalse(windowMock.history.back.called);
       });
     });
   });
