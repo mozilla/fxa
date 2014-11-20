@@ -9,14 +9,16 @@ define([
   'chai',
   'sinon',
   'lib/storage',
-  'lib/null-storage'
+  'lib/null-storage',
+  '../../mocks/window'
 ],
-function (chai, sinon, Storage, NullStorage) {
+function (chai, sinon, Storage, NullStorage, WindowMock) {
   var assert = chai.assert;
 
   describe('lib/storage', function () {
     var storage;
     var nullStorage;
+    var windowMock;
 
     beforeEach(function () {
       nullStorage = new NullStorage();
@@ -71,6 +73,43 @@ function (chai, sinon, Storage, NullStorage) {
         storage.clear();
 
         assert.isUndefined(storage.get('key'));
+      });
+    });
+
+    describe('factory', function () {
+      beforeEach(function () {
+        windowMock = new WindowMock();
+      });
+
+      it('creates localStorage instance', function () {
+        sinon.stub(windowMock.localStorage, 'setItem', function () { });
+
+        var store = Storage.factory('localStorage', windowMock);
+        store.set('foo', 'bar');
+        assert.isTrue(windowMock.localStorage.setItem.called);
+      });
+
+      it('creates null storage instance otherwise', function () {
+        var store = Storage.factory(null, windowMock);
+        store.set('foo', 'bar');
+
+        assert.isTrue(store.isNull());
+        assert.equal(store.get('foo'), 'bar');
+      });
+
+      it('does not blow up if cookies are disabled', function () {
+        var local;
+        Object.defineProperty(windowMock, 'localStorage', {
+          get: function () {
+            throw new Error('The operation is insecure.');
+          }
+        });
+
+        try {
+          local = Storage.factory('localStorage', windowMock);
+        } finally {
+          assert.isTrue(local.isNull());
+        }
       });
     });
   });

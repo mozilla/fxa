@@ -40,5 +40,35 @@ define([
     this._backend.clear();
   };
 
+  Storage.prototype.isNull = function () {
+    return this._backend instanceof NullStorage;
+  };
+
+  Storage.isLocalStorageEnabled = function (win) {
+    var testData = 'local-storage-test';
+    win = win || window;
+
+    try {
+      win.localStorage.setItem(testData, testData);
+      win.localStorage.removeItem(testData);
+      return true;
+    } catch(e) {
+      return false;
+    }
+  };
+
+  Storage.factory = function (type, win) {
+    var storage;
+    win = win || window;
+
+    if (type === 'localStorage' && this.isLocalStorageEnabled(win)) {
+      storage = new Storage(win.localStorage);
+    } else {
+      storage = new Storage(new NullStorage());
+    }
+
+    return storage;
+  };
+
   return Storage;
 });

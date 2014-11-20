@@ -35,6 +35,7 @@ define([
   'lib/profile-client',
   'lib/auth-errors',
   'lib/channels/inter-tab',
+  'lib/storage',
   'models/reliers/relier',
   'models/reliers/oauth',
   'models/reliers/fx-desktop',
@@ -62,6 +63,7 @@ function (
   ProfileClient,
   AuthErrors,
   InterTabChannel,
+  Storage,
   Relier,
   OAuthRelier,
   FxDesktopRelier,
@@ -272,7 +274,8 @@ function (
           profileClient: this._profileClient,
           oAuthClient: this._oAuthClient,
           fxaClient: this._fxaClient,
-          assertion: this._assertionLibrary
+          assertion: this._assertionLibrary,
+          storage: this._getStorageInstance()
         });
       }
     },
@@ -312,6 +315,10 @@ function (
           });
     },
 
+    _getStorageInstance: function () {
+      return Storage.factory('localStorage', this._window);
+    },
+
     _isFxDesktop: function () {
       return ((this._searchParam('service') === Constants.FX_DESKTOP_SYNC) ||
               (this._searchParam('context') === Constants.FX_DESKTOP_CONTEXT));
@@ -348,7 +355,7 @@ function (
           return;
         }
 
-        return self._configLoader.areCookiesEnabled()
+        return self._configLoader.areCookiesEnabled(false, self._window)
             .then(function (areCookiesEnabled) {
               if (! areCookiesEnabled) {
                 return 'cookies_disabled';

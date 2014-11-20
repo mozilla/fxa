@@ -12,6 +12,7 @@ define([
   'lib/metrics',
   'lib/ephemeral-messages',
   'lib/channels/inter-tab',
+  'lib/storage',
   '../../mocks/fxa-client',
   'models/reliers/relier',
   'models/auth_brokers/base',
@@ -21,7 +22,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
-      InterTabChannel, FxaClient, Relier, Broker, User, RouterMock,
+      InterTabChannel, Storage, FxaClient, Relier, Broker, User, RouterMock,
       WindowMock, TestHelpers) {
   'use strict';
 
@@ -54,7 +55,9 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
       fxaClient = new FxaClient();
       interTabChannel = new InterTabChannel();
       ephemeralMessages = new EphemeralMessages();
-      user = new User();
+      user = new User({
+        storage: Storage.factory('localStorage')
+      });
 
       sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
         return p(true);
@@ -188,7 +191,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
       });
     });
 
-    describe('render', function () {
+    describe('complete', function () {
       it('notifies the broker when the user has confirmed', function (done) {
         fxaClient.isPasswordResetComplete.restore();
         sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
