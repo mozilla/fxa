@@ -12,22 +12,43 @@ define([
   'lib/constants',
   'lib/session',
   'lib/fxa-client',
-  'models/user'
+  'models/user',
+  '../../mocks/window'
 ],
-function (chai, sinon, p, Constants, Session, FxaClient, User) {
+function (chai, sinon, p, Constants, Session, FxaClient, User, WindowMock) {
   var assert = chai.assert;
 
   describe('models/user', function () {
     var user;
     var fxaClientMock;
+    var windowMock;
 
     beforeEach(function () {
       fxaClientMock = new FxaClient();
-      user = new User();
+      windowMock = new WindowMock();
+      user = new User({
+        window: windowMock
+      });
     });
 
     afterEach(function () {
       user = null;
+    });
+
+    it('does not blow up if cookies are disabled', function () {
+      Object.defineProperty(windowMock, 'localStorage', {
+        get: function () {
+          throw new Error('The operation is insecure.');
+        }
+      });
+
+      try {
+        user = new User({
+          window: windowMock
+        });
+      } finally {
+        assert.ok(user);
+      }
     });
 
     it('creates an account', function () {

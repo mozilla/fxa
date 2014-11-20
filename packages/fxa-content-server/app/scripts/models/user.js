@@ -18,8 +18,9 @@ define([
   'lib/assertion',
   'lib/oauth-client',
   'models/account',
-  'lib/storage'
-], function (Backbone, _, p, Assertion, OAuthClient, Account, Storage) {
+  'lib/storage',
+  'lib/null-storage'
+], function (Backbone, _, p, Assertion, OAuthClient, Account, Storage, NullStorage) {
 
   var User = Backbone.Model.extend({
     initialize: function (options) {
@@ -29,7 +30,17 @@ define([
       this._profileClient = options.profileClient;
       this._fxaClient = options.fxaClient;
       this._assertion = options.assertion;
-      this._storage = options.storage || new Storage(localStorage);
+
+      this._storage = options.storage;
+      var win = options.window || window;
+      if (! this._storage) {
+        try {
+          this._storage = new Storage(win.localStorage);
+        } catch (e) {
+          // if cookies are disabled, accessing localStorage will blow up.
+          this._storage = new Storage(new NullStorage());
+        }
+      }
     },
 
     _accounts: function () {

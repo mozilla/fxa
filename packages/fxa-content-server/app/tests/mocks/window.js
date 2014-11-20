@@ -6,9 +6,10 @@
 
 define([
   'underscore',
-  'backbone'
+  'backbone',
+  'lib/null-storage'
 ],
-function (_, Backbone) {
+function (_, Backbone, NullStorage) {
   'use strict';
 
   function WindowMock() {
@@ -58,6 +59,9 @@ function (_, Backbone) {
     };
 
     this.console = window.console;
+
+    this.localStorage = new NullStorage();
+    this.sessionStorage = new NullStorage();
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {
