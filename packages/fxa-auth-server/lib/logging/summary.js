@@ -32,8 +32,8 @@ module.exports = function summary(request, response) {
 
   if (line.code >= 500) {
     line.stack = response.stack;
-    logger.error(line);
+    logger.error('summary', line);
   } else {
-    logger.info(line);
+    logger.info('summary', line);
   }
 };
