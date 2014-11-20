@@ -14,7 +14,7 @@ define([
 
   intern.environments = [
     // these tests can only run in Firefox
-    { browserName: 'firefox', version: '32' }
+    { browserName: 'firefox', version: '33' }
   ];
 
   return intern;

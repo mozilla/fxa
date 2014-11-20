@@ -30,7 +30,7 @@ define([
   }
 
   intern.environments = [
-    { browserName: 'firefox', version: '32', platform: 'Windows 7' }
+    { browserName: 'firefox', version: '33', platform: 'Windows 7' }
   ];
 
   return intern;
