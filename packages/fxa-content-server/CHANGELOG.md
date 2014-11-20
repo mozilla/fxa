@@ -1,3 +1,12 @@
+<a name="0.26.2"></a>
+### 0.26.2 (2014-11-20)
+
+
+#### Bug Fixes
+
+* **client:** Go to the /cookies_disabled screen instead of the /500 screen if cookies are dis ([d12d6ec8](https://github.com/mozilla/fxa-content-server/commit/d12d6ec88de44bb1b8e0774b0b190089a0672c54))
+
+
 <a name="0.26.1"></a>
 ### 0.26.1 (2014-11-17)
 
