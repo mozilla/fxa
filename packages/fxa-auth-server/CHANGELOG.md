@@ -1,3 +1,12 @@
+<a name="0.26.2"></a>
+### 0.26.2 (2014-11-20)
+
+
+#### Bug Fixes
+
+* **logging:** use space-free tokens for mozlog ([11f73f9e](http://github.com/mozilla/fxa-oauth-server/commit/11f73f9e8e16324dba00822272f77a38828423f7))
+
+
 <a name="0.26.1"></a>
 ### 0.26.1 (2014-11-13)
 
