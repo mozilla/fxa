@@ -33,7 +33,8 @@ define([
         windowMock.location.search = TestHelpers.toSearchString({
           context: 'fx_desktop_v1',
           entrypoint: 'menupanel',
-          service: 'sync'
+          service: 'sync',
+          isMigration: true
         });
 
         return relier.fetch()
@@ -41,6 +42,7 @@ define([
               assert.equal(relier.get('context'), 'fx_desktop_v1');
               assert.equal(relier.get('entrypoint'), 'menupanel');
               assert.equal(relier.get('service'), 'sync');
+              assert.equal(relier.get('isMigration'), true);
             });
       });
 

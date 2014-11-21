@@ -21,7 +21,8 @@ define([
   var FxDesktopRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
       context: null,
-      entrypoint: null
+      entrypoint: null,
+      isMigration: null
     }),
 
     initialize: function (options) {
@@ -38,6 +39,10 @@ define([
           .then(function () {
             self.importSearchParam('context');
             self.importSearchParam('entrypoint');
+            self.importSearchParam('isMigration');
+            if (self.get('isMigration') === 'true') {
+              self.set('isMigration', true);
+            }
             return self._setupServiceName();
           });
     },

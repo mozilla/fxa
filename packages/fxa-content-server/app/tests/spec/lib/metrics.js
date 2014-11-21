@@ -30,7 +30,8 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         lang: 'db_LB',
         service: 'sync',
         context: 'fxa_desktop_v1',
-        entrypoint: 'menupanel'
+        entrypoint: 'menupanel',
+        isMigration: true
       });
       metrics.init();
     });
@@ -57,10 +58,13 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         assert.isTrue(filteredData.hasOwnProperty('timers'));
         assert.isTrue(filteredData.hasOwnProperty('navigationTiming'));
         assert.isTrue(filteredData.hasOwnProperty('duration'));
-        assert.isTrue(filteredData.hasOwnProperty('context'));
-        assert.isTrue(filteredData.hasOwnProperty('service'));
-        assert.isTrue(filteredData.hasOwnProperty('lang'));
-        assert.isTrue(filteredData.hasOwnProperty('entrypoint'));
+
+        assert.equal(filteredData.context, 'fxa_desktop_v1');
+        assert.equal(filteredData.service, 'sync');
+        assert.equal(filteredData.lang, 'db_LB');
+        assert.equal(filteredData.entrypoint, 'menupanel');
+        assert.isTrue(filteredData.isMigration);
+
         assert.equal(filteredData.screen.width, window.screen.width);
         assert.equal(filteredData.screen.height, window.screen.height);
       });

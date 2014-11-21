@@ -40,6 +40,7 @@ define([
     'context',
     'entrypoint',
     'service',
+    'isMigration',
     'lang',
     'marketingLink',
     'marketingType',
@@ -69,6 +70,7 @@ define([
     this._lang = options.lang || 'unknown';
     this._context = options.context || 'web';
     this._entrypoint = options.entrypoint || 'none';
+    this._isMigration = options.isMigration || false;
     this._service = options.service || 'none';
 
     this._inactivityFlushMs = options.inactivityFlushMs || TEN_MINS_MS;
@@ -138,6 +140,7 @@ define([
         service: this._service,
         lang: this._lang,
         entrypoint: this._entrypoint,
+        isMigration: this._isMigration,
         marketingType: this._marketingType || 'none',
         marketingLink: this._marketingLink || 'none',
         marketingClicked: this._marketingClicked || false
