@@ -48,9 +48,7 @@ function (args, topic, firefoxProfile) {
     // https://saucelabs.com/docs/additional-config#desired-capabilities for Sauce Labs capabilities.
     // Note that the `build` capability will be filled in with the current commit ID from the Travis CI environment
     // automatically
-    capabilities: {
-      'selenium-version': '2.43.1'
-    },
+    capabilities: { },
 
     // Browsers to run integration testing against. Note that version numbers must be strings if used with Sauce
     // OnDemand. Options that will be permutated are browserName, version, platform, and platformVersion; any other
