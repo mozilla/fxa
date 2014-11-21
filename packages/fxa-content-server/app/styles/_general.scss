@@ -95,7 +95,7 @@ noscript {
   border-radius: $big-border-radius;
   box-shadow: 0 1px 5px $input-row-border-color;
   margin: -15px auto 0 auto;
-  min-height: 450px;
+  min-height: 420px;
   padding: 50px 40px 40px 40px;
   text-align: center;
   width: 420px;
@@ -873,8 +873,9 @@ input[type="text"] {
   box-shadow: 0 1px 1px $content-background-color inset;
   font-size: $medium-font;
   // pull in the margins from #main-content
-  margin: 60px -40px -40px -40px;
   position: relative;
+  margin: 60px -40px -40px -40px;
+  //top: 12px;
 
   &.image-snippet {
     // 160 right padding to avoid overlap of the android logo
