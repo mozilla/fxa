@@ -170,7 +170,8 @@ function (
         service: relier.get('service'),
         context: relier.get('context'),
         entrypoint: relier.get('entrypoint'),
-        isMigration: relier.get('isMigration')
+        isMigration: relier.get('isMigration'),
+        campaign: relier.get('campaign')
       });
       this._metrics.init();
     },

@@ -67,6 +67,7 @@ define([
       assert.equal(loggedMetrics['screen.height'], 1050);
       assert.equal(loggedMetrics.entrypoint, 'menupanel');
       assert.equal(loggedMetrics.isMigration, true);
+      assert.equal(loggedMetrics.campaign, 'fennec');
     });
 
     metricsCollector.write({
@@ -91,6 +92,7 @@ define([
       context: 'fx_desktop_v1',
       entrypoint: 'menupanel',
       isMigration: true,
+      campaign: 'fennec',
       marketingType: 'survey',
       marketingLink: 'http://mzl.la/1oV7jUy',
       marketingClicked: false,

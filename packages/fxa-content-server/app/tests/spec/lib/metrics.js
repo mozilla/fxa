@@ -31,7 +31,8 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         service: 'sync',
         context: 'fxa_desktop_v1',
         entrypoint: 'menupanel',
-        isMigration: true
+        isMigration: true,
+        campaign: 'fennec'
       });
       metrics.init();
     });
@@ -64,6 +65,7 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         assert.equal(filteredData.lang, 'db_LB');
         assert.equal(filteredData.entrypoint, 'menupanel');
         assert.isTrue(filteredData.isMigration);
+        assert.equal(filteredData.campaign, 'fennec');
 
         assert.equal(filteredData.screen.width, window.screen.width);
         assert.equal(filteredData.screen.height, window.screen.height);

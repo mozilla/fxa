@@ -32,20 +32,21 @@ define([
   SpeedTrap.prototype = speedTrap;
 
   var ALLOWED_FIELDS = [
-    'navigationTiming',
-    'referrer',
-    'duration',
-    'timers',
-    'events',
+    'campaign',
     'context',
+    'duration',
     'entrypoint',
-    'service',
+    'events',
     'isMigration',
     'lang',
+    'marketingClicked',
     'marketingLink',
     'marketingType',
-    'marketingClicked',
-    'screen'
+    'navigationTiming',
+    'referrer',
+    'screen',
+    'service',
+    'timers'
   ];
 
   var TEN_MINS_MS = 10 * 60 * 1000;
@@ -72,6 +73,7 @@ define([
     this._entrypoint = options.entrypoint || 'none';
     this._isMigration = options.isMigration || false;
     this._service = options.service || 'none';
+    this._campaign = options.campaign || 'none';
 
     this._inactivityFlushMs = options.inactivityFlushMs || TEN_MINS_MS;
   }
@@ -143,7 +145,8 @@ define([
         isMigration: this._isMigration,
         marketingType: this._marketingType || 'none',
         marketingLink: this._marketingLink || 'none',
-        marketingClicked: this._marketingClicked || false
+        marketingClicked: this._marketingClicked || false,
+        campaign: this._campaign
       }, loadData, unloadData);
 
       return allData;
