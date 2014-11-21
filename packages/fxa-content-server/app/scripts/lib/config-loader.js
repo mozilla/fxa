@@ -10,13 +10,15 @@ define([
   'underscore',
   'lib/xhr',
   'lib/promise',
-  'lib/url'
+  'lib/url',
+  'lib/storage'
 ],
 function (
   _,
   xhr,
   p,
-  Url
+  Url,
+  Storage
 ) {
 
   function ConfigLoader() {
@@ -61,8 +63,7 @@ function (
           });
     },
 
-    areCookiesEnabled: function (force) {
-      var self = this;
+    areCookiesEnabled: function (force, win) {
       return this.fetch(force)
           .then(function (config) {
             // use the search parameter for selenium testing. There is
@@ -81,24 +82,11 @@ function (
             } else if (typeof config.localStorageEnabled !== 'undefined') {
               localStorageEnabled = config.localStorageEnabled;
             } else {
-              localStorageEnabled = self.isLocalStorageEnabled();
+              localStorageEnabled = Storage.isLocalStorageEnabled(win);
             }
 
             return localStorageEnabled;
           });
-    },
-
-    // HACK: Part of a temporary work around for Firefox Nightly (2014-04-18)
-    isLocalStorageEnabled: function () {
-      var testData = 'local-storage-test';
-
-      try {
-        localStorage.setItem(testData, testData);
-        localStorage.removeItem(testData);
-        return true;
-      } catch(e) {
-        return false;
-      }
     }
   };
 
