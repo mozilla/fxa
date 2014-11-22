@@ -108,8 +108,14 @@ reference GitHub issues that this commit **Closes**.
 - **stage** - https://accounts.stage.mozaws.net/
 - **production** - https://accounts.firefox.com/
 
-## Dependency Servers
+## Dependencies and Tools
 
+### Bower
+
+We use [Bower](http://bower.io/) to manage front-end packages. These components are [automatically
+installed](https://github.com/mozilla/fxa-content-server/blob/master/package.json#L7) when you install this project and are placed into the `app` directory.
+
+### Freight
 We use [Freight](https://github.com/vladikoff/freight) to package our npm and Bower dependencies.
 Check Freight status at [freight.dev.lcip.org](https://freight.dev.lcip.org/).
 
