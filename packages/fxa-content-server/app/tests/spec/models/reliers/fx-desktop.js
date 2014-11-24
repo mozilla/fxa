@@ -31,15 +31,19 @@ define([
     describe('fetch', function () {
       it('populates model from the search parameters', function () {
         windowMock.location.search = TestHelpers.toSearchString({
+          campaign: 'fennec',
           context: 'fx_desktop_v1',
           entrypoint: 'menupanel',
+          migration: 'sync1.5',
           service: 'sync'
         });
 
         return relier.fetch()
             .then(function () {
+              assert.equal(relier.get('campaign'), 'fennec');
               assert.equal(relier.get('context'), 'fx_desktop_v1');
               assert.equal(relier.get('entrypoint'), 'menupanel');
+              assert.equal(relier.get('migration'), 'sync1.5');
               assert.equal(relier.get('service'), 'sync');
             });
       });

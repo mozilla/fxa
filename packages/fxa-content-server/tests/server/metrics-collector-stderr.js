@@ -66,6 +66,8 @@ define([
       assert.equal(loggedMetrics['screen.width'], 1680);
       assert.equal(loggedMetrics['screen.height'], 1050);
       assert.equal(loggedMetrics.entrypoint, 'menupanel');
+      assert.equal(loggedMetrics.migration, 'sync1.5');
+      assert.equal(loggedMetrics.campaign, 'fennec');
     });
 
     metricsCollector.write({
@@ -89,6 +91,8 @@ define([
       service: 'sync',
       context: 'fx_desktop_v1',
       entrypoint: 'menupanel',
+      migration: 'sync1.5',
+      campaign: 'fennec',
       marketingType: 'survey',
       marketingLink: 'http://mzl.la/1oV7jUy',
       marketingClicked: false,

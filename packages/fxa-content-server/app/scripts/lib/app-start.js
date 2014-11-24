@@ -166,11 +166,14 @@ function (
     },
 
     initializeMetrics: function () {
+      var relier = this._relier;
       this._metrics = createMetrics(this._config.metricsSampleRate, {
         lang: this._config.language,
-        service: this._relier.get('service'),
-        context: this._relier.get('context'),
-        entrypoint: this._relier.get('entrypoint')
+        service: relier.get('service'),
+        context: relier.get('context'),
+        entrypoint: relier.get('entrypoint'),
+        migration: relier.get('migration'),
+        campaign: relier.get('campaign')
       });
       this._metrics.init();
     },

@@ -20,8 +20,10 @@ define([
 
   var FxDesktopRelier = Relier.extend({
     defaults: _.extend({}, Relier.prototype.defaults, {
+      campaign: null,
       context: null,
-      entrypoint: null
+      entrypoint: null,
+      migration: null
     }),
 
     initialize: function (options) {
@@ -38,7 +40,10 @@ define([
           .then(function () {
             self.importSearchParam('context');
             self.importSearchParam('entrypoint');
-            return self._setupServiceName();
+            self.importSearchParam('campaign');
+            self.importSearchParam('migration');
+
+            self._setupServiceName();
           });
     },
 
