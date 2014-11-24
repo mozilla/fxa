@@ -8,7 +8,7 @@ define([
   'chai',
   'jquery',
   'sinon',
-  'views/oauth_sign_up',
+  'views/sign_up',
   'lib/promise',
   'lib/session',
   'lib/fxa-client',
@@ -51,7 +51,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
   var CLIENT_NAME = '123Done';
   var BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
 
-  describe('views/oauth_sign_up', function () {
+  describe('views/sign_up for /oauth/signup', function () {
     var nowYear = (new Date()).getFullYear();
     var view;
     var router;

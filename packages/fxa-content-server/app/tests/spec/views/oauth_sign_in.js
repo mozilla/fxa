@@ -8,7 +8,7 @@ define([
   'chai',
   'jquery',
   'sinon',
-  'views/oauth_sign_in',
+  'views/sign_in',
   'lib/session',
   'lib/fxa-client',
   'lib/promise',
@@ -24,7 +24,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       OAuthBroker, User, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
-  describe('views/oauth_sign_in', function () {
+  describe('views/sign_in for /oauth/signin', function () {
     var view;
     var email;
     var router;

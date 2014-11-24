@@ -11,7 +11,7 @@ define([
   'views/base'
 ], function (BaseView) {
   return {
-    setupOAuthLinks: function () {
+    transformLinks: function () {
       this.$('a[href~="/signin"]').attr('href',
           this.broker.transformLink('/signin'));
       this.$('a[href~="/signup"]').attr('href',
@@ -22,7 +22,7 @@ define([
     displayErrorUnsafe: function (err) {
       var result = BaseView.prototype.displayErrorUnsafe.call(this, err);
 
-      this.setupOAuthLinks();
+      this.transformLinks();
 
       return result;
     }

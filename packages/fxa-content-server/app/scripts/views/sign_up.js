@@ -58,6 +58,8 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       this._addSelectRowBehavior();
       this._selectPrefillYear();
 
+      this.transformLinks();
+
       return FormView.prototype.afterRender.call(this);
     },
 
