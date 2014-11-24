@@ -102,7 +102,7 @@ function toLoggableEvent(event) {
     'context',
     'entrypoint',
     'service',
-    'isMigration',
+    'migration',
     'campaign',
     'marketingLink',
     'marketingType',

@@ -31,7 +31,7 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         service: 'sync',
         context: 'fxa_desktop_v1',
         entrypoint: 'menupanel',
-        isMigration: true,
+        migration: 'sync1.5',
         campaign: 'fennec'
       });
       metrics.init();
@@ -64,7 +64,7 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         assert.equal(filteredData.service, 'sync');
         assert.equal(filteredData.lang, 'db_LB');
         assert.equal(filteredData.entrypoint, 'menupanel');
-        assert.isTrue(filteredData.isMigration);
+        assert.equal(filteredData.migration, 'sync1.5');
         assert.equal(filteredData.campaign, 'fennec');
 
         assert.equal(filteredData.screen.width, window.screen.width);

@@ -37,7 +37,7 @@ define([
     'duration',
     'entrypoint',
     'events',
-    'isMigration',
+    'migration',
     'lang',
     'marketingClicked',
     'marketingLink',
@@ -71,7 +71,7 @@ define([
     this._lang = options.lang || 'unknown';
     this._context = options.context || 'web';
     this._entrypoint = options.entrypoint || 'none';
-    this._isMigration = options.isMigration || false;
+    this._migration = options.migration || 'none';
     this._service = options.service || 'none';
     this._campaign = options.campaign || 'none';
 
@@ -142,7 +142,7 @@ define([
         service: this._service,
         lang: this._lang,
         entrypoint: this._entrypoint,
-        isMigration: this._isMigration,
+        migration: this._migration,
         marketingType: this._marketingType || 'none',
         marketingLink: this._marketingLink || 'none',
         marketingClicked: this._marketingClicked || false,

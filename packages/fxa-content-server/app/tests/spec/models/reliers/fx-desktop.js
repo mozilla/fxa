@@ -34,7 +34,7 @@ define([
           campaign: 'fennec',
           context: 'fx_desktop_v1',
           entrypoint: 'menupanel',
-          isMigration: true,
+          migration: 'sync1.5',
           service: 'sync'
         });
 
@@ -43,7 +43,7 @@ define([
               assert.equal(relier.get('campaign'), 'fennec');
               assert.equal(relier.get('context'), 'fx_desktop_v1');
               assert.equal(relier.get('entrypoint'), 'menupanel');
-              assert.equal(relier.get('isMigration'), true);
+              assert.equal(relier.get('migration'), 'sync1.5');
               assert.equal(relier.get('service'), 'sync');
             });
       });

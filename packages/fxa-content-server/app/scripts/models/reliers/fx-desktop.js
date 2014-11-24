@@ -23,7 +23,7 @@ define([
       campaign: null,
       context: null,
       entrypoint: null,
-      isMigration: null
+      migration: null
     }),
 
     initialize: function (options) {
@@ -41,22 +41,14 @@ define([
             self.importSearchParam('context');
             self.importSearchParam('entrypoint');
             self.importSearchParam('campaign');
+            self.importSearchParam('migration');
 
-            self._setupIsMigration();
             self._setupServiceName();
           });
     },
 
     isFxDesktop: function () {
       return true;
-    },
-
-    _setupIsMigration: function () {
-      var self = this;
-      self.importSearchParam('isMigration');
-      if (self.get('isMigration') === 'true') {
-        self.set('isMigration', true);
-      }
     },
 
     _setupServiceName: function () {
