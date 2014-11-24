@@ -10,13 +10,16 @@ define([
   'intern/node_modules/dojo/node!xmlhttprequest',
   'app/bower_components/fxa-js-client/fxa-client',
   'tests/lib/helpers',
-  'tests/functional/lib/helpers'
-], function (intern, registerSuite, assert, require, nodeXMLHttpRequest, FxaClient, TestHelpers, FunctionalHelpers) {
+  'tests/functional/lib/helpers',
+  'tests/functional/lib/test'
+], function (intern, registerSuite, assert, require, nodeXMLHttpRequest,
+      FxaClient, TestHelpers, FunctionalHelpers, Test) {
   'use strict';
 
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var SIGNIN_URL = config.fxaContentRoot + 'signin';
+  var PAGE_URL = config.fxaContentRoot + 'change_password';
 
   var FIRST_PASSWORD = 'password';
   var SECOND_PASSWORD = 'new_password';
@@ -57,26 +60,15 @@ define([
     },
 
     'sign in, try to change password with an incorrect old password': function () {
-      return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
 
         // Go to change password screen
         .findById('change-password')
           .click()
+        .end()
+
+        // ensure there is a back button
+        .findById('back')
         .end()
 
         .findById('old_password')
@@ -131,21 +123,8 @@ define([
     },
 
     'sign in, change password, sign in with new password': function () {
-      return this.get('remote')
-        .get(require.toUrl(SIGNIN_URL))
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(FIRST_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+      var self = this;
+      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
 
         // Go to change password screen
         .findById('change-password')
@@ -183,20 +162,23 @@ define([
           .click()
         .end()
 
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, SECOND_PASSWORD);
+        })
 
-        .findByCssSelector('form input.password')
-          .click()
-          .type(SECOND_PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
+        .findById('fxa-settings-header')
         .end();
-    }
+    },
 
+    'browse directly to page - no back button': function () {
+      var self = this;
+      return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
+        .get(require.toUrl(PAGE_URL))
+
+        .findById('fxa-change-password-header')
+        .end()
+
+        .then(Test.noElementById(self, 'back'));
+    }
   });
 });

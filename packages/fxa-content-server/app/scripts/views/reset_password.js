@@ -20,28 +20,13 @@ function (_, BaseView, FormView, Template, Session, AuthErrors, ServiceMixin) {
     template: Template,
     className: 'reset_password',
 
-    _isBackEnabled: function () {
-      /* If email is specified on the query param, user probably browsed
-       * directly to the page. No back for them.
-       * Users who visit `/force_auth?email=<xxx>` and
-       * click "forgot password" are sent to the
-       * "confirm your email" screen, skipping this step.
-       */
-      return !this._getQueryEmail();
-    },
-
-    _getQueryEmail: function () {
-      return this.searchParam('email');
-    },
-
     _getPrefillEmail: function () {
-      return this._getQueryEmail() || Session.prefillEmail || '';
+      return this.searchParam('email') || Session.prefillEmail || '';
     },
 
     context: function () {
       return {
-        email: this._getPrefillEmail(),
-        backEnabled: this._isBackEnabled()
+        email: this._getPrefillEmail()
       };
     },
 

@@ -81,6 +81,7 @@ function (_, Backbone, $, p, AuthErrors,
       this.user = options.user;
 
       this.fxaClient = options.fxaClient;
+      this._canGoBack = options.canGoBack;
 
       this.automatedBrowser = !!this.searchParam('automatedBrowser');
 
@@ -250,6 +251,7 @@ function (_, Backbone, $, p, AuthErrors,
       var ctx = this.context() || {};
 
       ctx.t = _.bind(this.translate, this);
+      ctx.canGoBack = this.canGoBack();
 
       return ctx;
     },
@@ -524,6 +526,13 @@ function (_, Backbone, $, p, AuthErrors,
       return !!this._isErrorVisible;
     },
 
+    /**
+     * Check if the back button should be shown.
+     */
+    canGoBack: function () {
+      return !! this._canGoBack;
+    },
+
     back: function (event) {
       if (event) {
         event.preventDefault();
@@ -534,7 +543,7 @@ function (_, Backbone, $, p, AuthErrors,
 
     backOnEnter: function (event) {
       if (event.which === ENTER_BUTTON_CODE) {
-        this.window.history.back();
+        this.back();
       }
     },
 

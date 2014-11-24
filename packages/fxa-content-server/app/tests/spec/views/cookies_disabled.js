@@ -8,11 +8,12 @@
 define([
   'jquery',
   'chai',
+  'sinon',
   'lib/promise',
   'views/cookies_disabled',
   '../../mocks/window'
 ],
-function ($, chai, p, View, WindowMock) {
+function ($, chai, sinon, p, View, WindowMock) {
   var assert = chai.assert;
 
   describe('views/cookies_disabled', function () {
@@ -55,10 +56,14 @@ function ($, chai, p, View, WindowMock) {
     });
 
     describe('backIfCookiesEnabled', function () {
-      it('goes back in history if localStorage is enabled', function () {
+      it('goes back in history if localStorage is enabled and there is a page to go back to', function () {
         serverConfig = {
           localStorageEnabled: true
         };
+
+        sinon.stub(view, 'canGoBack', function () {
+          return true;
+        });
 
         return view.backIfCookiesEnabled()
           .then(function () {

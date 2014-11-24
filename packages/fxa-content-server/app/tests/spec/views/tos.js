@@ -7,9 +7,10 @@
 
 define([
   'chai',
+  'sinon',
   'views/tos'
 ],
-function (chai, View) {
+function (chai, sinon, View) {
   var assert = chai.assert;
 
   describe('views/tos', function () {
@@ -24,11 +25,25 @@ function (chai, View) {
       view.destroy();
     });
 
-    it('Back button is displayed', function () {
+    it('Back button is displayed if there is a page to go back to', function () {
+      sinon.stub(view, 'canGoBack', function () {
+        return true;
+      });
+
       return view.render()
           .then(function () {
-            $('#container').html(view.el);
-            assert.ok($('#fxa-tos-back').length);
+            assert.equal(view.$('#fxa-tos-back').length, 1);
+          });
+    });
+
+    it('Back button is not displayed if there is no page to go back to', function () {
+      sinon.stub(view, 'canGoBack', function () {
+        return false;
+      });
+
+      return view.render()
+          .then(function () {
+            assert.equal(view.$('#fxa-tos-back').length, 0);
           });
     });
 
