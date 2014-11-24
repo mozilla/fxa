@@ -52,7 +52,7 @@ function (_, BaseView, FormView, Template, Session, AuthErrors, ServiceMixin) {
       }
 
       if (this.relier.isOAuth()) {
-        this.setupOAuthLinks();
+        this.transformLinks();
       }
 
       FormView.prototype.afterRender.call(this);

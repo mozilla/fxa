@@ -55,6 +55,11 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       'click .use-different': 'useDifferentAccount'
     },
 
+    afterRender: function () {
+      this.transformLinks();
+      return FormView.prototype.afterRender.call(this);
+    },
+
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
       return this._displayProfileImage(this._suggestedAccount());

@@ -123,13 +123,17 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           metrics: metrics,
           window: windowMock,
           user: user,
-          relier: relier
+          relier: relier,
+          router: router,
+          broker: broker
         });
         signUpView = new SignUpView({
           metrics: metrics,
           window: windowMock,
           user: user,
-          relier: relier
+          relier: relier,
+          router: router,
+          broker: broker
         });
       });
 

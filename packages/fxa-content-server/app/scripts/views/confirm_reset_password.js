@@ -73,7 +73,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       var self = this;
 
       if (self.relier.isOAuth()) {
-        this.setupOAuthLinks();
+        this.transformLinks();
       }
 
       // this sequence is a bit tricky and needs to be explained.
