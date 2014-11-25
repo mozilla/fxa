@@ -103,8 +103,6 @@ Avatar.prototype.upload = function avatarUpload(options) {
       return self.emit('error', result);
     }
 
-    console.log('body**' + body + '**');
-
     result.statusCode = res.statusCode;
     result.body = jsonParse(body);
     result.bytes = res.req._headers['content-length'];
