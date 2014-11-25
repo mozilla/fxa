@@ -14,7 +14,8 @@ module.exports = function (grunt) {
       },
       src: [
         'test/**/*.js',
-        '!test/lib/**'
+        '!test/lib/**',
+        '!test/load/avatar/**',
       ]
     },
     coverage: {
