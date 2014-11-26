@@ -22,6 +22,7 @@ define([
 
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
+  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
 
   var client;
   var email;
@@ -47,7 +48,7 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'sign up & verify same browser': function () {
+    'sign up, verify same browser': function () {
 
       var self = this;
 
@@ -60,7 +61,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -102,6 +103,77 @@ define([
         .end();
     },
 
+    'signup, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .then(FunctionalHelpers.openExternalSite(self))
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+
+        .findByCssSelector('#fxa-sign-up-complete-header')
+        .end()
+
+        .findByCssSelector('.account-ready-service')
+        .getVisibleText()
+        .then(function (text) {
+          assert.ok(text.indexOf('Firefox Sync') > -1);
+        })
+
+        .closeCurrentWindow()
+        .switchToWindow('')
+        .end();
+    },
+
+    'signup, verify same browser by replacing the original tab': function () {
+      var self = this;
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
+        .findByCssSelector('#fxa-signup-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
+        })
+
+        .findByCssSelector('#fxa-sign-up-complete-header')
+        .end();
+    },
+
+
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
       var self = this;
 
@@ -114,7 +186,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
         })
 
         .findByCssSelector('#fxa-confirm-header')
@@ -146,7 +218,7 @@ define([
         .end()
 
         .then(function () {
-          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, TOO_YOUNG_YEAR - 1);
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
         })
 
 
@@ -194,7 +266,7 @@ define([
         .end()
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(
-              self, email, PASSWORD, TOO_YOUNG_YEAR - 1, true);
+              self, email, PASSWORD, OLD_ENOUGH_YEAR, true);
         })
 
         .then(function () {

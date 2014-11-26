@@ -72,19 +72,14 @@ define([
         .setFindTimeout(intern.config.pageLoadTimeout)
         .execute(listenForFxaCommands)
 
-        .findById('fxa-reset-password-header')
+        .findByCssSelector('#fxa-reset-password-header')
         .end()
 
-        .findByCssSelector('input[type=email]')
-          .click()
-          .type(email)
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        .findById('fxa-confirm-reset-password-header')
+        .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
 
         .then(function () {
@@ -93,24 +88,15 @@ define([
         })
         .switchToWindow('newwindow')
 
-        .findById('fxa-complete-reset-password-header')
+        .findByCssSelector('#fxa-complete-reset-password-header')
         .end()
 
-        .findByCssSelector('form input#password')
-          .click()
-          .type(PASSWORD)
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+                    self, PASSWORD, PASSWORD);
+        })
 
-        .findByCssSelector('form input#vpassword')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        .findById('fxa-reset-password-complete-header')
+        .findByCssSelector('#fxa-reset-password-complete-header')
         .end()
 
         .findByCssSelector('.account-ready-service')
@@ -134,6 +120,76 @@ define([
         });
     },
 
+    'password reset, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return self.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
+
+        .findByCssSelector('#fxa-confirm-reset-password-header')
+        .end()
+
+        // user browses to another site.
+        .then(FunctionalHelpers.openExternalSite(self))
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
+
+        .findByCssSelector('#fxa-reset-password-complete-header')
+        .end()
+
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('')
+        .end();
+    },
+
+    'password reset, verify same browser by replacing the original tab': function () {
+      var self = this;
+
+      return self.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
+
+        .findByCssSelector('#fxa-confirm-reset-password-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
+        })
+
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
+
+        .findByCssSelector('#fxa-reset-password-complete-header')
+        .end();
+    },
+
     'reset password, verify different browser - from original tab\'s P.O.V.': function () {
       var self = this;
 
@@ -144,19 +200,16 @@ define([
         .execute(listenForFxaCommands)
 
 
-        .findById('fxa-reset-password-header')
+        .findByCssSelector('#fxa-reset-password-header')
         .end()
 
-        .findByCssSelector('input[type=email]')
-          .click()
-          .type(email)
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
+
+        .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
-
-        .findById('fxa-confirm-reset-password-header')
         .then(function () {
           return FunctionalHelpers.openPasswordResetLinkDifferentBrowser(
                       client, email, PASSWORD);
@@ -165,12 +218,12 @@ define([
         // for an unknown reason, it sometimes takes an exceptionally
         // long time to transition to the new screen.
 
-        // user verified in a new browser, they have to enter
-        // their updated credentials in the original tab.
-        .then(FunctionalHelpers.visibleByQSA('.success', 20000))
+        .findByCssSelector('#fxa-signin-header')
         .end()
 
-        .findByCssSelector('#fxa-signin-header')
+        // user verified in a new browser, they have to enter
+        // their updated credentials in the original tab.
+        .then(FunctionalHelpers.visibleByQSA('.success'))
         .end()
 
         .findByCssSelector('#password')
@@ -197,19 +250,14 @@ define([
         .execute(listenForFxaCommands)
 
 
-        .findById('fxa-reset-password-header')
+        .findByCssSelector('#fxa-reset-password-header')
         .end()
 
-        .findByCssSelector('input[type=email]')
-        .click()
-        .type(email)
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
 
-        .findByCssSelector('button[type="submit"]')
-        .click()
-        .end()
-
-        .findById('fxa-confirm-reset-password-header')
+        .findByCssSelector('#fxa-confirm-reset-password-header')
         .then(function () {
           // clear all browser state, simulate opening in a new
           // browser
@@ -223,24 +271,15 @@ define([
         })
         .end()
 
-        .findById('fxa-complete-reset-password-header')
+        .findByCssSelector('#fxa-complete-reset-password-header')
         .end()
 
-        .findByCssSelector('form input#password')
-        .click()
-        .type(PASSWORD)
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+                    self, PASSWORD, PASSWORD);
+        })
 
-        .findByCssSelector('form input#vpassword')
-        .click()
-        .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-        .click()
-        .end()
-
-        .findById('fxa-reset-password-complete-header')
+        .findByCssSelector('#fxa-reset-password-complete-header')
         .end()
 
         .findByCssSelector('.account-ready-service')

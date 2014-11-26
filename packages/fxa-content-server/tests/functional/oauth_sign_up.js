@@ -17,6 +17,7 @@ define([
 
   var config = intern.config;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
+  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
   var PASSWORD = 'password';
@@ -59,29 +60,9 @@ define([
         })
         .end()
 
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -105,11 +86,67 @@ define([
         })
         .end()
 
-        .closeCurrentWindow()
         // switch to the original window
+        .closeCurrentWindow()
         .switchToWindow('')
 
         .findByCssSelector('#loggedin')
+        .end();
+    },
+
+
+    'signup, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return FunctionalHelpers.openFxaFromRp(self, 'signup')
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        // user browses to another site.
+        .switchToFrame(null)
+
+        .then(FunctionalHelpers.openExternalSite(self))
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+
+        .findByCssSelector('#fxa-sign-up-complete-header')
+        .end()
+
+        // switch to the original window
+        .closeCurrentWindow()
+        .switchToWindow('');
+    },
+
+    'signup, verify same browser by replacing the original tab': function () {
+      var self = this;
+
+      return FunctionalHelpers.openFxaFromRp(self, 'signup')
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
+        })
+
+        .findByCssSelector('#fxa-sign-up-complete-header')
         .end();
     },
 
@@ -117,29 +154,9 @@ define([
       var self = this;
 
       return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -157,29 +174,9 @@ define([
       var self = this;
 
       return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        .findByCssSelector('form input.email')
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
 
         .findByCssSelector('#fxa-confirm-header')
         .end()
@@ -220,29 +217,9 @@ define([
       });
 
       return FunctionalHelpers.openFxaFromRp(self, 'signup')
-        .findByCssSelector('form input.email')
-          .click()
-          .type(bouncedEmail)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('#fxa-age-year')
-          .click()
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, bouncedEmail, PASSWORD, OLD_ENOUGH_YEAR);
+        })
 
         .findById('fxa-confirm-header')
         .end()
@@ -293,8 +270,8 @@ define([
         })
         .end()
 
-        .closeCurrentWindow()
         // switch to the original window
+        .closeCurrentWindow()
         .switchToWindow('')
 
         .findByCssSelector('#loggedin')
