@@ -7,7 +7,8 @@
 
  module.exports = function (log, error) {
 
-  function Customs(url) {
+  function Customs(url, db) {
+    this.db = db
     if (url === 'none') {
       this.pool = {
         post: function () { return P({ block: false })},
@@ -45,7 +46,8 @@
     )
   }
 
-  Customs.prototype.flag = function (ip, email) {
+  Customs.prototype.flag = function (ip, account) {
+    var email = account.email
     log.trace({ op: 'customs.flag', ip: ip, email: email })
     return this.pool.post(
       '/failedLoginAttempt',
@@ -53,6 +55,13 @@
         ip: ip,
         email: email
       }
+    )
+    .then(
+      (function (result) {
+        if (result.lockout) {
+          return this.db.lockAccount(account)
+        }
+      }).bind(this)
     )
     .then(
       function () {},

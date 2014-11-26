@@ -311,6 +311,14 @@ Client.prototype.verifyPasswordResetCode = function (code) {
     )
 }
 
+Client.prototype.resendAccountUnlockCode = function () {
+  return this.api.accountUnlockResendCode(this.email, this.options)
+}
+
+Client.prototype.verifyAccountUnlockCode = function (uid, code) {
+  return this.api.accountUnlockVerifyCode(uid, code)
+}
+
 Client.prototype.resetPassword = function (newPassword) {
   if (!this.accountResetToken) {
     throw new Error("call verifyPasswordResetCode before calling resetPassword");

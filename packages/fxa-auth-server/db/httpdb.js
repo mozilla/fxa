@@ -439,6 +439,22 @@ module.exports = function (
     )
   }
 
+  DB.prototype.lockAccount = function (account) {
+    log.trace({ op: 'DB.lockAccount', uid: account && account.uid })
+    return this.pool.post(
+      '/account/' + account.uid.toString('hex') + '/lock',
+      { lockedAt: Date.now() }
+    )
+  }
+
+  DB.prototype.unlockAccount = function (account) {
+    log.trace({ op: 'DB.unlockAccount', uid: account && account.uid })
+    return this.pool.post(
+      '/account/' + account.uid.toString('hex') + '/unlock',
+      { }
+    )
+  }
+
   DB.prototype.verifyEmail = function (account) {
     log.trace({ op: 'DB.verifyEmail', uid: account && account.uid })
     return this.pool.post('/account/' + account.uid.toString('hex') + '/verifyEmail')

@@ -56,7 +56,7 @@ function main() {
           .done(
             function (db) {
               database = db
-              customs = new Customs(config.customsUrl)
+              customs = new Customs(config.customsUrl, database)
               var routes = require('../routes')(
                 log,
                 error,

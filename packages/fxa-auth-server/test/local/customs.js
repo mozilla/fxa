@@ -12,6 +12,16 @@ var nock = require('nock')
 
 var Customs = require('../../customs.js')(log, error)
 
+var MockDB = {
+  locked: {},
+  lockAccount: function(account) {
+    MockDB.locked[account.uid] = true;
+  },
+  unlockAccount: function(account) {
+    delete MockDB.locked[account.uid];
+  }
+}
+
 var CUSTOMS_URL_REAL = 'http://localhost:7000'
 var CUSTOMS_URL_MISSING = 'http://localhost:7001'
 
@@ -29,7 +39,7 @@ test(
   function (t) {
     t.plan(7)
 
-    customsNoUrl = new Customs('none')
+    customsNoUrl = new Customs('none', MockDB)
 
     t.ok(customsNoUrl, 'got a customs object with a none url')
 
@@ -45,7 +55,7 @@ test(
         t.fail('We should have failed open (no url provided) for /check')
       })
       .then(function() {
-        return customsNoUrl.flag(ip, email)
+        return customsNoUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
@@ -68,9 +78,9 @@ test(
 test(
   'can create a customs object with a url',
   function (t) {
-    t.plan(14)
+    t.plan(18)
 
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL)
+    customsWithUrl = new Customs(CUSTOMS_URL_REAL, MockDB)
 
     t.ok(customsWithUrl, 'got a customs object with a valid url')
 
@@ -83,6 +93,7 @@ test(
       .post('/failedLoginAttempt').reply(200, '{"lockout":false}')
       .post('/passwordReset').reply(200, '{}')
       .post('/check').reply(200, '{"block":true,"retryAfter":10001}')
+      .post('/failedLoginAttempt').reply(200, '{"lockout":true}')
 
     return customsWithUrl.check(email, ip, action)
       .then(function(result) {
@@ -92,13 +103,14 @@ test(
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function() {
-        return customsWithUrl.flag(ip, email)
+        return customsWithUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
-        t.pass('Passed /failedLoginAttempt (no url)')
+        t.ok(!MockDB.locked["12345"], 'We ignore /failedLoginAttempt {lockout:false}')
+        t.pass('Passed /failedLoginAttempt')
       }, function(error) {
-        t.fail('We should have failed open (no url provided) for /failedLoginAttempt')
+        t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
       })
       .then(function() {
         return customsWithUrl.reset(email)
@@ -107,7 +119,7 @@ test(
         t.equal(result, undefined, 'Nothing is returned when /passwordReset succeeds')
         t.pass('Passed /passwordReset')
       }, function(error) {
-        t.fail('We should have failed open (no url provided) for /failedLoginAttempt')
+        t.fail('We should not have failed here for /passwordReset : err=' + error)
       })
       .then(function() {
         return customsWithUrl.check(email, ip, action)
@@ -123,6 +135,16 @@ test(
         t.equal(error.output.payload.retryAfter, 10001, 'retryAfter is correct')
         t.equal(error.output.headers['retry-after'], 10001, 'retryAfter header is correct')
       })
+      .then(function() {
+        return customsWithUrl.flag(ip, { email: email, uid: "12345" })
+      })
+      .then(function(result) {
+        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
+        t.ok(MockDB.locked["12345"], 'We lockout on /failedLoginAttempt {lockout:true}')
+        t.pass('Passed /failedLoginAttempt with lockout')
+      }, function(error) {
+        t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
+      })
 
   }
 )
@@ -132,7 +154,7 @@ test(
   function (t) {
     t.plan(7)
 
-    customsInvalidUrl = new Customs(CUSTOMS_URL_MISSING)
+    customsInvalidUrl = new Customs(CUSTOMS_URL_MISSING, MockDB)
 
     t.ok(customsInvalidUrl, 'got a customs object with a non-existant service url')
 
@@ -148,7 +170,7 @@ test(
         t.fail('We should have failed open (non-existant service url provided) for /check')
       })
       .then(function() {
-        return customsInvalidUrl.flag(ip, email)
+        return customsInvalidUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
         t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')

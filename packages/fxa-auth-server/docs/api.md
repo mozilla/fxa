@@ -80,6 +80,7 @@ The currently-defined error responses are:
 * status code 400, errno 118:  incorrect key retrieval method for this account
 * status code 400, errno 119:  incorrect API version for this account
 * status code 400, errno 120:  incorrect email case
+* status code 400, errno 121:  account is locked
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * any status code, errno 999:  unknown error
 
@@ -112,6 +113,8 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
 
 * Authentication
     * [POST /v1/account/login](#post-v1accountlogin)
+    * [POST /v1/account/unlock/resend_code](#post-v1accountunlockresend_code)
+    * [POST /v1/account/unlock/verify_code](#post-v1accountunlockverify_code)
 
 * Session
     * [GET /v1/session/status (:lock: sessionToken)](#get-v1sessionstatus)
@@ -249,7 +252,8 @@ Successful requests will produce a "200 OK" response with the account status pro
 
 ```json
 {
-  "exists": true
+  "exists": true,
+  "locked": false
 }
 ```
 
@@ -307,6 +311,7 @@ Failing requests may be due to the following errors:
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
 * status code 400, errno 120:  incorrect email case
+* status code 400, errno 121:  account is locked
 
 
 ## GET /v1/account/devices
@@ -501,6 +506,98 @@ Failing requests may be due to the following errors:
 * status code 413, errno 113:  request body too large
 * status code 401, errno 115:  invalid authentication nonce
 * status code 400, errno 120:  incorrect email case
+* status code 400, errno 121:  account is locked
+
+
+## POST /v1/account/unlock/resend_code
+
+Not HAWK-authenticated.
+
+Re-sends an account unlock code to the account's recovery email address. The code is first sent when the account is locked due to suspicious activity, but if the user thinks the message was lost or accidentally deleted, they can request a new message to be sent with this endpoint. The new message will contain the same code as the original message. When this code is provided to `/v1/account/unlock/verify_code` (below), the account will be unlocked.
+
+### Request
+
+___Parameters___
+
+* email - the recovery email for this account
+* service - (optional) indicates the relying service that the user was interacting with that triggered the account lockout message
+* redirectTo - (optional) a URL that the client should be redirected to after handling the request
+* resume - (optional) opaque url-encoded string that will be included in the verification link as a querystring parameter, useful for continuing an OAuth flow for example.
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+https://api-accounts.dev.lcip.org/v1/account/unlock/resend_code \
+-d '{
+  "email": "me@example.com",
+  "service": "sync",
+  "redirectTo": "https://sync.firefox.com/after_unlock"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with an empty JSON body:
+
+```json
+{}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
+
+
+## POST /v1/account/unlock/verify_code
+
+Not HAWK-authenticated.
+
+Used to submit an account unlock code that was previously sent to a user's recovery email. If correct, the account will be unlocked.
+
+The unlock code will be a random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/account/unlock/verify_code`. This endpoint should be CORS-enabled, to allow the linked page to be hosted on a different (static) domain. The link can be clicked from any browser, not just the one being attached to the account.
+
+### Request
+
+___Parameters___
+
+* uid - account identifier
+* code - the verification code
+
+```sh
+curl -v \
+-X POST \
+-H "Host: api-accounts.dev.lcip.org" \
+-H "Content-Type: application/json" \
+https://api-accounts.dev.lcip.org/v1/account/unlock/verify_code \
+-d '{
+  "uid": "4c352927cd4f4a4aa03d7d1893d950b8",
+  "code": "e3c5b0e3f5391e134596c27519979b93a45e6d0da34c7509c5632ac35b28b48d"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" response with an empty JSON body:
+
+```json
+{}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 105:  invalid verification code
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 
 ## GET /v1/session/status
@@ -835,6 +932,7 @@ Failing requests may be due to the following errors:
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
 * status code 400, errno 120:  incorrect email case
+* status code 400, errno 121:  account is locked
 
 
 ## POST /v1/password/change/finish

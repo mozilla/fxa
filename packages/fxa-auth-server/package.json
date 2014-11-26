@@ -35,7 +35,7 @@
     "bunyan": "1.2.0",
     "compute-cluster": "0.0.9",
     "convict": "0.6",
-    "fxa-auth-mailer": "1.0.7",
+    "fxa-auth-mailer": "git+https://github.com/mozilla/fxa-auth-mailer.git#rfk/unlock-email",
     "hapi": "7.5.3",
     "hapi-auth-hawk": "1.1.1",
     "hkdf": "0.0.2",

@@ -46,6 +46,9 @@ module.exports = function (
         db.emailRecord(form.email)
           .then(
             function (emailRecord) {
+              if (emailRecord.lockedAt) {
+                throw error.lockedAccount()
+              }
               var password = new Password(
                 oldAuthPW,
                 emailRecord.authSalt,
@@ -55,7 +58,7 @@ module.exports = function (
               .then(
                 function (match) {
                   if (!match) {
-                    return customs.flag(request.app.clientAddress, form.email)
+                    return customs.flag(request.app.clientAddress, emailRecord)
                       .then(
                         function () {
                           throw error.incorrectPassword(emailRecord.email, form.email)
