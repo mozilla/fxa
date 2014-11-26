@@ -1,0 +1,6 @@
+{{t "Danger, Will Robinson!"}}
+
+{{{t "%(email)s, your account has been locked due to suspicious activity!  Why not click below to unlock it?" }}}
+{{t "Unlock:"}} {{{link}}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{t "For more information, please visit https://support.mozilla.org"}}

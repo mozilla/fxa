@@ -18,6 +18,7 @@ module.exports = function (log) {
     this.sender = config.sender
     this.verificationUrl = config.verificationUrl
     this.passwordResetUrl = config.passwordResetUrl
+    this.accountUnlockUrl = config.accountUnlockUrl
     this.translator = translator
     this.templates = templates
   }
@@ -113,6 +114,42 @@ module.exports = function (log) {
       html: localized.html,
       headers: {
         'X-Recovery-Code': message.code,
+        'X-Link': link,
+        'Content-Language': translator.language
+      }
+    }
+    return this.send(email)
+  }
+
+  Mailer.prototype.unlockEmail = function (message) {
+    log.trace({ op: 'mailer.unlockEmail', email: message.email, uid: message.uid })
+    var translator = this.translator(message.acceptLanguage)
+    var query = {
+        uid: message.uid,
+        code: message.code
+      }
+    if (message.service) { query.service = message.service }
+    if (message.redirectTo) { query.redirectTo = message.redirectTo }
+    if (message.resume) { query.resume = message.resume }
+
+    var link = this.accountUnlockUrl + '?' + qs.stringify(query)
+
+    var values = {
+      translator: translator,
+      link: link,
+      email: message.email
+    }
+    var localized = this.templates.unlockEmail(values)
+    var email = {
+      sender: this.sender,
+      to: message.email,
+      subject: translator.gettext('Unlock your account'),
+      text: localized.text,
+      html: localized.html,
+      headers: {
+        'X-Uid': message.uid,
+        'X-Unlock-Code': message.code,
+        'X-Service-ID': message.service,
         'X-Link': link,
         'Content-Language': translator.language
       }

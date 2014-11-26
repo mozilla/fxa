@@ -23,15 +23,19 @@ module.exports = function () {
       loadTemplate('verify.html'),
       loadTemplate('verify.txt'),
       loadTemplate('reset.html'),
-      loadTemplate('reset.txt')
+      loadTemplate('reset.txt'),
+      loadTemplate('unlock.html'),
+      loadTemplate('unlock.txt')
     ]
   )
   .spread(
-    function (verifyHtml, verifyText, resetHtml, resetText) {
+    function (verifyHtml, verifyText, resetHtml, resetText, unlockHtml, unlockText) {
       var renderVerifyHtml = handlebars.compile(verifyHtml)
       var renderVerifyText = handlebars.compile(verifyText)
       var renderResetHtml = handlebars.compile(resetHtml)
       var renderResetText = handlebars.compile(resetText)
+      var renderUnlockHtml = handlebars.compile(unlockHtml)
+      var renderUnlockText = handlebars.compile(unlockText)
       return {
         verifyEmail: function (values) {
           return {
@@ -43,6 +47,12 @@ module.exports = function () {
           return {
             html: renderResetHtml(values),
             text: renderResetText(values)
+          }
+        },
+        unlockEmail: function (values) {
+          return {
+            html: renderUnlockHtml(values),
+            text: renderUnlockText(values)
           }
         }
       }

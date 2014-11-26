@@ -10,7 +10,8 @@ module.exports = require('rc')(
       secure: false,
       sender: 'verification@accounts.firefox.com',
       verificationUrl: 'https://accounts.firefox.com/v1/verify_email',
-      passwordResetUrl: 'https://accounts.firefox.com/v1/complete_reset_password'
+      passwordResetUrl: 'https://accounts.firefox.com/v1/complete_reset_password',
+      accountUnlockUrl: 'https://accounts.firefox.com/v1/complete_unlock_account'
     }
   }
 )
