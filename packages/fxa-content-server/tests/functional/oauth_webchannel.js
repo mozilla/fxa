@@ -171,9 +171,7 @@ define([
         .findByCssSelector('#fxa-confirm-header')
         .end()
 
-        .get(require.toUrl(config.externalSite))
-          .findByPartialLinkText(config.externalSiteLinkText)
-        .end()
+        .then(FunctionalHelpers.openExternalSite(self))
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);
@@ -348,9 +346,7 @@ define([
         .findByCssSelector('#fxa-confirm-reset-password-header')
         .end()
 
-        .get(require.toUrl(config.externalSite))
-          .findByPartialLinkText(config.externalSiteLinkText)
-        .end()
+        .then(FunctionalHelpers.openExternalSite(self))
 
         .then(function () {
           return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);

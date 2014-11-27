@@ -22,6 +22,9 @@ define([
   var SIGNUP_URL = config.fxaContentRoot + 'signup';
   var RESET_PASSWORD_URL = config.fxaContentRoot + 'reset_password';
 
+  var EXTERNAL_SITE_URL = 'http://example.com';
+  var EXTERNAL_SITE_LINK_TEXT = 'More information';
+
   function clearBrowserState(context, options) {
     options = options || {};
 
@@ -167,6 +170,15 @@ define([
       .then(function (emails) {
         return emails[index].headers;
       });
+  }
+
+  function openExternalSite(context) {
+    return function () {
+      return context.get('remote')
+        .get(require.toUrl(EXTERNAL_SITE_URL))
+          .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
+        .end();
+    };
   }
 
   function openVerificationLinkSameBrowser(context, email, index, windowName) {
@@ -377,6 +389,7 @@ define([
     pollUntil: pollUntil,
     getVerificationLink: getVerificationLink,
     getVerificationHeaders: getVerificationHeaders,
+    openExternalSite: openExternalSite,
     openVerificationLinkSameBrowser: openVerificationLinkSameBrowser,
     openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
     openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,

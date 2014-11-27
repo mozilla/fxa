@@ -19,8 +19,6 @@ function (args, topic, firefoxProfile) {
   var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
   var fxaProduction = !!args.fxaProduction;
   var fxaToken = args.fxaToken || 'http://';
-  var externalSite = 'http://example.com';
-  var externalSiteLinkText = 'More information';
 
   if (topic) {
     topic.subscribe('/suite/start', function (suite) {
@@ -43,10 +41,6 @@ function (args, topic, firefoxProfile) {
     fxaOauthApp: fxaOauthApp,
     fxaProduction: fxaProduction,
     fxaToken: fxaToken,
-
-    // Used for tests that require an external site.
-    externalSite: externalSite,
-    externalSiteLinkText: externalSiteLinkText,
 
     // Default desired capabilities for all environments. Individual capabilities can be overridden by any of the
     // specified browser environments in the `environments` array below as well. See
