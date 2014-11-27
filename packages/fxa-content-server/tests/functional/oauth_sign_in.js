@@ -20,6 +20,7 @@ define([
 
   var PASSWORD = 'password';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
+  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
   var user;
   var email;
 
@@ -49,20 +50,9 @@ define([
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
 
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+        })
 
         .findByCssSelector('#loggedin')
         .getCurrentUrl()
@@ -82,20 +72,9 @@ define([
         })
 
         // sign in with a verified account to cache credentials
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+        })
 
         .findByCssSelector('#loggedin')
         .getCurrentUrl()
@@ -139,7 +118,7 @@ define([
         .end();
     },
 
-    'unverified': function () {
+    'unverified, acts like signup': function () {
       var self = this;
 
       return FunctionalHelpers.openFxaFromRp(self, 'signin')
@@ -147,20 +126,9 @@ define([
           return client.signUp(email, PASSWORD, { preVerified: false });
         })
 
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+        })
 
         .findByCssSelector('#fxa-confirm-header')
 
@@ -169,14 +137,10 @@ define([
         })
         .then(function (verifyUrl) {
           return self.get('remote')
+            // user verifies in the same tab, so they are logged in to the RP.
             .get(require.toUrl(verifyUrl))
-            .findByCssSelector('.account-ready-service')
-            .getVisibleText()
-            .then(function (text) {
-              // user sees the name of the rp,
-              // but cannot redirect
-              assert.isTrue(/123done/i.test(text));
-            })
+
+            .findByCssSelector('#loggedin')
             .end();
         });
 
@@ -189,26 +153,9 @@ define([
         .end()
 
         // first, sign the user up to cache the login
-        .findByCssSelector('form input.email')
-          .clearValue()
-          .click()
-          .type(email)
-        .end()
-
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
-
-        .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
-          .click()
-        .end()
-
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR );
+        })
 
         .findByCssSelector('#fxa-confirm-header')
         .end()

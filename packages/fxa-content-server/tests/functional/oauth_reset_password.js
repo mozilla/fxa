@@ -189,7 +189,7 @@ define([
               self, PASSWORD, PASSWORD);
         })
 
-        .findByCssSelector('#fxa-reset-password-complete-header')
+        .findByCssSelector('#loggedin')
         .end();
     },
 

@@ -197,7 +197,20 @@ define([
       .then(function (verificationLink) {
         return context.get('remote')
           .execute(function (verificationLink, windowName) {
-            window.open(verificationLink, windowName);
+            var newWindow = window.open(verificationLink, windowName);
+
+            // from http://dev.w3.org/html5/webstorage/
+            // When a new top-level browsing context is created by a script in
+            // an existing browsing context, then the session storage area of
+            // the origin of that Document must be copied into the new
+            // browsing context when it is created. From that point on,
+            // however, the two session storage areas must be considered
+            // separate, not affecting each other in any way.
+            //
+            // We want to pretend this is a new tab that the user opened using
+            // CTRL-T, which does NOT copy sessionStorage over. Wipe
+            // sessionStorage in this new context;
+            newWindow.sessionStorage.clear();
 
             return true;
           }, [ verificationLink, windowName ]);
