@@ -10,12 +10,13 @@
 'use strict';
 
 define([
+  'underscore',
   'lib/url',
   'lib/oauth-errors',
   'lib/promise',
   'lib/validate',
   'models/auth_brokers/base'
-], function (Url, OAuthErrors, p, Validate, BaseAuthenticationBroker) {
+], function (_, Url, OAuthErrors, p, Validate, BaseAuthenticationBroker) {
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -88,11 +89,14 @@ define([
       return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
-    finishOAuthFlow: function () {
+    finishOAuthFlow: function (additionalResultData) {
       var self = this;
       self.session.clear('oauth');
       return self.getOAuthResult()
         .then(function (result) {
+          if (additionalResultData) {
+            result = _.extend(result, additionalResultData);
+          }
           return self.sendOAuthResultToRelier(result);
         });
     },

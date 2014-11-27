@@ -44,11 +44,19 @@ define([
     },
 
     sendOAuthResultToRelier: function (result) {
-      result.closeWindow = true;
+      if (result.closeWindow !== false) {
+        result.closeWindow = true;
+      }
+
       // the WebChannel does not respond, create a promise
       // that immediately resolves.
       this.send('oauth_complete', result);
       return p();
+    },
+
+    afterSignUpConfirmationPoll: function () {
+      // The original tab always finishes the OAuth flow if it is still open.
+      return this.finishOAuthFlow({ closeWindow: false });
     },
 
     afterCompleteSignUp: function () {
@@ -58,13 +66,18 @@ define([
       // The slight delay is to allow the functional tests time to bind
       // event handlers before the flow completes.
       var self = this;
-      return p().delay(100).then(_.bind(self.finishOAuthFlow, self));
+      return p().delay(100).then(_.bind(self.finishOAuthFlow, self, { closeWindow: false }));
+    },
+
+    afterResetPasswordConfirmationPoll: function () {
+      // The original tab always finishes the OAuth flow if it is still open.
+      return this.finishOAuthFlow({ closeWindow: false });
     },
 
     afterCompleteResetPassword: function () {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
-      return this.finishOAuthFlow();
+      return this.finishOAuthFlow({ closeWindow: false });
     },
 
     // used by the ChannelMixin to get a channel.

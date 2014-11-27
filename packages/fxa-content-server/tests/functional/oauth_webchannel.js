@@ -51,7 +51,7 @@ define([
     return true;
   }
 
-  function testIsBrowserNotifiedOfLogin(context) {
+  function testIsBrowserNotifiedOfLogin(context, shouldCloseTab) {
     return function () {
       return context.get('remote')
         .findByCssSelector('#message-oauth_complete')
@@ -61,6 +61,7 @@ define([
             assert.ok(data.redirect);
             assert.ok(data.code);
             assert.ok(data.state);
+            assert.equal(data.closeWindow, shouldCloseTab);
           })
         .end();
     };
@@ -119,7 +120,11 @@ define([
           return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
         })
 
-        .then(testIsBrowserNotifiedOfLogin(self));
+        .then(testIsBrowserNotifiedOfLogin(self, true))
+
+        // no screen transition, Loop will close this screen.
+        .findByCssSelector('#fxa-signin-header')
+        .end();
     },
 
     'signup, verify same browser': function () {
@@ -148,10 +153,46 @@ define([
         // switch to the original window
         .switchToWindow('')
 
-        .then(testIsBrowserNotifiedOfLogin(self));
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findById('fxa-sign-up-complete-header')
+        .end();
     },
 
     'signup, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return openFxaFromRp(self, 'signup')
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .get(require.toUrl(config.externalSite))
+          .findByPartialLinkText(config.externalSiteLinkText)
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        .execute(listenForWebChannelMessage)
+
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findById('fxa-sign-up-complete-header')
+        .end()
+
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('');
+    },
+
+    'signup, verify same browser, replace original tab': function () {
       var self = this;
 
       return openFxaFromRp(self, 'signup')
@@ -171,7 +212,10 @@ define([
             .execute(listenForWebChannelMessage);
         })
 
-        .then(testIsBrowserNotifiedOfLogin(self));
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findById('fxa-sign-up-complete-header')
+        .end();
     },
 
     'signup, verify different browser - from original tab\'s P.O.V.': function () {
@@ -191,7 +235,10 @@ define([
           return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
         })
 
-        .then(testIsBrowserNotifiedOfLogin(self));
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findById('fxa-sign-up-complete-header')
+        .end();
     },
 
     'signup, verify different browser - from new browser\'s P.O.V.': function () {
@@ -276,10 +323,59 @@ define([
         .switchToWindow('')
 
         // the original tab should automatically sign in
-        .then(testIsBrowserNotifiedOfLogin(self));
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findByCssSelector('#fxa-reset-password-complete-header')
+        .end();
     },
 
     'password reset, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return openFxaFromRp(self, 'signin')
+        .then(function () {
+          return client.signUp(email, PASSWORD, { preVerified: true });
+        })
+
+        .findByCssSelector('.reset-password')
+          .click()
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
+
+        .findByCssSelector('#fxa-confirm-reset-password-header')
+        .end()
+
+        .get(require.toUrl(config.externalSite))
+          .findByPartialLinkText(config.externalSiteLinkText)
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        .execute(listenForWebChannelMessage)
+
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
+
+        // the tab should automatically sign in
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findByCssSelector('#fxa-reset-password-complete-header')
+        .end()
+
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('');
+    },
+
+    'password reset, verify same browser, replace original tab': function () {
       var self = this;
 
       return openFxaFromRp(self, 'signin')
@@ -314,7 +410,10 @@ define([
         })
 
         // the tab should automatically sign in
-        .then(testIsBrowserNotifiedOfLogin(self));
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findByCssSelector('#fxa-reset-password-complete-header')
+        .end();
     },
 
     'password reset, verify in different browser, from the original tab\'s P.O.V.': function () {
@@ -348,6 +447,9 @@ define([
         .findByCssSelector('#fxa-signin-header')
         .end()
 
+        .then(FunctionalHelpers.visibleByQSA('.success'))
+        .end()
+
         .findByCssSelector('#password')
           .type(PASSWORD)
         .end()
@@ -356,8 +458,12 @@ define([
           .click()
         .end()
 
-        // user is redirected to RP
-        .then(testIsBrowserNotifiedOfLogin(self));
+        // user is signed in
+        .then(testIsBrowserNotifiedOfLogin(self, true))
+
+        // no screen transition, Loop will close this screen.
+        .findByCssSelector('#fxa-signin-header')
+        .end();
     },
 
     'password reset, verify different browser - from new browser\'s P.O.V.': function () {
