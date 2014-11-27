@@ -116,8 +116,8 @@ define([
       });
     },
 
-    afterSignIn: function () {
-      return this.finishOAuthFlow()
+    afterSignIn: function (additionalResultData) {
+      return this.finishOAuthFlow(additionalResultData)
         .then(function () {
           // the RP will take over from here, no need for a screen transition.
           return { halt: true };
@@ -126,22 +126,13 @@ define([
 
     afterSignUpConfirmationPoll: function () {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow()
-        .then(function () {
-          // the RP will take over from here, no need for a screen transition.
-          return { halt: true };
-        });
+      return this.finishOAuthFlow();
     },
 
     afterResetPasswordConfirmationPoll: function () {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow()
-        .then(function () {
-          // the RP will take over from here, no need for a screen transition.
-          return { halt: true };
-        });
+      return this.finishOAuthFlow();
     },
-
 
     transformLink: function (link) {
       return '/oauth' + link;

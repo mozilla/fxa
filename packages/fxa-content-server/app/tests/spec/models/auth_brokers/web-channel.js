@@ -79,8 +79,17 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
     });
 
     describe('sendOAuthResultToRelier', function () {
-      it('prepares window to be closed', function () {
+      it('sets `closeWindow` to `false` if not already set to `true`', function () {
         return broker.sendOAuthResultToRelier({})
+          .then(function () {
+            assert.isFalse(channelMock.send.calledWith('oauth_complete', {
+              closeWindow: true
+            }));
+          });
+      });
+
+      it('passes along `closeWindow: true`', function () {
+        return broker.sendOAuthResultToRelier({ closeWindow: true })
           .then(function () {
             assert.isTrue(channelMock.send.calledWith('oauth_complete', {
               closeWindow: true
@@ -104,7 +113,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
     });
 
     describe('afterSignIn', function () {
-      it('calls sendOAuthResultToRelier', function () {
+      it('calls sendOAuthResultToRelier, tells window to close', function () {
         var view = new BaseView({
           window: windowMock
         });
@@ -119,7 +128,45 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
 
         sinon.spy(view, 'displayError');
 
-        return broker.afterSignIn(view);
+        return broker.afterSignIn(view)
+          .then(function () {
+            assert.isTrue(
+                broker.sendOAuthResultToRelier.calledWith({ closeWindow: true }));
+          });
+      });
+    });
+
+    describe('afterCompleteSignUp', function () {
+      it('calls finishOAuthFlow to ensure results are sent if original window closes', function () {
+        sinon.stub(broker, 'getOAuthResult', function () {
+          return p({});
+        });
+
+        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
+          return p();
+        });
+
+        return broker.afterCompleteSignUp()
+          .then(function () {
+            assert.isTrue(broker.sendOAuthResultToRelier.called);
+          });
+      });
+    });
+
+    describe('afterCompleteResetPassword', function () {
+      it('calls finishOAuthFlow to ensure results are sent if original window closes', function () {
+        sinon.stub(broker, 'getOAuthResult', function () {
+          return p({});
+        });
+
+        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
+          return p();
+        });
+
+        return broker.afterCompleteResetPassword()
+          .then(function () {
+            assert.isTrue(broker.sendOAuthResultToRelier.called);
+          });
       });
     });
   });

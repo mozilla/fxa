@@ -379,7 +379,6 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signin')
-        .execute(listenForWebChannelMessage)
 
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
@@ -470,8 +469,6 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signin')
-        .execute(listenForWebChannelMessage)
-
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
