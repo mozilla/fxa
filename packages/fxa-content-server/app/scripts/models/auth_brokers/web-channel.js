@@ -44,11 +44,19 @@ define([
     },
 
     sendOAuthResultToRelier: function (result) {
-      result.closeWindow = true;
+      if (result.closeWindow !== true) {
+        result.closeWindow = false;
+      }
+
       // the WebChannel does not respond, create a promise
       // that immediately resolves.
       this.send('oauth_complete', result);
       return p();
+    },
+
+    afterSignIn: function () {
+      return OAuthAuthenticationBroker.prototype.afterSignIn.call(
+                this, { closeWindow: true });
     },
 
     afterCompleteSignUp: function () {

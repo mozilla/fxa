@@ -17,7 +17,6 @@ define([
   'use strict';
 
   var config = intern.config;
-  var OAUTH_APP = config.fxaOauthApp;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
 
   var PASSWORD = 'password';
@@ -27,7 +26,7 @@ define([
   var email;
   var client;
   var ANIMATION_DELAY_MS = 1000;
-  /* global window, addEventListener */
+  /* global document, addEventListener */
 
   /**
    * This suite tests the WebChannel functionality in the OAuth signin and
@@ -35,18 +34,37 @@ define([
    * finish OAuth flows
    */
 
-  function redirectToRpOnWebChannelMessage(OAUTH_APP) {
+  function listenForWebChannelMessage() {
     // this event will fire once the account is confirmed, helping it
     // redirect to the application. If the window redirect does not
     // happen then the sign in page will hang on the confirmation screen
     addEventListener('WebChannelMessageToChrome', function (e) {
-      if (e.detail.message.command === 'oauth_complete') {
-        window.location.href = OAUTH_APP + 'api/oauth?' +
-          'state=' + e.detail.message.data.state + '&code=' + e.detail.message.data.code;
-      }
+      var command = e.detail.message.command;
+      var data = e.detail.message.data;
+
+      var element = document.createElement('div');
+      element.setAttribute('id', 'message-' + command);
+      element.innerText = JSON.stringify(data);
+      document.body.appendChild(element);
     });
 
     return true;
+  }
+
+  function testIsBrowserNotifiedOfLogin(context, shouldCloseTab) {
+    return function () {
+      return context.get('remote')
+        .findByCssSelector('#message-oauth_complete')
+          .getProperty('innerText')
+          .then(function (innerText) {
+            var data = JSON.parse(innerText);
+            assert.ok(data.redirect);
+            assert.ok(data.code);
+            assert.ok(data.state);
+            assert.equal(data.closeWindow, shouldCloseTab);
+          })
+        .end();
+    };
   }
 
   function openFxaFromRp(context, page) {
@@ -74,9 +92,6 @@ define([
     'signin an unverified account using an oauth app': function () {
       var self = this;
 
-      email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
-
       return openFxaFromRp(self, 'signin')
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: false });
@@ -94,23 +109,21 @@ define([
     'signin a verified account using an oauth app': function () {
       var self = this;
 
-      email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
-
       return openFxaFromRp(self, 'signin')
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
 
-        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
+        .execute(listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
         })
 
-        // user should be redirected back to 123done
+        .then(testIsBrowserNotifiedOfLogin(self, true))
 
-        .findByCssSelector('#loggedin')
+        // no screen transition, Loop will close this screen.
+        .findByCssSelector('#fxa-signin-header')
         .end();
     },
 
@@ -118,7 +131,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signup')
-        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
+        .execute(listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -140,11 +153,44 @@ define([
         // switch to the original window
         .switchToWindow('')
 
-        .findByCssSelector('#loggedin')
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findById('fxa-sign-up-complete-header')
         .end();
     },
 
     'signup, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return openFxaFromRp(self, 'signup')
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .then(FunctionalHelpers.openExternalSite(self))
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        .execute(listenForWebChannelMessage)
+
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findById('fxa-sign-up-complete-header')
+        .end()
+
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('');
+    },
+
+    'signup, verify same browser, replace original tab': function () {
       var self = this;
 
       return openFxaFromRp(self, 'signup')
@@ -161,12 +207,12 @@ define([
         })
         .then(function (verificationLink) {
           return self.get('remote').get(require.toUrl(verificationLink))
-            .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ]);
+            .execute(listenForWebChannelMessage);
         })
 
-        // window should automatically sign in.
+        .then(testIsBrowserNotifiedOfLogin(self, false))
 
-        .findByCssSelector('#loggedin')
+        .findById('fxa-sign-up-complete-header')
         .end();
     },
 
@@ -174,7 +220,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signup')
-        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
+        .execute(listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -187,8 +233,9 @@ define([
           return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
         })
 
-        // original tab redirects back to 123done
-        .findByCssSelector('#loggedin')
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findById('fxa-sign-up-complete-header')
         .end();
     },
 
@@ -196,7 +243,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signup')
-        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
+        .execute(listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -227,7 +274,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signin')
-        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
+        .execute(listenForWebChannelMessage)
 
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
@@ -274,7 +321,9 @@ define([
         .switchToWindow('')
 
         // the original tab should automatically sign in
-        .findByCssSelector('#loggedin')
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findByCssSelector('#fxa-reset-password-complete-header')
         .end();
     },
 
@@ -282,7 +331,50 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signin')
-        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
+        .then(function () {
+          return client.signUp(email, PASSWORD, { preVerified: true });
+        })
+
+        .findByCssSelector('.reset-password')
+          .click()
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email);
+        })
+
+        .findByCssSelector('#fxa-confirm-reset-password-header')
+        .end()
+
+        .then(FunctionalHelpers.openExternalSite(self))
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        .execute(listenForWebChannelMessage)
+
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
+
+        // the tab should automatically sign in
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findByCssSelector('#fxa-reset-password-complete-header')
+        .end()
+
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('');
+    },
+
+    'password reset, verify same browser, replace original tab': function () {
+      var self = this;
+
+      return openFxaFromRp(self, 'signin')
 
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
@@ -304,7 +396,7 @@ define([
         })
         .then(function (verificationLink) {
           return self.get('remote').get(require.toUrl(verificationLink))
-            .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ]);
+            .execute(listenForWebChannelMessage);
         })
 
         .then(function () {
@@ -313,7 +405,9 @@ define([
         })
 
         // the tab should automatically sign in
-        .findByCssSelector('#loggedin')
+        .then(testIsBrowserNotifiedOfLogin(self, false))
+
+        .findByCssSelector('#fxa-reset-password-complete-header')
         .end();
     },
 
@@ -321,7 +415,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signin')
-        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
+        .execute(listenForWebChannelMessage)
 
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
@@ -348,6 +442,9 @@ define([
         .findByCssSelector('#fxa-signin-header')
         .end()
 
+        .then(FunctionalHelpers.visibleByQSA('.success'))
+        .end()
+
         .findByCssSelector('#password')
           .type(PASSWORD)
         .end()
@@ -356,8 +453,11 @@ define([
           .click()
         .end()
 
-        // user is redirected to RP
-        .findByCssSelector('#loggedin')
+        // user is signed in
+        .then(testIsBrowserNotifiedOfLogin(self, true))
+
+        // no screen transition, Loop will close this screen.
+        .findByCssSelector('#fxa-signin-header')
         .end();
     },
 
@@ -365,8 +465,6 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signin')
-        .execute(redirectToRpOnWebChannelMessage, [ OAUTH_APP ])
-
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
