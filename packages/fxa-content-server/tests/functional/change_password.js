@@ -173,6 +173,10 @@ define([
     'browse directly to page - no back button': function () {
       var self = this;
       return FunctionalHelpers.fillOutSignIn(this, email, FIRST_PASSWORD)
+        // check that signin is complete before proceeding
+        .findById('fxa-settings-header')
+        .end()
+        
         .get(require.toUrl(PAGE_URL))
 
         .findById('fxa-change-password-header')
