@@ -27,11 +27,10 @@ define([
   function getExpectedParentOrigin(relier) {
     // redirectUri comes from the oauthClient's getClientInfo, which is
     // populated on app start before the broker.
-    var redirectUri = relier.get('redirectUri');
-    // TODO - replace with something cross browser, or with polymer's URL
-    // https://github.com/Polymer/URL/blob/master/url.js library which
-    // polyfills the URL object.
-    return new URL(redirectUri).origin;
+    var anchor = document.createElement('a');
+    anchor.href = relier.get('redirectUri');
+
+    return anchor.origin;
   }
 
   function checkOriginAllowedToIframe() {
