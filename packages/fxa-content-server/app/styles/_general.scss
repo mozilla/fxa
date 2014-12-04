@@ -55,7 +55,7 @@ noscript {
   text-decoration: none;
   top: 40px;
   right: 25px;
-  z-index: 1000; /* must be one higher than fox-logo */
+  z-index: $close-button-zindex;
 }
 
 #about-mozilla {
@@ -88,7 +88,7 @@ noscript {
   position: relative;
   top: 30px;
   width: 80px;
-  z-index: 999;
+  z-index: $fox-logo-zindex;
 
   &.static {
     opacity: 1;
