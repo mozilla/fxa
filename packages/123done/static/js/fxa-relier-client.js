@@ -1630,72 +1630,10 @@ define('client/auth/lightbox/lightbox',[
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/**
- * Helper functions for working with functions
- */
-define('client/lib/function',[], function () {
-  
-
-  function bind(func, context) {
-    return function() {
-      var args = [].slice.call(arguments, 0);
-      func.apply(context, args);
-    };
-  }
-
-  return {
-    bind: bind
-  };
-});
-
-
-
-
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-/**
- * Cross browser functions for working with event handlers
- */
-
-define('client/lib/events',[], function () {
-  
-
-  function addEventListener(target, eventName, handler) {
-    if (target.addEventListener) {
-      target.addEventListener(eventName, handler, false);
-    } else if (target.attachEvent) {
-      target.attachEvent('on' + eventName, handler);
-    }
-  }
-
-  function removeEventListener(target, eventName, handler) {
-    if (target.removeEventListener) {
-      target.removeEventListener(eventName, handler, false);
-    } else if (target.detachEvent) {
-      target.detachEvent('on' + eventName, handler);
-    }
-  }
-
-  return {
-    addEventListener: addEventListener,
-    removeEventListener: removeEventListener
-  };
-});
-
-
-
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 define('client/auth/lightbox/iframe_channel',[
   'p-promise',
-  'client/lib/function',
-  'client/lib/object',
-  'client/lib/events'
-], function (p, FunctionHelpers, ObjectHelpers, Events) {
+  'client/lib/object'
+], function (p, ObjectHelpers) {
   
 
   function IFrameChannel(options) {
@@ -1710,15 +1648,15 @@ define('client/auth/lightbox/iframe_channel',[
     version: '0.0.0',
 
     attach: function () {
-      this._boundOnMessage = FunctionHelpers.bind(onMessage, this);
-      Events.addEventListener(this._window, 'message', this._boundOnMessage);
+      this._boundOnMessage = onMessage.bind(this);
+      this._window.addEventListener('message', this._boundOnMessage, false);
 
       this._deferred = p.defer();
       return this._deferred.promise;
     },
 
     detach: function () {
-      Events.removeEventListener(this._window, 'message', this._boundOnMessage);
+      this._window.removeEventListener('message', this._boundOnMessage, false);
     },
 
     send: function (command, data) {
