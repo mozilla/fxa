@@ -132,9 +132,6 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
 
     describe('afterSignIn', function () {
       it('calls sendOAuthResultToRelier, tells window to close', function () {
-        var view = new BaseView({
-          window: windowMock
-        });
         setupCompletesOAuthTest();
 
         return broker.afterSignIn(view)
@@ -161,7 +158,6 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       it('calls sendOAuthResultToRelier', function () {
         setupCompletesOAuthTest();
 
-<<<<<<< HEAD
         return broker.afterSignIn(view)
           .then(function () {
             assert.isTrue(
@@ -197,15 +193,10 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
           return p();
         });
 
-        return broker.afterCompleteResetPassword()
-          .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
-=======
         return broker.afterCompleteResetPassword(view)
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
             assert.isFalse(view.displayError.called);
->>>>>>> feat(client): Add the iframe flow.
           });
       });
     });

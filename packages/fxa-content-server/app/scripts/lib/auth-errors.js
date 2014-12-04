@@ -104,7 +104,7 @@ function () {
     1018: t('Your verification email was just returned. Mistyped email?'),
     1019: t('Valid email required'),
     1020: t('Enter a valid email address. firefox.com does not offer email.'),
-    1021: t('Channel timeout'),
+    1021: t('Unexpected error'),
     1022: t('Firefox Accounts can only be placed into an IFRAME on approved sites')
   };
 
