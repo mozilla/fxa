@@ -121,6 +121,9 @@ function (_, Backbone, NullStorage) {
 
     navigator: {
       language: 'en-US'
+    },
+
+    postMessage: function (/*msg, targetOrigin*/) {
     }
   });
 

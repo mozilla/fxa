@@ -52,7 +52,10 @@ define([
   function clearContentServerState(context) {
     // clear localStorage to avoid polluting other tests.
     return context.get('remote')
-      // always go to the content server so the browser state is cleared
+      // always go to the content server so the browser state is cleared,
+      // switch to the top level frame, if we aren't already. This fixes the
+      // iframe flow.
+      .switchToFrame(null)
       .setFindTimeout(config.pageLoadTimeout)
       .getCurrentUrl()
       .then(function (url) {
@@ -94,6 +97,9 @@ define([
      * the added element.
      */
     return context.get('remote')
+      // switch to the top level frame, if we aren't already. This fixes the
+      // iframe flow.
+      .switchToFrame(null)
       .setFindTimeout(config.pageLoadTimeout)
       .get(require.toUrl(OAUTH_APP))
 
@@ -265,7 +271,9 @@ define([
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the signin page if not already at a signin page.
-        if (! /\/signin(?:$|\?)/.test(currentUrl)) {
+        // the leading [\/#] allows for either the standard redirect or iframe
+        // flow. The iframe flow must use the window hash for routing.
+        if (! /[\/#]signin(?:$|\?)/.test(currentUrl)) {
           return context.get('remote')
             .get(require.toUrl(SIGNIN_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
@@ -294,7 +302,9 @@ define([
       .getCurrentUrl()
       .then(function (currentUrl) {
         // only load the signup page if not already at a signup page.
-        if (! /\/signup(?:$|\?)/.test(currentUrl)) {
+        // the leading [\/#] allows for either the standard redirect or iframe
+        // flow. The iframe flow must use the window hash for routing.
+        if (! /[\/#]signup(?:$|\?)/.test(currentUrl)) {
           return context.get('remote')
             .get(require.toUrl(SIGNUP_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);
@@ -343,7 +353,9 @@ define([
       .then(function (currentUrl) {
         // only load the reset_password page if not already at
         // the reset_password page.
-        if (! /\/reset_password(?:$|\?)/.test(currentUrl)) {
+        // the leading [\/#] allows for either the standard redirect or iframe
+        // flow. The iframe flow must use the window hash for routing.
+        if (! /[\/#]reset_password(?:$|\?)/.test(currentUrl)) {
           return context.get('remote')
             .get(require.toUrl(RESET_PASSWORD_URL))
             .setFindTimeout(intern.config.pageLoadTimeout);

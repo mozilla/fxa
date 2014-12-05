@@ -99,6 +99,10 @@ module.exports = function (config, templates, i18n) {
 
     FRONTEND_ROUTES.forEach(function (route) {
       app.get(route, function (req, res, next) {
+        if (req.path === '/oauth/signin' || req.path === '/oauth/signup') {
+          res.removeHeader('x-frame-options');
+        }
+
         // setting the url to / will use the correct
         // index.html for either dev or prod mode.
         req.url = '/';

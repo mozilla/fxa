@@ -43,7 +43,9 @@ define([
   'models/auth_brokers/fx-desktop',
   'models/auth_brokers/web-channel',
   'models/auth_brokers/redirect',
-  'models/user'
+  'models/auth_brokers/iframe',
+  'models/user',
+  'views/close_button'
 ],
 function (
   _,
@@ -71,7 +73,9 @@ function (
   FxDesktopAuthenticationBroker,
   WebChannelAuthenticationBroker,
   RedirectAuthenticationBroker,
-  User
+  IframeAuthenticationBroker,
+  User,
+  CloseButtonView
 ) {
 
   function isMetricsCollectionEnabled(sampleRate) {
@@ -145,6 +149,8 @@ function (
                     .then(_.bind(this.initializeUser, this))
                     // broker relies on the user, relier and assertionLibrary
                     .then(_.bind(this.initializeAuthenticationBroker, this))
+                    // the close button depends on the broker
+                    .then(_.bind(this.initializeCloseButton, this))
                     // storage format upgrades depend on user
                     .then(_.bind(this.upgradeStorageFormats, this))
 
@@ -244,6 +250,16 @@ function (
             user: this._user,
             session: Session
           });
+        } else if (this._isIframe()) {
+          this._authenticationBroker = new IframeAuthenticationBroker({
+            window: this._window,
+            relier: this._relier,
+            assertionLibrary: this._assertionLibrary,
+            oAuthClient: this._oAuthClient,
+            oAuthUrl: this._config.oauthUrl,
+            user: this._user,
+            session: Session
+          });
         } else if (this._isOAuth()) {
           this._authenticationBroker = new RedirectAuthenticationBroker({
             window: this._window,
@@ -259,6 +275,14 @@ function (
         }
 
         return this._authenticationBroker.fetch();
+      }
+    },
+
+    initializeCloseButton: function () {
+      if (this._authenticationBroker.canCancel()) {
+        this._closeButton = new CloseButtonView({
+          broker: this._authenticationBroker
+        });
       }
     },
 
@@ -307,11 +331,22 @@ function (
       var self = this;
       return this._selectStartPage()
           .then(function (startPage) {
-            // Get the party started.
+            // The IFrame cannot use pushState or else a page transition
+            // would cause the parent frame to redirect.
+            var usePushState = ! self._isIframe();
+
+            if (! usePushState) {
+              // If pushState cannot be used, Backbone falls back to using
+              // the hashchange. Put the initial pathname onto the hash
+              // so the correct page loads.
+              self._window.location.hash = self._window.location.pathname;
+            }
+
             // If a new start page is specified, do not attempt to render
             // the route displayed in the URL because the user is
             // immediately redirected
-            self._history.start({ pushState: true, silent: !! startPage });
+            var isSilent = !! startPage;
+            self._history.start({ pushState: usePushState, silent: isSilent });
             if (startPage) {
               self._router.navigate(startPage);
             }
@@ -331,6 +366,10 @@ function (
       return !! (this._searchParam('webChannelId') || // signup/signin
                 (this._isOAuthVerificationSameBrowser() &&
                   Session.oauth && Session.oauth.webChannelId));
+    },
+
+    _isIframe: function () {
+      return this._window !== this._window.top;
     },
 
     _isOAuth: function () {

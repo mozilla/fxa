@@ -17,6 +17,7 @@ function (args, topic, firefoxProfile) {
   var fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
   var fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
   var fxaOauthApp = args.fxaOauthApp || 'http://127.0.0.1:8080/';
+  var fxaIframeOauthApp = args.fxaIframeOauthApp || 'http://127.0.0.1:8080/iframe';
   var fxaProduction = !!args.fxaProduction;
   var fxaToken = args.fxaToken || 'http://';
 
@@ -39,6 +40,7 @@ function (args, topic, firefoxProfile) {
     fxaContentRoot: fxaContentRoot,
     fxaEmailRoot: fxaEmailRoot,
     fxaOauthApp: fxaOauthApp,
+    fxaIframeOauthApp: fxaIframeOauthApp,
     fxaProduction: fxaProduction,
     fxaToken: fxaToken,
 

@@ -52,4 +52,13 @@
   } else {
     docElement.className += ' no-reveal-pw';
   }
+
+  /**
+   * The iframe'd OAuth flow needs special styling applied to it as
+   * soon as possible so that it doesn't look terrible.
+   */
+  if (window.top && window.top !== window) {
+    var htmlElement = document.querySelector('html');
+    htmlElement.className += ' iframe';
+  }
 }());

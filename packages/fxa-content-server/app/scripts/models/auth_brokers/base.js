@@ -47,6 +47,20 @@ define([
     },
 
     /**
+     * Check if the environment supports the cancelling of the flow.
+     */
+    canCancel: function () {
+      return false;
+    },
+
+    /**
+     * The user wants to cancel
+     */
+    cancel: function () {
+      return p();
+    },
+
+    /**
      * Called before sign in. Can be used to prevent sign in.
      */
     beforeSignIn: function () {
