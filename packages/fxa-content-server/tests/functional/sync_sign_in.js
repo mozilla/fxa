@@ -55,9 +55,6 @@ define([
           return result;
         })
         .then(function () {
-          return verifyUser(user, 0);
-        })
-        .then(function () {
           // clear localStorage to avoid pollution from other tests.
           return FunctionalHelpers.clearBrowserState(self);
         });
@@ -79,25 +76,38 @@ define([
             .findByCssSelector('#fxa-signin-header')
             .end()
 
-            .findByCssSelector('form input.email')
-              .click()
-              .type(email)
-            .end()
-
-            .findByCssSelector('form input.password')
-              .click()
-              .type(PASSWORD)
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
+            .then(function () {
+              return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+            })
 
             .then(function () {
               return testIsBrowserNotifiedOfLogin(self, email);
             });
         });
-    }
+    },
 
+
+    'unverified': function () {
+      var self = this;
+
+      return self.get('remote')
+        .get(require.toUrl(PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .execute(listenForFxaCommands)
+
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+        })
+
+        .findByCssSelector('#fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return testIsBrowserNotifiedOfLogin(self, email);
+        });
+    }
   });
 });
