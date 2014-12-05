@@ -153,9 +153,15 @@ module.exports = function(app, db) {
           var data = JSON.parse(body);
           req.session.email = data.email;
           req.session.uid = data.uid;
-          // use the referrer so the redirect occurs correctly
-          // for either the redirect or iframe flow.
-          res.redirect(req.get('referrer'));
+          // ensure the redirect goes to the correct place for either
+          // the redirect or iframe OAuth flows.
+          var referrer = req.get('referrer') || '';
+          var isIframe = referrer.indexOf('/iframe') > -1;
+          if (isIframe) {
+            res.redirect('/iframe');
+          } else {
+            res.redirect('/');
+          }
         });
       });
     } else if (req.session.email) {
