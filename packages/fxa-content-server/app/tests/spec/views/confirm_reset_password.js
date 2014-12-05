@@ -45,7 +45,6 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
-      windowMock.location.pathname = 'confirm_reset_password';
 
       metrics = new Metrics();
       relier = new Relier();
@@ -78,7 +77,8 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
         user: user,
         interTabChannel: interTabChannel,
         sessionUpdateTimeoutMS: 100,
-        ephemeralMessages: ephemeralMessages
+        ephemeralMessages: ephemeralMessages,
+        screenName: 'confirm_reset_password'
       });
 
       return view.render()

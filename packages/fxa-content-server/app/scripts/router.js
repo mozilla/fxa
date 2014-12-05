@@ -82,7 +82,8 @@ function (
         relier: this.relier,
         router: this,
         user: this.user,
-        window: this.window
+        window: this.window,
+        screenName: Backbone.history.fragment
       }, options || {});
 
       this.showView(new View(viewOptions));

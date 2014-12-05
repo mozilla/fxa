@@ -33,7 +33,9 @@ function (chai, sinon, WindowMock, TestHelpers, p, Metrics, OAuthErrors, View,
 
       view = new View({
         broker: broker,
-        metrics: metrics
+        metrics: metrics,
+        window: windowMock,
+        screenName: 'signup'
       });
     });
 
@@ -56,7 +58,6 @@ function (chai, sinon, WindowMock, TestHelpers, p, Metrics, OAuthErrors, View,
       });
 
       it('logs an error', function () {
-        windowMock.location.pathname = 'signup';
         sinon.stub(broker, 'cancel', function () {
           return p();
         });

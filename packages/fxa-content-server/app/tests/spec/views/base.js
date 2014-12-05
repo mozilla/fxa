@@ -59,7 +59,6 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
       router = new RouterMock();
       windowMock = new WindowMock();
-      windowMock.location.pathname = '/' + screenName;
       ephemeralMessages = new EphemeralMessages();
       metrics = new Metrics();
       relier = new Relier();
@@ -73,7 +72,8 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
         ephemeralMessages: ephemeralMessages,
         metrics: metrics,
         user: user,
-        fxaClient: fxaClient
+        fxaClient: fxaClient,
+        screenName: screenName
       });
 
       return view.render()

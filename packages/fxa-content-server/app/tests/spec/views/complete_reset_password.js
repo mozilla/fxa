@@ -50,7 +50,6 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
-      windowMock.location.pathname = 'complete_reset_password';
       metrics = new Metrics();
       relier = new Relier();
       broker = new Broker();
@@ -64,7 +63,8 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         metrics: metrics,
         fxaClient: fxaClient,
         relier: relier,
-        broker: broker
+        broker: broker,
+        screenName: 'complete_reset_password'
       });
 
       // mock in isPasswordResetComplete

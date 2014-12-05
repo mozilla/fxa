@@ -46,7 +46,6 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
       routerMock = new RouterMock();
       windowMock = new WindowMock();
-      windowMock.location.pathname = 'signin';
       metrics = new Metrics();
       relier = new Relier();
       broker = new Broker();
@@ -60,7 +59,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         fxaClient: fxaClient,
         user: user,
         relier: relier,
-        broker: broker
+        broker: broker,
+        screenName: 'signin'
       });
 
       return view.render()

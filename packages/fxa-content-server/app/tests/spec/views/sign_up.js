@@ -83,7 +83,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
       router = new RouterMock();
       windowMock = new WindowMock();
-      windowMock.location.pathname = 'signup';
 
       metrics = new Metrics();
       relier = new Relier();
@@ -100,7 +99,8 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         user: user,
         relier: relier,
         broker: broker,
-        ephemeralMessages: ephemeralMessages
+        ephemeralMessages: ephemeralMessages,
+        screenName: 'signup'
       });
 
       return view.render()
