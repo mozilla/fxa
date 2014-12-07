@@ -73,8 +73,14 @@ function (args, topic, firefoxProfile) {
     excludeInstrumentation: /./
   };
 
-  //to create a profile, give it the `config` option.
+  // to create a profile, give it the `config` option.
   config.capabilities.firefox_profile = firefoxProfile(config);
+
+  // custom Firefox binary location, if specified then the default is ignored.
+  // ref: https://code.google.com/p/selenium/wiki/DesiredCapabilities#WebDriver
+  if (args.firefoxBinary) {
+    config.capabilities.firefox_binary = args.firefoxBinary;
+  }
 
   return config;
 });
