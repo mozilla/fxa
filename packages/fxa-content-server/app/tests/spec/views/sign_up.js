@@ -143,13 +143,24 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
             });
       });
 
-      it('shows choose what to sync checkbox when service is sync even after session is cleared', function () {
+      it('shows unchecked `customize sync` checkbox when service is sync even after session is cleared', function () {
         relier.set('service', 'sync');
         Session.clear();
 
         return view.render()
             .then(function () {
-              assert.equal(view.$('.customize-sync-row').length, 1);
+              assert.equal(view.$('#customize-sync').length, 1);
+              assert.isFalse(view.$('#customize-sync').is(':checked'));
+            });
+      });
+
+      it('checks `customize sync` checkbox for sync relier that forces it to true', function () {
+        relier.set('service', 'sync');
+        relier.set('customizeSync', true);
+
+        return view.render()
+            .then(function () {
+              assert.isTrue(view.$('#customize-sync').is(':checked'));
             });
       });
 

@@ -43,6 +43,13 @@ define([
     },
 
     /**
+     * Check if the relier forces the "customize sync" checkbox to be checked.
+     */
+    isCustomizeSyncChecked: function () {
+      return false;
+    },
+
+    /**
      * Create a resume token to be passed along in the email
      * verification links
      */

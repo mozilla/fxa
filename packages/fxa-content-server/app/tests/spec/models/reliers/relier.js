@@ -17,6 +17,7 @@ define([
     var windowMock;
 
     var SERVICE = 'service';
+    var SYNC_SERVICE = 'sync';
     var PREVERIFY_TOKEN = 'abigtoken';
 
     beforeEach(function () {
@@ -59,6 +60,68 @@ define([
     describe('getResumeToken', function () {
       it('returns null', function () {
         assert.isNull(relier.getResumeToken());
+      });
+    });
+
+    describe('isSync', function () {
+      it('returns true if `service=sync`', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: SYNC_SERVICE
+        });
+
+        return relier.fetch()
+            .then(function () {
+              assert.isTrue(relier.isSync());
+            });
+      });
+
+      it('returns false otw', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: SERVICE
+        });
+
+        return relier.fetch()
+            .then(function () {
+              assert.isFalse(relier.isSync());
+            });
+      });
+    });
+
+    describe('isCustomizeSyncChecked', function () {
+      it('returns true if `service=sync` and `customizeSync=true`', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: SYNC_SERVICE,
+          customizeSync: 'true'
+        });
+
+        return relier.fetch()
+            .then(function () {
+              assert.isTrue(relier.isCustomizeSyncChecked());
+            });
+      });
+
+      it('returns false if `service!=sync`', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: SERVICE,
+          customizeSync: 'true'
+        });
+
+        return relier.fetch()
+            .then(function () {
+              assert.isFalse(relier.isCustomizeSyncChecked());
+            });
+      });
+
+      it('returns false if `customizeSync!=true`', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: SYNC_SERVICE,
+          customizeSync: ''
+        });
+
+        return relier.fetch()
+            .then(function () {
+              assert.isFalse(relier.isCustomizeSyncChecked());
+            });
       });
     });
   });

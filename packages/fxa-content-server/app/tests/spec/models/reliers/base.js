@@ -42,6 +42,12 @@ define([
       });
     });
 
+    describe('isCustomizeSyncChecked', function () {
+      it('returns `false`', function () {
+        assert.isFalse(relier.isCustomizeSyncChecked());
+      });
+    });
+
     describe('getResumeToken', function () {
       it('returns null', function () {
         assert.isNull(relier.getResumeToken());
