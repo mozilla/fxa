@@ -1,4 +1,4 @@
-{{t "Congratulations!"}}
+{{t "Almost there"}}
 
 {{{t "%(email)s, you're one click away from verifying your Firefox Account." }}}
 {{t "Verify:"}} {{{link}}}
