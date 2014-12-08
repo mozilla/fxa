@@ -11,7 +11,7 @@
     "test-sauce": "intern-runner config=tests/intern_sauce",
     "test-travis": "intern-runner config=tests/intern_travis",
     "test-server": "intern-client config=tests/intern_server",
-    "test-latest": "intern-runner config=tests/intern_functional_full fxaAuthRoot=https://latest.dev.lcip.org/auth/v1 fxaContentRoot=https://latest.dev.lcip.org/ fxaEmailRoot=http://restmail.net fxaOauthApp=https://123done-latest.dev.lcip.org/ fxaProduction=true fxaToken=https://token.dev.lcip.org/1.0/sync/1.5",
+    "test-latest": "intern-runner config=tests/intern_functional_full fxaAuthRoot=https://latest.dev.lcip.org/auth/v1 fxaContentRoot=https://latest.dev.lcip.org/ fxaEmailRoot=http://restmail.net fxaOauthApp=https://123done-latest.dev.lcip.org/ fxaIframeOauthApp=https://123done-latest.dev.lcip.org/iframe fxaProduction=true fxaToken=https://token.dev.lcip.org/1.0/sync/1.5",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md"
   },
   "repository": {
