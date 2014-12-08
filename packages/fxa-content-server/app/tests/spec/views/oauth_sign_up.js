@@ -72,7 +72,6 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
       router = new RouterMock();
 
       windowMock = new WindowMock();
-      windowMock.location.pathname = 'oauth/signup';
       metrics = new Metrics();
       relier = new OAuthRelier({
         window: windowMock
@@ -114,7 +113,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         broker: broker,
         user: user,
         assertionLibrary: assertionLibrary,
-        oAuthClient: oAuthClient
+        oAuthClient: oAuthClient,
+        screenName: 'oauth/signup'
       });
 
       return view.render()

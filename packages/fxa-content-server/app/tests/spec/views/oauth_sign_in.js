@@ -46,7 +46,6 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       email = TestHelpers.createEmail();
       router = new RouterMock();
       windowMock = new WindowMock();
-      windowMock.location.pathname = 'oauth/signin';
       windowMock.location.search = '?client_id=' + CLIENT_ID + '&state=' + STATE + '&scope=' + SCOPE;
 
       relier = new OAuthRelier();
@@ -69,7 +68,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         broker: broker,
         user: user,
         profileClient: profileClientMock,
-        metrics: metrics
+        metrics: metrics,
+        screenName: 'oauth/signin'
       });
 
       return view.render()

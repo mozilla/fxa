@@ -61,7 +61,6 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
-      windowMock.location.pathname = 'verify_email';
       metrics = new Metrics();
       relier = new Relier();
       broker = new Broker();
@@ -75,7 +74,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         user: user,
         fxaClient: fxaClient,
         relier: relier,
-        broker: broker
+        broker: broker,
+        screenName: 'verify_email'
       });
 
       verificationError = null;

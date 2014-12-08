@@ -44,7 +44,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       ephemeralMessages = new EphemeralMessages();
       routerMock = new RouterMock();
       windowMock = new WindowMock();
-      windowMock.location.pathname = 'confirm';
       metrics = new Metrics();
       relier = new OAuthRelier({
         window: windowMock
@@ -82,7 +81,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         fxaClient: fxaClient,
         relier: relier,
         ephemeralMessages: ephemeralMessages,
-        broker: broker
+        broker: broker,
+        screenName: 'confirm'
       });
 
       sinon.stub(view, 'currentAccount', function () {

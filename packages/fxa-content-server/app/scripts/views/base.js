@@ -79,6 +79,7 @@ function (_, Backbone, $, p, AuthErrors,
       this.relier = options.relier;
       this.broker = options.broker;
       this.user = options.user;
+      this.screenName = options.screenName || '';
 
       this.fxaClient = options.fxaClient;
       this._canGoBack = options.canGoBack;
@@ -464,7 +465,7 @@ function (_, Backbone, $, p, AuthErrors,
     },
 
     getScreenName: function () {
-      var screenName = Url.pathToScreenName(this.window.location.pathname);
+      var screenName = Url.pathToScreenName(this.screenName);
       return screenName;
     },
 

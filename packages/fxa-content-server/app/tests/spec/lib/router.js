@@ -125,7 +125,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           user: user,
           relier: relier,
           router: router,
-          broker: broker
+          broker: broker,
+          screenName: '/signin'
         });
         signUpView = new SignUpView({
           metrics: metrics,
@@ -133,7 +134,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           user: user,
           relier: relier,
           router: router,
-          broker: broker
+          broker: broker,
+          screenName: '/signup'
         });
       });
 
@@ -142,12 +144,10 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       });
 
       it('shows a view, then shows the new view', function () {
-        windowMock.location.pathname = '/signin';
         return router.showView(signInView)
             .then(function () {
               assert.ok($('#fxa-signin-header').length);
 
-              windowMock.location.pathname = '/signup';
               return router.showView(signUpView);
             })
             .then(function () {
@@ -170,7 +170,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           user: user,
           // ensure there is no cross talk with other tests.
           ephemeralMessages: new EphemeralMessages(),
-          relier: relier
+          relier: relier,
+          screenName: 'signup'
         });
       });
 
@@ -179,7 +180,6 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       });
 
       it('navigates to unexpected error view on beforeRender errors', function () {
-        windowMock.location.pathname = '/signup';
         view.beforeRender = function () {
           throw new Error('boom');
         };
@@ -197,7 +197,6 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       });
 
       it('navigates to unexpected error view on context errors', function () {
-        windowMock.location.pathname = '/signup';
         view.context = function () {
           throw new Error('boom');
         };
@@ -215,7 +214,6 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       });
 
       it('navigates to unexpected error view on afterRender errors', function () {
-        windowMock.location.pathname = '/signup';
         view.afterRender = function () {
           throw new Error('boom');
         };
@@ -233,8 +231,6 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       });
 
       it('only logs a screen that has children once', function () {
-        windowMock.location.pathname = '/signup_complete';
-
         view = new ReadyView({
           metrics: metrics,
           window: windowMock,
@@ -244,7 +240,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           ephemeralMessages: new EphemeralMessages(),
           relier: relier,
           broker: broker,
-          type: 'sign_up'
+          type: 'sign_up',
+          screenName: '/signup_complete'
         });
 
         return router.showView(view)
