@@ -73,7 +73,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        return client.signUp(email, password, relier)
+        return client.signUp(email, password, relier, user)
           .then(function () {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
@@ -94,7 +94,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           });
         });
 
-        return client.signUp(email, password, relier)
+        return client.signUp(email, password, relier, user)
           .then(assert.fail, function (err) {
             assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
           });
@@ -105,10 +105,10 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
         relier.set('preVerifyToken', preVerifyToken);
 
         sinon.stub(realClient, 'signUp', function () {
-          return p();
+          return p({});
         });
 
-        return client.signUp(email, password, relier, {
+        return client.signUp(email, password, relier, user, {
           preVerifyToken: preVerifyToken
         })
         .then(function () {
@@ -150,11 +150,11 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
               resume: expectedResumeToken
             }));
 
-            return p(true);
+            return p({});
           }
         });
 
-        return client.signUp(email, password, relier)
+        return client.signUp(email, password, relier, user)
           .then(function () {
             assert.equal(realClient.signUp.callCount, 2);
           });

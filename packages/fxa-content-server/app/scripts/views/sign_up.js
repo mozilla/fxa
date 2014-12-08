@@ -274,14 +274,9 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       return self.broker.beforeSignIn(email)
         .then(function () {
           return self.fxaClient.signUp(
-                        email, password, self.relier);
-        })
-        .then(function () {
-          return self.fxaClient.signIn(email, password, self.relier, self.user, {
-            customizeSync: customizeSync,
-            // already done in signUp, no need to do it again.
-            verifiedCanLinkAccount: true
-          });
+                        email, password, self.relier, self.user, {
+                          cusomizeSync: customizeSync
+                        });
         }).then(function (accountData) {
           if (preVerifyToken && accountData.verified) {
             self.logScreenEvent('preverified.success');

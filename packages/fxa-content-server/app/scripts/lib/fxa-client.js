@@ -96,6 +96,40 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           });
     },
 
+    _updateAccount: function (email, relier, user, accountData, options) {
+      var self = this;
+      var sessionTokenContext = options.sessionTokenContext ||
+                                  relier.get('context');
+
+      var updatedSessionData = {
+        email: email,
+        uid: accountData.uid,
+        sessionToken: accountData.sessionToken,
+        sessionTokenContext: sessionTokenContext,
+        verified: accountData.verified || false
+      };
+
+      // isSync is added in case the user verifies in a second tab
+      // on the first browser, the context will not be available. We
+      // need to ship the keyFetchToken and unwrapBKey to the first tab,
+      // so generate these any time we are using sync as well.
+      if (relier.isFxDesktop() || relier.isSync()) {
+        updatedSessionData.unwrapBKey = accountData.unwrapBKey;
+        updatedSessionData.keyFetchToken = accountData.keyFetchToken;
+        updatedSessionData.customizeSync = options.customizeSync || false;
+      }
+
+      if (self._interTabChannel) {
+        self._interTabChannel.emit('login', updatedSessionData);
+      }
+
+      return user.setCurrentAccount(updatedSessionData)
+        .then(function () {
+          return updatedSessionData;
+        });
+    },
+
+
     signIn: function (originalEmail, password, relier, user, options) {
       var email = trim(originalEmail);
       var self = this;
@@ -106,39 +140,11 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           return client.signIn(email, password, { keys: true });
         })
         .then(function (accountData) {
-          var sessionTokenContext = options.sessionTokenContext ||
-                                      relier.get('context');
-
-          var updatedSessionData = {
-            email: email,
-            uid: accountData.uid,
-            sessionToken: accountData.sessionToken,
-            sessionTokenContext: sessionTokenContext,
-            verified: accountData.verified
-          };
-
-          // isSync is added in case the user verifies in a second tab
-          // on the first browser, the context will not be available. We
-          // need to ship the keyFetchToken and unwrapBKey to the first tab,
-          // so generate these any time we are using sync as well.
-          if (relier.isFxDesktop() || relier.isSync()) {
-            updatedSessionData.unwrapBKey = accountData.unwrapBKey;
-            updatedSessionData.keyFetchToken = accountData.keyFetchToken;
-            updatedSessionData.customizeSync = options.customizeSync;
-          }
-
-          if (self._interTabChannel) {
-            self._interTabChannel.emit('login', updatedSessionData);
-          }
-
-          return user.setCurrentAccount(updatedSessionData)
-            .then(function () {
-              return updatedSessionData;
-            });
+          return self._updateAccount(email, relier, user, accountData, options);
         });
     },
 
-    signUp: function (originalEmail, password, relier, options) {
+    signUp: function (originalEmail, password, relier, user, options) {
       var email = trim(originalEmail);
       var self = this;
       options = options || {};
@@ -171,7 +177,9 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           signUpOptions.resume = self._createResumeToken(relier);
 
           return client.signUp(email, password, signUpOptions)
-            .then(null, function (err) {
+            .then(function (accountData) {
+              return self._updateAccount(email, relier, user, accountData, options);
+            }, function (err) {
               if (relier.has('preVerifyToken') &&
                   AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
                 // The token was invalid and the auth server could
@@ -179,7 +187,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
                 // user and force them to verify their email.
                 relier.unset('preVerifyToken');
 
-                return self.signUp(email, password, relier, options);
+                return self.signUp(email, password, relier, user, options);
               }
 
               throw err;

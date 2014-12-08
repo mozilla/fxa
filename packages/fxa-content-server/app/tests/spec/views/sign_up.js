@@ -439,10 +439,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signUp', function () {
-          return p({});
-        });
-
-        sinon.stub(view.fxaClient, 'signIn', function () {
           return p({
             verified: false
           });
@@ -452,8 +448,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           .then(function () {
             assert.equal(router.page, 'confirm');
             assert.isTrue(view.fxaClient.signUp.calledWith(
-                email, password, relier));
-            assert.isTrue(view.fxaClient.signIn.calledWith(
                 email, password, relier));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'signup.success'));
@@ -472,10 +466,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         });
 
         sinon.stub(view.fxaClient, 'signUp', function () {
-          return p({});
-        });
-
-        sinon.stub(view.fxaClient, 'signIn', function () {
           return p({
             verified: true
           });
