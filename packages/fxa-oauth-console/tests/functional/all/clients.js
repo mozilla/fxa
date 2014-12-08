@@ -5,8 +5,9 @@
 define([
   'intern',
   'intern!object',
-  'intern/chai!assert'
-], function (intern, registerSuite, assert) {
+  'intern/chai!assert',
+  'require'
+], function (intern, registerSuite, assert, require) {
 
   var config = intern.config;
   var APP_URL = 'http://127.0.0.1:10137';
@@ -35,7 +36,7 @@ define([
 
         .findByCssSelector('#submit-btn')
         .click()
-        .end()
+        .end();
     }
 
   });
