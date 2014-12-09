@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-server",
-  "version": "1.24.1",
+  "version": "1.27.0",
   "description": "An identity provider for PiCL services",
   "bin": {
     "fxa-auth": "./bin/key_server.js"
@@ -35,7 +35,7 @@
     "bunyan": "1.2.0",
     "compute-cluster": "0.0.9",
     "convict": "0.6",
-    "fxa-auth-mailer": "1.0.6",
+    "fxa-auth-mailer": "1.0.7",
     "hapi": "7.0.0",
     "hapi-auth-hawk": "1.1.1",
     "hkdf": "0.0.2",

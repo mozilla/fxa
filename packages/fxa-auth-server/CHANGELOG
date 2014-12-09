@@ -1,3 +1,12 @@
+train-27
+  * updated fxa-auth-mailer for mail template changes
+
+train-26
+  * no changes
+
+train-25
+  * no changes
+
 train-24
   * added uid to /session/status #830
   * updated dependencies
