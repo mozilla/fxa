@@ -117,7 +117,15 @@ define([
             }
           }
 
-          return self.request.send(endpoint, 'POST', null, data, requestOpts);
+          return self.request.send(endpoint, 'POST', null, data, requestOpts)
+            .then(
+              function(accountData) {
+                if (options && options.keys) {
+                  accountData.unwrapBKey = sjcl.codec.hex.fromBits(result.unwrapBKey);
+                }
+                return accountData;
+              }
+            );
         }
       );
   };

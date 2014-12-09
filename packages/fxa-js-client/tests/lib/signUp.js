@@ -56,6 +56,7 @@ define([
               assert.property(res, 'uid', 'uid should be returned on signUp');
               assert.property(res, 'sessionToken', 'sessionToken should be returned on signUp');
               assert.property(res, 'keyFetchToken', 'keyFetchToken should be returned on signUp');
+              assert.property(res, 'unwrapBKey', 'unwrapBKey should be returned on signUp');
             },
             assert.notOk
           );
