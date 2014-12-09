@@ -1,3 +1,44 @@
+<a name="0.27.0"></a>
+## 0.27.0 (2014-12-08)
+
+
+#### Bug Fixes
+
+* **client:**
+  * WebChannel/Hello screen and event fixes. ([e67d2158](https://github.com/mozilla/fxa-content-server/commit/e67d2158e6e0264a4c58a78c8474f408ac9c5dba))
+  * Ensure the web-channel flows match expected behavior. ([0cbcf9a6](https://github.com/mozilla/fxa-content-server/commit/0cbcf9a6ffa39a4f2996615b4c79a6425ea0f670))
+  * Show the back button for reset_password, even if an email is on the URL query st ([9e293664](https://github.com/mozilla/fxa-content-server/commit/9e29366405dd2f828975ad3608da86f1bb37c1bb))
+  * Go to the /cookies_disabled screen instead of the /500 screen if cookies are dis ([e9433b7a](https://github.com/mozilla/fxa-content-server/commit/e9433b7ac8f16db89335d513fdc46f7081f16067))
+* **confirm:** redirect to signup on bounced email error ([bb3c8d8c](https://github.com/mozilla/fxa-content-server/commit/bb3c8d8c6cec414d3b09c753f31bafb0029b0619), closes [#1902](https://github.com/mozilla/fxa-content-server/issues/1902))
+* **docs:** add Bower usage to CONTRIBUTING ([dc9db2d7](https://github.com/mozilla/fxa-content-server/commit/dc9db2d78170d7d1e3efdc0985d5b750721742f1))
+* **l10n:** use a less spammy email headline ([f2efc82b](https://github.com/mozilla/fxa-content-server/commit/f2efc82b57d4bc76d2ce2b0fe496736d9735ccb4), closes [#1849](https://github.com/mozilla/fxa-content-server/issues/1849))
+* **metrics:** Show the correct screen name in the iframe flow metrics. ([44c630b5](https://github.com/mozilla/fxa-content-server/commit/44c630b5d96643329e82273c2d6622bff0eb6e81))
+* **signup:** block signup attempts with @firefox.com emails. ([b41389fc](https://github.com/mozilla/fxa-content-server/commit/b41389fcdb6a7ae7a909c4862a43b17939c4a07b), closes [#1859](https://github.com/mozilla/fxa-content-server/issues/1859))
+* **style:** marketing snippet offset ([ddbacce7](https://github.com/mozilla/fxa-content-server/commit/ddbacce7fe238dfbf6c27242fb3c470a6fe4814d))
+* **styles:** no more underscored classes ([46e0cc0e](https://github.com/mozilla/fxa-content-server/commit/46e0cc0e916c705dbc8c5fe6249277c305e889e4))
+* **test:**
+  * allow custom Firefox binary locations for tests ([4338d193](https://github.com/mozilla/fxa-content-server/commit/4338d1931075fe52276030a788c8422701863d7b))
+  * check that signin is complete before proceeding ([ad07160d](https://github.com/mozilla/fxa-content-server/commit/ad07160d5169f8169aed339098bae28187d746a2))
+  * No longer redirect on the web channel tests. ([21863591](https://github.com/mozilla/fxa-content-server/commit/2186359155692c5bddf1d21d749dc5a8b1800082))
+  * Fix the 'Unexpected error' flash in the sign_in tests. ([58780398](https://github.com/mozilla/fxa-content-server/commit/587803989ee847fa6071f83deaa2b38e0ff2d6a0))
+  * Remove the inter-test dependencies in the reset-password tests. ([1a198fdd](https://github.com/mozilla/fxa-content-server/commit/1a198fddc3521b7dec7a1d2fb1cd92624373b5a5))
+* **tests:**
+  * add iframe app to latest tester ([d5216304](https://github.com/mozilla/fxa-content-server/commit/d5216304f11bc43dc6756ef35d2529e131213b6e), closes [#1959](https://github.com/mozilla/fxa-content-server/issues/1959))
+  * update sauce tests to firefox 33 ([d5884034](https://github.com/mozilla/fxa-content-server/commit/d5884034890031c2ae9a808de776cb7869194e92))
+  * fix avatar crop transition. ([89b8225c](https://github.com/mozilla/fxa-content-server/commit/89b8225c1179f0d3ccb49073f8645975bb617287), closes [#1836](https://github.com/mozilla/fxa-content-server/issues/1836))
+
+
+#### Features
+
+* **client:**
+  * Add the iframe flow. ([8561ec3c](https://github.com/mozilla/fxa-content-server/commit/8561ec3c1d06763f454f4ac7cb8ef142eb0c01b0))
+  * Allow TLD only domain names in email addresses ([e3487a04](https://github.com/mozilla/fxa-content-server/commit/e3487a04f78eba4920b3c78cb20c29e777099624))
+* **metrics:**
+  * Add the `campaign` metric. ([21e18a96](https://github.com/mozilla/fxa-content-server/commit/21e18a96eb607fbfe412d3dfc3c2ea12918f5afe))
+  * Add the `isMigration` field to the reported metrics. ([d9f7ddd1](https://github.com/mozilla/fxa-content-server/commit/d9f7ddd18d8a5e2964949cd9dbf562368e689cfc))
+* **test:** Add more functional tests! ([a43d65f9](https://github.com/mozilla/fxa-content-server/commit/a43d65f933e32bd711c1ec50ec83520e3d9d66ee))
+
+
 <a name="0.26.2"></a>
 ### 0.26.2 (2014-11-20)
 
