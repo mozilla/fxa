@@ -42,9 +42,11 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
     },
 
     context: function () {
+      var account = this.currentAccount();
       return {
-        email: this.currentAccount().get('email'),
-        showSignOut: !this.currentAccount().isFromSync()
+        email: account.get('email'),
+        showSignOut: !account.isFromSync(),
+        avatarLinkVisible: this._isAvatarLinkVisible(account.get('email'))
       };
     },
 
@@ -74,9 +76,22 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
               });
     },
 
+    _isAvatarLinkVisible: function (email) {
+      // For automated testing accounts, emails begin with "avatarAB-" and end with "restmail.net"
+      var isTestAccount = /^avatarAB-.+@restmail\.net$/.test(email);
+      var isMozillaAccount = /@mozilla\.(?:com|org)$/.test(email);
+
+      return isTestAccount || isMozillaAccount;
+    },
+
     afterVisible: function () {
+      var account = this.currentAccount();
+      var imageContainerSelector = this._isAvatarLinkVisible(account.get('email')) ?
+                                     '.avatar-wrapper a.change-avatar' :
+                                     '.avatar-wrapper';
+
       FormView.prototype.afterVisible.call(this);
-      return this._displayProfileImage(this.currentAccount());
+      return this._displayProfileImage(account, imageContainerSelector);
     }
   });
 

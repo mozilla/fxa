@@ -104,7 +104,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
               .then(function () {
                 assert.isTrue(profileClientMock.deleteAvatar.calledWith(
                   accessToken, 'foo'));
-                assert.equal(routerMock.page, 'settings/avatar');
+                assert.equal(routerMock.page, 'settings');
               });
           });
       });
@@ -116,7 +116,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
               var ev = FileReaderMock._mockTextEvent();
               view.fileSet(ev);
 
-              assert.equal(routerMock.page, 'settings/avatar');
+              assert.equal(routerMock.page, 'settings');
               assert.equal(view.ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
             });
         });
@@ -130,7 +130,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
 
               view.router.on('navigate', function () {
                 try {
-                  assert.equal(routerMock.page, 'settings/avatar');
+                  assert.equal(routerMock.page, 'settings');
                   assert.equal(view.ephemeralMessages.get('error'), AuthErrors.toMessage('UNUSABLE_IMAGE'));
                   done();
                 } catch (e) {

@@ -64,7 +64,7 @@ function ($, _, FormView, AvatarMixin, Template, AuthErrors,
       var self = this;
       return self.currentAccount().deleteAvatar(self.avatarId)
         .then(function () {
-          self.navigate('settings/avatar');
+          self.navigate('settings');
         });
     },
 
@@ -93,7 +93,7 @@ function ($, _, FormView, AvatarMixin, Template, AuthErrors,
       var file = e.target.files[0];
 
       var imgOnerrer = function () {
-        self.navigate('settings/avatar', {
+        self.navigate('settings', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
       };
@@ -124,7 +124,7 @@ function ($, _, FormView, AvatarMixin, Template, AuthErrors,
         };
         reader.readAsDataURL(file);
       } else {
-        self.navigate('settings/avatar', {
+        self.navigate('settings', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
       }

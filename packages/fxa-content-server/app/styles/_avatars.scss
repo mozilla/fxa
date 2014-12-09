@@ -16,9 +16,14 @@
     margin: 0 auto;
     background: image-url('default-profile.svg') center;
     background-repeat: no-repeat;
-    img {
+    img, a.change-avatar {
       height: 120px;
       width: 120px;
+      display: block;
+    }
+    small {
+      position: absolute;
+      bottom: 0px;
     }
   }
 
@@ -46,6 +51,11 @@
     border-radius: 50%;
     position: relative;
   }
+}
+
+p.change-avatar-text {
+  font-size: $small-font;
+  margin-top: 0px;
 }
 
 // IE fix: removes blue border

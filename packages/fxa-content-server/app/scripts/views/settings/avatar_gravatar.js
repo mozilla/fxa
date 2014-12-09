@@ -52,7 +52,7 @@ function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressInd
     },
 
     _notFound: function () {
-      this.navigate('settings/avatar', {
+      this.navigate('settings', {
         error: t('No Gravatar found')
       });
     },
@@ -79,7 +79,7 @@ function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressInd
 
       return self.currentAccount().postAvatar(url, true)
         .then(function (result) {
-          self.navigate('settings/avatar', {
+          self.navigate('settings', {
             successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')
           });
           return result;

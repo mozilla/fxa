@@ -146,7 +146,7 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
             .then(function (result) {
               assert.equal(result.url, 'test');
               assert.equal(result.id, 'foo');
-              assert.equal(routerMock.page, 'settings/avatar');
+              assert.equal(routerMock.page, 'settings');
             });
         });
       });

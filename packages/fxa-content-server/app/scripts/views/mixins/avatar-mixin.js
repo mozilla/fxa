@@ -32,17 +32,21 @@ define([
         });
     },
 
-    _displayProfileImage: function (account) {
+    _displayProfileImage: function (account, wrapperClass) {
       var self = this;
       if (! account) {
         return;
       }
 
+      if (! wrapperClass) {
+        wrapperClass = '.avatar-wrapper';
+      }
+
       return this._fetchProfileImage(account)
         .then(function (result) {
           if (result && result.avatar) {
-            self.$('.avatar-wrapper').append(new Image());
-            self.$('.avatar-wrapper img').attr('src', result.avatar);
+            self.$(wrapperClass).append(new Image());
+            self.$(wrapperClass + ' img').attr('src', result.avatar);
           }
           return result;
         }, function () {

@@ -193,7 +193,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
             });
 
             routerMock.on('navigate', function () {
-              assert.equal(routerMock.page, 'settings/avatar');
+              assert.equal(routerMock.page, 'settings');
               done();
             });
           })
