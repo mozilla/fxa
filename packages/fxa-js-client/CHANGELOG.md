@@ -1,3 +1,17 @@
+<a name="0.1.27"></a>
+### 0.1.27 (2014-12-09)
+
+
+#### Bug Fixes
+
+* **docs:** fixes typo for certificateSign ([ab22f068](https://github.com/mozilla/fxa-js-client/commit/ab22f0682bae8a70768562fd9f3b6057243f3475))
+
+
+#### Features
+
+* **client:** Return `unwrapBKey` in `signUp` if `keys=true` is specified. ([1cd19e52](https://github.com/mozilla/fxa-js-client/commit/1cd19e52feb188905ae41c5d66e540fa2b1aee5b))
+
+
 <a name="0.1.26"></a>
 ### 0.1.26 (2014-09-23)
 
