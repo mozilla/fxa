@@ -27,7 +27,7 @@ define(['client/lib/errors'], function (ERRORS) {
     signInWithKeys: {
       status: 200,
       headers: {},
-      body: '{"uid": "5d576e2cd3604981a8c05f6ea67fce5b", "sessionToken": "9c1fe2a0643ce23aa1b44afbe30e28d33e5726558cab215314980fc85875684f","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130","verified": true, "unwrapBKey": "1117fc77fca3e2181f7ae6dd2a63aa69cd4058afa102a4439315c71a2f94dc99"}'
+      body: '{"uid": "5d576e2cd3604981a8c05f6ea67fce5b", "sessionToken": "9c1fe2a0643ce23aa1b44afbe30e28d33e5726558cab215314980fc85875684f","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130","verified": true}'
     },
     heartbeat: {
       status: 200,
