@@ -480,14 +480,27 @@ function (chai, sinon, $, p, FormView, Template, Constants, Metrics, AuthErrors,
         assert.isFalse(view.showValidationError.called);
       });
 
-      it('shows when an email is invalid', function () {
-        view.$('input[type="email"]').val('a');
-        sinon.spy(view, 'showValidationError');
+      it('shows correct error when an email is missing', function () {
+        view.$('input[type="email"]').val('');
+        sinon.stub(view, 'showValidationError', function (el, err) {
+          assert.ok(el);
+          assert.isTrue(AuthErrors.is(err, 'EMAIL_REQUIRED'));
+        });
         view.showValidationErrors();
         assert.isTrue(view.showValidationError.called);
       });
 
-      it('shows when a password is invalid', function () {
+      it('shows correct error when an email is invalid', function () {
+        view.$('input[type="email"]').val('a');
+        sinon.stub(view, 'showValidationError', function (el, err) {
+          assert.ok(el);
+          assert.isTrue(AuthErrors.is(err, 'INVALID_EMAIL'));
+        });
+        view.showValidationErrors();
+        assert.isTrue(view.showValidationError.called);
+      });
+
+      it('shows correct error when a password is invalid', function () {
         view.$('input[type="password"]').val('');
         sinon.spy(view, 'showValidationError');
         view.showValidationErrors();
