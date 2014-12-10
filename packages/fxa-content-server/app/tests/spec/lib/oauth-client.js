@@ -87,7 +87,7 @@ function (chai, $, testHelpers, sinon,
           server.respondWith('POST', OAUTH_URL + '/v1/authorization',
             [400, { 'Content-Type': 'application/json' },
               JSON.stringify({
-                errno: OAuthErrors.toCode('INCORRECT_REDIRECT'),
+                errno: OAuthErrors.toErrno('INCORRECT_REDIRECT'),
                 code: 400
               })]);
 
@@ -136,7 +136,7 @@ function (chai, $, testHelpers, sinon,
             server.respondWith('GET', OAUTH_URL + '/v1/client/' + clientId,
               [400, { 'Content-Type': 'application/json' },
                 JSON.stringify({
-                  errno: OAuthErrors.toCode('EXPIRED_CODE'),
+                  errno: OAuthErrors.toErrno('EXPIRED_CODE'),
                   code: 400
                 })]);
 
@@ -192,7 +192,7 @@ function (chai, $, testHelpers, sinon,
               server.respondWith('POST', OAUTH_URL + '/v1/authorization',
                 [400, { 'Content-Type': 'application/json' },
                   JSON.stringify({
-                    errno: OAuthErrors.toCode('INVALID_ASSERTION'),
+                    errno: OAuthErrors.toErrno('INVALID_ASSERTION'),
                     code: 400
                   })]);
 

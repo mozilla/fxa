@@ -112,18 +112,18 @@ function (chai, AuthErrors) {
       });
     });
 
-    describe('toCode', function () {
+    describe('toErrno', function () {
       it('returns the errno from an error object', function () {
         var err = AuthErrors.toError('INVALID_TOKEN', 'bad token, man');
-        assert.equal(AuthErrors.toCode(err), 110);
+        assert.equal(AuthErrors.toErrno(err), 110);
       });
 
       it('converts a string type to a numeric code, if valid code', function () {
-        assert.equal(AuthErrors.toCode('UNKNOWN_ACCOUNT'), 102);
+        assert.equal(AuthErrors.toErrno('UNKNOWN_ACCOUNT'), 102);
       });
 
       it('returns the string if an invalid code', function () {
-        assert.equal(AuthErrors.toCode('this is an invalid code'), 'this is an invalid code');
+        assert.equal(AuthErrors.toErrno('this is an invalid code'), 'this is an invalid code');
       });
     });
 
@@ -133,6 +133,24 @@ function (chai, AuthErrors) {
             assert.isTrue(AuthErrors.is({ errno: 102 }, 'UNKNOWN_ACCOUNT'));
             assert.isFalse(AuthErrors.is({ errno: 103 }, 'UNKNOWN_ACCOUNT'));
           });
+    });
+
+    describe('normalizeXHRError', function () {
+      it('converts a missing XHR request to a `SERVICE_UNAVAILABLE` error', function () {
+        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError(), 'SERVICE_UNAVAILABLE'));
+      });
+
+      it('converts an XHR request with `status=0` to a `SERVICE_UNAVAILABLE` error', function () {
+        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ status: 0 }), 'SERVICE_UNAVAILABLE'));
+      });
+
+      it('converts an XHR request with missing `responseJSON` to an `UNEXPECTED_ERROR` error', function () {
+        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ status: 200 }), 'UNEXPECTED_ERROR'));
+      });
+
+      it('converts an XHR request with `responseJSON` to an error`', function () {
+        assert.isTrue(AuthErrors.is(AuthErrors.normalizeXHRError({ status: 200, responseJSON: { errno: 201 }}), 'SERVER_BUSY'));
+      });
     });
   });
 });

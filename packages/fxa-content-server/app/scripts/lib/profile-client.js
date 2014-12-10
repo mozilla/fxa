@@ -12,9 +12,9 @@ define([
   'lib/config-loader',
   'lib/oauth-client',
   'lib/assertion',
-  'lib/auth-errors'
+  'lib/profile-errors'
 ],
-function (xhr, _, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
+function (xhr, _, ConfigLoader, OAuthClient, Assertion, ProfileErrors) {
 
   function ProfileClient(options) {
     options = options || {};
@@ -86,38 +86,7 @@ function (xhr, _, ConfigLoader, OAuthClient, Assertion, AuthErrors) {
     });
   };
 
-  var t = function (msg) {
-    return msg;
-  };
-
-  var ERROR_TO_CODE = {
-    UNAUTHORIZED: 100,
-    INVALID_PARAMETER: 101,
-    UNSUPPORTED_PROVIDER: 102,
-    IMAGE_PROCESSING_ERROR: 103,
-
-    // local only errors.
-    SERVICE_UNAVAILABLE: 998,
-    UNEXPECTED_ERROR: 999
-  };
-
-  var CODE_TO_MESSAGES = {
-    // errors returned by the profile server
-    100: t('Unauthorized'),
-    101: t('Invalid parameter in request body: %(param)s'),
-    102: t('Unsupported image provider'),
-    103: t('Image processing error'),
-
-    // local only errors.
-    998: t('System unavailable, try again soon'),
-    999: t('Unexpected error')
-  };
-
-  var ProfileErrors = ProfileClient.Errors = _.extend({}, AuthErrors, {
-    ERROR_TO_CODE: ERROR_TO_CODE,
-    CODE_TO_MESSAGES: CODE_TO_MESSAGES,
-    NAMESPACE: 'profile'
-  });
+  ProfileClient.Errors = ProfileErrors;
 
   return ProfileClient;
 });

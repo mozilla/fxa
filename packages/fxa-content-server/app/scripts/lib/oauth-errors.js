@@ -8,51 +8,66 @@
 
 define([
   'underscore',
-  'lib/auth-errors'
+  'lib/errors'
 ],
-function (_, AuthErrors) {
+function (_, Errors) {
   var t = function (msg) {
     return msg;
   };
 
-  var ERROR_TO_CODE = {
-    UNKNOWN_CLIENT: 101,
-    INCORRECT_REDIRECT: 103,
-    INVALID_ASSERTION: 104,
-    INVALID_PARAMETER: 108,
-    INVALID_REQUEST_SIGNATURE: 109,
-
-    // local only errors.
-    SERVICE_UNAVAILABLE: 998,
-    UNEXPECTED_ERROR: 999,
-    TRY_AGAIN: 1000,
-    INVALID_RESULT: 1001,
-    INVALID_RESULT_REDIRECT: 1002,
-    INVALID_RESULT_CODE: 1003,
-
-    USER_CANCELED_OAUTH_LOGIN: 1004
+  var ERRORS = {
+    UNKNOWN_CLIENT: {
+      errno: 101,
+      message: t('Unknown client')
+    },
+    INCORRECT_REDIRECT: {
+      errno: 103,
+      message: t('Incorrect redirect_uri')
+    },
+    INVALID_ASSERTION: {
+      errno: 104,
+      message: t('Invalid assertion')
+    },
+    INVALID_PARAMETER: {
+      errno: 108,
+      message: t('Invalid parameter in request body: %(param)s')
+    },
+    INVALID_REQUEST_SIGNATURE: {
+      errno: 109,
+      message: t('Invalid request signature')
+    },
+    SERVICE_UNAVAILABLE: {
+      errno: 998,
+      message: t('System unavailable, try again soon')
+    },
+    UNEXPECTED_ERROR: {
+      errno: 999,
+      message: t('Unexpected error')
+    },
+    TRY_AGAIN: {
+      errno: 1000,
+      message: t('Something went wrong. Please close this tab and try again.')
+    },
+    INVALID_RESULT: {
+      errno: 1001,
+      message: t('Unexpected error')
+    },
+    INVALID_RESULT_REDIRECT: {
+      errno: 1002,
+      message: t('Unexpected error')
+    },
+    INVALID_RESULT_CODE: {
+      errno: 1003,
+      message: t('Unexpected error')
+    },
+    USER_CANCELED_OAUTH_LOGIN: {
+      errno: 1004,
+      message: t('no message')
+    }
   };
 
-  var CODE_TO_MESSAGES = {
-    // errors returned by the oauth server
-    101: t('Unknown client'),
-    103: t('Incorrect redirect_uri'),
-    104: t('Invalid assertion'),
-    108: t('Invalid parameter in request body: %(param)s'),
-    109: t('Invalid request signature'),
-
-    // local only errors.
-    998: t('System unavailable, try again soon'),
-    999: t('Unexpected error'),
-    1000: t('Something went wrong. Please close this tab and try again.'),
-    1001: t('Unexpected error'),
-    1002: t('Unexpected error'),
-    1003: t('Unexpected error')
-  };
-
-  return _.extend({}, AuthErrors, {
-    ERROR_TO_CODE: ERROR_TO_CODE,
-    CODE_TO_MESSAGES: CODE_TO_MESSAGES,
+  return _.extend({}, Errors, {
+    ERRORS: ERRORS,
     NAMESPACE: 'oauth'
   });
 });
