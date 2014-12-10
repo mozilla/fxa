@@ -27,10 +27,15 @@ define([
   function getExpectedParentOrigin(relier) {
     // redirectUri comes from the oauthClient's getClientInfo, which is
     // populated on app start before the broker.
+    // The URL API is only supported by new browsers, a workaround is used.
     var anchor = document.createElement('a');
-    anchor.href = relier.get('redirectUri');
 
-    return anchor.origin;
+    // Fx 18 (& FxOS 1.*) do not support anchor.origin. Build the origin
+    // out of the protocol and host.
+    // Use setAttibute instead of a direct set or else Fx18 does not
+    // update anchor.protocol & anchor.host.
+    anchor.setAttribute('href', relier.get('redirectUri'));
+    return anchor.protocol + '//' + anchor.host;
   }
 
   function checkOriginAllowedToIframe() {
