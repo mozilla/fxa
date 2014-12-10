@@ -38,7 +38,14 @@ basketQueue.on(
           if (err) {
             return log.error({ op: 'basketRequest', err: err })
           }
-          log.info({ op: 'basketRequest', status: res.statusCode, body: body })
+          log.info(
+            {
+              op: 'basketRequest',
+              status: res.statusCode,
+              locale: message.locale,
+              body: body
+            }
+          )
           message.del()
         }
       )

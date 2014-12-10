@@ -1,5 +1,6 @@
 train-27
   * updated fxa-auth-mailer for mail template changes
+  * added locale to basket api response logging
 
 train-26
   * no changes
