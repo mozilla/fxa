@@ -358,7 +358,15 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
     },
 
     showEmailValidationError: function (el) {
-      return this.showValidationError(el, AuthErrors.toError('EMAIL_REQUIRED'));
+      var value = this.getElementValue(el);
+      var err = value && value.length ?
+                  // if the email element has any length, but is marked
+                  // as invalid, it's invalid.
+                  AuthErrors.toError('INVALID_EMAIL') :
+                  // email has no length, it's missing.
+                  AuthErrors.toError('EMAIL_REQUIRED');
+
+      return this.showValidationError(el, err);
     },
 
     /**
