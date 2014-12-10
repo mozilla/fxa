@@ -20,6 +20,7 @@ define([
   var PAGE_URL = config.fxaContentRoot + 'signup';
 
   var CUTOFF_YEAR = new Date().getFullYear() - 13;
+  var OLD_ENOUGH_YEAR = CUTOFF_YEAR - 1;
 
   var email;
   var PASSWORD = '12345678';
@@ -57,7 +58,7 @@ define([
 
     'sign up': function () {
       var self = this;
-      return fillOutSignUp(this, email, PASSWORD, CUTOFF_YEAR - 1)
+      return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
         .then(function () {
           return testAtConfirmScreen(self, email);
         });
@@ -67,7 +68,7 @@ define([
       var emailWithoutSpace = email;
       var emailWithSpace = ('   ' + email);
       var self = this;
-      return fillOutSignUp(this, emailWithSpace, PASSWORD, CUTOFF_YEAR - 1)
+      return fillOutSignUp(this, emailWithSpace, PASSWORD, OLD_ENOUGH_YEAR)
         .then(function () {
           return testAtConfirmScreen(self, emailWithoutSpace);
         })
@@ -85,7 +86,7 @@ define([
       var emailWithSpace = ('   ' + email);
 
       var self = this;
-      return fillOutSignUp(this, emailWithSpace, PASSWORD, CUTOFF_YEAR - 1)
+      return fillOutSignUp(this, emailWithSpace, PASSWORD, OLD_ENOUGH_YEAR)
         .then(function () {
           return testAtConfirmScreen(self, emailWithoutSpace);
         })
@@ -107,9 +108,6 @@ define([
     },
 
     'select an age that is one day too young': function () {
-      var email = TestHelpers.createEmail();
-      var password = '12345678';
-
       var now = new Date();
       // the getDate/setDate bit causes the date to automatically wrap
       // on the month boundaries - see
@@ -131,7 +129,7 @@ define([
 
         .findByCssSelector('form input.password')
           .click()
-          .type(password)
+          .type(PASSWORD)
         .end()
 
         .findByCssSelector('#fxa-age-year')
@@ -166,9 +164,6 @@ define([
     },
 
     'select a 13 year old, on their birthday': function () {
-      var email = TestHelpers.createEmail();
-      var password = '12345678';
-
       var now = new Date();
       var monthToSelect = now.getMonth();
       var dateToSelect = now.getDate();
@@ -182,7 +177,7 @@ define([
 
         .findByCssSelector('form input.password')
           .click()
-          .type(password)
+          .type(PASSWORD)
         .end()
 
         .findByCssSelector('#fxa-age-year')
@@ -222,44 +217,14 @@ define([
     },
 
     'sign up with a verified account forces the user to sign in': function () {
-
       var self = this;
-      var email = TestHelpers.createEmail();
-      var password = '12345678';
-
       var client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return client.signUp(email, password, { preVerified: true })
+      return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function () {
-          return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
-            .findByCssSelector('input[type=email]')
-              .click()
-              .clearValue()
-              .type(email)
-            .end()
-
-            .findByCssSelector('input[type=password]')
-              .click()
-              .type(password)
-            .end()
-
-            .findByCssSelector('#fxa-age-year')
-              .click()
-            .end()
-
-            .findById('fxa-' + (CUTOFF_YEAR - 1))
-              .pressMouseButton()
-              .releaseMouseButton()
-              .click()
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
-
+          return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR)
             // The error area shows a link to /signin
             .then(FunctionalHelpers.visibleByQSA('.error a[href="/signin"]'))
             .findByCssSelector('.error a[href="/signin"]')
@@ -278,7 +243,7 @@ define([
               .getAttribute('value')
               .then(function (resultText) {
                 // check the password carried over.
-                assert.equal(resultText, password);
+                assert.equal(resultText, PASSWORD);
               })
             .end();
         });
@@ -287,41 +252,14 @@ define([
     'sign up with an unverified account and different password re-signs up user': function () {
 
       var self = this;
-      var email = TestHelpers.createEmail();
-      var password = '12345678';
 
       var client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
 
-      return client.signUp(email, password)
+      return client.signUp(email, PASSWORD)
         .then(function () {
-          return self.get('remote')
-            .get(require.toUrl(PAGE_URL))
-            .findByCssSelector('input[type=email]')
-              .click()
-              .type(email)
-            .end()
-
-            .findByCssSelector('input[type=password]')
-              .click()
-              .type('different_password')
-            .end()
-
-            .findByCssSelector('#fxa-age-year')
-              .click()
-            .end()
-
-            .findById('fxa-' + (CUTOFF_YEAR - 1))
-              .pressMouseButton()
-              .releaseMouseButton()
-              .click()
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
-
+          return fillOutSignUp(self, email, 'different password', OLD_ENOUGH_YEAR)
             // Being pushed to the confirmation screen is success.
             .findByCssSelector('.verification-email-message')
               .getVisibleText()
@@ -345,9 +283,7 @@ define([
   function testRepopulateFields(dest, header) {
     /*jshint validthis: true*/
     var self = this;
-    var email = TestHelpers.createEmail();
-    var password = '12345678';
-    var year = CUTOFF_YEAR - 1;
+    var year = OLD_ENOUGH_YEAR;
 
     return self.get('remote')
       .get(require.toUrl(PAGE_URL))
@@ -360,7 +296,7 @@ define([
       .findByCssSelector('input[type=password]')
         .clearValue()
         .click()
-        .type(password)
+        .type(PASSWORD)
       .end()
 
       .findByCssSelector('#fxa-age-year')
@@ -396,7 +332,7 @@ define([
         .getProperty('value')
         .then(function (resultText) {
           // check the email address was re-populated
-          assert.equal(resultText, password);
+          assert.equal(resultText, PASSWORD);
         })
       .end()
 
