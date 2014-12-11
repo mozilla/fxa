@@ -52,11 +52,8 @@ function (chai, $, sinon, TestHelpers, p,
         fxaClient: client
       });
       email = ' ' + TestHelpers.createEmail() + ' ';
-      return client.signUp(email, password, relier, {
+      return client.signUp(email, password, relier, user, {
         preVerified: true
-      })
-      .then(function () {
-        return client.signIn(email, password, relier, user);
       });
     });
 

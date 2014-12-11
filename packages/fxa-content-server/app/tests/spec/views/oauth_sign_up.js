@@ -173,10 +173,6 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
 
       it('notifies the broker when a pre-verified user signs up', function () {
         sinon.stub(fxaClient, 'signUp', function () {
-          return p({});
-        });
-
-        sinon.stub(fxaClient, 'signIn', function () {
           return p({
             sessionToken: 'asessiontoken',
             verified: true
@@ -203,10 +199,6 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
 
       it('redirects to /confirm if pre-verification is not successful', function () {
         sinon.stub(fxaClient, 'signUp', function () {
-          return p({});
-        });
-
-        sinon.stub(fxaClient, 'signIn', function () {
           return p({
             sessionToken: 'asessiontoken',
             // verified: false simulates the preVerifyToken failing.
@@ -214,16 +206,13 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
-
         var password = 'password';
         fillOutSignUp(email, password, { year: nowYear - 14, context: view });
         return view.submit()
           .then(function () {
             assert.equal(router.page, 'confirm');
             assert.isTrue(fxaClient.signUp.calledWith(
-                email, password, relier));
-            assert.isTrue(fxaClient.signIn.calledWith(
-                email, password, relier));
+                email, password, relier, user));
           });
       });
     });
