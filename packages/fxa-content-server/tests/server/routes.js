@@ -71,7 +71,9 @@ define([
     '/legal/terms',
     '/legal/privacy',
     '/oauth/signin',
-    '/oauth/signup'
+    '/oauth/signup',
+    '/500.html',
+    '/503.html'
   ];
 
   function routeTest(route, expectedStatusCode, requestOptions) {
