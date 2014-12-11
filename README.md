@@ -13,11 +13,11 @@ git clone https://github.com/vladikoff/fxa-local-dev.git && cd fxa-local-dev && 
 
 After installation completes you can visit [127.0.0.1:3030](http://127.0.0.1:3030/) and use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to start, stop and read server logs.  Most common commands are as follows:
 
-- `pm2 start servers.json` **- start all servers.** (warning: running this multiple times will spawn more of the same servers).
-- `pm2 kill` **- stop all servers.**
-- `pm2 status` - display running servers. 
-- `pm2 logs` - logs for all servers (note: this must be used to verify accounts).
-- `pm2 logs 1` - display logs for process `1`.
+- `./pm2 start servers.json` **- start all servers.** (WARNING: running this multiple times will spawn more of the same servers).
+- `./pm2 kill` **- stop all servers.**
+- `./pm2 status` - display running servers. 
+- `./pm2 logs` - logs for all servers (note: this must be used to verify accounts).
+- `./pm2 logs 1` - display logs for process `1`.
 - More commands on the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
 ### Dependencies
