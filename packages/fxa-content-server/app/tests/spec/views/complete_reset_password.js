@@ -12,6 +12,7 @@ define([
   'lib/auth-errors',
   'lib/metrics',
   'lib/fxa-client',
+  'lib/channels/inter-tab',
   'views/complete_reset_password',
   'models/reliers/relier',
   'models/auth_brokers/base',
@@ -19,8 +20,8 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
-      Broker, RouterMock, WindowMock, TestHelpers) {
+function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
+      View, Relier, Broker, RouterMock, WindowMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -31,6 +32,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
     var isPasswordResetComplete;
     var metrics;
     var fxaClient;
+    var interTabChannel;
     var relier;
     var broker;
 
@@ -54,6 +56,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
       relier = new Relier();
       broker = new Broker();
       fxaClient = new FxaClient();
+      interTabChannel = new InterTabChannel();
 
       windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
 
@@ -62,6 +65,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         window: windowMock,
         metrics: metrics,
         fxaClient: fxaClient,
+        interTabChannel: interTabChannel,
         relier: relier,
         broker: broker,
         screenName: 'complete_reset_password'
@@ -291,6 +295,11 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
         });
         sinon.spy(broker, 'afterCompleteResetPassword');
 
+        // expect the intertab channel to be notified of login so the
+        // starting window can complete the signin process.
+        var loginSpy = sinon.spy();
+        interTabChannel.on('login', loginSpy);
+
         return view.validateAndSubmit()
             .then(function () {
               assert.isTrue(fxaClient.completePasswordReset.calledWith(
@@ -299,6 +308,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, View, Relier,
                   EMAIL, PASSWORD, relier));
               assert.equal(routerMock.page, 'reset_password_complete');
               assert.isTrue(broker.afterCompleteResetPassword.called);
+              assert.isTrue(loginSpy.called);
               assert.isTrue(TestHelpers.isEventLogged(
                       metrics, 'complete_reset_password.verification.success'));
             });

@@ -21,6 +21,12 @@ function (_, BaseView, FormView, Template, PasswordMixin,
     template: Template,
     className: 'complete-reset-password',
 
+    initialize: function (options) {
+      options = options || {};
+
+      this._interTabChannel = options.interTabChannel;
+    },
+
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
       'click #resend': BaseView.preventDefaultThen('resendResetEmail')
@@ -112,7 +118,10 @@ function (_, BaseView, FormView, Template, PasswordMixin,
       return self.fxaClient.completePasswordReset(email, password, token, code)
         .then(function () {
           return self.fxaClient.signIn(email, password, self.relier, self.user);
-        }).then(function () {
+        }).then(function (updatedSessionData) {
+          // See the above note about notifying the original tab.
+          self._interTabChannel.emit('login', updatedSessionData);
+
           self.logScreenEvent('verification.success');
           return self.broker.afterCompleteResetPassword();
         }).then(function (result) {

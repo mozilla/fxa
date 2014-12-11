@@ -29,7 +29,6 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     this._client = options.client;
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
-    this._interTabChannel = options.interTabChannel;
   }
 
   FxaClientWrapper.prototype = {
@@ -97,7 +96,6 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     },
 
     _updateAccount: function (email, relier, user, accountData, options) {
-      var self = this;
       var sessionTokenContext = options.sessionTokenContext ||
                                   relier.get('context');
 
@@ -117,10 +115,6 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
         updatedSessionData.unwrapBKey = accountData.unwrapBKey;
         updatedSessionData.keyFetchToken = accountData.keyFetchToken;
         updatedSessionData.customizeSync = options.customizeSync || false;
-      }
-
-      if (self._interTabChannel) {
-        self._interTabChannel.emit('login', updatedSessionData);
       }
 
       return user.setCurrentAccount(updatedSessionData)
