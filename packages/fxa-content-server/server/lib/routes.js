@@ -125,10 +125,12 @@ module.exports = function (config, templates, i18n) {
       });
 
       app.get('/500.html', function (req, res) {
+        res.removeHeader('x-frame-options');
         return res.render('500');
       });
 
       app.get('/503.html', function (req, res) {
+        res.removeHeader('x-frame-options');
         return res.render('503');
       });
     }
