@@ -16,6 +16,7 @@ define([
   'use strict';
 
   var config = intern.config;
+  var SIGNUP_ROOT = config.fxaContentRoot + 'oauth/signup';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -44,6 +45,24 @@ define([
         contentServer: true,
         '123done': true
       });
+    },
+
+    'with missing client_id': function () {
+      return this.get('remote').get(require.toUrl(SIGNUP_ROOT + '?scope=profile'))
+        .findByCssSelector('#fxa-400-header')
+        .end();
+    },
+
+    'with missing scope': function () {
+      return this.get('remote').get(require.toUrl(SIGNUP_ROOT + '?client_id=client_id'))
+        .findByCssSelector('#fxa-400-header')
+        .end();
+    },
+
+    'with invalid client_id': function () {
+      return this.get('remote').get(require.toUrl(SIGNUP_ROOT + '?client_id=invalid_client_id&scope=profile'))
+        .findByCssSelector('#fxa-400-header')
+        .end();
     },
 
     'signup, verify same browser': function () {

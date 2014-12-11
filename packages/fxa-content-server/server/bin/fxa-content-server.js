@@ -7,6 +7,7 @@ var https = require('https');
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var path = require('path');
+var config = require('../lib/configuration');
 
 // This can't possibly be best way to librar-ify this module.
 var isMain = process.argv[1] === __filename;
@@ -29,7 +30,6 @@ var helmet = require('helmet');
 var express = require('express');
 var consolidate = require('consolidate');
 
-var config = require('../lib/configuration');
 var i18n = require('../lib/i18n')(config.get('i18n'));
 var templates = require('../lib/templates')(config.get('template_path'), i18n);
 var routes = require('../lib/routes')(config, templates, i18n);

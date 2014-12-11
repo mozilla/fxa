@@ -4,7 +4,10 @@
 
 'use strict';
 
-define(['underscore'], function (_) {
+define([
+  'underscore',
+  'lib/strings'
+], function (_, Strings) {
   return {
     /**
      * Find an error in this.ERRORS. Searches by string, number,
@@ -50,28 +53,24 @@ define(['underscore'], function (_) {
     },
 
     /**
-     * Fetch the translation context out of the server error.
+     * Convert an error, a numeric code or string type to
+     * a translated message. If a translator is passed in,
+     * the message will be translated.
      */
-    toContext: function (err) {
-      // For data returned by backend, see
-      // https://github.com/mozilla/fxa-auth-server/blob/master/error.js
-      try {
-        if (this.is(err, 'INVALID_PARAMETER')) {
-          return {
-            param: err.validation.keys
-          };
-        } else if (this.is(err, 'MISSING_PARAMETER')) {
-          return {
-            param: err.param
-          };
-        }
-      } catch (e) {
-        // handle invalid/unexpected data from the backend.
-        if (window.console && console.error) {
-          console.error('Error in errors.js->toContext: %s', String(e));
-        }
+    toInterpolatedMessage: function (err, translator) {
+      var msg = this.toMessage(err);
+      var interpolationContext = this.toInterpolationContext(err);
+      if (translator) {
+        return translator.get(msg, interpolationContext);
       }
 
+      return Strings.interpolate(msg, interpolationContext);
+    },
+
+    /**
+     * Fetch the string interpolation context out of the server error.
+     */
+    toInterpolationContext: function (/*err*/) {
       return {};
     },
 
@@ -106,7 +105,7 @@ define(['underscore'], function (_) {
       err.message = message;
       err.errno = this.toErrno(type);
       err.namespace = this.NAMESPACE;
-      err.errorContext = this;
+      err.errorModule = this;
 
       if (context) {
         err.context = context;

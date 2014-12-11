@@ -17,6 +17,7 @@ define([
   var config = intern.config;
   var OAUTH_APP = config.fxaOauthApp;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
+  var SIGNIN_ROOT = config.fxaContentRoot + 'oauth/signin';
 
   var PASSWORD = 'password';
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
@@ -40,6 +41,24 @@ define([
         contentServer: true,
         '123done': true
       });
+    },
+
+    'with missing client_id': function () {
+      return this.get('remote').get(require.toUrl(SIGNIN_ROOT + '?scope=profile'))
+        .findByCssSelector('#fxa-400-header')
+        .end();
+    },
+
+    'with missing scope': function () {
+      return this.get('remote').get(require.toUrl(SIGNIN_ROOT + '?client_id=client_id'))
+        .findByCssSelector('#fxa-400-header')
+        .end();
+    },
+
+    'with invalid client_id': function () {
+      return this.get('remote').get(require.toUrl(SIGNIN_ROOT + '?client_id=invalid_client_id&scope=profile'))
+        .findByCssSelector('#fxa-400-header')
+        .end();
     },
 
     'verified': function () {
@@ -133,7 +152,10 @@ define([
         .findByCssSelector('#fxa-confirm-header')
 
         .then(function () {
-          return FunctionalHelpers.getVerificationLink(user, 0);
+          // get the second email, the first was sent on client.signUp w/
+          // preVerified: false above. The second email has the `service` and
+          // `resume` parameters.
+          return FunctionalHelpers.getVerificationLink(user, 1);
         })
         .then(function (verifyUrl) {
           return self.get('remote')

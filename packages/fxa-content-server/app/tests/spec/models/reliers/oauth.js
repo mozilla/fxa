@@ -10,11 +10,12 @@ define([
   'models/reliers/oauth',
   'lib/session',
   'lib/oauth-client',
+  'lib/oauth-errors',
   'lib/promise',
   '../../../mocks/window',
   '../../../lib/helpers'
-], function (chai, sinon, OAuthRelier, Session, OAuthClient, p, WindowMock,
-      TestHelpers) {
+], function (chai, sinon, OAuthRelier, Session, OAuthClient, OAuthErrors,
+      p, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('models/reliers/oauth', function () {
@@ -72,19 +73,19 @@ define([
         });
 
         return relier.fetch()
-            .then(function () {
-              assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
-              assert.equal(relier.get('service'), SERVICE);
-              assert.equal(relier.get('state'), STATE);
+          .then(function () {
+            assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
+            assert.equal(relier.get('service'), SERVICE);
+            assert.equal(relier.get('state'), STATE);
 
-              // client_id and redirect_uri are converted to camelCase
-              // for consistency with other variables in the app.
-              assert.equal(relier.get('clientId'), CLIENT_ID);
+            // client_id and redirect_uri are converted to camelCase
+            // for consistency with other variables in the app.
+            assert.equal(relier.get('clientId'), CLIENT_ID);
 
-              // The redirect_uri passed in is ignored, we only care about
-              // the redirect_uri returned by the oauth server
-              assert.notEqual(relier.get('redirectUri'), REDIRECT_URI);
-            });
+            // The redirect_uri passed in is ignored, we only care about
+            // the redirect_uri returned by the oauth server
+            assert.notEqual(relier.get('redirectUri'), REDIRECT_URI);
+          });
       });
 
       it('sets serviceName and redirectUri from parameters returned by the server', function () {
@@ -100,10 +101,10 @@ define([
         });
 
         return relier.fetch()
-            .then(function () {
-              assert.equal(relier.get('serviceName'), SERVICE_NAME);
-              assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
-            });
+          .then(function () {
+            assert.equal(relier.get('serviceName'), SERVICE_NAME);
+            assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
+          });
       });
 
       it('populates OAuth information from Session to allow a user to verify', function () {
@@ -113,36 +114,98 @@ define([
         Session.set('oauth', RESUME_INFO);
 
         return relier.fetch()
-            .then(function () {
-              assert.equal(relier.get('state'), STATE);
-              assert.equal(relier.get('clientId'), CLIENT_ID);
-              assert.equal(relier.get('scope'), SCOPE);
-            });
+          .then(function () {
+            assert.equal(relier.get('state'), STATE);
+            assert.equal(relier.get('clientId'), CLIENT_ID);
+            assert.equal(relier.get('scope'), SCOPE);
+          });
+      });
+
+      it('errors in verification flow if `client_id` is missing', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          code: '123'
+        });
+        Session.set('oauth', {
+          state: STATE,
+          scope: SCOPE,
+          action: ACTION
+        });
+
+        return relier.fetch()
+          .then(assert.fail, function (err) {
+            assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+            assert.equal(err.param, 'client_id');
+          });
       });
 
       it('populates `clientId` and `service` from the `service` URL search parameter if verifying in a second browser', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           code: '123',
-          service: CLIENT_ID
+          service: CLIENT_ID,
+          scope: SCOPE
         });
 
         return relier.fetch()
-            .then(function () {
-              assert.equal(relier.get('clientId'), CLIENT_ID);
-              assert.equal(relier.get('service'), CLIENT_ID);
-            });
+          .then(function () {
+            assert.equal(relier.get('clientId'), CLIENT_ID);
+            assert.equal(relier.get('service'), CLIENT_ID);
+          });
       });
 
       it('populates service with client_id if service is not set', function () {
         windowMock.location.search = TestHelpers.toSearchString({
           //jshint camelcase: false
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.equal(relier.get('service'), CLIENT_ID);
+          });
+      });
+
+      it('errors if `client_id` is missing', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          scope: SCOPE
+        });
+
+        return relier.fetch()
+          .then(assert.fail, function (err) {
+            assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+            assert.equal(err.param, 'client_id');
+          });
+      });
+
+      it('errors if the `client_id` is unknown or invalid', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          client_id: 'BAD_CLIENT_ID',
+          scope: SCOPE
+        });
+
+        oAuthClient.getClientInfo.restore();
+        sinon.stub(oAuthClient, 'getClientInfo', function () {
+          return p.reject(OAuthErrors.toError('INVALID_REQUEST_SIGNATURE'));
+        });
+
+        return relier.fetch()
+          .then(assert.fail, function (err) {
+            // INVALID_REQUEST_SIGNATURE should be converted to
+            // UNKNOWN_CLIENT
+            assert.isTrue(OAuthErrors.is(err, 'UNKNOWN_CLIENT'));
+          });
+      });
+
+      it('errors if `scope` is missing', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
           client_id: CLIENT_ID
         });
 
         return relier.fetch()
-            .then(function () {
-              assert.equal(relier.get('service'), CLIENT_ID);
-            });
+          .then(assert.fail, function (err) {
+            assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
+            assert.equal(err.param, 'scope');
+          });
       });
     });
 
