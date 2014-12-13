@@ -234,6 +234,20 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
             assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT_CODE'));
           });
       });
+
+      it('throws an error if accountData is missing', function () {
+        return broker.getOAuthResult()
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+      });
+
+      it('throws an error if accountData is missing a sessionToken', function () {
+        return broker.getOAuthResult({})
+          .then(assert.fail, function (err) {
+            assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
+          });
+      });
     });
 
     describe('transformLink', function () {

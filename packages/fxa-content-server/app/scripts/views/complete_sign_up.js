@@ -39,6 +39,8 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
       this.uid = this.uid.replace(/ /g, '');
       this.code = this.code.replace(/ /g, '');
 
+      this.user.setCurrentAccountByUid(this.uid);
+
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
@@ -50,7 +52,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
       return this.fxaClient.verifyCode(this.uid, this.code)
           .then(function () {
             self.logEvent('complete_sign_up.verification.success');
-            return self.broker.afterCompleteSignUp();
+            return self.broker.afterCompleteSignUp(self.currentAccount().toJSON());
           })
           .then(function (result) {
             if (! (result && result.halt)) {

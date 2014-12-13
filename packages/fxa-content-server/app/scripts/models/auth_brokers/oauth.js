@@ -13,10 +13,11 @@ define([
   'underscore',
   'lib/url',
   'lib/oauth-errors',
+  'lib/auth-errors',
   'lib/promise',
   'lib/validate',
   'models/auth_brokers/base'
-], function (_, Url, OAuthErrors, p, Validate, BaseAuthenticationBroker) {
+], function (_, Url, OAuthErrors, AuthErrors, p, Validate, BaseAuthenticationBroker) {
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -50,7 +51,6 @@ define([
       options = options || {};
 
       this.session = options.session;
-      this._user = options.user;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
       this._oAuthUrl = options.oAuthUrl;
@@ -61,8 +61,11 @@ define([
 
     getOAuthResult: function (accountData) {
       var self = this;
-      var sessionToken = accountData && accountData.sessionToken;
-      return self._assertionLibrary.generate(sessionToken)
+      if (! accountData || ! accountData.sessionToken) {
+        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+      }
+
+      return self._assertionLibrary.generate(accountData.sessionToken)
         .then(function (assertion) {
           var relier = self.relier;
           var oauthParams = {

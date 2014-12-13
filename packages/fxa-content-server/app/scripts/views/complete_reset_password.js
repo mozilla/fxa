@@ -118,12 +118,11 @@ function (_, BaseView, FormView, Template, PasswordMixin,
       return self.fxaClient.completePasswordReset(email, password, token, code)
         .then(function () {
           return self.fxaClient.signIn(email, password, self.relier, self.user);
-        }).then(function (updatedSessionData) {
+        }).then(function (accountData) {
           // See the above note about notifying the original tab.
-          self._interTabChannel.emit('login', updatedSessionData);
-
+          self._interTabChannel.emit('login', accountData);
           self.logScreenEvent('verification.success');
-          return self.broker.afterCompleteResetPassword();
+          return self.broker.afterCompleteResetPassword(accountData);
         }).then(function (result) {
           if (! (result && result.halt)) {
             self.navigate('reset_password_complete');

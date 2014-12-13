@@ -137,9 +137,10 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       it('calls sendOAuthResultToRelier, tells window to close', function () {
         setupCompletesOAuthTest();
 
-        return broker.afterSignIn(view)
+        return broker.afterSignIn(ACCOUNT_DATA)
           .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isTrue(
+                broker.sendOAuthResultToRelier.calledWith({ closeWindow: true }));
             assert.isFalse(view.displayError.called);
           });
       });
@@ -161,10 +162,10 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       it('calls sendOAuthResultToRelier', function () {
         setupCompletesOAuthTest();
 
-        return broker.afterSignIn(ACCOUNT_DATA)
+        return broker.afterCompleteResetPassword(ACCOUNT_DATA)
           .then(function () {
-            assert.isTrue(
-                broker.sendOAuthResultToRelier.calledWith({ closeWindow: true }));
+            assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isFalse(view.displayError.called);
           });
       });
     });

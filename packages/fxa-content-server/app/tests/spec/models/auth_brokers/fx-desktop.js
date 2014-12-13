@@ -9,14 +9,13 @@ define([
   'sinon',
   'underscore',
   'models/auth_brokers/fx-desktop',
-  'models/user',
   'lib/constants',
   'lib/auth-errors',
   'lib/channels/null',
   'lib/promise',
   'lib/session',
   '../../../mocks/window'
-], function (chai, sinon, _, FxDesktopAuthenticationBroker, User,
+], function (chai, sinon, _, FxDesktopAuthenticationBroker,
         Constants, AuthErrors, NullChannel, p, Session, WindowMock) {
   var assert = chai.assert;
 
@@ -24,20 +23,15 @@ define([
     var windowMock;
     var channelMock;
     var broker;
-    var user;
-    var account;
 
     beforeEach(function () {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
-      user = new User();
-      account = user.createAccount();
 
       broker = new FxDesktopAuthenticationBroker({
         window: windowMock,
         channel: channelMock,
-        session: Session,
-        user: user
+        session: Session
       });
     });
 

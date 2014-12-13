@@ -65,6 +65,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         accountData: accountData
       });
 
+      sinon.stub(user, 'setCurrentAccount', function () {
+        return p();
+      });
+
       view = new View({
         router: routerMock,
         window: windowMock,
@@ -75,6 +79,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         ephemeralMessages: ephemeralMessages,
         broker: broker,
         screenName: 'confirm'
+      });
+
+      sinon.stub(view, 'currentAccount', function () {
+        return user.createAccount(accountData);
       });
 
       return view.render()

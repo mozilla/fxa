@@ -34,13 +34,9 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       this._accountData = data && data.accountData;
     },
 
-    _activeAccount: function () {
-      return this.user.createAccount(this._accountData);
-    },
-
     context: function () {
       return {
-        email: this._activeAccount().get('email')
+        email: this.currentAccount().get('email')
       };
     },
 
@@ -49,18 +45,37 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
+    // Sets the current logged in account to the account data passed to this view.
+    //
+    // This would go in initialize, but user.setCurrentAccount is async
+    // so it needs to happen in beforeRender.
+    _setCurrentAccountFromData: function () {
+      // Only update the current account if it's a distinct session to avoid
+      // network calls that would occur in setCurrentAccount.
+      if (this._accountData &&
+          this.currentAccount().get('sessionToken') !== this._accountData.sessionToken) {
+        return this.user.setCurrentAccount(this._accountData);
+      } else {
+        return p();
+      }
+    },
+
     _bouncedEmailSignup: function () {
       // TODO #1913 add `bouncedEmail` to the User model when ready.
-      this.ephemeralMessages.set('bouncedEmail', this._activeAccount().get('email'));
+      this.ephemeralMessages.set('bouncedEmail', this.currentAccount().get('email'));
       this.navigate('signup');
     },
 
     beforeRender: function () {
-      // user cannot confirm if they have not initiated a sign up.
-      if (! this._activeAccount().get('sessionToken')) {
-        this.navigate('signup');
-        return false;
-      }
+      var self = this;
+      return self._setCurrentAccountFromData()
+        .then(function () {
+          // user cannot confirm if they have not initiated a sign up.
+          if (! self.currentAccount().get('sessionToken')) {
+            self.navigate('signup');
+            return false;
+          }
+        });
     },
 
     afterRender: function () {
@@ -96,7 +111,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     _waitForConfirmation: function () {
       var self = this;
-      var account = self._activeAccount();
+      var account = self.currentAccount();
       return self.fxaClient.recoveryEmailStatus(
           account.get('sessionToken'), account.get('uid'))
         .then(function (result) {
@@ -123,7 +138,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
       self.logScreenEvent('resend');
       return self.fxaClient.signUpResend(self.relier,
-          self._activeAccount().get('sessionToken'))
+          self.currentAccount().get('sessionToken'))
         .then(function () {
           self.displaySuccess();
         }, function (err) {

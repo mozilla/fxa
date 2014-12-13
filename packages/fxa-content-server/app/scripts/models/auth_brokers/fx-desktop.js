@@ -25,7 +25,6 @@ define([
       // channel can be passed in for testing.
       this._channel = options.channel;
       this._session = options.session;
-      this._user = options.user;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
           this, options);

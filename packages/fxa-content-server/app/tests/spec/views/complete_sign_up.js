@@ -154,7 +154,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         verificationError = new Error('verification error');
         return view.render()
             .then(function () {
-              assert.isTrue(view.fxaClient.verifyCode.called);
+              assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
               assert.ok(view.$('#fxa-verification-error-header').length);
               assert.equal(view.$('.error').text(), 'verification error');
             });
@@ -166,7 +166,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
         return view.render()
             .then(function () {
-              assert.isTrue(view.fxaClient.verifyCode.called);
+              assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
               assert.equal(routerMock.page, 'signup_complete');
               assert.isTrue(broker.afterCompleteSignUp.called);
               assert.isTrue(TestHelpers.isEventLogged(
@@ -182,7 +182,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
         return view.render()
             .then(function () {
-              assert.isTrue(view.fxaClient.verifyCode.called);
+              assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
               assert.notEqual(routerMock.page, 'signup_complete');
               assert.isTrue(broker.afterCompleteSignUp.called);
             });
@@ -204,9 +204,18 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         sinon.stub(view.fxaClient, 'signUpResend', function () {
           return p();
         });
+        windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
 
-        return view.submit()
+        sinon.stub(user, 'setCurrentAccountByUid', function () {
+          return p();
+        });
+
+        return view.render()
           .then(function () {
+            return view.submit();
+          })
+          .then(function () {
+            assert.isTrue(user.setCurrentAccountByUid.calledWith(validUid));
             assert.isTrue(view.isSuccessVisible());
 
             assert.isTrue(view.fxaClient.signUpResend.calledWith(relier, sessionToken));

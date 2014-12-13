@@ -40,6 +40,9 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
     var PASSWORD = 'password';
     var TOKEN = 'feed';
     var CODE = 'dea0fae1abc2fab3bed4dec5eec6ace7';
+    var ACCOUNT_DATA = {
+      sessionToken: 'abc123'
+    };
 
     function testEventLogged(eventName) {
       assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
@@ -288,7 +291,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         view.$('[type=password]').val(PASSWORD);
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p(true);
+          return p(ACCOUNT_DATA);
         });
         sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p(true);
@@ -307,7 +310,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
               assert.isTrue(fxaClient.signIn.calledWith(
                   EMAIL, PASSWORD, relier));
               assert.equal(routerMock.page, 'reset_password_complete');
-              assert.isTrue(broker.afterCompleteResetPassword.called);
+              assert.isTrue(broker.afterCompleteResetPassword.calledWith(ACCOUNT_DATA));
               assert.isTrue(loginSpy.called);
               assert.isTrue(TestHelpers.isEventLogged(
                       metrics, 'complete_reset_password.verification.success'));
@@ -318,7 +321,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         view.$('[type=password]').val(PASSWORD);
 
         sinon.stub(fxaClient, 'signIn', function () {
-          return p(true);
+          return p(ACCOUNT_DATA);
         });
         sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p(true);
@@ -334,7 +337,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
               assert.isTrue(fxaClient.signIn.calledWith(
                   EMAIL, PASSWORD, relier));
               assert.notEqual(routerMock.page, 'reset_password_complete');
-              assert.isTrue(broker.afterCompleteResetPassword.called);
+              assert.isTrue(broker.afterCompleteResetPassword.calledWith(ACCOUNT_DATA));
             });
       });
 
