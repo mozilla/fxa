@@ -27,6 +27,9 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
     var relierMock;
     var channelMock;
     var view;
+    var ACCOUNT_DATA = {
+      sessionToken: 'abc123'
+    };
 
     beforeEach(function () {
       windowMock = new WindowMock();
@@ -146,7 +149,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       it('calls sendOAuthResultToRelier', function () {
         setupCompletesOAuthTest();
 
-        return broker.afterCompleteSignUp(view)
+        return broker.afterCompleteSignUp(ACCOUNT_DATA)
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
             assert.isFalse(view.displayError.called);
@@ -158,45 +161,10 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       it('calls sendOAuthResultToRelier', function () {
         setupCompletesOAuthTest();
 
-        return broker.afterSignIn(view)
+        return broker.afterSignIn(ACCOUNT_DATA)
           .then(function () {
             assert.isTrue(
                 broker.sendOAuthResultToRelier.calledWith({ closeWindow: true }));
-          });
-      });
-    });
-
-    describe('afterCompleteSignUp', function () {
-      it('calls finishOAuthFlow to ensure results are sent if original window closes', function () {
-        sinon.stub(broker, 'getOAuthResult', function () {
-          return p({});
-        });
-
-        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
-          return p();
-        });
-
-        return broker.afterCompleteSignUp()
-          .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
-          });
-      });
-    });
-
-    describe('afterCompleteResetPassword', function () {
-      it('calls finishOAuthFlow to ensure results are sent if original window closes', function () {
-        sinon.stub(broker, 'getOAuthResult', function () {
-          return p({});
-        });
-
-        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
-          return p();
-        });
-
-        return broker.afterCompleteResetPassword(view)
-          .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
-            assert.isFalse(view.displayError.called);
           });
       });
     });

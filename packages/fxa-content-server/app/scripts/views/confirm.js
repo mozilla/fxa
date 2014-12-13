@@ -34,9 +34,13 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       this._accountData = data && data.accountData;
     },
 
+    _activeAccount: function () {
+      return this.user.createAccount(this._accountData);
+    },
+
     context: function () {
       return {
-        email: this.currentAccount().get('email')
+        email: this._activeAccount().get('email')
       };
     },
 
@@ -47,13 +51,13 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     _bouncedEmailSignup: function () {
       // TODO #1913 add `bouncedEmail` to the User model when ready.
-      this.ephemeralMessages.set('bouncedEmail', this.currentAccount().get('email'));
+      this.ephemeralMessages.set('bouncedEmail', this._activeAccount().get('email'));
       this.navigate('signup');
     },
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a sign up.
-      if (! this.currentAccount().get('sessionToken')) {
+      if (! this._activeAccount().get('sessionToken')) {
         this.navigate('signup');
         return false;
       }
@@ -72,7 +76,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
           self._waitForConfirmation()
             .then(function () {
               self.logScreenEvent('verification.success');
-              return self.broker.afterSignUpConfirmationPoll();
+              return self.broker.afterSignUpConfirmationPoll(self._accountData);
             })
             .then(function (result) {
               if (! (result && result.halt)) {
@@ -92,7 +96,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     _waitForConfirmation: function () {
       var self = this;
-      var account = self.currentAccount();
+      var account = self._activeAccount();
       return self.fxaClient.recoveryEmailStatus(
           account.get('sessionToken'), account.get('uid'))
         .then(function (result) {
@@ -119,7 +123,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
       self.logScreenEvent('resend');
       return self.fxaClient.signUpResend(self.relier,
-          self.currentAccount().get('sessionToken'))
+          self._activeAccount().get('sessionToken'))
         .then(function () {
           self.displaySuccess();
         }, function (err) {

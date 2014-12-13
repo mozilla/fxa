@@ -35,7 +35,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
     var relier;
     var broker;
     var user;
-    var account;
     var accountData;
     var ephemeralMessages;
 
@@ -57,17 +56,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       ephemeralMessages = new EphemeralMessages();
       user = new User();
 
-      account = user.createAccount({
+      accountData = {
         email: 'a@a.com',
         uid: 'uid',
         sessionToken: 'fake session token'
-      });
-
-      sinon.stub(user, 'getCurrentAccount', function () {
-        return account;
-      });
-      accountData = {
-        email: 'a@a.com'
       };
       ephemeralMessages.set('data', {
         accountData: accountData
@@ -83,10 +75,6 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         ephemeralMessages: ephemeralMessages,
         broker: broker,
         screenName: 'confirm'
-      });
-
-      sinon.stub(view, 'currentAccount', function () {
-        return account;
       });
 
       return view.render()
@@ -110,9 +98,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('redirects to /signup if no account sessionToken', function () {
-        view.currentAccount.restore();
-        sinon.stub(view, 'currentAccount', function () {
-          return user.createAccount();
+        view = new View({
+          router: routerMock,
+          window: windowMock,
+          user: user
         });
         return view.render()
           .then(function () {
@@ -132,16 +121,18 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         sinon.stub(broker, 'beforeSignUpConfirmationPoll', function () {
           return p();
         });
-        sinon.stub(broker, 'afterSignUpConfirmationPoll', function () {
+        sinon.stub(broker, 'afterSignUpConfirmationPoll', function (data) {
           TestHelpers.wrapAssertion(function () {
-            assert.isTrue(user.setAccount.calledWith(account));
-            assert.isTrue(account.get('verified'));
+            assert.equal(data, accountData);
+            assert.isTrue(user.setAccount.called);
             assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(accountData));
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm.verification.success'));
           }, done);
         });
-        sinon.stub(user, 'setAccount', function () {
+        sinon.stub(user, 'setAccount', function (account) {
+          assert.equal(account.get('sessionToken'), accountData.sessionToken);
+          assert.isTrue(account.get('verified'));
           return p();
         });
 
@@ -188,7 +179,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
                               'confirm.resend'));
 
             assert.isTrue(view.fxaClient.signUpResend.calledWith(
-                relier, account.get('sessionToken')));
+                relier, accountData.sessionToken));
           });
       });
 

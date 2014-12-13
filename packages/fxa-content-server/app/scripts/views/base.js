@@ -155,8 +155,13 @@ function (_, Backbone, $, p, AuthErrors,
             return self.isUserVerified()
               .then(function (isUserVerified) {
                 if (! isUserVerified) {
+                  var accountData = self.currentAccount().toJSON();
                   // user is not verified, prompt them to verify.
-                  self.navigate('confirm');
+                  self.navigate('confirm', {
+                    data: {
+                      accountData: accountData
+                    }
+                  });
                 }
 
                 return isUserVerified;

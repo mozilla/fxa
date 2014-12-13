@@ -176,17 +176,11 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         var sessionToken = 'abc123';
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({ verified: false });
+          return p({ verified: false, sessionToken: sessionToken });
         });
 
         sinon.stub(view.fxaClient, 'signUpResend', function () {
           return p();
-        });
-
-        sinon.stub(view, 'currentAccount', function () {
-          return user.createAccount({
-            sessionToken: sessionToken
-          });
         });
 
         var password = 'password';

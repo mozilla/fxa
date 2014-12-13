@@ -144,7 +144,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
 
     onSignInUnverified: function (accountData) {
       var self = this;
-      var sessionToken = self.currentAccount().get('sessionToken');
+      var sessionToken = self.user.createAccount(accountData).get('sessionToken');
 
       return self.fxaClient.signUpResend(self.relier, sessionToken)
         .then(function () {

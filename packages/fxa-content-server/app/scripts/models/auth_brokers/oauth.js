@@ -59,9 +59,9 @@ define([
                   this, options);
     },
 
-    getOAuthResult: function () {
+    getOAuthResult: function (accountData) {
       var self = this;
-      var sessionToken = this._user.getCurrentAccount().get('sessionToken');
+      var sessionToken = accountData && accountData.sessionToken;
       return self._assertionLibrary.generate(sessionToken)
         .then(function (assertion) {
           var relier = self.relier;
@@ -89,10 +89,10 @@ define([
       return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
-    finishOAuthFlow: function (additionalResultData) {
+    finishOAuthFlow: function (accountData, additionalResultData) {
       var self = this;
       self.session.clear('oauth');
-      return self.getOAuthResult()
+      return self.getOAuthResult(accountData)
         .then(function (result) {
           if (additionalResultData) {
             result = _.extend(result, additionalResultData);
@@ -116,22 +116,22 @@ define([
       });
     },
 
-    afterSignIn: function (additionalResultData) {
-      return this.finishOAuthFlow(additionalResultData)
+    afterSignIn: function (accountData, additionalResultData) {
+      return this.finishOAuthFlow(accountData, additionalResultData)
         .then(function () {
           // the RP will take over from here, no need for a screen transition.
           return { halt: true };
         });
     },
 
-    afterSignUpConfirmationPoll: function () {
+    afterSignUpConfirmationPoll: function (accountData) {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow();
+      return this.finishOAuthFlow(accountData);
     },
 
-    afterResetPasswordConfirmationPoll: function () {
+    afterResetPasswordConfirmationPoll: function (accountData) {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow();
+      return this.finishOAuthFlow(accountData);
     },
 
     transformLink: function (link) {
