@@ -329,11 +329,14 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
           uid: UID,
           sessionToken: SESSION_TOKEN,
           foo: 'bar'
-        }
+        },
+        assertion: 'test'
       });
 
       var data = account.toJSON();
 
+      assert.isUndefined(data.accountData);
+      assert.isUndefined(data.assertion);
       assert.isUndefined(data.foo);
       assert.ok(data.email);
     });
