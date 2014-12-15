@@ -8,6 +8,7 @@ const Joi = require('joi');
 const AppError = require('../error');
 const compute = require('../compute');
 const config = require('../config').root();
+const img = require('../img');
 const logger = require('../logging')('server.worker');
 
 exports.create = function() {
@@ -48,6 +49,16 @@ exports.create = function() {
           contentLength: req.headers['content-length']
         });
         compute.image(req.params.id, req.payload).done(reply, reply);
+      }
+    }
+  });
+
+  server.route({
+    method: 'DELETE',
+    path: '/a/{id}',
+    config: {
+      handler: function delete_(req, reply) {
+        img.delete(req.params.id).done(reply, reply);
       }
     }
   });

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/*global describe,it,before,after*/
+/*global describe,it,before,after,afterEach*/
 
 const crypto = require('crypto');
 const fs = require('fs');
@@ -34,9 +34,15 @@ const db = require('../lib/db');
 const Server = require('./lib/server');
 const Static = require('./lib/static');
 
+var imagePath = path.join(__dirname, 'lib', 'firefox.png');
+var imageData = fs.readFileSync(imagePath);
 
 const GRAVATAR =
   'http://www.gravatar.com/avatar/00000000000000000000000000000000';
+
+afterEach(function() {
+  mock.done();
+});
 
 describe('/profile', function() {
   var tok = token();
@@ -244,8 +250,6 @@ describe('/avatar', function() {
   });
 
   describe('upload', function() {
-    var imagePath = path.join(__dirname, 'lib', 'firefox.png');
-    var imageData = fs.readFileSync(imagePath);
 
     it('should upload a new avatar', function() {
       this.slow(2000);
@@ -280,6 +284,18 @@ describe('/avatar', function() {
         scope: ['profile:avatar:write']
       });
       mock.workerFailure();
+      mock.log('routes.avatar.upload', function(rec) {
+        if (rec.levelname === 'ERROR') {
+          assert.equal(rec.message, 'worker.error unexpected server error');
+          return true;
+        }
+      });
+      mock.log('server', function(rec) {
+        if (rec.levelname === 'ERROR') {
+          assert.equal(rec.args[0], 'summary');
+          return true;
+        }
+      });
       return Server.api.post({
         url: '/avatar/upload',
         payload: imageData,
@@ -296,46 +312,100 @@ describe('/avatar', function() {
 
   describe('DELETE', function() {
     var user = uid();
-    var id = avatarId();
 
-    before(function() {
-      return db.addAvatar(id, user, GRAVATAR, PROVIDER, true);
+    describe('gravatar', function() {
+      var id = avatarId();
+      before(function() {
+        return db.addAvatar(id, user, GRAVATAR, PROVIDER, true);
+      });
+
+      it('should fail if not owned by user', function() {
+        mock.token({
+          user: uid(),
+          email: 'user@example.domain',
+          scope: ['profile:avatar:write']
+        });
+        return Server.api.delete({
+          url: '/avatar/' + id,
+          headers: {
+            authorization: 'Bearer ' + tok,
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 401);
+        });
+      });
+
+      it('should remove avatar from user', function() {
+        mock.token({
+          user: user,
+          email: 'user@example.domain',
+          scope: ['profile:avatar:write']
+        });
+        return Server.api.delete({
+          url: '/avatar/' + id,
+          headers: {
+            authorization: 'Bearer ' + tok,
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          return db.getAvatar(id);
+        }).then(function(avatar) {
+          assert.equal(avatar, undefined);
+        });
+      });
     });
 
-    it('should fail if not owned by user', function() {
-      mock.token({
-        user: uid(),
-        email: 'user@example.domain',
-        scope: ['profile:avatar:write']
+    describe('uploaded', function() {
+      var s3url;
+      var id;
+      before(function() {
+        this.slow(2000);
+        this.timeout(3000);
+        mock.token({
+          user: user,
+          email: 'user@example.domain',
+          scope: ['profile:avatar:write']
+        });
+        mock.image();
+        return Server.api.post({
+          url: '/avatar/upload',
+          payload: imageData,
+          headers: { authorization: 'Bearer ' + tok,
+            'content-type': 'image/png',
+            'content-length': imageData.length
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 201);
+          s3url = res.result.url;
+          id = res.result.id;
+        });
       });
-      return Server.api.delete({
-        url: '/avatar/' + id,
-        headers: {
-          authorization: 'Bearer ' + tok,
-        }
-      }).then(function(res) {
-        assert.equal(res.statusCode, 401);
+
+      it('should remove avatar from db and s3', function() {
+        mock.token({
+          user: user,
+          email: 'user@example.domain',
+          scope: ['profile:avatar:write']
+        });
+        mock.deleteImage();
+        return Server.api.delete({
+          url: '/avatar/' + id,
+          headers: {
+            authorization: 'Bearer ' + tok,
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 200);
+          return db.getAvatar(id);
+        }).then(function(avatar) {
+          assert.equal(avatar, undefined);
+          return Static.get(s3url);
+        }).then(function(res) {
+          assert.equal(res.statusCode, 404);
+        });
       });
+
     });
 
-    it('should remove avatar from user', function() {
-      mock.token({
-        user: user,
-        email: 'user@example.domain',
-        scope: ['profile:avatar:write']
-      });
-      return Server.api.delete({
-        url: '/avatar/' + id,
-        headers: {
-          authorization: 'Bearer ' + tok,
-        }
-      }).then(function(res) {
-        assert.equal(res.statusCode, 200);
-        return db.getAvatar(id);
-      }).then(function(avatar) {
-        assert.equal(avatar, undefined);
-      });
-    });
   });
 });
 

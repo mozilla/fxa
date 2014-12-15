@@ -60,7 +60,7 @@ MemoryStore.prototype = {
     var avatar = {
       id: id,
       url: url,
-      provider: provider,
+      providerId: provider,
       userId: uid
     };
     this.avatars[hex(id)] = avatar;
@@ -113,8 +113,12 @@ MemoryStore.prototype = {
     return P.resolve(name);
   },
 
-  getProvider: function getProvider(name) {
-    return P.resolve(name);
+  getProviderByName: function getProviderByName(name) {
+    return P.resolve({ id: name, name: name });
+  },
+
+  getProviderById: function getProviderById(id) {
+    return P.resolve({ id: id, name: id });
   }
 };
 

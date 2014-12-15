@@ -14,7 +14,7 @@ function loadProviders() {
   var providers = Object.keys(config.get('img.providers'));
   logger.debug('providers.from-config', { providers: providers });
   return P.all(providers.map(function(name) {
-    return exports.getProvider(name).then(function(provider) {
+    return exports.getProviderByName(name).then(function(provider) {
       if (provider) {
         logger.debug('providers.exists',  { name: name });
       } else {
@@ -47,10 +47,19 @@ function proxy(method) {
   return function proxied() {
     var args = arguments;
     return withDriver().then(function proxiedWithDriverThen(driver) {
-      logger.verbose('proxied', { method: method, args: [].slice.call(args) });
-      return driver[method].apply(driver, args);
+      if (logger.isEnabledFor(logger.VERBOSE)) {
+        logger.verbose('proxy', { method: method, args: [].slice.call(args) });
+      }
+      var ret = driver[method].apply(driver, args);
+      if (logger.isEnabledFor(logger.VERBOSE)) {
+        ret = ret.then(function(val) {
+          logger.verbose('proxied', { method: method, ret: val });
+          return val;
+        });
+      }
+      return ret;
     }).catch(function(err) {
-      logger.error('proxied.error.' + method, err);
+      logger.error('proxy.error.' + method, err);
       throw err;
     });
   };

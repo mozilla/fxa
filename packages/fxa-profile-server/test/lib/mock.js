@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-//const fs = require('fs');
-//const path = require('path');
+const assert = require('assert');
 const url = require('url');
 
-const assert = require('insist');
 const mkdirp = require('mkdirp');
-const nock = require('nock');
+const _nock = require('nock');
 const through = require('through');
 
 const config = require('../../lib/config');
@@ -30,6 +28,14 @@ module.exports = function mock(options) {
   });
 
   const MOCK_ID = new Array(33).join('f');
+
+  var outstandingMocks = [];
+
+  function nock() {
+    var scope = _nock.apply(_nock, arguments);
+    outstandingMocks.push(scope);
+    return scope;
+  }
 
   function worker() {
     var parts = url.parse(config.get('worker.url'));
@@ -76,11 +82,31 @@ module.exports = function mock(options) {
         });
         return s;
       });
+  }
 
+  function deleteAws() {
+    var bucket = config.get('img.uploads.dest.public');
+    var u = '/' + bucket + '?delete';
+    return nock('https://s3.amazonaws.com')
+      .post(u)
+      .reply(200, function(uri, body) {
+        var id = body.match(/<Key>([0-9a-f]{32})<\/Key>/)[1];
+        var s = through();
+        s.setEncoding = function() {};
+        local.delete(id).done(function() {
+          s.end();
+        });
+        return s;
+      });
   }
 
 
   return {
+
+    done: function done() {
+      outstandingMocks.forEach(function(mock) { mock.done(); });
+      outstandingMocks = [];
+    },
 
     tokenGood: function tokenGood() {
       var parts = url.parse(config.get('oauth.url'));
@@ -121,5 +147,47 @@ module.exports = function mock(options) {
         uploadAws();
       }
     },
+
+    deleteImage: function deleteImage() {
+      var parts = url.parse(config.get('worker.url'));
+      var path = '';
+      nock(parts.protocol + '//' + parts.host)
+        .filteringPath(function filter(_path) {
+          path = _path;
+          return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
+        })
+        .delete('/a/' + MOCK_ID)
+        .reply(200, function() {
+          return inject(WORKER, {
+            method: 'DELETE',
+            url: path
+          });
+        });
+
+      if (IS_AWS) {
+        deleteAws();
+      }
+    },
+
+    log: function mockLog(logger, cb) {
+      var log = require('../../lib/logging')(logger);
+      var isDone = false;
+      var filter = {
+        filter: function(record) {
+          if (cb(record)) {
+            isDone = true;
+            log.removeFilter(filter);
+            return false;
+          }
+          return true;
+        }
+      };
+      log.addFilter(filter);
+      outstandingMocks.push({
+        done: function done() {
+          assert(isDone, 'Mocked logger never called: ' + logger);
+        }
+      });
+    }
   };
 };
