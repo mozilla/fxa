@@ -42,6 +42,7 @@ define([
             self.importSearchParam('entrypoint');
             self.importSearchParam('campaign');
             self.importSearchParam('migration');
+            self.importBooleanSearchParam('customizeSync');
 
             self._setupServiceName();
           });
@@ -58,6 +59,13 @@ define([
         var serviceName = serviceNameTranslator.get(service);
         this.set('serviceName', serviceName);
       }
+    },
+
+    /**
+     * Check if the relier wants to force the customize sync checkbox on
+     */
+    isCustomizeSyncChecked: function () {
+      return !!(this.isSync() && this.get('customizeSync'));
     }
   });
 

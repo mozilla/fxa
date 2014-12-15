@@ -49,20 +49,7 @@ define([
             self.importSearchParam('service');
             self.importSearchParam('preVerifyToken');
             self.importSearchParam('email');
-            self._importCustomizeSync();
           });
-    },
-
-    _importCustomizeSync: function () {
-      var self = this;
-      // set paramName to squeeze a few bytes out of the minified file.
-      var paramName = 'customizeSync';
-      self.importSearchParam(paramName);
-      if (self.get(paramName) === 'true') {
-        self.set(paramName, true);
-      } else {
-        self.unset(paramName);
-      }
     },
 
     /**
@@ -70,13 +57,6 @@ define([
      */
     isSync: function () {
       return this.get('service') === Constants.FX_DESKTOP_SYNC;
-    },
-
-    /**
-     * Check if the relier wants to force the customize sync checkbox on
-     */
-    isCustomizeSyncChecked: function () {
-      return !!(this.isSync() && this.get('customizeSync'));
     }
   });
 

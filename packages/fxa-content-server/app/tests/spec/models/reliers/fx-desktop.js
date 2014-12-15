@@ -18,6 +18,9 @@ define([
     var translator;
     var relier;
 
+    var SERVICE = 'service';
+    var SYNC_SERVICE = 'sync';
+
     beforeEach(function () {
       windowMock = new WindowMock();
       translator = new Translator('en-US', ['en-US']);
@@ -63,6 +66,56 @@ define([
     describe('isFxDesktop', function () {
       it('returns `true`', function () {
         assert.isTrue(relier.isFxDesktop());
+      });
+    });
+
+    describe('isCustomizeSyncChecked', function () {
+      it('returns true if `service=sync` and `customizeSync=true`', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: SYNC_SERVICE,
+          customizeSync: 'true'
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.isTrue(relier.isCustomizeSyncChecked());
+          });
+      });
+
+      it('returns false if `service!=sync`', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: SERVICE,
+          customizeSync: 'true'
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.isFalse(relier.isCustomizeSyncChecked());
+          });
+      });
+
+      it('returns false if `customizeSync===false`', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: SYNC_SERVICE,
+          customizeSync: 'false'
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.isFalse(relier.isCustomizeSyncChecked());
+          });
+      });
+
+      it('throws an error if `customizeSync` is any other value', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          service: SYNC_SERVICE,
+          customizeSync: ''
+        });
+
+        return relier.fetch()
+          .then(assert.fail, function (err) {
+            assert.isTrue(/customizeSync/.test(err.message));
+          });
       });
     });
   });

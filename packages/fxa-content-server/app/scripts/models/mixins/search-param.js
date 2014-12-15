@@ -36,6 +36,30 @@ define([
       if (typeof value !== 'undefined') {
         this.set(modelName, value);
       }
+    },
+
+    /**
+     * Import a boolean search parameter. Search parameter must be `true`
+     * nor `false` or model item will not be set.
+     *
+     * @param {String} paramName - name of the search parameter
+     * @param {String} [modelName] - name to set in model. If not specified,
+     *      use the same value as `paramName`
+     */
+    importBooleanSearchParam: function (paramName, modelName) {
+      modelName = modelName || paramName;
+      var self = this;
+
+      var textValue = self.getSearchParam(paramName);
+      if (typeof textValue !== 'undefined') {
+        if (textValue === 'true') {
+          self.set(modelName, true);
+        } else if (textValue === 'false') {
+          self.set(modelName, false);
+        } else {
+          throw new Error(modelName + ' must be `true` or `false`');
+        }
+      }
     }
   };
 });
