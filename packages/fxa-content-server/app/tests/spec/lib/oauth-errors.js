@@ -38,18 +38,18 @@ function (chai, OAuthErrors) {
       });
     });
 
-    describe('toCode', function () {
+    describe('toErrno', function () {
       it('returns the errno from an error object', function () {
         var err = OAuthErrors.toError('UNKNOWN_CLIENT', 'dunno');
-        assert.equal(OAuthErrors.toCode(err), 101);
+        assert.equal(OAuthErrors.toErrno(err), 101);
       });
 
       it('converts a string type to a numeric code, if valid code', function () {
-        assert.equal(OAuthErrors.toCode('UNKNOWN_CLIENT'), 101);
+        assert.equal(OAuthErrors.toErrno('UNKNOWN_CLIENT'), 101);
       });
 
       it('returns the string if an invalid code', function () {
-        assert.equal(OAuthErrors.toCode('this is an invalid code'), 'this is an invalid code');
+        assert.equal(OAuthErrors.toErrno('this is an invalid code'), 'this is an invalid code');
       });
     });
 
