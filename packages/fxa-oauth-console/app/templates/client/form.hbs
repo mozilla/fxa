@@ -1,28 +1,38 @@
 <div class="form-group">
   <label for="inputTitle">Client Name</label>
-  {{view Ember.TextField value=name id="inputTitle"}}
+  {{view Ember.TextField value=model.name id="inputTitle"}}
 </div>
 <div class="form-group">
   <label for="inputRedirect">Redirect URI</label>
-  {{view Ember.TextField value=redirect_uri id="inputRedirect"}}
+  {{view Ember.TextField value=model.redirect_uri id="inputRedirect"}}
 </div>
 <div class="form-group">
   <label for="inputImage">Image URI</label>
-  {{view Ember.TextField value=image_uri id="inputImage"}}
+  {{view Ember.TextField value=model.image_uri id="inputImage"}}
 </div>
 <div class="form-group">
-  <label for="whitelisted">Whitelisted Client</label>
-  {{view Ember.Checkbox name=whitelisted checked=whitelisted id="whitelisted"}}
+  <label for="whitelisted">Whitelisted Client: {{view Ember.Checkbox name=model.whitelisted checked=model.whitelisted id="whitelisted"}} <strong>(Currently required for all clients)</strong></label>
 </div>
 {{#if id}}
 <div class="form-group">
   <label for="id">Client Id:</label>
-  <pre>{{id}}</pre>
+  <pre>{{model.id}}</pre>
 </div>
 {{/if}}
 
-{{#if secret}}
+{{#if model.secret}}
   <label for="secret" >Client Secret</label>
-  <pre>{{secret}}</pre>
+  <pre>{{model.secret}}</pre>
   <p style="color:red; font-size: 20px;">Save this secret above, you will never see it again.</p>
+  <h2>Sample Configuration</h2>
+  <pre>
+{
+  "client_id": "{{model.id}}",
+  "client_secret": "{{model.secret}}",
+  "redirect_uri": "{{model.redirect_uri}}",
+  "oauth_uri": "{{oauth_uri}}",
+  "profile_uri": "{{profile_uri}}",
+  "scopes": "profile"
+}
+  </pre>
 {{/if}}

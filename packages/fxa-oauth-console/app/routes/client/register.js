@@ -6,6 +6,7 @@ import Ember from 'ember';
 import AuthenticatedRouteMixin from 'simple-auth/mixins/authenticated-route-mixin';
 
 export default Ember.Route.extend(AuthenticatedRouteMixin, {
+  controllerName: 'client/register',
   actions: {
     create: function(model) {
       return model.save();
@@ -14,6 +15,9 @@ export default Ember.Route.extend(AuthenticatedRouteMixin, {
       this.transitionTo('clients');
       return true;
     }
+  },
+  setupController: function(controller, model) {
+    controller.set('model', model);
   },
   model: function() {
     return this.store.createRecord('client', {});

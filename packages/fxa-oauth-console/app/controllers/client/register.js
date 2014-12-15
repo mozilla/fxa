@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Ember from 'ember';
+import config from '../../config/environment';
 
 export default Ember.Controller.extend({
-  needs: ['client']
+  oauth_uri: config.servers.oauthUriParsed.href,
+  profile_uri: config.servers.profileUriParsed.href
 });

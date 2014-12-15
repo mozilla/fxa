@@ -1,12 +1,10 @@
-{{#with controllers.client.content}}
-  <form class="form-horizontal">
-    <fieldset>
-      <legend>Edit client</legend>
-      {{partial 'client/form'}}
-    </fieldset>
-  </form>
-  <div class="btn-group">
-    <button class="btn btn-large btn-primary" {{action 'update' this}}>Update</button>
-    <button class="btn btn-large btn-danger" {{action 'cancel' this}}>Cancel</button>
-  </div>
-{{/with}}
+<form class="form-horizontal">
+  <fieldset>
+    <legend>Edit client</legend>
+    {{partial 'client/form'}}
+  </fieldset>
+</form>
+<div class="btn-group">
+  <button class="btn btn-large btn-primary" {{action 'update' this}}>Update</button>
+  <button class="btn btn-large btn-danger" {{action 'cancel' this}}>Cancel</button>
+</div>
