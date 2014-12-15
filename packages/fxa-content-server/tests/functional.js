@@ -27,6 +27,7 @@ define([
   './functional/back_button_after_start',
   './functional/cookies_disabled',
   './functional/fonts',
+  './functional/password_visibility',
   './functional/avatar'
 ], function () {
   'use strict';

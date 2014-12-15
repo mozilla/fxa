@@ -105,7 +105,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
 
       return view.render()
           .then(function () {
-            $('#container').append(view.el);
+            $('#container').html(view.el);
           });
     });
 
@@ -624,19 +624,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
       });
 
-    });
-
-    describe('updatePasswordVisibility', function () {
-      it('pw field set to text when clicked', function () {
-        $('.show-password').click();
-        assert.equal($('.password').attr('type'), 'text');
-      });
-
-      it('pw field set to password when clicked again', function () {
-        $('.show-password').click();
-        $('.show-password').click();
-        assert.equal($('[type=password]').attr('type'), 'password');
-      });
     });
 
     describe('_isUserOldEnough', function () {

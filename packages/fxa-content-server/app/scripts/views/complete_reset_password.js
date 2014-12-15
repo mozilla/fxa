@@ -85,6 +85,7 @@ function (_, BaseView, FormView, Template, PasswordMixin,
 
       // damaged and expired links have special messages.
       return {
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         isLinkDamaged: ! doesLinkValidate,
         isLinkExpired: isLinkExpired,
         isLinkValid: doesLinkValidate && ! isLinkExpired

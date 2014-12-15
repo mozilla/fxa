@@ -42,7 +42,8 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
       return {
         email: email,
         password: this._prefillPassword,
-        fatalError: fatalError
+        fatalError: fatalError,
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
       };
     },
 

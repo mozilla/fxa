@@ -202,21 +202,6 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
       });
     });
 
-    describe('updatePasswordVisibility', function () {
-      it('pw field set to text when clicked', function () {
-        $('.show-password').click();
-        assert.equal($('#password').attr('type'), 'text');
-        assert.equal($('#vpassword').attr('type'), 'text');
-      });
-
-      it('pw field set to password when clicked again', function () {
-        $('.show-password').click();
-        $('.show-password').click();
-        assert.equal($('#password').attr('type'), PASSWORD);
-        assert.equal($('#vpassword').attr('type'), PASSWORD);
-      });
-    });
-
     describe('isValid', function () {
       it('returns true if password & vpassword valid and the same', function () {
         view.$('#password').val(PASSWORD);
