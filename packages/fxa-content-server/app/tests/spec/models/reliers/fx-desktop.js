@@ -105,18 +105,6 @@ define([
             assert.isFalse(relier.isCustomizeSyncChecked());
           });
       });
-
-      it('throws an error if `customizeSync` is any other value', function () {
-        windowMock.location.search = TestHelpers.toSearchString({
-          service: SYNC_SERVICE,
-          customizeSync: ''
-        });
-
-        return relier.fetch()
-          .then(assert.fail, function (err) {
-            assert.isTrue(/customizeSync/.test(err.message));
-          });
-      });
     });
   });
 });

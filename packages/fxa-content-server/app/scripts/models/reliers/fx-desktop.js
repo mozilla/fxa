@@ -37,15 +37,25 @@ define([
     fetch: function () {
       var self = this;
       return Relier.prototype.fetch.call(self)
-          .then(function () {
-            self.importSearchParam('context');
-            self.importSearchParam('entrypoint');
-            self.importSearchParam('campaign');
-            self.importSearchParam('migration');
+        .then(function () {
+          self.importSearchParam('context');
+          self.importSearchParam('entrypoint');
+          self.importSearchParam('campaign');
+          self.importSearchParam('migration');
+          try {
             self.importBooleanSearchParam('customizeSync');
+          } catch (e) {
+            // ignore it for now.
+            // TODO - handle the error whenever startup error handling is
+            // complete - see #1982. This includes logging the error.
+            // Use something like:
+            // var err  = AuthErrors.toError('INVALID_PARAMETER')
+            // err.param = 'customizeSync';
+            // throw err;
+          }
 
-            self._setupServiceName();
-          });
+          self._setupServiceName();
+        });
     },
 
     isFxDesktop: function () {

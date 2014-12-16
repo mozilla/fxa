@@ -45,6 +45,7 @@ define([
      * @param {String} paramName - name of the search parameter
      * @param {String} [modelName] - name to set in model. If not specified,
      *      use the same value as `paramName`
+     * @throws {TypeError} if paramName is neither `true` nor `false`
      */
     importBooleanSearchParam: function (paramName, modelName) {
       modelName = modelName || paramName;
@@ -57,7 +58,7 @@ define([
         } else if (textValue === 'false') {
           self.set(modelName, false);
         } else {
-          throw new Error(modelName + ' must be `true` or `false`');
+          throw new TypeError(paramName + ' must be `true` or `false`');
         }
       }
     }
