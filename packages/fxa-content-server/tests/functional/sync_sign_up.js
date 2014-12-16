@@ -20,6 +20,8 @@ define([
   var config = intern.config;
   var PAGE_URL = config.fxaContentRoot + 'signup?context=fx_desktop_v1&service=sync';
 
+  var SIGNIN_URL = config.fxaContentRoot + 'signin';
+
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
   var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
@@ -45,7 +47,20 @@ define([
     },
 
     teardown: function () {
-      return FunctionalHelpers.clearBrowserState(this);
+      var self = this;
+
+      return FunctionalHelpers.clearBrowserState(this)
+        .then(function () {
+          // ensure the next test suite (bounced_email) loads a fresh
+          // signup page. If a fresh signup page is not forced, the
+          // bounced_email tests try to sign up using the Sync broker,
+          // resulting in a channel timeout.
+          self.get('remote')
+            .get(require.toUrl(SIGNIN_URL))
+
+            .findByCssSelector('#fxa-signin-header')
+            .end();
+        });
     },
 
     'sign up, verify same browser': function () {
@@ -264,6 +279,14 @@ define([
 
         .findByCssSelector('#fxa-signup-header')
         .end()
+
+        .findByCssSelector('#customize-sync')
+          .getAttribute('checked')
+          .then(function (checkedAttribute) {
+            assert.isNull(checkedAttribute);
+          })
+        .end()
+
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(
               self, email, PASSWORD, OLD_ENOUGH_YEAR, true);
@@ -275,6 +298,19 @@ define([
 
         // Being pushed to the confirmation screen is success.
         .findById('fxa-confirm-header')
+        .end();
+    },
+
+    'force customize sync checkbox to be checked': function () {
+      var url = (PAGE_URL += '&customizeSync=true');
+      return this.get('remote')
+        .get(require.toUrl(url))
+
+        .findByCssSelector('#customize-sync')
+          .getAttribute('checked')
+          .then(function (checkedAttribute) {
+            assert.equal(checkedAttribute, 'checked');
+          })
         .end();
     }
   });

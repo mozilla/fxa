@@ -63,7 +63,7 @@
       </div>
 
       <div class="select-row-wrapper hidden" id="month-date-picker">
-        
+
         <div class="select-row half-width">
           <select id="fxa-age-month">
             <option id="fxa-month-none" value="none">{{#t}}Month{{/t}}</option>
@@ -100,7 +100,7 @@
 
       {{#isSync}}
         <div class="input-row customize-sync-row">
-          <label><input id="customize-sync" type="checkbox" class="customize-sync"> {{#t}}Choose what to sync{{/t}}</label>
+          <label><input id="customize-sync" type="checkbox" class="customize-sync" {{#isCustomizeSyncChecked}}checked="checked"{{/isCustomizeSyncChecked}}> {{#t}}Choose what to sync{{/t}}</label>
         </div>
       {{/isSync}}
     </form>
