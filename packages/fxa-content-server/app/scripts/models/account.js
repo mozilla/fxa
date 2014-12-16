@@ -131,6 +131,10 @@ define([
         .then(function (results) {
           return results.verified;
         });
+    },
+
+    toJSON: function () {
+      return _.pick(this.attributes, ALLOWED_KEYS);
     }
 
   });
