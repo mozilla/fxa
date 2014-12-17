@@ -104,7 +104,11 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
                   email, credentials.password, self.relier, self.user);
             });
         } else if (credentials.sessionToken) {
-          return self.fxaClient.recoveryEmailStatus(credentials.sessionToken);
+          return self.fxaClient.recoveryEmailStatus(credentials.sessionToken)
+            .then(function (result) {
+              // merge credentials with result to get the latest verified state
+              return _.extend(credentials, result);
+            });
         } else {
           p.reject();
         }
@@ -180,8 +184,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       var self = this;
       var account = this._suggestedAccount();
 
-      return this._signIn(account.get('email'), {
-        sessionToken: account.get('sessionToken')
+      return this._signIn(account.get('email'), account.toJSON())
+      .then(function () {
+        return self.user.setCurrentAccount(account);
       })
       .fail(
         function () {

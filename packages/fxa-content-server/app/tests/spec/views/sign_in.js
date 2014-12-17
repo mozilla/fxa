@@ -332,6 +332,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('useLoggedInAccount', function () {
       it('shows an error if session is expired', function () {
+
         sinon.stub(user, 'getChooserAccount', function () {
           return user.createAccount({
             sessionToken: 'abc123',
@@ -351,19 +352,25 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('signs in with a valid session', function () {
+        var account = user.createAccount({
+          sessionToken: 'abc123',
+          email: 'a@a.com'
+        });
         sinon.stub(user, 'getChooserAccount', function () {
-          return user.createAccount({
-            sessionToken: 'abc123',
-            email: 'a@a.com'
-          });
+          return account;
         });
 
         view.fxaClient.recoveryEmailStatus = function () {
           return p({ verified: true });
         };
 
+        sinon.stub(user, 'setCurrentAccount', function () {
+          return p();
+        });
+
         return view.useLoggedInAccount()
           .then(function () {
+            assert.isTrue(user.setCurrentAccount.calledWith(account));
             assert.equal(view.$('.error').text(), '');
             assert.notOk(view._isErrorVisible);
           });
