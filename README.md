@@ -20,6 +20,10 @@ After installation completes you can visit [127.0.0.1:3030](http://127.0.0.1:303
 - `./pm2 logs 1` - display logs for process `1`.
 - More commands on the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
+### Updating projects to latest `master`
+
+- Run `npm run update`.
+
 ### Dependencies
 
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git), [node.js](http://nodejs.org/), Redis, libgmp.

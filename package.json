@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "An easy way to contribute to Firefox Accounts",
   "scripts": {
-    "postinstall": "_scripts/postinstall.sh"
+    "postinstall": "_scripts/postinstall.sh",
+    "update": "./pm2 kill && _scripts/update_all.sh"
   },
   "author": "",
   "license": "MPL",
