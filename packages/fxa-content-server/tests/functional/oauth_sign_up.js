@@ -94,7 +94,6 @@ define([
         .end();
     },
 
-
     'signup, verify same browser with original tab closed': function () {
       var self = this;
 
@@ -146,7 +145,7 @@ define([
           return self.get('remote').get(require.toUrl(verificationLink));
         })
 
-        .findByCssSelector('#fxa-sign-up-complete-header')
+        .findByCssSelector('#loggedin')
         .end();
     },
 
