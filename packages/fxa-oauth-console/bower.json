@@ -5,18 +5,22 @@
     "jquery": "^1.11.1",
     "ember": "1.7.0",
     "ember-data": "1.0.0-beta.10",
-    "ember-resolver": "~0.1.7",
+    "ember-resolver": "0.1.7",
     "loader.js": "stefanpenner/loader.js#1.0.1",
     "ember-cli-shims": "stefanpenner/ember-cli-shims#0.0.3",
     "ember-cli-test-loader": "rwjblue/ember-cli-test-loader#0.0.4",
     "ember-load-initializers": "stefanpenner/ember-load-initializers#0.0.2",
     "ember-qunit": "0.1.8",
     "ember-qunit-notifications": "0.0.4",
-    "qunit": "~1.15.0",
+    "qunit": "1.15.0",
     "foundation": "zurb/bower-foundation#~5.4.5",
-    "ember-simple-auth": "0.6.7"
+    "ember-simple-auth": "0.6.7",
+    "blanket": "1.1.5"
   },
   "resolutions": {
     "jquery": ">= 1.7.0 < 2.2.0"
+  },
+  "devDependencies": {
+    "blanket": "~1.1.5"
   }
 }
