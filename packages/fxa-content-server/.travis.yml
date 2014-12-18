@@ -2,7 +2,7 @@ language: node_js
 node_js:
   - "0.10"
 addons:
-  firefox: "32.0"
+  firefox: "34.0"
 env:
   global:
     - DISABLE_ROUTE_LOGGING=true
