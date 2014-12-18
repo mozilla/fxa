@@ -52,8 +52,8 @@ define([
         });
     },
 
-    afterSignIn: function (accountData) {
-      return this._notifyRelierOfLogin(accountData)
+    afterSignIn: function (account) {
+      return this._notifyRelierOfLogin(account)
         .then(function () {
           // the browser will take over from here,
           // don't let the screen transition.
@@ -61,20 +61,20 @@ define([
         });
     },
 
-    beforeSignUpConfirmationPoll: function (accountData) {
+    beforeSignUpConfirmationPoll: function (account) {
       // The Sync broker notifies the browser of an unverified login
       // before the user has verified her email. This allows the user
       // to close the original tab or open the verification link in
       // the about:accounts tab and have Sync still successfully start.
-      return this._notifyRelierOfLogin(accountData);
+      return this._notifyRelierOfLogin(account);
     },
 
     afterSignUpConfirmationPoll: function () {
       return p({ halt: true });
     },
 
-    afterResetPasswordConfirmationPoll: function (accountData) {
-      return this._notifyRelierOfLogin(accountData)
+    afterResetPasswordConfirmationPoll: function (account) {
+      return this._notifyRelierOfLogin(account)
         .then(function () {
           // the browser will take over from here,
           // don't let the screen transition.
@@ -93,11 +93,11 @@ define([
       return channel;
     },
 
-    _notifyRelierOfLogin: function (accountData) {
-      return this.send('login', this._getLoginData(accountData));
+    _notifyRelierOfLogin: function (account) {
+      return this.send('login', this._getLoginData(account));
     },
 
-    _getLoginData: function (accountData) {
+    _getLoginData: function (account) {
       var ALLOWED_FIELDS = [
         'email',
         'uid',
@@ -105,13 +105,12 @@ define([
         'sessionTokenContext',
         'unwrapBKey',
         'keyFetchToken',
-        'customizeSync',
-        'cachedCredentials'
+        'customizeSync'
       ];
 
       var loginData = {};
       _.each(ALLOWED_FIELDS, function (field) {
-        loginData[field] = accountData[field];
+        loginData[field] = account.get(field);
       });
 
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkAccount;

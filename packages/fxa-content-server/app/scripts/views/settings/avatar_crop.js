@@ -84,7 +84,7 @@ function (p, _, FormView, Template, Constants, Cropper, AuthErrors) {
 
       return self.toBlob()
         .then(function (data) {
-          return self.currentAccount().uploadAvatar(data);
+          return self.signedInAccount().uploadAvatar(data);
         })
         .then(function (result) {
           self.navigate('settings');

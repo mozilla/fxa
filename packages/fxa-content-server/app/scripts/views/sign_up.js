@@ -271,20 +271,24 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         self.logScreenEvent('preverified');
       }
 
-
       return self.broker.beforeSignIn(email)
         .then(function () {
           return self.fxaClient.signUp(
-                        email, password, self.relier, self.user, {
+                        email, password, self.relier, {
                           cusomizeSync: customizeSync
                         });
         }).then(function (accountData) {
-          if (preVerifyToken && accountData.verified) {
+          var account = self.user.createAccount(accountData);
+
+          if (preVerifyToken && account.get('verified')) {
             self.logScreenEvent('preverified.success');
           }
           self.logScreenEvent('success');
 
-          return accountData;
+          return self.user.setCurrentAccount(account)
+            .then(function () {
+              return account;
+            });
         })
         .then(_.bind(self.onSignUpSuccess, self))
         .then(null, function (err) {
@@ -367,11 +371,11 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       this.focus('#fxa-age-month');
     },
 
-    onSignUpSuccess: function (accountData) {
+    onSignUpSuccess: function (account) {
       var self = this;
-      if (accountData.verified) {
+      if (account.get('verified')) {
         // user was pre-verified, notify the broker.
-        return self.broker.afterSignIn(accountData)
+        return self.broker.afterSignIn(account)
           .then(function (result) {
             if (! (result && result.halt)) {
               self.navigate('signup_complete');
@@ -380,7 +384,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       } else {
         self.navigate('confirm', {
           data: {
-            accountData: accountData
+            account: account
           }
         });
       }

@@ -59,13 +59,13 @@ define([
                   this, options);
     },
 
-    getOAuthResult: function (accountData) {
+    getOAuthResult: function (account) {
       var self = this;
-      if (! accountData || ! accountData.sessionToken) {
+      if (! account || ! account.get('sessionToken')) {
         return p.reject(AuthErrors.toError('INVALID_TOKEN'));
       }
 
-      return self._assertionLibrary.generate(accountData.sessionToken)
+      return self._assertionLibrary.generate(account.get('sessionToken'))
         .then(function (assertion) {
           var relier = self.relier;
           var oauthParams = {
@@ -92,10 +92,10 @@ define([
       return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
-    finishOAuthFlow: function (accountData, additionalResultData) {
+    finishOAuthFlow: function (account, additionalResultData) {
       var self = this;
       self.session.clear('oauth');
-      return self.getOAuthResult(accountData)
+      return self.getOAuthResult(account)
         .then(function (result) {
           if (additionalResultData) {
             result = _.extend(result, additionalResultData);
@@ -119,22 +119,22 @@ define([
       });
     },
 
-    afterSignIn: function (accountData, additionalResultData) {
-      return this.finishOAuthFlow(accountData, additionalResultData)
+    afterSignIn: function (account, additionalResultData) {
+      return this.finishOAuthFlow(account, additionalResultData)
         .then(function () {
           // the RP will take over from here, no need for a screen transition.
           return { halt: true };
         });
     },
 
-    afterSignUpConfirmationPoll: function (accountData) {
+    afterSignUpConfirmationPoll: function (account) {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow(accountData);
+      return this.finishOAuthFlow(account);
     },
 
-    afterResetPasswordConfirmationPoll: function (accountData) {
+    afterResetPasswordConfirmationPoll: function (account) {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow(accountData);
+      return this.finishOAuthFlow(account);
     },
 
     transformLink: function (link) {

@@ -67,7 +67,7 @@ function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressInd
     },
 
     hashedEmail: function () {
-      var email = this.currentAccount().get('email');
+      var email = this.signedInAccount().get('email');
       return email ? md5($.trim(email.toLowerCase())) : '';
     },
 
@@ -77,7 +77,7 @@ function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressInd
       // Use the URL for a full size image
       url = url.slice(0, url.indexOf('?')) + '?s=' + EXPORT_LENGTH;
 
-      return self.currentAccount().postAvatar(url, true)
+      return self.signedInAccount().postAvatar(url, true)
         .then(function (result) {
           self.navigate('settings', {
             successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')

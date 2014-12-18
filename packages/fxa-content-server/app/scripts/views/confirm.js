@@ -31,12 +31,16 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       // ephemeral properties like unwrapBKey and keyFetchToken
       // that need to be sent to the browser.
       var data = this.ephemeralData();
-      this._accountData = data && data.accountData;
+      this._account = data && this.user.createAccount(data.account);
+    },
+
+    accountScopedToView: function () {
+      return this._account;
     },
 
     context: function () {
       return {
-        email: this.currentAccount().get('email')
+        email: this.accountScopedToView().get('email')
       };
     },
 
@@ -45,37 +49,18 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    // Sets the current logged in account to the account data passed to this view.
-    //
-    // This would go in initialize, but user.setCurrentAccount is async
-    // so it needs to happen in beforeRender.
-    _setCurrentAccountFromData: function () {
-      // Only update the current account if it's a distinct session to avoid
-      // network calls that would occur in setCurrentAccount.
-      if (this._accountData &&
-          this.currentAccount().get('sessionToken') !== this._accountData.sessionToken) {
-        return this.user.setCurrentAccount(this._accountData);
-      } else {
-        return p();
-      }
-    },
-
     _bouncedEmailSignup: function () {
       // TODO #1913 add `bouncedEmail` to the User model when ready.
-      this.ephemeralMessages.set('bouncedEmail', this.currentAccount().get('email'));
+      this.ephemeralMessages.set('bouncedEmail', this.accountScopedToView().get('email'));
       this.navigate('signup');
     },
 
     beforeRender: function () {
-      var self = this;
-      return self._setCurrentAccountFromData()
-        .then(function () {
-          // user cannot confirm if they have not initiated a sign up.
-          if (! self.currentAccount().get('sessionToken')) {
-            self.navigate('signup');
-            return false;
-          }
-        });
+      // user cannot confirm if they have not initiated a sign up.
+      if (! this.accountScopedToView().get('sessionToken')) {
+        this.navigate('signup');
+        return false;
+      }
     },
 
     afterRender: function () {
@@ -85,13 +70,13 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       var self = this;
       return self.broker.persist()
         .then(function () {
-          return self.broker.beforeSignUpConfirmationPoll(self._accountData);
+          return self.broker.beforeSignUpConfirmationPoll(self.accountScopedToView());
         })
         .then(function () {
           self._waitForConfirmation()
             .then(function () {
               self.logScreenEvent('verification.success');
-              return self.broker.afterSignUpConfirmationPoll(self._accountData);
+              return self.broker.afterSignUpConfirmationPoll(self.accountScopedToView());
             })
             .then(function (result) {
               if (! (result && result.halt)) {
@@ -111,7 +96,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     _waitForConfirmation: function () {
       var self = this;
-      var account = self.currentAccount();
+      var account = self.accountScopedToView();
       return self.fxaClient.recoveryEmailStatus(
           account.get('sessionToken'), account.get('uid'))
         .then(function (result) {
@@ -138,7 +123,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
       self.logScreenEvent('resend');
       return self.fxaClient.signUpResend(self.relier,
-          self.currentAccount().get('sessionToken'))
+          self.accountScopedToView().get('sessionToken'))
         .then(function () {
           self.displaySuccess();
         }, function (err) {

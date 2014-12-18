@@ -10,6 +10,7 @@ define([
   'sinon',
   'models/auth_brokers/web-channel',
   'models/reliers/relier',
+  'models/user',
   'lib/promise',
   'lib/channels/null',
   'lib/session',
@@ -17,7 +18,7 @@ define([
   'views/base',
   '../../../mocks/window'
 ],
-function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
+function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, p, NullChannel,
       Session, AuthErrors, BaseView, WindowMock) {
   var assert = chai.assert;
 
@@ -27,13 +28,17 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
     var relierMock;
     var channelMock;
     var view;
-    var ACCOUNT_DATA = {
-      sessionToken: 'abc123'
-    };
+    var user;
+    var account;
 
     beforeEach(function () {
       windowMock = new WindowMock();
       relierMock = new Relier();
+      user = new User();
+
+      account = user.createAccount({
+        sessionToken: 'abc123'
+      });
 
       channelMock = new NullChannel();
       sinon.spy(channelMock, 'send');
@@ -137,7 +142,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       it('calls sendOAuthResultToRelier, tells window to close', function () {
         setupCompletesOAuthTest();
 
-        return broker.afterSignIn(ACCOUNT_DATA)
+        return broker.afterSignIn(account)
           .then(function () {
             assert.isTrue(
                 broker.sendOAuthResultToRelier.calledWith({ closeWindow: true }));
@@ -150,7 +155,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       it('calls sendOAuthResultToRelier', function () {
         setupCompletesOAuthTest();
 
-        return broker.afterCompleteSignUp(ACCOUNT_DATA)
+        return broker.afterCompleteSignUp(account)
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
             assert.isFalse(view.displayError.called);
@@ -162,7 +167,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       it('calls sendOAuthResultToRelier', function () {
         setupCompletesOAuthTest();
 
-        return broker.afterCompleteResetPassword(ACCOUNT_DATA)
+        return broker.afterCompleteResetPassword(account)
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
             assert.isFalse(view.displayError.called);

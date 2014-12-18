@@ -11,9 +11,10 @@ define([
   'stache!templates/complete_sign_up',
   'lib/auth-errors',
   'lib/validate',
+  'lib/promise',
   'views/mixins/resend-mixin'
 ],
-function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, ResendMixin) {
+function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p, ResendMixin) {
   var CompleteSignUpView = FormView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
@@ -23,24 +24,27 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    beforeRender: function () {
+    initialize: function () {
       try {
         this.importSearchParam('uid');
         this.importSearchParam('code');
-      } catch(e) {
-        this.logEvent('complete_sign_up.link_damaged');
-        // This is an invalid link. Abort and show an error message
-        // before doing any more checks.
-        return true;
+
+        // Remove any spaces that are probably due to a MUA adding
+        // line breaks in the middle of the link.
+        this.uid = this.uid.replace(/ /g, '');
+        this.code = this.code.replace(/ /g, '');
+      } catch (e) {
+        this._isLinkDamaged = true;
       }
 
-      // Remove any spaces that are probably due to a MUA adding
-      // line breaks in the middle of the link.
-      this.uid = this.uid.replace(/ /g, '');
-      this.code = this.code.replace(/ /g, '');
+      this._account = this.user.getAccountByUid(this.uid);
+    },
 
-      this.user.setCurrentAccountByUid(this.uid);
+    accountScopedToView: function () {
+      return this._account;
+    },
 
+    beforeRender: function () {
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
@@ -49,10 +53,10 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
       }
 
       var self = this;
-      return this.fxaClient.verifyCode(this.uid, this.code)
+      return self.fxaClient.verifyCode(self.uid, self.code)
           .then(function () {
             self.logEvent('complete_sign_up.verification.success');
-            return self.broker.afterCompleteSignUp(self.currentAccount().toJSON());
+            return self.broker.afterCompleteSignUp(self.accountScopedToView());
           })
           .then(function (result) {
             if (! (result && result.halt)) {
@@ -94,7 +98,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
 
         // This is only the case if you've signed up in the
         // same browser you opened the verification link in.
-        canResend: !!this.currentAccount().get('sessionToken'),
+        canResend: !!this.accountScopedToView().get('sessionToken'),
         error: this._error
       };
     },
@@ -103,9 +107,31 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
     // and clicks the "Resend" link.
     submit: function () {
       var self = this;
-      var sessionToken = self.currentAccount().get('sessionToken');
+      var email;
 
       self.logEvent('complete_sign_up.resend');
+
+      // The account with this.uid is associated with an expired link, which means
+      // that it has been overridden by a newer account and its sessionToken
+      // is no longer valid. We attempt to use the new account's
+      // sessionToken instead (possible if it was created in this browser),
+      // or otherwise fail.
+      if (self.accountScopedToView().get('uid') === this.uid) {
+        email = self.accountScopedToView().get('email');
+        self.user.removeAccount(self.accountScopedToView());
+        self._account = self.user.getAccountByEmail(email);
+      }
+
+      var sessionToken = self.accountScopedToView().get('sessionToken');
+
+      if (!sessionToken) {
+        return p().then(function () {
+          return self.navigate('signup', {
+            error: AuthErrors.toError('INVALID_TOKEN')
+          });
+        });
+      }
+
       return self.fxaClient.signUpResend(self.relier, sessionToken)
               .then(function () {
                 self.displaySuccess();

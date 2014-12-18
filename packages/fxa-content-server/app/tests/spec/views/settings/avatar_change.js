@@ -79,7 +79,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         sinon.stub(account, 'profileClient', function () {
           return p(profileClientMock);
         });
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'signedInAccount', function () {
           return account;
         });
       });

@@ -73,7 +73,7 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
           accessToken: 'abc123',
           verified: true
         });
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'signedInAccount', function () {
           return account;
         });
       });
@@ -109,7 +109,7 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
           view.isUserAuthorized = function () {
             return true;
           };
-          sinon.stub(view, 'currentAccount', function () {
+          sinon.stub(view, 'signedInAccount', function () {
             return account;
           });
           sinon.stub(account, 'profileClient', function () {

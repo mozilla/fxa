@@ -12,10 +12,11 @@ define([
   'lib/session',
   'models/auth_brokers/redirect',
   'models/reliers/base',
+  'models/user',
   '../../../mocks/window'
 ],
 function (chai, sinon, p, Session, RedirectAuthenticationBroker,
-    Relier, WindowMock) {
+    Relier, User, WindowMock) {
   var assert = chai.assert;
   var REDIRECT_TO = 'https://redirect.here';
 
@@ -23,10 +24,16 @@ function (chai, sinon, p, Session, RedirectAuthenticationBroker,
     var relier;
     var broker;
     var windowMock;
+    var user;
+    var account;
 
     beforeEach(function () {
       windowMock = new WindowMock();
       relier = new Relier();
+      user = new User();
+      account = user.createAccount({
+        sessionToken: 'abc123'
+      });
 
       broker = new RedirectAuthenticationBroker({
         relier: relier,
@@ -88,9 +95,10 @@ function (chai, sinon, p, Session, RedirectAuthenticationBroker,
 
         return broker.persist()
           .then(function () {
-            return broker.finishOAuthFlow();
+            return broker.finishOAuthFlow(account);
           })
           .then(function () {
+            assert.isTrue(broker.getOAuthResult.calledWith(account));
             assert.isFalse(broker.isOriginalTab());
           });
       });
@@ -100,17 +108,17 @@ function (chai, sinon, p, Session, RedirectAuthenticationBroker,
       it('finishes the oauth flow if the user verifies in the original tab', function () {
         return broker.persist()
           .then(function () {
-            return broker.afterCompleteSignUp();
+            return broker.afterCompleteSignUp(account);
           })
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.called);
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
           });
       });
 
       it('does not finish the oauth flow if the user verifies in another tab', function () {
-        return broker.afterCompleteSignUp()
+        return broker.afterCompleteSignUp(account)
           .then(function () {
-            assert.isFalse(broker.finishOAuthFlow.called);
+            assert.isFalse(broker.finishOAuthFlow.calledWith(account));
           });
       });
     });
@@ -119,17 +127,17 @@ function (chai, sinon, p, Session, RedirectAuthenticationBroker,
       it('finishes the oauth flow if the user verifies in the original tab', function () {
         return broker.persist()
           .then(function () {
-            return broker.afterCompleteResetPassword();
+            return broker.afterCompleteResetPassword(account);
           })
           .then(function () {
-            assert.isTrue(broker.finishOAuthFlow.called);
+            assert.isTrue(broker.finishOAuthFlow.calledWith(account));
           });
       });
 
       it('does not finish the oauth flow if the user verifies in another tab', function () {
-        return broker.afterCompleteResetPassword()
+        return broker.afterCompleteResetPassword(account)
           .then(function () {
-            assert.isFalse(broker.finishOAuthFlow.called);
+            assert.isFalse(broker.finishOAuthFlow.calledWith(account));
           });
       });
     });

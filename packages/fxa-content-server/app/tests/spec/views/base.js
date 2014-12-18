@@ -178,7 +178,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
         sinon.stub(account, 'isVerified', function () {
           return p(false);
         });
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'signedInAccount', function () {
           return account;
         });
         return view.render()
@@ -200,7 +200,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
         sinon.stub(account, 'isVerified', function () {
           return p(true);
         });
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'signedInAccount', function () {
           return account;
         });
         sinon.stub(user, 'setAccount', function () {
@@ -224,7 +224,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
         sinon.stub(fxaClient, 'sessionStatus', function () {
           return p(true);
         });
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'signedInAccount', function () {
           return account;
         });
         return view.render()

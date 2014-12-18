@@ -155,13 +155,14 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
 
     _finishPasswordResetSameBrowser: function (sessionInfo) {
       var self = this;
+      var account = self.user.createAccount(sessionInfo);
 
       // The OAuth flow needs the sessionToken to finish the flow.
-      return self.user.setCurrentAccount(sessionInfo)
+      return self.user.setCurrentAccount(account)
         .then(function () {
           self.displaySuccess(t('Password reset'));
 
-          return self.broker.afterResetPasswordConfirmationPoll(sessionInfo)
+          return self.broker.afterResetPasswordConfirmationPoll(account)
             .then(function (result) {
               if (! (result && result.halt)) {
                 self.navigate('reset_password_complete');

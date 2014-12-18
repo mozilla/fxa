@@ -57,12 +57,12 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
     },
 
     submit: function () {
-      var email = this.relier.get('email');
-      var password = this.$('.password').val();
-
-      return this._signIn(email, {
-        password: password
+      var account = this.user.createAccount({
+        email:  this.relier.get('email'),
+        password: this.$('.password').val()
       });
+
+      return this._signIn(account);
     },
 
     resetPasswordNow: function () {

@@ -155,11 +155,10 @@ function (_, Backbone, $, p, AuthErrors,
             return self.isUserVerified()
               .then(function (isUserVerified) {
                 if (! isUserVerified) {
-                  var accountData = self.currentAccount().toJSON();
                   // user is not verified, prompt them to verify.
                   self.navigate('confirm', {
                     data: {
-                      accountData: accountData
+                      account: self.signedInAccount()
                     }
                   });
                 }
@@ -214,7 +213,7 @@ function (_, Backbone, $, p, AuthErrors,
       var sessionToken;
 
       if (this.mustAuth || this.mustVerify) {
-        sessionToken = this.currentAccount().get('sessionToken');
+        sessionToken = this.signedInAccount().get('sessionToken');
         return !!sessionToken && this.fxaClient.isSignedIn(sessionToken);
       }
       return true;
@@ -222,7 +221,7 @@ function (_, Backbone, $, p, AuthErrors,
 
     isUserVerified: function () {
       var self = this;
-      var account = self.currentAccount();
+      var account = self.signedInAccount();
       // If the cached account data shows it hasn't been verified,
       // check again and update the data if it has.
       if (! account.get('verified')) {
@@ -654,8 +653,16 @@ function (_, Backbone, $, p, AuthErrors,
     /**
      * Returns the currently logged in account
      */
-    currentAccount: function () {
+    signedInAccount: function () {
       return this.user.getCurrentAccount();
+    },
+
+    /**
+     * Returns the account that is active in the current view. It may not
+     * be the currently logged in account.
+     */
+    accountScopedToView: function () {
+      // Implement in subclasses
     }
   });
 

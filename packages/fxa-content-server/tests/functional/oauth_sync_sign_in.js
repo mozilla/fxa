@@ -75,7 +75,7 @@ define([
       });
     },
 
-    'sign in verified': function () {
+    'sign in to OAuth with Sync creds': function () {
       var self = this;
       return verifyUser(email, 0)
         .then(function () {
@@ -143,7 +143,7 @@ define([
 
             // clear the prefillEmail state
             .findByCssSelector('form input.email')
-              .clear()
+              .clearValue()
             .end()
             .findById('fxa-pp')
               .click()
@@ -155,6 +155,14 @@ define([
             .then(function () {
               return FunctionalHelpers.openFxaFromRp(self, 'signin');
             })
+
+            .findByCssSelector('.prefill')
+              .getVisibleText()
+              .then(function (text) {
+                // We should see the email we signed up for Sync with
+                assert.equal(text, email);
+              })
+            .end()
 
             .findByCssSelector('button[type="submit"]')
               .click()

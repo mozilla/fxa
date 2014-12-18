@@ -9,13 +9,14 @@ define([
   'sinon',
   'underscore',
   'models/auth_brokers/fx-desktop',
+  'models/user',
   'lib/constants',
   'lib/auth-errors',
   'lib/channels/null',
   'lib/promise',
   'lib/session',
   '../../../mocks/window'
-], function (chai, sinon, _, FxDesktopAuthenticationBroker,
+], function (chai, sinon, _, FxDesktopAuthenticationBroker, User,
         Constants, AuthErrors, NullChannel, p, Session, WindowMock) {
   var assert = chai.assert;
 
@@ -23,10 +24,16 @@ define([
     var windowMock;
     var channelMock;
     var broker;
+    var user;
+    var account;
 
     beforeEach(function () {
       windowMock = new WindowMock();
       channelMock = new NullChannel();
+      user = new User();
+      account = user.createAccount({
+        email: 'testuser@testuser.com'
+      });
 
       broker = new FxDesktopAuthenticationBroker({
         window: windowMock,
@@ -89,9 +96,6 @@ define([
           }
         });
 
-        var account = {
-          email: 'testuser@testuser.com'
-        };
         return broker._notifyRelierOfLogin(account)
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
@@ -108,9 +112,6 @@ define([
           }
         });
 
-        var account = {
-          email: 'testuser@testuser.com'
-        };
         return broker._notifyRelierOfLogin(account)
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
@@ -129,9 +130,6 @@ define([
           }
         });
 
-        var account = {
-          email: 'testuser@testuser.com'
-        };
         return broker.beforeSignIn('testuser@testuser.com')
           .then(function () {
             return broker._notifyRelierOfLogin(account);
@@ -149,10 +147,6 @@ define([
           return p();
         });
 
-        var account = {
-          email: 'testuser@testuser.com'
-        };
-
         return broker.afterSignIn(account)
           .then(function () {
             assert.isTrue(broker._notifyRelierOfLogin.calledWith(account));
@@ -165,10 +159,6 @@ define([
         sinon.stub(broker, '_notifyRelierOfLogin', function () {
           return p();
         });
-
-        var account = {
-          email: 'testuser@testuser.com'
-        };
 
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function () {

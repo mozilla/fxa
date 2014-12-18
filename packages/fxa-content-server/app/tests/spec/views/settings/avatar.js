@@ -74,7 +74,7 @@ function (chai, _, $, sinon, View, RouterMock, FxaClientMock,
           verified: true
         });
 
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'signedInAccount', function () {
           return account;
         });
       });

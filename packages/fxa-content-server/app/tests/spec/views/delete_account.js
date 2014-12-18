@@ -75,7 +75,7 @@ function (chai, $, sinon, View, FxaClient, p,
           sessionToken: 'abc123'
         });
 
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'signedInAccount', function () {
           return account;
         });
 

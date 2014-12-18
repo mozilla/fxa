@@ -65,7 +65,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'signedInAccount', function () {
           return account;
         });
         view.isUserAuthorized = function () {

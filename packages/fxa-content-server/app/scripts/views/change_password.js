@@ -36,7 +36,7 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
 
     submit: function () {
       var self = this;
-      var account = self.currentAccount();
+      var account = self.signedInAccount();
       var email = account.get('email');
       var oldPassword = self.$('#old_password').val();
       var newPassword = self.$('#new_password').val();
@@ -60,9 +60,13 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
             // prevents sync users from seeing the `sign out` button on the
             // settings screen.
 
-            return self.fxaClient.signIn(email, newPassword, self.relier, self.user, {
+            return self.fxaClient.signIn(email, newPassword, self.relier, {
               sessionTokenContext: account.get('sessionTokenContext')
             });
+          })
+          .then(function (updatedSessionData) {
+            account.set(updatedSessionData);
+            return self.user.setCurrentAccount(account);
           })
           .then(function () {
             self.navigate('settings', {

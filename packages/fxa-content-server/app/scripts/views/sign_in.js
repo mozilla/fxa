@@ -26,13 +26,22 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
     template: SignInTemplate,
     className: 'sign-in',
 
-    context: function () {
+    beforeRender: function () {
       // Session.prefillEmail comes first because users can edit the email,
       // go to another screen, edit the email again, and come back here. We
-      // want the last used email.
+      // want the last used email. Session.prefillEmail is not until after
+      // the view initializes.
       this.prefillEmail = Session.prefillEmail || this.searchParam('email');
 
-      var suggestedAccount = this._suggestedAccount();
+      this._account = this._suggestedAccount();
+    },
+
+    accountScopedToView: function () {
+      return this._account;
+    },
+
+    context: function () {
+      var suggestedAccount = this.accountScopedToView();
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = hasSuggestedAccount ?
                     suggestedAccount.get('email') : this.prefillEmail;
@@ -62,7 +71,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this._displayProfileImage(this._suggestedAccount());
+      return this._displayProfileImage(this.accountScopedToView());
     },
 
     beforeDestroy: function () {
@@ -71,54 +80,64 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
     },
 
     submit: function () {
-      var email = this.$('.email').val();
-      var password = this.$('.password').val();
-
-      return this._signIn(email, {
-        password: password
+      var account = this.user.createAccount({
+        email: this.$('.email').val(),
+        password: this.$('.password').val()
       });
+
+      return this._signIn(account);
     },
 
     /**
      *
-     * @param {String} email
-     * @param {Object} credentials
-     *     Credentials object should either provied a password or a sessionToken
-     *     @param {String} credentials.password
+     * @param {Account} account
+     *     The account instance should either include a password or a sessionToken
+     *     @param {String} account.password
      *     User password from the input
-     *     @param {String} credentials.sessionToken
-     *     Session token from the session
+     *     @param {String} account.sessionToken
+     *     Session token from the account
      * @private
      */
-    _signIn: function (email, credentials) {
+    _signIn: function (account) {
       var self = this;
-      if (! email || ! credentials) {
+      if (! account || account.isEmpty()) {
         p.reject();
       }
 
       return p().then(function () {
-        if (credentials.password) {
-          return self.broker.beforeSignIn(email)
+        if (account.get('password')) {
+          return self.broker.beforeSignIn(account.get('email'))
             .then(function () {
-              return self.fxaClient.signIn(
-                  email, credentials.password, self.relier, self.user);
+              return self.fxaClient.signIn(account.get('email'),
+                      account.get('password'), self.relier);
+            })
+            .then(function (updatedSessionData) {
+              account.set(updatedSessionData);
+              return account;
             });
-        } else if (credentials.sessionToken) {
-          return self.fxaClient.recoveryEmailStatus(credentials.sessionToken)
+        } else if (account.get('sessionToken')) {
+          return self.fxaClient.recoveryEmailStatus(account.get('sessionToken'))
             .then(function (result) {
-              // merge credentials with result to get the latest verified state
-              return _.extend(credentials, result);
+              // The result includes the latest verified state
+              account.set(result);
+              return account;
             });
         } else {
           p.reject();
         }
       })
-      .then(function (accountData) {
-        if (self.user.createAccount(accountData).get('verified')) {
+      .then(function (account) {
+        return self.user.setCurrentAccount(account)
+          .then(function () {
+            return account;
+          });
+      })
+      .then(function (account) {
+        if (account.get('verified')) {
           self.logScreenEvent('success');
-          return self.onSignInSuccess(accountData);
+          return self.onSignInSuccess(account);
         } else {
-          return self.onSignInUnverified(accountData);
+          return self.onSignInUnverified(account);
         }
       })
       .then(null, function (err) {
@@ -134,9 +153,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       });
     },
 
-    onSignInSuccess: function (accountData) {
+    onSignInSuccess: function (account) {
       var self = this;
-      return self.broker.afterSignIn(accountData)
+      return self.broker.afterSignIn(account)
         .then(function (result) {
           if (! (result && result.halt)) {
             self.navigate('settings');
@@ -146,15 +165,15 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
         });
     },
 
-    onSignInUnverified: function (accountData) {
+    onSignInUnverified: function (account) {
       var self = this;
-      var sessionToken = self.user.createAccount(accountData).get('sessionToken');
+      var sessionToken = account.get('sessionToken');
 
       return self.fxaClient.signUpResend(self.relier, sessionToken)
         .then(function () {
           self.navigate('confirm', {
             data: {
-              accountData: accountData
+              account: account
             }
           });
         });
@@ -182,21 +201,18 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
      */
     useLoggedInAccount: showProgressIndicator(function () {
       var self = this;
-      var account = this._suggestedAccount();
+      var account = this.accountScopedToView();
 
-      return this._signIn(account.get('email'), account.toJSON())
-      .then(function () {
-        return self.user.setCurrentAccount(account);
-      })
-      .fail(
-        function () {
-          self.chooserAskForPassword = true;
-          return self.render()
-            .then(function () {
-              self.user.removeAccount(account);
-              return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
-            });
-        });
+      return this._signIn(account)
+        .fail(
+          function () {
+            self.chooserAskForPassword = true;
+            return self.render()
+              .then(function () {
+                self.user.removeAccount(account);
+                return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
+              });
+          });
     }),
 
     /**

@@ -49,7 +49,7 @@ define([
     },
 
     // persists account data
-    _setAccount: function (account) {
+    _persistAccount: function (account) {
       var accounts = this._accounts();
       accounts[account.uid] = account;
       this._storage.set('accounts', accounts);
@@ -155,7 +155,7 @@ define([
       var account = self.createAccount(accountData);
       return account.fetch()
         .then(function () {
-          self._setAccount(account.toJSON());
+          self._persistAccount(account.toPersistentJSON());
           return account;
         });
     },

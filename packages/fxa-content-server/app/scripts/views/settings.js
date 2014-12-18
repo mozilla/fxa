@@ -42,7 +42,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
     },
 
     context: function () {
-      var account = this.currentAccount();
+      var account = this.signedInAccount();
       return {
         email: account.get('email'),
         showSignOut: !account.isFromSync(),
@@ -57,7 +57,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
 
     submit: function () {
       var self = this;
-      return self.fxaClient.signOut(self.currentAccount().get('sessionToken'))
+      return self.fxaClient.signOut(self.signedInAccount().get('sessionToken'))
               .then(function () {
                 // user's session is gone
                 self.user.clearCurrentAccount();
@@ -85,7 +85,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
     },
 
     afterVisible: function () {
-      var account = this.currentAccount();
+      var account = this.signedInAccount();
       var imageContainerSelector = this._isAvatarLinkVisible(account.get('email')) ?
                                      '.avatar-wrapper a.change-avatar' :
                                      '.avatar-wrapper';

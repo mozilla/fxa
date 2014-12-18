@@ -155,6 +155,10 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
+        sinon.stub(user, 'setCurrentAccount', function () {
+          return p();
+        });
+
         return view.submit()
           .then(function () {
             assert.isTrue(fxaClient.signUp.calledWith(
@@ -177,6 +181,10 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
             sessionToken: 'asessiontoken',
             verified: true
           });
+        });
+
+        sinon.stub(user, 'setCurrentAccount', function () {
+          return p();
         });
 
         sinon.stub(broker, 'afterSignIn', function () {
@@ -206,13 +214,17 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
+        sinon.stub(user, 'setCurrentAccount', function () {
+          return p();
+        });
+
         var password = 'password';
         fillOutSignUp(email, password, { year: nowYear - 14, context: view });
         return view.submit()
           .then(function () {
             assert.equal(router.page, 'confirm');
             assert.isTrue(fxaClient.signUp.calledWith(
-                email, password, relier, user));
+                email, password, relier));
           });
       });
     });

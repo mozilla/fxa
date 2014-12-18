@@ -117,13 +117,22 @@ function (_, BaseView, FormView, Template, PasswordMixin,
       // from localStorage and go to town.
       return self.fxaClient.completePasswordReset(email, password, token, code)
         .then(function () {
-          return self.fxaClient.signIn(email, password, self.relier, self.user);
+          return self.fxaClient.signIn(email, password, self.relier);
         }).then(function (accountData) {
-          // See the above note about notifying the original tab.
+          var account = self.user.createAccount(accountData);
           self._interTabChannel.emit('login', accountData);
+
+          return self.user.setCurrentAccount(account)
+            .then(function () {
+              return account;
+            });
+        })
+        .then(function (account) {
+          // See the above note about notifying the original tab.
           self.logScreenEvent('verification.success');
-          return self.broker.afterCompleteResetPassword(accountData);
-        }).then(function (result) {
+          return self.broker.afterCompleteResetPassword(account);
+        })
+        .then(function (result) {
           if (! (result && result.halt)) {
             self.navigate('reset_password_complete');
           }

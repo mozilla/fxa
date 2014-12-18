@@ -40,6 +40,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
     function testShowsExpiredScreen(search) {
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
+      initView();
       return view.render()
           .then(function () {
             assert.ok(view.$('#fxa-verification-link-expired-header').length);
@@ -48,6 +49,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
     function testShowsDamagedScreen(search) {
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
+      initView();
       return view.render()
           .then(function () {
             assert.ok(view.$('#fxa-verification-link-damaged-header').length);
@@ -56,6 +58,19 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
     function testEventLogged(eventName) {
       assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
+    }
+
+    function initView () {
+      view = new View({
+        router: routerMock,
+        window: windowMock,
+        metrics: metrics,
+        user: user,
+        fxaClient: fxaClient,
+        relier: relier,
+        broker: broker,
+        screenName: 'verify_email'
+      });
     }
 
     beforeEach(function () {
@@ -67,25 +82,16 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       fxaClient = new FxaClient();
       user = new User();
 
-      view = new View({
-        router: routerMock,
-        window: windowMock,
-        metrics: metrics,
-        user: user,
-        fxaClient: fxaClient,
-        relier: relier,
-        broker: broker,
-        screenName: 'verify_email'
-      });
-
       verificationError = null;
-      sinon.stub(view.fxaClient, 'verifyCode', function () {
+      sinon.stub(fxaClient, 'verifyCode', function () {
         if (verificationError) {
           return p.reject(verificationError);
         } else {
           return p();
         }
       });
+
+      initView();
     });
 
     afterEach(function () {
@@ -150,6 +156,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
       it('all other server errors are displayed', function () {
         windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+        initView();
 
         verificationError = new Error('verification error');
         return view.render()
@@ -163,6 +170,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       it('redirects to /signup_complete if verification successful and broker does not halt', function () {
         windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
         sinon.spy(broker, 'afterCompleteSignUp');
+        initView();
 
         return view.render()
             .then(function () {
@@ -180,6 +188,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
           return p({ halt: true });
         });
 
+        initView();
         return view.render()
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
@@ -193,7 +202,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       var sessionToken = 'abc123';
 
       beforeEach(function () {
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'accountScopedToView', function () {
           return user.createAccount({
             sessionToken: sessionToken
           });
@@ -206,16 +215,19 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         });
         windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
 
-        sinon.stub(user, 'setCurrentAccountByUid', function () {
-          return p();
+        sinon.stub(user, 'getAccountByUid', function () {
+          return user.createAccount({
+            sessionToken: sessionToken
+          });
         });
 
+        initView();
         return view.render()
           .then(function () {
             return view.submit();
           })
           .then(function () {
-            assert.isTrue(user.setCurrentAccountByUid.calledWith(validUid));
+            assert.isTrue(user.getAccountByUid.calledWith(validUid));
             assert.isTrue(view.isSuccessVisible());
 
             assert.isTrue(view.fxaClient.signUpResend.calledWith(relier, sessionToken));
