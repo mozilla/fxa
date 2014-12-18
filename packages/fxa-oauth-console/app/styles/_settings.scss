@@ -60,12 +60,12 @@
 // $default-float: left;
 
 // We use these as default colors throughout
-$primary-color: #E66000;
-$secondary-color: #FF9500;
+$primary-color: #0095DD;
+$secondary-color: #0095DD;
 // #8e2b28 - dark red
-// $alert-color: #f04124;
-// $success-color: #43AC6A;
-// $warning-color: #f08a24;
+$alert-color: #D74345;
+$success-color: #74BF43;
+$warning-color: #FF9500;
 // $info-color: #a0d3e8;
 
 // We use these to make sure border radius matches unless we want it different.
@@ -1187,7 +1187,7 @@ $side-nav-divider-color: scale-color($primary-color, $lightness: 80%);
 // $include-html-top-bar-classes: $include-html-classes;
 
 // Background color for the top bar
-$topbar-bg-color: #0095DD;
+$topbar-bg-color: #424F5A;
 // $topbar-bg: $topbar-bg-color;
 
 // Height and margin

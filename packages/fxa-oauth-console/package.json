@@ -4,6 +4,7 @@
   "description": "Firefox Accounts OAuth Credential Management Dashboard",
   "scripts": {
     "start": "./scripts/run_dev.js",
+    "production": "NODE_ENV=production ember build --environment=production && node bin/server.js",
     "test": "ember test && grunt lint",
     "postinstall": "node_modules/.bin/bower install --config.interactive=false -s",
     "outdated": "npm outdated --depth 0",
