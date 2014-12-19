@@ -44,17 +44,6 @@ function (_) {
       var terms = searchParams(str);
 
       return terms[name];
-    },
-
-    pathToScreenName: function (path) {
-                // strip leading /
-      return path.replace(/^\//, '')
-                // strip trailing /
-                .replace(/\/$/, '')
-                // any other slashes get converted to '.'
-                .replace(/\//g, '.')
-                // search params can contain sensitive info
-                .replace(/\?.*/, '');
     }
   };
 });

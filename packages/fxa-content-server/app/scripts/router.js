@@ -83,7 +83,7 @@ function (
         router: this,
         user: this.user,
         window: this.window,
-        screenName: Backbone.history.fragment
+        screenName: this.fragmentToScreenName(Backbone.history.fragment)
       }, options || {});
 
       this.showView(new View(viewOptions));
@@ -232,6 +232,19 @@ function (
           self.navigate(url);
         }
       });
+    },
+
+    fragmentToScreenName: function (fragment) {
+                // strip leading /
+      return fragment.replace(/^\//, '')
+                // strip trailing /
+                .replace(/\/$/, '')
+                // any other slashes get converted to '.'
+                .replace(/\//g, '.')
+                // search params can contain sensitive info
+                .replace(/\?.*/, '')
+                // replace _ with -
+                .replace(/_/g, '-');
     }
   });
 
