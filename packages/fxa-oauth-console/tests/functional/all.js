@@ -1,5 +1,5 @@
 define([
-  './functional/all/clients'
+  './all/clients'
 ], function () {
   'use strict';
 });

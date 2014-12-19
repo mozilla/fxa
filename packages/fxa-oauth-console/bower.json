@@ -21,6 +21,7 @@
     "jquery": ">= 1.7.0 < 2.2.0"
   },
   "devDependencies": {
-    "blanket": "~1.1.5"
+    "blanket": "~1.1.5",
+    "fxa-js-client": "~0.1.27"
   }
 }

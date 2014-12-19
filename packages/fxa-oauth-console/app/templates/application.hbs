@@ -12,7 +12,7 @@
   <section class="top-bar-section">
     <ul class="right">
       {{#if session.email}}
-        <li><a {{ action 'invalidateSession' }}>Logout</a></li>
+        <li><a id="logout" {{ action 'invalidateSession' }}>Logout</a></li>
       {{/if}}
     </ul>
   </section>

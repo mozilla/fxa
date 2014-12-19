@@ -6,6 +6,7 @@
     "start": "./scripts/run_dev.js",
     "production": "NODE_ENV=production ember build --environment=production && node bin/server.js",
     "test": "ember test && grunt lint",
+    "test-functional": "./scripts/run_functional.sh",
     "postinstall": "node_modules/.bin/bower install --config.interactive=false -s",
     "outdated": "npm outdated --depth 0",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS"
@@ -52,7 +53,9 @@
     "intern": "^2.2.2",
     "load-grunt-tasks": "^1.0.0",
     "nodemon": "^1.2.1",
-    "opn": "^1.0.0"
+    "opn": "^1.0.0",
+    "selenium-standalone": "^2.44.0-1",
+    "xmlhttprequest": "git://github.com/zaach/node-XMLHttpRequest.git#onerror"
   },
   "engines": {
     "node": "0.10.0",
