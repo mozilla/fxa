@@ -184,7 +184,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
             return self._cannotCreateAccount();
           }
 
-          return self._createAccount();
+          return self._initAccount();
         });
     },
 
@@ -260,7 +260,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
       this.navigate('cannot_create_account');
     },
 
-    _createAccount: function () {
+    _initAccount: function () {
       var self = this;
       var email = self.$('.email').val();
       var password = self.$('.password').val();
@@ -278,14 +278,14 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
                           cusomizeSync: customizeSync
                         });
         }).then(function (accountData) {
-          var account = self.user.createAccount(accountData);
+          var account = self.user.initAccount(accountData);
 
           if (preVerifyToken && account.get('verified')) {
             self.logScreenEvent('preverified.success');
           }
           self.logScreenEvent('success');
 
-          return self.user.setCurrentAccount(account)
+          return self.user.setSignedInAccount(account)
             .then(function () {
               return account;
             });

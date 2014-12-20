@@ -104,8 +104,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
 
       it('replaces the current page with the settings page if there is a current account', function () {
         windowMock.location.search = '';
-        sinon.stub(user, 'getCurrentAccount', function () {
-          return user.createAccount({
+        sinon.stub(user, 'getSignedInAccount', function () {
+          return user.initAccount({
             sessionToken: 'abc123'
           });
         });

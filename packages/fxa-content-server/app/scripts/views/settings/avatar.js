@@ -20,7 +20,7 @@ function (_, FormView, Template, AvatarMixin) {
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this._displayProfileImage(this.signedInAccount());
+      return this._displayProfileImage(this.getSignedInAccount());
     }
 
   });

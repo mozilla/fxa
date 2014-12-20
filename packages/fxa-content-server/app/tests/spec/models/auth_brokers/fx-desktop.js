@@ -31,7 +31,7 @@ define([
       windowMock = new WindowMock();
       channelMock = new NullChannel();
       user = new User();
-      account = user.createAccount({
+      account = user.initAccount({
         email: 'testuser@testuser.com'
       });
 

@@ -140,8 +140,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
           return p({ verified: false });
         });
 
-        sinon.stub(view, 'accountScopedToView', function () {
-          return user.createAccount({ sessionToken: 'abc123' });
+        sinon.stub(view, 'getAccount', function () {
+          return user.initAccount({ sessionToken: 'abc123' });
         });
 
         sinon.stub(view.fxaClient, 'signUpResend', function () {

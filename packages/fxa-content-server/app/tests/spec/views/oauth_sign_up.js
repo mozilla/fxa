@@ -155,7 +155,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
-        sinon.stub(user, 'setCurrentAccount', function () {
+        sinon.stub(user, 'setSignedInAccount', function () {
           return p();
         });
 
@@ -183,7 +183,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
-        sinon.stub(user, 'setCurrentAccount', function () {
+        sinon.stub(user, 'setSignedInAccount', function () {
           return p();
         });
 
@@ -214,7 +214,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
           });
         });
 
-        sinon.stub(user, 'setCurrentAccount', function () {
+        sinon.stub(user, 'setSignedInAccount', function () {
           return p();
         });
 

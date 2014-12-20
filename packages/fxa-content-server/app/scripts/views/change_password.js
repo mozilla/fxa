@@ -36,7 +36,7 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
 
     submit: function () {
       var self = this;
-      var account = self.signedInAccount();
+      var account = self.getSignedInAccount();
       var email = account.get('email');
       var oldPassword = self.$('#old_password').val();
       var newPassword = self.$('#new_password').val();
@@ -66,7 +66,7 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
           })
           .then(function (updatedSessionData) {
             account.set(updatedSessionData);
-            return self.user.setCurrentAccount(account);
+            return self.user.setSignedInAccount(account);
           })
           .then(function () {
             self.navigate('settings', {

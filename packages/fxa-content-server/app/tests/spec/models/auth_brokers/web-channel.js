@@ -36,7 +36,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, p, NullChan
       relierMock = new Relier();
       user = new User();
 
-      account = user.createAccount({
+      account = user.initAccount({
         sessionToken: 'abc123'
       });
 

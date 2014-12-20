@@ -31,7 +31,7 @@ function (chai, sinon, p, Session, RedirectAuthenticationBroker,
       windowMock = new WindowMock();
       relier = new Relier();
       user = new User();
-      account = user.createAccount({
+      account = user.initAccount({
         sessionToken: 'abc123'
       });
 

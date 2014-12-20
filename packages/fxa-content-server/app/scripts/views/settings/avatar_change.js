@@ -44,7 +44,7 @@ function ($, _, FormView, AvatarMixin, Template, AuthErrors,
     beforeRender: function () {
       var self = this;
 
-      return self._fetchProfileImage(self.signedInAccount())
+      return self._fetchProfileImage(self.getSignedInAccount())
         .then(function (result) {
           self.avatarId = result.id;
           self.avatar = result.avatar;
@@ -62,7 +62,7 @@ function ($, _, FormView, AvatarMixin, Template, AuthErrors,
 
     remove: function () {
       var self = this;
-      return self.signedInAccount().deleteAvatar(self.avatarId)
+      return self.getSignedInAccount().deleteAvatar(self.avatarId)
         .then(function () {
           self.navigate('settings');
         });

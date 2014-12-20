@@ -56,7 +56,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       ephemeralMessages = new EphemeralMessages();
       user = new User();
 
-      account = user.createAccount({
+      account = user.initAccount({
         email: 'a@a.com',
         uid: 'uid',
         sessionToken: 'fake session token'
@@ -65,7 +65,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         account: account
       });
 
-      sinon.stub(user, 'setCurrentAccount', function () {
+      sinon.stub(user, 'setSignedInAccount', function () {
         return p();
       });
 
@@ -103,7 +103,7 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
 
       it('redirects to /signup if no account sessionToken', function () {
         ephemeralMessages.set('data', {
-          account: user.createAccount()
+          account: user.initAccount()
         });
         view = new View({
           router: routerMock,

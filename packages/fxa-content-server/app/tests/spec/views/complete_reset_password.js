@@ -301,7 +301,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p(true);
         });
-        sinon.stub(user, 'setCurrentAccount', function (newAccount) {
+        sinon.stub(user, 'setSignedInAccount', function (newAccount) {
           account = newAccount;
           return p();
         });
@@ -336,7 +336,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         sinon.stub(fxaClient, 'completePasswordReset', function () {
           return p(true);
         });
-        sinon.stub(user, 'setCurrentAccount', function (newAccount) {
+        sinon.stub(user, 'setSignedInAccount', function (newAccount) {
           account = newAccount;
           return p();
         });

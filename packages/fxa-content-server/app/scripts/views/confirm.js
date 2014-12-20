@@ -31,16 +31,16 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       // ephemeral properties like unwrapBKey and keyFetchToken
       // that need to be sent to the browser.
       var data = this.ephemeralData();
-      this._account = data && this.user.createAccount(data.account);
+      this._account = data && this.user.initAccount(data.account);
     },
 
-    accountScopedToView: function () {
+    getAccount: function () {
       return this._account;
     },
 
     context: function () {
       return {
-        email: this.accountScopedToView().get('email')
+        email: this.getAccount().get('email')
       };
     },
 
@@ -51,13 +51,13 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     _bouncedEmailSignup: function () {
       // TODO #1913 add `bouncedEmail` to the User model when ready.
-      this.ephemeralMessages.set('bouncedEmail', this.accountScopedToView().get('email'));
+      this.ephemeralMessages.set('bouncedEmail', this.getAccount().get('email'));
       this.navigate('signup');
     },
 
     beforeRender: function () {
       // user cannot confirm if they have not initiated a sign up.
-      if (! this.accountScopedToView().get('sessionToken')) {
+      if (! this.getAccount().get('sessionToken')) {
         this.navigate('signup');
         return false;
       }
@@ -70,13 +70,13 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
       var self = this;
       return self.broker.persist()
         .then(function () {
-          return self.broker.beforeSignUpConfirmationPoll(self.accountScopedToView());
+          return self.broker.beforeSignUpConfirmationPoll(self.getAccount());
         })
         .then(function () {
           self._waitForConfirmation()
             .then(function () {
               self.logScreenEvent('verification.success');
-              return self.broker.afterSignUpConfirmationPoll(self.accountScopedToView());
+              return self.broker.afterSignUpConfirmationPoll(self.getAccount());
             })
             .then(function (result) {
               if (! (result && result.halt)) {
@@ -96,7 +96,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
     _waitForConfirmation: function () {
       var self = this;
-      var account = self.accountScopedToView();
+      var account = self.getAccount();
       return self.fxaClient.recoveryEmailStatus(
           account.get('sessionToken'), account.get('uid'))
         .then(function (result) {
@@ -123,7 +123,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
 
       self.logScreenEvent('resend');
       return self.fxaClient.signUpResend(self.relier,
-          self.accountScopedToView().get('sessionToken'))
+          self.getAccount().get('sessionToken'))
         .then(function () {
           self.displaySuccess();
         }, function (err) {

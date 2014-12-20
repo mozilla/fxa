@@ -162,7 +162,7 @@ function (
     },
 
     redirectToSignupOrSettings: function () {
-      var url = this.user.getCurrentAccount().get('sessionToken') ?
+      var url = this.user.getSignedInAccount().get('sessionToken') ?
                   '/settings' : '/signup';
       this.navigate(url, { trigger: true, replace: true });
     },

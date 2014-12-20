@@ -34,15 +34,15 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
       // The `mustVerify` flag will ensure that the account is valid.
       if (! self.user.getAccountByUid(uid).isEmpty()) {
         // The account with uid exists; set it to our current account.
-        self.user.setCurrentAccountByUid(uid);
+        self.user.setSignedInAccountByUid(uid);
       } else if (uid) {
         Session.clear();
-        self.user.clearCurrentAccount();
+        self.user.clearSignedInAccount();
       }
     },
 
     context: function () {
-      var account = this.signedInAccount();
+      var account = this.getSignedInAccount();
       return {
         email: account.get('email'),
         showSignOut: !account.isFromSync(),
@@ -57,16 +57,16 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
 
     submit: function () {
       var self = this;
-      return self.fxaClient.signOut(self.signedInAccount().get('sessionToken'))
+      return self.fxaClient.signOut(self.getSignedInAccount().get('sessionToken'))
               .then(function () {
                 // user's session is gone
-                self.user.clearCurrentAccount();
+                self.user.clearSignedInAccount();
                 Session.clear();
               }, function () {
                 // Clear the session, even on failure. Everything is A-OK.
                 // See issue #616
                 // - https://github.com/mozilla/fxa-content-server/issues/616
-                self.user.clearCurrentAccount();
+                self.user.clearSignedInAccount();
                 Session.clear();
               })
               .then(function () {
@@ -85,7 +85,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
     },
 
     afterVisible: function () {
-      var account = this.signedInAccount();
+      var account = this.getSignedInAccount();
       var imageContainerSelector = this._isAvatarLinkVisible(account.get('email')) ?
                                      '.avatar-wrapper a.change-avatar' :
                                      '.avatar-wrapper';

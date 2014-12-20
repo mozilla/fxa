@@ -119,10 +119,10 @@ function (_, BaseView, FormView, Template, PasswordMixin,
         .then(function () {
           return self.fxaClient.signIn(email, password, self.relier);
         }).then(function (accountData) {
-          var account = self.user.createAccount(accountData);
+          var account = self.user.initAccount(accountData);
           self._interTabChannel.emit('login', accountData);
 
-          return self.user.setCurrentAccount(account)
+          return self.user.setSignedInAccount(account)
             .then(function () {
               return account;
             });

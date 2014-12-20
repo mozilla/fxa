@@ -31,16 +31,20 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
 
         // Remove any spaces that are probably due to a MUA adding
         // line breaks in the middle of the link.
-        this.uid = this.uid.replace(/ /g, '');
-        this.code = this.code.replace(/ /g, '');
+        this._uid = this.uid.replace(/ /g, '');
+        this._code = this.code.replace(/ /g, '');
       } catch (e) {
         this._isLinkDamaged = true;
       }
 
-      this._account = this.user.getAccountByUid(this.uid);
+      this._account = this.user.getAccountByUid(this._uid);
+
+      // cache the email in case we need to attempt to resend the
+      // verification link
+      this._email = this._account.get('email');
     },
 
-    accountScopedToView: function () {
+    getAccount: function () {
       return this._account;
     },
 
@@ -53,10 +57,10 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
       }
 
       var self = this;
-      return self.fxaClient.verifyCode(self.uid, self.code)
+      return self.fxaClient.verifyCode(self._uid, self._code)
           .then(function () {
             self.logEvent('complete_sign_up.verification.success');
-            return self.broker.afterCompleteSignUp(self.accountScopedToView());
+            return self.broker.afterCompleteSignUp(self.getAccount());
           })
           .then(function (result) {
             if (! (result && result.halt)) {
@@ -82,8 +86,8 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
     },
 
     _doesLinkValidate: function () {
-      return Validate.isUidValid(this.uid) &&
-             Validate.isCodeValid(this.code) &&
+      return Validate.isUidValid(this._uid) &&
+             Validate.isCodeValid(this._code) &&
              ! this._isLinkDamaged;
     },
 
@@ -98,41 +102,31 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
 
         // This is only the case if you've signed up in the
         // same browser you opened the verification link in.
-        canResend: !!this.accountScopedToView().get('sessionToken'),
+        canResend: this._canResend(),
         error: this._error
       };
+    },
+
+    _canResend: function () {
+      return !! this._getResendSessionToken();
+    },
+
+    // This returns the latest sessionToken associated with the user's email
+    // address. We intentionally don't cache it during view initialization so that
+    // we can capture sessionTokens from accounts created (in this browser)
+    // since the view was loaded.
+    _getResendSessionToken: function () {
+      return this.user.getAccountByEmail(this._email).get('sessionToken');
     },
 
     // This is called when a user follows an expired verification link
     // and clicks the "Resend" link.
     submit: function () {
       var self = this;
-      var email;
 
       self.logEvent('complete_sign_up.resend');
 
-      // The account with this.uid is associated with an expired link, which means
-      // that it has been overridden by a newer account and its sessionToken
-      // is no longer valid. We attempt to use the new account's
-      // sessionToken instead (possible if it was created in this browser),
-      // or otherwise fail.
-      if (self.accountScopedToView().get('uid') === this.uid) {
-        email = self.accountScopedToView().get('email');
-        self.user.removeAccount(self.accountScopedToView());
-        self._account = self.user.getAccountByEmail(email);
-      }
-
-      var sessionToken = self.accountScopedToView().get('sessionToken');
-
-      if (!sessionToken) {
-        return p().then(function () {
-          return self.navigate('signup', {
-            error: AuthErrors.toError('INVALID_TOKEN')
-          });
-        });
-      }
-
-      return self.fxaClient.signUpResend(self.relier, sessionToken)
+      return self.fxaClient.signUpResend(self.relier, self._getResendSessionToken())
               .then(function () {
                 self.displaySuccess();
               }, function (err) {

@@ -39,7 +39,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
         router: routerMock
       });
 
-      account = user.createAccount({
+      account = user.initAccount({
         email: email,
         accessToken: 'abc123',
         verified: true
@@ -65,7 +65,7 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
 
     describe('with session', function () {
       beforeEach(function () {
-        sinon.stub(view, 'signedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
         view.isUserAuthorized = function () {

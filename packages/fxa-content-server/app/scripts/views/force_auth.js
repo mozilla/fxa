@@ -29,7 +29,7 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
       // forceAuth means a user must sign in as a specific user.
       // kill the user's local session.
       Session.clear();
-      this.user.clearCurrentAccount();
+      this.user.clearSignedInAccount();
     },
 
     context: function () {
@@ -57,7 +57,7 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
     },
 
     submit: function () {
-      var account = this.user.createAccount({
+      var account = this.user.initAccount({
         email:  this.relier.get('email'),
         password: this.$('.password').val()
       });

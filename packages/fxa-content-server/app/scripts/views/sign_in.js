@@ -16,10 +16,12 @@ define([
   'lib/validate',
   'views/mixins/service-mixin',
   'views/mixins/avatar-mixin',
+  'views/decorators/allow_only_one_submit',
   'views/decorators/progress_indicator'
 ],
 function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
-      AuthErrors, Validate, ServiceMixin, AvatarMixin, showProgressIndicator) {
+      AuthErrors, Validate, ServiceMixin, AvatarMixin, allowOnlyOneSubmit,
+      showProgressIndicator) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -36,12 +38,12 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       this._account = this._suggestedAccount();
     },
 
-    accountScopedToView: function () {
+    getAccount: function () {
       return this._account;
     },
 
     context: function () {
-      var suggestedAccount = this.accountScopedToView();
+      var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = hasSuggestedAccount ?
                     suggestedAccount.get('email') : this.prefillEmail;
@@ -71,18 +73,18 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
 
     afterVisible: function () {
       FormView.prototype.afterVisible.call(this);
-      return this._displayProfileImage(this.accountScopedToView());
+      return this._displayProfileImage(this.getAccount());
     },
 
     beforeDestroy: function () {
-      Session.set('prefillEmail', this.$('.email').val());
-      Session.set('prefillPassword', this.$('.password').val());
+      Session.set('prefillEmail', this.getElementValue('.email'));
+      Session.set('prefillPassword', this.getElementValue('.password'));
     },
 
     submit: function () {
-      var account = this.user.createAccount({
-        email: this.$('.email').val(),
-        password: this.$('.password').val()
+      var account = this.user.initAccount({
+        email: this.getElementValue('.email'),
+        password: this.getElementValue('.password')
       });
 
       return this._signIn(account);
@@ -116,6 +118,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
               return account;
             });
         } else if (account.get('sessionToken')) {
+          // We have a cached Sync session so just check that it hasn't expired.
           return self.fxaClient.recoveryEmailStatus(account.get('sessionToken'))
             .then(function (result) {
               // The result includes the latest verified state
@@ -127,7 +130,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
         }
       })
       .then(function (account) {
-        return self.user.setCurrentAccount(account)
+        return self.user.setSignedInAccount(account)
           .then(function () {
             return account;
           });
@@ -199,9 +202,9 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
      * Used for the special "Sign In" button
      * which is present when there is already a logged in user in the session
      */
-    useLoggedInAccount: showProgressIndicator(function () {
+    useLoggedInAccount: allowOnlyOneSubmit(showProgressIndicator(function () {
       var self = this;
-      var account = this.accountScopedToView();
+      var account = this.getAccount();
 
       return this._signIn(account)
         .fail(
@@ -213,7 +216,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
                 return self.displayError(AuthErrors.toError('SESSION_EXPIRED'));
               });
           });
-    }),
+    })),
 
     /**
      * Render to a basic sign in view, used with "Use a different account" button
@@ -246,7 +249,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       ) {
         return account;
       } else {
-        return this.user.createAccount();
+        return this.user.initAccount();
       }
     },
 

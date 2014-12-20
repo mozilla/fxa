@@ -75,13 +75,13 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
         sinon.stub(view.fxaClient, 'isSignedIn', function () {
           return true;
         });
-        account = user.createAccount({
+        account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'abc123',
           verified: true
         });
 
-        sinon.stub(view, 'signedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
 
@@ -199,7 +199,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
             return p({});
           });
 
-          sinon.stub(user, 'setCurrentAccount', function () {
+          sinon.stub(user, 'setSignedInAccount', function () {
             return p({});
           });
 
@@ -212,7 +212,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
                   email, oldPassword, newPassword));
               assert.isTrue(view.fxaClient.signIn.calledWith(
                       email, newPassword, relier));
-              assert.isTrue(user.setCurrentAccount.calledWith(account));
+              assert.isTrue(user.setSignedInAccount.calledWith(account));
             });
         });
 
@@ -236,7 +236,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
             return p({});
           });
 
-          sinon.stub(user, 'setCurrentAccount', function () {
+          sinon.stub(user, 'setSignedInAccount', function () {
             return p({});
           });
 
@@ -245,7 +245,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
                 assert.isTrue(view.fxaClient.signIn.calledWith(
                     email, 'new_password', relier,
                     { sessionTokenContext: 'foo' }));
-                assert.isTrue(user.setCurrentAccount.calledWith(account));
+                assert.isTrue(user.setSignedInAccount.calledWith(account));
               });
         });
 

@@ -167,7 +167,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
       it('redirects if mustVerify flag is set and account is unverified', function () {
         view.mustVerify = true;
-        var account = user.createAccount({
+        var account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'abc123',
           uid: 'uid'
@@ -178,7 +178,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
         sinon.stub(account, 'isVerified', function () {
           return p(false);
         });
-        sinon.stub(view, 'signedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
         return view.render()
@@ -189,7 +189,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
       it('succeeds if mustVerify flag is set and account has verified since being stored', function () {
         view.mustVerify = true;
-        var account = user.createAccount({
+        var account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'abc123',
           uid: 'uid'
@@ -200,7 +200,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
         sinon.stub(account, 'isVerified', function () {
           return p(true);
         });
-        sinon.stub(view, 'signedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
         sinon.stub(user, 'setAccount', function () {
@@ -215,7 +215,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
       it('succeeds if mustVerify flag is set and account is verified', function () {
         view.mustVerify = true;
-        var account = user.createAccount({
+        var account = user.initAccount({
           email: 'a@a.com',
           sessionToken: 'abc123',
           uid: 'uid',
@@ -224,7 +224,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
         sinon.stub(fxaClient, 'sessionStatus', function () {
           return p(true);
         });
-        sinon.stub(view, 'signedInAccount', function () {
+        sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
         return view.render()

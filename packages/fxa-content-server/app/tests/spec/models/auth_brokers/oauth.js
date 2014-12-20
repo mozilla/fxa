@@ -70,7 +70,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
 
       user = new User();
 
-      account = user.createAccount({
+      account = user.initAccount({
         sessionToken: 'abc123'
       });
 
@@ -249,7 +249,7 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
       });
 
       it('throws an error if accountData is missing a sessionToken', function () {
-        return broker.getOAuthResult(user.createAccount())
+        return broker.getOAuthResult(user.initAccount())
           .then(assert.fail, function (err) {
             assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
           });
