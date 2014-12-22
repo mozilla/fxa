@@ -5,7 +5,7 @@
 'use strict';
 
 
-var logger = require('intel').getLogger('server.routes');
+var logger = require('mozlog')('server.routes');
 
 /**
  * Each route has 3 attributes: method, path and process.

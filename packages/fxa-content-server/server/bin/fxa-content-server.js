@@ -1,12 +1,14 @@
 #!/usr/bin/env node
-var fs = require('fs');
-var https = require('https');
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var fs = require('fs');
+var https = require('https');
 var path = require('path');
+
+var mozlog = require('mozlog');
 
 // This can't possibly be best way to librar-ify this module.
 var isMain = process.argv[1] === __filename;
@@ -15,21 +17,15 @@ if (isMain) {
   process.chdir(path.dirname(__dirname));
 }
 
-// set up common formatting for all loggers
-var intel = require('intel');
-intel.basicConfig({
-  format: {
-    format: '[%(date)s] %(name)s.%(levelname)s: %(message)s',
-    datefmt: '%Y-%m-%dT%H:%M:%S.%LZ'
-  }
-});
-var logger = require('intel').getLogger('server.main');
+var config = require('../lib/configuration');
+mozlog.config(config.get('logging'));
+
+var logger = require('mozlog')('server.main');
 
 var helmet = require('helmet');
 var express = require('express');
 var consolidate = require('consolidate');
 
-var config = require('../lib/configuration');
 var i18n = require('../lib/i18n')(config.get('i18n'));
 var templates = require('../lib/templates')(config.get('template_path'), i18n);
 var routes = require('../lib/routes')(config, templates, i18n);

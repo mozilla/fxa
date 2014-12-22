@@ -55,10 +55,10 @@
     "helmet": "0.4.0",
     "http-proxy": "1.2.0",
     "i18n-abide": "0.0.22",
-    "intel": "1.0.0-b4",
     "jsxgettext-recursive": "0.0.5",
     "load-grunt-tasks": "0.6.0",
     "mkdirp": "0.5.0",
+    "mozlog": "1.0.1",
     "time-grunt": "0.4.0"
   },
   "devDependencies": {

@@ -75,6 +75,19 @@ var conf = module.exports = convict({
       default: 8125
     }
   },
+  logging: {
+    app: {
+      default: 'fxa-content-server'
+    },
+    level: {
+      env: 'LOG_LEVEL',
+      default: 'info'
+    },
+    fmt: {
+      format: ['heka', 'pretty'],
+      default: 'heka'
+    }
+  },
   route_log_format: {
     format: [ 'default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny' ],
     default: 'default_fxa'

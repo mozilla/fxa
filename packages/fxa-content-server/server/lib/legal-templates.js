@@ -7,7 +7,7 @@
 var fs = require('fs');
 var path = require('path');
 var Promise = require('bluebird');
-var logger = require('intel').getLogger('legal-templates');
+var logger = require('mozlog')('legal-templates');
 
 module.exports = function (i18n, root) {
 

@@ -4,7 +4,7 @@
 
 'use strict';
 
-var logger = require('intel').getLogger('route.500');
+var logger = require('mozlog')('route.500');
 
 // It's a 500 server error response.
 

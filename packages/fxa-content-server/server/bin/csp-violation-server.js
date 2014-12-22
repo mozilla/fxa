@@ -6,15 +6,13 @@
 
 var fs = require('fs');
 var https = require('https');
-// set up common formatting for all loggers
-var intel = require('intel');
-intel.basicConfig({
-  format: {
-    format: '[%(date)s] %(name)s.%(levelname)s: %(message)s',
-    datefmt: '%Y-%m-%dT%H:%M:%S.%LZ'
-  }
-});
-var logger = require('intel').getLogger('server.main');
+
+var mozlog = require('mozlog');
+
+var config = require('../lib/configuration');
+mozlog.config(config.get('logging'));
+
+var logger = require('mozlog')('server.main');
 
 var express = require('express');
 
