@@ -87,8 +87,7 @@ define([
         .then(function () {
           return fillOutSignIn(self, email, 'incorrect password')
             // success is seeing the error message.
-            .findByClassName('error')
-            .end()
+            .then(FunctionalHelpers.visibleByQSA('.error'))
 
             // If user clicks on "forgot your password?",
             // begin the reset password flow.
