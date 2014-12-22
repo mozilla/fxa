@@ -65,10 +65,10 @@ module.exports = function (i18n) {
       // to see if cookies are enabled. If cookies are disabled,
       // the `__cookie_check` cookie will not arrive.
       cookiesEnabled: !!req.cookies['__cookie_check'],
-      fxaccountUrl: getAuthServerUrl(userAgent),
-      oauthUrl: getOAuthServerUrl(userAgent),
+      authServerUrl: getAuthServerUrl(userAgent),
+      oAuthUrl: getOAuthServerUrl(userAgent),
       profileUrl: getProfileServerUrl(userAgent),
-      oauthClientId: clientId,
+      oAuthClientId: clientId,
       // req.lang is set by abide in a previous middleware.
       language: req.lang,
       metricsSampleRate: config.get('metrics.sample_rate')

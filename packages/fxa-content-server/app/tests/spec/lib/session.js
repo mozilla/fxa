@@ -60,13 +60,6 @@ function (chai, Session) {
         Session.clear('set');
         assert.isFunction(Session.set);
       });
-
-      it('will not clear items in DO_NOT_CLEAR', function () {
-        var config = 'config';
-        Session.set('config', config);
-        Session.clear('config');
-        assert.strictEqual(Session.config, config);
-      });
     });
 
     describe('persist', function () {

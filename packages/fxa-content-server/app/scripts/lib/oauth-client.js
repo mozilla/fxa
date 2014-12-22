@@ -12,57 +12,31 @@ define([
   'lib/oauth-errors'
 ],
 function (xhr, p, Session, ConfigLoader, OAuthErrors) {
-  var oauthUrl;
-
   var GET_CLIENT = '/v1/client/';
   var GET_CODE = '/v1/authorization';
 
   function OAuthClient(options) {
-    if (options && options.oauthUrl) {
-      oauthUrl = options.oauthUrl;
+    if (options && options.oAuthUrl) {
+      this._oAuthUrl = options.oAuthUrl;
     }
   }
 
   OAuthClient.prototype = {
-    _getOauthUrl: function _getOauthUrl() {
-      var configLoader = new ConfigLoader();
-      var promise;
-
-      if (oauthUrl) {
-        promise = p(oauthUrl);
-      } else if (Session.config && Session.config.oauthUrl) {
-        oauthUrl = Session.config.oauthUrl;
-        promise = p(oauthUrl);
-      } else {
-        promise = configLoader.fetch()
-          .then(function (data) {
-            oauthUrl = data.oauthUrl;
-            return oauthUrl;
-          });
-      }
-
-      return promise;
-    },
-
     // params = { assertion, client_id, redirect_uri, scope, state }
     getCode: function getCode(params) {
-      return this._getOauthUrl().then(function (url) {
-        return xhr.post(url + GET_CODE, params)
-            .then(null, function (xhr) {
-              var err = OAuthErrors.normalizeXHRError(xhr);
-              throw err;
-            });
-      });
+      return xhr.post(this._oAuthUrl + GET_CODE, params)
+          .then(null, function (xhr) {
+            var err = OAuthErrors.normalizeXHRError(xhr);
+            throw err;
+          });
     },
 
     getClientInfo: function getClientInfo(id) {
-      return this._getOauthUrl().then(function (url) {
-        return xhr.get(url + GET_CLIENT + id)
-            .then(null, function (xhr) {
-              var err = OAuthErrors.normalizeXHRError(xhr);
-              throw err;
-            });
-      });
+      return xhr.get(this._oAuthUrl + GET_CLIENT + id)
+          .then(null, function (xhr) {
+            var err = OAuthErrors.normalizeXHRError(xhr);
+            throw err;
+          });
     },
 
     // params = { assertion, client_id, scope }

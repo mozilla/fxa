@@ -255,6 +255,10 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         $('[type=email]').val(email);
         $('[type=password]').val('incorrect');
 
+        sinon.stub(view.fxaClient, 'signIn', function () {
+          return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+        });
+
         return view.submit()
             .then(function (msg) {
               assert.ok(msg.indexOf('/signup') > -1);

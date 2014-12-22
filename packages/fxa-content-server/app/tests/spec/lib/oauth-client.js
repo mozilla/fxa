@@ -36,7 +36,7 @@ function (chai, $, testHelpers, sinon,
       Session.clear();
 
       client = new OAuthClient({
-        oauthUrl: OAUTH_URL
+        oAuthUrl: OAUTH_URL
       });
     });
 

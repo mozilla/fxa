@@ -51,8 +51,6 @@ function (chai, sinon, AppStart, Session, Constants, p,
       it('starts the app', function () {
         return appStart.startApp()
                     .then(function () {
-                      assert.ok(Session.config);
-
                       // translator is put on the global object.
                       assert.ok(windowMock.translator);
                     });
