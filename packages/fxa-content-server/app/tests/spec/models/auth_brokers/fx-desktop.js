@@ -31,13 +31,14 @@ define([
       windowMock = new WindowMock();
       channelMock = new NullChannel();
       user = new User();
-      account = user.createAccount();
+      account = user.initAccount({
+        email: 'testuser@testuser.com'
+      });
 
       broker = new FxDesktopAuthenticationBroker({
         window: windowMock,
         channel: channelMock,
-        session: Session,
-        user: user
+        session: Session
       });
     });
 
@@ -95,9 +96,6 @@ define([
           }
         });
 
-        var account = {
-          email: 'testuser@testuser.com'
-        };
         return broker._notifyRelierOfLogin(account)
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
@@ -114,9 +112,6 @@ define([
           }
         });
 
-        var account = {
-          email: 'testuser@testuser.com'
-        };
         return broker._notifyRelierOfLogin(account)
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
@@ -135,9 +130,6 @@ define([
           }
         });
 
-        var account = {
-          email: 'testuser@testuser.com'
-        };
         return broker.beforeSignIn('testuser@testuser.com')
           .then(function () {
             return broker._notifyRelierOfLogin(account);
@@ -155,10 +147,6 @@ define([
           return p();
         });
 
-        var account = {
-          email: 'testuser@testuser.com'
-        };
-
         return broker.afterSignIn(account)
           .then(function () {
             assert.isTrue(broker._notifyRelierOfLogin.calledWith(account));
@@ -171,10 +159,6 @@ define([
         sinon.stub(broker, '_notifyRelierOfLogin', function () {
           return p();
         });
-
-        var account = {
-          email: 'testuser@testuser.com'
-        };
 
         return broker.beforeSignUpConfirmationPoll(account)
           .then(function () {

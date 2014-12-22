@@ -237,8 +237,7 @@ function (
           this._authenticationBroker = new FxDesktopAuthenticationBroker({
             window: this._window,
             relier: this._relier,
-            session: Session,
-            user: this._user
+            session: Session
           });
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
@@ -247,7 +246,6 @@ function (
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
             oAuthUrl: this._config.oauthUrl,
-            user: this._user,
             session: Session
           });
         } else if (this._isIframe()) {
@@ -257,7 +255,6 @@ function (
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
             oAuthUrl: this._config.oauthUrl,
-            user: this._user,
             session: Session
           });
         } else if (this._isOAuth()) {
@@ -267,7 +264,6 @@ function (
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
             oAuthUrl: this._config.oauthUrl,
-            user: this._user,
             session: Session
           });
         } else {

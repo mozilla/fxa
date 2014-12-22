@@ -32,7 +32,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
 
     it('creates an account', function () {
       var email = 'a@a.com';
-      var account = user.createAccount({
+      var account = user.initAccount({
         email: email
       });
       assert.equal(account.get('email'), email);
@@ -40,7 +40,7 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
     });
 
     it('isSyncAccount', function () {
-      var account = user.createAccount({
+      var account = user.initAccount({
         email: 'email',
         sessionTokenContext: Constants.FX_DESKTOP_CONTEXT
       });
@@ -62,42 +62,55 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         });
     });
 
-    it('getCurrentAccount', function () {
-      var account = user.createAccount({ uid: 'uid', email: 'email' });
-      return user.setCurrentAccount(account)
+    it('getAccountByEmail gets the last added if there are multiple', function () {
+      return user.setAccount({ uid: 'uid', email: 'email' })
         .then(function () {
-          assert.equal(user.getCurrentAccount().get('uid'), account.get('uid'));
+          return user.setAccount({ uid: 'uid2', email: 'email' });
+        })
+        .then(function () {
+          return user.setAccount({ uid: 'uid3', email: 'email' });
+        })
+        .then(function () {
+          assert.equal(user.getAccountByEmail('email').get('uid'), 'uid3');
+        });
+    });
+
+    it('getSignedInAccount', function () {
+      var account = user.initAccount({ uid: 'uid', email: 'email' });
+      return user.setSignedInAccount(account)
+        .then(function () {
+          assert.equal(user.getSignedInAccount().get('uid'), account.get('uid'));
         });
     });
 
     it('getChooserAccount', function () {
-      return user.setCurrentAccount({ uid: 'uid2', email: 'email',
+      return user.setSignedInAccount({ uid: 'uid2', email: 'email',
         sessionTokenContext: Constants.FX_DESKTOP_CONTEXT
       })
         .then(function () {
-          return user.setCurrentAccount({ uid: 'uid', email: 'email' });
+          return user.setSignedInAccount({ uid: 'uid', email: 'email' });
         })
         .then(function () {
           assert.equal(user.getChooserAccount().get('uid'), 'uid2');
         });
     });
 
-    it('clearCurrentAccount', function () {
-      return user.setCurrentAccount({ uid: 'uid', email: 'email' })
+    it('clearSignedInAccount', function () {
+      return user.setSignedInAccount({ uid: 'uid', email: 'email' })
         .then(function () {
-          user.clearCurrentAccount();
-          assert.isTrue(user.getCurrentAccount().isEmpty());
+          user.clearSignedInAccount();
+          assert.isTrue(user.getSignedInAccount().isEmpty());
           assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
         });
     });
 
     it('removeAccount', function () {
       var account = { uid: 'uid', email: 'email' };
-      return user.setCurrentAccount(account)
+      return user.setSignedInAccount(account)
         .then(function () {
           user.removeAccount(account);
           assert.isTrue(user.getAccountByUid(account.uid).isEmpty());
-          assert.isTrue(user.getCurrentAccount().isEmpty());
+          assert.isTrue(user.getSignedInAccount().isEmpty());
         });
     });
 
@@ -117,33 +130,33 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       return user.setAccount({ uid: 'uid', email: 'email' });
     });
 
-    it('setCurrentAccount', function () {
-      return user.setCurrentAccount({ uid: 'uid', email: 'email' })
+    it('setSignedInAccount', function () {
+      return user.setSignedInAccount({ uid: 'uid', email: 'email' })
         .then(function () {
-          assert.equal(user.getCurrentAccount().get('uid'), 'uid');
+          assert.equal(user.getSignedInAccount().get('uid'), 'uid');
         });
     });
 
-    it('setCurrentAccountByUid works if account is already cached', function () {
+    it('setSignedInAccountByUid works if account is already cached', function () {
       var uid = 'abc123';
 
-      return user.setCurrentAccount({ uid: 'uid', email: 'email' })
+      return user.setSignedInAccount({ uid: 'uid', email: 'email' })
         .then(function () {
           return user.setAccount({ uid: uid, email: 'email' })
             .then(function () {
-              user.setCurrentAccountByUid(uid);
-              assert.equal(user.getCurrentAccount().get('uid'), uid);
+              user.setSignedInAccountByUid(uid);
+              assert.equal(user.getSignedInAccount().get('uid'), uid);
             });
         });
     });
 
-    it('setCurrentAccountByUid does nothing if account is not cached', function () {
+    it('setSignedInAccountByUid does nothing if account is not cached', function () {
       var uid = 'abc123';
 
-      return user.setCurrentAccount({ uid: 'uid', email: 'email' })
+      return user.setSignedInAccount({ uid: 'uid', email: 'email' })
         .then(function () {
-          user.setCurrentAccountByUid(uid);
-          assert.equal(user.getCurrentAccount().get('uid'), 'uid');
+          user.setSignedInAccountByUid(uid);
+          assert.equal(user.getSignedInAccount().get('uid'), 'uid');
         });
     });
 
@@ -157,18 +170,18 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       };
       Session.set('cachedCredentials', accountData);
 
-      sinon.stub(user, 'getCurrentAccount', function () {
-        return user.createAccount({
+      sinon.stub(user, 'getSignedInAccount', function () {
+        return user.initAccount({
           email: 'b@b.com',
           sessionToken: 'session token'
         });
       });
 
-      sinon.stub(user, 'setCurrentAccount', function () { });
+      sinon.stub(user, 'setSignedInAccount', function () { });
 
       return user.upgradeFromSession(Session, fxaClientMock)
         .then(function () {
-          assert.isTrue(user.getCurrentAccount.called);
+          assert.isTrue(user.getSignedInAccount.called);
           assert.isTrue(user.getAccountByEmail('b@b.com').isEmpty());
         });
     });
@@ -182,11 +195,11 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       };
       Session.set('cachedCredentials', accountData);
 
-      sinon.stub(user, 'setCurrentAccount', function () { });
+      sinon.stub(user, 'setSignedInAccount', function () { });
 
       return user.upgradeFromSession(Session, fxaClientMock)
         .then(function () {
-          assert.isTrue(user.setCurrentAccount.calledWith(accountData));
+          assert.isTrue(user.setSignedInAccount.calledWith(accountData));
         });
     });
 
@@ -201,14 +214,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
       Session.set('email', 'a@a.com');
       Session.set('sessionToken', 'session token too');
 
-      sinon.stub(user, 'setCurrentAccount', function () {
+      sinon.stub(user, 'setSignedInAccount', function () {
         return p();
       });
 
       return user.upgradeFromSession(Session, fxaClientMock)
         .then(function () {
-          assert.isTrue(user.setCurrentAccount.calledOnce);
-          assert.isTrue(user.setCurrentAccount.calledWith(accountData));
+          assert.isTrue(user.setSignedInAccount.calledOnce);
+          assert.isTrue(user.setSignedInAccount.calledWith(accountData));
         });
     });
 
@@ -222,14 +235,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         };
       });
 
-      sinon.stub(user, 'setCurrentAccount', function () {
+      sinon.stub(user, 'setSignedInAccount', function () {
         return p();
       });
 
       return user.upgradeFromSession(Session, fxaClientMock)
         .then(function () {
           assert.isTrue(fxaClientMock.sessionStatus.calledWith('session token'));
-          assert.isTrue(user.setCurrentAccount.calledWith({
+          assert.isTrue(user.setSignedInAccount.calledWith({
             email: 'a@a.com',
             sessionToken: 'session token',
             sessionTokenContext: undefined,
@@ -255,14 +268,14 @@ function (chai, sinon, p, Constants, Session, FxaClient, User) {
         };
       });
 
-      sinon.stub(user, 'setCurrentAccount', function () {
+      sinon.stub(user, 'setSignedInAccount', function () {
         return p();
       });
 
       return user.upgradeFromSession(Session, fxaClientMock)
         .then(function () {
           assert.isTrue(fxaClientMock.sessionStatus.calledWith('session token too'));
-          assert.isTrue(user.setCurrentAccount.calledTwice);
+          assert.isTrue(user.setSignedInAccount.calledTwice);
         });
     });
 

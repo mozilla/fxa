@@ -31,13 +31,13 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, ServiceMixin)
 
     context: function () {
       return {
-        email: this.currentAccount().get('email')
+        email: this.getSignedInAccount().get('email')
       };
     },
 
     submit: function () {
       var self = this;
-      var account = self.currentAccount();
+      var account = self.getSignedInAccount();
       var password = self.$('.password').val();
       return self.fxaClient.deleteAccount(account.get('email'), password)
                 .then(function () {

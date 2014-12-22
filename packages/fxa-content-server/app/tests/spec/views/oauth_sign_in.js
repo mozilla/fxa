@@ -60,18 +60,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       metrics = new Metrics();
       profileClientMock = TestHelpers.stubbedProfileClient();
 
-      view = new View({
-        router: router,
-        window: windowMock,
-        fxaClient: fxaClient,
-        relier: relier,
-        broker: broker,
-        user: user,
-        profileClient: profileClientMock,
-        metrics: metrics,
-        screenName: 'oauth/signin'
-      });
-
+      initView();
       return view.render()
         .then(function () {
           $('#container').html(view.el);
@@ -83,6 +72,20 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       view.remove();
       view.destroy();
     });
+
+    function initView () {
+      view = new View({
+        router: router,
+        window: windowMock,
+        fxaClient: fxaClient,
+        relier: relier,
+        broker: broker,
+        user: user,
+        profileClient: profileClientMock,
+        metrics: metrics,
+        screenName: 'oauth/signin'
+      });
+    }
 
     describe('render', function () {
       it('displays oAuth client name', function () {
@@ -97,6 +100,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       it('is enabled if prefills are valid', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
         Session.set('prefillPassword', 'prefilled password');
+
+        initView();
         return view.render()
           .then(function () {
             assert.isFalse(view.$('button').hasClass('disabled'));
@@ -123,7 +128,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
             assert.isTrue(TestHelpers.isEventLogged(metrics,
                               'oauth.signin.success'));
             assert.isTrue(view.fxaClient.signIn.calledWith(
-                email, password, relier, user));
+                email, password, relier));
             assert.isTrue(broker.afterSignIn.called);
           });
       });
@@ -135,8 +140,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
           return p({ verified: false });
         });
 
-        sinon.stub(view, 'currentAccount', function () {
-          return user.createAccount({ sessionToken: 'abc123' });
+        sinon.stub(view, 'getAccount', function () {
+          return user.initAccount({ sessionToken: 'abc123' });
         });
 
         sinon.stub(view.fxaClient, 'signUpResend', function () {
@@ -148,7 +153,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         return view.submit()
           .then(function () {
             assert.isTrue(view.fxaClient.signIn.calledWith(
-                email, password, relier, user));
+                email, password, relier));
             assert.equal(router.page, 'confirm');
           });
       });

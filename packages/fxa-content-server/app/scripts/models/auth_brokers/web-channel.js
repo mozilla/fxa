@@ -54,25 +54,25 @@ define([
       return p();
     },
 
-    afterSignIn: function () {
+    afterSignIn: function (account) {
       return OAuthAuthenticationBroker.prototype.afterSignIn.call(
-                this, { closeWindow: true });
+                this, account, { closeWindow: true });
     },
 
-    afterCompleteSignUp: function () {
+    afterCompleteSignUp: function (account) {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
       //
       // The slight delay is to allow the functional tests time to bind
       // event handlers before the flow completes.
       var self = this;
-      return p().delay(100).then(_.bind(self.finishOAuthFlow, self));
+      return p().delay(100).then(_.bind(self.finishOAuthFlow, self, account));
     },
 
-    afterCompleteResetPassword: function () {
+    afterCompleteResetPassword: function (account) {
       // The original tab may be closed, so the verification tab should
       // send the OAuth result to the browser to ensure the flow completes.
-      return this.finishOAuthFlow();
+      return this.finishOAuthFlow(account);
     },
 
     // used by the ChannelMixin to get a channel.

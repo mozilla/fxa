@@ -144,7 +144,7 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
 
       return self.takePicture()
         .then(function (data) {
-          return self.currentAccount().uploadAvatar(data);
+          return self.getSignedInAccount().uploadAvatar(data);
         })
         .then(function (result) {
           self.stream.stop();

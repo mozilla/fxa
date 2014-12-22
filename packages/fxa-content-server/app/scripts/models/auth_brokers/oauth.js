@@ -13,10 +13,11 @@ define([
   'underscore',
   'lib/url',
   'lib/oauth-errors',
+  'lib/auth-errors',
   'lib/promise',
   'lib/validate',
   'models/auth_brokers/base'
-], function (_, Url, OAuthErrors, p, Validate, BaseAuthenticationBroker) {
+], function (_, Url, OAuthErrors, AuthErrors, p, Validate, BaseAuthenticationBroker) {
 
   /**
    * Formats the OAuth "result.redirect" url into a {code, state} object
@@ -50,7 +51,6 @@ define([
       options = options || {};
 
       this.session = options.session;
-      this._user = options.user;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
       this._oAuthUrl = options.oAuthUrl;
@@ -59,10 +59,13 @@ define([
                   this, options);
     },
 
-    getOAuthResult: function () {
+    getOAuthResult: function (account) {
       var self = this;
-      var sessionToken = this._user.getCurrentAccount().get('sessionToken');
-      return self._assertionLibrary.generate(sessionToken)
+      if (! account || ! account.get('sessionToken')) {
+        return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+      }
+
+      return self._assertionLibrary.generate(account.get('sessionToken'))
         .then(function (assertion) {
           var relier = self.relier;
           var oauthParams = {
@@ -89,10 +92,10 @@ define([
       return p.reject(new Error('subclasses must override sendOAuthResultToRelier'));
     },
 
-    finishOAuthFlow: function (additionalResultData) {
+    finishOAuthFlow: function (account, additionalResultData) {
       var self = this;
       self.session.clear('oauth');
-      return self.getOAuthResult()
+      return self.getOAuthResult(account)
         .then(function (result) {
           if (additionalResultData) {
             result = _.extend(result, additionalResultData);
@@ -116,22 +119,22 @@ define([
       });
     },
 
-    afterSignIn: function (additionalResultData) {
-      return this.finishOAuthFlow(additionalResultData)
+    afterSignIn: function (account, additionalResultData) {
+      return this.finishOAuthFlow(account, additionalResultData)
         .then(function () {
           // the RP will take over from here, no need for a screen transition.
           return { halt: true };
         });
     },
 
-    afterSignUpConfirmationPoll: function () {
+    afterSignUpConfirmationPoll: function (account) {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow();
+      return this.finishOAuthFlow(account);
     },
 
-    afterResetPasswordConfirmationPoll: function () {
+    afterResetPasswordConfirmationPoll: function (account) {
       // The original tab always finishes the OAuth flow if it is still open.
-      return this.finishOAuthFlow();
+      return this.finishOAuthFlow(account);
     },
 
     transformLink: function (link) {

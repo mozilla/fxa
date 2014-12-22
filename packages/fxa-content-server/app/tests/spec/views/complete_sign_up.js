@@ -35,11 +35,13 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
     var relier;
     var broker;
     var user;
+    var account;
     var validCode = TestHelpers.createRandomHexString(Constants.CODE_LENGTH);
     var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
     function testShowsExpiredScreen(search) {
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
+      initView();
       return view.render()
           .then(function () {
             assert.ok(view.$('#fxa-verification-link-expired-header').length);
@@ -48,6 +50,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
     function testShowsDamagedScreen(search) {
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
+      initView();
       return view.render()
           .then(function () {
             assert.ok(view.$('#fxa-verification-link-damaged-header').length);
@@ -56,6 +59,19 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
     function testEventLogged(eventName) {
       assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
+    }
+
+    function initView () {
+      view = new View({
+        router: routerMock,
+        window: windowMock,
+        metrics: metrics,
+        user: user,
+        fxaClient: fxaClient,
+        relier: relier,
+        broker: broker,
+        screenName: 'verify_email'
+      });
     }
 
     beforeEach(function () {
@@ -67,25 +83,22 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       fxaClient = new FxaClient();
       user = new User();
 
-      view = new View({
-        router: routerMock,
-        window: windowMock,
-        metrics: metrics,
-        user: user,
-        fxaClient: fxaClient,
-        relier: relier,
-        broker: broker,
-        screenName: 'verify_email'
-      });
-
       verificationError = null;
-      sinon.stub(view.fxaClient, 'verifyCode', function () {
+      sinon.stub(fxaClient, 'verifyCode', function () {
         if (verificationError) {
           return p.reject(verificationError);
         } else {
           return p();
         }
       });
+
+      account = user.initAccount({
+        sessionToken: 'foo',
+        email: 'a@a.com',
+        uid: validUid
+      });
+
+      initView();
     });
 
     afterEach(function () {
@@ -129,13 +142,34 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
             });
       });
 
-      it('UNKNOWN_ACCOUNT error displays the verification link damaged screen', function () {
+      it('UNKNOWN_ACCOUNT error displays the verification link expired screen with resend link', function () {
         verificationError = AuthErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
+        sinon.stub(user, 'getAccountByEmail', function () {
+          return user.initAccount({
+            sessionToken: 'abc123'
+          });
+        });
         return testShowsExpiredScreen()
             .then(function () {
               testEventLogged('complete_sign_up.link_expired');
             })
             .then(function () {
+              assert.equal(view.$('#resend').length, 1);
+              assert.isTrue(view.fxaClient.verifyCode.called);
+            });
+      });
+
+      it('UNKNOWN_ACCOUNT error displays the verification link damaged screen with no resend link', function () {
+        verificationError = AuthErrors.toError('UNKNOWN_ACCOUNT', 'who are you?');
+        sinon.stub(user, 'getAccountByEmail', function () {
+          return user.initAccount();
+        });
+        return testShowsExpiredScreen()
+            .then(function () {
+              testEventLogged('complete_sign_up.link_expired');
+            })
+            .then(function () {
+              assert.equal(view.$('#resend').length, 0);
               assert.isTrue(view.fxaClient.verifyCode.called);
             });
       });
@@ -150,11 +184,12 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
 
       it('all other server errors are displayed', function () {
         windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+        initView();
 
         verificationError = new Error('verification error');
         return view.render()
             .then(function () {
-              assert.isTrue(view.fxaClient.verifyCode.called);
+              assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
               assert.ok(view.$('#fxa-verification-error-header').length);
               assert.equal(view.$('.error').text(), 'verification error');
             });
@@ -163,12 +198,15 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       it('redirects to /signup_complete if verification successful and broker does not halt', function () {
         windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
         sinon.spy(broker, 'afterCompleteSignUp');
-
+        initView();
+        sinon.stub(view, 'getAccount', function () {
+          return account;
+        });
         return view.render()
             .then(function () {
-              assert.isTrue(view.fxaClient.verifyCode.called);
+              assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
               assert.equal(routerMock.page, 'signup_complete');
-              assert.isTrue(broker.afterCompleteSignUp.called);
+              assert.isTrue(broker.afterCompleteSignUp.calledWith(account));
               assert.isTrue(TestHelpers.isEventLogged(
                       metrics, 'complete_sign_up.verification.success'));
             });
@@ -180,9 +218,10 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
           return p({ halt: true });
         });
 
+        initView();
         return view.render()
             .then(function () {
-              assert.isTrue(view.fxaClient.verifyCode.called);
+              assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
               assert.notEqual(routerMock.page, 'signup_complete');
               assert.isTrue(broker.afterCompleteSignUp.called);
             });
@@ -190,13 +229,11 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
     });
 
     describe('submit - attempt to resend the verification email', function () {
-      var sessionToken = 'abc123';
-
       beforeEach(function () {
-        sinon.stub(view, 'currentAccount', function () {
-          return user.createAccount({
-            sessionToken: sessionToken
-          });
+        account = user.initAccount({
+          sessionToken: 'foo',
+          email: 'a@a.com',
+          uid: validUid
         });
       });
 
@@ -204,23 +241,34 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         sinon.stub(view.fxaClient, 'signUpResend', function () {
           return p();
         });
+        windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
 
-        return view.submit()
-          .then(function () {
-            assert.isTrue(view.isSuccessVisible());
-
-            assert.isTrue(view.fxaClient.signUpResend.calledWith(relier, sessionToken));
-          });
-      });
-
-      it('logs the attempt at resending', function () {
-        sinon.stub(view.fxaClient, 'signUpResend', function () {
-          return p();
+        sinon.stub(user, 'getAccountByUid', function () {
+          return account;
         });
 
-        return view.submit()
+        sinon.stub(user, 'getAccountByEmail', function () {
+          return user.initAccount({
+            sessionToken: 'new token',
+            email: 'a@a.com',
+            uid: validUid
+          });
+        });
+
+        initView();
+        return view.render()
+          .then(function () {
+            return view.submit();
+          })
           .then(function () {
             testEventLogged('complete_sign_up.resend');
+          })
+          .then(function () {
+            assert.isTrue(user.getAccountByUid.calledWith(validUid), 'getAccountByUid');
+            assert.isTrue(user.getAccountByEmail.calledWith('a@a.com'), 'getAccountByEmail');
+
+            assert.isTrue(view.fxaClient.signUpResend.calledWith(relier, 'new token'), 'signUpResend');
+            assert.isTrue(view.isSuccessVisible(), 'success');
           });
       });
 

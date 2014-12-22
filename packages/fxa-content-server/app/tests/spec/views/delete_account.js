@@ -70,12 +70,12 @@ function (chai, $, sinon, View, FxaClient, p,
           return true;
         });
 
-        account = user.createAccount({
+        account = user.initAccount({
           email: email,
           sessionToken: 'abc123'
         });
 
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
 

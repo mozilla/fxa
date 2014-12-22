@@ -16,7 +16,8 @@ define([
   'lib/constants'
 ], function (Backbone, _, p, AuthErrors, ProfileClient, Constants) {
 
-  var DEFAULTS = {
+  // Account attributes that can be persisted
+  var PERSISTENT = {
     uid: undefined,
     email: undefined,
     sessionToken: undefined,
@@ -26,7 +27,15 @@ define([
     lastLogin: undefined
   };
 
+  var DEFAULTS = _.extend({
+    password: undefined,
+    unwrapBKey: undefined,
+    keyFetchToken: undefined,
+    customizeSync: undefined
+  }, PERSISTENT);
+
   var ALLOWED_KEYS = Object.keys(DEFAULTS);
+  var ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
 
   var Account = Backbone.Model.extend({
     defaults: DEFAULTS,
@@ -135,6 +144,10 @@ define([
 
     toJSON: function () {
       return _.pick(this.attributes, ALLOWED_KEYS);
+    },
+
+    toPersistentJSON: function () {
+      return _.pick(this.attributes, ALLOWED_PERSISTENT_KEYS);
     }
 
   });

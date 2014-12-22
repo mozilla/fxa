@@ -68,7 +68,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         view.isUserAuthorized = function () {
           return true;
         };
-        account = user.createAccount({
+        account = user.initAccount({
           email: 'a@a.com',
           verified: true,
           accessToken: accessToken
@@ -79,7 +79,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         sinon.stub(account, 'profileClient', function () {
           return p(profileClientMock);
         });
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
       });

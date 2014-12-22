@@ -207,7 +207,8 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
           return p();
         });
 
-        sinon.stub(user, 'setCurrentAccount', function () {
+        sinon.stub(user, 'setSignedInAccount', function (account) {
+          assert.equal(account.get('sessionToken'), 'sessiontoken');
           return p();
         });
 
@@ -216,9 +217,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
             assert.equal(url, 'reset_password_complete');
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm_reset_password.verification.success'));
-            assert.isTrue(user.setCurrentAccount.calledWith({
-              sessionToken: 'sessiontoken'
-            }));
+            assert.isTrue(user.setSignedInAccount.called);
           }, done);
         });
 

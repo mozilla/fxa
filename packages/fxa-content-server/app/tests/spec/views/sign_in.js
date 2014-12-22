@@ -52,16 +52,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       user = new User();
       fxaClient = new FxaClient();
 
-      view = new View({
-        router: routerMock,
-        metrics: metrics,
-        window: windowMock,
-        fxaClient: fxaClient,
-        user: user,
-        relier: relier,
-        broker: broker,
-        screenName: 'signin'
-      });
+      initView();
 
       return view.render()
           .then(function () {
@@ -78,10 +69,25 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       view = metrics = null;
     });
 
+    function initView () {
+      view = new View({
+        router: routerMock,
+        metrics: metrics,
+        window: windowMock,
+        fxaClient: fxaClient,
+        user: user,
+        relier: relier,
+        broker: broker,
+        screenName: 'signin'
+      });
+    }
+
     describe('render', function () {
       it('prefills email and password if stored in Session (user comes from signup with existing account)', function () {
         Session.set('prefillEmail', 'testuser@testuser.com');
         Session.set('prefillPassword', 'prefilled password');
+
+        initView();
         return view.render()
             .then(function () {
               assert.ok($('#fxa-signin-header').length);
@@ -98,14 +104,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         relier.set('serviceName', serviceName);
 
         // initialize a new view to set the service name
-        view = new View({
-          router: routerMock,
-          metrics: metrics,
-          window: windowMock,
-          user: user,
-          relier: relier,
-          broker: broker
-        });
+        initView();
         return view.render()
             .then(function () {
               assert.include(view.$('#fxa-signin-header').text(), serviceName);
@@ -113,8 +112,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('shows a prefilled email and password field of cached session', function () {
-        sinon.stub(user, 'getChooserAccount', function () {
-          return user.createAccount({
+        sinon.stub(view, 'getAccount', function () {
+          return user.initAccount({
             email: 'a@a.com',
             sessionToken: 'abc123'
           });
@@ -126,16 +125,16 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
               assert.equal(view.$('[type=password]').val(), '');
             });
       });
-    });
 
+      it('prefills email with email from search parameter if Session.prefillEmail is not set', function () {
+        windowMock.location.search = '?email=' + encodeURIComponent('testuser@testuser.com');
 
-    it('prefills email with email from search parameter if Session.prefillEmail is not set', function () {
-      windowMock.location.search = '?email=' + encodeURIComponent('testuser@testuser.com');
-
-      return view.render()
-          .then(function () {
-            assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-          });
+        initView();
+        return view.render()
+            .then(function () {
+              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+            });
+      });
     });
 
     describe('updatePasswordVisibility', function () {
@@ -176,17 +175,13 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         var sessionToken = 'abc123';
 
         sinon.stub(view.fxaClient, 'signIn', function () {
-          return p({ verified: false });
+          return p({ verified: false, sessionToken: sessionToken });
         });
-
         sinon.stub(view.fxaClient, 'signUpResend', function () {
           return p();
         });
-
-        sinon.stub(view, 'currentAccount', function () {
-          return user.createAccount({
-            sessionToken: sessionToken
-          });
+        sinon.stub(user, 'setSignedInAccount', function () {
+          return p();
         });
 
         var password = 'password';
@@ -196,8 +191,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         return view.submit()
           .then(function () {
             assert.equal(routerMock.page, 'confirm');
+            assert.isTrue(user.setSignedInAccount.called);
             assert.isTrue(view.fxaClient.signIn.calledWith(
-                email, password, relier, user));
+                email, password, relier));
             assert.isTrue(view.fxaClient.signUpResend.calledWith(
                 relier, sessionToken));
           });
@@ -338,8 +334,9 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('useLoggedInAccount', function () {
       it('shows an error if session is expired', function () {
-        sinon.stub(user, 'getChooserAccount', function () {
-          return user.createAccount({
+
+        sinon.stub(view, 'getAccount', function () {
+          return user.initAccount({
             sessionToken: 'abc123',
             email: 'a@a.com'
           });
@@ -357,19 +354,25 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('signs in with a valid session', function () {
-        sinon.stub(user, 'getChooserAccount', function () {
-          return user.createAccount({
-            sessionToken: 'abc123',
-            email: 'a@a.com'
-          });
+        var account = user.initAccount({
+          sessionToken: 'abc123',
+          email: 'a@a.com'
+        });
+        sinon.stub(view, 'getAccount', function () {
+          return account;
         });
 
         view.fxaClient.recoveryEmailStatus = function () {
           return p({ verified: true });
         };
 
+        sinon.stub(user, 'setSignedInAccount', function () {
+          return p();
+        });
+
         return view.useLoggedInAccount()
           .then(function () {
+            assert.isTrue(user.setSignedInAccount.calledWith(account));
             assert.equal(view.$('.error').text(), '');
             assert.notOk(view._isErrorVisible);
           });
@@ -378,15 +381,15 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
     describe('useDifferentAccount', function () {
       it('can switch to signin with the useDifferentAccount button', function () {
-        var account = user.createAccount({
+        var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com'
         });
-        sinon.stub(user, 'getChooserAccount', function () {
+        sinon.stub(view, 'getAccount', function () {
           return account;
         });
         sinon.stub(user, 'removeAllAccounts', function () {
-          account = user.createAccount();
+          account = user.initAccount();
         });
 
         return view.useLoggedInAccount()
@@ -408,36 +411,51 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no account set');
 
         sinon.stub(user, 'getChooserAccount', function () {
-          return user.createAccount({ sessionToken: 'abc123' });
+          return user.initAccount({ sessionToken: 'abc123' });
         });
         assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no email set');
 
 
         user.getChooserAccount.restore();
         sinon.stub(user, 'getChooserAccount', function () {
-          return user.createAccount({ email: 'a@a.com' });
+          return user.initAccount({ email: 'a@a.com' });
         });
         assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no session token set');
 
         user.getChooserAccount.restore();
         view.prefillEmail = 'a@a.com';
         sinon.stub(user, 'getChooserAccount', function () {
-          return user.createAccount({ sessionToken: 'abc123', email: 'b@b.com' });
+          return user.initAccount({ sessionToken: 'abc123', email: 'b@b.com' });
         });
         assert.isTrue(view._suggestedAccount().isEmpty(), 'null when prefill does not match');
 
         delete view.prefillEmail;
         user.getChooserAccount.restore();
         sinon.stub(user, 'getChooserAccount', function () {
-          return user.createAccount({ sessionToken: 'abc123', email: 'a@a.com' });
+          return user.initAccount({ sessionToken: 'abc123', email: 'a@a.com' });
         });
         assert.equal(view._suggestedAccount().get('email'), 'a@a.com');
 
       });
 
+      it('initializes getAccount from user.getChooserAccount', function () {
+        var account = user.initAccount({
+          sessionToken: 'abc123',
+          email: 'a@a.com'
+        });
+        sinon.stub(user, 'getChooserAccount', function () {
+          return account;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.getAccount(), account);
+          });
+      });
+
       it('does shows if there is the same email in query params', function () {
         windowMock.location.search = '?email=a@a.com';
-        var account = user.createAccount({
+        var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
           sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
@@ -464,7 +482,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
 
       it('does not show if there is an email in query params that does not match', function () {
         windowMock.location.search = '?email=b@b.com';
-        var account = user.createAccount({
+        var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
           sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
@@ -489,7 +507,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         relier.isSync = function () {
           return true;
         };
-        var account = user.createAccount({
+        var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
           sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
@@ -497,7 +515,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           accessToken: 'foo'
         });
 
-        sinon.stub(user, 'getChooserAccount', function () {
+        sinon.stub(view, 'getAccount', function () {
           return account;
         });
 
@@ -511,7 +529,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
 
       it('does not ask for password right away if service is not sync', function () {
-        var account = user.createAccount({
+        var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
           sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
@@ -519,7 +537,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           accessToken: 'foo'
         });
 
-        sinon.stub(user, 'getChooserAccount', function () {
+        sinon.stub(view, 'getAccount', function () {
           return account;
         });
 

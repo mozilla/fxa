@@ -95,7 +95,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           });
     },
 
-    _updateAccount: function (email, relier, user, accountData, options) {
+    _getUpdatedSessionData: function (email, relier, accountData, options) {
       var sessionTokenContext = options.sessionTokenContext ||
                                   relier.get('context');
 
@@ -117,14 +117,11 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
         updatedSessionData.customizeSync = options.customizeSync || false;
       }
 
-      return user.setCurrentAccount(updatedSessionData)
-        .then(function () {
-          return updatedSessionData;
-        });
+      return updatedSessionData;
     },
 
 
-    signIn: function (originalEmail, password, relier, user, options) {
+    signIn: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
       options = options || {};
@@ -134,11 +131,11 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           return client.signIn(email, password, { keys: true });
         })
         .then(function (accountData) {
-          return self._updateAccount(email, relier, user, accountData, options);
+          return self._getUpdatedSessionData(email, relier, accountData, options);
         });
     },
 
-    signUp: function (originalEmail, password, relier, user, options) {
+    signUp: function (originalEmail, password, relier, options) {
       var email = trim(originalEmail);
       var self = this;
       options = options || {};
@@ -172,7 +169,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
           return client.signUp(email, password, signUpOptions)
             .then(function (accountData) {
-              return self._updateAccount(email, relier, user, accountData, options);
+              return self._getUpdatedSessionData(email, relier, accountData, options);
             }, function (err) {
               if (relier.has('preVerifyToken') &&
                   AuthErrors.is(err, 'INVALID_VERIFICATION_CODE')) {
@@ -181,7 +178,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
                 // user and force them to verify their email.
                 relier.unset('preVerifyToken');
 
-                return self.signUp(email, password, relier, user, options);
+                return self.signUp(email, password, relier, options);
               }
 
               throw err;

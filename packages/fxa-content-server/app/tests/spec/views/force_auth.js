@@ -74,7 +74,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
         relier.set('email', 'a@a.com');
 
         sinon.stub(user, 'getAccountByEmail', function () {
-          return user.createAccount();
+          return user.initAccount();
         });
 
         return view.render()
@@ -88,7 +88,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
 
       it('shows avatar when account.email and relier.email match', function () {
         relier.set('email', 'a@a.com');
-        var account = user.createAccount({
+        var account = user.initAccount({
           email: 'a@a.com'
         });
 
@@ -111,7 +111,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
 
       it('shows no avatar when Session.email and relier.email do not match', function () {
         relier.set('email', 'a@a.com');
-        var account = user.createAccount({
+        var account = user.initAccount({
           email: 'b@b.com'
         });
 

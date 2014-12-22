@@ -541,5 +541,6 @@ define([
         .findByCssSelector('.use-different')
         .end();
     }
+
   });
 });

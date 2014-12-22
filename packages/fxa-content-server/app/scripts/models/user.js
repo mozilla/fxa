@@ -44,12 +44,12 @@ define([
       }
     },
 
-    _getCurrentAccount: function () {
+    _getSignedInAccount: function () {
       return this._getAccount(this._storage.get('currentAccountUid'));
     },
 
     // persists account data
-    _setAccount: function (account) {
+    _persistAccount: function (account) {
       var accounts = this._accounts();
       accounts[account.uid] = account;
       this._storage.set('accounts', accounts);
@@ -57,7 +57,7 @@ define([
 
     // A conveinience method that initializes an account instance from
     // raw account data.
-    createAccount: function (accountData) {
+    initAccount: function (accountData) {
       if (accountData instanceof Account) {
         // we already have an account instance
         return accountData;
@@ -74,14 +74,14 @@ define([
     },
 
     isSyncAccount: function (account) {
-      return this.createAccount(account).isFromSync();
+      return this.initAccount(account).isFromSync();
     },
 
-    getCurrentAccount: function () {
-      return this.createAccount(this._getCurrentAccount());
+    getSignedInAccount: function () {
+      return this.initAccount(this._getSignedInAccount());
     },
 
-    setCurrentAccountByUid: function (uid) {
+    setSignedInAccountByUid: function (uid) {
       if (this._accounts()[uid]) {
         this._storage.set('currentAccountUid', uid);
       }
@@ -89,14 +89,19 @@ define([
 
     getAccountByUid: function (uid) {
       var account = this._accounts()[uid];
-      return this.createAccount(account);
+      return this.initAccount(account);
     },
 
     getAccountByEmail: function (email) {
-      var account = _.find(this._accounts(), function (account) {
-        return account.email === email;
+      // Reverse the list so newest accounts are first
+      var uids = Object.keys(this._accounts()).reverse();
+      var accounts = this._accounts();
+
+      var uid = _.find(uids, function (uid) {
+        return accounts[uid].email === email;
       });
-      return this.createAccount(account);
+
+      return this.initAccount(accounts[uid]);
     },
 
     // Return the account selected in the account chooser.
@@ -107,13 +112,13 @@ define([
 
       var account = _.find(self._accounts(), function (account) {
         return self.isSyncAccount(account);
-      }) || self._getCurrentAccount();
+      }) || self._getSignedInAccount();
 
-      return self.createAccount(account);
+      return self.initAccount(account);
     },
 
     // Used to clear the current account, but keeps the account details
-    clearCurrentAccount: function () {
+    clearSignedInAccount: function () {
       this._storage.remove('currentAccountUid');
     },
 
@@ -124,22 +129,22 @@ define([
 
     // Delete the account from storage
     removeAccount: function (accountData) {
-      var account = this.createAccount(accountData);
+      var account = this.initAccount(accountData);
       var uid = account.get('uid');
       var accounts = this._accounts();
 
-      if (uid === this.getCurrentAccount().get('uid')) {
-        this.clearCurrentAccount();
+      if (uid === this.getSignedInAccount().get('uid')) {
+        this.clearSignedInAccount();
       }
       delete accounts[uid];
       this._storage.set('accounts', accounts);
     },
 
     // Stores a new account and sets it as the current account.
-    setCurrentAccount: function (accountData) {
+    setSignedInAccount: function (accountData) {
       var self = this;
 
-      var account = self.createAccount(accountData);
+      var account = self.initAccount(accountData);
       account.set('lastLogin', Date.now());
 
       return self.setAccount(account)
@@ -152,10 +157,10 @@ define([
     // Hydrate the account then persist it
     setAccount: function (accountData) {
       var self = this;
-      var account = self.createAccount(accountData);
+      var account = self.initAccount(accountData);
       return account.fetch()
         .then(function () {
-          self._setAccount(account.toJSON());
+          self._persistAccount(account.toPersistentJSON());
           return account;
         });
     },
@@ -168,7 +173,7 @@ define([
 
       return p()
         .then(function () {
-          if (! self.getCurrentAccount().isEmpty()) {
+          if (! self.getSignedInAccount().isEmpty()) {
             // We've already upgraded the session
             return;
           }
@@ -177,7 +182,7 @@ define([
 
           // add cached Sync account credentials if available
           if (Session.cachedCredentials) {
-            promise = self.setCurrentAccount({
+            promise = self.setSignedInAccount({
               email: Session.cachedCredentials.email,
               sessionToken: Session.cachedCredentials.sessionToken,
               sessionTokenContext: Session.cachedCredentials.sessionTokenContext,
@@ -191,7 +196,7 @@ define([
               // The uid was not persisted in localStorage so get it from the auth server
               .then(_.bind(fxaClient.sessionStatus, fxaClient, Session.sessionToken))
               .then(function (result) {
-                return self.setCurrentAccount({
+                return self.setSignedInAccount({
                   email: Session.email,
                   sessionToken: Session.sessionToken,
                   sessionTokenContext: Session.sessionTokenContext,

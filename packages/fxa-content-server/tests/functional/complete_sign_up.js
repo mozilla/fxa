@@ -20,9 +20,9 @@ define([
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
   var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var PAGE_URL_ROOT = config.fxaContentRoot + 'verify_email';
-  var SIGNUP_PAGE_URL = config.fxaContentRoot + 'signup';
 
   var TOO_YOUNG_YEAR = new Date().getFullYear() - 13;
+  var OLD_ENOUGH_YEAR = TOO_YOUNG_YEAR - 1;
 
   var PASSWORD = 'password';
   var user;
@@ -179,59 +179,37 @@ define([
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
-      return client.signUp(email, PASSWORD)
-        .then(function (result) {
-          accountData = result;
-          uid = accountData.uid;
-        })
-        .then(function () {
-          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user);
-        })
-        .then(function (emails) {
-          code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-        });
     },
 
     'open expired email verification link': function () {
       var self = this;
-      var completeUrl = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
+      var completeUrl;
 
-      return client.signUp(email, PASSWORD)
+      return self.get('remote')
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        // Sign up and obtain a verification link
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
+        })
+        .findById('fxa-confirm-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          completeUrl = verificationLink;
+        })
+
+        // Sign up again to invalidate the old verification link
+        .then(function () {
+          return FunctionalHelpers.fillOutSignUp(self, email, 'different_password', OLD_ENOUGH_YEAR);
+        })
+        .findById('fxa-confirm-header')
+        .end()
+
         .then(function () {
           return self.get('remote')
-            .get(require.toUrl(SIGNUP_PAGE_URL))
-            .setFindTimeout(intern.config.pageLoadTimeout)
-            .findById('fxa-signup-header')
-            .end()
-
-            .findByCssSelector('input[type=email]')
-              .click()
-              .type(email)
-            .end()
-
-            .findByCssSelector('input[type=password]')
-              .click()
-              .type('different_password')
-            .end()
-
-            .findByCssSelector('#fxa-age-year')
-              .click()
-            .end()
-
-            .findById('fxa-' + (TOO_YOUNG_YEAR - 1))
-              .pressMouseButton()
-              .releaseMouseButton()
-              .click()
-            .end()
-
-            .findByCssSelector('button[type="submit"]')
-              .click()
-            .end()
-
-            // Being pushed to the confirmation screen is success.
-            .findById('fxa-confirm-header')
-            .end()
-
             .get(require.toUrl(completeUrl))
 
             .findById('fxa-verification-link-expired-header')
@@ -268,7 +246,6 @@ define([
               })
             .end();
         });
-
     }
   });
 });

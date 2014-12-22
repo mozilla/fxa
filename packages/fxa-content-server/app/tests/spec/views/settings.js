@@ -40,7 +40,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
       relier = new Relier();
       fxaClient = new FxaClient();
       user = new User();
-      account = user.createAccount({
+      account = user.initAccount({
         uid: UID,
         email: 'a@a.com',
         sessionToken: 'abc123',
@@ -54,7 +54,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
         user: user
       });
 
-      sinon.stub(user, 'getCurrentAccount', function () {
+      sinon.stub(user, 'getSignedInAccount', function () {
         return account;
       });
     });
@@ -68,7 +68,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
 
     describe('with no session', function () {
       it('redirects to signin', function () {
-        user.getCurrentAccount.restore();
+        user.getSignedInAccount.restore();
         return view.render()
             .then(function () {
               assert.equal(routerMock.page, 'signin');
@@ -88,7 +88,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
         sinon.stub(user, 'getAccountByUid', function () {
           return account;
         });
-        sinon.stub(user, 'setCurrentAccountByUid', function () {
+        sinon.stub(user, 'setSignedInAccountByUid', function () {
           return p();
         });
 
@@ -107,16 +107,16 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           .then(function () {
             assert.ok(view.$('#fxa-settings-header').length);
             assert.isTrue(user.getAccountByUid.calledWith(UID));
-            assert.isTrue(user.setCurrentAccountByUid.calledWith(UID));
+            assert.isTrue(user.setSignedInAccountByUid.calledWith(UID));
           });
       });
 
       it('redirects to signin if uid is not found', function () {
         sinon.stub(user, 'getAccountByUid', function () {
-          return user.createAccount();
+          return user.initAccount();
         });
 
-        sinon.stub(user, 'clearCurrentAccount', function () {
+        sinon.stub(user, 'clearSignedInAccount', function () {
         });
 
         view = new View({
@@ -134,7 +134,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           .then(function () {
             assert.ok(view.$('#fxa-settings-header').length);
             assert.isTrue(user.getAccountByUid.calledWith(UID));
-            assert.isTrue(user.clearCurrentAccount.called);
+            assert.isTrue(user.clearSignedInAccount.called);
           });
       });
     });

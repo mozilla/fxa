@@ -13,14 +13,13 @@ define([
   'lib/auth-errors',
   'lib/constants',
   'lib/resume-token',
-  'models/user',
   'models/reliers/oauth'
 ],
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
-      AuthErrors, Constants, ResumeToken, User, OAuthRelier) {
+      AuthErrors, Constants, ResumeToken, OAuthRelier) {
   'use strict';
 
   var STATE = 'state';
@@ -33,7 +32,6 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
   var client;
   var realClient;
   var relier;
-  var user;
   var expectedResumeToken;
 
   function trim(str) {
@@ -49,8 +47,6 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
       relier.set('redirectTo', REDIRECT_TO);
 
       expectedResumeToken = ResumeToken.stringify({ state: STATE });
-
-      user = new User();
 
       Session.set('config', {
         fxaccountUrl: 'http://127.0.0.1:9000'
@@ -73,7 +69,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        return client.signUp(email, password, relier, user)
+        return client.signUp(email, password, relier)
           .then(function () {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
@@ -94,7 +90,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           });
         });
 
-        return client.signUp(email, password, relier, user)
+        return client.signUp(email, password, relier)
           .then(assert.fail, function (err) {
             assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
           });
@@ -108,7 +104,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        return client.signUp(email, password, relier, user, {
+        return client.signUp(email, password, relier, {
           preVerifyToken: preVerifyToken
         })
         .then(function () {
@@ -154,7 +150,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           }
         });
 
-        return client.signUp(email, password, relier, user)
+        return client.signUp(email, password, relier)
           .then(function () {
             assert.equal(realClient.signUp.callCount, 2);
           });
@@ -248,7 +244,7 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        return client.signIn(email, password, relier, user)
+        return client.signIn(email, password, relier)
           .then(function () {
             assert.isTrue(realClient.signIn.calledWith(trim(email)));
           });
@@ -263,16 +259,11 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        sinon.stub(user, 'setCurrentAccount', function (accountData) {
-          assert.isTrue(accountData.customizeSync);
-          return p({});
-        });
-
-        return client.signIn(email, password, relier, user, {
+        return client.signIn(email, password, relier, {
           customizeSync: true
         })
-          .then(function () {
-            assert.isTrue(user.setCurrentAccount.called);
+          .then(function (result) {
+            assert.isTrue(result.customizeSync);
           });
       });
     });

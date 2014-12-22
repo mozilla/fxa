@@ -11,9 +11,10 @@ define([
   'stache!templates/complete_sign_up',
   'lib/auth-errors',
   'lib/validate',
+  'lib/promise',
   'views/mixins/resend-mixin'
 ],
-function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, ResendMixin) {
+function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p, ResendMixin) {
   var CompleteSignUpView = FormView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
@@ -23,22 +24,31 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    beforeRender: function () {
+    initialize: function () {
       try {
         this.importSearchParam('uid');
         this.importSearchParam('code');
-      } catch(e) {
-        this.logEvent('complete_sign_up.link_damaged');
-        // This is an invalid link. Abort and show an error message
-        // before doing any more checks.
-        return true;
+
+        // Remove any spaces that are probably due to a MUA adding
+        // line breaks in the middle of the link.
+        this._uid = this.uid.replace(/ /g, '');
+        this._code = this.code.replace(/ /g, '');
+      } catch (e) {
+        this._isLinkDamaged = true;
       }
 
-      // Remove any spaces that are probably due to a MUA adding
-      // line breaks in the middle of the link.
-      this.uid = this.uid.replace(/ /g, '');
-      this.code = this.code.replace(/ /g, '');
+      this._account = this.user.getAccountByUid(this._uid);
 
+      // cache the email in case we need to attempt to resend the
+      // verification link
+      this._email = this._account.get('email');
+    },
+
+    getAccount: function () {
+      return this._account;
+    },
+
+    beforeRender: function () {
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
@@ -47,10 +57,10 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
       }
 
       var self = this;
-      return this.fxaClient.verifyCode(this.uid, this.code)
+      return self.fxaClient.verifyCode(self._uid, self._code)
           .then(function () {
             self.logEvent('complete_sign_up.verification.success');
-            return self.broker.afterCompleteSignUp();
+            return self.broker.afterCompleteSignUp(self.getAccount());
           })
           .then(function (result) {
             if (! (result && result.halt)) {
@@ -76,8 +86,8 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
     },
 
     _doesLinkValidate: function () {
-      return Validate.isUidValid(this.uid) &&
-             Validate.isCodeValid(this.code) &&
+      return Validate.isUidValid(this._uid) &&
+             Validate.isCodeValid(this._code) &&
              ! this._isLinkDamaged;
     },
 
@@ -92,19 +102,31 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, R
 
         // This is only the case if you've signed up in the
         // same browser you opened the verification link in.
-        canResend: !!this.currentAccount().get('sessionToken'),
+        canResend: this._canResend(),
         error: this._error
       };
+    },
+
+    _canResend: function () {
+      return !! this._getResendSessionToken();
+    },
+
+    // This returns the latest sessionToken associated with the user's email
+    // address. We intentionally don't cache it during view initialization so that
+    // we can capture sessionTokens from accounts created (in this browser)
+    // since the view was loaded.
+    _getResendSessionToken: function () {
+      return this.user.getAccountByEmail(this._email).get('sessionToken');
     },
 
     // This is called when a user follows an expired verification link
     // and clicks the "Resend" link.
     submit: function () {
       var self = this;
-      var sessionToken = self.currentAccount().get('sessionToken');
 
       self.logEvent('complete_sign_up.resend');
-      return self.fxaClient.signUpResend(self.relier, sessionToken)
+
+      return self.fxaClient.signUpResend(self.relier, self._getResendSessionToken())
               .then(function () {
                 self.displaySuccess();
               }, function (err) {

@@ -15,7 +15,6 @@ define([
   'lib/assertion',
   'lib/fxa-client',
   'models/reliers/relier',
-  'models/user',
   'vendor/jwcrypto',
   'vendor/jwcrypto/lib/algs/rs'
 ],
@@ -23,7 +22,7 @@ define([
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
 function (chai, $, sinon, TestHelpers, p,
-      Constants, Assertion, FxaClientWrapper, Relier, User, jwcrypto) {
+      Constants, Assertion, FxaClientWrapper, Relier, jwcrypto) {
   var assert = chai.assert;
   var AUDIENCE = 'http://123done.org';
   var ISSUER = 'http://' + document.location.hostname + ':9000';
@@ -32,7 +31,6 @@ function (chai, $, sinon, TestHelpers, p,
   var client;
   var assertionLibrary;
   var relier;
-  var user;
   var sessionToken;
 
   var LONG_LIVED_ASSERTION_DURATION = 1000 * 3600 * 24 * 365 * 25; // 25 years
@@ -40,11 +38,6 @@ function (chai, $, sinon, TestHelpers, p,
   describe('lib/assertion', function () {
     beforeEach(function () {
       relier = new Relier();
-      user = new User();
-      sinon.stub(user, 'setCurrentAccount', function (data) {
-        sessionToken = data.sessionToken;
-        return p();
-      });
       client = new FxaClientWrapper({
         relier: relier
       });
@@ -52,9 +45,12 @@ function (chai, $, sinon, TestHelpers, p,
         fxaClient: client
       });
       email = ' ' + TestHelpers.createEmail() + ' ';
-      return client.signUp(email, password, relier, user, {
+      return client.signUp(email, password, relier, {
         preVerified: true
-      });
+      })
+        .then(function (result) {
+          sessionToken = result.sessionToken;
+        });
     });
 
     describe('validate', function () {

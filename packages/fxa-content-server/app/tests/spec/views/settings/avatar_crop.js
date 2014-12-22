@@ -68,12 +68,12 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
         view.isUserAuthorized = function () {
           return true;
         };
-        account = user.createAccount({
+        account = user.initAccount({
           email: 'a@a.com',
           accessToken: 'abc123',
           verified: true
         });
-        sinon.stub(view, 'currentAccount', function () {
+        sinon.stub(view, 'getSignedInAccount', function () {
           return account;
         });
       });
@@ -109,7 +109,7 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
           view.isUserAuthorized = function () {
             return true;
           };
-          sinon.stub(view, 'currentAccount', function () {
+          sinon.stub(view, 'getSignedInAccount', function () {
             return account;
           });
           sinon.stub(account, 'profileClient', function () {

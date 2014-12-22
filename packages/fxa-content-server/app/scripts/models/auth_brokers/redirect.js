@@ -57,18 +57,18 @@ define([
       });
     },
 
-    finishOAuthFlow: function () {
+    finishOAuthFlow: function (account) {
       var self = this;
       return p().then(function () {
         // There are no ill side effects if if the Original Tab Marker is
         // cleared in the a tab other than the original. Always clear it just
         // to make sure the bases are covered.
         self.clearOriginalTabMarker();
-        return OAuthAuthenticationBroker.prototype.finishOAuthFlow.call(self);
+        return OAuthAuthenticationBroker.prototype.finishOAuthFlow.call(self, account);
       });
     },
 
-    afterCompleteSignUp: function () {
+    afterCompleteSignUp: function (account) {
       // The user may have replaced the original tab with the verification
       // tab. If this is the case, send the OAuth result to the RP.
       //
@@ -77,7 +77,7 @@ define([
       var self = this;
       return p().delay(100).then(function () {
         if (self.isOriginalTab()) {
-          return self.finishOAuthFlow()
+          return self.finishOAuthFlow(account)
             .then(function () {
               return { halt: true };
             });
@@ -85,13 +85,13 @@ define([
       });
     },
 
-    afterCompleteResetPassword: function () {
+    afterCompleteResetPassword: function (account) {
       // The user may have replaced the original tab with the verification
       // tab. If this is the case, send the OAuth result to the RP.
       var self = this;
       return p().then(function () {
         if (self.isOriginalTab()) {
-          return self.finishOAuthFlow()
+          return self.finishOAuthFlow(account)
             .then(function () {
               return { halt: true };
             });

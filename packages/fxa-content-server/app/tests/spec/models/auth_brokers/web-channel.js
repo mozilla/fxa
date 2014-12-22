@@ -10,6 +10,7 @@ define([
   'sinon',
   'models/auth_brokers/web-channel',
   'models/reliers/relier',
+  'models/user',
   'lib/promise',
   'lib/channels/null',
   'lib/session',
@@ -17,7 +18,7 @@ define([
   'views/base',
   '../../../mocks/window'
 ],
-function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
+function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, p, NullChannel,
       Session, AuthErrors, BaseView, WindowMock) {
   var assert = chai.assert;
 
@@ -27,10 +28,17 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
     var relierMock;
     var channelMock;
     var view;
+    var user;
+    var account;
 
     beforeEach(function () {
       windowMock = new WindowMock();
       relierMock = new Relier();
+      user = new User();
+
+      account = user.initAccount({
+        sessionToken: 'abc123'
+      });
 
       channelMock = new NullChannel();
       sinon.spy(channelMock, 'send');
@@ -134,66 +142,32 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, p, NullChannel,
       it('calls sendOAuthResultToRelier, tells window to close', function () {
         setupCompletesOAuthTest();
 
-        return broker.afterSignIn(view)
-          .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
-            assert.isFalse(view.displayError.called);
-          });
-      });
-    });
-
-    describe('afterCompleteSignUp', function () {
-      it('calls sendOAuthResultToRelier', function () {
-        setupCompletesOAuthTest();
-
-        return broker.afterCompleteSignUp(view)
-          .then(function () {
-            assert.isTrue(broker.sendOAuthResultToRelier.called);
-            assert.isFalse(view.displayError.called);
-          });
-      });
-    });
-
-    describe('afterCompleteResetPassword', function () {
-      it('calls sendOAuthResultToRelier', function () {
-        setupCompletesOAuthTest();
-
-        return broker.afterSignIn(view)
+        return broker.afterSignIn(account)
           .then(function () {
             assert.isTrue(
                 broker.sendOAuthResultToRelier.calledWith({ closeWindow: true }));
+            assert.isFalse(view.displayError.called);
           });
       });
     });
 
     describe('afterCompleteSignUp', function () {
-      it('calls finishOAuthFlow to ensure results are sent if original window closes', function () {
-        sinon.stub(broker, 'getOAuthResult', function () {
-          return p({});
-        });
+      it('calls sendOAuthResultToRelier', function () {
+        setupCompletesOAuthTest();
 
-        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
-          return p();
-        });
-
-        return broker.afterCompleteSignUp()
+        return broker.afterCompleteSignUp(account)
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
+            assert.isFalse(view.displayError.called);
           });
       });
     });
 
     describe('afterCompleteResetPassword', function () {
-      it('calls finishOAuthFlow to ensure results are sent if original window closes', function () {
-        sinon.stub(broker, 'getOAuthResult', function () {
-          return p({});
-        });
+      it('calls sendOAuthResultToRelier', function () {
+        setupCompletesOAuthTest();
 
-        sinon.stub(broker, 'sendOAuthResultToRelier', function () {
-          return p();
-        });
-
-        return broker.afterCompleteResetPassword(view)
+        return broker.afterCompleteResetPassword(account)
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
             assert.isFalse(view.displayError.called);
