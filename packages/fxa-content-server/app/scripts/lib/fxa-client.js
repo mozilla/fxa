@@ -29,44 +29,22 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     this._client = options.client;
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
+
+    if (! this._client && options.authServerUrl) {
+      this._client = new FxaClient(options.authServerUrl);
+    }
   }
 
   FxaClientWrapper.prototype = {
-    _getClientAsync: function () {
-      var defer = p.defer();
-
-      if (this._client) {
-        defer.resolve(this._client);
-      } else {
-        var self = this;
-        this._getFxAccountUrl()
-          .then(function (fxaccountUrl) {
-            self._client = new FxaClient(fxaccountUrl);
-            defer.resolve(self._client);
-          });
-      }
-
-      // Protip: add `.delay(msToDelay)` to do a dirty
-      // synthication of server lag for manual testing.
-      return defer.promise;
-    },
-
-    _getFxAccountUrl: function () {
-      if (Session.config && Session.config.fxaccountUrl) {
-        return p(Session.config.fxaccountUrl);
-      }
-
-      return xhr.getJSON('/config')
-          .then(function (data) {
-            return data.fxaccountUrl;
-          });
+    _getClient: function () {
+      return p(this._client);
     },
 
     /**
      * Fetch some entropy from the server
      */
     getRandomBytes: function () {
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           return client.getRandomBytes();
         });
@@ -76,7 +54,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
      * Check the user's current password without affecting session state.
      */
     checkPassword: function (email, password) {
-      return this._getClientAsync()
+      return this._getClient()
           .then(function (client) {
             return client.signIn(email, password);
           });
@@ -86,7 +64,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
      * Check whether an account exists for the given uid.
      */
     checkAccountExists: function (uid) {
-      return this._getClientAsync()
+      return this._getClient()
           .then(function (client) {
             return client.accountStatus(uid)
               .then(function (status) {
@@ -126,7 +104,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       var self = this;
       options = options || {};
 
-      return self._getClientAsync()
+      return self._getClient()
         .then(function (client) {
           return client.signIn(email, password, { keys: true });
         })
@@ -143,7 +121,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       // ensure resend works again
       this._signUpResendCount = 0;
 
-      return self._getClientAsync()
+      return self._getClient()
         .then(function (client) {
           var signUpOptions = {
             keys: true
@@ -188,12 +166,10 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
     signUpResend: function (relier, sessionToken) {
       var self = this;
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           if (self._signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
-            var defer = p.defer();
-            defer.resolve(true);
-            return defer.promise;
+            return p(true);
           } else {
             self._signUpResendCount++;
           }
@@ -209,14 +185,14 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     },
 
     signOut: function (sessionToken) {
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.sessionDestroy(sessionToken);
               });
     },
 
     verifyCode: function (uid, code) {
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.verifyCode(uid, code);
               });
@@ -229,7 +205,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       // ensure resend works again
       this._passwordResetResendCount = 0;
 
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 var clientOptions = {
                   service: relier.get('service'),
@@ -249,12 +225,10 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       var self = this;
       var email = trim(originalEmail);
 
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           if (self._passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
-            var defer = p.defer();
-            defer.resolve(true);
-            return defer.promise;
+            return p(true);
           } else {
             self._passwordResetResendCount++;
           }
@@ -278,7 +252,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       var email = trim(originalEmail);
       var client;
 
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (_client) {
                 client = _client;
                 return client.passwordForgotVerifyCode(code, token);
@@ -291,7 +265,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     },
 
     isPasswordResetComplete: function (token) {
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           return client.passwordForgotStatus(token);
         })
@@ -308,7 +282,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
     changePassword: function (originalEmail, oldPassword, newPassword) {
       var email = trim(originalEmail);
-      return this._getClientAsync()
+      return this._getClient()
         .then(function (client) {
           return client.passwordChange(email, oldPassword, newPassword);
         });
@@ -316,14 +290,14 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
     deleteAccount: function (originalEmail, password) {
       var email = trim(originalEmail);
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.accountDestroy(email, password);
               });
     },
 
     certificateSign: function (pubkey, duration, sessionToken) {
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.certificateSign(
                   sessionToken,
@@ -333,7 +307,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     },
 
     sessionStatus: function (sessionToken) {
-      return this._getClientAsync()
+      return this._getClient()
               .then(function (client) {
                 return client.sessionStatus(sessionToken);
               });
@@ -362,7 +336,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
     recoveryEmailStatus: function (sessionToken, uid) {
       var self = this;
-      return self._getClientAsync()
+      return self._getClient()
         .then(function (client) {
           return client.recoveryEmailStatus(sessionToken);
         })

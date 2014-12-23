@@ -9,12 +9,9 @@
 define([
   'lib/xhr',
   'underscore',
-  'lib/config-loader',
-  'lib/oauth-client',
-  'lib/assertion',
   'lib/profile-errors'
 ],
-function (xhr, _, ConfigLoader, OAuthClient, Assertion, ProfileErrors) {
+function (xhr, _, ProfileErrors) {
 
   function ProfileClient(options) {
     options = options || {};

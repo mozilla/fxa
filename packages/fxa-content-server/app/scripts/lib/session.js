@@ -15,8 +15,6 @@ define([
   // and should not be saved to sessionStorage
   var DO_NOT_PERSIST = ['prefillPassword', 'prefillYear', 'error'];
 
-  var DO_NOT_CLEAR = ['config'];
-
   // these keys will be persisted to localStorage so that they live between browser sessions
   var PERSIST_TO_LOCAL_STORAGE = ['oauth'];
 
@@ -113,7 +111,7 @@ define([
      * Remove an item or all items
      * @method clear
      * If no key specified, all items are cleared.
-     * Note: items in DO_NOT_CLEAR or Session.prototype cannot be cleared
+     * Note: items in Session.prototype cannot be cleared
      */
     clear: function (key) {
       // no key specified, clear everything.
@@ -124,7 +122,7 @@ define([
         return;
       }
 
-      if (this.hasOwnProperty(key) && _.indexOf(DO_NOT_CLEAR, key) === -1) {
+      if (this.hasOwnProperty(key)) {
         this[key] = null;
         delete this[key];
         this.persist();

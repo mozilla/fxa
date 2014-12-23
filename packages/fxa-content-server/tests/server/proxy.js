@@ -24,7 +24,7 @@ define([
     return;
   }
 
-  suite['#get /config returns proxied `fxaccountUrl` and `oauthUrl` for IE8'] = function () {
+  suite['#get /config returns proxied `authServerUrl` and `oAuthUrl` for IE8'] = function () {
     var dfd = this.async(1000);
 
     request(httpsUrl + '/config', {
@@ -34,20 +34,20 @@ define([
     }, dfd.callback(function (err, res) {
       var results = JSON.parse(res.body);
 
-      assert.equal(results.fxaccountUrl, config.get('public_url') + '/auth');
-      assert.equal(results.oauthUrl, config.get('public_url') + '/oauth');
+      assert.equal(results.authServerUrl, config.get('public_url') + '/auth');
+      assert.equal(results.oAuthUrl, config.get('public_url') + '/oauth');
       assert.equal(results.profileUrl, config.get('public_url') + '/profile_api');
     }, dfd.reject.bind(dfd)));
   };
 
-  suite['#get /config returns standard `fxaccountUrl` and `oauthUrl` for all other browsers'] = function () {
+  suite['#get /config returns standard `authServerUrl` and `oAuthUrl` for all other browsers'] = function () {
     var dfd = this.async(1000);
 
     request(httpsUrl + '/config', dfd.callback(function (err, res) {
       var results = JSON.parse(res.body);
 
-      assert.equal(results.fxaccountUrl, config.get('fxaccount_url'));
-      assert.equal(results.oauthUrl, config.get('oauth_url'));
+      assert.equal(results.authServerUrl, config.get('fxaccount_url'));
+      assert.equal(results.oAuthUrl, config.get('oauth_url'));
     }, dfd.reject.bind(dfd)));
   };
 

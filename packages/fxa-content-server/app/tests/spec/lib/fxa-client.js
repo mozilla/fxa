@@ -6,6 +6,7 @@ define([
   'chai',
   'jquery',
   'sinon',
+  'fxaClient',
   'lib/promise',
   '../../lib/helpers',
   'lib/session',
@@ -18,13 +19,14 @@ define([
 // FxaClientWrapper is the object that is used in
 // fxa-content-server views. It wraps FxaClient to
 // take care of some app-specific housekeeping.
-function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
+function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
       AuthErrors, Constants, ResumeToken, OAuthRelier) {
   'use strict';
 
   var STATE = 'state';
   var SERVICE = 'sync';
   var REDIRECT_TO = 'https://sync.firefox.com';
+  var AUTH_SERVER_URL = 'http://127.0.0.1:9000';
 
   var assert = chai.assert;
   var email;
@@ -48,19 +50,20 @@ function (chai, $, sinon, p, testHelpers, Session, FxaClientWrapper,
 
       expectedResumeToken = ResumeToken.stringify({ state: STATE });
 
-      Session.set('config', {
-        fxaccountUrl: 'http://127.0.0.1:9000'
+      realClient = new FxaClient(AUTH_SERVER_URL);
+
+      client = new FxaClientWrapper({
+        client: realClient
       });
-
-      client = new FxaClientWrapper();
-
-      return client._getClientAsync()
-              .then(function (_realClient) {
-                realClient = _realClient;
-              });
     });
 
     afterEach(function () {
+    });
+
+    it('initializes client from authServerUrl', function () {
+      client = new FxaClientWrapper({
+        authServerUrl: AUTH_SERVER_URL
+      });
     });
 
     describe('signUp', function () {

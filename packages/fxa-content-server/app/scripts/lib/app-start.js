@@ -163,7 +163,6 @@ function (
     useConfig: function (config) {
       this._config = config;
       this._configLoader.useConfig(config);
-      Session.set('config', config);
     },
 
     initializeL10n: function () {
@@ -186,7 +185,7 @@ function (
 
     initializeOAuthClient: function () {
       this._oAuthClient = new OAuthClient({
-        oauthUrl: this._config.oauthUrl
+        oAuthUrl: this._config.oAuthUrl
       });
     },
 
@@ -227,7 +226,7 @@ function (
     initializeAssertionLibrary: function () {
       this._assertionLibrary = new Assertion({
         fxaClient: this._fxaClient,
-        audience: this._config.oauthUrl
+        audience: this._config.oAuthUrl
       });
     },
 
@@ -245,7 +244,6 @@ function (
             relier: this._relier,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
-            oAuthUrl: this._config.oauthUrl,
             session: Session
           });
         } else if (this._isIframe()) {
@@ -254,7 +252,6 @@ function (
             relier: this._relier,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
-            oAuthUrl: this._config.oauthUrl,
             session: Session
           });
         } else if (this._isOAuth()) {
@@ -263,7 +260,6 @@ function (
             relier: this._relier,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
-            oAuthUrl: this._config.oauthUrl,
             session: Session
           });
         } else {
@@ -285,7 +281,8 @@ function (
     initializeFxaClient: function () {
       if (! this._fxaClient) {
         this._fxaClient = new FxaClient({
-          interTabChannel: this._interTabChannel
+          interTabChannel: this._interTabChannel,
+          authServerUrl: this._config.authServerUrl
         });
       }
     },
@@ -293,7 +290,7 @@ function (
     initializeUser: function () {
       if (! this._user) {
         this._user = new User({
-          oAuthClientId: this._config.oauthClientId,
+          oAuthClientId: this._config.oAuthClientId,
           profileClient: this._profileClient,
           oAuthClient: this._oAuthClient,
           fxaClient: this._fxaClient,

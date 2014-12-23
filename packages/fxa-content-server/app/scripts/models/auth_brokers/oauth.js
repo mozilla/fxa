@@ -53,7 +53,6 @@ define([
       this.session = options.session;
       this._assertionLibrary = options.assertionLibrary;
       this._oAuthClient = options.oAuthClient;
-      this._oAuthUrl = options.oAuthUrl;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
                   this, options);

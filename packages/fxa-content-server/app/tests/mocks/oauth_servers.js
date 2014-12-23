@@ -25,7 +25,7 @@ define([
         'Content-Type': 'application/json'
       }, JSON.stringify({
         cookiesEnabled: true,
-        fxaccountUrl: 'http://127.0.0.1:9000',
+        authServerUrl: 'http://127.0.0.1:9000',
         oauthUrl: 'http://127.0.0.1:9010',
         language: 'en_US',
         metricsSampleRate: 1
