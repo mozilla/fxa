@@ -11,8 +11,7 @@ define([
   return {
     onPasswordVisibilityChange: function (event) {
       var target = this.$(event.target);
-      var isVisible = target.is(':checked');
-      this.setPasswordVisibility(isVisible);
+      this.setPasswordVisibilityFromButton(target);
 
       // for docs on aria-controls, see
       // http://www.w3.org/TR/wai-aria/states_and_properties#aria-controls
@@ -20,10 +19,31 @@ define([
       this.focus(controlsSelector);
     },
 
+    isPasswordAutoCompleteDisabled: function () {
+      // Sync users should never be allowed to save their password. If they
+      // were, it would end in this weird situation where sync users ask to
+      // save their sync password to sync before sync is setup.
+      return this.relier.isSync();
+    },
+
+    setPasswordVisibilityFromButton: function (button) {
+      var isVisible = this.$(button).is(':checked');
+      this.setPasswordVisibility(isVisible);
+    },
+
     setPasswordVisibility: function (isVisible) {
-      var type = isVisible ? 'text' : 'password';
       try {
-        this.$('.password').attr('type', type);
+        var passwordField = this.$('.password');
+        if (isVisible) {
+          passwordField.attr('type', 'text').attr('autocomplete', 'off');
+        } else {
+          passwordField.attr('type', 'password');
+          if (this.isPasswordAutoCompleteDisabled()) {
+            passwordField.attr('autocomplete', 'off');
+          } else {
+            passwordField.removeAttr('autocomplete');
+          }
+        }
       } catch(e) {
         // IE8 blows up when changing the type of the input field. Other
         // browsers might too. Ignore the error.

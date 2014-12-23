@@ -15,8 +15,13 @@
     <div class="input-row">
       <input type="email" id="email" />
     </div>
-    <div class="input-row">
-      <input type="password" id="password" />
+    <div class="input-row password-row">
+      <input type="password" class="password" id="password" pattern=".{8,}" required />
+      <input id="show-password" type="checkbox" class="show-password" aria-controls="password" data-novalue />
+    </div>
+    <div class="input-row password-row">
+      <input type="password" class="password" id="vpassword" pattern=".{8,}" required />
+      <input id="show-password" type="checkbox" class="show-password" aria-controls="vpassword" data-novalue />
     </div>
     <div class="input-row">
       <span class="label-helper"></span>

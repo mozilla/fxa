@@ -30,7 +30,7 @@
             <input type="hidden" class="email" value="{{ email }}" />
 
             <div class="input-row password-row">
-              <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required autocomplete="off" autofocus />
+              <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#isPasswordAutoCompleteDisabled}}autocomplete="off"{{/isPasswordAutoCompleteDisabled}} autofocus />
 
               <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
               <label for="show-password" class="show-password-label">
@@ -69,7 +69,7 @@
         </div>
 
         <div class="input-row password-row">
-          <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#email}}autofocus{{/email}} autocomplete="off" />
+          <input type="password" class="password tooltip-below" id="password" placeholder="{{#t}}Password{{/t}}" value="{{ password }}" pattern=".{8,}" required {{#email}}autofocus{{/email}} {{#isPasswordAutoCompleteDisabled}}autocomplete="off"{{/isPasswordAutoCompleteDisabled}} />
 
           <input id="show-password" type="checkbox" class="show-password" aria-controls="password" tabindex="-1" data-novalue />
           <label for="show-password" class="show-password-label">

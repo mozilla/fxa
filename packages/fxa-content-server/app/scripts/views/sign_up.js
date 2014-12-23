@@ -105,13 +105,13 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         this._bouncedEmail, email, Session.prefillPassword);
 
       return {
-        service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName'),
+        isSync: this.relier.isSync(),
+        isCustomizeSyncChecked: this.relier.isCustomizeSyncChecked(),
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         email: email,
         password: Session.prefillPassword,
         year: Session.prefillYear || 'none',
-        isSync: this.relier.isSync(),
-        isCustomizeSyncChecked: this.relier.isCustomizeSyncChecked(),
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
         shouldFocusYear: autofocusEl === 'year',

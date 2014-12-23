@@ -30,6 +30,12 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
+    context: function () {
+      return {
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
+      };
+    },
+
     afterRender: function () {
       this.initializePlaceholderFields();
     },

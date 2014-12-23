@@ -49,8 +49,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
                     suggestedAccount.get('email') : this.prefillEmail;
 
       return {
-        service: this.relier.get('service'),
         serviceName: this.relier.get('serviceName'),
+        isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
         email: email,
         suggestedAccount: hasSuggestedAccount,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),

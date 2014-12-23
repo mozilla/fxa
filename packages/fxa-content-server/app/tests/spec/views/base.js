@@ -24,7 +24,7 @@ define([
   '../../mocks/window',
   '../../lib/helpers'
 ],
-function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
+function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
           AuthErrors, FxaClient, Relier, User, Template, DOMEventMock, RouterMock,
           WindowMock, TestHelpers) {
   var requiresFocus = TestHelpers.requiresFocus;
@@ -78,7 +78,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
       return view.render()
           .then(function () {
-            jQuery('#container').append(view.el);
+            $('#container').html(view.el);
           });
     });
 
@@ -87,7 +87,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
       if (view) {
         view.destroy();
-        jQuery('#container').empty();
+        $('#container').empty();
       }
 
       view = router = windowMock = metrics = null;
@@ -96,7 +96,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
     describe('render', function () {
       it('renders the template without attaching it to the body', function () {
         // render is called in beforeEach
-        assert.ok(jQuery('#focusMe').length);
+        assert.ok($('#focusMe').length);
       });
 
       it('updates the page title with the embedded h1 and h2 tags', function () {
@@ -236,17 +236,17 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
 
     describe('afterVisible', function () {
       afterEach(function () {
-        jQuery('html').removeClass('no-touch');
+        $('html').removeClass('no-touch');
       });
 
       it('focuses descendent element containing `autofocus` if html has `no-touch` class', function (done) {
         requiresFocus(function () {
-          jQuery('html').addClass('no-touch');
+          $('html').addClass('no-touch');
           // wekbit fails unless focusing another element first.
-          jQuery('#otherElement').focus();
+          $('#otherElement').focus();
 
           var handlerCalled = false;
-          jQuery('#focusMe').on('focus', function () {
+          $('#focusMe').on('focus', function () {
             handlerCalled = true;
           });
 
@@ -264,7 +264,7 @@ function (chai, jQuery, sinon, BaseView, p, Translator, EphemeralMessages, Metri
       it('does not focus descendent element containing `autofocus` if html does not have `no-touch` class', function (done) {
         requiresFocus(function () {
           var handlerCalled = false;
-          jQuery('#focusMe').on('focus', function () {
+          $('#focusMe').on('focus', function () {
             handlerCalled = true;
           });
 
