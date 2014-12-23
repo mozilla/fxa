@@ -17,7 +17,7 @@ function isValidRoute(route) {
   return !! route.method && route.path && route.process;
 }
 
-module.exports = function (config, templates, i18n) {
+module.exports = function (config, i18n) {
 
   var routes = [
     require('./routes/get-index')(),
@@ -48,10 +48,6 @@ module.exports = function (config, templates, i18n) {
     // handle email verification links
     app.get('/v1/verify_email', function (req, res) {
       res.redirect(req.originalUrl.slice(3));
-    });
-
-    app.get('/template/:lang/:type', function (req, res) {
-      res.json(templates(req.params.lang, req.params.type));
     });
 
     // front end mocha tests

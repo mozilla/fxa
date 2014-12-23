@@ -31,8 +31,7 @@ var consolidate = require('consolidate');
 
 var config = require('../lib/configuration');
 var i18n = require('../lib/i18n')(config.get('i18n'));
-var templates = require('../lib/templates')(config.get('template_path'), i18n);
-var routes = require('../lib/routes')(config, templates, i18n);
+var routes = require('../lib/routes')(config, i18n);
 
 // Side effect - Adds default_fxa and dev_fxa to express.logger formats
 var routeLogging = require('../lib/logging/route_logging');
