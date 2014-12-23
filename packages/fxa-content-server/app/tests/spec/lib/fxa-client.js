@@ -67,19 +67,50 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
     });
 
     describe('signUp', function () {
-      it('signUp signs up a user with email/password', function () {
+      it('Sync signUp signs up a user with email/password and returns keys', function () {
         sinon.stub(realClient, 'signUp', function () {
-          return p({});
+          return p({
+            unwrapBKey: 'unwrapBKey',
+            keyFetchToken: 'keyFetchToken'
+          });
         });
 
-        return client.signUp(email, password, relier)
-          .then(function () {
+        return client.signUp(email, password, relier, { customizeSync: true })
+          .then(function (sessionData) {
             assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
               keys: true,
               service: SERVICE,
               redirectTo: REDIRECT_TO,
               resume: expectedResumeToken
             }));
+
+            // The following should only be set for Sync
+            assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
+            assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
+            assert.equal(sessionData.customizeSync, true);
+          });
+      });
+
+      it('non-Sync signUp signs up a user with email/password does not request keys', function () {
+        sinon.stub(realClient, 'signUp', function () {
+          return p({});
+        });
+
+        relier.set('service', 'chronical');
+        // customizeSync should be ignored
+        return client.signUp(email, password, relier, { customizeSync: true })
+          .then(function (sessionData) {
+            assert.isTrue(realClient.signUp.calledWith(trim(email), password, {
+              keys: false,
+              service: 'chronical',
+              redirectTo: REDIRECT_TO,
+              resume: expectedResumeToken
+            }));
+
+            // The following should only be set for Sync
+            assert.isFalse('unwrapBKey' in sessionData);
+            assert.isFalse('keyFetchToken' in sessionData);
+            assert.isFalse('customizeSync' in sessionData);
           });
       });
 
@@ -242,16 +273,47 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
           });
       });
 
-      it('signs a user in with email/password', function () {
+      it('Sync signIn signs in a user with email/password and returns keys', function () {
+        sinon.stub(realClient, 'signIn', function () {
+          return p({
+            unwrapBKey: 'unwrapBKey',
+            keyFetchToken: 'keyFetchToken'
+          });
+        });
+
+        return client.signIn(email, password, relier, { customizeSync: true })
+          .then(function (sessionData) {
+            assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              keys: true
+            }));
+
+            // The following should only be set for Sync
+            assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
+            assert.equal(sessionData.keyFetchToken, 'keyFetchToken');
+            assert.equal(sessionData.customizeSync, true);
+          });
+      });
+
+      it('non-Sync signIn signs a user in with email/password and does not request keys', function () {
         sinon.stub(realClient, 'signIn', function () {
           return p({});
         });
 
-        return client.signIn(email, password, relier)
-          .then(function () {
-            assert.isTrue(realClient.signIn.calledWith(trim(email)));
+        relier.set('service', 'chronical');
+        // customizeSync should be ignored.
+        return client.signIn(email, password, relier, { customizeSync: true })
+          .then(function (sessionData) {
+            assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              keys: false
+            }));
+
+            // The following should only be set for Sync
+            assert.isFalse('unwrapBKey' in sessionData);
+            assert.isFalse('keyFetchToken' in sessionData);
+            assert.isFalse('customizeSync' in sessionData);
           });
       });
+
 
       it('informs browser of customizeSync option', function () {
         sinon.stub(relier, 'isSync', function () {
