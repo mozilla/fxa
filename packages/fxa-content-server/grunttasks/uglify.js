@@ -19,7 +19,10 @@ module.exports = function (grunt) {
           src: ['**/*.js'],
           dest: '<%= yeoman.dist %>/scripts'
         }
-      ]
+      ],
+      options: {
+        sourceMap: true
+      }
     }
   });
 };
