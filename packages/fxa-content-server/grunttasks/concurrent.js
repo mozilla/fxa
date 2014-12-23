@@ -8,6 +8,7 @@ module.exports = function (grunt) {
   grunt.config('concurrent', {
     server: [
       'copy:styles',
+      'copy:normalize',
       'connect_fonts_copy'
     ],
     test: [
@@ -15,6 +16,7 @@ module.exports = function (grunt) {
     ],
     dist: [
       'copy:styles',
+      'copy:normalize',
       'connect_fonts_copy',
       'htmlmin'
     ],
