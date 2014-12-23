@@ -26,6 +26,7 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
   var STATE = 'state';
   var SERVICE = 'sync';
   var REDIRECT_TO = 'https://sync.firefox.com';
+  var AUTH_SERVER_URL = 'http://127.0.0.1:9000';
 
   var assert = chai.assert;
   var email;
@@ -49,7 +50,7 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
 
       expectedResumeToken = ResumeToken.stringify({ state: STATE });
 
-      realClient = new FxaClient('http://127.0.0.1:9000');
+      realClient = new FxaClient(AUTH_SERVER_URL);
 
       client = new FxaClientWrapper({
         client: realClient
@@ -61,7 +62,7 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
 
     it('initializes client from authServerUrl', function () {
       client = new FxaClientWrapper({
-        authServerUrl: 'http://127.0.0.1:9000'
+        authServerUrl: AUTH_SERVER_URL
       });
     });
 

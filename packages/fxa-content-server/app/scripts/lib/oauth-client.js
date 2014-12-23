@@ -8,10 +8,9 @@ define([
   'lib/xhr',
   'lib/promise',
   'lib/session',
-  'lib/config-loader',
   'lib/oauth-errors'
 ],
-function (xhr, p, Session, ConfigLoader, OAuthErrors) {
+function (xhr, p, Session, OAuthErrors) {
   var GET_CLIENT = '/v1/client/';
   var GET_CODE = '/v1/authorization';
 

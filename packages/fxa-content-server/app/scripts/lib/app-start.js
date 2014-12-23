@@ -244,7 +244,6 @@ function (
             relier: this._relier,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
-            oAuthUrl: this._config.oAuthUrl,
             session: Session
           });
         } else if (this._isIframe()) {
@@ -253,7 +252,6 @@ function (
             relier: this._relier,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
-            oAuthUrl: this._config.oAuthUrl,
             session: Session
           });
         } else if (this._isOAuth()) {
@@ -262,7 +260,6 @@ function (
             relier: this._relier,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
-            oAuthUrl: this._config.oAuthUrl,
             session: Session
           });
         } else {

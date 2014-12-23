@@ -34,7 +34,6 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
   }
 
   var VALID_OAUTH_CODE = generateOAuthCode();
-  var BASE_REDIRECT_URL = 'http://127.0.0.1:8080/api/oauth';
   var VALID_OAUTH_CODE_REDIRECT_URL = 'https://127.0.0.1:8080?state=state&code=' + VALID_OAUTH_CODE;
   var INVALID_OAUTH_CODE_REDIRECT_URL = 'https://127.0.0.1:8080?code=code&state=state';
 
@@ -78,7 +77,6 @@ function (chai, sinon, Session, p, OAuthClient, Assertion, AuthErrors,
         session: Session,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
-        oAuthUrl: BASE_REDIRECT_URL,
         relier: relier
       });
 

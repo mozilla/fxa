@@ -169,9 +169,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       return this._getClient()
         .then(function (client) {
           if (self._signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
-            var defer = p.defer();
-            defer.resolve(true);
-            return defer.promise;
+            return p(true);
           } else {
             self._signUpResendCount++;
           }
@@ -230,9 +228,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       return this._getClient()
         .then(function (client) {
           if (self._passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
-            var defer = p.defer();
-            defer.resolve(true);
-            return defer.promise;
+            return p(true);
           } else {
             self._passwordResetResendCount++;
           }
