@@ -126,7 +126,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           router: router,
           broker: broker,
-          screenName: '/signin'
+          screenName: 'signin'
         });
         signUpView = new SignUpView({
           metrics: metrics,
@@ -135,7 +135,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           router: router,
           broker: broker,
-          screenName: '/signup'
+          screenName: 'signup'
         });
       });
 
@@ -241,15 +241,41 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           broker: broker,
           type: 'sign_up',
-          screenName: '/signup_complete'
+          screenName: 'signup-complete'
         });
 
         return router.showView(view)
           .then(function () {
             assert.equal(metrics.getFilteredData().events.length, 1);
-            assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.signup_complete'));
+            assert.isTrue(TestHelpers.isEventLogged(metrics,
+                'screen.signup-complete'));
           });
       });
+    });
+
+    describe('pathToScreenName', function () {
+      it('strips leading /', function () {
+        assert.equal(router.fragmentToScreenName('/signin'), 'signin');
+      });
+
+      it('strips trailing /', function () {
+        assert.equal(router.fragmentToScreenName('signup/'), 'signup');
+      });
+
+      it('converts middle / to .', function () {
+        assert.equal(router.fragmentToScreenName('/legal/tos/'), 'legal.tos');
+      });
+
+      it('converts _ to -', function () {
+        assert.equal(router.fragmentToScreenName('complete_sign_up'),
+            'complete-sign-up');
+      });
+
+      it('strips search parameters', function () {
+        assert.equal(router.fragmentToScreenName('complete_sign_up?email=testuser@testuser.com'),
+            'complete-sign-up');
+      });
+
     });
   });
 });

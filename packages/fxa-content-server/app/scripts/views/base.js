@@ -469,8 +469,7 @@ function (_, Backbone, $, p, AuthErrors,
     },
 
     getScreenName: function () {
-      var screenName = Url.pathToScreenName(this.screenName);
-      return screenName;
+      return this.screenName;
     },
 
     _normalizeError: function (err) {

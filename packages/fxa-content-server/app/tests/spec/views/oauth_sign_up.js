@@ -114,7 +114,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         user: user,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
-        screenName: 'oauth/signup'
+        screenName: 'oauth.signup'
       });
 
       return view.render()

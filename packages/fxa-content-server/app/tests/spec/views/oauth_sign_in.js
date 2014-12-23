@@ -83,7 +83,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         user: user,
         profileClient: profileClientMock,
         metrics: metrics,
-        screenName: 'oauth/signin'
+        screenName: 'oauth.signin'
       });
     }
 
