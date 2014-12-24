@@ -21,6 +21,7 @@ require.config({
     md5: '../bower_components/JavaScript-MD5/js/md5',
     canvasToBlob: '../bower_components/blueimp-canvas-to-blob/js/canvas-to-blob',
     moment: '../bower_components/moment/moment',
+    mailcheck: '../bower_components/mailcheck/src/mailcheck',
     crosstab: 'vendor/crosstab'
   },
   config: {
@@ -57,6 +58,10 @@ require.config({
     },
     sjcl: {
       exports: 'sjcl'
+    },
+    mailcheck: {
+      deps: ['jquery'],
+      exports: 'mailcheck'
     }
   },
   stache: {

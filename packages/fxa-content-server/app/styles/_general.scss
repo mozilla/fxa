@@ -313,6 +313,17 @@ strong.email {
   position: absolute;
   top: -32px;
   z-index: 5;
+  &.tooltip-suggest {
+    background: $info-background-color;
+    > span {
+      cursor: pointer;
+      text-decoration: underline;
+      &.dismiss {
+        margin-left: 5px;
+        text-decoration: none;
+      }
+    }
+  }
 }
 
 /* tooltip caret */
@@ -330,6 +341,11 @@ strong.email {
   width: 16px;
   // The z-index must be -1 or else the caret is displayed on top of the tooltip text
   z-index: -1;
+}
+
+.tooltip-suggest:before,
+.tooltip-suggest::before {
+  background: $info-background-color;
 }
 
 /**

@@ -14,11 +14,12 @@ define([
   'lib/session',
   'lib/auth-errors',
   'lib/strings',
+  'lib/mailcheck',
   'views/mixins/password-mixin',
   'views/mixins/service-mixin'
 ],
 function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
-      Strings, PasswordMixin, ServiceMixin) {
+      Strings, mailcheck, PasswordMixin, ServiceMixin) {
   var t = BaseView.t;
 
   function selectAutoFocusEl(bouncedEmail, email, password) {
@@ -90,6 +91,14 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
                   AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
       }
 
+      if (this.automatedBrowser) {
+        // helps avoid 'focus' issues with Firefox Selenium Driver
+        // See https://code.google.com/p/selenium/issues/detail?id=157
+        this.$el.find('input[type=password]').click(function () {
+          this.suggestEmail();
+        }.bind(this));
+      }
+
       return FormView.prototype.afterVisible.call(this);
     },
 
@@ -98,7 +107,8 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
       'keydown #fxa-age-month': 'submitOnEnter',
       'keydown #fxa-age-date': 'submitOnEnter',
       'change #fxa-age-year': 'onUserYearSelect',
-      'change #fxa-age-month': 'onUserMonthSelect'
+      'change #fxa-age-month': 'onUserMonthSelect',
+      'blur input.email': 'suggestEmail'
     },
 
     getPrefillEmail: function () {
@@ -201,6 +211,10 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
 
           return self._initAccount();
         });
+    },
+
+    suggestEmail: function () {
+      mailcheck(this.$el.find('.email'), this.metrics, this.translator, this.window.location.search);
     },
 
     _isEmailSameAsBouncedEmail: function () {
