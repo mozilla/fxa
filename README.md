@@ -21,7 +21,7 @@ After installation completes you can visit [127.0.0.1:3030](http://127.0.0.1:303
 - `./pm2 logs 1` - display logs for process `1`.
 - More commands on the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
-### Updating servers to `master`: `npm run update`.
+**Use `npm run update` to fetch the latest changes on the `master` branch.**
 
 ### Firefox configurations
 
