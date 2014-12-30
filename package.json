@@ -4,11 +4,19 @@
   "description": "An easy way to contribute to Firefox Accounts",
   "scripts": {
     "postinstall": "_scripts/postinstall.sh",
-    "update": "./pm2 kill && _scripts/update_all.sh"
+    "update": "./pm2 kill && _scripts/update_all.sh",
+    "start": "node _scripts/start.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vladikoff/fxa-local-dev"
   },
   "author": "",
   "license": "MPL",
   "dependencies": {
-    "pm2": "git://github.com/Unitech/PM2#44a9be19cb3c2a28ba2c93092844816c50d31912"
+    "firefox-profile": "0.3.6",
+    "pm2": "git://github.com/Unitech/PM2#44a9be19cb3c2a28ba2c93092844816c50d31912",
+    "selenium-standalone": "2.44.0-1",
+    "webdriverio": "2.4.0"
   }
 }

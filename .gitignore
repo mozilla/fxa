@@ -7,3 +7,4 @@ selenium-*
 node_modules
 pm2
 dump.rdb
+*.log

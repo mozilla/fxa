@@ -24,6 +24,15 @@ After installation completes you can visit [127.0.0.1:3030](http://127.0.0.1:303
 
 - Run `npm run update`.
 
+### Firefox configurations
+
+Use `npm start` to start Firefox with **local sync** configurations.
+Available options:
+
+* `FXA_ENV=local` or `latest or `stable` (NOTE: `local` is default).
+* `FIREFOX_BIN=/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin npm start`
+
+
 ### Dependencies
 
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git), [node.js](http://nodejs.org/), Redis, libgmp.
