@@ -28,7 +28,7 @@ After installation completes you can visit [127.0.0.1:3030](http://127.0.0.1:303
 Use `npm start` to start Firefox with **local sync** configurations.
 Available options:
 
-* `FXA_ENV=local` or `latest or `stable` (NOTE: `local` is default).
+* `FXA_ENV=local` or `latest` or `stable` (NOTE: `local` is default).
 * `FIREFOX_BIN=/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin npm start`
 
 
