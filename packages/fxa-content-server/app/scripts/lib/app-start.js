@@ -116,7 +116,8 @@ function (
       .then(_.bind(this.allResourcesReady, this))
       .then(null, function (err) {
         if (console && console.error) {
-          console.error('Critical error:', err);
+          console.error('Critical error:');
+          console.error(err);
         }
         if (self._metrics) {
           self._metrics.logError(err);
@@ -276,6 +277,7 @@ function (
         this._closeButton = new CloseButtonView({
           broker: this._authenticationBroker
         });
+        this._closeButton.render();
       }
     },
 
