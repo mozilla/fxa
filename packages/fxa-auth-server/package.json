@@ -36,7 +36,7 @@
     "compute-cluster": "0.0.9",
     "convict": "0.6",
     "fxa-auth-mailer": "1.0.7",
-    "hapi": "7.0.0",
+    "hapi": "7.5.3",
     "hapi-auth-hawk": "1.1.1",
     "hkdf": "0.0.2",
     "joi": "4.7.0",
