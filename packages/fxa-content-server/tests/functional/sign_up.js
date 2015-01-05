@@ -137,20 +137,14 @@ define([
         .end()
 
         .findById('fxa-' + CUTOFF_YEAR)
-          .pressMouseButton()
-          .releaseMouseButton()
           .click()
         .end()
 
         .findById('fxa-month-' + monthToSelect)
-          .pressMouseButton()
-          .releaseMouseButton()
           .click()
         .end()
 
         .findById('fxa-day-' + dateToSelect)
-          .pressMouseButton()
-          .releaseMouseButton()
           .click()
         .end()
 
@@ -185,20 +179,14 @@ define([
         .end()
 
         .findById('fxa-' + CUTOFF_YEAR)
-          .pressMouseButton()
-          .releaseMouseButton()
           .click()
         .end()
 
         .findById('fxa-month-' + monthToSelect)
-          .pressMouseButton()
-          .releaseMouseButton()
           .click()
         .end()
 
         .findById('fxa-day-' + dateToSelect)
-          .pressMouseButton()
-          .releaseMouseButton()
           .click()
         .end()
 
