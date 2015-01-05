@@ -275,7 +275,7 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         .then(function () {
           return self.fxaClient.signUp(
                         email, password, self.relier, {
-                          cusomizeSync: customizeSync
+                          customizeSync: customizeSync
                         });
         }).then(function (accountData) {
           var account = self.user.initAccount(accountData);
