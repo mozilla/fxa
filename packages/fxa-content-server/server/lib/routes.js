@@ -94,13 +94,20 @@ module.exports = function (config, templates, i18n) {
       '/force_auth',
       '/oauth/signin',
       '/oauth/signup',
+      '/oauth/force_auth',
       '/cookies_disabled',
       '/clear'
     ];
 
+    var ALLOWED_TO_FRAME = {
+      '/oauth/signin': true,
+      '/oauth/signup': true,
+      '/oauth/force_auth': true
+    };
+
     FRONTEND_ROUTES.forEach(function (route) {
       app.get(route, function (req, res, next) {
-        if (req.path === '/oauth/signin' || req.path === '/oauth/signup') {
+        if (ALLOWED_TO_FRAME[req.path]) {
           res.removeHeader('x-frame-options');
         }
 

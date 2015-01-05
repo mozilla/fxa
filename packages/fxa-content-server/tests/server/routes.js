@@ -29,6 +29,10 @@ define([
     '/config': { statusCode: 200, headerAccept: 'application/json' },
     '/signin': { statusCode: 200 },
     '/signup': { statusCode: 200 },
+    '/force_auth': { statusCode: 200 },
+    '/oauth/signin': { statusCode: 200 },
+    '/oauth/signup': { statusCode: 200 },
+    '/oauth/force_auth': { statusCode: 200 },
     '/signup_complete': { statusCode: 200 },
     '/confirm': { statusCode: 200 },
     '/settings': { statusCode: 200 },
@@ -48,7 +52,6 @@ define([
     '/complete_reset_password': { statusCode: 200 },
     '/reset_password_complete': { statusCode: 200 },
     '/delete_account': { statusCode: 200 },
-    '/force_auth': { statusCode: 200 },
     '/ver.json': { statusCode: 200, headerAccept: 'application/json' },
     '/cookies_disabled': { statusCode: 200 }
   };
@@ -73,6 +76,7 @@ define([
     '/legal/privacy',
     '/oauth/signin',
     '/oauth/signup',
+    '/oauth/force_auth',
     '/500.html',
     '/502.html',
     '/503.html'

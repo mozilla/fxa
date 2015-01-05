@@ -99,6 +99,7 @@ function (
       'signin(/)': showView(SignInView),
       'oauth/signin(/)': showView(SignInView),
       'oauth/signup(/)': showView(SignUpView),
+      'oauth/force_auth(/)': showView(ForceAuthView),
       'signup(/)': showView(SignUpView),
       'signup_complete(/)': showView(ReadyView, { type: 'sign_up' }),
       'cannot_create_account(/)': showView(CannotCreateAccountView),

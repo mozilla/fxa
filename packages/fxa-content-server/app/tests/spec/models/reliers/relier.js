@@ -20,6 +20,7 @@ define([
     var SERVICE = 'service';
     var SYNC_SERVICE = 'sync';
     var PREVERIFY_TOKEN = 'abigtoken';
+    var EMAIL = 'email';
 
     beforeEach(function () {
       windowMock = new WindowMock();
@@ -34,6 +35,7 @@ define([
         windowMock.location.search = TestHelpers.toSearchString({
           preVerifyToken: PREVERIFY_TOKEN,
           service: SERVICE,
+          email: EMAIL,
           ignored: 'ignored'
         });
 
@@ -41,6 +43,7 @@ define([
             .then(function () {
               assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
               assert.equal(relier.get('service'), SERVICE);
+              assert.equal(relier.get('email'), EMAIL);
               assert.isFalse(relier.has('ignored'));
             });
       });

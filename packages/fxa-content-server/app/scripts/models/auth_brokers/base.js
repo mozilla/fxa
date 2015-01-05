@@ -174,7 +174,8 @@ define([
     },
 
     _isForceAuthUrl: function () {
-      return this.window.location.pathname === '/force_auth';
+      var pathname = this.window.location.pathname;
+      return pathname === '/force_auth' || pathname === '/oauth/force_auth';
     }
   });
 

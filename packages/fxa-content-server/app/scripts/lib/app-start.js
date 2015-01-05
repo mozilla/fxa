@@ -264,7 +264,9 @@ function (
             session: Session
           });
         } else {
-          this._authenticationBroker = new BaseAuthenticationBroker();
+          this._authenticationBroker = new BaseAuthenticationBroker({
+            relier: this._relier
+          });
         }
 
         return this._authenticationBroker.fetch();

@@ -187,6 +187,10 @@ function (_, Errors) {
     INVALID_EMAIL: {
       errno: 1023,
       message: t('Valid email required')
+    },
+    FORCE_AUTH_EMAIL_REQUIRED: {
+      errno: 1024,
+      message: t('/force_auth requires an email')
     }
   };
 

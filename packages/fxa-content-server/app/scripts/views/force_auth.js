@@ -10,10 +10,18 @@ define([
   'views/form',
   'views/sign_in',
   'stache!templates/force_auth',
-  'lib/session'
+  'lib/session',
+  'lib/auth-errors'
 ],
-function (p, BaseView, FormView, SignInView, Template, Session) {
-  var t = BaseView.t;
+function (p, BaseView, FormView, SignInView, Template, Session, AuthErrors) {
+  function getFatalErrorMessage(self, fatalError) {
+    if (fatalError) {
+      return self.translateError(fatalError);
+    }
+
+    return '';
+  }
+
 
   var View = SignInView.extend({
     template: Template,
@@ -35,14 +43,15 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
     context: function () {
       var fatalError = '';
       var email = this.relier.get('email');
+
       if (! email) {
-        fatalError = t('/force_auth requires an email');
+        fatalError = AuthErrors.toError('FORCE_AUTH_EMAIL_REQUIRED');
       }
 
       return {
         email: email,
         password: this._prefillPassword,
-        fatalError: fatalError,
+        fatalError: getFatalErrorMessage(this, fatalError),
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
       };
     },
@@ -64,6 +73,15 @@ function (p, BaseView, FormView, SignInView, Template, Session) {
       });
 
       return this._signIn(account);
+    },
+
+    onSignInError: function (err) {
+      if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+        // dead end, do not allow the user to sign up.
+        this.displayError(err);
+      } else {
+        return SignInView.prototype.onSignInError.call(this, err);
+      }
     },
 
     resetPasswordNow: function () {

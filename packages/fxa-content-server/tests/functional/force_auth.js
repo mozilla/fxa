@@ -18,36 +18,48 @@ define([
 
   var config = intern.config;
   var AUTH_SERVER_ROOT = config.fxaAuthRoot;
-  var EMAIL_SERVER_ROOT = config.fxaEmailRoot;
   var FORCE_AUTH_URL = config.fxaContentRoot + 'force_auth';
 
   var PASSWORD = 'password';
-  var user;
   var email;
-  var accountData;
   var client;
 
-  registerSuite({
-    name: 'force_auth',
+  function openFxa(self, email) {
+    return self.get('remote')
+      .setFindTimeout(intern.config.pageLoadTimeout)
+      .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
 
-    setup: function () {
+      .findByCssSelector('#fxa-force-auth-header')
+      .end();
+  }
+
+  function attemptSignIn(self) {
+    return self.get('remote')
+      // user should be at the force-auth screen
+      .findByCssSelector('#fxa-force-auth-header')
+      .end()
+
+      .findByCssSelector('input[type=password]')
+        .click()
+        .type(PASSWORD)
+      .end()
+
+      .findByCssSelector('button[type="submit"]')
+        .click()
+      .end();
+  }
+
+
+  registerSuite({
+    name: 'force_auth with an existing user',
+
+    beforeEach: function () {
       email = TestHelpers.createEmail();
-      user = TestHelpers.emailToUser(email);
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
       });
       var self = this;
-      return client.signUp(email, PASSWORD)
-        .then(function (result) {
-          accountData = result;
-        })
-        .then(function () {
-          return restmail(EMAIL_SERVER_ROOT + '/mail/' + user);
-        })
-        .then(function (emails) {
-          var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-          return client.verifyCode(accountData.uid, code);
-        })
+      return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function () {
           // clear localStorage to avoid polluting other tests.
           return FunctionalHelpers.clearBrowserState(self);
@@ -55,26 +67,20 @@ define([
     },
 
     'sign in via force-auth': function () {
-      return this.get('remote')
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
-        .findByCssSelector('form input.password')
-          .click()
-          .type(PASSWORD)
-        .end()
+      var self = this;
+      return openFxa(self, email)
 
-        .findByCssSelector('button[type="submit"]')
-          .click()
-        .end()
+        .then(function () {
+          return attemptSignIn(self);
+        })
 
         .findById('fxa-settings-header')
         .end();
     },
 
     'forgot password flow via force-auth goes directly to confirm email screen': function () {
-      return this.get('remote')
-        .setFindTimeout(intern.config.pageLoadTimeout)
-        .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
+      var self = this;
+      return openFxa(self, email)
         .findByCssSelector('.reset-password')
           .click()
         .end()
@@ -94,25 +100,56 @@ define([
     'visiting the tos/pp links saves information for return': function () {
       var self = this;
       return testRepopulateFields.call(self, '/legal/terms', 'fxa-tos-header')
-              .then(function () {
-                return testRepopulateFields.call(self, '/legal/privacy', 'fxa-pp-header');
-              });
+        .then(function () {
+          return testRepopulateFields.call(self, '/legal/privacy', 'fxa-pp-header');
+        });
     }
   });
+
+  registerSuite({
+    name: 'force_auth with an unregistered user',
+
+    beforeEach: function () {
+      email = TestHelpers.createEmail();
+      // clear localStorage to avoid polluting other tests.
+      return FunctionalHelpers.clearBrowserState(this);
+    },
+
+    'sign in shows an error message': function () {
+      var self = this;
+      return openFxa(self, email)
+
+        .then(function () {
+          return attemptSignIn(self);
+        })
+
+        .then(FunctionalHelpers.visibleByQSA('.error'))
+        .end();
+    },
+
+    'reset password shows an error message': function () {
+      var self = this;
+      return openFxa(self, email)
+        .findByCssSelector('a[href="/confirm_reset_password"]')
+          .click()
+        .end()
+
+        .then(FunctionalHelpers.visibleByQSA('.error'))
+        .end();
+    }
+  });
+
 
   function testRepopulateFields(dest, header) {
     /*jshint validthis: true*/
     var self = this;
-    var email = TestHelpers.createEmail();
-    var password = '12345678';
 
-    return self.get('remote')
-      .setFindTimeout(intern.config.pageLoadTimeout)
-      .get(require.toUrl(FORCE_AUTH_URL + '?email=' + email))
+    return openFxa(self, email)
+
       .findByCssSelector('input[type=password]')
         .clearValue()
         .click()
-        .type(password)
+        .type(PASSWORD)
       .end()
 
       .findByCssSelector('a[href="' + dest + '"]')
@@ -133,7 +170,7 @@ define([
         .getProperty('value')
         .then(function (resultText) {
           // check the email address was re-populated
-          assert.equal(resultText, password);
+          assert.equal(resultText, PASSWORD);
         })
       .end();
   }
