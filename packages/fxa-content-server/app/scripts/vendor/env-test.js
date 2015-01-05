@@ -56,8 +56,10 @@
   /**
    * The iframe'd OAuth flow needs special styling applied to it as
    * soon as possible so that it doesn't look terrible.
+   *
+   * We also need to make sure that the iframe name is not 'remote', that is used by 'about:accounts'.
    */
-  if (window.top && window.top !== window) {
+  if (window.top && window.top !== window && window.name !== 'remote') {
     var htmlElement = document.querySelector('html');
     htmlElement.className += ' iframe';
   }
