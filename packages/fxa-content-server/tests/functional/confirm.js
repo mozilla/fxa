@@ -53,12 +53,9 @@ define([
         .end()
 
         .findByCssSelector('#fxa-age-year')
-          .click()
         .end()
 
         .findByCssSelector('#fxa-' + (TOO_YOUNG_YEAR - 1))
-          .pressMouseButton()
-          .releaseMouseButton()
           .click()
         .end()
 

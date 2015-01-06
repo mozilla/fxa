@@ -337,12 +337,9 @@ define([
       .end()
 
       .findByCssSelector('#fxa-age-year')
-        .click()
       .end()
 
       .findById('fxa-' + year)
-        .pressMouseButton()
-        .releaseMouseButton()
         .click()
       .end()
 
