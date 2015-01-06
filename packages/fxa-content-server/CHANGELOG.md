@@ -1,3 +1,33 @@
+<a name="0.28.0"></a>
+## 0.28.0 (2015-01-05)
+
+
+#### Bug Fixes
+
+* **account:** filter account.toJSON ([6044aa6d](https://github.com/mozilla/fxa-content-server/commit/6044aa6dfdccf4e88a3c2859d63ca3cf27008904))
+* **build:** generate sourcemaps ([fdcf92fd](https://github.com/mozilla/fxa-content-server/commit/fdcf92fda50a98cf3a706616de997d0ef8455589), closes [#258](https://github.com/mozilla/fxa-content-server/issues/258))
+* **client:**
+  * We broke password managers with `autocomplete=off` on password fields! ([7df783f2](https://github.com/mozilla/fxa-content-server/commit/7df783f2fce77db869cd4c9076a75be0bc87e112))
+  * OAuth/redirect users who paste the verification link into the original tab shoul ([86b1c5cb](https://github.com/mozilla/fxa-content-server/commit/86b1c5cb0649129dbdad8ddbbc4a1467f21c4771))
+  * Allow Fx18 to use the iframe flow. ([c2020f85](https://github.com/mozilla/fxa-content-server/commit/c2020f856ffc31034b1fe124031cc5f232e8d2ea))
+* **docs:** update AUTHORS list ([09aec587](https://github.com/mozilla/fxa-content-server/commit/09aec587119c54332c87fd5c0984420a59e2f036), closes [#1981](https://github.com/mozilla/fxa-content-server/issues/1981))
+* **iframe:** fixes styling issues caused by the iframe environment ([740006de](https://github.com/mozilla/fxa-content-server/commit/740006de68e291412399c9e275bb888c0cf11eca), closes [#2010](https://github.com/mozilla/fxa-content-server/issues/2010))
+* **metrics:** Convert all `_` in screen names to `-`. ([726d9017](https://github.com/mozilla/fxa-content-server/commit/726d90170beee05b3c7d22c069d8bb6ba0a0d403))
+* **server:** Allow the 500 and 503 pages to be iframed. ([b25faa2c](https://github.com/mozilla/fxa-content-server/commit/b25faa2c2ff1e99c1628b0ba210fd0914639fd52))
+* **signin:**
+  * set the current account after logging in with cached sync account ([9732f05f](https://github.com/mozilla/fxa-content-server/commit/9732f05fa5ede4142b0c4b9187945edc1f145c83))
+  * pass account data to broker instead of using currentUser ([aeb4aa15](https://github.com/mozilla/fxa-content-server/commit/aeb4aa15d6a228166339de7a40c7991f644d7440), closes [#1973](https://github.com/mozilla/fxa-content-server/issues/1973))
+* **styles:** make sure normalize.css is used in production ([28ff205e](https://github.com/mozilla/fxa-content-server/commit/28ff205e648e99b4e2d60ced78551a910175763a), closes [#1997](https://github.com/mozilla/fxa-content-server/issues/1997))
+* **sync:** correct a typo that voided the customize sync option ([8f78e1d6](https://github.com/mozilla/fxa-content-server/commit/8f78e1d6ffadea035d75764d5b3f33118ac69d69))
+* **tests:** fix up select dropdown ([995a8a5a](https://github.com/mozilla/fxa-content-server/commit/995a8a5a75fe6698145a09a998a423710ae28ee2))
+
+
+#### Features
+
+* **client:** An Fx Sync relier can specify `customizeSync=true` to force the Customize Sync c ([a4a26f91](https://github.com/mozilla/fxa-content-server/commit/a4a26f9189ca1776f1b0f8087b42eba9a3ef3eef))
+* **metrics:** Report distinct metrics codes for missing and invalid emails ([71489471](https://github.com/mozilla/fxa-content-server/commit/71489471a0916f0a1b17dec36096ad7d1b30adbb))
+
+
 <a name="0.27.0"></a>
 ## 0.27.0 (2014-12-08)
 
