@@ -1,7 +1,7 @@
 # Firefox Accounts Content Server Architecture
 
 ## Purpose of Document
-This is a starting point for developers and contributors of the Firefox Accounts Content Server. An architectural overview of Firefox Accounts is at [link needed](). Documentation on how to integrate Firefox Accounts into a web site or app is on [MDN](https://developer.mozilla.org/) under the [Firefox Accounts section](https://developer.mozilla.org/Firefox_Accounts).
+This is a starting point for developers and contributors of the Firefox Accounts Content Server. No overall architectural document exists for the entire Firefox Accounts ecosystem. The OAuth documentation is in the [fxa-oauth-server's wiki](https://github.com/mozilla/fxa-oauth-server/wiki/oauth-design). Documentation on how to integrate Firefox Accounts into a web site or app is on [MDN](https://developer.mozilla.org/) under the [Firefox Accounts section](https://developer.mozilla.org/Firefox_Accounts).
 
 ## Firefox Accounts is a client-server architecture w/ multiple servers.
 
@@ -27,8 +27,8 @@ The content server is a combination of two components, a server component and a 
 
 ### Web Client Goals/Desired Quality Attributes
 * Can be integrated into any Web capable system.
-* Can be extended to provide interfaces with Web capable "native" applications e.g. a native panel within a browser.
-* Can be opened by any "modern" browser or rendering engine that supports HTML5.
+* Can be extended to provide an interface to Web capable native applications, e.g., a native panel within a browser.
+* Can be opened by any modern browser or rendering engine that supports HTML5.
 
 ### Relier/Relying Party
 The relier/relying party is an implicit component that is external to the Firefox Accounts content server. Reliers run in a multitude of contexts, not all web based. For example, Firefox Sync and Firefox Hello are two services built into Firefox that use Firefox Accounts to authenticate their users.
@@ -112,7 +112,37 @@ When the application starts, [app-start.js](https://github.com/mozilla/fxa-conte
 
 #### Reliers
 
-#### Brokers
+##### Base
+BaseRelier is the generic interface for the other reliers. BaseRelier can be used as a null Relier object.
+
+##### Relier
+Relier is the default relier when neither OAuth nor FxDesktop are used. Used when the user directly browses to https://accounts.firefox.com.
+
+##### OAuth
+OAuthRelier is used for the OAuth flows. It keeps track of OAuth related information sent by OAuth reliers.
+
+##### FxDesktop
+FxDesktopRelier is used when interfacing with Firefox Desktop Sync.
+
+#### Authentication Brokers
+
+##### Base
+BaseAuthenticationBroker is the generic interface for other brokers.
+
+##### OAuth
+OAuthAuthenticationBroker provides functionality common to all OAuth related flows. The OAuthAuthenticationBroker saves OAuth data before verification, generates OAuth results, and sends the OAuth result to the OAuth relying party.
+
+###### Redirect
+RedirectAuthenticationBroker is used for redirect based OAuth flows. The RedirectAuthenticationBroker sends results to the OAuth relying party via the browser's URL.
+
+###### IFrame
+IFrameAuthenticationBroker is used for iframe based OAuth flows. This broker communicates with the OAuth relying party via postMessage. The IFrame broker ensures the parent IFRAME is the same domain as the domain registered for the `client_id` passed on startup.
+
+###### WebChannel
+WebChannelAuthenticationBroker is used for communicating with browser based services like Loop. WebChannelBroker communicates with the browser via postMessage and special events.
+
+##### FxDesktop
+FxDesktopAuthenticationBroker interfaces with Firefox Sync. A custom protocol allows the content server to query the browser for information and send results back.
 
 #### Channels
 
