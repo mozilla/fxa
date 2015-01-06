@@ -478,11 +478,13 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
 
         sinon.stub(view.fxaClient, 'signUp', function () {
           return p({
-            verified: true
+            verified: true,
+            customizeSync: true
           });
         });
 
-        sinon.stub(broker, 'afterSignIn', function () {
+        sinon.stub(broker, 'afterSignIn', function (account) {
+          assert.isTrue(account.get('customizeSync'), 'customizeSync option is passed to broker');
           return p();
         });
 
@@ -624,6 +626,30 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
       });
 
+      it('passes the customize sync option to the fxa-client', function () {
+        relier.set('service', 'sync');
+        relier.set('customizeSync', true);
+
+        sinon.stub(view.fxaClient, 'signUp', function () {
+          return p({
+            verified: true
+          });
+        });
+
+        sinon.stub(broker, 'afterSignIn', function () {
+          return p();
+        });
+
+        return view.render()
+          .then(function () {
+            fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
+            return view.submit();
+          })
+          .then(function () {
+            assert.isTrue(view.fxaClient.signUp.calledWith(email, 'password', relier,
+              { customizeSync: true }), 'fxa client params');
+          });
+      });
     });
 
     describe('_isUserOldEnough', function () {
