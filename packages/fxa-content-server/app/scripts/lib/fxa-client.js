@@ -23,6 +23,14 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     return $.trim(str);
   }
 
+  function shouldFetchKeys(relier) {
+    // isSync is added in case the user verifies in a second tab
+    // on the first browser, the context will not be available. We
+    // need to ship the keyFetchToken and unwrapBKey to the first tab,
+    // so generate these any time we are using sync as well.
+    return !!(relier.isFxDesktop() || relier.isSync());
+  }
+
   function FxaClientWrapper(options) {
     options = options || {};
 
@@ -85,11 +93,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
         verified: accountData.verified || false
       };
 
-      // isSync is added in case the user verifies in a second tab
-      // on the first browser, the context will not be available. We
-      // need to ship the keyFetchToken and unwrapBKey to the first tab,
-      // so generate these any time we are using sync as well.
-      if (relier.isFxDesktop() || relier.isSync()) {
+      if (shouldFetchKeys(relier)) {
         updatedSessionData.unwrapBKey = accountData.unwrapBKey;
         updatedSessionData.keyFetchToken = accountData.keyFetchToken;
         updatedSessionData.customizeSync = options.customizeSync || false;
@@ -106,7 +110,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
       return self._getClient()
         .then(function (client) {
-          return client.signIn(email, password, { keys: true });
+          return client.signIn(email, password, { keys: shouldFetchKeys(relier) });
         })
         .then(function (accountData) {
           return self._getUpdatedSessionData(email, relier, accountData, options);
@@ -124,7 +128,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       return self._getClient()
         .then(function (client) {
           var signUpOptions = {
-            keys: true
+            keys: shouldFetchKeys(relier)
           };
 
           if (relier.has('service')) {
