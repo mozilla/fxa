@@ -55,6 +55,13 @@ define([
      */
     getResumeToken: function () {
       return null;
+    },
+
+    /**
+     * Indicates whether the relier allows cached credentials
+     */
+    allowCachedCredentials: function () {
+      return true;
     }
   });
 

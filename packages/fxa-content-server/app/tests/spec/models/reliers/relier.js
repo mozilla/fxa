@@ -6,10 +6,11 @@
 
 define([
   'chai',
+  'lib/constants',
   'models/reliers/relier',
   '../../../mocks/window',
   '../../../lib/helpers'
-], function (chai, Relier, WindowMock, TestHelpers) {
+], function (chai, Constants, Relier, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('models/reliers/relier', function () {
@@ -87,6 +88,40 @@ define([
       });
     });
 
+    describe('allowCachedCredentials', function () {
+      it('returns `true` if `email` not set', function () {
+        return relier.fetch()
+          .then(function () {
+            assert.isTrue(relier.allowCachedCredentials());
+          });
+      });
+
+      it('returns `true` if `email` is set to an email address', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          email: 'testuser@testuser.com'
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.isTrue(relier.allowCachedCredentials());
+          });
+      });
+
+      it('returns `false` if `email` is set to `blank`', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          email: Constants.DISALLOW_CACHED_CREDENTIALS
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.isFalse(relier.allowCachedCredentials());
+
+            // the email should not be set on the relier model
+            // if the specified email === blank
+            assert.isFalse(relier.has('email'));
+          });
+      });
+    });
   });
 });
 

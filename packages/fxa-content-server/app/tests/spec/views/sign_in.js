@@ -126,8 +126,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
             });
       });
 
-      it('prefills email with email from search parameter if Session.prefillEmail is not set', function () {
-        windowMock.location.search = '?email=' + encodeURIComponent('testuser@testuser.com');
+      it('prefills email with email from relier if Session.prefillEmail is not set', function () {
+        relier.set('email', 'testuser@testuser.com');
 
         initView();
         return view.render()
@@ -444,8 +444,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
-      it('does shows if there is the same email in query params', function () {
-        windowMock.location.search = '?email=a@a.com';
+      it('shows if there is the same email in relier', function () {
+        relier.set('email', 'a@a.com');
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
@@ -471,8 +471,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           });
       });
 
-      it('does not show if there is an email in query params that does not match', function () {
-        windowMock.location.search = '?email=b@b.com';
+      it('does not show if there is an email in relier that does not match', function () {
+        relier.set('email', 'b@b.com');
         var account = user.initAccount({
           sessionToken: 'abc123',
           email: 'a@a.com',
@@ -489,6 +489,30 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           .then(function () {
             assert.equal(view.$('.email')[0].type, 'email', 'should show email input');
             assert.ok(view.$('.password').length, 'should show password input');
+          });
+      });
+
+      it('does not show if the relier overrules cached credentials', function () {
+        sinon.stub(relier, 'allowCachedCredentials', function () {
+          return false;
+        });
+
+        relier.set('email', 'a@a.com');
+
+        sinon.stub(user, 'getChooserAccount', function () {
+          return user.initAccount({
+            sessionToken: 'abc123',
+            email: 'a@a.com',
+            sessionTokenContext: Constants.FX_DESKTOP_CONTEXT,
+            verified: true,
+            accessToken: 'foo'
+          });
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('input[type=email]').length, 1, 'should show email input');
+            assert.equal(view.$('input[type=password]').length, 1, 'should show password input');
           });
       });
     });

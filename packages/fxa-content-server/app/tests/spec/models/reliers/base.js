@@ -53,6 +53,12 @@ define([
         assert.isNull(relier.getResumeToken());
       });
     });
+
+    describe('allowCachedCredentials', function () {
+      it('returns `true`', function () {
+        assert.isTrue(relier.allowCachedCredentials());
+      });
+    });
   });
 });
 

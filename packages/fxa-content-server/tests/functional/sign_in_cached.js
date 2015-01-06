@@ -29,6 +29,7 @@ define([
   // that require a functioning desktop channel
   var PAGE_SIGNIN = config.fxaContentRoot + 'signin';
   var PAGE_SIGNIN_DESKTOP = PAGE_SIGNIN + '?context=' + FX_DESKTOP_CONTEXT;
+  var PAGE_SIGNIN_NO_CACHED_CREDS = PAGE_SIGNIN + '?email=blank';
   var PAGE_SIGNUP = config.fxaContentRoot + 'signup';
   var PAGE_SIGNUP_DESKTOP = config.fxaContentRoot + 'signup?context=' + FX_DESKTOP_CONTEXT;
   var PAGE_SETTINGS = config.fxaContentRoot + 'settings';
@@ -534,7 +535,55 @@ define([
 
         .findByCssSelector('.use-different')
         .end();
+    },
+
+    'overrule cached credentials': function () {
+      var self = this;
+
+      return this.get('remote')
+        .get(require.toUrl(PAGE_SIGNIN))
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-settings-header')
+        .end()
+
+        .then(function () {
+          // reset prefill and context
+          return FunctionalHelpers.clearSessionStorage(self);
+        })
+
+        .get(require.toUrl(PAGE_SIGNIN_NO_CACHED_CREDS))
+
+        .findByCssSelector('form input.email')
+          .click()
+          .type(email)
+        .end()
+
+        .findByCssSelector('form input.password')
+          .click()
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        .findById('fxa-settings-header')
+        .end();
     }
+
 
   });
 });

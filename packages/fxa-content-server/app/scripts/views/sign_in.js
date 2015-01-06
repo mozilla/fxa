@@ -33,7 +33,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       // go to another screen, edit the email again, and come back here. We
       // want the last used email. Session.prefillEmail is not until after
       // the view initializes.
-      this.prefillEmail = Session.prefillEmail || this.searchParam('email');
+      this.prefillEmail = Session.prefillEmail || this.relier.get('email');
 
       this._account = this._suggestedAccount();
     },
@@ -242,6 +242,8 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       var account = this.user.getChooserAccount();
 
       if (
+        // the relier can overrule cached creds.
+        this.relier.allowCachedCredentials() &&
         // confirm that session email is present
         account.get('email') && account.get('sessionToken') &&
         // prefilled email must be the same or absent
