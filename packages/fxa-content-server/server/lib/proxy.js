@@ -11,7 +11,7 @@
 'use strict';
 
 var httpProxy = require('http-proxy');
-var logger = require('intel').getLogger('server.proxy');
+var logger = require('mozlog')('server.proxy');
 var restreamer = require('connect-restreamer')();
 
 var config = require('./configuration');

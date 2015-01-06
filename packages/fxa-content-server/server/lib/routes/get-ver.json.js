@@ -18,7 +18,7 @@ var path = require('path');
 var util = require('util');
 var child_process = require('child_process');
 var Promise = require('bluebird');
-var logger = require('intel').getLogger('server.ver.json');
+var logger = require('mozlog')('server.ver.json');
 
 var version = require('../../../package.json').version;
 

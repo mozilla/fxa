@@ -4,7 +4,7 @@
 
 // Middleware to log the requests
 
-var logger = require('intel').getLogger('server.requests');
+var logger = require('mozlog')('server.requests');
 var expressLogger = require('express').logger;
 var config = require('../configuration');
 

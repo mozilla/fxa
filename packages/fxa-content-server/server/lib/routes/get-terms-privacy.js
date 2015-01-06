@@ -20,7 +20,7 @@
 
 var fs = require('fs');
 var path = require('path');
-var logger = require('intel').getLogger('route.get-terms-privacy');
+var logger = require('mozlog')('route.get-terms-privacy');
 var Promise = require('bluebird');
 var config = require('../configuration');
 
