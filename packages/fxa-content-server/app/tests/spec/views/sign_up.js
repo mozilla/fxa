@@ -22,11 +22,10 @@ define([
   'models/auth_brokers/base',
   'models/user',
   '../../mocks/router',
-  '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
-      FxaClient, EphemeralMessages, Relier, Broker, User, RouterMock, WindowMock,
+      FxaClient, EphemeralMessages, Relier, Broker, User, RouterMock,
       TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -66,7 +65,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     var router;
     var email;
     var metrics;
-    var windowMock;
     var fxaClient;
     var relier;
     var broker;
@@ -82,7 +80,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       email = TestHelpers.createEmail();
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
       router = new RouterMock();
-      windowMock = new WindowMock();
 
       metrics = new Metrics();
       relier = new Relier();
@@ -94,7 +91,6 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       view = new View({
         router: router,
         metrics: metrics,
-        window: windowMock,
         fxaClient: fxaClient,
         user: user,
         relier: relier,
@@ -134,8 +130,8 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
             });
       });
 
-      it('prefills email with email from search parameter if Session.prefillEmail is not set', function () {
-        windowMock.location.search = '?email=' + encodeURIComponent('testuser@testuser.com');
+      it('prefills email with email from the relier Session.prefillEmail is not set', function () {
+        relier.set('email', 'testuser@testuser.com');
 
         return view.render()
             .then(function () {

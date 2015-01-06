@@ -22,7 +22,7 @@ function (Cocktail, BaseView, FormView, Template, Session,
     className: 'reset_password',
 
     _getPrefillEmail: function () {
-      return this.searchParam('email') || Session.prefillEmail || '';
+      return this.relier.get('email') || Session.prefillEmail || '';
     },
 
     context: function () {
