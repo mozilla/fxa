@@ -1,0 +1,44 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" dir="{{ lang_dir }}" lang="{{ lang }}"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{{#t}}Firefox Accounts{{/t}}</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width">
+
+        <!-- build:css(.tmp) /styles/{{ locale }}.css -->
+        <link rel="stylesheet" href="/bower_components/normalize-css/normalize.css">
+        <link rel="stylesheet" href="/styles/fontello.css">
+        {{#if fontSupportDisabled}}
+        <link rel="stylesheet" href="/styles/system-font-main.css">
+        {{else}}
+        <link rel="stylesheet" href="/styles/fonts/{{ locale }}.css">
+        <link rel="stylesheet" href="/styles/main.css">
+        {{/if}}
+        <!-- endbuild -->
+    </head>
+    <body>
+        <div id="fox-logo" class="static"></div>
+        <div id="stage">
+          <div id="main-content">
+            <header>
+              <h1 id="fxa-502-header">{{#t}}502 Error{{/t}}</h1>
+            </header>
+
+            <section>
+              {{#t}}Oh dear, something went wrong there. We've been notified and will get working on a fix.{{/t}}
+            </section>
+
+            <div class="button-row">
+              <a href="/" class="button" id="fxa-502-home">{{#t}}Home{{/t}}</a>
+            </div>
+          </div>
+        </div>
+
+        <a id="about-mozilla" rel="author" target="_blank" href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"></a>
+    </body>
+</html>

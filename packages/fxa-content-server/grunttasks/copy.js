@@ -24,7 +24,7 @@ module.exports = function (grunt) {
           flatten: true,
           cwd: '<%= yeoman.page_template_dist %>',
           dest: '<%= yeoman.app %>',
-          src: 'en_US/{500,503}.html'
+          src: 'en_US/{500,502,503}.html'
         }
       ]
     },

@@ -52,6 +52,7 @@ app/scripts/processed
 
 ### Pre-processed error pages
 app/500.html
+app/502.html
 app/503.html
 
 ### Local configuration ###

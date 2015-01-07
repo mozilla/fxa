@@ -54,8 +54,8 @@ define([
   };
 
   if (config.get('are_dist_resources')) {
-    routes['/400.html'] = { statusCode: 200 };
     routes['/500.html'] = { statusCode: 200 };
+    routes['/502.html'] = { statusCode: 200 };
     routes['/503.html'] = { statusCode: 200 };
   }
 
@@ -73,8 +73,8 @@ define([
     '/legal/privacy',
     '/oauth/signin',
     '/oauth/signup',
-    '/400.html',
     '/500.html',
+    '/502.html',
     '/503.html'
   ];
 
