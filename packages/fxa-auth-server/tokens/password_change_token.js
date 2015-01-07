@@ -7,8 +7,6 @@ module.exports = function (log, inherits, Token, lifetime) {
   function PasswordChangeToken(keys, details) {
     details.lifetime = lifetime
     Token.call(this, keys, details)
-    this.verifyHash = details.verifyHash || null
-    this.authSalt = details.authSalt || null
   }
   inherits(PasswordChangeToken, Token)
 
