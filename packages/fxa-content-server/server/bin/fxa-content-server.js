@@ -7,6 +7,7 @@
 var fs = require('fs');
 var https = require('https');
 var path = require('path');
+var config = require('../lib/configuration');
 
 var mozlog = require('mozlog');
 

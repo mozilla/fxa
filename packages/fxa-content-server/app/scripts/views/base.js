@@ -65,6 +65,19 @@ function (_, Backbone, $, p, AuthErrors,
     return translated;
   }
 
+  /**
+   * Return the error module that produced the error, based on the error's
+   * namespace.
+   */
+  function getErrorModule(err) {
+    if (err && err.errorModule) {
+      return err.errorModule;
+    } else {
+      return AuthErrors;
+    }
+  }
+
+
   var BaseView = Backbone.View.extend({
     constructor: function (options) {
       options = options || {};
@@ -391,18 +404,6 @@ function (_, Backbone, $, p, AuthErrors,
     },
 
     /**
-     * Return the error module that produced the error, based on the error's
-     * namespace.
-     */
-    _errorContext: function (err) {
-      if (err && err.errorContext) {
-        return err.errorContext;
-      } else {
-        return AuthErrors;
-      }
-    },
-
-    /**
      * Display an error message.
      * @method translateError
      * @param {string} err - an error object
@@ -411,11 +412,8 @@ function (_, Backbone, $, p, AuthErrors,
      *   error text otw.
      */
     translateError: function (err) {
-      var errors = this._errorContext(err);
-
-      var msg = errors.toMessage(err);
-      var context = errors.toContext(err);
-      var translated = this.translator.get(msg, context);
+      var errors = getErrorModule(err);
+      var translated = errors.toInterpolatedMessage(err, this.translator);
 
       return translated;
     },
@@ -473,7 +471,7 @@ function (_, Backbone, $, p, AuthErrors,
     },
 
     _normalizeError: function (err) {
-      var errors = this._errorContext(err);
+      var errors = getErrorModule(err);
       if (! err) {
         // likely an error in logic, display an unexpected error to the
         // user and show a console trace to help us debug.

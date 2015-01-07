@@ -44,6 +44,21 @@ function (_) {
       var terms = searchParams(str);
 
       return terms[name];
+    },
+
+    objToSearchString: function (obj) {
+      var params = [];
+      for (var paramName in obj) {
+        var paramValue = obj[paramName];
+        if (typeof paramValue !== 'undefined') {
+          params.push(paramName + '=' + encodeURIComponent(paramValue));
+        }
+      }
+
+      if (! params.length) {
+        return '';
+      }
+      return '?' + params.join('&');
     }
   };
 });

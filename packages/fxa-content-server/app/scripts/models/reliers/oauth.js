@@ -11,8 +11,10 @@
 define([
   'underscore',
   'models/reliers/relier',
-  'lib/resume-token'
-], function (_, Relier, ResumeToken) {
+  'lib/resume-token',
+  'lib/promise',
+  'lib/oauth-errors'
+], function (_, Relier, ResumeToken, p, OAuthErrors) {
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state'];
 
   var OAuthRelier = Relier.extend({
@@ -40,19 +42,19 @@ define([
     fetch: function () {
       var self = this;
       return Relier.prototype.fetch.call(this)
-          .then(function () {
-            if (self._isVerificationFlow()) {
-              self._setupVerificationFlow();
-            } else {
-              self._setupSigninSignupFlow();
-            }
+        .then(function () {
+          if (self._isVerificationFlow()) {
+            self._setupVerificationFlow();
+          } else {
+            self._setupSigninSignupFlow();
+          }
 
-            if (! self.has('service')) {
-              self.set('service', self.get('clientId'));
-            }
+          if (! self.has('service')) {
+            self.set('service', self.get('clientId'));
+          }
 
-            return self._setupOAuthRPInfo();
-          });
+          return self._setupOAuthRPInfo();
+        });
     },
 
     isOAuth: function () {
@@ -98,6 +100,12 @@ define([
         redirectUri: resumeObj.redirect_uri,
         scope: resumeObj.scope
       });
+
+      if (! self.has('clientId')) {
+        var err = OAuthErrors.toError('MISSING_PARAMETER');
+        err.param = 'client_id';
+        throw err;
+      }
     },
 
     _setupSigninSignupFlow: function () {
@@ -105,27 +113,45 @@ define([
 
       // params listed in:
       // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
+      self._importRequiredSearchParam('client_id', 'clientId');
+      self._importRequiredSearchParam('scope', 'scope');
       self.importSearchParam('state');
-      self.importSearchParam('client_id', 'clientId');
       self.importSearchParam('redirect_uri', 'redirectUri');
-      self.importSearchParam('scope');
-
       self.importSearchParam('redirectTo');
+    },
+
+    _importRequiredSearchParam: function (sourceName, destName) {
+      var self = this;
+      self.importSearchParam(sourceName, destName);
+      if (! self.has(destName)) {
+        var err = OAuthErrors.toError('MISSING_PARAMETER');
+        err.param = sourceName;
+        throw err;
+      }
     },
 
     _setupOAuthRPInfo: function () {
       var self = this;
       var clientId = self.get('clientId');
 
-      if (clientId) {
-        return this._oAuthClient.getClientInfo(clientId)
-          .then(function (serviceInfo) {
-            self.set('serviceName', serviceInfo.name);
+      return self._oAuthClient.getClientInfo(clientId)
+        .then(function (serviceInfo) {
+          self.set('serviceName', serviceInfo.name);
+          //jshint camelcase: false
+          // server version always takes precedent over the search parameter
+          self.set('redirectUri', serviceInfo.redirect_uri);
+        }, function (err) {
+          // the server returns an invalid request signature for an
+          // invalid/unknown client_id
+          if (OAuthErrors.is(err, 'INVALID_REQUEST_SIGNATURE')) {
+            err = OAuthErrors.toError('UNKNOWN_CLIENT');
+            // used for logging the error on the server.
             //jshint camelcase: false
-            // server version always takes precedent over the search parameter
-            self.set('redirectUri', serviceInfo.redirect_uri);
-          });
-      }
+            err.client_id = clientId;
+          }
+          throw err;
+        });
+
     }
   });
 

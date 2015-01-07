@@ -31,7 +31,8 @@ define([], function () {
     PROFILE_IMAGE_JPEG_QUALITY: 0.8,
     DEFAULT_PROFILE_IMAGE_MIME_TYPE: 'image/jpeg',
 
-    INTERNAL_ERROR_PAGE: '/500.html'
+    INTERNAL_ERROR_PAGE: '/500.html',
+    BAD_REQUEST_PAGE: '/400.html'
   };
 });
 

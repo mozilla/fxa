@@ -192,6 +192,32 @@ function (_, Errors) {
 
   return _.extend({}, Errors, {
     ERRORS: ERRORS,
-    NAMESPACE: 'auth'
+    NAMESPACE: 'auth',
+
+    /**
+     * Fetch the interpolation context out of the server error.
+     */
+    toInterpolationContext: function (err) {
+      // For data returned by backend, see
+      // https://github.com/mozilla/fxa-auth-server/blob/master/error.js
+      try {
+        if (this.is(err, 'INVALID_PARAMETER')) {
+          return {
+            param: err.validation.keys
+          };
+        } else if (this.is(err, 'MISSING_PARAMETER')) {
+          return {
+            param: err.param
+          };
+        }
+      } catch (e) {
+        // handle invalid/unexpected data from the backend.
+        if (window.console && console.error) {
+          console.error('Error in errors.js->toInterpolationContext: %s', String(e));
+        }
+      }
+
+      return {};
+    }
   });
 });

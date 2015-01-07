@@ -48,6 +48,21 @@ function (chai, _, Url) {
           });
 
     });
+
+    describe('objToSearchString', function () {
+      it('includes all keys with values', function () {
+        var params = {
+          hasValue: 'value',
+          notIncluded: undefined
+        };
+
+        assert.equal(Url.objToSearchString(params), '?hasValue=value');
+      });
+
+      it('returns an empty string if no parameters are passed in', function () {
+        assert.equal(Url.objToSearchString({}), '');
+      });
+    });
   });
 });
 

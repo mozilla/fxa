@@ -63,11 +63,37 @@ function (_, Errors) {
     USER_CANCELED_OAUTH_LOGIN: {
       errno: 1004,
       message: t('no message')
+    },
+    MISSING_PARAMETER: {
+      errno: 1005,
+      message: t('Missing OAuth parameter: %(param)s')
     }
   };
 
   return _.extend({}, Errors, {
     ERRORS: ERRORS,
-    NAMESPACE: 'oauth'
+    NAMESPACE: 'oauth',
+
+    /**
+     * Fetch the interpolation context out of the server error.
+     */
+    toInterpolationContext: function (err) {
+      // For data returned by backend, see
+      // https://github.com/mozilla/fxa-auth-server/blob/master/error.js
+      try {
+        if (this.is(err, 'MISSING_PARAMETER')) {
+          return {
+            param: err.param
+          };
+        }
+      } catch (e) {
+        // handle invalid/unexpected data from the backend.
+        if (window.console && console.error) {
+          console.error('Error in oauth-errors.js->toInterpolationContext: %s', String(e));
+        }
+      }
+
+      return {};
+    }
   });
 });

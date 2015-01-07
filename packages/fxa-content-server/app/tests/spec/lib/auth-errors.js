@@ -82,10 +82,10 @@ function (chai, AuthErrors) {
       });
     });
 
-    describe('toContext', function () {
+    describe('toInterpolationContext', function () {
       it('returns the context from backend information for invalid parameter', function () {
         assert.deepEqual(
-          AuthErrors.toContext({
+          AuthErrors.toInterpolationContext({
             errno: 107,
             validation: {
               keys: 'uid'
@@ -95,7 +95,7 @@ function (chai, AuthErrors) {
 
       it('returns the context from backend information for missing parameter', function () {
         assert.deepEqual(
-          AuthErrors.toContext({
+          AuthErrors.toInterpolationContext({
             errno: 108,
             param: 'uid'
           }), { param: 'uid' });
@@ -103,7 +103,7 @@ function (chai, AuthErrors) {
 
       it('returns empty context for other errors', function () {
         assert.deepEqual(
-          AuthErrors.toContext({
+          AuthErrors.toInterpolationContext({
             errno: 109,
             validation: {
               keys: 'uid'

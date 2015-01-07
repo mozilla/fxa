@@ -32,8 +32,8 @@ define([
   'lib/assertion',
   'lib/constants',
   'lib/oauth-client',
+  'lib/oauth-errors',
   'lib/profile-client',
-  'lib/auth-errors',
   'lib/channels/inter-tab',
   'lib/storage',
   'models/reliers/relier',
@@ -62,8 +62,8 @@ function (
   Assertion,
   Constants,
   OAuthClient,
+  OAuthErrors,
   ProfileClient,
-  AuthErrors,
   InterTabChannel,
   Storage,
   Relier,
@@ -123,7 +123,8 @@ function (
         }
 
         //Something terrible happened. Let's bail.
-        self._window.location.href = Constants.INTERNAL_ERROR_PAGE;
+        var redirectTo = self._getErrorPage(err);
+        self._window.location.href = redirectTo;
       });
     },
 
@@ -346,6 +347,25 @@ function (
           });
     },
 
+    _getErrorPage: function (err) {
+      if (OAuthErrors.is(err, 'MISSING_PARAMETER') ||
+          OAuthErrors.is(err, 'UNKNOWN_CLIENT')) {
+        var queryString = Url.objToSearchString({
+          message: OAuthErrors.toInterpolatedMessage(err, this._translator),
+          errno: err.errno,
+          namespace: err.namespace,
+          context: err.context,
+          param: err.param,
+          //jshint camelcase: false
+          client_id: err.client_id
+        });
+
+        return Constants.BAD_REQUEST_PAGE + queryString;
+      }
+
+      return Constants.INTERNAL_ERROR_PAGE;
+    },
+
     _getStorageInstance: function () {
       return Storage.factory('localStorage', this._window);
     },
@@ -366,7 +386,12 @@ function (
     },
 
     _isOAuth: function () {
-      return !! (this._searchParam('client_id') || this._searchParam('code'));
+                 // for /force_auth
+      return !! (this._searchParam('client_id') ||
+                 // for verification flows
+                 (this._searchParam('code') && this._searchParam('service')) ||
+                 // for /oauth/signin or /oauth/signup
+                 /oauth/.test(this._window.location.href));
     },
 
     _isOAuthVerificationSameBrowser: function () {

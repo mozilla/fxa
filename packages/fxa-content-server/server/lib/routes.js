@@ -7,6 +7,7 @@
 
 var logger = require('mozlog')('server.routes');
 
+
 /**
  * Each route has 3 attributes: method, path and process.
  * method is one of `GET`, `POST`, etc.
@@ -124,23 +125,44 @@ module.exports = function (config, templates, i18n) {
         res.json({result: 'ok'});
       });
 
-      app.get('/500.html', function (req, res) {
-        res.removeHeader('x-frame-options');
-        return res.render('500');
-      });
-
       app.get('/503.html', function (req, res) {
         res.removeHeader('x-frame-options');
         return res.render('503');
       });
-    }
 
-    // Add a route in dev mode to test 500 errors
-    if (config.get('env') === 'development') {
+      // Add a route in dev mode to test 500 errors
       app.get('/boom', function (req, res, next) {
         next(new Error('Uh oh!'));
       });
     }
+
+    // we always want to handle these so we can do some logging.
+    app.get('/400.html', function (req, res) {
+      res.removeHeader('x-frame-options');
+      logger.error('400.html', {
+        message: req.query.message,
+        errno: req.query.errno,
+        namespace: req.query.namespace,
+        context: req.query.context,
+        param: req.query.param,
+        client_id: req.query.client_id
+      });
+      return res.render('400', {
+        message: req.query.message
+      });
+    });
+
+    app.get('/500.html', function (req, res) {
+      res.removeHeader('x-frame-options');
+      logger.error('500.html', {
+        message: req.query.message,
+        errno: req.query.errno,
+        namespace: req.query.namespace,
+        context: req.query.context
+      });
+      return res.render('500');
+    });
+
   };
 
 };
