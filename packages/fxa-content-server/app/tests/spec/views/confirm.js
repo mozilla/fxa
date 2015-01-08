@@ -59,7 +59,8 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       account = user.initAccount({
         email: 'a@a.com',
         uid: 'uid',
-        sessionToken: 'fake session token'
+        sessionToken: 'fake session token',
+        customizeSync: true
       });
       ephemeralMessages.set('data', {
         account: account
@@ -122,6 +123,18 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
         return view.render()
           .then(function () {
             assert.isTrue(broker.persist.called);
+          });
+      });
+
+      it('notifies the broker before the confirmation', function () {
+        sinon.stub(broker, 'beforeSignUpConfirmationPoll', function (account) {
+          assert.isTrue(account.get('customizeSync'));
+          return p();
+        });
+
+        return view.render()
+          .then(function () {
+            assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
           });
       });
 
