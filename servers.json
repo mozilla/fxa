@@ -53,8 +53,17 @@
       }
     },
     {
-      "name": "profile-server worker PORT 1112",
+      "name": "profile-server static dev PORT 1112",
       "script": "bin/_static.js",
+      "cwd": "fxa-profile-server",
+      "max_restarts": "1",
+      "env": {
+        "NODE_ENV": "dev"
+      }
+    },
+    {
+      "name": "profile-server worker PORT 1113",
+      "script": "bin/worker.js",
       "cwd": "fxa-profile-server",
       "max_restarts": "1",
       "env": {
