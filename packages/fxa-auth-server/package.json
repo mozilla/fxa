@@ -28,7 +28,7 @@
     "buf": "0.1.0",
     "convict": "0.6",
     "fxa-notifier-aws": "1.0.0",
-    "hapi": "7.1.1",
+    "hapi": "7.5.3",
     "joi": "4.7.0",
     "mozlog": "1.0.0",
     "mysql": "2.5.2",
