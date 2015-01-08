@@ -83,6 +83,13 @@ module.exports = function(app, db) {
     });
   });
 
+  // begin a force auth flow
+  app.get('/api/force_auth', function(req, res) {
+    var nonce = generateAndSaveNonce(req);
+    var oauthInfo = getOAuthInfo('force_auth', nonce, req.query.email);
+    return res.redirect(redirectUrl(oauthInfo));
+  });
+
   app.get('/api/preverified-signup', function(req, res) {
     var email = req.query.email;
     // A real RP would do some validation on the email address
