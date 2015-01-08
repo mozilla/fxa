@@ -451,13 +451,19 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
 
         sinon.stub(view.fxaClient, 'signUp', function () {
           return p({
-            verified: false
+            verified: false,
+            customizeSync: true
           });
+        });
+
+        sinon.stub(view, 'navigate', function (page, params) {
+          assert.equal(page, 'confirm');
+          assert.isTrue(params.data.account.get('customizeSync'));
         });
 
         return view.submit()
           .then(function () {
-            assert.equal(router.page, 'confirm');
+            assert.isTrue(view.navigate.called);
             assert.isTrue(view.fxaClient.signUp.calledWith(
                 email, password, relier));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
