@@ -260,9 +260,15 @@ content-server page.
 - `state`: A value that will be returned to the client as-is upon redirection, so that clients can verify the redirect is authentic.
 - `redirect_uri`: Optional. If supplied, a string URL of where to redirect afterwards. Must match URL from registration.
 - `scope`: Optional. A space-separated list of scopes that the user has authorized. This could be pruned by the user at the confirmation dialog.
-- `action`: Optional. If provided, should be `signup`, `signin`, or
-  `force_auth`. Send to improve user experience, based on whether they clicked on a Sign In or Sign Up button. `force_auth` is used to force the user specified by `email` to sign in. If `force_auth` is specified, the user is unable to modify the email address, and is unable to sign up if the user does not exist.
-- `email`: Optional if `action` is `signup` or `signin`. Required if `action` is `force_auth`. If provided, this email address will be pre-filled into the account form, but the user is free to change it.
+- `action`: Optional. If provided, should be `signup`, `signin`, or `force_auth`. Send to improve the user experience, based on whether they clicked on a Sign In or Sign Up button. `force_auth` requires the user to sign in using the address specified in `email`. `signin` is the default.
+- `email`: Optional if `action` is `signup` or `signin`. Required if `action`
+  is `force_auth`.
+  - If `action` is `signup` or `signin`, the email address will be pre-filled into the account form, but the user is free to change it.
+  - If `action` is `signin`, the literal string `blank` will force the user to enter an email address and the last signed in email address will be ignored.
+  - If `action` is `signin` and no email address is specified, the last
+    signed in email address will be used as the default.
+  - If `action` is `force_auth`, the user is unable to modify the email
+    address and is unable to sign up if the address is not registered.
 
 **Example:**
 
