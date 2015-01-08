@@ -64,9 +64,9 @@ a.avatar-wrapper {
 }
 
 #settings-home {
+  border-top: 1px solid $horizontal-rule-color;
   margin: 40px 0px -30px;
   padding: 25px;
-  border-top: 1px solid $horizontal-rule-color;
 
   a {
     font-size: $base-font;
@@ -107,14 +107,27 @@ a.avatar-wrapper {
   .gravatar-logo {
     background: image-url('gravatar.svg') no-repeat top center;
     background-size: contain;
-    display: inline-block;
-    height: 38.5px;
-    width: 38.5px;
+    /* This reduces the size of the gravatar logo to match the other icons */
+    font-size: 30px;
+
+    /* Mimic the style of the fontello icons */
+    &:before {
+      content: " ";
+      display: inline-block;
+      font-variant: normal;
+      line-height: 1em;
+      margin-left: 0.2em;
+      margin-right: 0.2em;
+      text-align: center;
+      text-decoration: inherit;
+      text-transform: none;
+      width: 1em;
+    }
   }
 
   nav {
-    margin: 0px -40px -40px -40px;
     padding: 20px;
+    margin: 0px -40px -40px -40px;
 
     a {
       background-color: $content-background-color;
@@ -123,9 +136,9 @@ a.avatar-wrapper {
       height: 80px;
       line-height: 1.1;
       margin: 5px;
+      min-width: 80px;
       padding: 11px;
       text-decoration: none;
-      width: 80px;
     }
 
     span {
