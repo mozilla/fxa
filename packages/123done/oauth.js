@@ -24,6 +24,7 @@ function getOAuthInfo(action, nonce, email, preVerifyToken) {
     state: nonce,
     scope: config.scopes,
     action: action,
+    auth_uri: config.auth_uri,
     content_uri: config.content_uri
   };
 
