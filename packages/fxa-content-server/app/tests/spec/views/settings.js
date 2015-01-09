@@ -81,7 +81,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
         sinon.stub(view.fxaClient, 'isSignedIn', function () {
           return p(true);
         });
-        windowMock.location.search = '?uid=' + UID;
+        relier.set('uid', UID);
       });
 
       it('shows the settings page for a selected uid', function () {

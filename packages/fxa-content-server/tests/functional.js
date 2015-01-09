@@ -19,6 +19,7 @@ define([
   './functional/sync_reset_password',
   './functional/robots_txt',
   './functional/settings',
+  './functional/settings_common',
   './functional/change_password',
   './functional/force_auth',
   './functional/404',

@@ -8,13 +8,16 @@ define([
   'jquery',
   'underscore',
   'md5',
+  'cocktail',
   'views/form',
+  'views/mixins/settings-mixin',
   'stache!templates/settings/avatar_gravatar',
   'lib/constants',
   'lib/image-loader',
   'views/decorators/progress_indicator'
 ],
-function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressIndicator) {
+function ($, _, md5, Cocktail, FormView, SettingsMixin, Template,
+    Constants, ImageLoader, showProgressIndicator) {
 
   function t (s) { return s; }
 
@@ -23,9 +26,6 @@ function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressInd
   var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';
 
   var View = FormView.extend({
-    // user must be authenticated to see Settings
-    mustVerify: true,
-
     template: Template,
     className: 'avatar-gravatar',
 
@@ -86,6 +86,8 @@ function ($, _, md5, FormView, Template, Constants, ImageLoader, showProgressInd
         });
     }
   });
+
+  Cocktail.mixin(View, SettingsMixin);
 
   return View;
 });

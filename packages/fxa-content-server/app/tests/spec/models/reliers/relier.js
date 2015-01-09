@@ -21,6 +21,7 @@ define([
     var SYNC_SERVICE = 'sync';
     var PREVERIFY_TOKEN = 'abigtoken';
     var EMAIL = 'email';
+    var UID = 'uid';
 
     beforeEach(function () {
       windowMock = new WindowMock();
@@ -36,6 +37,7 @@ define([
           preVerifyToken: PREVERIFY_TOKEN,
           service: SERVICE,
           email: EMAIL,
+          uid: UID,
           ignored: 'ignored'
         });
 
@@ -44,6 +46,7 @@ define([
               assert.equal(relier.get('preVerifyToken'), PREVERIFY_TOKEN);
               assert.equal(relier.get('service'), SERVICE);
               assert.equal(relier.get('email'), EMAIL);
+              assert.equal(relier.get('uid'), UID);
               assert.isFalse(relier.has('ignored'));
             });
       });

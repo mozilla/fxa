@@ -15,11 +15,12 @@ define([
   '../../../mocks/file-reader',
   '../../../mocks/profile',
   'models/user',
+  'models/reliers/relier',
   'lib/promise',
   'lib/auth-errors'
 ],
 function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            User, p, AuthErrors) {
+            User, Relier, p, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -29,14 +30,17 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
     var profileClientMock;
     var user;
     var account;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       user = new User();
       profileClientMock = new ProfileMock();
+      relier = new Relier();
 
       view = new View({
         user: user,
+        relier: relier,
         router: routerMock
       });
     });
@@ -63,6 +67,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
       beforeEach(function () {
         view = new View({
           router: routerMock,
+          relier: relier,
           user: user
         });
         view.isUserAuthorized = function () {

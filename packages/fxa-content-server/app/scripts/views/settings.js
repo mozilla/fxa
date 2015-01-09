@@ -6,40 +6,20 @@
 
 define([
   'underscore',
+  'cocktail',
   'lib/session',
   'views/form',
   'views/base',
   'views/mixins/avatar-mixin',
+  'views/mixins/settings-mixin',
   'stache!templates/settings'
 ],
-function (_, Session, FormView, BaseView, AvatarMixin, Template) {
+function (_, Cocktail, Session, FormView, BaseView, AvatarMixin, SettingsMixin, Template) {
   var t = BaseView.t;
 
   var View = FormView.extend({
-    // user must be authenticated and verified to see Settings
-    mustVerify: true,
-
     template: Template,
     className: 'settings',
-
-    initialize: function () {
-      var self = this;
-      var uid = self.searchParam('uid');
-
-      // A uid param is set by RPs linking directly to the settings
-      // page for a particular account.
-      // We set the current account to the one with `uid` if
-      // it exists in our list of cached accounts. If it doesn't,
-      // clear the current account.
-      // The `mustVerify` flag will ensure that the account is valid.
-      if (! self.user.getAccountByUid(uid).isEmpty()) {
-        // The account with uid exists; set it to our current account.
-        self.user.setSignedInAccountByUid(uid);
-      } else if (uid) {
-        Session.clear();
-        self.user.clearSignedInAccount();
-      }
-    },
 
     context: function () {
       var account = this.getSignedInAccount();
@@ -95,7 +75,7 @@ function (_, Session, FormView, BaseView, AvatarMixin, Template) {
     }
   });
 
-  _.extend(View.prototype, AvatarMixin);
+  Cocktail.mixin(View, AvatarMixin, SettingsMixin);
 
   return View;
 });
