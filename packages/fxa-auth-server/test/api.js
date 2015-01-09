@@ -183,6 +183,21 @@ describe('/v1', function() {
           assert.equal(redirect.host, target.host);
         }).done(done, done);
       });
+
+      it('redirects `action=force_auth` to force_auth', function(done) {
+        var endpoint = '/authorization?action=force_auth&email=' +
+          encodeURIComponent(VEMAIL);
+        Server.api.get(endpoint)
+        .then(function(res) {
+          assert.equal(res.statusCode, 302);
+          var redirect = url.parse(res.headers.location, true);
+
+          var target = url.parse(config.get('contentUrl'), true);
+          assert.equal(redirect.pathname, target.pathname + 'force_auth');
+          assert.equal(redirect.host, target.host);
+          assert.equal(redirect.query.email, VEMAIL);
+        }).done(done, done);
+      });
     });
 
     describe('?client_id', function() {

@@ -6,11 +6,21 @@ const url = require('url');
 
 const config = require('../config');
 
+function actionToPathname(action) {
+  if (action === 'signup') {
+    return 'signup';
+  } else if (action === 'force_auth') {
+    return 'force_auth';
+  }
+
+  return 'signin';
+}
+
 module.exports = {
   handler: function redirectAuthorization(req, reply) {
     var redirect = url.parse(config.get('contentUrl'), true);
 
-    redirect.pathname += req.query.action === 'signup' ? 'signup' : 'signin';
+    redirect.pathname += actionToPathname(req.query.action);
     delete req.query.action;
 
     redirect.query = req.query;
