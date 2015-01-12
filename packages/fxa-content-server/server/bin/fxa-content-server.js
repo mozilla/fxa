@@ -83,6 +83,14 @@ function makeApp() {
   app.use(express.cookieParser());
   app.use(express.bodyParser());
 
+  var ableOptions = {
+    dir: config.get('experiments.dir'),
+    git: config.get('experiments.git'),
+    watch: config.get('experiments.watch'),
+    addRoutes: true
+  }
+
+  app.use(require('express-able')(ableOptions))
 
   routes(app);
 

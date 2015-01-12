@@ -252,6 +252,20 @@ var conf = module.exports = convict({
   cert_path: {
     doc: 'The location of the SSL certificate in pem format',
     default: path.resolve(__dirname, '..', '..', 'cert.pem')
+  },
+  experiments: {
+    dir: {
+      doc: 'path to where experiments are stored',
+      default: path.resolve(__dirname, '..', '..', 'experiments')
+    },
+    git: {
+      doc: 'git url for experiments repo. set to empty to not pull',
+      default: 'git://github.com/mozilla/fxa-content-experiments.git#master'
+    },
+    watch: {
+      doc: 'poll the experiments git repo for changes',
+      default: true
+    }
   }
 });
 

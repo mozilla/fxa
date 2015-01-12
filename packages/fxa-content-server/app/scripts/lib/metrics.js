@@ -14,6 +14,8 @@
  * but can also be sent by calling metrics.flush();
  */
 
+ /* global able */
+
 define([
   'underscore',
   'backbone',
@@ -44,7 +46,8 @@ define([
     'referrer',
     'screen',
     'service',
-    'timers'
+    'timers',
+    'ab'
   ];
 
   var TEN_MINS_MS = 10 * 60 * 1000;
@@ -147,6 +150,7 @@ define([
       var unloadData = this._speedTrap.getUnload();
 
       var allData = _.extend({}, loadData, unloadData, {
+        ab: able.report(),
         context: this._context,
         service: this._service,
         lang: this._lang,

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/* global able */
+
 'use strict';
 
 define([
@@ -56,9 +58,8 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
     _isAvatarLinkVisible: function (email) {
       // For automated testing accounts, emails begin with "avatarAB-" and end with "restmail.net"
       var isTestAccount = /^avatarAB-.+@restmail\.net$/.test(email);
-      var isMozillaAccount = /@mozilla\.(?:com|org)$/.test(email);
 
-      return isTestAccount || isMozillaAccount;
+      return isTestAccount || able.choose('avatarLinkVisible', { email: email });
     },
 
     afterVisible: function () {

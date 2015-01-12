@@ -5,7 +5,8 @@
 'use strict';
 
 require([
-  './require_config'
+  './require_config',
+  './lib/able'
 ],
 function () {
   // Ensure config is loaded before trying to load any other scripts.

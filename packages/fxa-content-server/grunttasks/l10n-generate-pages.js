@@ -92,7 +92,6 @@ module.exports = function (grunt) {
     var locale = i18n.localeFrom(language);
     var destRoot = path.join(templateDest, locale);
     var context = i18n.localizationContext(language);
-
     grunt.file.recurse(templateSrc,
                     function (srcPath, rootDir, subDir, fileName) {
                       var destPath = path.join(destRoot, (subDir || ''), fileName);
