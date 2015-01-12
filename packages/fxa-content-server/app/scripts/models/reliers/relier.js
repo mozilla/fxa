@@ -19,7 +19,9 @@ define([
   var Relier = BaseRelier.extend({
     defaults: {
       service: null,
-      preVerifyToken: null
+      preVerifyToken: null,
+      email: null,
+      allowCachedCredentials: true
     },
 
     initialize: function (options) {
@@ -45,11 +47,19 @@ define([
     fetch: function () {
       var self = this;
       return p()
-          .then(function () {
-            self.importSearchParam('service');
-            self.importSearchParam('preVerifyToken');
+        .then(function () {
+          self.importSearchParam('service');
+          self.importSearchParam('preVerifyToken');
+
+          // A relier can indicate they do not want to allow
+          // cached credentials if they set email === 'blank'
+          if (self.getSearchParam('email') ===
+              Constants.DISALLOW_CACHED_CREDENTIALS) {
+            self.set('allowCachedCredentials', false);
+          } else {
             self.importSearchParam('email');
-          });
+          }
+        });
     },
 
     /**
@@ -57,6 +67,14 @@ define([
      */
     isSync: function () {
       return this.get('service') === Constants.FX_DESKTOP_SYNC;
+    },
+
+    /**
+     * Check if the relier allows cached credentials. A relier
+     * can set email=blank to indicate they do not.
+     */
+    allowCachedCredentials: function () {
+      return this.get('allowCachedCredentials');
     }
   });
 

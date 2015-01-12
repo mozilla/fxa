@@ -32,7 +32,11 @@ define([], function () {
     DEFAULT_PROFILE_IMAGE_MIME_TYPE: 'image/jpeg',
 
     INTERNAL_ERROR_PAGE: '/500.html',
-    BAD_REQUEST_PAGE: '/400.html'
+    BAD_REQUEST_PAGE: '/400.html',
+
+    // A relier can indicate they do not want to allow
+    // cached credentials if they set email === 'blank'
+    DISALLOW_CACHED_CREDENTIALS: 'blank'
   };
 });
 
