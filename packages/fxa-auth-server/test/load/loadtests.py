@@ -162,7 +162,7 @@ class LoadTest(TestCase):
         return "loads-fxa-{}-new@restmail.lcip.org".format(uid)
 
     def _get_existing_user_email(self):
-        uid = random.randint(1, 1)#999)
+        uid = random.randint(1, 999)
         return "loads-fxa-{}-old@restmail.lcip.org".format(uid)
 
     def _authenticate_as_new_user(self):
