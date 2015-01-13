@@ -35,17 +35,39 @@ basketQueue.on(
           }
         },
         function (err, res, body) {
+          // Log and retry for network-level errors.
           if (err) {
-            return log.error({ op: 'basketRequest', err: err })
+            log.error(
+              {
+                op: 'basketRequest',
+                uid: message.uid,
+                locale: message.locale,
+                err: err
+              }
+            )
+            return
           }
-          log.info(
-            {
-              op: 'basketRequest',
-              status: res.statusCode,
-              locale: message.locale,
-              body: body
-            }
-          )
+          // Log at error level for HTTP-level errors, info level otherwise.
+          if (res.statusCode < 200 || res.statusCode >= 300) {
+            log.error(
+              {
+                op: 'basketRequest',
+                status: res.statusCode,
+                uid: message.uid,
+                locale: message.locale,
+                body: body
+              }
+            )
+          } else {
+            log.info(
+              {
+                op: 'basketRequest',
+                status: res.statusCode,
+                locale: message.locale,
+                body: body
+              }
+            )
+          }
           message.del()
         }
       )
