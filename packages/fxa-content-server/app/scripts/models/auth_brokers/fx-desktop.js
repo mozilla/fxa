@@ -66,11 +66,13 @@ define([
       // before the user has verified her email. This allows the user
       // to close the original tab or open the verification link in
       // the about:accounts tab and have Sync still successfully start.
-      return this._notifyRelierOfLogin(account);
-    },
-
-    afterSignUpConfirmationPoll: function () {
-      return p({ halt: true });
+      return this._notifyRelierOfLogin(account)
+        .then(function () {
+          // the browser is already polling, no need for the content server
+          // code to poll as well, otherwise two sets of polls are going on
+          // for the same user.
+          return { halt: true };
+        });
     },
 
     afterResetPasswordConfirmationPoll: function (account) {

@@ -72,7 +72,11 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
         .then(function () {
           return self.broker.beforeSignUpConfirmationPoll(self.getAccount());
         })
-        .then(function () {
+        .then(function (result) {
+          if (result && result.halt) {
+            return;
+          }
+
           self._waitForConfirmation()
             .then(function () {
               self.logScreenEvent('verification.success');
