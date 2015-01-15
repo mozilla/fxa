@@ -35,7 +35,7 @@
       "max_restarts": "1"      
     },
     {
-      "name": "oauth-server",
+      "name": "oauth-server PORT 9010",
       "script": "bin/server.js",
       "cwd": "fxa-oauth-server",
       "env": {
