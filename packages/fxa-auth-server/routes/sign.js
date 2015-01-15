@@ -64,9 +64,25 @@ module.exports = function (log, isA, error, signer, db, domain) {
           }
         }
 
-        if (!sessionToken.locale && request.app.acceptLanguage) {
-          db.updateLocale(sessionToken.uid, request.app.acceptLanguage)
-          // meh on the result
+        if (!sessionToken.locale) {
+          if (request.app.acceptLanguage) {
+            // Log details to sanity-check locale backfilling.
+            log.info({
+              op: 'signer.updateLocale',
+              locale: request.app.acceptLanguage
+            });
+            db.updateLocale(sessionToken.uid, request.app.acceptLanguage)
+            // meh on the result
+          } else {
+            // We're seeing a surprising number of accounts that don't get
+            // a proper locale.  Log details to help debug this.
+            log.info({
+              op: 'signer.emptyLocale',
+              email: sessionToken.email,
+              locale: request.app.acceptLanguage,
+              agent: request.headers['user-agent']
+            });
+          }
         }
 
         signer.enqueue(
