@@ -59,5 +59,22 @@ function (chai, OAuthErrors) {
             assert.isTrue(OAuthErrors.is({ errno: 101 }, 'UNKNOWN_CLIENT'));
           });
     });
+
+    describe('toInterpolationContext', function () {
+      it('context returns object', function () {
+        var result = OAuthErrors.toInterpolationContext(OAuthErrors.toError('UNKNOWN_CLIENT'));
+        assert.equal(Object.keys(result).length, 0);
+      });
+
+      it('context returns param', function () {
+        var err = OAuthErrors.toError('MISSING_PARAMETER');
+        err.param = 'param';
+        assert.equal(OAuthErrors.toInterpolationContext(err).param, 'param');
+      });
+
+      it('context catches data exception', function () {
+        assert.equal(Object.keys(OAuthErrors.toInterpolationContext(undefined)).length, 0);
+      });
+    });
   });
 });
