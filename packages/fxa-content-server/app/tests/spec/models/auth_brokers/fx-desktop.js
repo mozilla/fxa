@@ -155,22 +155,14 @@ define([
     });
 
     describe('beforeSignUpConfirmationPoll', function () {
-      it('notifies the channel of login', function () {
+      it('notifies the channel of login, halts the flow', function () {
         sinon.stub(broker, '_notifyRelierOfLogin', function () {
           return p();
         });
 
         return broker.beforeSignUpConfirmationPoll(account)
-          .then(function () {
-            assert.isTrue(broker._notifyRelierOfLogin.calledWith(account));
-          });
-      });
-    });
-
-    describe('afterSignUpConfirmationPoll', function () {
-      it('halts', function () {
-        return broker.afterSignUpConfirmationPoll()
           .then(function (result) {
+            assert.isTrue(broker._notifyRelierOfLogin.calledWith(account));
             assert.isTrue(result.halt);
           });
       });
