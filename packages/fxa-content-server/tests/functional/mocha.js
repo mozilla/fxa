@@ -128,7 +128,7 @@ define([
       .findByCssSelector('.bl-error .bl-file a')
       .then(
       function () {
-        throw new Error('Blanket.js Errors');
+        dfd.reject(new Error('Blanket.js Errors'));
       },
       function (err) {
         // No Blanket.js errors
