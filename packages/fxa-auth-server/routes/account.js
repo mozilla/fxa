@@ -76,6 +76,16 @@ module.exports = function (
               return password.verifyHash()
               .then(
                 function (verifyHash) {
+                  // We're seeing a surprising number of accounts created
+                  // without a proper locale.  Log details to help debug this.
+                  if (!locale) {
+                    log.info({
+                      op: 'account.create.emptyLocale',
+                      email: email,
+                      locale: locale,
+                      agent: request.headers['user-agent']
+                    });
+                  }
                   return db.createAccount(
                     {
                       uid: uuid.v4('binary'),
