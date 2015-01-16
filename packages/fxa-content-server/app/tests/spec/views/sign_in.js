@@ -566,5 +566,23 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
     });
 
+    describe('_signIn', function () {
+      it('throws on an empty account', function () {
+        return view._signIn().then(assert.fail, function (err) {
+          assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+        });
+      });
+
+      it('throws on an empty account', function () {
+        var account = user.initAccount({
+          email: 'a@a.com'
+        });
+
+        return view._signIn(account).then(assert.fail, function (err) {
+          assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+        });
+      });
+    });
+
   });
 });

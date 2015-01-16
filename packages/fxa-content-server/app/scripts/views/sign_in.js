@@ -103,7 +103,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
     _signIn: function (account) {
       var self = this;
       if (! account || account.isEmpty()) {
-        p.reject();
+        return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       }
 
       return p().then(function () {
@@ -126,7 +126,7 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
               return account;
             });
         } else {
-          p.reject();
+          return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
         }
       })
       .then(function (account) {
