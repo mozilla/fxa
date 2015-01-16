@@ -316,6 +316,15 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
         view.displayError();
         assert.equal(view.$('.error').html(), AuthErrors.toMessage('UNEXPECTED_ERROR'));
       });
+
+      it('does not log or display an error after window.beforeunload', function () {
+        view.$('.error').html('');
+
+        $(windowMock).trigger('beforeunload');
+        view.displayError(AuthErrors.toError('UNEXPECTED_ERROR'));
+
+        assert.equal(view.$('.error').html(), '');
+      });
     });
 
     describe('displayErrorUnsafe', function () {
