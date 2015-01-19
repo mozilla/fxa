@@ -12,10 +12,11 @@
 
 define([
   'views/base',
+  'lib/promise',
   'lib/oauth-errors',
   'stache!templates/partial/close-button'
 ],
-function (BaseView, OAuthErrors, CloseTemplate) {
+function (BaseView, p, OAuthErrors, CloseTemplate) {
   var View = BaseView.extend({
     template: CloseTemplate,
 
@@ -24,10 +25,13 @@ function (BaseView, OAuthErrors, CloseTemplate) {
     },
 
     render: function () {
-      var foxLogo = $('#fox-logo');
-      foxLogo.after(this.template());
-      this.$el = $('#close');
-      this.delegateEvents();
+      var self = this;
+      return p().then(function () {
+        var foxLogo = $('#fox-logo');
+        foxLogo.after(self.template());
+        self.$el = $('#close');
+        self.delegateEvents();
+      });
     },
 
     close: function () {

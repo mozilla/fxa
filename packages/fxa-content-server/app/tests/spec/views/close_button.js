@@ -8,6 +8,7 @@
 define([
   'chai',
   'sinon',
+  'jquery',
   '../../mocks/window',
   '../../lib/helpers',
   'lib/promise',
@@ -16,8 +17,8 @@ define([
   'views/close_button',
   'models/auth_brokers/oauth'
 ],
-function (chai, sinon, WindowMock, TestHelpers, p, Metrics, OAuthErrors, View,
-      OAuthBroker) {
+function (chai, sinon, $, WindowMock, TestHelpers, p, Metrics,
+      OAuthErrors, View, OAuthBroker) {
   var assert = chai.assert;
 
   describe('views/close_button', function () {
@@ -27,6 +28,9 @@ function (chai, sinon, WindowMock, TestHelpers, p, Metrics, OAuthErrors, View,
     var windowMock;
 
     beforeEach(function () {
+
+      $('#container').html('<div id="fox-logo"></div>');
+
       broker = new OAuthBroker();
       metrics = new Metrics();
       windowMock = new WindowMock();
@@ -40,8 +44,19 @@ function (chai, sinon, WindowMock, TestHelpers, p, Metrics, OAuthErrors, View,
     });
 
     afterEach(function () {
+      $('#container').empty();
       view.remove();
       view.destroy();
+    });
+
+    describe('render', function () {
+      it('adds the close button to the DOM', function () {
+        assert.equal($('#close').length, 0);
+        return view.render()
+          .then(function () {
+            assert.equal($('#close').length, 1);
+          });
+      });
     });
 
     describe('close', function () {
