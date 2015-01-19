@@ -61,7 +61,6 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
 
     events: {
       'change .show-password': 'onPasswordVisibilityChange',
-      'click a[href="/reset_password"]': 'resetPasswordIfKnownValidEmail',
       'click .use-logged-in': 'useLoggedInAccount',
       'click .use-different': 'useDifferentAccount'
     },
@@ -182,21 +181,10 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
         });
     },
 
-    onPasswordResetNavigate: function () {
-      this.navigate('reset_password');
-    },
-
     _suggestSignUp: function (err) {
       err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
       return this.displayErrorUnsafe(err);
     },
-
-    resetPasswordIfKnownValidEmail: BaseView.preventDefaultThen(function () {
-      var self = this;
-      return p().then(function () {
-        self.onPasswordResetNavigate();
-      });
-    }),
 
     /**
      * Used for the special "Sign In" button

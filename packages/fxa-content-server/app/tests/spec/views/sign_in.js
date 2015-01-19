@@ -305,24 +305,6 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       });
     });
 
-    describe('resetPasswordIfKnownValidEmail', function () {
-      it('goes to the reset_password screen if a blank email', function () {
-        $('[type=email]').val('');
-        return view.resetPasswordIfKnownValidEmail()
-            .then(function () {
-              assert.ok(routerMock.page, 'reset_password');
-            });
-      });
-
-      it('goes to the reset_password screen if an invalid email', function () {
-        $('[type=email]').val('partial');
-        return view.resetPasswordIfKnownValidEmail()
-            .then(function () {
-              assert.ok(routerMock.page, 'reset_password');
-            });
-      });
-    });
-
     describe('useLoggedInAccount', function () {
       it('shows an error if session is expired', function () {
 
