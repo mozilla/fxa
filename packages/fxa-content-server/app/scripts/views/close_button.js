@@ -12,14 +12,26 @@
 
 define([
   'views/base',
-  'lib/oauth-errors'
+  'lib/promise',
+  'lib/oauth-errors',
+  'stache!templates/partial/close-button'
 ],
-function (BaseView, OAuthErrors) {
+function (BaseView, p, OAuthErrors, CloseTemplate) {
   var View = BaseView.extend({
-    el: '#close',
+    template: CloseTemplate,
 
     events: {
       'click': BaseView.preventDefaultThen('close')
+    },
+
+    render: function () {
+      var self = this;
+      return p().then(function () {
+        var foxLogo = $('#fox-logo');
+        foxLogo.after(self.template());
+        self.$el = $('#close');
+        self.delegateEvents();
+      });
     },
 
     close: function () {
