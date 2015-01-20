@@ -142,17 +142,21 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
           return self.onSignInUnverified(account);
         }
       })
-      .then(null, function (err) {
-        if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-          return self._suggestSignUp(err);
-        } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
-          self.logScreenEvent('canceled');
-          // if user canceled login, just stop
-          return;
-        }
-        // re-throw error, it will be handled at a lower level.
-        throw err;
-      });
+      .then(null, self.onSignInError.bind(self));
+    },
+
+    onSignInError: function (err) {
+      var self = this;
+
+      if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
+        return self._suggestSignUp(err);
+      } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {
+        self.logScreenEvent('canceled');
+        // if user canceled login, just stop
+        return;
+      }
+      // re-throw error, it will be handled at a lower level.
+      throw err;
     },
 
     onSignInSuccess: function (account) {

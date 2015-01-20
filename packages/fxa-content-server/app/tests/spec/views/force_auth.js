@@ -13,6 +13,7 @@ define([
   'lib/session',
   'lib/fxa-client',
   'lib/promise',
+  'lib/auth-errors',
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
@@ -20,8 +21,8 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
-      User, WindowMock, RouterMock, TestHelpers) {
+function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
+      Broker, User, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
@@ -34,149 +35,65 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
     var broker;
     var user;
 
+    function initDeps() {
+      windowMock = new WindowMock();
+      relier = new Relier();
+      broker = new Broker();
+      fxaClient = new FxaClient();
+      user = new User();
+      router = new RouterMock();
+
+      view = new View({
+        window: windowMock,
+        fxaClient: fxaClient,
+        user: user,
+        relier: relier,
+        broker: broker,
+        router: router
+      });
+    }
+
+    afterEach(function () {
+      view.remove();
+      view.destroy();
+      router = view = null;
+    });
+
+
     describe('missing email address', function () {
       beforeEach(function () {
-        windowMock = new WindowMock();
-        windowMock.location.search = '';
-
-        relier = new Relier();
-        broker = new Broker();
-        fxaClient = new FxaClient();
-        user = new User();
-
-        Session.clear();
-        view = new View({
-          window: windowMock,
-          fxaClient: fxaClient,
-          user: user,
-          relier: relier,
-          broker: broker
-        });
-        return view.render()
-            .then(function () {
-              $('#container').html(view.el);
-            });
-      });
-
-      afterEach(function () {
-        view.remove();
-        view.destroy();
-        windowMock = view = null;
+        initDeps();
+        return view.render();
       });
 
       it('prints an error message', function () {
-        windowMock.location.search = '';
-
-        assert.notEqual(view.$('.error').text(), '');
-      });
-
-      it('shows no avatar if there is no account', function () {
-        relier.set('email', 'a@a.com');
-
-        sinon.stub(user, 'getAccountByEmail', function () {
-          return user.initAccount();
-        });
-
-        return view.render()
-          .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.notOk(view.$('.avatar-view img').length);
-          });
-      });
-
-      it('shows avatar when account.email and relier.email match', function () {
-        relier.set('email', 'a@a.com');
-        var account = user.initAccount({
-          email: 'a@a.com'
-        });
-
-        sinon.stub(account, 'getAvatar', function () {
-          return p({ avatar: 'avatar.jpg', id: 'foo' });
-        });
-
-        sinon.stub(user, 'getAccountByEmail', function () {
-          return account;
-        });
-
-        return view.render()
-          .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.ok(view.$('.avatar-view img').length);
-          });
-      });
-
-      it('shows no avatar when Session.email and relier.email do not match', function () {
-        relier.set('email', 'a@a.com');
-        var account = user.initAccount({
-          email: 'b@b.com'
-        });
-
-        sinon.stub(account, 'getAvatar', function () {
-          return p({ avatar: 'avatar.jpg', id: 'foo' });
-        });
-
-        sinon.stub(user, 'getAccountByEmail', function () {
-          return account;
-        });
-
-        return view.render()
-          .then(function () {
-            return view.afterVisible();
-          })
-          .then(function () {
-            assert.notOk(view.$('.avatar-view img').length);
-          });
+        assert.include(view.$('.error').text(), 'requires an email');
       });
     });
 
-    describe('with email', function () {
+
+    describe('with registered email', function () {
       beforeEach(function () {
-        email = TestHelpers.createEmail();
         Session.set('prefillPassword', 'password');
+        initDeps();
 
-        windowMock = new WindowMock();
-        windowMock.location.search = '?email=' + encodeURIComponent(email);
-        relier = new Relier();
+        email = TestHelpers.createEmail();
         relier.set('email', email);
-        broker = new Broker();
-        fxaClient = new FxaClient();
-        router = new RouterMock();
-        user = new User();
 
-        view = new View({
-          window: windowMock,
-          router: router,
-          fxaClient: fxaClient,
-          user: user,
-          relier: relier,
-          broker: broker
-        });
         return view.render()
-            .then(function () {
-              $('#container').html(view.el);
-            });
-      });
-
-      afterEach(function () {
-        view.remove();
-        view.destroy();
-        windowMock = router = view = null;
-        $('#container').empty();
-      });
-
-
-      it('is able to submit the form', function (done) {
-        sinon.stub(view.fxaClient, 'signIn', function () {
-          done();
-        });
-        $('#submit-btn').click();
+          .then(function () {
+            $('#container').html(view.el);
+          });
       });
 
       describe('submit', function () {
+        it('is able to submit the form on click', function (done) {
+          sinon.stub(view.fxaClient, 'signIn', function () {
+            done();
+          });
+          $('#submit-btn').click();
+        });
+
         it('submits the sign in', function () {
           var password = 'password';
           sinon.stub(view.fxaClient, 'signIn', function () {
@@ -245,7 +162,117 @@ function (chai, $, sinon, View, Session, FxaClient, p, Relier, Broker,
             assert.equal(err.message, 'submit already in progress');
           });
       });
+
+      it('shows no avatar if there is no account', function () {
+        relier.set('email', 'a@a.com');
+
+        sinon.stub(user, 'getAccountByEmail', function () {
+          return user.initAccount();
+        });
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.notOk(view.$('.avatar-view img').length);
+          });
+      });
+
+      it('shows avatar when account.email and relier.email match', function () {
+        relier.set('email', 'a@a.com');
+        var account = user.initAccount({
+          email: 'a@a.com'
+        });
+
+        sinon.stub(account, 'getAvatar', function () {
+          return p({ avatar: 'avatar.jpg', id: 'foo' });
+        });
+
+        sinon.stub(user, 'getAccountByEmail', function () {
+          return account;
+        });
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.ok(view.$('.avatar-view img').length);
+          });
+      });
+
+      it('shows no avatar when Session.email and relier.email do not match', function () {
+        relier.set('email', 'a@a.com');
+        var account = user.initAccount({
+          email: 'b@b.com'
+        });
+
+        sinon.stub(account, 'getAvatar', function () {
+          return p({ avatar: 'avatar.jpg', id: 'foo' });
+        });
+
+        sinon.stub(user, 'getAccountByEmail', function () {
+          return account;
+        });
+
+        return view.render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(function () {
+            assert.notOk(view.$('.avatar-view img').length);
+          });
+      });
     });
+
+    describe('with unregistered email', function () {
+      beforeEach(function () {
+        initDeps();
+        email = TestHelpers.createEmail();
+        relier.set('email', email);
+
+        return view.render()
+          .then(function () {
+            view.$('input[type=password]').val('password');
+          });
+      });
+
+      describe('submit', function () {
+        it('prints an error message and does not allow the user to sign up', function () {
+          sinon.stub(view.fxaClient, 'signIn', function () {
+            return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+          });
+
+          return view.submit()
+            .then(function () {
+              assert.isTrue(view.isErrorVisible());
+              assert.include(view.$('.error').text(), 'Unknown');
+              // no link to sign up.
+              assert.equal(view.$('.error').find('a').length, 0);
+            });
+        });
+      });
+
+      describe('resetPasswordNow', function () {
+        it('prints an error message and does not allow the user to sign up', function () {
+          sinon.stub(view.fxaClient, 'passwordReset', function () {
+            return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
+          });
+
+          relier.set('email', email);
+
+          return view.resetPasswordNow()
+            .then(function () {
+              assert.isTrue(view.isErrorVisible());
+              assert.include(view.$('.error').text(), 'Unknown');
+                // no link to sign up.
+              assert.equal(view.$('.error').find('a').length, 0);
+            });
+        });
+      });
+    });
+
   });
 });
 

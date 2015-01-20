@@ -171,6 +171,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           // ensure there is no cross talk with other tests.
           ephemeralMessages: new EphemeralMessages(),
           relier: relier,
+          broker: broker,
           screenName: 'signup'
         });
       });

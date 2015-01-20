@@ -250,6 +250,18 @@ define([
   }
 
   function openFxaFromRp(context, page, urlSuffix) {
+
+    // force_auth does not have a button on 123done, instead this is
+    // only available programatically.
+    if (page === 'force_auth') {
+
+      return context.get('remote')
+        .get(require.toUrl(OAUTH_APP + 'api/force_auth' + urlSuffix))
+        .setFindTimeout(intern.config.pageLoadTimeout)
+        .findByCssSelector('#fxa-force-auth-header')
+        .end();
+    }
+
     return context.get('remote')
       .get(require.toUrl(OAUTH_APP))
       .setFindTimeout(intern.config.pageLoadTimeout)

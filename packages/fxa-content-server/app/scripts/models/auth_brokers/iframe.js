@@ -75,8 +75,11 @@ define([
     },
 
     selectStartPage: function () {
-      return checkOriginAllowedToIframe.call(this)
-        .then(null, function (err) {
+      var self = this;
+      return checkOriginAllowedToIframe.call(self)
+        .then(function () {
+          return OAuthAuthenticationBroker.prototype.selectStartPage.call(self);
+        }, function (err) {
           if (AuthErrors.is(err, 'ILLEGAL_IFRAME_PARENT')) {
             return 'illegal_iframe';
           }

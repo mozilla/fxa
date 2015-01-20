@@ -7,14 +7,16 @@
 define([
   'chai',
   'sinon',
+  'models/reliers/relier',
   'models/auth_brokers/base',
   'views/base',
   '../../../mocks/window'
 ],
-function (chai, sinon, BaseAuthenticationBroker, BaseView, WindowMock) {
+function (chai, sinon, Relier, BaseAuthenticationBroker, BaseView, WindowMock) {
   var assert = chai.assert;
 
   describe('models/auth_brokers/base', function () {
+    var relier;
     var broker;
     var view;
     var windowMock;
@@ -22,8 +24,10 @@ function (chai, sinon, BaseAuthenticationBroker, BaseView, WindowMock) {
     beforeEach(function () {
       view = new BaseView();
       windowMock = new WindowMock();
+      relier = new Relier();
       broker = new BaseAuthenticationBroker({
-        window: windowMock
+        window: windowMock,
+        relier: relier
       });
     });
 
