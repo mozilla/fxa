@@ -158,28 +158,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
           });
       });
     });
-
-    describe('resetPasswordIfKnownValidEmail', function () {
-      it('goes to the reset_password page if user types a valid, known email', function () {
-        // the screen is rendered, we can take over from here.
-        $('.email').val(email);
-        return view.resetPasswordIfKnownValidEmail()
-          .then(function () {
-            assert.equal(router.page, 'reset_password');
-          });
-      });
-
-      it('goes to the reset_password screen if a blank email', function () {
-        // the screen is rendered, we can take over from here.
-        $('[type=email]').val('');
-        return view.resetPasswordIfKnownValidEmail()
-            .then(function () {
-              assert.ok(router.page, 'reset_password');
-            });
-      });
-    });
   });
-
 });
 
 
