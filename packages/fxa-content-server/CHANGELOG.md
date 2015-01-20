@@ -1,3 +1,32 @@
+<a name="0.29.0"></a>
+## 0.29.0 (2015-01-20)
+
+
+#### Bug Fixes
+
+* **avatars:** make avatar navigation l10n friendly ([014b4ec5](https://github.com/mozilla/fxa-content-server/commit/014b4ec59871b4c831689c146b732ed83141bbb1), closes [#1729](https://github.com/mozilla/fxa-content-server/issues/1729))
+* **client:**
+  * Do not display errors after window.beforeunload is triggerred. ([2e080e81](https://github.com/mozilla/fxa-content-server/commit/2e080e817496767811fb73b9ba317b3dc538e1e1))
+  * Disable the sign up confirmation poll for Sync. ([e6421a71](https://github.com/mozilla/fxa-content-server/commit/e6421a711c883cb098b2014674c4e4b7a60f5589))
+  * Only request keys from the server for Sync users. ([283b41b4](https://github.com/mozilla/fxa-content-server/commit/283b41b44ce32f60ce50f9273bc583265ca7324a))
+* **iframe:** fixes styling issues caused by the iframe environment #2 ([9347d818](https://github.com/mozilla/fxa-content-server/commit/9347d8184b098649de166a1ccad10d3e0f79a3bb), closes [#2010](https://github.com/mozilla/fxa-content-server/issues/2010))
+* **logging:** switch to mozlog ([a346b9d1](https://github.com/mozilla/fxa-content-server/commit/a346b9d102eb5ef20430cb15f69535dc4ec2af8b), closes [#1994](https://github.com/mozilla/fxa-content-server/issues/1994))
+* **signin:** better reject with errors ([2e6c3bbd](https://github.com/mozilla/fxa-content-server/commit/2e6c3bbd34b227bd2379648963c0958f1d8d134d), closes [#2031](https://github.com/mozilla/fxa-content-server/issues/2031))
+* **tests:**
+  * fail when not enough coverage, add more oauth-errors coverage ([87be18f7](https://github.com/mozilla/fxa-content-server/commit/87be18f79e4c01ee7670647ca86b93488feb0ca6))
+  * better functional tests for age dropdowns ([01c70f95](https://github.com/mozilla/fxa-content-server/commit/01c70f95bc886b142cca787307e991594815ecbb))
+
+
+#### Features
+
+* Check for required OAuth parameters on startup. ([52f65f78](https://github.com/mozilla/fxa-content-server/commit/52f65f78c1ec2b95db2c7cc2cfa135280c2bf204))
+* **client:**
+  * force_auth action for oauth! ([82a6c0be](https://github.com/mozilla/fxa-content-server/commit/82a6c0be7973056a73b6c6de067638d3b816cda7))
+  * Give the relier the ability to overrule cached credentials. ([74cb38e1](https://github.com/mozilla/fxa-content-server/commit/74cb38e11c955e3a1537fabc4454e3c73782bab0))
+* **docs:** Start on an architecture doc ([4a3c0540](https://github.com/mozilla/fxa-content-server/commit/4a3c05400dc85f83a473509e441e24b30652a493))
+* **error-pages:** add a static 502.html error page for nginx to route to ([fe343454](https://github.com/mozilla/fxa-content-server/commit/fe343454d2064327df3c866f12085ea38aca5e51))
+
+
 <a name="0.28.0"></a>
 ## 0.28.0 (2015-01-05)
 
