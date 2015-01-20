@@ -46,6 +46,14 @@ function (_, Backbone, $, p, AuthErrors,
 
   function displayError(displayStrategy, err) {
     /*jshint validthis: true*/
+
+    // Errors are disabled on page unload to supress errors
+    // caused by aborted XHR requests.
+    if (! this._areErrorsEnabled) {
+      console.error('Error ignored: %s', JSON.stringify(err));
+      return;
+    }
+
     this.hideSuccess();
 
     err = this._normalizeError(err);
@@ -100,6 +108,10 @@ function (_, Backbone, $, p, AuthErrors,
       this.automatedBrowser = !!this.searchParam('automatedBrowser');
 
       Backbone.View.call(this, options);
+
+      // Prevent errors from being displayed by aborted XHR requests.
+      this._boundDisableErrors = _.bind(this.disableErrors, this);
+      $(this.window).on('beforeunload', this._boundDisableErrors);
     },
 
     /**
@@ -326,11 +338,6 @@ function (_, Backbone, $, p, AuthErrors,
       }
     },
 
-    assign: function (view, selector) {
-      view.setElement(this.$(selector));
-      view.render();
-    },
-
     destroy: function (remove) {
       this.trigger('destroy');
 
@@ -344,6 +351,8 @@ function (_, Backbone, $, p, AuthErrors,
         this.stopListening();
         this.$el.off();
       }
+
+      this.$(this.window).off('beforeunload', this._boundDisableErrors);
 
       this.destroySubviews();
 
@@ -416,6 +425,16 @@ function (_, Backbone, $, p, AuthErrors,
       var translated = errors.toInterpolatedMessage(err, this.translator);
 
       return translated;
+    },
+
+    _areErrorsEnabled: true,
+    /**
+     * Disable logging and display of errors.
+     *
+     * @method disableErrors
+     */
+    disableErrors: function () {
+      this._areErrorsEnabled = false;
     },
 
     /**
