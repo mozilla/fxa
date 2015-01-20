@@ -1,3 +1,17 @@
+<a name="0.29.0"></a>
+## 0.29.0 (2015-01-20)
+
+
+#### Bug Fixes
+
+* **docs:** minor spelling fixes ([33ad1ec0](http://github.com/mozilla/fxa-oauth-server/commit/33ad1ec0b67116e3f9eb46b7ac9eb8f51548178b))
+
+
+#### Features
+
+* **api:** Add `action=force_auth` to GET /v1/authorization. ([33603bd2](http://github.com/mozilla/fxa-oauth-server/commit/33603bd2dc1b8a483563512f2f1f4729d64c0fc3))
+
+
 <a name="0.26.2"></a>
 ### 0.26.2 (2014-11-20)
 
