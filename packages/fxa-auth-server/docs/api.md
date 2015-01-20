@@ -64,7 +64,7 @@ The currently-defined error responses are:
 
 ### GET /v1/client/:id
 
-This endpoint is for the fxa-content-server to retreive information
+This endpoint is for the fxa-content-server to retrieve information
 about a client to show in its user interface.
 
 #### Request Parameters
@@ -225,7 +225,7 @@ curl -v \
 
 #### Response
 
-A valid reponse will have a 200 status code and empty object `{}`.
+A valid response will have a 200 status code and empty object `{}`.
 
 ### DELETE /v1/client/:id
 
@@ -246,7 +246,7 @@ curl -v \
 
 #### Response
 
-A valid reponse will have a 204 response code and an empty body.
+A valid response will have a 204 response code and an empty body.
 
 ### GET /v1/authorization
 
