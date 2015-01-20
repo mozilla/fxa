@@ -108,7 +108,7 @@ noscript {
 }
 
 // Apply styles to div injected by backbone, rather than to the stage itself.
-#main-content {
+#main {
   background: $content-background-color;
   border-radius: $big-border-radius;
   box-shadow: 0 1px 5px $input-row-border-color;
@@ -116,11 +116,22 @@ noscript {
   min-height: 420px;
   padding: 50px 40px 40px 40px;
   text-align: center;
-  width: 420px;
 
-  .in-content & {
-    margin-top: 85px;
+  &-content {
+    @extend #main;
+    width: 420px;
+
+    .in-content & {
+      margin-top: 85px;
+    }
   }
+
+  &-content-legal {
+    @extend #main;
+    max-width: 750px;
+    width: 96%;
+  }
+
 }
 
 #stage {
@@ -218,10 +229,6 @@ section p {
 }
 
 #legal-copy {
-  border: 1px solid $marketing-border-color;
-  height: 250px;
-  overflow: auto;
-  padding: 10px;
   text-align: left;
 
   p {

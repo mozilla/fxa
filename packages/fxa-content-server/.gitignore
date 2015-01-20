@@ -70,3 +70,6 @@ app/fonts/latin
 
 ### Strings
 locale/*/*/*.po
+
+### Source maps
+*.map
