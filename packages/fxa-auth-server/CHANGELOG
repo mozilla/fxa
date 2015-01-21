@@ -1,3 +1,7 @@
+train-29
+  * increased basket logging #857
+  * deleted unused code #847
+
 train-28
   * updated hapi to 7.5.3
 
