@@ -985,33 +985,13 @@ describe('/v1', function() {
         return Server.api.post({
           url: '/destroy',
           payload: {
-            token: token,
-            client_secret: secret
+            token: token
           }
         });
       }).then(function(res) {
         assert.equal(res.statusCode, 200);
         return db.getToken(encrypt.hash(token)).then(function(tok) {
           assert.equal(tok, undefined);
-        });
-      });
-    });
-
-    it('should not allow unauthorized destruction', function() {
-      var token;
-      return newToken().then(function(res) {
-        token = res.result.access_token;
-        return Server.api.post({
-          url: '/destroy',
-          payload: {
-            token: token,
-            client_secret: badSecret
-          }
-        });
-      }).then(function(res) {
-        assert.equal(res.statusCode, 400);
-        return db.getToken(encrypt.hash(token)).then(function(tok) {
-          assert(tok);
         });
       });
     });
