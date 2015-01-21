@@ -323,6 +323,94 @@ define([
         });
       });
 
+      test('#accountLock', function () {
+        return accountHelper.newVerifiedAccount()
+          .then(
+            function (acc) {
+              account = acc;
+
+              return respond(client.accountLock(account.input.email, account.input.password), RequestMocks.accountLock);
+          })
+          .then(
+            function (result) {
+              // result is an empty object
+              assert.ok(result);
+              assert.equal(Object.keys(result).length, 0);
+            },
+            assert.notOk
+          );
+      });
+
+      test('#accountLock with no email', function () {
+        assert.throws(function () {
+          client.accountLock(null, account.input.password);
+        });
+      });
+
+      test('#accountLock with no password', function () {
+        assert.throws(function () {
+          client.accountLock(account.input.email, null);
+        });
+      });
+
+      test('#accountUnlockResendCode', function () {
+        var opts = {
+          service: 'sync',
+          redirectTo: 'https://sync.firefox.com/after_account_unlocked',
+          resume: 'resumejwt'
+        };
+
+        return accountHelper.newVerifiedAccount()
+          .then(
+            function (acc) {
+              account = acc;
+
+              return respond(client.accountLock(account.input.email, account.input.password), RequestMocks.accountLock);
+          })
+          .then(
+            function (result) {
+
+              return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode)
+          })
+          .then(
+            function (result) {
+              // result is an empty object
+              assert.ok(result);
+              assert.equal(Object.keys(result).length, 0);
+            },
+            assert.notOk
+          )
+      });
+
+      test('#accountUnlockResendCode with no email', function () {
+        assert.throws(function () {
+          client.accountUnlockResendCode();
+        });
+      });
+
+
+      test('#accountUnlockVerifyCode', function () {
+        return respond(client.accountUnlockVerifyCode('uid', 'code'), RequestMocks.accountUnlockVerifyCode)
+          .then(function (result) {
+            // result is an empty object
+            assert.ok(result);
+            assert.equal(Object.keys(result).length, 0);
+          },
+          assert.notOk
+        );
+      });
+
+      test('#accountUnlockVerifyCode with no uid', function () {
+        assert.throws(function () {
+          client.accountUnlockVerifyCode(null, 'code');
+        });
+      });
+
+      test('#accountUnlockVerifyCode with no code', function () {
+        assert.throws(function () {
+          client.accountUnlockVerifyCode('uid');
+        });
+      });
     });
   }
 });

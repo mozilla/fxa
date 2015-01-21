@@ -144,6 +144,18 @@ define(['client/lib/errors'], function (ERRORS) {
     invalidTimestamp: {
       status: 401,
       body: '{ "errno": ' + ERRORS.INVALID_TIMESTAMP + ', "error": "Invalid authentication timestamp", "serverTime": ' + new Date().getTime() + ' }'
+    },
+    accountLock: {
+      status: 200,
+      body: '{}'
+    },
+    accountUnlockResendCode: {
+      status: 200,
+      body: '{}'
+    },
+    accountUnlockVerifyCode: {
+      status: 200,
+      body: '{}'
     }
   };
 });
