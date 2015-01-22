@@ -17,11 +17,12 @@ define([
   'lib/constants',
   'lib/fxa-client',
   'lib/promise',
+  'lib/auth-errors',
   'models/reliers/relier',
   'models/user'
 ],
 function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
-      Constants, FxaClient, p, Relier, User) {
+      Constants, FxaClient, p, AuthErrors, Relier, User) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
@@ -213,11 +214,30 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
       });
 
       describe('submit', function () {
-        it('signs the user out, redirects to signin page', function () {
+        it('on success, signs the user out, redirects to the signin page', function () {
+          sinon.stub(fxaClient, 'signOut', function () {
+            return p();
+          });
+          sinon.spy(user, 'clearSignedInAccount');
+
           return view.submit()
-              .then(function () {
-                assert.equal(routerMock.page, 'signin');
-              });
+            .then(function () {
+              assert.isTrue(user.clearSignedInAccount.called);
+              assert.equal(routerMock.page, 'signin');
+            });
+        });
+
+        it('on error, signs the user out, redirects to signin page', function () {
+          sinon.stub(fxaClient, 'signOut', function () {
+            return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+          });
+          sinon.spy(user, 'clearSignedInAccount');
+
+          return view.submit()
+            .then(function () {
+              assert.isTrue(user.clearSignedInAccount.called);
+              assert.equal(routerMock.page, 'signin');
+            });
         });
       });
 

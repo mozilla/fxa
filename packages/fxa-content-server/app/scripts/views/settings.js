@@ -37,23 +37,20 @@ function (_, Cocktail, Session, FormView, BaseView, AvatarMixin, SettingsMixin, 
 
     submit: function () {
       var self = this;
-      return self.fxaClient.signOut(self.getSignedInAccount().get('sessionToken'))
-              .then(function () {
-                // user's session is gone
-                self.user.clearSignedInAccount();
-                Session.clear();
-              }, function () {
-                // Clear the session, even on failure. Everything is A-OK.
-                // See issue #616
-                // - https://github.com/mozilla/fxa-content-server/issues/616
-                self.user.clearSignedInAccount();
-                Session.clear();
-              })
-              .then(function () {
-                self.navigate('signin', {
-                  success: t('Signed out')
-                });
-              });
+      var sessionToken = self.getSignedInAccount().get('sessionToken');
+      return self.fxaClient.signOut(sessionToken)
+        .fail(function () {
+          // ignore the error.
+          // Clear the session, even on failure. Everything is A-OK.
+          // See issue #616
+        })
+        .fin(function () {
+          self.user.clearSignedInAccount();
+          Session.clear();
+          self.navigate('signin', {
+            success: t('Signed out')
+          });
+        });
     },
 
     _isAvatarLinkVisible: function (email) {

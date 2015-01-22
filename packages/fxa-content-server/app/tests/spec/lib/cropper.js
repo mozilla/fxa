@@ -175,7 +175,7 @@ function (chai, jquery, RouterMock, CanvasMock, p, Cropper, EphemeralMessages,
           'bottom edge does not exceed gutter length');
       });
 
-      it('resizes', function () {
+      it('resize', function () {
         cropper.setImageSrc(pngSrc, 100, 50);
 
         cropper.resize(100);
@@ -184,7 +184,7 @@ function (chai, jquery, RouterMock, CanvasMock, p, Cropper, EphemeralMessages,
         assert.equal(cropper._height, 480);
       });
 
-      it('resizes handles over 100 value', function () {
+      it('resize handles over 100 value', function () {
         cropper.setImageSrc(pngSrc, 100, 50);
 
         cropper.resize(101);
@@ -193,7 +193,7 @@ function (chai, jquery, RouterMock, CanvasMock, p, Cropper, EphemeralMessages,
         assert.equal(cropper._height, 480);
       });
 
-      it('resizes handles negative value', function () {
+      it('resize handles negative value', function () {
         cropper.setImageSrc(pngSrc, 100, 50);
 
         cropper.resize(-1);
