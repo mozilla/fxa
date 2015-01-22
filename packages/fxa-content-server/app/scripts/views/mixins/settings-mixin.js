@@ -28,6 +28,8 @@ define([
         // The account with uid exists; set it to our current account.
         self.user.setSignedInAccountByUid(uid);
       } else if (uid) {
+        // session is expired or user does not exist. Force the user
+        // to sign in.
         Session.clear();
         self.user.clearSignedInAccount();
       }
