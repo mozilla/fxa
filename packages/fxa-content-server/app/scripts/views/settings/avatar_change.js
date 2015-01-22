@@ -7,20 +7,19 @@
 define([
   'jquery',
   'underscore',
+  'cocktail',
   'views/form',
   'views/mixins/avatar-mixin',
+  'views/mixins/settings-mixin',
   'stache!templates/settings/avatar_change',
   'lib/auth-errors',
   'lib/image-loader',
   'models/cropper-image'
 ],
-function ($, _, FormView, AvatarMixin, Template, AuthErrors,
+function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template, AuthErrors,
     ImageLoader, CropperImage) {
 
   var View = FormView.extend({
-    // user must be authenticated to see Settings
-    mustVerify: true,
-
     template: Template,
     className: 'avatar-change',
 
@@ -82,7 +81,6 @@ function ($, _, FormView, AvatarMixin, Template, AuthErrors,
             });
           });
         }, 1000);
-        
         return;
       }
       self.$('#imageLoader').click();
@@ -131,7 +129,7 @@ function ($, _, FormView, AvatarMixin, Template, AuthErrors,
     }
   });
 
-  _.extend(View.prototype, AvatarMixin);
+  Cocktail.mixin(View, AvatarMixin, SettingsMixin);
 
   return View;
 });

@@ -6,15 +6,14 @@
 
 define([
   'underscore',
+  'cocktail',
   'views/form',
   'stache!templates/settings/avatar',
-  'views/mixins/avatar-mixin'
+  'views/mixins/avatar-mixin',
+  'views/mixins/settings-mixin'
 ],
-function (_, FormView, Template, AvatarMixin) {
+function (_, Cocktail, FormView, Template, AvatarMixin, SettingsMixin) {
   var View = FormView.extend({
-    // user must be authenticated to see Settings
-    mustVerify: true,
-
     template: Template,
     className: 'avatar',
 
@@ -25,7 +24,7 @@ function (_, FormView, Template, AvatarMixin) {
 
   });
 
-  _.extend(View.prototype, AvatarMixin);
+  Cocktail.mixin(View, AvatarMixin, SettingsMixin);
 
   return View;
 });

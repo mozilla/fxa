@@ -10,13 +10,16 @@ define([
   'jquery',
   '../../mocks/router',
   '../../mocks/canvas',
+  'lib/promise',
   'lib/cropper',
   'lib/ephemeral-messages',
   'views/settings/avatar_crop',
-  'models/cropper-image'
+  'models/cropper-image',
+  'models/user',
+  'models/reliers/relier'
 ],
-function (chai, jquery, RouterMock, CanvasMock, Cropper, EphemeralMessages,
-    View, CropperImage) {
+function (chai, jquery, RouterMock, CanvasMock, p, Cropper, EphemeralMessages,
+    View, CropperImage, User, Relier) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -24,6 +27,8 @@ function (chai, jquery, RouterMock, CanvasMock, Cropper, EphemeralMessages,
     var view;
     var routerMock;
     var ephemeralMessages;
+    var user;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -33,12 +38,21 @@ function (chai, jquery, RouterMock, CanvasMock, Cropper, EphemeralMessages,
           src: pngSrc
         })
       });
+      user = new User();
+      relier = new Relier();
+
       view = new View({
         router: routerMock,
-        ephemeralMessages: ephemeralMessages
+        ephemeralMessages: ephemeralMessages,
+        user: user,
+        relier: relier
       });
+
       view.isUserAuthorized = function () {
         return true;
+      };
+      view.isUserVerified = function () {
+        return p(true);
       };
     });
 
@@ -161,13 +175,31 @@ function (chai, jquery, RouterMock, CanvasMock, Cropper, EphemeralMessages,
           'bottom edge does not exceed gutter length');
       });
 
-      it('resizes', function () {
+      it('resize', function () {
         cropper.setImageSrc(pngSrc, 100, 50);
 
         cropper.resize(100);
         assert.equal(cropper.scale, 100);
         assert.equal(cropper._width, 960);
         assert.equal(cropper._height, 480);
+      });
+
+      it('resize handles over 100 value', function () {
+        cropper.setImageSrc(pngSrc, 100, 50);
+
+        cropper.resize(101);
+        assert.equal(cropper.scale, 100);
+        assert.equal(cropper._width, 960);
+        assert.equal(cropper._height, 480);
+      });
+
+      it('resize handles negative value', function () {
+        cropper.setImageSrc(pngSrc, 100, 50);
+
+        cropper.resize(-1);
+        assert.equal(cropper.scale, 0);
+        assert.equal(cropper._width, 480);
+        assert.equal(cropper._height, 240);
       });
 
       it('calculates crop position of image larger than crop area', function () {

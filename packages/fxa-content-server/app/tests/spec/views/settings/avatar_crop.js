@@ -16,13 +16,14 @@ define([
   '../../../mocks/profile',
   'models/user',
   'models/cropper-image',
+  'models/reliers/relier',
   'lib/promise',
   'lib/constants',
   'lib/ephemeral-messages',
   'lib/auth-errors'
 ],
 function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperImage,
-    p, Constants, EphemeralMessages, AuthErrors) {
+    Relier, p, Constants, EphemeralMessages, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -33,16 +34,19 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
     var ephemeralMessages;
     var user;
     var account;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       user = new User();
       ephemeralMessages = new EphemeralMessages();
+      relier = new Relier();
 
       view = new View({
         user: user,
         ephemeralMessages: ephemeralMessages,
-        router: routerMock
+        router: routerMock,
+        relier: relier
       });
     });
 
@@ -104,7 +108,8 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
           view = new View({
             router: routerMock,
             ephemeralMessages: ephemeralMessages,
-            user: user
+            user: user,
+            relier: relier
           });
           view.isUserAuthorized = function () {
             return true;

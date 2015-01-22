@@ -16,10 +16,11 @@ define([
   '../../../mocks/canvas',
   '../../../mocks/profile',
   'models/user',
+  'models/reliers/relier',
   'lib/promise'
 ],
 function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
-    ProfileMock, User, p) {
+    ProfileMock, User, Relier, p) {
   var assert = chai.assert;
 
   describe('views/settings/avatar/camera', function () {
@@ -29,16 +30,19 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
     var profileClientMock;
     var user;
     var account;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       user = new User();
+      relier = new Relier();
 
       view = new View({
         router: routerMock,
         user: user,
-        window: windowMock
+        window: windowMock,
+        relier: relier
       });
 
       account = user.initAccount({
@@ -53,6 +57,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
       view.destroy();
       view = null;
       routerMock = null;
+      windowMock = null;
       profileClientMock = null;
     });
 
@@ -96,7 +101,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
       });
 
       it('no browser support', function () {
-        delete windowMock.navigator.getUserMedia;
+        windowMock.navigator.getUserMedia = null;
         return view.render()
           .then(function () {
             assert.isTrue(view._isErrorVisible);
@@ -138,6 +143,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
           router: routerMock,
           user: user,
           window: windowMock,
+          relier: relier,
           displayLength: 240,
           exportLength: 600
         });

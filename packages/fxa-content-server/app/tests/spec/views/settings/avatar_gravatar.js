@@ -14,11 +14,12 @@ define([
   '../../../mocks/router',
   '../../../mocks/profile',
   'models/user',
+  'models/reliers/relier',
   'lib/promise',
   'lib/profile-client'
 ],
 function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
-    p, ProfileClient) {
+    Relier, p, ProfileClient) {
   var assert = chai.assert;
   var GRAVATAR_URL = 'https://secure.gravatar.com/avatar/';
   var EMAIL_HASH = '0bc83cb571cd1c50ba6f3e8a78ef1346';
@@ -30,13 +31,17 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
     var profileClientMock;
     var user;
     var account;
+    var relier;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       user = new User();
+      relier = new Relier();
+
       view = new View({
         user: user,
-        router: routerMock
+        router: routerMock,
+        relier: relier
       });
 
       account = user.initAccount({

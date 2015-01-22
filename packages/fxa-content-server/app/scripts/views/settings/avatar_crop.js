@@ -7,20 +7,21 @@
 define([
   'p-promise',
   'underscore',
+  'cocktail',
   'views/form',
+  'views/mixins/settings-mixin',
   'stache!templates/settings/avatar_crop',
   'lib/constants',
   'lib/cropper',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'models/cropper-image'
 ],
-function (p, _, FormView, Template, Constants, Cropper, AuthErrors) {
+function (p, _, Cocktail, FormView, SettingsMixin, Template, Constants, Cropper,
+    AuthErrors, CropperImage) {
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;
 
   var View = FormView.extend({
-    // user must be authenticated to see Settings
-    mustAuth: true,
-
     template: Template,
     className: 'avatar-crop',
 
@@ -29,6 +30,10 @@ function (p, _, FormView, Template, Constants, Cropper, AuthErrors) {
 
       var data = this.ephemeralData() || {};
       this._cropImg = data.cropImg;
+
+      if (! this._cropImg && this.automatedBrowser) {
+        this._cropImg = new CropperImage();
+      }
     },
 
     beforeRender: function () {
@@ -62,6 +67,12 @@ function (p, _, FormView, Template, Constants, Cropper, AuthErrors) {
           horizontalGutter: HORIZONTAL_GUTTER
         });
       } catch (e) {
+        // settings_common functional tests visit this page directly so draggable
+        // won't be preloaded. Ignore errors about that– they don't matter.
+        if (this.automatedBrowser && e.message.indexOf('draggable') !== -1) {
+          return;
+        }
+
         this.navigate('settings/avatar/change', {
           error: AuthErrors.toMessage('UNUSABLE_IMAGE')
         });
@@ -93,6 +104,8 @@ function (p, _, FormView, Template, Constants, Cropper, AuthErrors) {
     }
 
   });
+
+  Cocktail.mixin(View, SettingsMixin);
 
   return View;
 });

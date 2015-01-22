@@ -13,6 +13,7 @@ require.config({
     mustache: '../bower_components/mustache/mustache',
     stache: '../bower_components/requirejs-mustache/stache',
     chai: '../bower_components/chai/chai',
+    cocktail: '../bower_components/cocktail/Cocktail',
     'p-promise': '../bower_components/p/p',
     sinon: '../bower_components/sinon/index',
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',

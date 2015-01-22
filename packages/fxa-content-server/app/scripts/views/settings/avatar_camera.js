@@ -6,15 +6,18 @@
 
 define([
   'underscore',
+  'cocktail',
   'canvasToBlob',
   'views/form',
   'views/progress_indicator',
+  'views/mixins/settings-mixin',
   'stache!templates/settings/avatar_camera',
   'lib/constants',
   'lib/promise',
   'lib/auth-errors'
 ],
-function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, AuthErrors) {
+function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
+    SettingsMixin, Template, Constants, p, AuthErrors) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -24,9 +27,6 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
   var MIME_TYPE = Constants.DEFAULT_PROFILE_IMAGE_MIME_TYPE;
 
   var View = FormView.extend({
-    // user must be authenticated to see Settings
-    mustVerify: true,
-
     template: Template,
     className: 'avatar-camera',
 
@@ -37,30 +37,32 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
     },
 
     initialize: function (options) {
-      this.exportLength = options.exportLength || EXPORT_LENGTH;
-      this.displayLength = options.displayLength || DISPLAY_LENGTH;
-      this.streaming = false;
-
       var self = this;
-      if (this.automatedBrowser) {
+
+      self.exportLength = options.exportLength || EXPORT_LENGTH;
+      self.displayLength = options.displayLength || DISPLAY_LENGTH;
+      self.streaming = false;
+
+
+      if (self.automatedBrowser) {
         var ARTIFICIAL_DELAY = 3000; // 3 seconds
         // mock some things out for automated browser testing
-        this.streaming = true;
-        this._getMedia = function () {
+        self.streaming = true;
+        self._getMedia = function () {
           self.enableSubmitIfValid();
           return true;
         };
-        this.stream = {
+        self.stream = {
           stop: function () {}
         };
 
-        this.window.setTimeout(_.bind(this.canPlay, this), ARTIFICIAL_DELAY);
+        self.window.setTimeout(_.bind(self.canPlay, self), ARTIFICIAL_DELAY);
       }
     },
 
     _getMedia: function () {
       var self = this;
-      var nav = self.navigator;
+      var nav = self.window.navigator;
 
       var getUserMedia = nav.getUserMedia ||
                              nav.webkitGetUserMedia ||
@@ -206,6 +208,8 @@ function (_, canvasToBlob, FormView, ProgressIndicator, Template, Constants, p, 
       }
     }
   });
+
+  Cocktail.mixin(View, SettingsMixin);
 
   return View;
 });
