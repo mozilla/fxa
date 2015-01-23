@@ -219,7 +219,7 @@ module.exports = function (log, error) {
 
   // Insert : accountResetTokens
   // Values : tokenId = $1, tokenData = $2, uid = $3, createdAt = $4
-  var CREATE_ACCOUNT_RESET_TOKEN = 'CALL createAccountResetToken_1(?, ?, ?, ?)'
+  var CREATE_ACCOUNT_RESET_TOKEN = 'CALL createAccountResetToken_2(?, ?, ?, ?)'
 
   MySql.prototype.createAccountResetToken = function (tokenId, accountResetToken) {
     return this.write(
@@ -235,7 +235,7 @@ module.exports = function (log, error) {
 
   // Insert : passwordForgotTokens
   // Values : tokenId = $1, tokenData = $2, uid = $3, passCode = $4, createdAt = $5, tries = $6
-  var CREATE_PASSWORD_FORGOT_TOKEN = 'CALL createPasswordForgotToken_1(?, ?, ?, ?, ?, ?)'
+  var CREATE_PASSWORD_FORGOT_TOKEN = 'CALL createPasswordForgotToken_2(?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createPasswordForgotToken = function (tokenId, passwordForgotToken) {
     return this.write(
@@ -253,7 +253,7 @@ module.exports = function (log, error) {
 
   // Insert : passwordChangeTokens
   // Values : tokenId = $1, tokenData = $2, uid = $3, createdAt = $4
-  var CREATE_PASSWORD_CHANGE_TOKEN = 'CALL createPasswordChangeToken_1(?, ?, ?, ?)'
+  var CREATE_PASSWORD_CHANGE_TOKEN = 'CALL createPasswordChangeToken_2(?, ?, ?, ?)'
 
   MySql.prototype.createPasswordChangeToken = function (tokenId, passwordChangeToken) {
     return this.write(
@@ -364,7 +364,7 @@ module.exports = function (log, error) {
 
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accounts
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_1(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_2(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -420,7 +420,7 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : verifyHash = $2, authSalt = $3, wrapWrapKb = $4, verifierSetAt = $5, verifierVersion = $6
   // Where  : uid = $1
-  var RESET_ACCOUNT = 'CALL resetAccount_1(?, ?, ?, ?, ?, ?)'
+  var RESET_ACCOUNT = 'CALL resetAccount_2(?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.resetAccount = function (uid, data) {
     return this.write(
@@ -450,7 +450,7 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : emailVerified = true
   // Where  : uid = $4
-  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_1(?, ?, ?, ?, ?)'
+  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_2(?, ?, ?, ?, ?)'
 
   MySql.prototype.forgotPasswordVerified = function (tokenId, accountResetToken) {
     return this.write(

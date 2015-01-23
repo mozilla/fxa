@@ -154,6 +154,62 @@ DB.connect(config)
       )
 
       test(
+        'check that an error in a stored procedure (with transaction) is propagated back',
+        function (t) {
+          // let's add a stored procedure which will cause an error
+          var dropProcedure = 'DROP PROCEDURE IF EXISTS `testStoredProcedure`;'
+          var ensureProcedure = [
+            'CREATE PROCEDURE `testStoredProcedure` ()',
+            'BEGIN',
+            '    DECLARE EXIT HANDLER FOR SQLEXCEPTION',
+            '    BEGIN',
+            '        -- ERROR',
+            '        ROLLBACK;',
+            '        RESIGNAL;',
+            '    END;',
+            '    START TRANSACTION;',
+            '    INSERT INTO accounts(uid) VALUES(null);',
+            '    COMMIT;',
+            'END;',
+          ].join('\n')
+
+          t.plan(6)
+
+          db.write(dropProcedure, [])
+            .then(function() {
+              t.pass('Drop procedure was successful')
+              return db.write(ensureProcedure, [])
+            })
+            .then(
+              function(result) {
+                t.pass('The stored procedure creation was successful')
+              },
+              function(err) {
+                t.fail('Error when creating a stored procedure' + err)
+              }
+            )
+            .then(function() {
+              // monkey patch the DB so that we're doing what the other writes to stored procedures are doing
+              db.testStoredProcedure = function() {
+                var callProcedure = 'CALL testStoredProcedure()'
+                return this.write(callProcedure)
+              }
+              return db.testStoredProcedure()
+            })
+            .then(function() {
+              t.fail('The call to the stored prodcedure should have failed')
+              t.end()
+            }, function(err) {
+              t.pass('The call to the stored procedure failed as expected')
+              t.equal('' + err, "Error: ER_BAD_NULL_ERROR", 'error stringified is correct')
+              t.equal(err.code, 500, 'error code is correct')
+              t.equal(err.errno, 1048, 'error errno is correct')
+              t.end()
+            })
+        }
+      )
+
+      test(
         'teardown',
         function (t) {
           return db.close()
