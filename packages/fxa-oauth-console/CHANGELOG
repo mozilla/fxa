@@ -1,5 +1,5 @@
-v0.3.4-pre:
-  date: 2014-12-15
+v0.3.4:
+  date: 2015-01-23
   changes:
     - Added Sample Configuration display when a client gets created.
     - Design updates.
