@@ -7,8 +7,7 @@
 
  module.exports = function (log, error) {
 
-  function Customs(url, db) {
-    this.db = db
+  function Customs(url) {
     if (url === 'none') {
       this.pool = {
         post: function () { return P({ block: false })},
@@ -57,20 +56,16 @@
       }
     )
     .then(
-      (function (result) {
-        if (result.lockout) {
-          return this.db.lockAccount(account)
-        }
-      }).bind(this)
-    )
-    .then(
-      function () {},
+      function (result) {
+        return { lockout: !!result.lockout }
+      },
       function (err) {
         log.error({ op: 'customs.flag.1', email: email, err: err })
         // If this happens, either:
         // - (1) the url in config doesn't point to a real customs server
         // - (2) the customs server returned an internal server error
         // Either way, allow the request through so we fail open.
+        return { lockout: false }
       }
     )
   }

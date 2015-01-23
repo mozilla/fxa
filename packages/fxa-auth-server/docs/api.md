@@ -81,6 +81,7 @@ The currently-defined error responses are:
 * status code 400, errno 119:  incorrect API version for this account
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 121:  account is locked
+* status code 400, errno 122:  account is not locked
 * status code 503, errno 201:  service temporarily unavailable to due high load (see [backoff protocol](#backoff-protocol))
 * any status code, errno 999:  unknown error
 
@@ -110,6 +111,7 @@ Since this is a HTTP-based protocol, clients should be prepared to gracefully ha
     * [GET  /v1/account/keys (:lock: keyFetchToken) (verf-required)](#get-v1accountkeys)
     * [POST /v1/account/reset (:lock: accountResetToken)](#post-v1accountreset)
     * [POST /v1/account/destroy](#post-v1accountdestroy)
+    * [POST /v1/account/lock](#post-v1accountlock)
 
 * Authentication
     * [POST /v1/account/login](#post-v1accountlogin)
@@ -508,6 +510,47 @@ Failing requests may be due to the following errors:
 * status code 400, errno 120:  incorrect email case
 * status code 400, errno 121:  account is locked
 
+## POST /v1/account/lock
+
+HAWK-authenticated.
+
+This locks an account and prevents the user from performing any action that requires a password until their email address is re-verified. This endpoint is for testing only and is disabled for production.
+
+__Parameters__
+
+* email - the email address for the account
+* authPW - the PBKDF2/HKDF stretched password as a hex string
+
+### Request
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+https://api-accounts.dev.lcip.org/v1/account/lock \
+-d '{
+  "email": "me@example.com",
+  "authPW": "996bc6b1aa63cd69856a2ec81cbf19d5c8a604713362df9ee15c2bf07128efab"
+}'
+```
+
+### Response
+
+Successful requests will produce a "200 OK" and a json body.
+
+```json
+{}
+```
+
+Failing requests may be due to the following errors:
+
+* status code 400, errno 102:  attempt to access an account that does not exist
+* status code 400, errno 103:  incorrect password
+* status code 400, errno 106:  request body was not valid json
+* status code 400, errno 107:  request body contains invalid parameters
+* status code 400, errno 108:  request body missing required parameters
+* status code 411, errno 112:  content-length header was not provided
+* status code 413, errno 113:  request body too large
 
 ## POST /v1/account/unlock/resend_code
 
@@ -552,6 +595,7 @@ Failing requests may be due to the following errors:
 * status code 400, errno 108:  request body missing required parameters
 * status code 411, errno 112:  content-length header was not provided
 * status code 413, errno 113:  request body too large
+* status code 400, errno 122:  account is not locked
 
 
 ## POST /v1/account/unlock/verify_code
@@ -591,7 +635,6 @@ Successful requests will produce a "200 OK" response with an empty JSON body:
 
 Failing requests may be due to the following errors:
 
-* status code 400, errno 102:  attempt to access an account that does not exist
 * status code 400, errno 105:  invalid verification code
 * status code 400, errno 106:  request body was not valid json
 * status code 400, errno 107:  request body contains invalid parameters

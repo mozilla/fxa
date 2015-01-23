@@ -311,6 +311,10 @@ Client.prototype.verifyPasswordResetCode = function (code) {
     )
 }
 
+Client.prototype.lockAccount = function () {
+  return this.api.accountLock(this.email, this.authPW)
+}
+
 Client.prototype.resendAccountUnlockCode = function () {
   return this.api.accountUnlockResendCode(this.email, this.options)
 }

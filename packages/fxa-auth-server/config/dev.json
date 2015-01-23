@@ -20,5 +20,6 @@
     "region": "us-east-1"
   },
   "customsUrl": "none",
-  "trustedJKUs": ["http://127.0.0.1:8080/.well-known/public-keys"]
+  "trustedJKUs": ["http://127.0.0.1:8080/.well-known/public-keys"],
+  "lockoutEnabled": true
 }

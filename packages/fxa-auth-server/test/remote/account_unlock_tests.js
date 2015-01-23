@@ -32,8 +32,11 @@ TestServer.start(config)
       )
       .then(
         function () {
-          // There's no public API to force an account into the "locked" state,
-          // but this will re-send the email regardless of actual account state.
+          return client.lockAccount(email, password)
+        }
+      )
+      .then(
+        function () {
           return client.resendAccountUnlockCode()
         }
       )
@@ -73,6 +76,11 @@ TestServer.start(config)
         )
         .then(
           function () {
+            return client.lockAccount(email, password)
+          }
+        )
+        .then(
+          function () {
             return client.resendAccountUnlockCode()
           }
         )
@@ -91,6 +99,89 @@ TestServer.start(config)
             t.equal(query.service, options.service, 'service is in link')
           }
         )
+    }
+  )
+
+  test(
+    'resend account unlock code for account that is not locked',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+      .then(
+        function () {
+          return Client.login(config.publicUrl, email, password)
+        }
+      )
+      .then(
+        function (x) {
+          client = x
+        }
+      )
+      .then(
+        function () {
+          return client.resendAccountUnlockCode()
+        }
+      )
+      .then(
+        function () {
+          t.fail('resendAccountUnlockCode is expected to fail')
+        },
+        function (err) {
+          t.equal(err.code, 400, '400 status code')
+          t.equal(err.errno, 122, 'account is not locked errno')
+        }
+      )
+    }
+  )
+
+  test(
+    're-verify an account unlock when an account is not locked',
+    function (t) {
+      var email = server.uniqueEmail()
+      var password = 'allyourbasearebelongtous'
+      var client = null
+      var code = null
+      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
+      .then(
+        function () {
+          return Client.login(config.publicUrl, email, password)
+        }
+      )
+      .then(
+        function (x) {
+          client = x
+        }
+      )
+      .then(
+        function () {
+          return client.lockAccount(email, password)
+        }
+      )
+      .then(
+        function () {
+          return client.resendAccountUnlockCode()
+        }
+      )
+      .then(
+        function () {
+          return server.mailbox.waitForCode(email)
+        }
+      )
+      .then(
+        function (_code) {
+          code = _code
+          return client.verifyAccountUnlockCode(client.uid, code)
+        }
+      )
+      .then(
+        function () {
+          // the user may be re-verifying a stale link,
+          // silently succeed.
+          return client.verifyAccountUnlockCode(client.uid, code)
+        }
+      )
     }
   )
 

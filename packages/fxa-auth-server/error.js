@@ -340,4 +340,18 @@ AppError.lockedAccount = function () {
   })
 }
 
-module.exports = AppError
+AppError.accountNotLocked = function (email) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 122,
+      message: 'Account is not locked'
+    },
+    {
+      email: email
+    }
+  )
+}
+
+module.exports = AppError;

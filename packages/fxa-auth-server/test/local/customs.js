@@ -12,16 +12,6 @@ var nock = require('nock')
 
 var Customs = require('../../customs.js')(log, error)
 
-var MockDB = {
-  locked: {},
-  lockAccount: function(account) {
-    MockDB.locked[account.uid] = true;
-  },
-  unlockAccount: function(account) {
-    delete MockDB.locked[account.uid];
-  }
-}
-
 var CUSTOMS_URL_REAL = 'http://localhost:7000'
 var CUSTOMS_URL_MISSING = 'http://localhost:7001'
 
@@ -39,7 +29,7 @@ test(
   function (t) {
     t.plan(7)
 
-    customsNoUrl = new Customs('none', MockDB)
+    customsNoUrl = new Customs('none')
 
     t.ok(customsNoUrl, 'got a customs object with a none url')
 
@@ -58,7 +48,7 @@ test(
         return customsNoUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
+        t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt returns `lockout: false`')
         t.pass('Passed /failedLoginAttempt')
       }, function(error) {
         t.fail('We should have failed open for /failedLoginAttempt')
@@ -78,9 +68,9 @@ test(
 test(
   'can create a customs object with a url',
   function (t) {
-    t.plan(18)
+    t.plan(16)
 
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, MockDB)
+    customsWithUrl = new Customs(CUSTOMS_URL_REAL)
 
     t.ok(customsWithUrl, 'got a customs object with a valid url')
 
@@ -106,8 +96,7 @@ test(
         return customsWithUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
-        t.ok(!MockDB.locked["12345"], 'We ignore /failedLoginAttempt {lockout:false}')
+        t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt returns false')
         t.pass('Passed /failedLoginAttempt')
       }, function(error) {
         t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
@@ -122,6 +111,7 @@ test(
         t.fail('We should not have failed here for /passwordReset : err=' + error)
       })
       .then(function() {
+        // request is blocked
         return customsWithUrl.check(email, ip, action)
       })
       .then(function(result) {
@@ -136,11 +126,11 @@ test(
         t.equal(error.output.headers['retry-after'], 10001, 'retryAfter header is correct')
       })
       .then(function() {
+        // account is locked
         return customsWithUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
-        t.ok(MockDB.locked["12345"], 'We lockout on /failedLoginAttempt {lockout:true}')
+        t.equal(result.lockout, true, 'lockout is true when /failedLoginAttempt returns `lockout: true`')
         t.pass('Passed /failedLoginAttempt with lockout')
       }, function(error) {
         t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
@@ -154,7 +144,7 @@ test(
   function (t) {
     t.plan(7)
 
-    customsInvalidUrl = new Customs(CUSTOMS_URL_MISSING, MockDB)
+    customsInvalidUrl = new Customs(CUSTOMS_URL_MISSING)
 
     t.ok(customsInvalidUrl, 'got a customs object with a non-existant service url')
 
@@ -173,7 +163,7 @@ test(
         return customsInvalidUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
+        t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt hits an invalid endpoint')
         t.pass('Passed /failedLoginAttempt')
       }, function(error) {
         t.fail('We should have failed open (no url provided) for /failedLoginAttempt')

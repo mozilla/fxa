@@ -236,6 +236,11 @@ module.exports = function (fs, path, url, convict) {
     certPath: {
       doc: "path to SSL certificate in PEM format if serving over https",
       default: path.resolve(__dirname, '../cert.pem')
+    },
+    lockoutEnabled: {
+      doc: 'Is account lockout enabled',
+      format: Boolean,
+      default: false
     }
   })
 

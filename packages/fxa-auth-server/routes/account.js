@@ -24,7 +24,8 @@ module.exports = function (
   domain,
   resendBlackoutPeriod,
   customs,
-  isPreVerified
+  isPreVerified,
+  checkPassword
   ) {
 
   var routes = [
@@ -228,61 +229,56 @@ module.exports = function (
               if (emailRecord.lockedAt) {
                 throw error.lockedAccount()
               }
-              var password = new Password(
-                authPW,
-                emailRecord.authSalt,
-                emailRecord.verifierVersion
-              )
-              return password.matches(emailRecord.verifyHash)
-              .then(
-                function (match) {
-                  if (!match) {
-                    return customs.flag(request.app.clientAddress, emailRecord)
-                      .then(
-                        function () {
-                          throw error.incorrectPassword(emailRecord.email, email)
-                        }
-                      )
-                  }
-                  return db.createSessionToken(
-                    {
-                      uid: emailRecord.uid,
-                      email: emailRecord.email,
-                      emailCode: emailRecord.emailCode,
-                      emailVerified: emailRecord.emailVerified,
-                      verifierSetAt: emailRecord.verifierSetAt
+              return checkPassword(emailRecord, authPW, request.app.clientAddress)
+                .then(
+                  function (match) {
+                    if (!match) {
+                      throw error.incorrectPassword(emailRecord.email, email)
                     }
-                  )
-                }
-              )
-              .then(
-                function (sessionToken) {
-                  if (request.query.keys !== 'true') {
-                    return P({
-                      sessionToken: sessionToken
-                    })
-                  }
-                  return password.unwrap(emailRecord.wrapWrapKb)
-                  .then(
-                    function (wrapKb) {
-                      return db.createKeyFetchToken(
-                        {
-                          uid: emailRecord.uid,
-                          kA: emailRecord.kA,
-                          wrapKb: wrapKb,
-                          emailVerified: emailRecord.emailVerified
-                        }
-                      )
-                    }
-                  )
-                  .then(
-                    function (keyFetchToken) {
-                      return {
-                        sessionToken: sessionToken,
-                        keyFetchToken: keyFetchToken
+                    return db.createSessionToken(
+                      {
+                        uid: emailRecord.uid,
+                        email: emailRecord.email,
+                        emailCode: emailRecord.emailCode,
+                        emailVerified: emailRecord.emailVerified,
+                        verifierSetAt: emailRecord.verifierSetAt
                       }
+                    )
+                  }
+                )
+                .then(
+                  function (sessionToken) {
+                    if (request.query.keys !== 'true') {
+                      return P({
+                        sessionToken: sessionToken
+                      })
                     }
-                  )
+                    var password = new Password(
+                      authPW,
+                      emailRecord.authSalt,
+                      emailRecord.verifierVersion
+                    )
+                    return password.unwrap(emailRecord.wrapWrapKb)
+                    .then(
+                      function (wrapKb) {
+                        return db.createKeyFetchToken(
+                          {
+                            uid: emailRecord.uid,
+                            kA: emailRecord.kA,
+                            wrapKb: wrapKb,
+                            emailVerified: emailRecord.emailVerified
+                          }
+                        )
+                      }
+                    )
+                    .then(
+                      function (keyFetchToken) {
+                        return {
+                          sessionToken: sessionToken,
+                          keyFetchToken: keyFetchToken
+                        }
+                      }
+                    )
                 }
               )
             }
@@ -530,6 +526,8 @@ module.exports = function (
       handler: function (request, reply) {
         log.begin('Account.UnlockCodeResend', request)
         var email = request.payload.email
+        var emailRecord
+
         customs.check(
           request.app.clientAddress,
           email,
@@ -538,10 +536,20 @@ module.exports = function (
             db.emailRecord.bind(db, email)
           )
           .then(
-            function (emailRecord) {
+            function (_emailRecord) {
+              if (! _emailRecord.lockedAt) {
+                throw error.accountNotLocked(email)
+              }
+
+              emailRecord = _emailRecord
+              return db.unlockCode(emailRecord)
+            }
+          )
+          .then(
+            function (unlockCode) {
               return mailer.sendUnlockCode(
                 emailRecord,
-                emailRecord.emailCode,
+                unlockCode,
                 {
                   service: request.payload.service,
                   redirectTo: request.payload.redirectTo,
@@ -579,14 +587,19 @@ module.exports = function (
             function (account) {
               // If the account isn't actually locked, they may be
               // e.g. clicking a stale link.  Silently succeed.
-              if (!account.lockedAt) {
-                return true
+              if (! account.lockedAt) {
+                return
               }
-              if (!butil.buffersAreEqual(code, account.emailCode)) {
-                throw error.invalidVerificationCode()
-              }
-              log.event('unlocked', { email: account.email, uid: account.uid })
-              return db.unlockAccount(account)
+              return db.unlockCode(account)
+                .then(
+                  function (expectedCode) {
+                    if (!butil.buffersAreEqual(code, expectedCode)) {
+                      throw error.invalidVerificationCode()
+                    }
+                    log.event('unlocked', { email: account.email, uid: account.uid })
+                    return db.unlockAccount(account)
+                  }
+                )
             }
           )
           .done(
@@ -670,21 +683,12 @@ module.exports = function (
               if (emailRecord.lockedAt) {
                 throw error.lockedAccount()
               }
-              var password = new Password(
-                authPW,
-                emailRecord.authSalt,
-                emailRecord.verifierVersion
-              )
-              return password.matches(emailRecord.verifyHash)
+
+              return checkPassword(emailRecord, authPW, request.app.clientAddress)
                 .then(
                   function (match) {
                     if (!match) {
-                      return customs.flag(request.app.clientAddress, emailRecord)
-                        .then(
-                          function () {
-                            throw error.incorrectPassword(emailRecord.email, form.email)
-                          }
-                        )
+                      throw error.incorrectPassword(emailRecord.email, form.email)
                     }
                     return db.deleteAccount(emailRecord)
                   }
@@ -704,6 +708,60 @@ module.exports = function (
 
   if (isProduction) {
     delete routes[0].config.validate.payload.preVerified
+  } else {
+    // programmatic account lockout is only available in non-production mode.
+    routes.push({
+      method: 'POST',
+      path: '/account/lock',
+      config: {
+        validate: {
+          payload: {
+            email: validators.email().required(),
+            authPW: isA.string().min(64).max(64).regex(HEX_STRING).required()
+          }
+        }
+      },
+      handler: function (request, reply) {
+        log.begin('Account.lock', request)
+        var form = request.payload
+        var email = form.email
+        var authPW = Buffer(form.authPW, 'hex')
+
+        customs.check(
+          request.app.clientAddress,
+          email,
+          'accountLock')
+          .then(db.emailRecord.bind(db, email))
+          .then(
+            function (emailRecord) {
+              // The account is already locked, silently succeed.
+              if (emailRecord.lockedAt) {
+                return true
+              }
+              return checkPassword(emailRecord, authPW, request.app.clientAddress)
+              .then(
+                function (match) {
+                  // a bit of a strange one, only lock the account if the
+                  // password matches, otherwise let customs handle any account
+                  // lock.
+                  if (! match) {
+                    throw error.incorrectPassword(emailRecord.email, email)
+                  }
+
+                  log.event('locked', { email: emailRecord.email, uid: emailRecord.uid })
+                  return db.lockAccount(emailRecord)
+                }
+              )
+            }
+          )
+          .done(
+            function () {
+              reply({})
+            },
+            reply
+          )
+      }
+    });
   }
 
   return routes

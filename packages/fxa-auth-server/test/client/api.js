@@ -369,6 +369,18 @@ ClientApi.prototype.passwordForgotStatus = function (passwordForgotTokenHex) {
     )
 }
 
+ClientApi.prototype.accountLock = function (email, authPW) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/account/lock',
+    null,
+    {
+      email: email,
+      authPW: authPW.toString('hex')
+    }
+  )
+}
+
 ClientApi.prototype.accountUnlockResendCode = function (email, options) {
   options = options || {}
   return this.doRequest(

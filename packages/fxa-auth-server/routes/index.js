@@ -25,6 +25,7 @@ module.exports = function (
   var isPreVerified = require('../preverifier')(jwks, error, config)
   var defaults = require('./defaults')(log, P, db, error)
   var idp = require('./idp')(log, serverPublicKey)
+  var checkPassword = require('./utils/password_check')(log, config, Password, customs, db)
   var account = require('./account')(
     log,
     crypto,
@@ -41,7 +42,8 @@ module.exports = function (
     config.domain,
     config.smtp.resendBlackoutPeriod,
     customs,
-    isPreVerified
+    isPreVerified,
+    checkPassword
   )
   var password = require('./password')(
     log,
@@ -52,7 +54,8 @@ module.exports = function (
     config.smtp.redirectDomain,
     mailer,
     config.verifierVersion,
-    customs
+    customs,
+    checkPassword
   )
   var session = require('./session')(log, isA, error, db)
   var sign = require('./sign')(log, isA, error, signer, db, config.domain)

@@ -24,12 +24,16 @@ require('simplesmtp').createSimpleServer(
         var link = mail.headers['x-link']
         var rc = mail.headers['x-recovery-code']
         var vc = mail.headers['x-verify-code']
+        var uc = mail.headers['x-unlock-code']
         var name = emailName(mail.headers.to)
         if (vc) {
           console.log('\x1B[32m', link, '\x1B[39m')
         }
         else if (rc) {
           console.log('\x1B[34m', link, '\x1B[39m')
+        }
+        else if (uc) {
+          console.log('\x1B[36m %s', link, '\x1B[39m')
         }
         else {
           console.error('\x1B[31mNo verify code match\x1B[39m')
