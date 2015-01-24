@@ -200,6 +200,21 @@ describe('/v1', function() {
       });
     });
 
+    describe('content-type', function() {
+      it('should fail if not application/json or empty', function() {
+        return Server.api.post({
+          url: '/authorization',
+          headers: {
+            'content-type': 'text/plain'
+          },
+          payload: authParams()
+        }).then(function(res) {
+          console.log(res);
+          assert.equal(res.statusCode, 415);
+        });
+      });
+    });
+
     describe('?client_id', function() {
 
       it('is required', function(done) {
