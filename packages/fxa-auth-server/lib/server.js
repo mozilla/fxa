@@ -57,6 +57,22 @@ exports.create = function createServer() {
       delete route.config.response;
     });
   }
+
+  // require json by default
+  routes.forEach(function(route) {
+    var method = route.method.toUpperCase();
+    if (method !== 'GET' && method !== 'HEAD') {
+      if (!route.config.payload) {
+        route.config.payload = { allow: 'application/json' };
+      }
+      logger.verbose('route.payload', {
+        url: route.url,
+        method: method,
+        payload: route.config.payload
+      });
+    }
+  });
+
   server.route(routes);
 
   // hapi internal logging: server and request
