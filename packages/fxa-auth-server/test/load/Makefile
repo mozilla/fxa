@@ -12,8 +12,8 @@ build:
 	virtualenv --no-site-packages .
 	$(INSTALL) gevent
 	$(INSTALL) pexpect
+	$(INSTALL) PyFxA
 	$(INSTALL) https://github.com/mozilla-services/loads/archive/master.zip
-	$(INSTALL) 'hawkauthlib'
 	rm -rf ./local  # ubuntu, why you create this useless folder?
 
 # Clean all the things installed by `make build`.
