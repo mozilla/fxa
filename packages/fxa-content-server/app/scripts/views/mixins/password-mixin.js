@@ -36,6 +36,7 @@ define([
         var passwordField = this.$('.password');
         if (isVisible) {
           passwordField.attr('type', 'text').attr('autocomplete', 'off');
+          this.logScreenEvent('password.visible');
         } else {
           passwordField.attr('type', 'password');
           if (this.isPasswordAutoCompleteDisabled()) {
@@ -43,6 +44,7 @@ define([
           } else {
             passwordField.removeAttr('autocomplete');
           }
+          this.logScreenEvent('password.hidden');
         }
       } catch(e) {
         // IE8 blows up when changing the type of the input field. Other

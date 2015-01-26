@@ -10,11 +10,14 @@ define([
   'sinon',
   'backbone',
   'underscore',
+  'lib/metrics',
   'views/mixins/password-mixin',
   'views/base',
   'models/reliers/relier',
-  'stache!templates/test_template'
-], function ($, chai, sinon, Backbone, _, PasswordMixin, BaseView, Relier, TestTemplate) {
+  'stache!templates/test_template',
+  '../../../lib/helpers'
+], function ($, chai, sinon, Backbone, _, Metrics, PasswordMixin, BaseView,
+  Relier, TestTemplate, TestHelpers) {
   var assert = chai.assert;
 
   var PasswordView = BaseView.extend({
@@ -28,12 +31,16 @@ define([
   describe('views/mixins/password-mixin', function () {
     var view;
     var relier;
+    var metrics;
 
     beforeEach(function () {
       relier = new Relier();
+      metrics = new Metrics();
 
       view = new PasswordView({
-        relier: relier
+        relier: relier,
+        metrics: metrics,
+        screenName: 'password-screen'
       });
 
       return view.render()
@@ -93,6 +100,20 @@ define([
         assert.equal(view.$('#password').attr('autocomplete'), null);
         assert.equal($('#vpassword').attr('type'), 'password');
         assert.equal($('#vpassword').attr('autocomplete'), null);
+      });
+
+      it('logs whether the password is shown or hidden', function () {
+        view.$('.show-password').click();
+        assert.isTrue(TestHelpers.isEventLogged(metrics,
+                          'password-screen.password.visible'));
+        // the password has not been hidden yet.
+        assert.isFalse(TestHelpers.isEventLogged(metrics,
+                          'password-screen.password.hidden'));
+
+
+        view.$('.show-password').click();
+        assert.isTrue(TestHelpers.isEventLogged(metrics,
+                          'password-screen.password.hidden'));
       });
     });
   });
