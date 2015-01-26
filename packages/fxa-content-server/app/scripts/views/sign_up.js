@@ -271,6 +271,10 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
         self.logScreenEvent('preverified');
       }
 
+      if (self.relier.isSync()) {
+        self.logScreenEvent('customizeSync.' + String(customizeSync));
+      }
+
       return self.broker.beforeSignIn(email)
         .then(function () {
           return self.fxaClient.signUp(
