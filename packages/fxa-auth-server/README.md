@@ -103,6 +103,16 @@ To set the url of the [content server](https://github.com/mozilla/fxa-content-se
       "url": "http://your.content.server.org"
     }
 
+### Troubleshooting
+
+Firefox Accounts authorization is a complicated flow.  You can get verbose logging by adjusting the log level in the `config.json` on your deployed instance.  Add a stanza like:
+
+    "log": {
+      "level": "trace"
+    }
+
+Valid `level` values (from least to most verbose logging) include: `"fatal", "error", "warn", "info", "trace", "debug"`.
+
 ## MySQL setup
 
 ### Install MySQL
