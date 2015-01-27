@@ -2,8 +2,6 @@
 
 -- INSERTS/REPLACES
 
-DELIMITER $$
-
 CREATE PROCEDURE `createAccountResetToken_2` (
     IN tokenId BINARY(32),
     IN tokenData BINARY(32),
@@ -26,7 +24,6 @@ BEGIN
         createdAt
     );
 END;
-$$
 
 CREATE PROCEDURE `createPasswordForgotToken_2` (
     IN tokenId BINARY(32),
@@ -79,7 +76,6 @@ BEGIN
         createdAt
     );
 END;
-$$
 
 -- UPDATES
 
@@ -123,7 +119,6 @@ BEGIN
     COMMIT;
 
 END;
-$$
 
 -- DELETES
 
@@ -151,7 +146,6 @@ BEGIN
     COMMIT;
 
 END;
-$$
 
 CREATE PROCEDURE `resetAccount_2` (
     IN `inUid` BINARY(16),
@@ -193,8 +187,5 @@ BEGIN
     COMMIT;
 
 END;
-$$
-
-DELIMITER ;
 
 UPDATE dbMetadata SET value = '7' WHERE name = 'schema-patch-level';
