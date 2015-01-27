@@ -30,6 +30,7 @@ const unique = require('../unique');
  *       userId: <user_id>,
  *       code: <string>
  *       scope: <string>,
+ *       authAt: <timestamp>,
  *       createdAt: <timestamp>
  *     }
  *   },
@@ -135,12 +136,14 @@ MemoryStore.prototype = {
     delete this.clients[unbuf(id)];
     return P.resolve();
   },
-  generateCode: function generateCode(clientId, userId, email, scope) {
+  generateCode: function generateCode(clientId, userId, email, scope, authAt) {
+                                      
     var code = {};
     code.clientId = clientId;
     code.userId = userId;
     code.email = email;
     code.scope = scope;
+    code.authAt = authAt;
     code.createdAt = new Date();
     var _code = unique.code();
     code.code = encrypt.hash(_code);

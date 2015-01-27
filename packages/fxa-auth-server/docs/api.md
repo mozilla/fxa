@@ -362,6 +362,7 @@ A valid request will return a JSON response with these properties:
 - `access_token`: A string that can be used for authorized requests to service providers.
 - `scope`: A string of space-separated permissions that this token has. May differ from requested scopes, since user can deny permissions.
 - `token_type`: A string representing the token type. Currently will always be "bearer".
+- `auth_at`: An integer giving the time at which the user authenticated to the Firefox Accounts server when generating this token, as a UTC unix timestamp (i.e.  **seconds since epoch**).
 
 **Example:**
 
@@ -369,7 +370,8 @@ A valid request will return a JSON response with these properties:
 {
   "access_token": "558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0",
   "scope": "profile:email profile:avatar",
-  "token_type": "bearer"
+  "token_type": "bearer",
+  "auth_at": 1422336613
 }
 ```
 

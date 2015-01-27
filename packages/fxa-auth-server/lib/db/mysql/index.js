@@ -114,8 +114,8 @@ const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'WHERE id=?';
 const QUERY_CLIENT_DELETE = 'DELETE FROM clients WHERE id=?';
 const QUERY_CODE_INSERT =
-  'INSERT INTO codes (clientId, userId, email, scope, code) VALUES ' +
-  '(?, ?, ?, ?, ?)';
+  'INSERT INTO codes (clientId, userId, email, scope, authAt, code) ' +
+  'VALUES (?, ?, ?, ?, ?, ?)';
 const QUERY_TOKEN_INSERT =
   'INSERT INTO tokens (clientId, userId, email, scope, type, token) VALUES ' +
   '(?, ?, ?, ?, ?, ?)';
@@ -209,15 +209,15 @@ MysqlStore.prototype = {
   removeClient: function removeClient(id) {
     return this._write(QUERY_CLIENT_DELETE, [buf(id)]);
   },
-  generateCode: function generateCode(clientId, userId, email, _scope) {
+  generateCode: function generateCode(clientId, userId, email, scope, authAt) {
     var code = unique.code();
     var hash = encrypt.hash(code);
-    var scope = _scope.join(' ');
     return this._write(QUERY_CODE_INSERT, [
       clientId,
       userId,
       email,
-      scope,
+      scope.join(' '),
+      authAt,
       hash
     ]).then(function() {
       return code;
