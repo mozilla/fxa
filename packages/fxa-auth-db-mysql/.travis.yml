@@ -1,0 +1,29 @@
+language: node_js
+
+node_js:
+ - "0.10"
+
+services:
+ - mysql
+
+notifications:
+  irc:
+    channels:
+      - "irc.mozilla.org#fxa"
+    use_notice: false
+    skip_join: false
+
+before_install:
+  - npm config set spin false
+
+install:
+  - npm install
+
+before_script:
+  - mysql -e 'DROP DATABASE IF EXISTS fxa'
+  - npm i grunt-cli -g
+  - npm run outdated
+  - grunt validate-shrinkwrap --force
+
+script:
+  - npm test
