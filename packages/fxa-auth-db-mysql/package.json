@@ -8,7 +8,7 @@
     "fxa-auth-db-mysql": "db_patcher.js"
   },
   "scripts": {
-    "test": "grunt && ./scripts/tap-coverage.js test/backend test/local",
+    "test": "grunt && node ./bin/db_patcher.js >/dev/null &&  ./scripts/tap-coverage.js test/backend test/local",
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js 2>&1 | bunyan -o short -c 'this.op !== \"stat\"'",
     "outdated": "npm outdated --depth 0"
   },
@@ -32,7 +32,7 @@
     "grunt-copyright": "0.1.0",
     "grunt-nsp-shrinkwrap": "0.0.3",
     "load-grunt-tasks": "0.6.0",
-    "mysql-patcher": "0.3.0",
+    "mysql-patcher": "0.5.1",
     "restify": "2.8.1",
     "tap": "0.4.13",
     "uuid": "1.4.1"

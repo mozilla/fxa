@@ -9,7 +9,7 @@
       "dependencies": {
         "async": {
           "version": "0.9.0",
-          "from": "async@0.9.0",
+          "from": "async@^0.9.0",
           "resolved": "https://registry.npmjs.org/async/-/async-0.9.0.tgz"
         },
         "blanket": {
@@ -995,9 +995,8 @@
       }
     },
     "mysql-patcher": {
-      "version": "0.3.0",
-      "from": "mysql-patcher@0.3.0",
-      "resolved": "https://registry.npmjs.org/mysql-patcher/-/mysql-patcher-0.3.0.tgz",
+      "version": "0.5.1",
+      "from": "mysql-patcher@0.5.1",
       "dependencies": {
         "async": {
           "version": "0.9.0",
@@ -1013,6 +1012,11 @@
           "version": "0.1.19",
           "from": "clone@^0.1.18",
           "resolved": "https://registry.npmjs.org/clone/-/clone-0.1.19.tgz"
+        },
+        "xtend": {
+          "version": "4.0.0",
+          "from": "xtend@^4.0.0",
+          "resolved": "https://registry.npmjs.org/xtend/-/xtend-4.0.0.tgz"
         }
       }
     },
