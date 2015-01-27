@@ -16,9 +16,6 @@ notifications:
 before_install:
   - npm config set spin false
 
-install:
-  - npm install
-
 before_script:
   - mysql -e 'DROP DATABASE IF EXISTS fxa'
   - npm i grunt-cli -g
