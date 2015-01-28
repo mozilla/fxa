@@ -276,7 +276,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
             });
       });
 
-      it('signs the user in and redirects to `/reset_password_complete` if broker does not say halt', function () {
+      it('non-direct-access signs the user in and redirects to `/reset_password_complete` if broker does not say halt', function () {
         var account;
         view.$('[type=password]').val(PASSWORD);
 
@@ -291,6 +291,9 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           return p();
         });
         sinon.spy(broker, 'afterCompleteResetPassword');
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return false;
+        });
 
         // expect the intertab channel to be notified of login so the
         // starting window can complete the signin process.
@@ -310,6 +313,31 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
                       metrics, 'complete_reset_password.verification.success'));
             });
       });
+
+      it('direct access signs the user in and redirects to `/settings` if broker does not say halt', function () {
+        var account;
+        view.$('[type=password]').val(PASSWORD);
+
+        sinon.stub(fxaClient, 'signIn', function () {
+          return p(ACCOUNT_DATA);
+        });
+        sinon.stub(fxaClient, 'completePasswordReset', function () {
+          return p(true);
+        });
+        sinon.stub(user, 'setSignedInAccount', function (newAccount) {
+          account = newAccount;
+          return p();
+        });
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return true;
+        });
+
+        return view.validateAndSubmit()
+            .then(function () {
+              assert.equal(routerMock.page, 'settings');
+            });
+      });
+
 
       it('halts if the broker says halt', function () {
         var account;

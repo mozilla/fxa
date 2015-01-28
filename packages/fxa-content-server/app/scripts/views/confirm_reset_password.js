@@ -165,7 +165,14 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
           return self.broker.afterResetPasswordConfirmationPoll(account)
             .then(function (result) {
               if (! (result && result.halt)) {
-                self.navigate('reset_password_complete');
+                if (self.relier.isDirectAccess() &&
+                    account.isAuthenticated()) {
+                  self.navigate('settings', {
+                    success: t('Account verified')
+                  });
+                } else {
+                  self.navigate('reset_password_complete');
+                }
               }
             });
         });

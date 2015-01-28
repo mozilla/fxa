@@ -15,6 +15,8 @@ define([
   'views/mixins/resend-mixin'
 ],
 function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p, ResendMixin) {
+  var t = BaseView.t;
+
   var CompleteSignUpView = FormView.extend({
     template: CompleteSignUpTemplate,
     className: 'complete_sign_up',
@@ -64,7 +66,14 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
           })
           .then(function (result) {
             if (! (result && result.halt)) {
-              self.navigate('signup_complete');
+              if (self.relier.isDirectAccess() &&
+                  self.getAccount().isAuthenticated()) {
+                self.navigate('settings', {
+                  success: t('Account verified')
+                });
+              } else {
+                self.navigate('signup_complete');
+              }
             }
             return false;
           })

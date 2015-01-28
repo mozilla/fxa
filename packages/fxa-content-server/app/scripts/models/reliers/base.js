@@ -22,6 +22,18 @@ define([
     },
 
     /**
+     * Check if the user visits FxA directly, without
+     * a relier.
+     *
+     * @returns {Boolean}
+     * `true` if the user visits FxA without using
+     * a relier
+     */
+    isDirectAccess: function () {
+      return ! this.has('service');
+    },
+
+    /**
      * Check if the relier is using the oauth flow
      */
     isOAuth: function () {

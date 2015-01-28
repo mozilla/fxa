@@ -24,6 +24,7 @@ define([
 
   var email;
   var PASSWORD = '12345678';
+  var client;
 
   function fillOutSignUp(context, email, password, year) {
     return FunctionalHelpers.fillOutSignUp(context, email, password, year);
@@ -44,10 +45,24 @@ define([
       .end();
   }
 
+  function testVerifiedMessageVisible(context) {
+    return context.get('remote')
+      .then(FunctionalHelpers.visibleByQSA('.success'))
+      .findByCssSelector('.success')
+        .getVisibleText()
+        .then(function (text) {
+          assert.ok(/verified/i.test(text));
+        })
+      .end();
+  }
+
   registerSuite({
     name: 'sign_up',
 
     beforeEach: function () {
+      client = new FxaClient(AUTH_SERVER_ROOT, {
+        xhr: nodeXMLHttpRequest.XMLHttpRequest
+      });
       email = TestHelpers.createEmail();
       return FunctionalHelpers.clearBrowserState(this);
     },
@@ -56,12 +71,131 @@ define([
       return FunctionalHelpers.clearBrowserState(this);
     },
 
-    'sign up': function () {
+    'sign up, verify same browser': function () {
       var self = this;
       return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
         .then(function () {
           return testAtConfirmScreen(self, email);
+        })
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);
+        })
+        .switchToWindow('newwindow')
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .then(function () {
+          return testVerifiedMessageVisible(self);
+        })
+
+        .closeCurrentWindow()
+
+        // back to the original window
+        .switchToWindow('')
+        .end()
+
+        .then(function () {
+          return testVerifiedMessageVisible(self);
         });
+    },
+
+    'sign up, verify same browser with original tab closed': function () {
+      var self = this;
+      return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+
+        .then(FunctionalHelpers.openExternalSite(self))
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .then(function () {
+          return testVerifiedMessageVisible(self);
+        })
+
+        .closeCurrentWindow()
+
+        // back to the original window
+        .switchToWindow('')
+        .end();
+    },
+
+    'sign up, verify same browser by replacing the original tab': function () {
+      var self = this;
+      return fillOutSignUp(this, email, PASSWORD, OLD_ENOUGH_YEAR)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
+        })
+
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .then(function () {
+          return testVerifiedMessageVisible(self);
+        });
+    },
+
+    'signup, verify different browser - from original tab\'s P.O.V.': function () {
+      var self = this;
+      return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkDifferentBrowser(client, email);
+        })
+
+        // The original tab should transition to the settings page w/ success
+        // message.
+        .findByCssSelector('#fxa-settings-header')
+        .end()
+
+        .then(function () {
+          return testVerifiedMessageVisible(self);
+        });
+    },
+
+    'signup, verify different browser - from new browser\'s P.O.V.': function () {
+      var self = this;
+      return fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR)
+        .then(function () {
+          return testAtConfirmScreen(self, email);
+        })
+
+        // clear local/sessionStorage to synthesize continuing in
+        // a separate browser.
+        .then(function () {
+          return FunctionalHelpers.clearBrowserState(self);
+        })
+
+        // verify the user
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (link) {
+          return self.get('remote').get(link);
+        })
+
+        // user cannot be signed in and redirected to the settings page
+        // automatically, just show the sign up complete screen.
+        .findById('fxa-sign-up-complete-header')
+        .end();
     },
 
     'sign up with email with leading whitespace on the email': function () {
@@ -204,9 +338,6 @@ define([
 
     'sign up with a verified account forces the user to sign in': function () {
       var self = this;
-      var client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
       return client.signUp(email, PASSWORD, { preVerified: true })
         .then(function () {
@@ -238,10 +369,6 @@ define([
     'sign up with an unverified account and different password re-signs up user': function () {
 
       var self = this;
-
-      var client = new FxaClient(AUTH_SERVER_ROOT, {
-        xhr: nodeXMLHttpRequest.XMLHttpRequest
-      });
 
       return client.signUp(email, PASSWORD)
         .then(function () {

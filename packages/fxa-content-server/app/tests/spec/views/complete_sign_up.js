@@ -195,9 +195,12 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
             });
       });
 
-      it('redirects to /signup_complete if verification successful and broker does not halt', function () {
+      it('non-direct-access redirects to /signup_complete access if verification successful and broker does not halt', function () {
         windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
         sinon.spy(broker, 'afterCompleteSignUp');
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return false;
+        });
         initView();
         sinon.stub(view, 'getAccount', function () {
           return account;
@@ -209,6 +212,22 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
               assert.isTrue(broker.afterCompleteSignUp.calledWith(account));
               assert.isTrue(TestHelpers.isEventLogged(
                       metrics, 'complete_sign_up.verification.success'));
+            });
+      });
+
+      it('direct-access redirects to /settings if verification successful and broker does not halt', function () {
+        windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+        sinon.spy(broker, 'afterCompleteSignUp');
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return true;
+        });
+        initView();
+        sinon.stub(view, 'getAccount', function () {
+          return account;
+        });
+        return view.render()
+            .then(function () {
+              assert.equal(routerMock.page, 'settings');
             });
       });
 

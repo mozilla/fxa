@@ -17,6 +17,7 @@ define([
 ],
 function (_, BaseView, FormView, Template, PasswordMixin,
       FloatingPlaceholderMixin, Validate, AuthErrors, ServiceMixin) {
+  var t = BaseView.t;
   var View = FormView.extend({
     template: Template,
     className: 'complete-reset-password',
@@ -135,7 +136,15 @@ function (_, BaseView, FormView, Template, PasswordMixin,
         })
         .then(function (result) {
           if (! (result && result.halt)) {
-            self.navigate('reset_password_complete');
+            // the user is definitively signed in here, otherwise this
+            // path would not be taken.
+            if (self.relier.isDirectAccess()) {
+              self.navigate('settings', {
+                success: t('Account verified')
+              });
+            } else {
+              self.navigate('reset_password_complete');
+            }
           }
         })
         .then(null, function (err) {

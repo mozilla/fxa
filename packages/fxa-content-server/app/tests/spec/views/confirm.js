@@ -12,15 +12,15 @@ define([
   'lib/fxa-client',
   'lib/ephemeral-messages',
   'views/confirm',
-  'models/reliers/oauth',
-  'models/auth_brokers/oauth',
+  'models/reliers/relier',
+  'models/auth_brokers/base',
   'models/user',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
-      EphemeralMessages, View, OAuthRelier, OAuthBroker, User,
+      EphemeralMessages, View, Relier, BaseBroker, User,
       WindowMock, RouterMock, TestHelpers) {
   'use strict';
 
@@ -44,10 +44,10 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       metrics = new Metrics();
-      relier = new OAuthRelier({
+      relier = new Relier({
         window: windowMock
       });
-      broker = new OAuthBroker({
+      broker = new BaseBroker({
         session: Session,
         window: windowMock,
         relier: relier
@@ -177,12 +177,25 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
           return p.reject(AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
         });
 
-        view.render()
+        return view.render()
           .then(function () {
             assert.equal(routerMock.page, 'signup');
             assert.isTrue(view.fxaClient.recoveryEmailStatus.called);
             assert.equal(
-                ephemeralMessages.get('bouncedEmail'), 'testuser@testuser.com');
+                ephemeralMessages.get('bouncedEmail'), 'a@a.com');
+          });
+      });
+
+      it('does not start the poll if beforeSignUpConfirmationPoll halts flow', function () {
+        sinon.stub(broker, 'beforeSignUpConfirmationPoll', function () {
+          return p({ halt: true });
+        });
+
+        sinon.spy(view, '_waitForConfirmation');
+
+        return view.render()
+          .then(function () {
+            assert.isFalse(view._waitForConfirmation.called);
           });
       });
     });
@@ -275,6 +288,42 @@ function (chai, sinon, p, Session, AuthErrors, Metrics, FxaClient,
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'confirm.too_many_attempts'));
               });
+      });
+    });
+
+    describe('complete', function () {
+      it('direct access redirects to `/settings`', function () {
+        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+          return p({
+            verified: true
+          });
+        });
+
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return true;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'settings');
+          });
+      });
+
+      it('non-direct-access redirects to `/signup_complete`', function () {
+        sinon.stub(view.fxaClient, 'recoveryEmailStatus', function () {
+          return p({
+            verified: true
+          });
+        });
+
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return false;
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'signup_complete');
+          });
       });
     });
   });

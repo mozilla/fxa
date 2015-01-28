@@ -83,8 +83,34 @@ define([
       .setFindTimeout(intern.config.pageLoadTimeout);
   }
 
+  function testSuccessMessageVisible(context, message) {
+    return context.get('remote')
+      .setFindTimeout(intern.config.pageLoadTimeout)
+
+      .then(FunctionalHelpers.visibleByQSA('.success'))
+      .findByCssSelector('.success')
+        .getVisibleText()
+        .then(function (text) {
+          var searchFor = new RegExp(message, 'i');
+          assert.isTrue(searchFor.test(text));
+        })
+      .end();
+  }
+
+  function testAtSettingsWithVerifiedMessage(context) {
+    return context.get('remote')
+      .setFindTimeout(intern.config.pageLoadTimeout)
+
+      .findByCssSelector('#fxa-settings-header')
+      .end()
+
+      .then(function () {
+        return testSuccessMessageVisible(context, 'verified');
+      });
+  }
+
   registerSuite({
-    name: 'reset_password same browser flow',
+    name: 'reset_password flow',
 
     beforeEach: function () {
       // timeout after 90 seconds
@@ -118,6 +144,7 @@ define([
       var self = this;
       return this.get('remote')
         .get(require.toUrl(SIGNIN_PAGE_URL))
+        .setFindTimeout(intern.config.pageLoadTimeout)
 
         .findByCssSelector('input[type="email"]')
           .clearValue()
@@ -305,30 +332,186 @@ define([
         });
     },
 
-    'open complete page with valid parameters': function () {
-
+    'reset password, verify same browser': function () {
       var self = this;
-      return initiateResetPassword(this, email, 0)
+
+      return FunctionalHelpers.fillOutResetPassword(self, email)
+
+        .findById('fxa-confirm-reset-password-header')
+        .end()
+
         .then(function () {
-          return openCompleteResetPassword(self, email, token, code);
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        // Complete the reset password in the new tab
+        .switchToWindow('newwindow')
+
+        .findById('fxa-complete-reset-password-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
+        })
+
+        // this tab's success is seeing the reset password complete header.
+        .then(function () {
+          return testAtSettingsWithVerifiedMessage(self);
+        })
+
+        .closeCurrentWindow()
+        // switch to the original window
+        .switchToWindow('')
+
+        .then(function () {
+          return testAtSettingsWithVerifiedMessage(self);
+        });
+    },
+
+    'reset password, verify same browser with original tab closed': function () {
+      var self = this;
+
+      return FunctionalHelpers.fillOutResetPassword(self, email)
+
+        .findByCssSelector('#fxa-confirm-reset-password-header')
+        .end()
+
+        // user browses to another site.
+        .then(FunctionalHelpers.openExternalSite(self))
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
+
+        // this tab's success is seeing the reset password complete header.
+        .then(function () {
+          return testAtSettingsWithVerifiedMessage(self);
+        })
+
+        // switch to the original window
+        .closeCurrentWindow()
+        .switchToWindow('');
+    },
+
+    'reset password, verify same browser by replacing the original tab': function () {
+      var self = this;
+      self.timeout = 90 * 1000;
+
+      return FunctionalHelpers.fillOutResetPassword(self, email)
+
+        .findByCssSelector('#fxa-confirm-reset-password-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote')
+            .get(require.toUrl(verificationLink))
+            .setFindTimeout(intern.config.pageLoadTimeout);
         })
 
         .then(function () {
-          return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD)
-            .findById('fxa-reset-password-complete-header')
-            .end();
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+              self, PASSWORD, PASSWORD);
+        })
+
+        // this tab's success is seeing the reset password complete header.
+        .then(function () {
+          return testAtSettingsWithVerifiedMessage(self);
+        });
+    },
+
+    'reset password, verify in a different browser, from the original tab\'s P.O.V.': function () {
+      var self = this;
+      self.timeout = 90 * 1000;
+
+      return FunctionalHelpers.fillOutResetPassword(self, email)
+
+        .findById('fxa-confirm-reset-password-header')
+        .end()
+
+        .then(function () {
+          return FunctionalHelpers.openPasswordResetLinkDifferentBrowser(
+                      client, email, PASSWORD);
+        })
+
+        // user verified in a new browser, they have to enter
+        // their updated credentials in the original tab.
+        .findByCssSelector('#fxa-signin-header')
+        .end()
+
+        .then(function () {
+          return testSuccessMessageVisible(self, 'reset');
+        })
+
+        .findByCssSelector('#password')
+          .type(PASSWORD)
+        .end()
+
+        .findByCssSelector('button[type="submit"]')
+          .click()
+        .end()
+
+        // no success message, the user should have seen that above.
+        .findByCssSelector('#fxa-settings-header')
+        .end();
+    },
+
+    'reset password, verify in a different browser, from the new browser\'s P.O.V.': function () {
+      var self = this;
+
+      self.timeout = 90 * 1000;
+      return FunctionalHelpers.fillOutResetPassword(self, email)
+
+        .findById('fxa-confirm-reset-password-header')
+        .end()
+
+
+        .then(function () {
+          // clear all browser state, simulate opening in a new
+          // browser
+          return FunctionalHelpers.clearBrowserState(self, {
+            contentServer: true
+          });
+        })
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote')
+            .get(require.toUrl(verificationLink))
+            .setFindTimeout(intern.config.pageLoadTimeout);
+        })
+
+        .then(function () {
+          return FunctionalHelpers.fillOutCompleteResetPassword(
+                      self, PASSWORD, PASSWORD);
+        })
+
+        .then(function () {
+          return testAtSettingsWithVerifiedMessage(self);
         });
     }
-
   });
 
   registerSuite({
     name: 'try to re-use a link',
 
+
     setup: function () {
       // timeout after 90 seconds
       this.timeout = 90000;
-
       email = TestHelpers.createEmail();
       client = new FxaClient(AUTH_SERVER_ROOT, {
         xhr: nodeXMLHttpRequest.XMLHttpRequest
@@ -346,6 +529,8 @@ define([
     },
 
     'complete reset, then re-open verification link, click resend': function () {
+      // timeout after 90 seconds
+      this.timeout = 90000;
 
       var self = this;
       return openCompleteResetPassword(self, email, token, code)
@@ -353,7 +538,7 @@ define([
           return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
         })
 
-        .findById('fxa-reset-password-complete-header')
+        .findById('fxa-settings-header')
         .end()
 
         .then(function () {

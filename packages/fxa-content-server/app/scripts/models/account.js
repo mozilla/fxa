@@ -142,6 +142,10 @@ define([
         });
     },
 
+    isAuthenticated: function () {
+      return this.has('sessionToken');
+    },
+
     toJSON: function () {
       return _.pick(this.attributes, ALLOWED_KEYS);
     },

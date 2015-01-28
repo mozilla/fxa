@@ -192,7 +192,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
     });
 
     describe('complete', function () {
-      it('notifies the broker when the user has confirmed', function (done) {
+      it('non direct access redirects to `/reset_password_complete` and notifies the broker when the user has confirmed in the same browser', function (done) {
         fxaClient.isPasswordResetComplete.restore();
         sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
           // simulate the sessionToken being set in another tab.
@@ -212,14 +212,53 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
           return p();
         });
 
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return false;
+        });
+
         sinon.stub(view, 'navigate', function (url) {
           TestHelpers.wrapAssertion(function () {
             assert.equal(url, 'reset_password_complete');
             assert.isTrue(TestHelpers.isEventLogged(
                     metrics, 'confirm_reset_password.verification.success'));
             assert.isTrue(user.setSignedInAccount.called);
+            assert.isTrue(broker.afterResetPasswordConfirmationPoll.called);
           }, done);
         });
+
+        view.render();
+      });
+
+      it('direct access redirects to `/settings` if user verifies in the same browser', function (done) {
+        fxaClient.isPasswordResetComplete.restore();
+        sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
+          // simulate the sessionToken being set in another tab.
+          // simulate the login occurring in another tab.
+          interTabChannel.emit('login', {
+            sessionToken: 'sessiontoken'
+          });
+          return p(true);
+        });
+
+        sinon.stub(broker, 'afterResetPasswordConfirmationPoll', function () {
+          return p();
+        });
+
+        sinon.stub(user, 'setSignedInAccount', function (account) {
+          assert.equal(account.get('sessionToken'), 'sessiontoken');
+          return p();
+        });
+
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return true;
+        });
+
+        sinon.stub(view, 'navigate', function (url) {
+          TestHelpers.wrapAssertion(function () {
+            assert.equal(url, 'settings');
+          }, done);
+        });
+
 
         view.render();
       });

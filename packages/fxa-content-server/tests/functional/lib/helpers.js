@@ -400,7 +400,9 @@ define([
 
   function fillOutCompleteResetPassword(context, password, vpassword) {
     return context.get('remote')
-      .findById('fxa-complete-reset-password-header')
+      .setFindTimeout(intern.config.pageLoadTimeout)
+
+      .findByCssSelector('#fxa-complete-reset-password-header')
       .end()
 
       .findByCssSelector('#password')
@@ -411,7 +413,7 @@ define([
         .type(vpassword)
       .end()
 
-      .findByCssSelector('button[type=submit]')
+      .findByCssSelector('button[type="submit"]')
         .click()
       .end();
   }
