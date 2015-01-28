@@ -42,6 +42,21 @@ define([
       });
     });
 
+    describe('afterLoaded', function () {
+      it('sends a `loaded` message', function () {
+        sinon.stub(channelMock, 'send', function (message, data, done) {
+          if (message === 'loaded') {
+            done(null);
+          }
+        });
+
+        return broker.afterLoaded()
+          .then(function () {
+            assert.isTrue(channelMock.send.called);
+          });
+      });
+    });
+
     describe('beforeSignIn', function () {
       it('is happy if the user clicks `yes`', function () {
         sinon.stub(channelMock, 'send', function (message, data, done) {
@@ -50,7 +65,10 @@ define([
           }
         });
 
-        return broker.beforeSignIn('testuser@testuser.com');
+        return broker.beforeSignIn('testuser@testuser.com')
+          .then(function () {
+            assert.isTrue(channelMock.send.called);
+          });
       });
 
       it('throws a USER_CANCELED_LOGIN error if user rejects', function () {
@@ -61,10 +79,9 @@ define([
         });
 
         return broker.beforeSignIn('testuser@testuser.com')
-          .then(function () {
-            assert(false, 'should throw USER_CANCELED_LOGIN');
-          }, function (err) {
+          .then(assert.fail, function (err) {
             assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
+            assert.isTrue(channelMock.send.called);
           });
       });
 
@@ -100,8 +117,10 @@ define([
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
             assert.isFalse(data.verifiedCanLinkAccount);
+            assert.isTrue(channelMock.send.called);
           });
       });
+
       it('sends a `login` message to the channel using current account data', function () {
         var data;
         sinon.stub(channelMock, 'send', function (message, _data, done) {
@@ -116,6 +135,7 @@ define([
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
             assert.isFalse(data.verifiedCanLinkAccount);
+            assert.isTrue(channelMock.send.called);
           });
       });
 
@@ -137,6 +157,7 @@ define([
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
             assert.isTrue(data.verifiedCanLinkAccount);
+            assert.isTrue(channelMock.send.called);
           });
       });
     });

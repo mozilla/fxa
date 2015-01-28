@@ -30,6 +30,10 @@ define([
           this, options);
     },
 
+    afterLoaded: function () {
+      return this.send('loaded');
+    },
+
     beforeSignIn: function (email) {
       var self = this;
       // This will send a message over the channel to determine whether

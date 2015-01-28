@@ -169,6 +169,8 @@ function (
     },
 
     showView: function (viewToShow) {
+      var isFirstView = ! this.currentView;
+
       if (this.currentView) {
         this.currentView.destroy();
       }
@@ -205,6 +207,13 @@ function (
           }
 
           self.$logo.css('opacity', 1);
+
+          if (isFirstView) {
+            // afterLoaded lets the RP know when the first screen has been
+            // loaded. It does not expect a response, so no error handler
+            // is attached and the promise is not returned.
+            self.broker.afterLoaded();
+          }
         })
         .fail(function (err) {
           // The router's navigate method doesn't set ephemeral messages,

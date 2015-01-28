@@ -46,9 +46,12 @@ define([
       element.innerText = JSON.stringify(e.detail.data);
       document.body.appendChild(element);
 
-      sendMessageToFxa({
-        status: command
-      });
+      // loaded does not respond.
+      if (command !== 'loaded') {
+        sendMessageToFxa({
+          status: command
+        });
+      }
     });
 
     return true;
@@ -66,7 +69,6 @@ define([
         })
       .end();
   }
-
 
   return {
     listenForFxaCommands: listenForFxaCommands,
