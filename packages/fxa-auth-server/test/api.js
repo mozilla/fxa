@@ -825,6 +825,33 @@ describe('/v1', function() {
           assert.equal(res.statusCode, 403);
         });
       });
+
+      it('should default optional fields to sensible values', function() {
+        return Server.api.post({
+          url: '/client',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+          payload: {
+            name: clientName,
+            redirect_uri: clientUri
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 201);
+          var client = res.result;
+          assert(client.id);
+          assert(client.image_uri === '');
+          assert(client.can_grant === false);
+          assert(client.whitelisted === false);
+          return db.getClient(client.id).then(function(klient) {
+            assert.equal(klient.id.toString('hex'), client.id);
+            assert.equal(klient.name, client.name);
+            assert.equal(klient.imageUri, '');
+            assert.equal(klient.canGrant, false);
+            assert.equal(klient.whitelisted, false);
+          });
+        });
+      });
     });
 
     describe('POST /:id', function() {

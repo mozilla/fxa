@@ -21,7 +21,7 @@ module.exports = {
   validate: {
     payload: {
       name: Joi.string().max(256).required(),
-      image_uri: Joi.string().max(256),
+      image_uri: Joi.string().max(256).allow(''),
       redirect_uri: Joi.string().max(256).required(),
       can_grant: Joi.boolean(),
       whitelisted: Joi.boolean()
@@ -32,7 +32,7 @@ module.exports = {
       id: validators.clientId,
       secret: validators.clientSecret,
       name: Joi.string().required(),
-      image_uri: Joi.string(),
+      image_uri: Joi.string().allow(''),
       redirect_uri: Joi.string().required(),
       can_grant: Joi.boolean().required(),
       whitelisted: Joi.boolean().required()
@@ -47,8 +47,8 @@ module.exports = {
       name: payload.name,
       redirectUri: payload.redirect_uri,
       imageUri: payload.image_uri || '',
-      canGrant: payload.can_grant,
-      whitelisted: payload.whitelisted
+      canGrant: !!payload.can_grant,
+      whitelisted: !!payload.whitelisted
     };
     db.registerClient(client).then(function() {
       reply({
