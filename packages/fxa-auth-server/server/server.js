@@ -150,8 +150,11 @@ module.exports = function (path, url, Hapi) {
     )
 
     function trimLocale(header) {
-      if (!header || header.length < 256) {
-        return header
+      if (!header) {
+        return header;
+      }
+      if (header.length < 256) {
+        return header.trim()
       }
       var parts = header.split(',')
       var str = parts[0]
@@ -159,7 +162,7 @@ module.exports = function (path, url, Hapi) {
       for (var i = 1; i < parts.length && str.length + parts[i].length < 255; i++) {
         str += ',' + parts[i]
       }
-      return str
+      return str.trim()
     }
 
     server.ext(
