@@ -97,6 +97,10 @@ define([
 
     cancel: function () {
       return this.send('oauth_cancel');
+    },
+
+    afterLoaded: function () {
+      return this.send('loaded');
     }
   });
 

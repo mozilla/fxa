@@ -31,6 +31,20 @@ function (chai, sinon, Relier, BaseAuthenticationBroker, BaseView, WindowMock) {
       });
     });
 
+    describe('afterLoaded', function () {
+      it('returns a promise', function () {
+        return broker.afterLoaded()
+          .then(assert.pass);
+      });
+    });
+
+    describe('cancel', function () {
+      it('returns a promise', function () {
+        return broker.cancel()
+          .then(assert.pass);
+      });
+    });
+
     describe('afterSignIn', function () {
       it('returns a promise', function () {
         return broker.afterSignIn(view)

@@ -132,6 +132,16 @@ function (chai, sinon, $, IframeAuthenticationBroker, Relier, p, NullChannel,
           });
       });
     });
+
+    describe('afterLoaded', function () {
+      it('sends a `loaded` message', function () {
+        return broker.afterLoaded()
+          .then(function () {
+            assert.isTrue(channelMock.send.calledWith('loaded'));
+          });
+      });
+    });
+
   });
 });
 

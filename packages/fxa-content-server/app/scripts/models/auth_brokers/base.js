@@ -61,6 +61,15 @@ define([
     },
 
     /**
+     * Called after the first screen is rendered. Can be used
+     * to notify the RP the system is loaded.
+     */
+    afterLoaded: function () {
+      return p();
+    },
+
+
+    /**
      * Called before sign in. Can be used to prevent sign in.
      */
     beforeSignIn: function () {
