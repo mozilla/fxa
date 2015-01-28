@@ -27,6 +27,19 @@ define([
      * @return {promise}
      */
     ajax: function (options) {
+      if (options.dataType === 'json') {
+        options.contentType = 'application/json';
+
+        if (options.data) {
+          options.data = JSON.stringify(options.data);
+        }
+
+        if (! options.accepts) {
+          options.accepts = {};
+        }
+        options.accepts.json = 'application/json';
+      }
+
       return p.jQueryXHR($.ajax(options));
     },
 
@@ -41,7 +54,13 @@ define([
         dataType = DEFAULT_DATA_TYPE;
       }
 
-      return p.jQueryXHR($.get(url, data, success, dataType));
+      return this.ajax({
+        url: url,
+        method: 'GET',
+        data: data,
+        success: success,
+        dataType: dataType
+      });
     },
 
     /**
@@ -55,7 +74,13 @@ define([
         dataType = DEFAULT_DATA_TYPE;
       }
 
-      return p.jQueryXHR($.post(url, data, success, dataType));
+      return this.ajax({
+        url: url,
+        method: 'POST',
+        data: data,
+        success: success,
+        dataType: dataType
+      });
     },
 
     /**
