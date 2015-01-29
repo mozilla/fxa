@@ -49,7 +49,7 @@ function (chai, sinon, $, _, xhr, undefined) {
       it('calls $.get, sets the default dataType to `json`', function () {
         var deferred = $.Deferred();
 
-        sinon.stub($, 'get', function () {
+        sinon.stub($, 'ajax', function () {
           return deferred.promise();
         });
 
@@ -58,15 +58,23 @@ function (chai, sinon, $, _, xhr, undefined) {
         return xhr.get('/fake_endpoint')
           .then(function (resp) {
             assert.equal(resp, 'mocked_response');
-            assert.isTrue(
-                $.get.calledWith('/fake_endpoint', undefined, undefined, 'json'));
+
+            assert.isTrue($.ajax.calledWith({
+              url: '/fake_endpoint',
+              method: 'GET',
+              dataType: 'json',
+              data: undefined,
+              success: undefined,
+              contentType: 'application/json',
+              accepts: { json: 'application/json' }
+            }));
           });
       });
 
       it('calls $.get with no changes if dataType is set', function () {
         var deferred = $.Deferred();
 
-        sinon.stub($, 'get', function () {
+        sinon.stub($, 'ajax', function () {
           return deferred.promise();
         });
 
@@ -75,8 +83,13 @@ function (chai, sinon, $, _, xhr, undefined) {
         return xhr.get('/fake_endpoint', { key: 'value' }, null, 'text')
           .then(function (resp) {
             assert.equal(resp, 'mocked_response');
-            assert.isTrue(
-                $.get.calledWith('/fake_endpoint', { key: 'value' }, null, 'text'));
+            assert.isTrue($.ajax.calledWith({
+              url: '/fake_endpoint',
+              method: 'GET',
+              data: { key: 'value' },
+              success: null,
+              dataType: 'text'
+            }));
           });
       });
     });
@@ -85,24 +98,31 @@ function (chai, sinon, $, _, xhr, undefined) {
       it('calls $.post, sets the default dataType to `json`', function () {
         var deferred = $.Deferred();
 
-        sinon.stub($, 'post', function () {
+        sinon.stub($, 'ajax', function () {
           return deferred.promise();
         });
 
         deferred.resolve('mocked_response');
 
-        return xhr.post('/fake_endpoint')
+        return xhr.post('/fake_endpoint', { foo: 'bar' })
           .then(function (resp) {
             assert.equal(resp, 'mocked_response');
-            assert.isTrue(
-                $.post.calledWith('/fake_endpoint', undefined, undefined, 'json'));
+            assert.isTrue($.ajax.calledWith({
+              url: '/fake_endpoint',
+              method: 'POST',
+              dataType: 'json',
+              data: JSON.stringify({ foo: 'bar' }),
+              success: undefined,
+              contentType: 'application/json',
+              accepts: { json: 'application/json' }
+            }));
           });
       });
 
       it('calls $.post with no changes if dataType is set', function () {
         var deferred = $.Deferred();
 
-        sinon.stub($, 'post', function () {
+        sinon.stub($, 'ajax', function () {
           return deferred.promise();
         });
 
@@ -111,8 +131,13 @@ function (chai, sinon, $, _, xhr, undefined) {
         return xhr.post('/fake_endpoint', { key: 'value' }, null, 'text')
           .then(function (resp) {
             assert.equal(resp, 'mocked_response');
-            assert.isTrue(
-                $.post.calledWith('/fake_endpoint', { key: 'value' }, null, 'text'));
+            assert.isTrue($.ajax.calledWith({
+              url: '/fake_endpoint',
+              method: 'POST',
+              data: { key: 'value' },
+              success: null,
+              dataType: 'text'
+            }));
           });
       });
     });
