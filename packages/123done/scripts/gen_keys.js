@@ -23,7 +23,7 @@
 const jwcrypto = require("jwcrypto")
 const fs = require('fs')
 const assert = require("assert")
-const config = require('../config.json')
+const config = require('../config')
 
 const pubKeyFile = config.publicKeyFile
 const secretKeyFile = config.secretKeyFile
