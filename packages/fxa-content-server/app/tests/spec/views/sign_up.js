@@ -632,29 +632,63 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
       });
 
-      it('passes the customize sync option to the fxa-client', function () {
-        relier.set('service', 'sync');
-        relier.set('customizeSync', true);
+      describe('customizeSync', function () {
+        function setupCustomizeSyncTest(service, isCustomizeSyncChecked) {
+          relier.set('service', service);
+          relier.set('customizeSync', isCustomizeSyncChecked);
 
-        sinon.stub(view.fxaClient, 'signUp', function () {
-          return p({
-            verified: true
+          sinon.stub(view.fxaClient, 'signUp', function () {
+            return p({
+              verified: true
+            });
           });
+
+          sinon.stub(broker, 'afterSignIn', function () {
+            return p();
+          });
+
+          return view.render()
+            .then(function () {
+              fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
+              return view.submit();
+            });
+        }
+
+        it('passes the customize sync option to the fxa-client', function () {
+          return setupCustomizeSyncTest('sync', true)
+            .then(function () {
+              assert.isTrue(view.fxaClient.signUp.calledWith(email, 'password', relier,
+                { customizeSync: true }), 'fxa client params');
+            });
         });
 
-        sinon.stub(broker, 'afterSignIn', function () {
-          return p();
+        it('does not log `signup.customizeSync.*` if not sync', function () {
+          return setupCustomizeSyncTest('hello')
+            .then(function () {
+              assert.isFalse(TestHelpers.isEventLogged(metrics,
+                                'signup.customizeSync.true'));
+              assert.isFalse(TestHelpers.isEventLogged(metrics,
+                                'signup.customizeSync.false'));
+            });
         });
 
-        return view.render()
-          .then(function () {
-            fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
-            return view.submit();
-          })
-          .then(function () {
-            assert.isTrue(view.fxaClient.signUp.calledWith(email, 'password', relier,
-              { customizeSync: true }), 'fxa client params');
-          });
+        it('logs `signup.customizeSync.false` if customize sync is not checked', function () {
+          return setupCustomizeSyncTest('sync', false)
+            .then(function () {
+              assert.isFalse(TestHelpers.isEventLogged(metrics,
+                                'signup.customizeSync.true'));
+              assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                'signup.customizeSync.false'));
+            });
+        });
+
+        it('logs `signup.customizeSync.true` if customize sync is checked', function () {
+          return setupCustomizeSyncTest('sync', true)
+            .then(function () {
+              assert.isTrue(TestHelpers.isEventLogged(metrics,
+                                'signup.customizeSync.true'));
+            });
+        });
       });
     });
 
