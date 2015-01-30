@@ -12,28 +12,15 @@ function shutdown() {
   process.nextTick(process.exit)
 }
 
-if (require.main === module) {
-  // defer to allow ass code coverage results to complete processing
-  if (process.env.ASS_CODE_COVERAGE) {
-    process.on('SIGINT', shutdown)
-  }
+// defer to allow ass code coverage results to complete processing
+if (process.env.ASS_CODE_COVERAGE) {
+  process.on('SIGINT', shutdown)
+}
 
-  DB.connect(config).done(
-    function (db) {
-      var server = dbServer.createServer(db)
-      server.listen(config.port, config.hostname)
-      server.on('failure', function (d) { console.error(d.err.code, d.url)})
-      server.on('success', function (d) { console.log(d.method, d.url)})
-    }
-  )
-}
-else {
-  module.exports = function () {
-    return DB.connect(config)
-      .then(
-        function (db) {
-          return dbServer.createServer(db)
-        }
-      )
-  }
-}
+DB.connect(config)
+  .done(function (db) {
+    var server = dbServer.createServer(db)
+    server.listen(config.port, config.hostname)
+    server.on('failure', function (d) { console.error(d.err.code, d.url)})
+    server.on('success', function (d) { console.log(d.method, d.url)})
+  })

@@ -2,7 +2,7 @@
   "name": "fxa-auth-db-mysql",
   "version": "0.0.0",
   "description": "MySQL backend for the fxa-auth-db-server",
-  "main": "bin/server.js",
+  "main": "index.js",
   "repository": "mozilla/fxa-auth-db-mysql",
   "bin": {
     "fxa-auth-db-mysql": "db_patcher.js"
