@@ -329,18 +329,18 @@ module.exports = function (log, error) {
   }
 
   // Select : accounts
-  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt
+  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt, lockedAt
   // Where  : accounts.normalizedEmail = LOWER($1)
-  var EMAIL_RECORD = 'CALL emailRecord_1(?)'
+  var EMAIL_RECORD = 'CALL emailRecord_2(?)'
 
   MySql.prototype.emailRecord = function (emailBuffer) {
     return this.readFirstResult(EMAIL_RECORD, emailBuffer.toString('utf8'))
   }
 
   // Select : accounts
-  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt, createdAt, locale
+  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, verifyHash, authSalt, verifierSetAt, createdAt, locale, lockedAt
   // Where  : accounts.uid = LOWER($1)
-  var ACCOUNT = 'CALL account_1(?)'
+  var ACCOUNT = 'CALL account_2(?)'
 
   MySql.prototype.account = function (uid) {
     return this.readFirstResult(ACCOUNT, uid)
@@ -361,7 +361,7 @@ module.exports = function (log, error) {
 
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accounts
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_2(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_3(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -417,7 +417,7 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : verifyHash = $2, authSalt = $3, wrapWrapKb = $4, verifierSetAt = $5, verifierVersion = $6
   // Where  : uid = $1
-  var RESET_ACCOUNT = 'CALL resetAccount_2(?, ?, ?, ?, ?, ?)'
+  var RESET_ACCOUNT = 'CALL resetAccount_3(?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.resetAccount = function (uid, data) {
     return this.write(
@@ -447,7 +447,12 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : emailVerified = true
   // Where  : uid = $4
-  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_2(?, ?, ?, ?, ?)'
+  //
+  // Step   : 4
+  // Delete : accountLocked
+  // Where  : uid = $4
+  //
+  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_3(?, ?, ?, ?, ?)'
 
   MySql.prototype.forgotPasswordVerified = function (tokenId, accountResetToken) {
     return this.write(
@@ -469,6 +474,38 @@ module.exports = function (log, error) {
 
   MySql.prototype.updateLocale = function (uid, data) {
     return this.write(UPDATE_LOCALE, [data.locale, uid])
+  }
+
+
+  // Update : accounts
+  // Set    : lockedAt = $2
+  // Where  : uid = $1
+  // Update : accountUnlockCodes
+  // Set    : unlockCode = $3
+  // Where  : uid = $1
+  var LOCK_ACCOUNT = 'CALL lockAccount_1(?, ?, ?)'
+
+  MySql.prototype.lockAccount = function (uid, data) {
+    return this.write(LOCK_ACCOUNT, [uid, data.unlockCode, data.lockedAt])
+  }
+
+  // Update : accounts
+  // Set    : lockedAt = null
+  // Where  : uid = $1
+  // Delete : accountUnlockCodes
+  // Where  : uid = $1
+  var UNLOCK_ACCOUNT = 'CALL unlockAccount_1(?)'
+
+  MySql.prototype.unlockAccount = function (uid) {
+    return this.write(UNLOCK_ACCOUNT, [uid])
+  }
+
+  // Select : accountUnlockCodes
+  // Where  : uid = $1
+  var GET_UNLOCK_CODE = 'call unlockCode_1(?)'
+
+  MySql.prototype.unlockCode = function (uid) {
+    return this.readFirstResult(GET_UNLOCK_CODE, uid);
   }
 
   // Internal
