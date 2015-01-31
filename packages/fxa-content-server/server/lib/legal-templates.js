@@ -19,8 +19,8 @@ module.exports = function (i18n, root) {
   }
 
   var templateCache = {};
-  function getTemplate(type, lang, defaultLang) {
-    var DEFAULT_LOCALE = i18n.localeFrom(defaultLang);
+  function getTemplate(type, lang, defaultLang, defaultLegalLang) {
+    var DEFAULT_LOCALE = i18n.localeFrom(defaultLegalLang);
 
     // Filenames are normalized to locale, not language.
     var locale = i18n.localeFrom(lang);
@@ -37,6 +37,12 @@ module.exports = function (i18n, root) {
     fs.exists(templatePath, function (exists) {
       if (! exists) {
         var bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
+        // If bestLang resolves to the default lang, replace it with
+        // the default legal lang since they may differ. E.g. en-US
+        // is the legal default while en is the general default.
+        if (bestLang === defaultLang) {
+          bestLang = defaultLegalLang;
+        }
 
         if (locale === DEFAULT_LOCALE) {
           var err = new Error(type + ' missing `' + DEFAULT_LOCALE + '` template: ' + templatePath);

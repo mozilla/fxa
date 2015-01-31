@@ -94,13 +94,13 @@ define([
 
     request(serverUrl + '/config', {
       headers: {
-        'Accept-Language': 'en-us'
+        'Accept-Language': 'zh-cn'
       }
     }, dfd.callback(function (err, res) {
       assert.equal(res.statusCode, 200);
 
       var body = JSON.parse(res.body);
-      assert.equal(body.language, 'en-us');
+      assert.equal(body.language, 'zh-cn');
     }, dfd.reject.bind(dfd)));
   };
 
@@ -111,17 +111,17 @@ define([
 
       request(serverUrl + page, {
         headers: {
-          'Accept-Language': 'en-us',
+          'Accept-Language': 'en',
           'Accept': 'text/html'
         }
       }, dfd.callback(function (err, res) {
-        var re = /styles\/en_US\.css/;
+        var re = /styles\/en\.css/;
         if (intern.config.fxaProduction) {
-          re = /styles\/[a-f0-9]{0,8}\.en_US\.css/;
+          re = /styles\/[a-f0-9]{0,8}\.en\.css/;
         }
         assert.ok(res.body.match(re));
         assert.ok(res.body.match(/dir="ltr"/));
-        assert.ok(res.body.match(/lang="en-us"/i));
+        assert.ok(res.body.match(/lang="en"/i));
       }, dfd.reject.bind(dfd)));
     };
   });
@@ -190,6 +190,18 @@ define([
         'de');
   };
 
+  suite['#get /i18n/client.json with en,fr should use en'] = function () {
+    testClientJson.call(this,
+        'en,fr',
+        'en');
+  };
+
+  suite['#get /i18n/client.json with en-US,fr should use en'] = function () {
+    testClientJson.call(this,
+        'en-us,fr',
+        'en');
+  };
+
   suite['#get /i18n/client.json with lowercase language'] = function () {
     testClientJson.call(this, 'es-ar', 'es_AR');
   };
@@ -219,11 +231,11 @@ define([
   };
 
   suite['#get /i18n/client.json with unsupported language returns default locale'] = function () {
-    testClientJson.call(this, 'no-OP', 'en_US');
+    testClientJson.call(this, 'no-OP', 'en');
   };
 
   suite['#get /i18n/client.json with no locale returns default locale'] = function () {
-    testClientJson.call(this, null, 'en_US');
+    testClientJson.call(this, null, 'en');
   };
 
   registerSuite(suite);

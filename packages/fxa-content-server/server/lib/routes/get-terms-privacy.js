@@ -30,6 +30,7 @@ var templates = require('../legal-templates');
 
 module.exports = function verRoute (i18n) {
   var DEFAULT_LANG = config.get('i18n.defaultLang');
+  var DEFAULT_LEGAL_LANG = config.get('i18n.defaultLegalLang');
 
   var getTemplate = templates(i18n, PAGE_TEMPLATE_DIRECTORY);
 
@@ -47,7 +48,7 @@ module.exports = function verRoute (i18n) {
     var lang = req.params[0] || req.lang;
     var page = req.params[1];
 
-    getTemplate(page, lang)
+    getTemplate(page, lang, DEFAULT_LANG, DEFAULT_LEGAL_LANG)
       .then(function (template) {
         if (! template) {
           logger.warn('%s->`%s` does not exist, redirecting to `%s`',

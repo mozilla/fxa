@@ -18,7 +18,7 @@ module.exports = function (grunt) {
     // with requirejs and usemin
     'l10n-generate-pages',
 
-    // use error pages from en_US as the static error pages
+    // use error pages from en as the static error pages
     'copy:error_pages',
 
     // prepares the configuration to transform specific blocks

@@ -43,8 +43,8 @@ define([
     'invalid-locale/legal/terms',
     'invalid-locale/legal/privacy',
     // yay!
-    'en-US/legal/terms',
-    'en-US/legal/privacy',
+    'en/legal/terms',
+    'en/legal/privacy',
     'reset_password',
     'confirm_reset_password',
     'complete_reset_password',
