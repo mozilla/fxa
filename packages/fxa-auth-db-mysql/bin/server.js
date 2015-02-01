@@ -21,6 +21,10 @@ DB.connect(config)
   .done(function (db) {
     var server = dbServer.createServer(db)
     server.listen(config.port, config.hostname)
-    server.on('failure', function (d) { console.error(d.err.code, d.url)})
-    server.on('success', function (d) { console.log(d.method, d.url)})
+    server.on('error', function (err) {
+      log.error({ op: 'server.start', err: { message: err.message } })
+    })
+    server.on('success', function (d) {
+      log.info({ op: 'server.start', msg: 'running on ' + config.port })
+    })
   })
