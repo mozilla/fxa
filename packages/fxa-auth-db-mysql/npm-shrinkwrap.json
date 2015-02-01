@@ -191,6 +191,11 @@
         }
       }
     },
+    "clone": {
+      "version": "0.2.0",
+      "from": "clone@",
+      "resolved": "https://registry.npmjs.org/clone/-/clone-0.2.0.tgz"
+    },
     "convict": {
       "version": "0.4.2",
       "from": "convict@0.4.2",

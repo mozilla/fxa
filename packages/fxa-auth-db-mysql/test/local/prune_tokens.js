@@ -6,7 +6,7 @@ var dbServer = require('fxa-auth-db-server')
 var test = require('../ptaptest')
 var log = { trace: console.log, error: console.log, info: console.log }
 var DB = require('../../db/mysql')(log, dbServer.errors)
-var fake = require('../fake')
+var fake = require('fxa-auth-db-server/test/fake')
 var config = require('../../config')
 
 var oneDay = 24 * 60 * 60 * 1000

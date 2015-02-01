@@ -4,18 +4,17 @@
 
 var path = require('path')
 var mysql = require('mysql')
-var options = require('../config')
-var log = require('../log')(options.logLevel, 'db-patcher')
+var clone = require('clone')
+var config = require('../config')
+var log = require('../log')(config.logLevel, 'db-patcher')
 var patcher = require('mysql-patcher')
 
 var patch = require('../db/patch')
 
-console.log(patch)
-
 // set some options
-var options = options.master
+var options = clone(config.master)
 options.dir = path.join(__dirname, '..', 'db', 'schema')
-options.patchKey = 'schema-patch-level'
+options.patchKey = config.patchKey
 options.metaTable = 'dbMetadata'
 options.patchLevel = patch.level
 options.mysql = mysql
