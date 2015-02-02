@@ -20,11 +20,21 @@ if (process.env.ASS_CODE_COVERAGE) {
 DB.connect(config)
   .done(function (db) {
     var server = dbServer.createServer(db)
-    server.listen(config.port, config.hostname)
+    server.listen(config.port, config.hostname, function() {
+      log.info({ op: 'server.start', msg: 'running on ' + config.port })
+    })
     server.on('error', function (err) {
       log.error({ op: 'server.start', err: { message: err.message } })
     })
     server.on('success', function (d) {
-      log.info({ op: 'server.start', msg: 'running on ' + config.port })
+      log.info(d)
+    })
+    server.on('failure', function (err) {
+      if (err.statusCode >= 500) {
+        log.error(err)
+      }
+      else {
+        log.warn(err)
+      }
     })
   })
