@@ -19,7 +19,7 @@ define([
     setup: function () {
     },
 
-    'Uses Fira for en-US': function () {
+    'Uses Fira for en': function () {
 
       return this.get('remote')
         .get(require.toUrl(url))

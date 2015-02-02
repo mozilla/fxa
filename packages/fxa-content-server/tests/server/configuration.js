@@ -28,7 +28,7 @@ define([
         PATH: process.env.PATH,
         PORT: '3040',
         HTTP_PORT: '3090',
-        I18N_SUPPORTED_LANGUAGES: 'en-US,blah'
+        I18N_SUPPORTED_LANGUAGES: 'en,blah'
       }
     });
 

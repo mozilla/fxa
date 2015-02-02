@@ -68,7 +68,7 @@ define([
     routes['/boom'] = { statusCode: 500 };
     routes['/non_existent'] = { statusCode: 404 };
     routes['/legal/non_existent'] = { statusCode: 404 };
-    routes['/en-US/legal/non_existent'] = { statusCode: 404 };
+    routes['/en/legal/non_existent'] = { statusCode: 404 };
   }
 
   var iframeAllowedRoutes = [

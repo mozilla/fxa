@@ -18,18 +18,19 @@ module.exports = function (grunt) {
   var path = require('path');
   var Handlebars = require('handlebars');
   var Promise = require('bluebird');
-  var legalTemplates = require('../server/lib/legal-templates');
+  var getLegalTemplates = require('../server/lib/legal-templates');
 
-  var defaultLang;
+  var defaultLegalLang;
   var templateSrc;
   var templateDest;
 
   // Legal templates for each locale, key'ed by languages, e.g.
-  // templates['en-US'] = { terms: ..., privacy: ... }
-  var templates = {
+  // templates['en'] = { terms: ..., privacy: ... }
+  var legalTemplates = {
     // The debug language does not have template files, so use an empty object
     'db-LB': {}
   };
+
 
   // Make the 'gettext' function available in the templates.
   Handlebars.registerHelper('t', function (string) {
@@ -53,23 +54,24 @@ module.exports = function (grunt) {
 
       // server config is set in the selectconfig task
       var supportedLanguages = grunt.config.get('server.i18n.supportedLanguages');
-      defaultLang = grunt.config.get('server.i18n.defaultLang');
+      defaultLegalLang = grunt.config.get('server.i18n.defaultLegalLang');
+      var legalTemplateLanguages = supportedLanguages.concat(defaultLegalLang);
 
       templateSrc = grunt.config.get('yeoman.page_template_src');
       templateDest = grunt.config.get('yeoman.page_template_dist');
 
       // Legal templates have already been generated and placed in the template destination directory.
-      var getTemplate = legalTemplates(i18n, templateDest);
+      var getTemplate = getLegalTemplates(i18n, templateDest);
 
       // Create a cache of the templates so we can reference them synchronously later
-      Promise.settle(supportedLanguages.map(function (lang) {
+      Promise.settle(legalTemplateLanguages.map(function (lang) {
 
         return Promise.all([
-          getTemplate('terms', lang, defaultLang),
-          getTemplate('privacy', lang, defaultLang)
+          getTemplate('terms', lang, defaultLegalLang),
+          getTemplate('privacy', lang, defaultLegalLang)
         ])
         .then(function (temps) {
-          templates[lang] = {
+          legalTemplates[lang] = {
             terms: temps[0],
             privacy: temps[1]
           };
@@ -103,8 +105,8 @@ module.exports = function (grunt) {
 
     grunt.file.copy(srcPath, destPath, {
       process: function (contents) {
-        var terms = templates[context.lang].terms || templates[defaultLang].terms;
-        var privacy = templates[context.lang].privacy || templates[defaultLang].privacy;
+        var terms = legalTemplates[context.lang].terms || legalTemplates[defaultLegalLang].terms;
+        var privacy = legalTemplates[context.lang].privacy || legalTemplates[defaultLegalLang].privacy;
         var template = Handlebars.compile(contents);
         var out = template({
           l10n: context,

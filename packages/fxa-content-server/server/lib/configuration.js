@@ -182,11 +182,16 @@ var conf = module.exports = convict({
   i18n: {
     defaultLang: {
       format: String,
-      default: 'en-US'
+      default: 'en'
     },
     debugLang: {
       format: String,
       default: 'it-CH'
+    },
+    defaultLegalLang: {
+      doc: 'The default langauge to use for legal (tos, pp) templates',
+      format: String,
+      default: 'en-US'
     },
     supportedLanguages: {
       doc: 'List of languages this deployment should detect and display localized strings.',
@@ -195,7 +200,7 @@ var conf = module.exports = convict({
       // can build all the locales before config/production.json is written.
       default: [
         'af', 'an', 'ar', 'as', 'ast', 'az', 'be', 'bg', 'bn-BD', 'bn-IN', 'br',
-        'bs', 'ca', 'cs', 'cy', 'da', 'de', 'dsb', 'el', 'en-GB', 'en-US', 'en-ZA',
+        'bs', 'ca', 'cs', 'cy', 'da', 'de', 'dsb', 'el', 'en', 'en-GB', 'en-ZA',
         'eo', 'es', 'es-AR', 'es-CL', 'es-MX', 'et', 'eu', 'fa', 'ff', 'fi',
         'fr', 'fy', 'fy-NL', 'ga', 'ga-IE', 'gd', 'gl', 'gu', 'gu-IN', 'he',
         'hi-IN', 'hr', 'hsb', 'ht', 'hu', 'hy-AM', 'id', 'is', 'it', 'it-CH', 'ja',
@@ -303,6 +308,7 @@ if (conf.has('http_proxy.port')) {
 // Ensure that supportedLanguages includes defaultLang.
 var defaultLang = conf.get('i18n.defaultLang');
 var supportedLanguages = conf.get('i18n.supportedLanguages');
+
 if (supportedLanguages.indexOf(defaultLang) === -1) {
   throw new Error('Configuration error: defaultLang (' + defaultLang + ') is missing from supportedLanguages');
 }
