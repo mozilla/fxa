@@ -23,6 +23,8 @@ function (xhr, _, ProfileErrors) {
 
     var request = {
       url: url + path,
+      // make sure to set the dataType for Firefox <21. See issue #1930
+      dataType: 'json',
       type: type,
       headers: {
         Authorization: 'Bearer ' + accessToken,
