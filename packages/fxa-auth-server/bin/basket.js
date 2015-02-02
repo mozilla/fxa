@@ -31,7 +31,10 @@ basketQueue.on(
           form: {
             fxa_id: message.uid,
             email: message.email,
-            accept_lang: message.locale
+            // Basket won't accept empty or null `accept_lang` field,
+            // so we default to en-US.  This should only happen if
+            // the user has not sent an explicit Accept-Language header.
+            accept_lang: message.locale || "en-US"
           }
         },
         function (err, res, body) {
