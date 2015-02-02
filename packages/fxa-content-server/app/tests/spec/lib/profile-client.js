@@ -126,7 +126,7 @@ function (chai, $, sinon,
       describe('postAvatar', function () {
         it('post an avatar url', function () {
           server.respondWith('POST', PROFILE_URL + '/v1/avatar',
-            [201, {}, '']);
+            [201, { 'Content-Type': 'application/json' }, '{}']);
 
           return client.postAvatar(token, 'https://secure.gravatar.com/deadbeef', true);
         });
@@ -148,7 +148,7 @@ function (chai, $, sinon,
       describe('deleteAvatar', function () {
         it('delete an avatar url', function () {
           server.respondWith('DELETE', PROFILE_URL + '/v1/avatar/beefcafe',
-            [201, {}, '']);
+            [201, { 'Content-Type': 'application/json' }, '{}']);
 
           return client.deleteAvatar(token, 'beefcafe', true);
         });
