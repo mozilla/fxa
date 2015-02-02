@@ -133,6 +133,11 @@ module.exports = function (config, i18n) {
         return res.render('503');
       });
 
+      app.get('/502.html', function (req, res) {
+        res.removeHeader('x-frame-options');
+        return res.render('502');
+      });
+
       // Add a route in dev mode to test 500 errors
       app.get('/boom', function (req, res, next) {
         next(new Error('Uh oh!'));
