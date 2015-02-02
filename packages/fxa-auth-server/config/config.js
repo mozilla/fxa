@@ -171,7 +171,7 @@ module.exports = function (fs, path, url, convict) {
         default: 1000 * 60 * 15
       },
       passwordForgotToken: {
-        default: 1000 * 60 * 15
+        default: 1000 * 60 * 60
       },
       passwordChangeToken: {
         default: 1000 * 60 * 15

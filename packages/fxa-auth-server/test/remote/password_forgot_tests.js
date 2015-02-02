@@ -246,7 +246,7 @@ TestServer.start(config)
               .then(
                 function (x) {
                   t.equal(x.tries, 3, 'three tries remaining')
-                  t.ok(x.ttl > 0 && x.ttl < (60*60), 'ttl is ok')
+                  t.ok(x.ttl > 0 && x.ttl <= (60*60), 'ttl is ok')
                 }
               )
           }
