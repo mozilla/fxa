@@ -1,3 +1,24 @@
+<a name="0.30.0"></a>
+## 0.30.0 (2015-02-02)
+
+
+#### Bug Fixes
+
+* **avatars:** fixes Firefox 18 dataType json request ([005c9f5d](https://github.com/mozilla/fxa-content-server/commit/005c9f5d6376c1654d8751592baa45d03a3b2d40), closes [#1930](https://github.com/mozilla/fxa-content-server/issues/1930))
+* **l10n:** use en as the default language instead of en-US ([8f599d54](https://github.com/mozilla/fxa-content-server/commit/8f599d54a340ba9168ae6f77c00ceeac67d94efe), closes [#2072](https://github.com/mozilla/fxa-content-server/issues/2072))
+* **xhr:** send correct JSON content-type and accept headers to api servers ([8dc69d0b](https://github.com/mozilla/fxa-content-server/commit/8dc69d0bc012b1e788958f7eb8e595650d5d249b))
+
+
+#### Features
+
+* **avatars:** set the account by uid when visiting avatar pages ([d9f5649e](https://github.com/mozilla/fxa-content-server/commit/d9f5649e8c80b76af98a08dcbdaf94cd51e21bf8), closes [#1974](https://github.com/mozilla/fxa-content-server/issues/1974), [#1876](https://github.com/mozilla/fxa-content-server/issues/1876))
+* **client:** Add a `loaded` message for the fx-desktop and iframe brokers. ([c9ca23e8](https://github.com/mozilla/fxa-content-server/commit/c9ca23e837b43a8b08c055766dd66a43ab82acfe))
+* **l10n:** add az locale to list ([0acd097e](https://github.com/mozilla/fxa-content-server/commit/0acd097e36395a42ba0e55f18685778f592dc2ea), closes [#1774](https://github.com/mozilla/fxa-content-server/issues/1774))
+* **metrics:**
+  * Add `signup.customizeSync.(true|false)` metrics. ([919f9281](https://github.com/mozilla/fxa-content-server/commit/919f928178488dc4d022242704d77cbb4e56aa15))
+  * Log whether the user changes the password visibility. ([13b2b835](https://github.com/mozilla/fxa-content-server/commit/13b2b83534106482f43877e3e0dd1fe042e33dbd))
+
+
 <a name="0.29.0"></a>
 ## 0.29.0 (2015-01-20)
 
