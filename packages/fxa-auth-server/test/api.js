@@ -158,7 +158,7 @@ describe('/v1', function() {
     describe('GET', function() {
       it('redirects with all query params', function(done) {
         Server.api
-        .get('/authorization?client_id=123&state=321&scope=1&action=signup')
+        .get('/authorization?client_id=123&state=321&scope=1&action=signup&a=b')
         .then(function(res) {
           assert.equal(res.statusCode, 302);
           var redirect = url.parse(res.headers.location, true);
@@ -166,7 +166,8 @@ describe('/v1', function() {
           assert.equal(redirect.query.client_id, '123');
           assert.equal(redirect.query.state, '321');
           assert.equal(redirect.query.scope, '1');
-
+          // unknown query params are forwarded
+          assert.equal(redirect.query.a, 'b');
           var target = url.parse(config.get('contentUrl'), true);
           assert.equal(redirect.pathname, target.pathname + 'signup');
           assert.equal(redirect.host, target.host);
@@ -210,7 +211,6 @@ describe('/v1', function() {
           },
           payload: authParams()
         }).then(function(res) {
-          console.log(res);
           assert.equal(res.statusCode, 415);
         });
       });
@@ -659,7 +659,8 @@ describe('/v1', function() {
             payload: {
               client_id: clientId,
               client_secret: secret,
-              code: url.parse(res.result.redirect, true).query.code
+              code: url.parse(res.result.redirect, true).query.code,
+              foo: 'bar' // testing stripUnknown
             }
           });
         }).then(function(res) {
@@ -891,6 +892,20 @@ describe('/v1', function() {
           assert.equal(klient.imageUri, imageUri);
           assert.equal(klient.whitelisted, true);
           assert.equal(klient.canGrant, false);
+        });
+      });
+
+      it('should forbid unknown properties', function() {
+        return Server.api.post({
+          url: '/client/' + id.toString('hex'),
+          headers: {
+            authorization: 'Bearer ' + tok
+          },
+          payload: {
+            foo: 'bar'
+          }
+        }).then(function(res) {
+          assert.equal(res.statusCode, 400);
         });
       });
 

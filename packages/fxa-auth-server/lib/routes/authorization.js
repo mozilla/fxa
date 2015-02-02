@@ -108,17 +108,22 @@ module.exports = {
         })
     }
   },
+  payload: {
+    allow: 'application/json'
+  },
   response: {
     schema: Joi.object().keys({
       redirect: Joi.string(),
       access_token: Joi.string().regex(validators.HEX_STRING),
       token_type: Joi.string().valid('bearer'),
-      scope: Joi.string()
+      scope: Joi.string(),
+      auth_at: Joi.number()
     }).without('redirect', [
       'access_token',
       'token_type',
-      'scope'
-    ]).with('access_token', 'token_type', 'scope')
+      'scope',
+      'auth_at'
+    ]).with('access_token', 'token_type', 'scope', 'auth_at')
   },
   handler: function authorizationEndpoint(req, reply) {
     logger.debug('response_type', req.payload.response_type);

@@ -28,23 +28,33 @@ function toToken(authAt, _, token) {
   };
 }
 
+
+var payloadSchema = Joi.object({
+  /*jshint camelcase: false*/
+  client_id: validators.clientId,
+  client_secret: validators.clientSecret,
+  code: Joi.string()
+    .length(config.get('unique.code') * 2)
+    .regex(validators.HEX_STRING)
+    .required()
+});
+
 module.exports = {
   validate: {
-    payload: {
-      /*jshint camelcase: false*/
-      client_id: validators.clientId,
-      client_secret: validators.clientSecret,
-      code: Joi.string()
-        .length(config.get('unique.code') * 2)
-        .regex(validators.HEX_STRING)
-        .required()
+    // stripUnknown is used to allow various oauth2 libraries to be used
+    // with FxA OAuth. Sometimes, they will send other parameters that
+    // we don't use, such as `response_type`, or something else. Instead
+    // of giving an error here, we can just ignore them.
+    payload: function validatePayload(value, options, next) {
+      return Joi.validate(value, payloadSchema, { stripUnknown: true }, next);
     }
   },
   response: {
     schema: {
       access_token: Joi.string().required(),
       scope: Joi.string().required().allow(''),
-      token_type: Joi.string().valid('bearer').required()
+      token_type: Joi.string().valid('bearer').required(),
+      auth_at: Joi.number().required()
     }
   },
   handler: function tokenEndpoint(req, reply) {
