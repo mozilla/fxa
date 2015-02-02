@@ -112,7 +112,7 @@ describe('db', function() {
         redirectUri: 'https://example.domain/return?foo=bar',
         whitelisted: true
       }).then(function () {
-        return db.generateCode(clientId, userId, email, scope);
+        return db.generateCode(clientId, userId, email, scope, 0);
       }).then(function (c) {
         code = c;
         return db.getCode(code);

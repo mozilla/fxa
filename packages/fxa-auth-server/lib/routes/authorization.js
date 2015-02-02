@@ -42,7 +42,8 @@ function generateCode(claims, client, scope, req) {
     client.id,
     buf(claims.uid),
     claims['fxa-verifiedEmail'],
-    scope
+    scope,
+    claims['fxa-lastAuthAt']
   ).then(function(code) {
     logger.debug('redirecting', { uri: req.payload.redirect_uri });
 
@@ -75,7 +76,8 @@ function generateGrant(claims, client, scope) {
     return {
       access_token: hex(token.token),
       token_type: 'bearer',
-      scope: scope.join(' ')
+      scope: scope.join(' '),
+      auth_at: claims['fxa-lastAuthAt']
     };
   });
 }

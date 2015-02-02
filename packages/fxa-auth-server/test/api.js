@@ -29,7 +29,8 @@ const VERIFY_GOOD = JSON.stringify({
   email: USERID + '@' + config.get('browserid.issuer'),
   issuer: config.get('browserid.issuer'),
   idpClaims: {
-    'fxa-verifiedEmail': VEMAIL
+    'fxa-verifiedEmail': VEMAIL,
+    'fxa-lastAuthAt': 123456
   }
 });
 
@@ -471,6 +472,7 @@ describe('/v1', function() {
             assert(res.result.access_token);
             assert.equal(res.result.token_type, 'bearer');
             assert(res.result.scope);
+            assert(res.result.auth_at);
           }).done(done, done);
         });
       });
@@ -667,6 +669,7 @@ describe('/v1', function() {
           assert.equal(res.result.access_token.length,
             config.get('unique.token') * 2);
           assert.equal(res.result.scope, 'foo bar');
+          assert.equal(res.result.auth_at, 123456);
         }).done(done, done);
       });
     });

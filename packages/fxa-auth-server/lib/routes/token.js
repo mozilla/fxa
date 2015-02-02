@@ -15,15 +15,16 @@ const validators = require('../validators');
 
 
 function generateToken(code) {
-  return [db.removeCode(code.code), db.generateToken(code)];
+  return [code.authAt, db.removeCode(code.code), db.generateToken(code)];
 }
 
-function toToken(_, token) {
+function toToken(authAt, _, token) {
   /*jshint camelcase: false*/
   return {
     access_token: token.token.toString('hex'),
     token_type: token.type,
-    scope: token.scope.join(' ')
+    scope: token.scope.join(' '),
+    auth_at: authAt
   };
 }
 
