@@ -1,3 +1,20 @@
+<a name="0.30.1"></a>
+### 0.30.1 (2015-02-03)
+
+
+#### Bug Fixes
+
+* **api:**
+  * allow application/x-form-urlencoded ([6cc91e28](http://github.com/mozilla/fxa-oauth-server/commit/6cc91e285fc51045a365dbacb3617ef29093dbc3))
+  * reject requests with invalid parameters ([3b4fa244](http://github.com/mozilla/fxa-oauth-server/commit/3b4fa244454e5b33edf44d14a6da8be1d0fe98a6), closes [#210](http://github.com/mozilla/fxa-oauth-server/issues/210))
+
+
+#### Breaking Changes
+
+* If you're passing invalid parameters, stop it.
+ ([3b4fa244](http://github.com/mozilla/fxa-oauth-server/commit/3b4fa244454e5b33edf44d14a6da8be1d0fe98a6))
+
+
 <a name="0.30.0"></a>
 ## 0.30.0 (2015-02-02)
 
