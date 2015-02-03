@@ -45,6 +45,7 @@ The currently-defined error responses are:
 | 400 | 110 | invalid response_type |
 | 401 | 111 | unauthorized |
 | 403 | 112 | forbidden |
+| 415 | 113 | invalid content type |
 | 500 | 999 | internal server error |
 
 ## API Endpoints
