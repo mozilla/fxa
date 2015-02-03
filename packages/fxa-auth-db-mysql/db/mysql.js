@@ -120,10 +120,7 @@ module.exports = function (log, error) {
             patchLevelRequired: patch.level
           })
 
-          if (
-            mysql.patchLevel === patch.level ||
-            mysql.patchLevel === patch.level + 1
-          ) {
+          if ( mysql.patchLevel >= patch.level ) {
             return mysql
           }
 
