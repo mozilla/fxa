@@ -26,9 +26,6 @@ exports.create = function createServer() {
     {
       cors: true,
       debug: false,
-      validation: {
-        stripUnknown: true
-      },
       payload: {
         maxBytes: 16384
       },
