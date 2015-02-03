@@ -60,7 +60,9 @@ exports.create = function createServer() {
     var method = route.method.toUpperCase();
     if (method !== 'GET' && method !== 'HEAD') {
       if (!route.config.payload) {
-        route.config.payload = { allow: 'application/json' };
+        route.config.payload = {
+          allow: ['application/json', 'application/x-www-form-urlencoded']
+        };
       }
       logger.verbose('route.payload', {
         url: route.url,

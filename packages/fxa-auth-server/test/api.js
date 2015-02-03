@@ -203,7 +203,7 @@ describe('/v1', function() {
     });
 
     describe('content-type', function() {
-      it('should fail if not application/json or empty', function() {
+      it('should fail if unsupported', function() {
         return Server.api.post({
           url: '/authorization',
           headers: {
@@ -212,6 +212,7 @@ describe('/v1', function() {
           payload: authParams()
         }).then(function(res) {
           assert.equal(res.statusCode, 415);
+          assert.equal(res.result.errno, 113);
         });
       });
     });

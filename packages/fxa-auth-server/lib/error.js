@@ -62,6 +62,8 @@ AppError.translate = function translate(response) {
   var payload = response.output.payload;
   if (payload.validation) {
     error = AppError.invalidRequestParameter(payload.validation);
+  } else if (payload.statusCode === 415) {
+    error = AppError.invalidContentType();
   } else {
     error = new AppError({
       message: payload.message,
@@ -197,6 +199,16 @@ AppError.forbidden = function forbidden() {
     error: 'Forbidden',
     errno: 112,
     message: 'Forbidden'
+  });
+};
+
+AppError.invalidContentType = function invalidContentType() {
+  return new AppError({
+    code: 415,
+    error: 'Unsupported Media Type',
+    errno: 113,
+    message: 'Content-Type must be either application/json or ' +
+      'application/x-www-form-urlencoded'
   });
 };
 
