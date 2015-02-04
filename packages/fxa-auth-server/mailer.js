@@ -143,7 +143,7 @@ module.exports = function (log) {
     var email = {
       sender: this.sender,
       to: message.email,
-      subject: translator.gettext('Unlock your account'),
+      subject: translator.gettext('Re-verify your account'),
       text: localized.text,
       html: localized.html,
       headers: {
