@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var config = require('../config')
+var config = require('./config')
 var dbServer = require('fxa-auth-db-server')
 var error = dbServer.errors
-var log = require('../log')(config.logLevel, 'db-api')
-var DB = require('../db/mysql')(log, error)
+var log = require('./log')(config.logLevel, 'db-api')
+var DB = require('./db/mysql')(log, error)
 
 module.exports = function () {
   return DB.connect(config)
