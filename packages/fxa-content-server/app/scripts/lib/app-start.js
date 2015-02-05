@@ -114,7 +114,9 @@ function (
         this.initializeInterTabChannel()
       ])
       .then(_.bind(this.allResourcesReady, this))
-      .then(null, function (err) {
+      .then(function () {
+        self._trackWindowOnError();
+      }, function (err) {
         if (console && console.error) {
           console.error('Critical error:');
           console.error(err);
@@ -131,6 +133,22 @@ function (
 
     initializeInterTabChannel: function () {
       this._interTabChannel = new InterTabChannel();
+    },
+
+    _trackWindowOnError: function () {
+      var self = this;
+      // if startup is okay we want to log future window.onerror events
+      window.onerror = function (message /*, url, lineNumber*/) {
+        var errMsg = 'null';
+
+        if (message) {
+          errMsg = message.toString().substring(0, Constants.ONERROR_MESSAGE_LIMIT);
+        }
+
+        if (self._metrics) {
+          self._metrics.logEvent('error.onwindow.' +  errMsg);
+        }
+      };
     },
 
     initializeConfig: function () {
