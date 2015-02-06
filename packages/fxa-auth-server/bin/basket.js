@@ -14,12 +14,30 @@ var config = require('../config').root()
 var log = require('../log')(config.log.level, 'basket')
 var SQSReceiver = require('../sqs')(log)
 
+
+function shouldIgnoreEmail(email) {
+  if (email.match(/@restmail.net$/)) {
+    return true;
+  }
+  if (email.match(/@restmail.lcip.org$/)) {
+    return true;
+  }
+  return false;
+}
+
+
 var basketQueue = new SQSReceiver(config.basket.region, [config.basket.queueUrl])
 basketQueue.on(
   'data',
   function basketRequest(message) {
     log.trace({ op: 'basketRequest', sqs: message })
     if (message.event === 'verified') {
+      // Ignore email addresses that are clearly from dev testing.
+      if (shouldIgnoreEmail(message.email)) {
+        message.del();
+        return
+      }
+      // Forward all others to basket API.
       request(
         {
           url: config.basket.apiUrl + '/fxa-register/',
