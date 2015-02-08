@@ -65,7 +65,7 @@ exports.create = function createServer() {
         };
       }
       logger.verbose('route.payload', {
-        url: route.url,
+        path: route.path,
         method: method,
         payload: route.config.payload
       });
