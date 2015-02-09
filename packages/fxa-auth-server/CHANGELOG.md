@@ -1,3 +1,13 @@
+<a name="0.30.2"></a>
+### 0.30.2 (2015-02-09)
+
+
+#### Bug Fixes
+
+* **api:** remove stray payload restriction from authorization route ([e0d53682](http://github.com/mozilla/fxa-oauth-server/commit/e0d536821060dc044d875cbf5004c90c226cb09c))
+* **logging:** use route.path in debug message, not route.url ([7d9efc25](http://github.com/mozilla/fxa-oauth-server/commit/7d9efc253465c5d95d20f216a2ff6e42be82f1ca))
+
+
 <a name="0.30.1"></a>
 ### 0.30.1 (2015-02-03)
 
