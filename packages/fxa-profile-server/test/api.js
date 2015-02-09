@@ -7,21 +7,8 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const url = require('url');
 
 const assert = require('insist');
-const mkdirp = require('mkdirp');
-const nock = require('nock');
-
-const config = require('../lib/config');
-if (config.get('img.driver') === 'local') {
-  mkdirp.sync(config.get('img.uploads.dest.public'));
-}
-const db = require('../lib/db');
-const inject = require('./lib/inject');
-const Server = require('./lib/server');
-const Static = require('./lib/static');
-const WORKER = require('../lib/server/worker').create();
 
 
 function randomHex(bytes) {
@@ -41,83 +28,22 @@ function token() {
 }
 
 const USERID = uid();
-const TOKEN_GOOD = JSON.stringify({
-  user: USERID,
-  scope: ['profile'],
-  email: 'user@example.domain'
-});
+const mock = require('./lib/mock')({ userid: USERID });
+
+const db = require('../lib/db');
+const Server = require('./lib/server');
+const Static = require('./lib/static');
+
 
 const GRAVATAR =
   'http://www.gravatar.com/avatar/00000000000000000000000000000000';
-
-function mockToken() {
-  var parts = url.parse(config.get('oauth.url'));
-  return nock(parts.protocol + '//' + parts.host).post(parts.path + '/verify');
-}
-
-const MOCK_ID = new Array(33).join('f');
-function mockWorker() {
-  var parts = url.parse(config.get('worker.url'));
-  var path = '';
-  var headers = {
-    'content-type': 'image/png',
-    'content-length': 12696
-  };
-  return nock(parts.protocol + '//' + parts.host, {
-    reqheaders: headers
-  })
-    .filteringPath(function filter(_path) {
-      path = _path;
-      return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
-    })
-    .post('/a/' + MOCK_ID)
-    .reply(200, function(uri, body) {
-      return inject(WORKER, {
-        method: 'POST',
-        url: path,
-        payload: Buffer(body, 'hex'),
-        headers: headers
-      });
-    });
-}
-
-function mockWorkerFailure() {
-  var parts = url.parse(config.get('worker.url'));
-  var path = '';
-  var headers = {
-    'content-type': 'image/png',
-    'content-length': 12696
-  };
-  return nock(parts.protocol + '//' + parts.host, {
-    reqheaders: headers
-  })
-    .filteringPath(function filter(_path) {
-      path = _path;
-      return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
-    })
-    .post('/a/' + MOCK_ID)
-    .reply(500, 'unexpected server error');
-}
-
-function mockAws() {
-  var bucket = config.get('img.uploads.dest.public');
-  var u = '/' + bucket + '/XXX';
-  var id;
-  return nock('https://s3.amazonaws.com')
-    .filteringPath(function filter(_path) {
-      id = _path.replace('/' + bucket + '/', '');
-      return _path.replace(id, 'XXX');
-    })
-    .put(u)
-    .reply(200);
-}
 
 describe('/profile', function() {
   var tok = token();
   var user = uid();
 
   it('should return all of a profile', function() {
-    mockToken().reply(200, TOKEN_GOOD);
+    mock.tokenGood();
     return Server.api.get({
       url: '/profile',
       headers: {
@@ -132,11 +58,11 @@ describe('/profile', function() {
   });
 
   it('should return an avatar if selected', function() {
-    mockToken().reply(200, JSON.stringify({
+    mock.token({
       user: user,
       email: 'user@example.domain',
       scope: ['profile']
-    }));
+    });
     var aid = avatarId();
     var PROVIDER = 'gravatar';
     return db.addAvatar(aid, user, GRAVATAR, PROVIDER, true)
@@ -154,11 +80,11 @@ describe('/profile', function() {
   });
 
   it('should NOT return a profile if wrong scope', function() {
-    mockToken().reply(200, JSON.stringify({
+    mock.token({
       user: USERID,
       email: 'user@example.domain',
       scope: ['profile:email']
-    }));
+    });
     return Server.api.get({
       url: '/profile',
       headers: {
@@ -174,7 +100,7 @@ describe('/email', function() {
   var tok = token();
 
   it('should return an email', function() {
-    mockToken().reply(200, TOKEN_GOOD);
+    mock.tokenGood();
     return Server.api.get({
       url: '/email',
       headers: {
@@ -187,11 +113,11 @@ describe('/email', function() {
   });
 
   it('should NOT return email if wrong scope', function() {
-    mockToken().reply(200, JSON.stringify({
+    mock.token({
       user: USERID,
       email: 'user@example.domain',
       scope: ['profile:uid']
-    }));
+    });
     return Server.api.get({
       url: '/email',
       headers: {
@@ -207,7 +133,7 @@ describe('/uid', function() {
   var tok = token();
 
   it('should return an uid', function() {
-    mockToken().reply(200, TOKEN_GOOD);
+    mock.tokenGood();
     return Server.api.get({
       url: '/uid',
       headers: {
@@ -220,11 +146,11 @@ describe('/uid', function() {
   });
 
   it('should NOT return a profile if wrong scope', function() {
-    mockToken().reply(200, JSON.stringify({
+    mock.token({
       user: USERID,
       email: 'user@example.domain',
       scope: ['profile:email']
-    }));
+    });
     return Server.api.get({
       url: '/uid',
       headers: {
@@ -257,11 +183,11 @@ describe('/avatar', function() {
         });
     });
     it('should return selected avatar', function() {
-      mockToken().reply(200, JSON.stringify({
+      mock.token({
         user: user,
         email: 'user@example.domain',
         scope: ['profile:avatar']
-      }));
+      });
       return Server.api.get({
         url: '/avatar',
         headers: {
@@ -277,11 +203,11 @@ describe('/avatar', function() {
 
   describe('POST', function() {
     it('should post a new avatar url', function() {
-      mockToken().reply(200, JSON.stringify({
+      mock.token({
         user: USERID,
         email: 'user@example.domain',
         scope: ['profile:avatar:write']
-      }));
+      });
       return Server.api.post({
         url: '/avatar',
         payload: {
@@ -296,11 +222,11 @@ describe('/avatar', function() {
       });
     });
     it('should check url matches a provider', function() {
-      mockToken().reply(200, JSON.stringify({
+      mock.token({
         user: USERID,
         email: 'user@example.domain',
         scope: ['profile:avatar:write']
-      }));
+      });
       return Server.api.post({
         url: '/avatar',
         payload: {
@@ -324,18 +250,16 @@ describe('/avatar', function() {
     it('should upload a new avatar', function() {
       this.slow(2000);
       this.timeout(3000);
-      mockToken().reply(200, JSON.stringify({
+      mock.token({
         user: USERID,
         email: 'user@example.domain',
         scope: ['profile:avatar:write']
-      }));
-      mockWorker();
-      mockAws();
+      });
+      mock.image();
       return Server.api.post({
         url: '/avatar/upload',
         payload: imageData,
-        headers: {
-          authorization: 'Bearer ' + tok,
+        headers: { authorization: 'Bearer ' + tok,
           'content-type': 'image/png',
           'content-length': imageData.length
         }
@@ -350,13 +274,12 @@ describe('/avatar', function() {
     });
 
     it('should gracefully handle and report upload failures', function() {
-      mockToken().reply(200, JSON.stringify({
+      mock.token({
         user: USERID,
         email: 'user@example.domain',
         scope: ['profile:avatar:write']
-      }));
-      mockWorkerFailure();
-      mockAws();
+      });
+      mock.workerFailure();
       return Server.api.post({
         url: '/avatar/upload',
         payload: imageData,
@@ -380,11 +303,11 @@ describe('/avatar', function() {
     });
 
     it('should fail if not owned by user', function() {
-      mockToken().reply(200, JSON.stringify({
+      mock.token({
         user: uid(),
         email: 'user@example.domain',
         scope: ['profile:avatar:write']
-      }));
+      });
       return Server.api.delete({
         url: '/avatar/' + id,
         headers: {
@@ -396,11 +319,11 @@ describe('/avatar', function() {
     });
 
     it('should remove avatar from user', function() {
-      mockToken().reply(200, JSON.stringify({
+      mock.token({
         user: user,
         email: 'user@example.domain',
         scope: ['profile:avatar:write']
-      }));
+      });
       return Server.api.delete({
         url: '/avatar/' + id,
         headers: {
@@ -438,11 +361,11 @@ describe('/avatars', function() {
   });
 
   it('should return a list of avatars', function() {
-    mockToken().reply(200, JSON.stringify({
+    mock.token({
       user: user,
       email: 'user@example.domain',
       scope: ['profile:avatar:write']
-    }));
+    });
     return Server.api.get({
       url: '/avatars',
       headers: {

@@ -1,6 +1,6 @@
 {
   "logging": {
-    "fmt": "heka",
+    "fmt": "pretty",
     "debug": true,
     "level": "warn"
   },
