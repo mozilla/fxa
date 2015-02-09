@@ -17,7 +17,7 @@ env:
   - NODE_ENV=test DB=mysql IMG=local
 #  - NODE_ENV=test DB=memory IMG=aws
 
-before_script:
+before_install:
   - sudo apt-get install graphicsmagick
   - "mysql -e 'DROP DATABASE IF EXISTS fxa_profile;'"
   - "mysql -e 'CREATE DATABASE fxa_profile;'"
