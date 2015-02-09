@@ -108,9 +108,6 @@ module.exports = {
         })
     }
   },
-  payload: {
-    allow: 'application/json'
-  },
   response: {
     schema: Joi.object().keys({
       redirect: Joi.string(),
