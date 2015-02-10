@@ -9,7 +9,7 @@ os:
 
 before_install:
   - sudo apt-get install libgmp3-dev || brew install gmp
-  - npm install -g npm@latest
+  - npm install -g npm@2.4
   - node --version
   - npm --version
   - npm config set spin false
