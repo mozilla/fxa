@@ -21,7 +21,7 @@
     "aws-sdk": "2.0.0-rc.20",
     "bluebird": "1.2.2",
     "bunyan": "0.23.1",
-    "convict": "0.4.2",
+    "convict": "0.6.1",
     "memcached": "0.2.8",
     "restify": "2.8.2"
   },
