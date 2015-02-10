@@ -8,6 +8,7 @@ os:
   - osx
 
 before_install:
+  - sudo apt-get install graphicsmagick
   - sudo apt-get install libgmp3-dev || brew install gmp
   - npm install -g npm@2.4
   - node --version
