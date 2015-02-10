@@ -16,6 +16,7 @@ define([
 ],
 function (_, FormView, BaseView, Template, p, AuthErrors,
     ResendMixin, ServiceMixin) {
+  var t = BaseView.t;
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
 
   var View = FormView.extend({
@@ -84,7 +85,14 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
             })
             .then(function (result) {
               if (! (result && result.halt)) {
-                self.navigate('signup_complete');
+                // the user is definitely authenticated here.
+                if (self.relier.isDirectAccess()) {
+                  self.navigate('settings', {
+                    success: t('Account verified')
+                  });
+                } else {
+                  self.navigate('signup_complete');
+                }
               }
             }, function (err) {
               // The user's email may have bounced because it was invalid.

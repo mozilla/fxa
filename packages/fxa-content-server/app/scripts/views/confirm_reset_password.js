@@ -164,7 +164,17 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
 
           return self.broker.afterResetPasswordConfirmationPoll(account)
             .then(function (result) {
-              if (! (result && result.halt)) {
+              if (result && result.halt) {
+                return;
+              }
+
+              if (self.relier.isDirectAccess()) {
+                // user is most definitely signed in since sessionInfo
+                // was passed in. Just ship direct access users to /settings
+                self.navigate('settings', {
+                  success: t('Account verified')
+                });
+              } else {
                 self.navigate('reset_password_complete');
               }
             });

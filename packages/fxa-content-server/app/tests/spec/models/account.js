@@ -378,5 +378,38 @@ function (chai, sinon, p, Constants, Assertion, ProfileClient,
       });
     });
 
+    describe('isSignedIn', function () {
+      it('returns `false` if the model has no sessionToken', function () {
+        account.unset('sessionToken');
+        return account.isSignedIn()
+          .then(function (isSignedIn) {
+            assert.isFalse(isSignedIn);
+          });
+      });
+
+      it('returns `false` if the sessionToken is expired', function () {
+        account.set('sessionToken', 'exipred token');
+        sinon.stub(fxaClient, 'sessionStatus', function () {
+          return p.reject(AuthErrors.toError('INVALID_TOKEN'));
+        });
+
+        return account.isSignedIn()
+          .then(function (isSignedIn) {
+            assert.isFalse(isSignedIn);
+          });
+      });
+
+      it('returns `true` if the sessionToken is valid', function () {
+        account.set('sessionToken', 'valid token');
+        sinon.stub(fxaClient, 'sessionStatus', function () {
+          return p();
+        });
+
+        return account.isSignedIn()
+          .then(function (isSignedIn) {
+            assert.isTrue(isSignedIn);
+          });
+      });
+    });
   });
 });

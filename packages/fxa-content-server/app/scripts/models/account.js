@@ -142,6 +142,10 @@ define([
         });
     },
 
+    isSignedIn: function () {
+      return this._fxaClient.isSignedIn(this.get('sessionToken'));
+    },
+
     toJSON: function () {
       return _.pick(this.attributes, ALLOWED_KEYS);
     },
