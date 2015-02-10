@@ -333,9 +333,9 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         });
 
         return view.validateAndSubmit()
-            .then(function () {
-              assert.equal(routerMock.page, 'settings');
-            });
+          .then(function () {
+            assert.equal(routerMock.page, 'settings');
+          });
       });
 
 

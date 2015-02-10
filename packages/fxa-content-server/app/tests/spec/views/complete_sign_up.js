@@ -61,7 +61,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
     }
 
-    function initView () {
+    function initView (account) {
       view = new View({
         router: routerMock,
         window: windowMock,
@@ -70,7 +70,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
-        screenName: 'verify_email'
+        screenName: 'verify_email',
+        account: account
       });
     }
 
@@ -98,7 +99,8 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         uid: validUid
       });
 
-      initView();
+      windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+      initView(account);
     });
 
     afterEach(function () {
@@ -183,67 +185,74 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       });
 
       it('all other server errors are displayed', function () {
-        windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
-        initView();
-
         verificationError = new Error('verification error');
         return view.render()
-            .then(function () {
-              assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
-              assert.ok(view.$('#fxa-verification-error-header').length);
-              assert.equal(view.$('.error').text(), 'verification error');
-            });
+          .then(function () {
+            assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
+            assert.ok(view.$('#fxa-verification-error-header').length);
+            assert.equal(view.$('.error').text(), 'verification error');
+          });
       });
 
       it('non-direct-access redirects to /signup_complete access if verification successful and broker does not halt', function () {
-        windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
         sinon.spy(broker, 'afterCompleteSignUp');
         sinon.stub(relier, 'isDirectAccess', function () {
           return false;
         });
-        initView();
-        sinon.stub(view, 'getAccount', function () {
-          return account;
-        });
+
         return view.render()
-            .then(function () {
-              assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
-              assert.equal(routerMock.page, 'signup_complete');
-              assert.isTrue(broker.afterCompleteSignUp.calledWith(account));
-              assert.isTrue(TestHelpers.isEventLogged(
-                      metrics, 'complete_sign_up.verification.success'));
-            });
+          .then(function () {
+            assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
+            assert.equal(routerMock.page, 'signup_complete');
+            assert.isTrue(broker.afterCompleteSignUp.calledWith(account));
+            assert.isTrue(TestHelpers.isEventLogged(
+                    metrics, 'complete_sign_up.verification.success'));
+          });
       });
 
-      it('direct-access redirects to /settings if verification successful and broker does not halt', function () {
-        windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
+      it('direct-access redirects to /settings if verification successful, sessionToken is still valid, and broker does not halt', function () {
         sinon.spy(broker, 'afterCompleteSignUp');
         sinon.stub(relier, 'isDirectAccess', function () {
           return true;
         });
-        initView();
-        sinon.stub(view, 'getAccount', function () {
-          return account;
+
+        sinon.stub(account, 'isSignedIn', function () {
+          return p(true);
         });
+
         return view.render()
-            .then(function () {
-              assert.equal(routerMock.page, 'settings');
-            });
+          .then(function () {
+            assert.equal(routerMock.page, 'settings');
+          });
+      });
+
+      it('direct-access redirects to /signup_complete if verification successful, sessionToken is invalid, and broker does not halt', function () {
+        sinon.spy(broker, 'afterCompleteSignUp');
+        sinon.stub(relier, 'isDirectAccess', function () {
+          return true;
+        });
+
+        sinon.stub(account, 'isSignedIn', function () {
+          return p(false);
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(routerMock.page, 'signup_complete');
+          });
       });
 
       it('halts if the broker says halt', function () {
-        windowMock.location.search = '?code=' + validCode + '&uid=' + validUid;
         sinon.stub(broker, 'afterCompleteSignUp', function () {
           return p({ halt: true });
         });
 
-        initView();
         return view.render()
-            .then(function () {
-              assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
-              assert.notEqual(routerMock.page, 'signup_complete');
-              assert.isTrue(broker.afterCompleteSignUp.called);
-            });
+          .then(function () {
+            assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
+            assert.notEqual(routerMock.page, 'signup_complete');
+            assert.isTrue(broker.afterCompleteSignUp.called);
+          });
       });
     });
 

@@ -142,8 +142,8 @@ define([
         });
     },
 
-    isAuthenticated: function () {
-      return this.has('sessionToken');
+    isSignedIn: function () {
+      return this._fxaClient.isSignedIn(this.get('sessionToken'));
     },
 
     toJSON: function () {

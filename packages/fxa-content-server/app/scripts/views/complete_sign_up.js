@@ -26,7 +26,9 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
       'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
-    initialize: function () {
+    initialize: function (options) {
+      options = options || {};
+
       try {
         this.importSearchParam('uid');
         this.importSearchParam('code');
@@ -39,7 +41,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
         this._isLinkDamaged = true;
       }
 
-      this._account = this.user.getAccountByUid(this._uid);
+      this._account = options.account || this.user.getAccountByUid(this._uid);
 
       // cache the email in case we need to attempt to resend the
       // verification link
@@ -65,17 +67,26 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
             return self.broker.afterCompleteSignUp(self.getAccount());
           })
           .then(function (result) {
-            if (! (result && result.halt)) {
-              if (self.relier.isDirectAccess() &&
-                  self.getAccount().isAuthenticated()) {
-                self.navigate('settings', {
-                  success: t('Account verified')
-                });
-              } else {
-                self.navigate('signup_complete');
-              }
+            if (result && result.halt) {
+              return false;
             }
-            return false;
+
+            if (! self.relier.isDirectAccess()) {
+              self.navigate('signup_complete');
+              return false;
+            }
+
+            return self.getAccount().isSignedIn()
+              .then(function (isSignedIn) {
+                if (isSignedIn) {
+                  self.navigate('settings', {
+                    success: t('Account verified')
+                  });
+                } else {
+                  self.navigate('signup_complete');
+                }
+                return false;
+              });
           })
           .then(null, function (err) {
             if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
