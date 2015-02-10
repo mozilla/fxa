@@ -1,8 +1,6 @@
 ## fxa-local-dev [![Build Status](https://travis-ci.org/vladikoff/fxa-local-dev.svg?branch=master)](https://travis-ci.org/vladikoff/fxa-local-dev)
 > An easy way to contribute to Firefox Accounts
 
-
-
 ### Getting Started
 
 - Install required system [dependencies](#dependencies)
@@ -23,9 +21,7 @@ After installation completes you can visit [127.0.0.1:3030](http://127.0.0.1:303
 
 **Use `npm run update` to fetch the latest changes on the `master` branch.**
 
-### Firefox configurations
-
-Use `npm start` to start Firefox with **local sync** configurations.
+**Use `npm start` to start Firefox with local sync configurations.**
 Available options:
 
 * `FXA_ENV=local` or `latest` or `stable` (NOTE: `local` is default).
@@ -44,3 +40,6 @@ Available options:
 (You might also need to run `xcode-select --install` to get OS X Command Line Tools)
 
 #### Ubuntu: `sudo apt-get install libgmp3-dev redis-server`
+
+#### FreeBSD: 
+Use [bigint fix](https://github.com/substack/node-bigint/pull/29): `"bigint": "git://github.com/frasertweedale/node-bigint.git#fix/freebsd-build"`
