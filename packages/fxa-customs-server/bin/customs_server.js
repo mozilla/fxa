@@ -47,7 +47,7 @@ var handleBan = P.promisify(require('../bans/handler')(mc, log))
 if (config.bans.region && config.bans.queueUrl) {
   var bans = require('../bans')(log)
   bans(config.bans, mc)
-  log.info({ op: 'listening', sqsRegion: config.bans.region, sqsQueueUrl: config.bans.queueUrl })
+  log.info({ op: 'listeningSQS', sqsRegion: config.bans.region, sqsQueueUrl: config.bans.queueUrl })
 }
 
 var api = restify.createServer()
