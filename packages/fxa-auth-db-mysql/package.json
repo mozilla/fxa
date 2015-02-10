@@ -22,7 +22,7 @@
     "bunyan": "0.23.1",
     "clone": "0.2.0",
     "convict": "0.4.2",
-    "fxa-auth-db-server": "git://github.com/mozilla/fxa-auth-db-server.git#6cfba17c17",
+    "fxa-auth-db-server": "git://github.com/mozilla/fxa-auth-db-server.git#fa80cf0",
     "mysql": "2.3.2",
     "request": "2.36.0"
   },
