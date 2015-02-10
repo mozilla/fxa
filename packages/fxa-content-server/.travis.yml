@@ -3,6 +3,8 @@ node_js:
   - "0.10"
 addons:
   firefox: "34.0"
+  apt_packages:
+    - libgmp-dev
 env:
   global:
     - DISABLE_ROUTE_LOGGING=true
@@ -11,17 +13,11 @@ sudo: false
 
 cache:
   directories:
-    - gmp-5.1.3
     - node_modules
     - app/bower_components
     - fxa-auth-server/node_modules
 
 before_install:
-  # Install GMP without sudo, this puts all GMP files into '/tmp'.
-  # It is later found by 'vladikoff/node-bigint#localGmp' gyp files so it can build from it.
-  # We first check the cache, if 'configure' exists then we quickly compile from cache.
-  - ls gmp-5.1.3/configure || (wget http://ftp.gnu.org/gnu/gmp/gmp-5.1.3.tar.gz && tar -xvzf gmp-5.1.3.tar.gz)
-  - cd gmp-5.1.3 && ./configure -prefix /tmp > /dev/null 2>&1 && make > /dev/null 2>&1 && make install > /dev/null 2>&1 && cd ..
   # Update npm to 2.4
   - npm install -g npm@2.4
   # Setup the xvfb environment. Read more at http://docs.travis-ci.com/user/gui-and-headless-browsers/
@@ -38,7 +34,7 @@ install:
   # install the resources necessary for the auth server.
   - cd fxa-auth-server && git init && git pull git://github.com/mozilla/fxa-auth-server.git --depth 1
   # first npm install will fail because there is no global GMP, we add localGmp after that failure
-  - npm install || (echo "Installing local gmp" && npm i vladikoff/node-bigint#localGmp)
+  - npm install
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &
   - cd ..
