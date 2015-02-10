@@ -1,4 +1,5 @@
 var/
+BUCKET_NAME
 npm-debug.log
 node_modules
 Thumbs.db
