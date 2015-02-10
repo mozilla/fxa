@@ -1,0 +1,4 @@
+{{t "For security reasons your Firefox Account was put on lockdown. To perform account-level activities, please click the link to re-verify your account now." }}
+{{t "Verify account:"}} {{{link}}}
+
+{{t "This is an automated email; if you received it in error, no action is required."}} {{t "For more information, please visit https://support.mozilla.org"}}
