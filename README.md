@@ -33,13 +33,14 @@ Available options:
 [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git), 
 [node.js](http://nodejs.org/), 
 [Redis](http://redis.io/), 
-[libgmp](https://gmplib.org/).
+[libgmp](https://gmplib.org/),
+[graphicsmagick](http://www.graphicsmagick.org/).
 
-#### OSX (with [Brew](http://brew.sh/)): `brew install gmp redis`
+#### OSX (with [Brew](http://brew.sh/)): `brew install gmp redis graphicsmagick`
 
 (You might also need to run `xcode-select --install` to get OS X Command Line Tools)
 
-#### Ubuntu: `sudo apt-get install libgmp3-dev redis-server`
+#### Ubuntu: `sudo apt-get install libgmp3-dev graphicsmagick redis-server`
 
 #### FreeBSD: 
 Use [bigint fix](https://github.com/substack/node-bigint/pull/29): `"bigint": "git://github.com/frasertweedale/node-bigint.git#fix/freebsd-build"`
