@@ -4,12 +4,15 @@
 
 const Hapi = require('hapi');
 const Joi = require('joi');
+const P = require('../promise');
 
 const AppError = require('../error');
 const compute = require('../compute');
 const config = require('../config').root();
 const img = require('../img');
 const logger = require('../logging')('server.worker');
+
+const SIZES = img.SIZES;
 
 exports.create = function() {
   var server = Hapi.createServer(
@@ -58,7 +61,12 @@ exports.create = function() {
     path: '/a/{id}',
     config: {
       handler: function delete_(req, reply) {
-        img.delete(req.params.id).done(reply, reply);
+        P.all(Object.keys(SIZES).map(function(name) {
+          if (name === 'default') {
+            return req.params.id;
+          }
+          return req.params.id + '_' + name;
+        })).map(img.delete).done(reply, reply);
       }
     }
   });

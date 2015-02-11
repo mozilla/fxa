@@ -72,14 +72,6 @@ const conf = convict({
         default: Math.ceil(require('os').cpus().length * 1.25)
       }
     },
-    resize: {
-      height: {
-        default: 600
-      },
-      width: {
-        default: 600
-      }
-    },
     url: {
       doc: 'Pattern to generate FxA avatar URLs. {id} will be replaced.',
       default: 'http://127.0.0.1:1112/a/{id}'

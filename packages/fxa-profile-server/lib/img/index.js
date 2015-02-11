@@ -11,6 +11,12 @@ const logger = require('../logging')('img');
 const klass = config.get('img.driver') === 'aws' ?
   require('./aws') : require('./local');
 
+exports.SIZES = Object.seal({
+  small: { w: 100, h: 100 },
+  default: { w: 200, h: 200 },
+  large: { w: 600, h: 600 }
+});
+
 function unique() {
   return crypto.randomBytes(16).toString('hex');
 }

@@ -9,15 +9,12 @@ const img = require('../img');
 const logger = require('../logging')('compute.image-cc');
 const P = require('../promise');
 
-const HEIGHT = String(config.get('img.resize.height'));
-const WIDTH = String(config.get('img.resize.width'));
 const CONTENT_TYPE_PNG = 'image/png';
 
 logger.info('worker.config', { config: config.get('img') });
 
-function processImage(src) {
+function processImage(src, width, height) {
   return new P(function(resolve, reject) {
-    // gm uses GraphicsMagick
     // for resizing images, we want to DOWN-size any image that has it's
     // width or height higher than our maximum, while keeping the aspect
     // ratio. Any image that has a lower value should NOT be UP-sized,
@@ -26,7 +23,7 @@ function processImage(src) {
     // The '>' modifier does this.
     // See more: http://www.graphicsmagick.org/GraphicsMagick.html
     gm(src)
-      .resize(WIDTH, HEIGHT, '>')
+      .resize(width, height, '>')
       .noProfile()
       .toBuffer('png', function(err, buf) {
         if (err) {
@@ -40,17 +37,19 @@ function processImage(src) {
 
 function compute(msg, callback) {
   var id = msg.id;
+  var variant = msg.suffix || 'default';
+  var suffix = msg.suffix ? '_' + msg.suffix : '';
   var src = Buffer(msg.payload);
   var start = Date.now();
   var s3Start = start;
-  logger.debug('process.start', { bytes: src.length });
-  processImage(src).then(function(out) {
+  logger.debug('process.start', { bytes: src.length, variant: variant });
+  processImage(src, msg.width, msg.height).then(function(out) {
     s3Start = Date.now();
-    logger.info('time.ms.gm', s3Start - start);
-    logger.debug('process.end', { bytes: out.length });
-    return img.upload(id, out, CONTENT_TYPE_PNG);
+    logger.info('time.ms.gm.' + variant, s3Start - start);
+    logger.debug('process.end', { bytes: out.length, variant: variant });
+    return img.upload(id + suffix, out, CONTENT_TYPE_PNG);
   }).done(function() {
-    logger.info('time.ms.s3', Date.now() - s3Start);
+    logger.info('time.ms.s3.' + variant, Date.now() - s3Start);
     callback({ id: id });
   }, function(err) {
     logger.error('compute', err);

@@ -136,6 +136,12 @@ Returns details of the current user avatar, or an empty object if none.
 
 An avatar `id` is a 32-length hexstring.
 
+All avatars hosted by Firefox Accounts (see 3rd-party provider docs for
+their equivalent) can be accessed as multiple sizes. The default size is
+200x200 pixels. There is are small (100x100) and large (600x600)
+variants, which can accessed by adding the `_small` or `_large` suffix
+to the avatar URL.
+
 #### Request
 
 ```sh
