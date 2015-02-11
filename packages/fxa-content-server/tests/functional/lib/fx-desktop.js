@@ -57,15 +57,21 @@ define([
     return true;
   }
 
-  function testIsBrowserNotifiedOfLogin(context, email) {
+  function testIsBrowserNotifiedOfLogin(context, email, options) {
     return context.get('remote')
       .findByCssSelector('#message-login')
         .getProperty('innerText')
         .then(function (innerText) {
+          options = options || {};
           var data = JSON.parse(innerText);
           assert.equal(data.email, email);
           assert.ok(data.unwrapBKey);
           assert.ok(data.keyFetchToken);
+          if (options.checkVerified) {
+            assert.isTrue(data.verified);
+          } else {
+            assert.isFalse(data.verified);
+          }
         })
       .end();
   }

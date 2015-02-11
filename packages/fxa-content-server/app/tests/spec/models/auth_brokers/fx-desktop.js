@@ -116,6 +116,7 @@ define([
         return broker._notifyRelierOfLogin(account)
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
+            assert.isFalse(data.verified);
             assert.isFalse(data.verifiedCanLinkAccount);
             assert.isTrue(channelMock.send.called);
           });
@@ -134,6 +135,7 @@ define([
         return broker._notifyRelierOfLogin(account)
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
+            assert.isFalse(data.verified);
             assert.isFalse(data.verifiedCanLinkAccount);
             assert.isTrue(channelMock.send.called);
           });
@@ -156,8 +158,32 @@ define([
           })
           .then(function () {
             assert.equal(data.email, 'testuser@testuser.com');
+            assert.isFalse(data.verified);
             assert.isTrue(data.verifiedCanLinkAccount);
             assert.isTrue(channelMock.send.called);
+          });
+      });
+
+      it('indicates whether the account is verified', function () {
+        // set account as verified
+        account.set('verified', true);
+
+        var data;
+        sinon.stub(channelMock, 'send', function (message, _data, done) {
+          if (message === 'can_link_account') {
+            return done(null, { data: { ok: true }});
+          } else if (message === 'login') {
+            data = _data;
+            return done(null);
+          }
+        });
+
+        return broker.beforeSignIn('testuser@testuser.com')
+          .then(function () {
+            return broker._notifyRelierOfLogin(account);
+          })
+          .then(function () {
+            assert.isTrue(data.verified);
           });
       });
     });

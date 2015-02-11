@@ -81,7 +81,7 @@ define([
             })
 
             .then(function () {
-              return testIsBrowserNotifiedOfLogin(self, email);
+              return testIsBrowserNotifiedOfLogin(self, email, { checkVerified: true });
             });
         });
     },

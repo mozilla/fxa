@@ -116,7 +116,7 @@ define([
         .end()
 
         .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
+          return testIsBrowserNotifiedOfLogin(self, email, { checkVerified: true });
         });
     },
 
@@ -235,7 +235,7 @@ define([
         .end()
 
         .then(function () {
-          return testIsBrowserNotifiedOfLogin(self, email);
+          return testIsBrowserNotifiedOfLogin(self, email, { checkVerified: true });
         });
     },
 
