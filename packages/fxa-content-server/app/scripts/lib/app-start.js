@@ -26,6 +26,7 @@ define([
   'lib/session',
   'lib/url',
   'lib/config-loader',
+  'lib/screen-info',
   'lib/metrics',
   'lib/null-metrics',
   'lib/fxa-client',
@@ -56,6 +57,7 @@ function (
   Session,
   Url,
   ConfigLoader,
+  ScreenInfo,
   Metrics,
   NullMetrics,
   FxaClient,
@@ -192,13 +194,19 @@ function (
 
     initializeMetrics: function () {
       var relier = this._relier;
+      var screenInfo = new ScreenInfo(window);
       this._metrics = createMetrics(this._config.metricsSampleRate, {
         lang: this._config.language,
         service: relier.get('service'),
         context: relier.get('context'),
         entrypoint: relier.get('entrypoint'),
         migration: relier.get('migration'),
-        campaign: relier.get('campaign')
+        campaign: relier.get('campaign'),
+        clientHeight: screenInfo.clientHeight,
+        clientWidth: screenInfo.clientWidth,
+        devicePixelRatio: screenInfo.devicePixelRatio,
+        screenHeight: screenInfo.screenHeight,
+        screenWidth: screenInfo.screenWidth
       });
       this._metrics.init();
     },

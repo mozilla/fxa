@@ -20,10 +20,8 @@ define([
   'jquery',
   'speedTrap',
   'lib/xhr',
-  'lib/promise',
-  'lib/url',
   'lib/strings'
-], function (_, Backbone, $, speedTrap, xhr, p, Url, Strings) {
+], function (_, Backbone, $, speedTrap, xhr, Strings) {
   'use strict';
 
   // Speed trap is a singleton, convert it
@@ -50,6 +48,7 @@ define([
   ];
 
   var TEN_MINS_MS = 10 * 60 * 1000;
+  var NOT_REPORTED_VALUE = 'none';
 
   function Metrics (options) {
     options = options || {};
@@ -70,12 +69,22 @@ define([
 
     this._lang = options.lang || 'unknown';
     this._context = options.context || 'web';
-    this._entrypoint = options.entrypoint || 'none';
-    this._migration = options.migration || 'none';
-    this._service = options.service || 'none';
-    this._campaign = options.campaign || 'none';
+    this._entrypoint = options.entrypoint || NOT_REPORTED_VALUE;
+    this._migration = options.migration || NOT_REPORTED_VALUE;
+    this._service = options.service || NOT_REPORTED_VALUE;
+    this._campaign = options.campaign || NOT_REPORTED_VALUE;
+
+    this._clientHeight = options.clientHeight || NOT_REPORTED_VALUE;
+    this._clientWidth = options.clientWidth || NOT_REPORTED_VALUE;
+    this._devicePixelRatio = options.devicePixelRatio || NOT_REPORTED_VALUE;
+    this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
+    this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
 
     this._inactivityFlushMs = options.inactivityFlushMs || TEN_MINS_MS;
+
+    this._marketingType = NOT_REPORTED_VALUE;
+    this._marketingLink = NOT_REPORTED_VALUE;
+    this._marketingClicked = false;
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
@@ -137,17 +146,24 @@ define([
       var loadData = this._speedTrap.getLoad();
       var unloadData = this._speedTrap.getUnload();
 
-      var allData = _.extend({
+      var allData = _.extend({}, loadData, unloadData, {
         context: this._context,
         service: this._service,
         lang: this._lang,
         entrypoint: this._entrypoint,
         migration: this._migration,
-        marketingType: this._marketingType || 'none',
-        marketingLink: this._marketingLink || 'none',
-        marketingClicked: this._marketingClicked || false,
-        campaign: this._campaign
-      }, loadData, unloadData);
+        marketingType: this._marketingType,
+        marketingLink: this._marketingLink,
+        marketingClicked: this._marketingClicked,
+        campaign: this._campaign,
+        screen: {
+          devicePixelRatio: this._devicePixelRatio,
+          clientWidth: this._clientWidth,
+          clientHeight: this._clientHeight,
+          width: this._screenWidth,
+          height: this._screenHeight
+        }
+      });
 
       return allData;
     },

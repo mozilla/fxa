@@ -67,8 +67,11 @@ Where the user came from. Not set if the `referrer` header cannot be read.
 Screen information
 
 Contains:
-* width: width as reported by window.screen.width
-* height: height as reported by window.screen.height
+* clientHeight: viewport height as reported by window.documentElement.clientHeight. `none` if not supported.
+* clientWidth: viewport height as reported by window.documentElement.clientWidth. `none` if not supported.
+* devicePixelRatio: device pixel ratio as reported by window.devicePixelRatio. `none` if not supported.
+* height: screen height as reported by window.screen.height. `none` if not supported.
+* width: screen width as reported by window.screen.width. `none` if not supported.
 
 ### service
 Service using FxA to authenticate. If Sync, this will be `sync`. If
