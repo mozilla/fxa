@@ -1,3 +1,12 @@
+<a name="0.1.28"></a>
+### 0.1.28 (2015-02-12)
+
+
+#### Features
+
+* **client:** Add account unlock functionality. ([2f8e642c](https://github.com/mozilla/fxa-js-client/commit/2f8e642c3600e29fedd3913b60e417f376593754))
+
+
 <a name="0.1.27"></a>
 ### 0.1.27 (2014-12-09)
 
