@@ -10,7 +10,8 @@
       "name": "123done",
       "imageUri": "https://123done.dev.lcip.org/img/logo@2x.png",
       "redirectUri": "https://123done.dev.lcip.org/api/oauth",
-      "whitelisted": true
+      "whitelisted": true,
+      "canGrant": false
     }
   ],
   "env": "stage",
