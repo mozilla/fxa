@@ -771,6 +771,78 @@ define([
     return this.request.send('/get_random_bytes', 'POST');
   };
 
+  /**
+   * Lock an account - only available in a testing environment.
+   *
+   * @method accountLock
+   * @param {String} email
+   * @param {String} password
+   */
+  FxAccountClient.prototype.accountLock = function (email, password) {
+    required(email, 'email');
+    required(password, 'password');
+
+    var self = this;
+    return credentials.setup(email, password)
+      .then(
+        function (result) {
+          var data = {
+            email: result.emailUTF8,
+            authPW: sjcl.codec.hex.fromBits(result.authPW)
+          };
+
+          return self.request.send('/account/lock', 'POST', null, data);
+        });
+  };
+
+
+  /**
+   * Send an account unlock code
+   *
+   * @method accountUnlockResendCode
+   * @param {String} email
+   * @param {Object} [options={}] Options
+   */
+  FxAccountClient.prototype.accountUnlockResendCode = function (email, options) {
+    required(email, 'email');
+
+    var data = {
+      email: email
+    };
+    if (options) {
+      if (options.service) {
+        data.service = options.service;
+      }
+
+      if (options.redirectTo) {
+        data.redirectTo = options.redirectTo;
+      }
+
+      if (options.resume) {
+        data.resume = options.resume;
+      }
+    }
+
+    return this.request.send('/account/unlock/resend_code', 'POST', null, data);
+  };
+
+  /**
+   * Verify an account unlock code
+   *
+   * @method accountUnlockVerifyCode
+   * @param {String} uid
+   * @param {String} code
+   */
+  FxAccountClient.prototype.accountUnlockVerifyCode = function (uid, code) {
+    required(uid, 'uid');
+    required(code, 'code');
+
+    return this.request.send('/account/unlock/verify_code', 'POST', null, {
+      uid: uid,
+      code: code
+    });
+  };
+
   return FxAccountClient;
 });
 
