@@ -95,7 +95,8 @@ const Q_AVATAR_LIST = 'SELECT avatars.id, url, avatar_selected.avatarId '
 const Q_AVATAR_DELETE = 'DELETE FROM avatars WHERE id=?';
 
 const Q_PROVIDER_INSERT = 'INSERT INTO avatar_providers (name) VALUES (?)';
-const Q_PROVIDER_GET = 'SELECT * FROM avatar_providers WHERE name=?';
+const Q_PROVIDER_GET_BY_NAME = 'SELECT * FROM avatar_providers WHERE name=?';
+const Q_PROVIDER_GET_BY_ID = 'SELECT * FROM avatar_providers WHERE id=?';
 
 function firstRow(rows) {
   return rows[0];
@@ -129,7 +130,7 @@ MysqlStore.prototype = {
     id = buf(id);
     uid = buf(uid);
     var store = this;
-    return this.getProvider(provider).then(function(prov) {
+    return this.getProviderByName(provider).then(function(prov) {
       if (!prov) {
         throw AppError.unsupportedProvider(url);
       }
@@ -164,8 +165,12 @@ MysqlStore.prototype = {
     return this._write(Q_PROVIDER_INSERT, [name]);
   },
 
-  getProvider: function getProvider(name) {
-    return this._readOne(Q_PROVIDER_GET, [name]);
+  getProviderByName: function getProviderByName(name) {
+    return this._readOne(Q_PROVIDER_GET_BY_NAME, [name]);
+  },
+
+  getProviderById: function getProviderById(id) {
+    return this._readOne(Q_PROVIDER_GET_BY_ID, [id]);
   },
 
   _write: function _write(sql, params) {

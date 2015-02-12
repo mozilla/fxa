@@ -45,6 +45,29 @@ AwsDriver.prototype = {
         }
       });
     });
+  },
+
+  delete: function awsDelete(key) {
+    var s3 = this._s3;
+    var bucket = PUBLIC_BUCKET;
+    return new P(function(resolve, reject) {
+      logger.debug('delete.start', { bucket: bucket, key: key });
+      s3.deleteObjects({
+        Bucket: bucket,
+        Delete: {
+          Objects: [
+            { Key: key }
+          ]
+        }
+      }, function(err, data) {
+        if (err) {
+          reject(err);
+        } else {
+          logger.debug('delete.end', { key: key, data: data });
+          resolve(key);
+        }
+      });
+    });
   }
 
 };

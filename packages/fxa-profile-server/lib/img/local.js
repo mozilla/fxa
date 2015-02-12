@@ -43,6 +43,25 @@ LocalDriver.prototype = {
         }
       });
     });
+  },
+
+  delete: function localDelete(key) {
+    return new P(function deletePromise(resolve, reject) {
+      var dir = PUBLIC_DIR;
+      logger.debug('delete.start', key);
+      if (/[^a-zA-Z0-9\_\-]/.test(key)) {
+        return reject(new Error('Illegal characters in key'));
+      }
+      fs.unlink(path.join(dir, key), function(err) {
+        if (err) {
+          logger.error('delete', err);
+          reject(err);
+        } else {
+          logger.debug('delete.end', key);
+          resolve(key);
+        }
+      });
+    });
   }
 
 };

@@ -21,7 +21,7 @@ function opts(options) {
 }
 
 ['GET', 'POST', 'PUT', 'DELETE'].forEach(function(method) {
-  exports[method.toLowerCase()] = function(options) {
+  exports[method.toLowerCase()] = exports[method] = function(options) {
     options = opts(options);
     options.method = method;
     return request(options);
