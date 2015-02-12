@@ -36,7 +36,9 @@ define([], function () {
 
     // A relier can indicate they do not want to allow
     // cached credentials if they set email === 'blank'
-    DISALLOW_CACHED_CREDENTIALS: 'blank'
+    DISALLOW_CACHED_CREDENTIALS: 'blank',
+
+    ONERROR_MESSAGE_LIMIT: 100
   };
 });
 

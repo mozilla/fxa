@@ -14,12 +14,14 @@ define([
   'lib/promise',
   'models/auth_brokers/base',
   'models/user',
+  'lib/metrics',
   '../../mocks/window',
   '../../mocks/router',
-  '../../mocks/history'
+  '../../mocks/history',
+  '../../lib/helpers'
 ],
 function (chai, sinon, AppStart, Session, Constants, p,
-      NullBroker, User, WindowMock, RouterMock, HistoryMock) {
+      NullBroker, User, Metrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
 
@@ -131,6 +133,21 @@ function (chai, sinon, AppStart, Session, Constants, p,
                     .then(function () {
                       assert.ok(userMock.upgradeFromSession.calledOnce);
                     });
+      });
+
+      it('tracks window errors', function () {
+        var message = 'Fake ReferenceError: xyz is not defined. ' +
+          'Testing length of a long window.onerror error message here, that is more than the given limit';
+
+        return appStart.startApp()
+          .then(function () {
+            appStart._metrics = new Metrics();
+            window.onerror.call(window, message, document.location.toString(), 2);
+          })
+          .then(function () {
+            var expectedMessage = message.substring(0, Constants.ONERROR_MESSAGE_LIMIT);
+            assert.isTrue(TestHelpers.isEventLogged(appStart._metrics, 'error.onwindow.' + expectedMessage));
+          });
       });
     });
   });
