@@ -11,7 +11,8 @@
       "name": "123Done",
       "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
       "redirectUri": "http://127.0.0.1:8080/api/oauth",
-      "whitelisted": true
+      "whitelisted": true,
+      "canGrant": false
     },
     {
       "id": "98e6508e88680e1a",
@@ -29,7 +30,8 @@
       "canGrant": false,
       "id": "24bdbfa45cd300c5",
       "hashedSecret": "dfe56d5c816d6b7493618f6a1567cfed4aa9c25f85d59c6804631c48774ba545",
-      "whitelisted": true
+      "whitelisted": true,
+      "canGrant": false
     },
     {
       "name": "Firefox Hello DEV",
@@ -37,7 +39,8 @@
       "imageUri": "https://example2.domain/return?foo=bar",
       "id": "263ceaa5546dce83",
       "hashedSecret": "3c32099123471ffb80a7553558e6a6e8589da2235a4e081fe9d76648aa25d050",
-      "whitelisted": true
+      "whitelisted": true,
+      "canGrant": false
     }
   ],
   "localRedirects": true,

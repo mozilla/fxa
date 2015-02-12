@@ -60,9 +60,22 @@ function preClients() {
           unbuf(encrypt.hash(c.secret)));
         process.exit(1);
       }
+
+      // ensure the required keys are present.
+      var CLIENTS_KEYS = [ 'id', 'hashedSecret', 'name', 'imageUri',
+                           'redirectUri', 'whitelisted', 'canGrant' ];
+      CLIENTS_KEYS.forEach(function(key) {
+        if (!(key in c)) {
+          var data = { key: key, name: c.name || 'unknown' };
+          logger.error('client.missing.keys', data);
+          process.exit(1);
+        }
+      });
+
       // ensure booleans are boolean and not undefined
       c.whitelisted = !!c.whitelisted;
       c.canGrant = !!c.canGrant;
+
       return exports.getClient(c.id).then(function(client) {
         if (client) {
           client = convertClientToConfigFormat(client);

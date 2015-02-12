@@ -6,7 +6,8 @@
       "name": "Mocha",
       "imageUri": "https://example.domain/logo",
       "redirectUri": "https://example.domain/return?foo=bar",
-      "whitelisted": true
+      "whitelisted": true,
+      "canGrant": false
     },
     {
       "id": "98e6508e88680e1a",
@@ -23,7 +24,8 @@
       "name": "URN",
       "imageUri": "https://example2.domain/logo",
       "redirectUri": "urn:ietf:wg:oauth:2.0:fx:webchannel",
-      "whitelisted": true
+      "whitelisted": true,
+      "canGrant": false
     }
   ],
   "logging": {
