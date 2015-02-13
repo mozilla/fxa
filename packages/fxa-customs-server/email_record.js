@@ -14,7 +14,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
     passwordForgotResendCode : true,
   }
 
-  function isEmailAction(action) {
+  function isEmailSendingAction(action) {
     return EMAIL_ACTION[action]
   }
 
@@ -117,7 +117,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
   EmailRecord.prototype.update = function (action) {
     // if this user is not yet blocked
     // and if this is NOT an email action, then no block
-    if ( !this.isBlocked() && !isEmailAction(action) ) {
+    if ( !this.isBlocked() && !isEmailSendingAction(action) ) {
       return 0
     }
 
