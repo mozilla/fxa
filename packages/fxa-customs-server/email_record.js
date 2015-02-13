@@ -115,26 +115,27 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
   }
 
   EmailRecord.prototype.update = function (action) {
-    // if this user is not yet blocked
-    // and if this is NOT an email action, then no block
-    if ( !this.isBlocked() && !isEmailSendingAction(action) ) {
-      return 0
-    }
-
-    // check if this is already blocked, don't count any more hits and tell them to retry
-    if (this.shouldBlock()) {
+    // Reject immediately if they've been explicitly blocked.
+    if (this.isBlocked()) {
       return this.retryAfter()
     }
 
-    this.addHit()
-
-    if (this.isOverEmailLimit()) {
-      // rate limit this email if now over the limit and tell them to retry
-      this.rateLimit()
-      return this.retryAfter()
+    // For email-sending actions, we may need to rate-limit.
+    if (isEmailSendingAction(action)) {
+      // If they're already being blocked then don't count any more hits,
+      // and tell them to retry.
+      if (this.shouldBlock()) {
+        return this.retryAfter()
+      }
+      this.addHit()
+      if (this.isOverEmailLimit()) {
+        // They're not over the limit, rate-limit and tell them to retry.
+        this.rateLimit()
+        return this.retryAfter()
+      }
     }
 
-    // no block, not yet over limit
+    // Everything else is allowed through.
     return 0
   }
 
