@@ -48,7 +48,7 @@ function (_, Cocktail, Session, FormView, BaseView, AvatarMixin, SettingsMixin, 
           self.user.clearSignedInAccount();
           Session.clear();
           self.navigate('signin', {
-            success: t('Signed out')
+            success: t('Signed out successfully')
           });
         });
     },

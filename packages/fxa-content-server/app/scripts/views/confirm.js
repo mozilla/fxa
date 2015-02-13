@@ -88,7 +88,7 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
                 // the user is definitely authenticated here.
                 if (self.relier.isDirectAccess()) {
                   self.navigate('settings', {
-                    success: t('Account verified')
+                    success: t('Account verified successfully')
                   });
                 } else {
                   self.navigate('signup_complete');

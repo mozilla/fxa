@@ -172,7 +172,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
                 // user is most definitely signed in since sessionInfo
                 // was passed in. Just ship direct access users to /settings
                 self.navigate('settings', {
-                  success: t('Account verified')
+                  success: t('Account verified successfully')
                 });
               } else {
                 self.navigate('reset_password_complete');
@@ -189,7 +189,7 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
       Session.clear();
       Session.set('prefillEmail', self._email);
       self.navigate(self._getSignInRoute(), {
-        success: t('Password reset. Sign in to continue.')
+        success: t('Password reset successfully. Sign in to continue.')
       });
     },
 
