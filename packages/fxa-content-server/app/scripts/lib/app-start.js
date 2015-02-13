@@ -194,7 +194,7 @@ function (
 
     initializeMetrics: function () {
       var relier = this._relier;
-      var screenInfo = new ScreenInfo(window);
+      var screenInfo = new ScreenInfo(this._window);
       this._metrics = createMetrics(this._config.metricsSampleRate, {
         lang: this._config.language,
         service: relier.get('service'),
