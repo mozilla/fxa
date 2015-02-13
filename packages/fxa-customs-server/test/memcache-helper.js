@@ -46,7 +46,7 @@ function blockedEmailCheck(cb) {
         function (err, data) {
           var er = EmailRecord.parse(data)
           mc.end()
-          cb(er.isBlocked())
+          cb(er.shouldBlock())
         }
       )
     }
@@ -62,7 +62,7 @@ function blockedIpCheck(cb) {
         function (err, data) {
           var ir = IpRecord.parse(data)
           mc.end()
-          cb(ir.isBlocked())
+          cb(ir.shouldBlock())
         }
       )
     }

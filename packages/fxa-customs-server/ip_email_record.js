@@ -7,11 +7,15 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
 
   now = now || Date.now
 
-  var IP_EMAIL_ACTIONS = [
-    'accountLogin',
-    'accountDestroy',
-    'passwordChange'
-  ]
+  var IP_EMAIL_ACTION = {
+    accountLogin   : true,
+    accountDestroy : true,
+    passwordChange : true,
+  }
+
+  function isIpEmailAction(action) {
+    return IP_EMAIL_ACTION[action]
+  }
 
   function IpEmailRecord() {
     this.lf = []
@@ -50,7 +54,11 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
     this.lf = this.lf.slice(i + 1)
   }
 
-  IpEmailRecord.prototype.isBlocked = function () {
+  IpEmailRecord.prototype.shouldBlock = function () {
+    return this.isRateLimited()
+  }
+
+  IpEmailRecord.prototype.isRateLimited = function () {
     return !!(this.rl && (now() - this.rl < RATE_LIMIT_INTERVAL_MS))
   }
 
@@ -73,19 +81,24 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   }
 
   IpEmailRecord.prototype.update = function (action) {
-    if (IP_EMAIL_ACTIONS.indexOf(action) === -1) {
+    // if this is not an Ip/Email Action, then all ok (no block)
+    if ( !isIpEmailAction(action) ) {
       return 0
     }
 
-    if (!this.isBlocked()) {
-      if (this.isOverBadLogins()) {
-        this.rateLimit()
-      }
-      else {
-        return 0
-      }
+    if ( this.shouldBlock() ) {
+      // if already blocked, then return a block
+      return this.retryAfter()
     }
-    return this.retryAfter()
+
+    // if over the bad logins, rate limit them and return the block
+    if (this.isOverBadLogins()) {
+      this.rateLimit()
+      return this.retryAfter()
+    }
+
+    // no block, not yet over limit
+    return 0
   }
 
   return IpEmailRecord

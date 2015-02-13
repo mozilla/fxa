@@ -7,12 +7,16 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
 
   now = now || Date.now
 
-  var EMAIL_ACTIONS = [
-    'accountCreate',
-    'recoveryEmailResendCode',
-    'passwordForgotSendCode',
-    'passwordForgotResendCode'
-  ]
+  var EMAIL_ACTION = {
+    accountCreate            : true,
+    recoveryEmailResendCode  : true,
+    passwordForgotSendCode   : true,
+    passwordForgotResendCode : true,
+  }
+
+  function isEmailAction(action) {
+    return EMAIL_ACTION[action]
+  }
 
   function EmailRecord() {
     this.xs = []
@@ -79,12 +83,15 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
     this.lf.push(now())
   }
 
-  EmailRecord.prototype.isBlocked = function () {
-    var rateLimited = !!(this.rl && (now() - this.rl < RATE_LIMIT_INTERVAL_MS))
-    return rateLimited || this.isBanned()
+  EmailRecord.prototype.shouldBlock = function () {
+    return this.isRateLimited() || this.isBlocked()
   }
 
-  EmailRecord.prototype.isBanned = function () {
+  EmailRecord.prototype.isRateLimited = function () {
+    return !!(this.rl && (now() - this.rl < RATE_LIMIT_INTERVAL_MS))
+  }
+
+  EmailRecord.prototype.isBlocked = function () {
     return !!(this.bk && (now() - this.bk < BLOCK_INTERVAL_MS))
   }
 
@@ -108,22 +115,28 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
   }
 
   EmailRecord.prototype.update = function (action) {
-    if (!this.isBanned() && EMAIL_ACTIONS.indexOf(action) === -1) {
+    // if this user is not yet blocked
+    // and if this is NOT an email action, then no block
+    if ( !this.isBlocked() && !isEmailAction(action) ) {
       return 0
     }
 
-    if (!this.isBlocked()) {
-      // only count hits while aren't already suspended
-      this.addHit()
-
-      if (this.isOverEmailLimit()) {
-        this.rateLimit()
-      }
-      else {
-        return 0
-      }
+    // check if this is already blocked, don't count any more hits and tell them to retry
+    if (this.shouldBlock()) {
+      return this.retryAfter()
     }
-    return this.retryAfter()
+
+    this.addHit()
+
+    if (this.isOverEmailLimit()) {
+      // rate limit this email if now over the limit and tell them to retry
+      this.rateLimit()
+      return this.retryAfter()
+    }
+
+    // no block, not yet over limit
+    return 0
   }
+
   return EmailRecord
 }
