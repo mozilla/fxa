@@ -680,7 +680,7 @@ Not HAWK-authenticated.
 
 Used to submit a verification code that was previously sent to a user's recovery email. If correct, the account's recovery email address will be marked as "verified".
 
-The verification code will be a random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/recovery_email/verify_code`. This endpoint should be CORS-enabled, to allow the linked page to be hosted on a different (static) domain. The link can be clicked from any browser, not just the one being attached to the PICL account.
+The verification code will be a random token, delivered in the fragment portion of a URL sent to the user's email address. The URL will lead to a page that extracts the code from the URL fragment, and performs a POST to `/recovery_email/verify_code`. This endpoint should be CORS-enabled, to allow the linked page to be hosted on a different (static) domain. The link can be clicked from any browser, not just the one being attached to the Firefox account.
 
 ### Request
 
