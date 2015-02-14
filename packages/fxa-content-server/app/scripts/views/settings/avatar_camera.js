@@ -11,13 +11,14 @@ define([
   'views/form',
   'views/progress_indicator',
   'views/mixins/settings-mixin',
+  'views/mixins/avatar-mixin',
   'stache!templates/settings/avatar_camera',
   'lib/constants',
   'lib/promise',
   'lib/auth-errors'
 ],
 function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
-    SettingsMixin, Template, Constants, p, AuthErrors) {
+    SettingsMixin, AvatarMixin, Template, Constants, p, AuthErrors) {
   // a blank 1x1 png
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -152,6 +153,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
           self.stream.stop();
           delete self.stream;
 
+          self.updateAvatarUrl(result.url);
           self.navigate('settings');
           return result;
         });
@@ -209,7 +211,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
     }
   });
 
-  Cocktail.mixin(View, SettingsMixin);
+  Cocktail.mixin(View, SettingsMixin, AvatarMixin);
 
   return View;
 });

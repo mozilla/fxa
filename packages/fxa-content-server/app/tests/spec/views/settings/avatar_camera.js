@@ -167,6 +167,10 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
           });
         });
 
+        sinon.stub(view, 'updateAvatarUrl', function () {
+          return p();
+        });
+
         view.render()
           .then(function () {
             view.canvas = new CanvasMock();
@@ -190,6 +194,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
                   assert.ok(! view.stream, 'stream is gone');
                   assert.equal(result.url, 'test');
                   assert.equal(result.id, 'foo');
+                  assert.isTrue(view.updateAvatarUrl.calledWith(result));
                 }, done);
 
               // check canvas drawImage args

@@ -14,8 +14,6 @@
     width: 120px;
     display: block;
     margin: 0 auto;
-    background: image-url('default-profile.svg') center;
-    background-repeat: no-repeat;
     img, a.change-avatar {
       height: 120px;
       width: 120px;
@@ -25,10 +23,6 @@
       position: absolute;
       bottom: 0px;
     }
-  }
-
-  &.with-default {
-    background: image-url('default-profile.svg') center;
   }
 
   img {
@@ -51,6 +45,11 @@
     border-radius: 50%;
     position: relative;
   }
+}
+
+.with-default {
+  background: image-url('default-profile.svg') center;
+  background-repeat: no-repeat;
 }
 
 p.change-avatar-text {

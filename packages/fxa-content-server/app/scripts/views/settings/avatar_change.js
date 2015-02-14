@@ -63,6 +63,7 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template, AuthEr
       var self = this;
       return self.getSignedInAccount().deleteAvatar(self.avatarId)
         .then(function () {
+          self.updateAvatarUrl(null);
           self.navigate('settings');
         });
     },

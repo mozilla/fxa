@@ -11,13 +11,14 @@ define([
   'cocktail',
   'views/form',
   'views/mixins/settings-mixin',
+  'views/mixins/avatar-mixin',
   'stache!templates/settings/avatar_gravatar',
   'lib/constants',
   'lib/image-loader',
   'views/decorators/progress_indicator'
 ],
-function ($, _, md5, Cocktail, FormView, SettingsMixin, Template,
-    Constants, ImageLoader, showProgressIndicator) {
+function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
+    Template, Constants, ImageLoader, showProgressIndicator) {
 
   function t (s) { return s; }
 
@@ -79,6 +80,8 @@ function ($, _, md5, Cocktail, FormView, SettingsMixin, Template,
 
       return self.getSignedInAccount().postAvatar(url, true)
         .then(function (result) {
+          self.updateAvatarUrl(url);
+
           self.navigate('settings', {
             successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')
           });
@@ -87,7 +90,7 @@ function ($, _, md5, Cocktail, FormView, SettingsMixin, Template,
     }
   });
 
-  Cocktail.mixin(View, SettingsMixin);
+  Cocktail.mixin(View, SettingsMixin, AvatarMixin);
 
   return View;
 });

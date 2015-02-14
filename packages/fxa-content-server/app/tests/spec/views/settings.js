@@ -193,6 +193,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           })
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').length, 0);
+            assert.equal(view.$('.avatar-wrapper.with-default').length, 1);
           });
       });
 
@@ -210,6 +211,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           })
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').attr('src'), url);
+            assert.equal(view.$('.avatar-wrapper.with-default').length, 0);
           });
       });
 
