@@ -20,7 +20,8 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('lib/metrics', function () {
-    var metrics, windowMock;
+    var metrics;
+    var windowMock;
 
     beforeEach(function () {
       windowMock = new WindowMock();
@@ -32,7 +33,12 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         context: 'fxa_desktop_v1',
         entrypoint: 'menupanel',
         migration: 'sync1.5',
-        campaign: 'fennec'
+        campaign: 'fennec',
+        devicePixelRatio: 2,
+        clientWidth: 1033,
+        clientHeight: 966,
+        screenWidth: 1600,
+        screenHeight: 1200
       });
       metrics.init();
     });
@@ -67,8 +73,11 @@ function (chai, $, p, Metrics, AuthErrors, WindowMock, TestHelpers) {
         assert.equal(filteredData.migration, 'sync1.5');
         assert.equal(filteredData.campaign, 'fennec');
 
-        assert.equal(filteredData.screen.width, window.screen.width);
-        assert.equal(filteredData.screen.height, window.screen.height);
+        assert.equal(filteredData.screen.width, 1600);
+        assert.equal(filteredData.screen.height, 1200);
+        assert.equal(filteredData.screen.devicePixelRatio, 2);
+        assert.equal(filteredData.screen.clientWidth, 1033);
+        assert.equal(filteredData.screen.clientHeight, 966);
       });
     });
 
