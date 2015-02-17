@@ -1,3 +1,13 @@
+<a name="0.31.0"></a>
+## 0.31.0 (2015-02-17)
+
+
+#### Features
+
+* **docker:** Dockerfile and README update for basic docker development workflow ([d424fb66](mozilla/fxa-profile-server/commit/d424fb6664f08bb783db4ecdf76bb805113b4485))
+* **images:** delete images from s3 when asked to ([ec25152b](mozilla/fxa-profile-server/commit/ec25152b434b4b75939a5184b38210e326dea438))
+
+
 <a name="0.26.1"></a>
 ### 0.26.1 (2014-11-17)
 
