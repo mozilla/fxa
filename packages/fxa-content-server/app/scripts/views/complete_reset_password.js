@@ -140,7 +140,7 @@ function (_, BaseView, FormView, Template, PasswordMixin,
             // path would not be taken.
             if (self.relier.isDirectAccess()) {
               self.navigate('settings', {
-                success: t('Account verified')
+                success: t('Account verified successfully')
               });
             } else {
               self.navigate('reset_password_complete');

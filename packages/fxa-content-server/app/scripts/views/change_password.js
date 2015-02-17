@@ -76,7 +76,7 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
           })
           .then(function () {
             self.navigate('settings', {
-              success: t('Password changed')
+              success: t('Password changed successfully')
             });
           });
     }

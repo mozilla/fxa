@@ -80,7 +80,7 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
               .then(function (isSignedIn) {
                 if (isSignedIn) {
                   self.navigate('settings', {
-                    success: t('Account verified')
+                    success: t('Account verified successfully')
                   });
                 } else {
                   self.navigate('signup_complete');
