@@ -142,4 +142,157 @@ describe('db', function() {
     });
   });
 
+  describe('developers', function () {
+
+    describe('removeDeveloper', function() {
+      it('should not fail on non-existent developers', function() {
+        return db.removeDeveloper('unknown@developer.com');
+      });
+
+      it('should delete developers', function() {
+        var email = 'email' + randomString(10) + '@mozilla.com';
+
+        return db.activateDeveloper(email)
+          .then(function(developer) {
+            assert.equal(developer.email, email);
+
+            return db.removeDeveloper(email);
+          })
+          .then(function() {
+            return db.getDeveloper(email);
+          })
+          .done(function(developer) {
+            assert.equal(developer, null);
+          });
+      });
+    });
+
+    describe('getDeveloper', function() {
+      it('should return null if developer does not exit', function() {
+        return db.getDeveloper('unknown@developer.com')
+          .then(function(developer) {
+            assert.equal(developer, null);
+          });
+      });
+
+      it('should throw on empty email', function() {
+        return db.getDeveloper()
+          .done(
+          assert.fail,
+          function(err) {
+            assert.equal(err.message, 'Email is required');
+          }
+        );
+      });
+
+    });
+
+    describe('activateDeveloper and getDeveloper', function() {
+      it('should create developers', function() {
+        var email = 'email' + randomString(10) + '@mozilla.com';
+
+        return db.activateDeveloper(email)
+          .done(function(developer) {
+            assert.equal(developer.email, email);
+          });
+      });
+
+      it('should not allow duplicates', function() {
+        var email = 'email' + randomString(10) + '@mozilla.com';
+
+        return db.activateDeveloper(email)
+          .then(function() {
+            return db.activateDeveloper(email);
+          })
+          .done(
+            function() {
+              assert.fail();
+            },
+            function(err) {
+              assert.equal(err.message.indexOf('ER_DUP_ENTRY') >= 0, true);
+            }
+          );
+      });
+
+      it('should throw on empty email', function() {
+        return db.activateDeveloper()
+          .done(
+            assert.fail,
+            function(err) {
+              assert.equal(err.message, 'Email is required');
+            }
+          );
+      });
+
+    });
+
+    describe('registerClientDeveloper and developerOwnsClient', function() {
+      var clientId = buf(randomString(8));
+      var userId = buf(randomString(16));
+      var email = 'a@b.c';
+      var scope = ['no-scope'];
+      var code = null;
+      var token = null;
+
+      before(function() {
+        return db.registerClient({
+          id: clientId,
+          name: 'registerClientDeveloper',
+          hashedSecret: randomString(32),
+          imageUri: 'https://example.domain/logo',
+          redirectUri: 'https://example.domain/return?foo=bar',
+          whitelisted: true
+        }).then(function() {
+          return db.generateCode(clientId, userId, email, scope, 0);
+        }).then(function(c) {
+          code = c;
+          return db.getCode(code);
+        }).then(function(code) {
+          assert.equal(hex(code.userId), hex(userId));
+          return db.generateToken({
+            clientId: clientId,
+            userId: userId,
+            email: email,
+            scope: scope
+          });
+        }).then(function(t) {
+          token = t.token;
+          assert.equal(hex(t.userId), hex(userId), 'token userId');
+        });
+      });
+
+      it('should attach a developer to a client', function(done) {
+        var email = 'email' + randomString(10) + '@mozilla.com';
+
+        return db.activateDeveloper(email)
+          .then(function(developer) {
+            return db.registerClientDeveloper(
+              hex(developer.developerId),
+              hex(clientId)
+            );
+          })
+          .then(function() {
+            return db.getClientDevelopers(hex(clientId));
+          })
+          .done(function(developers) {
+            if (developers) {
+              var found = false;
+
+              developers.forEach(function(developer) {
+                if (developer.email === email) {
+                  found = true;
+                }
+              });
+
+              assert.equal(found, true);
+              return done();
+            }
+          }, done);
+
+      });
+
+    });
+
+  });
+
 });

@@ -5,7 +5,7 @@
 const auth = require('../../auth');
 const db = require('../../db');
 const validators = require('../../validators');
-
+const AppError = require('../../error');
 
 /*jshint camelcase: false*/
 module.exports = {
@@ -19,8 +19,19 @@ module.exports = {
     }
   },
   handler: function clientDeleteEndpoint(req, reply) {
-    db.removeClient(req.params.client_id).done(function() {
-      reply().code(204);
-    }, reply);
+    var email = req.auth.credentials.email;
+    var clientId = req.params.client_id;
+
+    return db.developerOwnsClient(email, clientId)
+      .then(
+        function () {
+          return db.removeClient(clientId).done(function() {
+            reply().code(204);
+          }, reply);
+        },
+        function () {
+          return reply(AppError.unauthorized('Illegal Developer'));
+        }
+      );
   }
 };

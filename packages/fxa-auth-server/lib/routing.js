@@ -84,5 +84,10 @@ exports.clients = [
     method: 'DELETE',
     path: v('/client/{client_id}'),
     config: require('./routes/client/delete')
+  },
+  {
+    method: 'POST',
+    path: v('/developer/activate'),
+    config: require('./routes/developer/activate')
   }
 ];

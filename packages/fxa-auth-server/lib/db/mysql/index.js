@@ -104,9 +104,30 @@ const QUERY_CLIENT_REGISTER =
   'INSERT INTO clients ' +
   '(id, name, imageUri, secret, redirectUri, whitelisted, canGrant) ' +
   'VALUES (?, ?, ?, ?, ?, ?, ?);';
+const QUERY_CLIENT_DEVELOPER_INSERT =
+  'INSERT INTO clientDevelopers ' +
+  '(rowId, developerId, clientId) ' +
+  'VALUES (?, ?, ?);';
+const QUERY_CLIENT_DEVELOPER_LIST_BY_CLIENT_ID =
+  'SELECT developers.email, developers.createdAt ' +
+  'FROM clientDevelopers, developers ' +
+  'WHERE clientDevelopers.developerId = developers.developerId ' +
+  'AND clientDevelopers.clientId=?;';
+const QUERY_DEVELOPER_OWNS_CLIENT =
+  'SELECT clientDevelopers.rowId ' +
+  'FROM clientDevelopers, developers ' +
+  'WHERE developers.developerId = clientDevelopers.developerId ' +
+  'AND developers.email =? AND clientDevelopers.clientId =?;';
+const QUERY_DEVELOPER_INSERT =
+  'INSERT INTO developers ' +
+  '(developerId, email) ' +
+  'VALUES (?, ?);';
 const QUERY_CLIENT_GET = 'SELECT * FROM clients WHERE id=?';
 const QUERY_CLIENT_LIST = 'SELECT id, name, redirectUri, imageUri, canGrant, ' +
-  'whitelisted FROM clients';
+  'whitelisted FROM fxa_oauth.clients, clientDevelopers, developers ' +
+  'WHERE clients.id = clientDevelopers.clientId AND ' +
+  'developers.developerId = clientDevelopers.developerId AND ' +
+  'developers.email =?;';
 const QUERY_CLIENT_UPDATE = 'UPDATE clients SET ' +
   'name=COALESCE(?, name), imageUri=COALESCE(?, imageUri), ' +
   'secret=COALESCE(?, secret), redirectUri=COALESCE(?, redirectUri), ' +
@@ -125,6 +146,8 @@ const QUERY_CODE_DELETE = 'DELETE FROM codes WHERE code=?';
 const QUERY_TOKEN_DELETE = 'DELETE FROM tokens WHERE token=?';
 const QUERY_TOKEN_DELETE_USER = 'DELETE FROM tokens WHERE userId=?';
 const QUERY_CODE_DELETE_USER = 'DELETE FROM codes WHERE userId=?';
+const QUERY_DEVELOPER = 'SELECT * FROM developers WHERE email=?';
+const QUERY_DEVELOPER_DELETE = 'DELETE FROM developers WHERE email=?';
 
 function firstRow(rows) {
   return rows[0];
@@ -177,7 +200,77 @@ MysqlStore.prototype = {
       return client;
     });
   },
+  registerClientDeveloper: function regClientDeveloper(developerId, clientId) {
+    if (!developerId || !clientId) {
+      var err = new Error('Owner registration requires user and developer id');
+      return P.reject(err);
+    }
 
+    var rowId = unique.id();
+
+    logger.debug('registerClientDeveloper', {
+      rowId: rowId,
+      developerId: developerId,
+      clientId: clientId
+    });
+
+    return this._write(QUERY_CLIENT_DEVELOPER_INSERT, [
+      buf(rowId),
+      buf(developerId),
+      buf(clientId)
+    ]);
+  },
+  getClientDevelopers: function getClientDevelopers (clientId) {
+    if (! clientId) {
+      return P.reject(new Error('Client id is required'));
+    }
+
+    return this._read(QUERY_CLIENT_DEVELOPER_LIST_BY_CLIENT_ID, [
+      buf(clientId)
+    ]);
+  },
+  activateDeveloper: function activateDeveloper(email) {
+    if (! email) {
+      return P.reject(new Error('Email is required'));
+    }
+
+    var developerId = unique.developerId();
+    logger.debug('activateDeveloper', { developerId: developerId });
+    return this._write(QUERY_DEVELOPER_INSERT, [
+      developerId, email
+    ]).then(function () {
+      return this.getDeveloper(email);
+    }.bind(this));
+  },
+  getDeveloper: function(email) {
+    if (! email) {
+      return P.reject(new Error('Email is required'));
+    }
+
+    return this._readOne(QUERY_DEVELOPER, [
+      email
+    ]);
+  },
+  removeDeveloper: function(email) {
+    if (! email) {
+      return P.reject(new Error('Email is required'));
+    }
+
+    return this._write(QUERY_DEVELOPER_DELETE, [
+      email
+    ]);
+  },
+  developerOwnsClient: function devOwnsClient(developerEmail, clientId) {
+    return this._readOne(QUERY_DEVELOPER_OWNS_CLIENT, [
+      developerEmail, buf(clientId)
+    ]).then(function(result) {
+      if (result) {
+        return P.resolve(true);
+      } else {
+        return P.reject(false);
+      }
+    });
+  },
   updateClient: function updateClient(client) {
     if (!client.id) {
       return P.reject(new Error('Update client needs an id'));
@@ -203,8 +296,8 @@ MysqlStore.prototype = {
   getClient: function getClient(id) {
     return this._readOne(QUERY_CLIENT_GET, [buf(id)]);
   },
-  getClients: function getClients() {
-    return this._read(QUERY_CLIENT_LIST);
+  getClients: function getClients(email) {
+    return this._read(QUERY_CLIENT_LIST, [ email ]);
   },
   removeClient: function removeClient(id) {
     return this._write(QUERY_CLIENT_DELETE, [buf(id)]);

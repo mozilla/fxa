@@ -61,6 +61,8 @@ The currently-defined error responses are:
   - [POST /v1/client][register]
   - [POST /v1/client/:id][client-update]
   - [DELETE /v1/client/:id][client-delete]
+- Developers
+  - [POST /v1/developer/activate][developer-activate]
 - [POST /v1/verify][verify]
 
 ### GET /v1/client/:id
@@ -248,6 +250,23 @@ curl -v \
 #### Response
 
 A valid response will have a 204 response code and an empty body.
+
+### POST /v1/developer/activate
+
+Register an oauth developer.
+
+**Required scope:** `oauth`
+
+#### Request Parameters
+
+- None
+
+#### Response
+
+A valid response will have a 200 status code and a developer object:
+```
+{"developerId":"f5b176ab5be5928d01d4bb0a6c182994","email":"d91c30a8@mozilla.com","createdAt":"2015-03-23T01:22:59.000Z"}
+```
 
 ### GET /v1/authorization
 
@@ -451,3 +470,4 @@ A valid request will return JSON with these properties:
 [token]: #post-v1token
 [delete]: #post-v1destroy
 [verify]: #post-v1verify
+[developer-activate]: #post-v1developeractivate

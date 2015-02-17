@@ -130,6 +130,33 @@ function assertRequestParam(result, param) {
   assert.equal(result.validation.keys[0], param);
 }
 
+// helper function to create a new user, email and token for some client
+/**
+ *
+ * @param {String} cId - hex client id
+ */
+function getUniqueUserAndToken(cId) {
+  if (! cId) {
+    throw new Error('No client id set');
+  }
+
+  var uid = unique(16).toString('hex');
+  var email = unique(4).toString('hex') + '@mozilla.com';
+
+  return db.generateToken({
+    clientId: buf(cId),
+    userId: buf(uid),
+    email: email,
+    scope: [auth.SCOPE_CLIENT_MANAGEMENT]
+  }).then(function (token) {
+    return {
+      uid: uid,
+      email: email,
+      token: token.token.toString('hex')
+    };
+  });
+}
+
 
 describe('/v1', function() {
   before(function(done) {
@@ -804,7 +831,10 @@ describe('/v1', function() {
           });
         });
 
-        it('should return a list of clients', function() {
+        it('should return an empty list of clients', function() {
+          // this developer has no clients associated, it returns 0
+          // value is the same as the API endpoint and a DB call
+
           return Server.internal.api.get({
             url: '/clients',
             headers: {
@@ -812,14 +842,60 @@ describe('/v1', function() {
             }
           }).then(function(res) {
             assert.equal(res.statusCode, 200);
-            return db.getClients().then(function(clients) {
+
+            return db.getClients(VEMAIL).then(function(clients) {
               assert.equal(res.result.clients.length, clients.length);
+              assert.equal(res.result.clients.length, 0);
             });
           });
+        });
+
+        it('should return a list of clients for a developer', function() {
+          var uid, vemail, tok;
+
+          return getUniqueUserAndToken(clientId)
+            .then(function(data) {
+              tok = data.token;
+              uid = data.uid;
+              vemail = data.email;
+              // make this user a developer
+              return db.activateDeveloper(vemail);
+            }).then(function() {
+              return db.getDeveloper(vemail);
+            }).then(function(developer) {
+              var devId = developer.developerId;
+              return db.registerClientDeveloper(devId, clientId);
+            }).then(function () {
+              return Server.internal.api.get({
+                url: '/clients',
+                headers: {
+                  authorization: 'Bearer ' + tok
+                }
+              });
+            }).then(function(res) {
+              assert.equal(res.statusCode, 200);
+              return db.getClients(vemail).then(function(clients) {
+                assert.equal(res.result.clients.length, clients.length);
+                assert.equal(res.result.clients.length, 1);
+              });
+            });
         });
       });
 
       describe('POST', function() {
+        var developer;
+
+        before(function() {
+          return Server.internal.api.post({
+            url: '/developer/activate',
+            headers: {
+              authorization: 'Bearer ' + tok
+            }
+          }).then(function(res) {
+            developer = res.result;
+          });
+        });
+
         it('should register a client', function() {
           return Server.internal.api.post({
             url: '/client',
@@ -899,42 +975,105 @@ describe('/v1', function() {
 
       describe('POST /:id', function() {
         var id = unique.id();
-        it('should update the client', function() {
-          var secret = unique.secret();
-          var imageUri = 'https://example.foo.domain/logo.png';
+
+        it('should forbid update to unknown developers', function() {
+          var uid, vemail, tok, devId;
+          var id = unique.id();
           var client = {
             name: 'test/api/update',
             id: id,
-            hashedSecret: encrypt.hash(secret),
+            hashedSecret: encrypt.hash(unique.secret()),
             redirectUri: 'https://example.domain',
-            imageUri: imageUri,
+            imageUri: 'https://example.com/logo.png',
             whitelisted: true
           };
-          return db.registerClient(client).then(function() {
-            return Server.internal.api.post({
-              url: '/client/' + id.toString('hex'),
-              headers: {
-                authorization: 'Bearer ' + tok,
-              },
-              payload: {
-                name: 'updated',
-                redirect_uri: clientUri
-              }
+
+          return db.registerClient(client)
+            .then(function () {
+              return getUniqueUserAndToken(id.toString('hex'));
+            })
+            .then(function(data) {
+              tok = data.token;
+              uid = data.uid;
+              vemail = data.email;
+
+              return db.activateDeveloper(vemail);
+            }).then(function () {
+              return db.getDeveloper(vemail);
+            }).then(function (developer) {
+              devId = developer.developerId;
+            }).then(function () {
+              return Server.internal.api.post({
+                url: '/client/' + id.toString('hex'),
+                headers: {
+                  authorization: 'Bearer ' + tok,
+                },
+                payload: {
+                  name: 'updated',
+                  redirect_uri: clientUri
+                }
+              });
+            }).then(function (res) {
+              assert.equal(res.statusCode, 401);
             });
-          }).then(function(res) {
-            assert.equal(res.statusCode, 200);
-            assert.equal(res.payload, '{}');
-            return db.getClient(id);
-          }).then(function(klient) {
-            assert.equal(klient.name, 'updated');
-            assert.equal(klient.redirectUri, clientUri);
-            assert.equal(klient.imageUri, imageUri);
-            assert.equal(klient.whitelisted, true);
-            assert.equal(klient.canGrant, false);
-          });
         });
 
-        it('should forbid unknown properties', function() {
+        it('should allow client update', function() {
+          var uid, vemail, tok, devId;
+          var id = unique.id();
+          var client = {
+            name: 'test/api/update2',
+            id: id,
+            hashedSecret: encrypt.hash(unique.secret()),
+            redirectUri: 'https://example.domain',
+            imageUri: 'https://example.com/logo.png',
+            whitelisted: true
+          };
+
+          return db.registerClient(client)
+            .then(function () {
+              return getUniqueUserAndToken(id.toString('hex'));
+            })
+            .then(function(data) {
+              tok = data.token;
+              uid = data.uid;
+              vemail = data.email;
+
+              return db.activateDeveloper(vemail);
+            }).then(function () {
+              return db.getDeveloper(vemail);
+            }).then(function (developer) {
+              devId = developer.developerId;
+            }).then(function () {
+              return db.registerClientDeveloper(
+                devId.toString('hex'),
+                id.toString('hex')
+              );
+            }).then(function () {
+              return Server.internal.api.post({
+                url: '/client/' + id.toString('hex'),
+                headers: {
+                  authorization: 'Bearer ' + tok,
+                },
+                payload: {
+                  name: 'updated',
+                  redirect_uri: clientUri
+                }
+              });
+            }).then(function (res) {
+              assert.equal(res.statusCode, 200);
+              assert.equal(res.payload, '{}');
+              return db.getClient(client.id);
+            }).then(function (klient) {
+              assert.equal(klient.name, 'updated');
+              assert.equal(klient.redirectUri, clientUri);
+              assert.equal(klient.imageUri, client.imageUri);
+              assert.equal(klient.whitelisted, true);
+              assert.equal(klient.canGrant, false);
+            });
+        });
+
+        it('should forbid unknown properties', function () {
           return Server.internal.api.post({
             url: '/client/' + id.toString('hex'),
             headers: {
@@ -972,33 +1111,97 @@ describe('/v1', function() {
       });
 
       describe('DELETE /:id', function() {
-        var id = unique.id();
+
         it('should delete the client', function() {
-          var secret = unique.secret();
+          var uid, vemail, tok, devId;
+          var id = unique.id();
           var client = {
-            name: 'test/api/delete',
+            name: 'test/api/deleteOwner',
             id: id,
-            hashedSecret: encrypt.hash(secret),
-            redirectUri: clientUri,
-            imageUri: clientUri,
+            hashedSecret: encrypt.hash(unique.secret()),
+            redirectUri: 'https://example.domain',
+            imageUri: 'https://example.com/logo.png',
             whitelisted: true
           };
-          return db.registerClient(client).then(function() {
-            return Server.internal.api.delete({
-              url: '/client/' + id.toString('hex'),
-              headers: {
-                authorization: 'Bearer ' + tok,
-              }
+
+          return db.registerClient(client)
+            .then(function () {
+              return getUniqueUserAndToken(id.toString('hex'));
+            })
+            .then(function(data) {
+              tok = data.token;
+              uid = data.uid;
+              vemail = data.email;
+
+              return db.activateDeveloper(vemail);
+            }).then(function () {
+              return db.getDeveloper(vemail);
+            }).then(function (developer) {
+              devId = developer.developerId;
+            }).then(function () {
+              return db.registerClientDeveloper(
+                devId.toString('hex'),
+                id.toString('hex')
+              );
+            }).then(function () {
+              return Server.internal.api.delete({
+                url: '/client/' + id.toString('hex'),
+                headers: {
+                  authorization: 'Bearer ' + tok,
+                }
+              });
+            }).then(function(res) {
+              assert.equal(res.statusCode, 204);
+              return db.getClient(id);
+            }).then(function(client) {
+              assert.equal(client, undefined);
             });
-          }).then(function(res) {
-            assert.equal(res.statusCode, 204);
-            return db.getClient(id);
-          }).then(function(client) {
-            assert.equal(client, undefined);
-          });
+        });
+
+        it('should not delete the client if not owner', function() {
+          var uid, vemail, tok, devId;
+          var id = unique.id();
+          var client = {
+            name: 'test/api/deleteOwner',
+            id: id,
+            hashedSecret: encrypt.hash(unique.secret()),
+            redirectUri: 'https://example.domain',
+            imageUri: 'https://example.com/logo.png',
+            whitelisted: true
+          };
+
+          return db.registerClient(client)
+            .then(function () {
+              return getUniqueUserAndToken(id.toString('hex'));
+            })
+            .then(function(data) {
+              tok = data.token;
+              uid = data.uid;
+              vemail = data.email;
+
+              return db.activateDeveloper(vemail);
+            }).then(function () {
+              return db.getDeveloper(vemail);
+            }).then(function (developer) {
+              devId = developer.developerId;
+            }).then(function () {
+              return Server.internal.api.delete({
+                url: '/client/' + id.toString('hex'),
+                headers: {
+                  authorization: 'Bearer ' + tok,
+                }
+              });
+            }).then(function(res) {
+              assert.equal(res.statusCode, 401);
+              return db.getClient(id);
+            }).then(function(klient) {
+              assert.equal(klient.id.toString('hex'), id.toString('hex'));
+            });
         });
 
         it('should require authorization', function() {
+          var id = unique.id();
+
           return Server.internal.api.delete({
             url: '/client/' + id.toString('hex'),
             payload: {
@@ -1010,6 +1213,8 @@ describe('/v1', function() {
         });
 
         it('should check the whitelist', function() {
+          var id = unique.id();
+
           return Server.internal.api.delete({
             url: '/client/' + id.toString('hex'),
             headers: {
@@ -1023,6 +1228,54 @@ describe('/v1', function() {
     });
 
   });
+
+  describe('/developer', function() {
+    describe('POST /developer/activate', function() {
+      it('should create a developer', function(done) {
+        var uid, vemail, tok;
+
+        return getUniqueUserAndToken(clientId)
+          .then(function(data) {
+            tok = data.token;
+            uid = data.uid;
+            vemail = data.email;
+
+            return db.getDeveloper(vemail);
+          }).then(function(developer) {
+            assert.equal(developer, null);
+
+            return Server.internal.api.post({
+              url: '/developer/activate',
+              headers: {
+                authorization: 'Bearer ' + tok
+              }
+            });
+
+          }).then(function(res) {
+            assert.equal(res.statusCode, 200);
+            assert.equal(res.result.email, vemail);
+            assert(res.result.developerId);
+            assert(res.result.createdAt);
+
+            return db.getDeveloper(vemail);
+          }).then(function(developer) {
+
+            assert.equal(developer.email, vemail);
+          }).done(done, done);
+      });
+    });
+
+    describe('GET /developer', function() {
+      it('should not exist', function(done) {
+        Server.internal.api.get('/developer')
+          .then(function(res) {
+            assert.equal(res.statusCode, 404);
+          }).done(done, done);
+      });
+    });
+
+  });
+
   describe('/verify', function() {
 
     describe('unknown token', function() {
