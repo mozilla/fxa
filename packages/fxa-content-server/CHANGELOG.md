@@ -1,3 +1,18 @@
+<a name="0.31.0"></a>
+## 0.31.0 (2015-02-17)
+
+
+#### Bug Fixes
+
+* **client:** Redirect to `/settings` for direct access users who verify signup or password re ([31e4b2c6](https://github.com/mozilla/fxa-content-server/commit/31e4b2c64b593c73c7447bf6eb7b51b4357603c7))
+* **metrics:** track window.onerror ([4f9bd296](https://github.com/mozilla/fxa-content-server/commit/4f9bd2963cb422b3dc47551fdd7306157e4c46bd))
+
+
+#### Features
+
+* **metrics:** Log more screen info ([85a05e41](https://github.com/mozilla/fxa-content-server/commit/85a05e4113aef899e2ebb3e113076232b5b25a22))
+
+
 <a name="0.30.0"></a>
 ## 0.30.0 (2015-02-02)
 
