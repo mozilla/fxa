@@ -5,6 +5,7 @@
 'use strict';
 
 define([
+  'cocktail',
   'underscore',
   'views/form',
   'views/base',
@@ -14,7 +15,7 @@ define([
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, FormView, BaseView, Template, p, AuthErrors,
+function (Cocktail, _, FormView, BaseView, Template, p, AuthErrors,
     ResendMixin, ServiceMixin) {
   var t = BaseView.t;
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
@@ -151,7 +152,18 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
     }
   });
 
-  _.extend(View.prototype, ResendMixin, ServiceMixin);
+  Cocktail.mixin(
+    View,
+    ServiceMixin
+  );
+
+  _.extend(
+    View.prototype,
+    // ResendMixin overrides beforeSubmit and has unexpected behavior
+    // with Cocktail's collision handling.
+    ResendMixin
+  );
+
 
   return View;
 });

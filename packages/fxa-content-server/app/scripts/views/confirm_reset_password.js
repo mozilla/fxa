@@ -5,6 +5,7 @@
 'use strict';
 
 define([
+  'cocktail',
   'underscore',
   'jquery',
   'views/confirm',
@@ -17,7 +18,7 @@ define([
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
+function (Cocktail, _, $, ConfirmView, BaseView, Template, p, Session, Constants,
       AuthErrors, ResendMixin, ServiceMixin) {
   var t = BaseView.t;
 
@@ -272,7 +273,17 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
     }
   });
 
-  _.extend(View.prototype, ResendMixin, ServiceMixin);
+  Cocktail.mixin(
+    View,
+    ServiceMixin
+  );
+
+  _.extend(
+    View.prototype,
+    // ResendMixin overrides beforeSubmit and has unexpected behavior
+    // with Cocktail's collision handling.
+    ResendMixin
+  );
 
   return View;
 });

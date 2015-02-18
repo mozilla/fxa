@@ -5,7 +5,6 @@
 'use strict';
 
 define([
-  'underscore',
   'cocktail',
   'lib/session',
   'views/form',
@@ -14,7 +13,8 @@ define([
   'views/mixins/settings-mixin',
   'stache!templates/settings'
 ],
-function (_, Cocktail, Session, FormView, BaseView, AvatarMixin, SettingsMixin, Template) {
+function (Cocktail, Session, FormView, BaseView, AvatarMixin,
+  SettingsMixin, Template) {
   var t = BaseView.t;
 
   var View = FormView.extend({

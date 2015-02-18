@@ -5,6 +5,7 @@
 'use strict';
 
 define([
+  'cocktail',
   'underscore',
   'lib/promise',
   'views/base',
@@ -16,7 +17,7 @@ define([
   'views/mixins/password-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, p, BaseView, FormView, Template, Session, AuthErrors,
+function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
       Strings, PasswordMixin, ServiceMixin) {
   var t = BaseView.t;
 
@@ -406,8 +407,11 @@ function (_, p, BaseView, FormView, Template, Session, AuthErrors,
     }
   });
 
-  _.extend(View.prototype, PasswordMixin);
-  _.extend(View.prototype, ServiceMixin);
+  Cocktail.mixin(
+    View,
+    PasswordMixin,
+    ServiceMixin
+  );
 
   return View;
 });

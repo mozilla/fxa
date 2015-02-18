@@ -5,7 +5,7 @@
 'use strict';
 
 define([
-  'underscore',
+  'cocktail',
   'views/base',
   'views/form',
   'stache!templates/change_password',
@@ -14,7 +14,8 @@ define([
   'lib/auth-errors',
   'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMixin, AuthErrors, ServiceMixin) {
+function (Cocktail, BaseView, FormView, Template, PasswordMixin,
+  FloatingPlaceholderMixin, AuthErrors, ServiceMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -83,9 +84,12 @@ function (_, BaseView, FormView, Template, PasswordMixin, FloatingPlaceholderMix
 
   });
 
-  _.extend(View.prototype, PasswordMixin);
-  _.extend(View.prototype, FloatingPlaceholderMixin);
-  _.extend(View.prototype, ServiceMixin);
+  Cocktail.mixin(
+    View,
+    PasswordMixin,
+    FloatingPlaceholderMixin,
+    ServiceMixin
+  );
 
   return View;
 });

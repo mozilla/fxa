@@ -5,7 +5,7 @@
 'use strict';
 
 define([
-  'underscore',
+  'cocktail',
   'views/base',
   'views/form',
   'stache!templates/delete_account',
@@ -13,7 +13,8 @@ define([
   'views/mixins/password-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, PasswordMixin, ServiceMixin) {
+function (Cocktail, BaseView, FormView, Template, Session,
+  PasswordMixin, ServiceMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -51,8 +52,11 @@ function (_, BaseView, FormView, Template, Session, PasswordMixin, ServiceMixin)
     }
   });
 
-  _.extend(View.prototype, PasswordMixin);
-  _.extend(View.prototype, ServiceMixin);
+  Cocktail.mixin(
+    View,
+    PasswordMixin,
+    ServiceMixin
+  );
 
   return View;
 });

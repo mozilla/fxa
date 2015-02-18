@@ -14,7 +14,8 @@ define([
   'lib/promise',
   'views/mixins/resend-mixin'
 ],
-function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p, ResendMixin) {
+function (_, FormView, BaseView, CompleteSignUpTemplate,
+  AuthErrors, Validate, p, ResendMixin) {
   var t = BaseView.t;
 
   var CompleteSignUpView = FormView.extend({
@@ -162,7 +163,12 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
     }
   });
 
-  _.extend(CompleteSignUpView.prototype, ResendMixin);
+  _.extend(
+    CompleteSignUpView.prototype,
+    // ResendMixin overrides beforeSubmit and has unexpected behavior
+    // with Cocktail's collision handling.
+    ResendMixin
+  );
 
   return CompleteSignUpView;
 });

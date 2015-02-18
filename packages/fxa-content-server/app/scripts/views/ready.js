@@ -11,7 +11,7 @@
 'use strict';
 
 define([
-  'underscore',
+  'cocktail',
   'views/base',
   'stache!templates/ready',
   'lib/session',
@@ -22,7 +22,7 @@ define([
   'views/mixins/service-mixin',
   'views/marketing_snippet'
 ],
-function (_, BaseView, Template, Session, Xss, Strings,
+function (Cocktail, BaseView, Template, Session, Xss, Strings,
       AuthErrors, p, ServiceMixin, MarketingSnippet) {
 
   var View = BaseView.extend({
@@ -72,7 +72,10 @@ function (_, BaseView, Template, Session, Xss, Strings,
     }
   });
 
-  _.extend(View.prototype, ServiceMixin);
+  Cocktail.mixin(
+    View,
+    ServiceMixin
+  );
 
   return View;
 });
