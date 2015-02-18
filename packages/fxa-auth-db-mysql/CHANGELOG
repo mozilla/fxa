@@ -1,0 +1,2 @@
+train-31
+  * Only fail with a DB patch level less than the one expected
