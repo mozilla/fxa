@@ -1,3 +1,6 @@
+train-31
+  * Don't forward restmail.net email addresses to basket API - #870
+
 train-30
   * Add more fine-grained logging on basket API errors - #839, #856
   * Increase passwordForgotToken lifetime to 60mins - #862, #845
