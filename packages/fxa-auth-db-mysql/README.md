@@ -77,7 +77,7 @@ The server will automatically re-create it on next use.
 
 To run the auth db MySQL backend via Docker, three steps are required:
 
-    $ docker build --rm -t mozilla/fxa_auth_db_mysql
+    $ docker build --rm -t mozilla/fxa_auth_db_mysql .
     $ docker run --rm -v $PWD:/opt/fxa mozilla/fxa_auth_db_mysql npm install
     $ docker run -it --rm -v $PWD:/opt/fxa --net=host mozilla/fxa_auth_db_mysql
 
