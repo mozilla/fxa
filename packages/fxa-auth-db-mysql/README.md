@@ -73,6 +73,16 @@ mysql -u root -p -e 'DROP DATABASE fxa'
 
 The server will automatically re-create it on next use.
 
+## Docker Based Development
+
+To run the auth db MySQL backend via Docker, three steps are required:
+
+    $ docker build --rm -t mozilla/fxa_auth_db_mysql .
+    $ docker run --rm -v $PWD:/opt/fxa mozilla/fxa_auth_db_mysql npm install
+    $ docker run -it --rm -v $PWD:/opt/fxa --net=host mozilla/fxa_auth_db_mysql
+
+This method shares the codebase into the running container so that you can install npm and various modules required by package.json. It then runs FxA auth db MySQL backend in a container, while allowing you to use your IDE of choice from your normal desktop environment to develop code.
+
 ## License
 
 MPL 2.0
