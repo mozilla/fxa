@@ -11,11 +11,13 @@ define([
   'underscore',
   'views/mixins/avatar-mixin',
   'views/base',
+  'models/notifications',
   'models/reliers/relier',
   'models/user',
-  'models/account'
-], function (Chai, Backbone, sinon, _, AvatarMixin, BaseView,
-    Relier, User, Account) {
+  'models/account',
+  'lib/channels/null'
+], function (Chai, Backbone, sinon, _, AvatarMixin, BaseView, Notifications,
+    Relier, User, Account, NullChannel) {
   var assert = Chai.assert;
 
   var SettingsView = BaseView.extend({});
@@ -27,19 +29,33 @@ define([
     var user;
     var account;
     var relier;
+    var tabChannelMock;
+    var notifications;
+    var UID = '123';
 
     beforeEach(function () {
       user = new User();
       account = new Account();
       relier = new Relier();
+      tabChannelMock = new NullChannel();
+
+      notifications = new Notifications({
+        tabChannel: tabChannelMock
+      });
+
+      account.set('uid', UID);
+
       view = new SettingsView({
         user: user,
-        relier: relier
+        relier: relier,
+        notifications: notifications
       });
       sinon.stub(view, 'getSignedInAccount', function () {
         return account;
       });
       sinon.stub(user, 'setAccount', function () { });
+
+      sinon.stub(notifications, 'profileChanged', function () { });
     });
 
     describe('updateAvatarUrl', function () {
@@ -53,6 +69,7 @@ define([
         assert.equal(account.get('profileImageUrl'), 'url');
         assert.isTrue(view.getSignedInAccount.called);
         assert.isTrue(user.setAccount.calledWith(account));
+        assert.isTrue(notifications.profileChanged.calledWith({ uid: UID }));
       });
 
       it('deletes the url if null', function () {
@@ -61,6 +78,7 @@ define([
         view.updateAvatarUrl(null);
         assert.isFalse(account.has('profileImageUrl'));
         assert.isTrue(user.setAccount.calledWith(account));
+        assert.isTrue(notifications.profileChanged.calledWith({ uid: UID }));
       });
     });
 

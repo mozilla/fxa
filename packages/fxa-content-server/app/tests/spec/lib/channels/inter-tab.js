@@ -27,26 +27,26 @@ define([
     afterEach(function () {
     });
 
-    describe('emit', function () {
-      it('does not emit a message if no other tab is ready', function () {
+    describe('send', function () {
+      it('does not send a message if no other tab is ready', function () {
         sinon.stub(crossTabMock.util, 'tabCount', function () {
           return 1;
         });
 
         sinon.spy(crossTabMock, 'broadcast');
 
-        interTabChannel.emit('message');
+        interTabChannel.send('message');
         assert.isFalse(crossTabMock.broadcast.called);
       });
 
-      it('emits a message if another tab is ready', function () {
+      it('send a message if another tab is ready', function () {
         sinon.stub(crossTabMock.util, 'tabCount', function () {
           return 2;
         });
 
         sinon.spy(crossTabMock, 'broadcast');
 
-        interTabChannel.emit('message');
+        interTabChannel.send('message');
         assert.isTrue(crossTabMock.broadcast.called);
       });
 
@@ -59,12 +59,12 @@ define([
           throw new Error('unsupported browser');
         });
 
-        interTabChannel.emit('message');
+        interTabChannel.send('message');
       });
     });
 
     describe('on', function () {
-      it('register a callback to be called when a message is emitted', function () {
+      it('register a callback to be called when a message is sent', function () {
         sinon.spy(crossTabMock.util.events, 'on');
         interTabChannel.on('message', function () {});
 
@@ -73,7 +73,7 @@ define([
     });
 
     describe('off', function () {
-      it('unregister a callback to be called when a message is emitted', function () {
+      it('unregister a callback to be called when a message is sent', function () {
         sinon.spy(crossTabMock.util.events, 'off');
         interTabChannel.off('message', function () {});
 

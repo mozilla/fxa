@@ -41,7 +41,9 @@ define([], function () {
     // cached credentials if they set email === 'blank'
     DISALLOW_CACHED_CREDENTIALS: 'blank',
 
-    ONERROR_MESSAGE_LIMIT: 100
+    ONERROR_MESSAGE_LIMIT: 100,
+
+    PROFILE_WEBCHANNEL_ID: 'account_updates'
   };
 });
 

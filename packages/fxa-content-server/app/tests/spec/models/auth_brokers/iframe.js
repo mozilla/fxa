@@ -107,12 +107,7 @@ function (chai, sinon, $, IframeAuthenticationBroker, Relier, p, NullChannel,
     });
 
     describe('getChannel', function () {
-      it('creates an IframeChannel', function () {
-        var broker = new IframeAuthenticationBroker({
-          windowMock: windowMock,
-          relier: relierMock
-        });
-
+      it('gets an IframeChannel', function () {
         var channel = broker.getChannel();
         assert.ok(channel);
       });
