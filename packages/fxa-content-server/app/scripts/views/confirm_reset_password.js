@@ -270,19 +270,17 @@ function (Cocktail, _, $, ConfirmView, BaseView, Template, p, Session, Constants
 
     savePrefillEmailForSignin: function () {
       Session.set('prefillEmail', this._email);
-    }
+    },
+
+    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
+    // Cocktail runs both the original version and the overridden version.
+    beforeSubmit: undefined
   });
 
   Cocktail.mixin(
     View,
+    ResendMixin,
     ServiceMixin
-  );
-
-  _.extend(
-    View.prototype,
-    // ResendMixin overrides beforeSubmit and has unexpected behavior
-    // with Cocktail's collision handling.
-    ResendMixin
   );
 
   return View;

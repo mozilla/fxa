@@ -149,21 +149,18 @@ function (Cocktail, _, FormView, BaseView, Template, p, AuthErrors,
           // unexpected error, rethrow for display.
           throw err;
         });
-    }
+    },
+
+    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
+    // Cocktail runs both the original version and the overridden version.
+    beforeSubmit: undefined
   });
 
   Cocktail.mixin(
     View,
-    ServiceMixin
-  );
-
-  _.extend(
-    View.prototype,
-    // ResendMixin overrides beforeSubmit and has unexpected behavior
-    // with Cocktail's collision handling.
+    ServiceMixin,
     ResendMixin
   );
-
 
   return View;
 });
