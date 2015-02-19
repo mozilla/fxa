@@ -10,14 +10,15 @@ define([
   'cocktail',
   'views/form',
   'views/mixins/settings-mixin',
+  'views/mixins/avatar-mixin',
   'stache!templates/settings/avatar_crop',
   'lib/constants',
   'lib/cropper',
   'lib/auth-errors',
   'models/cropper-image'
 ],
-function (p, _, Cocktail, FormView, SettingsMixin, Template, Constants, Cropper,
-    AuthErrors, CropperImage) {
+function (p, _, Cocktail, FormView, SettingsMixin, AvatarMixin, Template,
+    Constants, Cropper, AuthErrors, CropperImage) {
   var HORIZONTAL_GUTTER = 90;
   var VERTICAL_GUTTER = 0;
 
@@ -98,6 +99,7 @@ function (p, _, Cocktail, FormView, SettingsMixin, Template, Constants, Cropper,
           return self.getSignedInAccount().uploadAvatar(data);
         })
         .then(function (result) {
+          self.updateAvatarUrl(result.url);
           self.navigate('settings');
           return result;
         });
@@ -105,7 +107,7 @@ function (p, _, Cocktail, FormView, SettingsMixin, Template, Constants, Cropper,
 
   });
 
-  Cocktail.mixin(View, SettingsMixin);
+  Cocktail.mixin(View, SettingsMixin, AvatarMixin);
 
   return View;
 });

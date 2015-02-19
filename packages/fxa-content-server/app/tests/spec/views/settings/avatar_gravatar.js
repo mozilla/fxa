@@ -119,6 +119,11 @@ function (chai, _, $, sinon, View, RouterMock, ProfileMock, User,
           });
           view.automatedBrowser = true;
 
+          sinon.stub(view, 'updateAvatarUrl', function (result) {
+            assert.ok(result);
+            return p();
+          });
+
           return view.render()
             .then(function () {
               return view.submit();

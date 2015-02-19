@@ -74,6 +74,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/timer-mixin',
     '../tests/spec/views/mixins/service-mixin',
     '../tests/spec/views/mixins/password-mixin',
+    '../tests/spec/views/mixins/avatar-mixin',
     '../tests/spec/models/user',
     '../tests/spec/models/account',
     '../tests/spec/models/reliers/base',

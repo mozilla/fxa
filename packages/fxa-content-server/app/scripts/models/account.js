@@ -24,6 +24,7 @@ define([
     sessionTokenContext: undefined,
     accessToken: undefined,
     verified: undefined,
+    profileImageUrl: undefined,
     lastLogin: undefined
   };
 

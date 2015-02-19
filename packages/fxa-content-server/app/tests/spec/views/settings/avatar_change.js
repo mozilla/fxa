@@ -109,6 +109,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
               .then(function () {
                 assert.isTrue(profileClientMock.deleteAvatar.calledWith(
                   accessToken, 'foo'));
+                assert.isNull(account.get('profileImageUrl'));
                 assert.equal(routerMock.page, 'settings');
               });
           });

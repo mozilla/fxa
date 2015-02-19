@@ -34,6 +34,5 @@ define([
         self.user.clearSignedInAccount();
       }
     }
-
   };
 });
