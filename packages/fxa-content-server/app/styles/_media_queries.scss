@@ -320,11 +320,17 @@ only screen and (orientation:landscape) and (min-width:481px) and (max-height:48
     background-image: image-url('spinnerwhite@2x.png');
   }
 
-  .input-row select {
+  .input-row select,
+  .select-row,
+  .select-row.disabled:hover {
     background-image: image-url('ddarrow_inactive@2x.png');
   }
 
-  .input-row select:focus {
+  .input-row select:focus,
+  .input-row select:hover,
+  .input-row select:hover:active,
+  .select-row:hover,
+  .select-row.select-focus {
     background-image: image-url('ddarrow_active@2x.png');
   }
 
