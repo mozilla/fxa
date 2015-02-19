@@ -41,6 +41,42 @@
       "hashedSecret": "3c32099123471ffb80a7553558e6a6e8589da2235a4e081fe9d76648aa25d050",
       "whitelisted": true,
       "canGrant": false
+    },
+    {
+      "name": "Firefox",
+      "id": "5882386c6d801776",
+      "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+      "imageUri": "",
+      "redirectUri": "",
+      "whitelisted": true,
+      "canGrant": true
+    },
+    {
+      "name": "Fennec",
+      "id": "3332a18d142636cb",
+      "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+      "imageUri": "",
+      "redirectUri": "",
+      "whitelisted": true,
+      "canGrant": true
+    },
+    {
+      "name": "Firefox OS",
+      "id": "d0eea24a1d613eeb",
+      "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+      "imageUri": "",
+      "redirectUri": "",
+      "whitelisted": true,
+      "canGrant": true
+    },
+    {
+      "name": "Firefox Accounts",
+      "id": "ea3ca969f8c6bb0d",
+      "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+      "imageUri": "",
+      "redirectUri": "",
+      "whitelisted": true,
+      "canGrant": true
     }
   ],
   "localRedirects": true,
