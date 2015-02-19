@@ -35,11 +35,11 @@ exports.strategy = function() {
         if (details.scope.indexOf(exports.SCOPE_CLIENT_MANAGEMENT) !== -1) {
           logger.debug('check.whitelist');
           var blocked = !WHITELIST.some(function(re) {
-            return re.test(details._email);
+            return re.test(details.email);
           });
           if (blocked) {
             logger.warn('whitelist.blocked', {
-              email: details._email,
+              email: details.email,
               token: tok
             });
             return reply(AppError.forbidden());
