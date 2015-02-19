@@ -23,13 +23,9 @@ exports.verify = function verify(token) {
 
     // token.scope is a Set/Array
     if (token.scope.indexOf('profile') !== -1 ||
-        token.scope.indexOf('profile:email') !== -1) {
+        token.scope.indexOf('profile:email') !== -1 ||
+        token.scope.indexOf(auth.SCOPE_CLIENT_MANAGEMENT) !== -1) {
       tokenInfo.email = token.email;
-    }
-
-    // the schema validator for /v1/verify will prevent _email from leaking
-    if (token.scope.indexOf(auth.SCOPE_CLIENT_MANAGEMENT) !== -1) {
-      tokenInfo._email = token.email;
     }
 
     return tokenInfo;
