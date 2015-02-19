@@ -5,7 +5,7 @@
 'use strict';
 
 define([
-  'underscore',
+  'cocktail',
   'lib/promise',
   'views/base',
   'views/form',
@@ -19,7 +19,7 @@ define([
   'views/decorators/allow_only_one_submit',
   'views/decorators/progress_indicator'
 ],
-function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
+function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
       AuthErrors, Validate, ServiceMixin, AvatarMixin, allowOnlyOneSubmit,
       showProgressIndicator) {
   var t = BaseView.t;
@@ -271,9 +271,12 @@ function (_, p, BaseView, FormView, SignInTemplate, Session, PasswordMixin,
     }
   });
 
-  _.extend(View.prototype, PasswordMixin);
-  _.extend(View.prototype, ServiceMixin);
-  _.extend(View.prototype, AvatarMixin);
+  Cocktail.mixin(
+    View,
+    PasswordMixin,
+    ServiceMixin,
+    AvatarMixin
+  );
 
   return View;
 });

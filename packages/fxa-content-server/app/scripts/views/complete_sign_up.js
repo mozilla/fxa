@@ -5,7 +5,7 @@
 'use strict';
 
 define([
-  'underscore',
+  'cocktail',
   'views/form',
   'views/base',
   'stache!templates/complete_sign_up',
@@ -14,7 +14,8 @@ define([
   'lib/promise',
   'views/mixins/resend-mixin'
 ],
-function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p, ResendMixin) {
+function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
+  AuthErrors, Validate, p, ResendMixin) {
   var t = BaseView.t;
 
   var CompleteSignUpView = FormView.extend({
@@ -159,10 +160,17 @@ function (_, FormView, BaseView, CompleteSignUpTemplate, AuthErrors, Validate, p
                 // unexpected error, rethrow for display.
                 throw err;
               });
-    }
+    },
+
+    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
+    // Cocktail runs both the original version and the overridden version.
+    beforeSubmit: undefined
   });
 
-  _.extend(CompleteSignUpView.prototype, ResendMixin);
+  Cocktail.mixin(
+    CompleteSignUpView,
+    ResendMixin
+  );
 
   return CompleteSignUpView;
 });

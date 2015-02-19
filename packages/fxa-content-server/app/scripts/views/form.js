@@ -153,7 +153,7 @@ function (_, $, p, Validate, AuthErrors, BaseView, Tooltip,
      * @method validateAndSubmit
      * @return {promise}
      */
-    validateAndSubmit: allowOnlyOneSubmit(function () {
+    validateAndSubmit: allowOnlyOneSubmit(function validateAndSubmit () {
       var self = this;
 
       return p()

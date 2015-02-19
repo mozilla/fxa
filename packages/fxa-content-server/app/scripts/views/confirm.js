@@ -5,6 +5,7 @@
 'use strict';
 
 define([
+  'cocktail',
   'underscore',
   'views/form',
   'views/base',
@@ -14,7 +15,7 @@ define([
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, FormView, BaseView, Template, p, AuthErrors,
+function (Cocktail, _, FormView, BaseView, Template, p, AuthErrors,
     ResendMixin, ServiceMixin) {
   var t = BaseView.t;
   var VERIFICATION_POLL_IN_MS = 4000; // 4 seconds
@@ -148,10 +149,18 @@ function (_, FormView, BaseView, Template, p, AuthErrors,
           // unexpected error, rethrow for display.
           throw err;
         });
-    }
+    },
+
+    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
+    // Cocktail runs both the original version and the overridden version.
+    beforeSubmit: undefined
   });
 
-  _.extend(View.prototype, ResendMixin, ServiceMixin);
+  Cocktail.mixin(
+    View,
+    ServiceMixin,
+    ResendMixin
+  );
 
   return View;
 });

@@ -5,7 +5,7 @@
 'use strict';
 
 define([
-  'underscore',
+  'cocktail',
   'views/base',
   'views/form',
   'stache!templates/reset_password',
@@ -13,7 +13,8 @@ define([
   'lib/auth-errors',
   'views/mixins/service-mixin'
 ],
-function (_, BaseView, FormView, Template, Session, AuthErrors, ServiceMixin) {
+function (Cocktail, BaseView, FormView, Template, Session,
+  AuthErrors, ServiceMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -76,7 +77,10 @@ function (_, BaseView, FormView, Template, Session, AuthErrors, ServiceMixin) {
     }
   });
 
-  _.extend(View.prototype, ServiceMixin);
+  Cocktail.mixin(
+    View,
+    ServiceMixin
+  );
 
   return View;
 });

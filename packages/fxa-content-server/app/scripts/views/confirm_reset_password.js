@@ -5,6 +5,7 @@
 'use strict';
 
 define([
+  'cocktail',
   'underscore',
   'jquery',
   'views/confirm',
@@ -17,7 +18,7 @@ define([
   'views/mixins/resend-mixin',
   'views/mixins/service-mixin'
 ],
-function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
+function (Cocktail, _, $, ConfirmView, BaseView, Template, p, Session, Constants,
       AuthErrors, ResendMixin, ServiceMixin) {
   var t = BaseView.t;
 
@@ -269,10 +270,18 @@ function (_, $, ConfirmView, BaseView, Template, p, Session, Constants,
 
     savePrefillEmailForSignin: function () {
       Session.set('prefillEmail', this._email);
-    }
+    },
+
+    // The ResendMixin overrides beforeSubmit. Unless set to undefined,
+    // Cocktail runs both the original version and the overridden version.
+    beforeSubmit: undefined
   });
 
-  _.extend(View.prototype, ResendMixin, ServiceMixin);
+  Cocktail.mixin(
+    View,
+    ResendMixin,
+    ServiceMixin
+  );
 
   return View;
 });

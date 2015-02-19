@@ -5,6 +5,7 @@
 'use strict';
 
 define([
+  'cocktail',
   'underscore',
   'backbone',
   'jquery',
@@ -16,7 +17,7 @@ define([
   'lib/null-metrics',
   'views/mixins/timer-mixin'
 ],
-function (_, Backbone, $, p, AuthErrors,
+function (Cocktail, _, Backbone, $, p, AuthErrors,
       Url, Strings, EphemeralMessages, NullMetrics, TimerMixin) {
   var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
@@ -732,7 +733,10 @@ function (_, Backbone, $, p, AuthErrors,
 
   BaseView.t = t;
 
-  _.extend(BaseView.prototype, TimerMixin);
+  Cocktail.mixin(
+    BaseView,
+    TimerMixin
+  );
 
   return BaseView;
 });
