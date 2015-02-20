@@ -1,3 +1,18 @@
+<a name="0.30.3"></a>
+### 0.30.3 (2015-02-20)
+
+
+#### Bug Fixes
+
+* **clients:** update email validation ([92d4bfc3](http://github.com/mozilla/fxa-oauth-server/commit/92d4bfc30d5c9f17483f964195b8836bbb1e6557))
+* **db:** make the clients key mandatory in the config file ([ac7a39e8](http://github.com/mozilla/fxa-oauth-server/commit/ac7a39e8ad8506523a6721f87c9d70e70349aef7))
+
+
+#### Features
+
+* **docker:** Dockerfile and README update for basic docker development workflow ([342d87bb](http://github.com/mozilla/fxa-oauth-server/commit/342d87bb56d8204f83aad65449c02b2f2a233fec))
+
+
 <a name="0.30.2"></a>
 ### 0.30.2 (2015-02-09)
 
