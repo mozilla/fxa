@@ -402,7 +402,7 @@ define([
       var CORRECTED_EMAIL = 'something@gmail.com';
 
       return this.get('remote')
-        .get(require.toUrl(PAGE_URL + '?mailcheck=1&automatedBrowser=1'))
+        .get(require.toUrl(PAGE_URL + '?mailcheck=1&automatedBrowser=true'))
         .findByCssSelector('input[type=email]')
         .type(BAD_EMAIL)
         .click()

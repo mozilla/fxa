@@ -17,13 +17,15 @@ define([
   'models/user',
   'models/cropper-image',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   'lib/promise',
   'lib/constants',
   'lib/ephemeral-messages',
   'lib/auth-errors'
 ],
-function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperImage,
-    Relier, p, Constants, EphemeralMessages, AuthErrors) {
+function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User,
+    CropperImage, Relier, AuthBroker, p, Constants, EphemeralMessages,
+    AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -35,18 +37,23 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
     var user;
     var account;
     var relier;
+    var broker;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       user = new User();
       ephemeralMessages = new EphemeralMessages();
       relier = new Relier();
+      broker = new AuthBroker({
+        relier: relier
+      });
 
       view = new View({
         user: user,
         ephemeralMessages: ephemeralMessages,
         router: routerMock,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
     });
 

@@ -96,7 +96,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
                   AuthErrors.toError('SIGNUP_EMAIL_BOUNCE'));
       }
 
-      if (this.automatedBrowser) {
+      if (this.broker.isAutomatedBrowser()) {
         // helps avoid 'focus' issues with Firefox Selenium Driver
         // See https://code.google.com/p/selenium/issues/detail?id=157
         this.$el.find('input[type=password]').click(function () {

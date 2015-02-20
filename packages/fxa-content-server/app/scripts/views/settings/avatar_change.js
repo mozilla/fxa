@@ -63,7 +63,7 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template,
     filePicker: function () {
       var self = this;
       // skip the file picker if this is an automater browser
-      if (self.automatedBrowser) {
+      if (self.broker.isAutomatedBrowser()) {
         setTimeout(function () {
           require(['draggable', 'touch-punch'], function () {
             var cropImg = new CropperImage();

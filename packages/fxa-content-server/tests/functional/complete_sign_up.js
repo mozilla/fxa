@@ -68,7 +68,10 @@ define([
         // a successful user is immediately redirected to the
         // sign-up-complete page.
         .findById('fxa-verification-link-damaged-header')
-        .end();
+        .end()
+
+        .then(FunctionalHelpers.noSuchElement(this, '#fxa-verification-link-expired-header'));
+
     },
 
     'open verification link with server reported bad code': function () {
@@ -151,22 +154,18 @@ define([
     'open expired email verification link': function () {
       var url = PAGE_URL_ROOT + '?uid=' + uid + '&code=' + code;
 
-      return this.get('remote')
+      var self = this;
+      return self.get('remote')
         .get(require.toUrl(url))
 
         .findById('fxa-verification-link-expired-header')
         .end()
 
+        .then(FunctionalHelpers.noSuchElement(self, '#fxa-verification-link-damaged-header'))
+
         // Give resend time to show up
         .setFindTimeout(200)
-        .findById('resend')
-        .then(function () {
-          assert.fail('resend link should not be present');
-        }, function (err) {
-          assert.strictEqual(err.name, 'NoSuchElement');
-          return true;
-        })
-        .end();
+        .then(FunctionalHelpers.noSuchElement(self, '#resend'));
     }
   });
 

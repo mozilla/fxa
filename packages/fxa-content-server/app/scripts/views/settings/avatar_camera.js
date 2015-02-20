@@ -46,7 +46,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
       self.streaming = false;
 
 
-      if (self.automatedBrowser) {
+      if (self.broker.isAutomatedBrowser()) {
         var ARTIFICIAL_DELAY = 3000; // 3 seconds
         // mock some things out for automated browser testing
         self.streaming = true;
@@ -180,7 +180,7 @@ function (_, Cocktail, canvasToBlob, FormView, ProgressIndicator,
       var pos = this.centeredPos(w, h, minValue);
 
       var dataSrc = this.video[0];
-      if (this.automatedBrowser) {
+      if (this.broker.isAutomatedBrowser()) {
         dataSrc = new Image();
         dataSrc.src = pngSrc;
       }

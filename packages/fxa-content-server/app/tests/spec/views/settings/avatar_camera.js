@@ -17,10 +17,11 @@ define([
   '../../../mocks/profile',
   'models/user',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   'lib/promise'
 ],
 function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
-    ProfileMock, User, Relier, p) {
+    ProfileMock, User, Relier, AuthBroker, p) {
   var assert = chai.assert;
 
   describe('views/settings/avatar/camera', function () {
@@ -31,18 +32,23 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
     var user;
     var account;
     var relier;
+    var broker;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       windowMock = new WindowMock();
       user = new User();
       relier = new Relier();
+      broker = new AuthBroker({
+        relier: relier
+      });
 
       view = new View({
         router: routerMock,
         user: user,
         window: windowMock,
-        relier: relier
+        relier: relier,
+        broker: broker
       });
 
       account = user.initAccount({
@@ -144,6 +150,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, CanvasMock,
           user: user,
           window: windowMock,
           relier: relier,
+          broker: broker,
           displayLength: 240,
           exportLength: 600
         });
