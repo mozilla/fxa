@@ -43,6 +43,37 @@ function (chai, sinon, $, _, xhr, undefined) {
           assert.isTrue($.ajax.calledWith({ url: '/fake_endpoint' }));
         });
       });
+
+      it('$.ajax does not stringify json if processData is false', function () {
+        var deferred = $.Deferred();
+
+        sinon.stub($, 'ajax', function () {
+          return deferred.promise();
+        });
+
+        deferred.resolve('mocked_response');
+        var data = { foo: 'bar' };
+
+        return xhr.ajax({
+          url: '/fake_endpoint',
+          method: 'POST',
+          dataType: 'json',
+          data: data,
+          processData: false
+        })
+        .then(function (resp) {
+          assert.equal(resp, 'mocked_response');
+          assert.isTrue($.ajax.calledWith({
+            url: '/fake_endpoint',
+            method: 'POST',
+            dataType: 'json',
+            data: data,
+            processData: false,
+            contentType: 'application/json',
+            accepts: { json: 'application/json' }
+          }));
+        });
+      });
     });
 
     describe('get', function () {

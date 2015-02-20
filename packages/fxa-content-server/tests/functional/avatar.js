@@ -248,8 +248,9 @@ define([
           .click()
         .end()
 
-        //success is returning to the settings page
         .findById('fxa-settings-header')
+        //success is seeing the image loaded
+        .then(FunctionalHelpers.imageLoadedByQSA('.avatar-wrapper > img'))
         .end();
     },
 
@@ -302,8 +303,9 @@ define([
           .click()
         .end()
 
-        //success is returning to the settings page
         .findById('fxa-settings-header')
+        //success is seeing the image loaded
+        .then(FunctionalHelpers.imageLoadedByQSA('.avatar-wrapper > img'))
         .end();
 
     },
