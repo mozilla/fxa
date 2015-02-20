@@ -17,6 +17,10 @@ env:
   - NODE_ENV=test DB=memory
   - NODE_ENV=test DB=mysql
 
+before_install:
+  - sudo apt-get install libgmp3-dev
+  - npm config set spin false
+
 before_script:
   - "mysql -NBe 'select version()'"
   - sudo apt-get install libgmp3-dev
