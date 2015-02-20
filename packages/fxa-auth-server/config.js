@@ -12,7 +12,8 @@ module.exports = require('rc')(
       sender: 'accounts@firefox.com',
       verificationUrl: 'https://accounts.firefox.com/v1/verify_email',
       passwordResetUrl: 'https://accounts.firefox.com/v1/complete_reset_password',
-      accountUnlockUrl: 'https://accounts.firefox.com/v1/complete_unlock_account'
+      accountUnlockUrl: 'https://accounts.firefox.com/v1/complete_unlock_account',
+      initiatePasswordResetUrl: 'https://accounts.firefox.com/v1/reset_password'
     }
   }
 )
