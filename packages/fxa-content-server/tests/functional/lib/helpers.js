@@ -132,6 +132,31 @@ define([
   }
 
   /**
+   * Use document.querySelectorAll to find loaded images.
+   * Images that are loading/have loaded without error
+   * will have a naturalWidth > 0, so we check for that.
+   *
+   * Usage:  ".then(FunctionalHelpers.imageLoadedByQSA('img'))"
+   *
+   * @param {String} selector
+   *        QSA compatible selector string
+   */
+  function imageLoadedByQSA(selector, timeout) {
+    timeout = timeout || 10000;
+
+    return pollUntil(function (selector) {
+      /* global document */
+      var match = document.querySelectorAll(selector);
+
+      if (match.length > 1) {
+        throw new Error('Multiple elements matched. Make a more precise selector');
+      }
+
+      return match[0] && match[0].naturalWidth > 0 ? true : null;
+    }, [ selector ], timeout);
+  }
+
+  /**
    * Use document.querySelectorAll to find visible elements
    * used for error and success notification animations.
    *
@@ -419,6 +444,7 @@ define([
   }
 
   return {
+    imageLoadedByQSA: imageLoadedByQSA,
     clearBrowserState: clearBrowserState,
     clearSessionStorage: clearSessionStorage,
     visibleByQSA: visibleByQSA,

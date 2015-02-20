@@ -30,7 +30,9 @@ define([
       if (options.dataType === 'json') {
         options.contentType = 'application/json';
 
-        if (options.data) {
+        // processData is set to false for blob payloads, e.g. images;
+        // they shouldn't be stringified.
+        if (options.data && options.processData !== false) {
           options.data = JSON.stringify(options.data);
         }
 
