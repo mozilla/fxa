@@ -27,7 +27,6 @@
       "name": "FxA OAuth Console",
       "redirectUri": "http://127.0.0.1:10137/oauth/redirect",
       "imageUri": "http://127.0.0.1:10137/assets/firefox.png",
-      "canGrant": false,
       "id": "24bdbfa45cd300c5",
       "hashedSecret": "dfe56d5c816d6b7493618f6a1567cfed4aa9c25f85d59c6804631c48774ba545",
       "whitelisted": true,
