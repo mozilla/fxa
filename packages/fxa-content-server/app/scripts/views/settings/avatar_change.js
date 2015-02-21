@@ -65,6 +65,9 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template, AuthEr
         .then(function () {
           self.updateAvatarUrl(null);
           self.navigate('settings');
+        }, function (err) {
+          self.displayError(err);
+          throw err;
         });
     },
 

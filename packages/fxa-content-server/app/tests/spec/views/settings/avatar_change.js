@@ -16,11 +16,12 @@ define([
   '../../../mocks/profile',
   'models/user',
   'models/reliers/relier',
+  'lib/profile-client',
   'lib/promise',
   'lib/auth-errors'
 ],
 function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
-            User, Relier, p, AuthErrors) {
+            User, Relier, ProfileClient, p, AuthErrors) {
   var assert = chai.assert;
   var pngSrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
@@ -104,14 +105,32 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         return view.render()
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').length, 1);
+            return view.remove();
+          })
+          .then(function () {
+            assert.isTrue(profileClientMock.deleteAvatar.calledWith(
+              accessToken, 'foo'));
+            assert.isNull(account.get('profileImageUrl'));
+            assert.equal(routerMock.page, 'settings');
+          });
+      });
 
-            return view.remove()
-              .then(function () {
-                assert.isTrue(profileClientMock.deleteAvatar.calledWith(
-                  accessToken, 'foo'));
-                assert.isNull(account.get('profileImageUrl'));
-                assert.equal(routerMock.page, 'settings');
-              });
+      it('shows error if delete fails', function () {
+        sinon.stub(profileClientMock, 'deleteAvatar', function () {
+          return p.reject(ProfileClient.Errors.toError('IMAGE_PROCESSING_ERROR'));
+        });
+
+        return view.render()
+          .then(function () {
+            assert.equal(view.$('.avatar-wrapper img').length, 1);
+            return view.remove();
+          })
+          .then(function () {
+            assert.fail('unexpected success');
+          }, function (err) {
+            assert.isTrue(ProfileClient.Errors.is(err, 'IMAGE_PROCESSING_ERROR'));
+            assert.isTrue(view.isErrorVisible());
+            assert.notEqual(routerMock.page, 'settings');
           });
       });
 
