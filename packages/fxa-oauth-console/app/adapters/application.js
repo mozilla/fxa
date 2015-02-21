@@ -54,6 +54,8 @@ export default DS.RESTAdapter.extend({
 
     serializer.serializeIntoHash(data, type, record, { includeId: true });
 
+    delete data.secret;
+
     // post process the resuld of 'find'. Need to add the Model type 'client' into the response
     return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data }).then(function (resp) {
       return { client: resp };
@@ -72,6 +74,10 @@ export default DS.RESTAdapter.extend({
     serializer.serializeIntoHash(data, type, record);
 
     var id = record.id;
+
+    delete data.secret;
+    delete data.whitelisted;
+    
     // set POST instead of PUT
     return this.ajax(this.buildURL(type.typeKey, id, record), "POST", { data: data }).then(function () {
       data.id = id;
