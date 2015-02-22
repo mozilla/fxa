@@ -375,18 +375,12 @@ html[dir='rtl'] {
   }
 
   button,
-  input,
-  select {
+  input {
     @include font();
   }
 
   input[type='email'],
   input[type='text'] {
-  }
-
-  select {
-    @include formElement();
-    padding: 0 $input-left-right-padding;
   }
 
   input::-webkit-input-placeholder,
@@ -396,47 +390,7 @@ html[dir='rtl'] {
     color: $input-placeholder-color;
   }
 
-  select {
-    // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
-    -moz-appearance: none;
-    -webkit-appearance: none;
-    appearance: none;
-    background: $content-background-color image-url('ddarrow_inactive.png') 96% center;
-    background-repeat: no-repeat;
-    background-size: 10px 17px;
-    color: $input-placeholder-color;
-    height: auto;
-    outline: none;
-    padding: 10px $input-left-right-padding;
-    // Some hackery for Firefox since moz-appearance: none doesn't remove the arrow
-    text-indent: 0.01px;
-    text-overflow: '';
-    user-select: none;
-    width: 100%;
-
-    &:hover,
-    &:hover:active,
-    &:focus {
-      background-color: $html-background-color;
-      background-image: image-url('ddarrow_active.png');
-      transition-duration: $short-transition;
-      transition-property: all;
-    }
-
-    /**
-     * Firefox show a focus ring around the selected text.
-     * See issue https://github.com/mozilla/fxa-content-server/issues/459
-     * and the solution at:
-     * http://stackoverflow.com/questions/19468372/how-to-remove-dashed-border-of-select-box-in-firefox#answer-19468615
-     */
-    &:-moz-focusring {
-      color: transparent !important; /* !important must be added or else the browser ignores the request */
-      text-shadow: 0 0 0 $input-row-hover-border-color !important;
-    }
-  }
-
-  input:focus,
-  select:focus {
+  input:focus {
     border-color: $input-row-focus-border-color;
     transition-duration: $short-transition;
     transition-property: border-color;
@@ -447,17 +401,13 @@ html[dir='rtl'] {
   }
 
   input:hover,
-  select:hover,
-  &:hover input:hover,
-  &:hover select:hover {
+  &:hover input:hover {
     border-color: $input-row-hover-border-color;
     outline: none;
   }
 
   input:focus,
-  select:focus,
   &:hover input:focus,
-  &:hover select:focus,
   &:focus input {
     border-color: $input-row-focus-border-color;
     color: $text-color;
@@ -468,8 +418,7 @@ html[dir='rtl'] {
   input[type='email'].invalid,
   input[type='password'].invalid,
   input[type='text'].invalid ~ .show-password-label,
-  input[type='password'].invalid ~ .show-password-label,
-  select.invalid {
+  input[type='password'].invalid ~ .show-password-label {
     border-color: $error-background-color;
   }
 
@@ -648,10 +597,6 @@ button::-moz-focus-inner {
 }
 
 /* Custom rows */
-.input-row-month-day select {
-  width: 45%;
-}
-
 .description {
   font-size: $medium-font;
 }
