@@ -19,7 +19,6 @@ define([
 ],
 function (Cocktail, _, Backbone, $, p, AuthErrors,
       Url, Strings, EphemeralMessages, NullMetrics, TimerMixin) {
-  var ENTER_BUTTON_CODE = 13;
   var DEFAULT_TITLE = window.document.title;
   var EPHEMERAL_MESSAGE_ANIMATION_MS = 150;
 
@@ -553,20 +552,6 @@ function (Cocktail, _, Backbone, $, p, AuthErrors,
      */
     canGoBack: function () {
       return !! this._canGoBack;
-    },
-
-    back: function (event) {
-      if (event) {
-        event.preventDefault();
-      }
-
-      this.window.history.back();
-    },
-
-    backOnEnter: function (event) {
-      if (event.which === ENTER_BUTTON_CODE) {
-        this.back();
-      }
     },
 
     /**

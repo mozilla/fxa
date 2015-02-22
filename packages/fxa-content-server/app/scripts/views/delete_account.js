@@ -11,10 +11,11 @@ define([
   'stache!templates/delete_account',
   'lib/session',
   'views/mixins/password-mixin',
-  'views/mixins/service-mixin'
+  'views/mixins/service-mixin',
+  'views/mixins/back-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, Session,
-  PasswordMixin, ServiceMixin) {
+  PasswordMixin, ServiceMixin, BackMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -25,8 +26,6 @@ function (Cocktail, BaseView, FormView, Template, Session,
     className: 'delete-account',
 
     events: {
-      'click #back': 'back',
-      'keyup #back': 'backOnEnter',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
@@ -55,7 +54,8 @@ function (Cocktail, BaseView, FormView, Template, Session,
   Cocktail.mixin(
     View,
     PasswordMixin,
-    ServiceMixin
+    ServiceMixin,
+    BackMixin
   );
 
   return View;

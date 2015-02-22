@@ -5,13 +5,14 @@
 'use strict';
 
 define([
+  'cocktail',
   'lib/xhr',
   'views/base',
   'stache!templates/tos',
-  'lib/session',
-  'lib/auth-errors'
+  'lib/auth-errors',
+  'views/mixins/back-mixin'
 ],
-function (xhr, BaseView, Template, AuthErrors) {
+function (Cocktail, xhr, BaseView, Template, AuthErrors, BackMixin) {
   var View = BaseView.extend({
     template: Template,
     className: 'tos',
@@ -41,6 +42,11 @@ function (xhr, BaseView, Template, AuthErrors) {
       'keyup #fxa-tos-back': 'backOnEnter'
     }
   });
+
+  Cocktail.mixin(
+    View,
+    BackMixin
+  );
 
   return View;
 });

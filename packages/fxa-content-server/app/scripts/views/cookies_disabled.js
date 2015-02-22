@@ -5,12 +5,14 @@
 'use strict';
 
 define([
+  'cocktail',
   'views/base',
   'lib/config-loader',
   'lib/auth-errors',
-  'stache!templates/cookies_disabled'
+  'stache!templates/cookies_disabled',
+  'views/mixins/back-mixin'
 ],
-function (BaseView, ConfigLoader, AuthErrors, Template) {
+function (Cocktail, BaseView, ConfigLoader, AuthErrors, Template, BackMixin) {
   var View = BaseView.extend({
     constructor: function (options) {
       BaseView.call(this, options);
@@ -38,6 +40,11 @@ function (BaseView, ConfigLoader, AuthErrors, Template) {
         });
     }
   });
+
+  Cocktail.mixin(
+    View,
+    BackMixin
+  );
 
   return View;
 });
