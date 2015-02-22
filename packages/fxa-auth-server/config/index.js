@@ -154,6 +154,11 @@ var conf = convict({
       env: 'UNLOCK_URL',
       arg: 'unlock-url'
     },
+    initiatePasswordResetUrl: {
+      doc: 'Deprecated. uses contentServer.url',
+      format: String,
+      default: undefined
+    },
     redirectDomain: {
       doc: 'Domain that mail urls are allowed to redirect to',
       format: String,
@@ -303,6 +308,7 @@ conf.set('domain', url.parse(conf.get('publicUrl')).host)
 conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/v1/verify_email')
 conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_reset_password')
 conf.set('smtp.accountUnlockUrl', conf.get('contentServer.url') + '/v1/complete_unlock_account')
+conf.set('smtp.initiatePasswordResetUrl', conf.get('contentServer.url') + '/v1/reset_password')
 
 var options = {
   strict: true

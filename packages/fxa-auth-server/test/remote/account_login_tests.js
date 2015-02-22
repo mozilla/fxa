@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
+var url = require('url')
 var TestServer = require('../test_server')
 var crypto = require('crypto')
 var Client = require('../client')
@@ -96,7 +97,7 @@ TestServer.start(config)
   )
 
   test(
-    'accepts a `reason` and `service`',
+    'sync signin sends an email',
     function (t) {
       var email = server.uniqueEmail()
       var password = 'abcdef'
@@ -108,6 +109,14 @@ TestServer.start(config)
         )
         .then(
           function (c) {
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            t.ok(query.email, 'email is in the link')
           }
         )
     }

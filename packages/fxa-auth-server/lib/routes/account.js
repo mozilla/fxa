@@ -288,6 +288,25 @@ module.exports = function (
                     )
                 }
               )
+              .then(
+                function (tokens) {
+                  if (request.payload.service === 'sync' && request.payload.reason === 'signin') {
+                    return mailer.sendNewSyncDeviceNotification(
+                      emailRecord.email,
+                      {
+                        acceptLanguage: request.app.acceptLanguage
+                      }
+                    )
+                    .then(
+                      function () {
+                        return tokens
+                      }
+                    )
+                  }
+
+                  return tokens
+                }
+              )
             }
           )
           .done(

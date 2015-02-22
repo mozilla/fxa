@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var test = require('../ptaptest')
+var url = require('url')
 var Client = require('../client')
 var TestServer = require('../test_server')
 
@@ -51,6 +52,15 @@ TestServer.start(config)
           function (keys) {
             t.deepEqual(keys.kB, kB, 'kB is preserved')
             t.deepEqual(keys.kA, kA, 'kA is preserved')
+
+            return server.mailbox.waitForEmail(email)
+          }
+        )
+        .then(
+          function (emailData) {
+            var link = emailData.headers['x-link']
+            var query = url.parse(link, true).query
+            t.ok(query.email, 'email is in the link')
           }
         )
     }

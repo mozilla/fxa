@@ -87,7 +87,7 @@
                 },
                 "readable-stream": {
                   "version": "1.1.13",
-                  "from": "readable-stream@>=1.1.9 <1.2.0",
+                  "from": "readable-stream@>=1.1.0 <1.2.0",
                   "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-1.1.13.tgz",
                   "dependencies": {
                     "core-util-is": {
@@ -157,7 +157,7 @@
           "dependencies": {
             "rimraf": {
               "version": "2.2.8",
-              "from": "rimraf@>=2.2.8 <2.3.0",
+              "from": "rimraf@>=2.2.6 <2.3.0",
               "resolved": "https://registry.npmjs.org/rimraf/-/rimraf-2.2.8.tgz"
             }
           }
@@ -742,7 +742,7 @@
     "fxa-auth-mailer": {
       "version": "1.0.7",
       "from": "git+https://github.com/mozilla/fxa-auth-mailer.git#master",
-      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#04c789673c8a55139515ab1a24ee5f06cc3bf8ce",
+      "resolved": "git+https://github.com/mozilla/fxa-auth-mailer.git#8a5d7efcdd48423a3e946d69010d561e1be30f98",
       "dependencies": {
         "bluebird": {
           "version": "2.2.2",
@@ -788,7 +788,7 @@
         "fxa-content-server-l10n": {
           "version": "0.0.0",
           "from": "git://github.com/mozilla/fxa-content-server-l10n.git",
-          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#ee79552c1139d1b10b86a4e407bccc520cf90279"
+          "resolved": "git://github.com/mozilla/fxa-content-server-l10n.git#352ed5d316eaa62ff208816cc99f63c48ef2ab66"
         },
         "handlebars": {
           "version": "1.3.0",
@@ -1557,7 +1557,7 @@
                   "dependencies": {
                     "lru-cache": {
                       "version": "2.6.4",
-                      "from": "lru-cache@>=2.5.0 <3.0.0",
+                      "from": "lru-cache@>=2.0.0 <3.0.0",
                       "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-2.6.4.tgz"
                     },
                     "sigmund": {
@@ -1610,7 +1610,7 @@
           "dependencies": {
             "lru-cache": {
               "version": "2.6.4",
-              "from": "lru-cache@>=2.5.0 <3.0.0",
+              "from": "lru-cache@>=2.0.0 <3.0.0",
               "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-2.6.4.tgz"
             },
             "sigmund": {
@@ -1761,7 +1761,7 @@
               "dependencies": {
                 "inherits": {
                   "version": "2.0.1",
-                  "from": "inherits@*",
+                  "from": "inherits@>=2.0.0 <3.0.0",
                   "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
                 },
                 "minimatch": {
@@ -1771,7 +1771,7 @@
                   "dependencies": {
                     "lru-cache": {
                       "version": "2.6.4",
-                      "from": "lru-cache@>=2.5.0 <3.0.0",
+                      "from": "lru-cache@>=2.0.0 <3.0.0",
                       "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-2.6.4.tgz"
                     },
                     "sigmund": {
@@ -2069,7 +2069,7 @@
         },
         "cryptiles": {
           "version": "2.0.4",
-          "from": "cryptiles@>=2.0.0 <3.0.0",
+          "from": "cryptiles@2.0.4",
           "resolved": "https://registry.npmjs.org/cryptiles/-/cryptiles-2.0.4.tgz"
         },
         "h2o2": {
@@ -2258,7 +2258,7 @@
         },
         "topo": {
           "version": "1.0.2",
-          "from": "topo@>=1.0.0 <2.0.0",
+          "from": "topo@1.0.2",
           "resolved": "https://registry.npmjs.org/topo/-/topo-1.0.2.tgz"
         },
         "vision": {
@@ -2532,7 +2532,7 @@
                 },
                 "inherits": {
                   "version": "2.0.1",
-                  "from": "inherits@*",
+                  "from": "inherits@>=2.0.0 <3.0.0",
                   "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
                 },
                 "minimatch": {
@@ -2644,7 +2644,7 @@
         },
         "encoding": {
           "version": "0.1.11",
-          "from": "encoding@*",
+          "from": "encoding@>=0.1.11 <0.2.0",
           "resolved": "https://registry.npmjs.org/encoding/-/encoding-0.1.11.tgz",
           "dependencies": {
             "iconv-lite": {
@@ -2845,7 +2845,7 @@
           "dependencies": {
             "inherits": {
               "version": "2.0.1",
-              "from": "inherits@*",
+              "from": "inherits@>=2.0.1 <3.0.0",
               "resolved": "https://registry.npmjs.org/inherits/-/inherits-2.0.1.tgz"
             },
             "minimalistic-assert": {
@@ -3058,7 +3058,7 @@
                   "dependencies": {
                     "ansi-regex": {
                       "version": "1.1.1",
-                      "from": "ansi-regex@>=1.0.0 <2.0.0",
+                      "from": "ansi-regex@>=1.1.0 <2.0.0",
                       "resolved": "https://registry.npmjs.org/ansi-regex/-/ansi-regex-1.1.1.tgz"
                     },
                     "get-stdin": {
