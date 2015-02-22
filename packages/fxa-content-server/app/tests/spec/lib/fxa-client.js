@@ -294,7 +294,7 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
     });
 
     describe('signIn', function () {
-      it('signin with unknown user should call errorback', function () {
+      it('signin with unknown user should fail', function () {
         sinon.stub(realClient, 'signIn', function () {
           return p.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
@@ -313,10 +313,13 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
           });
         });
 
+        relier.set('service', 'sync');
         return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
-              keys: true
+              keys: true,
+              service: 'sync',
+              reason: client.SIGNIN_REASON.SIGN_IN
             }));
 
             assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
@@ -337,7 +340,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
         return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
-              keys: false
+              keys: false,
+              service: 'chronicle',
+              reason: client.SIGNIN_REASON.SIGN_IN
             }));
 
             // These should not be returned by default
@@ -362,7 +367,9 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
         return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (sessionData) {
             assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
-              keys: true
+              keys: true,
+              service: 'chronicle',
+              reason: client.SIGNIN_REASON.SIGN_IN
             }));
 
             assert.equal(sessionData.unwrapBKey, 'unwrapBKey');
@@ -371,7 +378,6 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
             assert.isFalse('customizeSync' in sessionData);
           });
       });
-
 
       it('informs browser of customizeSync option', function () {
         sinon.stub(relier, 'isSync', function () {
@@ -382,11 +388,30 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
           return p({});
         });
 
-        return client.signIn(email, password, relier, {
-          customizeSync: true
-        })
+        return client.signIn(email, password, relier, { customizeSync: true })
           .then(function (result) {
+            assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              keys: true,
+              service: 'sync',
+              reason: client.SIGNIN_REASON.SIGN_IN
+            }));
+
             assert.isTrue(result.customizeSync);
+          });
+      });
+
+      it('passes along an optional `reason`', function () {
+        sinon.stub(realClient, 'signIn', function () {
+          return p({});
+        });
+
+        return client.signIn(email, password, relier, { reason: client.SIGNIN_REASON.PASSWORD_CHANGE })
+          .then(function () {
+            assert.isTrue(realClient.signIn.calledWith(trim(email), password, {
+              keys: true,
+              service: 'sync',
+              reason: client.SIGNIN_REASON.PASSWORD_CHANGE
+            }));
           });
       });
     });
@@ -550,9 +575,19 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
           return p.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
         });
 
-        return client.checkPassword(email, 'badpassword')
+        sinon.stub(realClient, 'sessionDestroy', sinon.spy());
+
+        return client.checkPassword(email, password)
           .then(assert.fail, function (err) {
             assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
+            assert.isTrue(realClient.signIn.calledWith(
+              email,
+              password,
+              {
+                reason: client.SIGNIN_REASON.PASSWORD_CHECK
+              }
+            ));
+            assert.isFalse(realClient.sessionDestroy.called);
           });
       });
 
@@ -560,12 +595,25 @@ function (chai, $, sinon, FxaClient, p, testHelpers, Session, FxaClientWrapper,
         email = trim(email);
 
         sinon.stub(realClient, 'signIn', function () {
-          return p({});
+          return p({
+            sessionToken: 'session token'
+          });
+        });
+
+        sinon.stub(realClient, 'sessionDestroy', function () {
+          return p();
         });
 
         return client.checkPassword(email, password)
           .then(function () {
-            assert.isTrue(realClient.signIn.called);
+            assert.isTrue(realClient.signIn.calledWith(
+              email,
+              password,
+              {
+                reason: client.SIGNIN_REASON.PASSWORD_CHECK
+              }
+            ));
+            assert.isTrue(realClient.sessionDestroy.calledWith('session token'));
           });
       });
     });

@@ -109,7 +109,14 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
       // from localStorage and go to town.
       return self.fxaClient.completePasswordReset(email, password, token, code)
         .then(function () {
-          return self.fxaClient.signIn(email, password, self.relier);
+          return self.fxaClient.signIn(
+            email,
+            password,
+            self.relier,
+            {
+              reason: self.fxaClient.SIGNIN_REASON.PASSWORD_RESET
+            }
+          );
         }).then(function (accountData) {
           var account = self.user.initAccount(accountData);
           self._interTabChannel.send('login', accountData);

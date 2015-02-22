@@ -63,9 +63,15 @@ function (Cocktail, BaseView, FormView, AuthErrors, Template, PasswordMixin,
             // prevents sync users from seeing the `sign out` button on the
             // settings screen.
 
-            return self.fxaClient.signIn(email, newPassword, self.relier, {
-              sessionTokenContext: account.get('sessionTokenContext')
-            });
+            return self.fxaClient.signIn(
+              email,
+              newPassword,
+              self.relier,
+              {
+                reason: self.fxaClient.SIGNIN_REASON.PASSWORD_CHANGE,
+                sessionTokenContext: account.get('sessionTokenContext')
+              }
+            );
           })
           .then(function (updatedSessionData) {
             account.set(updatedSessionData);
