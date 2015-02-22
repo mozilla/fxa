@@ -508,6 +508,7 @@ label:focus ~ .input-help-focused {
 
 .select-row {
   background: $content-background-color image-url('ddarrow_inactive.png') 96% center no-repeat;
+  background-size: 10px 17px;
   border: 1px solid $input-row-border-color;
   border-radius: $big-border-radius;
   cursor: pointer;
@@ -537,15 +538,15 @@ label:focus ~ .input-help-focused {
       color: $input-text-color;
     }
 
-  &.disabled {
-     background: $content-background-color image-url('ddarrow_inactive.png') 96% center no-repeat;
-     border: 1px solid $input-row-border-color;
-     cursor: default;
+    &.disabled {
+       background: $content-background-color image-url('ddarrow_inactive.png') 96% center no-repeat;
+       border: 1px solid $input-row-border-color;
+       cursor: default;
 
-     select {
-      color: $input-placeholder-color;
-     }
-  }
+       select {
+        color: $input-placeholder-color;
+       }
+    }
   }
 
   select {
