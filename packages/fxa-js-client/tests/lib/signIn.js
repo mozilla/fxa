@@ -60,6 +60,16 @@ define([
           );
       });
 
+      test('#with service', function () {
+        var email = "test" + new Date().getTime() + "@restmail.net";
+        var password = "iliketurtles";
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
+          .then(function (res) {
+            return respond(client.signIn(email, password, {service: 'sync'}), RequestMocks.signIn);
+          });
+      });
+
       test('#incorrect email case', function () {
 
         return accountHelper.newVerifiedAccount()

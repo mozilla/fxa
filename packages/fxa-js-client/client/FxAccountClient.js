@@ -139,6 +139,8 @@ define([
    *   If `true`, calls the API with `?keys=true` to get the keyFetchToken
    *   @param {Boolean} [options.skipCaseError]
    *   If `true`, the request will skip the incorrect case error
+   *   @param {String} [options.service]
+   *   Service being signed into
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.signIn = function (email, password, options) {
@@ -153,13 +155,17 @@ define([
         function (result) {
           var endpoint = '/account/login';
 
+          if (options.keys) {
+            endpoint += '?keys=true';
+          }
+
           var data = {
             email: result.emailUTF8,
             authPW: sjcl.codec.hex.fromBits(result.authPW)
           };
 
-          if (options.keys) {
-            endpoint += '?keys=true';
+          if (options.service) {
+            data.service = options.service;
           }
 
           return self.request.send(endpoint, 'POST', null, data)
