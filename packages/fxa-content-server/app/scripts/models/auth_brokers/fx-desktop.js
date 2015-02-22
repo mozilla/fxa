@@ -111,7 +111,8 @@ define([
         'sessionTokenContext',
         'unwrapBKey',
         'keyFetchToken',
-        'customizeSync'
+        'customizeSync',
+        'verified'
       ];
 
       var loginData = {};
@@ -119,6 +120,7 @@ define([
         loginData[field] = account.get(field);
       });
 
+      loginData.verified = !! loginData.verified;
       loginData.verifiedCanLinkAccount = !! this._verifiedCanLinkAccount;
       return loginData;
     }
