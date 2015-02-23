@@ -28,13 +28,13 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
     template: SignInTemplate,
     className: 'sign-in',
 
-    beforeRender: function () {
-      // Session.prefillEmail comes first because users can edit the email,
-      // go to another screen, edit the email again, and come back here. We
-      // want the last used email. Session.prefillEmail is not until after
-      // the view initializes.
-      this.prefillEmail = Session.prefillEmail || this.relier.get('email');
+    initialize: function (options) {
+      options = options || {};
 
+      this._formPrefill = options.formPrefill;
+    },
+
+    beforeRender: function () {
       this._account = this._suggestedAccount();
     },
 
@@ -42,11 +42,18 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
       return this._account;
     },
 
+    getPrefillEmail: function () {
+      // formPrefill.email comes first because users can edit the email,
+      // go to another screen, edit the email again, and come back here. We
+      // want the last used email.
+      return this._formPrefill.get('email') || this.relier.get('email');
+    },
+
     context: function () {
       var suggestedAccount = this.getAccount();
       var hasSuggestedAccount = suggestedAccount.get('email');
       var email = hasSuggestedAccount ?
-                    suggestedAccount.get('email') : this.prefillEmail;
+                    suggestedAccount.get('email') : this.getPrefillEmail();
 
       return {
         serviceName: this.relier.get('serviceName'),
@@ -54,7 +61,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
         email: email,
         suggestedAccount: hasSuggestedAccount,
         chooserAskForPassword: this._suggestedAccountAskPassword(suggestedAccount),
-        password: Session.prefillPassword,
+        password: this._formPrefill.get('password'),
         error: this.error
       };
     },
@@ -76,8 +83,8 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
     },
 
     beforeDestroy: function () {
-      Session.set('prefillEmail', this.getElementValue('.email'));
-      Session.set('prefillPassword', this.getElementValue('.password'));
+      this._formPrefill.set('email', this.getElementValue('.email'));
+      this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
     submit: function () {
@@ -218,6 +225,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
       // only clear the current account.
       this.user.removeAllAccounts();
       Session.clear();
+      this._formPrefill.clear();
 
       return this.render();
     }),
@@ -232,6 +240,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
      */
     _suggestedAccount: function () {
       var account = this.user.getChooserAccount();
+      var prefillEmail = this.getPrefillEmail();
 
       if (
         // the relier can overrule cached creds.
@@ -239,7 +248,7 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
         // confirm that session email is present
         account.get('email') && account.get('sessionToken') &&
         // prefilled email must be the same or absent
-        (this.prefillEmail === account.get('email') || ! this.prefillEmail)
+        (prefillEmail === account.get('email') || ! prefillEmail)
       ) {
         return account;
       } else {
@@ -265,9 +274,10 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
       }
 
       // shows when 'chooserAskForPassword' already set or
+      var prefillEmail = this.getPrefillEmail();
       return !!(this.chooserAskForPassword === true ||
           // or when a prefill email does not match the account email
-          (this.prefillEmail && this.prefillEmail !== account.get('email')));
+          (prefillEmail && prefillEmail !== account.get('email')));
     }
   });
 

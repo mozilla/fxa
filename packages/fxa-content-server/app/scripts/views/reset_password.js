@@ -22,8 +22,14 @@ function (Cocktail, BaseView, FormView, Template, Session,
     template: Template,
     className: 'reset_password',
 
+    initialize: function (options) {
+      options = options || {};
+
+      this._formPrefill = options.formPrefill;
+    },
+
     _getPrefillEmail: function () {
-      return this.relier.get('email') || Session.prefillEmail || '';
+      return this.relier.get('email') || this._formPrefill.get('email') || '';
     },
 
     context: function () {
@@ -45,8 +51,12 @@ function (Cocktail, BaseView, FormView, Template, Session,
       FormView.prototype.afterRender.call(this);
     },
 
+    beforeDestroy: function () {
+      this._formPrefill.set('email', this.getElementValue('.email'));
+    },
+
     submit: function () {
-      var email = this.$('.email').val();
+      var email = this.getElementValue('.email');
 
       var self = this;
       return self.fxaClient.passwordReset(email, self.relier)
@@ -62,9 +72,6 @@ function (Cocktail, BaseView, FormView, Template, Session,
           // clear oauth session
           Session.clear('oauth');
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
-            // email indicates the signed in email. Use prefillEmail
-            // to avoid collisions across sessions.
-            Session.set('prefillEmail', email);
             err.forceMessage = t('Unknown account. <a href="/signup">Sign up</a>');
             return self.displayErrorUnsafe(err);
           } else if (AuthErrors.is(err, 'USER_CANCELED_LOGIN')) {

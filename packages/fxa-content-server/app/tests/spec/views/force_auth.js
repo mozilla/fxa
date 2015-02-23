@@ -17,12 +17,13 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
+  'models/form-prefill',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
-      Broker, User, WindowMock, RouterMock, TestHelpers) {
+      Broker, User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('/views/force_auth', function () {
@@ -34,6 +35,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
     var relier;
     var broker;
     var user;
+    var formPrefill;
 
     function initDeps() {
       windowMock = new WindowMock();
@@ -42,6 +44,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
       fxaClient = new FxaClient();
       user = new User();
       router = new RouterMock();
+      formPrefill = new FormPrefill();
 
       view = new View({
         window: windowMock,
@@ -49,7 +52,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
         user: user,
         relier: relier,
         broker: broker,
-        router: router
+        router: router,
+        formPrefill: formPrefill
       });
     }
 
@@ -74,8 +78,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
 
     describe('with registered email', function () {
       beforeEach(function () {
-        Session.set('prefillPassword', 'password');
         initDeps();
+        formPrefill.set('password', 'password');
 
         email = TestHelpers.createEmail();
         relier.set('email', email);
@@ -91,7 +95,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
           sinon.stub(view.fxaClient, 'signIn', function () {
             done();
           });
-          $('#submit-btn').click();
+          view.$('#submit-btn').click();
         });
 
         it('submits the sign in', function () {
@@ -119,15 +123,15 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
       });
 
       it('does not allow the email to be edited', function () {
-        assert.equal($('input[type=email]').length, 0);
+        assert.equal(view.$('input[type=email]').length, 0);
       });
 
       it('prefills password', function () {
-        assert.equal($('input[type=password]').val(), 'password');
+        assert.equal(view.$('input[type=password]').val(), 'password');
       });
 
       it('user cannot create an account', function () {
-        assert.equal($('a[href="/signup"]').length, 0);
+        assert.equal(view.$('a[href="/signup"]').length, 0);
       });
 
       it('isValid is successful when the password is filled out', function () {
@@ -273,6 +277,23 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
       });
     });
 
+    describe('beforeDestroy', function () {
+      beforeEach(function () {
+        initDeps();
+
+        relier.set('email', TestHelpers.createEmail());
+
+        return view.render();
+      });
+
+      it('saves the form info to formPrefill', function () {
+        view.$('.password').val('password');
+
+        view.beforeDestroy();
+
+        assert.equal(formPrefill.get('password'), 'password');
+      });
+    });
   });
 });
 

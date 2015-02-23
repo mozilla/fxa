@@ -17,11 +17,12 @@ define([
   'views/reset_password',
   'models/reliers/relier',
   'models/auth_brokers/base',
+  'models/form-prefill',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
-      Relier, Broker, RouterMock, TestHelpers) {
+      Relier, Broker, FormPrefill, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -32,6 +33,7 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
     var fxaClient;
     var relier;
     var broker;
+    var formPrefill;
 
     function createView(options) {
       var viewOptions = _.extend({
@@ -40,7 +42,8 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
-        canGoBack: true
+        canGoBack: true,
+        formPrefill: formPrefill
       }, options || {});
       return new View(viewOptions);
     }
@@ -53,6 +56,7 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         relier: relier
       });
       fxaClient = new FxaClient();
+      formPrefill = new FormPrefill();
 
       view = createView();
       return view.render()
@@ -76,8 +80,8 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
         assert.ok($('#fxa-reset-password-header').length);
       });
 
-      it('pre-fills email addresses from Session.prefillEmail', function () {
-        Session.set('prefillEmail', 'prefilled@testuser.com');
+      it('pre-fills email addresses from formPrefill.email', function () {
+        formPrefill.set('email', 'prefilled@testuser.com');
         return view.render()
           .then(function () {
             assert.equal(view.$('.email').val(), 'prefilled@testuser.com');
@@ -210,12 +214,21 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
                   });
       });
     });
+
+    describe('beforeDestroy', function () {
+      it('saves the form email to formPrefill', function () {
+        view.$('.email').val('testuser@testuser.com');
+        view.beforeDestroy();
+        assert.equal(formPrefill.get('email'), 'testuser@testuser.com');
+      });
+    });
   });
 
   describe('views/reset_password with email specified in relier', function () {
     var view;
     var relier;
     var broker;
+    var formPrefill;
 
     beforeEach(function () {
       relier = new Relier();
@@ -223,10 +236,12 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
       broker = new Broker({
         relier: relier
       });
+      formPrefill = new FormPrefill();
 
       view = new View({
         broker: broker,
-        relier: relier
+        relier: relier,
+        formPrefill: formPrefill
       });
       return view.render();
     });

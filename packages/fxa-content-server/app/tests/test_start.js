@@ -78,6 +78,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/back-mixin',
     '../tests/spec/models/user',
     '../tests/spec/models/account',
+    '../tests/spec/models/form-prefill',
     '../tests/spec/models/reliers/base',
     '../tests/spec/models/reliers/relier',
     '../tests/spec/models/reliers/oauth',

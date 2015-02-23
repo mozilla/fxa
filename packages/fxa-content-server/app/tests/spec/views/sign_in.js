@@ -18,13 +18,15 @@ define([
   'lib/constants',
   'models/reliers/relier',
   'models/user',
+  'models/form-prefill',
   'models/auth_brokers/base',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
-      Constants, Relier, User, Broker, WindowMock, RouterMock, TestHelpers) {
+      Constants, Relier, User, FormPrefill, Broker, WindowMock, RouterMock,
+      TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -38,6 +40,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
     var relier;
     var broker;
     var user;
+    var formPrefill;
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -51,6 +54,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
       broker = new Broker();
       user = new User();
       fxaClient = new FxaClient();
+      formPrefill = new FormPrefill();
 
       initView();
 
@@ -78,19 +82,20 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         user: user,
         relier: relier,
         broker: broker,
-        screenName: 'signin'
+        screenName: 'signin',
+        formPrefill: formPrefill
       });
     }
 
     describe('render', function () {
-      it('prefills email and password if stored in Session (user comes from signup with existing account)', function () {
-        Session.set('prefillEmail', 'testuser@testuser.com');
-        Session.set('prefillPassword', 'prefilled password');
+      it('prefills email and password if stored in formPrefill (user comes from signup with existing account)', function () {
+        formPrefill.set('email', 'testuser@testuser.com');
+        formPrefill.set('password', 'prefilled password');
 
         initView();
         return view.render()
             .then(function () {
-              assert.ok($('#fxa-signin-header').length);
+              assert.ok(view.$('#fxa-signin-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
               assert.equal(view.$('[type=password]').val(), 'prefilled password');
             });
@@ -396,7 +401,7 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         assert.isTrue(view._suggestedAccount().isEmpty(), 'null when no session token set');
 
         user.getChooserAccount.restore();
-        view.prefillEmail = 'a@a.com';
+        formPrefill.set('email', 'a@a.com');
         sinon.stub(user, 'getChooserAccount', function () {
           return user.initAccount({ sessionToken: 'abc123', email: 'b@b.com' });
         });
@@ -563,6 +568,18 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         return view._signIn(account).then(assert.fail, function (err) {
           assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
         });
+      });
+    });
+
+    describe('beforeDestroy', function () {
+      it('saves the form info to formPrefill', function () {
+        view.$('.email').val('testuser@testuser.com');
+        view.$('.password').val('password');
+
+        view.beforeDestroy();
+
+        assert.equal(formPrefill.get('email'), 'testuser@testuser.com');
+        assert.equal(formPrefill.get('password'), 'password');
       });
     });
 

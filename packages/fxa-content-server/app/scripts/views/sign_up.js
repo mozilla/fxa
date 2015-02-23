@@ -43,6 +43,12 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
     template: Template,
     className: 'sign-up',
 
+    initialize: function (options) {
+      options = options || {};
+
+      this._formPrefill = options.formPrefill;
+    },
+
     beforeRender: function () {
       if (document.cookie.indexOf('tooyoung') > -1) {
         this.navigate('cannot_create_account');
@@ -96,23 +102,31 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
       'change #fxa-age-month': 'onUserMonthSelect'
     },
 
-    context: function () {
-      // Session.prefillEmail comes first because users can edit the email,
+    getPrefillEmail: function () {
+      // formPrefill.email comes first because users can edit the email,
       // go to another screen, edit the email again, and come back here. We
       // want the last used email.
-      var email = Session.prefillEmail || this.relier.get('email');
+      return this._formPrefill.get('email') || this.relier.get('email');
+    },
+
+    context: function () {
+      var prefillEmail = this.getPrefillEmail();
+      var formPrefill = this._formPrefill;
+      var prefillPassword = formPrefill.get('password');
+      var prefillYear = formPrefill.get('year') || 'none';
 
       var autofocusEl = selectAutoFocusEl(
-        this._bouncedEmail, email, Session.prefillPassword);
+            this._bouncedEmail, prefillEmail, prefillPassword);
 
+      var relier = this.relier;
       return {
-        serviceName: this.relier.get('serviceName'),
-        isSync: this.relier.isSync(),
-        isCustomizeSyncChecked: this.relier.isCustomizeSyncChecked(),
+        serviceName: relier.get('serviceName'),
+        isSync: relier.isSync(),
+        isCustomizeSyncChecked: relier.isCustomizeSyncChecked(),
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled(),
-        email: email,
-        password: Session.prefillPassword,
-        year: Session.prefillYear || 'none',
+        email: prefillEmail,
+        password: prefillPassword,
+        year: prefillYear,
         shouldFocusEmail: autofocusEl === 'email',
         shouldFocusPassword: autofocusEl === 'password',
         shouldFocusYear: autofocusEl === 'year',
@@ -121,9 +135,10 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
     },
 
     beforeDestroy: function () {
-      Session.set('prefillEmail', this.$('.email').val());
-      Session.set('prefillPassword', this.$('.password').val());
-      Session.set('prefillYear', this.$('#fxa-age-year').val());
+      var formPrefill = this._formPrefill;
+      formPrefill.set('email', this.getElementValue('.email'));
+      formPrefill.set('password', this.getElementValue('.password'));
+      formPrefill.set('year', this.$('#fxa-age-year').val());
     },
 
     submitOnEnter: function (event) {
@@ -401,8 +416,9 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
     },
 
     _selectPrefillYear: function () {
-      if (Session.prefillYear) {
-        this.$('#fxa-' + Session.prefillYear).attr('selected', 'selected');
+      var prefillYear = this._formPrefill.get('year');
+      if (prefillYear) {
+        this.$('#fxa-' + prefillYear).attr('selected', 'selected');
       }
     }
   });
