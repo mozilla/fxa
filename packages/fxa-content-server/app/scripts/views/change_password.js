@@ -26,10 +26,6 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
     template: Template,
     className: 'change-password',
 
-    events: {
-      'change .show-password': 'onPasswordVisibilityChange'
-    },
-
     context: function () {
       return {
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
