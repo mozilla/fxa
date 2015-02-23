@@ -31,7 +31,6 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
   var wrapAssertion = TestHelpers.wrapAssertion;
 
   var assert = chai.assert;
-  var ENTER_BUTTON_CODE = 13;
 
   describe('views/base', function () {
     var view;
@@ -593,30 +592,6 @@ function (chai, $, sinon, BaseView, p, Translator, EphemeralMessages, Metrics,
       it('returns false if view created with `canGoBack: false` option', function () {
         var view = new View({ canGoBack: false });
         assert.isFalse(view.canGoBack());
-      });
-    });
-
-    describe('back', function () {
-      it('calls window.history.back', function () {
-        view.back();
-        assert.isTrue(windowMock.history.back.called);
-      });
-    });
-
-    describe('backOnEnter', function () {
-      it('calls window.history.back if user presses ENTER key', function () {
-        view.backOnEnter({ which: ENTER_BUTTON_CODE });
-        assert.isTrue(windowMock.history.back.called);
-      });
-
-      it('does not call window.history.back if user presses any key besides ENTER', function () {
-        sinon.spy(windowMock.history, 'back');
-        sinon.stub(view, 'canGoBack', function () {
-          return true;
-        });
-
-        view.backOnEnter({ which: ENTER_BUTTON_CODE + 1});
-        assert.isFalse(windowMock.history.back.called);
       });
     });
   });

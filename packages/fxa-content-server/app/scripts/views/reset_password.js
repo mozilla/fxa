@@ -11,10 +11,11 @@ define([
   'stache!templates/reset_password',
   'lib/session',
   'lib/auth-errors',
-  'views/mixins/service-mixin'
+  'views/mixins/service-mixin',
+  'views/mixins/back-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, Session,
-  AuthErrors, ServiceMixin) {
+  AuthErrors, ServiceMixin, BackMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -79,7 +80,8 @@ function (Cocktail, BaseView, FormView, Template, Session,
 
   Cocktail.mixin(
     View,
-    ServiceMixin
+    ServiceMixin,
+    BackMixin
   );
 
   return View;

@@ -12,10 +12,11 @@ define([
   'views/mixins/password-mixin',
   'views/mixins/floating-placeholder-mixin',
   'lib/auth-errors',
-  'views/mixins/service-mixin'
+  'views/mixins/service-mixin',
+  'views/mixins/back-mixin'
 ],
 function (Cocktail, BaseView, FormView, Template, PasswordMixin,
-  FloatingPlaceholderMixin, AuthErrors, ServiceMixin) {
+  FloatingPlaceholderMixin, AuthErrors, ServiceMixin, BackMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -26,8 +27,6 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
     className: 'change-password',
 
     events: {
-      'click #back': 'back',
-      'keyup #back': 'backOnEnter',
       'change .show-password': 'onPasswordVisibilityChange'
     },
 
@@ -88,7 +87,8 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
     View,
     PasswordMixin,
     FloatingPlaceholderMixin,
-    ServiceMixin
+    ServiceMixin,
+    BackMixin
   );
 
   return View;
