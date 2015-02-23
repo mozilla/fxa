@@ -100,7 +100,7 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
       // Session.prefillEmail comes first because users can edit the email,
       // go to another screen, edit the email again, and come back here. We
       // want the last used email.
-      var email = Session.prefillEmail || this.searchParam('email');
+      var email = Session.prefillEmail || this.relier.get('email');
 
       var autofocusEl = selectAutoFocusEl(
         this._bouncedEmail, email, Session.prefillPassword);

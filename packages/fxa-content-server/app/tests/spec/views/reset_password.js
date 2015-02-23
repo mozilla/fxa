@@ -17,12 +17,11 @@ define([
   'views/reset_password',
   'models/reliers/relier',
   'models/auth_brokers/base',
-  '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
-      Relier, Broker, WindowMock, RouterMock, TestHelpers) {
+      Relier, Broker, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -213,35 +212,28 @@ function (_, chai, sinon, p, Session, AuthErrors, Metrics, FxaClient, View,
     });
   });
 
-  describe('views/reset_password with email specified as query param', function () {
+  describe('views/reset_password with email specified in relier', function () {
     var view;
-    var windowMock;
     var relier;
     var broker;
 
     beforeEach(function () {
-      windowMock = new WindowMock();
-      windowMock.location.search = '?email=testuser@testuser.com';
       relier = new Relier();
+      relier.set('email', 'testuser@testuser.com');
       broker = new Broker({
         relier: relier
       });
 
       view = new View({
-        window: windowMock,
         broker: broker,
         relier: relier
       });
-      return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+      return view.render();
     });
 
     afterEach(function () {
-      view.remove();
       view.destroy();
-      view = windowMock = null;
+      view = null;
       $('#container').empty();
     });
 
