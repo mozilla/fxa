@@ -188,9 +188,10 @@ function (chai, $, sinon, View, Session, FxaClient, p, AuthErrors, Relier,
         var account = user.initAccount({
           email: 'a@a.com'
         });
+        var imgUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
 
         sinon.stub(account, 'getAvatar', function () {
-          return p({ avatar: 'avatar.jpg', id: 'foo' });
+          return p({ avatar: imgUrl, id: 'foo' });
         });
 
         sinon.stub(user, 'getAccountByEmail', function () {

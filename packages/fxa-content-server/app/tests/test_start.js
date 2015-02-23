@@ -85,6 +85,7 @@ function (Translator, Session) {
     '../tests/spec/views/mixins/account-locked-mixin',
     '../tests/spec/models/user',
     '../tests/spec/models/account',
+    '../tests/spec/models/profile-image',
     '../tests/spec/models/form-prefill',
     '../tests/spec/models/notifications',
     '../tests/spec/models/reliers/base',

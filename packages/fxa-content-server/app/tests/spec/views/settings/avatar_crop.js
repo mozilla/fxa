@@ -120,7 +120,7 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
           sinon.stub(account, 'profileClient', function () {
             return p(profileClientMock);
           });
-          sinon.stub(view, 'updateAvatarUrl', function () {
+          sinon.stub(view, 'updateProfileImage', function () {
             return p();
           });
         });
@@ -152,7 +152,7 @@ function (chai, _, $, ui, sinon, View, RouterMock, ProfileMock, User, CropperIma
               return view.submit();
             })
             .then(function (result) {
-              assert.isTrue(view.updateAvatarUrl.calledWith(result.url));
+              assert.equal(view.updateProfileImage.args[0][0].get('url'), result.url);
               assert.equal(result.url, 'test');
               assert.equal(result.id, 'foo');
               assert.equal(routerMock.page, 'settings');

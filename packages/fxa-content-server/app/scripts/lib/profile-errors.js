@@ -29,6 +29,10 @@ define([
       errno: 103,
       message: t('Image processing error')
     },
+    IMAGE_LOAD_ERROR: {
+      errno: 997,
+      message: t('Unexpected error')
+    },
     SERVICE_UNAVAILABLE: {
       errno: 998,
       message: t('System unavailable, try again soon')

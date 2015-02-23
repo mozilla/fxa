@@ -15,10 +15,11 @@ define([
   'stache!templates/settings/avatar_gravatar',
   'lib/constants',
   'lib/image-loader',
-  'views/decorators/progress_indicator'
+  'views/decorators/progress_indicator',
+  'models/profile-image'
 ],
 function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
-    Template, Constants, ImageLoader, showProgressIndicator) {
+    Template, Constants, ImageLoader, showProgressIndicator, ProfileImage) {
 
   function t (s) { return s; }
 
@@ -80,7 +81,7 @@ function ($, _, md5, Cocktail, FormView, SettingsMixin, AvatarMixin,
 
       return self.getSignedInAccount().postAvatar(url, true)
         .then(function (result) {
-          self.updateAvatarUrl(url);
+          self.updateProfileImage(new ProfileImage({ url: url, id: result.id }));
 
           self.navigate('settings', {
             successUnsafe: t('Courtesy of <a href="https://www.gravatar.com">Gravatar</a>')

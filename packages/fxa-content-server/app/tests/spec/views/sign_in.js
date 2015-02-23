@@ -458,6 +458,8 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
           accessToken: 'foo'
         });
 
+        var imgUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVQYV2P4DwABAQEAWk1v8QAAAABJRU5ErkJggg==';
+
         sinon.stub(user, 'getChooserAccount', function () {
           return account;
         });
@@ -465,13 +467,13 @@ function (chai, $, sinon, p, View, Session, AuthErrors, Metrics, FxaClient,
         return view.render()
           .then(function () {
             sinon.stub(account, 'getAvatar', function () {
-              return p({ avatar: 'foo', id: 'bar' });
+              return p({ avatar: imgUrl, id: 'bar' });
             });
             return view.afterVisible();
           })
           .then(function () {
             assert.notOk(view.$('.password').length, 'should not show password input');
-            assert.ok(view.$('.avatar-view').length, 'should show suggested avatar');
+            assert.ok(view.$('.avatar-view img').length, 'should show suggested avatar');
           });
       });
 
