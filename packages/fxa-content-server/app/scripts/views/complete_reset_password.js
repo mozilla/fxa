@@ -29,7 +29,6 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
     },
 
     events: {
-      'change .show-password': 'onPasswordVisibilityChange',
       'click #resend': BaseView.preventDefaultThen('resendResetEmail')
     },
 

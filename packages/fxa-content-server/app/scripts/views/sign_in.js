@@ -60,7 +60,6 @@ function (Cocktail, p, BaseView, FormView, SignInTemplate, Session, PasswordMixi
     },
 
     events: {
-      'change .show-password': 'onPasswordVisibilityChange',
       'click .use-logged-in': 'useLoggedInAccount',
       'click .use-different': 'useDifferentAccount'
     },

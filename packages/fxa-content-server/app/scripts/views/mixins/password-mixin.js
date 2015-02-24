@@ -9,6 +9,10 @@
 define([
 ], function () {
   return {
+    events: {
+      'change .show-password': 'onPasswordVisibilityChange'
+    },
+
     onPasswordVisibilityChange: function (event) {
       var target = this.$(event.target);
       this.setPasswordVisibilityFromButton(target);

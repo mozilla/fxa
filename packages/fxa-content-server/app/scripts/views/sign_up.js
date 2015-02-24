@@ -88,7 +88,6 @@ function (Cocktail, _, p, BaseView, FormView, Template, Session, AuthErrors,
     },
 
     events: {
-      'change .show-password': 'onPasswordVisibilityChange',
       'keydown #fxa-age-year': 'submitOnEnter',
       'keydown #fxa-age-month': 'submitOnEnter',
       'keydown #fxa-age-date': 'submitOnEnter',

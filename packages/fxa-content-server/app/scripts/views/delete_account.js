@@ -25,10 +25,6 @@ function (Cocktail, BaseView, FormView, Template, Session,
     template: Template,
     className: 'delete-account',
 
-    events: {
-      'change .show-password': 'onPasswordVisibilityChange'
-    },
-
     context: function () {
       return {
         email: this.getSignedInAccount().get('email')

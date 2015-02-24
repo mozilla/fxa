@@ -5,15 +5,18 @@
 'use strict';
 
 define([
+  'cocktail',
   'lib/promise',
   'views/base',
   'views/form',
   'views/sign_in',
+  'views/mixins/password-mixin',
   'stache!templates/force_auth',
   'lib/session',
   'lib/auth-errors'
 ],
-function (p, BaseView, FormView, SignInView, Template, Session, AuthErrors) {
+function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
+    Template, Session, AuthErrors) {
   function getFatalErrorMessage(self, fatalError) {
     if (fatalError) {
       return self.translateError(fatalError);
@@ -57,9 +60,7 @@ function (p, BaseView, FormView, SignInView, Template, Session, AuthErrors) {
     },
 
     events: {
-      'click a[href="/confirm_reset_password"]': BaseView.cancelEventThen('resetPasswordNow'),
-      // Backbone does not add SignInView's events, so this must be duplicated.
-      'change .show-password': 'onPasswordVisibilityChange'
+      'click a[href="/confirm_reset_password"]': BaseView.cancelEventThen('resetPasswordNow')
     },
 
     beforeDestroy: function () {
@@ -129,6 +130,11 @@ function (p, BaseView, FormView, SignInView, Template, Session, AuthErrors) {
       }
     }
   });
+
+  Cocktail.mixin(
+    View,
+    PasswordMixin
+  );
 
   return View;
 });
