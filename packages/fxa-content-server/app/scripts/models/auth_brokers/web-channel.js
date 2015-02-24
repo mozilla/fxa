@@ -25,6 +25,7 @@ define([
     initialize: function (options) {
       options = options || {};
 
+      this._fxaClient = options.fxaClient;
       // channel can be passed in for testing.
       this._channel = options.channel;
 
@@ -52,6 +53,42 @@ define([
       // that immediately resolves.
       this.send('oauth_complete', result);
       return p();
+    },
+
+    /**
+     * WebChannel reliers can request access to relier-specific encryption
+     * keys.  In the future this logic may be lifted into the base OAuth class
+     * and made available to all reliers, but we're putting it in this subclass
+     * for now to guard against accidental exposure.
+     *
+     * If the relier indicates that they want keys, the OAuth result will
+     * get an additional property 'keys', an object containing relier-specific
+     * keys 'kAr' and 'kBr'.
+     */
+
+    getOAuthResult: function (account) {
+      var self = this;
+      return OAuthAuthenticationBroker.prototype.getOAuthResult.call(this, account)
+        .then(function (result) {
+          if (! self.relier.wantsKeys()) {
+            return result;
+          }
+          var uid = account.get('uid');
+          var keyFetchToken = account.get('keyFetchToken');
+          var unwrapBKey = account.get('unwrapBKey');
+          if (! keyFetchToken || ! unwrapBKey) {
+            result.keys = null;
+            return result;
+          }
+          return self._fxaClient.accountKeys(keyFetchToken, unwrapBKey)
+            .then(function (keys) {
+              return self.relier.deriveRelierKeys(keys, uid);
+            })
+            .then(function (keys) {
+              result.keys = keys;
+              return result;
+            });
+        });
     },
 
     afterSignIn: function (account) {

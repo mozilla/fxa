@@ -24,6 +24,9 @@ define([], function () {
 
     OAUTH_CODE_LENGTH: 64,
 
+    RELIER_KEYS_LENGTH: 32,
+    RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',
+
     PASSWORD_MIN_LENGTH: 8,
 
     PROFILE_IMAGE_DISPLAY_SIZE: 240,

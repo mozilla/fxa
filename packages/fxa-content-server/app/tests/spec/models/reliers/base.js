@@ -53,6 +53,21 @@ define([
       });
     });
 
+    describe('wantsKeys', function () {
+      it('returns `false`', function () {
+        assert.isFalse(relier.wantsKeys());
+      });
+    });
+
+    describe('deriveRelierKeys', function () {
+      it('returns no keys', function () {
+        relier.deriveRelierKeys('uid', { kA: 'kA', kB: 'kB' })
+          .then(function (keys) {
+            assert.equal(keys, {});
+          });
+      });
+    });
+
     describe('isCustomizeSyncChecked', function () {
       it('returns `false`', function () {
         assert.isFalse(relier.isCustomizeSyncChecked());
