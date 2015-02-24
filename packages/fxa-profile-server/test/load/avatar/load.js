@@ -24,21 +24,15 @@ var stats = {
     bytes: 0,
     milliseconds: 0
   },
+  deletes: {
+    count: 0,
+    bytes: 0,
+    milliseconds: 0
+  },
   errors: {
     count: 0
   }
 };
-
-function startUpload() {
-  if (stats.uploads.count > options.count) {
-    return; // All Done.
-  }
-
-  var transactionid = crypto.randomBytes(4).toString('hex');
-  transactions[transactionid] = 'uploading';
-
-  avatar.upload({ transactionid: transactionid });
-}
 
 function updateStats(type, info) {
   var element = stats[type];
@@ -57,20 +51,37 @@ function log(/* format, values... */) {
 function reportStats() {
   var uploads = stats.uploads;
   var downloads = stats.downloads;
+
   if (uploads.count === 0 || downloads.count === 0) return;
 
-  var uploadRate = uploads.bytes / uploads.milliseconds * 1000 / 1024;
-  var downloadRate = downloads.bytes / downloads.milliseconds * 1000 / 1024;
+  var uploadRate = (uploads.bytes || 0) /
+      (uploads.milliseconds || 1) * 1000 / 1024;
+  var downloadRate = (downloads.bytes || 0) /
+      (downloads.milliseconds || 1) * 1000 / 1024;
 
-  log('status: uploads: %s (%s KB/s) downloads: %s (%s KB/s) errors: %s',
+  log('stats: uploads: %s (%s KB/s) downloads: %s (%s KB/s) ' +
+      'deletes: %s errors: %s',
       uploads.count, uploadRate.toFixed(1),
-      downloads.count, downloadRate.toFixed(1), stats.errors.count);
+      downloads.count, downloadRate.toFixed(1),
+      stats.deletes.count, stats.errors.count);
 }
 
 function intParse(string, defvalue) {
   var intvalue = parseInt(string, 10);
   if (typeof intvalue === 'number') return intvalue;
   return defvalue;
+}
+
+function startUpload() {
+  if (stats.uploads.count >= options.count) {
+    reportStats();
+    return; // All Done.
+  }
+
+  var transactionid = crypto.randomBytes(4).toString('hex');
+  transactions[transactionid] = 'uploading';
+
+  avatar.upload({ transactionid: transactionid });
 }
 
 (function main() {
@@ -136,6 +147,7 @@ avatar.on('complete:upload', function onCompleteUpload(info) {
 
   avatar.download({
     url: info.body.url, 
+    imageid: info.body.id, 
     transactionid: info.transactionid
   });
 });
@@ -148,6 +160,21 @@ avatar.on('complete:download', function onCompleteDownload(info) {
   }
 
   updateStats('downloads', info);
+
+  avatar.delete({
+    transactionid: info.transactionid,
+    imageid: info.imageid
+  });
+});
+
+avatar.on('complete:delete', function onCompleteDelete(info) {
+  if (options.verbose) {
+    var activeCount = Object.keys(transactions).length;
+    log('complete:delete -> xid: %s, active: %s, rc: %s, elapsedTime: %s', 
+        info.transactionid, activeCount, info.statusCode, info.elapsedTime);
+  }
+
+  updateStats('deletes', info);
   delete transactions[info.transactionid];
 
   startUpload();
