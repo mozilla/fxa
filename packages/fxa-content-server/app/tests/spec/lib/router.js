@@ -164,6 +164,46 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
               assert.isTrue(TestHelpers.isEventLogged(metrics, 'screen.signup'));
             });
       });
+
+      it('calls brokerLoaded only after initial view', function () {
+        sinon.stub(broker, 'afterLoaded', function () {
+        });
+
+        return router.showView(signInView)
+            .then(function () {
+              assert.ok($('#fxa-signin-header').length);
+              assert.isTrue(broker.afterLoaded.called);
+
+              return router.showView(signUpView);
+            })
+            .then(function () {
+              assert.ok($('#fxa-signup-header').length);
+              assert.isTrue(broker.afterLoaded.calledOnce);
+            });
+      });
+
+      it('does not call brokerLoaded if the initial view render fails', function () {
+        var boom = new Error('boom');
+        sinon.stub(broker, 'afterLoaded', function () { });
+        sinon.stub(signInView, 'navigate', function () { });
+
+        sinon.stub(signInView, 'afterRender', function () {
+          throw boom;
+        });
+
+        return router.showView(signInView)
+            .then(function () {
+              assert.isFalse(broker.afterLoaded.called);
+              assert.isTrue(signInView.navigate.calledWith('unexpected_error', {
+                error: boom
+              }));
+
+              return router.showView(signUpView);
+            })
+            .then(function () {
+              assert.isTrue(broker.afterLoaded.calledOnce);
+            });
+      });
     });
 
     describe('showView', function () {
