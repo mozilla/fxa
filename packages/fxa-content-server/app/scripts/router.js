@@ -69,28 +69,7 @@ function (
 
   function showView(View, options) {
     return function () {
-      // passed in options block can override
-      // default options.
-      var viewOptions = _.extend({
-        broker: this.broker,
-        canGoBack: this.canGoBack,
-        fxaClient: this.fxaClient,
-        interTabChannel: this.interTabChannel,
-        language: this.language,
-        metrics: this.metrics,
-        profileClient: this.profileClient,
-        relier: this.relier,
-        router: this,
-        user: this.user,
-        window: this.window,
-        screenName: this.fragmentToScreenName(Backbone.history.fragment),
-        formPrefill: this.formPrefill
-      }, options || {});
-
-      this.showView(new View(viewOptions));
-
-      // back is enabled after the first view is rendered.
-      this.canGoBack = true;
+      this.createAndShowView(View, options);
     };
   }
 
@@ -145,8 +124,6 @@ function (
       // back is only enabled after the first view is rendered.
       this.canGoBack = false;
 
-      this.$stage = $('#stage');
-
       this.watchAnchors();
     },
 
@@ -168,6 +145,36 @@ function (
       var url = this.user.getSignedInAccount().get('sessionToken') ?
                   '/settings' : '/signup';
       this.navigate(url, { trigger: true, replace: true });
+    },
+
+    createAndShowView: function (View, options) {
+      var self = this;
+      return p().then(function () {
+        var view = self.createView(View, options);
+        return self.showView(view);
+      });
+    },
+
+    createView: function (View, options) {
+      // passed in options block can override
+      // default options.
+      var viewOptions = _.extend({
+        broker: this.broker,
+        canGoBack: this.canGoBack,
+        fxaClient: this.fxaClient,
+        interTabChannel: this.interTabChannel,
+        language: this.language,
+        metrics: this.metrics,
+        profileClient: this.profileClient,
+        relier: this.relier,
+        router: this,
+        user: this.user,
+        window: this.window,
+        screenName: this.fragmentToScreenName(Backbone.history.fragment),
+        formPrefill: this.formPrefill
+      }, options || {});
+
+      return new View(viewOptions);
     },
 
     showView: function (viewToShow) {
@@ -192,7 +199,7 @@ function (
           // Render the new view and explicitly set the `display: block`
           // using .css. When embedded in about:accounts, the content
           // is not yet visible and show will not display the element.
-          self.$stage.html(viewToShow.el).css('display', 'block');
+          $('#stage').html(viewToShow.el).css('display', 'block');
           viewToShow.afterVisible();
 
           viewToShow.logScreen();
@@ -215,6 +222,9 @@ function (
             // loaded. It does not expect a response, so no error handler
             // is attached and the promise is not returned.
             self.broker.afterLoaded();
+
+            // back is enabled after the first view is rendered.
+            self.canGoBack = true;
           }
         })
         .fail(function (err) {
@@ -227,26 +237,31 @@ function (
     },
 
     watchAnchors: function () {
-      var self = this;
-      $(document).on('click', 'a[href^="/"]', function (event) {
-        // someone killed this event, ignore it.
-        if (event.isDefaultPrevented()) {
-          return;
-        }
+      $(document).on('click', 'a[href^="/"]', this.onAnchorClick.bind(this));
+    },
 
-        if (!event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
-          event.preventDefault();
+    onAnchorClick: function (event) {
+      // if someone killed this event, or the user is holding a modifier
+      // key, ignore the event.
+      if (event.isDefaultPrevented() ||
+          event.altKey ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey) {
+        return;
+      }
 
-          // Remove leading slashes
-          var url = $(this).attr('href').replace(/^\//, '');
+      event.preventDefault();
 
-          // Instruct Backbone to trigger routing events
-          self.navigate(url);
-        }
-      });
+      // Remove leading slashes
+      var url = $(event.target).attr('href').replace(/^\//, '');
+
+      // Instruct Backbone to trigger routing events
+      this.navigate(url);
     },
 
     fragmentToScreenName: function (fragment) {
+      fragment = fragment || '';
                 // strip leading /
       return fragment.replace(/^\//, '')
                 // strip trailing /
