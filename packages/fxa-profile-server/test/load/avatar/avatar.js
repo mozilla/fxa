@@ -20,7 +20,7 @@ function jsonParse(content) {
 }
 
 function isValidPng(image, cb) {
-  // must parse ok, and be 600x600 pixels
+  // must parse ok, and be expected pixel dimensions
   pngparse.parseBuffer(image, function(err, data) {
     if (err) {
       return cb(err);
@@ -105,7 +105,8 @@ Avatar.prototype.upload = function avatarUpload(options) {
 
     result.statusCode = res.statusCode;
     result.body = jsonParse(body);
-    result.bytes = res.req._headers['content-length'];
+    result.bytes = parseInt(res.req._headers['content-length'] || 0, 10);
+
     return self.emit('complete:upload', result);
   });
 };
@@ -127,7 +128,8 @@ Avatar.prototype.download = function avatarDownload(options) {
   request.get(requestArgs, function downloadHandler(err, res, body) {
     var result = {
       transactionid: transactionid,
-      elapsedTime: Date.now() - startTime
+      elapsedTime: Date.now() - startTime,
+      imageid: options.imageid
     };
 
     if (err) {
@@ -151,11 +153,60 @@ Avatar.prototype.download = function avatarDownload(options) {
         result.error = err;
         return self.emit('error', result);
       }
-      
+
       result.statusCode = res.statusCode;
       result.bytes = body.length;
+
       return self.emit('complete:download', result);
     });
+  });
+};
+
+Avatar.prototype.delete = function avatarDelete(options) {
+  var transactionid = options.transactionid || 'no-transaction-id';
+  var startTime = Date.now();
+  var self = this;
+
+  this.log('start:delete      -> %s', options.url);
+
+  var requestArgs = {
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer ' + this.bearer,
+    },
+    gzip: true,
+    encoding: null, // `encoding: null` will return body as a `Buffer`
+    uri: 'https://' + this.host + '/v1/avatar/' + options.imageid,
+    maxSockets: Infinity,
+  };
+
+  request.del(requestArgs, function downloadHandler(err, res, body) {
+    var result = {
+      transactionid: transactionid,
+      elapsedTime: Date.now() - startTime
+    };
+
+    if (err) {
+      result.error = err;
+      return self.emit('error', result);
+    }
+
+    if (res.statusCode !== 200) {
+      result.error = new Error('Invalid response code: ' + res.statusCode);
+      return self.emit('error', result);
+    }
+
+    var contentType = res.headers['content-type'];
+    if (contentType.indexOf('application/json') !== 0) {
+      result.error = new Error('Invalid content-type: ' + contentType);
+      return self.emit('error', result);
+    }
+
+    result.statusCode = res.statusCode;
+    result.bytes = Buffer.byteLength(body.toString('utf8'));
+
+    return self.emit('complete:delete', result);
   });
 };
 
