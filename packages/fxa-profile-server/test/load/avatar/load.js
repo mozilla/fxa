@@ -98,6 +98,8 @@ function startUpload() {
     .option('-H, --host <server>',
             'Hostname of profile server (default: profile.stage.mozaws.net)',
             'profile.stage.mozaws.net')
+    .option('-d, --delete',
+            'Optionally delete the image after each download (default: false)')
     .option('-v, --verbose',
             'show detailed logs for every upload/download')
     .parse(process.argv);
@@ -161,10 +163,16 @@ avatar.on('complete:download', function onCompleteDownload(info) {
 
   updateStats('downloads', info);
 
-  avatar.delete({
-    transactionid: info.transactionid,
-    imageid: info.imageid
-  });
+  if (options.delete) {
+    avatar.delete({
+      transactionid: info.transactionid,
+      imageid: info.imageid
+    });
+  } else {
+    delete transactions[info.transactionid];
+    startUpload();
+  }
+  
 });
 
 avatar.on('complete:delete', function onCompleteDelete(info) {
