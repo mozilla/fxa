@@ -63,10 +63,16 @@ module.exports = function (fs, path, url, convict) {
         env: 'MAX_BAD_LOGINS'
       },
       badLoginLockout: {
-        doc: 'Number failed login attempts within rateLimitIntervalSeconds before forcing locking the account',
+        doc: 'Number failed login attempts within badLoginLockoutIntervalSeconds before locking the account',
         default: 20,
         format: 'nat',
         env: 'BAD_LOGIN_LOCKOUT'
+      },
+      badLoginLockoutIntervalSeconds: {
+        doc: 'Duration which a failed login attempt should be remembered towards account lockout',
+        default: 60 * 60 * 30, // three hours for now
+        format: 'nat',
+        env: 'BAD_LOGIN_LOCKOUT_INTERVAL_SECONDS'
       }
     },
     memcache: {

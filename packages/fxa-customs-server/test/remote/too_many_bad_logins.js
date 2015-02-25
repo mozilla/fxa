@@ -14,7 +14,8 @@ var config = {
     port: 7000
   },
   limits: {
-    rateLimitIntervalSeconds: 1
+    rateLimitIntervalSeconds: 1,
+    badLoginLockoutIntervalSeconds: 1
   }
 }
 

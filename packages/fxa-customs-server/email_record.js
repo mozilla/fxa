@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Keep track of events tied to just email addresses
-module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS, BAD_LOGIN_LOCKOUT, now) {
+module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, MAX_EMAILS, BAD_LOGIN_LOCKOUT, now) {
 
   now = now || Date.now
 
@@ -67,7 +67,7 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, MAX_EMAILS
     var i = this.lf.length - 1
     var n = 0
     var login = this.lf[i]
-    while (login > (now - RATE_LIMIT_INTERVAL_MS) && n <= BAD_LOGIN_LOCKOUT) {
+    while (login > (now - BAD_LOGIN_LOCKOUT_INTERVAL_MS) && n <= BAD_LOGIN_LOCKOUT) {
       login = this.lf[--i]
       n++
     }
