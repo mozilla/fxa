@@ -40,9 +40,7 @@ function (Cocktail, _, $, ConfirmView, BaseView, Template, p, Session, Constants
     },
 
     events: {
-      'click #resend': BaseView.preventDefaultThen('validateAndSubmit'),
-      'click a[href="/signin"]': 'savePrefillEmailForSignin',
-      'click a[href="/oauth/signin"]': 'savePrefillEmailForSignin'
+      'click #resend': BaseView.preventDefaultThen('validateAndSubmit')
     },
 
     context: function () {
@@ -188,7 +186,6 @@ function (Cocktail, _, $, ConfirmView, BaseView, Template, p, Session, Constants
       // users will be redirected back to the RP, Sync users will be
       // taken to the Sync controlled completion page.
       Session.clear();
-      Session.set('prefillEmail', self._email);
       self.navigate(self._getSignInRoute(), {
         success: t('Password reset successfully. Sign in to continue.')
       });
@@ -266,10 +263,6 @@ function (Cocktail, _, $, ConfirmView, BaseView, Template, p, Session, Constants
           // unexpected error, rethrow for display.
           throw err;
         });
-    },
-
-    savePrefillEmailForSignin: function () {
-      Session.set('prefillEmail', this._email);
     },
 
     // The ResendMixin overrides beforeSubmit. Unless set to undefined,

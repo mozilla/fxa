@@ -19,13 +19,14 @@ define([
   'lib/ephemeral-messages',
   'models/reliers/relier',
   'models/user',
+  'models/form-prefill',
   'models/auth_brokers/base',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
       Constants, Metrics, EphemeralMessages, Relier,
-      User, NullBroker, WindowMock, TestHelpers) {
+      User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
 
@@ -39,6 +40,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
     var relier;
     var broker;
     var user;
+    var formPrefill;
 
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
@@ -52,6 +54,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         window: windowMock
       });
       user = new User();
+      formPrefill = new FormPrefill();
 
       broker = new NullBroker();
 
@@ -60,7 +63,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         metrics: metrics,
         relier: relier,
         broker: broker,
-        user: user
+        user: user,
+        formPrefill: formPrefill
       });
 
       origNavigate = Backbone.Router.prototype.navigate;
@@ -126,7 +130,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           router: router,
           broker: broker,
-          screenName: 'signin'
+          screenName: 'signin',
+          formPrefill: formPrefill
         });
         signUpView = new SignUpView({
           metrics: metrics,
@@ -135,7 +140,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           relier: relier,
           router: router,
           broker: broker,
-          screenName: 'signup'
+          screenName: 'signup',
+          formPrefill: formPrefill
         });
       });
 
@@ -172,7 +178,8 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
           ephemeralMessages: new EphemeralMessages(),
           relier: relier,
           broker: broker,
-          screenName: 'signup'
+          screenName: 'signup',
+          formPrefill: formPrefill
         });
       });
 

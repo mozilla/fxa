@@ -83,7 +83,8 @@ function (
         router: this,
         user: this.user,
         window: this.window,
-        screenName: this.fragmentToScreenName(Backbone.history.fragment)
+        screenName: this.fragmentToScreenName(Backbone.history.fragment),
+        formPrefill: this.formPrefill
       }, options || {});
 
       this.showView(new View(viewOptions));
@@ -139,6 +140,7 @@ function (
       this.fxaClient = options.fxaClient;
       this.user = options.user;
       this.interTabChannel = options.interTabChannel;
+      this.formPrefill = options.formPrefill;
 
       // back is only enabled after the first view is rendered.
       this.canGoBack = false;

@@ -33,9 +33,7 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
     initialize: function (options) {
       options = options || {};
 
-      // The session is cleared just after this. Store
-      // the prefillPassword so it can be inserted into the DOM.
-      this._prefillPassword = Session.prefillPassword;
+      this._formPrefill = options.formPrefill;
 
       // forceAuth means a user must sign in as a specific user.
       // kill the user's local session.
@@ -53,7 +51,7 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
 
       return {
         email: email,
-        password: this._prefillPassword,
+        password: this._formPrefill.get('password'),
         fatalError: getFatalErrorMessage(this, fatalError),
         isPasswordAutoCompleteDisabled: this.isPasswordAutoCompleteDisabled()
       };
@@ -64,7 +62,7 @@ function (Cocktail, p, BaseView, FormView, SignInView, PasswordMixin,
     },
 
     beforeDestroy: function () {
-      Session.set('prefillPassword', this.$('.password').val());
+      this._formPrefill.set('password', this.getElementValue('.password'));
     },
 
     submit: function () {

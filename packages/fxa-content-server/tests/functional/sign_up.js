@@ -207,6 +207,9 @@ define([
           return testAtConfirmScreen(self, emailWithoutSpace);
         })
         .then(function () {
+          return FunctionalHelpers.clearBrowserState(self);
+        })
+        .then(function () {
           return fillOutSignIn(self, emailWithoutSpace, PASSWORD);
         })
 
@@ -224,7 +227,9 @@ define([
         .then(function () {
           return testAtConfirmScreen(self, emailWithoutSpace);
         })
-
+        .then(function () {
+          return FunctionalHelpers.clearBrowserState(self);
+        })
         .then(function () {
           return fillOutSignIn(self, emailWithoutSpace, PASSWORD);
         })

@@ -22,8 +22,8 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
-      InterTabChannel, Storage, FxaClient, Relier, Broker, User, RouterMock,
-      WindowMock, TestHelpers) {
+      InterTabChannel, Storage, FxaClient, Relier, Broker, User,
+      RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
   var assert = chai.assert;
@@ -292,7 +292,6 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
         sinon.stub(view, 'navigate', function (page) {
           TestHelpers.wrapAssertion(function () {
             assert.equal(page, expectedPage);
-            assert.equal(Session.prefillEmail, EMAIL);
           }, done);
         });
 
@@ -404,13 +403,6 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
                 assert.isTrue(TestHelpers.isEventLogged(metrics,
                                   'confirm_reset_password.too_many_attempts'));
               });
-      });
-    });
-
-    describe('a click on the signin link', function () {
-      it('saves view.email to Session.prefillEmail so user\'s email address is prefilled when browsing to /signin', function () {
-        view.$('a[href="/signin"]').click();
-        assert.equal(Session.prefillEmail, EMAIL);
       });
     });
   });

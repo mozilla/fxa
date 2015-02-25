@@ -46,6 +46,7 @@ define([
   'models/auth_brokers/redirect',
   'models/auth_brokers/iframe',
   'models/user',
+  'models/form-prefill',
   'views/close_button'
 ],
 function (
@@ -77,6 +78,7 @@ function (
   RedirectAuthenticationBroker,
   IframeAuthenticationBroker,
   User,
+  FormPrefill,
   CloseButtonView
 ) {
 
@@ -178,6 +180,8 @@ function (
 
                     // metrics depends on the relier.
                     .then(_.bind(this.initializeMetrics, this))
+                    // depends on nothing
+                    .then(_.bind(this.initializeFormPrefill, this))
                     // router depends on all of the above
                     .then(_.bind(this.initializeRouter, this));
     },
@@ -209,6 +213,10 @@ function (
         screenWidth: screenInfo.screenWidth
       });
       this._metrics.init();
+    },
+
+    initializeFormPrefill: function () {
+      this._formPrefill = new FormPrefill();
     },
 
     initializeOAuthClient: function () {
@@ -345,7 +353,9 @@ function (
           broker: this._authenticationBroker,
           fxaClient: this._fxaClient,
           user: this._user,
-          interTabChannel: this._interTabChannel
+          interTabChannel: this._interTabChannel,
+          session: Session,
+          formPrefill: this._formPrefill
         });
       }
       this._window.router = this._router;

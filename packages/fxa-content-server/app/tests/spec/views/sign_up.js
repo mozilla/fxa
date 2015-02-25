@@ -21,12 +21,13 @@ define([
   'models/reliers/fx-desktop',
   'models/auth_brokers/base',
   'models/user',
+  'models/form-prefill',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
-      FxaClient, EphemeralMessages, Relier, Broker, User, RouterMock,
-      TestHelpers) {
+      FxaClient, EphemeralMessages, Relier, Broker, User, FormPrefill,
+      RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -70,13 +71,12 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     var broker;
     var ephemeralMessages;
     var user;
+    var formPrefill;
 
     var now = new Date();
     var CURRENT_YEAR = now.getFullYear();
 
     beforeEach(function () {
-      Session.clear();
-
       email = TestHelpers.createEmail();
       document.cookie = 'tooyoung=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
       router = new RouterMock();
@@ -87,6 +87,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       fxaClient = new FxaClient();
       ephemeralMessages = new EphemeralMessages();
       user = new User();
+      formPrefill = new FormPrefill();
 
       view = new View({
         router: router,
@@ -96,7 +97,8 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         relier: relier,
         broker: broker,
         ephemeralMessages: ephemeralMessages,
-        screenName: 'signup'
+        screenName: 'signup',
+        formPrefill: formPrefill
       });
 
       return view.render()
@@ -116,21 +118,21 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     });
 
     describe('render', function () {
-      it('prefills email, password, and year if stored in Session (user comes from signup with existing account)', function () {
-        Session.set('prefillEmail', 'testuser@testuser.com');
-        Session.set('prefillPassword', 'prefilled password');
-        Session.set('prefillYear', '1990');
+      it('prefills email, password, and year if stored in formPrefill (user comes from signup with existing account)', function () {
+        formPrefill.set('email', 'testuser@testuser.com');
+        formPrefill.set('password', 'prefilled password');
+        formPrefill.set('year', '1990');
 
         return view.render()
             .then(function () {
-              assert.ok($('#fxa-signup-header').length);
+              assert.ok(view.$('#fxa-signup-header').length);
               assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
               assert.equal(view.$('[type=password]').val(), 'prefilled password');
               assert.ok(view.$('#fxa-1990').is(':selected'));
             });
       });
 
-      it('prefills email with email from the relier Session.prefillEmail is not set', function () {
+      it('prefills email with email from the relier if formPrefill.email is not set', function () {
         relier.set('email', 'testuser@testuser.com');
 
         return view.render()
@@ -761,6 +763,21 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         }));
       });
     });
+
+    describe('beforeDestroy', function () {
+      it('saves the form info to formPrefill', function () {
+        view.$('.email').val('testuser@testuser.com');
+        view.$('.password').val('password');
+        view.$('#fxa-age-year').val('1990');
+
+        view.beforeDestroy();
+
+        assert.equal(formPrefill.get('email'), 'testuser@testuser.com');
+        assert.equal(formPrefill.get('password'), 'password');
+        assert.equal(formPrefill.get('year'), '1990');
+      });
+    });
+
   });
 });
 

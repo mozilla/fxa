@@ -16,12 +16,13 @@ define([
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
   'models/user',
+  'models/form-prefill',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
-      OAuthBroker, User, WindowMock, RouterMock, TestHelpers) {
+      OAuthBroker, User, FormPrefill, WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('views/sign_in for /oauth/signin', function () {
@@ -35,6 +36,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
     var broker;
     var profileClientMock;
     var user;
+    var formPrefill;
 
     var CLIENT_ID = 'dcdb5ae7add825d2';
     var STATE = '123';
@@ -59,6 +61,7 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       fxaClient = new FxaClient();
       metrics = new Metrics();
       profileClientMock = TestHelpers.stubbedProfileClient();
+      formPrefill = new FormPrefill();
 
       initView();
       return view.render()
@@ -83,7 +86,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
         user: user,
         profileClient: profileClientMock,
         metrics: metrics,
-        screenName: 'oauth.signin'
+        screenName: 'oauth.signin',
+        formPrefill: formPrefill
       });
     }
 
@@ -98,8 +102,8 @@ function (chai, $, sinon, View, Session, FxaClient, p, Metrics, OAuthRelier,
       });
 
       it('is enabled if prefills are valid', function () {
-        Session.set('prefillEmail', 'testuser@testuser.com');
-        Session.set('prefillPassword', 'prefilled password');
+        formPrefill.set('email', 'testuser@testuser.com');
+        formPrefill.set('password', 'prefilled password');
 
         initView();
         return view.render()

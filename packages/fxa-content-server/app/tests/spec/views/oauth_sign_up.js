@@ -19,13 +19,14 @@ define([
   'models/reliers/oauth',
   'models/auth_brokers/oauth',
   'models/user',
+  'models/form-prefill',
   '../../mocks/window',
   '../../mocks/router',
   '../../lib/helpers'
 ],
 function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
-      OAuthClient, Assertion, OAuthRelier, OAuthBroker, User, WindowMock,
-      RouterMock, TestHelpers) {
+      OAuthClient, Assertion, OAuthRelier, OAuthBroker, User, FormPrefill,
+      WindowMock, RouterMock, TestHelpers) {
   var assert = chai.assert;
 
   function fillOutSignUp (email, password, opts) {
@@ -64,6 +65,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
     var relier;
     var broker;
     var user;
+    var formPrefill;
 
     beforeEach(function () {
       Session.clear();
@@ -103,6 +105,7 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         fxaClient: fxaClient
       });
       user = new User();
+      formPrefill = new FormPrefill();
 
       view = new View({
         router: router,
@@ -114,7 +117,8 @@ function (chai, $, sinon, View, p, Session, FxaClient, Metrics, AuthErrors,
         user: user,
         assertionLibrary: assertionLibrary,
         oAuthClient: oAuthClient,
-        screenName: 'oauth.signup'
+        screenName: 'oauth.signup',
+        formPrefill: formPrefill
       });
 
       return view.render()
