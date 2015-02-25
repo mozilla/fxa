@@ -17,13 +17,12 @@ define([
   'models/reliers/relier',
   'models/auth_brokers/base',
   'models/user',
-  'models/form-prefill',
   '../../mocks/router',
   '../../mocks/window',
   '../../lib/helpers'
 ],
 function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
-      InterTabChannel, Storage, FxaClient, Relier, Broker, User, FormPrefill,
+      InterTabChannel, Storage, FxaClient, Relier, Broker, User,
       RouterMock, WindowMock, TestHelpers) {
   'use strict';
 
