@@ -40,7 +40,7 @@ module.exports = function (grunt) {
         exclude: /pages\/dist/,
         'output-dir': messagesOutputPath,
         'output': 'server.pot',
-        'join-existing': false,
+        'join-existing': true,
         'keyword': 't',
         parsers: {
           '.js': 'javascript',
