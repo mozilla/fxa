@@ -238,5 +238,19 @@ define([
     testClientJson.call(this, null, 'en');
   };
 
+  // this is a basic test to ensure the original strings are replaced
+  // in dev mode and the templates do not render without text.
+  suite['#get /503.html page - check text is rendered in dev mode'] = function () {
+    var dfd = this.async(intern.config.asyncTimeout);
+
+    request(serverUrl + '/503.html', {
+      headers: {
+        'Accept': 'text/html'
+      }
+    }, dfd.callback(function (err, res) {
+      assert.ok(res.body.match(/server busy/i));
+    }, dfd.reject.bind(dfd)));
+  };
+
   registerSuite(suite);
 });
