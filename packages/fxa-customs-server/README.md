@@ -5,9 +5,14 @@ Firefox Accounts Customs Server
 
 This project is used by the [Firefox Accounts Auth Server](https://github.com/mozilla/fxa-auth-server) to detect and deter [fraud and abuse](https://wiki.mozilla.org/Identity/Firefox_Accounts/Fraud_and_abuse).
 
-## Install
+## Prerequisites
+* node 0.10.x
+* npm
+* memcached
+  * On Debian flavors of Linux: `sudo apt-get install memcached`
+  * On Mac OS X: `brew install memcached`
 
-You'll need node 0.10.x or higher and npm to run the server.
+## Install
 
 Clone the git repository and install dependencies:
 
@@ -25,6 +30,11 @@ It will listen on http://127.0.0.1:7000 by default.
 
 Run tests with:
 
+    npm test
+
+On Mac OS X, memcached must be manually started for the tests to run.
+
+    memcached &
     npm test
 
 ## Code
