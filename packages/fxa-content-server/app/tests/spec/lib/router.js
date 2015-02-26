@@ -17,6 +17,7 @@ define([
   'lib/constants',
   'lib/metrics',
   'lib/ephemeral-messages',
+  'lib/promise',
   'models/reliers/relier',
   'models/user',
   'models/form-prefill',
@@ -25,7 +26,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
-      Constants, Metrics, EphemeralMessages, Relier,
+      Constants, Metrics, EphemeralMessages, p, Relier,
       User, FormPrefill, NullBroker, WindowMock, TestHelpers) {
   /*global describe, beforeEach, afterEach, it*/
   var assert = chai.assert;
@@ -45,7 +46,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
     beforeEach(function () {
       navigateUrl = navigateOptions = null;
 
-      $('#container').html('<div id="stage"></div>');
+      $('#container').empty().html('<div id="stage"></div>');
 
       windowMock = new WindowMock();
       metrics = new Metrics();
@@ -187,6 +188,23 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         view = null;
       });
 
+      it('does not append the view to the DOM if the view says it is not shown', function () {
+        var origRender = view.render;
+        sinon.stub(view, 'render', function () {
+          // synthesize the original render occuring but force it
+          // to say it should not be displayed.
+          return origRender.call(view)
+            .then(function () {
+              return p(false);
+            });
+        });
+
+        return router.showView(view)
+          .then(function () {
+            assert.equal($('#fxa-signup-header').length, 0);
+          });
+      });
+
       it('navigates to unexpected error view on beforeRender errors', function () {
         view.beforeRender = function () {
           throw new Error('boom');
@@ -284,6 +302,75 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
             'complete-sign-up');
       });
 
+    });
+
+    describe('onAnchorClick', function () {
+      var event;
+
+      beforeEach(function () {
+        $('#container').empty().append('<a href="/signup">Sign up</a>');
+
+        event = $.Event('click');
+        event.target = $('a[href="/signup"]');
+      });
+
+      function testNoNavigation() {
+        sinon.spy(router, 'navigate');
+        router.onAnchorClick(event);
+        assert.isFalse(router.navigate.called);
+      }
+
+      it('does nothing if the event\'s default is prevented', function () {
+        sinon.stub(event, 'isDefaultPrevented', function () {
+          return true;
+        });
+
+        testNoNavigation();
+      });
+
+      it('does nothing if the the alt key is depressed during click', function () {
+        event.altKey = true;
+
+        testNoNavigation();
+      });
+
+      it('does nothing if the the ctrl key is depressed during click', function () {
+        event.ctrlKey = true;
+
+        testNoNavigation();
+      });
+
+      it('does nothing if the the meta key is depressed during click', function () {
+        event.metaKey = true;
+
+        testNoNavigation();
+      });
+
+      it('does nothing if the the shift key is depressed during click', function () {
+        event.shiftKey = true;
+
+        testNoNavigation();
+      });
+
+      it('navigates otherwise', function () {
+
+        sinon.stub(router, 'navigate', function () {
+          return;
+        });
+
+        router.onAnchorClick(event);
+
+        assert.isTrue(router.navigate.calledWith('signup'));
+      });
+    });
+
+    describe('createAndShowView', function () {
+      it('creates and shows a view', function () {
+        return router.createAndShowView(SignUpView, { canGoBack: false })
+          .then(function () {
+            assert.equal($('#fxa-signup-header').length, 1);
+          });
+      });
     });
   });
 });
