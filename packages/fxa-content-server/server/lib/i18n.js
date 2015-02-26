@@ -16,6 +16,15 @@
 
 module.exports = function (config) {
 
+  // this is perhaps a bit janky. In dev mode, a `t` helper needs to be
+  // registered to render text in the static templates. Without the helper,
+  // all {{#t}} surrounded text is empty.
+  var handlebars = require('handlebars');
+  handlebars.registerHelper('t', function (msg) {
+    return msg.fn(this);
+  });
+
+
   var abide = require('i18n-abide');
 
   // Convert the array to an object for faster lookups
