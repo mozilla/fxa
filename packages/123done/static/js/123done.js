@@ -67,7 +67,8 @@ $(document).ready(function() {
         $.getJSON('/api/' + endpoint)
           .done(function (data) {
             var relierClient = new FxaRelierClient(data.client_id, {
-              fxaHost: data.content_uri
+              oauthHost: data.auth_uri,
+              contentHost: data.content_uri
             });
 
             relierClient.auth[flow]({
@@ -85,7 +86,8 @@ $(document).ready(function() {
         $.getJSON('/api/' + endpoint)
           .done(function (data) {
             var relierClient = new FxaRelierClient(data.client_id, {
-              fxaHost: data.content_uri
+              oauthHost: data.auth_uri,
+              contentHost: data.content_uri
             });
 
             relierClient.auth[flow]({
