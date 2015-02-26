@@ -17,7 +17,8 @@ module.exports = function (
   redirectDomain,
   mailer,
   verifierVersion,
-  customs
+  customs,
+  checkPassword
   ) {
 
   function failVerifyAttempt(passwordForgotToken) {
@@ -46,22 +47,20 @@ module.exports = function (
         db.emailRecord(form.email)
           .then(
             function (emailRecord) {
-              var password = new Password(
-                oldAuthPW,
-                emailRecord.authSalt,
-                emailRecord.verifierVersion
-              )
-              return password.matches(emailRecord.verifyHash)
+              if (emailRecord.lockedAt) {
+                throw error.lockedAccount()
+              }
+              return checkPassword(emailRecord, oldAuthPW, request.app.clientAddress)
               .then(
                 function (match) {
                   if (!match) {
-                    return customs.flag(request.app.clientAddress, form.email)
-                      .then(
-                        function () {
-                          throw error.incorrectPassword(emailRecord.email, form.email)
-                        }
-                      )
+                    throw error.incorrectPassword(emailRecord.email, form.email)
                   }
+                  var password = new Password(
+                    oldAuthPW,
+                    emailRecord.authSalt,
+                    emailRecord.verifierVersion
+                  )
                   return password.unwrap(emailRecord.wrapWrapKb)
                 }
               )

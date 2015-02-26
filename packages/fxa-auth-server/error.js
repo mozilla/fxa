@@ -331,4 +331,27 @@ AppError.gone = function () {
   })
 }
 
-module.exports = AppError
+AppError.lockedAccount = function () {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: 121,
+    message: 'Account is locked'
+  })
+}
+
+AppError.accountNotLocked = function (email) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 122,
+      message: 'Account is not locked'
+    },
+    {
+      email: email
+    }
+  )
+}
+
+module.exports = AppError;

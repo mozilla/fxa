@@ -45,10 +45,10 @@ test(
         t.fail('We should have failed open (no url provided) for /check')
       })
       .then(function() {
-        return customsNoUrl.flag(ip, email)
+        return customsNoUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
+        t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt returns `lockout: false`')
         t.pass('Passed /failedLoginAttempt')
       }, function(error) {
         t.fail('We should have failed open for /failedLoginAttempt')
@@ -68,7 +68,7 @@ test(
 test(
   'can create a customs object with a url',
   function (t) {
-    t.plan(14)
+    t.plan(16)
 
     customsWithUrl = new Customs(CUSTOMS_URL_REAL)
 
@@ -83,6 +83,7 @@ test(
       .post('/failedLoginAttempt').reply(200, '{"lockout":false}')
       .post('/passwordReset').reply(200, '{}')
       .post('/check').reply(200, '{"block":true,"retryAfter":10001}')
+      .post('/failedLoginAttempt').reply(200, '{"lockout":true}')
 
     return customsWithUrl.check(email, ip, action)
       .then(function(result) {
@@ -92,13 +93,13 @@ test(
         t.fail('We should not have failed here for /check : err=' + error)
       })
       .then(function() {
-        return customsWithUrl.flag(ip, email)
+        return customsWithUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
-        t.pass('Passed /failedLoginAttempt (no url)')
+        t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt returns false')
+        t.pass('Passed /failedLoginAttempt')
       }, function(error) {
-        t.fail('We should have failed open (no url provided) for /failedLoginAttempt')
+        t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
       })
       .then(function() {
         return customsWithUrl.reset(email)
@@ -107,9 +108,10 @@ test(
         t.equal(result, undefined, 'Nothing is returned when /passwordReset succeeds')
         t.pass('Passed /passwordReset')
       }, function(error) {
-        t.fail('We should have failed open (no url provided) for /failedLoginAttempt')
+        t.fail('We should not have failed here for /passwordReset : err=' + error)
       })
       .then(function() {
+        // request is blocked
         return customsWithUrl.check(email, ip, action)
       })
       .then(function(result) {
@@ -122,6 +124,16 @@ test(
         t.equal(error.output.statusCode, 429, 'Status Code is correct')
         t.equal(error.output.payload.retryAfter, 10001, 'retryAfter is correct')
         t.equal(error.output.headers['retry-after'], 10001, 'retryAfter header is correct')
+      })
+      .then(function() {
+        // account is locked
+        return customsWithUrl.flag(ip, { email: email, uid: "12345" })
+      })
+      .then(function(result) {
+        t.equal(result.lockout, true, 'lockout is true when /failedLoginAttempt returns `lockout: true`')
+        t.pass('Passed /failedLoginAttempt with lockout')
+      }, function(error) {
+        t.fail('We should not have failed here for /failedLoginAttempt : err=' + error)
       })
 
   }
@@ -148,10 +160,10 @@ test(
         t.fail('We should have failed open (non-existant service url provided) for /check')
       })
       .then(function() {
-        return customsInvalidUrl.flag(ip, email)
+        return customsInvalidUrl.flag(ip, { email: email, uid: "12345" })
       })
       .then(function(result) {
-        t.equal(result, undefined, 'Nothing is returned when /failedLoginAttempt succeeds')
+        t.equal(result.lockout, false, 'lockout is false when /failedLoginAttempt hits an invalid endpoint')
         t.pass('Passed /failedLoginAttempt')
       }, function(error) {
         t.fail('We should have failed open (no url provided) for /failedLoginAttempt')

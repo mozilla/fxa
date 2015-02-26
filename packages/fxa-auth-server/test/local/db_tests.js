@@ -350,6 +350,43 @@ DB.connect(config[config.db.backend])
       )
 
       test(
+        'account lockout',
+        function (t) {
+          return db.lockAccount(ACCOUNT)
+          .then(function() {
+            t.pass('lockAccount should succeed')
+            return db.emailRecord(ACCOUNT.email)
+          })
+          .then(function(emailRecord) {
+            t.ok(emailRecord.lockedAt, 'emailRecord should have a lockedAt date set')
+            return db.unlockCode(ACCOUNT)
+          })
+          .then(function(unlockCode) {
+            t.ok(unlockCode, 'unlockCode should be returned for a locked account')
+            return db.unlockAccount(ACCOUNT)
+          })
+          .then(function() {
+            t.pass('unlockAccount should succeed')
+            return db.emailRecord(ACCOUNT.email)
+          })
+          .then(function(emailRecord) {
+            t.equal(emailRecord.lockedAt, null, 'an unlocked account should have no lockedAt')
+            return db.unlockCode(ACCOUNT)
+          })
+          .then(function () {
+            t.fail('unlockCode on an unlocked account should fail')
+          }, function (err) {
+            t.equal(err.errno, 122, 'unlockCode on an unlocked account should fail with an account not locked error')
+
+            return db.unlockAccount(ACCOUNT)
+          })
+          .then(function () {
+            t.pass('unlockAccount on an unlocked account should succeed')
+          })
+        }
+      )
+
+      test(
         'account deletion',
         function (t) {
           return db.emailRecord(ACCOUNT.email)

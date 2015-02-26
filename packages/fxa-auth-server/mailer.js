@@ -43,6 +43,19 @@ module.exports = function (config, log) {
           }
         ))
       }
+      mailer.sendUnlockCode = function (account, code, opts) {
+        return P(mailer.unlockEmail(
+          {
+            email: account.email,
+            uid: account.uid.toString('hex'),
+            code: code.toString('hex'),
+            service: opts.service,
+            redirectTo: opts.redirectTo,
+            resume: opts.resume,
+            acceptLanguage: opts.acceptLanguage || defaultLanguage
+          }
+        ))
+      }
       return mailer
     }
   )

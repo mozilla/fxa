@@ -369,6 +369,45 @@ ClientApi.prototype.passwordForgotStatus = function (passwordForgotTokenHex) {
     )
 }
 
+ClientApi.prototype.accountLock = function (email, authPW) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/account/lock',
+    null,
+    {
+      email: email,
+      authPW: authPW.toString('hex')
+    }
+  )
+}
+
+ClientApi.prototype.accountUnlockResendCode = function (email, options) {
+  options = options || {}
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/account/unlock/resend_code',
+    null,
+    {
+      email: email,
+      service: options.service || undefined,
+      redirectTo: options.redirectTo || undefined,
+      resume: options.resume || undefined
+    }
+  )
+}
+
+ClientApi.prototype.accountUnlockVerifyCode = function (uid, code) {
+  return this.doRequest(
+    'POST',
+    this.baseURL + '/account/unlock/verify_code',
+    null,
+    {
+      uid: uid,
+      code: code
+    }
+  )
+}
+
 ClientApi.prototype.sessionDestroy = function (sessionTokenHex) {
   return tokens.SessionToken.fromHex(sessionTokenHex)
     .then(

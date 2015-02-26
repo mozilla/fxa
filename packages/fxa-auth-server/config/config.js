@@ -236,6 +236,11 @@ module.exports = function (fs, path, url, convict) {
     certPath: {
       doc: "path to SSL certificate in PEM format if serving over https",
       default: path.resolve(__dirname, '../cert.pem')
+    },
+    lockoutEnabled: {
+      doc: 'Is account lockout enabled',
+      format: Boolean,
+      default: false
     }
   })
 
@@ -251,9 +256,10 @@ module.exports = function (fs, path, url, convict) {
   // set the public url as the issuer domain for assertions
   conf.set('domain', url.parse(conf.get('publicUrl')).host)
 
-  // deprecated smtp urls
+  // derive fxa-auth-mailer configuration from our content-server url
   conf.set('smtp.verificationUrl', conf.get('contentServer.url') + '/v1/verify_email')
   conf.set('smtp.passwordResetUrl', conf.get('contentServer.url') + '/v1/complete_reset_password')
+  conf.set('smtp.accountUnlockUrl', conf.get('contentServer.url') + '/v1/complete_unlock_account')
 
   conf.validate()
 

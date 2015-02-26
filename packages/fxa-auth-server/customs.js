@@ -45,7 +45,8 @@
     )
   }
 
-  Customs.prototype.flag = function (ip, email) {
+  Customs.prototype.flag = function (ip, account) {
+    var email = account.email
     log.trace({ op: 'customs.flag', ip: ip, email: email })
     return this.pool.post(
       '/failedLoginAttempt',
@@ -55,13 +56,16 @@
       }
     )
     .then(
-      function () {},
+      function (result) {
+        return { lockout: !!result.lockout }
+      },
       function (err) {
         log.error({ op: 'customs.flag.1', email: email, err: err })
         // If this happens, either:
         // - (1) the url in config doesn't point to a real customs server
         // - (2) the customs server returned an internal server error
         // Either way, allow the request through so we fail open.
+        return { lockout: false }
       }
     )
   }

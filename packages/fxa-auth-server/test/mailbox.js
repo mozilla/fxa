@@ -14,7 +14,9 @@ module.exports = function (host, port) {
     return waitForEmail(email)
       .then(
         function (emailData) {
-          return emailData.headers['x-verify-code'] || emailData.headers['x-recovery-code']
+          return emailData.headers['x-verify-code'] ||
+                 emailData.headers['x-recovery-code'] ||
+                 emailData.headers['x-unlock-code']
         }
       )
   }
