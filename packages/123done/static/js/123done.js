@@ -67,7 +67,7 @@ $(document).ready(function() {
         $.getJSON('/api/' + endpoint)
           .done(function (data) {
             var relierClient = new FxaRelierClient(data.client_id, {
-              oauthHost: data.auth_uri,
+              oauthHost: data.oauth_uri,
               contentHost: data.content_uri
             });
 
@@ -75,7 +75,7 @@ $(document).ready(function() {
               ui: 'lightbox',
               state: data.state,
               scope: data.scope,
-              redirect_uri: data.redirect_uri
+              redirectUri: data.redirect_uri
             }).then(function (result) {
               document.location.href = result.redirect;
             }, function (err) {
@@ -86,7 +86,7 @@ $(document).ready(function() {
         $.getJSON('/api/' + endpoint)
           .done(function (data) {
             var relierClient = new FxaRelierClient(data.client_id, {
-              oauthHost: data.auth_uri,
+              oauthHost: data.oauth_uri,
               contentHost: data.content_uri
             });
 
@@ -94,7 +94,7 @@ $(document).ready(function() {
               ui: 'redirect',
               state: data.state,
               scope: data.scope,
-              redirect_uri: data.redirect_uri
+              redirectUri: data.redirect_uri
             });
         });
       }
