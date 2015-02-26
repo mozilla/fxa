@@ -12,9 +12,6 @@ define([
 ], function (_) {
   var NAMESPACE = '__fxa_session';
 
-  // and should not be saved to sessionStorage
-  var DO_NOT_PERSIST = ['error'];
-
   // these keys will be persisted to localStorage so that they live between browser sessions
   var PERSIST_TO_LOCAL_STORAGE = ['oauth'];
 
@@ -70,19 +67,16 @@ define([
     /**
      * Persist data to sessionStorage or localStorage
      * @method persist
-     * Note: items in DO_NOT_PERSIST are not saved to sessionStorage
      */
     persist: function () {
       // items on the blacklist do not get saved to sessionStorage.
       var toSaveToSessionStorage = {};
       var toSaveToLocalStorage = {};
       _.each(this, function (value, key) {
-        if (_.indexOf(DO_NOT_PERSIST, key) === -1) {
-          if (_.indexOf(PERSIST_TO_LOCAL_STORAGE, key) >= 0) {
-            toSaveToLocalStorage[key] = value;
-          } else {
-            toSaveToSessionStorage[key] = value;
-          }
+        if (_.indexOf(PERSIST_TO_LOCAL_STORAGE, key) >= 0) {
+          toSaveToLocalStorage[key] = value;
+        } else {
+          toSaveToSessionStorage[key] = value;
         }
       });
 
