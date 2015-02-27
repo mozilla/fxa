@@ -47,12 +47,3 @@ set -x
     fxaEmailRoot="http://restmail.net" \
     fxaProduction="true" \
     firefoxBinary="$FXA_FIREFOX_BINARY"
-
-# && \
-# ./node_modules/.bin/intern-client \
-#   config=tests/intern_server \
-#   fxaAuthRoot="$FXA_AUTH_ROOT" \
-#   fxaContentRoot="$FXA_CONTENT_ROOT" \
-#   fxaOauthApp="$FXA_OAUTH_APP_ROOT" \
-#   fxaEmailRoot="http://restmail.net" \
-#   fxaProduction="true"
