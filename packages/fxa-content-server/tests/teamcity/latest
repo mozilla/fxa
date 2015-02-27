@@ -1,0 +1,3 @@
+FXA_CONTENT_ROOT="https://latest.dev.lcip.org/"
+FXA_AUTH_ROOT="https://latest.dev.lcip.org/auth/"
+FXA_OAUTH_APP_ROOT="https://123done-latest.dev.lcip.org/"

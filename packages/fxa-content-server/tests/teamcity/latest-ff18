@@ -1,0 +1,2 @@
+source $(dirname $0)/latest
+FXA_FIREFOX_BINARY="/home/ubuntu/ff18/firefox/firefox-bin"
