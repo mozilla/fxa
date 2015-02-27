@@ -54,7 +54,7 @@ function (_, Errors) {
     },
     INVALID_VERIFICATION_CODE: {
       errno: 105,
-      message: t('Invalid verification errno')
+      message: t('Invalid verification code')
     },
     INVALID_JSON: {
       errno: 106,
