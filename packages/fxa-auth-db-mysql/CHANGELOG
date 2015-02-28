@@ -1,2 +1,3 @@
 train-31
   * Only fail with a DB patch level less than the one expected
+  * (hotfix) regenerated npm-shrinkwrap.json that uses the correct version of fxa-auth-db-server - #15
