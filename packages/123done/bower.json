@@ -18,9 +18,9 @@
   ],
   "private": true,
   "dependencies": {
-    "jquery": "~2.1.0",
-    "normalize-css": "~3.0.1",
-    "modernizr": "~2.7.2",
-    "fxa-relier-client": "https://github.com/mozilla/fxa-relier-client.git#0.0.4"
+    "jquery": "2.1.0",
+    "normalize-css": "3.0.1",
+    "modernizr": "2.7.2",
+    "fxa-relier-client": "0.0.5"
   }
 }
