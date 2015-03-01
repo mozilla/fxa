@@ -227,6 +227,9 @@ function (
             // loaded. It does not expect a response, so no error handler
             // is attached and the promise is not returned.
             self.broker.afterLoaded();
+
+            // back is enabled after the first view is rendered.
+            self.canGoBack = true;
             self._firstViewHasLoaded = true;
           }
         })

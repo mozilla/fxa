@@ -165,7 +165,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
             });
       });
 
-      it('calls brokerLoaded only after initial view', function () {
+      it('calls broker.afterLoaded only after initial view', function () {
         sinon.stub(broker, 'afterLoaded', function () {
         });
 
@@ -182,7 +182,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
             });
       });
 
-      it('does not call brokerLoaded if the initial view render fails', function () {
+      it('does not call broker.afterLoaded if the initial view render fails', function () {
         var boom = new Error('boom');
         sinon.stub(broker, 'afterLoaded', function () { });
         sinon.stub(signInView, 'navigate', function () { });
