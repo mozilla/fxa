@@ -239,8 +239,9 @@ define([
       return this.get('remote')
         .get(require.toUrl(AVATAR_CHANGE_URL_AUTOMATED))
 
-        // go to change avatar
-        .findById('camera')
+        // go to change avatar - click the span inside the element
+        // to ensure the click handlers are hooked up properly.
+        .findByCssSelector('#camera span')
           .click()
         .end()
 
