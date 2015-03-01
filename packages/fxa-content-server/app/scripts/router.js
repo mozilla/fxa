@@ -260,7 +260,7 @@ function (
       event.preventDefault();
 
       // Remove leading slashes
-      var url = $(event.target).attr('href').replace(/^\//, '');
+      var url = $(event.currentTarget).attr('href').replace(/^\//, '');
 
       // Instruct Backbone to trigger routing events
       this.navigate(url);

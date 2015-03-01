@@ -351,7 +351,7 @@ function (chai, sinon, _, Backbone, Router, SignInView, SignUpView, ReadyView,
         $('#container').empty().append('<a href="/signup">Sign up</a>');
 
         event = $.Event('click');
-        event.target = $('a[href="/signup"]');
+        event.currentTarget = $('a[href="/signup"]');
       });
 
       function testNoNavigation() {
