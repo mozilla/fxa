@@ -5,7 +5,7 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 set -o nounset
-set -o errexit
+set -o errexit # exit on first command with non-zero status
 
 BASENAME=$(basename $0)
 DIRNAME=$(dirname $0)
@@ -41,7 +41,8 @@ npm install intern-geezer@2.0.1 bower zaach/node-XMLHttpRequest.git#onerror \
   execSync@1.0.1-pre firefox-profile@0.2.12 convict@0.6.0 request@2.40.0
 node_modules/.bin/bower install --config.interactive=false
 
-set -x
+set -o xtrace # echo the following commands
+
 ./node_modules/.bin/intern-runner \
     config="tests/intern_functional_full" \
     fxaAuthRoot="$FXA_AUTH_ROOT" \
