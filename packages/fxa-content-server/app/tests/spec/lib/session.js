@@ -89,14 +89,6 @@ function (chai, Session) {
         assert.equal(Session.key7, 'value7');
         assert.equal(Session.key8, 'value8');
       });
-
-      it('does not load up items in DO_NOT_PERSIST', function () {
-        Session.set('error', 'this is an error');
-        Session.persist();
-        Session.clear();
-        Session.load();
-        assert.isUndefined(Session.error);
-      });
     });
   });
 });
