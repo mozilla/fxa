@@ -40,9 +40,9 @@ function (chai, sinon, IFrameChannel, AuthErrors, WindowMock, TestHelpers) {
       it('sends a message to the parent', function (done) {
         sinon.stub(parentMock, 'postMessage', function (msg, targetOrigin) {
           TestHelpers.wrapAssertion(function () {
-            var components = msg.split('!!!');
-            var command = components[0];
-            var data = JSON.parse(components[1]);
+            var parsed = IFrameChannel.parse(msg);
+            var command = parsed.command;
+            var data = parsed.data;
 
             assert.equal(command, 'ping');
             assert.equal(data.key, 'value');
@@ -56,9 +56,9 @@ function (chai, sinon, IFrameChannel, AuthErrors, WindowMock, TestHelpers) {
       it('can send a message with no data', function (done) {
         sinon.stub(parentMock, 'postMessage', function (msg) {
           TestHelpers.wrapAssertion(function () {
-            var components = msg.split('!!!');
-            var command = components[0];
-            var data = JSON.parse(components[1]);
+            var parsed = IFrameChannel.parse(msg);
+            var command = parsed.command;
+            var data = parsed.data;
 
             assert.equal(command, 'ping');
             assert.equal(Object.keys(data).length, 0);
@@ -106,13 +106,14 @@ function (chai, sinon, IFrameChannel, AuthErrors, WindowMock, TestHelpers) {
         });
 
         channel.receiveMessage({
-          data: 'message_type!!!' + JSON.stringify({ key: 'value' })
+          data: IFrameChannel.stringify('message_type', { key: 'value' })
         });
       });
 
       it('can handle a malformed message', function () {
+        var invalidMsg = '{';
         channel.receiveMessage({
-          data: 'malformed!!!{' // no closing }
+          data: invalidMsg
         });
       });
     });
@@ -127,8 +128,9 @@ function (chai, sinon, IFrameChannel, AuthErrors, WindowMock, TestHelpers) {
         });
 
         // synthesize receiving a message over postMessage
+        var message = IFrameChannel.stringify('ping', { key: 'value' });
         channel.receiveMessage({
-          data: 'ping!!!' + JSON.stringify({ key: 'value' }),
+          data: message,
           origin: 'https://marketplace.firefox.com'
         });
       });

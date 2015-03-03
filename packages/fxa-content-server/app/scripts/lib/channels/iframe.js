@@ -34,21 +34,28 @@ define([
   _.extend(IFrameChannel.prototype, new BaseChannel(), {
     parseMessage: function (message) {
       try {
-        var components = message.split('!!!');
-        return {
-          command: components[0],
-          data: JSON.parse(components[1] || '{}')
-        };
+        return IFrameChannel.parse(message);
       } catch(e) {
         // drop the message on the ground
       }
     },
 
     dispatchCommand: function (command, data) {
-      var msg = command + '!!!' + JSON.stringify(data|| {});
+      var msg = IFrameChannel.stringify(command, data);
       this.window.parent.postMessage(msg, '*');
     }
   }, PostMessageReceiverMixin);
+
+  IFrameChannel.stringify = function (command, data) {
+    return JSON.stringify({
+      command: command,
+      data: data || {}
+    });
+  };
+
+  IFrameChannel.parse = function (msg) {
+    return JSON.parse(msg);
+  };
 
   return IFrameChannel;
 });
