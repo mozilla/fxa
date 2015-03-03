@@ -15,6 +15,8 @@ define([], function () {
     FX_DESKTOP_CONTEXT: 'fx_desktop_v1',
     FX_DESKTOP_SYNC: 'sync',
 
+    IFRAME_CONTEXT: 'iframe',
+
     SIGNUP_RESEND_MAX_TRIES: 3,
     PASSWORD_RESET_RESEND_MAX_TRIES: 3,
     RESET_PASSWORD_POLL_INTERVAL: 2000,
