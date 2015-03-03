@@ -4,16 +4,14 @@
 
 const config = require('../lib/config').root();
 const db = require('../lib/db');
-const logger = require('../lib/logging')('bin.server');
-const server = require('../lib/server').create();
-const events = require('../lib/events');
+const logger = require('../lib/logging')('bin.internal');
+const server = require('../lib/server/internal').create();
 
 logger.debug('config', config);
 db.ping().done(function() {
   server.start(function() {
     logger.info('listening', server.info.uri);
   });
-  events.start();
 }, function(err) {
   logger.critical('db.ping', err);
 });
