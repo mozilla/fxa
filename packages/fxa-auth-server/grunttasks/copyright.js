@@ -3,9 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (grunt) {
-  require('load-grunt-tasks')(grunt);
+  'use strict';
 
-  grunt.loadTasks('grunttasks');
-
-  grunt.registerTask('default', ['jshint', 'copyright']);
-};
+  grunt.config('copyright', {
+    files: [
+      "**/*.js",
+      "!node_modules/**",
+      "!sandbox/**"
+    ],
+    options: {
+      pattern: "This Source Code Form is subject to the terms of the Mozilla Public"
+    }
+  })
+}
