@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-db-mysql",
-  "version": "0.31.0",
+  "version": "0.31.1",
   "dependencies": {
     "ass": {
       "version": "1.0.0",
