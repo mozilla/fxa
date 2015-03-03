@@ -54,7 +54,11 @@ require('simplesmtp').createSimpleServer(
 // HTTP half
 
 var hapi = require('hapi')
-var api = hapi.createServer(config.smtp.api.host, config.smtp.api.port)
+var api = new hapi.Server()
+api.connection({
+  host: config.smtp.api.host,
+  port: config.smtp.api.port
+})
 
 function loop(email, cb) {
   var mail = users[email]

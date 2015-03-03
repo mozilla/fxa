@@ -55,46 +55,53 @@ module.exports = function (path, url, Hapi) {
     }
 
     var serverOptions = {
-      cors: {
-        additionalExposedHeaders: ['Timestamp', 'Accept-Language']
-      },
-      files: {
-        relativeTo: path.dirname(__dirname)
-      },
-      state: {
-        cookies: {
-          parse: false
+      connections: {
+        routes: {
+          cors: {
+            additionalExposedHeaders: ['Timestamp', 'Accept-Language']
+          },
+          security: {
+            hsts: {
+              maxAge: 15552000,
+              includeSubdomains: true
+            }
+          },
+          state: {
+            parse: false
+          },
+          payload: {
+            maxBytes: 16384
+          },
+          files: {
+            relativeTo: path.dirname(__dirname)
+          }
+        },
+        load: {
+          maxEventLoopDelay: config.toobusy.maxLag
         }
       },
       load: {
-        maxEventLoopDelay: config.toobusy.maxLag,
         sampleInterval: 1000
-      },
-      security: {
-        hsts: {
-          maxAge: 15552000,
-          includeSubdomains: true
-        }
-      },
-      payload: {
-        maxBytes: 16384
       }
     }
 
+    var connectionOptions = {
+      host: config.listen.host,
+      port: config.listen.port
+    }
+
     if(config.useHttps) {
-      serverOptions.tls = {
+      connectionOptions.tls = {
         key: fs.readFileSync(config.keyPath),
         cert: fs.readFileSync(config.certPath)
       }
     }
 
-    var server = Hapi.createServer(
-      config.listen.host,
-      config.listen.port,
-      serverOptions
-    )
+    var server = new Hapi.Server(serverOptions)
 
-    server.pack.register(require('hapi-auth-hawk'), function (err) {
+    server.connection(connectionOptions)
+
+    server.register(require('hapi-auth-hawk'), function (err) {
       server.auth.strategy(
         'sessionToken',
         'hawk',
@@ -143,9 +150,9 @@ module.exports = function (path, url, Hapi) {
 
     server.ext(
       'onRequest',
-      function (request, next) {
+      function (request, reply) {
         log.begin('server.onRequest', request)
-        next()
+        reply.continue()
       }
     )
 
@@ -167,7 +174,7 @@ module.exports = function (path, url, Hapi) {
 
     server.ext(
       'onPreAuth',
-      function (request, next) {
+      function (request, reply) {
         // Construct source-ip-address chain for logging.
         var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/)
         xff.push(request.info.remoteAddress)
@@ -188,13 +195,13 @@ module.exports = function (path, url, Hapi) {
             }
           )
         }
-        next()
+        reply.continue()
       }
     )
 
     server.ext(
       'onPreResponse',
-      function (request, next) {
+      function (request, reply) {
         var response = request.response
         if (response.isBoom) {
           response = error.translate(response)
@@ -204,7 +211,7 @@ module.exports = function (path, url, Hapi) {
         }
         response.header('Timestamp', '' + Math.floor(Date.now() / 1000))
         log.summary(request, response)
-        next(response)
+        reply(response)
       }
     )
 
