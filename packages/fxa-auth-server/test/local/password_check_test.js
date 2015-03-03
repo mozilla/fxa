@@ -4,7 +4,7 @@
 
 var P = require('../../promise')
 var test = require('../ptaptest')
-var MockLog = { event: function () { } }
+var MockLog = { info: function () { } }
 var config = { lockoutEnabled: true }
 var Password = require('../../crypto/password')(MockLog, config)
 
