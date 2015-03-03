@@ -596,7 +596,11 @@ module.exports = function (
                     if (!butil.buffersAreEqual(code, expectedCode)) {
                       throw error.invalidVerificationCode()
                     }
-                    log.event('unlocked', { email: account.email, uid: account.uid })
+                    log.info({
+                      op: 'account.unlock',
+                      email: account.email,
+                      uid: account.uid
+                    })
                     return db.unlockAccount(account)
                   }
                 )
@@ -747,8 +751,11 @@ module.exports = function (
                   if (! match) {
                     throw error.incorrectPassword(emailRecord.email, email)
                   }
-
-                  log.event('locked', { email: emailRecord.email, uid: emailRecord.uid })
+                  log.info({
+                    op: 'account.lock',
+                    email: emailRecord.email,
+                    uid: emailRecord.uid
+                  })
                   return db.lockAccount(emailRecord)
                 }
               )

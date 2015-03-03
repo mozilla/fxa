@@ -27,9 +27,15 @@ module.exports = function (log, config, Password, customs, db) {
           return customs.flag(clientAddress, emailRecord)
             .then(
               function (result) {
-                if (result.lockout && config.lockoutEnabled) {
-                  log.event('locked', { email: emailRecord.email, uid: emailRecord.uid })
-                  return db.lockAccount(emailRecord)
+                if (result.lockout) {
+                  log.info({
+                    op: 'account.lock',
+                    email: emailRecord.email,
+                    uid: emailRecord.uid
+                  })
+                  if (config.lockoutEnabled) {
+                    return db.lockAccount(emailRecord)
+                  }
                 }
               }
             )
