@@ -52,7 +52,7 @@ To stop the container, first try CTRL+C. If that does not work, run `docker ps |
 
 #### Prerequisites:
   * Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
-  * Selenium Server 2.43.1 ([Download](http://selenium-release.storage.googleapis.com/2.43/selenium-server-standalone-2.43.1.jar))
+  * Selenium Server 2.45.0 ([Download](http://selenium-release.storage.googleapis.com/2.45/selenium-server-standalone-2.45.0.jar))
 
 ### Setup
 
