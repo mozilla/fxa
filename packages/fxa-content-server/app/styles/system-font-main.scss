@@ -1,11 +1,9 @@
 @import 'variables';
-
-@mixin font() {
-  font: message-box;
-}
-
-@mixin headerFont() {
-  font: message-box;
-}
-
-@import 'general';
+@import 'mixins';
+//overrides font rules in _mixins.scss
+@import 'system-font-mixins';
+@import 'breakpoints';
+@import 'base';
+@import 'layout';
+@import 'modules';
+@import 'state';

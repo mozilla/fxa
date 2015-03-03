@@ -48,7 +48,7 @@
     "grunt-po2json": "git://github.com/shane-tomlinson/grunt-po2json.git#c1a7406",
     "grunt-requirejs": "0.4.2",
     "grunt-rev": "0.1.0",
-    "grunt-sass": "0.14.0",
+    "grunt-sass": "0.18.1",
     "grunt-text-replace": "0.3.12",
     "grunt-usemin": "2.3.0",
     "grunt-z-schema": "0.1.0",

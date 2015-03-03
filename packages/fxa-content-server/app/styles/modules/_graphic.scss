@@ -1,0 +1,36 @@
+.graphic {
+  background-repeat: no-repeat;
+  height: 130px;
+  margin: 0 auto;
+  overflow: hidden;
+  text-indent: 100%;
+  white-space: nowrap;
+  width: 150px;
+
+  @include respond-to('small') {
+    background-position: center center;
+    height: 104px;
+  }
+
+  @include respond-to('trustedUI') {
+    margin: 40px auto 0 auto;
+  }
+}
+
+.graphic-checkbox {
+  @include hidpi-background-image('graphic_checkbox', 150px 130px);
+  
+  @include respond-to('small') {
+    background-size: 120px 104px;
+  }
+}
+
+.graphic-mail {
+  @include hidpi-background-image('graphic_mail', 150px 130px);
+  margin-bottom: 25px;
+  padding-bottom: 10px;
+
+  @include respond-to('small') {
+    background-size: 120px 104px;
+  }
+}

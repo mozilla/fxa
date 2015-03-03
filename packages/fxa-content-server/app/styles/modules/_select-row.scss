@@ -1,0 +1,150 @@
+/**
+* The select-row works as a hacky fix for FF30's regression on
+* select list skinning. If ff fixes. the following css can be removed
+* and all .select-rows can be replaced with input rows*
+*/
+
+.select-row-wrapper {
+  height: 45px;
+  position: relative;
+
+  @include respond-to('small') {
+    height: 40px;
+  }
+}
+
+.select-row {
+  @include hidpi-background-image('ddarrow_inactive', 10px 17px);
+  background-color: $content-background-color;
+  background-position: 96% center;
+  background-repeat: no-repeat;
+  border: 1px solid $input-row-border-color;
+  border-radius: $big-border-radius;
+  cursor: pointer;
+  height: 45px;
+  position: relative;
+  overflow: hidden;
+  transition-duration: $short-transition;
+  transition-property: border-color;
+  width: 100%;
+
+
+  @include respond-to('small') {
+    border-radius: $small-border-radius;
+    height: 40px;
+  }
+
+  @include respond-to ('trustedUI') {
+    background: none;
+  }
+
+  &.half-width {
+    float: left;
+    width: 48%;
+
+    &:first-child {
+      margin-right: 4%;
+    }
+
+    select {
+      padding: 9px 10% 9px $input-left-right-padding * 0.5;
+      width: 94%;
+    }
+  }
+
+  &:hover {
+    @include hidpi-background-image('ddarrow_active', 10px 17px);
+    border-color: $input-row-hover-border-color;
+
+    @include respond-to ('trustedUI') {
+      background: none;
+    }
+
+    select {
+      color: $input-text-color;
+    }
+
+    &.disabled {
+      @include hidpi-background-image('ddarrow_inactive', 10px 17px);
+      background-color: $content-background-color;
+      background-position: 96% center;
+      background-repeat: no-repeat;
+      border: 1px solid $input-row-border-color;
+      cursor: default;
+
+      @include respond-to ('trustedUI') {
+        background: none;
+      }
+
+      select {
+        color: $input-placeholder-color;
+      }
+    }
+  }
+
+  select {
+    @include font();
+    // autoprefixer does not handle appearance, see https://github.com/ai/autoprefixer/issues/205
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    box-sizing: content-box;
+    color: $input-placeholder-color;
+    cursor: pointer;
+    font-size: $medium-font;
+    height: auto;
+    outline: none;
+    padding: 9px 10% 9px $input-left-right-padding;
+    text-indent: 0.01px;
+    text-overflow: '';
+    user-select: none;
+    width: 90%;
+
+    @include respond-to('small') {
+      font-size: $base-font + $media-adjustment;
+    }
+
+    @include respond-to('trustedUI') {
+      padding-left: $input-left-right-padding * 0.5;
+    }
+
+    option {
+      background-color: $content-background-color;
+    }
+  }
+
+  &.select-focus {
+    @include hidpi-background-image('ddarrow_active', 10px 17px);
+    background-color: $html-background-color;
+    border-color: $input-row-focus-border-color;
+
+    @include respond-to ('trustedUI') {
+      background: none;
+    }
+
+
+    select {
+      color: $input-text-color;
+    }
+  }
+
+  &.invalid-row {
+    border-color: $error-background-color;
+  }
+
+  // Override the default blue highlight for IE10+
+  select::-ms-value {
+    background: none;
+  }
+
+  select:focus::-ms-value {
+    color: $input-text-color;
+  }
+
+  select:-moz-focusring {
+    color: transparent !important; /* !important must be added or else the browser ignores the request */
+    text-shadow: 0 0 0 $input-row-hover-border-color !important;
+  }
+}

@@ -1,4 +1,4 @@
-<div id="main-content">
+<div id="main-content" class="card">
   <header>
     <h1 id="fxa-settings-header">{{#t}}Manage account{{/t}}</h1>
   </header>
@@ -6,6 +6,7 @@
   <section>
     <div class="error"></div>
     <div class="success"></div>
+
     {{#avatarLinkVisible}}
     <div class="avatar-wrapper avatar-view">
       <a href="/settings/avatar/change" class="change-avatar"></a>
@@ -18,6 +19,7 @@
     <div class="avatar-wrapper avatar-view">
     </div>
     {{/avatarLinkVisible}}
+
 
     <p class="signed-in-email-message">{{#t}}You are signed in as{{/t}}<br />{{email}}</p>
 

@@ -1,0 +1,128 @@
+/* Custom rows */
+.description {
+  font-size: $medium-font;
+}
+
+.links {
+  overflow: auto;
+  // the 1px of padding allows the :focus outline on anchors to show.
+  padding: 1px;
+  text-align: center;
+
+  + .privacy-links {
+    margin: 20px 0 15px 0;
+  }
+
+  .left {
+    float: left;
+    padding: 0 4% 0 0;
+    width: 50%;
+  }
+
+  .right {
+    float: right;
+    padding: 0 0 0 4%;
+    width: 50%;
+  }
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+ul.links {
+  list-style: none;
+  padding: 0;
+
+  li {
+    margin: 12px 0;
+    padding: 0;
+  }
+}
+
+.privacy-links,
+.privacy-links a {
+  color: $input-placeholder-color;
+  margin-top: 20px;
+  transition-duration: $short-transition;
+}
+
+.privacy-links a:active,
+.privacy-links a:hover,
+.privacy-links a:focus {
+  color: $link-color;
+}
+
+.verification-email-message,
+.signed-in-email-message {
+  word-wrap: break-word;
+}
+
+.customize-sync-row {
+  color: $input-placeholder-color;
+  margin-bottom: 10px !important;
+}
+
+.cannot-create-account-content {
+  margin-top: 105px;
+
+  @include respond-to('small') {
+    margin-top: 30px;
+  }
+}
+
+.change-password .password-row,
+.complete-reset-password .password-row {
+  margin-bottom: 25px;
+}
+
+@include respond-to('small') {
+  .privacy-links,
+  .links + .privacy-links {
+    font-size: $small-font;
+    margin: 10px auto;
+    max-width: 340px;
+  }
+
+  .links .left,
+  .links .right {
+    display: block;
+    float: none;
+    margin: 5px 0;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+  }
+}
+
+@include respond-to('trustedUI') {
+  .links {
+    margin: 0;
+  }
+
+  .privacy-links,
+  .links + .privacy-links {
+    margin: 5px auto;
+  }
+
+  .privacy-links +
+  .button-row {
+    margin: 0;
+  }
+}
+
+.label-helper {
+  border-radius: $small-border-radius;
+  color: $input-placeholder-color;
+  font-size: $small-font;
+  font-weight: normal;
+  height: 16px;
+  margin: 0 10px;
+  position: absolute;
+  top: 0;
+  z-index: 1;
+}

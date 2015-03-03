@@ -1,0 +1,64 @@
+.button-row {
+
+  @include respond-to('reasonableUI') {
+    margin: 20px 0;
+  }
+
+  @include respond-to('trustedUI') {
+    margin: 10px 0;
+  }
+
+  .button {
+    display: inline-block;
+    text-decoration: none;
+  }
+
+  .button,
+  button {
+    @include font();
+    background: $button-background-color;
+    border: 0;
+    color: $message-text-color;
+    cursor: pointer;
+    transition-duration: $short-transition;
+    transition-property: background-color;
+    width: 100%;
+
+    @include respond-to('big') {
+      border-radius: $big-border-radius;
+      font-size: $large-font;
+      height: 63px;
+      padding: 15px 0;
+    }
+
+    @include respond-to('small') {
+      border-radius: $small-border-radius;
+      font-size: $medium-font + $media-adjustment;
+      height: 44px;
+      padding: 8px 0;
+    }
+
+    @include respond-to('trustedUI') {
+      font-size: $medium-font;
+      height: 41px;
+      padding: 8px 0;
+    }
+
+    &:active,
+    &:hover,
+    &:focus {
+      background: $button-background-hover-color;
+    }
+  }
+
+  button:disabled,
+  button.disabled {
+    background: $button-background-disabled-color;
+    cursor: auto;
+  }
+}
+
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}

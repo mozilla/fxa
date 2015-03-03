@@ -1,0 +1,84 @@
+.input-row {
+  position: relative;
+  width: 100%;
+
+  @include respond-to('reasonableUI') {
+    margin-bottom: 12px;
+  }
+
+  @include respond-to('trustedUI') {
+    margin-bottom: 9px;
+  }
+
+  &:hover input:focus {
+    border-color: $input-row-focus-border-color;
+  }
+
+  &:hover input.invalid:focus {
+    border-color: $error-background-color;
+  }
+
+  input {
+    transition: border-color $short-transition;
+
+    &[type='email'],
+    &[type='text'],
+    &[type='password'] {
+      @include input-element();
+      &:hover {
+        border-color: $input-row-hover-border-color;
+      }
+      
+      &:focus {
+        border-color: $input-row-focus-border-color;
+      }
+
+      &.invalid {
+        border-color: $error-background-color;
+      }
+    }
+
+    html[dir='ltr'] & {
+      padding: 0 0 0 $input-left-right-padding;
+    }
+
+    html[dir='rtl'] & {
+      padding: 0  $input-left-right-padding 0 0;
+    }
+
+    &[type='checkbox']:hover,
+    &[type='checkbox']:focus {
+      border: 1px solid $input-row-focus-border-color;
+    }
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .input-help {
+    color: $input-placeholder-color;
+    margin-top: 6px;
+    transition: opacity $medium-transition;
+
+    @include respond-to('small') {
+      font-size: $small-font;
+    }
+  }
+
+  .input-help-focused {
+    @include respond-to('reasonableUI') {
+      opacity: 0;
+    }
+
+    @include respond-to('trustedUI') {
+      opacity: 1;
+    }
+  }
+
+  input:focus ~ .input-help-focused,
+  label:active ~ .input-help-focused,
+  label:focus ~ .input-help-focused {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,18 @@
+html.iframe,
+.iframe body {
+  background-color: transparent;
+}
+
+#close {
+  display: none;
+  
+  .iframe & {
+    color: $close-button-color;
+    display: inline-block;
+    position: absolute;
+    right: 25px;
+    text-decoration: none;
+    top: 40px;
+    z-index: $close-button-zindex;
+  }
+}
