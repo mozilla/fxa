@@ -23,6 +23,11 @@ var env = process.env.FXA_ENV || 'local';
 var fxaEnv = CONFIGS[env];
 
 // Configuration for local sync development
+fxaProfile.setPreference('identity.fxaccounts.log.appender.dump', 'Debug');
+fxaProfile.setPreference('identity.fxaccounts.loglevel', 'Debug');
+fxaProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
+fxaProfile.setPreference('services.sync.log.appender.console', 'Debug');
+fxaProfile.setPreference('services.sync.log.appender.dump', 'Debug');
 fxaProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
 fxaProfile.setPreference('identity.fxaccounts.auth.uri', fxaEnv.auth);
 fxaProfile.setPreference('identity.fxaccounts.allowHttp', true);
