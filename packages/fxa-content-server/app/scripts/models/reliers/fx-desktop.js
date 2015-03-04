@@ -62,6 +62,13 @@ define([
       return true;
     },
 
+    /**
+     * Desktop clients will always want keys so they can sync.
+     */
+    wantsKeys: function () {
+      return true;
+    },
+
     _setupServiceName: function () {
       var service = this.get('service');
       if (service) {

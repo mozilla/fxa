@@ -15,6 +15,7 @@ require.config({
     chai: '../bower_components/chai/chai',
     cocktail: '../bower_components/cocktail/Cocktail',
     'p-promise': '../bower_components/p/p',
+    sjcl: '../bower_components/sjcl/sjcl',
     sinon: '../bower_components/sinon/index',
     speedTrap: '../bower_components/speed-trap/dist/speed-trap',
     md5: '../bower_components/JavaScript-MD5/js/md5',
@@ -53,6 +54,9 @@ require.config({
     },
     crosstab: {
       exports: 'crosstab'
+    },
+    sjcl: {
+      exports: 'sjcl'
     }
   },
   stache: {

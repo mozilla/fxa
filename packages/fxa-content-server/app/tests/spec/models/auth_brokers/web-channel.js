@@ -11,6 +11,7 @@ define([
   'models/auth_brokers/web-channel',
   'models/reliers/relier',
   'models/user',
+  'lib/fxa-client',
   'lib/promise',
   'lib/channels/null',
   'lib/session',
@@ -18,8 +19,9 @@ define([
   'views/base',
   '../../../mocks/window'
 ],
-function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, p, NullChannel,
-      Session, AuthErrors, BaseView, WindowMock) {
+function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, FxaClientWrapper,
+      p, NullChannel, Session, AuthErrors, BaseView, WindowMock) {
+      
   var assert = chai.assert;
 
   describe('models/auth_brokers/web-channel', function () {
@@ -27,6 +29,7 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, p, NullChan
     var windowMock;
     var relierMock;
     var channelMock;
+    var fxaClientMock;
     var view;
     var user;
     var account;
@@ -37,16 +40,21 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, p, NullChan
       user = new User();
 
       account = user.initAccount({
+        uid: 'uid',
         sessionToken: 'abc123'
       });
 
       channelMock = new NullChannel();
       sinon.spy(channelMock, 'send');
 
+      fxaClientMock = new FxaClientWrapper({
+        relier: relierMock
+      });
       broker = new WebChannelAuthenticationBroker({
         window: windowMock,
         relier: relierMock,
         channel: channelMock,
+        fxaClient: fxaClientMock,
         session: Session
       });
     });
@@ -65,6 +73,24 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, p, NullChan
       });
 
       sinon.spy(view, 'displayError');
+    }
+
+    function setupGeneratesOAuthCode() {
+      broker._assertionLibrary = {
+        generate: function mockGenerate() {
+          return p('mock_assertion');
+        }
+      };
+
+      broker._oAuthClient = {
+        getCode: function mockGetCode() {
+          var code = '00000000000000000000000000000000' +
+                     '00000000000000000000000000000000';
+          return p({
+            redirect: 'mock?state=STATE&code=' + code
+          });
+        }
+      };
     }
 
 
@@ -171,6 +197,53 @@ function (chai, sinon, WebChannelAuthenticationBroker, Relier, User, p, NullChan
           .then(function () {
             assert.isTrue(broker.sendOAuthResultToRelier.called);
             assert.isFalse(view.displayError.called);
+          });
+      });
+    });
+
+    describe('getOAuthResult', function () {
+      it('does not derive keys by default', function () {
+        setupGeneratesOAuthCode();
+
+        return broker.getOAuthResult(account)
+          .then(function (result) {
+            assert.isFalse('keys' in result);
+          });
+      });
+
+      it('returns null keys when keyFetchToken is missing', function () {
+        setupGeneratesOAuthCode();
+        sinon.stub(broker.relier, 'wantsKeys', function () {
+          return true;
+        });
+
+        return broker.getOAuthResult(account)
+          .then(function (result) {
+            assert.equal(result.keys, null);
+          });
+      });
+
+      it('derives keys when keyFetchToken is available', function () {
+        setupGeneratesOAuthCode();
+        sinon.stub(broker.relier, 'wantsKeys', function () {
+          return true;
+        });
+        sinon.stub(broker._fxaClient, 'accountKeys', function () {
+          return p('MASTER KEYS');
+        });
+        sinon.stub(broker.relier, 'deriveRelierKeys', function () {
+          return p('RELIER KEYS');
+        });
+        account.set('keyFetchToken', 'keyFetchToken');
+        account.set('unwrapBKey', 'unwrapBKey');
+
+        return broker.getOAuthResult(account)
+          .then(function (result) {
+            assert.isTrue(
+                broker._fxaClient.accountKeys.calledWith('keyFetchToken', 'unwrapBKey'));
+            assert.isTrue(
+                broker.relier.deriveRelierKeys.calledWith('MASTER KEYS', 'uid'));
+            assert.equal(result.keys, 'RELIER KEYS');
           });
       });
     });

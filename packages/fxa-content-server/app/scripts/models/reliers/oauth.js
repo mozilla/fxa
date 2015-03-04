@@ -13,8 +13,9 @@ define([
   'models/reliers/relier',
   'lib/resume-token',
   'lib/promise',
-  'lib/oauth-errors'
-], function (_, Relier, ResumeToken, p, OAuthErrors) {
+  'lib/oauth-errors',
+  'lib/relier-keys'
+], function (_, Relier, ResumeToken, p, OAuthErrors, RelierKeys) {
   var RELIER_FIELDS_IN_RESUME_TOKEN = ['state'];
 
   var OAuthRelier = Relier.extend({
@@ -27,7 +28,9 @@ define([
       scope: null,
       // redirectTo is for future use by the oauth flow. redirectTo
       // would have redirectUri as its base.
-      redirectTo: null
+      redirectTo: null,
+      // whether to fetch and derive relier-specific keys
+      keys: false
     }),
 
     initialize: function (options) {
@@ -59,6 +62,20 @@ define([
 
     isOAuth: function () {
       return true;
+    },
+
+    /**
+     * OAuth reliers can opt in to fetch relier-specific keys.
+     */
+    wantsKeys: function () {
+      if (this.get('keys')) {
+        return true;
+      }
+      return Relier.prototype.wantsKeys.call(this);
+    },
+
+    deriveRelierKeys: function (keys, uid) {
+      return RelierKeys.deriveRelierKeys(keys, uid, this.get('clientId'));
     },
 
     getResumeToken: function () {
@@ -118,6 +135,7 @@ define([
       self.importSearchParam('state');
       self.importSearchParam('redirect_uri', 'redirectUri');
       self.importSearchParam('redirectTo');
+      self.importBooleanSearchParam('keys');
     },
 
     _importRequiredSearchParam: function (sourceName, destName) {

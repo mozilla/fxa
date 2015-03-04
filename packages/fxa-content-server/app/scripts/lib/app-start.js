@@ -171,7 +171,7 @@ function (
                     .then(_.bind(this.initializeProfileClient, this))
                     // user depends on the profileClient, oAuthClient, and assertionLibrary.
                     .then(_.bind(this.initializeUser, this))
-                    // broker relies on the user, relier and assertionLibrary
+                    // broker relies on the user, relier, fxaClient and assertionLibrary
                     .then(_.bind(this.initializeAuthenticationBroker, this))
                     // the close button depends on the broker
                     .then(_.bind(this.initializeCloseButton, this))
@@ -278,6 +278,7 @@ function (
           this._authenticationBroker = new WebChannelAuthenticationBroker({
             window: this._window,
             relier: this._relier,
+            fxaClient: this._fxaClient,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
             session: Session

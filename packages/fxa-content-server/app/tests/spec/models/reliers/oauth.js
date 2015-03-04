@@ -12,10 +12,11 @@ define([
   'lib/oauth-client',
   'lib/oauth-errors',
   'lib/promise',
+  'lib/relier-keys',
   '../../../mocks/window',
   '../../../lib/helpers'
 ], function (chai, sinon, OAuthRelier, Session, OAuthClient, OAuthErrors,
-      p, WindowMock, TestHelpers) {
+      p, RelierKeys, WindowMock, TestHelpers) {
   var assert = chai.assert;
 
   describe('models/reliers/oauth', function () {
@@ -85,6 +86,9 @@ define([
             // The redirect_uri passed in is ignored, we only care about
             // the redirect_uri returned by the oauth server
             assert.notEqual(relier.get('redirectUri'), REDIRECT_URI);
+
+            // Encryption keys are not fetched by default.
+            assert.equal(relier.get('keys'), false);
           });
       });
 
@@ -149,6 +153,19 @@ define([
           .then(function () {
             assert.equal(relier.get('clientId'), CLIENT_ID);
             assert.equal(relier.get('service'), CLIENT_ID);
+          });
+      });
+
+      it('populates `keys` from the URL search parameter if given', function () {
+        windowMock.location.search = TestHelpers.toSearchString({
+          keys: 'true',
+          client_id: CLIENT_ID,
+          scope: SCOPE
+        });
+
+        return relier.fetch()
+          .then(function () {
+            assert.equal(relier.get('keys'), true);
           });
       });
 
@@ -219,6 +236,29 @@ define([
       it('returns an opaque token to be passed along with email verification links', function () {
         relier.set('state', 'STATE');
         assert.equal(typeof relier.getResumeToken(), 'string');
+      });
+    });
+
+    describe('wantsKeys', function () {
+      it('returns `true` only when keys are explicitly asked for', function () {
+        assert.isFalse(relier.wantsKeys());
+        relier.set('keys', true);
+        assert.isTrue(relier.wantsKeys());
+      });
+    });
+
+    describe('deriveRelierKeys', function () {
+      it('derives `kAr` and `kBr` account master keys', function () {
+        sinon.stub(RelierKeys, 'deriveRelierKeys', function () {
+          return p({ kAr: 'kAr', kBr: 'kBr' });
+        });
+        var mockKeys = { kA: 'kA', kB: 'kB' };
+        return relier.deriveRelierKeys(mockKeys, 'uid')
+          .then(function (keys) {
+            assert.isTrue(RelierKeys.deriveRelierKeys.calledWith(mockKeys, 'uid'));
+            assert.equal(keys.kAr, 'kAr');
+            assert.equal(keys.kBr, 'kBr');
+          });
       });
     });
   });

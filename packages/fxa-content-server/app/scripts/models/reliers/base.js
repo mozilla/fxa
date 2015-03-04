@@ -62,6 +62,21 @@ define([
     },
 
     /**
+     * Check if the relier wants access to the account encryption keys.
+     */
+    wantsKeys: function () {
+      return false;
+    },
+
+    /**
+     * Derive relier-specific keys from the account master keys.
+     * By default no keys are available.
+     */
+    deriveRelierKeys: function (/* keys */) {
+      return p({});
+    },
+
+    /**
      * Create a resume token to be passed along in the email
      * verification links
      */

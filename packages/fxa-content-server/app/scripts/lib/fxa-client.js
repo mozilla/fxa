@@ -23,14 +23,6 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     return $.trim(str);
   }
 
-  function shouldFetchKeys(relier) {
-    // isSync is added in case the user verifies in a second tab
-    // on the first browser, the context will not be available. We
-    // need to ship the keyFetchToken and unwrapBKey to the first tab,
-    // so generate these any time we are using sync as well.
-    return !!(relier.isFxDesktop() || relier.isSync());
-  }
-
   function FxaClientWrapper(options) {
     options = options || {};
 
@@ -93,9 +85,11 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
         verified: accountData.verified || false
       };
 
-      if (shouldFetchKeys(relier)) {
+      if (relier.wantsKeys()) {
         updatedSessionData.unwrapBKey = accountData.unwrapBKey;
         updatedSessionData.keyFetchToken = accountData.keyFetchToken;
+      }
+      if (relier.isSync()) {
         updatedSessionData.customizeSync = options.customizeSync || false;
       }
 
@@ -110,7 +104,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
 
       return self._getClient()
         .then(function (client) {
-          return client.signIn(email, password, { keys: shouldFetchKeys(relier) });
+          return client.signIn(email, password, { keys: relier.wantsKeys() });
         })
         .then(function (accountData) {
           return self._getUpdatedSessionData(email, relier, accountData, options);
@@ -128,7 +122,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
       return self._getClient()
         .then(function (client) {
           var signUpOptions = {
-            keys: shouldFetchKeys(relier)
+            keys: relier.wantsKeys()
           };
 
           if (relier.has('service')) {
@@ -360,6 +354,13 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
           }
 
           throw err;
+        });
+    },
+
+    accountKeys: function (keyFetchToken, unwrapBKey) {
+      return this._getClient()
+        .then(function (client) {
+          return client.accountKeys(keyFetchToken, unwrapBKey);
         });
     },
 
