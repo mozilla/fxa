@@ -32,6 +32,7 @@ function (Translator, Session) {
     '../tests/spec/lib/service-name',
     '../tests/spec/lib/screen-info',
     '../tests/spec/lib/metrics',
+    '../tests/spec/lib/mailcheck',
     '../tests/spec/lib/null-metrics',
     '../tests/spec/lib/cropper',
     '../tests/spec/lib/image-loader',

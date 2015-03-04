@@ -18,10 +18,14 @@ define([
   var Tooltip = BaseView.extend({
     tagName: 'aside',
     className: 'tooltip',
+    // tracks the type of a tooltip, used for metrics purposes
+    type: 'generic',
 
     initialize: function (options) {
       options = options || {};
       this.message = options.message || '';
+      this.dismissible  = options.dismissible || false;
+      this.extraClassNames = options.extraClassNames || '';
 
       // the tooltip has to be attached to an element.
       // By default, the tooltip is displayed just above the
@@ -42,9 +46,15 @@ define([
       displayedTooltip = this;
 
       var tooltipContainer = this.invalidEl.closest('.input-row,.select-row-wrapper');
+
+      this.$el.addClass(this.extraClassNames);
       this.$el.appendTo(tooltipContainer);
 
       this.setPosition();
+
+      if (this.dismissible) {
+        this.$el.append('<span class="dismiss">&#10005;</span>');
+      }
 
       this.bindDOMEvents();
     },
@@ -89,6 +99,13 @@ define([
       invalidEl.one('keydown change', this._destroy);
       // handle selecting an option with the mouse for select elements
       invalidEl.find('option').one('click', this._destroy);
+
+      // destroy when dismissed
+      this.$el.find('.dismiss').one('click', function () {
+        var metricsEvent = 'tooltip.' + this.type + '-dismissed';
+        this.logEvent(metricsEvent);
+        this._destroy();
+      }.bind(this));
     }
   });
 

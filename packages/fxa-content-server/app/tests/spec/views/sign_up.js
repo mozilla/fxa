@@ -18,6 +18,7 @@ define([
   'lib/metrics',
   'lib/fxa-client',
   'lib/ephemeral-messages',
+  'lib/mailcheck',
   'models/reliers/fx-desktop',
   'models/auth_brokers/base',
   'models/user',
@@ -26,7 +27,7 @@ define([
   '../../lib/helpers'
 ],
 function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
-      FxaClient, EphemeralMessages, Relier, Broker, User, FormPrefill,
+      FxaClient, EphemeralMessages, mailcheck, Relier, Broker, User, FormPrefill,
       RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
@@ -778,6 +779,21 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       });
     });
 
+    describe('suggestEmail', function () {
+      it('suggests emails via a tooltip', function (done) {
+        view.suggestEmail = function () {
+          mailcheck(view.$('.email'), metrics, translator, 'mailcheck=1');
+        };
+
+        view.$('.email').val('testuser@gnail.com');
+        view.suggestEmail();
+        // wait for tooltip
+        setTimeout(function () {
+          assert.equal($('.tooltip-suggest').text(), 'Did you mean gmail.com?✕');
+          done();
+        }, 50);
+      });
+    });
   });
 });
 
