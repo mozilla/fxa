@@ -44,7 +44,7 @@
     "p-promise": "0.4.8",
     "poolee": "0.4.15",
     "request": "2.45.0",
-    "scrypt-hash": "1.1.8",
+    "scrypt-hash": "1.1.10",
     "through": "2.3.6",
     "uuid": "1.4.1"
   },
