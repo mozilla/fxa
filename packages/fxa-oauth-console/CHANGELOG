@@ -1,3 +1,11 @@
+v0.3.6:
+  date: 2015-03-04
+  changes:
+    - Adds login note to the login screen
+v0.3.5:
+  date: 2015-02-21
+  changes:
+    - Fixes to support new OAuth server validation
 v0.3.4:
   date: 2015-01-23
   changes:
