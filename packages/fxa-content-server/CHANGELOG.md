@@ -1,3 +1,36 @@
+<a name="0.32.0"></a>
+## 0.32.0 (2015-03-03)
+
+
+#### Bug Fixes
+
+* **avatars:**
+  * show error if avatar removal fails ([9dcd9b65](https://github.com/mozilla/fxa-content-server/commit/9dcd9b650cc4d30d907987f78ac419e88587270d))
+  * fix avatar image uploads ([1e6ecd8a](https://github.com/mozilla/fxa-content-server/commit/1e6ecd8a2c8a41f7354748df398024c3413ab91e))
+  * prevent flicker when loading avatars on settings pages ([c3be4f45](https://github.com/mozilla/fxa-content-server/commit/c3be4f45b3b7793261b552d4bdc4b9a66ca27f35), closes [#2105](https://github.com/mozilla/fxa-content-server/issues/2105))
+* **build:** simple default grunt command ([9f101ee1](https://github.com/mozilla/fxa-content-server/commit/9f101ee196b706cd3519ad29b18416b25d0ced77))
+* **client:**
+  * Simplify the message serialization for the iframe channel. ([1af5009d](https://github.com/mozilla/fxa-content-server/commit/1af5009d092935f345ce19f3c6e9befccb2780df))
+  * Add "successfully" to most success messages. ([ec4b4fcc](https://github.com/mozilla/fxa-content-server/commit/ec4b4fcc6c00a26c8241d550c322b8e88dd4642c))
+* **errors:** reverts the "Invalid verification code" string back to normal. r=vladikoff ([14cbf41d](https://github.com/mozilla/fxa-content-server/commit/14cbf41d78d918382fc414d67abc0a4fa6d81619))
+* **l10n:** join server templates so email strings are not overwritten ([b0898f76](https://github.com/mozilla/fxa-content-server/commit/b0898f76f700bceda4f3d18816d69d62ed8a4fb8))
+* **pages:** 502 pages should be allowed to be iframed ([00e69196](https://github.com/mozilla/fxa-content-server/commit/00e69196560a3d335443ff0cc64bd8fcd04c4208), closes [#2056](https://github.com/mozilla/fxa-content-server/issues/2056))
+* **router:**
+  * make sure loaded message is still sent after a view render error ([79c93978](https://github.com/mozilla/fxa-content-server/commit/79c93978bd4e8859a5156b89d3ed09b52d5ba5d1))
+  * anchor event handler should handle event bubbling ([cd4a64ca](https://github.com/mozilla/fxa-content-server/commit/cd4a64cadcbba51ea862e1a8ebc13fa4e6bed724))
+* **server:** Ensure templates render text in dev mode. ([b7c5eb0a](https://github.com/mozilla/fxa-content-server/commit/b7c5eb0a400974e54d78571f2888adbaca4f3ed2))
+
+
+#### Features
+
+* **docker:** Dockerfile and README update for basic docker development workflow ([4b244644](https://github.com/mozilla/fxa-content-server/commit/4b2446441b6da3805cc7a03d98c1f0d7268a5b58))
+* **docs:** Document the iframe protocol. ([02e0fc49](https://github.com/mozilla/fxa-content-server/commit/02e0fc49eed086ebe12e46394d861077634e86e9))
+* **login:** indicate whether the account is verified in the fx-desktop channel ([6c5c0c42](https://github.com/mozilla/fxa-content-server/commit/6c5c0c429e89cea7fb78a7cf894a4d6b9c67b00e), closes [#2094](https://github.com/mozilla/fxa-content-server/issues/2094))
+* **oauth:** Expose relier-specific encryption keys to OAuth WebChannel reliers. ([a0318c28](https://github.com/mozilla/fxa-content-server/commit/a0318c28a5daf1d311ef926715c6a9dad391dab0), closes [#2088](https://github.com/mozilla/fxa-content-server/issues/2088))
+* **signup:** suggest proper email spelling ([a825a83f](https://github.com/mozilla/fxa-content-server/commit/a825a83f4903231c1316d6ba14b3b219dba2e737), closes [#871](https://github.com/mozilla/fxa-content-server/issues/871))
+* **tests:** Boost the test coverage of router.js ([0e7d06e6](https://github.com/mozilla/fxa-content-server/commit/0e7d06e68f43fedf7370dd596600b3637b742d93))
+
+
 <a name="0.31.0"></a>
 ## 0.31.0 (2015-02-17)
 
