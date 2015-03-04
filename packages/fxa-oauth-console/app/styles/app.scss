@@ -87,3 +87,10 @@ a, h1, h2, h3, h4, h5, h6, button, .button, th, p, legend, label {
     font-weight: bold;
   }
 }
+
+.alert-box.secondary-notification {
+  border-color: #c7c7c7;
+  background: #e7e7e7;
+  color: $primary-color;
+  text-align: center;
+}
