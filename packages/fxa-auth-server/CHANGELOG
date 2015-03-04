@@ -1,3 +1,6 @@
+train-32
+  * Add ability to put an account in "lockout" state after many auth failures - #867
+
 train-31
   * Don't forward restmail.net email addresses to basket API - #870
 
