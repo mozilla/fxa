@@ -1,0 +1,8 @@
+train-32
+  * Add ability to mark an account as "locked" for security reasons - #7
+  * Add support for docker-based development workflow - #13
+
+
+train-31
+  * Only fail with a DB patch level less than the one expected
+  * (hotfix) regenerated npm-shrinkwrap.json that uses the correct version of fxa-auth-db-server - #15
