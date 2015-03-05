@@ -359,7 +359,7 @@ module.exports = function (log, error) {
 
   // DELETE
 
-  // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accounts
+  // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accountUnlockCodes, accounts
   // Where  : uid = $1
   var DELETE_ACCOUNT = 'CALL deleteAccount_3(?)'
 
@@ -410,7 +410,7 @@ module.exports = function (log, error) {
   // BATCH
 
   // Step   : 1
-  // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens
+  // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accountUnlockCodes
   // Where  : uid = $1
   //
   // Step   : 2
@@ -449,7 +449,7 @@ module.exports = function (log, error) {
   // Where  : uid = $4
   //
   // Step   : 4
-  // Delete : accountLocked
+  // Delete : accountUnlockCodes
   // Where  : uid = $4
   //
   var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_3(?, ?, ?, ?, ?)'
