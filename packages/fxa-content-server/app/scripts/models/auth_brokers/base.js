@@ -139,8 +139,9 @@ define([
     },
 
     /**
-     * Called after signup email confirmation poll completes. Can be used
-     * to notify the RP that the user has sucessfully signed up.
+     * Called after password reset email confirmation poll completes.
+     * Can be used to notify the RP that the user has sucessfully reset their
+     * password.
      *
      * Resolve promise with an object that contains `{ halt: true }` to
      * prevent the "reset_password" screen from transitioning to
