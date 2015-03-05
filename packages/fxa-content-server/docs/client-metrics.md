@@ -85,6 +85,7 @@ The event stream is a log of events and the time they occurred while the user is
 
 #### Generic events
 * tooltip.generic-dismissed - a dismissable tooltip is dismissed
+* error.<unexpected_origin>.auth.1027 - a postMessage message was received from an unexpected origin.
 
 #### account_unlock_complete
 #### cannot_create_account

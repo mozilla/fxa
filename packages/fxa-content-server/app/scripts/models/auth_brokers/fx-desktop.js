@@ -25,6 +25,7 @@ define([
       // channel can be passed in for testing.
       this._channel = options.channel;
       this._session = options.session;
+      this._metrics = options.metrics;
 
       return BaseAuthenticationBroker.prototype.initialize.call(
           this, options);
@@ -93,7 +94,15 @@ define([
       var channel = this._channel || new FxDesktopChannel();
 
       channel.init({
-        window: this.window
+        window: this.window,
+        // Fx Desktop browser will send messages with an origin of the string
+        // `null`. These messages are trusted by the channel by default.
+        //
+        // Fx on iOS and functional tests will send messages from the
+        // content server itself. Accept messages from the content
+        // server to handle these cases.
+        origin: this.window.location.origin,
+        metrics: this._metrics
       });
 
       return channel;

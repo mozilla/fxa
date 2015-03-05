@@ -63,6 +63,71 @@ function (chai, _, Url) {
         assert.equal(Url.objToSearchString({}), '');
       });
     });
+
+    describe('getOrigin', function () {
+      it('returns the origin portion of the URL', function () {
+        assert.equal(
+          Url.getOrigin('https://marketplace.firefox.com/redirect/to_this_page'),
+          'https://marketplace.firefox.com'
+        );
+      });
+
+      it('works with non-standard ports', function () {
+        assert.equal(
+          Url.getOrigin('http://testdomain.org:8443/strips/this'),
+          'http://testdomain.org:8443'
+        );
+      });
+
+      it('returns correct origin if query directly follows hostname', function () {
+        assert.equal(
+          Url.getOrigin('http://testdomain.org?query'),
+          'http://testdomain.org'
+        );
+      });
+
+      it('returns correct origin if query directly follows port', function () {
+        assert.equal(
+          Url.getOrigin('http://testdomain.org:8443?query'),
+          'http://testdomain.org:8443'
+        );
+      });
+
+      it('returns correct origin if hash directly follows hostname', function () {
+        assert.equal(
+          Url.getOrigin('http://testdomain.org#hash'),
+          'http://testdomain.org'
+        );
+      });
+
+      it('returns correct origin if hash directly follows port', function () {
+        assert.equal(
+          Url.getOrigin('http://testdomain.org:8443#hash'),
+          'http://testdomain.org:8443'
+        );
+      });
+
+      it('returns `null` if scheme is missing', function () {
+        assert.equal(
+          Url.getOrigin('testdomain.org'),
+          null
+        );
+      });
+
+      it('returns `null` if scheme is missing and port specified', function () {
+        assert.equal(
+          Url.getOrigin('testdomain.org:8443'),
+          null
+        );
+      });
+
+      it('returns `null` if hostname is missing', function () {
+        assert.equal(
+          Url.getOrigin('http://'),
+          null
+        );
+      });
+    });
   });
 });
 

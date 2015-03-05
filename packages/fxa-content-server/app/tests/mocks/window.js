@@ -19,7 +19,8 @@ function (_, Backbone, NullStorage) {
     this.location = {
       href: window.location.href,
       search: window.location.search,
-      pathname: '/'
+      pathname: '/',
+      origin: window.location.origin
     };
 
     this.document = {
@@ -80,7 +81,8 @@ function (_, Backbone, NullStorage) {
         data: {
           type: msg,
           content: event.detail.data
-        }
+        },
+        origin: event.origin
       };
 
       this.trigger(msg, listenerEvent);

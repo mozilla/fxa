@@ -10,8 +10,9 @@
  */
 
 define([
-  'underscore'
-], function (_) {
+  'underscore',
+  'lib/auth-errors'
+], function (_, AuthErrors) {
   var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 90 * 1000;
 
   function noOp() {
@@ -44,9 +45,11 @@ define([
       options = options || {};
 
       this.window = options.window || window;
+      this._origin = options.origin;
+      this._metrics = options.metrics;
 
       this._boundReceiveMessage = _.bind(this.receiveMessage, this);
-      this.window.addEventListener('message', this._boundReceiveMessage, true);
+      this.window.addEventListener('message', this._boundReceiveMessage, false);
 
       this._outstandingRequests = {};
       this._sendTimeoutLength = options.sendTimeoutLength || DEFAULT_SEND_TIMEOUT_LENGTH_MS;
@@ -88,9 +91,35 @@ define([
       setResponseTimeoutTimer.call(this, outstanding);
     },
 
+    isEventFromExpectedOrigin: function (event) {
+      // `message` events that come from the Fx Desktop browser have an
+      // origin of the string constant 'null'. See
+      // https://developer.mozilla.org/docs/Web/API/Window/postMessage#Using_win.postMessage_in_extensions
+      // and
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1040257
+      //
+      // Events from the browser are trusted by default.
+      if (event.origin === 'null') {
+        return true;
+      }
+
+      // If the event is not from the browser, it must be from
+      // the expected origin.
+      return this._origin === event.origin;
+    },
+
     receiveMessage: function (event) {
-      // TODO - Ensure the event.origin is one we trust,
-      // esp in the iframe case
+      if (! this.isEventFromExpectedOrigin(event)) {
+        // from an unexpected origin, drop it on the ground.
+        var err = AuthErrors.toError('UNEXPECTED_POSTMESSAGE_ORIGIN');
+        // set the unexpected origin as the context, this will be logged.
+        err.context = event.origin;
+        this._metrics.logError(err);
+
+        this.window.console.error(
+          'postMessage received from %s, expected %s', event.origin, this._origin);
+        return;
+      }
 
       var components = this.parseMessage(event.data);
       if (components) {
@@ -106,6 +135,15 @@ define([
 
         this.trigger(command, data);
       }
+    },
+
+    /**
+     * Get the origin from which messages are accepted.
+     *
+     * @method getOrigin.
+     */
+    getOrigin: function () {
+      return this._origin;
     }
   };
 

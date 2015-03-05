@@ -178,11 +178,14 @@ function (
     initializeConfig: function () {
       return this._configLoader.fetch()
                     .then(_.bind(this.useConfig, this))
-                    .then(_.bind(this.initializeIframeChannel, this))
                     .then(_.bind(this.initializeOAuthClient, this))
                     // both the metrics and router depend on the language
                     // fetched from config.
                     .then(_.bind(this.initializeRelier, this))
+                    // metrics depends on the relier.
+                    .then(_.bind(this.initializeMetrics, this))
+                    // iframe channel depends on the relier and metrics
+                    .then(_.bind(this.initializeIframeChannel, this))
                     // fxaClient depends on the relier and
                     // inter tab communication.
                     .then(_.bind(this.initializeFxaClient, this))
@@ -192,15 +195,14 @@ function (
                     .then(_.bind(this.initializeProfileClient, this))
                     // user depends on the profileClient, oAuthClient, and assertionLibrary.
                     .then(_.bind(this.initializeUser, this))
-                    // broker relies on the user, relier, fxaClient and assertionLibrary
+                    // broker relies on the user, relier, fxaClient,
+                    // assertionLibrary, and metrics
                     .then(_.bind(this.initializeAuthenticationBroker, this))
                     // the close button depends on the broker
                     .then(_.bind(this.initializeCloseButton, this))
                     // storage format upgrades depend on user
                     .then(_.bind(this.upgradeStorageFormats, this))
 
-                    // metrics depends on the relier.
-                    .then(_.bind(this.initializeMetrics, this))
                     // depends on nothing
                     .then(_.bind(this.initializeFormPrefill, this))
                     // depends on iframeChannel and interTabChannel
@@ -243,7 +245,9 @@ function (
       if (this._isIframe()) {
         this._iframeChannel = new IframeChannel();
         this._iframeChannel.init({
-          window: this._window
+          window: this._window,
+          origin: this._relier.get('origin'),
+          metrics: this._metrics
         });
       }
     },
@@ -305,7 +309,8 @@ function (
           this._authenticationBroker = new FxDesktopAuthenticationBroker({
             window: this._window,
             relier: this._relier,
-            session: Session
+            session: Session,
+            metrics: this._metrics
           });
         } else if (this._isWebChannel()) {
           this._authenticationBroker = new WebChannelAuthenticationBroker({
@@ -323,7 +328,8 @@ function (
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
             session: Session,
-            channel: this._iframeChannel
+            channel: this._iframeChannel,
+            metrics: this._metrics
           });
         } else if (this._isOAuth()) {
           this._authenticationBroker = new RedirectAuthenticationBroker({
