@@ -135,9 +135,16 @@ function (
           self._metrics.logError(err);
         }
 
-        //Something terrible happened. Let's bail.
-        var redirectTo = self._getErrorPage(err);
-        self._window.location.href = redirectTo;
+        // this extra promise is to ensure the message is printed
+        // to the console in Firefox before redirecting. Without
+        // the delay, the console message is lost, even with
+        // persistent logs enabled. See #2183
+        return p()
+          .then(function () {
+            //Something terrible happened. Let's bail.
+            var redirectTo = self._getErrorPage(err);
+            self._window.location.href = redirectTo;
+          });
       });
     },
 
