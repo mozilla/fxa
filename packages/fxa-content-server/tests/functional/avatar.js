@@ -29,6 +29,12 @@ define([
   var client;
   var emailAvatarAb;
 
+  function testIsBrowserNotifiedOfAvatarChange(context) {
+    return FunctionalHelpers.testIsBrowserNotified(context, 'profile:change', function (data) {
+      assert.ok(data.uid);
+    });
+  }
+
   function signUp(context, email) {
     return client.signUp(email, PASSWORD, { preVerified: true })
       .then(function () {
@@ -157,6 +163,8 @@ define([
         .findByCssSelector('img[src*="https://secure.gravatar.com"]')
         .end()
 
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
+
         .findById('submit-btn')
           .click()
         .end()
@@ -169,6 +177,8 @@ define([
             assert.ok(val, 'has success text');
           })
         .end()
+
+        .then(testIsBrowserNotifiedOfAvatarChange(this))
 
         //success is returning to the settings page
         .findById('fxa-settings-header')
@@ -245,9 +255,13 @@ define([
           .click()
         .end()
 
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
+
         .findById('submit-btn')
           .click()
         .end()
+
+        .then(testIsBrowserNotifiedOfAvatarChange(this))
 
         .findById('fxa-settings-header')
         //success is seeing the image loaded
@@ -300,9 +314,13 @@ define([
           .click()
         .end()
 
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
+
         .findById('submit-btn')
           .click()
         .end()
+
+        .then(testIsBrowserNotifiedOfAvatarChange(this))
 
         .findById('fxa-settings-header')
         //success is seeing the image loaded

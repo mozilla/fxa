@@ -102,6 +102,8 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
           return p('');
         });
 
+        sinon.stub(view, 'updateAvatarUrl', function () { });
+
         return view.render()
           .then(function () {
             assert.equal(view.$('.avatar-wrapper img').length, 1);
@@ -110,7 +112,7 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
           .then(function () {
             assert.isTrue(profileClientMock.deleteAvatar.calledWith(
               accessToken, 'foo'));
-            assert.isNull(account.get('profileImageUrl'));
+            assert.isTrue(view.updateAvatarUrl.calledWith(null));
             assert.equal(routerMock.page, 'settings');
           });
       });

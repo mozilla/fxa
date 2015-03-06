@@ -19,7 +19,7 @@ define([
   }
 
   InterTabChannel.prototype = {
-    emit: function (name, data) {
+    send: function (name, data) {
       // Sensitive data is sent across the channel and should only
       // be in localStorage if absolutely necessary. Only send
       // data if another tab is listening.

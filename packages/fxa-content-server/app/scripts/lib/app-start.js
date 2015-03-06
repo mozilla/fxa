@@ -36,6 +36,8 @@ define([
   'lib/oauth-errors',
   'lib/profile-client',
   'lib/channels/inter-tab',
+  'lib/channels/iframe',
+  'lib/channels/web',
   'lib/storage',
   'models/reliers/relier',
   'models/reliers/oauth',
@@ -47,6 +49,7 @@ define([
   'models/auth_brokers/iframe',
   'models/user',
   'models/form-prefill',
+  'models/notifications',
   'views/close_button'
 ],
 function (
@@ -68,6 +71,8 @@ function (
   OAuthErrors,
   ProfileClient,
   InterTabChannel,
+  IframeChannel,
+  WebChannel,
   Storage,
   Relier,
   OAuthRelier,
@@ -79,6 +84,7 @@ function (
   IframeAuthenticationBroker,
   User,
   FormPrefill,
+  Notifications,
   CloseButtonView
 ) {
 
@@ -158,6 +164,7 @@ function (
     initializeConfig: function () {
       return this._configLoader.fetch()
                     .then(_.bind(this.useConfig, this))
+                    .then(_.bind(this.initializeIframeChannel, this))
                     .then(_.bind(this.initializeOAuthClient, this))
                     // both the metrics and router depend on the language
                     // fetched from config.
@@ -182,6 +189,8 @@ function (
                     .then(_.bind(this.initializeMetrics, this))
                     // depends on nothing
                     .then(_.bind(this.initializeFormPrefill, this))
+                    // depends on iframeChannel and interTabChannel
+                    .then(_.bind(this.initializeNotifications, this))
                     // router depends on all of the above
                     .then(_.bind(this.initializeRouter, this));
     },
@@ -213,6 +222,15 @@ function (
         screenWidth: screenInfo.screenWidth
       });
       this._metrics.init();
+    },
+
+    initializeIframeChannel: function () {
+      if (this._isIframe()) {
+        this._iframeChannel = new IframeChannel();
+        this._iframeChannel.init({
+          window: this._window
+        });
+      }
     },
 
     initializeFormPrefill: function () {
@@ -289,7 +307,8 @@ function (
             relier: this._relier,
             assertionLibrary: this._assertionLibrary,
             oAuthClient: this._oAuthClient,
-            session: Session
+            session: Session,
+            channel: this._iframeChannel
           });
         } else if (this._isOAuth()) {
           this._authenticationBroker = new RedirectAuthenticationBroker({
@@ -340,6 +359,17 @@ function (
       }
     },
 
+    initializeNotifications: function () {
+      var notificationWebChannel = new WebChannel(Constants.PROFILE_WEBCHANNEL_ID);
+      notificationWebChannel.init();
+
+      this._notifications = new Notifications({
+        tabChannel: this._interTabChannel,
+        iframeChannel: this._iframeChannel,
+        webChannel: notificationWebChannel
+      });
+    },
+
     upgradeStorageFormats: function () {
       return this._user.upgradeFromSession(Session, this._fxaClient);
     },
@@ -356,7 +386,8 @@ function (
           user: this._user,
           interTabChannel: this._interTabChannel,
           session: Session,
-          formPrefill: this._formPrefill
+          formPrefill: this._formPrefill,
+          notifications: this._notifications
         });
       }
       this._window.router = this._router;

@@ -58,6 +58,15 @@ function (chai, sinon, AppStart, Session, Constants, p,
                     });
       });
 
+      it('starts the app in an iframe', function () {
+        windowMock.top = new WindowMock();
+        return appStart.startApp()
+                    .then(function () {
+                      assert.isTrue(appStart._isIframe());
+                      assert.ok(appStart._iframeChannel);
+                    });
+      });
+
       it('redirects to /cookies_disabled if localStorage is disabled', function () {
         appStart.useConfig({
           localStorageEnabled: false,

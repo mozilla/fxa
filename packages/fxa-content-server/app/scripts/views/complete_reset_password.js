@@ -25,6 +25,8 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
     initialize: function (options) {
       options = options || {};
 
+      // We use the interTabChannel rather than notifications because we only
+      // want to send account data to other tabs– not listeners on all channels.
       this._interTabChannel = options.interTabChannel;
     },
 
@@ -121,7 +123,7 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
           return self.fxaClient.signIn(email, password, self.relier);
         }).then(function (accountData) {
           var account = self.user.initAccount(accountData);
-          self._interTabChannel.emit('login', accountData);
+          self._interTabChannel.send('login', accountData);
 
           return self.user.setSignedInAccount(account)
             .then(function () {

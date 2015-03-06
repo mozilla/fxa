@@ -197,7 +197,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
         sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
           // simulate the sessionToken being set in another tab.
           // simulate the login occurring in another tab.
-          interTabChannel.emit('login', {
+          interTabChannel.send('login', {
             sessionToken: 'sessiontoken'
           });
           return p(true);
@@ -234,7 +234,7 @@ function (chai, sinon, p, AuthErrors, View, Session, Metrics, EphemeralMessages,
         sinon.stub(fxaClient, 'isPasswordResetComplete', function () {
           // simulate the sessionToken being set in another tab.
           // simulate the login occurring in another tab.
-          interTabChannel.emit('login', {
+          interTabChannel.send('login', {
             sessionToken: 'sessiontoken'
           });
           return p(true);

@@ -26,7 +26,6 @@ define([
   var email;
   var client;
   var ANIMATION_DELAY_MS = 1000;
-  /* global document, addEventListener */
 
   /**
    * This suite tests the WebChannel functionality in the OAuth signin and
@@ -34,37 +33,13 @@ define([
    * finish OAuth flows
    */
 
-  function listenForWebChannelMessage() {
-    // this event will fire once the account is confirmed, helping it
-    // redirect to the application. If the window redirect does not
-    // happen then the sign in page will hang on the confirmation screen
-    addEventListener('WebChannelMessageToChrome', function (e) {
-      var command = e.detail.message.command;
-      var data = e.detail.message.data;
-
-      var element = document.createElement('div');
-      element.setAttribute('id', 'message-' + command);
-      element.innerText = JSON.stringify(data);
-      document.body.appendChild(element);
-    });
-
-    return true;
-  }
-
   function testIsBrowserNotifiedOfLogin(context, shouldCloseTab) {
-    return function () {
-      return context.get('remote')
-        .findByCssSelector('#message-oauth_complete')
-          .getProperty('innerText')
-          .then(function (innerText) {
-            var data = JSON.parse(innerText);
-            assert.ok(data.redirect);
-            assert.ok(data.code);
-            assert.ok(data.state);
-            assert.equal(data.closeWindow, shouldCloseTab);
-          })
-        .end();
-    };
+    return FunctionalHelpers.testIsBrowserNotified(context, 'oauth_complete', function (data) {
+      assert.ok(data.redirect);
+      assert.ok(data.code);
+      assert.ok(data.state);
+      assert.equal(data.closeWindow, shouldCloseTab);
+    });
   }
 
   function openFxaFromRp(context, page) {
@@ -114,7 +89,7 @@ define([
           return client.signUp(email, PASSWORD, { preVerified: true });
         })
 
-        .execute(listenForWebChannelMessage)
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
@@ -131,7 +106,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signup')
-        .execute(listenForWebChannelMessage)
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -178,7 +153,7 @@ define([
         })
 
         .switchToWindow('newwindow')
-        .execute(listenForWebChannelMessage)
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(testIsBrowserNotifiedOfLogin(self, false))
 
@@ -207,7 +182,7 @@ define([
         })
         .then(function (verificationLink) {
           return self.get('remote').get(require.toUrl(verificationLink))
-            .execute(listenForWebChannelMessage);
+            .execute(FunctionalHelpers.listenForWebChannelMessage);
         })
 
         .then(testIsBrowserNotifiedOfLogin(self, false))
@@ -220,7 +195,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signup')
-        .execute(listenForWebChannelMessage)
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -243,7 +218,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signup')
-        .execute(listenForWebChannelMessage)
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutSignUp(self, email, PASSWORD, OLD_ENOUGH_YEAR);
@@ -274,7 +249,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signin')
-        .execute(listenForWebChannelMessage)
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });
@@ -353,7 +328,7 @@ define([
         })
 
         .switchToWindow('newwindow')
-        .execute(listenForWebChannelMessage)
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
           return FunctionalHelpers.fillOutCompleteResetPassword(
@@ -396,7 +371,7 @@ define([
         })
         .then(function (verificationLink) {
           return self.get('remote').get(require.toUrl(verificationLink))
-            .execute(listenForWebChannelMessage);
+            .execute(FunctionalHelpers.listenForWebChannelMessage);
         })
 
         .then(function () {
@@ -415,7 +390,7 @@ define([
       var self = this;
 
       return openFxaFromRp(self, 'signin')
-        .execute(listenForWebChannelMessage)
+        .execute(FunctionalHelpers.listenForWebChannelMessage)
 
         .then(function () {
           return client.signUp(email, PASSWORD, { preVerified: true });

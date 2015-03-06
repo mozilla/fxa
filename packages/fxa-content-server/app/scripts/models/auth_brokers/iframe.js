@@ -64,13 +64,6 @@ define([
 
     // used by the ChannelMixin to get a channel.
     getChannel: function () {
-      if (! this._channel) {
-        this._channel = new IframeChannel();
-        this._channel.init({
-          window: this.window
-        });
-      }
-
       return this._channel;
     },
 

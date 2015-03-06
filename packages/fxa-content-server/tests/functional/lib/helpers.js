@@ -443,6 +443,40 @@ define([
       .end();
   }
 
+  function listenForWebChannelMessage() {
+    /* global document, addEventListener */
+
+    // this event will fire once the account is confirmed, helping it
+    // redirect to the application. If the window redirect does not
+    // happen then the sign in page will hang on the confirmation screen
+    addEventListener('WebChannelMessageToChrome', function (e) {
+      var command = e.detail.message.command;
+      var data = e.detail.message.data;
+
+      var element = document.createElement('div');
+      element.setAttribute('id', 'message-' + command.replace(/:/g, '-'));
+      element.innerText = JSON.stringify(data);
+      document.body.appendChild(element);
+    });
+
+    return true;
+  }
+
+  function testIsBrowserNotified(context, command, cb) {
+    return function () {
+      return context.get('remote')
+        .findByCssSelector('#message-' + command.replace(/:/g, '-'))
+          .getProperty('innerText')
+          .then(function (innerText) {
+            var data = JSON.parse(innerText);
+            if (cb) {
+              cb(data);
+            }
+          })
+        .end();
+    };
+  }
+
   return {
     imageLoadedByQSA: imageLoadedByQSA,
     clearBrowserState: clearBrowserState,
@@ -456,6 +490,8 @@ define([
     openVerificationLinkDifferentBrowser: openVerificationLinkDifferentBrowser,
     openPasswordResetLinkDifferentBrowser: openPasswordResetLinkDifferentBrowser,
     openFxaFromRp: openFxaFromRp,
+    listenForWebChannelMessage: listenForWebChannelMessage,
+    testIsBrowserNotified: testIsBrowserNotified,
 
     fillOutSignIn: fillOutSignIn,
     fillOutSignUp: fillOutSignUp,

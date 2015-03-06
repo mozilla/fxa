@@ -10,6 +10,10 @@ define([
 ], function () {
 
   return {
+    initialize: function (options) {
+      this.notifications = options.notifications;
+    },
+
     // Attempt to load a profile image from the profile server
     _fetchProfileImage: function (account) {
       var self = this;
@@ -74,6 +78,10 @@ define([
       var account = this.getSignedInAccount();
       account.set('profileImageUrl', url);
       this.user.setAccount(account);
+
+      this.notifications.profileChanged({
+        uid: account.get('uid')
+      });
     }
   };
 });
