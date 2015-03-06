@@ -154,7 +154,7 @@ module.exports = function (log, error) {
 
   // Insert : accounts
   // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13
-  var CREATE_ACCOUNT = 'CALL createAccount_1(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+  var CREATE_ACCOUNT = 'CALL createAccount_2(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (uid, data) {
     data.normalizedEmail = data.email
@@ -360,7 +360,7 @@ module.exports = function (log, error) {
 
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens, passwordForgotTokens, accountUnlockCodes, accounts
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_3(?)'
+  var DELETE_ACCOUNT = 'CALL deleteAccount_4(?)'
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid])
@@ -416,7 +416,7 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : verifyHash = $2, authSalt = $3, wrapWrapKb = $4, verifierSetAt = $5, verifierVersion = $6
   // Where  : uid = $1
-  var RESET_ACCOUNT = 'CALL resetAccount_3(?, ?, ?, ?, ?, ?)'
+  var RESET_ACCOUNT = 'CALL resetAccount_4(?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.resetAccount = function (uid, data) {
     return this.write(
@@ -428,7 +428,7 @@ module.exports = function (log, error) {
   // Update : accounts
   // Set    : emailVerified = true
   // Where  : uid = $1
-  var VERIFY_EMAIL = 'CALL verifyEmail_1(?)'
+  var VERIFY_EMAIL = 'CALL verifyEmail_2(?)'
 
   MySql.prototype.verifyEmail = function (uid) {
     return this.write(VERIFY_EMAIL, [uid])
@@ -673,6 +673,17 @@ module.exports = function (log, error) {
       PRUNE,
       [pruneBefore, now]
     )
+  }
+
+  var GET_EVENTS_SINCE_POSITION = 'CALL getEventsSincePosition_1(?)'
+
+  MySql.prototype._getEventsSincePosition = function (pos) {
+    return this.read(GET_EVENTS_SINCE_POSITION, [pos])
+      .then(
+        function (results) {
+          return results[0]
+        }
+      )
   }
 
   return MySql
