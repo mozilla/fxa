@@ -5,7 +5,7 @@
   "main": "index.js",
   "repository": "mozilla/fxa-auth-db-mysql",
   "bin": {
-    "fxa-auth-db-mysql": "db_patcher.js"
+    "fxa-auth-db-mysql": "bin/db_patcher.js"
   },
   "scripts": {
     "test": "grunt && node ./bin/db_patcher.js >/dev/null &&  ./scripts/tap-coverage.js test/backend test/local",
