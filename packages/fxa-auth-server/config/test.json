@@ -26,6 +26,15 @@
       "redirectUri": "urn:ietf:wg:oauth:2.0:fx:webchannel",
       "whitelisted": true,
       "canGrant": false
+    },
+    {
+      "name": "NoRedirectUri",
+      "id": "ea3ca969f8c6bb0d",
+      "hashedSecret": "0000000000000000000000000000000000000000000000000000000000000000",
+      "imageUri": "",
+      "redirectUri": "",
+      "whitelisted": true,
+      "canGrant": false
     }
   ],
   "logging": {

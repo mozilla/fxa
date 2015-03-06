@@ -744,6 +744,17 @@ describe('/v1', function() {
           }).done(done, done);
         });
       });
+
+      it('should allow for clients with no redirect_uri', function(done) {
+        Server.api.get('/client/ea3ca969f8c6bb0d')
+          .then(function(res) {
+            assert.equal(res.statusCode, 200);
+            var body = res.result;
+            assert(body.name);
+            assert.equal(body.image_uri, '');
+            assert.equal(body.redirect_uri, '');
+          }).done(done, done);
+      });
     });
 
     describe('GET /clients', function() {

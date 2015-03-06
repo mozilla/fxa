@@ -22,7 +22,7 @@ module.exports = {
       id: validators.clientId,
       name: Joi.string().required(),
       image_uri: Joi.any(),
-      redirect_uri: Joi.string().required()
+      redirect_uri: Joi.string().required().allow('')
     }
   },
   handler: function requestInfoEndpoint(req, reply) {
