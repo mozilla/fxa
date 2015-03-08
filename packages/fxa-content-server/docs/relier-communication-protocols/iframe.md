@@ -20,17 +20,18 @@ Sent if the user completes authentication. The `data` field will be an object wi
 #### oauth_cancel
 Sent when a user indicates they want to close the iframe. The parent should close the iframe.
 
-### Command format
-Since all commands are sent over postMessage, commands and their data must be represented by strings. The format is:
+### Message format
+Since all messages are sent over postMessage, commands and data must be represented by strings. A JSON.stringify serialized object containing a command and data object is used.
 
 ```
-command!!!data
+{
+  command: <command>
+  data: <data>
+}
 ```
 
 * `command` {String} - The command.
-* `data` {String} - JSON.stringify'd data. Can be empty.
-
-The separator is `!!!`
+* `data` {Object} - Data object. Can be empty.
 
 ### Command order
 1. ping
@@ -43,5 +44,7 @@ OR
 1. loaded
 1. oauth_cancel
 
+The same format is used for both incoming messages and responses.
+
 ### Expected responses
-A `ping` command expects a response. Respond with `ping!!!`. If no `ping` response is received, Firefox Accounts will refuse to load.
+A single `ping` will be sent from Firefox Accounts on startup to determine the relier's origin. A `ping` response must be sent for Firefox Accounts to load.
