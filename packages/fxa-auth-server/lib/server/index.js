@@ -4,12 +4,11 @@
 
 const Hapi = require('hapi');
 
-const AppError = require('./error');
-const auth = require('./auth');
-const config = require('./config').root();
-const logger = require('./logging')('server');
-const hapiLogger = require('./logging')('server.hapi');
-const summary = require('./logging/summary');
+const AppError = require('../error');
+const config = require('../config').root();
+const logger = require('../logging')('server');
+const hapiLogger = require('../logging')('server.hapi');
+const summary = require('../logging/summary');
 
 exports.create = function createServer() {
 
@@ -23,31 +22,10 @@ exports.create = function createServer() {
   var server = Hapi.createServer(
     config.server.host,
     config.server.port,
-    {
-      cors: true,
-      debug: false,
-      payload: {
-        maxBytes: 16384
-      },
-      security: {
-        hsts: {
-          maxAge: 15552000,
-          includeSubdomains: true
-        },
-        xframe: false,
-        xss: false,
-        noOpen: false,
-        noSniff: false
-      }
-    }
+    require('./config')
   );
 
-
-
-  server.auth.scheme(auth.AUTH_SCHEME, auth.strategy);
-  server.auth.strategy(auth.AUTH_STRATEGY, auth.AUTH_SCHEME);
-
-  var routes = require('./routing');
+  var routes = require('../routing').routes;
   if (isProd) {
     logger.info('prod', 'Disabling response schema validation');
     routes.forEach(function(route) {
@@ -55,7 +33,7 @@ exports.create = function createServer() {
     });
   }
 
-  // require json by default
+  // default to stricter content-type
   routes.forEach(function(route) {
     var method = route.method.toUpperCase();
     if (method !== 'GET' && method !== 'HEAD') {

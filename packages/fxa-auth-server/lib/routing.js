@@ -9,7 +9,7 @@ function v(url) {
   return '/v' + version + url;
 }
 
-module.exports = [
+exports.routes = [
   {
     method: 'GET',
     path: '/',
@@ -59,27 +59,25 @@ module.exports = [
   }
 ];
 
-if (config.get('env') !== 'prod') {
-  module.exports.push.apply(module.exports, [
-    {
-      method: 'GET',
-      path: v('/clients'),
-      config: require('./routes/client/list')
-    },
-    {
-      method: 'POST',
-      path: v('/client'),
-      config: require('./routes/client/register')
-    },
-    {
-      method: 'POST',
-      path: v('/client/{client_id}'),
-      config: require('./routes/client/update')
-    },
-    {
-      method: 'DELETE',
-      path: v('/client/{client_id}'),
-      config: require('./routes/client/delete')
-    }
-  ]);
-}
+exports.clients = [
+  {
+    method: 'GET',
+    path: v('/clients'),
+    config: require('./routes/client/list')
+  },
+  {
+    method: 'POST',
+    path: v('/client'),
+    config: require('./routes/client/register')
+  },
+  {
+    method: 'POST',
+    path: v('/client/{client_id}'),
+    config: require('./routes/client/update')
+  },
+  {
+    method: 'DELETE',
+    path: v('/client/{client_id}'),
+    config: require('./routes/client/delete')
+  }
+];

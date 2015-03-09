@@ -148,6 +148,17 @@ const conf = convict({
       default: 9010
     }
   },
+  serverInternal: {
+    host: {
+      env: 'HOST_INTERNAL',
+      default: '127.0.0.1'
+    },
+    port: {
+      env: 'PORT_INTERNAL',
+      format: 'port',
+      default: 9011
+    }
+  },
   unique: {
     clientSecret: {
       doc: 'Bytes of generated client_secrets',
