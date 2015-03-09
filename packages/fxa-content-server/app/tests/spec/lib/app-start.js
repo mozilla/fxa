@@ -12,7 +12,12 @@ define([
   'lib/session',
   'lib/constants',
   'lib/promise',
+  'lib/url',
   'models/auth_brokers/base',
+  'models/auth_brokers/fx-desktop',
+  'models/auth_brokers/iframe',
+  'models/auth_brokers/redirect',
+  'models/auth_brokers/web-channel',
   'models/user',
   'lib/metrics',
   '../../mocks/window',
@@ -20,8 +25,10 @@ define([
   '../../mocks/history',
   '../../lib/helpers'
 ],
-function (chai, sinon, AppStart, Session, Constants, p,
-      NullBroker, User, Metrics, WindowMock, RouterMock, HistoryMock, TestHelpers) {
+function (chai, sinon, AppStart, Session, Constants, p, Url,
+      BaseBroker, FxDesktopBroker, IframeBroker, RedirectBroker,
+      WebChannelBroker, User, Metrics, WindowMock, RouterMock, HistoryMock,
+      TestHelpers) {
   /*global describe, beforeEach, it*/
   var assert = chai.assert;
 
@@ -37,34 +44,41 @@ function (chai, sinon, AppStart, Session, Constants, p,
       windowMock = new WindowMock();
       routerMock = new RouterMock();
       historyMock = new HistoryMock();
-      brokerMock = new NullBroker();
       userMock = new User();
 
-      appStart = new AppStart({
-        window: windowMock,
-        router: routerMock,
-        history: historyMock,
-        user: userMock,
-        broker: brokerMock
-      });
     });
 
     describe('startApp', function () {
+      beforeEach(function () {
+        brokerMock = new BaseBroker();
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          user: userMock,
+          broker: brokerMock
+        });
+      });
+
       it('starts the app', function () {
         return appStart.startApp()
-                    .then(function () {
-                      // translator is put on the global object.
-                      assert.ok(windowMock.translator);
-                    });
+          .then(function () {
+            // translator is put on the global object.
+            assert.ok(windowMock.translator);
+          });
       });
 
       it('starts the app in an iframe', function () {
         windowMock.top = new WindowMock();
+        windowMock.location.search = Url.objToSearchString({
+          context: Constants.IFRAME_CONTEXT
+        });
+
         return appStart.startApp()
-                    .then(function () {
-                      assert.isTrue(appStart._isIframe());
-                      assert.ok(appStart._iframeChannel);
-                    });
+          .then(function () {
+            assert.isTrue(appStart._isIframe());
+            assert.ok(appStart._iframeChannel);
+          });
       });
 
       it('redirects to /cookies_disabled if localStorage is disabled', function () {
@@ -157,6 +171,131 @@ function (chai, sinon, AppStart, Session, Constants, p,
             var expectedMessage = message.substring(0, Constants.ONERROR_MESSAGE_LIMIT);
             assert.isTrue(TestHelpers.isEventLogged(appStart._metrics, 'error.onwindow.' + expectedMessage));
           });
+      });
+    });
+
+    describe('initializeAuthenticationBroker', function () {
+      function testExpectedBrokerCreated(ExpectedBroker) {
+        return appStart.initializeAuthenticationBroker()
+          .then(function () {
+            assert.isTrue(
+              appStart._authenticationBroker instanceof ExpectedBroker);
+          });
+      }
+
+      beforeEach(function () {
+        appStart = new AppStart({
+          window: windowMock,
+          router: routerMock,
+          history: historyMock,
+          user: userMock
+        });
+      });
+
+      describe('fx-desktop', function () {
+        it('returns an FxDesktop broker if `service=sync`', function () {
+          windowMock.location.search = Url.objToSearchString({
+            service: Constants.FX_DESKTOP_SYNC
+          });
+
+          return testExpectedBrokerCreated(FxDesktopBroker);
+        });
+
+        it('returns an FxDesktop broker if `context=fx_desktop_v1`', function () {
+          windowMock.location.search = Url.objToSearchString({
+            context: Constants.FX_DESKTOP_CONTEXT
+          });
+
+          return testExpectedBrokerCreated(FxDesktopBroker);
+        });
+      });
+
+      describe('web channel', function () {
+        it('returns a WebChannel broker if `webChannelId` is present', function () {
+          windowMock.location.search = Url.objToSearchString({
+            webChannelId: 'channel id'
+          });
+
+          return testExpectedBrokerCreated(WebChannelBroker);
+        });
+
+        it('returns a WebChannel broker if verifying in the same brower where a signup was initiated from a web channel', function () {
+          Session.set('oauth', {
+            //jshint camelcase: false
+            client_id: 'client id',
+            webChannelId: 'channel id'
+          });
+
+          windowMock.location.search = Url.objToSearchString({
+            code: 'code',
+            service: 'client id'
+          });
+
+          return testExpectedBrokerCreated(WebChannelBroker);
+        });
+      });
+
+      describe('iframe', function () {
+        it('returns an Iframe broker if `context=iframe` is present and in an iframe', function () {
+          windowMock.top = new WindowMock();
+          windowMock.location.search = Url.objToSearchString({
+            context: Constants.IFRAME_CONTEXT,
+            //jshint camelcase: false
+            client_id: 'client id'
+          });
+
+          return testExpectedBrokerCreated(IframeBroker);
+        });
+
+        it('returns a Redirect broker if `context=iframe` is not present and in an iframe - for Marketplace on Android', function () {
+          windowMock.top = new WindowMock();
+          windowMock.location.search = Url.objToSearchString({
+            //jshint camelcase: false
+            client_id: 'client id'
+          });
+
+          return testExpectedBrokerCreated(RedirectBroker);
+        });
+      });
+
+      describe('redirect', function () {
+        it('returns a Redirect broker if `client_id` is available', function () {
+          windowMock.location.search = Url.objToSearchString({
+            //jshint camelcase: false
+            client_id: 'client id'
+          });
+
+          return testExpectedBrokerCreated(RedirectBroker);
+        });
+
+        it('returns a Redirect broker if both `code` and `service` are available - for verification flows', function () {
+          windowMock.location.search = Url.objToSearchString({
+            code: 'the code',
+            service: 'the service'
+          });
+
+          return testExpectedBrokerCreated(RedirectBroker);
+        });
+
+        it('returns a Redirect broker if user directly browses to `/oauth/signin`', function () {
+          windowMock.location.href = '/oauth/signin';
+
+          return testExpectedBrokerCreated(RedirectBroker);
+        });
+
+        it('returns a Redirect broker if user directly browses to `/oauth/signup`', function () {
+          windowMock.location.href = '/oauth/signup';
+
+          return testExpectedBrokerCreated(RedirectBroker);
+        });
+      });
+
+      describe('base', function () {
+        it('returns a Base broker if the user directly browses to any other page', function () {
+          windowMock.location.href = '/settings';
+
+          return testExpectedBrokerCreated(BaseBroker);
+        });
       });
     });
   });

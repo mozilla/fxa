@@ -406,7 +406,7 @@ function (
           .then(function (startPage) {
             // The IFrame cannot use pushState or else a page transition
             // would cause the parent frame to redirect.
-            var usePushState = ! self._isIframe();
+            var usePushState = ! self._isInAnIframe();
 
             if (! usePushState) {
               // If pushState cannot be used, Backbone falls back to using
@@ -460,8 +460,16 @@ function (
                   Session.oauth && Session.oauth.webChannelId));
     },
 
-    _isIframe: function () {
+    _isInAnIframe: function () {
       return this._window !== this._window.top;
+    },
+
+    _isIframeContext: function () {
+      return this._searchParam('context') === Constants.IFRAME_CONTEXT;
+    },
+
+    _isIframe: function () {
+      return this._isInAnIframe() && this._isIframeContext();
     },
 
     _isOAuth: function () {
