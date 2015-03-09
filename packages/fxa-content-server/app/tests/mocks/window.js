@@ -58,7 +58,15 @@ function (_, Backbone, NullStorage) {
       }
     };
 
-    this.console = window.console;
+    // Create a console wrapper whose members can be safely
+    // stubbed in using sinon.
+    this.console = {
+      error: console.error.bind(console),
+      info: console.info.bind(console),
+      log: console.log.bind(console),
+      trace: console.trace.bind(console),
+      warn: console.warn.bind(console)
+    };
 
     this.localStorage = new NullStorage();
     this.sessionStorage = new NullStorage();
