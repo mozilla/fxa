@@ -32,9 +32,15 @@ install:
   # copy over the configuration that can be used to start the server.
   - cp server/config/local.json-dist server/config/local.json
   # install the resources necessary for the auth server.
+  - mkdir -p fxa-auth-server
   - cd fxa-auth-server && git init && git pull git://github.com/mozilla/fxa-auth-server.git --depth 1
   # first npm install will fail because there is no global GMP, we add localGmp after that failure
   - npm install
+  # start the DB server
+  - cd node_modules/fxa-auth-db-mem
+  - LOG_LEVEL=error npm start &
+  - cd ../../
+  # start the auth server
   - node ./scripts/gen_keys.js
   - LOG_LEVEL=error npm start &
   - cd ..
