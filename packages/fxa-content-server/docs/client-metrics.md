@@ -83,6 +83,9 @@ The event stream is a log of events and the time they occurred while the user is
 
 ### Events per screen
 
+#### Generic events
+* tooltip.generic-dismissed - a dismissable tooltip is dismissed
+
 #### cannot_create_account
 #### change_password
 #### complete_reset_password
@@ -105,6 +108,9 @@ The event stream is a log of events and the time they occurred while the user is
 #### settings/avatar/gravatar
 #### signin
 #### signup
+* tooltip.mailcheck-suggested - an email address correction was suggested
+* tooltip.mailcheck-used - an email address correction was chosen by the user
+* tooltip.mailcheck-dismissed - an email address correction tooltip was dismissed without the selection being made.
 #### tos
 #### unexpected_error
 
