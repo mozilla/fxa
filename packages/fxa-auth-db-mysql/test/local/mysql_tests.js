@@ -173,7 +173,7 @@ DB.connect(config)
             'END;',
           ].join('\n')
 
-          t.plan(6)
+          t.plan(5)
 
           db.write(dropProcedure, [])
             .then(function() {
@@ -201,9 +201,20 @@ DB.connect(config)
               t.end()
             }, function(err) {
               t.pass('The call to the stored procedure failed as expected')
-              t.equal('' + err, "Error: ER_BAD_NULL_ERROR", 'error stringified is correct')
               t.equal(err.code, 500, 'error code is correct')
-              t.equal(err.errno, 1048, 'error errno is correct')
+              var possibleErrors = [
+                { msg: "ER_BAD_NULL_ERROR", errno: 1048 },
+                { msg: "ER_NO_DEFAULT_FOR_FIELD", errno: 1364 }
+              ];
+              var matchedError = false;
+              possibleErrors.forEach(function(possibleErr) {
+                if (err.message === possibleErr.msg) {
+                  if (err.errno === possibleErr.errno ) {
+                    matchedError = true;
+                  }
+                }
+              });
+              t.ok(matchedError, 'error message and errno are correct')
               t.end()
             })
         }
