@@ -96,7 +96,7 @@ module.exports = function (log, error) {
         free: 0
       }
     )
-    log.stat(stats)
+    log.info('stats', stats)
   }
 
   // this will be called from outside this file
@@ -114,8 +114,7 @@ module.exports = function (log, error) {
         function (result) {
           mysql.patchLevel = +result.value
 
-          log.info({
-            op: 'MySql.connect',
+          log.info('connect', {
             patchLevel: mysql.patchLevel,
             patchLevelRequired: patch.level
           })

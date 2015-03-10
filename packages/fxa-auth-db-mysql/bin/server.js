@@ -5,8 +5,8 @@
 var config = require('../config')
 var dbServer = require('fxa-auth-db-server')
 var error = dbServer.errors
-var log = require('../log')(config.logLevel, 'db-api')
-var DB = require('../db/mysql')(log, error)
+var logger = require('../logging')('bin.server')
+var DB = require('../db/mysql')(logger, error)
 
 function shutdown() {
   process.nextTick(process.exit)
@@ -21,20 +21,20 @@ DB.connect(config)
   .done(function (db) {
     var server = dbServer.createServer(db)
     server.listen(config.port, config.hostname, function() {
-      log.info({ op: 'server.start', msg: 'running on ' + config.port })
+      logger.info('start', { port : config.port })
     })
     server.on('error', function (err) {
-      log.error({ op: 'server.start', err: { message: err.message } })
+      logger.error('start', { message: err.message })
     })
     server.on('success', function (d) {
-      log.info(d)
+      logger.info('summary', d)
     })
     server.on('failure', function (err) {
       if (err.statusCode >= 500) {
-        log.error(err)
+        logger.error('summary', err)
       }
       else {
-        log.warn(err)
+        logger.warn('summary', err)
       }
     })
   })

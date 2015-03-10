@@ -12,10 +12,6 @@ module.exports = function (fs, path, url, convict) {
       format: [ 'dev', 'test', 'stage', 'prod' ],
       env: 'NODE_ENV',
     },
-    logLevel: {
-      default: 'trace',
-      env: 'LOG_LEVEL',
-    },
     hostname: {
       doc: 'The IP address the server should bind to',
       default: '127.0.0.1',
@@ -26,6 +22,19 @@ module.exports = function (fs, path, url, convict) {
       default: 8000,
       format: 'nat',
       env: 'PORT',
+    },
+    logging: {
+      app: {
+        default: 'fxa-auth-db-server'
+      },
+      fmt: {
+        format: ['heka', 'pretty'],
+        default: 'heka'
+      },
+      level: {
+        env: 'LOG_LEVEL',
+        default: 'info'
+      },
     },
     patchKey: {
       doc: 'The name of the row in the dbMetadata table which stores the patch level',
