@@ -7,14 +7,14 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
 
   now = now || Date.now
 
-  var IP_EMAIL_ACTION = {
+  var PASSWORD_CHECKING_ACTION = {
     accountLogin   : true,
     accountDestroy : true,
     passwordChange : true,
   }
 
-  function isIpEmailAction(action) {
-    return IP_EMAIL_ACTION[action]
+  function isPasswordCheckingAction(action) {
+    return PASSWORD_CHECKING_ACTION[action]
   }
 
   function IpEmailRecord() {
@@ -81,8 +81,9 @@ module.exports = function (RATE_LIMIT_INTERVAL_MS, MAX_BAD_LOGINS, now) {
   }
 
   IpEmailRecord.prototype.update = function (action) {
-    // if this is not an Ip/Email Action, then all ok (no block)
-    if ( !isIpEmailAction(action) ) {
+    // if this is not an action that allows checking password,
+    // then all ok (no block)
+    if ( !isPasswordCheckingAction(action) ) {
       return 0
     }
 
