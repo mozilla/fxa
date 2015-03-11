@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+var util = require('util')
 var mysql = require('mysql')
 var P = require('../promise')
 
@@ -675,13 +676,91 @@ module.exports = function (log, error) {
     )
   }
 
-  var GET_EVENTS_SINCE_POSITION = 'CALL getEventsSincePosition_1(?)'
+  // Execute a callback with an ordered list of unpublished events.
+  //
+  // This method will fetch the next batch of unpublished events from
+  // the db and pass them to the provided callback, which should return
+  // a promise.  If the callback completes successfully then the events
+  // will be marked as published; if it completes with an error then the
+  // events will remain unpublished and available for a subsequent fetch.
+  //
+  // If the callback succeeds in processing some, but not all, of the events
+  // then it should return the number of events successfully processed.
+  // We assume they're processed in order.
+  //
+  // The database enforces mutual exclusion of access to events in order to
+  // prevent publication of duplicates.  If another client is currently
+  // accessing the events, then the callback is not invoked and this method
+  // will reject with an EventQueueLockedError error object.
 
-  MySql.prototype._getEventsSincePosition = function (pos) {
-    return this.read(GET_EVENTS_SINCE_POSITION, [pos])
+  var GET_UNPUBLISHED_EVENTS = 'CALL getUnpublishedEvents_1()'
+  var ACK_PUBLISHED_EVENTS = 'CALL ackPublishedEvents_1(?)'
+
+  function EventQueueLockedError(message) {
+    this.message = message || 'event queue locked'
+    Error.captureStackTrace(this, EventQueueLockedError)
+  }
+  util.inherits(EventQueueLockedError, Error)
+
+  MySql.prototype.processUnpublishedEvents = function (fn) {
+    // Internally we use a db-level lock for mutual exclusion.
+    // We have to call GET_LOCK() and RELEASE_LOCK() on the same
+    // db connection or things will get very confused.
+    return this.getConnection('MASTER')
       .then(
-        function (results) {
-          return results[0]
+        function (connection) {
+          // We must manually release this connection when we're done.
+          return query(connection, GET_UNPUBLISHED_EVENTS, [])
+            .then(
+              function (results) {
+                // Did we successfully acquire the lock?
+                if (!results[0][0].lockAcquired) {
+                  throw new EventQueueLockedError()
+                }
+                // We're now holding a db-level lock that must be released.
+                // Luckily MySQL will clear it if our connection dies,
+                // and we kill the connection in the event of error.
+                var events = results[2]
+                return fn(events)
+                  .then(
+                    function (numProcessed) {
+                      var ackPos
+                      // Default to acknowledging the entire list.
+                      if (typeof numProcessed === 'undefined') {
+                        numProcessed = events.length
+                      }
+                      if (numProcessed === 0) {
+                        ackPos = 0
+                      } else {
+                        ackPos = events[numProcessed - 1].pos
+                      }
+                      // ACK_PUBLISHED_EVENTS will release the lock.
+                      return query(connection, ACK_PUBLISHED_EVENTS, [ackPos])
+                    }
+                  )
+              }
+            )
+            .then(
+              function (res) {
+                // All is well, return the connection to the pool.
+                connection.release()
+                return res
+              },
+              function (err) {
+                // Something went wrong.  Unless we're sure we don't have the
+                // lock, destroy the connection so we don't leave it hanging.
+                if (err instanceof EventQueueLockedError) {
+                  connection.release()
+                } else {
+                  log.error({
+                    op: 'MySql.processUnpublishedEvents',
+                    err: err
+                  })
+                  connection.destroy()
+                }
+                throw err
+              }
+            )
         }
       )
   }

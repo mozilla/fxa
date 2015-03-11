@@ -9,6 +9,13 @@ CREATE TABLE eventLog (
 ) ENGINE=InnoDB;
 
 
+-- A new table to hold metadata about what events have been published.
+CREATE TABLE eventLogPublishState (
+  lastPublishedPos BIGINT UNSIGNED NOT NULL,
+  lastPublishedAt INT UNSIGNED NOT NULL
+) ENGINE=InnoDB;
+
+
 -- When an account is created, log a "create" event.
 -- Pre-verified accounts may also get a "verify" event.
 CREATE PROCEDURE `createAccount_2` (
@@ -216,18 +223,60 @@ BEGIN
 END;
 
 
--- A helper for reading out of the eventlog.
--- Likely only useful for testing purposes.
-CREATE PROCEDURE `getEventsSincePosition_1` (
-    IN `inPos` BIGINT UNSIGNED
+-- A procedure for fetching a batch of events to publish.
+-- This uses a lock to ensure mutual exclusion of publishers.
+-- It returns up to three result sets:
+--    [lockAcquired]:      whether the lock was successfully acquired
+--    [lastPublishedPos]:  the position at which we're starting to fetch
+--    [events]:            the rows of unpublished events from the log
+CREATE PROCEDURE `getUnpublishedEvents_1` (
 )
 BEGIN
-    SELECT pos, uid, typ, iat
-    FROM eventLog
-    WHERE pos > inPos
-    ORDER BY pos ASC
-    LIMIT 100;
+
+    SELECT @lockAcquired:=GET_LOCK('fxa-auth-server.event-log-lock', 1)
+    AS lockAcquired;
+
+    IF @lockAcquired THEN
+
+      SELECT @lastPublishedPos:=lastPublishedPos
+      AS lastPublishedPos FROM eventLogPublishState LIMIT 1;
+
+      SELECT pos, uid, typ, iat
+      FROM eventLog
+      WHERE pos > @lastPublishedPos
+      ORDER BY pos ASC
+      LIMIT 100;
+
+    END IF;
 END;
+
+
+-- A procedure for acknowledging published events.
+-- This is the counterpart to getUnpublishedEvents and releases its lock.
+CREATE PROCEDURE `ackPublishedEvents_1` (
+  IN `ackPos` BIGINT UNSIGNED
+)
+BEGIN
+
+    -- Update lastPublishedPos, but don't move it backwards.
+    UPDATE eventLogPublishState
+    SET lastPublishedPos = ackPos, lastPublishedAt = UNIX_TIMESTAMP()
+    WHERE lastPublishedPos < ackPos;
+
+    DO RELEASE_LOCK('fxa-auth-server.event-log-lock');
+
+END;
+
+
+-- To begin, no events have been published.
+INSERT into eventLogPublishState (
+    lastPublishedPos,
+    lastPublishedAt
+)
+VALUES(
+    0,
+    0
+);
 
 
 -- Schema patch-level increment.
