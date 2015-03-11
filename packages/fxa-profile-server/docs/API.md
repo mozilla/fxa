@@ -80,7 +80,8 @@ curl -v \
 ```js
 {
   "uid": "6d940dd41e636cc156074109b8092f96",
-  "email": "user@example.domain"
+  "email": "user@example.domain",
+  "avatar": "https://secure.gravatar.com/avatar/6d940dd41e636cc156074109b8092f96"
 }
 ```
 
