@@ -6,7 +6,7 @@ var path = require('path')
 var mysql = require('mysql')
 var clone = require('clone')
 var config = require('../config')
-var log = require('../log')(config.logLevel, 'db-patcher')
+var logger = require('../logging')('bin.db_patcher')
 var patcher = require('mysql-patcher')
 
 var patch = require('../db/patch')
@@ -23,8 +23,8 @@ options.reversePatchAllowed = false
 
 patcher.patch(options, function(err) {
   if (err) {
-    log.error(err)
+    logger.error('patch-error', { err : '' + err })
     process.exit(2)
   }
-  log.info('Database patched to level ' + options.patchLevel)
+  logger.info('patched', { level : options.patchLevel })
 })

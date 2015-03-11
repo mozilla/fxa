@@ -10,11 +10,16 @@ var config = require('../../config')
 config.logLevel = 'info'
 config.statInterval = 100
 
-var log = require('../../log')(config.logLevel, 'db-api')
+var log = require('../../logging')('test.local.log-stats')
 
-// monkeypatch log.stat to hook into db/mysql.js:statInterval
+// monkeypatch log.info to hook into db/mysql.js:statInterval
 var dfd = P.defer()
-log.stat = function(stats) {
+var consumeFirstN = 1
+log.info = function(msg, stats) {
+  if ( consumeFirstN ) {
+    consumeFirstN--
+    return
+  }
   dfd.resolve(stats)
 }
 
