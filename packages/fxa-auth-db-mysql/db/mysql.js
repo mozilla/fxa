@@ -627,7 +627,7 @@ module.exports = function (log, error) {
 
   MySql.prototype.getConnection = function (name) {
     return retryable(
-      this.getClusterConnection,
+      this.getClusterConnection.bind(this, name),
       [ER_TOO_MANY_CONNECTIONS, 'ECONNREFUSED', 'ETIMEDOUT', 'ECONNRESET']
     )
   }
