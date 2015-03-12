@@ -57,7 +57,7 @@ function (chai, sinon, Able) {
       it('defers to window.able.report if available', function () {
         window.able = {
           report: function () {
-            return ['value']
+            return ['value'];
           }
         };
 
