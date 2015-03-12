@@ -182,7 +182,7 @@ module.exports = function (fs, path, url, convict) {
       default: 1
     },
     snsTopicArn: {
-      doc: 'Amazon SNS topic on which to send account event notifications',
+      doc: 'Amazon SNS topic on which to send account event notifications. Set to "disabled" to turn off the notifier',
       format: String,
       default: ''
     },

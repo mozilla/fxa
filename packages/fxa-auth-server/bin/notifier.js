@@ -16,6 +16,10 @@ var sns = {
 function init(config) {
   snsTopicArn = config.snsTopicArn
   log.level(config.log.level)
+  if (snsTopicArn === 'disabled') {
+    sns = { publish: function (msg, cb) { cb() }}
+    return
+  }
   // Pull the region info out of the topic arn.
   // For some reason we need to pass this in explicitly.
   // Format is "arn:aws:sns:<region>:<other junk>"
