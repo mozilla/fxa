@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-/* global able */
-
 'use strict';
 
 define([
@@ -22,6 +20,12 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
   var View = FormView.extend({
     template: Template,
     className: 'settings',
+
+    initialize: function (options) {
+      options = options || {};
+
+      this._able = options.able;
+    },
 
     context: function () {
       var account = this.getSignedInAccount();
@@ -59,7 +63,7 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
       // For automated testing accounts, emails begin with "avatarAB-" and end with "restmail.net"
       var isTestAccount = /^avatarAB-.+@restmail\.net$/.test(email);
 
-      return isTestAccount || able.choose('avatarLinkVisible', { email: email });
+      return isTestAccount || this._able.choose('avatarLinkVisible', { email: email });
     },
 
     afterVisible: function () {

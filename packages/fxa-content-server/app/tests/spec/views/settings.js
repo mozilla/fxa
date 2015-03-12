@@ -18,11 +18,12 @@ define([
   'lib/fxa-client',
   'lib/promise',
   'lib/auth-errors',
+  'lib/able',
   'models/reliers/relier',
   'models/user'
 ],
 function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
-      Constants, FxaClient, p, AuthErrors, Relier, User) {
+      Constants, FxaClient, p, AuthErrors, Able, Relier, User) {
   var assert = chai.assert;
 
   describe('views/settings', function () {
@@ -34,6 +35,17 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
     var user;
     var account;
     var UID = 'uid';
+    var able;
+
+    function createView () {
+      view = new View({
+        router: routerMock,
+        fxaClient: fxaClient,
+        relier: relier,
+        user: user,
+        able: able
+      });
+    }
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -47,13 +59,9 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
         sessionToken: 'abc123',
         verified: true
       });
+      able = new Able();
 
-      view = new View({
-        router: routerMock,
-        fxaClient: fxaClient,
-        relier: relier,
-        user: user
-      });
+      createView();
 
       sinon.stub(user, 'getSignedInAccount', function () {
         return account;
@@ -93,13 +101,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
           return p();
         });
 
-        view = new View({
-          window: windowMock,
-          router: routerMock,
-          fxaClient: fxaClient,
-          relier: relier,
-          user: user
-        });
+        createView();
 
         return view.render()
           .then(function () {
@@ -120,13 +122,7 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
         sinon.stub(user, 'clearSignedInAccount', function () {
         });
 
-        view = new View({
-          window: windowMock,
-          router: routerMock,
-          fxaClient: fxaClient,
-          relier: relier,
-          user: user
-        });
+        createView();
 
         return view.render()
           .then(function () {
@@ -164,6 +160,10 @@ function (chai, _, $, sinon, View, RouterMock, WindowMock, TestHelpers,
       describe('with avatar change link enabled', function () {
         beforeEach(function () {
           account.set('email', 'test@mozilla.com');
+
+          sinon.stub(able, 'choose', function () {
+            return true;
+          });
 
           return view.render()
             .then(function () {
