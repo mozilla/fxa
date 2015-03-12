@@ -11,7 +11,7 @@
     },
     {
       "name": "auth-server db memory",
-      "script": "node_modules/fxa-auth-db-mem",
+      "script": "node_modules/fxa-auth-db-mem/bin/server.js",
       "cwd": "fxa-auth-server",
       "env": {
         "NODE_ENV": "dev"
