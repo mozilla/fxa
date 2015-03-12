@@ -39,6 +39,7 @@ define([
   'lib/channels/iframe',
   'lib/channels/web',
   'lib/storage',
+  'lib/able',
   'models/reliers/relier',
   'models/reliers/oauth',
   'models/reliers/fx-desktop',
@@ -74,6 +75,7 @@ function (
   IframeChannel,
   WebChannel,
   Storage,
+  Able,
   Relier,
   OAuthRelier,
   FxDesktopRelier,
@@ -119,6 +121,7 @@ function (
 
       // fetch both config and translations in parallel to speed up load.
       return p.all([
+        this.initializeAble(),
         this.initializeConfig(),
         this.initializeL10n(),
         this.initializeInterTabChannel()
@@ -166,6 +169,10 @@ function (
           self._metrics.logEvent('error.onwindow.' +  errMsg);
         }
       };
+    },
+
+    initializeAble: function () {
+      this._able = new Able();
     },
 
     initializeConfig: function () {
@@ -226,7 +233,8 @@ function (
         clientWidth: screenInfo.clientWidth,
         devicePixelRatio: screenInfo.devicePixelRatio,
         screenHeight: screenInfo.screenHeight,
-        screenWidth: screenInfo.screenWidth
+        screenWidth: screenInfo.screenWidth,
+        able: this._able
       });
       this._metrics.init();
     },
@@ -394,7 +402,8 @@ function (
           interTabChannel: this._interTabChannel,
           session: Session,
           formPrefill: this._formPrefill,
-          notifications: this._notifications
+          notifications: this._notifications,
+          able: this._able
         });
       }
       this._window.router = this._router;

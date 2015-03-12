@@ -121,6 +121,7 @@ function (
       this.interTabChannel = options.interTabChannel;
       this.formPrefill = options.formPrefill;
       this.notifications = options.notifications;
+      this.able = options.able;
 
       // back is only enabled after the first view is rendered.
       this.canGoBack = false;
@@ -175,7 +176,8 @@ function (
         window: this.window,
         screenName: this.fragmentToScreenName(Backbone.history.fragment),
         formPrefill: this.formPrefill,
-        notifications: this.notifications
+        notifications: this.notifications,
+        able: this.able
       }, options || {});
 
       return new View(viewOptions);

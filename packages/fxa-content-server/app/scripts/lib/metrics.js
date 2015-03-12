@@ -14,8 +14,6 @@
  * but can also be sent by calling metrics.flush();
  */
 
- /* global able */
-
 define([
   'underscore',
   'backbone',
@@ -88,6 +86,8 @@ define([
     this._marketingType = NOT_REPORTED_VALUE;
     this._marketingLink = NOT_REPORTED_VALUE;
     this._marketingClicked = false;
+
+    this._able = options.able;
   }
 
   _.extend(Metrics.prototype, Backbone.Events, {
@@ -150,7 +150,7 @@ define([
       var unloadData = this._speedTrap.getUnload();
 
       var allData = _.extend({}, loadData, unloadData, {
-        ab: able.report(),
+        ab: this._able ? this._able.report() : [],
         context: this._context,
         service: this._service,
         lang: this._lang,
