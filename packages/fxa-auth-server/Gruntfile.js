@@ -50,7 +50,25 @@ module.exports = function (grunt) {
     });
 
     walker.on('end', function () {
-      done();
+      var jsWalker = extract({
+        'input-dir': __dirname,
+        /* node_modules and test should not contain any strings
+         * Gruntfile causes an error and should contain no strings
+         * bin/server.js extracts "/", so it is excluded.
+         */
+        exclude: /(node_modules|test|Gruntfile|bin)/,
+        'output-dir': __dirname,
+        'output': 'server.pot',
+        'join-existing': true,
+        'keyword': 'translator.gettext',
+        parsers: {
+          '.js': 'javascript'
+        }
+      });
+
+      jsWalker.on('end', function () {
+        done();
+      });
     });
   });
 
