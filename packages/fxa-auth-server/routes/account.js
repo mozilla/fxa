@@ -754,7 +754,7 @@ module.exports = function (
                   log.info({
                     op: 'account.lock',
                     email: emailRecord.email,
-                    uid: emailRecord.uid
+                    uid: emailRecord.uid.toString('hex')
                   })
                   return db.lockAccount(emailRecord)
                 }

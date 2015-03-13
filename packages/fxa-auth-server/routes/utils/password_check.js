@@ -31,7 +31,7 @@ module.exports = function (log, config, Password, customs, db) {
                   log.info({
                     op: 'account.lock',
                     email: emailRecord.email,
-                    uid: emailRecord.uid
+                    uid: emailRecord.uid.toString('hex')
                   })
                   if (config.lockoutEnabled) {
                     return db.lockAccount(emailRecord)
