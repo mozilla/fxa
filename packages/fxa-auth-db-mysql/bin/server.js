@@ -37,4 +37,7 @@ DB.connect(config)
         logger.warn('summary', err)
       }
     })
+    server.on('mem', function (stats) {
+      logger.info('mem', stats)
+    })
   })
