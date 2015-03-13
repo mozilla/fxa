@@ -89,7 +89,15 @@ The event stream is a log of events and the time they occurred while the user is
 #### cannot_create_account
 #### change_password
 #### complete_reset_password
+* complete_reset_password.verification.success - email successfully verified.
+* complete_reset_password.resend - A verification email was resent after an expired link was opened.
+* error.complete_reset_password.auth.1025 - User clicked on an expired verification link.
+* error.complete_reset_password.auth.1026 - User clicked on a damaged verification link.
 #### complete_sign_up
+* complete_sign_up.verification.success - email successfully verified.
+* complete_sign_up.resend - A verification email was resent after an expired link was opened.
+* error.complete_sign_up.auth.1025 - User clicked on an expired verification link.
+* error.complete_sign_up.auth.1026 - User clicked on a damaged verification link.
 #### confirm
 #### confirm_reset_password
 #### cookies_disabled

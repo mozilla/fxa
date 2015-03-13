@@ -46,26 +46,16 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
       sessionToken: 'abc123'
     };
 
-    function testEventLogged(eventName) {
-      assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
-    }
-
     function testEventNotLogged(eventName) {
       assert.isFalse(TestHelpers.isEventLogged(metrics, eventName));
     }
 
-    beforeEach(function () {
-      routerMock = new RouterMock();
-      windowMock = new WindowMock();
-      metrics = new Metrics();
-      relier = new Relier();
-      broker = new Broker();
-      fxaClient = new FxaClient();
-      interTabChannel = new InterTabChannel();
-      user = new User();
+    function testErrorLogged(error) {
+      var normalizedError = view._normalizeError(error);
+      assert.isTrue(TestHelpers.isErrorLogged(metrics, normalizedError));
+    }
 
-      windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
-
+    function initView() {
       view = new View({
         router: routerMock,
         window: windowMock,
@@ -77,6 +67,21 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         user: user,
         screenName: 'complete_reset_password'
       });
+    }
+
+    beforeEach(function () {
+      routerMock = new RouterMock();
+      metrics = new Metrics();
+      relier = new Relier();
+      broker = new Broker();
+      fxaClient = new FxaClient();
+      interTabChannel = new InterTabChannel();
+      user = new User();
+
+      windowMock = new WindowMock();
+      windowMock.location.search = '?code=dea0fae1abc2fab3bed4dec5eec6ace7&email=testuser@testuser.com&token=feed';
+
+      initView();
 
       // mock in isPasswordResetComplete
       isPasswordResetComplete = false;
@@ -84,10 +89,7 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
         return p(isPasswordResetComplete);
       };
 
-      return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+      return view.render();
     });
 
     afterEach(function () {
@@ -102,10 +104,10 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
     describe('render', function () {
       it('shows form if token, code and email are all present', function () {
         return view.render()
-            .then(function () {
-              testEventNotLogged('complete_reset_password.link_expired');
-              assert.ok(view.$('#fxa-complete-reset-password-header').length);
-            });
+          .then(function () {
+            testEventNotLogged('complete_reset_password.link_expired');
+            assert.ok(view.$('#fxa-complete-reset-password-header').length);
+          });
       });
 
       it('shows malformed screen if the token is missing', function () {
@@ -114,13 +116,12 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           email: 'testuser@testuser.com'
         });
 
+        initView();
         return view.render()
-            .then(function () {
-              testEventLogged('complete_reset_password.link_damaged');
-            })
-            .then(function () {
-              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-            });
+          .then(function () {
+            testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+            assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+          });
       });
 
       it('shows malformed screen if the token is invalid', function () {
@@ -130,13 +131,12 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           email: 'testuser@testuser.com'
         });
 
+        initView();
         return view.render()
-            .then(function () {
-              testEventLogged('complete_reset_password.link_damaged');
-            })
-            .then(function () {
-              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-            });
+          .then(function () {
+            testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+            assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+          });
       });
 
       it('shows malformed screen if the code is missing', function () {
@@ -145,13 +145,12 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           email: 'testuser@testuser.com'
         });
 
+        initView();
         return view.render()
-            .then(function () {
-              testEventLogged('complete_reset_password.link_damaged');
-            })
-            .then(function () {
-              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-            });
+          .then(function () {
+            testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+            assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+          });
       });
 
       it('shows malformed screen if the code is invalid', function () {
@@ -161,24 +160,22 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           email: 'testuser@testuser.com'
         });
 
+        initView();
         return view.render()
-            .then(function () {
-              testEventLogged('complete_reset_password.link_damaged');
-            })
-            .then(function () {
-              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-            });
+          .then(function () {
+            testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+            assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+          });
       });
 
       it('shows malformed screen if the email is missing', function () {
         windowMock.location.search = '?token=feed&code=dea0fae1abc2fab3bed4dec5eec6ace7';
+        initView();
         return view.render()
-            .then(function () {
-              testEventLogged('complete_reset_password.link_damaged');
-            })
-            .then(function () {
-              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-            });
+          .then(function () {
+            testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+            assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+          });
       });
 
       it('shows malformed screen if the email is invalid', function () {
@@ -188,24 +185,21 @@ function (chai, sinon, p, AuthErrors, Metrics, FxaClient, InterTabChannel,
           email: 'does_not_validate'
         });
 
+        initView();
         return view.render()
-            .then(function () {
-              testEventLogged('complete_reset_password.link_damaged');
-            })
-            .then(function () {
-              assert.ok(view.$('#fxa-reset-link-damaged-header').length);
-            });
+          .then(function () {
+            testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
+            assert.ok(view.$('#fxa-reset-link-damaged-header').length);
+          });
       });
 
       it('shows the expired screen if the token has already been used', function () {
         isPasswordResetComplete = true;
         return view.render()
-            .then(function () {
-              testEventLogged('complete_reset_password.link_expired');
-            })
-            .then(function () {
-              assert.ok(view.$('#fxa-reset-link-expired-header').length);
-            });
+          .then(function () {
+            testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
+            assert.ok(view.$('#fxa-reset-link-expired-header').length);
+          });
       });
     });
 

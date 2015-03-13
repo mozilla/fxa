@@ -44,7 +44,7 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
       } catch(e) {
         // This is an invalid link. Abort and show an error message
         // before doing any more checks.
-        this.logEvent('complete_reset_password.link_damaged');
+        this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         return true;
       }
 
@@ -56,7 +56,7 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
       if (! this._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
-        this.logEvent('complete_reset_password.link_damaged');
+        this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         return true;
       }
 
@@ -65,7 +65,7 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
         .then(function (isComplete) {
           self._isLinkExpired = isComplete;
           if (isComplete) {
-            self.logEvent('complete_reset_password.link_expired');
+            self.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
           }
           return true;
         });
@@ -171,6 +171,7 @@ function (Cocktail, BaseView, FormView, Template, PasswordMixin,
 
     resendResetEmail: function () {
       var self = this;
+      self.logScreenEvent('resend');
       return self.fxaClient.passwordReset(self.email, self.relier)
               .then(function (result) {
                 self.navigate('confirm_reset_password', {
