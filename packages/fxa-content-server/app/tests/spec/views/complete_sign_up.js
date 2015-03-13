@@ -43,22 +43,27 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
       initView();
       return view.render()
-          .then(function () {
-            assert.ok(view.$('#fxa-verification-link-expired-header').length);
-          });
+        .then(function () {
+          assert.ok(view.$('#fxa-verification-link-expired-header').length);
+        });
     }
 
     function testShowsDamagedScreen(search) {
       windowMock.location.search = search || '?code=' + validCode + '&uid=' + validUid;
       initView();
       return view.render()
-          .then(function () {
-            assert.ok(view.$('#fxa-verification-link-damaged-header').length);
-          });
+        .then(function () {
+          assert.ok(view.$('#fxa-verification-link-damaged-header').length);
+        });
     }
 
     function testEventLogged(eventName) {
       assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
+    }
+
+    function testErrorLogged(error) {
+      var normalizedError = view._normalizeError(error);
+      assert.isTrue(TestHelpers.isErrorLogged(metrics, normalizedError));
     }
 
     function initView (account) {
@@ -70,7 +75,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         fxaClient: fxaClient,
         relier: relier,
         broker: broker,
-        screenName: 'verify_email',
+        screenName: 'complete_sign_up',
         account: account
       });
     }
@@ -116,9 +121,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       it('shows an error if uid is not available on the URL', function () {
         return testShowsDamagedScreen('?code=' + validCode)
             .then(function () {
-              testEventLogged('complete_sign_up.link_damaged');
-            })
-            .then(function () {
+              testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
               assert.isFalse(view.fxaClient.verifyCode.called);
             });
       });
@@ -126,9 +129,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
       it('shows an error if code is not available on the URL', function () {
         return testShowsDamagedScreen('?uid=' + validUid)
             .then(function () {
-              testEventLogged('complete_sign_up.link_damaged');
-            })
-            .then(function () {
+              testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
               assert.isFalse(view.fxaClient.verifyCode.called);
             });
       });
@@ -137,9 +138,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         verificationError = AuthErrors.toError('INVALID_PARAMETER', 'code');
         return testShowsDamagedScreen()
             .then(function () {
-              testEventLogged('complete_sign_up.link_damaged');
-            })
-            .then(function () {
+              testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
               assert.isTrue(view.fxaClient.verifyCode.called);
             });
       });
@@ -153,9 +152,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         });
         return testShowsExpiredScreen()
             .then(function () {
-              testEventLogged('complete_sign_up.link_expired');
-            })
-            .then(function () {
+              testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
               assert.equal(view.$('#resend').length, 1);
               assert.isTrue(view.fxaClient.verifyCode.called);
             });
@@ -168,9 +165,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         });
         return testShowsExpiredScreen()
             .then(function () {
-              testEventLogged('complete_sign_up.link_expired');
-            })
-            .then(function () {
+              testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
               assert.equal(view.$('#resend').length, 0);
               assert.isTrue(view.fxaClient.verifyCode.called);
             });
@@ -181,16 +176,18 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants,
         return testShowsDamagedScreen()
             .then(function () {
               assert.isTrue(view.fxaClient.verifyCode.called);
+              testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
             });
       });
 
-      it('all other server errors are displayed', function () {
-        verificationError = new Error('verification error');
+      it('all other server errors are logged and displayed', function () {
+        verificationError = AuthErrors.toError('UNEXPECTED_ERROR');
         return view.render()
           .then(function () {
             assert.isTrue(view.fxaClient.verifyCode.calledWith(validUid, validCode));
             assert.ok(view.$('#fxa-verification-error-header').length);
-            assert.equal(view.$('.error').text(), 'verification error');
+            assert.equal(view.$('.error').text(), 'Unexpected error');
+            testErrorLogged(verificationError);
           });
       });
 

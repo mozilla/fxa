@@ -54,17 +54,17 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
     },
 
     beforeRender: function () {
-      if (! this._doesLinkValidate()) {
+      var self = this;
+      if (! self._doesLinkValidate()) {
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
-        this.logEvent('complete_sign_up.link_damaged');
+        self.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         return true;
       }
 
-      var self = this;
       return self.fxaClient.verifyCode(self._uid, self._code)
           .then(function () {
-            self.logEvent('complete_sign_up.verification.success');
+            self.logScreenEvent('verification.success');
             return self.broker.afterCompleteSignUp(self.getAccount());
           })
           .then(function (result) {
@@ -92,16 +92,17 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
           .then(null, function (err) {
             if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
               self._isLinkExpired = true;
-              self.logEvent('complete_sign_up.link_expired');
+              err = AuthErrors.toError('EXPIRED_VERIFICATION_LINK');
             } else if (AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
                 AuthErrors.is(err, 'INVALID_PARAMETER')) {
               // These errors show a link damaged screen
               self._isLinkDamaged = true;
-              self.logEvent('complete_sign_up.link_damaged');
+              err = AuthErrors.toError('DAMAGED_VERIFICATION_LINK');
             } else {
               // all other errors show the standard error box.
               self._error = self.translateError(err);
             }
+            self.logError(err);
             return true;
           });
     },
@@ -145,7 +146,7 @@ function (Cocktail, FormView, BaseView, CompleteSignUpTemplate,
     submit: function () {
       var self = this;
 
-      self.logEvent('complete_sign_up.resend');
+      self.logScreenEvent('resend');
 
       return self.fxaClient.signUpResend(self.relier, self._getResendSessionToken())
               .then(function () {
