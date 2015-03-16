@@ -21,6 +21,12 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
     template: Template,
     className: 'settings',
 
+    initialize: function (options) {
+      options = options || {};
+
+      this._able = options.able;
+    },
+
     context: function () {
       var account = this.getSignedInAccount();
       return {
@@ -56,9 +62,8 @@ function (Cocktail, Session, FormView, BaseView, AvatarMixin,
     _isAvatarLinkVisible: function (email) {
       // For automated testing accounts, emails begin with "avatarAB-" and end with "restmail.net"
       var isTestAccount = /^avatarAB-.+@restmail\.net$/.test(email);
-      var isMozillaAccount = /@mozilla\.(?:com|org)$/.test(email);
 
-      return isTestAccount || isMozillaAccount;
+      return isTestAccount || this._able.choose('avatarLinkVisible', { email: email });
     },
 
     afterVisible: function () {

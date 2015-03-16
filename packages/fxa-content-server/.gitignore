@@ -73,3 +73,6 @@ locale/*/*/*.po
 
 ### Source maps
 *.map
+
+### Experiments
+experiments
