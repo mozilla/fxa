@@ -12,13 +12,16 @@ define([
   'views/delete_account',
   'lib/fxa-client',
   'lib/promise',
+  'lib/auth-errors',
+  'lib/metrics',
   'models/reliers/relier',
+  'models/auth_brokers/base',
   'models/user',
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, $, sinon, View, FxaClient, p,
-    Relier, User, RouterMock, TestHelpers) {
+function (chai, $, sinon, View, FxaClient, p, AuthErrors, Metrics,
+    Relier, Broker, User, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -28,22 +31,31 @@ function (chai, $, sinon, View, FxaClient, p,
     var email;
     var password = 'password';
     var fxaClient;
+    var broker;
     var relier;
     var user;
     var account;
+    var metrics;
 
     beforeEach(function () {
       routerMock = new RouterMock();
       relier = new Relier();
+      broker = new Broker({
+        relier: relier
+      });
       fxaClient = new FxaClient();
       user = new User();
+      metrics = new Metrics();
 
 
       view = new View({
         router: routerMock,
         fxaClient: fxaClient,
         user: user,
-        relier: relier
+        relier: relier,
+        broker: broker,
+        metrics: metrics,
+        screenName: 'delete-account'
       });
     });
 
@@ -137,6 +149,36 @@ function (chai, $, sinon, View, FxaClient, p,
                   .calledWith(email, password));
                 assert.isTrue(user.removeAccount.calledWith(account));
               });
+        });
+
+        it('shows error message to locked out users', function () {
+          sinon.stub(view.fxaClient, 'deleteAccount', function () {
+            return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
+          });
+
+          $('form input[type=email]').val(email);
+          $('form input[type=password]').val(password);
+          return view.submit()
+            .then(function () {
+              assert.isTrue(view.isErrorVisible());
+              assert.include(view.$('.error').text().toLowerCase(), 'locked');
+              var err = view._normalizeError(AuthErrors.toError('ACCOUNT_LOCKED'));
+              assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+              assert.isTrue(account.has('password'));
+            });
+        });
+
+        it('re-throws other errors', function () {
+          sinon.stub(view.fxaClient, 'deleteAccount', function () {
+            return p.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
+          });
+
+          $('form input[type=email]').val(email);
+          $('form input[type=password]').val(password);
+          return view.submit()
+            .then(assert.fail, function (err) {
+              assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+            });
         });
       });
 

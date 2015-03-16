@@ -27,6 +27,33 @@ define([
 
   var client;
 
+  function initiateLockedAccountSignIn(context) {
+    return FunctionalHelpers.openFxaFromRp(context, 'signin')
+      .then(function () {
+        return client.signUp(email, PASSWORD, { preVerified: true });
+      })
+      .then(function () {
+        return client.accountLock(email, PASSWORD);
+      })
+
+      .findByCssSelector('#fxa-signin-header')
+      .end()
+
+      .then(function () {
+        return FunctionalHelpers.fillOutSignIn(context, email, PASSWORD);
+      })
+
+      .then(FunctionalHelpers.visibleByQSA('.error'))
+      .end()
+
+      .findByCssSelector('a[href="/confirm_account_unlock"]')
+        .click()
+      .end()
+
+      .findByCssSelector('#fxa-confirm-account-unlock-header')
+      .end();
+  }
+
   registerSuite({
     name: 'oauth sign in',
 
@@ -202,6 +229,120 @@ define([
         // success is using a cached login and being redirected
         // to a confirmation screen
         .findByCssSelector('#fxa-confirm-header')
+        .end();
+    },
+
+    'locked account, verify same browser': function () {
+      var self = this;
+      return initiateLockedAccountSignIn(self)
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+        // wait for the verified window in the new tab
+        .findById('fxa-account-unlock-complete-header')
+        .end()
+
+        .findByCssSelector('.account-ready-service')
+        .getVisibleText()
+        .then(function (text) {
+          // user sees the name of the RP,
+          // but cannot redirect
+          assert.ok(/123done/i.test(text));
+        })
+        .end()
+
+        // switch to the original window
+        .closeCurrentWindow()
+        .switchToWindow('')
+
+        .findByCssSelector('#loggedin')
+        .end();
+    },
+
+    'locked account, verify same browser with original tab closed': function () {
+      var self = this;
+      return initiateLockedAccountSignIn(self)
+        // user browses to another site.
+        .switchToFrame(null)
+
+        .then(FunctionalHelpers.openExternalSite(self))
+
+        .then(function () {
+          return FunctionalHelpers.openVerificationLinkSameBrowser(
+                      self, email, 0);
+        })
+
+        .switchToWindow('newwindow')
+
+        .findByCssSelector('#fxa-account-unlock-complete-header')
+        .end()
+
+        // switch to the original window
+        .closeCurrentWindow()
+        .switchToWindow('');
+    },
+
+    'locked account, verify same browser by replacing original tab': function () {
+      var self = this;
+      return initiateLockedAccountSignIn(self)
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
+        })
+
+        .findByCssSelector('#fxa-account-unlock-complete-header')
+        // TODO -- replace the above line with the below line when we figure
+        // out how to pull that off.
+        //.findByCssSelector('#loggedin')
+        .end();
+    },
+
+    'locked account, verify different browser - from original tab\'s P.O.V.': function () {
+      var self = this;
+      return initiateLockedAccountSignIn(self)
+        .then(function () {
+          return FunctionalHelpers.openUnlockLinkDifferentBrowser(client, email, 'x-unlock-code');
+        })
+
+        // original tab redirects back to 123done
+        .findByCssSelector('#loggedin')
+        .end();
+    },
+
+    'locked account, verify different browser - from new browser\'s P.O.V.': function () {
+      var self = this;
+      return initiateLockedAccountSignIn(self)
+        .then(function () {
+          // clear browser state to simulate opening link in a new browser
+          return FunctionalHelpers.clearBrowserState(self, {
+            contentServer: true,
+            '123done': true
+          });
+        })
+
+        .then(function () {
+          return FunctionalHelpers.getVerificationLink(email, 0);
+        })
+        .then(function (verificationLink) {
+          return self.get('remote').get(require.toUrl(verificationLink));
+        })
+
+        // new browser dead ends at the 'account verified' screen.
+        .findByCssSelector('#fxa-account-unlock-complete-header')
+        .end()
+
+        .findByCssSelector('.account-ready-service')
+        .getVisibleText()
+        .then(function (text) {
+          // user sees the name of the rp,
+          // but cannot redirect
+          assert.isTrue(/123done/i.test(text));
+        })
         .end();
     }
   });

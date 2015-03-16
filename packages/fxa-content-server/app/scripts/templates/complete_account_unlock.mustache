@@ -1,0 +1,37 @@
+<div id="main-content">
+  {{#isLinkExpired}}
+  <header>
+    <h1 id="fxa-account-unlock-link-expired-header">{{#t}}Unlock link expired{{/t}}</h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+
+    <p>
+      {{#t}}The link you clicked to verify your email is expired.{{/t}}
+    </p>
+  </section>
+  {{/isLinkExpired}}
+
+  {{#isLinkDamaged}}
+  <header>
+    <h1 id="fxa-account-unlock-link-damaged-header">{{#t}}Unlock link damaged{{/t}}</h1>
+  </header>
+
+  <section>
+    <p>
+      {{#t}}The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.{{/t}}
+    </p>
+  </section>
+  {{/isLinkDamaged}}
+
+  {{#error}}
+  <header>
+    <h1 id="fxa-account-unlock-error-header">{{#t}}Unlock error{{/t}}</h1>
+  </header>
+
+  <section>
+    <div class="error">{{error}}</div>
+  </section>
+  {{/error}}
+</div>

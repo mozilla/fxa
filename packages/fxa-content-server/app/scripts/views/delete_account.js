@@ -10,12 +10,14 @@ define([
   'views/form',
   'stache!templates/delete_account',
   'lib/session',
+  'lib/auth-errors',
   'views/mixins/password-mixin',
   'views/mixins/service-mixin',
-  'views/mixins/back-mixin'
+  'views/mixins/back-mixin',
+  'views/mixins/account-locked-mixin'
 ],
-function (Cocktail, BaseView, FormView, Template, Session,
-  PasswordMixin, ServiceMixin, BackMixin) {
+function (Cocktail, BaseView, FormView, Template, Session, AuthErrors,
+      PasswordMixin, ServiceMixin, BackMixin, AccountLockedMixin) {
   var t = BaseView.t;
 
   var View = FormView.extend({
@@ -34,16 +36,27 @@ function (Cocktail, BaseView, FormView, Template, Session,
     submit: function () {
       var self = this;
       var account = self.getSignedInAccount();
-      var password = self.$('.password').val();
-      return self.fxaClient.deleteAccount(account.get('email'), password)
-                .then(function () {
-                  Session.clear();
-                  self.user.removeAccount(account);
+      var email = account.get('email');
+      var password = self.getElementValue('.password');
+      return self.fxaClient.deleteAccount(email, password)
+        .then(function () {
+          Session.clear();
+          self.user.removeAccount(account);
 
-                  self.navigate('signup', {
-                    success: t('Account deleted successfully')
-                  });
-                });
+          self.navigate('signup', {
+            success: t('Account deleted successfully')
+          });
+        }, function (err) {
+          if (AuthErrors.is(err, 'ACCOUNT_LOCKED')) {
+            // the password is needed to poll whether the account has
+            // been unlocked.
+            account.set('password', password);
+            return self.notifyOfLockedAccount(account);
+          }
+
+          // re-throw error, it will be handled at a lower level.
+          throw err;
+        });
     }
   });
 
@@ -51,7 +64,8 @@ function (Cocktail, BaseView, FormView, Template, Session,
     View,
     PasswordMixin,
     ServiceMixin,
-    BackMixin
+    BackMixin,
+    AccountLockedMixin
   );
 
   return View;

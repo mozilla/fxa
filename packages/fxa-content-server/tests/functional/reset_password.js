@@ -236,10 +236,7 @@ define([
         })
 
         // Success is showing the success message
-        .findByCssSelector('.success').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isTrue(isDisplayed);
-          })
+        .then(FunctionalHelpers.visibleByQSA('.success'))
         .end()
 
         .findById('resend')
@@ -251,10 +248,7 @@ define([
         .end()
 
         // Stills shows success message
-        .findByCssSelector('.success').isDisplayed()
-          .then(function (isDisplayed) {
-            assert.isTrue(isDisplayed);
-          })
+        .then(FunctionalHelpers.visibleByQSA('.success'))
         .end();
     },
 
@@ -501,6 +495,58 @@ define([
 
         .then(function () {
           return testAtSettingsWithVerifiedMessage(self);
+        });
+    },
+
+    'verifying a reset password unlocks an account': function () {
+      var self = this;
+      self.timeout = 90 * 1000;
+      return client.accountLock(email, PASSWORD)
+        .then(function () {
+          return FunctionalHelpers.fillOutResetPassword(self, email)
+            .findById('fxa-confirm-reset-password-header')
+            .end()
+
+            .then(function () {
+              return FunctionalHelpers.openVerificationLinkSameBrowser(
+                          self, email, 0);
+            })
+
+            // Complete the reset password in the new tab
+            .switchToWindow('newwindow')
+
+            .findById('fxa-complete-reset-password-header')
+            .end()
+
+            .then(function () {
+              return FunctionalHelpers.fillOutCompleteResetPassword(self, PASSWORD, PASSWORD);
+            })
+
+            // this tab's success is seeing the reset password complete header.
+            .then(function () {
+              return testAtSettingsWithVerifiedMessage(self);
+            })
+
+            .closeCurrentWindow()
+            // switch to the original window
+            .switchToWindow('')
+
+            .findByCssSelector('#fxa-settings-header')
+            .end()
+
+            .then(FunctionalHelpers.visibleByQSA('.success'))
+            .end()
+
+            .findByCssSelector('#signout')
+              .click()
+            .end()
+
+            .then(function () {
+              return FunctionalHelpers.fillOutSignIn(self, email, PASSWORD);
+            })
+
+            .findByCssSelector('#fxa-settings-header')
+            .end();
         });
     }
   });

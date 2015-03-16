@@ -12,7 +12,9 @@ define([
   'sinon',
   'lib/auth-errors',
   'lib/fxa-client',
+  'lib/metrics',
   'lib/promise',
+  'lib/ephemeral-messages',
   'views/change_password',
   'models/reliers/relier',
   'models/auth_brokers/base',
@@ -20,8 +22,8 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
-      Broker, User, RouterMock, TestHelpers) {
+function (chai, _, $, sinon, AuthErrors, FxaClient, Metrics, p,
+    EphemeralMessages, View, Relier, Broker, User, RouterMock, TestHelpers) {
   var assert = chai.assert;
   var wrapAssertion = TestHelpers.wrapAssertion;
 
@@ -33,6 +35,9 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
     var broker;
     var user;
     var account;
+    var ephemeralMessages;
+    var metrics;
+    var EMAIL = 'testuser@testuser.com';
 
     beforeEach(function () {
       routerMock = new RouterMock();
@@ -44,13 +49,18 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
         broker: broker
       });
       user = new User();
+      ephemeralMessages = new EphemeralMessages();
+      metrics = new Metrics();
 
       view = new View({
         router: routerMock,
         fxaClient: fxaClient,
         relier: relier,
         user: user,
-        broker: broker
+        broker: broker,
+        ephemeralMessages: ephemeralMessages,
+        metrics: metrics,
+        screenName: 'change-password'
       });
     });
 
@@ -182,8 +192,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
           $('#old_password').val('password');
           $('#new_password').val('new_password');
 
-          var email = 'testuser@testuser.com';
-          account.set('email', email);
+          account.set('email', EMAIL);
           var oldPassword = 'password';
           var newPassword = 'new_password';
 
@@ -207,11 +216,11 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
             .then(function () {
               assert.equal(routerMock.page, 'settings');
               assert.isTrue(view.fxaClient.checkPassword.calledWith(
-                  email, oldPassword));
+                  EMAIL, oldPassword));
               assert.isTrue(view.fxaClient.changePassword.calledWith(
-                  email, oldPassword, newPassword));
+                  EMAIL, oldPassword, newPassword));
               assert.isTrue(view.fxaClient.signIn.calledWith(
-                      email, newPassword, relier));
+                      EMAIL, newPassword, relier));
               assert.isTrue(user.setSignedInAccount.calledWith(account));
             });
         });
@@ -220,8 +229,7 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
           $('#old_password').val('password');
           $('#new_password').val('new_password');
 
-          var email = 'testuser@testuser.com';
-          account.set('email', email);
+          account.set('email', EMAIL);
           account.set('sessionTokenContext', 'foo');
 
           sinon.stub(view.fxaClient, 'checkPassword', function () {
@@ -243,12 +251,37 @@ function (chai, _, $, sinon, AuthErrors, FxaClient, p, View, Relier,
           return view.submit()
               .then(function () {
                 assert.isTrue(view.fxaClient.signIn.calledWith(
-                    email, 'new_password', relier,
+                    EMAIL, 'new_password', relier,
                     { sessionTokenContext: 'foo' }));
                 assert.isTrue(user.setSignedInAccount.calledWith(account));
               });
         });
 
+        it('shows error message to locked out users', function () {
+          sinon.stub(view.fxaClient, 'checkPassword', function () {
+            return p();
+          });
+
+          sinon.stub(view.fxaClient, 'changePassword', function () {
+            return p.reject(AuthErrors.toError('ACCOUNT_LOCKED'));
+          });
+
+          account.set('email', EMAIL);
+
+          $('#old_password').val('password');
+          $('#new_password').val('new_password');
+
+          return view.submit()
+            .then(function () {
+              assert.isTrue(view.isErrorVisible());
+              assert.include(view.$('.error').text().toLowerCase(), 'locked');
+
+              var err = view._normalizeError(AuthErrors.toError('ACCOUNT_LOCKED'));
+              assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
+
+              assert.isTrue(account.has('password'));
+            });
+        });
       });
     });
   });

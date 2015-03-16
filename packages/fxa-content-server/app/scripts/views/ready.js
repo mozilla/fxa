@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Handle sign_up_complete and reset_password_complete.
  * Prints a message to the user that says
  * "All ready! You can go visit {{ service }}"
  */
@@ -43,7 +42,8 @@ function (Cocktail, BaseView, Template, Session, Xss, Strings,
         service: this.relier.get('service'),
         serviceName: serviceName,
         signUp: this.is('sign_up'),
-        resetPassword: this.is('reset_password')
+        resetPassword: this.is('reset_password'),
+        accountUnlock: this.is('account_unlock')
       };
     },
 

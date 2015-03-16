@@ -15,6 +15,7 @@ define([
   var pages = [
     'v1/complete_reset_password',
     'v1/verify_email',
+    'v1/complete_unlock_account',
     '',
     'signin',
     'signup',
@@ -53,7 +54,10 @@ define([
     'non_existent',
     'cookies_disabled',
     'clear',
-    'boom'
+    'boom',
+    'confirm_account_unlock',
+    'complete_unlock_account',
+    'account_unlock_complete'
   ];
 
   var suite = {

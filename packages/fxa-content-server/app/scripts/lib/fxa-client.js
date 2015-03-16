@@ -29,6 +29,7 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     this._client = options.client;
     this._signUpResendCount = 0;
     this._passwordResetResendCount = 0;
+    this._accountUnlockResendCount = 0;
 
     if (! this._client && options.authServerUrl) {
       this._client = new FxaClient(options.authServerUrl);
@@ -168,9 +169,8 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
         .then(function (client) {
           if (self._signUpResendCount >= Constants.SIGNUP_RESEND_MAX_TRIES) {
             return p(true);
-          } else {
-            self._signUpResendCount++;
           }
+          self._signUpResendCount++;
 
           var clientOptions = {
             service: relier.get('service'),
@@ -227,9 +227,9 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
         .then(function (client) {
           if (self._passwordResetResendCount >= Constants.PASSWORD_RESET_RESEND_MAX_TRIES) {
             return p(true);
-          } else {
-            self._passwordResetResendCount++;
           }
+          self._passwordResetResendCount++;
+
           // the linters complain if this is defined in the call to
           // passwordForgotResendCode
           var clientOptions = {
@@ -278,6 +278,35 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
         });
     },
 
+    completeAccountUnlock: function (uid, code) {
+      return this._getClient()
+        .then(function (client) {
+          return client.accountUnlockVerifyCode(uid, code);
+        });
+    },
+
+    sendAccountUnlockEmail: function (email, relier) {
+      var self = this;
+      return self._getClient()
+        .then(function (client) {
+          if (self._accountUnlockResendCount >= Constants.ACCOUNT_UNLOCK_RESEND_MAX_TRIES) {
+            return p(true);
+          }
+          self._accountUnlockResendCount++;
+
+          var clientOptions = {};
+          if (relier) {
+            clientOptions = {
+              service: relier.get('service'),
+              redirectTo: relier.get('redirectTo'),
+              resume: self._createResumeToken(relier)
+            };
+          }
+
+          return client.accountUnlockResendCode(email, clientOptions);
+        });
+    },
+
     changePassword: function (originalEmail, oldPassword, newPassword) {
       var email = trim(originalEmail);
       return this._getClient()
@@ -289,9 +318,9 @@ function (_, FxaClient, $, xhr, p, Session, AuthErrors, Constants) {
     deleteAccount: function (originalEmail, password) {
       var email = trim(originalEmail);
       return this._getClient()
-              .then(function (client) {
-                return client.accountDestroy(email, password);
-              });
+        .then(function (client) {
+          return client.accountDestroy(email, password);
+        });
     },
 
     certificateSign: function (pubkey, duration, sessionToken) {
