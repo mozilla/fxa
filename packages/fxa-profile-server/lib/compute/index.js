@@ -13,6 +13,7 @@ const logger = require('../logging')('compute');
 const P  = require('../promise');
 
 const MAX_PROCESSES = config.get('img.compute.maxProcesses');
+const SIZES = require('../img').SIZES;
 
 var imageCc;
 if (MAX_PROCESSES > 0) {
@@ -43,6 +44,19 @@ if (MAX_PROCESSES > 0) {
   };
 }
 
+function enqueue(msg) {
+  return new P(function enqueuePromise(resolve, reject) {
+    imageCc.enqueue(msg, function(err, res) {
+      if (err) {
+        logger.error('process.error', err);
+        reject(AppError.processingError(err));
+      } else {
+        resolve(res);
+      }
+    });
+  });
+}
+
 exports.image = function image(id, payload) {
   return new P(function(resolve, reject) {
     toArray(payload, function(err, arr) {
@@ -50,17 +64,17 @@ exports.image = function image(id, payload) {
         return reject(err);
       }
       var buf = Buffer.concat(arr);
-      imageCc.enqueue({
-        id: id,
-        payload: buf
-      }, function(err, res) {
-        if (err) {
-          logger.error('process.error', err);
-          reject(AppError.processingError(err));
-        } else {
-          resolve(res);
-        }
-      });
+
+      resolve(P.all(Object.keys(SIZES).map(function(variant) {
+        var size = SIZES[variant];
+        return enqueue({
+          id: id,
+          suffix: (variant === 'default') ? '' : variant,
+          height: size.h,
+          width: size.w,
+          payload: buf
+        });
+      })));
     });
   });
 };

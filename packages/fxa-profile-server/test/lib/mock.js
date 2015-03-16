@@ -16,8 +16,8 @@ const inject = require('./inject');
 const WORKER = require('../../lib/server/worker').create();
 
 const IS_AWS = config.get('img.driver') === 'aws';
-//const IS_LOCAL = config.get('img.driver') === 'local';
 
+const SIZES = require('../../lib/img').SIZES;
 
 module.exports = function mock(options) {
   assert(options.userid);
@@ -66,38 +66,42 @@ module.exports = function mock(options) {
 
   function uploadAws() {
     var bucket = config.get('img.uploads.dest.public');
-    var u = '/' + bucket + '/XXX';
-    var id;
-    return nock('https://s3.amazonaws.com')
-      .filteringPath(function filter(_path) {
-        id = _path.replace('/' + bucket + '/', '');
-        return _path.replace(id, 'XXX');
-      })
-      .put(u)
-      .reply(200, function(uri, body) {
-        var s = through();
-        s.setEncoding = function() {};
-        local.upload(id, body).done(function() {
-          s.end();
+    Object.keys(SIZES).forEach(function() {
+      var u = '/' + bucket + '/XXX';
+      var id;
+      nock('https://s3.amazonaws.com')
+        .filteringPath(function filter(_path) {
+          id = _path.replace('/' + bucket + '/', '');
+          return _path.replace(id, 'XXX');
+        })
+        .put(u)
+        .reply(200, function(uri, body) {
+          var s = through();
+          s.setEncoding = function() {};
+          local.upload(id, body).done(function() {
+            s.end();
+          });
+          return s;
         });
-        return s;
-      });
+    });
   }
 
   function deleteAws() {
     var bucket = config.get('img.uploads.dest.public');
     var u = '/' + bucket + '?delete';
-    return nock('https://s3.amazonaws.com')
-      .post(u)
-      .reply(200, function(uri, body) {
-        var id = body.match(/<Key>([0-9a-f]{32})<\/Key>/)[1];
-        var s = through();
-        s.setEncoding = function() {};
-        local.delete(id).done(function() {
-          s.end();
+    Object.keys(SIZES).forEach(function() {
+      nock('https://s3.amazonaws.com')
+        .post(u)
+        .reply(200, function(uri, body) {
+          var id = body.match(/<Key>([0-9a-z-A-Z_\-]+)<\/Key>/)[1];
+          var s = through();
+          s.setEncoding = function() {};
+          local.delete(id).done(function() {
+            s.end();
+          });
+          return s;
         });
-        return s;
-      });
+    });
   }
 
 

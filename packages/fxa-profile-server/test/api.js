@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const assert = require('insist');
+const P = require('../lib/promise');
 
 
 function randomHex(bytes) {
@@ -34,8 +35,17 @@ const db = require('../lib/db');
 const Server = require('./lib/server');
 const Static = require('./lib/static');
 
+const SIZES = require('../lib/img').SIZES;
+
 var imagePath = path.join(__dirname, 'lib', 'firefox.png');
 var imageData = fs.readFileSync(imagePath);
+
+const SIZE_SUFFIXES = Object.keys(SIZES).map(function(val) {
+  if (val === 'default') {
+    return '';
+  }
+  return '_' + val;
+});
 
 const GRAVATAR =
   'http://www.gravatar.com/avatar/00000000000000000000000000000000';
@@ -272,8 +282,15 @@ describe('/avatar', function() {
         assert(res.result.url);
         assert(res.result.id);
         return res.result.url;
-      }).then(Static.get).then(function(res) {
-        assert.equal(res.statusCode, 200);
+      }).then(function(s3url) {
+        return P.all(SIZE_SUFFIXES).map(function(suffix) {
+          return Static.get(s3url + suffix);
+        });
+      }).then(function(responses) {
+        assert.equal(responses.length, SIZE_SUFFIXES.length);
+        responses.forEach(function(res) {
+          assert.equal(res.statusCode, 200);
+        });
       });
     });
 
@@ -398,9 +415,11 @@ describe('/avatar', function() {
           return db.getAvatar(id);
         }).then(function(avatar) {
           assert.equal(avatar, undefined);
-          return Static.get(s3url);
-        }).then(function(res) {
-          assert.equal(res.statusCode, 404);
+          return P.all(SIZE_SUFFIXES).map(function(suffix) {
+            return Static.get(s3url + suffix);
+          }).map(function(res) {
+            assert.equal(res.statusCode, 404, res.raw.req.url);
+          });
         });
       });
 
