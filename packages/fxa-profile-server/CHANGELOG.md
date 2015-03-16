@@ -1,3 +1,20 @@
+<a name="0.33.0"></a>
+## 0.33.0 (2015-03-16)
+
+
+#### Bug Fixes
+
+* **docs:** note "avatar" field in /v1/profile response ([0698d434](mozilla/fxa-profile-server/commit/0698d434ff1bc147d1676ce0b94c0ff832feba39))
+
+
+#### Features
+
+* **avatar:** add support for multiple image sizes ([187b0766](mozilla/fxa-profile-server/commit/187b07664882d5fdb16b4bd374baa5b5d3e2d274), closes [#68](mozilla/fxa-profile-server/issues/68), [#89](mozilla/fxa-profile-server/issues/89))
+* **test:**
+  * in load test, make image deletion optional ([b388fb62](mozilla/fxa-profile-server/commit/b388fb62fa2b9cd05a094871c401daa37d8c0765))
+  * in load test, add delete after download ([4a433260](mozilla/fxa-profile-server/commit/4a433260f63516ee89aaaa31f9f21cb91882f851))
+
+
 <a name="0.31.0"></a>
 ## 0.31.0 (2015-02-17)
 
