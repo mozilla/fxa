@@ -85,6 +85,7 @@
       "cwd": "123done",
       "max_restarts": "1",
       "env": {
+        "CONFIG_123DONE": "./config-local.json",
         "NODE_ENV": "dev"
       }      
     },

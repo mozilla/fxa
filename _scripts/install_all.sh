@@ -30,7 +30,7 @@ cd fxa-oauth-console && npm i && cd ..
 
 cd fxa-profile-server && npm i && mkdir -p var/public/ && cd ..
 
-cd 123done && npm i && node ./scripts/gen_keys.js &&  cp config-local.json config.json && cd ..
+cd 123done && npm i && CONFIG_123DONE=./config-local.json node ./scripts/gen_keys.js && cd ..
 
 cd loop-server && npm i && cd ..
 
