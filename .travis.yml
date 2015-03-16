@@ -18,11 +18,5 @@ before_install:
 script:
   - npm i
   - sleep 30
-  - curl 127.0.0.1:3030
-  - curl 127.0.0.1:9000
-  - curl 127.0.0.1:9001
-  - curl 127.0.0.1:8080
-  - curl 127.0.0.1:1111
-  - curl 127.0.0.1:1112
-  - curl 127.0.0.1:5050
-  - curl 127.0.0.1:10137
+  # content
+  - ./test/curl.sh
