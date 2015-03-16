@@ -1,3 +1,18 @@
+<a name="0.33.0"></a>
+## 0.33.0 (2015-03-16)
+
+
+#### Bug Fixes
+
+* **clients:** fixes client endpoint for clients with no redirect_uri ([6d47110f](http://github.com/mozilla/fxa-oauth-server/commit/6d47110f5a3bbf4eb2e540c7ba09325e16dfec92), closes [#228](http://github.com/mozilla/fxa-oauth-server/issues/228))
+* **travis:** install libgmp3-dev so optionaldep bigint will be built for browserid-crypto ([a64cb183](http://github.com/mozilla/fxa-oauth-server/commit/a64cb183457e713fea092002cbecffd57961bb74))
+
+
+#### Features
+
+* **clients:** move client management api to a separate port ([07a61af2](http://github.com/mozilla/fxa-oauth-server/commit/07a61af2141e7fffc54d08a16acac48073103570))
+
+
 <a name="0.30.3"></a>
 ### 0.30.3 (2015-02-20)
 
