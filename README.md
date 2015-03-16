@@ -27,6 +27,20 @@ Available options:
 * `FXA_ENV=local` or `latest` or `stable` (NOTE: `local` is default).
 * `FIREFOX_BIN=/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin npm start`
 
+### Workflow
+
+This is an example workflow for **fxa-local-dev**. After installing **fxa-local-dev** the servers should automatically start up. In the **fxa-local-dev** directory, use `./pm2 status` command to check the status of the servers: 
+
+![](http://i.imgur.com/eqL8FiZ.png)
+
+To avoid wasting computer resources while not working on FxA make sure to stop the servers using `./pm2 kill`.
+Once you are back working on FxA just use the `./pm2 start servers.json` command to bring the servers backup. Keep in mind that the memory store will restart and all your database data will be brand new.
+
+Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server. When you signup for an account via `localhost:3030/signup` the `auth-server` logs will print out the verification link that you need to copy paste into your browser to verify your account:
+
+![](http://i.imgur.com/oGYXSPl.png)
+
+If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository.  
 
 ### Dependencies
 
