@@ -34,7 +34,7 @@ This is an example workflow for **fxa-local-dev**. After installing **fxa-local-
 ![](http://i.imgur.com/eqL8FiZ.png)
 
 To avoid wasting computer resources while not working on FxA make sure to stop the servers using `./pm2 kill`.
-Once you are back working on FxA just use the `./pm2 start servers.json` command to bring the servers backup. Keep in mind that the memory store will restart and all your database data will be brand new.
+Once you are back working on FxA just use the `./pm2 start servers.json` command to bring the servers back up. Keep in mind that the memory store will restart and all your database data will be brand new.
 
 Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server. When you signup for an account via `localhost:3030/signup` the `auth-server` logs will print out the verification link that you need to copy paste into your browser to verify your account:
 
