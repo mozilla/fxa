@@ -70,7 +70,7 @@ module.exports = function (fs, path, url, convict) {
       },
       badLoginLockoutIntervalSeconds: {
         doc: 'Duration which a failed login attempt should be remembered towards account lockout',
-        default: 60 * 60 * 30, // three hours for now
+        default: 60 * 60 * 3, // three hours for now
         format: 'nat',
         env: 'BAD_LOGIN_LOCKOUT_INTERVAL_SECONDS'
       }
