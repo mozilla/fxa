@@ -1,3 +1,25 @@
+<a name="0.33.0"></a>
+## 0.33.0 (2015-03-16)
+
+
+#### Bug Fixes
+
+* **client:**
+  * Use standard error formats for expired and damaged verification links. ([86384b2f](https://github.com/mozilla/fxa-content-server/commit/86384b2fe95e6cac0d36ca3258884116f689a784))
+  * Opt in to the iframe broker. ([09b9bac2](https://github.com/mozilla/fxa-content-server/commit/09b9bac2a7c8aea37b2a79a67a1008d3132d6f73))
+  * Ensure console errors are displayed in Firefox on catastrophic startup error. ([47a8c299](https://github.com/mozilla/fxa-content-server/commit/47a8c2995cee27f9d1f5bb78383682b0b4708cee))
+* **docs:**
+  * Update docs for the new iframe message format. ([20121dc7](https://github.com/mozilla/fxa-content-server/commit/20121dc793a7d7fe7a375d293d348c561d4447b8))
+  * Correct the documentation of the afterResetPasswordConfirmationPoll function. ([033ad26e](https://github.com/mozilla/fxa-content-server/commit/033ad26e07fc88b9c0ffe662233826d7e787bbab))
+* **tests:** Start the auth-db server for travis. ([8f21f017](https://github.com/mozilla/fxa-content-server/commit/8f21f01701a361b16ea5a6ebd4d63829c4d5cd6d))
+
+
+#### Features
+
+* **channels:** broadcast messages across across all channels ([dfacd358](https://github.com/mozilla/fxa-content-server/commit/dfacd3581558d08a1e803fe0a50dc0e45d64437a), closes [#2095](https://github.com/mozilla/fxa-content-server/issues/2095))
+* **docs:** Document the email suggestion events. ([29b0fadb](https://github.com/mozilla/fxa-content-server/commit/29b0fadb69f641f8df3226280fabb16e96bb2c8e))
+
+
 <a name="0.32.0"></a>
 ## 0.32.0 (2015-03-03)
 
