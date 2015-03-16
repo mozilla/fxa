@@ -13,9 +13,10 @@ var packageJson = require('../package.json')
 var LIFETIME = config.memcache.recordLifetimeSeconds
 var BLOCK_INTERVAL_MS = config.limits.blockIntervalSeconds * 1000
 var RATE_LIMIT_INTERVAL_MS = config.limits.rateLimitIntervalSeconds * 1000
+var BAD_LOGIN_LOCKOUT_INTERVAL_MS = config.limits.badLoginLockoutIntervalSeconds * 1000
 
 var IpEmailRecord = require('../ip_email_record')(RATE_LIMIT_INTERVAL_MS, config.limits.maxBadLogins)
-var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
+var EmailRecord = require('../email_record')(RATE_LIMIT_INTERVAL_MS, BLOCK_INTERVAL_MS, BAD_LOGIN_LOCKOUT_INTERVAL_MS, config.limits.maxEmails, config.limits.badLoginLockout)
 var IpRecord = require('../ip_record')(BLOCK_INTERVAL_MS)
 
 var P = require('bluebird')

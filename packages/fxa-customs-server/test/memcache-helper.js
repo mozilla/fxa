@@ -14,7 +14,8 @@ var config = {
     rateLimitIntervalSeconds: 1,
     maxEmails: 3,
     maxBadLogins: 2,
-    badLoginLockout: 3
+    badLoginLockout: 3,
+    badLoginLockoutIntervalSeconds: 20
   }
 }
 
@@ -35,7 +36,7 @@ module.exports.mc = mc
 var TEST_EMAIL = 'test@example.com'
 var TEST_IP = '192.0.2.1'
 
-var EmailRecord = require('../email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.blockIntervalSeconds * 1000, config.limits.maxEmails, config.limits.badLoginLockout)
+var EmailRecord = require('../email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.blockIntervalSeconds * 1000, config.limits.badLoginLockoutIntervalSeconds * 1000, config.limits.maxEmails, config.limits.badLoginLockout)
 var IpEmailRecord = require('../ip_email_record')(config.limits.rateLimitIntervalSeconds * 1000, config.limits.maxBadLogins)
 var IpRecord = require('../ip_record')(config.limits.blockIntervalSeconds * 1000)
 

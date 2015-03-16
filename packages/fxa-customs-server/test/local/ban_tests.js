@@ -13,7 +13,8 @@ var log = {
 
 var config = {
   limits: {
-    blockIntervalSeconds: 1
+    blockIntervalSeconds: 1,
+    badLoginLockoutIntervalSeconds: 2
   }
 }
 
