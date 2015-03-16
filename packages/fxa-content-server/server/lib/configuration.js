@@ -264,7 +264,7 @@ var conf = module.exports = convict({
     },
     watch: {
       doc: 'poll the experiments git repo for changes',
-      default: true
+      default: false
     }
   }
 });
