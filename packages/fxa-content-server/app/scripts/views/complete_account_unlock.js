@@ -28,7 +28,7 @@ function (FormView, BaseView, CompleteAccountUnlockTemplate, AuthErrors,
         this.importSearchParam('code');
       } catch(e) {
         this._isLinkDamaged = true;
-        this.logScreenEvent('link_damaged');
+        this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         // This is an invalid link. Abort and show an error message
         // before doing any more checks.
         return true;
@@ -43,7 +43,7 @@ function (FormView, BaseView, CompleteAccountUnlockTemplate, AuthErrors,
         // One or more parameters fails validation. Abort and show an
         // error message before doing any more checks.
         this._isLinkDamaged = true;
-        this.logScreenEvent('link_damaged');
+        this.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         return true;
       }
 
@@ -57,12 +57,12 @@ function (FormView, BaseView, CompleteAccountUnlockTemplate, AuthErrors,
         .fail(function (err) {
           if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {
             self._isLinkExpired = true;
-            self.logScreenEvent('link_expired');
+            self.logError(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
           } else if (AuthErrors.is(err, 'INVALID_VERIFICATION_CODE') ||
               AuthErrors.is(err, 'INVALID_PARAMETER')) {
             // These errors show a link damaged screen
             self._isLinkDamaged = true;
-            self.logScreenEvent('link_damaged');
+            self.logError(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
           } else {
             // all other errors show the standard error box.
             self._error = self.translateError(err);

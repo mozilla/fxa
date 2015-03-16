@@ -48,7 +48,7 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
       return view.render()
         .then(function () {
           assert.ok(view.$('#fxa-account-unlock-link-expired-header').length);
-          testEventLogged('complete-account-unlock.link_expired');
+          testErrorLogged(AuthErrors.toError('EXPIRED_VERIFICATION_LINK'));
         });
     }
 
@@ -58,12 +58,13 @@ function (chai, sinon, p, View, AuthErrors, Metrics, Constants, FxaClient,
       return view.render()
         .then(function () {
           assert.ok(view.$('#fxa-account-unlock-link-damaged-header').length);
-          testEventLogged('complete-account-unlock.link_damaged');
+          testErrorLogged(AuthErrors.toError('DAMAGED_VERIFICATION_LINK'));
         });
     }
 
-    function testEventLogged(eventName) {
-      assert.isTrue(TestHelpers.isEventLogged(metrics, eventName));
+    function testErrorLogged(error) {
+      var normalizedError = view._normalizeError(error);
+      assert.isTrue(TestHelpers.isErrorLogged(metrics, normalizedError));
     }
 
     function initView () {

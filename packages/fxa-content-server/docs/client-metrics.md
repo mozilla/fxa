@@ -94,9 +94,9 @@ The event stream is a log of events and the time they occurred while the user is
 * change-password.unlock-email.send.success - unlock email successfully sent
 
 #### complete_account_unlock
-* complete-account-unlock.link_expired - account was removed before link was verified.
-* complete-account-unlock.link_damaged - verification link is damaged
-* complete-account-unlock.verification.success - successful verification
+* error.complete_account_unlock.auth.1025 - User clicked on an expired verification link.
+* error.complete_account_unlock.auth.1026 - User clicked on a damaged verification link.
+* complete_account_unlock.verification.success - successful verification
 
 #### complete_reset_password
 * complete_reset_password.verification.success - email successfully verified.
