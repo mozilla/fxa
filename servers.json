@@ -43,6 +43,15 @@
       },
       "max_restarts": "1"      
     },
+     {
+      "name": "oauth-server-internal PORT 9011",
+      "script": "bin/internal.js",
+      "cwd": "fxa-oauth-server",
+      "env": {
+        "NODE_ENV": "dev"
+      },
+      "max_restarts": "1"      
+    },
     {
       "name": "profile-server PORT 1111",
       "script": "bin/server.js",
