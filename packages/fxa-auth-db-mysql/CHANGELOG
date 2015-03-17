@@ -1,3 +1,11 @@
+train-33
+  * Log account activity events for later publishing to notification service - #20
+  * Fix tests to do more reliable error-message detection - #20
+  * Correctly pass pool name when getting a connection - #23
+  * Use mozlog for logging - #21
+  * Log memory-usage stats emitted by fxa-auth-db-server - #24
+  * Some documentation and packaging tweaks - #17, #18
+
 train-32
   * Add ability to mark an account as "locked" for security reasons - #7
   * Add support for docker-based development workflow - #13
