@@ -5,7 +5,8 @@ var CONFIGS = {
   'local': {
     auth: 'http://127.0.0.1:9000/v1',
     content: 'http://127.0.0.1:3030/',
-    token: 'http://localhost:5000/token/1.0/sync/1.5'
+    token: 'http://localhost:5000/token/1.0/sync/1.5',
+    loop: 'http://localhost:10222'
   },
   'latest': {
     auth: 'https://latest.dev.lcip.org/auth/v1',
@@ -23,6 +24,11 @@ var env = process.env.FXA_ENV || 'local';
 var fxaEnv = CONFIGS[env];
 
 // Configuration for local sync development
+
+// The loop server is either production or local, nothing on stable or latest
+if (fxaEnv.loop) {
+  fxaProfile.setPreference('loop.server', fxaEnv.loop);
+}
 fxaProfile.setPreference('identity.fxaccounts.log.appender.dump', 'Debug');
 fxaProfile.setPreference('identity.fxaccounts.loglevel', 'Debug');
 fxaProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
