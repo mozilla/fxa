@@ -1,3 +1,13 @@
+train-33
+  * Update to hapi 8.2.0 - #886
+  * Enable build on ARM platforms (including Raspberry Pi) - #887
+  * Allow sns notifier to be disabled in config - # 892
+  * Log locked-account uid as a hex string, not a buffer literal - # 894
+  * Add grunt task for tagging a new version - # 895
+
+train-32
+  * Add ability to put an account in "lockout" state after many auth failures - #867
+
 train-32
   * Add ability to put an account in "lockout" state after many auth failures - #867
 
