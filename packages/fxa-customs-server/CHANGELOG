@@ -1,3 +1,10 @@
+0.33.0
+  * Add separate timer and config for badLoginLockoutInterval - #75
+  * Various code-structure and documentation cleanups - #71, #74, #78
+
+0.6.0
+  * Add more logging when handling sqs ban events - #73
+
 0.5.0
   * Block all actions for emails that are explicitly banned - #70
 
