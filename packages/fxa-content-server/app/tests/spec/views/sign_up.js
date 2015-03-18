@@ -13,6 +13,7 @@ define([
   'sinon',
   'lib/promise',
   'views/sign_up',
+  'views/coppa/coppa-date-picker',
   'lib/session',
   'lib/auth-errors',
   'lib/metrics',
@@ -26,41 +27,10 @@ define([
   '../../mocks/router',
   '../../lib/helpers'
 ],
-function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
+function (chai, _, $, moment, sinon, p, View, Coppa, Session, AuthErrors, Metrics,
       FxaClient, EphemeralMessages, mailcheck, Relier, Broker, User, FormPrefill,
       RouterMock, TestHelpers) {
   var assert = chai.assert;
-  var wrapAssertion = TestHelpers.wrapAssertion;
-
-  function fillOutSignUp (email, password, opts) {
-    opts = opts || {};
-    var context = opts.context || window;
-    var year = opts.year || '1990';
-    var month = opts.month || '1';
-    var date = opts.date || '1';
-
-    context.$('[type=email]').val(email);
-    context.$('[type=password]').val(password);
-
-    if (! opts.ignoreYear) {
-      $('#fxa-age-year').val(year);
-      $('#fxa-age-year').change();
-    }
-
-    if (! opts.ignoreMonth) {
-      $('#fxa-age-month').val(month);
-      $('#fxa-age-month').change();
-    }
-
-    if (! opts.ignoreDate) {
-      $('#fxa-age-date').val(date);
-      $('#fxa-age-date').change();
-    }
-
-    if (context.enableSubmitIfValid) {
-      context.enableSubmitIfValid();
-    }
-  }
 
   describe('views/sign_up', function () {
     var view;
@@ -73,9 +43,33 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     var ephemeralMessages;
     var user;
     var formPrefill;
+    var coppa;
 
-    var now = new Date();
-    var CURRENT_YEAR = now.getFullYear();
+    function fillOutSignUp(email, password, isCoppaValid) {
+      view.$('[type=email]').val(email);
+      view.$('[type=password]').val(password);
+
+      sinon.stub(coppa, 'isValid', function () {
+        return isCoppaValid;
+      });
+
+      view.enableSubmitIfValid();
+    }
+
+    function createView() {
+      view = new View({
+        router: router,
+        metrics: metrics,
+        fxaClient: fxaClient,
+        user: user,
+        relier: relier,
+        broker: broker,
+        ephemeralMessages: ephemeralMessages,
+        screenName: 'signup',
+        formPrefill: formPrefill,
+        coppa: coppa
+      });
+    }
 
     beforeEach(function () {
       email = TestHelpers.createEmail();
@@ -89,23 +83,14 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       ephemeralMessages = new EphemeralMessages();
       user = new User();
       formPrefill = new FormPrefill();
+      coppa = new Coppa();
 
-      view = new View({
-        router: router,
-        metrics: metrics,
-        fxaClient: fxaClient,
-        user: user,
-        relier: relier,
-        broker: broker,
-        ephemeralMessages: ephemeralMessages,
-        screenName: 'signup',
-        formPrefill: formPrefill
-      });
+      createView();
 
       return view.render()
-          .then(function () {
-            $('#container').html(view.el);
-          });
+        .then(function () {
+          $('#container').html(view.el);
+        });
     });
 
     afterEach(function () {
@@ -119,18 +104,18 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
     });
 
     describe('render', function () {
-      it('prefills email, password, and year if stored in formPrefill (user comes from signup with existing account)', function () {
+      it('prefills email, password if stored in formPrefill (user comes from signup with existing account)', function () {
         formPrefill.set('email', 'testuser@testuser.com');
         formPrefill.set('password', 'prefilled password');
-        formPrefill.set('year', '1990');
+
+        createView();
 
         return view.render()
-            .then(function () {
-              assert.ok(view.$('#fxa-signup-header').length);
-              assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
-              assert.equal(view.$('[type=password]').val(), 'prefilled password');
-              assert.ok(view.$('#fxa-1990').is(':selected'));
-            });
+          .then(function () {
+            assert.ok(view.$('#fxa-signup-header').length);
+            assert.equal(view.$('[type=email]').val(), 'testuser@testuser.com');
+            assert.equal(view.$('[type=password]').val(), 'prefilled password');
+          });
       });
 
       it('prefills email with email from the relier if formPrefill.email is not set', function () {
@@ -207,30 +192,29 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
 
     describe('isValid', function () {
       it('returns true if email, password, and age are all valid', function () {
-        fillOutSignUp(email, 'password', { context: view });
+        fillOutSignUp(email, 'password', true);
         assert.isTrue(view.isValid());
       });
 
       it('returns false if email is empty', function () {
-        fillOutSignUp('', 'password', { context: view });
+        fillOutSignUp('', 'password', true);
         assert.isFalse(view.isValid());
       });
 
       it('returns false if email is not an email address', function () {
-        fillOutSignUp('testuser', 'password', { context: view });
+        fillOutSignUp('testuser', 'password', true);
         assert.isFalse(view.isValid());
       });
 
       it('returns false if email is the same as the bounced email', function () {
         ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
 
-
         return view.render()
           .then(function () {
             return view.afterVisible();
           })
           .then(function () {
-            fillOutSignUp('testuser@testuser.com', 'password', { context: view });
+            fillOutSignUp('testuser@testuser.com', 'password', true);
           })
           .then(function () {
             assert.isFalse(view.isValid());
@@ -238,22 +222,22 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       });
 
       it('returns true if email contains a one part TLD', function () {
-        fillOutSignUp('a@b', 'password', { context: view });
+        fillOutSignUp('a@b', 'password', true);
         assert.isTrue(view.isValid());
       });
 
       it('returns true if email contains a two part TLD', function () {
-        fillOutSignUp('a@b.c', 'password', { context: view });
+        fillOutSignUp('a@b.c', 'password', true);
         assert.isTrue(view.isValid());
       });
 
       it('returns true if email contain three part TLD', function () {
-        fillOutSignUp('a@b.c.d', 'password', { context: view });
+        fillOutSignUp('a@b.c.d', 'password', true);
         assert.isTrue(view.isValid());
       });
 
       it('returns false if local side of email === 0 chars', function () {
-        fillOutSignUp('@testuser.com', 'password', { context: view });
+        fillOutSignUp('@testuser.com', 'password', true);
         assert.isFalse(view.isValid());
       });
 
@@ -264,7 +248,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         } while (email.length < 65);
 
         email += '@testuser.com';
-        fillOutSignUp(email, 'password', { context: view });
+        fillOutSignUp(email, 'password', true);
         assert.isFalse(view.isValid());
       });
 
@@ -275,12 +259,12 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         } while (email.length < 64);
 
         email += '@testuser.com';
-        fillOutSignUp(email, 'password', { context: view });
+        fillOutSignUp(email, 'password', true);
         assert.isTrue(view.isValid());
       });
 
       it('returns false if domain side of email === 0 chars', function () {
-        fillOutSignUp('testuser@', 'password', { context: view });
+        fillOutSignUp('testuser@', 'password', true);
         assert.isFalse(view.isValid());
       });
 
@@ -290,7 +274,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           domain += 'a';
         } while (domain.length < 256);
 
-        fillOutSignUp('testuser@' + domain, 'password', { context: view });
+        fillOutSignUp('testuser@' + domain, 'password', true);
         assert.isFalse(view.isValid());
       });
 
@@ -300,7 +284,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           domain += 'a';
         } while (domain.length < 254);
 
-        fillOutSignUp('a@' + domain, 'password', { context: view });
+        fillOutSignUp('a@' + domain, 'password', true);
         assert.isTrue(view.isValid());
       });
 
@@ -311,7 +295,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
         } while (domain.length < 254);
 
         // ab@ + 254 characters = 257 chars
-        fillOutSignUp('ab@' + domain, 'password', { context: view });
+        fillOutSignUp('ab@' + domain, 'password', true);
         assert.isFalse(view.isValid());
       });
 
@@ -321,132 +305,89 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           email += 'a';
         } while (email.length < 256);
 
-        fillOutSignUp(email, 'password', { context: view });
+        fillOutSignUp(email, 'password', true);
         assert.isTrue(view.isValid());
       });
 
       it('returns false if password is empty', function () {
-        fillOutSignUp(email, '', { context: view });
+        fillOutSignUp(email, '', true);
         assert.isFalse(view.isValid());
       });
 
       it('returns false if password is invalid', function () {
-        fillOutSignUp(email, 'passwor');
+        fillOutSignUp(email, 'passwor', true);
         assert.isFalse(view.isValid());
       });
 
-      it('returns false if no year selected', function () {
-        fillOutSignUp(email, 'password', { ignoreYear: true });
-        assert.isFalse(view.isValid());
-      });
-
-      it('returns false if no month selected and the full DOB should be checked', function () {
-        fillOutSignUp(email, 'password', {
-          year: moment().subtract(13, 'years').year(),
-          ignoreMonth: true
-        });
-        assert.isFalse(view.isValid());
-      });
-
-      it('returns false if no date selected and the full DOB should be checked', function () {
-        fillOutSignUp(email, 'password', {
-          year: moment().subtract(13, 'years').year(),
-          month: moment().subtract(13, 'years').month(),
-          ignoreDate: true
-        });
+      it('returns false if COPPA view returns false', function () {
+        fillOutSignUp(email, 'password', false);
         assert.isFalse(view.isValid());
       });
     });
 
     describe('showValidationErrors', function () {
-      it('shows an error if the email is invalid', function (done) {
-        fillOutSignUp('testuser', 'password', { context: view });
+      it('shows an error if the email is invalid', function () {
+        fillOutSignUp('testuser', 'password', true);
 
-        view.on('validation_error', function (which, msg) {
-          wrapAssertion(function () {
-            assert.ok(msg);
-          }, done);
-        });
+        sinon.spy(view, 'showValidationError');
 
         view.showValidationErrors();
+
+        assert.isTrue(view.showValidationError.called);
       });
 
-      it('shows an error if the email is the same as the bounced email', function (done) {
+      it('shows an error if the email is the same as the bounced email', function () {
         ephemeralMessages.set('bouncedEmail', 'testuser@testuser.com');
 
-        view.render()
+        return view.render()
           .then(function () {
-            view.on('validation_error', function (which) {
-              wrapAssertion(function () {
-                assert.equal(which, 'input[type=email]');
-              }, done);
-            });
+            fillOutSignUp('testuser@testuser.com', 'password', true);
 
-            fillOutSignUp('testuser@testuser.com', 'password', { context: view });
-
+            sinon.spy(view, 'showValidationError');
             view.showValidationErrors();
+            assert.isTrue(
+              view.showValidationError.calledWith('input[type=email]'));
           });
 
       });
 
-      it('shows an error if the user provides a @firefox.com email', function (done) {
-        var ageToCheck = moment().subtract(14, 'years');
-        var password = 'password';
-        fillOutSignUp('user@firefox.com', password, {
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date(),
-          contex: view
-        });
+      it('shows an error if the user provides a @firefox.com email', function () {
+        fillOutSignUp('user@firefox.com', 'password', true);
 
-        view.on('validation_error', function (which, msg) {
-          var err = AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN');
-          err.context = 'signup';
-
-          wrapAssertion(function () {
-            assert.equal(msg, err.message);
-            assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
-          }, done);
-        });
-
+        sinon.spy(view, 'showValidationError');
         view.showValidationErrors();
+
+        assert.isTrue(view.showValidationError.called);
+
+        var err = AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN');
+        err.context = 'signup';
+        assert.isTrue(TestHelpers.isErrorLogged(metrics, err));
       });
 
-      it('shows an error if the password is invalid', function (done) {
-        fillOutSignUp('testuser@testuser.com', 'passwor', { context: view });
+      it('shows an error if the password is invalid', function () {
+        fillOutSignUp('testuser@testuser.com', 'passwor', true);
 
-        view.on('validation_error', function (which, msg) {
-          wrapAssertion(function () {
-            assert.ok(msg);
-          }, done);
-        });
+        sinon.spy(view, 'showValidationError');
 
         view.showValidationErrors();
+        assert.isTrue(view.showValidationError.called);
       });
 
-      it('shows an error if no year is selected', function (done) {
-        fillOutSignUp('testuser@testuser.com', 'password', { ignoreYear: true, context: view });
+      it('calls coppa\'s showValidationErrors if no other errors', function () {
+        fillOutSignUp('testuser@testuser.com', 'password', true);
 
-        view.on('validation_error', function (which, msg) {
-          wrapAssertion(function () {
-            assert.ok(msg);
-          }, done);
-        });
-
+        sinon.spy(coppa, 'showValidationError');
         view.showValidationErrors();
+
+        assert.isTrue(coppa.showValidationError.called);
       });
     });
 
     describe('submit', function () {
-      it('sends the user to `/confirm` if form filled out, not pre-verified, >= 14 years ago', function () {
-        var ageToCheck = moment().subtract(14, 'years');
+      it('sends the user to `/confirm` if form filled out, not pre-verified, passes COPPA', function () {
         var password = 'password';
-        fillOutSignUp(email, password, {
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date(),
-          context: view
-        });
+
+        fillOutSignUp(email, password, true);
 
         sinon.stub(view.fxaClient, 'signUp', function () {
           return p({
@@ -455,14 +396,16 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
         });
 
-        sinon.stub(view, 'navigate', function (page, params) {
-          assert.equal(page, 'confirm');
-          assert.isTrue(params.data.account.get('customizeSync'));
+        sinon.spy(view, 'navigate');
+
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return true;
         });
 
         return view.submit()
           .then(function () {
-            assert.isTrue(view.navigate.called);
+            assert.equal(view.navigate.args[0][0], 'confirm');
+            assert.isTrue(view.navigate.args[0][1].data.account.get('customizeSync'));
             assert.isTrue(view.fxaClient.signUp.calledWith(
                 email, password, relier));
             assert.isTrue(TestHelpers.isEventLogged(metrics,
@@ -470,16 +413,10 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
       });
 
-      it('notifies the broker if form filled out, pre-verified, >= 14 years ago', function () {
+      it('notifies the broker if form filled out, pre-verified, passes COPPA', function () {
         relier.set('preVerifyToken', 'preverifytoken');
-        var ageToCheck = moment().subtract(14, 'years');
         var password = 'password';
-        fillOutSignUp(email, password, {
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date(),
-          contex: view
-        });
+        fillOutSignUp(email, password, true);
 
         sinon.stub(view.fxaClient, 'signUp', function () {
           return p({
@@ -493,38 +430,22 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           return p();
         });
 
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return true;
+        });
+
         return view.submit()
             .then(function () {
               assert.isTrue(broker.afterSignIn.called);
             });
       });
 
-      it('submits form if user presses enter on the year', function (done) {
-        var ageToCheck = moment().subtract(14, 'years');
-        fillOutSignUp(email, 'password', {
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date(),
-          context: view
-        });
+      it('sends the user to /cannot_create_account if user does not pass COPPA', function () {
 
-        sinon.stub(view, 'submit', function () {
-          done();
-        });
+        fillOutSignUp(email, 'password', true);
 
-        // submit using the enter key
-        var e = jQuery.Event('keydown', { which: 13 });
-        $('#fxa-age-year').trigger(e);
-      });
-
-      it('sends the user to cannot_create_account screen if user selects < 13 years ago', function () {
-
-        var ageToCheck = moment().subtract(12, 'years');
-        fillOutSignUp(email, 'password', {
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date(),
-          context: view
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return false;
         });
 
         return view.submit()
@@ -534,19 +455,17 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       });
 
       it('sends user to cannot_create_account when visiting sign up if they have already been sent there', function () {
-        var ageToCheck = moment().subtract(12, 'years');
-        fillOutSignUp(email, 'password', {
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date(),
-          context: view
-        });
+        fillOutSignUp(email, 'password', true);
 
         var revisitRouter = new RouterMock();
         var revisitView = new View({
           router: revisitRouter,
           relier: relier,
           fxaClient: fxaClient
+        });
+
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return false;
         });
 
         return view.submit()
@@ -566,7 +485,11 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           return p.reject(AuthErrors.toError('ACCOUNT_ALREADY_EXISTS'));
         });
 
-        fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });
+        fillOutSignUp(email, 'incorrect', true);
+
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return true;
+        });
 
         return view.submit()
           .then(function (msg) {
@@ -576,6 +499,7 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       });
 
       it('re-signs up unverified user with new password', function () {
+
         sinon.stub(view.fxaClient, 'signUp', function () {
           return p({});
         });
@@ -586,7 +510,11 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           });
         });
 
-        fillOutSignUp(email, 'incorrect', { year: CURRENT_YEAR - 14, context: view });
+        fillOutSignUp(email, 'incorrect', true);
+
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return true;
+        });
 
         return view.submit()
             .then(function () {
@@ -599,7 +527,11 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           return p.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
         });
 
-        fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
+        fillOutSignUp(email, 'password', true);
+
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return true;
+        });
 
         return view.submit()
           .then(function () {
@@ -616,7 +548,11 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
           return p.reject(AuthErrors.toError('SERVER_BUSY'));
         });
 
-        fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
+        fillOutSignUp(email, 'password', true);
+
+        sinon.stub(coppa, 'isUserOldEnough', function () {
+          return true;
+        });
 
         return view.submit()
           .then(null, function (err) {
@@ -648,7 +584,12 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
 
           return view.render()
             .then(function () {
-              fillOutSignUp(email, 'password', { year: CURRENT_YEAR - 14, context: view });
+              fillOutSignUp(email, 'password', true);
+
+              sinon.stub(coppa, 'isUserOldEnough', function () {
+                return true;
+              });
+
               return view.submit();
             });
         }
@@ -691,91 +632,15 @@ function (chai, _, $, moment, sinon, p, View, Session, AuthErrors, Metrics,
       });
     });
 
-    describe('_isUserOldEnough', function () {
-      it('returns true if user is 14 year old', function () {
-        var ageToCheck = moment().subtract(14, 'years');
-        assert.isTrue(view._isUserOldEnough({
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date()
-        }));
-      });
-
-      it('returns true if user is 13 years + 1 days old', function () {
-        var ageToCheck = moment().subtract(13, 'years').subtract(1, 'days');
-        assert.isTrue(view._isUserOldEnough({
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date()
-        }));
-      });
-
-      it('returns true if user is 13 years and 29 days old', function () {
-        var ageToCheck = moment().subtract(13, 'years').subtract(29, 'days');
-        assert.isTrue(view._isUserOldEnough({
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date()
-        }));
-      });
-
-      it('returns true if user is 13 years and 1 month old', function () {
-        var ageToCheck = moment().subtract(13, 'years').subtract(1, 'months');
-        assert.isTrue(view._isUserOldEnough({
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date()
-        }));
-      });
-
-      it('returns true if user is 13 years old today - HOORAY!', function () {
-        var ageToCheck = moment().subtract(13, 'years');
-        assert.isTrue(view._isUserOldEnough({
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date()
-        }));
-      });
-
-      it ('returns false if user is 13 years - 1 day old - wait until tomorrow', function () {
-        var ageToCheck = moment().subtract(13, 'years').add(1, 'days');
-        assert.isFalse(view._isUserOldEnough({
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date()
-        }));
-      });
-
-      it('returns false if user is 13 years - 1 month old - wait another month', function () {
-        var ageToCheck = moment().subtract(13, 'years').add(1, 'months');
-        assert.isFalse(view._isUserOldEnough({
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date()
-        }));
-      });
-
-      it('returns false if user is 12 years old - wait another year', function () {
-        var ageToCheck = moment().subtract(12, 'years');
-        assert.isFalse(view._isUserOldEnough({
-          year: ageToCheck.year(),
-          month: ageToCheck.month(),
-          date: ageToCheck.date()
-        }));
-      });
-    });
-
-    describe('beforeDestroy', function () {
+    describe('destroy', function () {
       it('saves the form info to formPrefill', function () {
         view.$('.email').val('testuser@testuser.com');
         view.$('.password').val('password');
-        view.$('#fxa-age-year').val('1990');
 
-        view.beforeDestroy();
+        view.destroy();
 
         assert.equal(formPrefill.get('email'), 'testuser@testuser.com');
         assert.equal(formPrefill.get('password'), 'password');
-        assert.equal(formPrefill.get('year'), '1990');
       });
     });
 
