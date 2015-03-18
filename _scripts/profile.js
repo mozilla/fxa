@@ -1,5 +1,12 @@
+var path = require('path');
+
 var FirefoxProfile = require('firefox-profile');
+
 var fxaProfile = new FirefoxProfile();
+
+var LOG_DIR = path.join(__dirname, '..');
+var BROWSER_LOG = path.join(LOG_DIR, 'log-browser.log');
+var DRIVER_LOG = path.join(LOG_DIR, 'log-driver.log');
 
 var CONFIGS = {
   'local': {
@@ -29,6 +36,12 @@ var fxaEnv = CONFIGS[env];
 if (fxaEnv.loop) {
   fxaProfile.setPreference('loop.server', fxaEnv.loop);
 }
+
+
+
+fxaProfile.setPreference('webdriver.log.browser.file', BROWSER_LOG);
+fxaProfile.setPreference('webdriver.log.driver.file', DRIVER_LOG);
+
 fxaProfile.setPreference('identity.fxaccounts.log.appender.dump', 'Debug');
 fxaProfile.setPreference('identity.fxaccounts.loglevel', 'Debug');
 fxaProfile.setPreference('services.sync.log.appender.file.logOnSuccess', true);
