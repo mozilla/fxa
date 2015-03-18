@@ -14,9 +14,11 @@
   "author": "",
   "license": "MPL",
   "dependencies": {
+    "chalk": "1.0.0",
     "firefox-profile": "0.3.6",
     "pm2": "0.12.7",
     "selenium-standalone": "4.2.0",
+    "tail": "0.4.0",
     "webdriverio": "2.4.5"
   }
 }
