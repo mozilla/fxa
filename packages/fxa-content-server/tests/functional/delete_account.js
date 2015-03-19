@@ -40,6 +40,9 @@ define([
   function initiateLockedAccountDeleteAccount(context) {
     return FunctionalHelpers.fillOutSignIn(context, email, PASSWORD)
 
+      .findByCssSelector('#fxa-settings-header')
+      .end()
+
       .get(require.toUrl(PAGE_URL))
 
       .findByCssSelector('#fxa-delete-account-header')

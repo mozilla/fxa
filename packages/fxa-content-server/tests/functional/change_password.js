@@ -94,7 +94,9 @@ define([
           return clearBrowserStorage.call(self);
         })
         .then(function () {
-          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD);
+          return FunctionalHelpers.fillOutSignIn(self, email, FIRST_PASSWORD)
+            .findByCssSelector('#fxa-settings-header')
+            .end();
         });
     },
 
