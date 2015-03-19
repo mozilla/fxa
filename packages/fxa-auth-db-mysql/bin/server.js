@@ -7,6 +7,7 @@ var dbServer = require('fxa-auth-db-server')
 var error = dbServer.errors
 var logger = require('../logging')('bin.server')
 var DB = require('../db/mysql')(logger, error)
+var notifier = require('../notifier.js')(logger, config)
 
 function shutdown() {
   process.nextTick(process.exit)
@@ -19,6 +20,7 @@ if (process.env.ASS_CODE_COVERAGE) {
 
 DB.connect(config)
   .done(function (db) {
+    // Serve the HTTP API.
     var server = dbServer.createServer(db)
     server.listen(config.port, config.hostname, function() {
       logger.info('start', { port : config.port })
@@ -40,4 +42,23 @@ DB.connect(config)
     server.on('mem', function (stats) {
       logger.info('mem', stats)
     })
+    // Publish notifications via simple background loop.
+    if (config.notifications.publishUrl) {
+      var publish = function () {
+        // Randomize sleep time to de-synchronize between webheads.
+        var sleepTime = config.notifications.pollIntervalSeconds * 1000
+        sleepTime = sleepTime / 2 + Math.floor(Math.random() * sleepTime)
+        db.processUnpublishedEvents(function (events) {
+          if (events.length > 0) {
+            // If there were events, loop again immediately.
+            // We only go to sleep there was nothing to publish.
+            sleepTime = 0
+            return notifier.publish(events)
+          }
+        }).finally(function () {
+          setTimeout(publish, sleepTime).unref()
+        })
+      }
+      publish()
+    }
   })

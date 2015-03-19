@@ -22,9 +22,10 @@
     "clone": "0.2.0",
     "convict": "0.4.2",
     "fxa-auth-db-server": "git://github.com/mozilla/fxa-auth-db-server.git#train-33",
+    "fxa-jwtool": "0.3.0",
     "mozlog": "2.0.0",
     "mysql": "2.3.2",
-    "request": "2.36.0"
+    "request": "2.53.0"
   },
   "devDependencies": {
     "ass": "git://github.com/jrgm/ass.git#5be99ee",
@@ -34,6 +35,7 @@
     "grunt-nsp-shrinkwrap": "0.0.3",
     "load-grunt-tasks": "0.6.0",
     "mysql-patcher": "0.5.1",
+    "nock": "1.2.0",
     "restify": "2.8.1",
     "tap": "0.4.13",
     "uuid": "1.4.1"
