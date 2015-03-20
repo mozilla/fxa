@@ -14,10 +14,8 @@ var log = require('../../logging')('test.local.log-stats')
 
 // monkeypatch log.info to hook into db/mysql.js:statInterval
 var dfd = P.defer()
-var consumeFirstN = 1
 log.info = function(msg, stats) {
-  if ( consumeFirstN ) {
-    consumeFirstN--
+  if (msg !== 'stats') {
     return
   }
   dfd.resolve(stats)
