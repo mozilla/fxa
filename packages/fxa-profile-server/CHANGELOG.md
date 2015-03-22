@@ -4,15 +4,15 @@
 
 #### Bug Fixes
 
-* **docs:** note "avatar" field in /v1/profile response ([0698d434](mozilla/fxa-profile-server/commit/0698d434ff1bc147d1676ce0b94c0ff832feba39))
+* **docs:** note "avatar" field in /v1/profile response ([0698d434](https://github.com/mozilla/fxa-profile-server/commit/0698d434ff1bc147d1676ce0b94c0ff832feba39))
 
 
 #### Features
 
-* **avatar:** add support for multiple image sizes ([187b0766](mozilla/fxa-profile-server/commit/187b07664882d5fdb16b4bd374baa5b5d3e2d274), closes [#68](mozilla/fxa-profile-server/issues/68), [#89](mozilla/fxa-profile-server/issues/89))
+* **avatar:** add support for multiple image sizes ([187b0766](https://github.com/mozilla/fxa-profile-server/commit/187b07664882d5fdb16b4bd374baa5b5d3e2d274), closes [#68](https://github.com/mozilla/fxa-profile-server/issues/68), [#89](https://github.com/mozilla/fxa-profile-server/issues/89))
 * **test:**
-  * in load test, make image deletion optional ([b388fb62](mozilla/fxa-profile-server/commit/b388fb62fa2b9cd05a094871c401daa37d8c0765))
-  * in load test, add delete after download ([4a433260](mozilla/fxa-profile-server/commit/4a433260f63516ee89aaaa31f9f21cb91882f851))
+  * in load test, make image deletion optional ([b388fb62](https://github.com/mozilla/fxa-profile-server/commit/b388fb62fa2b9cd05a094871c401daa37d8c0765))
+  * in load test, add delete after download ([4a433260](https://github.com/mozilla/fxa-profile-server/commit/4a433260f63516ee89aaaa31f9f21cb91882f851))
 
 
 <a name="0.31.0"></a>
@@ -21,8 +21,8 @@
 
 #### Features
 
-* **docker:** Dockerfile and README update for basic docker development workflow ([d424fb66](mozilla/fxa-profile-server/commit/d424fb6664f08bb783db4ecdf76bb805113b4485))
-* **images:** delete images from s3 when asked to ([ec25152b](mozilla/fxa-profile-server/commit/ec25152b434b4b75939a5184b38210e326dea438))
+* **docker:** Dockerfile and README update for basic docker development workflow ([d424fb66](https://github.com/mozilla/fxa-profile-server/commit/d424fb6664f08bb783db4ecdf76bb805113b4485))
+* **images:** delete images from s3 when asked to ([ec25152b](https://github.com/mozilla/fxa-profile-server/commit/ec25152b434b4b75939a5184b38210e326dea438))
 
 
 <a name="0.26.1"></a>
@@ -32,18 +32,18 @@
 #### Bug Fixes
 
 * **avatars:**
-  * properly detect and report image upload errors ([902d0e68](mozilla/fxa-profile-server/commit/902d0e68cac6292acfeb8ed61f5708616a785532), closes [#79](mozilla/fxa-profile-server/issues/79))
-  * return the profile image id after a post or upload ([85ffefc9](mozilla/fxa-profile-server/commit/85ffefc9d027b08fa923f2d23ff06a7e1153e31b))
-* **config:** use ip addresses instead of localhost ([58defb67](mozilla/fxa-profile-server/commit/58defb67d921bce98001285b153ab7178d51245c))
+  * properly detect and report image upload errors ([902d0e68](https://github.com/mozilla/fxa-profile-server/commit/902d0e68cac6292acfeb8ed61f5708616a785532), closes [#79](https://github.com/mozilla/fxa-profile-server/issues/79))
+  * return the profile image id after a post or upload ([85ffefc9](https://github.com/mozilla/fxa-profile-server/commit/85ffefc9d027b08fa923f2d23ff06a7e1153e31b))
+* **config:** use ip addresses instead of localhost ([58defb67](https://github.com/mozilla/fxa-profile-server/commit/58defb67d921bce98001285b153ab7178d51245c))
 * **logging:**
-  * remove spaces from logging op name ([41fad890](mozilla/fxa-profile-server/commit/41fad890dbbb779d0f7b871067a9f6bd5d56cd5c))
-  * remove spaces from logging op name in the worker ([290c9ed7](mozilla/fxa-profile-server/commit/290c9ed785dc14ed27936c217132582545c73af0), closes [#77](mozilla/fxa-profile-server/issues/77))
+  * remove spaces from logging op name ([41fad890](https://github.com/mozilla/fxa-profile-server/commit/41fad890dbbb779d0f7b871067a9f6bd5d56cd5c))
+  * remove spaces from logging op name in the worker ([290c9ed7](https://github.com/mozilla/fxa-profile-server/commit/290c9ed785dc14ed27936c217132582545c73af0), closes [#77](https://github.com/mozilla/fxa-profile-server/issues/77))
 
 
 #### Features
 
-* **logging:** use mozlog with heka format ([b27b48bf](mozilla/fxa-profile-server/commit/b27b48bf6116c86353f1523be91d6964a7fb48fd), closes [#71](mozilla/fxa-profile-server/issues/71))
-* **server:** enable HSTS maxAge six months ([248e2e48](mozilla/fxa-profile-server/commit/248e2e48f86eaa9e053d26b599f0db2752be7e6c))
+* **logging:** use mozlog with heka format ([b27b48bf](https://github.com/mozilla/fxa-profile-server/commit/b27b48bf6116c86353f1523be91d6964a7fb48fd), closes [#71](https://github.com/mozilla/fxa-profile-server/issues/71))
+* **server:** enable HSTS maxAge six months ([248e2e48](https://github.com/mozilla/fxa-profile-server/commit/248e2e48f86eaa9e053d26b599f0db2752be7e6c))
 
 
 #### Breaking Changes
@@ -51,7 +51,7 @@
 * Both the config and the output for logging has changed.
     Config can be removed, as the defaults are what should be used in
     production.
- ([b27b48bf](mozilla/fxa-profile-server/commit/b27b48bf6116c86353f1523be91d6964a7fb48fd))
+ ([b27b48bf](https://github.com/mozilla/fxa-profile-server/commit/b27b48bf6116c86353f1523be91d6964a7fb48fd))
 
 
 <a name="0.26.0"></a>
@@ -60,7 +60,7 @@
 
 #### Features
 
-* **logging:** use mozlog with heka format ([b27b48bf](mozilla/fxa-profile-server/commit/b27b48bf6116c86353f1523be91d6964a7fb48fd), closes [#71](mozilla/fxa-profile-server/issues/71))
+* **logging:** use mozlog with heka format ([b27b48bf](https://github.com/mozilla/fxa-profile-server/commit/b27b48bf6116c86353f1523be91d6964a7fb48fd), closes [#71](https://github.com/mozilla/fxa-profile-server/issues/71))
 
 
 #### Breaking Changes
@@ -68,7 +68,7 @@
 * Both the config and the output for logging has changed.
     Config can be removed, as the defaults are what should be used in
     production.
- ([b27b48bf](mozilla/fxa-profile-server/commit/b27b48bf6116c86353f1523be91d6964a7fb48fd))
+ ([b27b48bf](https://github.com/mozilla/fxa-profile-server/commit/b27b48bf6116c86353f1523be91d6964a7fb48fd))
 
 
 <a name="0.24.0"></a>
@@ -77,5 +77,4 @@
 
 #### Features
 
-* **server:** enable HSTS maxAge six months ([248e2e48](mozilla/fxa-profile-server/commit/248e2e48f86eaa9e053d26b599f0db2752be7e6c))
-
+* **server:** enable HSTS maxAge six months ([248e2e48](https://github.com/mozilla/fxa-profile-server/commit/248e2e48f86eaa9e053d26b599f0db2752be7e6c))
