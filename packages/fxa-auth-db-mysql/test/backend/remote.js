@@ -5,7 +5,8 @@ require('ass')
 var dbServer = require('fxa-auth-db-server')
 var backendTests = require('fxa-auth-db-server/test/backend')
 var config = require('../../config')
-var log = { trace: console.log, error: console.log, stat: console.log, info: console.log }
+var noop = function () {}
+var log = { trace: noop, error: noop, stat: noop, info: noop }
 var DB = require('../../db/mysql')(log, dbServer.errors)
 var P = require('bluebird')
 
@@ -28,8 +29,6 @@ DB.connect(config)
     server.listen(config.port, config.hostname, function() {
       d.resolve()
     })
-    server.on('failure', function (d) { console.error(d.err.code, d.url)})
-    server.on('success', function (d) { console.log(d.method, d.url)})
     return d.promise
   })
   .then(function() {

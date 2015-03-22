@@ -145,6 +145,40 @@ module.exports = function (fs, path, url, convict) {
         env: 'MYSQL_SLAVE_QUEUE_LIMIT',
       },
     },
+    notifications: {
+      publishUrl: {
+        doc: 'Url at which to publish account lifecycle events (empty to disable publishing).',
+        default: '',
+        env: 'NOTIFICATIONS_PUBLISH_URL'
+      },
+      pollIntervalSeconds: {
+        doc: 'Interval to sleep between polling for unpublished events, in seconds',
+        default: 10,
+        env: 'NOTIFICATIONS_POLL_INTERVAL'
+      },
+      jwt: {
+        secretKeyFile: {
+          doc: 'Secret key to use for signing JWTs, a PEM-encoded file.',
+          default: './test/local/test-secret.pem',
+          env: 'NOTIFICATIONS_JWT_SECRET_KEY_FILE'
+        },
+        iss: {
+          doc: 'Issuer field to use for JWTs.',
+          default: 'localhost',
+          env: 'NOTIFICATIONS_JWT_ISS'
+        },
+        kid: {
+          doc: 'Key-ID field to use for JWTs.',
+          default: 'test',
+          env: 'NOTIFICATIONS_JWT_KID'
+        },
+        jku: {
+          doc: 'JWK url field to use for JWTs.',
+          default: 'localhost',
+          env: 'NOTIFICATIONS_JWT_JKU'
+        }
+      }
+    }
   })
 
   // handle configuration files. you can specify a CSV list of configuration
