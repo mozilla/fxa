@@ -47,7 +47,10 @@
     "through": "^2.3.4",
     "time-grunt": "^1.0.0"
   },
-  "repository": "mozilla/fxa-profile-server",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa-profile-server.git"
+  },
   "bugs": "https://github.com/mozilla/fxa-profile-server/issues",
   "homepage": "https://github.com/mozilla/fxa-profile-server",
   "author": "Sean McArthur <sean.monstar@gmail.com>",
