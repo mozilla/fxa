@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var fs = require('fs')
 var path = require('path')
 var url = require('url')
 var request = require('request')
@@ -11,13 +10,8 @@ var JWK = require('fxa-jwtool').JWK
 
 module.exports = function (log, config) {
 
-  var secretPem = fs.readFileSync(
+  var secretKey = JWK.fromFile(
     path.resolve(__dirname, config.notifications.jwt.secretKeyFile),
-    'utf8'
-  )
-
-  var secretKey = JWK.fromPEM(
-    secretPem,
     {
       alg: 'RS256',
       kid: config.notifications.jwt.kid,
