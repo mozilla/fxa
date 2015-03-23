@@ -1,13 +1,14 @@
 .cropper {
+
   .wrapper {
+    background-color: $cropper-background-color;
     height: $avatar-size;
     margin: 0 -40px;
     overflow: hidden;
     position: relative;
     width: $avatar-size + 180px;
-    background-color: $cropper-background-color;
 
-    & img {
+    img {
       position: absolute;
     }
   }

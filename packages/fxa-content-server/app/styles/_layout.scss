@@ -1,0 +1,57 @@
+// Apply styles to div injected by backbone, rather than to the stage itself.
+#main-content {
+  
+  background: $content-background-color;
+  text-align: center;
+
+
+  @include respond-to('big') {
+    border-radius: $big-border-radius;
+    box-shadow: 0 1px 5px $input-row-border-color;
+    margin: -15px auto 0 auto;
+    min-height: 420px;
+    padding: 50px 40px 40px 40px;
+
+    &.card {
+      width: 420px;
+    }
+
+    &.panel {
+      max-width: 750px;
+      width: 96%;
+    }
+  }
+
+  @include respond-to('small') {
+    border: 1px solid $marketing-border-color;
+    border-bottom: 2px solid $marketing-border-color;
+    border-radius: $small-border-radius;
+    margin: -28px auto 0 auto;
+    max-width: 360px;
+    min-height: 300px !important;
+    min-width: 300px;
+    padding: 45px 20px 20px 20px;
+    position: relative;
+    width: 94%;
+  }
+
+  @include respond-to('trustedUI') {
+    background: none;
+    border: none;
+    margin: 10px auto 0 auto;
+    min-width: 250px;
+    padding: 0;
+    top: 0;
+    width: 250px;
+  }
+}
+
+#stage {
+  .js & {
+    display: none;
+  }
+
+  .lt-ie10 & {
+    display: block;
+  }
+}

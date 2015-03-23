@@ -1,0 +1,149 @@
+// Border box all the things by default
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+
+  @include respond-to('reasonableUI') {
+    background-color: $html-background-color;
+  }
+
+  @include respond-to('trustedUI') {
+    background-color: $content-background-color;
+  }
+}
+
+body {
+  @include font();
+  color: $text-color;
+  font-size: $base-font;
+
+  @include respond-to('reasonableUI') {
+    padding-bottom: 20px;
+  }
+
+  @include respond-to('trustedUI') {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+noscript {
+  color: $error-text-color;
+  display: block;
+  margin: 160px 0 0 0;
+}
+
+a {
+  color: $link-color;
+  cursor: pointer; // Use the correct cursor for anchors without an href
+
+  &:active {
+    outline: none;
+  }
+
+  &:focus {
+    outline: 1px dotted $link-color;
+  }
+}
+
+header {
+  h1,
+  h2,
+  h3 {
+    @include header-font();
+    line-height: 1em;
+    margin: 0;
+  }
+
+  h1 {
+    font-weight: 200;
+
+    @include respond-to('big') {
+      font-size: $large-font;
+      margin: 0 0 24px 0;
+    }
+
+    @include respond-to('small') {
+      font-size: $medium-font + $media-adjustment;
+      margin: 0 0 20px 0;
+    }
+
+    @include respond-to('trustedUI') {
+      font-size: $medium-font;
+      margin: 0 0 10px 0;
+    }
+
+    .service {
+      display: block;
+
+      @include respond-to('reasonableUI') {
+        font-size: $medium-font;
+        margin-top: 10px;
+      }
+      
+      @include respond-to('trustedUI') {
+        font-size: $base-font;
+        margin-top: 4px;
+      }
+
+    }
+  }
+
+  h2 {
+    font-size: $large-font;
+  }
+}
+
+button,
+input {
+  @include font();
+}
+
+section p {
+
+  @include respond-to('big') {
+    font-size: $medium-font;
+  }
+
+  @include respond-to('small') {
+    font-size: $base-font;
+  }
+
+
+  &.prefill {
+    word-wrap: break-word;
+    
+    @include respond-to('reasonableUI') {
+      margin-top: 24px;
+    }
+
+    @include respond-to('trustedUI') {
+      margin-top: 10px;
+    }
+  }
+}
+
+::-webkit-input-placeholder,
+:-moz-placeholder,
+::-moz-placeholder,
+:-ms-input-placeholder {
+  color: $input-placeholder-color !important;
+  opacity: 1;
+}
+
+.email {
+  display: block;
+}
+
+
+.browsehappy {
+  display: block;
+}
+
+
+

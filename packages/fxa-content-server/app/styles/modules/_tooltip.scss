@@ -1,0 +1,60 @@
+.tooltip {
+  background: $error-background-color;
+  border-radius: $small-border-radius;
+  color: $message-text-color;
+  left: 3px;
+  padding: 5px 12px;
+  position: absolute;
+  top: -32px;
+  z-index: 5;
+
+
+  /* tooltip caret */
+  &:before,
+  &::before {
+    background: $error-background-color;
+    bottom: -8px;
+    content: '.';
+    height: 16px;
+    left: 12px;
+    position: absolute;
+    text-indent: -999px;
+    transform: rotate(45deg);
+    white-space: nowrap;
+    width: 16px;
+    // The z-index must be -1 or else the caret is displayed on top of the tooltip text
+    z-index: -1;
+  }
+
+  &.tooltip-suggest {
+    background: $info-background-color;
+    &:before,
+    &::before {
+      background-color: $info-background-color;
+    }
+    > span {
+      cursor: pointer;
+      text-decoration: underline;
+      &.dismiss {
+        margin-left: 5px;
+        text-decoration: none;
+      }
+    }
+  }
+
+
+  @include respond-to('trustedUI') {
+    font-size: $small-font;
+  }
+}
+
+/**
+ * these are caret's attached to tooltips that hang below the
+ * input element. The tooltip's top is set via JS.
+ */
+html[dir='rtl'] .tooltip-below:before,
+html[dir='rtl'] .tooltip-below::before,
+.tooltip-below:before,
+.tooltip-below::before {
+  top: -7px;
+}

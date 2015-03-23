@@ -1,4 +1,5 @@
 .avatar-wrapper {
+
   border-radius: 50%;
   border-width: 0;
   display: inline-block;
@@ -8,20 +9,33 @@
   overflow: hidden;
   position: relative;
   width: $avatar-size;
+
   &.avatar-view {
-    background-size: 120px;
-    height: 120px;
-    width: 120px;
     display: block;
     margin: 0 auto;
-    img, a.change-avatar {
+
+    @include respond-to('reasonableUI') {
+      background-size: 120px auto;
       height: 120px;
       width: 120px;
-      display: block;
     }
+
+    @include respond-to('trustedUI') {
+      background-size: 100px auto;
+      height: 100px;
+      width: 100px;
+    }
+
+    img,
+    .change-avatar {
+      display: block;
+      height: 120px;
+      width: 120px;
+    }
+
     small {
+      bottom: 0;
       position: absolute;
-      bottom: 0px;
     }
   }
 
@@ -52,19 +66,14 @@
   background-repeat: no-repeat;
 }
 
-p.change-avatar-text {
+.change-avatar-text {
   font-size: $small-font;
-  margin-top: 0px;
-}
-
-// IE fix: removes blue border
-a.avatar-wrapper {
-  color: transparent;
+  margin-top: 0;
 }
 
 #settings-home {
   border-top: 1px solid $horizontal-rule-color;
-  margin: 40px 0px -30px;
+  margin: 40px 0 -30px;
   padding: 25px;
 
   a {
@@ -84,14 +93,14 @@ a.avatar-wrapper {
   width: $avatar-size;
 
   .remove {
-    position: absolute;
-    text-decoration: none;
-    text-align: center;
     font-size: 24px;
-    line-height: 50px;
-    right: -10px;
-    top: -10px;
     height: 50px;
+    line-height: 50px;
+    position: absolute;
+    right: -10px;
+    text-align: center;
+    text-decoration: none;
+    top: -10px;
     width: 50px;
   }
 }
@@ -111,7 +120,7 @@ a.avatar-wrapper {
 
     /* Mimic the style of the fontello icons */
     &:before {
-      content: " ";
+      content: ' ';
       display: inline-block;
       font-variant: normal;
       line-height: 1em;
@@ -125,8 +134,8 @@ a.avatar-wrapper {
   }
 
   nav {
+    margin: 0 -40px -40px -40px;
     padding: 20px;
-    margin: 0px -40px -40px -40px;
 
     a {
       background-color: $content-background-color;
@@ -150,5 +159,3 @@ a.avatar-wrapper {
     }
   }
 }
-
-@import 'cropper';

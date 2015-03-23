@@ -1,3 +1,86 @@
+.error,
+.success {
+  border-radius: $small-border-radius;
+  color: $message-text-color;
+  display: none;
+  margin-bottom: 5px;
+  padding: 5px;
+  position: relative;
+  top: -15px;
+
+  @include respond-to('trustedUI') {
+    margin: 0 0 10px 0;
+    top: 0;
+  }
+
+  a {
+    color: $message-text-color;
+  }
+}
+
+.error {
+  background: $error-background-color;
+
+  &.visible {
+    display: block;
+  }
+}
+
+.success {
+  background: $success-background-color;
+  display: none;
+}
+
+// complete is like success, but without the associated styles.
+.complete {
+  display: none;
+}
+
+.progress-hidden {
+  display: none;
+}
+
+.hidden {
+  display: none;
+}
+
+.reset-warning {
+  font-size: $small-font;
+  font-weight: normal;
+}
+
+// Put a margin on top when the error messages follow a div
+div + .success,
+div + .error {
+  margin-top: 10px;
+}
+
+/* Animation triggering classes */
+.shake {
+  animation: shake $long-transition;
+}
+
+.fadein {
+  animation: fadein $long-transition;
+}
+
+.fade-down-logo {
+  animation: fade-down-logo $long-transition;
+}
+
+.fade-down-tt {
+  animation: fade-down-tt $medium-transition;
+}
+
+.fade-up-tt {
+  animation: fade-up-tt $medium-transition;
+}
+
+.pulse {
+  animation: pulse $medium-transition;
+}
+
+
 /* Keyframes */
 @keyframes fadein {
   from {
@@ -98,32 +181,4 @@
   80% {
     transform: translateX(4px);
   }
-
-}
-
-.shake {
-  animation: shake $long-transition;
-}
-
-.fadein {
-  animation: fadein $long-transition;
-}
-
-.fade-down-logo {
-  animation: fade-down-logo $long-transition;
-}
-
-.fade-down-tt {
-  animation-duration: $medium-transition;
-  animation-name: fade-down-tt;
-}
-
-.fade-up-tt {
-  animation-duration: $medium-transition;
-  animation-name: fade-up-tt;
-}
-
-.pulse {
-  animation-duration: $medium-transition;
-  animation-name: pulse;
 }
