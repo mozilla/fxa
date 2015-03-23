@@ -22,7 +22,7 @@
     "clone": "0.2.0",
     "convict": "0.4.2",
     "fxa-auth-db-server": "git://github.com/mozilla/fxa-auth-db-server.git#train-33",
-    "fxa-jwtool": "0.3.0",
+    "fxa-jwtool": "0.4.0",
     "mozlog": "2.0.0",
     "mysql": "2.3.2",
     "request": "2.53.0"
