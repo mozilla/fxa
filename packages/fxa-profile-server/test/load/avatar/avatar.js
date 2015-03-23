@@ -79,7 +79,7 @@ Avatar.prototype.upload = function avatarUpload(options) {
     },
     uri: 'https://' + this.host + '/v1/avatar/upload',
     body: this.image,
-    maxSockets: Infinity,
+    pool: { maxSockets: Infinity },
   };
 
   var startTime = Date.now();
@@ -182,7 +182,7 @@ Avatar.prototype.delete = function avatarDelete(options) {
     gzip: true,
     encoding: null, // `encoding: null` will return body as a `Buffer`
     uri: 'https://' + this.host + '/v1/avatar/' + options.imageid,
-    maxSockets: Infinity,
+    pool: { maxSockets: Infinity },
   };
 
   request.del(requestArgs, function downloadHandler(err, res, body) {
