@@ -5,7 +5,7 @@
 var test = require('../ptaptest')
 var TestServer = require('../test_server')
 var Client = require('../client')
-var bidcrypto = require('browserid-crypto')
+var jws = require('jws')
 
 var config = require('../../config').root()
 
@@ -35,7 +35,7 @@ TestServer.start(config)
         .then(
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
-            var payload = bidcrypto.extractComponents(cert).payload
+            var payload = jws.decode(cert, {json: true}).payload
             t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
             t.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
             t.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
@@ -65,36 +65,6 @@ TestServer.start(config)
           },
           function (err) {
             t.equal(err.errno, 104, 'should get an unverifiedAccount error')
-          }
-        )
-    }
-  )
-
-  test(
-    'bad key',
-    function (t) {
-      var email = server.uniqueEmail()
-      var password = 'allyourbasearebelongtous'
-      var client = null
-      var duration = 1000 * 60 * 60 * 24
-      return Client.createAndVerify(config.publicUrl, email, password, server.mailbox)
-        .then(
-          function (c) {
-            client = c
-            return client.sign(
-              {
-                "algorithm":"RS",
-                "n":"abcdef",
-                "e":"65537"
-              },
-              duration
-            )
-          }
-        )
-        .then(
-          t.fail,
-          function (err) {
-            t.equal(err.errno, 107, 'invalid parameter error')
           }
         )
     }

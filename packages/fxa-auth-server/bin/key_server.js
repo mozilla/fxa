@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var fs = require('fs')
 var config = require('../config').root()
+var jwtool = require('fxa-jwtool')
 
 function main() {
   var log = require('../log')(config.log.level)
@@ -22,9 +22,15 @@ function main() {
   var Token = require('../tokens')(log, config.tokenLifetimes)
   var Password = require('../crypto/password')(log, config)
 
-  var CC = require('compute-cluster')
-  var signer = new CC({ module: __dirname + '/signer.js' })
-  signer.on('error', function () {}) // don't die
+  var signer = require('../signer')(config.secretKeyFile)
+  var serverPublicKey = jwtool.JWK.fromFile(
+    config.publicKeyFile,
+    {
+      use: 'sig',
+      kid: 'dev-1',
+      kty: 'RSA'
+    }
+  )
 
   var Customs = require('../customs')(log, error)
 
@@ -39,7 +45,6 @@ function main() {
     .done(
       function(m) {
         mailer = m
-        var serverPublicKey = JSON.parse(fs.readFileSync(config.publicKeyFile))
 
         var DB = require('../db')(
           config.db.backend,
@@ -104,7 +109,6 @@ function main() {
         customs.close()
         mailer.stop()
         database.close()
-        signer.exit()
       }
     )
   }

@@ -25,7 +25,6 @@ notifications:
     skip_join: false
 
 before_install:
-  - sudo apt-get install libgmp3-dev
   - npm config set spin false
 
 script:
