@@ -3,7 +3,10 @@
   "version": "0.33.0",
   "description": "MySQL backend for the fxa-auth-db-server",
   "main": "index.js",
-  "repository": "mozilla/fxa-auth-db-mysql",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa-auth-db-mysql"
+  },
   "bin": {
     "fxa-auth-db-mysql": "bin/db_patcher.js"
   },
@@ -13,6 +16,10 @@
     "outdated": "npm outdated --depth 0"
   },
   "author": "Mozilla (https://mozilla.org/)",
+  "homepage": "https://github.com/mozilla/fxa-auth-db-mysql",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa-auth-db-mysql/issues"
+  },
   "license": {
     "name": "MPL 2.0",
     "url": "https://raw.githubusercontent.com/mozilla/fxa-auth-db-mysql/master/LICENSE"
@@ -39,5 +46,6 @@
     "restify": "2.8.1",
     "tap": "0.4.13",
     "uuid": "1.4.1"
-  }
+  },
+  "keywords": [ "fxa", "firefox", "firefox-accounts", "backend", "storage", "mysql" ]
 }
