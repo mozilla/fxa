@@ -11,6 +11,8 @@ var path = require('path');
 var pngparse = require('pngparse');
 var request = require('request');
 
+var SIZES = require('../../../lib/img').SIZES;
+
 function jsonParse(content) {
   try {
     return JSON.parse(content);
@@ -26,7 +28,9 @@ function isValidPng(image, cb) {
       return cb(err);
     }
 
-    if (data.width !== 600 || data.height !== 600) {
+    var expect = SIZES.default;
+
+    if (data.width !== expect.w || data.height !== expect.h) {
       var msg = 'Invalid PNG size: (' + data.width + ',' + data.height + ')';
       return cb(new Error(msg));
     }
@@ -75,7 +79,7 @@ Avatar.prototype.upload = function avatarUpload(options) {
     },
     uri: 'https://' + this.host + '/v1/avatar/upload',
     body: this.image,
-    maxSockets: Infinity,
+    pool: { maxSockets: Infinity },
   };
 
   var startTime = Date.now();
@@ -178,7 +182,7 @@ Avatar.prototype.delete = function avatarDelete(options) {
     gzip: true,
     encoding: null, // `encoding: null` will return body as a `Buffer`
     uri: 'https://' + this.host + '/v1/avatar/' + options.imageid,
-    maxSockets: Infinity,
+    pool: { maxSockets: Infinity },
   };
 
   request.del(requestArgs, function downloadHandler(err, res, body) {
