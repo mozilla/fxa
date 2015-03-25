@@ -6,62 +6,89 @@
 
 
 define([
-  'underscore',
   'chai',
+  'sinon',
   'router',
   'views/sign_in',
   'lib/channels/web',
   '/tests/mocks/window.js'
 ],
-function (_, chai, Router, View, WebChannel, WindowMock) {
+function (chai, sinon, Router, View, WebChannel, WindowMock) {
   var assert = chai.assert;
 
-  describe('lib/channel/web', function () {
-    it('requires an id', function (done) {
-      try {
-        new WebChannel();
-      } catch (e) {
-        assert.equal(e.message, 'WebChannel must have an id');
-        done();
+  describe('lib/channels/web', function () {
+    var channel;
+    var windowMock;
+
+    beforeEach(function () {
+      windowMock = new WindowMock();
+    });
+
+
+    afterEach(function () {
+      if (channel) {
+        channel.teardown();
       }
     });
 
+    it('requires an id', function () {
+      assert.throws(function () {
+        new WebChannel();
+      }, 'WebChannel must have an id');
+    });
+
     describe('send', function () {
-      var windowMock;
-      var channel;
-
-      beforeEach(function () {
-        windowMock = new WindowMock();
-      });
-
-      it('sends an event with a callback', function (done) {
-        channel = new WebChannel('MyChannel', windowMock);
+      it('sends a message', function () {
+        channel = new WebChannel('MyChannel');
         channel.init({
           window: windowMock
         });
 
-        channel.send('after_render', {}, function (err) {
-          assert.notOk(err);
-          assert.ok(windowMock.dispatchedEvents['after_render']);
-          done();
-        });
+        return channel.send('after_render', {})
+          .then(function () {
+            assert.ok(windowMock.dispatchedEvents['after_render']);
+          });
       });
 
-      it('throws an error if dispatchEvent fails', function (done) {
-        windowMock.dispatchEvent = function () {
+      it('throws an error if dispatchEvent fails', function () {
+        sinon.stub(windowMock, 'dispatchEvent', function () {
           throw new Error('Not supported');
-        };
+        });
 
-        channel = new WebChannel('MyChannel', windowMock);
+        channel = new WebChannel('MyChannel');
         channel.init({
           window: windowMock
         });
 
-        channel.send('after_render', {}, function (err, response) {
-          assert.equal(err.message, 'Not supported');
-          assert.notOk(response);
-          done();
+        channel.send('after_render', {})
+          .then(assert.fail, function (err) {
+            assert.equal(err.message, 'Not supported');
+          });
+      });
+    });
+
+    describe('request', function () {
+      it('sends a message, waits for a response, ', function () {
+        channel = new WebChannel('MyChannel');
+        channel.init({
+          window: windowMock
         });
+
+        sinon.stub(windowMock, 'dispatchEvent', function (dispatched) {
+          console.log('dispatched: %s', JSON.stringify(dispatched));
+          channel._receiver.trigger('message', {
+            command: 'can_link_account',
+            messageId: dispatched.detail.message.messageId,
+            data: {
+              ok: true
+            }
+          });
+        });
+
+        return channel.request('can_link_account', { email: 'testuser@testuser.com' })
+          .then(function (response) {
+            assert.isTrue(response.ok);
+          });
       });
     });
   });
