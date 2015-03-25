@@ -769,6 +769,21 @@ describe('/v1', function() {
         });
       });
 
+      describe('GET /client/:id', function() {
+        describe('response', function() {
+          it('should support the client id path', function(done) {
+            Server.internal.api.get('/client/' + clientId)
+              .then(function(res) {
+                assert.equal(res.statusCode, 200);
+                var body = res.result;
+                assert.equal(body.name, client.name);
+                assert(body.image_uri);
+                assert(body.redirect_uri);
+              }).done(done, done);
+          });
+        });
+      });
+
       describe('GET /clients', function() {
         it('should require authorization', function() {
           return Server.internal.api.get({

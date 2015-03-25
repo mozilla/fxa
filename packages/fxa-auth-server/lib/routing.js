@@ -62,6 +62,11 @@ exports.routes = [
 exports.clients = [
   {
     method: 'GET',
+    path: v('/client/{client_id}'),
+    config: require('./routes/client/get')
+  },
+  {
+    method: 'GET',
     path: v('/clients'),
     config: require('./routes/client/list')
   },
