@@ -5,7 +5,7 @@ html.iframe,
 
 #close {
   display: none;
-  
+
   .iframe & {
     color: $close-button-color;
     display: inline-block;
@@ -14,5 +14,9 @@ html.iframe,
     text-decoration: none;
     top: 40px;
     z-index: $close-button-zindex;
+  }
+
+  .chromeless & {
+    display: none;
   }
 }

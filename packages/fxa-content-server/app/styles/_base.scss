@@ -15,6 +15,10 @@ html {
   @include respond-to('trustedUI') {
     background-color: $content-background-color;
   }
+
+  &.chromeless {
+    background-color: $chromeless-html-background-color;
+  }
 }
 
 body {
@@ -101,7 +105,7 @@ header {
         font-size: $medium-font;
         margin-top: 10px;
       }
-      
+
       @include respond-to('trustedUI') {
         font-size: $base-font;
         margin-top: 4px;
@@ -133,7 +137,7 @@ section p {
 
   &.prefill {
     word-wrap: break-word;
-    
+
     @include respond-to('reasonableUI') {
       margin-top: 24px;
     }
