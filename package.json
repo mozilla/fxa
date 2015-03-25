@@ -14,6 +14,7 @@
   "author": "",
   "license": "MPL",
   "dependencies": {
+    "bunyan": "1.3.4",
     "chalk": "1.0.0",
     "firefox-profile": "0.3.6",
     "pm2": "0.12.7",
