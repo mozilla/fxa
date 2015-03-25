@@ -68,7 +68,7 @@ function (chai, sinon, IFrameChannel, AuthErrors, WindowMock, TestHelpers) {
         channel.send('ping');
       });
 
-      it('times out if there is no response', function (done) {
+      it('prints a message to the console if there is no response', function (done) {
         // drop the message on the ground.
         sinon.stub(parentMock, 'postMessage', function () {
         });
@@ -77,11 +77,11 @@ function (chai, sinon, IFrameChannel, AuthErrors, WindowMock, TestHelpers) {
           callback();
         });
 
-        channel.send('ping', {}, function (err) {
-          TestHelpers.wrapAssertion(function () {
-            assert.isTrue(AuthErrors.is(err, 'CHANNEL_TIMEOUT'));
-          }, done);
+        sinon.stub(windowMock.console, 'error', function () {
+          done();
         });
+
+        channel.send('ping', {});
       });
 
       it('returns any errors in `dispatchCommand`', function (done) {

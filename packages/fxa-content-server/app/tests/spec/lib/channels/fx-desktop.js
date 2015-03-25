@@ -10,13 +10,11 @@ define([
   'sinon',
   'lib/auth-errors',
   'lib/channels/fx-desktop',
-  '../../../mocks/window',
-  '../../../lib/helpers'
+  '../../../mocks/window'
 ],
-function (chai, sinon, AuthErrors, FxDesktopChannel, WindowMock, TestHelpers) {
+function (chai, sinon, AuthErrors, FxDesktopChannel, WindowMock) {
   var assert = chai.assert;
   var channel;
-  var wrapAssertion = TestHelpers.wrapAssertion;
 
   describe('lib/channel/fx-desktop', function () {
     var windowMock;
@@ -59,7 +57,7 @@ function (chai, sinon, AuthErrors, FxDesktopChannel, WindowMock, TestHelpers) {
       });
 
 
-      it('times out if browser does not respond', function (done) {
+      it('prints a message to the console if browser does not respond', function (done) {
         sinon.stub(parentMock, 'postMessage', function () {
         });
 
@@ -67,11 +65,11 @@ function (chai, sinon, AuthErrors, FxDesktopChannel, WindowMock, TestHelpers) {
           callback();
         });
 
-        channel.send('wait-for-response', {}, function (err) {
-          wrapAssertion(function () {
-            assert.isTrue(AuthErrors.is(err, 'CHANNEL_TIMEOUT'));
-          }, done);
+        sinon.stub(windowMock.console, 'error', function () {
+          done();
         });
+
+        channel.send('wait-for-response', {});
       });
 
       it('does not except on timeout if callback is not given', function (done) {

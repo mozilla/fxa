@@ -10,10 +10,9 @@
  */
 
 define([
-  'underscore',
-  'lib/auth-errors'
-], function (_, AuthErrors) {
-  var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 5000;
+  'underscore'
+], function (_) {
+  var DEFAULT_SEND_TIMEOUT_LENGTH_MS = 90 * 1000;
 
   function noOp() {
     // it's a noOp, nothing to do.
@@ -33,12 +32,11 @@ define([
     }
   }
 
-  function errorIfNoResponse(outstandingRequest) {
+  function setResponseTimeoutTimer(outstandingRequest) {
     /*jshint validthis: true*/
-    outstandingRequest.timeout = this.window.setTimeout(function () {
-      // only called if the request has not been responded to.
-      outstandingRequest.done(AuthErrors.toError('CHANNEL_TIMEOUT'));
-    }, this._sendTimeoutLength);
+    outstandingRequest.timeout = this.window.setTimeout(function (command) {
+      this.window.console.error('Response not received for: ' + command);
+    }.bind(this, outstandingRequest.command), this._sendTimeoutLength);
   }
 
   var PostMessageReceiverMixin = {
@@ -87,7 +85,7 @@ define([
         return done(e);
       }
 
-      errorIfNoResponse.call(this, outstanding);
+      setResponseTimeoutTimer.call(this, outstanding);
     },
 
     receiveMessage: function (event) {
