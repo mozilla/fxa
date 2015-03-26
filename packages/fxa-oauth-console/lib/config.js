@@ -71,6 +71,11 @@ const conf = convict({
       format: 'url',
       default: 'https://oauth-latest.dev.lcip.org/v1'
     },
+    oauth_internal_uri: {
+      doc: 'The location of the FxA OAuth internal server.',
+      format: 'url',
+      default: 'https://127.0.0.1:9011/v1'
+    },
     redirect_uri: {
       doc: 'The redirect_uri.',
       format: String,

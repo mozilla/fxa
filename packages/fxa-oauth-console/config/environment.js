@@ -13,9 +13,11 @@ var url = require('url');
 module.exports = function(environment) {
   var config = require('../lib/config');
   var oauthUriParsed = url.parse(config.get('fxaOAuth').oauth_uri);
+  var oauthInternalUriParsed = url.parse(config.get('fxaOAuth').oauth_internal_uri);
   var profileUriParsed =  url.parse(config.get('fxaOAuth').profile_uri);
   var baseURL = config.get('base_url');
   var oauthUri = oauthUriParsed.protocol + '//' + oauthUriParsed.host;
+  var oauthInternalUri = oauthInternalUriParsed.protocol + '//' + oauthInternalUriParsed.host;
 
   var ENV = {
     modulePrefix: 'fxa-oauth-console',
@@ -24,7 +26,9 @@ module.exports = function(environment) {
     },
     servers: {
       oauth: oauthUri,
+      oauthInternal: oauthInternalUri,
       oauthUriParsed: oauthUriParsed,
+      oauthInternalUriParsed: oauthInternalUriParsed,
       profileUriParsed: profileUriParsed
     },
     environment: environment,

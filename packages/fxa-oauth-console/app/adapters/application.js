@@ -14,7 +14,7 @@ export default DS.RESTAdapter.extend({
   /**
    * API Host
    */
-  host: config.servers.oauth,
+  host: config.servers.oauthInternal,
   /**
    * Request headers
    *
