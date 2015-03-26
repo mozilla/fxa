@@ -4,6 +4,7 @@
     "client_secret": "2be80db1d3cf5ddef69d5e23d7d1885e3bbc09f53781d44a8e2f3507a8d6a62c",
     "redirect_uri": "http://127.0.0.1:10137/oauth/redirect",
     "oauth_uri": "http://127.0.0.1:9010/v1",
+    "oauth_internal_uri": "http://127.0.0.1:9011/v1",
     "profile_uri": "http://127.0.0.1:1111/v1"
   },
   "logging": {
