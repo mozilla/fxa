@@ -22,10 +22,11 @@ function main() {
   var Token = require('../tokens')(log, config.tokenLifetimes)
   var Password = require('../crypto/password')(log, config)
 
-  var signer = require('../signer')(config.secretKeyFile)
+  var signer = require('../signer')(config.secretKeyFile, config.domain)
   var serverPublicKey = jwtool.JWK.fromFile(
     config.publicKeyFile,
     {
+      algorithm: 'RS',
       use: 'sig',
       kid: 'dev-1',
       kty: 'RSA'

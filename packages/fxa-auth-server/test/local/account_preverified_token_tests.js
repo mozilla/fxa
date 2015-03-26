@@ -13,7 +13,6 @@ var config = require('../../config').root()
 var secretKey = JWTool.JWK.fromFile(
   config.secretKeyFile,
   {
-    alg: 'RS256',
     jku: config.publicUrl + '/.well-known/public-keys',
     kid: 'dev-1'
   }

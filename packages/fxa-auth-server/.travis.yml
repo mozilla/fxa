@@ -8,8 +8,7 @@ env:
 node_js:
  - "0.10"
 
-services:
- - memcached
+sudo: false
 
 notifications:
   email:

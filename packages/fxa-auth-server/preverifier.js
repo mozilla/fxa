@@ -13,21 +13,15 @@ module.exports = function (error, config) {
     return Math.floor(Date.now() / 1000)
   }
 
-  function jwtError(err, email, jwt) {
-    if (err) {
-      return { internal: err.message }
+  function jwtError(email, payload) {
+    if (payload.exp < nowSeconds()) {
+      return { exp: payload.exp }
     }
-    if (!jwt) {
-      return { sig: 'invalid' }
+    if (payload.aud !== config.domain) {
+      return { aud: payload.aud }
     }
-    if (jwt.exp < nowSeconds()) {
-      return { exp: jwt.exp }
-    }
-    if (jwt.aud !== config.domain) {
-      return { aud: jwt.aud }
-    }
-    if (!jwt.sub || jwt.sub !== email) {
-      return { sub: jwt.sub }
+    if (!payload.sub || payload.sub !== email) {
+      return { sub: payload.sub }
     }
     return false
   }
@@ -35,8 +29,8 @@ module.exports = function (error, config) {
   function isValidToken(email, token) {
     return jwtool.verify(token)
       .then(
-        function (jwt) {
-          var invalid = jwtError(null, email, jwt)
+        function (payload) {
+          var invalid = jwtError(email, payload)
           if (invalid) {
             throw error.invalidVerificationCode(invalid)
           }

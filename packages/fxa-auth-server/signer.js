@@ -4,9 +4,9 @@
 
 var jwtool = require('fxa-jwtool')
 
-module.exports = function (secretKeyFile) {
+module.exports = function (secretKeyFile, domain) {
 
-  var key = jwtool.JWK.fromFile(secretKeyFile, {alg: 'RS256'})
+  var key = jwtool.JWK.fromFile(secretKeyFile, {iss: domain })
 
   return {
     sign: function (data) {
@@ -19,7 +19,6 @@ module.exports = function (secretKeyFile) {
           },
           iat: now - (10 * 1000),
           exp: now + data.duration,
-          iss: data.domain,
           "fxa-generation": data.generation,
           "fxa-lastAuthAt": data.lastAuthAt,
           "fxa-verifiedEmail": data.verifiedEmail
