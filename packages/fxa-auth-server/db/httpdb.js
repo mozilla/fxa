@@ -434,6 +434,7 @@ module.exports = function (
 
   DB.prototype.resetAccount = function (accountResetToken, data) {
     log.trace({ op: 'DB.resetAccount', uid: accountResetToken && accountResetToken.uid })
+    data.verifierSetAt = Date.now()
     return this.pool.post(
       '/account/' + accountResetToken.uid.toString('hex') + '/reset',
       unbuffer(data)
