@@ -6,6 +6,7 @@
 var express = require('express');
 var crypto = require('crypto');
 var request = require('request');
+var Promise = require('bluebird');
 
 var router = express.Router();
 var redirectUrl = require('./lib/oauth').redirectUrl;
@@ -103,26 +104,30 @@ router.get('/redirect', function (req, res) {
       req.session.token_type = body.token_type;
       var token = req.session.token = body.access_token;
 
-      request.get({
-        uri: fxaOAuthConfig.profile_uri + '/profile',
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      }, function (err, r, body) {
-        log.verbose(err, body);
-        if (err || r.status >= 400) {
-          return res.send(r ? r.status : 400, err || body);
-        }
-        var data = JSON.parse(body);
-        req.session.email = data.email;
-        req.session.uid = data.uid;
-        req.session.token = token;
-        res.redirect(baseUrl);
-      });
+      requestProfile(token)
+        .then(function (profile) {
+
+          req.session.email = profile.email;
+          req.session.uid = profile.uid;
+          req.session.token = token;
+
+          return activateDeveloper(token);
+        })
+        .done(
+          function (developer) {
+            req.session.developerId = developer.developerId;
+
+            return res.redirect(baseUrl);
+          },
+          function (response) {
+            var msg = 'User cannot be validated';
+            return res.status(response.status).send(msg);
+          }
+        )
     });
   } else if (req.session.email) {
     // already logged in
-    res.redirect(baseUrl);
+    return res.redirect(baseUrl);
   } else {
 
     var msg = 'Bad request ';
@@ -140,8 +145,67 @@ router.get('/redirect', function (req, res) {
 
     log.error('msg', msg);
 
-    res.send(400, msg);
+    return res.send(400, msg);
   }
 });
+
+/**
+ * Request user profile
+ *
+ * @param token
+ * @returns {Promise}
+ */
+function requestProfile(token) {
+  return new Promise(function (resolve, reject) {
+    request.get({
+      uri: fxaOAuthConfig.profile_uri + '/profile',
+      headers: {
+        Authorization: 'Bearer ' + token
+      },
+      json: true
+    }, function (err, r, body) {
+      log.verbose(err, body);
+
+      if (err || r.statusCode >= 400) {
+        return reject({status: 400, err: err || body });
+      }
+
+      return resolve({
+        email: body.email,
+        uid: body.uid
+      });
+    });
+
+  });
+}
+
+/**
+ * Activate the developer
+ *
+ * @param token
+ * @returns {Promise}
+ */
+function activateDeveloper(token) {
+  return new Promise(function (resolve, reject) {
+    request.post({
+      uri: fxaOAuthConfig.oauth_internal_uri + '/developer/activate',
+      headers: {
+        Authorization: 'Bearer ' + token
+      },
+      json: true
+    }, function (err, r, body) {
+      log.verbose(err, body);
+
+      if (err || r.statusCode >= 400) {
+        return reject({status: 400, err: err});
+      }
+
+      log.verbose('developerData', body);
+
+      return resolve(body);
+    });
+
+  });
+}
 
 module.exports = router;

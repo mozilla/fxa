@@ -12,23 +12,33 @@
 </ul>
 
 <hr/>
-
-<table class="table table-clients">
-  <tbody>
-  <tr>
-    <th>Name</th>
-    <th>Redirect URI</th>
-  </tr>
-  {{#each client in content}}
+{{#if content}}
+  <table class="table table-clients">
+    <tbody>
     <tr>
-      <td><a {{action 'goToClient' client.id}}>{{client.name}}</a>{{client.id}}</td>
-      <td>{{client.redirect_uri}}</td>
-      <td class="table-actions">
-        <button class="small button " {{action 'update' client.id}}>Update</button>
-        <button class="small button alert" {{action 'goToClientDelete' client.id}}>Delete</button>
-      </td>
+      <th>Name</th>
+      <th>Redirect URI</th>
     </tr>
-  {{/each}}
-  </tbody>
-</table>
+
+    {{#each client in content}}
+      <tr>
+        <td><a {{action 'goToClient' client.id}}>{{client.name}}</a>{{client.id}}</td>
+        <td>{{client.redirect_uri}}</td>
+        <td class="table-actions">
+          <button class="small button " {{action 'update' client.id}}>Update</button>
+          <button class="small button alert" {{action 'goToClientDelete' client.id}}>Delete</button>
+        </td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+{{else}}
+  <div class="row">
+    <div class="small-8 small-centered columns centered">
+      <h4>You have no FxA OAuth clients.</h4>
+      <p>Click the "Create a new OAuth Client" button to begin.</p>
+    </div>
+  </div>
+
+{{/if}}
 {{outlet}}
