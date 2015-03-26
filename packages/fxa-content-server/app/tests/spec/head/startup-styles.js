@@ -80,16 +80,6 @@ define([
         assert.isTrue(/iframe/.test(startupStyles.getClassName()));
       });
 
-      it('does not add `iframe` if window is framed by browser chrome', function () {
-        sinon.stub(environment, 'isFramed', function () {
-          return true;
-        });
-        windowMock.name = 'remote';
-
-        startupStyles.addIframeStyles();
-        assert.isFalse(/iframe/.test(startupStyles.getClassName()));
-      });
-
       it('does not add `iframe` if window is not iframed', function () {
         sinon.stub(environment, 'isFramed', function () {
           return false;

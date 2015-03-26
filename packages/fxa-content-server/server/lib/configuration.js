@@ -142,7 +142,7 @@ var conf = module.exports = convict({
     default: 'ea3ca969f8c6bb0d',
     env: 'FXA_OAUTH_CLIENT_ID'
   },
-  iframe_allowed_origins: {
+  allowed_parent_origins: {
     doc: 'Origins that are allowed to embed the FxA within an IFRAME',
     format: Array,
     default: []

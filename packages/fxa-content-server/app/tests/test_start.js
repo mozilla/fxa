@@ -47,6 +47,7 @@ function (Translator, Session) {
     '../tests/spec/lib/able',
     '../tests/spec/lib/environment',
     '../tests/spec/lib/base64url',
+    '../tests/spec/lib/origin-check',
     '../tests/spec/head/startup-styles',
     '../tests/spec/views/base',
     '../tests/spec/views/tooltip',

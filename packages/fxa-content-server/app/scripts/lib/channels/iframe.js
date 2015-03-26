@@ -9,16 +9,6 @@
  *
  * An RPs origin must match the origin registered for the client_id
  * on the URL.
- *
- * When the channel is initialized, it sends a `ping` message
- * to the parent window. The parent window should respond with
- * a `ping` message. We do this to get a trusted origin for the
- * parent window, otherwise all we would have to use the `referrer`
- * header, which can be faked.
- *
- * When the `ping` response is received, the origin of the message is
- * checked against the origin registered for the client_id. If the origins
- * do not match, an ILLEGAL_IFRAME_PARENT error is thrown.
  */
 
 define([

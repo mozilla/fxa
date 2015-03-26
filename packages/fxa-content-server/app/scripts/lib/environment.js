@@ -65,8 +65,9 @@
 
     isFramed: function () {
       var win = this.window;
-
-      return !! (win.top && win.top !== win);
+      // about:accounts places FxA into an iframe, but is not considered
+      // to use the iframe flow. about:accounts sets window.name = 'remote'
+      return !! (win.top && win.top !== win && win.name !== 'remote');
     },
 
     isFxiOS: function () {

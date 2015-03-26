@@ -83,6 +83,7 @@ module.exports = function (config, i18n) {
     // an array is used instead of a regexp simply because the regexp
     // became too long. One route is created for each item.
     var FRONTEND_ROUTES = [
+      '/',
       '/signin',
       '/signup',
       '/signup_complete',
@@ -117,6 +118,7 @@ module.exports = function (config, i18n) {
     ];
 
     var ALLOWED_TO_FRAME = {
+      '/': true,
       '/oauth/': true,
       '/oauth/signin': true,
       '/oauth/signup': true,

@@ -74,6 +74,7 @@ function (_, Backbone, NullStorage) {
 
     this.localStorage = new NullStorage();
     this.sessionStorage = new NullStorage();
+    this.top = this;
   }
 
   _.extend(WindowMock.prototype, Backbone.Events, {

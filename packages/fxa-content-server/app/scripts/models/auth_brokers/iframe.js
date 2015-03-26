@@ -17,17 +17,6 @@ define([
 ], function (_, $, p, IframeChannel, AuthErrors, OAuthAuthenticationBroker,
         ChannelMixin) {
 
-  // A `ping` is sent out to the expected relier. The relier must respond.
-  // No response will be received if the parent is either:
-  // 1. not set up to respond correctly
-  // 2. not the expected origin
-  //
-  // either case is an error
-  function checkIframedByExpectedOrigin(context) {
-    //jshint validthis: true
-    return context.send('ping');
-  }
-
   var IframeAuthenticationBroker = OAuthAuthenticationBroker.extend({
     type: 'iframe',
     initialize: function (options) {
@@ -45,13 +34,6 @@ define([
       return this._channel;
     },
 
-    selectStartPage: function () {
-      var self = this;
-      return checkIframedByExpectedOrigin(self)
-        .then(function () {
-          return OAuthAuthenticationBroker.prototype.selectStartPage.call(self);
-        });
-    },
 
     sendOAuthResultToRelier: function (result) {
       return this.send('oauth_complete', result);
