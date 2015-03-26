@@ -158,9 +158,6 @@ module.exports = function (log, error) {
   var CREATE_ACCOUNT = 'CALL createAccount_2(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
 
   MySql.prototype.createAccount = function (uid, data) {
-    data.normalizedEmail = data.email
-    data.createdAt = data.verifierSetAt = Date.now()
-
     return this.write(
       CREATE_ACCOUNT,
       [
@@ -422,7 +419,7 @@ module.exports = function (log, error) {
   MySql.prototype.resetAccount = function (uid, data) {
     return this.write(
       RESET_ACCOUNT,
-      [uid, data.verifyHash, data.authSalt, data.wrapWrapKb, Date.now(), data.verifierVersion]
+      [uid, data.verifyHash, data.authSalt, data.wrapWrapKb, data.verifierSetAt, data.verifierVersion]
     )
   }
 
