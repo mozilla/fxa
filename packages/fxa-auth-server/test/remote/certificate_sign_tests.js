@@ -8,6 +8,7 @@ var Client = require('../client')
 var jwtool = require('fxa-jwtool')
 
 var config = require('../../config').root()
+var pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile)
 
 var publicKey = {
   "algorithm":"RS",
@@ -35,7 +36,8 @@ TestServer.start(config)
         .then(
           function (cert) {
             t.equal(typeof(cert), 'string', 'cert exists')
-            var payload = jwtool.unverify(cert).payload
+            var payload = jwtool.verify(cert, pubSigKey.pem)
+            t.equal(payload.iss, config.domain, 'issuer is correct')
             t.equal(payload.principal.email.split('@')[0], client.uid, 'cert has correct uid')
             t.ok(payload['fxa-generation'] > 0, 'cert has non-zero generation number')
             t.ok(new Date() - new Date(payload['fxa-lastAuthAt'] * 1000) < 1000 * 60 * 60, 'lastAuthAt is plausible')
@@ -209,7 +211,6 @@ TestServer.start(config)
         .then(
           t.fail,
           function (err) {
-            console.log(err)
             t.equal(err.errno, 109, 'Missing payload authentication')
           }
         )
