@@ -4,9 +4,9 @@
 
 define([
   'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!path',
-  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!execSync'
+  'intern/node_modules/dojo/has!host-node?intern/node_modules/dojo/node!sync-exec'
 ],
-function (path, execSync) {
+function (path, exec) {
   'use strict';
 
   var createProfile = function (config) {
@@ -18,12 +18,12 @@ function (path, execSync) {
       var profileArgs = JSON.stringify(JSON.stringify(config));
       var profileTool = path.join('tests', 'tools', 'firefox_profile_creator.js');
       try {
-        profileProcess = execSync.exec(['node', profileTool, profileArgs].join(' '));
+        profileProcess = exec(['node', profileTool, profileArgs].join(' '));
       } catch (e) {
         console.log('Note: execSync failed to run:', e);
       }
 
-      if (profileProcess && profileProcess.code === 0) {
+      if (profileProcess && profileProcess.status === 0) {
         encodedProfile = profileProcess.stdout;
       } else {
         console.log('Note: Failed to generate a Firefox profile for this configuration.');
