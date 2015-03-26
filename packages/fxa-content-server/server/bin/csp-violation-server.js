@@ -15,13 +15,14 @@ mozlog.config(config.get('logging'));
 var logger = require('mozlog')('server.main');
 
 var express = require('express');
+var bodyParser = require('body-parser');
 
 function makeApp() {
   'use strict';
 
   var violations = fs.createWriteStream('violations.txt', {flags: 'a'});
   var app = express();
-  app.use(express.bodyParser());
+  app.use(bodyParser.json());
   app.get('/index.html', function (req, res) {
     res.json({result: 'ok'});
   });
