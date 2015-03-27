@@ -43,6 +43,10 @@ function ($, _, Cocktail, FormView, AvatarMixin, SettingsMixin, Template, AuthEr
     beforeRender: function () {
       var self = this;
 
+      if (this.relier.get('setting') === 'avatar') {
+        this.relier.unset('setting');
+      }
+
       return self._fetchProfileImage(self.getSignedInAccount())
         .then(function (result) {
           self.avatarId = result.id;

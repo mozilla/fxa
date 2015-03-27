@@ -194,6 +194,13 @@ function (chai, _, $, sinon, View, RouterMock, FileReaderMock, ProfileMock,
         });
       });
 
+      it('clears setting param if set to avatar', function () {
+        relier.set('setting', 'avatar');
+        return view.render()
+          .then(function () {
+            assert.isUndefined(relier.get('setting'));
+          });
+      });
     });
 
   });
