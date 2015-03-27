@@ -15,8 +15,8 @@
   }
 
   @include respond-to('small') {
-    background-size: 48px 51px;
-    height: 51px;
+    background-size: auto 55px;
+    height: 55px;
     margin: 10px auto 0 auto;
     top: 0;
     width: 100%;
@@ -26,7 +26,7 @@
     display: none;
   }
 
-  &.static {
+  .static & {
     opacity: 1;
   }
 
