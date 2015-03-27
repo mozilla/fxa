@@ -46,11 +46,11 @@ function genAssertion(email) {
   // seriously wtf. creating assertions is atrocious
   return P.all([
     genKeypair({
-      algorithm: 'DSA',
+      algorithm: 'DS',
       keysize: 256
     }),
     genKeypair({
-      algorithm: 'DSA',
+      algorithm: 'DS',
       keysize: 256
     })
   ]).spread(function(idp, user) {
